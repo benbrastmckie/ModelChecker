@@ -135,11 +135,8 @@ from model_checker.theory_lib.imposition import (
     imposition_operators
 )
 
-# Define translation dictionary if operators differ between theories
-imposition_to_logos = {
-    "\\boxright": "\\boxright",       # Fine's must-counterfactual (already same)
-    "\\could": "\\diamondright",      # Fine's might-counterfactual to logos
-}
+# No translation needed - both theories use the same operator names
+# Both use \\boxright for must-counterfactual and \\diamondright for might-counterfactual
 
 # Set up the theories for comparison
 semantic_theories = {
@@ -148,53 +145,80 @@ semantic_theories = {
         "proposition": ImpositionProposition,
         "model": ImpositionModelStructure,
         "operators": imposition_operators,
-        "dictionary": {}  # No translation needed for imposition's own syntax
+        "dictionary": {}  # No translation needed
     },
     "Brast-McKie": {
         "semantics": LogosSemantics,
         "proposition": LogosProposition,
         "model": LogosModelStructure,
         "operators": logos_registry.get_operators(),
-        "dictionary": imposition_to_logos  # Translate imposition operators to logos
+        "dictionary": {}  # No translation needed - same operator names
     }
 }
 ```
 
-### Understanding the Dictionary Parameter
+### Understanding Translation Dictionaries
 
-The `dictionary` parameter enables automatic operator translation between theories:
+The `dictionary` parameter in `semantic_theories` enables automatic operator translation between theories. This is essential when different theories use different notation for the same logical concepts.
+
+#### How Translation Works
+
+When you define multiple theories for comparison, the ModelChecker uses translation dictionaries to convert formulas from one theory's notation to another:
 
 ```python
-# Example: Exclusion theory comparing with logos
-# No translation needed - exclusion now uses the same operator names
-exclusion_to_logos = {}
+# Example: If theory A uses custom operators that need translation to theory B
+theory_a_to_theory_b = {
+    "\\myand": "\\wedge",       # Map theory A's conjunction to standard
+    "\\myor": "\\vee",          # Map theory A's disjunction to standard  
+    "\\mynot": "\\neg",         # Map theory A's negation to standard
+    "\\mybox": "\\Box",         # Map theory A's necessity to standard
+    "\\implies": "\\rightarrow",  # Map alternative implication symbol
+    "\\mycount": "\\boxright",   # Map custom counterfactual to standard
+}
+```
 
-# Generic examples showing how translation dictionaries work:
-# theory_a_to_theory_b = {
-#     "\\myand": "\\wedge",      # Map theory A's conjunction to standard
-#     "\\myor": "\\vee",         # Map theory A's disjunction to standard  
-#     "\\mynot": "\\neg",        # Map theory A's negation to standard
-#     "\\mybox": "\\Box",        # Map theory A's necessity to standard
-#     "\\implies": "\\rightarrow", # Map alternative implication symbol
-# }
+The translation process:
+1. Formulas are written using the first theory's operators
+2. When testing with another theory, operators are automatically translated
+3. Each theory evaluates the formula using its own semantics
+
+#### Standard Theories: No Translation Required
+
+The theories provided in ModelChecker (logos, exclusion, imposition, bimodal) all use standardized operator names, so **no translation is needed** when comparing them:
+
+```python
+# Example: Comparing exclusion and logos theories
+exclusion_to_logos = {}  # Empty dictionary - both use same operators
+
+# Example: Comparing imposition and logos theories  
+imposition_to_logos = {}  # Empty dictionary - both use \\boxright, \\diamondright
 
 semantic_theories = {
-    "Unilateral": {
-        "semantics": WitnessSemantics,
-        "proposition": WitnessProposition,
-        "model": WitnessStructure,
-        "operators": witness_operators,
-        "dictionary": {}
+    "Exclusion": {
+        "semantics": ExclusionSemantics,
+        "proposition": ExclusionProposition,
+        "model": ExclusionModelStructure,
+        "operators": exclusion_operators,
+        "dictionary": {}  # No translation needed
     },
-    "Bilateral": {
+    "Logos": {
         "semantics": LogosSemantics,
         "proposition": LogosProposition,
         "model": LogosModelStructure,
         "operators": logos_registry.get_operators(),
-        "dictionary": exclusion_to_logos  # Empty - operators share names
+        "dictionary": {}  # No translation needed
     }
 }
 ```
+
+#### When You Need Translation
+
+Translation dictionaries are only necessary when:
+1. Implementing a custom theory with non-standard operators
+2. Comparing with legacy code using different notation
+3. Adapting formulas from published papers using different symbols
+
+For all standard ModelChecker theories, you can safely use empty dictionaries.
 
 ### Example: Imposition and Logos Comparison
 
