@@ -38,13 +38,11 @@ Get the bimodal theory configuration object.
 ```python
 from model_checker.theory_lib import bimodal
 
+# Load the bimodal theory
 theory = bimodal.get_theory()
-# Use with BuildExample
-example = BuildExample("my_example", theory, [
-    ["\\Box p"],  # Premises
-    ["\\Future p"],  # Conclusions
-    {"M": 3, "N": 1}  # Settings
-])
+
+# Theory contains semantics, model, propositions, and operators
+# See examples.py for complete usage patterns
 ```
 
 ### `get_examples()`
@@ -57,8 +55,9 @@ Get all example formulas defined in the theory.
 **Example:**
 ```python
 examples = bimodal.get_examples()
-# Access specific example
+# Access specific example configuration
 modal_example = examples["MD_CM_1"]
+# See examples.py for complete implementation patterns
 ```
 
 ### `get_test_examples()`
@@ -196,7 +195,7 @@ Print world histories with time flowing vertically (bimodal-specific feature).
 | DefFutureOperator | ⏵ | `\\future` | 1 | True at some future time |
 | DefPastOperator | ⏴ | `\\past` | 1 | True at some past time |
 
-### Operator Usage Example
+### Operator Usage Examples
 
 ```python
 # Temporal necessity: "It is necessary that p will always be true"
@@ -207,6 +206,8 @@ formula2 = "\\Future \\Box p"
 
 # Combined: "It's possible that p was true in the past"
 formula3 = "\\Diamond \\Past p"
+
+# See examples.py for complete working implementations
 ```
 
 ## Model Iteration
@@ -216,7 +217,7 @@ formula3 = "\\Diamond \\Past p"
 Find multiple distinct models for a bimodal theory example.
 
 **Parameters:**
-- `example`: BuildExample instance with bimodal theory
+- `example`: Example instance with bimodal theory
 - `max_iterations` (int, optional): Maximum models to find
 
 **Returns:**
@@ -224,15 +225,9 @@ Find multiple distinct models for a bimodal theory example.
 
 **Example:**
 ```python
-from model_checker import BuildExample
 from model_checker.theory_lib.bimodal.iterate import iterate_example
 
-example = BuildExample("modal_example", theory, [
-    ["\\Box p"],
-    ["\\Diamond q"],
-    {"M": 2, "N": 2, "iterate": 3}
-])
-
+# Conceptual usage - see examples.py for complete implementation
 models = iterate_example(example, max_iterations=5)
 for i, model in enumerate(models):
     print(f"Model {i+1}:")
@@ -275,73 +270,56 @@ eval_point = {
 
 ## Examples
 
-### Basic Model Checking
+### Basic Theory Usage
 
 ```python
-from model_checker import BuildExample
 from model_checker.theory_lib import bimodal
 
-# Get theory
+# Load the bimodal theory
 theory = bimodal.get_theory()
 
-# Create example: "Necessarily p implies always p in the future"
-example = BuildExample("temporal_necessity", theory, [
-    ["\\Box p"],                    # Premise
-    ["\\Future p"],                 # Conclusion  
-    {"M": 3, "N": 1, "max_time": 5} # Settings
-])
+# Theory provides access to:
+# - Semantics: BimodalSemantics class
+# - Model: BimodalStructure class  
+# - Propositions: BimodalProposition class
+# - Operators: temporal and modal operators
 
-# Check validity
-result = example.check_result()
-if result['model_found']:
-    print("Countermodel found - inference is invalid")
-else:
-    print("No countermodel - inference may be valid")
+# See examples.py for complete working implementations
 ```
 
-### Advanced Usage with Time Intervals
+### Conceptual Formula Examples
 
 ```python
-# Example with multiple time points and modal operators
-example = BuildExample("complex_bimodal", theory, [
-    ["\\Diamond \\Future p", "\\Box \\Past q"],  # Premises
-    ["\\Future \\Diamond (p \\wedge q)"],        # Conclusion
-    {
-        "M": 4,               # 4 time points
-        "N": 2,               # 2 atomic propositions
-        "max_time": 10,       # Solver timeout
-        "align_vertically": True  # Bimodal-specific display
-    }
-])
+# Temporal necessity: "Necessarily p implies always p in the future"
+premise = "\\Box p"
+conclusion = "\\Future p"
 
-model = example.model_structure
-if model.z3_model:
-    # Access world histories
-    for world_id, history in model.world_histories.items():
-        print(f"World {world_id}:")
-        for time, state in sorted(history.items()):
-            print(f"  Time {time}: {state}")
+# Complex bimodal reasoning
+premises = ["\\Diamond \\Future p", "\\Box \\Past q"]
+conclusion = "\\Future \\Diamond (p \\wedge q)"
+
+# Model iteration patterns
+formula = "\\Diamond p \\vee \\Diamond q"
+
+# See examples.py for complete implementation with settings:
+# {"M": 4, "N": 2, "max_time": 10, "align_vertically": True}
 ```
 
-### Model Iteration Example
+### Model Structure Access
 
 ```python
-from model_checker.theory_lib.bimodal.iterate import iterate_example
+# Conceptual model access pattern
+# (See examples.py for complete implementation)
 
-# Find multiple models showing different temporal-modal patterns
-example = BuildExample("iterate_demo", theory, [
-    ["\\Diamond p \\vee \\Diamond q"],
-    [],  # No conclusions - explore all models
-    {"M": 2, "N": 2, "iterate": 5}
-])
+# Access world histories after model generation
+for world_id, history in model.world_histories.items():
+    print(f"World {world_id}:")
+    for time, state in sorted(history.items()):
+        print(f"  Time {time}: {state}")
 
+# Use model iteration for multiple solutions
 models = iterate_example(example)
 print(f"Found {len(models)} distinct models")
-
-# Examine differences
-for i in range(1, len(models)):
-    print(f"\nDifferences between model {i-1} and {i}:")
-    models[i].display_model_differences()
 ```
 
 ## Error Handling
@@ -366,20 +344,21 @@ for i in range(1, len(models)):
 ### Error Handling Example
 
 ```python
+# Conceptual error handling pattern
+# (See examples.py for complete implementation)
+
 try:
-    example = BuildExample("test", theory, [
-        ["\\Box p"],
-        ["p"],
-        {"M": 1, "N": 1}  # May be too constrained
-    ])
-    result = example.check_result()
+    # Theory loading and usage
+    theory = bimodal.get_theory()
+    # Model generation with constrained settings
+    settings = {"M": 1, "N": 1}  # May be too constrained
 except ValueError as e:
     print(f"Configuration error: {e}")
 except z3.Z3Exception as e:
     print(f"Solver error: {e}")
-    # Try with increased resources
-    example.settings["M"] = 2
-    example.settings["max_time"] = 10
+    # Adjust settings for increased resources
+    settings["M"] = 2
+    settings["max_time"] = 10
 ```
 
 ### Debugging Tips

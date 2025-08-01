@@ -24,7 +24,9 @@ Within the exclusion theory development history, this implementation showcases e
 
 This archive preserves 34 test examples that helped identify consistent issues across all 12 strategies, particularly the persistent false premise problem affecting 8-10 examples depending on the chosen strategy.
 
-## Quick Start
+## Archive Note
+
+This is archived code preserved for historical reference. The multi-strategy approach was superseded by the witness predicate architecture. To explore the historical implementation:
 
 ```python
 # Note: This is archived code - use for reference only

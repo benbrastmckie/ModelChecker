@@ -23,7 +23,9 @@ Within the exclusion theory implementation, this API represents the successful r
 
 This reference serves developers implementing or extending the exclusion theory, providing detailed specifications for all components, implementation patterns, and integration points with the ModelChecker framework.
 
-## Quick Start
+## Core Insight
+
+The witness predicate architecture transforms existentially quantified functions into persistent model predicates:
 
 ```python
 # Core insight: witness functions as persistent predicates
@@ -31,20 +33,20 @@ from model_checker.theory_lib.exclusion import (
     WitnessSemantics,      # Two-phase model building
     WitnessAwareModel,     # Query witness predicates
     witness_operators,     # 4 operators with witness support
+    exclusion_theory       # Complete theory definition
 )
 
-# Build model with witness predicates
-model = BuildExample("test", exclusion_theory,
-    premises=['\\neg A'],  # ¬A  
-    conclusions=['A'],             # A
-    settings={'N': 3}
-)
+# Theory configuration for use with ModelChecker framework
+theory = exclusion_theory
 
-# Access witness functions in countermodel
-if not model.check_validity():
-    structure = model.get_model()
-    h_val = structure.get_h_witness("\\neg(A)", state=1)
-    print(f"Witness h(1) = {h_val}")
+# Access witness functions in countermodels (conceptual example)
+# For formula: ¬A with premise A false
+if model_structure.has_witness_for("\\neg(A)"):
+    h_val = model_structure.get_h_witness("\\neg(A)", state=1)
+    y_val = model_structure.get_y_witness("\\neg(A)", state=1)
+    print(f"Witness functions at state 1: h={h_val}, y={y_val}")
+
+# See examples.py for complete implementation
 ```
 
 ## Core Classes and API
@@ -356,44 +358,49 @@ def generate_witness_constraints(self, formula_str, formula_ast, h_pred, y_pred,
 ```python
 from model_checker.theory_lib.exclusion import (
     WitnessSemantics,
-    WitnessProposition,
+    WitnessProposition, 
     WitnessStructure,
-    witness_operators
+    witness_operators,
+    exclusion_theory      # Pre-configured theory
 )
 
-# Define exclusion theory
-exclusion_theory = {
+# Use pre-configured theory
+theory = exclusion_theory
+
+# Or define custom theory configuration
+custom_theory = {
     "semantics": WitnessSemantics,
     "proposition": WitnessProposition,
     "model": WitnessStructure,
     "operators": witness_operators,
-    "dictionary": {}
+    "dictionary": {}  # Custom operator mappings
 }
+
+# See examples.py for complete usage patterns
 ```
 
-### Running Examples
+### Theory Usage Patterns
 
 ```python
-from model_checker import BuildExample
+# Import the theory for use with ModelChecker framework
+from model_checker.theory_lib.exclusion import exclusion_theory
 
-# Test double negation elimination (should find countermodel)
-model = BuildExample("double_neg_test", exclusion_theory,
-    premises=['\\neg \\neg A'],  # ¬¬A
-    conclusions=['A'],                           # A
-    settings={'N': 3}
-)
+# Conceptual example: Double negation elimination
+# Formula: ¬¬A ⊢ A (should find countermodel)
+premises = ['\\neg \\neg A']    # ¬¬A
+conclusions = ['A']            # A  
+settings = {'N': 3}            # 8-state model
 
-result = model.check_formula()
-print(f"¬¬A ⊨ A: {result}")  # False - countermodel found
+# Witness function inspection (in countermodels)
+# For negation formulas like ¬¬A:
+formula_str = "\\neg(\\neg(A))"
+if model_structure.has_witness_for(formula_str):
+    # Query witness predicates
+    h_val = model_structure.get_h_witness(formula_str, state=1)
+    y_val = model_structure.get_y_witness(formula_str, state=1)
+    print(f"State 1 witnesses: h={h_val}, y={y_val}")
 
-# Access the model structure
-if result is False:  # Countermodel found
-    model_structure = model.get_model()
-    if hasattr(model_structure, 'get_h_witness'):
-        # Inspect witness functions
-        h_val = model_structure.get_h_witness("\\neg(\\neg(A))", 1)
-        y_val = model_structure.get_y_witness("\\neg(\\neg(A))", 1)
-        print(f"Witness functions at state 1: h={h_val}, y={y_val}")
+# See examples.py for complete working implementations
 ```
 
 ### Command Line Usage
@@ -412,33 +419,35 @@ if result is False:  # Countermodel found
 ./dev_cli.py -p -z src/model_checker/theory_lib/exclusion/examples.py
 ```
 
-### Custom Example Definition
+### Example Configuration Patterns
 
 ```python
-# Countermodel example - expects to find countermodel
-custom_countermodel = [
-    ['\\neg A'],      # Premises: ¬A
-    ['A'],                    # Conclusions: A
-    {                         # Settings
-        'N': 3,
-        'contingent': True,
-        'non_empty': True,
-        'max_time': 10,
-        'iterate': 1,
-        'expectation': True   # Expect countermodel (True)
+# Countermodel configuration - expects to find countermodel
+countermodel_config = {
+    'premises': ['\\neg A'],      # ¬A
+    'conclusions': ['A'],         # A
+    'settings': {
+        'N': 3,                   # 8-state model
+        'contingent': True,       # Allow contingent propositions  
+        'non_empty': True,        # Require verifiers
+        'max_time': 10,           # Solver timeout
+        'iterate': 1,             # Find one model
+        'expectation': True       # Expect countermodel
     }
-]
+}
 
-# Theorem example - expects no countermodel (valid inference)
-custom_theorem = [
-    ['A'],                    # Premises: A
-    ['A'],                    # Conclusions: A
-    {                         # Settings
-        'N': 2,
-        'max_time': 5,
-        'expectation': False  # Expect validity (False = no countermodel)
+# Theorem configuration - expects validity (no countermodel)
+theorem_config = {
+    'premises': ['A'],            # A
+    'conclusions': ['A'],         # A  
+    'settings': {
+        'N': 2,                   # 4-state model
+        'max_time': 5,            # Quick timeout
+        'expectation': False      # Expect validity
     }
-]
+}
+
+# See examples.py for complete test suite with all 38 examples
 ```
 
 ## Available Operators
@@ -617,20 +626,32 @@ class UniNegationOperator(Operator):
         pass
 ```
 
-### Integration Testing
+### Framework Integration
 
 ```python
-# Test with other theories
+# Integration with ModelChecker framework
+from model_checker.theory_lib.exclusion import exclusion_theory
 from model_checker.theory_lib.logos import logos_theory
 
-# Compare results across theories
-test_formula = ['\\neg \\neg A'], ['A']
+# Theory comparison configuration
+test_case = {
+    'premises': ['\\neg \\neg A'],    # ¬¬A
+    'conclusions': ['A'],            # A
+    'settings': {'N': 3}
+}
 
-exclusion_result = BuildExample("ex", exclusion_theory, *test_formula).check_formula()
-logos_result = BuildExample("logos", logos_theory, *test_formula).check_formula()
+# Expected behavioral differences:
+expected_results = {
+    'exclusion': False,              # Finds countermodel (non-classical)
+    'logos': True,                   # Validates inference (classical-like)
+}
 
-print(f"Exclusion theory: {exclusion_result}")  # False (countermodel)
-print(f"Logos theory: {logos_result}")         # True (valid)
+# The exclusion theory's witness predicates enable:
+# - Non-classical negation behavior
+# - Resolution of False Premise Problem
+# - Queryable witness functions in countermodels
+
+# See examples.py for complete framework integration patterns
 ```
 
 ## Debugging and Development
@@ -684,22 +705,34 @@ h_pred, y_pred = self.witness_registry.get_or_create_predicates(formula_str)
 
 ## Advanced Features
 
-### Model Iteration
+### Model Iteration Configuration
 
-Find multiple distinct models using the iterator:
+Configuration for finding multiple distinct models:
 
 ```python
-settings = {
-    'N': 3,
-    'iterate': 3  # Find up to 3 distinct countermodels
+# Multiple model configuration
+iteration_settings = {
+    'N': 3,                      # 8-state models
+    'iterate': 3,                # Find up to 3 distinct countermodels
+    'max_time': 30               # Extended timeout for multiple models
 }
 
-model = BuildExample("iteration_test", exclusion_theory, 
-    ['\\neg A'], ['A'], settings)
-    
-models = model.find_models()  # Returns list of distinct models
-for i, model_structure in enumerate(models):
-    print(f"Model {i+1}: {model_structure}")
+# Example configuration for iteration
+test_case = {
+    'premises': ['\\neg A'],      # ¬A
+    'conclusions': ['A'],         # A
+    'settings': iteration_settings
+}
+
+# Model analysis pattern (conceptual)
+# Each model would have distinct witness function values
+for model_index in range(iteration_count):
+    # Access witness functions in each countermodel
+    if model_structure.has_witness_for("\\neg(A)"):
+        h_val = model_structure.get_h_witness("\\neg(A)", state=1)
+        print(f"Model {model_index}: h(1) = {h_val}")
+
+# See examples.py for complete implementation patterns
 ```
 
 ### Custom Semantic Relations
@@ -717,29 +750,38 @@ class CustomWitnessSemantics(WitnessSemantics):
         )
 ```
 
-### Theory Comparison
+### Theory Comparison Framework
 
-Compare exclusion theory with other semantic approaches:
+Configuration for comparing semantic approaches:
 
 ```python
-def compare_theories(premises, conclusions):
-    """Compare inference across different theories."""
-    theories = {
-        'exclusion': exclusion_theory,
-        'logos': logos_theory,
-        'default': default_theory
-    }
-    
-    results = {}
-    for name, theory in theories.items():
-        model = BuildExample(f"{name}_test", theory, premises, conclusions)
-        results[name] = model.check_formula()
-    
-    return results
+# Theory comparison configuration
+from model_checker.theory_lib.exclusion import exclusion_theory
+from model_checker.theory_lib.logos import logos_theory
 
-# Compare double negation across theories
-comparison = compare_theories(['\\neg \\neg A'], ['A'])
-print(comparison)  # Shows different results across theories
+# Test case for comparison
+test_formula = {
+    'premises': ['\\neg \\neg A'],    # ¬¬A
+    'conclusions': ['A'],            # A
+    'settings': {'N': 3, 'max_time': 10}
+}
+
+# Expected results for double negation elimination:
+# - Exclusion theory: False (finds countermodel)
+# - Logos theory: True (validates inference)
+# - Classical theory: True (validates inference)
+
+theory_configurations = {
+    'exclusion': exclusion_theory,
+    'logos': logos_theory,
+    # Add other theories as needed
+}
+
+# Analysis would show different logical behaviors:
+# - Exclusion: Non-classical negation with witness predicates
+# - Logos: Classical behavior with hyperintensional operators
+
+# See examples.py for complete test implementations
 ```
 
 ## Documentation

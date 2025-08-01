@@ -12,44 +12,6 @@ The Bimodal theory implements temporal-modal logic, combining reasoning about ti
 - **World Histories**: Models represent sequences of states over time
 - **Dual Dimensions**: Simultaneous reasoning about time and modality
 
-## Quick Start
-
-### Basic Usage
-
-```python
-from model_checker.theory_lib.bimodal import get_theory
-
-# Load the bimodal theory
-theory = get_theory()
-
-# Access components
-semantics = theory['semantics']
-operators = theory['operators']
-```
-
-### Using with BuildExample
-
-```python
-from model_checker import BuildExample
-from model_checker.theory_lib.bimodal import get_theory
-
-# Load theory
-theory = get_theory()
-
-# Create an example with temporal-modal reasoning
-example_case = [
-    ["□p"],                   # Premises: p is necessary
-    ["⏵□p"],                 # Conclusions: in the future, p will be necessary
-    {"M": 2, "N": 1, "max_time": 10}  # Settings: 2 time points, 1 proposition
-]
-
-# Build and check the example
-example = BuildExample("temporal_necessity", theory, example_case)
-result = example.check_result()
-
-print(f"Valid: {result['model_found']}")
-```
-
 ## Available Operators
 
 The bimodal theory provides operators for both temporal and modal reasoning:

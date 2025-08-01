@@ -20,28 +20,6 @@ The system implements a **priority-based configuration hierarchy** where setting
 
 This centralized approach eliminates configuration inconsistencies, provides clear error messages for invalid settings, and enables seamless integration between command-line interfaces, interactive notebooks, and programmatic usage patterns throughout the framework.
 
-## Quick Start
-
-```python
-from model_checker.settings import SettingsManager
-from model_checker import get_theory
-
-# Create settings manager for a theory
-theory = get_theory("logos")
-manager = SettingsManager(theory)
-
-# Merge settings with user preferences
-settings = manager.merge_settings(
-    example_settings={'N': 4, 'contingent': True},
-    general_settings={'print_z3': True},
-    flags={'maximize': True}
-)
-
-# Access final merged settings
-print(f"State space size: {settings['N']}")
-print(f"Z3 output enabled: {settings['print_z3']}")
-```
-
 ## Configuration Architecture
 
 ### Priority-Based Configuration Hierarchy

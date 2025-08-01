@@ -21,21 +21,6 @@ The documentation covers **practical usage patterns**, **architectural design pr
 
 This resource collection supports the theory library's role as a **computational platform for logic research**, enabling systematic comparison between semantic approaches and facilitating the implementation of new theoretical frameworks.
 
-## Quick Start
-
-```bash
-# Explore theory usage patterns
-# See USAGE_GUIDE.md for import strategies and configuration
-
-# Understand architecture decisions  
-# See THEORY_ARCHITECTURE.md for Simple vs Modular patterns
-
-# Implement a new theory
-# See CONTRIBUTING.md for complete implementation workflow
-
-# Review testing procedures
-# See UNIT_TESTS.md for comprehensive testing methodology
-```
 
 ## Subdirectories
 

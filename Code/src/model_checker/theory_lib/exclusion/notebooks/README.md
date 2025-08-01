@@ -19,7 +19,9 @@ Within the exclusion theory framework, these notebooks serve as hands-on learnin
 
 These tutorials serve students, researchers, and developers seeking practical understanding of unilateral semantics and its computational implementation.
 
-## Quick Start
+## Getting Started
+
+Launch the interactive tutorial:
 
 ```bash
 # Launch Jupyter environment

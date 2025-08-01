@@ -24,7 +24,7 @@ Within the exclusion theory framework, these tests serve as both validation and 
 
 This suite serves developers maintaining the theory, researchers validating semantic properties, and users understanding expected behavior through executable specifications.
 
-## Quick Start
+## Running Tests
 
 ```bash
 # Run all exclusion theory tests

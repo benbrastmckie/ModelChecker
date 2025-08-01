@@ -23,7 +23,9 @@ Within the exclusion theory framework, this guide serves as the primary entry po
 
 This tutorial serves researchers and students exploring non-classical logics, providing hands-on examples demonstrating how witness predicates enable computational investigation of unilateral semantics.
 
-## Quick Start
+## Getting Started
+
+Test classical principles in unilateral semantics:
 
 ```python
 # Test a classical principle in unilateral semantics

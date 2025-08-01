@@ -26,7 +26,9 @@ Within the exclusion theory development history, this implementation achieved th
 
 This archive preserves the successful solution to the "false premise problem" that plagued earlier attempts, with all 39 test examples executing correctly and demonstrating the theoretical relationship between CB and Fine preclusion approaches.
 
-## Quick Start
+## Archive Note
+
+This is archived code demonstrating the witness predicate breakthrough that solved the false premise problem. While superseded by the current implementation, it remains valuable for understanding the evolution of the solution:
 
 ```python
 # Note: This is archived code - use for reference and study
