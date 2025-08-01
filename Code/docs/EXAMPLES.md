@@ -1,6 +1,6 @@
 # Examples.py Standard Form Documentation
 
-[← Back to Docs](README.md) | [Maintenance Standards →](../MAINTENANCE.md) | [Development Guide →](../../Docs/DEVELOPMENT.md)
+[← Back to Docs](README.md) | [Maintenance Standards →](../maintenance/README.md) | [Development Guide →](../../Docs/DEVELOPMENT.md)
 
 ## Table of Contents
 
@@ -20,7 +20,7 @@ This document establishes the **standard form for examples.py files** throughout
 
 The examples.py structure serves as both **documentation and executable code**, demonstrating theory capabilities through carefully crafted logical formulas. These files are essential for validating semantic implementations, providing test cases, and offering practical usage examples for researchers and developers.
 
-All examples.py files must adhere to the **formula formatting standards** from MAINTENANCE.md, using capital letters for propositions, proper parentheses for operators, and LaTeX notation throughout. The standardized structure ensures automated testing, theory comparison, and consistent user experience across the framework.
+All examples.py files must adhere to the **[formula formatting standards](../maintenance/FORMULA_FORMATTING.md)**, using capital letters for propositions, proper parentheses for operators, and LaTeX notation throughout. The standardized structure ensures automated testing, theory comparison, and consistent user experience across the framework.
 
 ## Naming Conventions
 
