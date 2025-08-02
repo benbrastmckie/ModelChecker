@@ -19,6 +19,7 @@ Docs/
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
 │   └── DEVELOPER_SETUP.md          # Development environment setup
 ├── GETTING_STARTED.md              # Quick start tutorial for new users
+├── COMPARE_THEORIES.md             # Theory comparison guide and best practices
 ├── METHODOLOGY.md                  # Three-level programmatic semantics approach
 ├── HYPERINTENSIONAL.md             # Theoretical background and core concepts
 ├── Z3_BACKGROUND.md                # Introduction to Z3 theorem prover
@@ -48,6 +49,7 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 ### Theory and Background
 
+- **[Theory Comparison Guide](COMPARE_THEORIES.md)** - Compare multiple semantic theories
 - **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** - Truthmaker semantics explained
 - **[Z3 Background](Z3_BACKGROUND.md)** - Understanding the Z3 theorem prover
 - **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** - Available theories
@@ -76,8 +78,9 @@ This directory contains comprehensive documentation for the ModelChecker project
 ### For Researchers
 
 1. Read **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** for theoretical foundations
-2. Explore **[Methodology](METHODOLOGY.md)** and **[Findings](FINDINGS.md)** for research context
-3. Review **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** for implementations
+2. Review **[Theory Comparison Guide](COMPARE_THEORIES.md)** for cross-theory analysis
+3. Explore **[Methodology](METHODOLOGY.md)** and **[Findings](FINDINGS.md)** for research context
+4. Review **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** for implementations
 
 ### For Educators
 

@@ -1,6 +1,6 @@
 # Getting Started with ModelChecker
 
-[← Back to Docs](README.md) | [Installation →](INSTALLATION.md) | [Technical Docs →](../Code/docs/README.md)
+[← Back to Docs](README.md) | [Installation →](installation/README.md) | [Technical Docs →](../Code/docs/README.md)
 
 This guide walks you through the basics of using ModelChecker to explore logical theories and test formulas.
 
