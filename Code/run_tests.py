@@ -51,7 +51,9 @@ class TestConfig:
             theories = runner.theories
         
         # If no components specified and package testing requested, use all components
-        components = args.components or (runner.components if args.package else [])
+        # Also use all components if no specific test type is requested (running all tests)
+        use_all_components = args.package or (not args.examples and not args.unit)
+        components = args.components or (runner.components if use_all_components else [])
         
         # Determine what test types to run
         run_examples = args.examples or (not args.unit and not args.package)
