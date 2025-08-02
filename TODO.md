@@ -6,7 +6,9 @@
   - many of the imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py` are not used
 - docs
   - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/MAINTENANCE_REFACTOR_PLAN.md`
-  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
+  - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
+  - [ ] improve "**Usage Examples**:" in theory docs to use standard examples structure
+    - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/logos/subtheories/modal/README.md`
 - package
   - [.] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/BUILDER_IMPORT.md`
   - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
