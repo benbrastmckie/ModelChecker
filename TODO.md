@@ -8,8 +8,8 @@
   - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/MAINTENANCE_REFACTOR_PLAN.md`
   - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
 - package
+  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
   - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
-  - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
 
 ### High Priority
 
