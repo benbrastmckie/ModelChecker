@@ -23,6 +23,7 @@ Docs/
 ├── METHODOLOGY.md                  # Three-level programmatic semantics approach
 ├── HYPERINTENSIONAL.md             # Theoretical background and core concepts
 ├── Z3_BACKGROUND.md                # Introduction to Z3 theorem prover
+├── REFERENCES.md                   # Complete academic bibliography
 └── FINDINGS.md                     # Research findings and logical insights
 ```
 
@@ -50,6 +51,7 @@ This directory contains comprehensive documentation for the ModelChecker project
 ### Theory and Background
 
 - **[Theory Comparison Guide](COMPARE_THEORIES.md)** - Compare multiple semantic theories
+- **[Academic References](REFERENCES.md)** - Complete bibliography with BibTeX citations
 - **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** - Truthmaker semantics explained
 - **[Z3 Background](Z3_BACKGROUND.md)** - Understanding the Z3 theorem prover
 - **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** - Available theories
