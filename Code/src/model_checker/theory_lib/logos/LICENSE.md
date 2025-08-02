@@ -2,7 +2,15 @@
 
 This theory is part of the ModelChecker framework and is licensed under GPL-3.0.
 
+## Software Implementation Copyright
+
 Copyright (c) 2024 Benjamin Brast-McKie
+
+## Semantic Theory Attribution
+
+The Logos semantic theory implemented here is based on the hyperintensional truthmaker semantics 
+developed by Benjamin Brast-McKie. For proper academic attribution of the underlying semantic 
+theory, see CITATION.md.
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

@@ -1,6 +1,6 @@
 # Counterfactual Subtheory: Hypothetical Reasoning Operators
 
-[← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
+[← Back to Subtheories](../README.md) | [Citation →](CITATION.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
 
 ## Directory Structure
 
