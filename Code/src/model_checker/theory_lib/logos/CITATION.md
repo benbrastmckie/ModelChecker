@@ -1,16 +1,29 @@
 # Logos Theory Citation
 
-## Citation
+## Software Implementation Citation
 
 If you use the Logos Theory implementation in your research, please cite:
 
 ```bibtex
-@software{logos_theory,
-  author = {ModelChecker Contributors},
-  title = {Logos Theory: Hyperintensional Truthmaker Semantics},
+@software{logos_theory_implementation,
+  author = {Benjamin Brast-McKie},
+  title = {Logos Theory: Hyperintensional Truthmaker Semantics Implementation},
   year = {2024},
   url = {https://github.com/benbrastmckie/ModelChecker},
   version = {1.0.0}
+}
+```
+
+## Semantic Theory Citation
+
+For the underlying semantic theory, cite:
+
+```bibtex
+@article{brast_mckie_logos,
+  author = {Benjamin Brast-McKie},
+  title = {Hyperintensional Truthmaker Semantics},
+  journal = {[Publication details to be added]},
+  year = {2024}
 }
 ```
 
