@@ -56,7 +56,6 @@ from .semantic import WitnessStructure
 # NOTE: The default theory has been removed.
 # For comparison with standard bilateral semantics, use the logos theory instead.
 
-# Import logos theory components for comparison
 from model_checker.theory_lib.logos import (
     LogosSemantics,
     LogosProposition,
@@ -947,7 +946,7 @@ logos_theory = {
 # NOTE: The translation dictionaries will convert unilateral operators to bilateral equivalents
 semantic_theories = {
     "BernardChampollion": unilateral_theory,  # Unilateral exclusion semantics
-    # "Brast-McKie": logos_theory,               # Bilateral hyperintensional semantics
+    "Brast-McKie": logos_theory,               # Bilateral hyperintensional semantics
 }
 
 # Default example range (curated subset for direct execution)

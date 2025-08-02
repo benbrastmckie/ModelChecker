@@ -49,7 +49,6 @@ from .semantic import ImpositionSemantics
 from .operators import imposition_operators  # Use the OperatorCollection
 from . import Proposition, ModelStructure  # Now imported from logos via __init__.py
 
-# Import logos theory components for comparison
 from model_checker.theory_lib.logos import (
     LogosSemantics,
     LogosProposition,
@@ -969,7 +968,7 @@ logos_theory = {
 # NOTE: The translation dictionary is empty as operator names are now consistent
 semantic_theories = {
     "Fine": imposition_theory,
-    # "Brast-McKie": logos_theory,
+    "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
