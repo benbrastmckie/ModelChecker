@@ -100,6 +100,7 @@ The `jupyter/` package provides interactive notebook capabilities:
    - Path management for NixOS systems
 
 ## Key Search Paths
+
 - Core implementations: `src/model_checker/`
 - Theory definitions: `src/model_checker/theory_lib/`
 - Jupyter integrations: `src/model_checker/jupyter/`
@@ -107,33 +108,37 @@ The `jupyter/` package provides interactive notebook capabilities:
 ## Documentation Reference
 
 ### Core Documentation
-| Document Path | Description | When to Use |
-|--------------|-------------|-------------|
-| `README.md` | Project overview, installation, usage | Start here for general overview |
-| `src/model_checker/README.md` | API architecture, components | Understanding architecture |
-| `src/model_checker/theory_lib/README.md` | Theory library overview | Adding/modifying theories |
-| `src/model_checker/jupyter/README.md` | Jupyter integration | Interactive usage |
-| `../Docs/TOOLS.md` | Advanced tools and features | Using iterate, maximize, debugging flags |
+
+| Document Path                            | Description                           | When to Use                              |
+| ---------------------------------------- | ------------------------------------- | ---------------------------------------- |
+| `README.md`                              | Project overview, installation, usage | Start here for general overview          |
+| `src/model_checker/README.md`            | API architecture, components          | Understanding architecture               |
+| `src/model_checker/theory_lib/README.md` | Theory library overview               | Adding/modifying theories                |
+| `src/model_checker/jupyter/README.md`    | Jupyter integration                   | Interactive usage                        |
+| `../Docs/TOOLS.md`                       | Advanced tools and features           | Using iterate, maximize, debugging flags |
 
 ### Theory Documentation
-| Document Path | Description | When to Use |
-|--------------|-------------|-------------|
-| `src/model_checker/theory_lib/logos/README.md` | Logos theory details | Working with hyperintensional logic |
-| `src/model_checker/theory_lib/bimodal/README.md` | Bimodal theory details | Working with temporal counterfactuals |
-| `src/model_checker/theory_lib/exclusion/README.md` | Exclusion theory details | Working with exclusion semantics |
-| `src/model_checker/theory_lib/imposition/README.md` | Imposition theory details | Working with imposition semantics |
+
+| Document Path                                       | Description               | When to Use                           |
+| --------------------------------------------------- | ------------------------- | ------------------------------------- |
+| `src/model_checker/theory_lib/logos/README.md`      | Logos theory details      | Working with hyperintensional logic   |
+| `src/model_checker/theory_lib/bimodal/README.md`    | Bimodal theory details    | Working with temporal counterfactuals |
+| `src/model_checker/theory_lib/exclusion/README.md`  | Exclusion theory details  | Working with exclusion semantics      |
+| `src/model_checker/theory_lib/imposition/README.md` | Imposition theory details | Working with imposition semantics     |
 
 ### Jupyter and Troubleshooting
-| Document Path | Description | When to Use |
-|--------------|-------------|-------------|
+
+| Document Path                                  | Description                 | When to Use                 |
+| ---------------------------------------------- | --------------------------- | --------------------------- |
 | `src/model_checker/jupyter/TROUBLESHOOTING.md` | Common issues and solutions | Fixing integration problems |
-| `src/model_checker/jupyter/NixOS_jupyter.md` | NixOS setup guide | Setting up on NixOS |
-| `src/model_checker/jupyter/debug/DEBUGGING.md` | Debugging workflow | Systematic troubleshooting |
+| `src/model_checker/jupyter/NixOS_jupyter.md`   | NixOS setup guide           | Setting up on NixOS         |
+| `src/model_checker/jupyter/debug/DEBUGGING.md` | Debugging workflow          | Systematic troubleshooting  |
 
 ### Interactive Notebooks
-| Document Path | Description | When to Use |
-|--------------|-------------|-------------|
-| `src/model_checker/jupyter/notebooks/basic_demo.ipynb` | Basic usage examples | Getting started with notebooks |
-| `src/model_checker/jupyter/notebooks/options_demo.ipynb` | Advanced options | Learning advanced features |
-| `src/model_checker/theory_lib/logos/notebooks/logos_demo.ipynb` | Logos theory demo | Exploring hyperintensional logic |
-| `src/model_checker/theory_lib/exclusion/notebooks/exclusion_demo.ipynb` | Exclusion theory demo | Exploring exclusion semantics |
+
+| Document Path                                                           | Description           | When to Use                      |
+| ----------------------------------------------------------------------- | --------------------- | -------------------------------- |
+| `src/model_checker/jupyter/notebooks/basic_demo.ipynb`                  | Basic usage examples  | Getting started with notebooks   |
+| `src/model_checker/jupyter/notebooks/options_demo.ipynb`                | Advanced options      | Learning advanced features       |
+| `src/model_checker/theory_lib/logos/notebooks/logos_demo.ipynb`         | Logos theory demo     | Exploring hyperintensional logic |
+| `src/model_checker/theory_lib/exclusion/notebooks/exclusion_demo.ipynb` | Exclusion theory demo | Exploring exclusion semantics    |

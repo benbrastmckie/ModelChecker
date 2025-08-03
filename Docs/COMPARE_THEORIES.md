@@ -1,6 +1,6 @@
 # Theory Comparison Guide
 
-[← Back to Documentation](README.md) | [Getting Started →](GETTING_STARTED.md) | [Methodology →](METHODOLOGY.md)
+[← Back to Documentation](README.md) | [Getting Started →](GETTING_STARTED.md) | [Methodology →](methodology/README.md)
 
 ## Table of Contents
 
@@ -334,4 +334,4 @@ semantic_theories = {
 
 ---
 
-[← Back to Documentation](README.md) | [Getting Started →](GETTING_STARTED.md) | [Methodology →](METHODOLOGY.md)
+[← Back to Documentation](README.md) | [Getting Started →](GETTING_STARTED.md) | [Methodology →](methodology/README.md)
