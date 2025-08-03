@@ -381,7 +381,7 @@ Each theory has unique operators and capabilities:
 - [Installation Guide](INSTALLATION.md) - Platform-specific setup
 - [Development Guide](DEVELOPMENT.md) - Contributing to ModelChecker
 - [Tools Guide](TOOLS.md) - Advanced debugging and analysis
-- [Methodology](METHODOLOGY.md) - Research approach and validation
+- [Methodology](methodology/README.md) - Research approach and validation
 
 **Theory Documentation:**
 

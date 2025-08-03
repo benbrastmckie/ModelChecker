@@ -20,7 +20,12 @@ Docs/
 │   └── DEVELOPER_SETUP.md          # Development environment setup
 ├── GETTING_STARTED.md              # Quick start tutorial for new users
 ├── COMPARE_THEORIES.md             # Theory comparison guide and best practices
-├── METHODOLOGY.md                  # Three-level programmatic semantics approach
+├── methodology/                    # Programmatic semantics methodology
+│   ├── README.md                   # Methodology hub and overview
+│   ├── BUILDER_PATTERN.md          # BuildModule/BuildExample architecture
+│   ├── SYNTAX.md                   # AST conversion pipeline
+│   ├── SEMANTICS.md                # Constraint generation
+│   └── MODELS.md                   # SMT solving and interpretation
 ├── HYPERINTENSIONAL.md             # Theoretical background and core concepts
 ├── Z3_BACKGROUND.md                # Introduction to Z3 theorem prover
 ├── REFERENCES.md                   # Complete academic bibliography
@@ -58,7 +63,7 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 ### Research
 
-- **[Methodology](METHODOLOGY.md)** - Research approach and methods
+- **[Methodology](methodology/README.md)** - Programmatic semantics methodology
 - **[Findings](FINDINGS.md)** - Key insights and discoveries
 
 ## Documentation by Audience
@@ -81,7 +86,7 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 1. Read **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** for theoretical foundations
 2. Review **[Theory Comparison Guide](COMPARE_THEORIES.md)** for cross-theory analysis
-3. Explore **[Methodology](METHODOLOGY.md)** and **[Findings](FINDINGS.md)** for research context
+3. Explore **[Methodology](methodology/README.md)** and **[Findings](FINDINGS.md)** for research context
 4. Review **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** for implementations
 
 ### For Educators
