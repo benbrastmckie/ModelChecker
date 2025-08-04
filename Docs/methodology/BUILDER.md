@@ -32,12 +32,11 @@
 The Builder Pattern in ModelChecker orchestrates the model checking pipeline through three core classes that work together to transform logical formulas into concrete semantic evaluations:
 
 ```
-┌──────────────┐     ┌──────────────┐     ┌──────────────┐
-│ BuildModule  │     │ BuildExample │     │ BuildProject │
-│              │     │              │     │              │
-│ Coordinates  │────▶│  Executes    │     │  Generates   │
-│  examples    │     │  pipeline    │     │   theories   │
-└──────────────┘     └──────────────┘     └──────────────┘
+┌───────────────┐     ┌──────────────┐     ┌──────────────┐
+│ BuildModule   │     │ BuildExample │     │ BuildProject │
+│ • Coordinates │────▶│ • Executes   │     │ • Generates  │
+│   examples    │     │   pipeline   │     │   theories   │
+└───────────────┘     └──────────────┘     └──────────────┘
 ```
 
 The architecture mirrors the logical inference process: take premises and conclusions, apply semantic rules, and either find a countermodel (showing invalidity) or prove none exists (confirming validity). This separation allows researchers to focus on their semantic theories while the framework handles the computational complexity.
@@ -146,8 +145,21 @@ The Z3 context reset between examples prevents constraint contamination - withou
 The BuildExample class orchestrates the transformation from logical formulas to semantic evaluation. Think of it as a production line where each station performs a specific transformation, ultimately determining whether your inference holds:
 
 ```
-Premises/Conclusions ─▶ Parse Trees ─▶ Z3 Variables ─▶ Constraints ─▶ Model/Countermodel
-                        (Syntax)       (Semantics)      (Solver)       (Result)
+┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
+│ Premises/Conclusions│      │ Parse Trees         │      │ Z3 Constants        │
+│ • String formulas   │─────▶│ • AST structure     │─────▶│ • Atomic: AtomSort  │
+│ • LaTeX operators   │      │ • Operator nodes    │      │ • Operators invoke  │
+│                     │      │ • Complexity calc   │      │   semantic methods  │
+└─────────────────────┘      └─────────────────────┘      └──────────┬──────────┘
+                              (Syntax parsing)                       │
+                                                                     ▼
+┌─────────────────────┐      ┌─────────────────────┐      ┌─────────────────────┐
+│ Model/Countermodel  │      │ Z3 Constraints      │      │ Semantic Methods    │
+│ • World structure   │◀─────│ • Frame constraints │◀─────│ • extended_verify   │
+│ • Verifier sets     │      │ • Prop constraints  │      │ • true_at/false_at  │
+│ • Truth valuations  │      │ • Evaluation rules  │      │ • Theory-specific   │
+└─────────────────────┘      └─────────────────────┘      └─────────────────────┘
+      (Result)                    (Solver)                   (Constraint generation)
 ```
 
 ### Complete Pipeline
@@ -230,6 +242,13 @@ result = {
 }
 ```
 
+The result dictionary captures three key aspects of the model checking process:
+- **`model_found`**: Boolean indicating whether Z3 found a satisfying assignment (countermodel exists)
+- **`runtime`**: How long the solver took, useful for performance analysis
+- **`model_structure`**: The actual model data including worlds, verifier/falsifier sets, and truth valuations
+
+This structured output enables systematic analysis of logical validity across different theories and examples.
+
 ## BuildProject Functionality
 
 ### Theory Generation
@@ -256,16 +275,13 @@ project_my_counterfactual_theory/
 └── notebooks/           # Interactive tutorials
 ```
 
-### Directory Structure
+Once generated, this project structure serves as your foundation for semantic theory development. You can:
+- **Extend existing theories**: Modify the template's semantic rules to explore variations
+- **Create novel theories**: Replace the implementation while maintaining the framework interface
+- **Test incrementally**: Use the provided test suite to validate your changes
+- **Share your work**: The complete structure ensures others can understand and use your theory
 
-BuildProject ensures consistent project organization:
-
-Essential components created:
-- `__init__.py` with version tracking
-- `semantic.py` implementing SemanticDefaults
-- `operators.py` with operator registry
-- `examples.py` with semantic_theories and example_range
-- Proper Python package structure with imports
+For guidance on theory development, see the [Theory Development Guide](../../Code/docs/DEVELOPMENT.md).
 
 ### Module Initialization
 
@@ -292,33 +308,39 @@ BuildExample serves as the central integration point connecting all framework co
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                          BuildModule                            │
-│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────────┐  │
-│  │   Settings  │  │    Theory    │  │   Example Execution    │  │
-│  │  Management │  │   Loading    │  │    (orchestration)     │  │
-│  └─────────────┘  └──────────────┘  └────────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              │ creates & configures
-                              ▼
+│                     (Orchestration Layer)                       │
+│                                                                 │
+│  ┌──────────────┐  ┌───────────────┐  ┌───────────────────────┐ │
+│  │ Settings     │  │ Theory Loading│  │ Example Execution     │ │
+│  │ • Merges     │  │ • Discovers   │  │ • Iterates examples   │ │
+│  │ • Validates  │  │ • Imports     │  │ • Creates BuildExample│ │
+│  │ • Prioritizes│  │ • Registers   │  │ • Collects results    │ │
+│  └──────────────┘  └───────────────┘  └───────────────────────┘ │
+└──────────────────────────┬──────────────────────────────────────┘
+                           │ provides: settings, theory, example case
+                           ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                          BuildExample                           │
+│                      (Pipeline Instance)                        │
 │                                                                 │
-│  ┌─────────────┐         ┌──────────────────┐                   │
-│  │   Syntax    │────────▶│ ModelConstraints │                   │
-│  │  (parsing)  │  AST    │   (bridging)     │                   │
-│  └─────────────┘         └────────┬─────────┘                   │
-│                                   │ constraints                 │
-│                                   ▼                             │
-│                          ┌──────────────────┐                   │
-│                          │  ModelStructure  │                   │
-│                          │    (solving)     │                   │
-│                          └────────┬─────────┘                   │
-│                                   │ Z3 model                    │
-│                                   ▼                             │
-│                          ┌──────────────────┐                   │
-│                          │     Results      │                   │
-│                          │   (extraction)   │                   │
-│                          └──────────────────┘                   │
+│  ┌─────────────┐    Data Flow:     ┌──────────────────┐         │
+│  │ Syntax      │ ────formulas────▶ │ ModelConstraints │         │
+│  │ • Parses    │ ◀──AST objects─── │ • Gets settings  │         │
+│  │ • Extracts  │                   │ • Gets syntax    │         │
+│  │   atoms     │                   │ • Gets semantics │         │
+│  └─────────────┘                   │ • Generates Z3   │         │
+│                                    └────────┬─────────┘         │
+│                                             │ All constraints   │
+│                                             ▼                   │
+│              Formatted results     ┌──────────────────┐         │
+│         ┌───────────────────────── │  ModelStructure  │         │
+│         ▼                          │ • Receives       │         │
+│  ┌──────────────────────────┐      │   constraints    │         │
+│  │     Result Output        │      │ • Runs Z3 solver │         │
+│  │ • Model structure        │      │ • Extracts model │         │
+│  │ • Truth valuations       │      │ • Interprets     │         │
+│  │ • Countermodel display   │      │   sentences      │         │
+│  └──────────────────────────┘      └──────────────────┘         │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -330,36 +352,37 @@ Settings flow through the system with proper validation at each stage:
 
 ```
 ┌─────────────────┐
-│ Command Line    │ ──────────────────────────┐
-│ (-z, -i, ...)   │                           │ Highest
-└─────────────────┘                           │ Priority
-                                              ▼
-┌─────────────────┐                    ┌──────────────┐
-│ Example Settings│ ─────────────────▶ │              │
-│ {'N': 4, ...}   │                    │   Settings   │
-└─────────────────┘                    │   Manager    │
-                                       │              │
-┌─────────────────┐                    │ (validates & │
-│ Module General  │ ─────────────────▶ │   merges)    │
-│ {'N': 3, ...}   │                    │              │
-└─────────────────┘                    └──────┬───────┘
-                                              │
-┌─────────────────┐                           │
-│ Theory Defaults │ ──────────────────────────┘
-│ {'N': 16, ...}  │                    Lowest
-└─────────────────┘                    Priority
-                                              
-                                              ▼
-                        ┌─────────────────────────────────────┐
-                        │      Validated Settings             │
-                        │  {'N': 5, 'contingent': True, ...} │
-                        └──────────────┬──────────────────────┘
-                                       │
-                    ┌──────────────────┼──────────────────┐
-                    ▼                  ▼                  ▼
-              ┌──────────┐      ┌──────────┐      ┌────────────┐
-              │  Syntax  │      │Semantics │      │   Model    │
-              └──────────┘      └──────────┘      └────────────┘
+│ Command Line    │ ────────────┐
+│ (-z, -i, ...)   │             │ Highest
+└─────────────────┘             │ Priority
+                                ▼
+┌─────────────────┐      ┌─────────────────────────────┐
+│ Example Settings│ ───▶ │                             │
+│ {'N': 4, ...}   │      │   Settings Manager          │
+└─────────────────┘      │   • Merges by priority      │
+                         │   • Validates types         │
+┌─────────────────┐      │   • Warns unknown settings  │
+│ Module General  │ ───▶ │                             │
+│ {'N': 3, ...}   │      │                             │
+└─────────────────┘      │                             │
+                         └────────────┬────────────────┘
+                                ▲     │             
+┌─────────────────┐             │     │             
+│ Theory Defaults │ ────────────┘     │ Validated settings
+│ {'N': 16, ...}  │      Lowest       │ are passed directly
+└─────────────────┘      Priority     │ to components
+                                      │                 
+                                      │
+                ┌─────────────────────┼──────────────────┐
+                │                     │                  │
+                ▼                     ▼                  ▼
+   ┌───────────────────┐  ┌──────────────────┐  ┌────────────────────┐
+   │ Semantics         │  │ ModelConstraints │  │  ModelStructure    │
+   │ • N (number of    │  │ • N (states)     │  │ • max_time         │
+   │   atomic states   │  │ • contingent     │  │ • verbose          │
+   │   determine size  │  │ • non_empty      │  │ • print_z3         │
+   │   of state space) │  │ • disjoint       │  │ • print_constraints│
+   └───────────────────┘  └──────────────────┘  └────────────────────┘
 ```
 
 Each component receives the same validated settings, ensuring consistent behavior. The priority cascade allows fine-grained control: set theory defaults for typical usage, override per-module for specific investigations, override per-example for edge cases, and use command-line for quick experiments.
@@ -391,11 +414,48 @@ Results flow from Z3 models through interpretation layers:
 
 Result interpretation pipeline:
 ```
-Z3 Model → ModelStructure.interpret()
-         → Sentence.update_proposition()
-         → Proposition evaluation
-         → Truth value extraction
-         → Formatted output display
+┌─────────────────────┐
+│ Z3 Model            │
+│ • Variable bindings │
+│ • Function values   │
+│ • Satisfying assign │
+└──────────┬──────────┘
+           │
+           ▼
+┌─────────────────────────────────────┐
+│ ModelStructure.interpret()          │
+│ • Extracts world states             │
+│ • Identifies possible worlds        │
+│ • Builds accessibility relations    │
+│ • Maps atomic truth values          │
+└──────────┬──────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────┐
+│ Sentence.update_proposition()       │
+│ • Creates proposition objects       │
+│ • Links to sentence structure       │
+│ • Enables recursive evaluation      │
+│ • Caches for efficiency             │
+└──────────┬──────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────┐
+│ Proposition Evaluation              │
+│ • Evaluates at each world           │
+│ • Finds verifiers/falsifiers        │
+│ • Computes truth values             │
+│ • Handles complex formulas          │
+└──────────┬──────────────────────────┘
+           │
+           ▼
+┌─────────────────────────────────────┐
+│ Formatted Output Display            │
+│ • World structure visualization     │
+│ • Extension tables (A, B, C...)     │
+│ • Truth value assignments           │
+│ • Countermodel explanation          │
+└─────────────────────────────────────┘
 ```
 
 ## Code Examples
@@ -407,64 +467,87 @@ from model_checker.builder import BuildModule
 from model_checker.builder.example import BuildExample
 
 # Load module with examples
-module_flags = type('Flags', (), {
-    'file_path': 'theory_lib/logos/examples.py',
-    'verbose': True,
-    'N': 4
+module_flags = type('Flags', (), {  # Mock command-line flags for programmatic use
+    'file_path': 'theory_lib/logos/examples.py',  # Path to theory examples
+    'verbose': True,  # Print detailed solving steps
+    'N': 4  # Override default state count (powers of 2 work best)
 })()
 build_module = BuildModule(module_flags)
 
 # Get example case
-example_case = build_module.example_range['MODAL_TH_1']
-semantic_theory = build_module.semantic_theories['Brast-McKie']
+example_case = build_module.example_range['MODAL_TH_1']  # Dictionary of all examples
+semantic_theory = build_module.semantic_theories['Brast-McKie']  # Available theories
 
 # Create and process example
 example = BuildExample(build_module, semantic_theory, example_case, 'Brast-McKie')
+# At this point:
+# - Z3 context has been reset for isolation
+# - Settings merged from all sources with proper priority
+# - Syntax parsed, constraints generated, model solved
+# - Result available via example.get_result()
 ```
+
+This initialization sequence demonstrates the key steps:
+1. **Load module**: Imports examples.py and discovers available theories
+2. **Extract components**: Gets specific example (MODAL_TH_1) and theory implementation
+3. **Create pipeline**: BuildExample orchestrates the complete model checking process
+
+The `example_case` contains premises, conclusions, and settings, while `semantic_theory` provides the logical machinery (semantics, operators, constraints) needed to evaluate validity.
 
 ### Settings Management Example
 
 ```python
-# Module general_settings
+# Module general_settings (lowest priority)
 general_settings = {
-    'N': 3,
-    'max_time': 1,
-    'contingent': False
+    'N': 3,  # Default 3 atomic states (2^3 = 8 possible combinations)
+    'max_time': 1,  # Z3 solver timeout in seconds
+    'contingent': False  # Allow empty verifier/falsifier sets
 }
 
-# Example-specific override
+# Example-specific override (medium priority)
 MODAL_TH_1_settings = {
-    'N': 4,  # Override N for this example
-    'contingent': True  # Make contingent
+    'N': 4,  # Override N for this example (2^4 = 16 states)
+    'contingent': True  # Require both verifiers and falsifiers
 }
 
-# Command-line override
+# Command-line override (highest priority)
 # model-checker examples.py --N=5 --verbose
 # Final N will be 5 (command-line wins)
+# Settings cascade: DEFAULT → general → example → command-line
 ```
+
+The settings hierarchy ensures flexibility: theory defaults provide sensible baselines, module settings configure shared behavior, example settings handle special cases, and command-line flags enable quick experimentation without editing files.
 
 ### Theory Loading and Operator Setup
 
 ```python
 from model_checker.theory_lib.logos import LogosOperatorRegistry
 from model_checker.theory_lib.logos import (
-    LogosSemantics, LogosProposition, LogosModelStructure
+    LogosSemantics,  # Defines Z3 primitives: states, fusion, parthood
+    LogosProposition,  # Handles atomic proposition constraints
+    LogosModelStructure,  # Interprets Z3 models into verifier/falsifier sets
 )
 
 # Create operator registry
-registry = LogosOperatorRegistry()
+registry = LogosOperatorRegistry()  # Manages operator dependencies
 
-# Load specific subtheories
+# Load specific subtheories (only what you need)
 registry.load_subtheories(['modal', 'constitutive', 'counterfactual'])
+# Each subtheory provides operators:
+# - modal: □ (Box), ◇ (Diamond)
+# - constitutive: ⊏ (essence), ⊐ (grounding)
+# - counterfactual: ▷ (would), ◁ (might)
 
 # Build semantic theory dictionary
 semantic_theory = {
-    "semantics": LogosSemantics,
-    "proposition": LogosProposition,
-    "model": LogosModelStructure,
-    "operators": registry.operators
+    "semantics": LogosSemantics,  # Class, not instance
+    "proposition": LogosProposition,  # Class, not instance
+    "model": LogosModelStructure,  # Class, not instance
+    "operators": registry.operators  # Dict mapping LaTeX to operator classes
 }
 ```
+
+Dynamic loading enables modular theory development: load only the operators your examples use, avoiding unnecessary constraint generation. The registry automatically resolves dependencies - if counterfactual operators need modal operators, they're loaded transparently.
 
 ### Complete Pipeline Example
 
@@ -489,14 +572,33 @@ example = BuildExample(
 )
 
 # 4. Syntax parsing (in BuildExample.__init__)
-# Sentences created: "A \\wedge B", "C", "A", "B"
-# Operators identified: AndOperator
+self.example_syntax = Syntax(premises, conclusions, operators)
+# Creates sentence objects:
+#   - "A \\wedge B" (complexity: 1)
+#   - "C" (complexity: 0)
+#   - "A" (atomic)
+#   - "B" (atomic)
 
 # 5. ModelConstraints generation
-# Frame constraints + proposition constraints + evaluation constraints
+self.model_constraints = ModelConstraints(
+    self.settings,
+    self.example_syntax,
+    self.semantics(self.settings),  # Instantiated with settings
+    self.proposition
+)
+# Generates:
+#   - Frame constraints (possibility closure, parthood)
+#   - Proposition constraints (contingent A, B, C)
+#   - Evaluation: premises true, at least one conclusion false
 
 # 6. Z3 solving in ModelStructure
-# Find satisfying assignment for all constraints
+self.model_structure = self.model_structure_class(
+    self.model_constraints,
+    self.settings
+)
+# Z3 solver receives all constraints
+# If sat: extracts model (worlds, extensions, valuations)
+# If unsat: no countermodel exists
 
 # 7. Result interpretation
 if example.model_structure.z3_model_status:
@@ -505,7 +607,7 @@ else:
     print("No countermodel - argument is valid")
 ```
 
-Each stage transforms the logical problem: strings become parse trees, trees become Z3 variables, variables get constrained by semantic rules, and the solver either finds a satisfying assignment (countermodel) or proves none exists (validity). The countermodel, if found, shows exactly which states verify/falsify each proposition, revealing why the inference fails.
+Each stage transforms the logical problem: strings are parsed into ASTs (with atomic sentences becoming Z3 constants of AtomSort), operators in the AST invoke their semantic methods (like `extended_verify` or `true_at`) to generate Z3 constraints using the primitive sorts and functions defined by the semantics, these constraints are collected and passed to the Z3 solver, which either finds a satisfying assignment (countermodel) or proves none exists (validity). The countermodel, if found, shows exactly which states verify/falsify each proposition, revealing why the inference fails.
 
 ## References
 
