@@ -205,20 +205,14 @@ class MyOperator(Operator):
 
 ## References
 
-### Theoretical Foundations
-- Fine, K. (2017). "Truthmaker Semantics"
-- Yablo, S. (2014). "Aboutness"
-- Fine, K. (2012). "Counterfactuals without Possible Worlds"
-
 ### Implementation Documentation
-- **[API Reference](../../Code/src/model_checker/README.md)** - Core framework APIs
-- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
-- **[Test Suite](../../Code/tests/README.md)** - Integration and unit tests
+ **[API Reference](../../Code/src/model_checker/README.md)** - Core framework APIs
+ **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
+ **[Test Suite](../../Code/tests/README.md)** - Integration and unit tests
 
 ### Related Resources
 - **[Installation Guide](../installation/README.md)** - Getting started
 - **[Examples](../../Examples/)** - Sample logical arguments
-- **[Publications](../../Presentations/)** - Academic papers and talks
 
 ---
 
