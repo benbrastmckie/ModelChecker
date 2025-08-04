@@ -45,7 +45,7 @@
 
 ## Introduction
 
-The semantics module bridges the gap between parsed logical formulas and SMT solver constraints. It implements hyperintensional truthmaker semantics, where truth values are determined by verifying and falsifying states rather than classical truth assignments. This approach enables fine-grained semantic distinctions impossible in extensional frameworks.
+The semantics module bridges the gap between parsed logical formulas and SMT solver constraints. It provides a flexible framework for implementing various semantic theories, from classical possible worlds semantics to more complex approaches like truthmaker semantics. Each theory defines its own interpretation rules while sharing the common constraint generation pipeline.
 
 The pipeline transforms syntactic structures into Z3 constraints through a series of semantic interpretation layers, each adding specific constraints based on the logical theory and configured settings. The result is a complete set of constraints that, when solved, yields models demonstrating validity or invalidity of logical arguments.
 
@@ -145,11 +145,11 @@ class ModelConstraints:
             sentence.update_objects(self)
 ```
 
-## Logos Semantic Pipeline
+## Example: Logos Semantic Pipeline
 
-### LogosSemantics Structure
+### Theory Implementation Example: LogosSemantics
 
-LogosSemantics implements hyperintensional truthmaker semantics:
+As an example, LogosSemantics implements hyperintensional truthmaker semantics:
 
 ```python
 class LogosSemantics(SemanticDefaults):
