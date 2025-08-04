@@ -1,6 +1,8 @@
 # Architecture: How Components Fit Together
 
-[← Back to Methodology](README.md) | [Workflow →](WORKFLOW.md) | [Iterator →](ITERATOR.md)
+[← Back to Methodology](README.md) | [Workflow →](WORKFLOW.md) | [Iterator →](ITERATOR.md) | [Technical Architecture →](../../Code/docs/ARCHITECTURE.md)
+
+> **Note**: This document provides a comprehensive educational overview of the ModelChecker's architecture and design philosophy. For a concise technical reference aimed at developers, see the [Technical Architecture Reference](../../Code/docs/ARCHITECTURE.md).
 
 ## Table of Contents
 
@@ -48,17 +50,17 @@ The ModelChecker follows a three-tier architecture that cleanly separates concer
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│                   Presentation Layer                     │
-│                 (CLI, Output Formatting)                 │
+│                   Presentation Layer                    │
+│                 (CLI, Output Formatting)                │
 ├─────────────────────────────────────────────────────────┤
-│                    Business Logic Layer                  │
+│                    Business Logic Layer                 │
 │          ┌────────────┬──────────────┬────────────┐     │
 │          │   Syntax   │  Semantics   │   Solving  │     │
 │          │  (Parsing) │ (Constraints)│    (Z3)    │     │
 │          └────────────┴──────────────┴────────────┘     │
 ├─────────────────────────────────────────────────────────┤
-│                      Data Layer                          │
-│              (Theory Definitions, Examples)              │
+│                      Data Layer                         │
+│              (Theory Definitions, Examples)             │
 └─────────────────────────────────────────────────────────┘
 ```
 
