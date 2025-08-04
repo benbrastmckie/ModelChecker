@@ -11,8 +11,9 @@ methodology/
 ├── SYNTAX.md               # Language-agnostic AST conversion pipeline
 ├── SEMANTICS.md            # From syntax trees to Z3 constraint generation
 ├── MODELS.md               # SMT solver interaction and result interpretation
-├── WORKFLOW.md             # Using the package effectively (to be created)
-└── ARCHITECTURE.md         # How components fit together (to be created)
+├── WORKFLOW.md             # Using the package effectively ✓
+├── ARCHITECTURE.md         # How components fit together (coming soon)
+└── ITERATOR.md             # Model iteration and the 'iterate' setting (coming soon)
 ```
 
 ## Overview
@@ -52,16 +53,25 @@ The ModelChecker pipeline follows a linear flow from input formulas to model out
    - Model extraction and sentence interpretation
    - Output generation and visualization
 
-5. **[ARCHITECTURE.md](ARCHITECTURE.md)** - Component relationships *(coming soon)*
-   - System design philosophy
-   - Data flow between components
-   - Extension points for new theories
-
 ### Using the Framework
 
-- **[WORKFLOW.md](WORKFLOW.md)** - Effective package usage patterns *(coming soon)*
+- **[WORKFLOW.md](WORKFLOW.md)** - Effective package usage patterns
+  - Command-line workflows and debugging
+  - Theory development best practices
+  - Performance optimization strategies
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Component relationships *(coming soon)*
+  - System design philosophy
+  - Data flow between components
+  - Extension points for new theories
+- **[ITERATOR.md](ITERATOR.md)** - Model iteration system *(coming soon)*
+  - Finding multiple distinct models
+  - Theory-specific iteration behaviors
+  - Configuration and tuning
+
+### Theory Development
+
 - **[Examples Guide](../../Code/docs/EXAMPLES.md)** - Creating and running examples
-- **[Theory Development](../../Code/docs/DEVELOPMENT.md)** - Building new theories
+- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Building new theories
 
 ## Core Concepts
 
