@@ -2,14 +2,24 @@
 
 ## Current Tasks
 
-- lint
+- [ ] lint
   - many of the imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py` are not used
-- [x] docs
-  - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/MAINTENANCE_REFACTOR_PLAN.md`
-  - [x] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/UPDATE_DOCS.md`
-- package
+- [ ] methodology
+  - [ ] ITERATOR.md
+    - [.] enhance
+  - [ ] MODELS.md
+    - [.] enhance
+  - [ ] WITNESS.md
+    - [ ] create
+    - [ ] enhance
+- [ ] usage
+  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/WORKFLOW.md`
+    - [ ] enhance
+  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/COMPARE_THEORIES.md`
+    - [ ] enhance
+- [ ] check
   - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
-  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
+  - [ ] move `Code/maintenance/` to `Docs/`
 
 ### High Priority
 
@@ -17,13 +27,17 @@
   - [x] fix failing tests
   - [ ] check coverage
   - [ ] update documentation
-- [ ] change log
+- [ ] add change log
 - [ ] witness subpackage
+  - [ ] abstract subpackage from exclusion semantics
+  - implement in exclusion semantics
+  - implement in bimodal
+  - implement in logos?
 - [.] iterate
   - [x] docs for each theory
   - [ ] report networkx not available
   - [ ] move iterate components out of semantic.py
-  - [ ] add installation option
+  - [ ] make dependency explicit
   - [ ] update docs
 - [ ] jupyter
   - [ ] check examples
