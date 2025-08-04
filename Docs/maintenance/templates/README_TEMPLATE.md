@@ -44,7 +44,7 @@ print(result)  # Expected output
 model-checker path/to/examples.py
 ```
 
-For complete examples.py file structure, see [Examples Standards](../../maintenance/EXAMPLES_STRUCTURE.md).
+For complete examples.py file structure, see [Examples Standards](../EXAMPLES_STRUCTURE.md).
 
 ## Subdirectories
 

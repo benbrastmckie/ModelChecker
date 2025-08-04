@@ -286,7 +286,7 @@ if model:
 ## Next Steps
 
 - **Explore examples**: Check theory-specific notebooks
-- **Getting started**: Follow [Getting Started Guide](../GETTING_STARTED.md)
+- **Getting started**: Follow [Getting Started Guide](GETTING_STARTED.md)
 - **Development**: See [Developer Setup](DEVELOPER_SETUP.md)
 
 ---

@@ -1,6 +1,6 @@
 # Examples.py Standard Form Documentation
 
-[← Back to Docs](README.md) | [Maintenance Standards →](../maintenance/README.md) | [Development Guide →](../../Docs/DEVELOPMENT.md)
+[← Back to Docs](README.md) | [Maintenance Standards →](../../Docs/maintenance/README.md) | [Development Guide →](../../Docs/DEVELOPMENT.md)
 
 ## Table of Contents
 

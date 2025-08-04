@@ -739,7 +739,7 @@ valid_settings = {k: v for k, v in settings.items()
 - `.model_checker_config` - User configuration
 
 ### Related Documentation
-- [Architecture](../ARCHITECTURE.md) - System design
+- [Architecture](../methodology/ARCHITECTURE.md) - System design
 - [Iterator System](../methodology/ITERATOR.md) - Model iteration details
 - [Builder Pattern](../methodology/BUILDER.md) - Pipeline orchestration with visual flowcharts
 - [Development Guide](../../Code/docs/DEVELOPMENT.md) - Contributing

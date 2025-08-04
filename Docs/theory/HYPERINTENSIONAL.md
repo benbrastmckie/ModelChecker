@@ -1,6 +1,6 @@
 # Hyperintensional Semantics in ModelChecker
 
-[← Back to Docs](README.md) | [Methodology →](methodology/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
+[← Back to Docs](../README.md) | [Methodology →](../methodology/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
 
 ## Table of Contents
 
@@ -302,4 +302,4 @@ The hyperintensional framework in ModelChecker builds on several key theoretical
 
 ---
 
-[← Back to Docs](README.md) | [Methodology →](methodology/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
+[← Back to Docs](../README.md) | [Methodology →](../methodology/README.md) | [Z3 Background →](Z3_BACKGROUND.md)

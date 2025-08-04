@@ -316,7 +316,7 @@ python test_package.py --components utils --verbose
 
 ## Related Resources
 
-- **[Hyperintensional Semantics Guide](../../../Docs/HYPERINTENSIONAL.md)** - Comprehensive introduction to truthmaker frameworks
+- **[Hyperintensional Semantics Guide](../../../Docs/theory/HYPERINTENSIONAL.md)** - Comprehensive introduction to truthmaker frameworks
 - **[Development Tools Documentation](../../../Docs/TOOLS.md)** - Advanced features and debugging
 - **[Main Package Documentation](../README.md)** - Installation and package-level information
 

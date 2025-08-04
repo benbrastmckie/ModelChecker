@@ -53,7 +53,7 @@ SUBTH_TH_1_settings = {
 model-checker src/model_checker/theory_lib/parent_theory/subtheories/subtheory_name/examples.py
 ```
 
-For complete examples.py file structure, see [Examples Standards](../../../maintenance/EXAMPLES_STRUCTURE.md).
+For complete examples.py file structure, see [Examples Standards](../../EXAMPLES_STRUCTURE.md).
 
 ## Subdirectories
 

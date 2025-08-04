@@ -227,7 +227,7 @@ python test_theories.py --theories logos --examples MOD_TH_5 CON_CM_1
 ### Related Resources
 
 - **[Theory Library Overview](../README.md)** - Comparison of ModelChecker's four semantic theories
-- **[Hyperintensional Semantics Guide](../../../../../Docs/HYPERINTENSIONAL.md)** - Introduction to truthmaker semantics
+- **[Hyperintensional Semantics Guide](../../../../../Docs/theory/HYPERINTENSIONAL.md)** - Introduction to truthmaker semantics
 - **[ModelChecker Architecture](../../../README.md)** - Core framework design and capabilities
 
 ---

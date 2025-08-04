@@ -40,9 +40,9 @@ Whether you're fixing bugs, adding new theories, or extending core functionality
    ```
    Follow [INSTALLATION.md](../../Docs/INSTALLATION.md) for detailed installation instructions.
 
-2. **Architecture Understanding**: Read [ARCHITECTURE.md](ARCHITECTURE.md) for system overview
+2. **Architecture Understanding**: Read [ARCHITECTURE.md](../../Docs/methodology/ARCHITECTURE.md) for system overview
 3. **Development Workflow**: Study [DEVELOPMENT.md](DEVELOPMENT.md) for contribution procedures
-4. **Code Standards**: Review [STYLE_GUIDE.md](STYLE_GUIDE.md) and [Maintenance Standards](../maintenance/README.md)
+4. **Code Standards**: Review [STYLE_GUIDE.md](STYLE_GUIDE.md) and [Maintenance Standards](../../Docs/maintenance/README.md)
 
 ### Common Development Tasks
 
@@ -83,19 +83,19 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 - **[Installation Guide](../../Docs/INSTALLATION.md)** - Environment setup and dependencies
 - **[Development Workflow](DEVELOPMENT.md)** - Testing, Git workflow, and contribution procedures
 - **[Style Guide](STYLE_GUIDE.md)** - Quick reference to coding standards
-- **[Maintenance Standards](../maintenance/README.md)** - Comprehensive standards document
+- **[Maintenance Standards](../../Docs/maintenance/README.md)** - Comprehensive standards document
 - **[Examples Standard](EXAMPLES.md)** - Standard form for examples.py files
 
 ### For Theory Implementers
 
-- **[Architecture Guide](ARCHITECTURE.md)** - System design and extension points
+- **[Architecture Guide](../../Docs/methodology/ARCHITECTURE.md)** - System design and extension points
 - **[Theory Library Guide](../src/model_checker/theory_lib/README.md)** - Theory implementation patterns
 - **[Testing Guide](TESTS.md)** - Validation and testing methodology
 - **[Examples Standard](EXAMPLES.md)** - Creating standardized example files
 
 ### For Core Developers
 
-- **[Architecture Documentation](ARCHITECTURE.md)** - System design principles and component relationships
+- **[Architecture Documentation](../../Docs/methodology/ARCHITECTURE.md)** - System design principles and component relationships
 - **[Development Guide](DEVELOPMENT.md)** - Advanced development workflows and debugging
 - **[Testing Guide](TESTS.md)** - Comprehensive testing strategies and patterns
 
@@ -115,7 +115,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ### Documentation Standards
 
-- **[Maintenance Standards](../maintenance/README.md) Compliance**: All documentation follows repository standards
+- **[Maintenance Standards](../../Docs/maintenance/README.md) Compliance**: All documentation follows repository standards
 - **Working Examples**: All code examples must be tested and functional
 - **Audience Segmentation**: Documentation organized by user type and expertise level
 
@@ -138,7 +138,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ### Documentation Contributions
 
-1. **Follow [Maintenance Standards](../maintenance/README.md)**: Adhere to documentation standards
+1. **Follow [Maintenance Standards](../../Docs/maintenance/README.md)**: Adhere to documentation standards
 2. **Verify Accuracy**: Ensure all examples and references are correct
 3. **Test Links**: Validate all cross-references and navigation links
 4. **Audience Focus**: Write for appropriate user expertise levels

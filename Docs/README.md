@@ -1,168 +1,194 @@
-# ModelChecker Documentation Hub
+# Documentation Hub: ModelChecker User and Research Documentation
 
-[← Back to Project Root](../README.md) | [Technical Docs →](../Code/docs/README.md) | [Code →](../Code/README.md)
-
-## Overview
-
-This directory contains general project documentation for the ModelChecker framework, focusing on installation, getting started, theoretical background, and research methodology. For technical documentation including development guides, architecture, and testing, see the [Technical Documentation](../Code/docs/README.md).
+[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Methodology →](methodology/README.md)
 
 ## Directory Structure
 
 ```
 Docs/
-├── README.md                       # This file - documentation hub
-├── installation/                   # Modular installation guides
-│   ├── README.md                   # Installation overview and navigation
-│   ├── BASIC_INSTALLATION.md       # Standard pip installation guide
+├── README.md                       # This file - documentation hub and navigation
+├── installation/                   # Setup and configuration guides
+│   ├── README.md                   # Installation documentation hub
+│   ├── BASIC_INSTALLATION.md       # Standard pip installation
+│   ├── GETTING_STARTED.md          # First steps after installation
 │   ├── TROUBLESHOOTING.md          # Platform-specific solutions
 │   ├── VIRTUAL_ENVIRONMENTS.md     # Virtual environment setup
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
 │   └── DEVELOPER_SETUP.md          # Development environment setup
-├── GETTING_STARTED.md              # Quick start tutorial for new users
-├── usage/                          # Practical usage guides
-│   ├── README.md                   # Usage documentation hub
-│   ├── WORKFLOW.md                 # Package usage workflows
-│   └── COMPARE_THEORIES.md         # Theory comparison guide
-├── methodology/                    # Programmatic semantics methodology
-│   ├── README.md                   # Methodology hub and overview
-│   ├── BUILDER.md                  # BuildModule/BuildExample architecture
+├── methodology/                    # Programmatic semantics framework
+│   ├── README.md                   # Methodology documentation hub
+│   ├── ARCHITECTURE.md             # System design and integration
+│   ├── BUILDER.md                  # Pipeline orchestration
 │   ├── SYNTAX.md                   # AST conversion pipeline
 │   ├── SEMANTICS.md                # Constraint generation
 │   ├── MODELS.md                   # SMT solving and interpretation
 │   └── ITERATOR.md                 # Model iteration system
-├── ARCHITECTURE.md                # System design and overview
-├── HYPERINTENSIONAL.md             # Theoretical background and core concepts
-├── Z3_BACKGROUND.md                # Introduction to Z3 theorem prover
-├── REFERENCES.md                   # Complete academic bibliography
-└── FINDINGS.md                     # Research findings and logical insights
+├── usage/                          # Practical usage guides
+│   ├── README.md                   # Usage documentation hub
+│   ├── WORKFLOW.md                 # Comprehensive workflows
+│   └── COMPARE_THEORIES.md         # Theory comparison patterns
+├── theory/                         # Theoretical foundations
+│   ├── README.md                   # Theory documentation hub
+│   ├── HYPERINTENSIONAL.md         # Hyperintensional logic
+│   ├── Z3_BACKGROUND.md            # SMT solver background
+│   ├── REFERENCES.md               # Academic bibliography
+│   └── IMPLEMENTATION.md           # Implementation insights
+└── maintenance/                    # Standards and best practices
+    ├── README.md                   # Maintenance documentation hub
+    ├── AUDIENCE.md                 # Audience guidelines
+    ├── DOCUMENTATION_STANDARDS.md  # Documentation principles
+    ├── README_STANDARDS.md         # README requirements
+    └── templates/                  # Documentation templates
 ```
 
-## Documentation Overview
+## Overview
 
-This directory contains comprehensive documentation for the ModelChecker project, covering installation, usage, development, and theoretical background.
+This directory serves as the **comprehensive documentation hub** for the ModelChecker framework, providing user guides, research documentation, and theoretical background. The documentation is organized into **5 major categories**: installation and setup, programmatic semantics methodology, practical usage workflows, theoretical foundations, and maintenance standards.
 
-## Quick Navigation
+The documentation follows an **interdisciplinary approach**, making computational logic accessible to researchers from diverse backgrounds including logic, linguistics, computer science, and AI. Each section is designed to be self-contained while providing clear navigation to related topics, enabling readers to find exactly what they need without navigating unrelated content.
 
-### Getting Started
+For **technical implementation details**, including API documentation, development workflows, and architecture specifics, see the [Technical Documentation](../Code/docs/README.md). This separation ensures that users focused on applying ModelChecker can find practical guides here, while developers working on the framework itself have dedicated technical resources.
 
-- **[Installation Hub](installation/README.md)** - Modular installation guides for all scenarios
-- **[Basic Installation](installation/BASIC_INSTALLATION.md)** - Quick pip installation
-- **[Getting Started Guide](GETTING_STARTED.md)** - Create your first ModelChecker project
-- **[Code Package](../Code/README.md)** - ModelChecker implementation and usage
+## Theory Examples
 
-### Technical Documentation
+### Quick ModelChecker Demo
 
-- **[Technical Docs Hub](../Code/docs/README.md)** - Development and architecture documentation
-- **[Development Guide](../Code/docs/DEVELOPMENT.md)** - Contributing and development workflow
-- **[Testing Guide](../Code/docs/TESTS.md)** - Testing methodology and best practices
-- **[Tools Guide](../Code/docs/TOOLS.md)** - Advanced features and debugging
-- **[Examples Guide](../Code/docs/EXAMPLES.md)** - Standard example file structure
+Get started with a simple validity check:
 
-### Theory and Background
+```bash
+# Install ModelChecker
+pip install model-checker
+```
 
-- **[Theory Comparison Guide](usage/COMPARE_THEORIES.md)** - Compare multiple semantic theories
-- **[Academic References](REFERENCES.md)** - Complete bibliography with BibTeX citations
-- **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** - Truthmaker semantics explained
-- **[Z3 Background](Z3_BACKGROUND.md)** - Understanding the Z3 theorem prover
-- **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** - Available theories
+```python
+# Create example file: modus_ponens.py
+from model_checker.theory_lib.logos import get_theory
 
-### Research
+theory = get_theory()
 
-- **[Methodology](methodology/README.md)** - Programmatic semantics methodology
-- **[Findings](FINDINGS.md)** - Key insights and discoveries
+# Modus ponens example
+MP_premises = ["A", "A \\rightarrow B"]
+MP_conclusions = ["B"]
+MP_settings = {
+    'N': 3,                    # Max atomic propositions
+    'expectation': False       # False = expect theorem
+}
+MP_example = [
+    MP_premises,
+    MP_conclusions,
+    MP_settings
+]
 
-## Documentation by Audience
+example_range = {"MP": MP_example}
+semantic_theories = {"logos": theory}
+```
+
+### Understanding the Pipeline
+
+The methodology transforms logical arguments through stages:
+
+```
+Input: premises=["A"], conclusions=["B"], settings={'N': 3}
+   ↓
+1. Syntax parsing → AST construction
+2. Semantic interpretation → Z3 constraints
+3. Model finding → Satisfying assignment
+4. Result interpretation → Countermodel display
+```
+
+### Exploring Theoretical Foundations
+
+```python
+# Hyperintensional semantics distinguishes content
+# These are logically equivalent but may have different verifiers:
+["A \\wedge B"] vs ["B \\wedge A"]
+
+# Different theories handle this differently:
+- Logos: May find countermodels (content-sensitive)
+- Classical: Always equivalent (truth-functional)
+```
+
+For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
+
+## Subdirectories
+
+### [installation/](installation/)
+
+**Comprehensive installation and setup guides** covering 6 scenarios from basic pip installation to full development environments. Includes platform-specific troubleshooting, virtual environment management, and Jupyter configuration. See [installation/README.md](installation/README.md) for complete setup documentation.
+
+### [methodology/](methodology/)
+
+**Programmatic semantics framework documentation** explaining how ModelChecker transforms logical formulas into executable semantic programs. Covers system architecture, pipeline orchestration, syntax processing, constraint generation, model finding, and iteration strategies. See [methodology/README.md](methodology/README.md) for the complete methodology guide.
+
+### [usage/](usage/)
+
+**Practical usage guides** for working with ModelChecker, including comprehensive workflows for all features and specialized theory comparison techniques. Covers command-line usage, debugging, performance optimization, and integration patterns. See [usage/README.md](usage/README.md) for practical workflows.
+
+### [theory/](theory/)
+
+**Theoretical foundations and research context** including hyperintensional logic, truthmaker semantics, SMT solving background, and implementation insights. Provides the academic grounding for ModelChecker's approach. See [theory/README.md](theory/README.md) for theoretical documentation.
+
+### [maintenance/](maintenance/)
+
+**Standards and best practices** ensuring consistency across the codebase. Covers documentation standards, formula formatting, code organization, testing requirements, and development practices. See [maintenance/README.md](maintenance/README.md) for all standards.
+
+## Documentation
 
 ### For New Users
 
-1. Start with **[Installation](installation/README.md)** to set up ModelChecker
-2. Follow **[Getting Started](GETTING_STARTED.md)** for your first project
-3. Read the **[Main README](../Code/README.md)** for quick start examples
-4. Explore **[Tools](../Code/docs/TOOLS.md)** for advanced features
-
-### For Developers
-
-1. Review **[Development Guide](../Code/docs/DEVELOPMENT.md)** for contribution guidelines
-2. Study **[Testing Guide](../Code/docs/TESTS.md)** for testing practices
-3. Check **[API Documentation](../Code/src/model_checker/README.md)** for implementation details
-4. Read **[Architecture](../Code/docs/ARCHITECTURE.md)** for system design
+- **[Installation Guide](installation/README.md)** - Choose your setup path
+- **[Getting Started](installation/GETTING_STARTED.md)** - First steps tutorial
+- **[Basic Workflows](usage/WORKFLOW.md#basic-workflows)** - Running examples
 
 ### For Researchers
 
-1. Read **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** for theoretical foundations
-2. Review **[Theory Comparison Guide](usage/COMPARE_THEORIES.md)** for cross-theory analysis
-3. Explore **[Methodology](methodology/README.md)** and **[Findings](FINDINGS.md)** for research context
-4. Review **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** for implementations
+- **[Theoretical Foundations](theory/README.md)** - Academic background
+- **[Methodology Overview](methodology/README.md)** - Programmatic semantics
+- **[Theory Comparison](usage/COMPARE_THEORIES.md)** - Comparative analysis
 
-### For Educators
+### For Developers
 
-1. Use **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** as teaching material
-2. Reference **[Installation](installation/README.md)** for student setup
-3. See **[Jupyter Setup](installation/JUPYTER_SETUP.md)** for notebook configuration
-4. Explore **[Jupyter Notebooks](../Code/src/model_checker/theory_lib/logos/notebooks/)** for interactive demos
+- **[Developer Setup](installation/DEVELOPER_SETUP.md)** - Contributing environment
+- **[Technical Docs](../Code/docs/README.md)** - Implementation details
+- **[Maintenance Standards](maintenance/README.md)** - Code quality guides
 
-## Key Topics
+## Key Features
 
-### Installation and Setup
+### Comprehensive Coverage
 
-The **[Installation Documentation](installation/README.md)** provides:
+- **5 major documentation categories** with dedicated README hubs
+- **25+ detailed guides** covering all aspects of ModelChecker
+- **Interdisciplinary approach** serving diverse academic backgrounds
+- **Clear navigation** with consistent structure and cross-references
 
-- **[Basic Installation](installation/BASIC_INSTALLATION.md)** - pip install with options
-- **[Troubleshooting](installation/TROUBLESHOOTING.md)** - Platform-specific solutions
-- **[Virtual Environments](installation/VIRTUAL_ENVIRONMENTS.md)** - Isolated setups
-- **[Jupyter Setup](installation/JUPYTER_SETUP.md)** - Notebook configuration
-- **[Developer Setup](installation/DEVELOPER_SETUP.md)** - Contributing setup
+### User-Focused Organization
 
-### Hyperintensional Logic
+- **Installation options** from basic to advanced development setups
+- **Practical workflows** for common tasks and debugging
+- **Theory comparison** guides for research applications
+- **Getting started** tutorials for immediate productivity
 
-The **[Hyperintensional Semantics Guide](HYPERINTENSIONAL.md)** covers:
+### Research Integration
 
-- Truthmaker semantics fundamentals
-- States, fusion, and evaluation
-- Logical operators in hyperintensional context
-- Implementation in ModelChecker
+- **Theoretical grounding** in truthmaker semantics
+- **Academic bibliography** with proper citations
+- **Implementation insights** bridging theory and practice
+- **Methodology documentation** for understanding the approach
 
-### Advanced Features
+## References
 
-The **[Tools Documentation](../Code/docs/TOOLS.md)** explains:
+### Primary Documentation
 
-- Model iteration for finding multiple models
-- Theory comparison across semantic frameworks
-- Maximize mode for performance benchmarking
-- Debugging flags and constraint analysis
-
-### Development Resources
-
-The technical documentation in Code/docs/ includes:
-
-- **[Development Guide](../Code/docs/DEVELOPMENT.md)** - Contributing workflow
-- **[Architecture](../Code/docs/ARCHITECTURE.md)** - System design and components
-- **[Style Guide](../Code/docs/STYLE_GUIDE.md)** - Coding standards quick reference
-- **[Maintenance Standards](../Code/MAINTENANCE.md)** - Comprehensive standards
-
-## Related Resources
-
-### Code Documentation
-
-- **[ModelChecker API](../Code/src/model_checker/README.md)** - Core API reference
-- **[Architecture](../Code/docs/ARCHITECTURE.md)** - System design
-- **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** - Semantic theories
-
-### Theory Documentation
-
-- **[Logos Theory](../Code/src/model_checker/theory_lib/logos/README.md)** - Hyperintensional framework
-- **[Exclusion Theory](../Code/src/model_checker/theory_lib/exclusion/README.md)** - Unilateral semantics
-- **[Imposition Theory](../Code/src/model_checker/theory_lib/imposition/README.md)** - Fine's semantics
+- **[Technical Documentation](../Code/docs/README.md)** - Development and API docs
+- **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** - Implementations
+- **[Main Package](../Code/README.md)** - ModelChecker overview
 
 ### External Resources
 
 - **[GitHub Repository](https://github.com/benbrastmckie/ModelChecker)** - Source code
-- **[Z3 Documentation](https://z3prover.github.io/)** - Z3 theorem prover
-
-## References
-
-This documentation hub follows the standards defined in [MAINTENANCE.md](../Code/MAINTENANCE.md) for consistent structure and navigation.
+- **[PyPI Package](https://pypi.org/project/model-checker/)** - Python package
+- **[Z3 Prover](https://z3prover.github.io/)** - SMT solver documentation
 
 ---
 
-[← Back to Project Root](../README.md) | [Technical Docs →](../Code/docs/README.md) | [Code →](../Code/README.md)
+[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Technical Docs →](../Code/docs/README.md)

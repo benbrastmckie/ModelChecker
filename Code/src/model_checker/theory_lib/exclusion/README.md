@@ -165,7 +165,7 @@ Detailed documentation of the **implementation journey**, **lessons learned**, a
 
 ## Related Resources
 
-- **[Hyperintensional Semantics Guide](../../../Docs/HYPERINTENSIONAL.md)** - Theoretical background
+- **[Hyperintensional Semantics Guide](../../../../../Docs/theory/HYPERINTENSIONAL.md)** - Theoretical background
 - **[Theory Library Overview](../README.md)** - Framework context
 - **[ModelChecker API](../../README.md)** - Core framework documentation
 

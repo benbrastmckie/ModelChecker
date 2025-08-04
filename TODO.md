@@ -9,6 +9,8 @@
     - [.] enhance
   - [ ] MODELS.md
     - [.] enhance
+  - [ ] ARCHITECTURE.md
+    - [ ] enhance
   - [ ] WITNESS.md
     - [ ] create
     - [ ] enhance
@@ -19,7 +21,12 @@
     - [ ] enhance
 - [ ] check
   - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
-  - [ ] move `Code/maintenance/` to `Docs/`
+- [ ] docs
+  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/theory/README.md`
+    - [ ] fix TODOs
+  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/README.md`
+    - [ ] update
+    - [ ] conform to standards
 
 ### High Priority
 
