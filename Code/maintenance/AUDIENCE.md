@@ -89,6 +89,20 @@ Follow code with **only what's needed**:
 
 Avoid labeling audience - write for the curious.
 
+### Effective Code Comments
+
+Inline comments should be:
+- **Brief and purposeful** - Explain the "why" or non-obvious "what"
+- **Placed strategically** - Right after the code they explain
+- **Technically accurate** - Use proper terminology
+
+Example patterns from BUILDER.md:
+```python
+'N': 3,  # Default 3 atomic states (2^3 = 8 possible combinations)
+'contingent': True  # Require both verifiers and falsifiers
+registry = LogosOperatorRegistry()  # Manages operator dependencies
+```
+
 ### When to Add Explanation
 
 Add brief context when:
@@ -96,6 +110,23 @@ Add brief context when:
 - **Semantic insight matters** (e.g., "fusion closure ensures that conjunction and disjunction are idempotent")
 - **Effect isn't clear** (e.g., "controls how many models to find")
 - **Choice has implications** (e.g., "bit vectors limit us to N ≤ 64 states and will typically be between 3 to 5")
+
+### Multi-Line Code Commentary
+
+For complex code blocks, use comment blocks after the code:
+```python
+example = BuildExample(build_module, semantic_theory, example_case, 'Brast-McKie')
+# At this point:
+# - Z3 context has been reset for isolation
+# - Settings merged from all sources with proper priority
+# - Syntax parsed, constraints generated, model solved
+# - Result available via example.get_result()
+```
+
+This pattern works well for:
+- Summarizing what just happened
+- Listing side effects or state changes
+- Pointing out what's available next
 
 ### When to Stay Terse
 
@@ -107,10 +138,21 @@ Keep it minimal when:
 
 ## Example Documentation Patterns
 
-### Good: Focused Explanation
+### Good: Paragraph After Code
 
-```markdown
-### Verifier Sets
+From BUILDER.md:
+```python
+# Settings cascade: DEFAULT → general → example → command-line
+```
+
+The settings hierarchy ensures flexibility: theory defaults provide sensible baselines, module settings configure shared behavior, example settings handle special cases, and command-line flags enable quick experimentation without editing files.
+
+This pattern:
+- Summarizes complex behavior concisely
+- Explains the "why" behind the design
+- Connects to practical usage
+
+### Good: Focused Explanation
 
 ```python
 # Check if state s1 verifies proposition A
@@ -118,12 +160,8 @@ verify(s1, A) = True
 ```
 
 Verifiers are states that make propositions true - the "truthmakers" of truthmaker semantics. We represent them as bit vectors for efficient subset operations.
-```
 
 ### Good: Technical Note
-
-```markdown
-### Settings Priority
 
 ```python
 final_settings = merge(
@@ -135,12 +173,8 @@ final_settings = merge(
 ```
 
 Command-line flags override all other settings, allowing quick experimentation without editing files.
-```
 
 ### Good: Semantic Insight
-
-```markdown
-### Fusion Closure
 
 ```python
 # If s1 and s2 verify A, their fusion must too
@@ -148,7 +182,6 @@ verify(s1, A) ∧ verify(s2, A) → verify(s1|s2, A)
 ```
 
 This constraint ensures classical behavior - without it, conjunction would fail to be idempotent.
-```
 
 ## Key Terms for Googling
 
@@ -207,6 +240,34 @@ states = BitVec('states', N)
 - **Be inclusive** - Never say "for programmers" or "for logicians"
 - **Spark curiosity** - Highlight what's interesting or unexpected
 
+## Visual Documentation Standards
+
+### Flowcharts and Diagrams
+
+Use ASCII diagrams for clarity:
+- **Box components** with descriptive labels
+- **Arrow for data flow** (not object composition)
+- **Group related items** in larger boxes
+- **Include brief descriptions** inside boxes when helpful
+
+Example from BUILDER.md:
+```
+┌─────────────────────┐
+│ Z3 Model            │
+│ • Variable bindings │
+│ • Function values   │
+│ • Satisfying assign │
+└──────────┬──────────┘
+           │
+           ▼
+```
+
+### Containment vs Flow
+
+- **Containment boxes**: Show object composition (BuildExample contains Syntax, ModelConstraints, etc.)
+- **Arrows**: Show data flow or transformation
+- **Never use arrows** for "has-a" relationships
+
 ## Document Enhancement Process
 
 When elaborating a document to meet these specifications, follow this systematic approach:
@@ -254,9 +315,61 @@ The system orchestrates model checking through three components that mirror the 
 This separation allows concurrent theory comparison while maintaining isolation - each example gets its own Z3 context, preventing constraint leakage between different semantic theories. See [Z3 Context Management](../solver/README.md) for the isolation mechanism.
 ```
 
-### Phase 4: Repository-Wide Integration
+### Phase 4: Implementation Links Review
 
-After the document is fully enhanced:
+Before repository-wide integration, review all code examples:
+1. **Identify substantive code blocks** - Look for class definitions, method implementations, and algorithm examples
+2. **Check for full implementations** - Determine if the shown code is complete or excerpted
+3. **Add implementation links** - For excerpted code, add links to the full source file
+4. **Use consistent format** - Place links immediately after code blocks with clear labeling
+
+#### When to Add Implementation Links
+
+Add links for:
+- **Class definitions** showing only key methods
+- **Complex algorithms** where full context helps
+- **Operator implementations** showing semantic patterns
+- **Settings or configuration** examples
+
+Don't add links for:
+- **Complete code snippets** that are self-contained
+- **Utility functions** shown in full
+- **Pseudo-code** or conceptual examples
+- **External library usage** (link to library docs instead)
+
+#### Link Format Examples
+
+For excerpted class implementations:
+```python
+class LogosSemantics(SemanticDefaults):
+    """Hyperintensional truthmaker semantics for Logos theory."""
+    
+    def __init__(self, combined_settings):
+        self.N = combined_settings['N']
+        # ... excerpt showing key initialization ...
+```
+*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../src/model_checker/theory_lib/logos/semantic.py)*
+
+For operator examples:
+```python
+class AndOperator(Operator):
+    def extended_verify(self, state, arg1, arg2, eval_point):
+        """State verifies A∧B iff it's fusion of verifiers."""
+        # ... simplified for clarity ...
+```
+*See also: [`model_checker/theory_lib/logos/extensional/operators.py`](../../src/model_checker/theory_lib/logos/extensional/operators.py)*
+
+For algorithm implementations:
+```python
+def parse_expression(tokens):
+    """Core parsing algorithm excerpt."""
+    # ... key logic shown ...
+```
+*Complete function: [`model_checker/utils.py#L45`](../../src/model_checker/utils.py#L45)* (with line number if helpful)
+
+### Phase 5: Repository-Wide Integration
+
+After the document is fully enhanced and implementation links added:
 1. **Search for references** - Find all documents that link to this one
 2. **Update linking text** - Revise explanations in linking documents
 3. **Fix broken links** - Update any changed section anchors
@@ -271,3 +384,43 @@ After the document is fully enhanced:
 - **Visual when helpful** - Flowcharts for complex relationships
 - **Link generously** - Help readers explore further
 - **Maintain link integrity** - Every enhancement preserves existing references
+
+## Code Description Conventions
+
+### Inline Comments
+
+Place explanatory comments on the same line when brief:
+```python
+'N': 4,  # Override N for this example (2^4 = 16 states)
+```
+
+### Block Comments After Code
+
+Use for listing what happened or what's available:
+```python
+self.example_syntax = Syntax(premises, conclusions, operators)
+# Creates sentence objects:
+#   - "A \\wedge B" (complexity: 1)
+#   - "C" (complexity: 0)
+```
+
+### Paragraph Explanations
+
+Follow code blocks with a paragraph when:
+- The overall purpose needs clarification
+- Multiple concepts connect together
+- Design rationale matters
+
+Example:
+```
+Dynamic loading enables modular theory development: load only the operators your examples use, avoiding unnecessary constraint generation.
+```
+
+### Stage Descriptions
+
+For multi-stage processes, describe transformations:
+```
+Each stage transforms the logical problem: strings are parsed into ASTs...
+```
+
+This pattern helps readers understand data flow through the system.
