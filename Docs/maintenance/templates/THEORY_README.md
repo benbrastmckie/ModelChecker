@@ -70,7 +70,7 @@ model-checker src/model_checker/theory_lib/theory_name/examples.py
 ./dev_cli.py -p -z src/model_checker/theory_lib/theory_name/examples.py
 ```
 
-For complete examples.py file structure, see [Examples Standards](../../maintenance/EXAMPLES_STRUCTURE.md).
+For complete examples.py file structure, see [Examples Standards](../EXAMPLES_STRUCTURE.md).
 
 ## Subdirectories
 

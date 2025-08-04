@@ -1,37 +1,147 @@
-# Usage Documentation
+# Usage Documentation: Practical ModelChecker Workflows
 
 [← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Compare Theories →](COMPARE_THEORIES.md)
+
+## Directory Structure
+
+```
+usage/
+├── README.md                       # This file - usage documentation hub
+├── WORKFLOW.md                     # Comprehensive usage patterns and workflows
+└── COMPARE_THEORIES.md             # Theory comparison guide and patterns
+```
 
 ## Overview
 
-This directory contains practical usage guides for the ModelChecker framework:
+This directory provides **practical usage guides** for working with the ModelChecker framework, focusing on real-world workflows and theory comparison techniques. The documentation bridges the gap between installation and advanced development, showing how to effectively use ModelChecker for logical investigation and research.
 
-- **[WORKFLOW.md](WORKFLOW.md)** - Comprehensive guide to using the ModelChecker package effectively
-  - Command-line workflows and debugging techniques
-  - Theory development best practices
-  - Performance optimization strategies
-  - Integration patterns and troubleshooting
+The usage guides cover **2 complementary aspects**: comprehensive workflows for all ModelChecker features and specialized guidance for comparing semantic theories. Together, these documents enable users to run examples, debug formulas, optimize performance, and systematically compare how different semantic theories handle the same logical principles.
 
-- **[COMPARE_THEORIES.md](COMPARE_THEORIES.md)** - Guide to comparing different semantic theories
-  - Using the `--compare` flag effectively
-  - Understanding theory differences
-  - Interpreting comparison results
-  - Creating comparative examples
+Whether you're validating logical arguments, exploring countermodels, developing new theories, or conducting comparative semantic research, these guides provide the practical knowledge needed to use ModelChecker effectively. The documentation emphasizes **hands-on examples**, **command-line techniques**, and **real-world problem-solving** approaches.
 
-## Quick Links
+## Theory Examples
+
+### Basic Validity Checking
+
+Run a simple validity check from the command line:
+
+```bash
+# Create an example file
+cat > modus_ponens.py << 'EOF'
+from model_checker.theory_lib.logos import get_theory
+
+theory = get_theory()
+
+MP_premises = ["A", "A \\rightarrow B"]
+MP_conclusions = ["B"]
+MP_settings = {'N': 3}
+MP_example = [MP_premises, MP_conclusions, MP_settings]
+
+example_range = {"MP": MP_example}
+semantic_theories = {"logos": theory}
+EOF
+
+# Run the example
+model-checker modus_ponens.py
+```
+
+### Theory Comparison
+
+Compare how different theories handle the same inference:
+
+```python
+# In compare_example.py
+from model_checker.theory_lib.logos import get_theory as get_logos
+from model_checker.theory_lib.exclusion import get_theory as get_exclusion
+
+# Same logical inference
+INFERENCE_premises = ["A \\vee B", "\\neg A"]
+INFERENCE_conclusions = ["B"]
+INFERENCE_settings = {'N': 3}
+INFERENCE_example = [INFERENCE_premises, INFERENCE_conclusions, INFERENCE_settings]
+
+# Compare theories
+semantic_theories = {
+    "Logos": get_logos(),
+    "Exclusion": get_exclusion()
+}
+example_range = {"INFERENCE": INFERENCE_example}
+```
+
+### Debugging with Constraints
+
+```bash
+# Show generated constraints
+model-checker examples/test.py --print-constraints
+
+# Show Z3 model details
+model-checker examples/test.py --print-z3
+
+# Find multiple models
+model-checker examples/test.py --iterate=3
+```
+
+For complete workflow patterns, see [WORKFLOW.md](WORKFLOW.md).
+
+## Subdirectories
+
+This directory contains only usage guide files (no subdirectories). Each guide addresses specific usage scenarios:
+
+### Usage Guides
+
+- **[WORKFLOW.md](WORKFLOW.md)** - Comprehensive guide covering all aspects of ModelChecker usage, from basic example running to advanced debugging, performance optimization, and integration patterns
+
+- **[COMPARE_THEORIES.md](COMPARE_THEORIES.md)** - Specialized guide for comparing semantic theories, including import patterns, avoiding circular dependencies, and interpreting comparison results
+
+## Documentation
 
 ### For New Users
-- Start with [Getting Started](../GETTING_STARTED.md) for installation and first steps
-- Then read [WORKFLOW.md](WORKFLOW.md) for comprehensive usage patterns
+- **[Getting Started](../installation/GETTING_STARTED.md)** - First steps after installation
+- **[Basic Workflows](WORKFLOW.md#basic-workflows)** - Running examples
+- **[Troubleshooting](WORKFLOW.md#troubleshooting)** - Common issues
 
 ### For Researchers
-- Use [COMPARE_THEORIES.md](COMPARE_THEORIES.md) to understand theory differences
-- See [Methodology](../methodology/README.md) for theoretical foundations
+- **[Theory Comparison](COMPARE_THEORIES.md)** - Comparative semantics
+- **[Performance Optimization](WORKFLOW.md#performance-optimization)** - Large-scale testing
+- **[Methodology](../methodology/README.md)** - Theoretical foundations
 
 ### For Developers
-- Review [WORKFLOW.md](WORKFLOW.md) for development workflows
-- See [Technical Documentation](../../Code/docs/README.md) for implementation details
+- **[Development Workflows](WORKFLOW.md#theory-development-workflow)** - Building theories
+- **[Integration Patterns](WORKFLOW.md#integration-patterns)** - CI/CD and automation
+- **[Technical Docs](../../Code/docs/README.md)** - Implementation details
+
+## Key Features
+
+### Comprehensive Workflows
+- **Basic Usage** - Running single examples and batch testing
+- **Development** - Creating new theories from templates
+- **Debugging** - Constraint inspection and unsat core analysis
+- **Performance** - Optimization strategies and settings tuning
+
+### Theory Comparison
+- **Import Patterns** - Avoiding circular dependencies
+- **Translation Dictionaries** - Mapping between operator notations
+- **Comparison Setup** - Configuring multiple theories
+- **Result Interpretation** - Understanding theory differences
+
+### Practical Tools
+- **Command-line flags** for debugging and output control
+- **Settings management** for performance tuning
+- **Integration patterns** for automation
+- **Common recipes** for frequent tasks
+
+## References
+
+### Framework Documentation
+- **[Installation Guide](../installation/README.md)** - Setup instructions
+- **[Methodology Guide](../methodology/README.md)** - How ModelChecker works
+- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
+
+### Related Resources
+- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Contributing new theories
+- **[API Reference](../../Code/src/model_checker/README.md)** - Programming interface
+- **[Examples](../../Code/docs/EXAMPLES.md)** - Example file structure
 
 ---
 
-[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Compare Theories →](COMPARE_THEORIES.md)
+[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Getting Started →](../installation/GETTING_STARTED.md)

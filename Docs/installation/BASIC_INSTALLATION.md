@@ -141,7 +141,7 @@ For more details on NixOS development, see [Developer Setup](DEVELOPER_SETUP.md#
 - **Having issues?** See [Troubleshooting](TROUBLESHOOTING.md)
 - **Want isolation?** Set up a [Virtual Environment](VIRTUAL_ENVIRONMENTS.md)
 - **Using notebooks?** Configure [Jupyter Setup](JUPYTER_SETUP.md)
-- **Ready to use?** Follow the [Getting Started Guide](../GETTING_STARTED.md)
+- **Ready to use?** Follow the [Getting Started Guide](GETTING_STARTED.md)
 
 ## Quick Command Reference
 

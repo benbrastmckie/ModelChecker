@@ -34,11 +34,11 @@ ModelChecker/
 
 ## Overview
 
-The **ModelChecker** provides a [programmatic methodology](Docs/methodology/README.md) for developing and exploring modular semantic theories. Built on the SMT solver [Z3](Docs/Z3_BACKGROUND.md), the framework enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid. The framework includes the [**TheoryLib**](Code/src/model_checker/theory_lib/README.md), a growing library of semantic theories that users can clone, modify, and contribute back to the project for public use. The [Logos](Code/src/model_checker/theory_lib/logos/README.md) theory supports extensional, modal, counterfactual, and constitutive operators through a modular architecture designed for studying [hyperintensional logics](Docs/HYPERINTENSIONAL.md) and promoting transparent, verifiable reasoning.
+The **ModelChecker** provides a [programmatic methodology](Docs/methodology/README.md) for developing and exploring modular semantic theories. Built on the SMT solver [Z3](Docs/theory/Z3_BACKGROUND.md), the framework enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid. The framework includes the [**TheoryLib**](Code/src/model_checker/theory_lib/README.md), a growing library of semantic theories that users can clone, modify, and contribute back to the project for public use. The [Logos](Code/src/model_checker/theory_lib/logos/README.md) theory supports extensional, modal, counterfactual, and constitutive operators through a modular architecture designed for studying [hyperintensional logics](Docs/theory/HYPERINTENSIONAL.md) and promoting transparent, verifiable reasoning.
 
 The project enables exploration of complex logical systems with multiple interacting operators that would be intractable to analyze manually. While Logos implements bilateral hyperintensional semantics, the TheoryLib also includes Bernard and Champollion's unilateral semantics for negation based on exclusion, Fine's imposition semantics for counterfactuals, and a bimodal logic for reasoning with tense and modality. The modular architecture features automatic dependency resolution, making it straightforward to build new theories on existing ones while clearly tracking their differences for comparative study.
 
-> **Note on Documentation**: This project's documentation is designed for an interdisciplinary audience, welcoming both those new to programming and those new to formal logic and semantics. For our documentation philosophy and accessibility goals, see [Audience Guidelines](Code/maintenance/AUDIENCE.md) and [Maintenance Standards](Code/maintenance/README.md).
+> **Note on Documentation**: This project's documentation is designed for an interdisciplinary audience, welcoming both those new to programming and those new to formal logic and semantics. For our documentation philosophy and accessibility goals, see [Audience Guidelines](Docs/maintenance/AUDIENCE.md) and [Maintenance Standards](Docs/maintenance/README.md).
 
 ## Documentation Organization
 
@@ -200,7 +200,7 @@ semantic_theories = {
 }
 ```
 
-Follow the [Examples Documentation](Docs/GETTING_STARTED.md) to find our more about running `examples.py` files.
+Follow the [Examples Documentation](Docs/installation/GETTING_STARTED.md) to find our more about running `examples.py` files.
 
 ## Subdirectories
 
@@ -221,7 +221,7 @@ Visual documentation including architecture diagrams, countermodel visualization
 ### For New Users
 
 - **[Installation Guide](Docs/installation/README.md)** - Setup instructions for all platforms
-- **[Getting Started Guide](Docs/GETTING_STARTED.md)** - Create your first project
+- **[Getting Started Guide](Docs/installation/GETTING_STARTED.md)** - Create your first project
 - **[User Guide](Code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)** - Basic usage patterns
 - **[Interactive Notebooks](Code/src/model_checker/theory_lib/logos/notebooks/README.md)** - Hands-on tutorials
 
@@ -229,12 +229,12 @@ Visual documentation including architecture diagrams, countermodel visualization
 
 - **[Methodology](Docs/methodology/README.md)** - Programmatic semantics approach
 - **[Theory Library](Code/src/model_checker/theory_lib/README.md)** - Available semantic theories
-- **[Hyperintensional Logic](Docs/HYPERINTENSIONAL.md)** - Theoretical background
+- **[Hyperintensional Logic](Docs/theory/HYPERINTENSIONAL.md)** - Theoretical background
 
 ### For Developers
 
 - **[Development Guide](Docs/DEVELOPMENT.md)** - Comprehensive development workflow
-- **[Architecture Documentation](Code/docs/ARCHITECTURE.md)** - System design patterns
+- **[Architecture Documentation](Docs/methodology/ARCHITECTURE.md)** - System design patterns
 - **[Contributing Guidelines](Code/MAINTENANCE.md)** - Coding and documentation standards
 
 ## Key Features
@@ -326,4 +326,4 @@ We encourage users to report bugs and suggest features by [creating issues](http
 
 ---
 
-[Code →](Code/README.md) | [Documentation →](Docs/README.md) | [Getting Started →](Docs/GETTING_STARTED.md)
+[Code →](Code/README.md) | [Documentation →](Docs/README.md) | [Getting Started →](Docs/installation/GETTING_STARTED.md)

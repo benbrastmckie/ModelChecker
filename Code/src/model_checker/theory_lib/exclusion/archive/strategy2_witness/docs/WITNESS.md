@@ -4,7 +4,7 @@
 
 This document explains how witness predicates enable the implementation of Champollion-Bernard (CB) preclusion semantics in the ModelChecker, contrasting this approach with Fine's set-based preclusion semantics. It is designed to be accessible to readers new to both Z3 and programmatic semantics.
 
-> **Background**: For an introduction to Z3 and SMT solvers, see [Z3_BACKGROUND.md](/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/Z3_BACKGROUND.md).
+> **Background**: For an introduction to Z3 and SMT solvers, see [Z3_BACKGROUND.md](/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/theory/Z3_BACKGROUND.md).
 
 ## Table of Contents
 

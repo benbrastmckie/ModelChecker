@@ -1,6 +1,6 @@
 # ModelChecker References: Complete Academic Bibliography
 
-[← Back to Documentation](README.md) | [Getting Started →](GETTING_STARTED.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
+[← Back to Documentation](../README.md) | [Getting Started →](../installation/GETTING_STARTED.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
 
 ## Overview
 
@@ -264,4 +264,4 @@ When extending ModelChecker:
 
 ---
 
-[← Back to Documentation](README.md) | [Getting Started →](GETTING_STARTED.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
+[← Back to Documentation](../README.md) | [Getting Started →](../installation/GETTING_STARTED.md) | [Hyperintensional →](HYPERINTENSIONAL.md)

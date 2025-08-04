@@ -1,6 +1,6 @@
 # Theory Comparison Guide
 
-[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Getting Started →](../GETTING_STARTED.md)
+[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Getting Started →](../installation/GETTING_STARTED.md)
 
 ## Table of Contents
 
@@ -334,4 +334,4 @@ semantic_theories = {
 
 ---
 
-[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Getting Started →](../GETTING_STARTED.md)
+[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Getting Started →](../installation/GETTING_STARTED.md)

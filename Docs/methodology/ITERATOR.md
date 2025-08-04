@@ -1,6 +1,6 @@
 # Iterator: Model Iteration and the 'iterate' Setting
 
-[← Back to Methodology](README.md) | [Architecture →](../ARCHITECTURE.md) | [Workflow →](../usage/WORKFLOW.md)
+[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Workflow →](../usage/WORKFLOW.md)
 
 ## Table of Contents
 
@@ -93,28 +93,28 @@ The system focuses on structural distinctness:
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                    │
 │  Model 1: Basic countermodel                                       │
-│  ┌─────────┐      ┌─────────┐                                     │
-│  │   w1    │ ───▶ │   w2    │    A: true at w1, false at w2      │
-│  │ A: true │      │ A: false│    Accessibility: bidirectional     │
-│  └─────────┘ ◀─── └─────────┘                                     │
+│  ┌─────────┐      ┌─────────┐                                      │
+│  │   w1    │ ───▶ │   w2    │    A: true at w1, false at w2        │
+│  │ A: true │      │ A: false│    Accessibility: bidirectional      │
+│  └─────────┘ ◀─── └─────────┘                                      │
 │                                                                    │
 │  Model 2: Different world structure                                │
-│  ┌─────────┐      ┌─────────┐      ┌─────────┐                   │
-│  │   w1    │ ───▶ │   w2    │ ───▶ │   w3    │                   │
-│  │ A: true │      │ A: false│      │ A: true │                   │
-│  └─────────┘      └─────────┘      └─────────┘                   │
+│  ┌─────────┐      ┌─────────┐      ┌─────────┐                     │
+│  │   w1    │ ───▶ │   w2    │ ───▶ │   w3    │                     │
+│  │ A: true │      │ A: false│      │ A: true │                     │
+│  └─────────┘      └─────────┘      └─────────┘                     │
 │  New feature: Additional world changes truth patterns              │
 │                                                                    │
 │  Model 3: Different accessibility                                  │
-│  ┌─────────┐      ┌─────────┐                                     │
-│  │   w1    │ ───▶ │   w2    │    A: true at both worlds          │
-│  │ A: true │      │ A: true │    Accessibility: asymmetric        │
-│  └─────────┘      └─────────┘    (w1→w2 but not w2→w1)           │
+│  ┌─────────┐      ┌─────────┐                                      │
+│  │   w1    │ ───▶ │   w2    │    A: true at both worlds            │
+│  │ A: true │      │ A: true │    Accessibility: asymmetric         │
+│  └─────────┘      └─────────┘    (w1→w2 but not w2→w1)             │
 │                                                                    │
 └────────────────────────────────────────────────────────────────────┘
 ```
 
-Structural distinctness goes beyond mere relabeling—each model represents a qualitatively different semantic situation. The system detects when models are isomorphic (same structure with different labels) and continues searching for genuinely new structures.
+Structural distinctness goes beyond mere relabeling since each model is required to represent a different semantic situation. The system detects when models are isomorphic (same structure with different labels) and continues searching for genuinely new structures.
 
 ### Theory-Specific Semantic Differences
 
@@ -269,24 +269,24 @@ while len(models) < iterate:
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                    │
 │  1. Initial Model Finding                                          │
-│     ┌─────────────────┐      ┌──────────────────┐                   │
-│     │ Frame + Model  │ ───▶ │ Z3 Solver       │ ──▶ Model 1      │
-│     │ + Evaluation   │      │ solve()         │                   │
-│     └─────────────────┘      └──────────────────┘                   │
+│     ┌─────────────────┐      ┌──────────────────┐                  │
+│     │ Frame + Model   │ ───▶ │ Z3 Solver        │ ──▶ Model 1      │
+│     │ + Evaluation    │      │ solve()          │                  │
+│     └─────────────────┘      └──────────────────┘                  │
 │                                                                    │
-│  2. Iterative Model Finding (repeat for each new model)           │
-│     ┌─────────────────┐      ┌──────────────────┐                   │
-│     │ Original       │      │ Difference      │                   │
-│     │ Constraints    │ ───▶ │ Constraints     │                   │
-│     └─────────────────┘      │ from Previous   │                   │
-│            +                   └──────────────────┘                   │
-│     ┌─────────────────┐              │                           │
-│     │ All Previous   │              │                           │
-│     │ Models         │              ▼                           │
-│     └─────────────────┘      ┌──────────────────┐                   │
-│                               │ Z3 with Added   │                   │
-│                               │ Constraints     │ ──▶ Model N      │
-│                               └──────────────────┘                   │
+│  2. Iterative Model Finding (repeat for each new model)            │
+│     ┌─────────────────┐      ┌──────────────────┐                  │
+│     │ Original        │      │ Difference       │                  │
+│     │ Constraints     │ ───▶ │ Constraints      │                  │
+│     └─────────────────┘      │ from Previous    │                  │
+│            +                 └──────────────────┘                  │
+│     ┌─────────────────┐              │                             │
+│     │ All Previous    │              │                             │
+│     │ Models          │              ▼                             │
+│     └─────────────────┘      ┌──────────────────┐                  │
+│                              │ Z3 with Added    │                  │
+│                              │ Constraints      │ ──▶ Model N      │
+│                              └──────────────────┘                  │
 │                                                                    │
 └────────────────────────────────────────────────────────────────────┘
 ```
@@ -384,24 +384,24 @@ while stuck_on_isomorphic_models:
 │ Escape Strategy Escalation                                         │
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                    │
-│  Found 5 isomorphic models → Trigger Level 1                      │
+│  Found 5 isomorphic models → Trigger Level 1                       │
 │  ┌────────────────────────────────────────────────────────────┐    │
-│  │ Level 1: Require different world count                      │    │
-│  │ Current: 2 worlds → Try: 1, 3, 4, ... worlds              │    │
+│  │ Level 1: Require different world count                     │    │
+│  │ Current: 2 worlds → Try: 1, 3, 4, ... worlds               │    │
 │  └────────────────────────────────────────────────────────────┘    │
-│                            │                                       │
-│  Still finding isomorphic ──┘                                       │
+│                             │                                      │
+│  Still finding isomorphic ──┘                                      │
 │                                                                    │
 │  ┌────────────────────────────────────────────────────────────┐    │
-│  │ Level 2: Force significant structural change                 │    │
-│  │ Current: 3 worlds → Try: ≤1 or ≥5 worlds                 │    │
+│  │ Level 2: Force significant structural change               │    │
+│  │ Current: 3 worlds → Try: ≤1 or ≥5 worlds                   │    │
 │  └────────────────────────────────────────────────────────────┘    │
-│                            │                                       │
-│  Still finding isomorphic ──┘                                       │
+│                             │                                      │
+│  Still finding isomorphic ──┘                                      │
 │                                                                    │
 │  ┌────────────────────────────────────────────────────────────┐    │
-│  │ Level 3: Force different semantic patterns                  │    │
-│  │ Change which states verify/falsify propositions             │    │
+│  │ Level 3: Force different semantic patterns                 │    │
+│  │ Change which states verify/falsify propositions            │    │
 │  └────────────────────────────────────────────────────────────┘    │
 │                                                                    │
 └────────────────────────────────────────────────────────────────────┘
@@ -629,44 +629,60 @@ Imposition iteration varies how states combine under counterfactual supposition.
 To implement iteration for a new theory:
 
 ```python
-class BaseModelIterator(ABC):
-    """Abstract base class for theory-specific model iteration."""
+class BaseModelIterator:
+    """Base class for theory-specific model iteration."""
     
-    @abstractmethod
     def _calculate_differences(self, new_structure, previous_structure):
         """Calculate semantic differences between models.
         
+        This is an abstract method that should be implemented by theory-specific subclasses.
+        
         Returns:
             dict: Categorized differences by semantic feature
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
         """
-        pass  # Theory-specific: what counts as a difference?
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
     
-    @abstractmethod
     def _create_difference_constraint(self, previous_models):
         """Create Z3 constraints ensuring difference from all previous.
         
+        This is an abstract method that should be implemented by theory-specific subclasses.
+        
         Returns:
             z3.ExprRef: Constraint expression (AND of ORs typically)
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
         """
-        pass  # Theory-specific: which properties to vary?
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
     
-    @abstractmethod
     def _create_non_isomorphic_constraint(self, z3_model):
         """Create constraints to avoid graph-isomorphic models.
         
+        This is an abstract method that should be implemented by theory-specific subclasses.
+        
         Returns:
             z3.ExprRef or None: Constraint to break symmetry
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
         """
-        pass  # Often: require different world count
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
     
-    @abstractmethod
     def _create_stronger_constraint(self, isomorphic_model):
         """Create aggressive constraints when stuck on isomorphisms.
         
+        This is an abstract method that should be implemented by theory-specific subclasses.
+        
         Returns:
             z3.ExprRef or None: Strong escape constraint
+            
+        Raises:
+            NotImplementedError: If the subclass does not implement this method
         """
-        pass  # Last resort: force major structural change
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
 ```
 
 *Full implementation: [`model_checker/iterate/core.py`](../../Code/src/model_checker/iterate/core.py)*
@@ -1096,7 +1112,7 @@ Iteration produces various debug messages:
 - `theory_lib/*/iterate.py` - Theory-specific iterators
 
 ### Related Documentation
-- [Architecture](../ARCHITECTURE.md) - System design and iterator architecture
+- [Architecture](ARCHITECTURE.md) - System design and iterator architecture
 - [Workflow](WORKFLOW.md) - Using iteration in practice
 - [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Theory implementations
 - [Iterator README](../../Code/src/model_checker/iterate/README.md) - Technical details
@@ -1108,4 +1124,4 @@ Iteration produces various debug messages:
 
 ---
 
-[← Back to Methodology](README.md) | [Architecture →](../ARCHITECTURE.md) | [Workflow →](../usage/WORKFLOW.md)
+[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Workflow →](../usage/WORKFLOW.md)

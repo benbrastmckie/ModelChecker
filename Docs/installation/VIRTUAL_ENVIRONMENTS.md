@@ -319,7 +319,7 @@ See [Developer Setup](DEVELOPER_SETUP.md#nixos-development) for more NixOS-speci
 
 - **Install ModelChecker**: Follow [Basic Installation](BASIC_INSTALLATION.md)
 - **Configure Jupyter**: See [Jupyter Setup](JUPYTER_SETUP.md)
-- **Start using**: Follow [Getting Started Guide](../GETTING_STARTED.md)
+- **Start using**: Follow [Getting Started Guide](GETTING_STARTED.md)
 
 ---
 

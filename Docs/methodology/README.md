@@ -1,234 +1,149 @@
-# ModelChecker Methodology: Programmatic Semantics
+# Methodology Documentation: Programmatic Semantics Framework
 
-[← Back to Docs](../README.md) | [Builder Pattern →](BUILDER.md) | [Development Guide →](../../Code/docs/DEVELOPMENT.md)
+[← Back to Docs](../README.md) | [Architecture →](ARCHITECTURE.md) | [Builder Pattern →](BUILDER.md)
 
 ## Directory Structure
 
 ```
 methodology/
-├── README.md               # This file - methodology documentation hub
-├── BUILDER.md              # BuildModule/BuildExample orchestration architecture
-├── SYNTAX.md               # Language-agnostic AST conversion pipeline
-├── SEMANTICS.md            # From syntax trees to Z3 constraint generation
-├── MODELS.md               # SMT solver interaction and result interpretation
-└── ITERATOR.md             # Model iteration and the 'iterate' setting ✓
+├── README.md                       # This file - methodology documentation hub
+├── ARCHITECTURE.md                 # System design and component integration
+├── BUILDER.md                      # BuildModule/BuildExample orchestration
+├── SYNTAX.md                       # Language-agnostic AST conversion pipeline
+├── SEMANTICS.md                    # From syntax trees to Z3 constraint generation
+├── MODELS.md                       # SMT solver interaction and result interpretation
+└── ITERATOR.md                     # Model iteration and the 'iterate' setting
 ```
 
 ## Overview
 
-This directory contains comprehensive documentation about the programmatic semantic methodology that guides the ModelChecker package design and workflow. The methodology documentation is designed to be accessible to an interdisciplinary audience including logicians, linguists, computer scientists, and AI researchers - readers may have expertise in some but not all of these areas. See [AUDIENCE.md](../../Code/maintenance/AUDIENCE.md) for documentation standards that guide our explanatory approach. The methodology implements a systematic approach to the programmatic semantic methodology through four interconnected stages:
+This directory contains **comprehensive documentation** about the programmatic semantic methodology that guides the ModelChecker package design and workflow. The methodology documentation is designed to be accessible to an interdisciplinary audience including logicians, linguists, computer scientists, and AI researchers - readers may have expertise in some but not all of these areas.
 
-1. **Orchestration** - How BuildModule and BuildExample coordinate the entire pipeline
-2. **Parsing** - Converting logical formulas from strings to structured ASTs
-3. **Semantic Interpretation** - Transforming ASTs into SMT solver constraints
-4. **Model Finding** - Solving constraints and interpreting results
+The methodology implements a **systematic approach** to programmatic semantics through **6 interconnected components**: system architecture, pipeline orchestration, syntax parsing, semantic interpretation, model finding, and iteration strategies. This approach separates syntactic processing from semantic interpretation, enabling support for arbitrary logical theories while maintaining a consistent computational pipeline.
 
-The framework separates syntactic processing from semantic interpretation, enabling support for arbitrary logical theories while maintaining a consistent computational pipeline. This separation allows new theories to be added by implementing semantic classes without modifying the core parsing and solving infrastructure.
+The framework treats **semantic theories as executable programs**, where truth conditions become code, constraints are computations, and models are data structures. This programmatic approach allows researchers to implement and test semantic theories systematically, comparing different approaches to logical phenomena through concrete counterexamples and model generation.
 
-## Quick Navigation
+## Theory Examples
 
-### Understanding the Pipeline
+### Pipeline Processing Example
 
-The ModelChecker pipeline follows a linear flow from input formulas to model output:
-
-1. **[BUILDER.md](BUILDER.md)** - Entry point and orchestration
-   - How BuildModule loads examples and manages settings
-   - BuildExample pipeline from premises/conclusions to results
-   - BuildProject for generating new theory implementations
-   - Visual flowcharts showing component integration and settings flow
-   - Insights into theory isolation and dynamic loading patterns
-
-2. **[SYNTAX.md](SYNTAX.md)** - Formula parsing and AST construction
-   - Language-agnostic tokenization and parsing
-   - Prefix notation conversion and complexity tracking
-   - Sentence lifecycle and operator resolution
-
-3. **[SEMANTICS.md](SEMANTICS.md)** - Constraint generation from syntax
-   - Theory-agnostic semantic framework
-   - Proposition constraints and settings interaction
-   - Operator patterns and subtheory architecture
-
-4. **[MODELS.md](MODELS.md)** - SMT solving and interpretation
-   - Z3 solver setup and state isolation
-   - Model extraction and sentence interpretation
-   - Output generation and visualization
-
-5. **[ITERATOR.md](ITERATOR.md)** - Model iteration system
-   - Finding multiple distinct models
-   - Theory-specific iteration behaviors
-   - Configuration and tuning
-
-### Using the Framework
-
-- **[Usage Workflows](../usage/WORKFLOW.md)** - Effective package usage patterns
-- **[Theory Comparison](../usage/COMPARE_THEORIES.md)** - Comparing semantic theories
-- **[Examples Guide](../../Code/docs/EXAMPLES.md)** - Creating and running examples
-- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Building new theories
-
-## Core Concepts
-
-### Three-Level Methodology
-
-The ModelChecker implements a three-level approach to semantic modeling:
-
-1. **Syntax Level** - Structural representation of logical formulas
-   - Parse trees capture formula structure
-   - Operators identified by LaTeX notation
-   - Language-agnostic processing
-
-2. **Truth-Conditions Level** - Semantic interpretation rules
-   - When formulas are true/false at evaluation points
-   - Operator-specific verification/falsification conditions
-   - Settings modify semantic behavior
-
-3. **Extensions Level** - Concrete model assignments
-   - Which states verify/falsify atomic propositions
-   - How complex formulas derive truth from components
-   - Countermodel construction
-
-### Programmatic Semantics
-
-The framework treats semantic theories as executable programs:
+The methodology transforms logical formulas through distinct stages:
 
 ```python
-# Theory as code
-class MySemantics(SemanticDefaults):
-    def true_at(self, world, sentence, eval_point):
-        """Define when sentences are true."""
+# 1. Input formulas (strings)
+premises = ["A \\wedge B", "B \\rightarrow C"]
+conclusions = ["A \\wedge C"]
 
-# Constraints as computation
-constraints = generate_constraints(premises, conclusions, settings)
-model = solve(constraints)
+# 2. Syntax parsing creates AST
+# "A \\wedge B" → Sentence(operator="\\wedge", args=["A", "B"])
 
-# Models as data structures
-countermodel = {
-    'worlds': ['w1', 'w2'],
-    'extensions': {'A': {'verifiers': ['s1'], 'falsifiers': ['s2']}},
-    'evaluation': {'A ∧ B': 'false at w1'}
-}
+# 3. Semantic constraints generation
+# true_at(w, "A \\wedge B") ↔ true_at(w, "A") ∧ true_at(w, "B")
+
+# 4. Z3 solving finds countermodel
+# Model: A=True, B=True, C=False at world w1
 ```
 
-This shows how semantic theories become executable programs: theory classes define evaluation rules (`true_at`), constraint generation transforms these rules into Z3 formulas, and the solver produces concrete models as structured data. The countermodel above demonstrates hyperintensional semantics where atomic propositions have both verifiers (states making them true) and falsifiers (states making them false), enabling fine-grained semantic distinctions.
+### Theory Implementation Pattern
 
-### Theory-Agnostic Framework
+```python
+# Implement a semantic theory as code
+class HyperintensionalSemantics(SemanticDefaults):
+    def __init__(self, settings):
+        # Define Z3 primitives for states and relations
+        self.verify = z3.Function('verify', StateSort, SentenceSort, z3.BoolSort())
+        self.falsify = z3.Function('falsify', StateSort, SentenceSort, z3.BoolSort())
+    
+    def true_at(self, world, sentence, evaluation_world):
+        # Truth conditions as executable code
+        return z3.Exists([state], 
+            z3.And(
+                self.part_of(state, world),
+                self.verify(state, sentence)
+            )
+        )
+```
 
-The methodology supports arbitrary semantic theories through:
+### Model Iteration Example
 
-- Customizable truth conditions via theory implementations
-- Flexible state representations (bit vectors, worlds, etc.)
-- Theory-specific constraint generation
-- Extensible operator definitions
+```bash
+# Find multiple distinct models
+model-checker examples/test.py --iterate=3
 
-Example theories include:
+# Output shows progressively different models:
+# MODEL 1: Basic countermodel
+# MODEL 2: Different truth value assignment
+# MODEL 3: Different world structure
+```
 
-- **Logos**: Hyperintensional semantics with verifiers/falsifiers
-- **Exclusion**: Unilateral semantics with exclusion relations
-- **Imposition**: Fine's imposition theory for counterfactuals
-- **Classical**: Standard possible worlds semantics
+For complete implementation examples, see the [Theory Library](../../Code/src/model_checker/theory_lib/README.md).
+
+## Subdirectories
+
+This directory contains only methodology documentation files (no subdirectories). Each document covers a key aspect of the programmatic semantics framework:
+
+### Core Components
+
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design philosophy, component relationships, and extension points for new theories
+- **[BUILDER.md](BUILDER.md)** - Pipeline orchestration through BuildModule/BuildExample, including visual flowcharts and settings management
+- **[SYNTAX.md](SYNTAX.md)** - Formula parsing, AST construction, and the language-agnostic syntax processing pipeline
+- **[SEMANTICS.md](SEMANTICS.md)** - Constraint generation from syntax trees, operator patterns, and theory-agnostic semantic framework
+- **[MODELS.md](MODELS.md)** - SMT solver interaction, model extraction, result interpretation, and output formatting
+- **[ITERATOR.md](ITERATOR.md)** - Finding multiple models, theory-specific iteration behaviors, and configuration strategies
+
+## Documentation
+
+### For Researchers
+- **[Architecture Overview](ARCHITECTURE.md)** - System design and theory integration
+- **[Theory Examples](../theory/README.md)** - Theoretical foundations
+- **[Academic References](../theory/REFERENCES.md)** - Published papers
+
+### For Theory Implementers
+- **[Builder Pattern](BUILDER.md)** - Understanding the pipeline
+- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Creating new theories
+- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Implementation examples
+
+### For Framework Users
+- **[Usage Workflows](../usage/WORKFLOW.md)** - Practical usage patterns
+- **[Getting Started](../installation/GETTING_STARTED.md)** - First steps
+- **[Theory Comparison](../usage/COMPARE_THEORIES.md)** - Comparing theories
 
 ## Key Features
 
-### Modular Architecture
+### Three-Level Methodology
+- **Syntax Level** - Structural representation of logical formulas
+- **Truth-Conditions Level** - Semantic interpretation rules
+- **Extensions Level** - Concrete model assignments
 
+### Programmatic Approach
+- Semantic theories as executable Python classes
+- Truth conditions as code methods
+- Constraints as Z3 computations
+- Models as structured data
+
+### Theory-Agnostic Framework
+- Customizable truth conditions via theory implementations
+- Flexible state representations (bit vectors, worlds, relations)
+- Theory-specific constraint generation
+- Extensible operator definitions
+
+### Modular Architecture
 - Clear separation between syntax, semantics, and solving
 - Theory-independent core infrastructure
 - Plugin-style theory implementations
 - Composable operator libraries
 
-### Constraint-Based Approach
-
-- Declarative specification of semantic conditions
-- Automatic constraint generation from formulas
-- SMT solver finds satisfying models
-- Unsat cores identify conflicts
-
-### Extensible Design
-
-- New operators via simple class definitions
-- Custom semantic theories by extending base classes
-- Configurable constraints through settings
-- Multiple output formats
-
-## Implementation Flow
-
-### Example Processing Pipeline
-
-```
-1. Input: premises = ["A \\wedge B"], conclusions = ["C"]
-                        ↓
-2. BuildExample initialization
-   - Load operators and semantics
-   - Merge settings
-                        ↓
-3. Syntax parsing (SYNTAX.md)
-   - Tokenize: ["(", "A", "\\wedge", "B", ")"]
-   - Parse to prefix: ["\\wedge", "A", "B"]
-   - Create Sentence objects
-                        ↓
-4. Semantic constraints (SEMANTICS.md)
-   - Frame constraints (possibility closure)
-   - Proposition constraints (classical, contingent)
-   - Evaluation constraints (premise true, conclusion false)
-                        ↓
-5. Model finding (MODELS.md)
-   - Z3 solver setup
-   - Constraint solving
-   - Model extraction or unsat core
-                        ↓
-6. Result interpretation
-   - Extract verifier/falsifier sets
-   - Evaluate sentences in model
-   - Format and display output
-```
-
-## Theory Integration
-
-New theories integrate by implementing four key classes:
-
-```python
-# 1. Semantics - core evaluation rules
-class MySemantics(SemanticDefaults):
-    def __init__(self, settings):
-        # Define Z3 primitives
-        self.my_relation = z3.Function(...)
-
-# 2. Proposition - atomic constraints
-class MyProposition(PropositionDefaults):
-    def proposition_constraints(self, letter):
-        # Define atomic behavior
-
-# 3. Model - result interpretation
-class MyModel(ModelDefaults):
-    def print_states(self, output):
-        # Theory-specific visualization
-
-# 4. Operators - logical connectives
-class MyOperator(Operator):
-    def extended_verify(self, state, *args):
-        # Verification conditions
-```
-
-These classes orchestrate together through the [Builder Pattern](BUILDER.md):
-- **Semantics** defines Z3 primitives (states, relations) and implements `true_at`/`false_at` methods
-- **Proposition** generates constraints for atomic sentences using the semantics' primitives
-- **Operators** invoke semantic methods to build constraints for complex formulas
-- **Model** interprets Z3's satisfying assignment back into your theory's vocabulary
-
-The [BuildExample flow](BUILDER.md#buildexample-flow) automatically instantiates these classes with proper settings, collects constraints through [ModelConstraints](SEMANTICS.md#constraint-generation), and solves via [ModelStructure](MODELS.md#smt-solving-and-interpretation). For implementation details, see the [Development Guide](../../Code/docs/DEVELOPMENT.md).
-
 ## References
 
-### Implementation Documentation
-
-**[API Reference](../../Code/src/model_checker/README.md)** - Core framework APIs
-**[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
-**[Test Suite](../../Code/tests/README.md)** - Integration and unit tests
+### Primary Sources
+- Fine, Kit (2017) ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22), Companion to Philosophy of Language
+- Brast-McKie, Benjamin (2021) ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w), Journal of Philosophical Logic
 
 ### Related Resources
-
-- **[Installation Guide](../installation/README.md)** - Getting started
-- **[Examples](../../Examples/)** - Sample logical arguments
+- **[Technical Architecture](../../Code/docs/ARCHITECTURE.md)** - Implementation details
+- **[API Documentation](../../Code/src/model_checker/README.md)** - Framework APIs
+- **[Test Suite](../../Code/tests/README.md)** - Validation examples
 
 ---
 
-[← Back to Docs](../README.md) | [Builder Pattern →](BUILDER.md) | [Development Guide →](../../Code/docs/DEVELOPMENT.md)
+[← Back to Docs](../README.md) | [Architecture →](ARCHITECTURE.md) | [Syntax →](SYNTAX.md)

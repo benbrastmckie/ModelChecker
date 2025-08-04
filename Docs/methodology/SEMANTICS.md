@@ -408,7 +408,7 @@ class LogosProposition(PropositionDefaults):
         self.verifiers, self.falsifiers = self.find_proposition()  # Compute truth-makers
 ```
 
-*Full implementation: [`model_checker/theory_lib/logos/proposition.py`](../../Code/src/model_checker/theory_lib/logos/proposition.py)*
+*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../Code/src/model_checker/theory_lib/logos/semantic.py)*
 
 LogosProposition initialization demonstrates the evaluation context mechanism. The `eval_world` parameter allows propositions to be evaluated at different worlds - defaulting to the main world for premises/conclusions, but supporting evaluation at alternative worlds for modal operators. The immediate computation of verifier/falsifier sets during initialization enables efficient caching - each proposition's truthmakers are calculated once and reused throughout the semantic evaluation.
 
@@ -501,7 +501,7 @@ Each constraint type serves a specific purpose:
 └──────────────────┴──────────────────────────────────┴─────────────────────────┘
 ```
 
-*Implementation of constraint generators: [`model_checker/theory_lib/logos/proposition.py#proposition_constraints`](../../Code/src/model_checker/theory_lib/logos/proposition.py)*
+*Implementation of constraint generators: [`model_checker/theory_lib/logos/semantic.py#proposition_constraints`](../../Code/src/model_checker/theory_lib/logos/semantic.py)*
 
 ## Operator Implementation Pattern
 
@@ -794,7 +794,7 @@ class LogosOperatorRegistry:
                 self.loaded_subtheories.add(name)
 ```
 
-*Full implementation: [`model_checker/theory_lib/logos/registry.py`](../../Code/src/model_checker/theory_lib/logos/registry.py)*
+*Full implementation: [`model_checker/theory_lib/logos/operators.py`](../../Code/src/model_checker/theory_lib/logos/operators.py)*
 
 The operator registry provides centralized management of logical operators across subtheories. It maintains a single `OperatorCollection` that maps operator names to their implementations, tracks which subtheories have been loaded to prevent duplication, and handles the dynamic import of operator modules. This design allows theories to be composed from modular pieces - you can load just the operators you need (e.g., only modal operators for a modal logic example) rather than loading the entire theory library.
 

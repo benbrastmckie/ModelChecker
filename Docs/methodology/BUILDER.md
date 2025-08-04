@@ -47,7 +47,7 @@ Key insights this pattern provides:
 - **Comparative Analysis**: Run multiple theories on the same examples side-by-side
 - **Extensibility**: Add new theories without modifying core infrastructure
 
-For detailed architectural patterns, see [Technical Architecture](../../Code/docs/ARCHITECTURE.md). For the theoretical foundations of model checking, see [Hyperintensional Semantics](../../HYPERINTENSIONAL.md).
+For detailed architectural patterns, see [Technical Architecture](../../Code/docs/ARCHITECTURE.md). For the theoretical foundations of model checking, see [Hyperintensional Semantics](../theory/HYPERINTENSIONAL.md).
 
 ## BuildModule Architecture
 

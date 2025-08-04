@@ -1,8 +1,8 @@
 # Architecture: How Components Fit Together
 
-[← Back to Docs](README.md) | [Workflow →](usage/WORKFLOW.md) | [Iterator →](methodology/ITERATOR.md) | [Technical Architecture →](../Code/docs/ARCHITECTURE.md)
+[← Back to Methodology](README.md) | [Workflow →](../usage/WORKFLOW.md) | [Iterator →](ITERATOR.md) | [Technical Architecture →](../../Code/docs/ARCHITECTURE.md)
 
-> **Note**: This document provides a comprehensive educational overview of the ModelChecker's architecture and design philosophy. For a concise technical reference aimed at developers, see the [Technical Architecture Reference](../Code/docs/ARCHITECTURE.md).
+> **Note**: This document provides a comprehensive educational overview of the ModelChecker's architecture and design philosophy. For a concise technical reference aimed at developers, see the [Technical Architecture Reference](../../Code/docs/ARCHITECTURE.md).
 
 ## Table of Contents
 
@@ -149,29 +149,35 @@ class Syntax:
         # 4. Resolve operator references
 
 class Sentence:
-    """Represents a parsed formula with metadata."""
-    def __init__(self, name=None, content=None, 
-                 operator=None, operands=None):
-        self.name = name              # Original string
-        self.content = content        # Prefix notation
-        self.complexity = 0           # Parse tree depth
-        self.sentence_letter = None   # Z3 atom if atomic
-        self.proposition = None       # Linked proposition
+    """Represents a logical sentence with support for both infix and prefix notation."""
+    def __init__(self, infix_sentence):
+        self.name = infix_sentence
+        self.prefix_sentence, self.complexity = self.prefix(infix_sentence)
         
-    def update_sentence_type(self, operator, operands):
-        """Transform from atomic to complex sentence."""
-        self.operator = operator
-        self.operands = operands
+        # For complex sentences, extract operator and arguments
+        if self.complexity > 0:
+            self.original_arguments = []  # Subsentences
+            self.original_operator = None  # Operator string
+        else:
+            # Atomic sentence
+            self.sentence_letter = None   # Z3 atom (set later)
+            
+        self.proposition = None  # Linked proposition (set during evaluation)
         
 class Operator:
     """Base class for all logical operators."""
     def __init__(self, semantics):
         self.semantics = semantics
         
-    @abstractmethod
     def true_at(self, world, sentence, eval_point):
-        """Define truth conditions."""
-        pass
+        """Define truth conditions.
+        
+        This method should be implemented by subclasses.
+        
+        Raises:
+            NotImplementedError: If not implemented by subclass
+        """
+        raise NotImplementedError("Subclasses must implement true_at")
 ```
 
 **Key Design Decisions**:
@@ -186,12 +192,17 @@ The model module provides semantic foundations:
 ```python
 class SemanticDefaults:
     """Base semantic operations for all theories."""
-    def __init__(self, settings):
-        self.N = settings['N']
-        self.setup_z3_primitives()
+    def __init__(self, combined_settings):
+        # Store the name
+        self.name = self.__class__.__name__
         
-    def setup_z3_primitives(self):
-        """Define core Z3 functions."""
+        # Extract N if provided for bit-width operations
+        if 'N' in combined_settings and combined_settings['N'] is not None:
+            self.N = combined_settings['N']
+            self._setup_states()  # Initialize bit vector states
+            
+    def _setup_states(self):
+        """Setup bit vector representations of states."""
         # State representation
         self.bv_sort = BitVecSort(self.N)
         
@@ -274,7 +285,7 @@ class BuildModule:
 # builder/example.py
 class BuildExample:
     """Executes individual model checking example."""
-    def __init__(self, build_module, semantic_theory, case, theory_name):
+    def __init__(self, build_module, semantic_theory, example_case, theory_name=None):
         self.validate_theory()
         self.extract_components()
         self.build_pipeline()
@@ -309,9 +320,11 @@ The settings system manages configuration hierarchy:
 ```python
 class SettingsManager:
     """Validates and merges settings from multiple sources."""
-    def __init__(self, semantic_defaults, general_settings, 
+    def __init__(self, semantic_theory, global_defaults=None, 
                  theory_name=None, is_comparison=False):
-        self.determine_valid_settings()
+        self.semantic_theory = semantic_theory
+        self.theory_name = theory_name
+        self.is_comparison = is_comparison
         
     def get_complete_settings(self, raw_settings, example_settings, flags):
         """Merge settings with proper precedence."""
@@ -411,11 +424,15 @@ Operators follow an inheritance hierarchy:
 
 ```python
 # Base operator
-class Operator(ABC):
-    """Abstract base for all operators."""
-    @abstractmethod
+class Operator:
+    """Base class for all operators."""
     def true_at(self, world, sentence, eval_point):
-        pass
+        """Define truth conditions.
+        
+        Raises:
+            NotImplementedError: If not implemented by subclass
+        """
+        raise NotImplementedError("Subclasses must implement true_at")
 
 # Primitive operator
 class NecessityOperator(Operator):
@@ -487,11 +504,14 @@ class BaseModelIterator:
             # 5. Track progress
             
     # Abstract methods for theories
-    @abstractmethod
     def _create_difference_constraint(self, previous_models):
-        """Ensure new model differs semantically."""
+        """Ensure new model differs semantically.
         
-    @abstractmethod
+        Raises:
+            NotImplementedError: Must be implemented by theory-specific subclass
+        """
+        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
+        
     def _calculate_differences(self, new_model, previous_model):
         """Identify semantic differences."""
 ```
@@ -854,8 +874,8 @@ def compare_theories_parallel(theories, examples):
 ### Related Documentation
 - [Builder Pattern](methodology/BUILDER.md) - Detailed orchestration with component integration flowcharts
 - [Iterator System](methodology/ITERATOR.md) - Model iteration architecture
-- [Theory Architecture](../../Code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md) - Theory design
+- [Theory Architecture](../../../Code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md) - Theory design
 
 ---
 
-[← Back to Docs](README.md) | [Workflow →](usage/WORKFLOW.md) | [Iterator →](methodology/ITERATOR.md)
+[← Back to Methodology](README.md) | [Workflow →](../usage/WORKFLOW.md) | [Iterator →](ITERATOR.md)
