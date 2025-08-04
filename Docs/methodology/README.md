@@ -44,7 +44,7 @@ The ModelChecker pipeline follows a linear flow from input formulas to model out
    - Sentence lifecycle and operator resolution
 
 3. **[SEMANTICS.md](SEMANTICS.md)** - Constraint generation from syntax
-   - Hyperintensional truthmaker semantics implementation
+   - Theory-agnostic semantic framework
    - Proposition constraints and settings interaction
    - Operator patterns and subtheory architecture
 
@@ -116,13 +116,19 @@ countermodel = {
 }
 ```
 
-### Hyperintensional Framework
+### Theory-Agnostic Framework
 
-The system implements hyperintensional semantics where:
-- Truth values determined by verifying/falsifying states
-- Atomic states combine via fusion operations
-- Fine-grained distinctions between equivalent formulas
-- Support for truth-value gaps and gluts
+The methodology supports arbitrary semantic theories through:
+- Customizable truth conditions via theory implementations
+- Flexible state representations (bit vectors, worlds, etc.)
+- Theory-specific constraint generation
+- Extensible operator definitions
+
+Example theories include:
+- **Logos**: Hyperintensional semantics with verifiers/falsifiers
+- **Exclusion**: Unilateral semantics with exclusion relations
+- **Imposition**: Fine's imposition theory for counterfactuals
+- **Classical**: Standard possible worlds semantics
 
 ## Key Features
 
