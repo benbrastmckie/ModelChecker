@@ -505,7 +505,7 @@ general_settings = {
 }
 ```
 
-For comprehensive guidance on theory comparison, import patterns, avoiding circular dependencies, and advanced multi-theory setups, see **[Theory Comparison Guide](../../Docs/COMPARE_THEORIES.md)**.
+For comprehensive guidance on theory comparison, import patterns, avoiding circular dependencies, and advanced multi-theory setups, see **[Theory Comparison Guide](../../Docs/usage/COMPARE_THEORIES.md)**.
 
 ## Validation Checklist
 

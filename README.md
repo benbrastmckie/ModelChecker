@@ -14,15 +14,17 @@ ModelChecker/
 ├── Docs/                           # General project documentation (see Docs/README.md)
 │   ├── installation/               # Modular installation guides
 │   ├── GETTING_STARTED.md          # Quick start guide
+│   ├── usage/                      # Practical usage guides
+│   │   ├── WORKFLOW.md             # Usage workflows
+│   │   └── COMPARE_THEORIES.md     # Theory comparison
 │   ├── methodology/                # Programmatic semantics methodology
 │   │   ├── README.md               # Methodology overview
-│   │   ├── BUILDER_PATTERN.md      # Pipeline orchestration
+│   │   ├── BUILDER.md              # Pipeline orchestration
 │   │   ├── SYNTAX.md               # AST conversion
 │   │   ├── SEMANTICS.md            # Constraint generation
 │   │   ├── MODELS.md               # SMT solving
-│   │   ├── WORKFLOW.md             # Usage workflows
-│   │   ├── ARCHITECTURE.md         # System design
 │   │   └── ITERATOR.md             # Model iteration
+│   ├── ARCHITECTURE.md             # System design and overview
 │   ├── HYPERINTENSIONAL.md         # Theoretical background
 │   ├── Z3_BACKGROUND.md            # SMT solver information
 │   └── FINDINGS.md                 # Research findings

@@ -1,8 +1,8 @@
 # Technical Architecture Reference
 
-[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Methodology Architecture →](../../Docs/methodology/ARCHITECTURE.md)
+[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Methodology Architecture →](../../Docs/ARCHITECTURE.md)
 
-> **Note**: This document provides a technical reference for developers. For a comprehensive educational overview of the architecture and design philosophy, see the [Methodology Architecture Guide](../../Docs/methodology/ARCHITECTURE.md).
+> **Note**: This document provides a technical reference for developers. For a comprehensive educational overview of the architecture and design philosophy, see the [Methodology Architecture Guide](../../Docs/ARCHITECTURE.md).
 
 ## Table of Contents
 
@@ -429,4 +429,4 @@ def get_settings_validation():
 
 ---
 
-[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Methodology Architecture →](../../Docs/methodology/ARCHITECTURE.md)
+[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Methodology Architecture →](../../Docs/ARCHITECTURE.md)

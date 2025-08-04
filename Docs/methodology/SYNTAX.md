@@ -1,6 +1,6 @@
 # Syntax: Language-Agnostic AST Conversion
 
-[← Builder Pattern](BUILDER_PATTERN.md) | [Back to Methodology](README.md) | [Semantics Pipeline →](SEMANTICS.md)
+[← Builder Pattern](BUILDER.md) | [Back to Methodology](README.md) | [Semantics Pipeline →](SEMANTICS.md)
 
 ## Table of Contents
 
@@ -44,12 +44,10 @@ The parsing pipeline transforms strings like `"(A \\wedge B)"` into structured r
 
 The parser operates without a predefined operator dictionary, discovering operators during parsing through structural analysis:
 
-```python
-# Parser recognizes three token types:
-1. Atomic sentences: isalnum() → "A", "B", "p1"
-2. LaTeX operators: startswith("\\") → "\\wedge", "\\Box", "\\rightarrow"  
+Parser recognizes three token types:
+1. Atomic sentences: `isalnum()` → "A", "B", "p1"
+2. LaTeX operators: `startswith("\\")` → "\\wedge", "\\Box", "\\rightarrow"  
 3. Parentheses: "(" and ")" for grouping binary operators
-```
 
 This design allows theories to define custom operators without modifying the parser, supporting extensibility and theory-specific languages.
 
@@ -137,31 +135,29 @@ The conversion process transforms infix expressions to prefix notation:
 
 ```python
 # Tokenization splits on whitespace with parenthesis handling
-"(A \\wedge B)" → ["(", "A", "\\wedge", "B", ")"]
+# "(A \\wedge B)" → ["(", "A", "\\wedge", "B", ")"]
 
 # op_left_right extracts components
-["A", "\\wedge", "B"] → operator="\\wedge", left=["A"], right=["B"]
+# ["A", "\\wedge", "B"] → operator="\\wedge", left=["A"], right=["B"]
 
 # Recursive parsing builds prefix tree
-left=["A"] → ["A"], complexity=0
-right=["B"] → ["B"], complexity=0
-result → ["\\wedge", ["A"], ["B"]], complexity=1
+# left=["A"] → ["A"], complexity=0
+# right=["B"] → ["B"], complexity=0
+# result → ["\\wedge", ["A"], ["B"]], complexity=1
 ```
 
 ### Complexity Calculation
 
 Complexity measures the nesting depth of formulas:
 
-```python
-# Atomic sentences have complexity 0
-"A" → complexity = 0
+Atomic sentences have complexity 0:
+- `"A"` → complexity = 0
 
-# Each operator adds 1 to maximum argument complexity
-"\\neg A" → complexity = 0 + 1 = 1
-"(A \\wedge B)" → complexity = max(0, 0) + 1 = 1
-"\\Box (A \\wedge B)" → complexity = 1 + 1 = 2
-"((A \\wedge B) \\rightarrow \\neg C)" → complexity = max(1, 1) + 1 = 2
-```
+Each operator adds 1 to maximum argument complexity:
+- `"\\neg A"` → complexity = 0 + 1 = 1
+- `"(A \\wedge B)"` → complexity = max(0, 0) + 1 = 1
+- `"\\Box (A \\wedge B)"` → complexity = 1 + 1 = 2
+- `"((A \\wedge B) \\rightarrow \\neg C)"` → complexity = max(1, 1) + 1 = 2
 
 ### Error Handling
 
@@ -169,18 +165,18 @@ The parser provides detailed error messages for common issues:
 
 ```python
 # Empty tokens
-parse_expression([]) → ValueError("Empty token list")
+# parse_expression([]) → ValueError("Empty token list")
 
 # Unbalanced parentheses
-"(A \\wedge B" → SyntaxError("Missing closing parenthesis")
-"A \\wedge B)" → ValueError("Unbalanced parentheses")
+# "(A \\wedge B" → SyntaxError("Missing closing parenthesis")
+# "A \\wedge B)" → ValueError("Unbalanced parentheses")
 
 # Missing arguments
-"\\wedge B" → ValueError("Empty token list after operator \\wedge")
-"(A \\wedge )" → ValueError("Expected argument after operator \\wedge")
+# "\\wedge B" → ValueError("Empty token list after operator \\wedge")
+# "(A \\wedge )" → ValueError("Expected argument after operator \\wedge")
 
 # Invalid operators
-"A & B" → Operator "&" not found in collection (later stage)
+# "A & B" → Operator "&" not found in collection (later stage)
 ```
 
 ## Sentence Class Structure
@@ -237,17 +233,15 @@ sentence.update_proposition(model_structure)
 
 Complex sentences are built recursively from their components:
 
-```python
-# Building "(A \\wedge B) \\rightarrow C"
-1. Create Sentence("(A \\wedge B) \\rightarrow C")
-2. Parse to ["\\rightarrow", ["\\wedge", "A", "B"], "C"]
+Building "(A \\wedge B) \\rightarrow C":
+1. Create `Sentence("(A \\wedge B) \\rightarrow C")`
+2. Parse to `["\\rightarrow", ["\\wedge", "A", "B"], "C"]`
 3. Recursively create:
-   - Sentence("(A \\wedge B)")
-     - Sentence("A")
-     - Sentence("B")
-   - Sentence("C")
-4. Store in all_sentences dictionary
-```
+   - `Sentence("(A \\wedge B)")`
+     - `Sentence("A")`
+     - `Sentence("B")`
+   - `Sentence("C")`
+4. Store in `all_sentences` dictionary
 
 ### Dictionary Management
 
@@ -585,4 +579,4 @@ print(f"Premise complexity: {syntax.premises[0].complexity}")  # 2
 
 ---
 
-[← Builder Pattern](BUILDER_PATTERN.md) | [Back to Methodology](README.md) | [Semantics Pipeline →](SEMANTICS.md)
+[← Builder Pattern](BUILDER.md) | [Back to Methodology](README.md) | [Semantics Pipeline →](SEMANTICS.md)

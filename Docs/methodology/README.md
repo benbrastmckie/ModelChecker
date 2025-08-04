@@ -1,18 +1,16 @@
 # ModelChecker Methodology: Programmatic Semantics
 
-[← Back to Docs](../README.md) | [Builder Pattern →](BUILDER_PATTERN.md) | [Development Guide →](../../Code/docs/DEVELOPMENT.md)
+[← Back to Docs](../README.md) | [Builder Pattern →](BUILDER.md) | [Development Guide →](../../Code/docs/DEVELOPMENT.md)
 
 ## Directory Structure
 
 ```
 methodology/
 ├── README.md               # This file - methodology documentation hub
-├── BUILDER_PATTERN.md      # BuildModule/BuildExample orchestration architecture
+├── BUILDER.md              # BuildModule/BuildExample orchestration architecture
 ├── SYNTAX.md               # Language-agnostic AST conversion pipeline
 ├── SEMANTICS.md            # From syntax trees to Z3 constraint generation
 ├── MODELS.md               # SMT solver interaction and result interpretation
-├── WORKFLOW.md             # Using the package effectively ✓
-├── ARCHITECTURE.md         # How components fit together ✓
 └── ITERATOR.md             # Model iteration and the 'iterate' setting ✓
 ```
 
@@ -33,7 +31,7 @@ The framework separates syntactic processing from semantic interpretation, enabl
 
 The ModelChecker pipeline follows a linear flow from input formulas to model output:
 
-1. **[BUILDER_PATTERN.md](BUILDER_PATTERN.md)** - Entry point and orchestration
+1. **[BUILDER.md](BUILDER.md)** - Entry point and orchestration
    - How BuildModule loads examples and manages settings
    - BuildExample pipeline from premises/conclusions to results
    - BuildProject for generating new theory implementations
@@ -53,23 +51,15 @@ The ModelChecker pipeline follows a linear flow from input formulas to model out
    - Model extraction and sentence interpretation
    - Output generation and visualization
 
+5. **[ITERATOR.md](ITERATOR.md)** - Model iteration system
+   - Finding multiple distinct models
+   - Theory-specific iteration behaviors
+   - Configuration and tuning
+
 ### Using the Framework
 
-- **[WORKFLOW.md](WORKFLOW.md)** - Effective package usage patterns
-  - Command-line workflows and debugging
-  - Theory development best practices
-  - Performance optimization strategies
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Component relationships
-  - System design philosophy
-  - Data flow between components
-  - Extension points for new theories
-- **[ITERATOR.md](ITERATOR.md)** - Model iteration system
-  - Finding multiple distinct models
-  - Theory-specific iteration behaviors
-  - Configuration and tuning
-
-### Theory Development
-
+- **[Usage Workflows](../usage/WORKFLOW.md)** - Effective package usage patterns
+- **[Theory Comparison](../usage/COMPARE_THEORIES.md)** - Comparing semantic theories
 - **[Examples Guide](../../Code/docs/EXAMPLES.md)** - Creating and running examples
 - **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Building new theories
 
@@ -222,4 +212,4 @@ class MyOperator(Operator):
 
 ---
 
-[← Back to Docs](../README.md) | [Builder Pattern →](BUILDER_PATTERN.md) | [Development Guide →](../../Code/docs/DEVELOPMENT.md)
+[← Back to Docs](../README.md) | [Builder Pattern →](BUILDER.md) | [Development Guide →](../../Code/docs/DEVELOPMENT.md)

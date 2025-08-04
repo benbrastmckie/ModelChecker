@@ -1,8 +1,8 @@
 # Architecture: How Components Fit Together
 
-[← Back to Methodology](README.md) | [Workflow →](WORKFLOW.md) | [Iterator →](ITERATOR.md) | [Technical Architecture →](../../Code/docs/ARCHITECTURE.md)
+[← Back to Docs](README.md) | [Workflow →](usage/WORKFLOW.md) | [Iterator →](methodology/ITERATOR.md) | [Technical Architecture →](../Code/docs/ARCHITECTURE.md)
 
-> **Note**: This document provides a comprehensive educational overview of the ModelChecker's architecture and design philosophy. For a concise technical reference aimed at developers, see the [Technical Architecture Reference](../../Code/docs/ARCHITECTURE.md).
+> **Note**: This document provides a comprehensive educational overview of the ModelChecker's architecture and design philosophy. For a concise technical reference aimed at developers, see the [Technical Architecture Reference](../Code/docs/ARCHITECTURE.md).
 
 ## Table of Contents
 
@@ -74,7 +74,7 @@ The ModelChecker follows a three-tier architecture that cleanly separates concer
 
 Each component has clearly defined responsibilities:
 
-```python
+```
 # Parsing Layer
 syntactic.py      → Formula parsing and AST construction
 operators.py      → Operator definitions and registry
@@ -619,16 +619,16 @@ def main():
         BuildModule(args).run()
 
 # CLI argument structure
-Commands:
-  model-checker FILE            # Run example file
-  model-checker -l THEORY      # Generate project
-  
-Options:
-  --N INT                      # State space size
-  --theory THEORY              # Select theory
-  --verbose                    # Detailed output
-  --iterate INT                # Find N models
-  --print-constraints          # Show Z3 constraints
+# Commands:
+#   model-checker FILE            # Run example file
+#   model-checker -l THEORY      # Generate project
+#
+# Options:
+#   --N INT                      # State space size
+#   --theory THEORY              # Select theory
+#   --verbose                    # Detailed output
+#   --iterate INT                # Find N models
+#   --print-constraints          # Show Z3 constraints
 ```
 
 ### Test Framework Hooks
@@ -852,10 +852,10 @@ def compare_theories_parallel(theories, examples):
 - **Python Design Patterns** - Architectural patterns
 
 ### Related Documentation
-- [Builder Pattern](BUILDER_PATTERN.md) - Detailed orchestration
-- [Iterator System](ITERATOR.md) - Model iteration architecture
+- [Builder Pattern](methodology/BUILDER.md) - Detailed orchestration
+- [Iterator System](methodology/ITERATOR.md) - Model iteration architecture
 - [Theory Architecture](../../Code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md) - Theory design
 
 ---
 
-[← Back to Methodology](README.md) | [Workflow →](WORKFLOW.md) | [Iterator →](ITERATOR.md)
+[← Back to Docs](README.md) | [Workflow →](usage/WORKFLOW.md) | [Iterator →](methodology/ITERATOR.md)
