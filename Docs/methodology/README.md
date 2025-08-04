@@ -12,7 +12,7 @@ methodology/
 ├── SEMANTICS.md            # From syntax trees to Z3 constraint generation
 ├── MODELS.md               # SMT solver interaction and result interpretation
 ├── WORKFLOW.md             # Using the package effectively ✓
-├── ARCHITECTURE.md         # How components fit together (coming soon)
+├── ARCHITECTURE.md         # How components fit together ✓
 └── ITERATOR.md             # Model iteration and the 'iterate' setting (coming soon)
 ```
 
@@ -59,7 +59,7 @@ The ModelChecker pipeline follows a linear flow from input formulas to model out
   - Command-line workflows and debugging
   - Theory development best practices
   - Performance optimization strategies
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Component relationships *(coming soon)*
+- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Component relationships
   - System design philosophy
   - Data flow between components
   - Extension points for new theories
