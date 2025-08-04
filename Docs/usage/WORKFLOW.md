@@ -1,6 +1,6 @@
 # Workflow: Using the ModelChecker Package Effectively
 
-[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Iterator →](ITERATOR.md)
+[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Methodology →](../methodology/README.md)
 
 ## Table of Contents
 
@@ -739,11 +739,11 @@ valid_settings = {k: v for k, v in settings.items()
 - `.model_checker_config` - User configuration
 
 ### Related Documentation
-- [Architecture](ARCHITECTURE.md) - System design
-- [Iterator System](ITERATOR.md) - Model iteration details
-- [Builder Pattern](BUILDER_PATTERN.md) - Pipeline orchestration
+- [Architecture](../ARCHITECTURE.md) - System design
+- [Iterator System](../methodology/ITERATOR.md) - Model iteration details
+- [Builder Pattern](../methodology/BUILDER.md) - Pipeline orchestration
 - [Development Guide](../../Code/docs/DEVELOPMENT.md) - Contributing
 
 ---
 
-[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Iterator →](ITERATOR.md)
+[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Methodology →](../methodology/README.md)

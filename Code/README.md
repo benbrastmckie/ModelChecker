@@ -242,7 +242,7 @@ semantic_theories = {
 }
 ```
 
-For comprehensive guidance on theory comparison, avoiding circular imports, and advanced multi-theory setups, see **[Theory Comparison Guide](../Docs/COMPARE_THEORIES.md)**.
+For comprehensive guidance on theory comparison, avoiding circular imports, and advanced multi-theory setups, see **[Theory Comparison Guide](../Docs/usage/COMPARE_THEORIES.md)**.
 
 ## Documentation
 

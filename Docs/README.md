@@ -19,16 +19,18 @@ Docs/
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
 │   └── DEVELOPER_SETUP.md          # Development environment setup
 ├── GETTING_STARTED.md              # Quick start tutorial for new users
-├── COMPARE_THEORIES.md             # Theory comparison guide and best practices
+├── usage/                          # Practical usage guides
+│   ├── README.md                   # Usage documentation hub
+│   ├── WORKFLOW.md                 # Package usage workflows
+│   └── COMPARE_THEORIES.md         # Theory comparison guide
 ├── methodology/                    # Programmatic semantics methodology
 │   ├── README.md                   # Methodology hub and overview
-│   ├── BUILDER_PATTERN.md          # BuildModule/BuildExample architecture
+│   ├── BUILDER.md                  # BuildModule/BuildExample architecture
 │   ├── SYNTAX.md                   # AST conversion pipeline
 │   ├── SEMANTICS.md                # Constraint generation
 │   ├── MODELS.md                   # SMT solving and interpretation
-│   ├── WORKFLOW.md                 # Package usage workflows
-│   ├── ARCHITECTURE.md             # System design and components
 │   └── ITERATOR.md                 # Model iteration system
+├── ARCHITECTURE.md                # System design and overview
 ├── HYPERINTENSIONAL.md             # Theoretical background and core concepts
 ├── Z3_BACKGROUND.md                # Introduction to Z3 theorem prover
 ├── REFERENCES.md                   # Complete academic bibliography
@@ -58,7 +60,7 @@ This directory contains comprehensive documentation for the ModelChecker project
 
 ### Theory and Background
 
-- **[Theory Comparison Guide](COMPARE_THEORIES.md)** - Compare multiple semantic theories
+- **[Theory Comparison Guide](usage/COMPARE_THEORIES.md)** - Compare multiple semantic theories
 - **[Academic References](REFERENCES.md)** - Complete bibliography with BibTeX citations
 - **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** - Truthmaker semantics explained
 - **[Z3 Background](Z3_BACKGROUND.md)** - Understanding the Z3 theorem prover
@@ -88,7 +90,7 @@ This directory contains comprehensive documentation for the ModelChecker project
 ### For Researchers
 
 1. Read **[Hyperintensional Semantics](HYPERINTENSIONAL.md)** for theoretical foundations
-2. Review **[Theory Comparison Guide](COMPARE_THEORIES.md)** for cross-theory analysis
+2. Review **[Theory Comparison Guide](usage/COMPARE_THEORIES.md)** for cross-theory analysis
 3. Explore **[Methodology](methodology/README.md)** and **[Findings](FINDINGS.md)** for research context
 4. Review **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** for implementations
 

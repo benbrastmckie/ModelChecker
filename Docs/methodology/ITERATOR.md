@@ -1,6 +1,6 @@
 # Iterator: Model Iteration and the 'iterate' Setting
 
-[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Workflow →](WORKFLOW.md)
+[← Back to Methodology](README.md) | [Architecture →](../ARCHITECTURE.md) | [Workflow →](../usage/WORKFLOW.md)
 
 ## Table of Contents
 
@@ -161,13 +161,11 @@ Iteration performance depends on:
 3. **Theory semantics**
 4. **Isomorphism checking overhead**
 
-```python
-# Performance characteristics
-N=3: Fast iteration (8 states)
-N=4: Moderate (16 states)
-N=5: Slower (32 states)
-N=6+: May struggle to find distinct models
-```
+Performance characteristics:
+- `N=3`: Fast iteration (8 states)
+- `N=4`: Moderate (16 states)
+- `N=5`: Slower (32 states)
+- `N=6+`: May struggle to find distinct models
 
 ### Default Behaviors
 
@@ -927,7 +925,7 @@ Iteration produces various debug messages:
 - `theory_lib/*/iterate.py` - Theory-specific iterators
 
 ### Related Documentation
-- [Architecture](ARCHITECTURE.md) - System design and iterator architecture
+- [Architecture](../ARCHITECTURE.md) - System design and iterator architecture
 - [Workflow](WORKFLOW.md) - Using iteration in practice
 - [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Theory implementations
 - [Iterator README](../../Code/src/model_checker/iterate/README.md) - Technical details
@@ -939,4 +937,4 @@ Iteration produces various debug messages:
 
 ---
 
-[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Workflow →](WORKFLOW.md)
+[← Back to Methodology](README.md) | [Architecture →](../ARCHITECTURE.md) | [Workflow →](../usage/WORKFLOW.md)

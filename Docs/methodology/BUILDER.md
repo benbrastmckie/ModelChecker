@@ -31,7 +31,7 @@
 
 The Builder Pattern in ModelChecker orchestrates the model checking pipeline through three core classes: `BuildModule`, `BuildExample`, and `BuildProject`. This pattern provides a clean separation between module management, example execution, and project generation while maintaining a consistent flow of settings and data throughout the system.
 
-The builder architecture serves as the entry point for all model checking operations, handling everything from loading Python modules containing logical examples to generating new theory implementation projects. It ensures proper initialization of components, manages concurrent execution for performance comparisons, and provides isolation between different examples to prevent state leakage.
+The builder architecture serves as the entry point for all model checking operations, handling everything from loading Python modules containing logical examples to generating new semantic theory projects to adapt. It ensures proper initialization of components, manages concurrent execution for performance comparisons, and provides isolation between different examples to prevent state leakage.
 
 ## BuildModule Architecture
 
@@ -42,6 +42,7 @@ BuildModule dynamically loads Python modules containing modal logic examples and
 ```python
 # Module loading process
 build_module = BuildModule(module_flags)
+# Process steps:
 # 1. Detects if module is from generated project (project_* prefix)
 # 2. Sets up proper Python path for imports
 # 3. Loads module using importlib
@@ -49,6 +50,7 @@ build_module = BuildModule(module_flags)
 ```
 
 The module loader supports:
+
 - Standard theory library modules (`theory_lib/logos/examples.py`)
 - Generated project modules (`project_my_theory/examples.py`)
 - Relative imports within theory packages
@@ -56,16 +58,14 @@ The module loader supports:
 
 ### Settings Management
 
-BuildModule implements a sophisticated settings management system that handles theory-specific defaults, module-level settings, and command-line overrides:
+BuildModule implements a settings management system that handles theory-specific defaults, module-level settings, and command-line overrides:
 
-```python
-# Settings hierarchy (highest to lowest priority)
+Settings hierarchy (highest to lowest priority):
 1. Command-line flags (--verbose, --N=5, etc.)
 2. Example-specific settings (in example_range)
 3. Module general_settings
 4. Theory-specific defaults
 5. System DEFAULT_GENERAL_SETTINGS
-```
 
 The settings manager validates settings based on each theory's requirements, warning about unknown settings in single-theory mode while allowing flexibility in comparison mode.
 
@@ -100,7 +100,7 @@ BuildModule coordinates example execution with proper isolation and progress tra
 for example_name, example_case in example_range.items():
     # Reset Z3 context for isolation
     Z3ContextManager.reset_context()
-    
+
     for theory_name, semantic_theory in semantic_theories.items():
         # Create isolated example copy
         example = BuildExample(build_module, semantic_theory, example_case, theory_name)
@@ -117,8 +117,9 @@ BuildExample orchestrates the complete model checking pipeline from premises/con
 ```python
 # BuildExample initialization pipeline
 example = BuildExample(build_module, semantic_theory, example_case, theory_name)
+```
 
-# Pipeline stages:
+Pipeline stages:
 1. Validate semantic theory components
 2. Extract premises, conclusions, settings
 3. Create SettingsManager with theory context
@@ -126,7 +127,6 @@ example = BuildExample(build_module, semantic_theory, example_case, theory_name)
 5. Create ModelConstraints (links syntax to semantics)
 6. Build ModelStructure (Z3 solving)
 7. Interpret sentences (evaluate in model)
-```
 
 ### Settings Merger
 
@@ -196,8 +196,10 @@ BuildProject creates new theory implementations from existing templates:
 # Create new theory project
 project = BuildProject(theory='logos')
 project_dir = project.generate('my_counterfactual_theory')
+```
 
-# Generated structure:
+Generated structure:
+```
 project_my_counterfactual_theory/
 ├── __init__.py          # Version info and exports
 ├── semantic.py          # Core semantic implementation
@@ -214,14 +216,12 @@ project_my_counterfactual_theory/
 
 BuildProject ensures consistent project organization:
 
-```python
-# Essential components created
-- __init__.py with version tracking
-- semantic.py implementing SemanticDefaults
-- operators.py with operator registry
-- examples.py with semantic_theories and example_range
+Essential components created:
+- `__init__.py` with version tracking
+- `semantic.py` implementing SemanticDefaults
+- `operators.py` with operator registry
+- `examples.py` with semantic_theories and example_range
 - Proper Python package structure with imports
-```
 
 ### Module Initialization
 
@@ -231,11 +231,11 @@ Project initialization includes version management and licensing:
 # Version tracking in __init__.py
 __version__ = "0.1.0"  # Theory version
 __model_checker_version__ = "1.2.3"  # Compatible ModelChecker version
-
-# Automatic license and citation files
-LICENSE.md - GPL-3.0 license text
-CITATION.md - Academic citation template
 ```
+
+Automatic license and citation files:
+- `LICENSE.md` - GPL-3.0 license text
+- `CITATION.md` - Academic citation template
 
 ## Integration Points
 
@@ -258,13 +258,11 @@ BuildModule (orchestrator)
 
 Settings flow through the system with proper validation at each stage:
 
-```python
-# Settings flow path
+Settings flow path:
 1. Module flags → BuildModule
 2. BuildModule + general_settings → SettingsManager
 3. SettingsManager + example_settings → validated settings
 4. Validated settings → all components (Syntax, Semantics, Model)
-```
 
 ### Theory Loading
 
@@ -289,8 +287,8 @@ operators = registry.operators
 
 Results flow from Z3 models through interpretation layers:
 
-```python
-# Result interpretation pipeline
+Result interpretation pipeline:
+```
 Z3 Model → ModelStructure.interpret()
          → Sentence.update_proposition()
          → Proposition evaluation
@@ -408,12 +406,14 @@ else:
 ## References
 
 ### Implementation Files
+
 - `model_checker/builder/module.py` - BuildModule implementation
-- `model_checker/builder/example.py` - BuildExample implementation  
+- `model_checker/builder/example.py` - BuildExample implementation
 - `model_checker/builder/project.py` - BuildProject implementation
 - `model_checker/settings.py` - Settings management system
 
 ### Related Documentation
+
 - [Syntax Pipeline](SYNTAX.md) - How formulas are parsed
 - [Semantics Pipeline](SEMANTICS.md) - Constraint generation
 - [Model Finding](MODELS.md) - SMT solving process
