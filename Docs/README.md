@@ -38,7 +38,18 @@ Docs/
     ├── AUDIENCE.md                 # Audience guidelines
     ├── DOCUMENTATION_STANDARDS.md  # Documentation principles
     ├── README_STANDARDS.md         # README requirements
+    ├── CODE_ORGANIZATION.md        # Code structure guidelines
+    ├── ERROR_HANDLING.md           # Error handling patterns
+    ├── EXAMPLES_STRUCTURE.md       # Example file standards
+    ├── FORMULA_FORMATTING.md       # Formula notation conventions
+    ├── PERFORMANCE.md              # Performance optimization
+    ├── TESTING_STANDARDS.md        # Testing requirements
+    ├── UNICODE_GUIDELINES.md       # Unicode character usage
+    ├── VERSION_CONTROL.md          # Git best practices
     └── templates/                  # Documentation templates
+        ├── README_TEMPLATE.md      # Basic README template
+        ├── THEORY_README.md        # Theory README template
+        └── SUBTHEORY_README.md     # Subtheory README template
 ```
 
 ## Overview
