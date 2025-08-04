@@ -1,6 +1,6 @@
 # Testing Guide
 
-[← Back to Technical Docs](README.md) | [Development →](DEVELOPMENT.md) | [Architecture →](ARCHITECTURE.md)
+[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Style Guide →](STYLE_GUIDE.md) | [Development →](DEVELOPMENT.md) | [Architecture →](ARCHITECTURE.md)
 
 ## Table of Contents
 
@@ -365,4 +365,4 @@ self.assertTrue(result)
 
 ---
 
-[← Back to Technical Docs](README.md) | [Development →](DEVELOPMENT.md) | [Examples →](EXAMPLES.md)
+[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Style Guide →](STYLE_GUIDE.md) | [Development →](DEVELOPMENT.md) | [Examples →](EXAMPLES.md)

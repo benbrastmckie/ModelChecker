@@ -1,6 +1,6 @@
 # AI Assistant Guide: ModelChecker Framework Development
 
-[← Back to ModelChecker](README.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](../Docs/maintenance/README.md)
+[← Back to ModelChecker](README.md) | [Style Guide →](docs/STYLE_GUIDE.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](../Docs/maintenance/README.md)
 
 ## Directory Structure
 ```
@@ -19,7 +19,7 @@ The **AI Assistant Guide** provides comprehensive guidelines for AI agents worki
 
 The ModelChecker creates a **programmatic semantics framework** for implementing and comparing logical theories, with focus on **modal**, **counterfactual**, and **hyperintensional logic**. It provides tooling for defining semantic theories, testing logical principles, and finding countermodels through Z3 constraint solving.
 
-This guide emphasizes **systematic development practices**, **comprehensive testing procedures**, and **rigorous documentation standards** to support both automated assistance and human collaboration in advancing computational logic research.
+This guide emphasizes **systematic development practices**, **comprehensive testing procedures**, and **flexible but rigorous documentation standards** to support both automated assistance and human collaboration in advancing computational logic research. Documentation follows comprehensive coverage principles rather than rigid structural requirements, adapting to the specific topic being addressed.
 
 ### Core Development Principles
 
@@ -45,7 +45,7 @@ Core framework implementation with **API documentation**, **theory library**, **
 - **NO EMOJIS**: Never use emojis anywhere in the codebase, documentation, or output
 - **Unicode Mathematical Symbols**: Use verified Unicode for logical operators (∧, ∨, ¬, □, ◇) only
 - **LaTeX Notation**: Use LaTeX in code examples (`\\wedge`, `\\Box`, `\\rightarrow`)
-- **Consistent Documentation**: Follow 9-section ../Docs/maintenance/README.md structure for all README files
+- **Consistent Documentation**: Follow comprehensive ../Docs/maintenance/README.md standards for all README files
 - **NO DECORATORS**: Avoid decorators without good reason and explicit user permission
 
 ### Character Encoding Standards
@@ -163,19 +163,21 @@ src/model_checker/*/tests/                # Component test files
 
 ## Documentation
 
+### For Feature Implementation (AI & Human)
+- **[Style Guide](docs/STYLE_GUIDE.md)** - Quick reference for coding and documentation standards
+- **[Testing Guide](docs/TESTS.md)** - Comprehensive testing procedures and best practices  
+- **[Development Guide](docs/DEVELOPMENT.md)** - Environment setup and development workflow
+- **[Maintenance Standards](../Docs/maintenance/README.md)** - Complete documentation and coding standards
+
 ### For AI Assistants
 - **[Quality Standards](#code-quality-standards)** - File encoding, symbol usage, and validation procedures
 - **[Development Guidelines](#development-guidelines)** - Mathematical notation and file management
-- **[Quick Reference](#quick-start)** - Essential commands and workflows
-
-### For Human Developers  
-- **[Development Guide](docs/DEVELOPMENT.md)** - Comprehensive development workflow
-- **[Maintenance Standards](../Docs/maintenance/README.md)** - Documentation and coding standards
-- **[Architecture Documentation](docs/ARCHITECTURE.md)** - System design and component relationships
+- **[Character Encoding Standards](#character-encoding-standards)** - UTF-8 requirements and validation
 
 ### For Framework Users
 - **[API Documentation](src/model_checker/README.md)** - Core framework functionality
 - **[Theory Library](src/model_checker/theory_lib/README.md)** - Semantic theory implementations
+- **[Architecture Documentation](docs/ARCHITECTURE.md)** - System design and component relationships
 - **[Jupyter Integration](src/model_checker/jupyter/README.md)** - Interactive development tools
 
 ## Interactive Learning Resources
@@ -188,7 +190,8 @@ src/model_checker/*/tests/                # Component test files
 
 ### Development Resources
 - **[Debug Tools](src/model_checker/jupyter/debug/README.md)** - Comprehensive debugging methodology
-- **[Testing Guide](docs/TESTS.md)** - Multi-level testing approach
+- **[Testing Guide](docs/TESTS.md)** - Multi-level testing approach (cross-linked with Style Guide)
+- **[Style Guide](docs/STYLE_GUIDE.md)** - Quick reference standards (cross-linked with Testing Guide)
 - **[Integration Tests](tests/README.md)** - CLI and workflow validation
 
 ## Advanced Development Commands
@@ -259,4 +262,4 @@ Part of the ModelChecker framework, licensed under GPL-3.0.
 
 ---
 
-[← Back to ModelChecker](README.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](../Docs/maintenance/README.md)
+[← Back to ModelChecker](README.md) | [Style Guide →](docs/STYLE_GUIDE.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](../Docs/maintenance/README.md)
