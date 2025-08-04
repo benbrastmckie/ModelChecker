@@ -16,7 +16,7 @@ methodology/
 
 ## Overview
 
-This directory contains comprehensive documentation about the programmatic semantic methodology that guides the ModelChecker package design and workflow. The methodology implements a systematic approach to modal logic model checking through four interconnected stages:
+This directory contains comprehensive documentation about the programmatic semantic methodology that guides the ModelChecker package design and workflow. The methodology documentation is designed to be accessible to an interdisciplinary audience including logicians, linguists, computer scientists, and AI researchers - readers may have expertise in some but not all of these areas. See [AUDIENCE.md](../../Code/maintenance/AUDIENCE.md) for documentation standards that guide our explanatory approach. The methodology implements a systematic approach to the programmatic semantic methodology through four interconnected stages:
 
 1. **Orchestration** - How BuildModule and BuildExample coordinate the entire pipeline
 2. **Parsing** - Converting logical formulas from strings to structured ASTs
@@ -95,7 +95,7 @@ The framework treats semantic theories as executable programs:
 class MySemantics(SemanticDefaults):
     def true_at(self, world, sentence, eval_point):
         """Define when sentences are true."""
-        
+
 # Constraints as computation
 constraints = generate_constraints(premises, conclusions, settings)
 model = solve(constraints)
@@ -108,15 +108,19 @@ countermodel = {
 }
 ```
 
+This shows how semantic theories become executable programs: theory classes define evaluation rules (`true_at`), constraint generation transforms these rules into Z3 formulas, and the solver produces concrete models as structured data. The countermodel above demonstrates hyperintensional semantics where atomic propositions have both verifiers (states making them true) and falsifiers (states making them false), enabling fine-grained semantic distinctions.
+
 ### Theory-Agnostic Framework
 
 The methodology supports arbitrary semantic theories through:
+
 - Customizable truth conditions via theory implementations
 - Flexible state representations (bit vectors, worlds, etc.)
 - Theory-specific constraint generation
 - Extensible operator definitions
 
 Example theories include:
+
 - **Logos**: Hyperintensional semantics with verifiers/falsifiers
 - **Exclusion**: Unilateral semantics with exclusion relations
 - **Imposition**: Fine's imposition theory for counterfactuals
@@ -125,18 +129,21 @@ Example theories include:
 ## Key Features
 
 ### Modular Architecture
+
 - Clear separation between syntax, semantics, and solving
 - Theory-independent core infrastructure
 - Plugin-style theory implementations
 - Composable operator libraries
 
 ### Constraint-Based Approach
+
 - Declarative specification of semantic conditions
 - Automatic constraint generation from formulas
 - SMT solver finds satisfying models
 - Unsat cores identify conflicts
 
 ### Extensible Design
+
 - New operators via simple class definitions
 - Custom semantic theories by extending base classes
 - Configurable constraints through settings
@@ -147,15 +154,15 @@ Example theories include:
 ### Example Processing Pipeline
 
 ```
-1. Input: premises = ["A ∧ B"], conclusions = ["C"]
+1. Input: premises = ["A \\wedge B"], conclusions = ["C"]
                         ↓
 2. BuildExample initialization
    - Load operators and semantics
    - Merge settings
                         ↓
 3. Syntax parsing (SYNTAX.md)
-   - Tokenize: ["(", "A", "∧", "B", ")"]
-   - Parse to prefix: ["∧", "A", "B"]
+   - Tokenize: ["(", "A", "\\wedge", "B", ")"]
+   - Parse to prefix: ["\\wedge", "A", "B"]
    - Create Sentence objects
                         ↓
 4. Semantic constraints (SEMANTICS.md)
@@ -184,31 +191,41 @@ class MySemantics(SemanticDefaults):
     def __init__(self, settings):
         # Define Z3 primitives
         self.my_relation = z3.Function(...)
-        
+
 # 2. Proposition - atomic constraints
 class MyProposition(PropositionDefaults):
     def proposition_constraints(self, letter):
         # Define atomic behavior
-        
-# 3. Model - result interpretation  
+
+# 3. Model - result interpretation
 class MyModel(ModelDefaults):
     def print_states(self, output):
         # Theory-specific visualization
-        
+
 # 4. Operators - logical connectives
 class MyOperator(Operator):
     def extended_verify(self, state, *args):
         # Verification conditions
 ```
 
+These classes orchestrate together through the [Builder Pattern](BUILDER.md):
+- **Semantics** defines Z3 primitives (states, relations) and implements `true_at`/`false_at` methods
+- **Proposition** generates constraints for atomic sentences using the semantics' primitives
+- **Operators** invoke semantic methods to build constraints for complex formulas
+- **Model** interprets Z3's satisfying assignment back into your theory's vocabulary
+
+The [BuildExample flow](BUILDER.md#buildexample-flow) automatically instantiates these classes with proper settings, collects constraints through [ModelConstraints](SEMANTICS.md#constraint-generation), and solves via [ModelStructure](MODELS.md#smt-solving-and-interpretation). For implementation details, see the [Development Guide](../../Code/docs/DEVELOPMENT.md).
+
 ## References
 
 ### Implementation Documentation
- **[API Reference](../../Code/src/model_checker/README.md)** - Core framework APIs
- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
- **[Test Suite](../../Code/tests/README.md)** - Integration and unit tests
+
+**[API Reference](../../Code/src/model_checker/README.md)** - Core framework APIs
+**[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
+**[Test Suite](../../Code/tests/README.md)** - Integration and unit tests
 
 ### Related Resources
+
 - **[Installation Guide](../installation/README.md)** - Getting started
 - **[Examples](../../Examples/)** - Sample logical arguments
 
