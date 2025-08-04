@@ -19,7 +19,10 @@ ModelChecker/
 │   │   ├── BUILDER_PATTERN.md      # Pipeline orchestration
 │   │   ├── SYNTAX.md               # AST conversion
 │   │   ├── SEMANTICS.md            # Constraint generation
-│   │   └── MODELS.md               # SMT solving
+│   │   ├── MODELS.md               # SMT solving
+│   │   ├── WORKFLOW.md             # Usage workflows
+│   │   ├── ARCHITECTURE.md         # System design
+│   │   └── ITERATOR.md             # Model iteration
 │   ├── HYPERINTENSIONAL.md         # Theoretical background
 │   ├── Z3_BACKGROUND.md            # SMT solver information
 │   └── FINDINGS.md                 # Research findings

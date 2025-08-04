@@ -13,7 +13,7 @@ methodology/
 ├── MODELS.md               # SMT solver interaction and result interpretation
 ├── WORKFLOW.md             # Using the package effectively ✓
 ├── ARCHITECTURE.md         # How components fit together ✓
-└── ITERATOR.md             # Model iteration and the 'iterate' setting (coming soon)
+└── ITERATOR.md             # Model iteration and the 'iterate' setting ✓
 ```
 
 ## Overview
@@ -63,7 +63,7 @@ The ModelChecker pipeline follows a linear flow from input formulas to model out
   - System design philosophy
   - Data flow between components
   - Extension points for new theories
-- **[ITERATOR.md](ITERATOR.md)** - Model iteration system *(coming soon)*
+- **[ITERATOR.md](ITERATOR.md)** - Model iteration system
   - Finding multiple distinct models
   - Theory-specific iteration behaviors
   - Configuration and tuning
