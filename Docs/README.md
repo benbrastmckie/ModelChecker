@@ -25,7 +25,10 @@ Docs/
 │   ├── BUILDER_PATTERN.md          # BuildModule/BuildExample architecture
 │   ├── SYNTAX.md                   # AST conversion pipeline
 │   ├── SEMANTICS.md                # Constraint generation
-│   └── MODELS.md                   # SMT solving and interpretation
+│   ├── MODELS.md                   # SMT solving and interpretation
+│   ├── WORKFLOW.md                 # Package usage workflows
+│   ├── ARCHITECTURE.md             # System design and components
+│   └── ITERATOR.md                 # Model iteration system
 ├── HYPERINTENSIONAL.md             # Theoretical background and core concepts
 ├── Z3_BACKGROUND.md                # Introduction to Z3 theorem prover
 ├── REFERENCES.md                   # Complete academic bibliography
