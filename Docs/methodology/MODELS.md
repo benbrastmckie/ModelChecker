@@ -58,9 +58,44 @@
 
 The models module handles the final stage of the model checking pipeline: solving SMT constraints and interpreting the results. Using Z3 as the current SMT solver implementation, it finds satisfying assignments that demonstrate countermodels to logical arguments or proves their validity through unsatisfiability.
 
+This stage represents the culmination of the semantic pipeline - all the careful parsing and constraint generation comes together here, where the SMT solver determines whether the collected constraints can be simultaneously satisfied. If they can, we get a countermodel showing the argument is invalid; if not, the argument is valid.
+
+Key architectural insights:
+- **Solver Isolation**: Each example gets a fresh solver context to prevent constraint contamination
+- **Result Interpretation**: Raw solver output is transformed into structured semantic models
+- **Theory Independence**: The solving process works identically across different semantic theories
+- **Performance Tuning**: Timeout and resource management prevent infinite loops on complex problems
+
 The module is designed with future extensibility in mind, abstracting solver-specific operations to allow potential integration with other SMT solvers like CVC5 or MathSAT. The result is either a concrete model showing why an argument is invalid or proof that no such countermodel exists.
 
+For the constraint generation that feeds into this stage, see [Semantics Pipeline](SEMANTICS.md). For practical usage patterns, see [Workflow](WORKFLOW.md).
+
 ## SMT Solver Setup
+
+The SMT solver setup orchestrates the transformation from semantic constraints to satisfiability checking:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         SMT SOLVER PIPELINE                             │
+└─────────────────────────────────────────────────────────────────────────┘
+
+1. CONSTRAINT COLLECTION           2. SOLVER SETUP
+┌─────────────────────┐           ┌─────────────────────┐
+│ ModelConstraints    │           │ Fresh Z3 Context    │
+│ • Frame constraints │           │ • Reset global state│
+│ • Model constraints │ ────────▶ │ • New solver instance│
+│ • Premise true      │           │ • Add with tracking │
+│ • Conclusion false  │           └─────────────────────┘
+└─────────────────────┘                     │
+                                           │
+3. SOLVING PROCESS                         ▼
+┌─────────────────────┐           ┌─────────────────────┐
+│ Z3 SMT Solver       │           │ Result Processing   │
+│ • Set timeout       │           │ • SAT: Extract model│
+│ • Check satisfiability│ ────────▶ │ • UNSAT: Get core  │
+│ • Handle resources  │           │ • UNKNOWN: Timeout  │
+└─────────────────────┘           └─────────────────────┘
+```
 
 ### Solver Initialization
 
@@ -72,14 +107,16 @@ def solve(self, model_constraints, max_time):
     import z3
     
     # Reset context for complete isolation
-    Z3ContextManager.reset_context()
+    Z3ContextManager.reset_context()  # Clears any lingering state from previous examples
     
     # Create new solver instance
-    self.solver = z3.Solver()
+    self.solver = z3.Solver()  # Fresh solver with no constraints
     
     # Setup solver with constraints
-    self.solver = self._setup_solver(model_constraints)
+    self.solver = self._setup_solver(model_constraints)  # Add all constraint types
 ```
+
+The fresh solver approach prevents a subtle but critical issue: without isolation, constraints from one example could "leak" into another, causing false unsatisfiability or incorrect models. This is especially important when comparing theories - each theory needs to evaluate the same example from a clean slate, without interference from previous solving attempts.
 
 ### Context Management
 
@@ -96,16 +133,20 @@ class Z3ContextManager:
         
         # Clear any existing context
         if hasattr(z3, '_main_ctx'):
-            z3._main_ctx = None
+            z3._main_ctx = None  # Z3's global context object
             
         # Force garbage collection
         import gc
-        gc.collect()
+        gc.collect()  # Ensures old solver objects are truly freed
         
         # Reset parameters
-        z3.reset_params()
-        z3.set_param(verbose=0)
+        z3.reset_params()  # Clear any modified solver parameters
+        z3.set_param(verbose=0)  # Silence Z3's internal debug output
 ```
+
+*Full implementation: [`model_checker/z3_utils.py`](../../Code/src/model_checker/z3_utils.py)*
+
+Z3 maintains a global context (`_main_ctx`) that persists across solver instances. Without explicit clearing, this context accumulates state - variable declarations, function definitions, and internal optimizations from previous solving sessions. The garbage collection step ensures Python releases all references to old solver objects, preventing memory leaks during batch processing of many examples.
 
 ### Constraint Tracking
 
@@ -115,23 +156,25 @@ Constraints are added with labels for debugging:
 def _setup_solver(self, model_constraints):
     """Add constraints with tracking labels."""
     solver = Solver()
-    self.constraint_dict = {}
+    self.constraint_dict = {}  # Maps labels to original constraints
     
     constraint_groups = [
-        (model_constraints.frame_constraints, "frame"),
-        (model_constraints.model_constraints, "model"),
-        (model_constraints.premise_constraints, "premises"),
-        (model_constraints.conclusion_constraints, "conclusions")
+        (model_constraints.frame_constraints, "frame"),      # Semantic structure
+        (model_constraints.model_constraints, "model"),      # Atomic propositions
+        (model_constraints.premise_constraints, "premises"),  # Must be true
+        (model_constraints.conclusion_constraints, "conclusions")  # At least one false
     ]
     
     for constraints, group_name in constraint_groups:
         for ix, constraint in enumerate(constraints):
-            c_id = f"{group_name}{ix+1}"
-            solver.assert_and_track(constraint, c_id)
-            self.constraint_dict[c_id] = constraint
+            c_id = f"{group_name}{ix+1}"  # e.g., "frame1", "model5", "premises2"
+            solver.assert_and_track(constraint, c_id)  # Label enables unsat core tracking
+            self.constraint_dict[c_id] = constraint    # Store for later analysis
             
     return solver
 ```
+
+The `assert_and_track` method differs from plain `assert` in a crucial way: it associates each constraint with a tracking literal that Z3 includes in its unsat core analysis. When constraints are unsatisfiable, the unsat core tells us exactly which constraints conflict - invaluable for debugging semantic theories. The labeling scheme ("frame1", "model5", etc.) immediately reveals which type of constraint causes issues.
 
 ### Timeout Configuration
 
@@ -139,16 +182,23 @@ Solver timeout prevents infinite loops:
 
 ```python
 # Set timeout in milliseconds
-max_time_ms = int(max_time * 1000)
-self.solver.set("timeout", max_time_ms)
+max_time_ms = int(max_time * 1000)  # Convert seconds to milliseconds
+self.solver.set("timeout", max_time_ms)  # Z3 parameter for solving time limit
 
 # Check result
-result = self.solver.check()
+result = self.solver.check()  # Blocks until solution, timeout, or memory exhaustion
 
 # Handle timeout
-if self.solver.reason_unknown() == "timeout":
-    return self._create_result(True, None, False, start_time)
+if self.solver.reason_unknown() == "timeout":  # Z3 stopped due to time limit
+    return self._create_result(
+        True,        # timeout_occurred
+        None,        # no_model
+        False,       # not_satisfiable
+        start_time   # for_runtime_calculation
+    )
 ```
+
+The timeout mechanism serves two purposes: it prevents the solver from running indefinitely on complex problems, and it provides predictable performance bounds for batch processing. Complex theories with many constraints might need longer timeouts - the default of 10 seconds works for most examples, but counterfactual reasoning or fine-grained hyperintensional distinctions may require 30-60 seconds.
 
 ### Unsat Core Extraction
 
@@ -157,16 +207,23 @@ For unsatisfiable constraints, extract minimal conflicting set:
 ```python
 if result == z3.unsat:
     # Get unsat core - minimal set of conflicting constraints
-    unsat_core = self.solver.unsat_core()
+    unsat_core = self.solver.unsat_core()  # Returns tracking literals, not constraints
     
     # Map back to original constraints
     core_constraints = [
-        self.constraint_dict[str(c)] 
-        for c in unsat_core
+        self.constraint_dict[str(c)]   # Look up constraint by its tracking label
+        for c in unsat_core            # e.g., "frame1", "model5", "premises2"
     ]
     
-    return self._create_result(False, core_constraints, False, start_time)
+    return self._create_result(
+        False,            # no_timeout
+        core_constraints, # conflicting_constraints (for debugging)
+        False,            # not_satisfiable
+        start_time        # for_runtime_calculation
+    )
 ```
+
+The unsat core is a minimal subset of constraints that are mutually unsatisfiable - removing any constraint from this set would make the remaining constraints satisfiable. This is invaluable for debugging: if "frame1" (possibility downward closure) conflicts with "model3" (contingency requirement), you immediately know where to look. The core often reveals subtle interactions between semantic principles that wouldn't be obvious from examining constraints individually.
 
 ### State Isolation
 
@@ -220,6 +277,41 @@ class CVC5Solver(SMTSolver):
 
 ## Constraint Organization
 
+The framework organizes constraints into four categories that define the search space for valid models:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                      CONSTRAINT HIERARCHY                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  1. FRAME CONSTRAINTS (Semantic Structure)                              │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │ • Possibility downward closure: possible(y) ∧ x≤y → possible(x)    │ │
+│  │ • Main world exists: is_world(w) ∧ possible(w)                    │ │
+│  │ • Compatibility symmetry: compatible(x,y) ↔ compatible(y,x)        │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                              ↓                                          │
+│  2. MODEL CONSTRAINTS (Atomic Propositions)                             │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │ For each sentence letter A:                                        │ │
+│  │ • Classical: fusion closure, no gaps/gluts                         │ │
+│  │ • Contingent: ∃x(possible(x) ∧ verify(x,A))                       │ │
+│  │ • Non-empty: ∃x(verify(x,A)) ∧ ∃y(falsify(y,A))                   │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                              ↓                                          │
+│  3. PREMISE CONSTRAINTS (Must be True)                                  │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │ For each premise P:                                                │ │
+│  │ • true_at(main_world, P, main_point)                               │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+│                              ↓                                          │
+│  4. CONCLUSION CONSTRAINTS (At Least One False)                         │
+│  ┌───────────────────────────────────────────────────────────────────┐ │
+│  │ • Or([false_at(main_world, C, main_point) for C in conclusions])  │ │
+│  └───────────────────────────────────────────────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
 ### Frame Constraints
 
 Structural constraints defining the semantic framework:
@@ -230,18 +322,20 @@ frame_constraints = [
     # Possibility is downward-closed
     ForAll([x, y], 
         Implies(
-            And(possible(y), is_part_of(x, y)),
-            possible(x)
+            And(possible(y), is_part_of(x, y)),  # If y is possible and x is part of y
+            possible(x)                          # Then x must be possible too
         )
     ),
     # Main world exists and is possible
-    is_world(main_world),
+    is_world(main_world),  # Ensures w is maximal (no proper extensions)
     # State compatibility is symmetric
     ForAll([x, y],
-        compatible(x, y) == compatible(y, x)
+        compatible(x, y) == compatible(y, x)  # If x fits with y, then y fits with x
     )
 ]
 ```
+
+Frame constraints establish the fundamental properties of the semantic space. The downward closure principle ensures coherence: you can't have impossible parts of possible wholes. This reflects the intuition that if a complex situation is possible, all its constituent parts must be possible too. The main world constraint guarantees we're evaluating formulas at a genuine possible world, not some arbitrary partial state.
 
 ### Model Constraints
 
@@ -326,6 +420,40 @@ self.constraint_dict = {
 ```
 
 ## Model Finding Process
+
+The model finding process transforms constraints into concrete semantic structures:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        MODEL FINDING FLOW                               │
+└─────────────────────────────────────────────────────────────────────────┘
+
+                    ┌─────────────────────┐
+                    │ All Constraints     │
+                    │ • Frame (~3-5)      │
+                    │ • Model (~15-60)    │
+                    │ • Premises (~1-5)   │
+                    │ • Conclusions (1)   │
+                    └──────────┬──────────┘
+                               │
+                               ▼
+                    ┌─────────────────────┐
+                    │ Z3 Solver.check()   │
+                    │ • Apply heuristics  │
+                    │ • Search for model  │
+                    │ • Track time/memory │
+                    └──────────┬──────────┘
+                               │
+                ┌──────────────┼──────────────┐
+                │              │              │
+                ▼              ▼              ▼
+       ┌─────────────┐ ┌─────────────┐ ┌─────────────┐
+       │ SAT         │ │ UNSAT       │ │ UNKNOWN     │
+       │ • Model found│ │ • No model  │ │ • Timeout   │
+       │ • Extract   │ │ • Get core  │ │ • Memory    │
+       │   assignments│ │ • Valid arg │ │   limit     │
+       └─────────────┘ └─────────────┘ └─────────────┘
+```
 
 ### Solver Execution
 
@@ -468,6 +596,31 @@ def extract_model_values(solver_result):
 
 ## ModelDefaults and Theory Structures
 
+ModelDefaults provides the base infrastructure for solving and interpreting models, while theory-specific subclasses add specialized extraction and display logic:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    MODEL STRUCTURE HIERARCHY                            │
+└─────────────────────────────────────────────────────────────────────────┘
+
+                         ┌─────────────────────┐
+                         │   ModelDefaults     │
+                         │ • Solve constraints │
+                         │ • Extract states    │
+                         │ • Basic display     │
+                         └──────────┬──────────┘
+                                    │ Inheritance
+        ┌───────────────────────────┼───────────────────────────┐
+        │                           │                           │
+        ▼                           ▼                           ▼
+┌───────────────────┐    ┌───────────────────┐    ┌───────────────────┐
+│ LogosModelStructure│    │ExclusionModelStructure│ │ImpositionModelStructure│
+│ • Verifier sets   │    │ • Exclusion relation │ │ • Selection function│
+│ • Falsifier sets  │    │ • Unilateral verify  │ │ • Comparative sim. │
+│ • Hyperintensional│    │ • Topic sensitivity  │ │ • Counterfactuals  │
+└───────────────────┘    └───────────────────┘    └───────────────────┘
+```
+
 ### Model Structure Creation
 
 ModelDefaults manages the solving pipeline:
@@ -491,6 +644,8 @@ class ModelDefaults:
         solver_results = self.solve(model_constraints, settings['max_time'])
         self._process_solver_results(solver_results)
 ```
+
+*Full implementation: [`model_checker/defaults.py`](../../Code/src/model_checker/defaults.py)*
 
 ### SMT Model Interpretation
 
@@ -696,20 +851,42 @@ Convert bitvectors to readable format:
 def bitvec_to_substates(bit_vec, N):
     """Convert bitvector to fusion of atomic states."""
     # Get binary representation
-    binary = format(bit_vec.as_long(), f'0{N}b')[::-1]
+    binary = format(bit_vec.as_long(), f'0{N}b')[::-1]  # Reverse for LSB-first indexing
     
     # Build state representation
     parts = []
     for i, bit in enumerate(binary):
-        if bit == '1':
+        if bit == '1':  # This bit position is "on"
             # Convert index to state label
-            parts.append(index_to_substate(i))
+            parts.append(index_to_substate(i))  # 0→'a', 1→'b', 2→'c', etc.
             
     # Join with fusion operator
-    return '.'.join(parts) if parts else '□'
+    return '.'.join(parts) if parts else '□'  # Empty state is null (□)
 
 # Example: BitVec(5, 3) → "a.c" (bits 0 and 2 set)
 ```
+
+The bit vector representation encodes states as binary numbers where each bit position corresponds to an atomic state. This clever encoding enables efficient mereological operations:
+
+```
+State Encoding (N=3):
+┌─────────────────────────────────────────┐
+│ BitVec │ Binary │ State │ Meaning      │
+├────────┼────────┼───────┼──────────────┤
+│   0    │  000   │   □   │ Null state   │
+│   1    │  001   │   a   │ Atomic 'a'   │
+│   2    │  010   │   b   │ Atomic 'b'   │
+│   3    │  011   │  a.b  │ Fusion a,b   │
+│   4    │  100   │   c   │ Atomic 'c'   │
+│   5    │  101   │  a.c  │ Fusion a,c   │
+│   6    │  110   │  b.c  │ Fusion b,c   │
+│   7    │  111   │ a.b.c │ Fusion all   │
+└─────────────────────────────────────────┘
+```
+
+Fusion becomes bitwise OR: `fusion(a, b) = 001 | 010 = 011 = a.b`. Parthood becomes bitwise AND equality: `is_part_of(a, a.b) ≡ (001 & 011 == 001) = True`.
+
+*See also: [`model_checker/utils.py`](../../Code/src/model_checker/utils.py) for state conversion utilities*
 
 ## Sentence Interpretation
 
@@ -826,6 +1003,56 @@ def find_witness(self, world, sentence):
 ```
 
 ## Output Generation
+
+The output generation transforms raw model data into human-readable countermodel displays:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        OUTPUT GENERATION FLOW                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+                    ┌─────────────────────┐
+                    │ Raw Z3 Model        │
+                    │ • BitVec values     │
+                    │ • Function mappings │
+                    │ • Boolean values    │
+                    └──────────┬──────────┘
+                               │ Transform
+                               ▼
+                    ┌─────────────────────┐
+                    │ Structured Data     │
+                    │ • State sets        │
+                    │ • Extensions        │
+                    │ • Truth values      │
+                    └──────────┬──────────┘
+                               │ Format
+                               ▼
+                    ┌─────────────────────┐
+                    │ Display Output      │
+                    │ • World structure   │
+                    │ • Verifier sets     │
+                    │ • Evaluation trees  │
+                    └─────────────────────┘
+
+Example Output:
+┌─────────────────────────────────────────┐
+│ MODAL_TH_1: countermodel found          │
+│ Semantic theory: Logos                  │
+│ Model size (N): 3                       │
+│                                         │
+│ WORLD STATES:                           │
+│   w = a.b.c (main)                      │
+│                                         │
+│ SENTENCE LETTER EXTENSIONS:             │
+│ A:                                      │
+│   Verifiers: {a, a.b, a.c, a.b.c}      │
+│   Falsifiers: {b}                       │
+│                                         │
+│ INTERPRETED PREMISES:                   │
+│ 1. A ∧ B                                │
+│    └─ true at w (witness: a.b)         │
+└─────────────────────────────────────────┘
+```
 
 ### Model Visualization
 
@@ -961,19 +1188,26 @@ from model_checker.model import ModelDefaults, ModelConstraints
 from model_checker.syntactic import Syntax
 
 # Setup
-syntax = Syntax(premises, conclusions, operators)
-constraints = ModelConstraints(settings, syntax, semantics, proposition_class)
+syntax = Syntax(premises, conclusions, operators)  # Parse formulas to ASTs
+constraints = ModelConstraints(
+    settings,           # Controls semantic properties
+    syntax,             # Parsed formula structures  
+    semantics,          # Theory class (not instance)
+    proposition_class   # How to interpret atoms
+)
 
 # Solve
-model = ModelDefaults(constraints, settings)
+model = ModelDefaults(constraints, settings)  # This runs Z3 solver internally
 
 # Check results
-if model.z3_model_status:
+if model.z3_model_status:  # True if SAT (countermodel exists)
     print("Countermodel found")
     model.print_to(settings, "example", "theory", sys.stdout)
 else:
     print("No countermodel - valid argument")
 ```
+
+This pipeline demonstrates the complete flow from logical formulas to validity checking. The ModelDefaults constructor handles all the complexity: it extracts constraints from ModelConstraints, sets up Z3 with proper isolation, attempts to find a satisfying model, and processes the results. The boolean `z3_model_status` tells us whether the argument is valid (False = no countermodel) or invalid (True = countermodel found).
 
 ### Custom Model Structure
 
@@ -997,6 +1231,8 @@ class LogosModelStructure(ModelDefaults):
         # Extract compatibility relation
         self.compatibility = self._extract_compatibility()
 ```
+
+*Full implementation: [`model_checker/theory_lib/logos/models.py`](../../Code/src/model_checker/theory_lib/logos/models.py)*
 
 ### Model Iteration Support
 
@@ -1066,14 +1302,25 @@ model.print_to(
 ## References
 
 ### Implementation Files
-- `model_checker/model.py` - ModelDefaults implementation
-- `model_checker/utils.py` - Z3 helpers and utilities
-- `model_checker/theory_lib/*/models.py` - Theory-specific models
+
+**Core Model Classes:**
+- [`model_checker/defaults.py`](../../Code/src/model_checker/defaults.py) - ModelDefaults base class
+- [`model_checker/utils.py`](../../Code/src/model_checker/utils.py) - Z3 helpers and state conversion utilities
+- [`model_checker/constraint.py`](../../Code/src/model_checker/constraint.py) - ModelConstraints orchestration
+
+**Theory-Specific Models:**
+- [`model_checker/theory_lib/logos/models.py`](../../Code/src/model_checker/theory_lib/logos/models.py) - LogosModelStructure (hyperintensional)
+- [`model_checker/theory_lib/exclusion/models.py`](../../Code/src/model_checker/theory_lib/exclusion/models.py) - ExclusionModelStructure (unilateral)
+- [`model_checker/theory_lib/imposition/models.py`](../../Code/src/model_checker/theory_lib/imposition/models.py) - ImpositionModelStructure (selection function)
+
+**Solver Management:**
+- [`model_checker/z3_utils.py`](../../Code/src/model_checker/z3_utils.py) - Z3ContextManager and solver utilities
 
 ### Related Documentation
-- [Semantics Pipeline](SEMANTICS.md) - Constraint generation
-- [Workflow](WORKFLOW.md) - Using the complete system
-- [Z3 Documentation](https://z3prover.github.io/api/html/namespacez3py.html)
+- [Semantics Pipeline](SEMANTICS.md) - Constraint generation that feeds into solving
+- [Workflow](WORKFLOW.md) - Using the complete model checking system
+- [Iterator System](ITERATOR.md) - Finding multiple distinct models
+- [Z3 Python API](https://z3prover.github.io/api/html/namespacez3py.html) - Official Z3 documentation
 
 ---
 
