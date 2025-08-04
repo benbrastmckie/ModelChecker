@@ -14,7 +14,12 @@ ModelChecker/
 ├── Docs/                           # General project documentation (see Docs/README.md)
 │   ├── installation/               # Modular installation guides
 │   ├── GETTING_STARTED.md          # Quick start guide
-│   ├── METHODOLOGY.md              # Research methodology
+│   ├── methodology/                # Programmatic semantics methodology
+│   │   ├── README.md               # Methodology overview
+│   │   ├── BUILDER_PATTERN.md      # Pipeline orchestration
+│   │   ├── SYNTAX.md               # AST conversion
+│   │   ├── SEMANTICS.md            # Constraint generation
+│   │   └── MODELS.md               # SMT solving
 │   ├── HYPERINTENSIONAL.md         # Theoretical background
 │   ├── Z3_BACKGROUND.md            # SMT solver information
 │   └── FINDINGS.md                 # Research findings
@@ -215,7 +220,7 @@ Visual documentation including architecture diagrams, countermodel visualization
 
 ### For Researchers
 
-- **[Methodology](Docs/METHODOLOGY.md)** - Research approach and validation
+- **[Methodology](Docs/methodology/README.md)** - Programmatic semantics approach
 - **[Theory Library](Code/src/model_checker/theory_lib/README.md)** - Available semantic theories
 - **[Hyperintensional Logic](Docs/HYPERINTENSIONAL.md)** - Theoretical background
 

@@ -29,7 +29,7 @@
 
 ## Introduction
 
-The Builder Pattern in ModelChecker orchestrates the entire model checking pipeline through three core classes: `BuildModule`, `BuildExample`, and `BuildProject`. This pattern provides a clean separation between module management, example execution, and project generation while maintaining a consistent flow of settings and data throughout the system.
+The Builder Pattern in ModelChecker orchestrates the model checking pipeline through three core classes: `BuildModule`, `BuildExample`, and `BuildProject`. This pattern provides a clean separation between module management, example execution, and project generation while maintaining a consistent flow of settings and data throughout the system.
 
 The builder architecture serves as the entry point for all model checking operations, handling everything from loading Python modules containing logical examples to generating new theory implementation projects. It ensures proper initialization of components, manages concurrent execution for performance comparisons, and provides isolation between different examples to prevent state leakage.
 
