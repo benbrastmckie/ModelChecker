@@ -1,6 +1,6 @@
 # Workflow: Using the ModelChecker Package Effectively
 
-[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md)
+[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Iterator →](ITERATOR.md)
 
 ## Table of Contents
 
@@ -746,4 +746,4 @@ valid_settings = {k: v for k, v in settings.items()
 
 ---
 
-[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md)
+[← Back to Methodology](README.md) | [Architecture →](ARCHITECTURE.md) | [Iterator →](ITERATOR.md)
