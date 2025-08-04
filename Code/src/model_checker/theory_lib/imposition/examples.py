@@ -65,7 +65,7 @@ from model_checker.theory_lib.logos import (
 IM_CM_0_premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
 IM_CM_0_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_0_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -84,7 +84,7 @@ IM_CM_0_example = [
 IM_CM_1_premises = ['\\neg A', '(A \\boxright C)']
 IM_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_1_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -179,7 +179,7 @@ IM_CM_5_example = [
 IM_CM_6_premises = ['\\neg A', '(A \\boxright B)','(A \\boxright C)']
 IM_CM_6_conclusions = ['((A \\wedge B) \\boxright C)']
 IM_CM_6_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -255,7 +255,7 @@ IM_CM_9_example = [
 IM_CM_10_premises = ['(A \\boxright B)','(B \\boxright C)']
 IM_CM_10_conclusions = ['(A \\boxright C)']
 IM_CM_10_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : True,
     'non_null' : True,
     'non_empty' : True,
@@ -506,7 +506,7 @@ IM_CM_21_example = [
 IM_CM_22_premises = ['(\\top \\boxright A)']
 IM_CM_22_conclusions = ['\\Box A']
 IM_CM_22_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : True,
@@ -525,7 +525,7 @@ IM_CM_22_example = [
 IM_CM_23_premises = ['(A \\boxright \\bot)']
 IM_CM_23_conclusions = ['(\\top \\boxright \\neg A)']
 IM_CM_23_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -563,7 +563,7 @@ IM_CM_24_example = [
 IM_CM_25_premises = ['A', '\\Diamond B', '\\neg \\Diamond (A \\wedge B)']
 IM_CM_25_conclusions = ['(B \\boxright C)']
 IM_CM_25_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -582,7 +582,7 @@ IM_CM_25_example = [
 IM_CM_26_premises = ['(A \\boxright B)']
 IM_CM_26_conclusions = ['(A \\boxrightlogos B)']
 IM_CM_26_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -601,7 +601,7 @@ IM_CM_26_example = [
 IM_CM_27_premises = ['(A \\boxrightlogos B)']
 IM_CM_27_conclusions = ['(A \\boxright B)']
 IM_CM_27_settings = {
-    'N' : 4,
+    'N' : 3,
     'contingent' : False,
     'disjoint' : False,
     'non_empty' : False,
@@ -652,6 +652,44 @@ IM_CM_29_example = [
     IM_CM_29_premises,
     IM_CM_29_conclusions,
     IM_CM_29_settings,
+]
+
+# IM_CM_30: REVERSE SECOND DEFINITION OF NEC
+IM_CM_30_premises = ['(\\neg A \\boxright \\bot)']
+IM_CM_30_conclusions = ['\\Box A']
+IM_CM_30_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : True,
+    'non_null' : True,
+    'max_time' : 10,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_30_example = [
+    IM_CM_30_premises,
+    IM_CM_30_conclusions,
+    IM_CM_30_settings,
+]
+
+# IM_CM_31: SECOND DEFINITION OF NEC
+IM_CM_31_premises = ['\\Box A']
+IM_CM_31_conclusions = ['(\\neg A \\boxright \\bot)']
+IM_CM_31_settings = {
+    'N' : 3,
+    'contingent' : False,
+    'disjoint' : False,
+    'non_empty' : True,
+    'non_null' : True,
+    'max_time' : 10,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_CM_31_example = [
+    IM_CM_31_premises,
+    IM_CM_31_conclusions,
+    IM_CM_31_settings,
 ]
 
 
@@ -934,7 +972,7 @@ general_settings = {
     "print_constraints": False,
     "print_impossible": False,
     "print_z3": False,
-    "save_output": False,
+    "save_output": True,
     "maximize": False,
 }
 
@@ -968,24 +1006,24 @@ logos_theory = {
 # NOTE: The translation dictionary is empty as operator names are now consistent
 semantic_theories = {
     "Fine": imposition_theory,
-    "Brast-McKie": logos_theory,
+    # "Brast-McKie": logos_theory,
 }
 
 # Default example range (curated subset for direct execution)
 example_range = {
 
     # Countermodels
-    # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
     # "IM_CM_4": IM_CM_4_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
     # "IM_CM_5": IM_CM_5_example,   # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-    # "IM_CM_6": IM_CM_6_example,   # WEAKENED MONOTONICITY
+    "IM_CM_6": IM_CM_6_example,   # WEAKENED MONOTONICITY
     # "IM_CM_7": IM_CM_7_example,   # COUNTERFACTUAL CONTRAPOSITION
     # "IM_CM_8": IM_CM_8_example,   # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
     # "IM_CM_9": IM_CM_9_example,   # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-    # "IM_CM_10": IM_CM_10_example, # TRANSITIVITY
+    "IM_CM_10": IM_CM_10_example, # TRANSITIVITY
     # "IM_CM_11": IM_CM_11_example, # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
     # "IM_CM_12": IM_CM_12_example, # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
     # "IM_CM_13": IM_CM_13_example, # SOBEL SEQUENCE
@@ -997,27 +1035,28 @@ example_range = {
     # "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
     # "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
     # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
-    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
-    # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
+    "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
+    "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
     # "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
-    # "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
-    # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
-    # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
+    "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
+    "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
+    "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
     # # Theorems
     # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
     # "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
     # "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
     # "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
-    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     # "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     # "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
     # "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
     # "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
     # "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
-    # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
+    "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
     
 }
+
 
 
 def get_examples():

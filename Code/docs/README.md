@@ -38,7 +38,7 @@ Whether you're fixing bugs, adding new theories, or extending core functionality
    git clone https://github.com/benbrastmckie/ModelChecker.git
    cd ModelChecker/Code
    ```
-   Follow [INSTALLATION.md](../../Docs/INSTALLATION.md) for detailed installation instructions.
+   Follow [Installation Guide](../../Docs/installation/README.md) for detailed installation instructions.
 
 2. **Architecture Understanding**: Read [ARCHITECTURE.md](../../Docs/methodology/ARCHITECTURE.md) for system overview
 3. **Development Workflow**: Study [DEVELOPMENT.md](DEVELOPMENT.md) for contribution procedures
@@ -80,7 +80,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 
 ### For New Contributors
 
-- **[Installation Guide](../../Docs/INSTALLATION.md)** - Environment setup and dependencies
+- **[Installation Guide](../../Docs/installation/README.md)** - Environment setup and dependencies
 - **[Development Workflow](DEVELOPMENT.md)** - Testing, Git workflow, and contribution procedures
 - **[Style Guide](STYLE_GUIDE.md)** - Quick reference to coding standards
 - **[Maintenance Standards](../../Docs/maintenance/README.md)** - Comprehensive standards document

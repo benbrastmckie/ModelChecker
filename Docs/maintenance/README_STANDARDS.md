@@ -4,7 +4,7 @@
 
 ## Overview
 
-This document defines the required structure for all README.md files in the ModelChecker repository. Every directory must have a README.md following this structure.
+This document defines the standards for README.md files in the ModelChecker repository. The goal is to ensure **comprehensive, relevant documentation** that serves users effectively without unnecessary rigidity. Each README should cover all essential topics for its component while avoiding extraneous content.
 
 ## Special Exception: Code/README.md
 
@@ -14,223 +14,183 @@ The `/Code/README.md` file is **exempt** from these standards because it serves 
 - Should be formatted for PyPI display
 - Must focus on user-facing documentation
 
-All other README.md files must follow the standards below.
+All other README.md files should follow the principles below.
 
-## Required Nine-Section Structure
+## Core Documentation Principles
 
-### 1. Title with Navigation
+### 1. Comprehensive Coverage
+Every README must thoroughly document its component, including:
+- **Purpose and Functionality**: Clear explanation of what the component does
+- **Integration Context**: How it fits within the larger framework
+- **Usage Patterns**: Practical examples and common workflows
+- **Technical Details**: Architecture, design decisions, and implementation notes
 
+### 2. Relevant Content Only
+Include only information directly relevant to understanding and using the component:
+- Avoid generic boilerplate
+- Don't repeat information available elsewhere (link instead)
+- Focus on what makes this component unique
+- Omit standard Python patterns unless they're unusual
+
+### 3. Consistent Navigation
+All READMEs should include:
+- **Header Navigation**: Links to parent and key related documents
+- **Footer Navigation**: Repeated navigation for long documents
+- **Cross-References**: Links to related components and documentation
+
+## Essential Elements
+
+### Title and Navigation
 ```markdown
-# [Directory/Component Name]: [Descriptive Tagline]
+# [Component Name]: [Descriptive Tagline]
 
-[← Back to Parent](../README.md) | [Key Doc →](docs/README.md) | [Key Resource →](link2)
+[← Back to Parent](../README.md) | [Key Doc →](relevant_doc.md) | [Related →](related.md)
 ```
 
-Use descriptive taglines that capture the essence of the component.
-
-### 2. Directory Structure
-
-**REQUIRED**: Every README must begin with a complete tree showing all contents:
-
+### Directory Structure (When Applicable)
+For directories with multiple files, show the structure:
 ```markdown
 ## Directory Structure
 
 ```
-directory_name/
-├── README.md               # This file - comprehensive overview
-├── __init__.py            # Module initialization and public API
-├── semantic.py            # Core semantic implementation
-├── operators.py           # Operator definitions and registry
-├── examples.py            # Example formulas and test cases
-├── docs/                  # Documentation directory (see docs/README.md)
-├── tests/                 # Test suite (see tests/README.md)  
-└── notebooks/             # Interactive tutorials (see notebooks/README.md)
+component/
+├── README.md               # This file - overview and guide
+├── core_file.py           # Main implementation
+├── support_file.py        # Supporting functionality
+└── tests/                 # Test suite
 ```
 ```
 
-Include file extensions and meaningful descriptions after # comments.
+### Overview Section
+Provide context and orientation:
+- Primary purpose and goals
+- Key capabilities and features
+- Relationship to other components
+- Theoretical or academic background (if relevant)
 
-### 3. Overview
-
-Provide a comprehensive overview including:
-- **Primary Purpose**: What this component does
-- **Key Features**: Main capabilities
-- **Integration Context**: How it fits into ModelChecker
-- **Academic Background**: Relevant theoretical foundations
-
-### 4. Theory Examples (formerly Quick Start)
-
-Focus on theory-specific aspects:
-
+### Usage Examples
+Show practical usage with working code:
 ```markdown
-## Theory Examples
+## Usage
 
-### Theory-Specific Imports
-
+### Basic Example
 ```python
-from model_checker.theory_lib.logos import LogosOperatorRegistry
-
-# Load specific subtheories
-registry = LogosOperatorRegistry()
-registry.load_subtheories(['modal', 'constitutive'])
+from model_checker.component import Feature
+result = Feature().process(input_data)
 ```
 
-### Example Definition
-
-```python
-MODAL_TH_1_premises = ['\\Box A']
-MODAL_TH_1_conclusions = ['A']
-MODAL_TH_1_settings = {
-    'N': 3,                    # Number of atomic states
-    'contingent': False,       # Modal-specific setting
-    'expectation': False,      # False = expect theorem
-}
+### Advanced Usage
+[More complex examples as needed]
 ```
 
-### Running Examples
+### Technical Documentation
+Include sections as appropriate:
+- **Architecture**: Design patterns and structure
+- **API Reference**: Key classes and functions
+- **Configuration**: Settings and customization options
+- **Extension Points**: How to extend or modify behavior
 
-```bash
-model-checker path/to/theory/examples.py
-```
-```
+### References and Resources
+- Academic citations (for theory implementations)
+- Related documentation
+- External resources
 
-Link to [docs/EXAMPLES.md](../docs/EXAMPLES.md) for complete file structure.
+## Theory-Specific Documentation
 
-### 5. Subdirectories
+### Main Theory README
+Each theory should document:
+- **Theoretical Foundation**: Academic background and key concepts
+- **Semantic Approach**: How the theory implements its semantics
+- **Operator Inventory**: Available logical operators
+- **Settings and Configuration**: Theory-specific settings
+- **Example Library**: Representative examples
+- **Comparison with Other Theories**: Distinguishing features
 
-Summarize each subdirectory:
+### Subtheory Documentation
+For modular theories with subtheories:
+- **Uniform Structure**: All subtheories documented consistently
+- **Operator Reference**: Complete operator documentation including:
+  - Symbol (LaTeX and Unicode representations)
+  - Arity and type
+  - Truth conditions (informal and formal)
+  - Usage examples
+- **Integration**: How the subtheory relates to the main theory
+- **Specific Features**: What makes this subtheory unique
 
-```markdown
-## Subdirectories
+## Component-Specific Guidelines
 
-### [docs/](docs/)
-Comprehensive documentation including user guides and technical references. See [docs/README.md](docs/README.md) for navigation.
+### Framework Components (builder, iterate, settings, etc.)
+Focus on:
+- **Integration Role**: How the component fits in the framework
+- **API Design**: Key interfaces and usage patterns
+- **Extension Patterns**: How to extend or customize
+- **Performance Considerations**: Optimization and efficiency notes
 
-### [tests/](tests/)  
-Complete test suite covering semantic functionality and operator behavior. See [tests/README.md](tests/README.md) for methodology.
-```
+### Test Directories
+Document:
+- **Test Organization**: Structure and naming conventions
+- **Coverage Strategy**: What aspects are tested
+- **Running Tests**: Commands and options
+- **Adding Tests**: Guidelines for new test cases
 
-### 6. Documentation
+### Documentation Directories
+Provide:
+- **Navigation Hub**: Clear paths to all documentation
+- **Audience Guidance**: Which docs serve which users
+- **Maintenance Notes**: How to keep docs updated
 
-Organize by user type:
-
-```markdown
-## Documentation
-
-### For New Users
-- **[User Guide](docs/USER_GUIDE.md)** - Practical usage and examples
-- **[Interactive Notebooks](notebooks/README.md)** - Hands-on learning
-
-### For Researchers  
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - System design
-- **[Academic References](#references)** - Theoretical background
-
-### For Developers
-- **[API Reference](docs/API_REFERENCE.md)** - Complete API documentation
-- **[Development Guide](../../../docs/DEVELOPMENT.md)** - Framework integration
-```
-
-### 7. Key Features (Optional)
-
-Highlight distinguishing capabilities when relevant.
-
-### 8. References
-
-Include academic citations and related resources:
-
-```markdown
-## References
-
-### Primary Sources
-- Author (Year) ["Paper Title"](link), Journal Name
-
-### Related Resources
-- **[Related Theory](../other_theory/)** - Brief description
-- **[Framework Documentation](../../README.md)** - Main documentation
-```
-
-### 9. Navigation Footer
-
-```markdown
----
-
-[← Back to Parent](../README.md) | [Documentation →](docs/README.md) | [Examples →](examples.py)
-```
-
-## Theory Documentation Structure
-
-Every theory in `theory_lib/` must maintain this documentation structure:
-
-```
-theory_name/
-├── README.md              # Theory overview with file tree
-├── docs/
-│   ├── README.md         # Documentation hub with file tree
-│   ├── API_REFERENCE.md  # Complete API documentation
-│   ├── ARCHITECTURE.md   # Technical implementation details
-│   ├── USER_GUIDE.md     # Practical usage guide
-│   ├── ITERATE.md        # Model iteration features
-│   └── SETTINGS.md       # Configuration options
-├── examples.py           # Example formulas
-├── semantic.py          # Core semantic implementation
-├── operators.py         # Operator definitions
-├── tests/               # Test suite
-│   └── README.md        # Test documentation with file tree
-└── notebooks/           # Jupyter notebooks
-    └── README.md        # Notebook guide with file tree
-```
-
-### Theory Documentation Example Standards
-
-Theory documentation should focus on what makes each theory unique:
-
-**Include:**
-- Theory-specific imports and operator loading
-- Individual example definitions with theory-specific settings
-- Theory-specific settings with meaningful comments
-- Command-line usage for running examples
-- Link to EXAMPLES.md for complete file structure
-
-**Omit:**
-- Generic boilerplate (unit_tests dictionary, semantic_theories setup)
-- Standard executable setup (if __name__ == "__main__")
-- Repetitive settings explanations covered in EXAMPLES.md
-- Generic example_range and general_settings
-
-### Subtheory Documentation Standards
-
-For theories with modular subtheories (e.g., Logos), each subtheory must:
-
-1. Follow the standard 9-section README format
-2. State hyperintensional semantics implementation in overview
-3. Clearly distinguish primitive vs defined operators
-4. Include operator reference with:
-   - Symbol (LaTeX and Unicode)
-   - Name, arity, and type
-   - Truth conditions (informal then Z3)
-   - Usage examples and key properties
+## Quality Standards
 
 ### Accuracy Requirements
+- Code examples must be tested and working
+- File paths and links must be valid
+- Counts and statistics must match actual implementation
+- Version-specific information must be current
 
-- Example counts must match actual files
-- Operator counts must match implementations
-- Truth conditions must match code
-- Use grep to verify: `grep "^[A-Z]*_[CT][MH]_[0-9]*_example =" examples.py | wc -l`
+### Clarity Standards
+- Use clear, concise language
+- Define technical terms on first use
+- Provide context before diving into details
+- Use consistent terminology throughout
 
-## Navigation Best Practices
+### Maintenance Practices
+- Update README when implementation changes
+- Verify links during major updates
+- Review for relevance periodically
+- Remove outdated information promptly
 
-- Include 2-4 most relevant links
-- Use consistent arrow symbols (← and →)
-- Always include parent directory link
-- Prioritize commonly accessed resources
+## Verification Checklist
 
-## Content Principles
+When creating or updating a README:
 
-- Start with specific, concrete information
-- Use quantitative details ("19 operators", "177 examples")
-- Show working code examples
-- Link rather than duplicate information
-- Focus on practical usage while grounding in theory
+- [ ] **Purpose Clear**: Reader immediately understands what this component does
+- [ ] **Navigation Present**: Header and footer navigation included
+- [ ] **Examples Working**: All code examples tested and functional
+- [ ] **Links Valid**: All cross-references and external links verified
+- [ ] **Content Relevant**: No unnecessary boilerplate or repetition
+- [ ] **Structure Logical**: Information flows naturally
+- [ ] **Technically Accurate**: Implementation details correct
+- [ ] **Audience Appropriate**: Language and detail level fits intended readers
+
+## Best Practices
+
+### Writing Style
+- **Active Voice**: "The builder creates models" not "Models are created by the builder"
+- **Concrete Examples**: Show actual usage, not abstract descriptions
+- **Progressive Disclosure**: Start simple, add complexity gradually
+- **Visual Aids**: Use diagrams and formatted output where helpful
+
+### Organization
+- **Logical Flow**: Most important information first
+- **Clear Sections**: Use headings to organize content
+- **Consistent Formatting**: Follow markdown conventions
+- **Scannable Layout**: Use lists, tables, and code blocks effectively
+
+### Maintenance
+- **Living Documents**: Update as implementation evolves
+- **Version Notes**: Document significant changes
+- **Deprecation Notices**: Clear warnings for outdated features
+- **Migration Guides**: Help users adapt to changes
 
 ---
 

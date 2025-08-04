@@ -4,7 +4,7 @@
 
 ## Overview
 
-This document provides a quick reference to the ModelChecker coding and documentation standards. For comprehensive standards, see [MAINTENANCE.md](../MAINTENANCE.md).
+This document provides a quick reference to the ModelChecker coding and documentation standards. For comprehensive standards, see [maintenance/README.md](../../Docs/maintenance/README.md).
 
 ## Quick Reference
 

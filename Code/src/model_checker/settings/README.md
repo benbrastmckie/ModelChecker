@@ -132,6 +132,63 @@ result = model.check_validity()
 # Final result: N=4 (from flag), max_time=2000 (from file), print_z3=True (from flag)
 ```
 
+### Available Command-Line Flags
+
+#### Core Settings Flags
+
+**Model Configuration:**
+- `-N <int>` or `--N <int>` - Number of atomic states in model space
+- `--max-time <int>` - Maximum Z3 solver execution time in milliseconds
+- `--expectation` - Whether a model is expected to exist (for testing)
+
+**Semantic Constraints:**
+- `--contingent` - Make atomic propositions contingent
+- `--disjoint` - Require disjoint subject-matters
+- `--non-empty` - Require non-empty verifier/falsifier sets
+- `--non-null` - Prevent null states as verifiers/falsifiers
+
+**Model Iteration:**
+- `--iterate <int>` - Number of distinct models to find
+
+#### Theory-Specific Flags
+
+**Bimodal Theory:**
+- `-M <int>` or `--M <int>` - Number of time points for temporal dimension
+- `--align-vertically` - Display world histories vertically
+
+**Exclusion Theory:**
+- `--coherence-check` - Enable exclusion coherence validation
+- `--witness-optimization` - Optimize witness structure generation
+
+**Imposition Theory:**
+- `--imposition-depth <int>` - Maximum depth for imposition operations
+- `--state-modification` - Allow state modification patterns
+
+#### Output and Debugging Flags
+
+- `--print-impossible` - Show impossible states in output
+- `--print-constraints` or `-p` - Display Z3 constraints when no model found
+- `--print-z3` or `-z` - Show raw Z3 model or unsat core
+- `--save-output` - Prompt to save output to file
+- `--maximize` - Compare theories by maximizing model size
+
+#### Usage Examples
+
+```bash
+# Basic model configuration
+model-checker -N 5 examples/test.py
+
+# Multiple flags with short and long forms
+model-checker -p -z --contingent --iterate=3 examples/complex.py
+
+# Theory-specific configuration
+model-checker --M 4 --align-vertically examples/bimodal_test.py
+model-checker --coherence-check --witness-optimization examples/exclusion_test.py
+
+# Full debugging output
+model-checker --print-z3 --print-constraints --print-impossible --max-time=10000 examples/debug.py
+```
+
 ### Multi-Theory Comparison
 
 ```python
