@@ -741,7 +741,7 @@ valid_settings = {k: v for k, v in settings.items()
 ### Related Documentation
 - [Architecture](../ARCHITECTURE.md) - System design
 - [Iterator System](../methodology/ITERATOR.md) - Model iteration details
-- [Builder Pattern](../methodology/BUILDER.md) - Pipeline orchestration
+- [Builder Pattern](../methodology/BUILDER.md) - Pipeline orchestration with visual flowcharts
 - [Development Guide](../../Code/docs/DEVELOPMENT.md) - Contributing
 
 ---

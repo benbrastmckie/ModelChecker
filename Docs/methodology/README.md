@@ -35,6 +35,8 @@ The ModelChecker pipeline follows a linear flow from input formulas to model out
    - How BuildModule loads examples and manages settings
    - BuildExample pipeline from premises/conclusions to results
    - BuildProject for generating new theory implementations
+   - Visual flowcharts showing component integration and settings flow
+   - Insights into theory isolation and dynamic loading patterns
 
 2. **[SYNTAX.md](SYNTAX.md)** - Formula parsing and AST construction
    - Language-agnostic tokenization and parsing

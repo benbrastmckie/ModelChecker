@@ -392,6 +392,17 @@ PYTHONPATH management is critical on NixOS. Always use provided scripts (`run_ju
 3. Documentation must be complete
 4. Follow project coding standards
 
+### Licensing
+
+When creating new theories based on existing ones:
+
+1. Review [License Inheritance Guidelines](LICENSE_INHERITANCE.md)
+2. Maintain proper attribution to original authors
+3. Document your novel contributions
+4. Ensure GPL-3.0 compatibility
+
+For more details on the dual licensing structure (static framework license vs inheritable theory licenses), see the complete [License Inheritance Guidelines](LICENSE_INHERITANCE.md).
+
 ---
 
 [← Back to Technical Docs](README.md) | [Architecture →](ARCHITECTURE.md) | [Testing →](TESTS.md)

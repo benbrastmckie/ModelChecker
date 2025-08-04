@@ -852,7 +852,7 @@ def compare_theories_parallel(theories, examples):
 - **Python Design Patterns** - Architectural patterns
 
 ### Related Documentation
-- [Builder Pattern](methodology/BUILDER.md) - Detailed orchestration
+- [Builder Pattern](methodology/BUILDER.md) - Detailed orchestration with component integration flowcharts
 - [Iterator System](methodology/ITERATOR.md) - Model iteration architecture
 - [Theory Architecture](../../Code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md) - Theory design
 

@@ -573,7 +573,7 @@ print(f"Premise complexity: {syntax.premises[0].complexity}")  # 2
 - `model_checker/theory_lib/*/operators.py` - Theory-specific operators
 
 ### Related Documentation
-- [Builder Pattern](BUILDER_PATTERN.md) - How syntax fits in the pipeline
+- [Builder Pattern](BUILDER.md) - How syntax fits in the pipeline
 - [Semantics Pipeline](SEMANTICS.md) - How parsed sentences become constraints
 - [API Reference](../../Code/docs/API_REFERENCE.md) - Detailed class documentation
 
