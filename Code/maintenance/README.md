@@ -11,6 +11,7 @@ This directory contains comprehensive maintenance standards for the ModelChecker
 ```
 maintenance/
 ├── README.md                    # This file - navigation hub and overview
+├── AUDIENCE.md                  # Documentation audience and accessibility goals
 ├── FORMULA_FORMATTING.md        # Formula formatting standards
 ├── EXAMPLES_STRUCTURE.md        # Examples.py file structure standards
 ├── DOCUMENTATION_STANDARDS.md   # General documentation guidelines
@@ -38,6 +39,7 @@ maintenance/
 
 ### Documentation Standards
 
+- **[Audience](AUDIENCE.md)** - Documentation accessibility goals and interdisciplinary approach
 - **[Documentation Standards](DOCUMENTATION_STANDARDS.md)** - General principles, no emojis, cross-references
 - **[README Standards](README_STANDARDS.md)** - 9-section structure, directory trees, navigation
 - **[Templates](templates/)** - Ready-to-use documentation templates

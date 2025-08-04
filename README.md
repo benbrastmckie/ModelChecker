@@ -38,6 +38,8 @@ The **ModelChecker** provides a programmatic methodology for developing and expl
 
 The project facilitates the exploration of logical systems with many interacting operators that would be intractable to analyze by hand. Whereas the Logos is interpreted over a bilateral hyperintensional semantics, the TheoryLib also includes an implementation of Bernard and Champollion's unilateral semantics for negation based on exclusion, an implementation Fine's imposition semantics for counterfactuals, and a bimodal logic for reasoning with tense and modality. The modular architecture with automatic dependency resolution makes it easy to build one theory off of another while registering their differences in order to study independently.
 
+> **Note on Documentation**: This project's documentation is designed for an interdisciplinary audience, welcoming both those new to programming and those new to formal logic and semantics. For our documentation philosophy and accessibility goals, see [Audience Guidelines](Code/maintenance/AUDIENCE.md) and [Maintenance Standards](Code/maintenance/README.md).
+
 ## Documentation Organization
 
 The ModelChecker documentation is organized into two main areas:

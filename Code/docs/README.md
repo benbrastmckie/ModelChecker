@@ -12,7 +12,8 @@ docs/
 ├── EXAMPLES.md                     # Standard form for examples.py files
 ├── TESTS.md                        # Testing methodology and framework usage
 ├── TOOLS.md                        # Advanced debugging and analysis tools
-└── STYLE_GUIDE.md                  # Code style quick reference
+├── STYLE_GUIDE.md                  # Code style quick reference
+└── LICENSE_INHERITANCE.md          # Guidelines for theory-based derivative works
 ```
 
 ## Overview
@@ -133,6 +134,7 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 2. **Follow Patterns**: Use existing theories as architectural models
 3. **Provide Documentation**: Include comprehensive README and API documentation
 4. **Academic Attribution**: Include proper citations and licensing
+5. **License Inheritance**: Follow [LICENSE_INHERITANCE.md](LICENSE_INHERITANCE.md) for derivative works
 
 ### Documentation Contributions
 
@@ -153,6 +155,8 @@ See [TESTS.md](TESTS.md) for comprehensive testing documentation.
 ## License
 
 All development documentation is licensed under GPL-3.0 as part of the ModelChecker framework.
+
+For information about the dual licensing structure (static framework license vs inheritable theory licenses), see [LICENSE_INHERITANCE.md](LICENSE_INHERITANCE.md).
 
 ---
 

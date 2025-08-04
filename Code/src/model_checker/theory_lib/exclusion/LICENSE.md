@@ -12,6 +12,33 @@ The exclusion semantic theory implemented here is based on the unilateral truthm
 originally developed by Kit Fine and revised by Lucas Champollion and Timothée Bernard.
 For proper academic attribution of the underlying semantic theory, see CITATION.md.
 
+## Derivative Work Guidelines
+
+When creating derivative works based on this theory:
+
+1. **License Inheritance**: Derivative works must maintain the GPL-3.0 license
+2. **Attribution**: You must maintain attribution to the original authors (Miguel Buitrago and Benjamin Brast-McKie)
+3. **Novel Contributions**: You may add your name to the copyright when you have made substantial contributions
+4. **Documentation**: Document your contributions clearly, linking to detailed explanations
+
+### What Constitutes Substantial Contributions
+
+- Adding new operators or semantic features
+- Implementing new constraint types or semantic extensions
+- Creating new subtheories that extend the base theory
+- Significant algorithmic or performance improvements
+
+### Example Attribution for Derivative Works
+
+```
+Original exclusion theory - Copyright (c) 2024 Miguel Buitrago and Benjamin Brast-McKie
+[Your Novel Contribution] - Copyright (c) [Year] [Your Name]
+```
+
+For detailed guidelines, see the [License Inheritance Guidelines](../../../docs/LICENSE_INHERITANCE.md).
+
+## License Terms
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 3 of the License, or

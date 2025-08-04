@@ -130,7 +130,7 @@ model-checker examples.py --iterate=5
 
 ### Interaction with Other Settings
 
-The `iterate` setting interacts with other configuration:
+The `iterate` setting interacts with other configuration (see [Settings Management](BUILDER.md#settings-management) for complete settings documentation including visual flowcharts):
 
 ```python
 # Iteration-specific settings

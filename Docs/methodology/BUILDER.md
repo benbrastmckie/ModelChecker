@@ -29,9 +29,26 @@
 
 ## Introduction
 
-The Builder Pattern in ModelChecker orchestrates the model checking pipeline through three core classes: `BuildModule`, `BuildExample`, and `BuildProject`. This pattern provides a clean separation between module management, example execution, and project generation while maintaining a consistent flow of settings and data throughout the system.
+The Builder Pattern in ModelChecker orchestrates the model checking pipeline through three core classes that work together to transform logical formulas into concrete semantic evaluations:
 
-The builder architecture serves as the entry point for all model checking operations, handling everything from loading Python modules containing logical examples to generating new semantic theory projects to adapt. It ensures proper initialization of components, manages concurrent execution for performance comparisons, and provides isolation between different examples to prevent state leakage.
+```
+┌──────────────┐     ┌──────────────┐     ┌──────────────┐
+│ BuildModule  │     │ BuildExample │     │ BuildProject │
+│              │     │              │     │              │
+│ Coordinates  │────▶│  Executes    │     │  Generates   │
+│  examples    │     │  pipeline    │     │   theories   │
+└──────────────┘     └──────────────┘     └──────────────┘
+```
+
+The architecture mirrors the logical inference process: take premises and conclusions, apply semantic rules, and either find a countermodel (showing invalidity) or prove none exists (confirming validity). This separation allows researchers to focus on their semantic theories while the framework handles the computational complexity.
+
+Key insights this pattern provides:
+- **Theory Independence**: Each semantic theory runs in isolation, preventing cross-contamination
+- **Settings Flexibility**: Configure everything from state space size to semantic constraints
+- **Comparative Analysis**: Run multiple theories on the same examples side-by-side
+- **Extensibility**: Add new theories without modifying core infrastructure
+
+For detailed architectural patterns, see [Technical Architecture](../../Code/docs/ARCHITECTURE.md). For the theoretical foundations of model checking, see [Hyperintensional Semantics](../../HYPERINTENSIONAL.md).
 
 ## BuildModule Architecture
 
@@ -56,6 +73,8 @@ The module loader supports:
 - Relative imports within theory packages
 - Dynamic theory loading without prior registration
 
+**Why Dynamic Loading?** This approach allows researchers to develop and test new semantic theories without modifying the core framework. You can create a standalone Python file with your logical examples and semantic definitions, and the framework will automatically discover and load the necessary components. This is particularly useful when experimenting with variations of existing theories or developing entirely new semantic frameworks.
+
 ### Settings Management
 
 BuildModule implements a settings management system that handles theory-specific defaults, module-level settings, and command-line overrides:
@@ -68,6 +87,16 @@ Settings hierarchy (highest to lowest priority):
 5. System DEFAULT_GENERAL_SETTINGS
 
 The settings manager validates settings based on each theory's requirements, warning about unknown settings in single-theory mode while allowing flexibility in comparison mode.
+
+Each setting controls specific aspects of the model checking process:
+- `N`: Number of atomic states (typically 3-5, max 64 due to bit vector representation)
+- `contingent`: Requires atomic propositions to have both verifiers and falsifiers
+- `non_empty`: Prevents empty verifier/falsifier sets
+- `disjoint`: Ensures no state both verifies and falsifies the same proposition
+- `max_time`: Z3 solver timeout in seconds
+- `iterate`: Number of distinct models to find (see [Iterator System](ITERATOR.md))
+
+Command-line flags like `-v` (verbose) and `-i` (print impossible states) provide debugging output without modifying the logical analysis.
 
 ### Theory Selection
 
@@ -91,6 +120,8 @@ semantic_theories = {
 }
 ```
 
+The dictionary structure enables theory comparison - each theory provides its own truth conditions (`semantics`), atomic proposition behavior (`proposition`), and model interpretation (`model`). The optional `dictionary` maps between different operator notations, allowing theories to share example formulas even when they use different symbols.
+
 ### Example Execution
 
 BuildModule coordinates example execution with proper isolation and progress tracking:
@@ -108,7 +139,16 @@ for example_name, example_case in example_range.items():
         build_module.process_example(example_name, example_case, theory_name, semantic_theory)
 ```
 
+The Z3 context reset between examples prevents constraint contamination - without this isolation, constraints from one example would affect subsequent analyses. This is crucial when comparing theories: each gets a fresh solver state, ensuring fair comparison of their logical properties rather than accumulated solver heuristics.
+
 ## BuildExample Flow
+
+The BuildExample class orchestrates the transformation from logical formulas to semantic evaluation. Think of it as a production line where each station performs a specific transformation, ultimately determining whether your inference holds:
+
+```
+Premises/Conclusions ─▶ Parse Trees ─▶ Z3 Variables ─▶ Constraints ─▶ Model/Countermodel
+                        (Syntax)       (Semantics)      (Solver)       (Result)
+```
 
 ### Complete Pipeline
 
@@ -149,6 +189,8 @@ self.settings = settings_manager.get_complete_settings(
 )
 ```
 
+The `is_comparison` flag changes validation behavior: in single-theory mode, unknown settings trigger warnings to catch typos, while comparison mode silently ignores theory-specific settings that don't apply to all theories. This allows unified example files that work across different semantic frameworks.
+
 ### Operator Collection
 
 Operator instantiation connects syntactic operators to their semantic implementations:
@@ -165,6 +207,8 @@ self.model_constraints = ModelConstraints(
     proposition_class
 )
 ```
+
+The `operators` collection maps LaTeX notation (like `\\wedge`, `\\Box`) to their semantic implementations. Each operator class defines its own truth conditions through `extended_verify` and `extended_falsify` methods. The Syntax class discovers which operators are actually used in the formulas, enabling automatic dependency resolution - you don't need to manually specify that conjunction requires the extensional subtheory.
 
 ### Model Solving
 
@@ -239,30 +283,86 @@ Automatic license and citation files:
 
 ## Integration Points
 
-### Component Connection
+The builder pattern's strength lies in how components integrate while maintaining independence. Each integration point serves a specific purpose in the overall architecture, enabling both flexibility and robustness. Understanding these connections helps when extending the framework or debugging unexpected behavior.
+
+### Component Connections
 
 BuildExample serves as the central integration point connecting all framework components:
 
-```text
-BuildModule (orchestrator)
-    ├── Settings Management
-    ├── Theory Loading
-    └── BuildExample (pipeline)
-        ├── Syntax (parsing)
-        ├── ModelConstraints (bridging)
-        ├── ModelStructure (solving)
-        └── Result Extraction
 ```
+┌─────────────────────────────────────────────────────────────────┐
+│                          BuildModule                            │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────────┐  │
+│  │   Settings  │  │    Theory    │  │   Example Execution    │  │
+│  │  Management │  │   Loading    │  │    (orchestration)     │  │
+│  └─────────────┘  └──────────────┘  └────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ creates & configures
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                          BuildExample                           │
+│                                                                 │
+│  ┌─────────────┐         ┌──────────────────┐                   │
+│  │   Syntax    │────────▶│ ModelConstraints │                   │
+│  │  (parsing)  │  AST    │   (bridging)     │                   │
+│  └─────────────┘         └────────┬─────────┘                   │
+│                                   │ constraints                 │
+│                                   ▼                             │
+│                          ┌──────────────────┐                   │
+│                          │  ModelStructure  │                   │
+│                          │    (solving)     │                   │
+│                          └────────┬─────────┘                   │
+│                                   │ Z3 model                    │
+│                                   ▼                             │
+│                          ┌──────────────────┐                   │
+│                          │     Results      │                   │
+│                          │   (extraction)   │                   │
+│                          └──────────────────┘                   │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+This architecture ensures clean separation of concerns: BuildModule handles orchestration and configuration, BuildExample manages the pipeline flow, and each component focuses on its specific transformation of the logical problem.
 
 ### Settings Flow
 
 Settings flow through the system with proper validation at each stage:
 
-Settings flow path:
-1. Module flags → BuildModule
-2. BuildModule + general_settings → SettingsManager
-3. SettingsManager + example_settings → validated settings
-4. Validated settings → all components (Syntax, Semantics, Model)
+```
+┌─────────────────┐
+│ Command Line    │ ──────────────────────────┐
+│ (-z, -i, ...)   │                           │ Highest
+└─────────────────┘                           │ Priority
+                                              ▼
+┌─────────────────┐                    ┌──────────────┐
+│ Example Settings│ ─────────────────▶ │              │
+│ {'N': 4, ...}   │                    │   Settings   │
+└─────────────────┘                    │   Manager    │
+                                       │              │
+┌─────────────────┐                    │ (validates & │
+│ Module General  │ ─────────────────▶ │   merges)    │
+│ {'N': 3, ...}   │                    │              │
+└─────────────────┘                    └──────┬───────┘
+                                              │
+┌─────────────────┐                           │
+│ Theory Defaults │ ──────────────────────────┘
+│ {'N': 16, ...}  │                    Lowest
+└─────────────────┘                    Priority
+                                              
+                                              ▼
+                        ┌─────────────────────────────────────┐
+                        │      Validated Settings             │
+                        │  {'N': 5, 'contingent': True, ...} │
+                        └──────────────┬──────────────────────┘
+                                       │
+                    ┌──────────────────┼──────────────────┐
+                    ▼                  ▼                  ▼
+              ┌──────────┐      ┌──────────┐      ┌────────────┐
+              │  Syntax  │      │Semantics │      │   Model    │
+              └──────────┘      └──────────┘      └────────────┘
+```
+
+Each component receives the same validated settings, ensuring consistent behavior. The priority cascade allows fine-grained control: set theory defaults for typical usage, override per-module for specific investigations, override per-example for edge cases, and use command-line for quick experiments.
 
 ### Theory Loading
 
@@ -282,6 +382,8 @@ registry = LogosOperatorRegistry()
 registry.load_subtheories(['modal', 'constitutive'])
 operators = registry.operators
 ```
+
+**Static vs Dynamic Loading**: Static registration suits fixed theories where all components are known upfront. Dynamic loading excels when theories have modular subtheories - load only what you need. For instance, if your examples only use modal operators, loading the counterfactual subtheory wastes memory and slows constraint generation. The registry pattern also handles operator dependencies automatically.
 
 ### Result Interpretation
 
@@ -402,6 +504,8 @@ if example.model_structure.z3_model_status:
 else:
     print("No countermodel - argument is valid")
 ```
+
+Each stage transforms the logical problem: strings become parse trees, trees become Z3 variables, variables get constrained by semantic rules, and the solver either finds a satisfying assignment (countermodel) or proves none exists (validity). The countermodel, if found, shows exactly which states verify/falsify each proposition, revealing why the inference fails.
 
 ## References
 

@@ -2,6 +2,18 @@
 
 [← Unicode Guidelines](UNICODE_GUIDELINES.md) | [Back to Maintenance](README.md) | [README Standards →](README_STANDARDS.md)
 
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Core Requirements](#core-requirements)
+3. [Directory Structure Display](#directory-structure-display)
+4. [Content Organization Principles](#content-organization-principles)
+5. [Formula Formatting Standards](#formula-formatting-standards)
+6. [Code Example Standards](#code-example-standards)
+7. [Flowchart Conventions](#flowchart-conventions)
+8. [Non-README Documentation Standards](#non-readme-documentation-standards)
+9. [References](#references)
+
 ## Overview
 
 This document establishes general documentation standards for the ModelChecker codebase. For README-specific standards, see [README_STANDARDS.md](README_STANDARDS.md).
@@ -110,6 +122,100 @@ result = theory.check_validity(premises, conclusions)
 # Output: CountermodelFound(model=...)
 ```
 
+## Flowchart Conventions
+
+Professional flowcharts clarify complex relationships and data flow. Follow these conventions for consistency:
+
+### Containment vs Connection
+
+Use **containment boxes** for object composition and **arrows** for data/control flow:
+
+```
+# CORRECT - Objects contain their components
+┌─────────────────────────────────────────────────────────────────┐
+│                          BuildModule                            │
+│  ┌─────────────┐  ┌──────────────┐  ┌────────────────────────┐ │
+│  │   Settings  │  │    Theory    │  │   Example Execution    │ │
+│  │  Management │  │   Loading    │  │    (orchestration)     │ │
+│  └─────────────┘  └──────────────┘  └────────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ creates & configures
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                          BuildExample                           │
+│  ┌─────────────┐         ┌──────────────────┐                  │
+│  │   Syntax    │────────▶│ ModelConstraints │                  │
+│  │  (parsing)  │  AST    │   (bridging)     │                  │
+│  └─────────────┘         └────────┬─────────┘                  │
+│                                   │ constraints                 │
+│                                   ▼                             │
+│                          ┌──────────────────┐                  │
+│                          │  ModelStructure  │                  │
+│                          │    (solving)     │                  │
+│                          └──────────────────┘                  │
+└─────────────────────────────────────────────────────────────────┘
+
+# INCORRECT - Using arrows for containment relationships
+BuildModule
+    ├──▶ Settings Management
+    ├──▶ Theory Loading
+    └──▶ Example Execution
+```
+
+### Visual Hierarchy
+
+1. **Box Styles**:
+   - Single-line boxes for simple components: `┌─────┐`
+   - Double-line boxes for emphasis: `╔═════╗`
+   - Dashed boxes for optional/configurable: `┌╌╌╌╌╌┐`
+
+2. **Arrow Types**:
+   - Solid arrows for primary flow: `────▶`
+   - Dashed arrows for optional flow: `╌╌╌╌▶`
+   - Labeled arrows for clarity: `──AST──▶`
+
+3. **Alignment**:
+   - Maintain consistent spacing within containers
+   - Align related components vertically or horizontally
+   - Use adequate padding inside boxes
+
+### Professional Example: Settings Priority Cascade
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      Settings Resolution                        │
+│                                                                 │
+│  Priority Sources:                     ┌──────────────────────┐ │
+│  ┌──────────────────┐                 │   SettingsManager    │ │
+│  │ 1. Command Line  │ ───highest────▶ │                      │ │
+│  │   --N=5 --verbose│ priority        │  • Validates types   │ │
+│  └──────────────────┘                 │  • Merges by priority│ │
+│                                       │  • Checks conflicts  │ │
+│  ┌──────────────────┐                 │                      │ │
+│  │ 2. Example Dict  │ ───────────────▶│                      │ │
+│  │   {'N': 4}       │                 │                      │ │
+│  └──────────────────┘                 └──────────┬───────────┘ │
+│                                                  │             │
+│  ┌──────────────────┐                           │ merged      │
+│  │ 3. Theory Default│ ───lowest─────────────────┘ settings    │
+│  │   {'N': 3}       │ priority                                 │
+│  └──────────────────┘                           ▼             │
+│                                       ┌──────────────────────┐ │
+│                                       │   Final Settings     │ │
+│                                       │   {'N': 5, ...}      │ │
+│                                       └──────────────────────┘ │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### Best Practices
+
+1. **Label Key Flows**: Add descriptive labels to arrows
+2. **Show Direction**: Use arrowheads to indicate flow direction
+3. **Group Related Items**: Use containers to show logical groupings
+4. **Maintain Proportions**: Keep box sizes proportional to importance
+5. **Use Descriptive Text**: Add clarifying text inside or near components
+
 ## Non-README Documentation Standards
 
 All documentation files that are NOT README.md files must follow these standards:
@@ -151,6 +257,18 @@ All non-README documentation must have a table of contents with links:
 
 [← Back to [Source]](../README.md) | [Next Topic →](next.md)
 ```
+
+## References
+
+### Related Standards
+- [README Standards](README_STANDARDS.md) - Specific standards for README.md files
+- [Unicode Guidelines](UNICODE_GUIDELINES.md) - Character encoding and symbol usage
+- [Audience Guidelines](AUDIENCE.md) - Writing for interdisciplinary audiences
+
+### Example Documents Following These Standards
+- [BUILDER.md](../../Docs/methodology/BUILDER.md) - Demonstrates professional flowcharts
+- [ARCHITECTURE.md](../../Docs/ARCHITECTURE.md) - Shows component relationships
+- [ITERATOR.md](../../Docs/methodology/ITERATOR.md) - Complex technical documentation
 
 ---
 

@@ -289,6 +289,10 @@ class BuildProject:
     def _add_license_file(self, project_dir):
         """Add a license file to the project if it doesn't exist.
         
+        If the source theory has a LICENSE.md file, this will create an inherited
+        license that maintains attribution to the original author while allowing
+        the user to add their own copyright for novel contributions.
+        
         Args:
             project_dir (str): Path to the project directory
         """
@@ -298,16 +302,70 @@ class BuildProject:
                 # Import the license template function
                 from model_checker.utils import get_license_template
                 
-                # Generate license text
-                license_text = get_license_template("GPL-3.0")
+                # Check if source theory has a LICENSE.md file
+                source_license_path = os.path.join(self.source_dir, "LICENSE.md")
+                source_theory_info = None
+                
+                if os.path.exists(source_license_path):
+                    # Extract source theory information
+                    source_theory_info = self._extract_source_theory_info(source_license_path)
+                    source_theory_info['name'] = self.source_theory
+                    source_theory_info['license_path'] = source_license_path
+                
+                # Generate license text with inheritance if applicable
+                license_text = get_license_template(
+                    "GPL-3.0",
+                    source_theory_info=source_theory_info
+                )
                 
                 # Write license file
                 with open(license_path, 'w', encoding='utf-8') as f:
                     f.write(license_text)
                 
-                self.log(f"Created LICENSE.md file")
+                if source_theory_info:
+                    self.log(f"Created LICENSE.md with inheritance from {self.source_theory}")
+                else:
+                    self.log(f"Created LICENSE.md file")
             except Exception as e:
                 self.log(f"Error creating license file: {str(e)}", "WARNING")
+    
+    def _extract_source_theory_info(self, license_path):
+        """Extract copyright information from source theory's LICENSE.md file.
+        
+        Args:
+            license_path (str): Path to the source LICENSE.md file
+            
+        Returns:
+            dict: Extracted information including author and year
+        """
+        import re
+        
+        info = {
+            'author': 'Unknown Author',
+            'year': '2024'
+        }
+        
+        try:
+            with open(license_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+                
+            # Extract copyright information
+            # Look for patterns like "Copyright (c) YEAR Author Name"
+            copyright_match = re.search(r'Copyright\s*\(c\)\s*(\d{4})\s+(.+?)(?:\n|$)', content)
+            if copyright_match:
+                info['year'] = copyright_match.group(1)
+                info['author'] = copyright_match.group(2).strip()
+            
+            # Also check for "Software Implementation Copyright" section
+            impl_match = re.search(r'Software Implementation Copyright\s*\n+Copyright\s*\(c\)\s*(\d{4})\s+(.+?)(?:\n|$)', content, re.MULTILINE)
+            if impl_match:
+                info['year'] = impl_match.group(1)
+                info['author'] = impl_match.group(2).strip()
+                
+        except Exception as e:
+            self.log(f"Warning: Could not extract source theory info: {e}", "WARNING")
+            
+        return info
     
     def _add_citation_file(self, project_dir):
         """Add a citation file to the project if it doesn't exist.
