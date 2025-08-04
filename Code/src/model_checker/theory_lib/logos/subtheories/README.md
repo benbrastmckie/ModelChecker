@@ -251,7 +251,7 @@ Each subtheory follows this standard structure:
 ```python
 subtheory_name/
 ├── __init__.py        # Public API exports
-├── README.md          # Documentation (9-section format)
+├── README.md          # Documentation (comprehensive format)
 ├── operators.py       # Operator implementations
 ├── examples.py        # Test examples and demos
 └── tests/            # Unit tests and validation
@@ -314,7 +314,7 @@ Each subtheory includes standardized test categories:
    - `operators.py`: Operator classes extending `model_checker.syntactic.Operator`
    - `examples.py`: Test examples in standard format
    - `__init__.py`: Public API exports
-   - `README.md`: Documentation following 9-section format
+   - `README.md`: Documentation following comprehensive format
    - `tests/test_*.py`: Unit tests
 
 3. Update `AVAILABLE_SUBTHEORIES` in main `__init__.py`

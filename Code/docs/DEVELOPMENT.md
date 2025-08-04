@@ -107,7 +107,7 @@ Follow the standards in [MAINTENANCE.md](../MAINTENANCE.md):
 
 - Formula formatting (capital letters, proper parentheses)
 - Examples.py structure (see [EXAMPLES.md](EXAMPLES.md))
-- Documentation standards (9-section README structure)
+- Documentation standards (comprehensive README structure)
 - No emojis anywhere in code or documentation
 
 ## Testing Commands
@@ -376,7 +376,7 @@ PYTHONPATH management is critical on NixOS. Always use provided scripts (`run_ju
 1. Update relevant README files
 2. Include docstrings for all public APIs
 3. Add examples for new features
-4. Follow 9-section structure for README files
+4. Follow comprehensive documentation standards for README files
 
 ### Testing
 

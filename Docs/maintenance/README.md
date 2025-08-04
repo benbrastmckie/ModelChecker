@@ -71,7 +71,7 @@ theory_name/
 
 ## Overview
 
-[Content following 9-section structure...]
+[Content following comprehensive documentation structure...]
 ```
 
 ### Code Organization Example
@@ -105,7 +105,7 @@ Documentation templates providing starting points for new READMEs, theory docume
 ### For All Contributors
 - **[Audience Guidelines](AUDIENCE.md)** - Understanding our interdisciplinary audience
 - **[Documentation Standards](DOCUMENTATION_STANDARDS.md)** - General documentation principles
-- **[README Standards](README_STANDARDS.md)** - Required 9-section structure
+- **[README Standards](README_STANDARDS.md)** - Comprehensive documentation structure
 
 ### For Code Contributors
 - **[Code Organization](CODE_ORGANIZATION.md)** - Module structure and imports
