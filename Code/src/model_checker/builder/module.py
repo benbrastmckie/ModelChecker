@@ -88,6 +88,18 @@ class BuildModule:
         # Set attributes for backward compatibility
         for key, value in self.general_settings.items():
             setattr(self, key, value)
+            
+        # Initialize output manager if save_output is enabled
+        from model_checker.output import OutputManager
+        self.output_manager = OutputManager(
+            save_output=self.save_output,
+            mode=getattr(self.module_flags, 'output_mode', 'batch'),
+            sequential_files=getattr(self.module_flags, 'sequential_files', 'multiple')
+        )
+        
+        # Create output directory if needed
+        if self.output_manager.should_save():
+            self.output_manager.create_output_directory()
 
     def _is_generated_project(self, module_dir):
         """Detect if module is from a generated project.
@@ -651,7 +663,7 @@ class BuildModule:
         
         # Check if a model was found
         if not example.model_structure.z3_model_status:
-            example.print_model(example_name, theory_name)
+            self._capture_and_save_output(example, example_name, theory_name)
             return example
         
         # Get the iterate count
@@ -661,7 +673,7 @@ class BuildModule:
         if iterate_count > 1:
             print(f"\nMODEL 1/{iterate_count}")
             
-        example.print_model(example_name, theory_name)
+        self._capture_and_save_output(example, example_name, theory_name)
         
         # Return if we don't need to iterate
         if iterate_count <= 1:
@@ -720,7 +732,7 @@ class BuildModule:
                         example.model_structure = structure
                         
                         # Print the model
-                        example.print_model(f"{example_name}", theory_name)
+                        self._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
                     else:
                         # For subsequent models, first print the differences then the model
                         # Print detailed differences between this model and the previous one
@@ -773,7 +785,7 @@ class BuildModule:
                             structure._is_last_model = True
                             
                         # Print the model
-                        example.print_model(f"{example_name}", theory_name)
+                        self._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
                     
                 # For isomorphic models that are skipped, we could optionally add a subtle indicator
                 # Uncomment to show skipped models
@@ -823,6 +835,65 @@ class BuildModule:
         # Forward to the new process_example method which handles iteration in a better way
         return self.process_example(example_name, example_case, theory_name, semantic_theory)
 
+    def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
+        """Capture and save model output if save_output is enabled.
+        
+        Args:
+            example: The BuildExample instance
+            example_name: Name of the example
+            theory_name: Name of the theory
+            model_num: Optional model number for iterations
+        """
+        if not self.output_manager.should_save():
+            # Just print normally if not saving
+            example.print_model(example_name, theory_name)
+            return
+            
+        # Import necessary components
+        from model_checker.output import ModelDataCollector, MarkdownFormatter, ANSIToMarkdown
+        import io
+        import sys
+        
+        # Capture the output
+        captured_output = io.StringIO()
+        old_stdout = sys.stdout
+        sys.stdout = captured_output
+        
+        try:
+            # Print the model to our capture buffer
+            example.print_model(example_name, theory_name)
+            raw_output = captured_output.getvalue()
+        finally:
+            sys.stdout = old_stdout
+            
+        # Also print to console so user sees output
+        print(raw_output, end='')
+        
+        # Convert ANSI colors if present
+        converter = ANSIToMarkdown()
+        converted_output = converter.convert(raw_output)
+        
+        # Collect model data
+        collector = ModelDataCollector()
+        model_data = collector.collect_model_data(
+            example.model_structure,
+            example_name,
+            theory_name
+        )
+        
+        # If this is part of an iteration, update the example name
+        if model_num is not None:
+            display_name = f"{example_name}_model{model_num}"
+        else:
+            display_name = example_name
+            
+        # Format the output
+        formatter = MarkdownFormatter(use_colors=True)
+        formatted_output = formatter.format_example(model_data, converted_output)
+        
+        # Save the example
+        self.output_manager.save_example(display_name, model_data, formatted_output)
+    
     def run_examples(self):
         """Process and execute each example case with all semantic theories.
         
@@ -865,3 +936,8 @@ class BuildModule:
                 finally:
                     # Force cleanup after each example to prevent state leaks
                     gc.collect()
+                    
+        # Finalize output saving if enabled
+        if self.output_manager.should_save():
+            self.output_manager.finalize()
+            print(f"\nOutput saved to: {self.output_manager.output_dir}")
