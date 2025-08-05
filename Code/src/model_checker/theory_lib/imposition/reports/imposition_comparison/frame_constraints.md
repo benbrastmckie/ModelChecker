@@ -10,7 +10,7 @@ This report demonstrates that while the constructive definition `is_alternative`
 
 Fine's imposition semantics imposes four frame constraints on the primitive relation `imposition(x, w, u)` meaning "imposing state x on world w can result in world u":
 
-1. **Inclusion**: `imposition(x, w, u) → part(x, u)`  
+1. **Inclusion**: `imposition(x, w, u) -> => → part(x, u)`  
    The imposed state must be part of the outcome world
 
 2. **Actuality**: `part(x, w) ∧ world(w) → ∃u[part(u, w) ∧ imposition(x, w, u)]`  
@@ -249,7 +249,7 @@ This analysis reveals three key insights:
 
 1. **Structural Equivalence**: The constructive `is_alternative` automatically satisfies all frame constraints imposed on primitive imposition, demonstrating these constraints capture necessary properties of any reasonable alternative-selection mechanism.
 
-2. **Logical Independence**: Despite structural equivalence, the theories generate incomparable logics. Neither (A □→ B) ⊢ (A □→_logos B) nor (A □→_logos B) ⊢ (A □→ B) holds in general.
+2. **Logical Independence**: Despite structural equivalence, the theories generate incomparable logics. Neither (A \boxright B) ⊢ (A \boxrightlogos B) nor (A \boxrightlogos B) ⊢ (A \boxright B) holds in general.
 
 3. **The Jump Problem**: The primitive imposition relation can "jump" to unrelated worlds when imposing compatible states, particularly evident with null state imposition. These jumps satisfy all frame constraints but violate the philosophical principle of minimal change that motivates counterfactual reasoning.
 

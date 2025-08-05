@@ -375,8 +375,8 @@ State Space:
   #b1010 = b.d (world)
 
 Imposition Relation:
-  a →_□ a
-  a →_a a
+  a ->_□ a
+  a =>_a a
   a →_b.c b.c
   a →_b.d b.d
   b.c →_□ b.c
@@ -858,7 +858,7 @@ Z3 Run Time: 1.6948 seconds
 
 ## Direct Theory Comparison
 
-The examples above compare the Imposition semantics and Logos semantics by evaluating the definitions of metaphysical modality `□A := ¬A □→ ⊥` and `□A := ⊤ □→ A`. We now proceed to compare the strength of the two semantic theories directly by taking `□→logos` to have the Logos semantics and reserve `□→` for the Imposition semantics.
+The examples above compare the Imposition semantics and Logos semantics by evaluating the definitions of metaphysical modality `\Box A := \neg A \boxright \bot` and `\Box A := \top \boxright A`. We now proceed to compare the strength of the two semantic theories directly by taking `\boxrightlogos` to have the Logos semantics and reserve `\boxright` for the Imposition semantics.
 
 ### IM_CM_26: When Imposition Does Not Entail Logos
 
@@ -916,9 +916,9 @@ INTERPRETED CONCLUSION:
 
 This countermodel reveals a fundamental divergence between the two theories:
 
-1. **Vacuous Truth in Imposition**: The imposition counterfactual (A □→ B) is **vacuously true** at world d because there are no |A|-alternatives. The imposition relation only allows d →_c d, but since c is not part of d, no genuine alternatives exist.
+1. **Vacuous Truth in Imposition**: The imposition counterfactual (A \boxright B) is **vacuously true** at world d because there are no |A|-alternatives. The imposition relation only allows d →_c d, but since c is not part of d, no genuine alternatives exist.
 
-2. **Non-Vacuous Falsehood in Logos**: The logos counterfactual (A □→logos B) is **non-vacuously false** because:
+2. **Non-Vacuous Falsehood in Logos**: The logos counterfactual (A \boxrightlogos B) is **non-vacuously false** because:
    - The logos semantics finds world c as an |A|-alternative to d
    - B is false at this alternative world c
    - Therefore, the counterfactual fails
@@ -988,8 +988,8 @@ This shows the imposition relation a →_□ b allows "jumping" to unrelated wor
 This comparison reveals that the two counterfactual theories are **logically incomparable**:
 
 1. **Neither Theory Entails the Other**: 
-   - IM_CM_26 shows (A □→ B) ⊬ (A □→logos B)
-   - IM_CM_27 shows (A □→logos B) ⊬ (A □→ B)
+   - IM_CM_26 shows (A \boxright B) ⊬ (A \boxrightlogos B)
+   - IM_CM_27 shows (A \boxrightlogos B) ⊬ (A \boxright B)
 
 2. **Different Failure Modes**:
    - Imposition fails by permitting vacuous truth through lack of alternatives
