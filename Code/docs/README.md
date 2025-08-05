@@ -14,7 +14,8 @@ docs/
 ├── ARCHITECTURE.md                 # System architecture and design principles
 ├── EXAMPLES.md                     # Standard form for examples.py files
 ├── TOOLS.md                        # Advanced debugging and analysis tools
-└── LICENSE_INHERITANCE.md          # Guidelines for theory-based derivative works
+├── LICENSE_INHERITANCE.md          # Guidelines for theory-based derivative works
+└── INTERACTIVE_SAVE.md             # Interactive save mode documentation
 ```
 
 ## Overview
