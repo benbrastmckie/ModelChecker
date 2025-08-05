@@ -1,0 +1,43 @@
+{
+  "example_name": "IM_CM_26",
+  "semantic_theory": "Fine",
+  "atomic_states": 4,
+  "model_found": true,
+  "runtime": 0.155,
+  "evaluation_world": "d",
+  "states": {
+    "#b0000": "\u25a1",
+    "#b0100": "c (world)",
+    "#b1000": "d (world)"
+  },
+  "imposition_relations": [
+    {
+      "world": "c",
+      "state": "\u25a1",
+      "outcome": "c"
+    },
+    {
+      "world": "c",
+      "state": "c",
+      "outcome": "c"
+    },
+    {
+      "world": "d",
+      "state": "\u25a1",
+      "outcome": "d"
+    },
+    {
+      "world": "d",
+      "state": "d",
+      "outcome": "d"
+    }
+  ],
+  "premise": "(A \\boxright B)",
+  "conclusion": "(A \\boxrightlogos B)",
+  "interpretation": {
+    "premise_truth": true,
+    "premise_detail": "|(A \\boxright B)| = < {d}, {c} > (True in d)",
+    "conclusion_truth": false,
+    "conclusion_detail": "|(A \\boxrightlogos B)| = < \u2205, {c, d} > (False in d)"
+  }
+}

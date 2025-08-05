@@ -630,6 +630,11 @@ Conclusion:
 Z3 Run Time: 0.154 seconds
 
 ========================================
+```
+
+[View JSON data for IM_CM_29](data/IM_CM_29.json)
+
+```consol
 ========================================
 
 EXAMPLE IM_CM_28: there is a countermodel.
@@ -684,6 +689,9 @@ INTERPRETED CONCLUSION:
 
 ========================================
 ```
+
+[View JSON data for IM_CM_28](data/IM_CM_28.json)
+
 Although the _left-to-right_ direction of `\Box A := \neg A \boxright \bot` is valid on the Imposition semantics for `N = 4`, greater values of `N > 4` timeout. Additionally, the _right-to-left_ direction is invalid since `\neg A \boxright \bot` is vacuously true. This follows from the fact that the frame constraints on `imposition` are easy to satisfy.
 
 That there exist countermodels to the inference above entail that `\boxright` is not strong enough to define `\Box` on the imposition semantics. We do not find countermodels if `is_alternative` is used in place of `imposition`:
@@ -753,6 +761,11 @@ Conclusion:
 Z3 Run Time: 0.1693 seconds
 
 ========================================
+```
+
+[View JSON data for IM_TH_11](data/IM_TH_11.json)
+
+```consol
 ========================================
 
 EXAMPLE IM_CM_22: there is a countermodel.
@@ -806,6 +819,9 @@ INTERPRETED CONCLUSION:
 
 ========================================
 ```
+
+[View JSON data for IM_CM_22](data/IM_CM_22.json)
+
 In contrast to the examples given above, the Imposition semantics now finds non-vacuous countermodels to the definition `\Box A := \top \boxright A` since there are `|\top|-alternatives` which nevertheless make the premise true even. We find something different for the Logos semantics.
 
 ### Logos Semantics
@@ -902,6 +918,8 @@ INTERPRETED CONCLUSION:
 ========================================
 ```
 
+[View JSON data for IM_CM_26](data/IM_CM_26.json)
+
 #### Analysis
 
 This countermodel reveals a fundamental divergence between the two theories:
@@ -969,6 +987,8 @@ INTERPRETED CONCLUSION:
 ========================================
 ```
 
+[View JSON data for IM_CM_27](data/IM_CM_27.json)
+
 This shows the imposition relation a →_□ b allows "jumping" to unrelated worlds when imposing compatible states.
 
 ## Implications and Conclusions
@@ -993,8 +1013,8 @@ This comparison reveals that the two counterfactual theories are **logically inc
    - Ability to define other modalities
 
 For detailed analysis of specific countermodels and their philosophical significance, see:
-- The accompanying [JSON data file](imposition_comparison.json) containing all test results
-- The [null alternatives analysis](../../../../../../logos/subtheories/counterfactual/report/null_alts.md) for the minimal distinguishing case
+- The [null alternatives analysis](frame_constraints.md) for the minimal distinguishing case
+- Individual JSON data files in the [data directory](data/) for each example
 
 ## Further Reading
 
