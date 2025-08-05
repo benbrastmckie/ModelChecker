@@ -19,6 +19,16 @@ class InteractiveSaveManager:
         self.current_example: Optional[str] = None
         self.model_count: Dict[str, int] = {}  # Track models per example
         
+    def set_mode(self, mode: str):
+        """Set the save mode directly.
+        
+        Args:
+            mode: Either 'batch' or 'interactive'
+        """
+        if mode not in ['batch', 'interactive']:
+            raise ValueError(f"Invalid mode: {mode}. Must be 'batch' or 'interactive'")
+        self.mode = mode
+        
     def prompt_save_mode(self) -> str:
         """Prompt user to select save mode.
         
