@@ -96,8 +96,12 @@ class BuildModule:
         self.interactive_manager = None
         if self.save_output:
             self.interactive_manager = InteractiveSaveManager()
-            # Prompt for mode unless already specified
-            if not hasattr(self.module_flags, 'interactive') or not self.module_flags.interactive:
+            # Check if interactive flag is set
+            if hasattr(self.module_flags, 'interactive') and self.module_flags.interactive:
+                # Interactive flag specified - set mode directly
+                self.interactive_manager.set_mode('interactive')
+            else:
+                # No interactive flag - prompt for mode
                 self.interactive_manager.prompt_save_mode()
         
         self.output_manager = OutputManager(

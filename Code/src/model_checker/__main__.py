@@ -151,6 +151,12 @@ class ParseFileFlags:
             default='multiple',
             help='For sequential mode: single file or multiple files'
         )
+        parser.add_argument(
+            '--interactive',
+            '-I',
+            action='store_true',
+            help='Enable interactive save mode - prompts after each model to save'
+        )
         return parser
 
     def parse(self):
@@ -179,7 +185,8 @@ class ParseFileFlags:
             'v': 'version',
             'u': 'upgrade',
             'z': 'print_z3',
-            'a': 'align_vertically'
+            'a': 'align_vertically',
+            'I': 'interactive'
         }
         
         # Store the original command line arguments
