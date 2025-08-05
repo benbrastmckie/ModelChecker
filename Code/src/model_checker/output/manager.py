@@ -21,18 +21,26 @@ class OutputManager:
     """
     
     def __init__(self, save_output: bool, mode: str = 'batch', 
-                 sequential_files: str = 'multiple'):
+                 sequential_files: str = 'multiple',
+                 interactive_manager=None):
         """Initialize output manager.
         
         Args:
             save_output: Whether to save output
             mode: Output mode ('batch' or 'sequential')
             sequential_files: For sequential mode, 'single' or 'multiple'
+            interactive_manager: Optional InteractiveSaveManager instance
         """
         self.save_output = save_output
-        self.mode = mode if mode in ['batch', 'sequential'] else 'batch'
         self.output_dir = None
         self.models_data = []
+        self.interactive_manager = interactive_manager
+        
+        # If interactive manager provided, use its mode
+        if self.interactive_manager and hasattr(self.interactive_manager, 'mode'):
+            self.mode = self.interactive_manager.mode
+        else:
+            self.mode = mode if mode in ['batch', 'sequential'] else 'batch'
         
         # Sequential mode options
         if self.mode == 'sequential':
@@ -42,6 +50,9 @@ class OutputManager:
             
         # Internal storage for batch mode
         self._batch_outputs = []
+        
+        # Track saved models in interactive mode
+        self._interactive_saves = {}
         
     def should_save(self) -> bool:
         """Check if output should be saved.
@@ -134,6 +145,7 @@ class OutputManager:
         """Finalize output and save all files.
         
         For batch mode, writes the accumulated outputs to EXAMPLES.md.
+        For interactive mode, creates summary.json.
         Always saves MODELS.json with all collected model data.
         """
         if self.mode == 'batch' and self._batch_outputs:
@@ -141,8 +153,12 @@ class OutputManager:
             examples_path = os.path.join(self.output_dir, 'EXAMPLES.md')
             with open(examples_path, 'w', encoding='utf-8') as f:
                 f.write('\\n---\\n\\n'.join(self._batch_outputs))
+        
+        # Create summary for interactive mode
+        if self.mode == 'interactive':
+            self._create_interactive_summary()
                 
-        # Save models JSON (implementation in Phase 2)
+        # Save models JSON
         self._save_models_json()
         
     def _save_models_json(self):
@@ -167,3 +183,101 @@ class OutputManager:
         json_path = os.path.join(self.output_dir, 'MODELS.json')
         with open(json_path, 'w', encoding='utf-8') as f:
             json.dump(data, f, indent=4, ensure_ascii=False)
+            
+    def create_example_directory(self, example_name: str) -> str:
+        """Create directory for an example in interactive mode.
+        
+        Args:
+            example_name: Name of the example
+            
+        Returns:
+            str: Path to the created directory
+        """
+        if not self.output_dir:
+            raise ValueError("Output directory not created yet")
+            
+        example_dir = os.path.join(self.output_dir, example_name)
+        os.makedirs(example_dir, exist_ok=True)
+        return example_dir
+        
+    def save_model_interactive(self, example_name: str, model_data: Dict[str, Any],
+                              formatted_output: str, model_num: int):
+        """Save individual model in interactive mode.
+        
+        Args:
+            example_name: Name of the example
+            model_data: Dictionary of model data
+            formatted_output: Formatted markdown output
+            model_num: Model number (1-based)
+        """
+        # Create example directory if needed
+        example_dir = self.create_example_directory(example_name)
+        
+        # Save markdown file
+        md_path = os.path.join(example_dir, f'MODEL_{model_num}.md')
+        with open(md_path, 'w', encoding='utf-8') as f:
+            f.write(formatted_output)
+            
+        # Save JSON file
+        json_path = os.path.join(example_dir, f'MODEL_{model_num}.json')
+        import json
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(model_data, f, indent=4, ensure_ascii=False)
+            
+        # Track this save
+        if example_name not in self._interactive_saves:
+            self._interactive_saves[example_name] = []
+        self._interactive_saves[example_name].append(model_num)
+        
+        # Add to models data for overall JSON
+        self.models_data.append(model_data)
+        
+        # Display save location
+        print(f"Saved to: {md_path}")
+        
+    def get_output_path(self, example_name: str, filename: str) -> str:
+        """Get full path for output file.
+        
+        Args:
+            example_name: Name of the example (for interactive mode)
+            filename: Name of the file
+            
+        Returns:
+            str: Full path to the file
+        """
+        if self.mode == 'interactive':
+            example_dir = os.path.join(self.output_dir, example_name)
+            return os.path.join(example_dir, filename)
+        else:
+            return os.path.join(self.output_dir, filename)
+            
+    def _create_interactive_summary(self):
+        """Create summary.json for interactive mode.
+        
+        Summarizes what was saved for each example.
+        """
+        import json
+        from datetime import datetime
+        
+        summary = {
+            "metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "mode": "interactive",
+                "total_examples": len(self._interactive_saves),
+                "total_models": sum(len(models) for models in self._interactive_saves.values())
+            },
+            "examples": {}
+        }
+        
+        # Add example summaries
+        for example_name, model_nums in self._interactive_saves.items():
+            summary["examples"][example_name] = {
+                "model_count": len(model_nums),
+                "model_numbers": model_nums,
+                "directory": example_name
+            }
+            
+        # Save summary
+        summary_path = os.path.join(self.output_dir, 'summary.json')
+        with open(summary_path, 'w', encoding='utf-8') as f:
+            json.dump(summary, f, indent=4, ensure_ascii=False)
