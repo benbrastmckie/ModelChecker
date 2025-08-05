@@ -23,12 +23,13 @@ This guide emphasizes **systematic development practices**, **comprehensive test
 
 ### Core Development Principles
 
-1. **Architectural Clarity**: Prioritize clean, well-organized code architecture over backwards compatibility
-2. **Test-Driven Development**: Use comprehensive testing to drive design decisions and catch issues early
-3. **Systematic Refactoring**: Continuously improve code quality through thoughtful refactoring
-4. **Unified Design**: Ensure all components follow consistent patterns and interfaces
-5. **Maintainability First**: Choose solutions that minimize complexity and maximize long-term maintainability
-6. **No Legacy Debt**: Remove deprecated patterns and outdated code without hesitation
+1. **NO BACKWARDS COMPATIBILITY**: Break compatibility freely for cleaner architecture. Never add compatibility layers or optional parameters for legacy support
+2. **Architectural Clarity**: Prioritize clean, well-organized code architecture with unified interfaces
+3. **Test-Driven Development**: Use comprehensive testing to drive design decisions and catch issues early
+4. **Systematic Refactoring**: Continuously improve code quality through thoughtful refactoring
+5. **Unified Design**: Ensure all components follow consistent patterns and interfaces
+6. **Maintainability First**: Choose solutions that minimize complexity and maximize long-term maintainability
+7. **No Legacy Debt**: Remove deprecated patterns and outdated code without hesitation
 
 ## Subdirectories
 
@@ -72,12 +73,13 @@ find . -name "test_*.py" -o -name "debug_*.py" | grep -v "src/"  # Find temp fil
 
 When improving the codebase:
 
-1. **Break Compatibility When Necessary**: If a cleaner architecture requires breaking changes, make them
+1. **ALWAYS Break Compatibility**: Never add optional parameters or compatibility layers. Change interfaces directly
 2. **Test First**: Write tests that define the desired behavior before implementing changes
 3. **Simplify Aggressively**: Remove unnecessary abstractions, decorators, and complex patterns
 4. **Unify Interfaces**: Ensure similar components use identical patterns and interfaces
 5. **Document Intent**: Clearly document why architectural decisions were made
-6. **Remove Rather Than Deprecate**: Delete old code rather than maintaining deprecated versions
+6. **Remove Rather Than Deprecate**: Delete old code immediately - no deprecation periods
+7. **No Optional Parameters**: When adding functionality, update all call sites rather than making parameters optional
 
 Example refactoring workflow:
 ```bash

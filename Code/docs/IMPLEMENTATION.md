@@ -20,9 +20,16 @@ This document provides a **comprehensive development process** for implementing 
 
 **Process Philosophy**: Following the design principles outlined in [CLAUDE.md](../CLAUDE.md), this implementation process emphasizes architectural clarity, test-driven development, and systematic refactoring to ensure maintainable, high-quality code.
 
+**CRITICAL: NO BACKWARDS COMPATIBILITY**
+- **Never add optional parameters** to maintain old behavior
+- **Always update all call sites** when changing interfaces
+- **No deprecation periods** - remove old code immediately
+- **No compatibility layers** - change interfaces directly
+
 **Key Standards Integration**:
+
 - **[Style Guide](STYLE_GUIDE.md)** - Coding and documentation standards
-- **[Tests Guide](TESTS.md)** - Comprehensive testing procedures  
+- **[Tests Guide](TESTS.md)** - Comprehensive testing procedures
 - **[Maintenance Documentation](../../Docs/maintenance/README.md)** - Complete project standards
 
 ## Quick Start for Existing Plans
@@ -30,18 +37,20 @@ This document provides a **comprehensive development process** for implementing 
 If you already have an **approved implementation plan**, you can jump directly to the implementation phase:
 
 ### Prerequisites for Direct Implementation
+
 1. **Approved implementation plan** with detailed phases
 2. **Feature branch created** and properly named
 3. **Tests designed** for each implementation phase
 4. **Dependencies identified** and documented
 
 ### Jump to Implementation
+
 ```bash
 # Ensure you're on the correct feature branch
 git checkout feature/your-feature-name
 
 # Verify implementation plan exists
-ls docs/implementation-plans/your-feature-plan.md
+ls docs/specs/plans/your-feature-plan.md
 
 # Start implementation process
 # Jump to: Implementation Phase (Section 6)
@@ -58,7 +67,7 @@ Following version control standards from [Maintenance Documentation](../../Docs/
 ```bash
 # Create feature branch with descriptive naming
 git checkout -b feature/output-system-implementation
-git checkout -b feature/theory-validation-enhancement  
+git checkout -b feature/theory-validation-enhancement
 git checkout -b fix/jupyter-display-ansi-handling
 
 # Push branch and set upstream
@@ -66,12 +75,14 @@ git push -u origin feature/your-feature-name
 ```
 
 ### Branch Naming Conventions
+
 - **Features**: `feature/descriptive-feature-name`
 - **Bug Fixes**: `fix/specific-issue-description`
 - **Refactoring**: `refactor/component-or-system-name`
 - **Documentation**: `docs/documentation-area-update`
 
 ### Branch Lifecycle Management
+
 ```bash
 # Keep branch up to date with main
 git fetch origin
@@ -96,6 +107,7 @@ git commit -m "Phase 1: Implement core infrastructure
 Before designing any implementation, conduct systematic research to understand the current architecture and identify optimal integration points.
 
 #### 1. Identify Relevant Components
+
 ```bash
 # Search for related functionality
 grep -r "relevant_keyword" src/
@@ -106,32 +118,34 @@ tree src/model_checker/related_area/
 ```
 
 #### 2. Study Existing Patterns
+
 - **Read component READMEs** to understand architecture
 - **Examine similar implementations** in the codebase
 - **Identify integration points** and dependencies
 - **Document current limitations** and pain points
 
 #### 3. Document Research Findings
+
 Create `docs/research/your-feature-research.md`:
 
 ```markdown
 # Feature Research: [Your Feature Name]
 
 ## Current State Analysis
+
 - **Existing functionality**: What currently exists
 - **Integration points**: Where new feature connects
 - **Dependencies**: Required components and their interfaces
 - **Limitations**: Current pain points and architectural issues
 
 ## Alternative Approaches
+
 1. **Approach A**: Minimal integration approach
    - Pros: Low risk, quick implementation
    - Cons: Limited functionality, potential technical debt
-   
-2. **Approach B**: Comprehensive rewrite approach  
+2. **Approach B**: Comprehensive rewrite approach
    - Pros: Clean architecture, full feature set
    - Cons: High risk, extensive testing required
-   
 3. **Approach C**: Hybrid approach (Recommended)
    - Pros: Balanced risk/reward, incremental improvement
    - Cons: Requires careful phase planning
@@ -142,6 +156,7 @@ Create `docs/research/your-feature-research.md`:
 **IMPORTANT**: Present research findings and options to the user BEFORE creating any detailed implementation plans.
 
 Present a concise summary including:
+
 - **Current state summary** - Brief overview of issues found
 - **Solution options** - 2-3 high-level approaches with:
   - One-paragraph description
@@ -152,6 +167,7 @@ Present a concise summary including:
 **Wait for user selection before proceeding to detailed planning.**
 
 Example presentation:
+
 ```
 Based on my research, here are three approaches to solve [problem]:
 
@@ -160,13 +176,13 @@ Minimal changes to address immediate issues.
 - Pros: Fast (1-2 days), low risk, preserves current architecture
 - Cons: Technical debt, incomplete solution, needs future rework
 
-**Option B: Complete Redesign** 
+**Option B: Complete Redesign**
 Comprehensive overhaul with new architecture.
 - Pros: Clean design, extensible, solves all issues
 - Cons: High risk (1-2 weeks), breaking changes, extensive testing
 
 **Option C: Incremental Enhancement** (Recommended)
-Phased improvements maintaining compatibility.
+Phased improvements with clean interfaces.
 - Pros: Balanced approach, manageable risk, allows iteration
 - Cons: More complex than Option A, takes 3-4 days
 
@@ -180,15 +196,18 @@ I recommend Option C because it addresses all issues while maintaining stability
 **Only after the user has selected an approach**, create a detailed implementation plan following TDD principles.
 
 #### 1. Create Implementation Plan Document
-Create `docs/implementation-plans/your-feature-plan.md`:
+
+Create `docs/specs/plans/00X_feature.md`:
 
 ```markdown
 # Implementation Plan: [Your Feature Name]
 
 ## Selected Approach
+
 [Brief description of chosen approach and rationale]
 
 ## Test-Driven Development Strategy
+
 - **Test categories**: Unit, integration, end-to-end
 - **Testing framework**: Following [Tests Guide](../TESTS.md)
 - **Success criteria**: Measurable outcomes for each phase
@@ -196,44 +215,54 @@ Create `docs/implementation-plans/your-feature-plan.md`:
 ## Implementation Phases
 
 ### Phase 1: Core Infrastructure (Priority: High)
+
 **Objective**: Establish basic framework and interfaces
 
 **Tests to Write First**:
+
 - `test_core_interface.py`: Test main API contracts
 - `test_basic_functionality.py`: Test core feature behavior
 
 **Implementation Tasks**:
+
 1. Create core classes and interfaces
 2. Implement basic functionality
 3. Add configuration support
 4. Write comprehensive unit tests
 
 **Success Criteria**:
+
 - [ ] All unit tests pass
 - [ ] Core interface follows project standards
 - [ ] Basic functionality works in isolation
 
-### Phase 2: Integration (Priority: High)  
+### Phase 2: Integration (Priority: High)
+
 **Objective**: Integrate with existing codebase
 
 **Tests to Write First**:
+
 - `test_integration.py`: Test integration with existing components
-- `test_backward_compatibility.py`: Ensure existing functionality preserved
+- `test_migration.py`: Test that all call sites are properly updated
 
 **Implementation Tasks**:
-1. Update existing components to use new feature
-2. Maintain backward compatibility
+
+1. Update ALL existing components to use new feature
+2. Update all call sites with new interface
 3. Add integration tests
 4. Update configuration systems
 
 **Success Criteria**:
+
 - [ ] Integration tests pass
 - [ ] No existing functionality broken
 - [ ] Performance benchmarks maintained
 ```
 
 #### 2. User Confirmation Process
+
 Present the detailed implementation plan to the user for approval:
+
 - **Phase breakdown** with clear objectives
 - **Test-driven approach** for each phase
 - **Success criteria** and validation methods
@@ -257,7 +286,7 @@ touch src/model_checker/feature/tests/test_phase_1.py
 # Write failing tests that specify expected behavior
 # Tests should be comprehensive and cover edge cases
 
-# 2. Implement minimal code to pass tests (Green phase)  
+# 2. Implement minimal code to pass tests (Green phase)
 # Create the simplest implementation that makes tests pass
 touch src/model_checker/feature/core.py
 
@@ -277,45 +306,47 @@ touch src/model_checker/feature/core.py
 After each phase:
 
 1. **Validate Phase Success**:
+
    ```bash
    # Run phase-specific tests
    ./run_tests.py phase_1 --verbose
-   
+
    # Run integration tests
    ./run_tests.py --integration
-   
+
    # Check code quality
    grep -n '[^[:print:][:space:]]' src/  # Character validation
    ```
 
 2. **Update Implementation Plan**:
-   - Mark completed tasks as ✅ 
+   - Mark completed tasks as ✅
    - Document any deviations from original plan
    - Note lessons learned or architectural discoveries
    - Update timeline estimates for remaining phases
 
 3. **Commit Phase Changes**:
+
    ```bash
    git add -A
    git commit -m "Phase 1 Complete: Core infrastructure implementation
-   
+
    - Implemented OutputManager with unified interface
-   - Added ColorManager with terminal detection  
+   - Added ColorManager with terminal detection
    - Created comprehensive unit test suite (98% coverage)
    - Updated configuration system to support new settings
    - All tests passing, no performance regressions detected
-   
+
    Next: Phase 2 - Integration with BuildModule
-   
+
    🤖 Generated with [Claude Code](https://claude.ai/code)
-   
+
    Co-Authored-By: Claude <noreply@anthropic.com>"
    ```
 
 4. **Inform User of Progress**:
    - **Phase completion summary** with key achievements
    - **Test results** and coverage metrics
-   - **Any issues encountered** and how they were resolved  
+   - **Any issues encountered** and how they were resolved
    - **Readiness for next phase** confirmation
 
 #### Continuous Integration During Implementation
@@ -325,7 +356,7 @@ After each phase:
 git fetch origin
 git rebase origin/main  # Keep current with main branch
 
-# During each phase  
+# During each phase
 ./run_tests.py --unit     # Run unit tests frequently
 ./run_tests.py --examples # Validate examples still work
 
@@ -343,6 +374,7 @@ Once all planned phases are completed, conduct a comprehensive review to identif
 #### 1. Implementation Review Process
 
 **Code Quality Assessment**:
+
 ```bash
 # Review code organization
 find src/ -name "*.py" -path "*your_feature*" -exec wc -l {} +
@@ -358,6 +390,7 @@ grep -r "raise\|except" src/your_feature/
 ```
 
 **Architecture Review**:
+
 - **Design pattern consistency** with existing codebase
 - **Interface cleanliness** and API usability
 - **Extension points** for future enhancements
@@ -373,6 +406,7 @@ Present potential improvements to user:
 Based on implementation review, the following improvements could enhance the feature:
 
 ### High Impact Refinements
+
 1. **API Simplification**
    - Current: Complex initialization requiring multiple parameters
    - Proposed: Factory pattern with sensible defaults
@@ -383,7 +417,8 @@ Based on implementation review, the following improvements could enhance the fea
    - Proposed: Hash-based lookup with caching
    - Benefit: 10x performance improvement for large datasets
 
-### Medium Impact Refinements  
+### Medium Impact Refinements
+
 3. **Error Message Enhancement**
    - Current: Generic error messages
    - Proposed: Context-specific error messages with solutions
@@ -398,6 +433,7 @@ Based on implementation review, the following improvements could enhance the fea
 #### 3. User Confirmation for Refinements
 
 Allow user to select which refinements to implement:
+
 - **Present all identified opportunities** with impact assessment
 - **Allow selective confirmation** of refinements
 - **Update implementation plan** with confirmed refinement phases
@@ -409,19 +445,23 @@ For each confirmed refinement, add cleanup phases to the implementation plan:
 
 ```markdown
 ### Phase N+1: API Simplification (Refinement)
+
 **Objective**: Simplify feature API using factory pattern
 
 **Tests to Write First**:
+
 - `test_factory_pattern.py`: Test simplified initialization
-- `test_backward_compatibility.py`: Ensure existing usage still works
+- `test_migration_complete.py`: Ensure all usage updated
 
 **Implementation Tasks**:
+
 1. Create factory class with sensible defaults
-2. Update existing usage to use factory pattern
-3. Maintain backward compatibility for transition period
+2. Update ALL existing usage to use factory pattern
+3. Remove old initialization patterns completely
 4. Update documentation and examples
 
 **Success Criteria**:
+
 - [ ] New API requires 50% fewer parameters
 - [ ] All existing tests still pass
 - [ ] Documentation updated with new patterns
@@ -430,8 +470,9 @@ For each confirmed refinement, add cleanup phases to the implementation plan:
 #### 5. Execute Refinement Phases
 
 Follow the same phase-by-phase development process:
+
 - **TDD protocols** for each refinement
-- **User updates** after each refinement phase  
+- **User updates** after each refinement phase
 - **Regression testing** to ensure no breakage
 - **Documentation updates** for new capabilities
 
@@ -444,6 +485,7 @@ After implementation and refinement are complete, update all affected documentat
 #### 1. Identify Documentation Impact
 
 **Systematic Documentation Review**:
+
 ```bash
 # Find all README files that might be affected
 find . -name "README.md" -path "*/affected_area/*"
@@ -458,17 +500,20 @@ grep -r "old_pattern_or_api" docs/ README.md
 #### 2. Update Documentation Categories
 
 **Core Documentation Updates**:
+
 - **Component READMEs**: Update for new functionality and APIs
 - **Architecture documentation**: Reflect new design patterns
 - **API documentation**: Add new interfaces and update existing ones
 - **Configuration guides**: Document new settings and options
 
 **Example Updates**:
-- **Code examples**: Update to use new APIs and patterns  
+
+- **Code examples**: Update to use new APIs and patterns
 - **Tutorial content**: Modify tutorials to demonstrate new features
 - **Integration examples**: Show how new feature integrates with existing code
 
 **Cross-Reference Updates**:
+
 - **Style Guide**: Add any new coding patterns or standards
 - **Tests Guide**: Document new testing patterns if introduced
 - **Implementation guides**: Update related implementation documentation
@@ -476,6 +521,7 @@ grep -r "old_pattern_or_api" docs/ README.md
 #### 3. Documentation Quality Assurance
 
 **Validation Process**:
+
 ```bash
 # Verify all code examples work
 # Extract and test code snippets from documentation
@@ -497,7 +543,7 @@ git add docs/ src/*/README.md *.md
 git commit -m "Documentation: Complete feature documentation update
 
 - Updated all component READMEs with new functionality
-- Added comprehensive API documentation and examples  
+- Added comprehensive API documentation and examples
 - Updated cross-references and navigation links
 - Validated all code examples and mathematical symbols
 - Ensured consistency with project documentation standards
@@ -516,6 +562,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 #### 1. Comprehensive Final Review
 
 **Complete Implementation Validation**:
+
 ```bash
 # Full test suite validation
 ./run_tests.py --all --verbose
@@ -531,6 +578,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>"
 ```
 
 **Code Quality Final Check**:
+
 ```bash
 # Character encoding validation
 find . -name "*.py" -exec file -i {} \; | grep -v "charset=utf-8"
@@ -550,27 +598,32 @@ Create a final summary of the implementation:
 # Implementation Summary: [Feature Name]
 
 ## Completed Phases
+
 - ✅ Phase 1: Core Infrastructure
-- ✅ Phase 2: Integration with existing codebase  
+- ✅ Phase 2: Integration with existing codebase
 - ✅ Phase 3: Advanced features and optimization
 - ✅ Phase 4: API simplification (refinement)
 - ✅ Phase 5: Documentation updates
 
-## Key Achievements  
+## Key Achievements
+
 - **New functionality**: [Brief description]
 - **Test coverage**: XX% (YY new tests added)
 - **Performance impact**: No regressions, XX% improvement in specific areas
 - **Documentation**: All affected docs updated and validated
 
 ## Integration Points
+
 - **Modified components**: List of changed components
 - **New dependencies**: Any new requirements
 - **Configuration changes**: New settings or options
 
 ## Breaking Changes
+
 - **None** / **List any breaking changes with migration path**
 
 ## Post-Merge Tasks
+
 - [ ] Monitor for any integration issues
 - [ ] Update project changelog if applicable
 - [ ] Consider announcing new feature to users
@@ -581,6 +634,7 @@ Create a final summary of the implementation:
 Present final implementation to user with merge recommendation:
 
 **Branch Ready for Merge**:
+
 - **All implementation phases completed** successfully
 - **All tests passing** with comprehensive coverage
 - **Documentation fully updated** and validated
@@ -588,6 +642,7 @@ Present final implementation to user with merge recommendation:
 - **Code quality standards met** throughout implementation
 
 **Suggested Merge Process**:
+
 ```bash
 # Final rebase with main
 git fetch origin
