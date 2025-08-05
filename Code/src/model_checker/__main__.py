@@ -139,6 +139,18 @@ class ParseFileFlags:
             action='store_true',
             help='Overrides to display world histories vertically with time flowing from top to bottom.'
         )
+        parser.add_argument(
+            '--output-mode',
+            choices=['batch', 'sequential'],
+            default='batch',
+            help='Output mode when saving: batch (single file) or sequential (multiple files)'
+        )
+        parser.add_argument(
+            '--sequential-files',
+            choices=['single', 'multiple'],
+            default='multiple',
+            help='For sequential mode: single file or multiple files'
+        )
         return parser
 
     def parse(self):
