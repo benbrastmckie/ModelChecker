@@ -177,10 +177,11 @@ self.output_manager.save_output_if_enabled(context)
 
 See [CLAUDE.md Core Development Principles](../CLAUDE.md#core-development-principles)
 
-#### Architectural Clarity Over Compatibility
-- **Break compatibility when necessary** for cleaner architecture
-- **Remove deprecated patterns** rather than maintaining legacy code
-- **Unify interfaces** - similar components should use identical patterns
+#### NO BACKWARDS COMPATIBILITY
+- **ALWAYS break compatibility** for cleaner architecture - never add optional parameters
+- **No compatibility layers** - update all call sites when changing interfaces
+- **Remove deprecated patterns immediately** - no deprecation periods
+- **Unify interfaces** - similar components must use identical patterns
 
 #### Fail Fast & Explicit Parameters
 
