@@ -5,5 +5,6 @@ in structured formats including markdown documentation and JSON data.
 """
 
 from .manager import OutputManager
+from .collectors import ModelDataCollector
 
-__all__ = ['OutputManager']
+__all__ = ['OutputManager', 'ModelDataCollector']

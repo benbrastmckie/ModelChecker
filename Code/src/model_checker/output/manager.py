@@ -148,6 +148,22 @@ class OutputManager:
     def _save_models_json(self):
         """Save models data to JSON file.
         
-        This will be implemented in Phase 2.
+        Creates a MODELS.json file with metadata and all collected model data
+        in a structured format suitable for programmatic access.
         """
-        pass  # TODO: Implement in Phase 2
+        import json
+        from datetime import datetime
+        
+        # Create data structure
+        data = {
+            "metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "version": "1.0"
+            },
+            "models": self.models_data
+        }
+        
+        # Save to JSON file
+        json_path = os.path.join(self.output_dir, 'MODELS.json')
+        with open(json_path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=4, ensure_ascii=False)
