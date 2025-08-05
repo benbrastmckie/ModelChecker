@@ -1,0 +1,9 @@
+{
+  "example_name": "IM_CM_29",
+  "semantic_theory": "Fine",
+  "atomic_states": 4,
+  "model_found": false,
+  "runtime": 0.1502,
+  "premise": "\\Box A",
+  "conclusion": "(\\neg A \\boxright \\bot)"
+}

@@ -1,0 +1,66 @@
+{
+  "example_name": "IM_CM_22",
+  "semantic_theory": "Fine",
+  "atomic_states": 4,
+  "model_found": true,
+  "runtime": 0.0714,
+  "evaluation_world": "a.c",
+  "states": {
+    "#b0000": "\u25a1",
+    "#b0001": "a",
+    "#b0100": "c",
+    "#b0101": "a.c (world)",
+    "#b1000": "d",
+    "#b1001": "a.d (world)"
+  },
+  "imposition_relations": [
+    {
+      "world": "a.c",
+      "state": "\u25a1",
+      "outcome": "a.c"
+    },
+    {
+      "world": "a.c",
+      "state": "a",
+      "outcome": "a.c"
+    },
+    {
+      "world": "a.c",
+      "state": "c",
+      "outcome": "a.c"
+    },
+    {
+      "world": "a.c",
+      "state": "a.c",
+      "outcome": "a.c"
+    },
+    {
+      "world": "a.d",
+      "state": "\u25a1",
+      "outcome": "a.d"
+    },
+    {
+      "world": "a.d",
+      "state": "a",
+      "outcome": "a.d"
+    },
+    {
+      "world": "a.d",
+      "state": "d",
+      "outcome": "a.d"
+    },
+    {
+      "world": "a.d",
+      "state": "a.d",
+      "outcome": "a.d"
+    }
+  ],
+  "premise": "(\\top \\boxright A)",
+  "conclusion": "\\Box A",
+  "interpretation": {
+    "premise_truth": true,
+    "premise_detail": "|(\\top \\boxright A)| = < {a.c}, {a.d} > (True in a.c)",
+    "conclusion_truth": false,
+    "conclusion_detail": "|\\Box A| = < \u2205, {\u25a1} > (False in a.c)"
+  }
+}
