@@ -1,13 +1,21 @@
-# State Semantics for Counterfactuals
+# State Semantics for Counterfactuals: A Programmatic Comparison
 
-The examples given below compare the following semantic theories: the semantics truthmaker semantics with the primitive imposition relation
+## Introduction
 
-1. Imposition is a primitive relation
-2. Imposition is defined in mereological and modal terms
+This report presents a comparison of two approaches to counterfactual semantics within the ModelChecker framework: Kit Fine's imposition-based semantics and Benjamin Brast-McKie's alternative-worlds semantics. Both theories employ state-based truthmaker semantics, but they differ in how they determine the worlds relevant for evaluating counterfactual conditionals.
 
-## Primitive Imposition
+The methodology employed here follows the framework's standard approach for theory comparison, detailed in the [Theory Comparison Guide](../../../../../Docs/usage/COMPARE_THEORIES.md). This involves implementing both semantic theories with identical logical vocabulary, running parallel tests on shared examples, and analyzing where they diverge. For a comprehensive introduction to the ModelChecker workflow, see the [Workflow Guide](../../../../../Docs/usage/WORKFLOW.md). The underlying methodological principles are explained in the [Methodology Documentation](../../../../../Docs/methodology/README.md).
 
-Here are the Z3 constraints on the primitive imposition relation:
+## Semantic Implementations
+
+Both theories share a common foundation in truthmaker semantics. The key difference lies in how each theory handles counterfactuals:
+
+1. **Fine's Imposition Semantics**: Uses a primitive three-place imposition relation that specifies which worlds result from imposing a state on a given world
+2. **Brast-McKie's Hyperintensional Semantics**: Defines alternative worlds constructively using compatibility and maximal compatible parts
+
+### Primitive Imposition
+
+In Fine's approach, the imposition relation is taken as primitive and governed by frame constraints. The Z3 implementation specifies that imposition is a three-place relation `imposition(x, w, u)` meaning "imposing state x on world w can result in world u". This relation must satisfy several intuitive constraints that capture the logic of minimal change:
 
 ```python
 def _define_imposition_operation(self):
@@ -82,9 +90,17 @@ def _define_imposition_operation(self):
     ]
 ```
 
-## Alternative Worlds
+The key constraints are:
+- **Inclusion**: The imposed state must be part of any resulting world
+- **Actuality**: Every state that is part of a world can be successfully imposed on that world
+- **Incorporation**: The imposition relation respects state fusion
+- **Completeness**: The outcome of imposition must always be a complete possible world
 
-Instead of taking imposition to be defined, `is_alternative` can be defined so that analogues of the frame constraints on imposition can be derived:
+These constraints ensure that imposition behaves reasonably but, as we'll see, they permit more alternative worlds than might be intuitively expected.
+
+### Alternative Worlds Definition
+
+In Brast-McKie's approach, the relation between imposed states and resulting worlds is defined constructively rather than taken as primitive. The key insight is that an alternative world should contain both the imposed state and a maximal compatible part of the original world:
 
 ```python
 def compatible(self, state_x, state_y):
@@ -401,7 +417,7 @@ INTERPRETED CONCLUSION:
 
 ========================================
 ```
-The example above is _non-vacuous_ insofar as there are `|A|-alternatives` to the world of evaluation `a` in the case of both counterfactual premises. The non-vacuous of the present case was contrived by including `(A \diamondright C)` among the premises despite the fact that the inference is valid even without this additional premise.
+The example above is _non-vacuous_ insofar as there are `|A|-alternatives` to the world of evaluation `a` in the case of both counterfactual premises. The non-vacuous of the present case was contrived by including `A \diamondright C` among the premises despite the fact that the inference is valid even without this additional premise.
 
 ### Logos Theory
 
@@ -465,11 +481,11 @@ INTERPRETED CONCLUSION:
 
 ========================================
 ```
-The example above is also _non-vacuous_ on account of their being `|A|-alternatives` for both counterfactual premises. We find something different in `(A \diamondright C)` is omitted from the example.
+The example above is also _non-vacuous_ on account of their being `|A|-alternatives` for both counterfactual premises. We find something different if `A \diamondright C` is omitted from the example.
 
 ## Vacuous Countermodels
 
-The following example is similar to `IM_CM_1` except that `(A \diamondright C)` has been omitted:
+The following example is similar to `IM_CM_1` except that `A \diamondright C` has been omitted:
 
 ### Imposition Semantics
 
@@ -531,7 +547,7 @@ INTERPRETED CONCLUSION:
 
 ========================================
 ```
-Here we see that there are no `|A|-alternatives` to the evaluation world `a`, and so `(A \diamondright C)` is vacuously true. This follows from the fact that the frame constraints on the `imposition` relation are relatively weak, and so easy to satisfy.
+Here we see that there are no `|A|-alternatives` to the evaluation world `a`, and so `A \diamondright C` is vacuously true. This follows from the fact that the frame constraints on the `imposition` relation are relatively weak, and so easy to satisfy.
 
 ### Logos Semantics
 
@@ -668,7 +684,7 @@ INTERPRETED CONCLUSION:
 
 ========================================
 ```
-Although the _left-to-right_ direction of `\Box A := \neg A \boxright \bot` is valid on the Imposition semantics for `N = 4`, greater values of `N > 4` timeout. Additionally, the _right-to-left_ direction is invalid since `(\neg A \boxright \bot)` is vacuously true. This follows from the fact that the frame constraints on `imposition` are easy to satisfy.
+Although the _left-to-right_ direction of `\Box A := \neg A \boxright \bot` is valid on the Imposition semantics for `N = 4`, greater values of `N > 4` timeout. Additionally, the _right-to-left_ direction is invalid since `\neg A \boxright \bot` is vacuously true. This follows from the fact that the frame constraints on `imposition` are easy to satisfy.
 
 That there exist countermodels to the inference above entail that `\boxright` is not strong enough to define `\Box` on the imposition semantics. We do not find countermodels if `is_alternative` is used in place of `imposition`:
 
@@ -832,8 +848,6 @@ Z3 Run Time: 1.6948 seconds
 ========================================
 ```
 
-## Implications
-
-The examples above compare the Imposition semantics and Logos semantics by evaluating the definitions of metaphysical modality `\Box A := \neg A \boxright \bot` and `\Box A := \top \boxright A`. We now proceed to compare the strength of the two semantic theories directly by taking `\boxrightlogos` to be have the Logos semantics and reserve `\boxright` for the Imposition semantics.
-
-### 
+<!-- ## Implications -->
+<!---->
+<!-- The examples above compare the Imposition semantics and Logos semantics by evaluating the definitions of metaphysical modality `\Box A := \neg A \boxright \bot` and `\Box A := \top \boxright A`. We now proceed to compare the strength of the two semantic theories directly by taking `\boxrightlogos` to be have the Logos semantics and reserve `\boxright` for the Imposition semantics. -->
