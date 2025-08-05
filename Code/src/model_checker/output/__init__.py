@@ -8,6 +8,7 @@ from .manager import OutputManager
 from .collectors import ModelDataCollector
 from .formatters import MarkdownFormatter, ANSIToMarkdown
 from .prompts import prompt_yes_no, prompt_choice
+from .interactive import InteractiveSaveManager
 
 __all__ = [
     'OutputManager', 
@@ -15,5 +16,6 @@ __all__ = [
     'MarkdownFormatter', 
     'ANSIToMarkdown',
     'prompt_yes_no',
-    'prompt_choice'
+    'prompt_choice',
+    'InteractiveSaveManager'
 ]
