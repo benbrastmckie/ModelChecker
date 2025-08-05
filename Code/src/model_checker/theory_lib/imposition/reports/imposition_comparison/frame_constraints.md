@@ -10,16 +10,16 @@ This report demonstrates that while the constructive definition `is_alternative`
 
 Fine's imposition semantics imposes four frame constraints on the primitive relation `imposition(x, w, u)` meaning "imposing state x on world w can result in world u":
 
-1. **Inclusion**: `imposition(x, w, u) -> => → part(x, u)`  
+1. **Inclusion**: `imposition(x, w, u) => part(x, u)`  
    The imposed state must be part of the outcome world
 
-2. **Actuality**: `part(x, w) ∧ world(w) → ∃u[part(u, w) ∧ imposition(x, w, u)]`  
+2. **Actuality**: `part(x, w) ∧ world(w) => ∃u[part(u, w) ∧ imposition(x, w, u)]`  
    Every part of a world can be successfully imposed on that world
 
-3. **Incorporation**: `imposition(x, w, u) ∧ part(v, u) → imposition(x⊔v, w, u)`  
+3. **Incorporation**: `imposition(x, w, u) ∧ part(v, u) => imposition(x⊔v, w, u)`  
    If we can impose x to get u, we can also impose the fusion of x with any part of u
 
-4. **Completeness**: `imposition(x, w, u) → world(u)`  
+4. **Completeness**: `imposition(x, w, u) => world(u)`  
    The outcome must be a complete possible world
 
 ### The Alternative Relation Analog
@@ -149,8 +149,8 @@ EXAMPLE IM_CM_26: there is a countermodel.
 
 State Space: □, c (world), d (world)
 Imposition Relation:
-  c →_□ c, c →_c c
-  d →_□ d, d →_d d
+  c -->_□ c, c -->_c c
+  d -->_□ d, d -->_d d
 Evaluation world: d
 
 INTERPRETED PREMISE:
@@ -167,7 +167,7 @@ INTERPRETED CONCLUSION:
 
 [View JSON data for IM_CM_26](data/IM_CM_26.json)
 
-**Analysis**: The imposition counterfactual is vacuously true because the primitive relation generates no alternatives (no d →_c relation exists). However, the logos counterfactual correctly identifies c as an alternative and finds B false there.
+**Analysis**: The imposition counterfactual is vacuously true because the primitive relation generates no alternatives (no d -->_c relation exists). However, the logos counterfactual correctly identifies c as an alternative and finds B false there.
 
 ### IM_CM_27: Logos Does Not Entail Imposition
 
@@ -176,8 +176,8 @@ EXAMPLE IM_CM_27: there is a countermodel.
 
 State Space: □, a (world), b (world)
 Imposition Relation:
-  a →_□ a, a →_□ b, a →_a a, a →_b b
-  b →_□ b, b →_b b
+  a -->_□ a, a -->_□ b, a -->_a a, a -->_b b
+  b -->_□ b, b -->_b b
 Evaluation world: a
 
 INTERPRETED PREMISE:
@@ -218,7 +218,7 @@ In the countermodel for IM_CM_27, we see the clearest example of an imposition j
 - Therefore, the only alternative should be a
 
 **Actual Behavior** (Imposition):
-- The relation includes a →_□ b
+- The relation includes a -->_□ b
 - This allows "jumping" from a to b when imposing □
 - World b satisfies all frame constraints:
   - Inclusion: □ ⊆ b ✓
