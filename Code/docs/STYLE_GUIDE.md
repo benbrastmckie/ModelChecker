@@ -42,6 +42,32 @@ See [Documentation Standards](../../Docs/maintenance/DOCUMENTATION_STANDARDS.md)
 - **No emojis anywhere** in codebase or documentation
 - Use content-specific section names (not generic labels)
 
+### Development Documentation Practice
+
+**specs/ Directory Usage:**
+- Use `specs/` directories (gitignored) for all development artifacts:
+  - Implementation plans (e.g., `FEATURE_IMPLEMENTATION.md`)
+  - Debugging analyses (e.g., `DEBUGGING_FINDINGS.md`)
+  - Final reports and lessons learned (e.g., `FEATURE_FINAL_REPORT.md`)
+- These documents are **not tracked in git** to keep the repository clean
+- Preserve important findings by incorporating them into:
+  - Code comments for implementation details
+  - Test documentation for edge cases discovered
+  - Main documentation for architectural decisions
+
+**Example Structure:**
+```
+src/model_checker/output/specs/          # Development artifacts (gitignored)
+├── SAVE_OUTPUT.md                      # Original design spec
+├── DEBUGGING_FINDINGS.md               # Debug analysis
+├── INTERACTIVE_SAVE_IMPLEMENTATION.md  # Implementation plan
+└── SAVE_OUTPUT_FINAL_REPORT.md        # Lessons learned
+
+docs/                                   # Tracked documentation
+├── TOOLS.md                           # Updated with new features
+└── implementation-plans/              # (Optional) Sanitized plans for reference
+```
+
 ### Code Organization
 
 See [Code Organization Standards](../../Docs/maintenance/CODE_ORGANIZATION.md)
@@ -107,7 +133,7 @@ grep -n '[^[:print:][:space:]]' filename
 
 ### Output System Standards 
 
-See [Output System Implementation](../src/model_checker/specs/SAVE_OUTPUT.md)
+See specs/ directory for implementation details (not tracked in git)
 
 **For New Features Involving Output:**
 - Use **OutputManager** from `model_checker.output` for all printing/saving
@@ -215,7 +241,7 @@ See [Performance Standards](../../Docs/maintenance/PERFORMANCE.md)
 ### For Specific Areas
 - **[EXAMPLES.md](EXAMPLES.md)** - Examples.py file standards and templates
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design and component relationships
-- **[Output System Spec](../src/model_checker/specs/SAVE_OUTPUT.md)** - Unified output system design
+- **specs/ directories** - Development artifacts, implementation plans, debugging analyses (not tracked in git)
 
 ### Quick Commands Reference
 
