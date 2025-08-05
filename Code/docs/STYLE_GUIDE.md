@@ -44,28 +44,38 @@ See [Documentation Standards](../../Docs/maintenance/DOCUMENTATION_STANDARDS.md)
 
 ### Development Documentation Practice
 
-**specs/ Directory Usage:**
-- Use `specs/` directories (gitignored) for all development artifacts:
-  - Implementation plans (e.g., `FEATURE_IMPLEMENTATION.md`)
-  - Debugging analyses (e.g., `DEBUGGING_FINDINGS.md`)
-  - Final reports and lessons learned (e.g., `FEATURE_FINAL_REPORT.md`)
-- These documents are **not tracked in git** to keep the repository clean
-- Preserve important findings by incorporating them into:
-  - Code comments for implementation details
-  - Test documentation for edge cases discovered
-  - Main documentation for architectural decisions
+**docs/specs/ Directory Usage:**
+- Use `docs/specs/` directory (tracked in git) for all development artifacts:
+  - `plans/` - Numbered implementation plans (e.g., `001_output.md`)
+  - `debug/` - Numbered debugging analyses (e.g., `001_capture_analysis.md`)
+  - `findings/` - Numbered lessons learned reports (e.g., `001_output_lessons.md`)
+- Documents are numbered sequentially starting from 001
+- Use short, descriptive names without redundant prefixes
+- **Update specs/README.md** when completing major features
+
+**Workflow:**
+1. Create implementation plan in `specs/plans/00X_feature.md`
+2. Document debugging in `specs/debug/00X_issue.md` as needed
+3. Write findings in `specs/findings/00X_lessons.md` after completion
+4. Update `specs/README.md` with accomplishment summary
+5. Incorporate key insights into:
+   - Code comments for implementation details
+   - Test documentation for edge cases discovered
+   - Main documentation for architectural decisions
 
 **Example Structure:**
 ```
-src/model_checker/output/specs/          # Development artifacts (gitignored)
-├── SAVE_OUTPUT.md                      # Original design spec
-├── DEBUGGING_FINDINGS.md               # Debug analysis
-├── INTERACTIVE_SAVE_IMPLEMENTATION.md  # Implementation plan
-└── SAVE_OUTPUT_FINAL_REPORT.md        # Lessons learned
-
-docs/                                   # Tracked documentation
-├── TOOLS.md                           # Updated with new features
-└── implementation-plans/              # (Optional) Sanitized plans for reference
+docs/specs/                            # Development artifacts (tracked)
+├── README.md                         # Major accomplishments log
+├── plans/                           # Implementation plans
+│   ├── 001_output.md               # Save output plan
+│   ├── 002_structured_output.md    # Structured output plan
+│   └── 003_interactive_save.md     # Interactive save plan
+├── debug/                          # Debugging analyses
+│   ├── 001_output_analysis.md      # Output system analysis
+│   └── 002_capture_analysis.md     # Capture debugging
+└── findings/                       # Lessons learned
+    └── 001_output_lessons.md       # Output implementation findings
 ```
 
 ### Code Organization
@@ -241,7 +251,7 @@ See [Performance Standards](../../Docs/maintenance/PERFORMANCE.md)
 ### For Specific Areas
 - **[EXAMPLES.md](EXAMPLES.md)** - Examples.py file standards and templates
 - **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design and component relationships
-- **specs/ directories** - Development artifacts, implementation plans, debugging analyses (not tracked in git)
+- **[specs/](specs/README.md)** - Development artifacts, implementation plans, debugging analyses
 
 ### Quick Commands Reference
 
