@@ -630,10 +630,6 @@ Conclusion:
 Z3 Run Time: 0.154 seconds
 
 ========================================
-```
-
-[View JSON data for IM_CM_29](data/IM_CM_29.json)
-
 ```consol
 ========================================
 
@@ -761,10 +757,6 @@ Conclusion:
 Z3 Run Time: 0.1693 seconds
 
 ========================================
-```
-
-[View JSON data for IM_TH_11](data/IM_TH_11.json)
-
 ```consol
 ========================================
 

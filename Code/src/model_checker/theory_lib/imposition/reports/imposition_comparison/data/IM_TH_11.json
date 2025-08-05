@@ -1,9 +1,0 @@
-{
-  "example_name": "IM_TH_11",
-  "semantic_theory": "Fine",
-  "atomic_states": 4,
-  "model_found": false,
-  "runtime": 0.1693,
-  "premise": "\\Box A",
-  "conclusion": "(\\top \\boxright A)"
-}
