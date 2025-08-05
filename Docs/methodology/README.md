@@ -107,6 +107,7 @@ This directory contains only methodology documentation files (no subdirectories)
 - **[Usage Workflows](../usage/WORKFLOW.md)** - Practical usage patterns
 - **[Getting Started](../installation/GETTING_STARTED.md)** - First steps
 - **[Theory Comparison](../usage/COMPARE_THEORIES.md)** - Comparing theories
+- **[Constraint Testing](../usage/CONSTRAINTS.md)** - Proving properties by absence
 
 ## Key Features
 

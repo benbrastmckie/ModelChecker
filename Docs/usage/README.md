@@ -1,6 +1,6 @@
 # Usage Documentation: Practical ModelChecker Workflows
 
-[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Compare Theories →](COMPARE_THEORIES.md)
+[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Constraints →](CONSTRAINTS.md)
 
 ## Directory Structure
 
@@ -8,14 +8,15 @@
 usage/
 ├── README.md                       # This file - usage documentation hub
 ├── WORKFLOW.md                     # Comprehensive usage patterns and workflows
-└── COMPARE_THEORIES.md             # Theory comparison guide and patterns
+├── COMPARE_THEORIES.md             # Theory comparison guide and patterns
+└── CONSTRAINTS.md                  # Testing semantic constraints methodology
 ```
 
 ## Overview
 
 This directory provides **practical usage guides** for working with the ModelChecker framework, focusing on real-world workflows and theory comparison techniques. The documentation bridges the gap between installation and advanced development, showing how to effectively use ModelChecker for logical investigation and research.
 
-The usage guides cover **2 complementary aspects**: comprehensive workflows for all ModelChecker features and specialized guidance for comparing semantic theories. Together, these documents enable users to run examples, debug formulas, optimize performance, and systematically compare how different semantic theories handle the same logical principles.
+The usage guides cover **3 complementary aspects**: comprehensive workflows for all ModelChecker features, specialized guidance for comparing semantic theories, and advanced techniques for testing whether constraints are automatically satisfied by semantic definitions. Together, these documents enable users to run examples, debug formulas, optimize performance, and systematically compare how different semantic theories handle the same logical principles.
 
 Whether you're validating logical arguments, exploring countermodels, developing new theories, or conducting comparative semantic research, these guides provide the practical knowledge needed to use ModelChecker effectively. The documentation emphasizes **hands-on examples**, **command-line techniques**, and **real-world problem-solving** approaches.
 
@@ -93,6 +94,8 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 
 - **[COMPARE_THEORIES.md](COMPARE_THEORIES.md)** - Specialized guide for comparing semantic theories, including import patterns, avoiding circular dependencies, and interpreting comparison results
 
+- **[CONSTRAINTS.md](CONSTRAINTS.md)** - Advanced methodology for testing semantic constraints through countermodel search, proving properties by absence, and discovering minimal axiom sets
+
 ## Documentation
 
 ### For New Users
@@ -124,6 +127,12 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 - **Comparison Setup** - Configuring multiple theories
 - **Result Interpretation** - Understanding theory differences
 
+### Constraint Testing
+- **Proof by Absence** - Using countermodel search for proofs
+- **Theory Settings** - Implementing test-specific configurations
+- **Constraint Negation** - Testing property satisfaction
+- **Minimal Axioms** - Discovering logical dependencies
+
 ### Practical Tools
 - **Command-line flags** for debugging and output control
 - **Settings management** for performance tuning
@@ -144,4 +153,4 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 
 ---
 
-[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Getting Started →](../installation/GETTING_STARTED.md)
+[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Constraints →](CONSTRAINTS.md)
