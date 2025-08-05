@@ -61,6 +61,27 @@ from model_checker.theory_lib.logos import (
 ### COUNTERMODELS ###
 #####################
 
+# IM_TR_0: TEST DERIVED IMPOSITION CONSTRAINTS
+# This tests whether all derived constraints from is_alternative are entailed
+# by the base semantics. If no model is found, all constraints are entailed.
+IM_TR_0_premises = []
+IM_TR_0_conclusions = []
+IM_TR_0_settings = {
+    'N' : 4,
+    'contingent' : False,
+    'non_null' : False,
+    'non_empty' : False,
+    'disjoint' : False,
+    'max_time' : 10,
+    'iterate' : 1,
+    'expectation' : True,
+}
+IM_TR_0_example = [
+    IM_TR_0_premises,
+    IM_TR_0_conclusions,
+    IM_TR_0_settings,
+]
+
 # IM_CM_0: COUNTERFACTUAL ANTECEDENT STRENGTHENING
 IM_CM_0_premises = ['\\neg A', '(A \\diamondright C)', '(A \\boxright C)']
 IM_CM_0_conclusions = ['((A \\wedge B) \\boxright C)']
@@ -937,6 +958,7 @@ general_settings = {
     "print_z3": False,
     "save_output": False,
     "maximize": False,
+    "derive_imposition": False,
 }
 
 # Create operator registry for logos theory with counterfactual operators
@@ -978,6 +1000,7 @@ example_range = {
     # Countermodels
 
     # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TR_0": IM_TR_0_example,   # NO PREMISES OR CONCLUSIONS
 
     # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -985,7 +1008,7 @@ example_range = {
     # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
     # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     #
-    # "IM_CM_29": IM_CM_29_example, # FLIP DEFINITION OF NEC
+    "IM_CM_29": IM_CM_29_example, # FLIP DEFINITION OF NEC
     # "IM_CM_28": IM_CM_28_example, # REVERSE FLIP DEFINITION OF NEC
 
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
@@ -1010,7 +1033,7 @@ example_range = {
     # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
 
     # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
-    "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
+    # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
 
     # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
     # "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS

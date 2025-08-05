@@ -52,6 +52,7 @@ class ImpositionSemantics(LogosSemantics):
         "print_z3": False,
         "save_output": False,
         "maximize": False,
+        "derive_imposition": False,  # Theory-specific setting
     }
 
     def __init__(self, settings):
@@ -63,6 +64,9 @@ class ImpositionSemantics(LogosSemantics):
         
         # Initialize the parent LogosSemantics with combined_settings
         super().__init__(combined_settings=combined_settings)
+        
+        # Store derive_imposition setting
+        self.derive_imposition = combined_settings.get('derive_imposition', False)
         
         # Define imposition-specific operations
         self._define_imposition_operation()
@@ -126,19 +130,104 @@ class ImpositionSemantics(LogosSemantics):
             )
         )
 
-        # Set frame constraints
-        self.frame_constraints = [
-            possibility_downard_closure,
-            is_main_world,
+        self.imposition_constraints = [
             inclusion,
             actuality,
             incorporation,
             completeness,
         ]
 
-        # Define invalidity conditions
-        self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
-        self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
+        # Check if we should derive imposition constraints
+        if self.derive_imposition:
+            # Use derived constraints instead of primitive imposition constraints
+            self.imposition_constraints = self._derive_imposition()
+            # Make premise and conclusion behaviors trivial (always true)
+            # This ensures only the negated derived constraints contribute
+            self.premise_behavior = lambda premise: z3.BoolVal(True)
+            self.conclusion_behavior = lambda conclusion: z3.BoolVal(True)
+        else:
+            # Use normal imposition constraints and behaviors
+            self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
+            self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
+
+        # Set frame constraints
+        self.frame_constraints = [
+            possibility_downard_closure,
+            is_main_world,
+        ] + self.imposition_constraints
+
+    def alt_imposition(self, state_y, state_w, state_u):
+        """Determines if a state_u is an alternative world resulting from
+        imposing state_y on state_w.
+        
+        This method permutes the arguments to provide an exact analog of the 
+        primitive imposition relation."""
+
+        return self.is_alternative(state_u, state_y, state_w)
+
+    def _derive_imposition(self):
+        """Given the definition of `is_alternative`, we may derive analogs
+        of the frame constraints for imposition.
+        
+        When derive_imposition=True, this method returns the disjunction of negated
+        derived constraints. This tests whether all derived constraints are entailed
+        by the base imposition semantics. If Z3 finds no model (as expected), it
+        proves that the frame constraints on primitive imposition fully entail all
+        properties that would be imposed by the constructive is_alternative definition."""
+
+        # Define the frame constraints
+        x, y, z, u = z3.BitVecs("frame_x frame_y, frame_z, frame_u", self.N)
+        alt_inclusion = ForAll(
+            [x, y, z],
+            z3.Implies(
+                self.alt_imposition(x, y, z),
+                self.is_part_of(x, z)
+            )
+        )
+        alt_actuality = ForAll(
+            [x, y],
+            z3.Implies(
+                z3.And(
+                    self.is_part_of(x, y),
+                    self.is_world(y)
+                ),
+                Exists(
+                    z,
+                    z3.And(
+                        self.is_part_of(z, y),
+                        self.alt_imposition(x, y, z),
+                    )
+                )
+            )
+        )
+        alt_incorporation = ForAll(
+            [x, y, z, u],
+            z3.Implies(
+                z3.And(
+                    self.alt_imposition(x, y, z),
+                    self.is_part_of(u, z)
+                ),
+                self.alt_imposition(self.fusion(x, u), y, z)
+            )
+        )
+        alt_completeness = ForAll(
+            [x, y, z],
+            z3.Implies(
+                self.alt_imposition(x, y, z),
+                self.is_world(z)
+            )
+        )
+
+        # Negation of at least one of the derived constraints
+        neg_alt_constraints = z3.Or(
+            z3.Not(alt_inclusion),
+            z3.Not(alt_actuality),
+            z3.Not(alt_incorporation),
+            z3.Not(alt_completeness),
+        )
+
+        # Return a list to combine
+        return [neg_alt_constraints]
 
     def calculate_outcome_worlds(self, verifiers, eval_point, model_structure):
         """Calculate alternative worlds given verifiers and eval_point."""
