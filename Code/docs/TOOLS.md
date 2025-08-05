@@ -533,47 +533,89 @@ The following constraints are mutually inconsistent:
 
 ### Save Output (-s)
 
-The `-s` flag sets `save_output = True`, which prompts you to save the model output to a file.
+The `-s` flag sets `save_output = True`, which automatically saves all model output to structured files in a timestamped directory.
 
 **Usage:**
 
 ```bash
+# Basic save (batch mode)
 ./dev_cli.py -s examples_file.py
+
+# Save with sequential output mode
+./dev_cli.py -s --output-mode sequential examples_file.py
+
+# Sequential mode with single file
+./dev_cli.py -s --output-mode sequential --sequential-files single examples_file.py
 ```
 
 **What It Does:**
 
-1. After displaying the model, prompts: "Save output? (y/n)"
-2. If yes, asks for a filename
-3. Saves the complete model output to the specified file
-4. Can also append to the current example file (useful for documentation)
+1. Creates a timestamped output directory (e.g., `output_20240305_143022/`)
+2. Saves all model outputs to structured files:
+   - `EXAMPLES.md`: Human-readable formatted output with color indicators
+   - `MODELS.json`: Machine-readable model data
+3. In sequential mode, can save each example to separate files
+4. Displays output location when complete
 
-**Interactive Example:**
+**Output Modes:**
+
+- **Batch Mode** (default): All examples saved to single `EXAMPLES.md` file
+- **Sequential Mode**: Each example saved separately
+  - `multiple`: Each example in its own file under `sequential/` directory
+  - `single`: All examples in one `EXAMPLES.md` with separators
+
+**Directory Structure:**
 
 ```
-Save output? (y/n): y
-Enter filename (or press enter to append to current file): countermodel_analysis
-countermodel_analysis.py created in project_directory
+output_20240305_143022/
+├── EXAMPLES.md          # Formatted human-readable output
+├── MODELS.json          # Structured model data
+└── sequential/          # (Only in sequential mode with multiple files)
+    ├── example1.md
+    ├── example2.md
+    └── ...
 ```
 
-**File Contents:**
+**EXAMPLES.md Format:**
 
-```python
-# TITLE: countermodel_analysis.py created in project_directory
-"""
-========================================
-EXAMPLE test_case: there is a countermodel.
+```markdown
+## Example: test_case (Theory: logos)
 
-Premises:
-  ¬A
-  A → B
+**Model Found**: Yes
 
-Conclusions:
-  B
+**Evaluation World**: s1
 
-[Complete model details...]
-"""
+### States
+
+- ⭐ s1 (Evaluation World)
+- 🔵 s2 (World State)
+- 🟢 s0 (Possible)
+- 🔴 s3 (Impossible)
+
+### Relations
+
+#### R Relation
+
+- s1 → s1, s2
+- s2 → s1
+
+### Propositions
+
+- **p**: s1 ✓, s2 ✗
+- **q**: s1 ✗, s2 ✓
+
+### Model Output
+
 ```
+[Original console output preserved here]
+```
+```
+
+**State Indicators:**
+- 🟢 Green = Possible states
+- 🔴 Red = Impossible states  
+- 🔵 Blue = World states
+- ⭐ Star = Evaluation world
 
 **When to Use:**
 
@@ -587,14 +629,20 @@ Conclusions:
 You can combine multiple flags for comprehensive debugging:
 
 ```bash
-# Show constraints, Z3 model, and save output
+# Show constraints, Z3 model, and save output to timestamped directory
 ./dev_cli.py -p -z -s examples_file.py
+
+# Save output in sequential mode with multiple files
+./dev_cli.py -s --output-mode sequential examples_file.py
 
 # Show impossible states and constraints
 ./dev_cli.py -i -p examples_file.py
 
 # Maximum debugging information
 ./dev_cli.py -i -p -z examples_file.py
+
+# Debug and save with custom output mode
+./dev_cli.py -p -z -s --output-mode sequential --sequential-files single examples_file.py
 ```
 
 ### In Example Files
@@ -606,9 +654,11 @@ general_settings = {
     "print_impossible": True,    # Same as -i flag
     "print_constraints": True,   # Same as -p flag
     "print_z3": True,           # Same as -z flag
-    "save_output": True,        # Same as -s flag
+    "save_output": True,        # Same as -s flag (automatically saves to timestamped directory)
 }
 ```
+
+Note: The `save_output` option now automatically saves to a timestamped directory without prompting. Use command-line flags `--output-mode` and `--sequential-files` to control the output format.
 
 ### Debugging Workflow
 
