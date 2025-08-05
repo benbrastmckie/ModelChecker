@@ -55,7 +55,7 @@ def is_alternative(self, state_u, state_y, state_w):
     )
 ```
 
-### Testing Constraint Satisfaction with derive_imposition=True
+### Testing Constraint Satisfaction with `derive_imposition = True`
 
 The ModelChecker provides a sophisticated test mechanism through the `derive_imposition` setting:
 
@@ -165,6 +165,8 @@ INTERPRETED CONCLUSION:
      |B| = < ∅, {c, d} >  (False in c)
 ```
 
+[View JSON data for IM_CM_26](data/IM_CM_26.json)
+
 **Analysis**: The imposition counterfactual is vacuously true because the primitive relation generates no alternatives (no d →_c relation exists). However, the logos counterfactual correctly identifies c as an alternative and finds B false there.
 
 ### IM_CM_27: Logos Does Not Entail Imposition
@@ -191,6 +193,8 @@ INTERPRETED CONCLUSION:
      |B| = < {a}, {b} >  (True in a)
      |B| = < {a}, {b} >  (False in b)
 ```
+
+[View JSON data for IM_CM_27](data/IM_CM_27.json)
 
 **Analysis**: The logos counterfactual is true because it only considers a as an alternative (preserving maximal compatibility). The imposition counterfactual fails because the primitive relation includes both a and b as alternatives.
 
