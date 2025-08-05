@@ -11,7 +11,8 @@ This directory contains technical analyses comparing Kit Fine's imposition-based
 **Key Findings**:
 
 - The `is_alternative` relation automatically satisfies inclusion, actuality, incorporation, and completeness constraints
-- Despite satisfying identical constraints, neither `(A □→ B) ⊢ (A □→_logos B)` nor `(A □→_logos B) ⊢ (A □→ B)` holds
+- Let `\\boxright` indicate the counterfactual conditional with the imposition semantics and `\\boxrightlogos` indicate the counterfactual conditional with the Logos semantics
+- Despite satisfying identical constraints, neither `(A \\boxright B) ⊢ (A \\boxrightlogos B)` nor `(A \\boxrightlogos B) ⊢ (A \\boxright B)` holds
 - The primitive imposition relation permits "jumps" to unrelated worlds that satisfy constraints but violate minimal change
 
 **Full Report**: [frame_constraints.md](frame_constraints.md)
