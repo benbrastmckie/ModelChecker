@@ -776,7 +776,8 @@ class LogosModelStructure(ModelDefaults):
             if output is sys.__stdout__:
                 total_time = round(time.time() - self.start_time, 4) 
                 print(f"Total Run Time: {total_time} seconds\n", file=output)
-                print(f"{'='*40}", file=output)
+            # Always print closing separator for countermodels
+            print(f"\n{'='*40}", file=output)
             return
 
     def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
@@ -932,3 +933,120 @@ class LogosModelStructure(ModelDefaults):
                 format_state(bin_rep, state, self.COLORS["possible"])
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
+    
+    def extract_states(self):
+        """Extract categorized states for output.
+        
+        Logos distinguishes between worlds, possible states, and impossible states.
+        
+        Returns:
+            Dict with keys 'worlds', 'possible', 'impossible'
+        """
+        states = {"worlds": [], "possible": [], "impossible": []}
+        
+        if hasattr(self, 'z3_world_states') and self.z3_world_states:
+            for state in self.z3_world_states:
+                # Convert bit vector to state number
+                if hasattr(state, 'as_long'):
+                    states["worlds"].append(f"s{state.as_long()}")
+                else:
+                    states["worlds"].append(f"s{state}")
+        
+        if hasattr(self, 'z3_possible_states') and self.z3_possible_states:
+            for state in self.z3_possible_states:
+                # Only add if not already a world
+                if state not in (self.z3_world_states if hasattr(self, 'z3_world_states') else []):
+                    if hasattr(state, 'as_long'):
+                        states["possible"].append(f"s{state.as_long()}")
+                    else:
+                        states["possible"].append(f"s{state}")
+        
+        # For impossible states, we need to check all states that aren't possible
+        if hasattr(self, 'all_states') and self.all_states:
+            # Convert possible states to integers for comparison
+            possible_set = set()
+            if hasattr(self, 'z3_possible_states') and self.z3_possible_states:
+                for ps in self.z3_possible_states:
+                    if hasattr(ps, 'as_long'):
+                        possible_set.add(ps.as_long())
+                    else:
+                        possible_set.add(ps)
+            
+            for state in self.all_states:
+                # Convert state to integer for comparison
+                state_val = state.as_long() if hasattr(state, 'as_long') else state
+                
+                # Check if not possible and not null state
+                if state_val not in possible_set and state_val != 0:
+                    states["impossible"].append(f"s{state_val}")
+        
+        return states
+    
+    def extract_evaluation_world(self):
+        """Extract the main evaluation world.
+        
+        Returns:
+            State name (e.g., 's3') or None if not set
+        """
+        if hasattr(self, 'z3_main_world') and self.z3_main_world is not None:
+            if hasattr(self.z3_main_world, 'as_long'):
+                return f"s{self.z3_main_world.as_long()}"
+            else:
+                return f"s{self.z3_main_world}"
+        return None
+    
+    def extract_relations(self):
+        """Extract relations between states.
+        
+        For Logos, this includes fusion/fission relations and compatibility.
+        
+        Returns:
+            Dict containing various relations
+        """
+        relations = {}
+        
+        # Add any Logos-specific relations here
+        # For now, return empty as relations are computed dynamically
+        
+        return relations
+    
+    def extract_propositions(self):
+        """Extract proposition truth values at worlds.
+        
+        Returns:
+            Dict mapping propositions to their truth values at each world
+        """
+        propositions = {}
+        
+        if not hasattr(self, 'syntax') or not hasattr(self.syntax, 'propositions'):
+            return propositions
+        
+        # Get world states
+        worlds = []
+        if hasattr(self, 'z3_world_states'):
+            worlds = self.z3_world_states
+        
+        # Extract truth values for each proposition
+        for prop_name, prop_obj in self.syntax.propositions.items():
+            if hasattr(prop_obj, 'letter'):
+                letter = prop_obj.letter
+                propositions[letter] = {}
+                
+                for world in worlds:
+                    # Get world number
+                    if hasattr(world, 'as_long'):
+                        world_num = world.as_long()
+                    else:
+                        world_num = world
+                    
+                    world_name = f"s{world_num}"
+                    
+                    if hasattr(prop_obj, 'truth_value_at'):
+                        try:
+                            # Logos propositions use truth_value_at
+                            propositions[letter][world_name] = prop_obj.truth_value_at(world_num)
+                        except:
+                            # If evaluation fails, skip this world
+                            pass
+        
+        return propositions

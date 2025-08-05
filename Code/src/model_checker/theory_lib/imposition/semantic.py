@@ -200,7 +200,8 @@ class ImpositionModelStructure(LogosModelStructure):
             if output is sys.__stdout__:
                 total_time = round(time.time() - self.start_time, 4) 
                 print(f"Total Run Time: {total_time} seconds\n", file=output)
-                print(f"{'='*40}", file=output)
+            # Always print closing separator for countermodels
+            print(f"\n{'='*40}", file=output)
             return
     
     def print_imposition(self, output=sys.__stdout__):
@@ -246,6 +247,101 @@ class ImpositionModelStructure(LogosModelStructure):
                 
                 # Print in format: w ->_a u (meaning: u is the outcome of imposing a on w)
                 print(f"  {world_color}{world_str}{RESET} →_{state_color}{state_str}{RESET} {outcome_color}{outcome_str}{RESET}", file=output)
+    
+    def extract_states(self):
+        """Extract categorized states for output."""
+        states = {"worlds": [], "possible": [], "impossible": []}
+        
+        # Extract world states
+        if hasattr(self, 'z3_world_states') and self.z3_world_states:
+            for state in self.z3_world_states:
+                state_val = state if isinstance(state, int) else state.as_long()
+                states["worlds"].append(f"s{state_val}")
+        
+        # Extract possible states (non-world)
+        if hasattr(self, 'z3_possible_states') and self.z3_possible_states:
+            for state in self.z3_possible_states:
+                state_val = state if isinstance(state, int) else state.as_long()
+                # Only add if not already in worlds
+                state_str = f"s{state_val}"
+                if state_str not in states["worlds"]:
+                    states["possible"].append(state_str)
+        
+        # Extract impossible states
+        if hasattr(self, 'all_states') and self.all_states:
+            for state in self.all_states:
+                state_val = state if isinstance(state, int) else state.as_long()
+                state_str = f"s{state_val}"
+                # Add if not in worlds or possible
+                if state_str not in states["worlds"] and state_str not in states["possible"]:
+                    states["impossible"].append(state_str)
+        
+        return states
+    
+    def extract_evaluation_world(self):
+        """Extract the main evaluation world."""
+        if hasattr(self.semantics, 'main_world') and self.semantics.main_world is not None:
+            world_val = self.semantics.main_world
+            if hasattr(world_val, 'as_long'):
+                world_val = world_val.as_long()
+            return f"s{world_val}"
+        return None
+    
+    def extract_relations(self):
+        """Extract imposition relations."""
+        relations = {}
+        
+        if hasattr(self, 'z3_imposition_relations') and self.z3_imposition_relations:
+            relations['imposition'] = {}
+            
+            # Group impositions by world being imposed on
+            for state, world, outcome in self.z3_imposition_relations:
+                # Convert to integers if needed
+                state_val = state if isinstance(state, int) else state.as_long()
+                world_val = world if isinstance(world, int) else world.as_long()
+                outcome_val = outcome if isinstance(outcome, int) else outcome.as_long()
+                
+                world_name = f"s{world_val}"
+                state_name = f"s{state_val}"
+                outcome_name = f"s{outcome_val}"
+                
+                # Structure: relations['imposition'][world][state] = outcome
+                if world_name not in relations['imposition']:
+                    relations['imposition'][world_name] = {}
+                
+                relations['imposition'][world_name][state_name] = outcome_name
+        
+        return relations
+    
+    def extract_propositions(self):
+        """Extract proposition truth values at states."""
+        propositions = {}
+        
+        if not hasattr(self.syntax, 'propositions'):
+            return propositions
+        
+        # For each proposition, evaluate at all worlds
+        for prop_name, prop in self.syntax.propositions.items():
+            propositions[prop_name] = {}
+            
+            # Evaluate at worlds (imposition uses world evaluation like logos)
+            if hasattr(self, 'z3_world_states') and self.z3_world_states:
+                for world in self.z3_world_states:
+                    world_val = world if isinstance(world, int) else world.as_long()
+                    world_name = f"s{world_val}"
+                    
+                    try:
+                        # Use evaluate_at method if available
+                        if hasattr(prop, 'evaluate_at'):
+                            truth_val = prop.evaluate_at(world)
+                            if hasattr(truth_val, 'as_bool'):
+                                truth_val = truth_val.as_bool()
+                            propositions[prop_name][world_name] = bool(truth_val)
+                    except:
+                        # Skip if evaluation fails
+                        pass
+        
+        return propositions
     
     def initialize_from_z3_model(self, z3_model):
         """Initialize imposition-specific attributes from Z3 model.

@@ -138,7 +138,7 @@ class OutputManager:
             
             with open(file_path, mode, encoding='utf-8') as f:
                 if mode == 'a':
-                    f.write('\\n---\\n\\n')  # separator
+                    f.write('\n\n---\n\n')  # separator
                 f.write(formatted_output)
                 
     def finalize(self):
@@ -152,7 +152,7 @@ class OutputManager:
             # Save batch outputs to EXAMPLES.md
             examples_path = os.path.join(self.output_dir, 'EXAMPLES.md')
             with open(examples_path, 'w', encoding='utf-8') as f:
-                f.write('\\n---\\n\\n'.join(self._batch_outputs))
+                f.write('\n\n---\n\n'.join(self._batch_outputs))
         
         # Create summary for interactive mode
         if self.mode == 'interactive':

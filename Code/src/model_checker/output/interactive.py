@@ -35,19 +35,19 @@ class InteractiveSaveManager:
         Returns:
             str: Selected mode ('batch' or 'interactive')
         """
-        choices = [
-            'batch - Save all at end',
-            'interactive - Prompt after each model'
-        ]
+        # Use simple prompt as requested
+        response = input("Save all examples (a) or run in sequence (s)? ").strip().lower()
         
-        result = prompt_choice("Select save mode:", choices)
-        
-        # Default to batch if cancelled
-        if result is None:
-            result = 'batch - Save all at end'
-        
-        # Extract mode from choice
-        self.mode = result.split(' ')[0]
+        # Handle response
+        if response == 'a':
+            self.mode = 'batch'
+        elif response == 's':
+            self.mode = 'interactive'
+        else:
+            # Default to batch if invalid input
+            print("Invalid choice. Defaulting to save all.")
+            self.mode = 'batch'
+            
         return self.mode
         
     def prompt_save_model(self, example_name: str) -> bool:

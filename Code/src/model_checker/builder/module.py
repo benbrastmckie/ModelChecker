@@ -620,6 +620,29 @@ class BuildModule:
             self.compare_semantics(example_theory_tuples)
             print(f"\n{'='*40}")
 
+    def _prompt_for_iterations(self):
+        """Prompt user for number of iterations in interactive mode.
+        
+        Returns:
+            int: Number of additional models to find (0 means no more)
+        """
+        print("\nDo you want to find another model?")
+        response = input("Enter a number to iterate or hit return to continue: ").strip()
+        
+        if not response:
+            # User hit return - continue to next example
+            return 0
+            
+        try:
+            num_iterations = int(response)
+            if num_iterations < 0:
+                print("Please enter a positive number.")
+                return self._prompt_for_iterations()
+            return num_iterations
+        except ValueError:
+            print("Please enter a valid number or hit return to continue.")
+            return self._prompt_for_iterations()
+
     def process_example(self, example_name, example_case, theory_name, semantic_theory):
         """Process a single model checking example with a fresh Z3 context.
         
@@ -683,20 +706,24 @@ class BuildModule:
         # Get the iterate count
         iterate_count = example.settings.get('iterate', 1)
         
-        # Print the first model with numbering if we're iterating
-        if iterate_count > 1:
-            print(f"\nMODEL 1/{iterate_count}")
-            
-        self._capture_and_save_output(example, example_name, theory_name)
-        
-        # Handle iteration for interactive mode
+        # Handle iteration for interactive mode first to get correct count
         if self.interactive_manager and self.interactive_manager.is_interactive():
-            # In interactive mode, ask if they want more models
-            if not self.interactive_manager.prompt_find_more_models():
+            # First, print the model without numbering
+            self._capture_and_save_output(example, example_name, theory_name)
+            
+            # Then prompt for iterations
+            user_iterations = self._prompt_for_iterations()
+            if user_iterations == 0:
                 return example
-            # Override iterate count based on user input
-            iterate_count = 999  # Large number, will stop when user says no
+            # Override iterate count with user's choice (plus 1 for the model already shown)
+            iterate_count = user_iterations + 1
         else:
+            # Print the first model with numbering if we're iterating
+            if iterate_count > 1:
+                print(f"\nMODEL 1/{iterate_count}")
+                
+            self._capture_and_save_output(example, example_name, theory_name)
+            
             # Return if we don't need to iterate in batch mode
             if iterate_count <= 1:
                 return example
@@ -808,15 +835,6 @@ class BuildModule:
                             
                         # Print the model
                         self._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
-                        
-                        # In interactive mode, ask if they want to continue after each model
-                        if self.interactive_manager and self.interactive_manager.is_interactive():
-                            # Don't prompt after the last model
-                            if distinct_count < expected_total and i < len(model_structures) - 1:
-                                if not self.interactive_manager.prompt_find_more_models():
-                                    # User doesn't want more models
-                                    print(f"\nStopping at {distinct_count} models.")
-                                    break
                     
                 # For isomorphic models that are skipped, we could optionally add a subtle indicator
                 # Uncomment to show skipped models
@@ -892,7 +910,7 @@ class BuildModule:
         
         try:
             # Print the model to our capture buffer
-            example.print_model(example_name, theory_name)
+            example.print_model(example_name, theory_name, output=captured_output)
             raw_output = captured_output.getvalue()
         finally:
             sys.stdout = old_stdout
@@ -1001,8 +1019,11 @@ class BuildModule:
                 import os
                 full_path = os.path.abspath(self.output_manager.output_dir)
                 
-                # Interactive mode - prompt for directory change
-                if self.interactive_manager and self.interactive_manager.is_interactive():
+                # Prompt for directory change
+                if self.interactive_manager:
                     self.interactive_manager.prompt_change_directory(full_path)
                 else:
+                    # No interactive manager - show instructions directly
                     print(f"\nOutput saved to: {full_path}")
+                    print(f"To change to output directory, run:")
+                    print(f"  cd {full_path}")

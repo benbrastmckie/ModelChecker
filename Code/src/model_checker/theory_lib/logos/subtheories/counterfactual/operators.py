@@ -23,8 +23,9 @@ class CounterfactualOperator(syntactic.Operator):
     
     This operator represents the counterfactual conditional 'if A were the case, 
     then B would be the case'. The semantics involves evaluating the consequent 
-    in the closest possible worlds where the antecedent holds.
-    """
+    in the alternative possible worlds that contain a verifier for the antecedent
+    together with a maximal part of the world of evaluation that is compatible
+    with that verifier for the antecedent."""
 
     name = "\\boxright"
     arity = 2

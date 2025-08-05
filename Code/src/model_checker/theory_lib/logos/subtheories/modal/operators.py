@@ -22,12 +22,12 @@ from ..counterfactual.operators import CounterfactualOperator, MightCounterfactu
 
 
 class NecessityOperator(syntactic.Operator):
-    """Implementation of the necessity/universal modality (�).
+    """Implementation of the necessity/universal modality (□).
     
     This operator represents the modal necessity 'it is necessarily the case that',
-    often written as �A. The semantics involves quantifying over all possible worlds
-    in the model and checking if A is true in all of them.
-    """
+    often written as □A. The semantics involves quantifying over all possible worlds
+    in the model without restriction, checking that A is true in all of them."""
+
     name = "\\Box"
     arity = 1
 
