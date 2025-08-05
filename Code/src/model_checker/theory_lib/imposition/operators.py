@@ -25,6 +25,13 @@ from model_checker.theory_lib.logos.subtheories.counterfactual.operators import 
 ##############################################################################
 
 class ImpositionOperator(syntactic.Operator):
+    """Implementation of the counterfactual conditional.
+    
+    This operator represents the counterfactual conditional 'if A were the case, 
+    then B would be the case'. The semantics involves evaluating the consequent 
+    in the outcome possible worlds that result from imposing verifier states for
+    the antecedent on the world of evaluation."""
+
     name = "\\boxright"
     arity = 2
 

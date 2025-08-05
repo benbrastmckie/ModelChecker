@@ -892,7 +892,8 @@ class WitnessStructure(model.ModelDefaults):
             if output is sys.__stdout__:
                 total_time = round(time.time() - self.start_time, 4) 
                 print(f"Total Run Time: {total_time} seconds\n", file=output)
-                print(f"{'='*40}", file=output)
+            # Always print closing separator for countermodels
+            print(f"\n{'='*40}", file=output)
             return
             
     def print_states(self, output=sys.__stdout__):
@@ -1147,6 +1148,133 @@ class WitnessStructure(model.ModelDefaults):
                         print(f"  {self.COLORS['impossible']}- {relation}{self.RESET}")
         
         return True
+
+
+    def extract_states(self):
+        """Extract categorized states for output.
+        
+        Exclusion distinguishes between worlds, possible states, and impossible states.
+        
+        Returns:
+            Dict with keys 'worlds', 'possible', 'impossible'
+        """
+        states = {"worlds": [], "possible": [], "impossible": []}
+        
+        if hasattr(self, 'all_world_bits') and self.all_world_bits:
+            for state in self.all_world_bits:
+                if hasattr(state, 'as_long'):
+                    states["worlds"].append(f"s{state.as_long()}")
+                else:
+                    states["worlds"].append(f"s{state}")
+        
+        if hasattr(self, 'all_possible_bits') and self.all_possible_bits:
+            for state in self.all_possible_bits:
+                # Only add if not already a world
+                if state not in (self.all_world_bits if hasattr(self, 'all_world_bits') else []):
+                    if hasattr(state, 'as_long'):
+                        states["possible"].append(f"s{state.as_long()}")
+                    else:
+                        states["possible"].append(f"s{state}")
+        
+        # For impossible states, check all states that aren't possible
+        if hasattr(self, 'all_bits') and self.all_bits:
+            possible_set = set(self.all_possible_bits) if hasattr(self, 'all_possible_bits') else set()
+            for state in self.all_bits:
+                if state not in possible_set and state != 0:  # 0 is usually the null state
+                    if hasattr(state, 'as_long'):
+                        states["impossible"].append(f"s{state.as_long()}")
+                    else:
+                        states["impossible"].append(f"s{state}")
+        
+        return states
+    
+    def extract_evaluation_world(self):
+        """Extract the main evaluation world.
+        
+        Returns:
+            State name (e.g., 's3') or None if not set
+        """
+        if hasattr(self, 'z3_main_world') and self.z3_main_world is not None:
+            if hasattr(self.z3_main_world, 'as_long'):
+                return f"s{self.z3_main_world.as_long()}"
+            else:
+                return f"s{self.z3_main_world}"
+        return None
+    
+    def extract_relations(self):
+        """Extract relations between states.
+        
+        For Exclusion, this includes exclusion/conflict relations.
+        
+        Returns:
+            Dict containing various relations
+        """
+        relations = {}
+        
+        # Extract exclusion relations if available
+        if hasattr(self, 'excludes_pairs') and self.excludes_pairs:
+            relations['excludes'] = []
+            for pair in self.excludes_pairs:
+                if len(pair) == 2:
+                    s1, s2 = pair
+                    if hasattr(s1, 'as_long'):
+                        s1_name = f"s{s1.as_long()}"
+                    else:
+                        s1_name = f"s{s1}"
+                    if hasattr(s2, 'as_long'):
+                        s2_name = f"s{s2.as_long()}"
+                    else:
+                        s2_name = f"s{s2}"
+                    relations['excludes'].append([s1_name, s2_name])
+        
+        return relations
+    
+    def extract_propositions(self):
+        """Extract proposition truth values at worlds.
+        
+        Returns:
+            Dict mapping propositions to their truth values at each world
+        """
+        propositions = {}
+        
+        if not hasattr(self, 'syntax') or not hasattr(self.syntax, 'propositions'):
+            return propositions
+        
+        # Get world states
+        worlds = []
+        if hasattr(self, 'all_world_bits'):
+            worlds = self.all_world_bits
+        
+        # Extract truth values for each proposition
+        for prop_name, prop_obj in self.syntax.propositions.items():
+            if hasattr(prop_obj, 'letter'):
+                letter = prop_obj.letter
+                propositions[letter] = {}
+                
+                for world in worlds:
+                    # Get world number
+                    if hasattr(world, 'as_long'):
+                        world_num = world.as_long()
+                    else:
+                        world_num = world
+                    
+                    world_name = f"s{world_num}"
+                    
+                    if hasattr(prop_obj, 'truth_value_at'):
+                        try:
+                            # Create eval point for this world
+                            eval_point = {"world": world}
+                            truth_value = prop_obj.truth_value_at(eval_point)
+                            # Evaluate the Z3 expression
+                            if hasattr(self, 'z3_model'):
+                                propositions[letter][world_name] = z3.is_true(
+                                    self.z3_model.evaluate(truth_value)
+                                )
+                        except:
+                            # If evaluation fails, skip this world
+                            pass
+        
+        return propositions
 
 
 class WitnessProposition(PropositionDefaults):

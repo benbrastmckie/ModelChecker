@@ -31,35 +31,16 @@ class MarkdownFormatter:
         Returns:
             Formatted markdown string
         """
-        sections = []
-        
-        # Add header
-        sections.append(self._format_header(example_data))
-        
-        if not example_data.get("has_model", False):
-            sections.append("\\nNo model found for this example.\\n")
-        else:
-            # Add evaluation info
-            if example_data.get("evaluation_world"):
-                sections.append(f"\\n**Evaluation World**: {example_data['evaluation_world']}\\n")
-            
-            # Add states section
-            if "states" in example_data:
-                sections.append(self._format_states(example_data))
-                
-            # Add relations section
-            if "relations" in example_data and example_data["relations"]:
-                sections.append(self._format_relations(example_data))
-                
-            # Add propositions section
-            if "propositions" in example_data and example_data["propositions"]:
-                sections.append(self._format_propositions(example_data))
-                
-        # Add raw output section
+        # Just return the model output without any headers or emoji sections
         if model_output:
-            sections.append(self._format_output(model_output))
-            
-        return "\\n".join(sections)
+            return model_output.strip()
+        else:
+            # If no model output, return a simple message
+            example = example_data.get("example", "Unknown")
+            if not example_data.get("has_model", False):
+                return f"EXAMPLE {example}: there is no countermodel."
+            else:
+                return f"EXAMPLE {example}: model found but no output available."
         
     def format_state_type(self, state: str, state_type: str) -> str:
         """Format state with type indicator.
@@ -111,7 +92,11 @@ class MarkdownFormatter:
         theory = example_data.get("theory", "Unknown")
         has_model = example_data.get("has_model", False)
         
-        header = f"## Example: {example} (Theory: {theory})\\n\\n"
+        # Just the example name as the header
+        header = f"## {example}\\n\\n"
+        
+        # Add metadata as regular text
+        header += f"**Theory**: {theory}\\n"
         header += f"**Model Found**: {'Yes' if has_model else 'No'}"
         
         return header
@@ -126,10 +111,18 @@ class MarkdownFormatter:
         all_states = []
         
         # Collect all states with their types
-        for state in states.get("possible", []):
-            state_type = "evaluation" if state == eval_world else "world" if state in states.get("worlds", []) else "possible"
+        # First add world states
+        for state in states.get("worlds", []):
+            state_type = "evaluation" if state == eval_world else "world"
             all_states.append((state, state_type))
             
+        # Then add possible states (non-world)
+        for state in states.get("possible", []):
+            if state not in states.get("worlds", []):
+                state_type = "evaluation" if state == eval_world else "possible"
+                all_states.append((state, state_type))
+            
+        # Finally add impossible states
         for state in states.get("impossible", []):
             all_states.append((state, "impossible"))
             
@@ -151,16 +144,51 @@ class MarkdownFormatter:
         for rel_name, connections in relations.items():
             lines.append(f"#### {rel_name} Relation\\n")
             
-            # Sort by source state
-            sorted_connections = sorted(connections.items(), 
-                                      key=lambda x: int(x[0][1:]) if x[0][1:].isdigit() else 0)
-            
-            for source, targets in sorted_connections:
-                if targets:
-                    target_str = ", ".join(sorted(targets))
-                    lines.append(f"- {source} → {target_str}")
-                else:
-                    lines.append(f"- {source} → ∅")
+            # Handle different relation structures
+            if rel_name == "time_shift":
+                # Bimodal time shift relations: {world: {shift: target}}
+                sorted_worlds = sorted(connections.items(), 
+                                     key=lambda x: int(x[0][1:]) if x[0][1:].isdigit() else 0)
+                
+                for world, shifts in sorted_worlds:
+                    for shift, target in sorted(shifts.items(), key=lambda x: int(x[0]) if x[0].lstrip('-').isdigit() else 0):
+                        lines.append(f"- {world} →_{{{shift}}} {target}")
+                        
+            elif rel_name == "imposition":
+                # Imposition relations: {world: {state: outcome}}
+                sorted_worlds = sorted(connections.items(), 
+                                     key=lambda x: int(x[0][1:]) if x[0][1:].isdigit() else 0)
+                
+                for world, impositions in sorted_worlds:
+                    for state, outcome in sorted(impositions.items(), 
+                                               key=lambda x: int(x[0][1:]) if x[0][1:].isdigit() else 0):
+                        lines.append(f"- {world} →_{{{state}}} {outcome}")
+                        
+            elif rel_name == "excludes":
+                # Exclusion relations: {state: [excluded_states]}
+                sorted_states = sorted(connections.items(), 
+                                     key=lambda x: int(x[0][1:]) if x[0][1:].isdigit() else 0)
+                
+                for state, excluded in sorted_states:
+                    if excluded:
+                        excluded_str = ", ".join(sorted(excluded))
+                        lines.append(f"- {state} ⊥ {excluded_str}")
+                        
+            else:
+                # Default handling for R relations and others
+                sorted_connections = sorted(connections.items(), 
+                                          key=lambda x: int(x[0][1:]) if x[0][1:].isdigit() else 0)
+                
+                for source, targets in sorted_connections:
+                    if isinstance(targets, list):
+                        if targets:
+                            target_str = ", ".join(sorted(targets))
+                            lines.append(f"- {source} → {target_str}")
+                        else:
+                            lines.append(f"- {source} → ∅")
+                    else:
+                        # Single target
+                        lines.append(f"- {source} → {targets}")
                     
         return "\\n".join(lines)
         

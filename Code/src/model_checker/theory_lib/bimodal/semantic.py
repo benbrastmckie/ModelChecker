@@ -2062,7 +2062,8 @@ class BimodalStructure(ModelDefaults):
             if output is sys.__stdout__:
                 total_time = round(time.time() - self.start_time, 4) 
                 print(f"Total Run Time: {total_time} seconds\n", file=output)
-                print(f"{'='*40}", file=output)
+            # Always print closing separator for countermodels
+            print(f"\n{'='*40}", file=output)
             return
 
     def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
@@ -2106,3 +2107,81 @@ class BimodalStructure(ModelDefaults):
         if include_constraints:
             print("# Satisfiable constraints", file=output)
             print(f"all_constraints = {constraints}", file=output)
+    
+    def extract_states(self):
+        """Extract categorized states for output.
+        
+        In bimodal logic, all states are world states (no possible/impossible distinction).
+        
+        Returns:
+            Dict with keys 'worlds', 'possible', 'impossible'
+        """
+        states = {"worlds": [], "possible": [], "impossible": []}
+        
+        if hasattr(self, 'world_histories') and self.world_histories:
+            for world_id in self.world_histories:
+                states["worlds"].append(f"s{world_id}")
+        
+        return states
+    
+    def extract_evaluation_world(self):
+        """Extract the main evaluation world.
+        
+        Returns:
+            State name (e.g., 's3') or None if not set
+        """
+        if hasattr(self, 'main_world') and self.main_world is not None:
+            return f"s{self.main_world}"
+        return None
+    
+    def extract_relations(self):
+        """Extract time shift relations between worlds.
+        
+        Returns:
+            Dict containing time_shift relations
+        """
+        relations = {}
+        
+        if hasattr(self, 'time_shift_relations') and self.time_shift_relations:
+            relations['time_shift'] = {}
+            for source, shifts in self.time_shift_relations.items():
+                source_name = f"s{source}"
+                relations['time_shift'][source_name] = {}
+                for shift, target in shifts.items():
+                    relations['time_shift'][source_name][str(shift)] = f"s{target}"
+        
+        return relations
+    
+    def extract_propositions(self):
+        """Extract proposition truth values at worlds.
+        
+        Returns:
+            Dict mapping propositions to their truth values at each world
+        """
+        propositions = {}
+        
+        if not hasattr(self, 'syntax') or not hasattr(self.syntax, 'propositions'):
+            return propositions
+        
+        # Get all worlds
+        worlds = []
+        if hasattr(self, 'world_histories'):
+            worlds = list(self.world_histories.keys())
+        
+        # Extract truth values for each proposition
+        for prop_name, prop_obj in self.syntax.propositions.items():
+            if hasattr(prop_obj, 'letter'):
+                letter = prop_obj.letter
+                propositions[letter] = {}
+                
+                for world in worlds:
+                    world_name = f"s{world}"
+                    if hasattr(prop_obj, 'evaluate_at'):
+                        try:
+                            # Evaluate at time 0 by default
+                            propositions[letter][world_name] = prop_obj.evaluate_at(world, 0)
+                        except:
+                            # If evaluation fails, skip this world
+                            pass
+        
+        return propositions

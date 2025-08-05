@@ -138,16 +138,46 @@ Create `docs/research/your-feature-research.md`:
 ```
 
 #### 4. Present Research to User
-- **Summary of current state** and identified issues
-- **Multiple alternative approaches** with pros/cons analysis
-- **Recommended approach** with detailed reasoning
-- **Risk assessment** and mitigation strategies
+
+**IMPORTANT**: Present research findings and options to the user BEFORE creating any detailed implementation plans.
+
+Present a concise summary including:
+- **Current state summary** - Brief overview of issues found
+- **Solution options** - 2-3 high-level approaches with:
+  - One-paragraph description
+  - Key pros and cons (3-4 bullet points each)
+  - Rough effort estimate
+- **Recommendation** - Which approach you recommend and why (2-3 sentences)
+
+**Wait for user selection before proceeding to detailed planning.**
+
+Example presentation:
+```
+Based on my research, here are three approaches to solve [problem]:
+
+**Option A: Quick Fix**
+Minimal changes to address immediate issues.
+- Pros: Fast (1-2 days), low risk, preserves current architecture
+- Cons: Technical debt, incomplete solution, needs future rework
+
+**Option B: Complete Redesign** 
+Comprehensive overhaul with new architecture.
+- Pros: Clean design, extensible, solves all issues
+- Cons: High risk (1-2 weeks), breaking changes, extensive testing
+
+**Option C: Incremental Enhancement** (Recommended)
+Phased improvements maintaining compatibility.
+- Pros: Balanced approach, manageable risk, allows iteration
+- Cons: More complex than Option A, takes 3-4 days
+
+I recommend Option C because it addresses all issues while maintaining stability.
+```
 
 ## Design Phase
 
 ### Implementation Plan Creation
 
-Once the user has selected an approach, create a detailed implementation plan following TDD principles.
+**Only after the user has selected an approach**, create a detailed implementation plan following TDD principles.
 
 #### 1. Create Implementation Plan Document
 Create `docs/implementation-plans/your-feature-plan.md`:

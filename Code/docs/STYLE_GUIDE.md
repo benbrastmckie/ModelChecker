@@ -82,6 +82,14 @@ docs/specs/                            # Development artifacts (tracked)
 
 See [Code Organization Standards](../../Docs/maintenance/CODE_ORGANIZATION.md)
 
+#### Critical Rules
+
+**NO DECORATORS**: The ModelChecker codebase does not use decorators. Always use explicit method calls and standard class inheritance patterns instead of decorators. This includes:
+- No `@property` decorators - use explicit getter/setter methods
+- No `@abstractmethod` decorators - use `raise NotImplementedError` in base classes
+- No custom decorators - use explicit function calls
+- No `@classmethod` or `@staticmethod` - use regular methods or module-level functions
+
 #### Naming Conventions
 
 | Element       | Convention    | Example            |
@@ -238,6 +246,24 @@ See [Performance Standards](../../Docs/maintenance/PERFORMANCE.md)
 - **Use appropriate timeouts** based on expected complexity
 - **Memory management** - clean up Z3 objects explicitly
 - **Parallel execution** where appropriate for comparison tasks
+
+### Debugging Protocol
+
+**Systematic Debugging Guidelines:**
+- **Gather information systematically** without requiring user interaction
+- **Avoid commands that block** (e.g., prompts requiring user input)
+- **Create test scripts** to isolate issues without modifying the codebase
+- **Document findings** in specs/debug/ with clear analysis
+- **Compile comprehensive reports** when stuck, highlighting key findings
+- **Request user review** only after exhausting autonomous investigation
+
+**Debugging Process:**
+1. Create analysis document in specs/debug/
+2. Reproduce issue with minimal test case
+3. Trace execution flow and identify root causes
+4. Test potential fixes in isolation
+5. Implement and verify solution
+6. Document lessons learned
 
 ## Essential Documentation
 
