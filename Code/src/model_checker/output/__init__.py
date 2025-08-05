@@ -7,5 +7,13 @@ in structured formats including markdown documentation and JSON data.
 from .manager import OutputManager
 from .collectors import ModelDataCollector
 from .formatters import MarkdownFormatter, ANSIToMarkdown
+from .prompts import prompt_yes_no, prompt_choice
 
-__all__ = ['OutputManager', 'ModelDataCollector', 'MarkdownFormatter', 'ANSIToMarkdown']
+__all__ = [
+    'OutputManager', 
+    'ModelDataCollector', 
+    'MarkdownFormatter', 
+    'ANSIToMarkdown',
+    'prompt_yes_no',
+    'prompt_choice'
+]
