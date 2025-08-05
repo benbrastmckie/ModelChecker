@@ -35,6 +35,7 @@ This directory contains technical analyses comparing Kit Fine's imposition-based
 
 - [ModelChecker Workflow Guide](../../../../../Docs/usage/WORKFLOW.md) - Introduction to using the framework
 - [Theory Comparison Guide](../../../../../Docs/usage/COMPARE_THEORIES.md) - Methodology for comparing semantic theories
+- [Constraint Testing Guide](../../../../../Docs/usage/CONSTRAINTS.md) - Testing semantic constraints through countermodel search
 - [Methodology Documentation](../../../../../Docs/methodology/README.md) - Philosophical foundations of programmatic semantics
 
 ### Theory Documentation

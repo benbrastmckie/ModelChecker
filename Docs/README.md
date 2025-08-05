@@ -26,7 +26,8 @@ Docs/
 ├── usage/                          # Practical usage guides
 │   ├── README.md                   # Usage documentation hub
 │   ├── WORKFLOW.md                 # Comprehensive workflows
-│   └── COMPARE_THEORIES.md         # Theory comparison patterns
+│   ├── COMPARE_THEORIES.md         # Theory comparison patterns
+│   └── CONSTRAINTS.md              # Testing semantic constraints
 ├── theory/                         # Theoretical foundations
 │   ├── README.md                   # Theory documentation hub
 │   ├── HYPERINTENSIONAL.md         # Hyperintensional logic
@@ -156,6 +157,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 - **[Theoretical Foundations](theory/README.md)** - Academic background
 - **[Methodology Overview](methodology/README.md)** - Programmatic semantics
 - **[Theory Comparison](usage/COMPARE_THEORIES.md)** - Comparative analysis
+- **[Constraint Testing](usage/CONSTRAINTS.md)** - Proving properties by absence
 
 ### For Developers
 
