@@ -90,11 +90,21 @@ class BuildModule:
             setattr(self, key, value)
             
         # Initialize output manager if save_output is enabled
-        from model_checker.output import OutputManager
+        from model_checker.output import OutputManager, InteractiveSaveManager
+        
+        # Create interactive manager if save_output is enabled
+        self.interactive_manager = None
+        if self.save_output:
+            self.interactive_manager = InteractiveSaveManager()
+            # Prompt for mode unless already specified
+            if not hasattr(self.module_flags, 'interactive') or not self.module_flags.interactive:
+                self.interactive_manager.prompt_save_mode()
+        
         self.output_manager = OutputManager(
             save_output=self.save_output,
             mode=getattr(self.module_flags, 'output_mode', 'batch'),
-            sequential_files=getattr(self.module_flags, 'sequential_files', 'multiple')
+            sequential_files=getattr(self.module_flags, 'sequential_files', 'multiple'),
+            interactive_manager=self.interactive_manager
         )
         
         # Create output directory if needed
@@ -675,9 +685,17 @@ class BuildModule:
             
         self._capture_and_save_output(example, example_name, theory_name)
         
-        # Return if we don't need to iterate
-        if iterate_count <= 1:
-            return example
+        # Handle iteration for interactive mode
+        if self.interactive_manager and self.interactive_manager.is_interactive():
+            # In interactive mode, ask if they want more models
+            if not self.interactive_manager.prompt_find_more_models():
+                return example
+            # Override iterate count based on user input
+            iterate_count = 999  # Large number, will stop when user says no
+        else:
+            # Return if we don't need to iterate in batch mode
+            if iterate_count <= 1:
+                return example
         
         try:
             # Get the theory-specific iterate_example function
@@ -786,6 +804,15 @@ class BuildModule:
                             
                         # Print the model
                         self._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
+                        
+                        # In interactive mode, ask if they want to continue after each model
+                        if self.interactive_manager and self.interactive_manager.is_interactive():
+                            # Don't prompt after the last model
+                            if distinct_count < expected_total and i < len(model_structures) - 1:
+                                if not self.interactive_manager.prompt_find_more_models():
+                                    # User doesn't want more models
+                                    print(f"\nStopping at {distinct_count} models.")
+                                    break
                     
                 # For isomorphic models that are skipped, we could optionally add a subtle indicator
                 # Uncomment to show skipped models
@@ -891,8 +918,21 @@ class BuildModule:
         formatter = MarkdownFormatter(use_colors=True)
         formatted_output = formatter.format_example(model_data, converted_output)
         
-        # Save the example
-        self.output_manager.save_example(display_name, model_data, formatted_output)
+        # Handle interactive vs batch save
+        if self.interactive_manager and self.interactive_manager.is_interactive():
+            # Check if model found
+            if example.model_structure.z3_model_status:
+                # Prompt to save this model
+                if self.interactive_manager.prompt_save_model(example_name):
+                    # Get model number
+                    model_number = model_num or self.interactive_manager.get_next_model_number(example_name)
+                    # Save interactively
+                    self.output_manager.save_model_interactive(
+                        example_name, model_data, formatted_output, model_number
+                    )
+        else:
+            # Batch mode - save normally
+            self.output_manager.save_example(display_name, model_data, formatted_output)
     
     def run_examples(self):
         """Process and execute each example case with all semantic theories.
@@ -940,4 +980,13 @@ class BuildModule:
         # Finalize output saving if enabled
         if self.output_manager.should_save():
             self.output_manager.finalize()
-            print(f"\nOutput saved to: {self.output_manager.output_dir}")
+            
+            # Get full path for display
+            import os
+            full_path = os.path.abspath(self.output_manager.output_dir)
+            
+            # Interactive mode - prompt for directory change
+            if self.interactive_manager and self.interactive_manager.is_interactive():
+                self.interactive_manager.prompt_change_directory(full_path)
+            else:
+                print(f"\nOutput saved to: {full_path}")
