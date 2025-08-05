@@ -95,8 +95,8 @@ The imposition semantics makes counterfactuals true by failing to generate alter
 
 The analyses reveal a fundamental insight about semantic constraints:
 
-1. **Necessary but not sufficient**: Frame constraints capture essential structural properties but underdetermine the logic
-2. **Multiple realizations**: Different relations can satisfy identical constraints while generating incomparable logics
+1. **Necessary but not sufficient**: Frame constraints capture essential structural properties but may underdetermine the intended logic
+2. **Multiple realizations**: Different relations can satisfy identical constraints while generating logics that are incomparable for strength
 3. **Content beyond structure**: The logos semantics adds philosophical content through its constructive definition
 
 ### The Jump Problem
@@ -106,7 +106,7 @@ The primitive imposition relation exhibits problematic behavior:
 - Can "jump" to unrelated worlds when imposing compatible states
 - These jumps satisfy all frame constraints technically
 - But violate the philosophical principle of minimal change
-- Most evident with null state imposition: a -->\_□ b
+- Most evident with null state imposition: `a -->\_□ b`
 
 ### Philosophical Divergence
 
@@ -115,9 +115,9 @@ The theories embody different conceptions of counterfactual reasoning:
 - **Imposition**: Treats frame constraints as complete specification, allowing any compliant relation
 - **Logos**: Uses constraints as minimal requirements, adding content through maximal preservation
 
-## Technical Contributions
+## Methodology
 
-### Constraint Testing Methodology
+### Constraint Testing
 
 The reports demonstrate a powerful technique for proving semantic properties:
 
@@ -132,7 +132,7 @@ test_constraints = [Exists([x, y], Not(property(x, y)))]
 
 This approach leverages Z3's efficient search to establish results that would be tedious to prove by hand.
 
-### Comparative Analysis Framework
+### Comparative Analysis
 
 The reports establish patterns for systematic theory comparison:
 
@@ -180,8 +180,7 @@ The reports establish patterns for systematic theory comparison:
 ### Potential Extensions
 
 - Investigate probabilistic or graded notions of alternatives
-- Explore connections to causal modeling frameworks
-- Develop hybrid approaches combining primitive and constructive elements
+- Explore connections to causal semantic theories
 
 ---
 
