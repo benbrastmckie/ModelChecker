@@ -4,7 +4,7 @@ This theory is part of the ModelChecker framework and is licensed under GPL-3.0.
 
 ## Software Implementation Copyright
 
-Copyright (c) 2024 Benjamin Brast-McKie
+Copyright (c) 2024 Benjamin Brast-McKie and Miguel Buitrago
 
 ## Semantic Theory Attribution
 
