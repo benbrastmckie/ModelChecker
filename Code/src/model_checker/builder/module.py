@@ -953,44 +953,56 @@ class BuildModule:
         # For each example, create a completely isolated Z3 environment
         # This ensures no state leakage between examples, solving the timeout issues
         # that can occur when running multiple examples in sequence
-        for example_name, example_case in self.example_range.items():
-            # Force garbage collection to clean up any lingering Z3 objects
-            gc.collect()
-            
-            # Reset Z3 context to create a fresh environment for this example
-            # This is the critical fix for ensuring proper Z3 state isolation
-            # Each example gets its own fresh Z3 context, preventing any state leakage
-            import z3
-            if hasattr(z3, '_main_ctx'):
-                z3._main_ctx = None
-            
-            # Force another garbage collection to ensure clean state
-            gc.collect()
-            
-            # Run the system in a clean state
-            for theory_name, semantic_theory in self.semantic_theories.items():
-                # Make setting reset for each semantic_theory
-                example_copy = list(example_case)
-                example_copy[2] = example_case[2].copy()
+        try:
+            for example_name, example_case in self.example_range.items():
+                # Force garbage collection to clean up any lingering Z3 objects
+                gc.collect()
                 
-                # Process the example with our new unified approach
-                # This handles both single models and iterations consistently
-                try:
-                    self.process_example(example_name, example_copy, theory_name, semantic_theory)
-                finally:
-                    # Force cleanup after each example to prevent state leaks
-                    gc.collect()
+                # Reset Z3 context to create a fresh environment for this example
+                # This is the critical fix for ensuring proper Z3 state isolation
+                # Each example gets its own fresh Z3 context, preventing any state leakage
+                import z3
+                if hasattr(z3, '_main_ctx'):
+                    z3._main_ctx = None
+                
+                # Force another garbage collection to ensure clean state
+                gc.collect()
+                
+                # Run the system in a clean state
+                for theory_name, semantic_theory in self.semantic_theories.items():
+                    # Make setting reset for each semantic_theory
+                    example_copy = list(example_case)
+                    example_copy[2] = example_case[2].copy()
+                    
+                    # Process the example with our new unified approach
+                    # This handles both single models and iterations consistently
+                    try:
+                        self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                    finally:
+                        # Force cleanup after each example to prevent state leaks
+                        gc.collect()
+                        
+        except KeyboardInterrupt:
+            print("\n\nExecution interrupted by user.")
+            # Still finalize if we saved any output
+            if self.output_manager.should_save() and self.output_manager.output_dir is not None:
+                self.output_manager.finalize()
+                import os
+                print(f"\nPartial output saved to: {os.path.abspath(self.output_manager.output_dir)}")
+            sys.exit(1)
                     
         # Finalize output saving if enabled
         if self.output_manager.should_save():
             self.output_manager.finalize()
             
-            # Get full path for display
-            import os
-            full_path = os.path.abspath(self.output_manager.output_dir)
-            
-            # Interactive mode - prompt for directory change
-            if self.interactive_manager and self.interactive_manager.is_interactive():
-                self.interactive_manager.prompt_change_directory(full_path)
-            else:
-                print(f"\nOutput saved to: {full_path}")
+            # Only print path if output was actually saved
+            if self.output_manager.output_dir is not None:
+                # Get full path for display
+                import os
+                full_path = os.path.abspath(self.output_manager.output_dir)
+                
+                # Interactive mode - prompt for directory change
+                if self.interactive_manager and self.interactive_manager.is_interactive():
+                    self.interactive_manager.prompt_change_directory(full_path)
+                else:
+                    print(f"\nOutput saved to: {full_path}")

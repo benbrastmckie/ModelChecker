@@ -972,7 +972,7 @@ general_settings = {
     "print_constraints": False,
     "print_impossible": False,
     "print_z3": False,
-    "save_output": True,
+    "save_output": False,
     "maximize": False,
 }
 
