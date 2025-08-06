@@ -531,6 +531,8 @@ class BaseModelIterator:
             # Now set the Z3 model after basic initialization
             new_structure.z3_model = z3_model
             new_structure.z3_model_status = True
+            new_structure.satisfiable = True
+            new_structure.solved = True
             
             # Transfer runtime from original model structure
             new_structure.z3_model_runtime = original_build_example.model_structure.z3_model_runtime
@@ -602,6 +604,13 @@ class BaseModelIterator:
         model_structure.z3_model_runtime = None
         model_structure.timeout = None
         model_structure.unsat_core = None
+        model_structure.satisfiable = None
+        model_structure.solved = False
+        
+        # Initialize helpers as None - will be set up on demand
+        model_structure.printer = None
+        model_structure.analyzer = None
+        model_structure.stored_solver = None
         
         # Get main world from main_point
         if hasattr(model_structure.main_point, "get"):
