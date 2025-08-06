@@ -573,6 +573,11 @@ class LogosProposition(PropositionDefaults):
                  states that verify and falsify the proposition respectively
         """
         model = self.model_structure.z3_model
+        if model is None:
+            # If no model is available, return empty sets
+            # This can happen during iteration when models are being created
+            return set(), set()
+            
         semantics = self.semantics
         eval_world = self.eval_world
         operator = self.operator
@@ -618,12 +623,12 @@ class LogosProposition(PropositionDefaults):
         exists_verifier = False
         exists_falsifier = False
         for verifier in self.verifiers:
-            if z3_model.evaluate(semantics.is_part_of(verifier, eval_world)):
+            if z3_model.eval(semantics.is_part_of(verifier, eval_world), model_completion=True):
                 ver_witness = verifier
                 exists_verifier = True
                 break
         for falsifier in self.falsifiers:
-            if z3_model.evaluate(semantics.is_part_of(falsifier, eval_world)):
+            if z3_model.eval(semantics.is_part_of(falsifier, eval_world), model_completion=True):
                 fal_witness = falsifier
                 exists_falsifier = True
                 break
