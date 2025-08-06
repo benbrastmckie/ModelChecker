@@ -4,6 +4,7 @@ import os
 from typing import Optional, Dict
 
 from .prompts import prompt_yes_no, prompt_choice
+from .input_provider import InputProvider
 
 
 class InteractiveSaveManager:
@@ -13,8 +14,13 @@ class InteractiveSaveManager:
     models, and navigating to output directories.
     """
     
-    def __init__(self):
-        """Initialize the interactive save manager."""
+    def __init__(self, input_provider: InputProvider):
+        """Initialize the interactive save manager.
+        
+        Args:
+            input_provider: Provider for user input (required)
+        """
+        self.input_provider = input_provider
         self.mode: Optional[str] = None  # 'batch' or 'interactive'
         self.current_example: Optional[str] = None
         self.model_count: Dict[str, int] = {}  # Track models per example
@@ -35,8 +41,8 @@ class InteractiveSaveManager:
         Returns:
             str: Selected mode ('batch' or 'interactive')
         """
-        # Use simple prompt as requested
-        response = input("Save all examples (a) or run in sequence (s)? ").strip().lower()
+        # Use input provider for testable input
+        response = self.input_provider.get_input("Save all examples (a) or run in sequence (s)? ").strip().lower()
         
         # Handle response
         if response == 'a':

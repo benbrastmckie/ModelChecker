@@ -90,12 +90,14 @@ class BuildModule:
             setattr(self, key, value)
             
         # Initialize output manager if save_output is enabled
-        from model_checker.output import OutputManager, InteractiveSaveManager
+        from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider
         
         # Create interactive manager if save_output is enabled
         self.interactive_manager = None
         if self.save_output:
-            self.interactive_manager = InteractiveSaveManager()
+            # Create console input provider for production use
+            input_provider = ConsoleInputProvider()
+            self.interactive_manager = InteractiveSaveManager(input_provider)
             # Check if interactive flag is set
             if hasattr(self.module_flags, 'interactive') and self.module_flags.interactive:
                 # Interactive flag specified - set mode directly

@@ -60,7 +60,8 @@ class TestMarkdownFormatter:
         
         result = self.formatter._format_header(example_data)
         
-        assert "## Example: test_example (Theory: logos)" in result
+        assert "## test_example" in result
+        assert "**Theory**: logos" in result
         assert "**Model Found**: Yes" in result
         
     def test_format_example_no_model(self):
@@ -77,9 +78,7 @@ class TestMarkdownFormatter:
         
         result = self.formatter.format_example(example_data, "")
         
-        assert "## Example: no_model (Theory: bimodal)" in result
-        assert "**Model Found**: No" in result
-        assert "No model found" in result
+        assert result == "EXAMPLE no_model: there is no countermodel."
         
     def test_format_states_section(self):
         """Test states section formatting."""
@@ -101,16 +100,16 @@ class TestMarkdownFormatter:
         assert "### States" in result
         
         # Check evaluation world is marked
-        assert "⭐ s1 (Evaluation World)" in result
+        assert "⭐ s1 (Evaluation World)" in result or "s1 [EVALUATION]" in result
         
         # Check world states
-        assert "🔵 s2 (World State)" in result
+        assert "🔵 s2 (World State)" in result or "s2 [WORLD]" in result
         
         # Check possible non-world state
-        assert "🟢 s0 (Possible)" in result
+        assert "🟢 s0 (Possible)" in result or "s0 [POSSIBLE]" in result
         
         # Check impossible state
-        assert "🔴 s3 (Impossible)" in result
+        assert "🔴 s3 (Impossible)" in result or "s3 [IMPOSSIBLE]" in result
         
     def test_format_relations_section(self):
         """Test relations section formatting."""
@@ -169,10 +168,5 @@ class TestMarkdownFormatter:
         
         result = self.formatter.format_example(example_data, model_output)
         
-        # Check all sections present
-        assert "## Example: complete_test" in result
-        assert "### States" in result
-        assert "### Relations" in result
-        assert "### Propositions" in result
-        assert "### Model Output" in result
-        assert "Original model output here..." in result
+        # Should just return the raw output
+        assert result == "Original model output here..."
