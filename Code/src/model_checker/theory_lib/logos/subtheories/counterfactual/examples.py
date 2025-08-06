@@ -59,8 +59,8 @@ CF_CM_1_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
-    'iterate': 1,
+    'max_time': 10,
+    'iterate': 2,
     'expectation': True,
 }
 CF_CM_1_example = [
@@ -78,7 +78,7 @@ CF_CM_2_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -97,7 +97,7 @@ CF_CM_3_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -116,7 +116,7 @@ CF_CM_4_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -135,7 +135,7 @@ CF_CM_5_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -173,7 +173,7 @@ CF_CM_7_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -211,7 +211,7 @@ CF_CM_9_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -230,7 +230,7 @@ CF_CM_10_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -249,7 +249,7 @@ CF_CM_11_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -268,7 +268,7 @@ CF_CM_12_settings = {
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -481,7 +481,7 @@ CF_CM_24_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -500,7 +500,7 @@ CF_CM_25_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': True,
 }
@@ -525,7 +525,7 @@ CF_TH_1_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -544,7 +544,7 @@ CF_TH_2_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -563,7 +563,7 @@ CF_TH_3_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -582,7 +582,7 @@ CF_TH_4_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -601,7 +601,7 @@ CF_TH_5_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -620,7 +620,7 @@ CF_TH_6_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -643,7 +643,7 @@ CF_TH_7_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -662,7 +662,7 @@ CF_TH_8_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -681,7 +681,7 @@ CF_TH_9_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -700,7 +700,7 @@ CF_TH_10_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -718,7 +718,7 @@ CF_TH_11_settings = {
     'disjoint': False,
     'non_empty': True,
     'non_null': True,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
@@ -737,7 +737,7 @@ CF_TH_12_settings = {
     'disjoint': False,
     'non_empty': False,
     'non_null': False,
-    'max_time': 100,
+    'max_time': 10,
     'iterate': 1,
     'expectation': False,
 }
