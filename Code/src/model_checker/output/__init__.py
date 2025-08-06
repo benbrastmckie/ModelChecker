@@ -9,6 +9,7 @@ from .collectors import ModelDataCollector
 from .formatters import MarkdownFormatter, ANSIToMarkdown
 from .prompts import prompt_yes_no, prompt_choice
 from .interactive import InteractiveSaveManager
+from .input_provider import InputProvider, ConsoleInputProvider, MockInputProvider
 
 __all__ = [
     'OutputManager', 
@@ -17,5 +18,8 @@ __all__ = [
     'ANSIToMarkdown',
     'prompt_yes_no',
     'prompt_choice',
-    'InteractiveSaveManager'
+    'InteractiveSaveManager',
+    'InputProvider',
+    'ConsoleInputProvider',
+    'MockInputProvider'
 ]

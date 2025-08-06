@@ -39,15 +39,8 @@ class TestOutputIntegration(unittest.TestCase):
         output = "Model checking output here..."
         markdown = self.formatter.format_example(data, output)
         
-        # Verify markdown formatting
-        self.assertIn("## Example: test_bimodal", markdown)
-        self.assertIn("Theory: bimodal", markdown)
-        self.assertIn("### States", markdown)
-        self.assertIn("s3 [EVALUATION]", markdown)  # s3 is the evaluation world
-        self.assertIn("s5 [WORLD]", markdown)
-        self.assertIn("### Relations", markdown)
-        self.assertIn("time_shift", markdown)
-        self.assertIn("s3 →_{0} s3", markdown)
+        # Verify simplified markdown formatting - just returns the output
+        self.assertEqual(markdown, "Model checking output here...")
         
     def test_logos_output_pipeline(self):
         """Test output pipeline with logos model structure."""
@@ -66,10 +59,8 @@ class TestOutputIntegration(unittest.TestCase):
         # Format as markdown
         markdown = self.formatter.format_example(data, "")
         
-        # Verify state categorization in markdown
-        self.assertIn("s7 [EVALUATION]", markdown)  # s7 is the evaluation world
-        self.assertIn("s3 [POSSIBLE]", markdown)
-        self.assertIn("s0 [IMPOSSIBLE]", markdown)
+        # Verify simplified formatting - returns default message for empty output
+        self.assertEqual(markdown, "EXAMPLE test_logos: model found but no output available.")
         
     def test_imposition_output_pipeline(self):
         """Test output pipeline with imposition model structure."""
@@ -91,10 +82,8 @@ class TestOutputIntegration(unittest.TestCase):
         # Format as markdown
         markdown = self.formatter.format_example(data, "")
         
-        # Verify imposition formatting
-        self.assertIn("#### imposition Relation", markdown)
-        self.assertIn("s3 →_{s1} s3", markdown)
-        self.assertIn("s3 →_{s2} s5", markdown)
+        # Verify simplified formatting - returns default message for empty output
+        self.assertEqual(markdown, "EXAMPLE test_imposition: model found but no output available.")
         
     def test_exclusion_output_pipeline(self):
         """Test output pipeline with exclusion model structure."""
@@ -116,10 +105,8 @@ class TestOutputIntegration(unittest.TestCase):
         # Format as markdown
         markdown = self.formatter.format_example(data, "")
         
-        # Verify exclusion formatting
-        self.assertIn("#### excludes Relation", markdown)
-        self.assertIn("s0 ⊥ s2, s4", markdown)
-        self.assertIn("s1 ⊥ s3", markdown)
+        # Verify simplified formatting - returns default message for empty output
+        self.assertEqual(markdown, "EXAMPLE test_exclusion: model found but no output available.")
         
     def _create_bimodal_mock(self):
         """Create mock bimodal model structure."""

@@ -73,8 +73,7 @@ class TestCLIInteractiveIntegration:
             mock_prompt.assert_not_called()
             
     @patch('model_checker.builder.module.BuildModule._load_module')
-    @patch('model_checker.output.interactive.prompt_choice')
-    def test_no_interactive_flag_prompts_user(self, mock_choice, mock_load):
+    def test_no_interactive_flag_prompts_user(self, mock_load):
         """Test that without interactive flag, user is prompted."""
         # Mock module
         mock_module = Mock()
@@ -95,17 +94,20 @@ class TestCLIInteractiveIntegration:
         mock_module.general_settings = {"save_output": True}
         mock_load.return_value = mock_module
         
-        # User selects batch mode
-        mock_choice.return_value = 'batch - Save all at end'
-        
-        # Create module without interactive flag
-        flags = MockFlags(save_output=True, interactive=False)
-        module = BuildModule(flags)
-        
-        # Verify prompt was called
-        assert module.interactive_manager is not None
-        assert module.interactive_manager.mode == 'batch'
-        mock_choice.assert_called_once()
+        # Mock input provider for batch mode
+        with patch('model_checker.output.ConsoleInputProvider') as mock_provider_class:
+            mock_provider = Mock()
+            mock_provider.get_input.return_value = 'a'  # Batch mode
+            mock_provider_class.return_value = mock_provider
+            
+            # Create module without interactive flag
+            flags = MockFlags(save_output=True, interactive=False)
+            module = BuildModule(flags)
+            
+            # Verify prompt was called
+            assert module.interactive_manager is not None
+            assert module.interactive_manager.mode == 'batch'
+            mock_provider.get_input.assert_called_once_with("Save all examples (a) or run in sequence (s)? ")
         
     @patch('model_checker.builder.module.BuildModule._load_module')
     def test_interactive_flag_without_save_output(self, mock_load):
@@ -169,7 +171,8 @@ class TestCLIInteractiveIntegration:
         
     def test_set_mode_validation(self):
         """Test set_mode validates input."""
-        manager = InteractiveSaveManager()
+        from model_checker.output import MockInputProvider
+        manager = InteractiveSaveManager(MockInputProvider([]))
         
         # Valid modes
         manager.set_mode('batch')
