@@ -17,7 +17,7 @@ methodology/
 
 ## Overview
 
-This directory contains comprehensive documentation about the programmatic semantic methodology that guides the ModelChecker package design and workflow. The methodology documentation is designed to be accessible to an interdisciplinary audience including logicians, linguists, computer scientists, and AI researchers - readers may have expertise in some but not all of these areas.
+This directory contains comprehensive documentation about the programmatic semantic methodology that guides the ModelChecker package design and workflow. The methodology documentation is designed to be accessible to an interdisciplinary audience including logicians, linguists, computer scientists, and AI researchers with expertise in some but not all of these areas.
 
 The ModelChecker implements a programmatic methodology for developing semantic theories. This approach separates syntactic processing from semantic interpretation. The premises and conclusions of a given inference are the used to generate Z3 constraints which, if satisfied by a model, are then interpreted by extracting the elements from that model. This approach provides a general methodology by which to support the study of arbitrary logical theories while maintaining a consistent computational pipeline.
 
