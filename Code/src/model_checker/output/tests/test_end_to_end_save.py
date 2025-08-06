@@ -46,22 +46,17 @@ class TestEndToEndSave:
             mock_model.z3_model_status = has_model
             
             if has_model:
-                mock_model.z3_main_world = MagicMock()
-                mock_model.z3_main_world.as_long.return_value = 1
-                mock_model.get_all_N_states = Mock(return_value=[0, 1, 2])
-                mock_model.is_possible_state = Mock(return_value=True)
-                # Need more values for complete collection process
-                mock_model.is_world_state = Mock(side_effect=[
-                    False, True, True,  # for _collect_states
-                    True, True,         # for _collect_propositions
-                    False, True, True,  # for _collect_relations checks
-                    False, True, True,  # extra for relations
-                    False, True, True,  # extra for relations
-                    False, True, True,  # extra for relations
-                ])
-                mock_model.syntax.propositions = {
-                    'p': Mock(letter='p', is_true_at=Mock(side_effect=[True, False]))
-                }
+                # Mock extraction methods
+                mock_model.extract_evaluation_world = Mock(return_value="s1")
+                mock_model.extract_states = Mock(return_value={
+                    "worlds": ["s1", "s2"],
+                    "possible": ["s0", "s1", "s2"],
+                    "impossible": []
+                })
+                mock_model.extract_relations = Mock(return_value={})
+                mock_model.extract_propositions = Mock(return_value={
+                    'p': {'s0': True, 's1': False, 's2': True}
+                })
             else:
                 mock_model.z3_model = None
                 
@@ -87,16 +82,10 @@ class TestEndToEndSave:
         with open(examples_path, 'r') as f:
             content = f.read()
             
-        # Check all examples present
-        assert "## Example: example1 (Theory: logos)" in content
-        assert "## Example: example2 (Theory: bimodal)" in content
-        assert "## Example: example3 (Theory: exclusion)" in content
-        
-        # Check formatting
-        assert "⭐" in content  # Evaluation world marker
-        assert "🟢" in content  # Possible state marker
-        assert "Model Found**: Yes" in content
-        assert "Model Found**: No" in content
+        # Check all examples present (simplified formatter just returns raw output)
+        assert "Raw output for example1" in content
+        assert "Raw output for example2" in content
+        assert "Raw output for example3" in content
         
         # Verify MODELS.json
         json_path = os.path.join(output_manager.output_dir, 'MODELS.json')
