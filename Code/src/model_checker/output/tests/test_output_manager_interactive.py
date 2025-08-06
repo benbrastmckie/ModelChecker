@@ -8,7 +8,7 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 from datetime import datetime
 
-from model_checker.output import OutputManager, InteractiveSaveManager
+from model_checker.output import OutputManager, InteractiveSaveManager, MockInputProvider
 
 
 class TestOutputManagerInteractive:
@@ -27,7 +27,7 @@ class TestOutputManagerInteractive:
     
     def test_initialization_with_interactive_manager(self):
         """Test OutputManager can be initialized with InteractiveSaveManager."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
         output_manager = OutputManager(
@@ -41,7 +41,7 @@ class TestOutputManagerInteractive:
         
     def test_create_example_directory(self):
         """Test creating per-example directories in interactive mode."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
         output_manager = OutputManager(
@@ -59,7 +59,7 @@ class TestOutputManagerInteractive:
         
     def test_save_model_interactive_mode(self):
         """Test saving individual models in interactive mode."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
         output_manager = OutputManager(
@@ -104,7 +104,7 @@ class TestOutputManagerInteractive:
             
     def test_save_multiple_models_same_example(self):
         """Test saving multiple models for same example."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
         output_manager = OutputManager(
@@ -131,7 +131,7 @@ class TestOutputManagerInteractive:
             
     def test_batch_mode_compatibility(self):
         """Test that batch mode still works with interactive manager."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'batch'
         
         output_manager = OutputManager(
@@ -153,7 +153,7 @@ class TestOutputManagerInteractive:
         
     def test_finalize_with_summary(self):
         """Test finalize creates summary.json in interactive mode."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         interactive_manager.model_count = {
             "EX1": 2,
@@ -188,7 +188,7 @@ class TestOutputManagerInteractive:
         
     def test_get_output_path_interactive(self):
         """Test getting output paths in interactive mode."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
         output_manager = OutputManager(
@@ -210,7 +210,7 @@ class TestOutputManagerInteractive:
         
     def test_directory_structure_interactive(self):
         """Test complete directory structure in interactive mode."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
         output_manager = OutputManager(
@@ -247,7 +247,7 @@ class TestOutputManagerInteractive:
     @patch('builtins.print')
     def test_save_location_display(self, mock_print):
         """Test that save location is displayed after saving."""
-        interactive_manager = InteractiveSaveManager()
+        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
         output_manager = OutputManager(

@@ -73,20 +73,16 @@ class TestBuildIntegration:
         # Create mock model
         mock_model = Mock()
         mock_model.z3_model_status = True
-        mock_model.z3_main_world = MagicMock()
-        mock_model.z3_main_world.as_long.return_value = 1
-        mock_model.get_all_N_states = Mock(return_value=[0, 1, 2])
-        mock_model.is_possible_state = Mock(return_value=True)
-        # Need enough values for all the calls in data collection
-        mock_model.is_world_state = Mock(side_effect=[
-            False, True, True,  # for _collect_states
-            True, True,         # for _collect_propositions (only worlds checked)
-            False, True, True,  # for _collect_relations (state1 checks)
-            False, True, True,  # for _collect_relations (state2 for state1=0)
-            False, True, True,  # for _collect_relations (state2 for state1=1)
-            False, True, True,  # for _collect_relations (state2 for state1=2)
-        ])
-        mock_model.syntax.propositions = {}
+        
+        # Mock extraction methods
+        mock_model.extract_evaluation_world = Mock(return_value="s1")
+        mock_model.extract_states = Mock(return_value={
+            "worlds": ["s1", "s2"],
+            "possible": ["s0", "s1", "s2"],
+            "impossible": []
+        })
+        mock_model.extract_relations = Mock(return_value={})
+        mock_model.extract_propositions = Mock(return_value={})
         
         # Collect data
         collector = ModelDataCollector()
@@ -96,10 +92,8 @@ class TestBuildIntegration:
         formatter = MarkdownFormatter()
         formatted_output = formatter.format_example(model_data, "Raw output here")
         
-        # Verify integration
-        assert "## Example: test (Theory: logos)" in formatted_output
-        assert "⭐ s1 (Evaluation World)" in formatted_output
-        assert "Raw output here" in formatted_output
+        # Verify integration - formatter should just return the raw output
+        assert formatted_output == "Raw output here"
         
     def test_save_workflow(self):
         """Test complete save workflow."""

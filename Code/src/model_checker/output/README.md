@@ -12,6 +12,7 @@ output/
 ├── formatters.py          # Output formatting (Markdown, ANSI)
 ├── interactive.py         # Interactive save mode manager
 ├── prompts.py            # User prompt utilities
+├── input_provider.py     # Input abstraction for testable user interaction
 └── tests/                # Comprehensive test suite
 ```
 
@@ -28,6 +29,28 @@ The **Output Management Module** provides comprehensive functionality for saving
 - **Model Data Collection**: Systematic extraction of model structure and properties
 
 ## API Reference
+
+### Input Provider Pattern
+
+The output module uses an **Input Provider abstraction** to handle user input in a testable way:
+
+```python
+from model_checker.output import ConsoleInputProvider, MockInputProvider
+
+# Production usage with console input
+input_provider = ConsoleInputProvider()
+interactive_manager = InteractiveSaveManager(input_provider)
+
+# Testing with predetermined responses
+mock_provider = MockInputProvider(['a', 'y', 'n'])  # Responses for 3 prompts
+test_manager = InteractiveSaveManager(mock_provider)
+```
+
+This pattern ensures:
+- **Testability**: Tests can provide predetermined input without mocking stdin
+- **Consistency**: All user input goes through a single abstraction
+- **Flexibility**: Easy to add new input sources (files, GUIs, etc.)
+- **No Backwards Compatibility**: Direct refactoring without legacy support
 
 ### OutputManager
 
@@ -63,9 +86,11 @@ output_manager = OutputManager(
 Manages interactive save workflow:
 
 ```python
-from model_checker.output import InteractiveSaveManager
+from model_checker.output import InteractiveSaveManager, ConsoleInputProvider
 
-manager = InteractiveSaveManager()
+# Create with input provider
+input_provider = ConsoleInputProvider()
+manager = InteractiveSaveManager(input_provider)
 
 # Prompt for save mode
 mode = manager.prompt_save_mode()  # Returns 'batch' or 'interactive'
@@ -280,7 +305,9 @@ class BuildModule:
     def __init__(self, flags):
         # Create interactive manager if needed
         if flags.save_output:
-            self.interactive_manager = InteractiveSaveManager()
+            from model_checker.output import ConsoleInputProvider
+            input_provider = ConsoleInputProvider()
+            self.interactive_manager = InteractiveSaveManager(input_provider)
             if flags.interactive:
                 self.interactive_manager.set_mode('interactive')
             else:
