@@ -19,9 +19,9 @@ methodology/
 
 This directory contains **comprehensive documentation** about the programmatic semantic methodology that guides the ModelChecker package design and workflow. The methodology documentation is designed to be accessible to an interdisciplinary audience including logicians, linguists, computer scientists, and AI researchers - readers may have expertise in some but not all of these areas.
 
-The methodology implements a **systematic approach** to programmatic semantics through **6 interconnected components**: system architecture, pipeline orchestration, syntax parsing, semantic interpretation, model finding, and iteration strategies. This approach separates syntactic processing from semantic interpretation, enabling support for arbitrary logical theories while maintaining a consistent computational pipeline.
+The ModelChecker implements a programmatic methodology for developing semantic theories. This approach separates syntactic processing from semantic interpretation. The premises and conclusions of a given inference are the used to generate Z3 constraints which, if satisfied by a model, are then interpreted by extracting the elements from that model. This approach provides a general methodology by which to support the study of arbitrary logical theories while maintaining a consistent computational pipeline.
 
-The framework treats **semantic theories as executable programs**, where truth conditions become code, constraints are computations, and models are data structures. This programmatic approach allows researchers to implement and test semantic theories systematically, comparing different approaches to logical phenomena through concrete counterexamples and model generation.
+The framework treats semantic theories as executable programs, where truth conditions become Z3 constraints and models are data structures. This programmatic approach allows researchers to rapidly implement and test semantic theories, comparing different approaches to logical phenomena through concrete counterexamples and model generation.
 
 ## Theory Examples
 
