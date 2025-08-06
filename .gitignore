@@ -35,7 +35,6 @@ Code/.venv
 
 # Ignore all directories named 'notes' anywhere in the repository
 **/notes/
-**/specs/
 Code/src/model_checker/builder/notes_
 *.ipynb_checkpoints
 Code/ARCHITECTURE.md

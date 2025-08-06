@@ -4,29 +4,15 @@
 
 - [ ] lint
   - many of the imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py` are not used
-- [ ] methodology
-  - [ ] ITERATOR.md
-    - [.] enhance
-  - [ ] MODELS.md
-    - [.] enhance
-  - [ ] ARCHITECTURE.md
-    - [ ] enhance
-  - [ ] WITNESS.md
-    - [ ] create
-    - [ ] enhance
-- [ ] usage
-  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/WORKFLOW.md`
-    - [ ] enhance
-  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/COMPARE_THEORIES.md`
-    - [ ] enhance
-- [ ] check
-  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/LOAD_THEORIES.md`
-- [ ] docs
-  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/theory/README.md`
-    - [ ] fix TODOs
-  - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/README.md`
-    - [ ] update
-    - [ ] conform to standards
+  - also use pylint to be systematic about linting the entire codebase
+- [ ] finalize documentation
+  - [ ] methodology
+  - [ ] usage
+    - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/WORKFLOW.md`
+    - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/COMPARE_THEORIES.md`
+  - [ ] README.md
+    - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/theory/README.md`
+    - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/README.md`
 
 ### High Priority
 
@@ -35,60 +21,41 @@
   - [ ] check coverage
   - [ ] update documentation
 - [ ] add change log
-- [ ] witness subpackage
-  - [ ] abstract subpackage from exclusion semantics
-  - implement in exclusion semantics
-  - implement in bimodal
-  - implement in logos?
 - [.] iterate
   - [x] docs for each theory
   - [ ] report networkx not available
   - [ ] move iterate components out of semantic.py
   - [ ] make dependency explicit
   - [ ] update docs
-- [ ] jupyter
-  - [ ] check examples
-  - [ ] convenience methods: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
+- [ ] builder refactor
 - [.] theory metadata
   - [:] licence
     - [x] implement licensing
-    - [ ] add licence content
-  - [:] versioning
-    - [ ] theory versioning
+    - [x] add licence content
+    - [ ] check licenses
+  - [ ] citation
+    - [ ] `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/logos/CITATION.md`
+  - [ ] versioning
     - [ ] model_checker versioning
-- [.] docs
-  - [x] general
-    - [x] installation
-    - [x] development
-  - [ ] systematic review
-    - [ ] `model_checker/specs/DOC_LIST.md`
+    - [ ] theory and subtheory versioning
+    - [ ] check project builder integrates
 
-### Refactoring
+### Features
 
-- [.] jupyter
-
-  - [.] demos
-    - [ ] bimodal
-    - [ ] imposition
-    - [ ] logos
-    - [x] default
-    - [x] exclusion
-  - [ ] docs
-    - [ ] docs for each theory
-    - [x] `jupyter/README.md`
-
+- [ ] witness subpackage
+  - [ ] abstract subpackage from exclusion semantics
+  - implement in exclusion semantics
+  - implement in bimodal
+  - implement in logos?
+- [ ] jupyter
+  - [ ] integrate with sequence output
+  - [ ] check examples
+  - [ ] convenience methods: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`
 - make subpackage
-
-  - utils
+  - model
   - syntactic
     - [ ] permit unicode
-  - model
-  - print
-
-- [.] builder refactor
-  - [.] tools
-    - [x] maximize
-    - [ ] minimize
+  - utils
 
 ### Semantic Theories
 
