@@ -51,12 +51,20 @@ Documents are numbered sequentially within each category:
 - Per-example directory structure in interactive mode
 - Path display with cd command suggestions
 
-### V1 Release Preparation (002_v1_release_preparation)
-**Created**: January 2025
+### V1 Release Preparation (008_v1_release_preparation)
+**Created**: August 2025 | **Status**: Active
 - Comprehensive plan for bringing codebase to production-ready v1.0 status
-- 5 implementation phases: Code Uniformity, API Consistency, Documentation, Testing, Release Prep
-- Addresses module docstrings, type hints, TODO cleanup, and documentation completeness
-- Timeline: 11-16 days estimated for full implementation
+- **Revised** after model.py refactoring regression to include continuous CLI testing
+- 7 implementation phases: Monolithic refactoring, Utils/Syntactic refactoring, Code cleanup, Documentation, Testing, Release prep
+- Emphasizes incremental changes with dev_cli.py validation after each step
+- Timeline: 27-35 days with comprehensive testing protocols
+- **Key Features**: Baseline capture before changes, atomic commits, immediate rollback on regression
+- **Current**: Ready to begin Phase 1 with stable codebase
+
+### Remove/Migrate Pattern (006_remove_migrate)
+**Created**: August 2025
+- Pattern for safely removing and migrating deprecated components
+- Provides structured approach to code cleanup
 
 ## Usage Guidelines
 
