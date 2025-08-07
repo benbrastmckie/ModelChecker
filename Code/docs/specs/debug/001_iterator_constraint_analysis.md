@@ -27,10 +27,18 @@ Iterator produces MODEL 2+ with false premises and true conclusions despite pres
 
 ### Phase 2: Code Instrumentation (if needed)
 
-- [ ] Created debug branch
-- [ ] Added instrumentation
-- [ ] Collected debug output
-- [ ] Identified root cause
+- [x] Created debug branch
+- [x] Added instrumentation
+- [x] Collected debug output
+- [x] Identified root cause
+
+**Root Cause Identified**: The `_create_extended_constraints()` method returns a list of constraints but they are never added to the solver. The iterator creates extended constraints (original + difference) but then just checks the solver which only has the persistent constraints from initialization plus any difference constraints added in previous iterations.
+
+**Evidence**:
+1. Debug shows "Created 12 extended constraints" but "Solver currently has 10 assertions"
+2. The solver.check() happens right after creating extended constraints without adding them
+3. Z3 reports "Premise constraint 0 satisfied: True" (from the solver's perspective)
+4. But evaluation shows "Evaluated: False" (from the actual model's perspective)
 
 ## Test Cases
 
@@ -131,7 +139,18 @@ The non-invasive investigation has revealed:
 ## Solution & Verification
 
 ### Proposed Fix
-*To be determined after Phase 2 investigation*
+
+**Root Issue**: ModelConstraints are built with MODEL 1's verify/falsify functions, but MODEL 2+ have different function assignments.
+
+**Recommended Solution**: Regenerate premise and conclusion constraints for each new model:
+
+1. Keep frame constraints and model constraints (structural properties)
+2. For each new model, regenerate premise/conclusion constraints using the new model's verify/falsify functions
+3. This ensures constraints match the model being evaluated
+
+**Implementation**:
+- Modify `_build_new_model_structure` to create fresh premise/conclusion constraints
+- Or add function preservation constraints: `verify_new(s, A) == verify_old(s, A)`
 
 ### Test Results
 *To be filled after implementing fix*
