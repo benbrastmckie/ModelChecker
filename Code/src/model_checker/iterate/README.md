@@ -55,9 +55,10 @@ The abstract base class providing the theory-agnostic iteration framework:
 - **Debug Collection**: Gathers detailed iteration information for analysis
 
 **Key Features**:
+- Constraint preservation: Maintains original semantic constraints across all iterations
 - Automatic retry with stronger constraints when stuck on isomorphic models
 - Configurable limits for consecutive failures and escape attempts
-- Smart constraint ordering for improved performance
+- Model structure validation to ensure semantic consistency
 - Comprehensive error handling and recovery
 
 #### 2. Theory-Specific Iterators

@@ -164,7 +164,12 @@ def create_mock_example():
     mock_structure.sentence_letters = []
     mock_structure.semantics = Mock()
     
+    # Mock model constraints (required for constraint preservation)
+    mock_constraints = Mock()
+    mock_constraints.all_constraints = [z3.BoolVal(True), z3.BoolVal(True)]  # Mock constraints
+    
     mock_example.model_structure = mock_structure
+    mock_example.model_constraints = mock_constraints
     mock_example.settings = {'iterate': 5, 'max_time': 1.0}
     
     return mock_example
