@@ -1,17 +1,40 @@
 # Implementation Plan 009: Fresh ModelConstraints for Iterator
 
+[← Back to Specs](../README.md) | [Plans Index](README.md) | [Debug Analyses →](../debug/README.md) | [Findings →](../findings/README.md)
+
 ## Overview
 
 This plan details the implementation of Approach 1 from the iterator fix research: creating fresh ModelConstraints for each iterated model. This ensures that constraints always match the model being evaluated, guaranteeing that premises remain true and conclusions remain false across all iterations.
 
+### Context
+
+**Problem**: The ModelIterator currently reuses ModelConstraints from MODEL 1 when generating MODEL 2+, causing constraint mismatches that lead to false premises and true conclusions in iterated models.
+
+**Solution**: Create fresh ModelConstraints for each iteration, ensuring the verify/falsify functions used in constraint generation match the current model.
+
+### Approach
+
+Following the project's **Test-Driven Development** approach and **NO BACKWARDS COMPATIBILITY** principle, this implementation will break compatibility for cleaner architecture.
+
+## Key Requirements
+
+### Core Principles
+
+1. **NO BACKWARDS COMPATIBILITY**: Remove all legacy code paths and update all call sites
+2. **Test-Driven Development**: Write failing tests first that define desired behavior
+3. **Fail Fast**: Explicit errors when requirements aren't met, no silent fallbacks
+4. **Theory Agnostic**: Core framework changes must work with all semantic theories
+
 ## Objectives
 
 1. **Primary**: Fix iterator constraint preservation issue where MODEL 2+ violate countermodel requirements
-2. **Maintain**: Backward compatibility with existing theory implementations
-3. **Preserve**: Iterator performance and capability to find diverse models
-4. **Ensure**: Clean architecture with clear separation of concerns
+2. **Architecture**: Clean design with no optional parameters or compatibility layers
+3. **Testing**: Write tests first that define desired behavior
+4. **Performance**: Ensure iterator remains performant for typical use cases
 
 ## Technical Design
+
+The implementation creates fresh ModelConstraints for each iterated model by extracting the verify/falsify function values from the current Z3 model and using them to initialize new semantics instances.
 
 ### Core Changes
 
@@ -207,142 +230,375 @@ def __init__(self, build_example, max_iterations=3):
     )
 ```
 
-### Implementation Phases
+## Implementation Strategy
 
-#### Phase 1: Core Infrastructure (2 days)
+### Implementation Phases (TDD Approach)
 
-1. **Add helper methods to ModelStructure base class**
-   - `get_verify_falsify_state()`
-   - `create_constrained_semantics()`
-   - Update all theory-specific ModelStructure classes if needed
+#### Phase 1: Write Failing Tests (Day 1)
 
-2. **Extend SemanticDefaults**
-   - Add `initialize_from_state()` method
-   - Ensure all semantics classes inherit properly
-   - Add unit tests for state initialization
+Following **Test-Driven Development**, we start by writing tests that define the desired behavior:
 
-3. **Add configuration option**
-   - Add `iterator_fresh_constraints` setting (default True)
-   - Allow fallback to old behavior for testing
+1. **Create test file**: `src/model_checker/iterate/tests/test_constraint_preservation.py`
 
-#### Phase 2: Iterator Refactoring (3 days)
+```python
+import unittest
+from model_checker.iterate import ModelIterator
+# Example: from model_checker.theory_lib.logos import logos_theory
 
-1. **Refactor `_build_new_model_structure`**
-   - Implement fresh constraint generation
-   - Add `_extract_verify_falsify_from_z3` helper
-   - Ensure proper error handling
+class TestConstraintPreservation(unittest.TestCase):
+    """Test that iterator preserves countermodel properties."""
+    
+    def test_premises_remain_true_in_all_models(self):
+        """All MODEL 2+ must have true premises at evaluation world."""
+        # This test should FAIL initially
+        build_example = self._create_example(['A'], [], iterate=3)
+        models = build_example.get_all_models()
+        
+        for i, model in enumerate(models):
+            with self.subTest(model=i+1):
+                # Check premise is true at evaluation world
+                eval_world = model.main_point['world']
+                premise_truth = model.evaluate_at_world('A', eval_world)
+                self.assertTrue(premise_truth, 
+                    f"Premise A should be true in MODEL {i+1}")
+    
+    def test_conclusions_remain_false_in_all_models(self):
+        """All MODEL 2+ must have false conclusions at evaluation world."""
+        build_example = self._create_example(['(A \\\\wedge B)'], ['C'], iterate=3)
+        models = build_example.get_all_models()
+        
+        for i, model in enumerate(models):
+            with self.subTest(model=i+1):
+                eval_world = model.main_point['world']
+                conclusion_truth = model.evaluate_at_world('C', eval_world)
+                self.assertFalse(conclusion_truth, 
+                    f"Conclusion C should be false in MODEL {i+1}")
+```
 
-2. **Update iterator initialization**
-   - Store necessary theory components
-   - Track configuration preferences
-   - Preserve backward compatibility
+2. **Create dual test validation script**: `test_iterator_fix.py`
 
-3. **Optimize performance**
-   - Cache operator instances where possible
-   - Minimize redundant parsing
-   - Profile constraint generation time
+```python
+#!/usr/bin/env python3
+"""Dual testing validation for iterator fix."""
 
-#### Phase 3: Testing & Validation (2 days)
+import subprocess
+import sys
 
-1. **Unit tests**
-   - Test verify/falsify extraction
-   - Test semantics initialization from state
-   - Test fresh constraint generation
+def run_formal_tests():
+    """Run formal test suite."""
+    print("=== Running formal tests ===")
+    result = subprocess.run([
+        'python', '-m', 'pytest', 
+        'src/model_checker/iterate/tests/test_constraint_preservation.py',
+        '-v'
+    ])
+    return result.returncode == 0
 
-2. **Integration tests**
-   - Verify MODEL 2+ have true premises
-   - Verify MODEL 2+ have false conclusions
-   - Test with all theories (logos, exclusion, imposition)
-   - Check performance impact
+def run_cli_tests():
+    """Run dev_cli.py validation."""
+    print("\n=== Running CLI validation ===")
+    
+    test_cases = [
+        # Test with different iteration counts
+        ('./dev_cli.py', '-i', '2', 'test_minimal_iterator.py'),
+        ('./dev_cli.py', '-i', '3', 'test_minimal_iterator.py'),
+        
+        # Test all theories
+        # Theory-specific examples would go here:
+        # ('./dev_cli.py', '-i', '2', 'src/model_checker/theory_lib/[theory]/examples.py'),
+    ]
+    
+    for cmd in test_cases:
+        result = subprocess.run(cmd, capture_output=True, text=True)
+        # Check for violations
+        if 'False in' in result.stdout and 'premise' in result.stdout.lower():
+            print(f"FAIL: {' '.join(cmd)} - Found false premise")
+            return False
+        if 'True in' in result.stdout and 'conclusion' in result.stdout.lower():
+            print(f"FAIL: {' '.join(cmd)} - Found true conclusion")
+            return False
+    
+    return True
 
-3. **Edge case tests**
-   - Empty premises/conclusions
-   - Single atomic sentences
-   - Complex nested formulas
-   - Maximum iteration counts
+if __name__ == '__main__':
+    formal_ok = run_formal_tests()
+    cli_ok = run_cli_tests()
+    
+    if formal_ok and cli_ok:
+        print("\nAll tests passed")
+        sys.exit(0)
+    else:
+        print("\nTests failed")
+        sys.exit(1)
+```
 
-#### Phase 4: Documentation & Cleanup (1 day)
+#### Phase 2: Core Infrastructure (Days 2-3)
 
-1. **Update documentation**
-   - Update iterate/README.md with new behavior
-   - Document the fresh constraints approach
-   - Add configuration options to docs
+**NO DECORATORS** - Following style guide, we use explicit methods:
 
-2. **Add migration notes**
-   - Document change in findings/
-   - Update any affected examples
-   - Note performance considerations
+1. **Extend ModelStructure** (fail fast, explicit parameters)
+
+```python
+class ModelStructure:
+    def extract_verify_falsify_state(self):
+        """Extract current verify/falsify function values.
+        
+        NO BACKWARDS COMPATIBILITY - This is a new required method.
+        
+        Returns:
+            dict: Mapping of (state, letter) -> (verify_value, falsify_value)
+            
+        Raises:
+            RuntimeError: If Z3 model not available
+        """
+        if not self.z3_model:
+            raise RuntimeError("Cannot extract state without Z3 model")
+            
+        state_map = {}
+        for letter in self.sentence_letters:
+            for state in range(2**self.N):
+                verify_val = self.z3_model.eval(
+                    self.semantics.verify(state, letter.sentence_letter),
+                    model_completion=True
+                )
+                falsify_val = self.z3_model.eval(
+                    self.semantics.falsify(state, letter.sentence_letter),
+                    model_completion=True
+                )
+                state_map[(state, letter.sentence_letter)] = (
+                    z3.is_true(verify_val),
+                    z3.is_true(falsify_val)
+                )
+        return state_map
+```
+
+2. **Extend SemanticDefaults** (no optional parameters)
+
+```python
+class SemanticDefaults:
+    def initialize_with_state(self, verify_falsify_state, sentence_letters):
+        """Initialize with specific verify/falsify values.
+        
+        Args:
+            verify_falsify_state: Required dict from extract_verify_falsify_state
+            sentence_letters: Required list of sentence letters
+            
+        NO OPTIONAL PARAMETERS - Both arguments are required.
+        """
+        self._constrained_state = verify_falsify_state
+        self._sentence_letters = sentence_letters
+        
+        # Store original functions
+        self._unconstrained_verify = self.verify
+        self._unconstrained_falsify = self.falsify
+        
+        # Replace with constrained versions
+        self.verify = self._make_constrained_verify()
+        self.falsify = self._make_constrained_falsify()
+```
+
+#### Phase 3: Iterator Refactoring (Days 4-5)
+
+**BREAK COMPATIBILITY** - Remove old behavior entirely:
+
+1. **Replace `_build_new_model_structure`** completely:
+
+```python
+def _build_new_model_structure(self, z3_model):
+    """Build model with fresh constraints.
+    
+    NO BACKWARDS COMPATIBILITY - Always uses fresh constraints.
+    """
+    # Extract current state
+    state = self._extract_current_state(z3_model)
+    
+    # Create fresh components
+    syntax = self._create_fresh_syntax()
+    semantics = self._create_constrained_semantics(state)
+    
+    # Build fresh constraints
+    model_constraints = ModelConstraints(
+        self.settings,
+        syntax,
+        semantics,
+        self.proposition_class
+    )
+    
+    # Create model structure
+    model_structure = self.model_class(model_constraints, self.settings)
+    
+    # Set Z3 model and initialize
+    self._apply_z3_model(model_structure, z3_model)
+    
+    return model_structure
+```
+
+2. **Remove configuration options** - No `iterator_fresh_constraints` setting
+
+#### Phase 4: Validation & Performance (Days 6-7)
+
+1. **Run dual testing methodology**:
+
+```bash
+# Method 1: Formal tests
+./run_tests.py --package --components iterate -v
+
+# Method 2: CLI validation  
+./scripts/test_iterator_fix.py
+```
+
+2. **Performance validation**:
+
+```python
+class TestIteratorPerformance(unittest.TestCase):
+    """Ensure performance remains acceptable."""
+    
+    def test_iteration_time_reasonable(self):
+        """Iterator should complete in reasonable time."""
+        import time
+        
+        start = time.time()
+        build_example = self._create_large_example(iterate=10)
+        duration = time.time() - start
+        
+        # Should complete 10 iterations in under 30 seconds
+        self.assertLess(duration, 30.0, 
+            f"10 iterations took {duration:.1f}s (limit: 30s)")
+```
+
+#### Phase 5: Documentation & Cleanup (Day 8)
+
+1. **Update documentation** (no mention of backwards compatibility):
+   - Update iterate/README.md
+   - Add to findings/020_iterator_fresh_constraints.md
+   - Update CHANGELOG.md with breaking change
+
+2. **Remove all old code paths** - No deprecated methods
 
 ## Testing Strategy
 
-### Test Cases
+### Dual Testing Methodology
 
-1. **Minimal Atomic Test**
-   ```python
-   premises = ['A']
-   conclusions = []
-   settings = {'iterate': 3, 'N': 2}
-   # Verify all 3 models have A true at evaluation world
-   ```
+The project uses a dual testing approach to ensure correctness:
 
-2. **Complex Formula Test**
-   ```python
-   premises = ['(A \\wedge B)', '\\neg C']
-   conclusions = ['(A \\rightarrow C)']
-   settings = {'iterate': 5, 'N': 3}
-   # Verify all models maintain truth values
-   ```
+1. **Formal Unit Tests**: Traditional test suite with assertions
+2. **CLI Validation**: Using dev_cli.py to verify real-world behavior
 
-3. **Theory Comparison Test**
-   ```python
-   # Run same test across logos, exclusion, imposition
-   # Verify consistent behavior
-   ```
+### Testing Strategy (Following Dual Testing Methodology)
 
-### Performance Benchmarks
+### Required Test Files
 
-- Measure time for 10 iterations before/after
-- Track memory usage growth
-- Profile constraint generation hotspots
+1. **Unit Tests**: `src/model_checker/iterate/tests/`
+   - `test_constraint_preservation.py` - Core functionality
+   - `test_verify_falsify_extraction.py` - State extraction
+   - `test_fresh_constraints.py` - Constraint generation
+   - `test_performance.py` - Performance benchmarks
 
-### Validation Criteria
+2. **Example Tests**: Update existing theory tests
+   - Add iteration-specific test cases
+   - Verify countermodel preservation
 
-1. **Correctness**: All MODEL 2+ must have:
-   - All premises true at evaluation world
-   - All conclusions false at evaluation world
-   - Valid model structure
+### Test Patterns (NO DECORATORS)
 
-2. **Performance**: 
-   - No more than 2x slowdown for typical cases
-   - Memory usage growth should be linear
+```python
+class TestIteratorConstraints(unittest.TestCase):
+    """Test iterator constraint handling."""
+    
+    def setUp(self):
+        """Explicit setup - no decorators."""
+        self.test_settings = {
+            'N': 2,
+            'contingent': False,
+            'non_null': True,
+            'non_empty': True,
+            'max_time': 10
+        }
+        
+    def test_verify_falsify_extraction(self):
+        """Test extraction fails fast without Z3 model."""
+        model_structure = ModelStructure()
+        
+        # Should raise RuntimeError - fail fast
+        with self.assertRaises(RuntimeError) as context:
+            model_structure.extract_verify_falsify_state()
+            
+        self.assertIn("Cannot extract state", str(context.exception))
+```
 
-3. **Compatibility**:
-   - All existing tests must pass
-   - Theory-specific features preserved
+### Dual Testing Validation
 
-## Risk Mitigation
+Following TESTS.md requirements:
 
-### Identified Risks
+```bash
+# Before implementation - capture baseline
+./dev_cli.py -i 3 src/model_checker/theory_lib/[theory]/examples.py > baseline.txt 2>&1
 
-1. **Performance Degradation**
-   - Mitigation: Add caching for operator instances
-   - Fallback: Configuration to use old behavior
+# After each phase - check for regressions
+./dev_cli.py -i 3 src/model_checker/theory_lib/[theory]/examples.py > current.txt 2>&1
+diff baseline.txt current.txt
 
-2. **Memory Usage**
-   - Mitigation: Careful cleanup of old constraints
-   - Monitor: Add memory profiling to tests
+# Check for new warnings/errors
+grep -E "WARNING|Error|AttributeError" current.txt  # Should be empty
+```
 
-3. **Theory Compatibility**
-   - Mitigation: Extensive testing with all theories
-   - Gradual rollout with feature flag
+### Critical Testing Points
 
-### Rollback Plan
+1. **Iterator functionality** - Test with `-i 1`, `-i 2`, `-i 3`
+2. **Constraint generation** - Use `-p` flag to verify
+3. **Cross-theory compatibility** - Test all theories
+4. **No new warnings** - Any WARNING indicates regression
 
-1. Keep `iterator_fresh_constraints` setting
-2. Default to True but allow False for old behavior
-3. Document how to revert if issues found
+## Implementation Guidelines
 
-## Success Metrics
+### Design Principles
+
+1. **Break Compatibility**: 
+   - Remove ALL old code paths
+   - No optional parameters
+   - Update all call sites
+
+2. **Fail Fast**:
+   - Explicit errors for missing requirements
+   - No silent fallbacks
+   - Clear error messages
+
+3. **Explicit Parameters**:
+   - All methods require explicit arguments
+   - No hidden state modifications
+   - Clear data flow
+
+### Code Style (Following STYLE_GUIDE.md)
+
+```python
+# Good - Explicit, no decorators
+def extract_verify_falsify_state(self):
+    if not self.z3_model:
+        raise RuntimeError("Cannot extract state without Z3 model")
+    return state_map
+
+# Bad - Would use decorator
+# @property
+# def verify_falsify_state(self):
+#     return self._state or self._compute_state()
+```
+
+### Error Handling
+
+```python
+# Good - Specific, actionable
+if not self.sentence_letters:
+    raise ValueError(
+        "No sentence letters found. "
+        "Ensure ModelConstraints was properly initialized with syntax."
+    )
+
+# Bad - Generic
+if not self.sentence_letters:
+    raise Exception("Invalid state")
+
+## Validation and Success Metrics
+
+### Success Metrics
 
 1. **Bug Fix**: No MODEL 2+ with false premises or true conclusions
 2. **Performance**: Iterator completes within 2x original time
@@ -368,3 +624,7 @@ Total estimated time: 8 days
 ## Conclusion
 
 This implementation plan provides a systematic approach to fixing the iterator constraint preservation issue by creating fresh ModelConstraints for each iteration. The solution maintains theoretical correctness while minimizing performance impact through careful design and optimization.
+
+---
+
+[← Back to Specs](../README.md) | [Plans Index](README.md) | [Debug Analyses →](../debug/README.md) | [Findings →](../findings/README.md)
