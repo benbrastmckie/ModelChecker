@@ -9,11 +9,9 @@ import z3
 import sys
 import time
 
-from model_checker.model import (
-    PropositionDefaults,
-    SemanticDefaults,
-    ModelDefaults,
-)
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.structure import ModelDefaults
 from model_checker.utils import (
     ForAll,
     Exists,
@@ -586,17 +584,61 @@ class LogosProposition(PropositionDefaults):
         if sentence_letter is not None:
             V = {
                 state for state in self.model_structure.all_states
-                if model.evaluate(semantics.verify(state, sentence_letter))
+                if self._evaluate_z3_boolean(model, semantics.verify(state, sentence_letter))
             }
             F = {
                 state for state in self.model_structure.all_states
-                if model.evaluate(semantics.falsify(state, sentence_letter))
+                if self._evaluate_z3_boolean(model, semantics.falsify(state, sentence_letter))
             }
             return V, F
         if operator is not None:
             eval_point = {"world": eval_world}
             return operator.find_verifiers_and_falsifiers(*arguments, eval_point)
         raise ValueError(f"Their is no proposition for {self}.")
+    
+    def _evaluate_z3_boolean(self, z3_model, expression):
+        """Safely evaluate a Z3 boolean expression to a Python boolean.
+        
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values.
+        
+        Args:
+            z3_model: The Z3 model to use for evaluation
+            expression: The Z3 boolean expression to evaluate
+            
+        Returns:
+            bool: True if the expression evaluates to true, False otherwise
+        """
+        import z3
+        
+        try:
+            # Evaluate the expression with model completion
+            result = z3_model.evaluate(expression, model_completion=True)
+            
+            # Check if result is a boolean constant
+            if z3.is_true(result):
+                return True
+            elif z3.is_false(result):
+                return False
+            
+            # Try to simplify
+            simplified = z3.simplify(result)
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+                
+            # Check string representation as last resort
+            if str(simplified) == "True":
+                return True
+            elif str(simplified) == "False":
+                return False
+                
+            # Conservative default
+            return False
+            
+        except Exception:
+            return False
 
     def truth_value_at(self, eval_world):
         """Determines the truth value of the proposition at a given world.

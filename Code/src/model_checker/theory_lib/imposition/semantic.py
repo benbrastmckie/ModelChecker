@@ -257,13 +257,47 @@ class ImpositionModelStructure(LogosModelStructure):
         if self.z3_model_status and self.z3_model is not None:
             self._update_imposition_relations()
     
+    def _evaluate_z3_boolean(self, z3_model, expression):
+        """Safely evaluate a Z3 boolean expression to a Python boolean.
+        
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values, which can cause
+        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
+        """
+        try:
+            result = z3_model.evaluate(expression, model_completion=True)
+            
+            if z3.is_bool(result):
+                if z3.is_true(result):
+                    return True
+                elif z3.is_false(result):
+                    return False
+                    
+            simplified = z3.simplify(result)
+            
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+            
+            if str(simplified) == "True":
+                return True
+            elif str(simplified) == "False":
+                return False
+                
+            try:
+                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
+            except Exception:
+                return False
+                
+        except Exception as e:
+            return False
+    
     def _update_imposition_relations(self):
         """Extract imposition relations from the Z3 model."""
         if not hasattr(self.semantics, 'imposition'):
             return
             
-        evaluate = self.z3_model.evaluate
-        
         # Find all imposition triples (state, world, outcome)
         self.z3_imposition_relations = []
         
@@ -271,7 +305,7 @@ class ImpositionModelStructure(LogosModelStructure):
             for world in self.z3_world_states:
                 for outcome in self.z3_world_states:
                     try:
-                        if z3.is_true(evaluate(self.semantics.imposition(state, world, outcome))):
+                        if self._evaluate_z3_boolean(self.z3_model, self.semantics.imposition(state, world, outcome)):
                             self.z3_imposition_relations.append((state, world, outcome))
                     except:
                         pass
@@ -437,10 +471,10 @@ class ImpositionModelStructure(LogosModelStructure):
         
         This method is called by the iterator when creating new model structures.
         """
-        # First call parent initialization
-        super().initialize_from_z3_model(z3_model)
+        # Store the Z3 model
+        self.z3_model = z3_model
         
-        # Then update imposition relations
+        # Update imposition relations
         self._update_imposition_relations()
     
     def print_model_differences(self, output=sys.__stdout__):

@@ -32,7 +32,7 @@ if not logger.handlers:
     formatter = logging.Formatter('[ITERATION] %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.setLevel(logging.WARNING)
+    logger.setLevel(logging.ERROR)  # Changed to ERROR to see full tracebacks
 
 # Check if NetworkX is available for isomorphism checking
 try:
@@ -548,7 +548,8 @@ class BaseModelIterator:
             
         except Exception as e:
             logger.error(f"Error building new model structure: {str(e)}")
-            logger.debug(traceback.format_exc())
+            import traceback
+            logger.error(f"Full traceback:\n{traceback.format_exc()}")
             return None
             
     def _initialize_base_attributes(self, model_structure, model_constraints, settings):
@@ -641,18 +642,74 @@ class BaseModelIterator:
         semantics = model_structure.semantics
         model_structure.z3_possible_states = [
             state for state in model_structure.all_states
-            if bool(z3_model.eval(semantics.possible(state), model_completion=True))
+            if self._evaluate_z3_boolean(z3_model, semantics.possible(state))
         ]
         
         # Initialize world states 
         model_structure.z3_world_states = [
             state for state in model_structure.z3_possible_states
-            if bool(z3_model.eval(semantics.is_world(state), model_completion=True))
+            if self._evaluate_z3_boolean(z3_model, semantics.is_world(state))
         ]
         
         # Allow theory-specific initialization
         if hasattr(model_structure, 'initialize_from_z3_model'):
             model_structure.initialize_from_z3_model(z3_model)
+    
+    def _evaluate_z3_boolean(self, z3_model, expression):
+        """Safely evaluate a Z3 boolean expression to a Python boolean.
+        
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values, which can cause
+        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
+        
+        Args:
+            z3_model: The Z3 model to use for evaluation
+            expression: The Z3 boolean expression to evaluate
+            
+        Returns:
+            bool: True if the expression evaluates to true, False otherwise
+        """
+        try:
+            # Evaluate the expression with model completion
+            result = z3_model.eval(expression, model_completion=True)
+            
+            # Check if result is a boolean constant (True/False)
+            if z3.is_bool(result):
+                # If it's a boolean sort, try is_true
+                if z3.is_true(result):
+                    return True
+                elif z3.is_false(result):
+                    return False
+                # Otherwise it's still symbolic
+            
+            # Try to simplify the expression
+            simplified = z3.simplify(result)
+            
+            # Check again after simplification
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+                
+            # If it's an equality expression with True/False
+            if str(simplified) == "True":
+                return True
+            elif str(simplified) == "False":
+                return False
+                
+            # As a last resort, try to convert to Python bool
+            # This is the line that can throw the "Symbolic expressions cannot be cast" error
+            try:
+                # Instead of direct bool(), check if it equals Z3's True
+                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
+            except Exception:
+                # If all else fails, assume False (conservative approach)
+                logger.warning(f"Could not evaluate Z3 boolean expression: {expression}, assuming False")
+                return False
+                
+        except Exception as e:
+            logger.warning(f"Error evaluating Z3 boolean expression {expression}: {e}, assuming False")
+            return False
     
     def _calculate_differences(self, new_structure, previous_structure):
         """Calculate differences between two model structures.

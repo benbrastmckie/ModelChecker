@@ -88,24 +88,85 @@ Tests theory-specific implementations and logical properties:
 
 ## Running Tests
 
-### Basic Usage
+### Dual Testing Methodology
+
+The ModelChecker uses a **dual testing methodology** to ensure comprehensive validation. Both methods are REQUIRED for all changes:
+
+#### Method 1: Test-Driven Development (TDD) with Test Runner
+
+This method uses the formal test infrastructure to ensure systematic coverage:
 
 ```bash
 # Run all tests
 python test_package.py
 python test_theories.py
 
-# Run specific component tests
+# Run specific component tests (for targeted development)
 python test_package.py --components builder settings
 python test_theories.py --theories logos bimodal
 
-# Verbose output
+# Component tests after refactoring
+./run_tests.py --package --components models
+
+# Full regression suite
+./run_tests.py --unit --examples --package
+
+# Verbose output for debugging
 python test_package.py -v
 python test_theories.py -v
 
 # Stop on first failure
 python test_package.py -x
 python test_theories.py -x
+```
+
+#### Method 2: Direct CLI Testing with dev_cli.py
+
+This method validates real-world usage and catches integration issues:
+
+```bash
+# Test individual theories
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py
+
+# Test with iterations (CRITICAL for iterator regression detection)
+./dev_cli.py -i 1 src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py -i 2 src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+
+# Test all theories systematically
+for theory in logos bimodal exclusion imposition; do
+    echo "Testing $theory..."
+    ./dev_cli.py src/model_checker/theory_lib/$theory/examples.py
+done
+
+# Test with constraint printing
+./dev_cli.py -p src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py -p -z src/model_checker/theory_lib/logos/examples.py
+
+# Test subtheories
+./dev_cli.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+```
+
+### Automated Dual Testing
+
+Use the provided script for comprehensive validation:
+
+```bash
+# Run both testing methods automatically
+./scripts/dual_test_refactoring.sh
+```
+
+### Regression Detection
+
+After any change, check for regressions using both methods:
+
+```bash
+# Method 1: Check test output
+./run_tests.py --package --components models | grep -E "FAIL|ERROR"
+
+# Method 2: Check for warnings/errors
+./dev_cli.py src/model_checker/theory_lib/*/examples.py 2>&1 | grep -E "WARNING|Error|AttributeError"
 ```
 
 ### Theory-Specific Testing
@@ -152,6 +213,33 @@ On NixOS, use the provided wrapper script:
 ```
 
 ## Writing Tests
+
+### Dual Testing Requirements
+
+When implementing any changes, especially during refactoring, you MUST validate using both testing methods:
+
+1. **Write formal tests FIRST** (TDD approach)
+2. **Validate with dev_cli.py** to ensure real-world usage works
+
+Example workflow for refactoring:
+
+```bash
+# Step 1: Write tests for the component being moved
+# Create: src/model_checker/models/tests/test_constraints.py
+
+# Step 2: Run tests to ensure they fail appropriately
+./run_tests.py --package --components models -v
+
+# Step 3: Implement the refactoring
+
+# Step 4: Validate with BOTH methods
+# Method 1: Run formal tests
+./run_tests.py --package --components models
+
+# Method 2: Test with dev_cli.py
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py -i 3 src/model_checker/theory_lib/bimodal/examples.py
+```
 
 ### Test Structure
 
@@ -362,6 +450,30 @@ self.assertTrue(result)
 - Include docstrings explaining what is tested
 - Reference the logical principle being tested
 - Document any special setup requirements
+
+### Critical Testing Points
+
+During refactoring, pay special attention to:
+
+1. **Iterator functionality** - Always test with multiple iterations (`-i 1`, `-i 2`, `-i 3`)
+2. **Constraint generation** - Use `-p` flag to verify constraints are generated correctly
+3. **Cross-theory compatibility** - Test all theories after structural changes
+4. **Import consistency** - Ensure moved classes are accessible from original locations
+5. **No new warnings** - Any WARNING or AttributeError in dev_cli.py output indicates regression
+
+Example regression check:
+
+```bash
+# Before changes
+./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py > baseline.txt 2>&1
+
+# After changes
+./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py > current.txt 2>&1
+
+# Check for regressions
+diff baseline.txt current.txt
+grep -E "WARNING|Error|AttributeError" current.txt  # Should be empty
+```
 
 ---
 

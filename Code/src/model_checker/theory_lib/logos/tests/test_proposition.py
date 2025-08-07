@@ -9,7 +9,7 @@ import pytest
 import z3
 from model_checker.theory_lib.logos.semantic import LogosSemantics, LogosProposition, LogosModelStructure
 from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
-from model_checker.model import ModelConstraints
+from model_checker.models.constraints import ModelConstraints
 from model_checker import syntactic
 
 
@@ -20,7 +20,7 @@ class TestPropositionCreation:
         """Test proposition creation with proper arguments."""
         # For unit tests, we can test the class structure without full integration
         # This validates that LogosProposition is a proper subclass
-        from model_checker.model import PropositionDefaults
+        from model_checker.models.proposition import PropositionDefaults
         
         assert issubclass(LogosProposition, PropositionDefaults)
         assert hasattr(LogosProposition, '__init__')
@@ -39,7 +39,7 @@ class TestPropositionCreation:
         assert hasattr(LogosProposition, '__init__')
         
         # Check parent class methods are available
-        from model_checker.model import PropositionDefaults
+        from model_checker.models.proposition import PropositionDefaults
         parent_methods = [m for m in dir(PropositionDefaults) if not m.startswith('_')]
         for method in parent_methods:
             assert hasattr(LogosProposition, method), f"Missing parent method: {method}"

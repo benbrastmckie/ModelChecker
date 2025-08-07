@@ -217,7 +217,7 @@ CL_CM_9_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 1,
-    'iterate': 1,
+    'iterate': 2,
     'expectation': True,
 }
 CL_CM_9_example = [
@@ -793,7 +793,7 @@ semantic_theories = {
 example_range = {
 
     # # Countermodels
-    "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
+    # "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
     # "CL_CM_2": CL_CM_2_example,   # EQUIVALENCE OF CONTRADICTIONS
     # "CL_CM_3": CL_CM_3_example,   # GROUND CONJUNCTION SUPPLEMENTATION
     # "CL_CM_4": CL_CM_4_example,   # ESSENCE DISJUNCTION SUPPLEMENTATION
@@ -801,7 +801,7 @@ example_range = {
     # "CL_CM_6": CL_CM_6_example,   # IDENTITY ABSORPTION: CONJUNCTION OVER DISJUNCTION
     # "CL_CM_7": CL_CM_7_example,   # IDENTITY DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
     # "CL_CM_8": CL_CM_8_example,   # IDENTITY DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
-    # "CL_CM_9": CL_CM_9_example,   # STRICT IMPLICATION TO GROUND
+    "CL_CM_9": CL_CM_9_example,   # STRICT IMPLICATION TO GROUND
     # "CL_CM_10": CL_CM_10_example, # STRICT IMPLICATION TO ESSENCE
     # "CL_CM_11": CL_CM_11_example, # ESSENCE DISTRIBUTION
     # "CL_CM_12": CL_CM_12_example, # GROUND DISTRIBUTION

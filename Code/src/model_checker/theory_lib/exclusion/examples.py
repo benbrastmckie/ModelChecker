@@ -185,7 +185,7 @@ EX_CM_6_settings = {
     'disjoint' : False,
     'fusion_closure': False,
     'max_time' : 5,
-    'iterate' : 1,
+    'iterate' : 2,
     'expectation' : True,
 }
 EX_CM_6_example = [

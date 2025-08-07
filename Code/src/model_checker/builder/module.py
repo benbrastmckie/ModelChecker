@@ -389,7 +389,7 @@ class BuildModule:
                 - success (bool): True if model found within max time, False otherwise
                 - runtime (float): Time taken to attempt finding the model
         """
-        from model_checker.model import ModelConstraints
+        from model_checker.models.constraints import ModelConstraints
 
         premises, conclusions, settings = example_case
         semantics_class = semantic_theory["semantics"]
@@ -439,7 +439,7 @@ class BuildModule:
         Returns:
             tuple: (success, runtime)
         """
-        from model_checker.model import ModelConstraints
+        from model_checker.models.constraints import ModelConstraints
         from model_checker.syntactic import Syntax
         from model_checker.builder.serialize import deserialize_semantic_theory
         
@@ -604,7 +604,7 @@ class BuildModule:
         3. Compares semantic theories by finding maximum model sizes
         4. Prints results showing which theories could handle larger models
         """
-        from model_checker.model import ModelConstraints
+        from model_checker.models.constraints import ModelConstraints
         
         print()
         for example_name, example_case in self.example_range.items():
