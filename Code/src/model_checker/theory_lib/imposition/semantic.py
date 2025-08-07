@@ -471,11 +471,83 @@ class ImpositionModelStructure(LogosModelStructure):
         
         This method is called by the iterator when creating new model structures.
         """
-        # Store the Z3 model
+        # Store the Z3 model first
         self.z3_model = z3_model
+        
+        # Call comprehensive model structure update like exclusion theory does
+        # This also handles proposition initialization
+        self._update_model_structure(z3_model)
+    
+    def _update_model_structure(self, z3_model):
+        """Update model structure from Z3 model, including semantic relations.
+        
+        This method ensures all Z3-dependent attributes are correctly set
+        based on the provided Z3 model, following the pattern used by
+        the exclusion theory.
+        """
+        evaluate = z3_model.evaluate
+        
+        # Don't re-evaluate main_world if already set by iterator
+        if not hasattr(self, 'z3_main_world') or self.z3_main_world is None:
+            self.main_world = self.main_point["world"] 
+            self.main_point["world"] = z3_model.eval(self.main_world, model_completion=True)
+        
+        # Update possible states 
+        self.z3_possible_states = [
+            state for state in self.all_states
+            if self._evaluate_z3_boolean(z3_model, self.semantics.possible(state))
+        ]
+        
+        # Update world states
+        self.z3_world_states = [
+            state for state in self.z3_possible_states
+            if self._evaluate_z3_boolean(z3_model, self.semantics.is_world(state))
+        ]
+        
+        # Update impossible states
+        self.z3_impossible_states = [
+            i for i in self.all_states
+            if i not in self.z3_possible_states
+        ]
         
         # Update imposition relations
         self._update_imposition_relations()
+    
+    def _evaluate_z3_boolean(self, z3_model, expression):
+        """Safely evaluate a Z3 boolean expression to a Python boolean.
+        
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values, which can cause
+        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
+        """
+        try:
+            result = z3_model.evaluate(expression, model_completion=True)
+            
+            if z3.is_bool(result):
+                if z3.is_true(result):
+                    return True
+                elif z3.is_false(result):
+                    return False
+                    
+            simplified = z3.simplify(result)
+            
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+            
+            if str(simplified) == "True":
+                return True
+            elif str(simplified) == "False":
+                return False
+                
+            try:
+                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
+            except Exception:
+                return False
+                
+        except Exception:
+            return False
     
     def print_model_differences(self, output=sys.__stdout__):
         """Print differences including imposition relation changes."""

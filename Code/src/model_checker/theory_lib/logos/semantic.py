@@ -575,6 +575,8 @@ class LogosProposition(PropositionDefaults):
             # If no model is available, return empty sets
             # This can happen during iteration when models are being created
             return set(), set()
+        
+        # Clean proposition computation without debug output
             
         semantics = self.semantics
         eval_world = self.eval_world

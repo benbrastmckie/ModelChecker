@@ -97,6 +97,18 @@ class BaseModelIterator:
         self.max_iterations = self.settings.get('iterate', 1)
         self.current_iteration = 1  # First model is already found
         
+        # CRITICAL FIX: Preserve original constraints for iteration
+        # The solver.assertions() approach fails because solver gets cleared
+        self.original_constraints = list(build_example.model_constraints.all_constraints)
+        print(f"[ITERATOR] Preserved {len(self.original_constraints)} original constraints for iteration")
+        
+        # Validate constraint preservation
+        if len(self.original_constraints) == 0:
+            raise RuntimeError(
+                "No constraints available for iteration - this will produce invalid models. "
+                "Check that model_constraints.all_constraints is properly populated."
+            )
+        
         # Store the initial model and model structure
         self.found_models = [build_example.model_structure.z3_model]
         self.model_structures = [build_example.model_structure]
@@ -234,6 +246,11 @@ class BaseModelIterator:
                 
                 # Build a completely new model structure with the extended constraints
                 new_structure = self._build_new_model_structure(new_model)
+                
+                # Debug marker for MODEL 2+ identification
+                if new_structure:
+                    new_structure._debug_model_number = self.current_iteration + 1
+                    new_structure._is_iteration_model = True
                 
                 if not new_structure:
                     self.debug_messages.append("Could not create new model structure, stopping iteration")
@@ -475,16 +492,8 @@ class BaseModelIterator:
         Raises:
             RuntimeError: If constraint generation fails
         """
-        # Get original constraints from the first model
-        # Try to get the solver, fallback to stored_solver if solver was cleaned up
-        original_solver = self.build_example.model_structure.solver
-        if original_solver is None:
-            original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
-            
-        if original_solver is None:
-            raise RuntimeError("No solver available - both solver and stored_solver are None")
-            
-        original_constraints = list(original_solver.assertions())
+        # Use preserved constraints instead of trying to extract from solver
+        original_constraints = self.original_constraints
         
         # Create difference constraints for all previous models
         difference_constraints = []
