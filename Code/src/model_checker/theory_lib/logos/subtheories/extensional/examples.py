@@ -79,7 +79,7 @@ EXT_CM_2_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 1,
-    'iterate': 1,
+    'iterate': 2,
     'expectation': True,
 }
 EXT_CM_2_example = [
@@ -367,8 +367,23 @@ semantic_theories = {
 }
 
 # Specify which examples to run by default when running this module directly
-# All examples included by default
-example_range = unit_tests
+# Testing with first few examples first
+example_range = {
+    # COUNTERMODELS
+    # "EXT_CM_1": EXT_CM_1_example,  # DISJUNCTION INTRODUCTION
+    "EXT_CM_2": EXT_CM_2_example,  # DISJUNCTIVE SYLLOGISM
+    
+    # THEOREMS
+    # "EXT_TH_1": EXT_TH_1_example,  # IDENTITY REFLEXIVITY
+    # "EXT_TH_2": EXT_TH_2_example,  # MODUS PONENS
+    # "EXT_TH_3": EXT_TH_3_example,  # CONTRAPOSITION
+    # "EXT_TH_4": EXT_TH_4_example,  # HYPOTHETICAL SYLLOGISM
+    # "EXT_TH_5": EXT_TH_5_example,  # ARGUMENT FROM A AND B TO A
+    # "EXT_TH_6": EXT_TH_6_example,  # CONJUNCTION SIMPLIFICATION
+    # "EXT_TH_7": EXT_TH_7_example,  # CONJUNCTION INTRODUCTION
+    # "EXT_TH_8": EXT_TH_8_example,  # BICONDITIONAL ELIMINATION
+    # "EXT_TH_9": EXT_TH_9_example,  # DISJUNCTION COMMUTATIVITY
+}
 
 def get_examples():
     """

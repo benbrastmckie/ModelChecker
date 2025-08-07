@@ -3,11 +3,9 @@ import time
 import z3
 
 # Standard imports
-from model_checker.model import (
-    SemanticDefaults,
-    PropositionDefaults,
-    ModelDefaults,
-)
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.structure import ModelDefaults
 from model_checker.utils import (
     ForAll,
     Exists,

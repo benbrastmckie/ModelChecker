@@ -1,631 +1,15 @@
-"""Core model checking functionality for modal logic systems.
+"""Core model structure and Z3 solving.
 
-This module provides the foundational classes and infrastructure for building and analyzing
-modal logic models. It implements the core semantic operations, proposition handling,
-constraint generation, and model checking capabilities used across different modal logics.
-
-Key Components:
-    SemanticDefaults: Base class for semantic operations in modal logics
-        - Implements core operations like fusion, part-of relations
-        - Provides set-theoretic operations for modal semantics
-        - Handles bit vector representations of states
-
-    PropositionDefaults: Base class for proposition representation
-        - Links sentences to their semantic interpretation
-        - Manages truth value calculation and evaluation
-        - Handles atomic and complex propositions
-
-    ModelConstraints: Links syntax to semantic constraints
-        - Generates Z3 constraints from logical content
-        - Manages operator instantiation with semantics
-        - Bridges between syntax and model structure
-
-    ModelDefaults: Core model structure and solving capabilities
-        - Handles Z3 solver interaction and constraint solving
-        - Manages model interpretation and result analysis
-        - Provides visualization and output formatting
-
-The module uses Z3 for constraint solving and implements a bit-vector based
-approach to state representation. It supports various modal logics through
-extensible base classes that can be customized for specific theories.
-
-Example Usage:
-    # Create model constraints from premises and conclusions
-    constraints = ModelConstraints(settings, syntax, semantics, proposition_class)
-
-    # Build and solve the model
-    model = ModelDefaults(constraints, settings)
-
-    # Analyze and display results
-    model.print_info(model_status, default_settings, example_name, theory_name, output)
-
-Dependencies:
-    - z3-solver: For constraint solving and model generation
-    - model_checker.utils: Utility functions and shared resources
-
-Note:
-    This module serves as the foundation for implementing specific modal logic
-    theories. Each theory should extend these base classes to implement its
-    particular semantic interpretation and constraints.
+This module contains the ModelDefaults class which provides the core
+model structure and Z3 solving functionality.
 """
-
 
 import sys
-from contextlib import redirect_stdout
 import time
-from functools import reduce
+from contextlib import redirect_stdout
 from string import Template
-from z3 import (
-    And,
-    ArrayRef,
-    BitVecSort,
-    BitVecVal,
-    EmptySet,
-    ExprRef,
-    IntVal,
-    IsMember,
-    Not,
-    SetAdd,
-    simplify,
-)
 
 
-# Standard imports
-from model_checker.utils import (
-    not_implemented_string,
-)
-
-inputs_template = Template(
-'''Z3 run time: ${z3_model_runtime} seconds
-"""
-
-################
-### SETTINGS ###
-################
-
-settings = ${settings}
-
-
-###############
-### EXAMPLE ###
-###############
-
-# input sentences
-premises = ${premises}
-conclusions = ${conclusions}
-
-
-#########################################
-### GENERATE Z3 CONSTRAINTS AND PRINT ###
-#########################################
-
-### NOTE: run below for individual tests
-
-model_structure = make_model_for(
-    settings,
-    premises,
-    conclusions,
-    Semantics,
-    Proposition,
-    operators,
-)
-model_structure.print_all()
-'''
-)
-
-class SemanticDefaults:
-    """Base class providing fundamental semantic operations for a modal logic system.
-    
-    This class defines the core semantic functionality used across all theories in the
-    model checker. It provides methods for working with bit vectors representing states,
-    set operations, and foundational semantic relations like part-of and fusion.
-    
-    Each theory should extend this class to implement its specific semantics for modal
-    operators and provide concrete implementations of the truth/falsity conditions.
-    
-    Attributes:
-        name (str): Name of the semantics implementation class
-        N (int): Bit-width for state representation (if provided in settings)
-        full_state (BitVecVal): Maximum possible state (if N is provided)
-        null_state (BitVecVal): Empty state (if N is provided)
-        all_states (list): All possible bit vectors of width N (if N is provided)
-        M (int): Number of times for temporal semantics (if provided in settings)
-        all_times (list): All possible time points (if M is provided)
-        main_point (dict): The primary evaluation point for the model
-        frame_constraints (list): Z3 constraints defining the logical frame
-        premise_behavior (str): How premises should be handled for validity
-        conclusion_behavior (str): How conclusions should be handled for validity
-    """
-
-    def __init__(self, combined_settings):
-        # Reset any global state to avoid cross-example interference
-        self._reset_global_state()
-        
-        # Store the name
-        self.name = self.__class__.__name__
-
-        # Define all states and top and bottom if N is specified
-        if 'N' in combined_settings.keys():
-            self.N = combined_settings['N']
-            max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
-            self.full_state = BitVecVal(max_value, self.N)
-            self.null_state = BitVecVal(0, self.N)
-            self.all_states = [BitVecVal(i, self.N) for i in range(1 << self.N)]
-
-        # Define all times between 0 and M inclusive
-        if 'M' in combined_settings.keys():
-            self.M = combined_settings['M']
-            self.all_times = [IntVal(i) for i in range(self.M)]
-
-        # Define main_point
-        self.main_point = None
-
-        # Define the frame constraints
-        self.frame_constraints = None
-
-        # Define invalidity conditions
-        self.premise_behavior = None
-        self.conclusion_behavior = None
-        
-    def _reset_global_state(self):
-        """Reset any global state that could cause interference between examples.
-        
-        Following the fail-fast philosophy, this method explicitly resets all cached
-        state that could lead to non-deterministic behavior between examples.
-        
-        Subclasses MUST override this method and call super()._reset_global_state()
-        to ensure proper cleanup of both shared and theory-specific resources.
-        
-        Example for subclasses:
-        
-        def _reset_global_state(self):
-            # Always call parent implementation first
-            super()._reset_global_state()
-            
-            # Reset theory-specific caches
-            self._theory_specific_cache = {}
-            
-            # Clear any references to model structures
-            if hasattr(self, 'model_structure'):
-                delattr(self, 'model_structure')
-                
-            # Reset mutable data structures but preserve immutable definitions
-            self.data_cache = {}
-        """
-        # Reset general caches
-        self._cached_values = {}
-
-    def fusion(self, bit_s, bit_t):
-        """Performs the fusion operation on two bit vectors.
-        
-        In most modal logics, fusion corresponds to combining or merging states.
-        This implementation uses bitwise OR as the default fusion operation,
-        but specific theories might override with different implementations.
-        
-        Args:
-            bit_s (BitVecRef): The first bit vector
-            bit_t (BitVecRef): The second bit vector
-            
-        Returns:
-            BitVecRef: The result of fusing the two input bit vectors
-        """
-        return bit_s | bit_t
-
-    def z3_set(self, python_set, N):
-        """Convert a Python set to a Z3 set representation with specified bit-width.
-        
-        Args:
-            python_set (set): The Python set to convert
-            N (int): The bit-width for the resulting Z3 set
-            
-        Returns:
-            z3.SetRef: A Z3 set containing the elements from the input Python set
-            
-        Note:
-            The resulting Z3 set will have elements of bit-width N
-        """
-        z3_set = EmptySet(BitVecSort(N))
-        for elem in python_set:
-            z3_set = SetAdd(z3_set, elem)
-        return z3_set
-
-    def z3_set_to_python_set(self, z3_set, domain):
-        """Convert a Z3 set to a Python set by checking membership of domain elements.
-        
-        Args:
-            z3_set (z3.SetRef): The Z3 set to convert
-            domain (list): Collection of elements to check for membership
-            
-        Returns:
-            set: A Python set containing elements from domain that are members of z3_set
-            
-        Note:
-            Uses Z3's IsMember and simplify functions to determine set membership
-        """
-        python_set = set()
-        for elem in domain:
-            if bool(simplify(IsMember(elem, z3_set))):
-                python_set.add(elem)
-        return python_set
-
-    def total_fusion(self, set_P):
-        """Compute the fusion of all elements in a set of bit vectors.
-        
-        Takes a set of bit vectors and returns their total fusion by applying
-        the fusion operation (bitwise OR) to all elements in the set.
-        
-        Args:
-            set_P: A set or Z3 array of bit vectors to be fused
-            
-        Returns:
-            BitVecRef: The result of fusing all elements in the input set
-            
-        Note:
-            If set_P is empty, returns the null bit vector (all zeros)
-        """
-        if isinstance(set_P, ArrayRef):
-            set_P = self.z3_set_to_python_set(set_P, self.all_states)
-        return reduce(self.fusion, list(set_P))
-
-    def is_part_of(self, bit_s, bit_t):
-        """Checks if one bit vector is part of another where one bit vector is
-        a part of another if their fusion is identical to the second bit vector.
-        
-        Args:
-            bit_s (BitVecRef): The potential part
-            bit_t (BitVecRef): The potential whole
-            
-        Returns:
-            BoolRef: A Z3 constraint that is True when bit_s is part of bit_t
-        """
-        return self.fusion(bit_s, bit_t) == bit_t
-
-    def is_proper_part_of(self, bit_s, bit_t):
-        """Checks if one bit vector is a proper part of another.
-        
-        A bit vector is a proper part of another if it is a part of it but not equal to it.
-        
-        Args:
-            bit_s (BitVecRef): The potential proper part
-            bit_t (BitVecRef): The potential whole
-            
-        Returns:
-            BoolRef: A Z3 constraint that is True when bit_s is a proper part of bit_t
-        """
-        return And(self.is_part_of(bit_s, bit_t), bit_s != bit_t)
-
-    def non_null_part_of(self, bit_s, bit_t):
-        """Checks if a bit vector is a non-null part of another bit vector.
-        
-        Args:
-            bit_s (BitVecRef): The potential non-null part
-            bit_t (BitVecRef): The potential whole
-            
-        Returns:
-            BoolRef: A Z3 constraint that is True when bit_s is both:
-                    1. Not the null state (not zero)
-                    2. A part of bit_t
-        """
-        return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
-
-    def product(self, set_A, set_B):
-        """Compute the set of all pairwise fusions between elements of two sets.
-        
-        Args:
-            set_A (set): First set of bit vectors
-            set_B (set): Second set of bit vectors
-            
-        Returns:
-            set: A set containing the fusion of each element from set_A with each element from set_B
-            
-        Note:
-            Uses bitwise OR as the fusion operation between elements
-        """
-        product_set = set()
-        for bit_a in set_A:
-            for bit_b in set_B:
-                bit_ab = simplify(bit_a | bit_b)
-                product_set.add(bit_ab)
-        return product_set
-
-    def coproduct(self, set_A, set_B):
-        """Compute the union of two sets closed under pairwise fusion.
-        
-        Takes two sets and returns their union plus all possible fusions between
-        their elements. The result is a set containing:
-        1. All elements from both input sets
-        2. All pairwise fusions between elements of the input sets
-        
-        Args:
-            set_A (set): First set of bit vectors
-            set_B (set): Second set of bit vectors
-            
-        Returns:
-            set: The union of set_A and set_B closed under pairwise fusion
-        """
-        A_U_B = set_A.union(set_B)
-        return A_U_B.union(self.product(set_A, set_B))
-
-
-class PropositionDefaults:
-    """Base class for representing propositions in a logical system.
-    
-    This abstract class provides the foundation for representing propositional content
-    in a model. Subclasses must implement the actual semantic behavior specific to each
-    logical theory.
-    
-    Propositions link sentences to their semantic interpretation in a model. They
-    contain the necessary methods for calculating truth values and managing verification
-    and falsification conditions.
-    
-    Attributes:
-        sentence (Sentence): The sentence object this proposition represents
-        model_structure (ModelStructure): The model in which this proposition is interpreted
-        N (int): Bit-width for state representation
-        main_point (dict): The primary evaluation point for the model
-        name (str): The string representation of the sentence
-        operator (Operator): The main logical operator of the sentence (None for atoms)
-        arguments (list): Sentence objects for the operator's arguments (None for atoms)
-        sentence_letter (ExprRef): For atomic sentences, their Z3 representation (None for complex sentences)
-        model_constraints (ModelConstraints): Constraints governing the model
-        semantics (Semantics): The semantics object used for evaluation
-        sentence_letters (list): All atomic sentence letters in the argument
-        settings (dict): Model settings
-    """
-
-    def __init__(self, sentence, model_structure):
-
-        # Raise error if instantiated directly instead of as a bare class
-        if self.__class__ == PropositionDefaults:
-            raise NotImplementedError(not_implemented_string(self.__class__.__name__))
-
-        # Validate model_structure
-        if not hasattr(model_structure, 'semantics'):
-            raise TypeError(
-                f"Expected model_structure to be a ModelStructure object, got {type(model_structure)}. "
-                "Make sure you're passing the correct model_structure object when creating propositions."
-            )
-
-        # Store inputs
-        self.sentence = sentence
-        self.model_structure = model_structure
-
-        # Store values from model_structure
-        self.N = self.model_structure.semantics.N
-        self.main_point = self.model_structure.main_point
-
-        # Store values from sentence
-        self.name = self.sentence.name
-        self.operator = self.sentence.operator
-        self.arguments = self.sentence.arguments
-        self.sentence_letter = self.sentence.sentence_letter
-
-        # Store values from model_constraints
-        self.model_constraints = self.model_structure.model_constraints
-        self.semantics = self.model_constraints.semantics
-        self.sentence_letters = self.model_constraints.sentence_letters
-        self.settings = self.model_constraints.settings
-
-    def __hash__(self):
-        return hash(self.name)
-
-    def __eq__(self, other):
-        if isinstance(other, PropositionDefaults):
-            return self.name == other.name
-        return False
-
-    def set_colors(self, name, indent_num, truth_value, world_state, use_colors):
-        if not use_colors:
-            VOID = ""
-            return VOID, VOID, VOID
-        RED, GREEN, RESET = "\033[31m", "\033[32m", "\033[0m" 
-        FULL, PART = "\033[37m", "\033[33m"
-        if indent_num == 1:
-            FULL, PART = (GREEN, GREEN) if truth_value else (RED, RED)
-            if truth_value is None:
-                print(
-                    f"\n{RED}WARNING:{RESET}"
-                    f"{name} is neither true nor false at {world_state}.\n"
-                )
-        return RESET, FULL, PART
-
-
-class ModelConstraints:
-    """Links syntactic structures to semantic constraints for model generation.
-    
-    This class connects the syntactic representation of an argument (premises and conclusions)
-    with a specific semantics implementation to generate constraints for model finding.
-    It serves as the bridge between syntax and semantics in the model checking process.
-    
-    The class is responsible for instantiating operators with the appropriate semantics,
-    generating Z3 constraints that represent the logical content of sentences, and
-    managing the settings that govern the model generation process.
-    
-    Attributes:
-        settings (dict): Configuration settings for model generation
-        syntax (Syntax): The syntactic representation of the argument # TODO: Not sure this is right?
-        semantics (Semantics): The semantic theory being used
-        proposition_class (class): The class used to create propositions
-        sentences (dict): All sentences in the argument
-        sentence_letters (list): All atomic sentence letters in the argument
-        operators (dict): Instantiated operator objects with the selected semantics
-        premises (list): Sentence objects for premises
-        conclusions (list): Sentence objects for conclusions
-
-    Takes semantics and proposition_class as arguments to build generate
-    and storing all Z3 constraints. This class is passed to ModelStructure."""
-
-    def __init__(
-        self,
-        settings,
-        syntax,
-        semantics,
-        proposition_class,
-    ):
-
-        # Store inputs
-        self.syntax = syntax
-        self.semantics = semantics
-        self.proposition_class = proposition_class
-        self.settings = settings
-        # self.old_z3_models = None
-
-        # Store syntax values
-        self.premises = self.syntax.premises
-        self.conclusions = self.syntax.conclusions
-
-        self.sentence_letters = self._load_sentence_letters()
-
-        # Store operator dictionary
-        self.operators = self.copy_dictionary(self.syntax.operator_collection)
-
-        # use semantics to recursively update all derived_objects
-        self.instantiate(self.premises + self.conclusions)
-
-        # Use semantics to generate and store Z3 constraints
-        self.frame_constraints = self.semantics.frame_constraints
-        self.model_constraints = [
-            constraint
-            for sentence_letter in self.sentence_letters
-            for constraint in self.proposition_class.proposition_constraints(
-                self,
-                sentence_letter,
-            )
-        ]
-        self.premise_constraints = [
-            self.semantics.premise_behavior(premise)
-            for premise in self.premises
-        ]
-        self.conclusion_constraints = [
-            self.semantics.conclusion_behavior(conclusion)
-            for conclusion in self.conclusions
-        ]
-        self.all_constraints = (
-            self.frame_constraints
-            + self.model_constraints
-            + self.premise_constraints
-            + self.conclusion_constraints
-        )
-
-    def __str__(self):
-        """Returns a string representation of the ModelConstraints object.
-        
-        This method is useful when using the model-checker programmatically in Python scripts.
-        It provides a concise description of the ModelConstraints object by showing its
-        premises and conclusions.
-        
-        Returns:
-            str: A string in the format "ModelConstraints for premises [p1, p2, ...] and conclusions [c1, c2, ...]"
-        """
-        premises = list(self.syntax.premises)
-        conclusions = list(self.syntax.conclusions)
-        return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
-
-    # def _store_z3_model(self, old_z3_model):
-    #     if self.old_z3_models is None:
-    #         self.old_z3_models = [old_z3_model]
-    #     else:
-    #         self.old_z3_models.append(old_z3_model)
-
-    def _load_sentence_letters(self):
-        """Extracts and validates atomic sentence letters from the syntax object.
-        
-        Unpacks each sentence letter from the syntax object and verifies it is a valid
-        Z3 expression (ExprRef type). Returns a list of all atomic sentence letters
-        used in the argument.
-        
-        Returns:
-            list: A list of Z3 ExprRef objects representing atomic sentence letters
-            
-        Raises:
-            TypeError: If any sentence letter is not a valid Z3 ExprRef object
-        """
-        sentence_letters = []
-        for packed_letter in self.syntax.sentence_letters:
-            unpacked_letter = packed_letter.sentence_letter
-            if not isinstance(unpacked_letter, ExprRef):
-                raise TypeError("The sentence letter {letter} is not of type z3.ExprRef")
-            sentence_letters.append(unpacked_letter) 
-        return sentence_letters
-
-    def copy_dictionary(self, operator_collection):
-        """Creates a new dictionary by copying operators from the operator collection.
-        
-        Takes an operator collection and creates a new dictionary where each operator
-        is instantiated with the current semantics. This ensures each operator has
-        its own instance with the appropriate semantic interpretation.
-        
-        Args:
-            operator_collection (dict): Dictionary mapping operator names to operator classes
-            
-        Returns:
-            dict: New dictionary with instantiated operator objects using current semantics
-        """
-        return {
-            op_name : op_class(self.semantics)
-            for (op_name, op_class) in operator_collection.items()
-        }
-
-    def instantiate(self, sentences):
-        """Recursively updates each sentence in the given list with its proposition.
-        
-        This method traverses through the sentence tree and updates each sentence object
-        with its corresponding proposition based on the current model constraints and
-        semantics. This process links the syntactic structure with its semantic
-        interpretation.
-        
-        Args:
-            sentences (list): A list of Sentence objects to be updated
-            
-        Returns:
-            list: The input sentences, now updated with their propositions
-            
-        Note:
-            This method should only be called after a valid Z3 model has been found.
-        """
-        for sent_obj in sentences:
-            if sent_obj.arguments:
-                self.instantiate(sent_obj.arguments)
-            sent_obj.update_objects(self)
-
-    def print_enumerate(self, output=sys.__stdout__):
-        """Prints the premises and conclusions with enumerated numbering.
-        
-        Formats and displays the premises and conclusions with sequential numbering.
-        Premises are numbered starting from 1, and conclusions continue the numbering
-        sequence after premises.
-        
-        Args:
-            output (file): Output stream to write to (defaults to sys.stdout)
-            
-        Example output:
-            Premises:
-            1. A
-            2. B
-            
-            Conclusion:
-            3. C
-        """
-        premises = self.syntax.premises
-        conclusions = self.syntax.conclusions
-        start_con_num = len(premises) + 1
-        if conclusions:
-            if len(premises) < 2:
-                print("Premise:", file=output)
-            else:
-                print("Premises:", file=output)
-            for index, sent in enumerate(premises, start=1):
-                print(f"{index}. {sent}", file=output)
-        if conclusions:
-            if len(conclusions) < 2:
-                print("\nConclusion:", file=output)
-            else:
-                print("\nConclusions:", file=output)
-            for index, sent in enumerate(conclusions, start=start_con_num):
-                print(f"{index}. {sent}", file=output)
-
-
-# TODO: expose elements that need to change to accommodate bimodal logic
 class ModelDefaults:
     """Base class for model structures that handle Z3 solving and result interpretation.
     
@@ -690,16 +74,18 @@ class ModelDefaults:
 
         # Store from model_constraint
         self.proposition_class = self.model_constraints.proposition_class
-        self.settings = self.model_constraints.settings
 
-        # Initialize Z3 attributes
+        # Initialize Z3 attributes - CRITICAL for iterator compatibility
         self.solver = None
         self.stored_solver = None
-        self.timeout = None
+        self.timeout = False
         self.z3_model = None
         self.unsat_core = None
         self.z3_model_status = None
         self.z3_model_runtime = None
+        self.solved = False
+        self.satisfiable = None
+        self.result = None
         
         # Reset Z3 context before creating a new solver to ensure isolation
         from model_checker.utils import Z3ContextManager
@@ -710,7 +96,7 @@ class ModelDefaults:
         self._process_solver_results(solver_results)
 
         # Exit early if no valid model was found
-        if self.timeout or self.z3_model is None: # M: does this do anything?
+        if self.timeout or self.z3_model is None:
             return
 
     def _process_solver_results(self, solver_results):
@@ -731,6 +117,9 @@ class ModelDefaults:
         self.timeout = timeout
         self.z3_model_status = z3_model_status
         self.z3_model_runtime = z3_model_runtime
+        self.satisfiable = z3_model_status
+        self.solved = True
+        self.result = solver_results
         
         # Store either the model or unsat core based on status
         if z3_model_status:
@@ -803,23 +192,7 @@ class ModelDefaults:
         
         IMPORTANT: This is a core part of the solver state isolation system. It should be
         called in the finally block of solve() and related methods to ensure resources
-        are always released, even if exceptions occur:
-        
-        ```python
-        try:
-            # Setup and run solver
-            # ...
-        except Exception as e:
-            # Handle exceptions
-            # ...
-        finally:
-            # Always clean up
-            self._cleanup_solver_resources()
-        ```
-        
-        For comprehensive information on Z3 solver state management, see:
-        - theory_lib/specs/solvers.md
-        - ../../docs/DEVELOPMENT.md section on Z3 Solver State Management
+        are always released, even if exceptions occur.
         """
         # Remove references to solver and model
         self.solver = None
@@ -878,7 +251,6 @@ class ModelDefaults:
         finally:
             # Ensure proper cleanup to prevent any possible state leakage
             self._cleanup_solver_resources()
-            # NOTE: if a new solver is used every time, why do we need to clean the solver up?
     
     def re_solve(self):
         """Re-solve the existing model constraints with the current solver state.
@@ -893,10 +265,6 @@ class ModelDefaults:
                 - model_or_core: Either a Z3 model (if satisfiable) or unsat core (if unsatisfiable)
                 - is_satisfiable (bool): Whether constraints were satisfiable
                 - runtime (float): Time taken by solver in seconds
-                
-        Raises:
-            RuntimeError: If solver encounters an error during execution
-            AssertionError: If solver instance doesn't exist
         """
         import z3
 
@@ -929,8 +297,11 @@ class ModelDefaults:
         the model checker produced the anticipated result.
         
         Returns:
-            bool: True if the model status matches expectations, False otherwise
+            bool or None: True if the model status matches expectations, 
+                         False otherwise, None if not solved yet
         """
+        if not self.solved:
+            return None
         return self.z3_model_status == self.settings["expectation"]
 
     def interpret(self, sentences):
@@ -943,20 +314,15 @@ class ModelDefaults:
         Args:
             sentences (list): List of Sentence objects to be interpreted
             
-        Returns:
-            None
-            
         Note:
             - This method should only be called after a valid Z3 model has been found
-            - Modifies the sentence objects in-place by setting their proposition attribute
-            - Skips sentences that already have an attached proposition
+            - Modifies the sentence objects in-place by calling their update_objects method
+            - Skips processing if no valid model exists
         """
         if not self.z3_model:
             return
 
         for sent_obj in sentences:
-            if sent_obj.proposition is not None:
-                continue
             if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
@@ -1069,6 +435,45 @@ class ModelDefaults:
             - Conclusion sentences
             - Z3 solver runtime
         """
+        from string import Template
+
+        inputs_template = Template(
+        '''Z3 run time: ${z3_model_runtime} seconds
+        """
+
+        ################
+        ### SETTINGS ###
+        ################
+
+        settings = ${settings}
+
+
+        ###############
+        ### EXAMPLE ###
+        ###############
+
+        # input sentences
+        premises = ${premises}
+        conclusions = ${conclusions}
+
+
+        #########################################
+        ### GENERATE Z3 CONSTRAINTS AND PRINT ###
+        #########################################
+
+        ### NOTE: run below for individual tests
+
+        model_structure = make_model_for(
+            settings,
+            premises,
+            conclusions,
+            Semantics,
+            Proposition,
+            operators,
+        )
+        model_structure.print_all()
+        '''
+        )
 
         inputs_data = {
             "settings": self.model_constraints.settings,
@@ -1123,6 +528,7 @@ class ModelDefaults:
             - Premises are numbered starting from 1
             - Conclusions continue the numbering after premises
         """
+        from contextlib import redirect_stdout
         
         def print_sentences(title_singular, title_plural, sentences, start_index, destination):
             """Helper function to print a list of sentences with a title."""
@@ -1199,7 +605,6 @@ class ModelDefaults:
         # Default implementation returns None, meaning use basic difference detection
         return None
         
-    # TODO: Is this needed or can it be removed? Evaluate when working on the iterator tool
     def print_model_differences(self, output=sys.stdout):
         """Prints differences between this model and the previous one.
         
@@ -1210,8 +615,6 @@ class ModelDefaults:
             output (file, optional): Output stream to write to. Defaults to sys.stdout.
         """
         if not hasattr(self, 'model_differences') or not self.model_differences:
-            # print("No previous model to compare with.", file=output)
-            # print(f"DEBUG: hasattr model_differences = {hasattr(self, 'model_differences')}, value = {getattr(self, 'model_differences', 'N/A')}", file=output)
             return
         
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
@@ -1299,11 +702,6 @@ class ModelDefaults:
         self._print_section_header(example_name, header, output)
         self._print_model_details(theory_name, output)
         
-        # # NOTE: removed this functions
-        # # Use theory's DEFAULT_EXAMPLE_SETTINGS as the baseline for comparison
-        # theory_default_settings = self.model_constraints.semantics.DEFAULT_EXAMPLE_SETTINGS
-        # self._print_modified_settings(theory_default_settings, output)
-        
         # Print constraints and runtime
         self.model_constraints.print_enumerate(output)
         self._print_runtime_footer(output)
@@ -1349,4 +747,3 @@ class ModelDefaults:
         """Print Z3 runtime and separator footer."""
         print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
         print(f"\n{'='*40}", file=output)
-

@@ -1,0 +1,12 @@
+usage: model-checker [options] input
+model-checker: error: unrecognized arguments: src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py src/model_checker/theory_lib/logos/subtheories/extensional/examples.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
+usage: model-checker [options] input
+model-checker: error: unrecognized arguments: src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+usage: model-checker [options] input
+model-checker: error: unrecognized arguments: src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+usage: model-checker [options] input
+model-checker: error: unrecognized arguments: src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
+usage: model-checker [options] input
+model-checker: error: unrecognized arguments: src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+usage: model-checker [options] input
+model-checker: error: unrecognized arguments: src/model_checker/theory_lib/logos/subtheories/relevance/examples.py

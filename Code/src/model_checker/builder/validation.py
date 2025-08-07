@@ -4,11 +4,9 @@ This module provides functions for validating parameters and ensuring
 proper types and values for model checking operations.
 """
 
-from model_checker.model import (
-    SemanticDefaults,
-    PropositionDefaults,
-    ModelDefaults,
-)
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.structure import ModelDefaults
 from model_checker.syntactic import (
     OperatorCollection,
 )

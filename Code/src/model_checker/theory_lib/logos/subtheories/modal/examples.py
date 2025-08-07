@@ -66,7 +66,7 @@ MOD_CM_1_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 2,
-    'iterate': 1,
+    'iterate': 2,
     'expectation': True,
 }
 MOD_CM_1_example = [
@@ -592,19 +592,19 @@ example_range = {
 
     # COUNTERMODELS
     "MOD_CM_1": MOD_CM_1_example,  # POSSIBILITY TO NECESSITY
-    "MOD_CM_2": MOD_CM_2_example,  # POSSIBILITY TO ACTUALITY
-    "MOD_CM_3": MOD_CM_3_example,  # MATERIAL IMPLICATION TO COUNTERFACTUAL
-    "MOD_CM_4": MOD_CM_4_example,  # COUNTERFACTUAL TO STRICT IMPLICATION
+    # "MOD_CM_2": MOD_CM_2_example,  # POSSIBILITY TO ACTUALITY
+    # "MOD_CM_3": MOD_CM_3_example,  # MATERIAL IMPLICATION TO COUNTERFACTUAL
+    # "MOD_CM_4": MOD_CM_4_example,  # COUNTERFACTUAL TO STRICT IMPLICATION
 
-    # THEOREMS
-    "MOD_TH_5": MOD_TH_5_example,   # MODAL K AXIOM
-    "MOD_TH_6": MOD_TH_6_example,   # NECESSITATION RULE
-    "MOD_TH_7": MOD_TH_7_example,   # COUNTERFACTUAL NECESSITY IMPLIES NECESSITY
-    "MOD_TH_8": MOD_TH_8_example,   # POSSIBILITY IMPLIES COUNTERFACTUAL POSSIBILITY
+    # # THEOREMS
+    # "MOD_TH_5": MOD_TH_5_example,   # MODAL K AXIOM
+    # "MOD_TH_6": MOD_TH_6_example,   # NECESSITATION RULE
+    # "MOD_TH_7": MOD_TH_7_example,   # COUNTERFACTUAL NECESSITY IMPLIES NECESSITY
+    # "MOD_TH_8": MOD_TH_8_example,   # POSSIBILITY IMPLIES COUNTERFACTUAL POSSIBILITY
 
-    # DEFINED
-    "MOD_DEF_2": MOD_DEF_2_example,  # DEFINED VS PRIMITIVE NECESSITY
-    "MOD_DEF_3": MOD_DEF_3_example,  # PRIMITIVE VS DEFINED POSSIBILITY
+    # # DEFINED
+    # "MOD_DEF_2": MOD_DEF_2_example,  # DEFINED VS PRIMITIVE NECESSITY
+    # "MOD_DEF_3": MOD_DEF_3_example,  # PRIMITIVE VS DEFINED POSSIBILITY
 
 }
 
