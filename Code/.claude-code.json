@@ -1,0 +1,6 @@
+{
+  "auto_approve": {
+    "commands": ["./dev_cli.py*", "python dev_cli.py*"],
+    "file_patterns": ["*.py"]
+  }
+}
