@@ -65,7 +65,7 @@ CL_CM_1_settings = {
     'non_empty': False,
     'disjoint': True,
     'max_time': 1,
-    'iterate': 1,
+    'iterate': 2,
     'expectation': True,
 }
 CL_CM_1_example = [
