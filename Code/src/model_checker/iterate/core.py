@@ -511,47 +511,119 @@ class BaseModelIterator:
         return original_constraints + difference_constraints
         
     def _build_new_model_structure(self, z3_model):
-        """Build a completely new model structure from a Z3 model.
+        """Build a new model structure with fresh constraints.
         
-        Instead of updating an existing model structure, this creates a fresh
-        model structure from scratch, proper initialization with the Z3 model.
+        This creates new ModelConstraints using the current model's verify/falsify
+        functions, ensuring constraint consistency for MODEL 2+.
         
         Args:
             z3_model: Z3 model to use for the new structure
             
         Returns:
-            ModelStructure: A new model structure built from scratch
+            ModelStructure: A new model structure with fresh constraints
         """
         try:
-            # Get original build example to extract settings and constraints
-            original_build_example = self.build_example
+            # Import required modules
+            from model_checker.syntactic import Syntax
+            from model_checker.models.constraints import ModelConstraints
             
-            # Create a fresh ModelConstraints instance but without the Z3 model
-            model_constraints = original_build_example.model_constraints
+            # Get original build example components
+            original_build = self.build_example
+            settings = original_build.settings.copy()
             
-            # Create a new bare model structure 
-            # DO NOT use the constructor that tries to evaluate Z3 values
-            klass = original_build_example.model_structure.__class__
-            new_structure = object.__new__(klass)
+            # Extract verify/falsify state from current Z3 model
+            verify_falsify_state = self._extract_verify_falsify_from_z3(z3_model)
             
-            # Initialize only the attributes needed before Z3 model evaluation
-            self._initialize_base_attributes(new_structure, model_constraints, original_build_example.settings)
+            # Create fresh syntax (reuses sentence parsing)
+            syntax = Syntax(
+                original_build.premises,
+                original_build.conclusions,
+                original_build.semantic_theory.get("operators")
+            )
             
-            # Now set the Z3 model after basic initialization
+            # Create new semantics with current model's functions
+            semantics_class = original_build.semantic_theory["semantics"]
+            semantics = semantics_class(settings)
+            
+            # CRITICAL: Initialize semantics with current model's verify/falsify
+            if verify_falsify_state:
+                # Extract sentence letters from syntax
+                sentence_letters = [letter.sentence_letter for letter in syntax.sentence_letters]
+                semantics.initialize_with_state(verify_falsify_state, sentence_letters)
+                logger.info(f"Initialized semantics with {len(verify_falsify_state)} state entries")
+            
+            # Create fresh ModelConstraints with current context
+            proposition_class = original_build.semantic_theory["proposition"]
+            model_constraints = ModelConstraints(
+                settings,
+                syntax,
+                semantics,
+                proposition_class
+            )
+            
+            # Create new model structure WITHOUT automatic solving
+            model_class = original_build.semantic_theory["model"]
+            
+            # Create instance without calling __init__ to avoid auto-solving
+            new_structure = object.__new__(model_class)
+            
+            # Initialize base attributes manually
+            new_structure.model_constraints = model_constraints
+            new_structure.settings = settings
+            new_structure.max_time = settings["max_time"]
+            new_structure.expectation = settings["expectation"]
+            
+            # Define ANSI color codes (from ModelDefaults)
+            new_structure.COLORS = {
+                "default": "\033[37m",  # WHITE
+                "world": "\033[34m",    # BLUE
+                "possible": "\033[36m", # CYAN
+                "impossible": "\033[35m", # MAGENTA
+                "initial": "\033[33m",  # YELLOW
+            }
+            new_structure.RESET = "\033[0m"
+            new_structure.WHITE = new_structure.COLORS["default"]
+            new_structure.constraint_dict = {}
+            
+            # Store from model_constraints.semantics
+            new_structure.semantics = model_constraints.semantics
+            new_structure.main_point = new_structure.semantics.main_point
+            new_structure.all_states = new_structure.semantics.all_states
+            new_structure.N = new_structure.semantics.N
+            
+            # Store from model_constraints.syntax
+            new_structure.syntax = model_constraints.syntax
+            new_structure.start_time = new_structure.syntax.start_time
+            new_structure.premises = new_structure.syntax.premises
+            new_structure.conclusions = new_structure.syntax.conclusions
+            new_structure.sentence_letters = new_structure.syntax.sentence_letters
+            
+            # Store from model_constraints
+            new_structure.proposition_class = model_constraints.proposition_class
+            
+            # Initialize Z3 attributes
+            new_structure.solver = None
+            new_structure.stored_solver = None
+            new_structure.timeout = False
+            new_structure.unsat_core = None
+            new_structure.result = None
+            
+            # Initialize main_world from main_point
+            if hasattr(new_structure.main_point, "get"):
+                new_structure.main_world = new_structure.main_point.get("world")
+            
+            # Set the Z3 model from iterator
             new_structure.z3_model = z3_model
             new_structure.z3_model_status = True
             new_structure.satisfiable = True
             new_structure.solved = True
+            new_structure.z3_model_runtime = 0.001  # Placeholder runtime
             
-            # Transfer runtime from original model structure
-            new_structure.z3_model_runtime = original_build_example.model_structure.z3_model_runtime
-            
-            # Properly initialize Z3-dependent attributes
+            # Initialize Z3-dependent attributes
             self._initialize_z3_dependent_attributes(new_structure, z3_model)
             
-            # Interpret sentences
-            sentence_objects = new_structure.premises + new_structure.conclusions
-            new_structure.interpret(sentence_objects)
+            # Interpret sentences with fresh constraints
+            new_structure.interpret(new_structure.premises + new_structure.conclusions)
             
             return new_structure
             
@@ -560,6 +632,36 @@ class BaseModelIterator:
             import traceback
             logger.error(f"Full traceback:\n{traceback.format_exc()}")
             return None
+    
+    def _extract_verify_falsify_from_z3(self, z3_model):
+        """Extract verify/falsify values from Z3 model.
+        
+        Returns:
+            dict: Mapping of (state, letter) -> (verify_value, falsify_value)
+        """
+        state_map = {}
+        original_constraints = self.build_example.model_constraints
+        
+        # Get sentence letters from syntax instead of constraints
+        sentence_letters = self.build_example.example_syntax.sentence_letters
+        
+        for letter_obj in sentence_letters:
+            letter_str = letter_obj.sentence_letter
+            for state in range(2**original_constraints.semantics.N):
+                verify_val = z3_model.eval(
+                    original_constraints.semantics.verify(state, letter_str),
+                    model_completion=True
+                )
+                falsify_val = z3_model.eval(
+                    original_constraints.semantics.falsify(state, letter_str),
+                    model_completion=True
+                )
+                state_map[(state, letter_str)] = (
+                    z3.is_true(verify_val),
+                    z3.is_true(falsify_val)
+                )
+        
+        return state_map
             
     def _initialize_base_attributes(self, model_structure, model_constraints, settings):
         """Initialize basic attributes of a model structure that don't depend on the Z3 model.

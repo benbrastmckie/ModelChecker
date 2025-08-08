@@ -251,3 +251,63 @@ class SemanticDefaults:
         """
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
+    
+    def initialize_with_state(self, verify_falsify_state, sentence_letters):
+        """Initialize verify/falsify functions with specific values.
+        
+        This method is used by the iterator to ensure MODEL 2+ use their own
+        verify/falsify functions when building constraints, preventing constraint
+        mismatches that lead to false premises or true conclusions.
+        
+        Args:
+            verify_falsify_state: Dict mapping (state, letter) -> (verify, falsify)
+            sentence_letters: List of sentence letters in the model
+            
+        NO OPTIONAL PARAMETERS - Both arguments are required per style guide.
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"Initializing semantics with state for letters: {sentence_letters}")
+        logger.info(f"State map has {len(verify_falsify_state)} entries")
+        
+        self._constrained_state = verify_falsify_state
+        self._sentence_letters = sentence_letters
+        
+        # Store original functions
+        self._unconstrained_verify = self.verify
+        self._unconstrained_falsify = self.falsify
+        
+        # Replace with constrained versions
+        self.verify = self._make_constrained_verify()
+        self.falsify = self._make_constrained_falsify()
+    
+    def _make_constrained_verify(self):
+        """Create a constrained verify function using stored state."""
+        import z3
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        def constrained_verify(state, letter):
+            key = (state, letter)
+            if key in self._constrained_state:
+                # Return Z3 BoolVal based on stored boolean
+                value = self._constrained_state[key][0]
+                logger.debug(f"Constrained verify({state}, {letter}) = {value}")
+                return z3.BoolVal(value)
+            # Fall back to original function
+            logger.debug(f"Unconstrained verify({state}, {letter})")
+            return self._unconstrained_verify(state, letter)
+        return constrained_verify
+    
+    def _make_constrained_falsify(self):
+        """Create a constrained falsify function using stored state."""
+        import z3
+        
+        def constrained_falsify(state, letter):
+            key = (state, letter)
+            if key in self._constrained_state:
+                # Return Z3 BoolVal based on stored boolean
+                return z3.BoolVal(self._constrained_state[key][1])
+            # Fall back to original function
+            return self._unconstrained_falsify(state, letter)
+        return constrained_falsify

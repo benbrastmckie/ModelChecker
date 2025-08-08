@@ -621,6 +621,19 @@ Total estimated time: 8 days
 3. **Parallel Model Generation**: Use multiple Z3 instances
 4. **Smart Function Detection**: Only regenerate affected constraints
 
+## Implementation Update
+
+### Issue Discovered
+
+The ModelDefaults constructor automatically solves constraints when creating a new model structure. This overwrites the Z3 model we're trying to use from the iterator, causing the fresh constraints to be re-solved rather than using the existing model.
+
+### Solution
+
+Need to create model structures without automatic solving:
+1. Create a factory method or flag to skip solving
+2. Or manually construct the model structure and set attributes
+3. Ensure the Z3 model from iterator is preserved
+
 ## Conclusion
 
 This implementation plan provides a systematic approach to fixing the iterator constraint preservation issue by creating fresh ModelConstraints for each iteration. The solution maintains theoretical correctness while minimizing performance impact through careful design and optimization.
