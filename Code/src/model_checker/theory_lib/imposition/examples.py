@@ -92,7 +92,7 @@ IM_CM_0_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 10,
-    'iterate' : 1,
+    'iterate' : 2,
     'expectation' : True,
 }
 IM_CM_0_example = [
@@ -1002,13 +1002,13 @@ example_range = {
     # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
     # "IM_TR_0": IM_TR_0_example,   # NO PREMISES OR CONCLUSIONS
 
-    # "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     #
     # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
     # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
     #
-    "IM_CM_29": IM_CM_29_example, # FLIP DEFINITION OF NEC
+    # "IM_CM_29": IM_CM_29_example, # FLIP DEFINITION OF NEC
     # "IM_CM_28": IM_CM_28_example, # REVERSE FLIP DEFINITION OF NEC
 
     # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
