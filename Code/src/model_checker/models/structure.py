@@ -747,3 +747,43 @@ class ModelDefaults:
         """Print Z3 runtime and separator footer."""
         print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
         print(f"\n{'='*40}", file=output)
+    
+    def extract_verify_falsify_state(self):
+        """Extract current verify/falsify function values from Z3 model.
+        
+        This method extracts the current values of verify and falsify functions
+        from the Z3 model. These values are used by the iterator to create
+        fresh ModelConstraints that match the current model.
+        
+        Returns:
+            dict: Mapping of (state, letter) -> (verify_value, falsify_value)
+            
+        Raises:
+            RuntimeError: If Z3 model not available
+        """
+        if not self.z3_model:
+            raise RuntimeError("Cannot extract state without Z3 model")
+        
+        import z3
+        
+        state_map = {}
+        for letter in self.sentence_letters:
+            letter_str = letter.sentence_letter
+            for state in range(2**self.N):
+                # Get verify/falsify values from Z3 model
+                verify_val = self.z3_model.eval(
+                    self.semantics.verify(state, letter_str),
+                    model_completion=True
+                )
+                falsify_val = self.z3_model.eval(
+                    self.semantics.falsify(state, letter_str),
+                    model_completion=True
+                )
+                
+                # Convert to boolean values
+                state_map[(state, letter_str)] = (
+                    z3.is_true(verify_val),
+                    z3.is_true(falsify_val)
+                )
+        
+        return state_map
