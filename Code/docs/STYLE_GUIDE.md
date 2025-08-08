@@ -46,11 +46,21 @@ See [Documentation Standards](../../Docs/maintenance/DOCUMENTATION_STANDARDS.md)
 
 **docs/specs/ Directory Usage:**
 - Use `docs/specs/` directory (tracked in git) for all development artifacts:
-  - `plans/` - Numbered implementation plans (e.g., `001_output.md`)
-  - `debug/` - Numbered debugging analyses (e.g., `001_capture_analysis.md`)
-  - `findings/` - Numbered lessons learned reports (e.g., `001_output_lessons.md`)
-- Documents are numbered sequentially starting from 001
-- Use short, descriptive names without redundant prefixes
+  - `plans/` - Implementation plans
+  - `debug/` - Debugging analyses
+  - `findings/` - Lessons learned reports
+  - `implementation/` - Implementation summaries
+  - `research/` - Research reports and comparative analyses
+  - `baselines/` - Captured test outputs and regression baselines
+
+**Chronological Numbering Convention:**
+- Each directory maintains independent numbering starting from 001
+- Numbers increase chronologically within each directory
+- Higher numbers indicate more recent documents
+- Examples:
+  - `debug/001_output_analysis.md` - First debug analysis
+  - `plans/016_builder_theory_agnostic_refactor.md` - Recent plan
+  - `findings/015_iterator_fix_implemented.md` - Recent finding
 - **Update specs/README.md** when completing major features
 
 **Workflow:**
@@ -67,15 +77,20 @@ See [Documentation Standards](../../Docs/maintenance/DOCUMENTATION_STANDARDS.md)
 ```
 docs/specs/                            # Development artifacts (tracked)
 ├── README.md                         # Major accomplishments log
+├── debug/                           # Debugging analyses
+│   ├── 001_output_analysis.md      # First debug analysis
+│   └── 006_iterator_constraint_analysis.md  # Recent debug work
 ├── plans/                           # Implementation plans
-│   ├── 001_output.md               # Save output plan
-│   ├── 002_structured_output.md    # Structured output plan
-│   └── 003_interactive_save.md     # Interactive save plan
-├── debug/                          # Debugging analyses
-│   ├── 001_output_analysis.md      # Output system analysis
-│   └── 002_capture_analysis.md     # Capture debugging
-└── findings/                       # Lessons learned
-    └── 001_output_lessons.md       # Output implementation findings
+│   ├── 001_output.md               # First plan
+│   └── 016_builder_theory_agnostic_refactor.md  # Recent plan
+├── findings/                        # Lessons learned
+│   ├── 001_output_lessons.md       # First finding
+│   └── 015_iterator_fix_implemented.md  # Recent finding
+├── implementation/                  # Implementation summaries
+│   └── 001_input_provider_implementation_summary.md
+└── research/                        # Research reports
+    ├── 001_batch_output_research.md  # First research
+    └── 009_iterator_analysis_summary.md  # Recent research
 ```
 
 ### Code Organization
