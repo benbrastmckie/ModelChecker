@@ -24,6 +24,7 @@ from model_checker.builder.progress import Spinner
 from model_checker.iterate.graph_utils import ModelGraph
 from model_checker.iterate.progress import IterationProgress
 from model_checker.iterate.stats import IterationStatistics
+from model_checker.iterate.patterns import StructuralPattern, create_structural_difference_constraint
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -112,6 +113,16 @@ class BaseModelIterator:
         # Store the initial model and model structure
         self.found_models = [build_example.model_structure.z3_model]
         self.model_structures = [build_example.model_structure]
+        
+        # Initialize pattern tracking
+        self.found_patterns = []
+        
+        # Extract initial pattern
+        initial_pattern = StructuralPattern(
+            self.build_example.model_constraints,
+            self.found_models[0]
+        )
+        self.found_patterns.append(initial_pattern)
         
         # Create a persistent solver that will accumulate constraints
         self.solver = self._create_persistent_solver()
@@ -267,9 +278,14 @@ class BaseModelIterator:
                         self.debug_messages.append(f"[ITERATION] Too many consecutive invalid models ({max_consecutive_invalid}) - no more valid models exist")
                         break
                     
-                    # Add constraint to exclude this invalid model
+                    # Add constraint to exclude this invalid model using patterns
                     logger.debug("Adding constraint to exclude invalid model")
-                    self.solver.add(self._create_difference_constraint([new_model]))
+                    invalid_pattern = StructuralPattern(self.build_example.model_constraints, new_model)
+                    invalid_constraint = invalid_pattern.to_difference_constraint(
+                        self.build_example.model_constraints.semantics,
+                        self.build_example.model_constraints.sentence_letters
+                    )
+                    self.solver.add(invalid_constraint)
                     continue
                 
                 # Check for isomorphism if NetworkX is available
@@ -353,14 +369,14 @@ class BaseModelIterator:
                         # Continue to next iteration to try the stronger constraints
                         continue
                     
-                    # Add a non-isomorphism constraint and try again
-                    iso_constraint = self._create_non_isomorphic_constraint(new_model)
-                    if iso_constraint is not None:  # Check for None explicitly instead of using truth value
-                        self.solver.add(iso_constraint)
-                        continue  # Skip to next attempt without incrementing
-                    else:
-                        self.debug_messages.append("Could not create non-isomorphic constraint, stopping search")
-                        break
+                    # Add a non-isomorphism constraint using patterns and try again
+                    iso_pattern = StructuralPattern(self.build_example.model_constraints, new_model)
+                    iso_constraint = iso_pattern.to_difference_constraint(
+                        self.build_example.model_constraints.semantics,
+                        self.build_example.model_constraints.sentence_letters
+                    )
+                    self.solver.add(iso_constraint)
+                    continue  # Skip to next attempt without incrementing
                 
                 # This is a genuine new model
                 new_structure._is_isomorphic = False
@@ -384,6 +400,13 @@ class BaseModelIterator:
                 self.model_structures.append(new_structure)
                 self.current_iteration += 1
                 
+                # Track pattern for the new model
+                new_pattern = StructuralPattern(
+                    self.build_example.model_constraints, 
+                    new_model
+                )
+                self.found_patterns.append(new_pattern)
+                
                 # Add statistics for this model
                 self.stats.add_model(new_structure, differences)
                 
@@ -392,7 +415,13 @@ class BaseModelIterator:
                     progress.update(self.distinct_models_found, self.checked_model_count)
                 
                 # Add the new model to the solver constraints to ensure the next model is different
-                self.solver.add(self._create_difference_constraint([new_model]))
+                # Add pattern-based constraint to exclude this model
+                exclude_pattern = StructuralPattern(self.build_example.model_constraints, new_model)
+                exclude_constraint = exclude_pattern.to_difference_constraint(
+                    self.build_example.model_constraints.semantics,
+                    self.build_example.model_constraints.sentence_letters
+                )
+                self.solver.add(exclude_constraint)
                 
             except Exception as e:
                 self.debug_messages.append(f"Error during iteration: {str(e)}")
@@ -484,7 +513,7 @@ class BaseModelIterator:
         return self
     
     def _create_extended_constraints(self):
-        """Create extended constraints that require difference from all previous models.
+        """Create extended constraints using pattern-based differences.
         
         Returns:
             list: Z3 constraints requiring difference from all previous models
@@ -492,23 +521,17 @@ class BaseModelIterator:
         Raises:
             RuntimeError: If constraint generation fails
         """
-        # Use preserved constraints instead of trying to extract from solver
-        original_constraints = self.original_constraints
+        # Start with original constraints
+        extended_constraints = list(self.original_constraints)
         
-        # Create difference constraints for all previous models
-        difference_constraints = []
-        for model in self.found_models:
-            diff_constraint = self._create_difference_constraint([model])
-            difference_constraints.append(diff_constraint)
+        # Add pattern-based difference constraint
+        diff_constraint = create_structural_difference_constraint(
+            self.build_example.model_constraints,
+            self.found_patterns
+        )
+        extended_constraints.append(diff_constraint)
         
-        # Add structural constraints to help find different models
-        if HAS_NETWORKX:
-            for model in self.found_models:
-                iso_constraint = self._create_non_isomorphic_constraint(model)
-                if iso_constraint is not None:  # Check for None explicitly instead of using truth value
-                    difference_constraints.append(iso_constraint)
-        
-        return original_constraints + difference_constraints
+        return extended_constraints
         
     def _build_new_model_structure(self, z3_model):
         """Build a new model structure with fresh constraints.
@@ -1025,53 +1048,6 @@ class BaseModelIterator:
     
     # Abstract methods that must be implemented by theory-specific subclasses
     
-    def _create_difference_constraint(self, previous_models):
-        """Create a Z3 constraint requiring difference from all previous models.
-        
-        This is an abstract method that should be implemented by theory-specific subclasses.
-        
-        Args:
-            previous_models: List of Z3 models to differ from
-            
-        Returns:
-            z3.ExprRef: Z3 constraint expression
-            
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
-        """
-        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
-    
-    def _create_non_isomorphic_constraint(self, z3_model):
-        """Create a constraint that forces structural differences to avoid isomorphism.
-        
-        This is an abstract method that should be implemented by theory-specific subclasses.
-        
-        Args:
-            z3_model: The Z3 model to differ from
-        
-        Returns:
-            z3.ExprRef: Z3 constraint expression or None if creation fails
-            
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
-        """
-        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
-        
-    def _create_stronger_constraint(self, isomorphic_model):
-        """Create stronger constraints after multiple isomorphism failures.
-        
-        This is an abstract method that should be implemented by theory-specific subclasses.
-        
-        Args:
-            isomorphic_model: The Z3 model that was isomorphic
-        
-        Returns:
-            z3.ExprRef: Z3 constraint expression or None if creation fails
-            
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
-        """
-        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
     
     def _get_iteration_settings(self):
         """Extract and validate iteration settings from BuildExample.
