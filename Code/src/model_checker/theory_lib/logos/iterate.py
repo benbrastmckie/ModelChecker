@@ -194,9 +194,151 @@ class LogosModelIterator(BaseModelIterator):
         
         return differences
     
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints requiring difference from previous models.
+        
+        This implements a smart ordering of constraint generators based on
+        the master branch approach. It tries simpler constraints first
+        (world count, letter values) before more complex structural ones.
+        
+        Args:
+            previous_models: List of Z3 models found so far
+            
+        Returns:
+            Z3 constraint requiring structural difference
+        """
+        constraints = []
+        
+        # Get current semantics
+        semantics = self.build_example.model_constraints.semantics
+        
+        # Try different types of constraints in order of complexity
+        for prev_model in previous_models:
+            model_constraints = []
+            
+            # 1. World count constraint (simplest)
+            world_count_constraint = self._create_world_count_constraint(prev_model, semantics)
+            if world_count_constraint is not None:
+                model_constraints.append(world_count_constraint)
+            
+            # 2. Letter value constraints (verify/falsify differences)
+            letter_constraints = self._create_letter_value_constraints(prev_model, semantics)
+            if letter_constraints:
+                model_constraints.extend(letter_constraints)
+            
+            # 3. Structural constraints (more complex)
+            if len(model_constraints) < 5:  # Only add if we need more constraints
+                structural_constraints = self._create_structural_constraints(prev_model, semantics)
+                if structural_constraints:
+                    model_constraints.extend(structural_constraints[:5-len(model_constraints)])
+            
+            # Combine constraints for this model
+            if model_constraints:
+                constraints.append(z3.Or(*model_constraints))
+        
+        # All models must be different
+        return z3.And(*constraints) if constraints else z3.BoolVal(True)
     
+    def _create_world_count_constraint(self, prev_model, semantics):
+        """Create constraint on different number of worlds."""
+        # Count worlds in previous model
+        prev_world_count = 0
+        for state in range(2**semantics.N):
+            if z3.is_true(prev_model.eval(semantics.is_world(state), model_completion=True)):
+                prev_world_count += 1
+        
+        # Current model must have different number of worlds
+        current_world_count = z3.Sum([
+            z3.If(semantics.is_world(state), 1, 0) 
+            for state in range(2**semantics.N)
+        ])
+        
+        return current_world_count != prev_world_count
     
+    def _create_letter_value_constraints(self, prev_model, semantics):
+        """Create constraints on verify/falsify values differing."""
+        constraints = []
+        
+        # Get sentence letters from syntax
+        syntax = self.build_example.example_syntax
+        if not hasattr(syntax, 'sentence_letters'):
+            return constraints
+        
+        for letter_obj in syntax.sentence_letters:
+            if hasattr(letter_obj, 'sentence_letter'):
+                atom = letter_obj.sentence_letter
+                
+                # Check each state
+                for state in range(2**semantics.N):
+                    # Get previous values
+                    prev_verify = prev_model.eval(
+                        semantics.verify(state, atom), 
+                        model_completion=True
+                    )
+                    prev_falsify = prev_model.eval(
+                        semantics.falsify(state, atom), 
+                        model_completion=True
+                    )
+                    
+                    # Create constraints for differences
+                    constraints.append(
+                        semantics.verify(state, atom) != prev_verify
+                    )
+                    constraints.append(
+                        semantics.falsify(state, atom) != prev_falsify
+                    )
+        
+        return constraints
     
+    def _create_structural_constraints(self, prev_model, semantics):
+        """Create constraints on structural differences (parthood, etc)."""
+        constraints = []
+        
+        # Parthood relation differences
+        for s1 in range(2**semantics.N):
+            for s2 in range(2**semantics.N):
+                if s1 != s2:
+                    prev_part = prev_model.eval(
+                        semantics.is_part_of(s1, s2),
+                        model_completion=True
+                    )
+                    constraints.append(
+                        semantics.is_part_of(s1, s2) != prev_part
+                    )
+        
+        return constraints
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraint preventing isomorphic models.
+        
+        For logos theory, isomorphism means there's a permutation of states
+        that preserves all relations (verify, falsify, parthood, etc).
+        
+        Args:
+            z3_model: The Z3 model to constrain against
+            
+        Returns:
+            Z3 constraint preventing isomorphism
+        """
+        # For now, return a simple constraint
+        # Full isomorphism checking would be more complex
+        return z3.BoolVal(True)
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models.
+        
+        In logos theory, a stronger model typically has more verifiers
+        or fewer falsifiers for the conclusion formulas.
+        
+        Args:
+            isomorphic_model: An isomorphic model to strengthen against
+            
+        Returns:
+            Z3 constraint for stronger model
+        """
+        # For now, return a simple constraint
+        # Full implementation would compare conclusion truth values
+        return z3.BoolVal(True)
 
 
 # Module-level convenience function

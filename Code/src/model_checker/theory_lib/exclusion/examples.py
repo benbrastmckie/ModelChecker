@@ -561,7 +561,7 @@ EX_TH_2_settings = {
     'disjoint' : False,
     'fusion_closure': False,
     'max_time' : 5,
-    'iterate' : 1,
+    'iterate' : 2,
     'expectation' : False,
 }
 EX_TH_2_example = [
@@ -946,7 +946,7 @@ logos_theory = {
 # NOTE: The translation dictionaries will convert unilateral operators to bilateral equivalents
 semantic_theories = {
     "BernardChampollion": unilateral_theory,  # Unilateral exclusion semantics
-    "Brast-McKie": logos_theory,               # Bilateral hyperintensional semantics
+    # "Brast-McKie": logos_theory,               # Bilateral hyperintensional semantics
 }
 
 # Default example range (curated subset for direct execution)
@@ -959,7 +959,7 @@ example_range = {
     
     # Basic countermodel examples
     # "EX_CM_21": EX_CM_21_example,  # BASIC TEST
-    # "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
+    "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
     
     # # Bilateral negation examples (Problematic in static)
     # "EX_CM_4": EX_CM_4_example,    # NEGATION TO SENTENCE (FALSE PREMISE PROBLEM)

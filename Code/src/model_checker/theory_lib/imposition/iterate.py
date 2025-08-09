@@ -357,6 +357,78 @@ class ImpositionModelIterator(BaseModelIterator):
                 else:
                     print(f"  {pair}: changed", file=output)
 
+    
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints requiring difference from previous models.
+        
+        For imposition theory, focuses on verify/falsify and imposition relations.
+        
+        Args:
+            previous_models: List of Z3 models found so far
+            
+        Returns:
+            Z3 constraint requiring structural difference
+        """
+        constraints = []
+        semantics = self.build_example.model_constraints.semantics
+        
+        for prev_model in previous_models:
+            model_constraints = []
+            
+            # Letter value constraints (verify/falsify)
+            syntax = self.build_example.example_syntax
+            if hasattr(syntax, 'sentence_letters'):
+                for letter_obj in syntax.sentence_letters:
+                    if hasattr(letter_obj, 'sentence_letter'):
+                        atom = letter_obj.sentence_letter
+                        
+                        for state in range(2**semantics.N):
+                            prev_verify = prev_model.eval(
+                                semantics.verify(state, atom), 
+                                model_completion=True
+                            )
+                            prev_falsify = prev_model.eval(
+                                semantics.falsify(state, atom), 
+                                model_completion=True
+                            )
+                            
+                            model_constraints.append(
+                                semantics.verify(state, atom) != prev_verify
+                            )
+                            model_constraints.append(
+                                semantics.falsify(state, atom) != prev_falsify
+                            )
+            
+            # Imposition relation constraints  
+            # NOTE: imposition takes 3 arguments (x, y, z) not 2
+            # We need to vary over all three states to find differences
+            if hasattr(semantics, 'imposition'):
+                for s1 in range(2**semantics.N):
+                    for s2 in range(2**semantics.N):
+                        for s3 in range(2**semantics.N):
+                            prev_imp = prev_model.eval(
+                                semantics.imposition(s1, s2, s3),
+                                model_completion=True
+                            )
+                            model_constraints.append(
+                                semantics.imposition(s1, s2, s3) != prev_imp
+                            )
+            
+            if model_constraints:
+                constraints.append(z3.Or(*model_constraints))
+        
+        return z3.And(*constraints) if constraints else z3.BoolVal(True)
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraint preventing isomorphic models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
+
 
 # Wrapper function for use in theory examples
 def iterate_example(example, max_iterations=None):

@@ -147,6 +147,34 @@ class ExclusionModelIterator(LogosModelIterator):
         # For now, return empty list since witness predicates are handled
         # differently in exclusion theory through the witness registry
         return []
+    
+    def _create_letter_value_constraints(self, prev_model, semantics):
+        """Create constraints on verify values differing (no falsify in exclusion)."""
+        constraints = []
+        
+        # Get sentence letters from syntax
+        syntax = self.build_example.example_syntax
+        if not hasattr(syntax, 'sentence_letters'):
+            return constraints
+        
+        for letter_obj in syntax.sentence_letters:
+            if hasattr(letter_obj, 'sentence_letter'):
+                atom = letter_obj.sentence_letter
+                
+                # Check each state - only verify, no falsify
+                for state in range(2**semantics.N):
+                    # Get previous values
+                    prev_verify = prev_model.eval(
+                        semantics.verify(state, atom), 
+                        model_completion=True
+                    )
+                    
+                    # Create constraints for differences
+                    constraints.append(
+                        semantics.verify(state, atom) != prev_verify
+                    )
+        
+        return constraints
 
 
 def iterate_example(example, max_iterations=None):
