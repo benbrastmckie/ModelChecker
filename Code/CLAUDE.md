@@ -1,13 +1,14 @@
 # AI Assistant Guide: ModelChecker Framework Development
 
-[← Back to ModelChecker](README.md) | [Style Guide →](docs/STYLE_GUIDE.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](../Docs/maintenance/README.md)
+[← Back to ModelChecker](README.md) | [Style Guide →](docs/STYLE_GUIDE.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Code Maintenance →](maintenance/README.md)
 
 ## Directory Structure
 ```
 Code/
 ├── CLAUDE.md                    # This file - AI assistant development guide
 ├── README.md                    # Main package documentation
-├── ../Docs/maintenance/README.md       # Documentation and coding standards
+├── maintenance/                 # Code maintenance standards
+├── ../Docs/maintenance/         # Documentation maintenance standards
 ├── docs/                        # Development documentation
 ├── src/model_checker/           # Core framework implementation
 └── tests/                       # Integration test suite
@@ -37,7 +38,7 @@ This guide emphasizes **systematic development practices**, **comprehensive test
 Development documentation hub containing comprehensive guides for **environment setup**, **testing procedures**, **architecture documentation**, and **contribution guidelines**. See [docs/README.md](docs/README.md) for complete development resource navigation.
 
 ### [src/model_checker/](src/model_checker/)
-Core framework implementation with **API documentation**, **theory library**, **component packages**, and **comprehensive test suites**. Each component includes detailed README documentation following ../Docs/maintenance/README.md standards.
+Core framework implementation with **API documentation**, **theory library**, **component packages**, and **comprehensive test suites**. Each component includes detailed README documentation following maintenance/README.md standards.
 
 ## Code Quality Standards
 
@@ -46,7 +47,7 @@ Core framework implementation with **API documentation**, **theory library**, **
 - **NO EMOJIS**: Never use emojis anywhere in the codebase, documentation, or output
 - **Unicode Mathematical Symbols**: Use verified Unicode for logical operators (∧, ∨, ¬, □, ◇) only
 - **LaTeX Notation**: Use LaTeX in code examples (`\\wedge`, `\\Box`, `\\rightarrow`)
-- **Consistent Documentation**: Follow comprehensive ../Docs/maintenance/README.md standards for all README files
+- **Consistent Documentation**: Follow comprehensive maintenance standards (Code/maintenance/ for code, Docs/maintenance/ for docs)
 - **NO DECORATORS**: Avoid decorators without good reason and explicit user permission
 
 ### Character Encoding Standards
@@ -187,10 +188,12 @@ src/model_checker/*/tests/                # Component test files
 ## Documentation
 
 ### For Feature Implementation (AI & Human)
+- **[IMPLEMENT Guide](maintenance/IMPLEMENT.md)** - Concise spec execution workflow ("Use IMPLEMENT.md to implement spec")
 - **[Style Guide](docs/STYLE_GUIDE.md)** - Quick reference for coding and documentation standards
 - **[Testing Guide](docs/TESTS.md)** - Comprehensive testing procedures and best practices  
 - **[Development Guide](docs/DEVELOPMENT.md)** - Environment setup and development workflow
-- **[Maintenance Standards](../Docs/maintenance/README.md)** - Complete documentation and coding standards
+- **[Code Maintenance](maintenance/README.md)** - Code-specific maintenance standards
+- **[Documentation Maintenance](../Docs/maintenance/README.md)** - Documentation standards
 
 ### For AI Assistants
 - **[Quality Standards](#code-quality-standards)** - File encoding, symbol usage, and validation procedures
@@ -285,4 +288,4 @@ Part of the ModelChecker framework, licensed under GPL-3.0.
 
 ---
 
-[← Back to ModelChecker](README.md) | [Style Guide →](docs/STYLE_GUIDE.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Maintenance Standards →](../Docs/maintenance/README.md)
+[← Back to ModelChecker](README.md) | [Style Guide →](docs/STYLE_GUIDE.md) | [Development Guide →](docs/DEVELOPMENT.md) | [Code Maintenance →](maintenance/README.md)

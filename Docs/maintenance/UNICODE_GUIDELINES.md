@@ -1,93 +1,278 @@
-# Unicode Character Guidelines
+# Unicode Guidelines for Documentation
 
-[← Examples Structure](EXAMPLES_STRUCTURE.md) | [Back to Maintenance](README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
+[← Version Control](VERSION_CONTROL.md) | [Back to Maintenance](README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
 
 ## Overview
 
-Unicode characters (∧, ∨, ¬, □, ◇, →, ↔, etc.) are **ONLY** permitted in comments and documentation. They must **NEVER** be used in code that the ModelChecker parser processes.
+This document defines Unicode character usage standards for **documentation files** in the ModelChecker project. Unicode mathematical symbols (∧, ∨, ¬, □, ◇, →, ↔, etc.) are **encouraged** in documentation for clarity and readability.
 
-## Parser Requirements
-
-The ModelChecker parser expects LaTeX notation exclusively. Unicode characters in formulas or operator definitions will cause parsing errors.
-
-```python
-# CORRECT - LaTeX in code, Unicode in comments
-class Negation(Operator):
-    """Negation operator (¬) for logical negation."""
-    def __init__(self):
-        super().__init__("\\neg", 1)  # LaTeX for parser
-
-# INCORRECT - Unicode in operator definition
-class Negation(Operator):
-    def __init__(self):
-        super().__init__("¬", 1)  # WRONG: Parser cannot read this
-```
-
-## Formula Notation
-
-```python
-# CORRECT - LaTeX notation in formulas
-formula = "(A \\wedge B)"
-
-# INCORRECT - Unicode in formulas  
-formula = "A ∧ B"  # WRONG: Parser expects LaTeX
-```
+For Unicode restrictions in code files, see [Code/maintenance/UNICODE_GUIDELINES.md](../../Code/maintenance/UNICODE_GUIDELINES.md).
 
 ## Documentation Symbol Standards
 
-When documenting operators in README files, show both LaTeX command and Unicode display:
+### When to Use Unicode
 
-Format: `\\equiv` (displayed as ≡)
+Unicode symbols should be used in documentation to:
+- Improve readability for mathematical expressions
+- Create clear visual distinction between operators
+- Align with standard mathematical notation
+- Enhance accessibility for non-programmers
 
-### Preferred Unicode Symbols
+```markdown
+# RECOMMENDED - Unicode in documentation
+The formula A ∧ B represents the conjunction of propositions A and B.
+Modal necessity is expressed as □P (necessarily P).
 
-- Double arrows: Use ⟹ (U+27F9) not ⇒ (U+21D2)
-- Less-than-or-equal: Use ≤ (U+2264)
-- Square subset: Use ⊑ (U+2291)
+# ALSO GOOD - Explaining both notations
+The Box operator □ (written as `\Box` in code) represents necessity.
+```
+
+### Mathematical Symbol Reference
+
+| Symbol | Unicode | Name | Usage in Documentation |
+|--------|---------|------|------------------------|
+| ∧ | U+2227 | Logical AND | Conjunction |
+| ∨ | U+2228 | Logical OR | Disjunction |
+| ¬ | U+00AC | NOT SIGN | Negation |
+| → | U+2192 | RIGHTWARDS ARROW | Implication |
+| ↔ | U+2194 | LEFT RIGHT ARROW | Biconditional |
+| □ | U+25A1 | WHITE SQUARE | Modal necessity |
+| ◇ | U+25C7 | WHITE DIAMOND | Modal possibility |
+| ⊨ | U+22A8 | TRUE | Semantic entailment |
+| ⊭ | U+22AD | NOT TRUE | Non-entailment |
+| ∀ | U+2200 | FOR ALL | Universal quantifier |
+| ∃ | U+2203 | THERE EXISTS | Existential quantifier |
 
 ### Constitutive Logic Symbols
 
-| LaTeX | Unicode | Name | Usage |
-|-------|---------|------|-------|
-| `\\equiv` | ≡ | IDENTICAL TO | Identity operator |
-| `\\leq` | ≤ | LESS-THAN OR EQUAL TO | Ground operator |
-| `\\sqsubseteq` | ⊑ | SQUARE IMAGE OF OR EQUAL TO | Essence operator |
-| `\\preceq` | ⪯ | PRECEDES ABOVE SINGLE-LINE EQUALS SIGN | Relevance operator |
-| `\\Rightarrow` | ⟹ | LONG RIGHTWARDS DOUBLE ARROW | Reduction operator |
+For specialized theories, use these preferred symbols:
 
-## LaTeX Notation Reference
+| Symbol | Unicode | LaTeX | Meaning |
+|--------|---------|-------|---------|
+| ≡ | U+2261 | `\equiv` | Identity |
+| ≤ | U+2264 | `\leq` | Ground |
+| ⊑ | U+2291 | `\sqsubseteq` | Essence |
+| ⪯ | U+2AAF | `\preceq` | Relevance |
+| ⟹ | U+27F9 | `\Rightarrow` | Reduction |
 
-| Operator      | Unicode (docs only) | LaTeX (code)             | Description          |
-|---------------|---------------------|--------------------------|----------------------|
-| Negation      | ¬                   | `\\neg`                  | Logical NOT          |
-| Conjunction   | ∧                   | `\\wedge`                | Logical AND          |
-| Disjunction   | ∨                   | `\\vee`                  | Logical OR           |
-| Implication   | →                   | `\\rightarrow`           | Material conditional |
-| Biconditional | ↔                   | `\\leftrightarrow`       | If and only if       |
-| Necessity     | □                   | `\\Box`                  | Modal necessity      |
-| Possibility   | ◇                   | `\\Diamond`              | Modal possibility    |
-| Counterfactual| ⥽                   | `\\boxright`             | Counterfactual       |
-| Future        | ⏵                   | `\\future`               | Temporal future      |
-| Past          | ⏴                   | `\\past`                 | Temporal past        |
-| Top           | ⊤                   | `\\top`                  | Logical truth        |
-| Bottom        | ⊥                   | `\\bot`                  | Logical falsehood    |
+## Documentation Patterns
 
-## File Encoding Requirements
+### Explaining Formulas
 
-- **UTF-8 ENCODING**: All files must use UTF-8 encoding without BOM
-- **NO CONTROL CHARACTERS**: Exclude non-printable control characters
-- **UNICODE VALIDATION**: Verify symbols display correctly before finalizing
+When documenting logical formulas:
 
-## Quality Assurance
+```markdown
+## Example: Modus Ponens
+
+The inference rule can be expressed as:
+
+**Premises:**
+1. P → Q (if P then Q)
+2. P (P is true)
+
+**Conclusion:**
+- Q (therefore Q)
+
+In ModelChecker syntax, this would be written as:
+```python
+premises = ["(P \\rightarrow Q)", "P"]
+conclusions = ["Q"]
+```
+```
+
+### Operator Documentation
+
+When documenting operators:
+
+```markdown
+## Necessity Operator (□)
+
+The necessity operator □ (Box) expresses that a formula holds in all 
+accessible possible worlds.
+
+**Syntax**: `\Box` followed by a formula
+**Example**: □P reads as "necessarily P"
+**Code**: `"\\Box P"`
+
+### Common Modal Axioms
+
+- **K**: □(P → Q) → (□P → □Q)
+- **T**: □P → P  
+- **4**: □P → □□P
+- **5**: ◇P → □◇P
+```
+
+### Theory Comparisons
+
+Use Unicode for clear visual comparisons:
+
+```markdown
+## Theory Feature Comparison
+
+| Theory | Conjunction | Implication | Modal Operators |
+|--------|-------------|-------------|-----------------|
+| Classical | A ∧ B | A → B | Not supported |
+| Modal | A ∧ B | A → B | □A, ◇A |
+| Relevance | A ∧ B | A → B (relevant) | Limited support |
+```
+
+## Code Example Documentation
+
+When showing code examples in documentation, include both notations:
+
+```markdown
+## Creating a Modal Formula
+
+To express "If P is necessary, then P is true" (axiom T):
+
+**Mathematical notation**: □P → P
+
+**ModelChecker code**:
+```python
+formula = "(\\Box P \\rightarrow P)"
+```
+
+**Explanation**: The `\Box` represents □ (necessity) in the code.
+```
+
+## File Encoding for Documentation
+
+### UTF-8 Requirements
+
+All documentation files must use UTF-8 encoding:
 
 ```bash
-# Check for non-printable characters
-grep -n '[^[:print:][:space:]]' filename
+# Check encoding
+file -i README.md  # Should show: charset=utf-8
 
-# Verify UTF-8 encoding
-file -i filename  # Should show: charset=utf-8
+# Convert if needed
+iconv -f ISO-8859-1 -t UTF-8 input.md -o output.md
+```
+
+### Quality Assurance
+
+```bash
+# Verify Unicode symbols display correctly
+grep -r "[∧∨¬□◇→↔]" docs/
+
+# Check for proper encoding
+find docs -name "*.md" -exec file -i {} \; | grep -v utf-8
+```
+
+## Accessibility Considerations
+
+### Screen Reader Compatibility
+
+When using Unicode, provide context:
+
+```markdown
+# GOOD - Provides pronunciation guide
+The conjunction operator ∧ (pronounced "and") connects two formulas.
+
+# BETTER - Multiple representations  
+The formula A ∧ B (A and B) is true when both A and B are true.
+```
+
+### Alternative Representations
+
+For maximum accessibility:
+
+```markdown
+## Logical Operators
+
+- Conjunction: ∧ (AND, wedge)
+- Disjunction: ∨ (OR, vee)  
+- Negation: ¬ (NOT, negation sign)
+- Implication: → (IF-THEN, arrow)
+```
+
+## Cross-Reference Standards
+
+When linking between code and documentation:
+
+```markdown
+## Implementation Details
+
+For the code implementation of modal operators, see 
+[modal.py](../../Code/src/model_checker/theory_lib/modal/semantic.py).
+
+Note: In code, operators must use LaTeX notation:
+- Documentation: □ (Box operator)
+- Code: `\Box`
+```
+
+## Common Pitfalls
+
+### Don't Mix in Code Blocks
+
+```markdown
+# WRONG - Unicode in code example
+```python
+formula = "□P → P"  # This won't parse!
+```
+
+# CORRECT - LaTeX in code, Unicode in explanation
+The axiom T states that □P → P (what is necessary is true).
+
+```python
+formula = "(\\Box P \\rightarrow P)"
+```
+```
+
+### Consistent Symbol Choice
+
+```markdown
+# INCONSISTENT - Mixing arrows
+Sometimes using → and sometimes using ⟹
+
+# CONSISTENT - Clear distinction
+- Material implication: →
+- Logical entailment: ⟹
+```
+
+## Documentation Templates
+
+### Formula Documentation Template
+
+```markdown
+## [Formula Name]
+
+**Informal reading**: [Natural language description]
+
+**Formal notation**: [Unicode formula]
+
+**ModelChecker syntax**:
+```python
+formula = "[LaTeX formula string]"
+```
+
+**Example**:
+- Input: [Example values]
+- Output: [Expected result]
+
+**Related formulas**: [Links to similar formulas]
+```
+
+### Operator Documentation Template
+
+```markdown
+## [Operator Name] ([Unicode Symbol])
+
+**LaTeX notation**: `\command`
+**Pronunciation**: [How to read aloud]
+**Type**: Unary/Binary/Other
+
+### Semantics
+[Formal semantic description]
+
+### Usage
+[When and how to use this operator]
+
+### Examples
+1. [Unicode example] - [Explanation]
+   - Code: `"[LaTeX version]"`
 ```
 
 ---
 
-[← Examples Structure](EXAMPLES_STRUCTURE.md) | [Back to Maintenance](README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
+[← Version Control](VERSION_CONTROL.md) | [Back to Maintenance](README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)

@@ -1,6 +1,6 @@
 # Examples.py Structure Standards
 
-[← Formula Formatting](FORMULA_FORMATTING.md) | [Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md)
+[← Formula Formatting](FORMULA_FORMATTING.md) | [Back to Maintenance](README.md) | [Code Organization →](CODE_ORGANIZATION.md)
 
 ## Overview
 
@@ -119,4 +119,4 @@ This creates a complete project structure with properly formatted examples.py, t
 
 ---
 
-[← Formula Formatting](FORMULA_FORMATTING.md) | [Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md)
+[← Formula Formatting](FORMULA_FORMATTING.md) | [Back to Maintenance](README.md) | [Code Organization →](CODE_ORGANIZATION.md)

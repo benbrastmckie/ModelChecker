@@ -1,6 +1,6 @@
 # Error Handling Standards
 
-[← Testing Standards](TESTING_STANDARDS.md) | [Back to Maintenance](README.md) | [Performance Guidelines →](PERFORMANCE.md)
+[← Code Organization](CODE_ORGANIZATION.md) | [Back to Maintenance](README.md) | [Performance Guidelines →](PERFORMANCE.md)
 
 ## Overview
 
@@ -224,4 +224,4 @@ raise FormulaParseError(
 
 ---
 
-[← Testing Standards](TESTING_STANDARDS.md) | [Back to Maintenance](README.md) | [Performance Guidelines →](PERFORMANCE.md)
+[← Code Organization](CODE_ORGANIZATION.md) | [Back to Maintenance](README.md) | [Performance Guidelines →](PERFORMANCE.md)

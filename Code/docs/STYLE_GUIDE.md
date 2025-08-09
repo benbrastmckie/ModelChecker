@@ -1,18 +1,18 @@
 # Style Guide Quick Reference
 
-[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Tests Guide →](TESTS.md) | [Maintenance Standards →](../../Docs/maintenance/README.md) | [Development →](DEVELOPMENT.md)
+[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Tests Guide →](TESTS.md) | [Code Maintenance →](../maintenance/README.md) | [Development →](DEVELOPMENT.md)
 
 ## Overview
 
 This document provides a **quick reference** to the ModelChecker coding and documentation standards for implementing new features. It consolidates key standards from the comprehensive maintenance documentation and provides direct links to implementation guidelines.
 
-For complete standards, see [Maintenance Documentation](../../Docs/maintenance/README.md). For AI development guidelines, see [CLAUDE.md](../CLAUDE.md). For testing procedures, see [TESTS.md](TESTS.md).
+For code standards, see [Code Maintenance](../maintenance/README.md). For documentation standards, see [Documentation Maintenance](../../Docs/maintenance/README.md). For AI guidelines, see [CLAUDE.md](../CLAUDE.md). For testing procedures, see [TESTS.md](TESTS.md).
 
 ## Quick Reference
 
 ### Formula Formatting
 
-See [Formula Formatting Standards](../../Docs/maintenance/FORMULA_FORMATTING.md)
+See [Formula Formatting Standards](../maintenance/FORMULA_FORMATTING.md)
 
 **Essential Rules:**
 - Use capital letters (`A`, `B`, `C`) for propositions  
@@ -23,7 +23,7 @@ See [Formula Formatting Standards](../../Docs/maintenance/FORMULA_FORMATTING.md)
 
 ### Examples.py Structure  
 
-See [Examples Structure Standards](../../Docs/maintenance/EXAMPLES_STRUCTURE.md)
+See [Examples Structure Standards](../maintenance/EXAMPLES_STRUCTURE.md)
 
 **Required Pattern:**
 - Follow PREFIX_TYPE_NUMBER naming: `MODAL_TH_1_premises`
@@ -314,4 +314,4 @@ grep -r "^#" docs/ src/*/README.md  # Check section headers
 
 ---
 
-[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Tests Guide →](TESTS.md) | [Maintenance Standards →](../../Docs/maintenance/README.md) | [Development →](DEVELOPMENT.md)
+[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Tests Guide →](TESTS.md) | [Code Maintenance →](../maintenance/README.md) | [Development →](DEVELOPMENT.md)
