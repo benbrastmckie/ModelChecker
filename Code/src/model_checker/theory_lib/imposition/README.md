@@ -20,6 +20,18 @@ imposition/
 
 ## Overview
 
+### Notation
+
+Throughout this documentation, we use the notation `a -->_w b` to represent the imposition relation, which should be read as:
+- `a` is the state being imposed
+- `w` is the world being imposed on (subscript)
+- `b` is the resulting world
+- Reading: "b is the result of imposing a on w"
+
+For example, `□ -->_a b` means "b is the result of imposing the null state □ on world a".
+
+### Introduction
+
 The **Imposition Theory** implements Kit Fine's counterfactual semantics without possible worlds, using a primitive imposition relation within the ModelChecker framework. This theory evaluates counterfactuals through imposing verifier states on evaluation worlds to generate alternative outcomes. Within the theory library ecosystem, imposition extends the Logos hyperintensional foundation. This implementation serves researchers exploring counterfactual logic, developers building counterfactual reasoning systems, and students learning alternative approaches to conditional semantics beyond the traditional possible worlds framework.
 
 ## Core Components

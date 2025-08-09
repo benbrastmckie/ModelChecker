@@ -8,7 +8,7 @@ This report demonstrates that while the constructive definition `is_alternative`
 
 ### The Frame Constraints on Imposition
 
-Fine's imposition semantics imposes four frame constraints on the primitive relation `imposition(x, w, u)` meaning "imposing state x on world w can result in world u":
+Fine's imposition semantics imposes four frame constraints on the primitive relation `imposition(x, w, u)` meaning "u is a result of imposing state x on world w":
 
 1. **Inclusion**: `imposition(x, w, u) => part(x, u)`  
    The imposed state must be part of the outcome world
@@ -28,7 +28,7 @@ The logos semantics defines `alt_imposition` as a reordering of the constructive
 
 ```python
 def alt_imposition(self, state_y, state_w, state_u):
-    """Determines if a state_u is an alternative world resulting from
+    """Determines if state_u is an alternative world resulting from
     imposing state_y on state_w.
     
     This method permutes the arguments to provide an exact analog of the 
@@ -149,8 +149,8 @@ EXAMPLE IM_CM_26: there is a countermodel.
 
 State Space: □, c (world), d (world)
 Imposition Relation:
-  c -->_□ c, c -->_c c
-  d -->_□ d, d -->_d d
+  □ -->_c c, c -->_c c
+  □ -->_d d, d -->_d d
 Evaluation world: d
 
 INTERPRETED PREMISE:
@@ -167,7 +167,7 @@ INTERPRETED CONCLUSION:
 
 [View JSON data for IM_CM_26](data/IM_CM_26.json)
 
-**Analysis**: The imposition counterfactual is vacuously true because the primitive relation generates no alternatives (no d -->_c relation exists). However, the logos counterfactual correctly identifies c as an alternative and finds B false there.
+**Analysis**: The imposition counterfactual is vacuously true because the primitive relation generates no alternatives (no relation where c results from imposing c on d exists). However, the logos counterfactual correctly identifies c as an alternative and finds B false there.
 
 ### IM_CM_27: Logos Does Not Entail Imposition
 
@@ -176,8 +176,8 @@ EXAMPLE IM_CM_27: there is a countermodel.
 
 State Space: □, a (world), b (world)
 Imposition Relation:
-  a -->_□ a, a -->_□ b, a -->_a a, a -->_b b
-  b -->_□ b, b -->_b b
+  □ -->_a a, □ -->_a b, a -->_a a, b -->_a b
+  □ -->_b b, b -->_b b
 Evaluation world: a
 
 INTERPRETED PREMISE:
@@ -218,8 +218,8 @@ In the countermodel for IM_CM_27, we see the clearest example of an imposition j
 - Therefore, the only alternative should be a
 
 **Actual Behavior** (Imposition):
-- The relation includes a -->_□ b
-- This allows "jumping" from a to b when imposing □
+- The relation includes □ -->_a b (b is the result of imposing □ on a)
+- This allows "jumping" to b as an outcome when imposing □ on a
 - World b satisfies all frame constraints:
   - Inclusion: □ ⊆ b ✓
   - Actuality: Satisfied by construction ✓

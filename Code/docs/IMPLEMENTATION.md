@@ -100,6 +100,37 @@ git commit -m "Phase 1: Implement core infrastructure
 🤖 Generated with [Claude Code](https://claude.ai/code)
 ```
 
+## Implementation Process
+
+### Core Process Requirements
+
+Each phase of implementation MUST follow this systematic approach:
+
+#### 1. Research and Design Phase (Before Implementation)
+
+- **Analyze current codebase** structure thoroughly
+- **Identify all dependencies** and potential impacts
+- **Design implementation approach** with clear phases
+- **Create detailed implementation plan** in specs/plans/
+- **Document the plan** with specific tasks and success criteria
+- **Review and refine** the plan before starting
+
+#### 2. Implementation Phase
+
+- **Follow approved plan** systematically
+- **Use dual testing methodology** throughout (see Testing Protocol)
+- **Update plan with progress** and any deviations
+- **Document discoveries** in specs/findings/
+- **Maintain baseline comparisons** for validation
+
+#### 3. Validation Phase
+
+- **Run comprehensive test suite** with both methods
+- **Compare against baseline** for regressions
+- **Verify all success criteria** are met
+- **Document outcomes** in implementation summary
+- **Update main plan** with completion status
+
 ## Research Phase
 
 ### Codebase Analysis Methodology
@@ -301,6 +332,101 @@ touch src/model_checker/feature/core.py
 ./run_tests.py --all  # Ensure no regressions
 ```
 
+### Testing Protocol
+
+Each refactoring step MUST use **BOTH testing methods** to ensure comprehensive validation:
+
+#### Method 1: Test-Driven Development (TDD) with Test Runner
+
+1. **Write Tests First** (following TESTS.md):
+   ```bash
+   # Create test file BEFORE moving code
+   src/model_checker/models/tests/test_component.py
+   
+   # Run tests to ensure they fail appropriately
+   ./run_tests.py --package --components models -v
+   ```
+
+2. **Implement Changes**:
+   - Move/refactor code to pass tests
+   - Ensure all tests pass
+
+3. **Run Full Test Suite**:
+   ```bash
+   ./run_tests.py --all
+   ```
+
+#### Method 2: Direct CLI Testing with dev_cli.py
+
+1. **Test Individual Theories**:
+   ```bash
+   ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+   ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py
+   ```
+
+2. **Test with Iterations** (CRITICAL for iterator regression detection):
+   ```bash
+   ./dev_cli.py -i 1 src/model_checker/theory_lib/logos/examples.py
+   ./dev_cli.py -i 2 src/model_checker/theory_lib/logos/examples.py
+   ./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+   ```
+
+3. **Test All Theories Systematically**:
+   ```bash
+   for theory in logos bimodal exclusion imposition; do
+       echo "Testing $theory..."
+       ./dev_cli.py src/model_checker/theory_lib/$theory/examples.py
+   done
+   ```
+
+#### Success Criteria
+
+- **Method 1**: All unit tests passing, no regressions in test suite
+- **Method 2**: No warnings or AttributeErrors in output
+- **Both Methods**: Consistent results before and after changes
+- **No Z3 Casting Errors**: No "Symbolic expressions cannot be cast to concrete Boolean values" errors
+
+### Debugging Philosophy
+
+**Core Principle**: Use errors as opportunities to improve codebase quality through deep analysis and systematic improvements.
+
+#### 1. Fail-Fast Strategy
+
+- **Prefer deterministic failures** with helpful error messages
+- **Avoid silent failures** that hide problems
+- **Catch errors early** in the development cycle
+- **Never mask errors** with try/except unless absolutely necessary
+
+#### 2. Deep Root Cause Analysis
+
+- **Trace to fundamental cause** when errors occur
+- **Look for patterns** that indicate architectural issues
+- **Consider improvements** to overall code quality
+- **Document findings** for future reference
+
+#### 3. Uniform High-Quality Solutions
+
+- **Avoid cheap patches** and band-aid fixes
+- **Implement systematic solutions** that benefit entire codebase
+- **Remove cruft** and technical debt when discovered
+- **Maintain consistency** across all components
+
+#### Example: Iterator Constraint Issue Resolution
+
+```python
+# Problem: Iterator lost constraints due to Z3 boolean evaluation
+# Root Cause: Python's implicit boolean conversion of Z3 expressions
+# Solution: Explicit Z3 evaluation with proper handling
+
+# Bad (causes implicit conversion):
+if constraint:  # Python converts Z3 expr to bool
+    constraints.append(constraint)
+
+# Good (explicit Z3 evaluation):
+if not z3.is_false(constraint):
+    constraints.append(constraint)
+```
+
 #### Phase Completion Protocol
 
 After each phase:
@@ -349,6 +475,28 @@ After each phase:
    - **Any issues encountered** and how they were resolved
    - **Readiness for next phase** confirmation
 
+#### Example Progress Update
+
+```markdown
+## Phase 1.3 Complete: SemanticDefaults Migration
+
+**Achievements**:
+- Successfully moved SemanticDefaults to models/semantic.py
+- All 156 tests passing (no regressions)
+- Test coverage: 98% for moved component
+
+**Validation Results**:
+- Method 1 (Test Runner): All tests green ✓
+- Method 2 (CLI Testing): No warnings, all theories working ✓
+- Baseline comparison: No changes in output ✓
+
+**Issues Resolved**:
+- Import circularity fixed by proper ordering
+- Z3 context handling preserved correctly
+
+**Ready for Phase 1.4**: PropositionDefaults migration
+```
+
 #### Continuous Integration During Implementation
 
 ```bash
@@ -363,6 +511,169 @@ git rebase origin/main  # Keep current with main branch
 # After each phase
 ./run_tests.py --all      # Full test suite
 git push origin feature/your-feature-name  # Keep remote updated
+```
+
+### Baseline Capture and Comparison
+
+For major refactoring efforts, establish comprehensive baselines:
+
+#### 1. Create Baseline Before Changes
+
+```bash
+# Capture test output baseline
+./run_tests.py --all > docs/specs/baselines/all_tests_baseline.txt 2>&1
+
+# Capture theory-specific baselines with iterations
+for theory in logos bimodal exclusion imposition; do
+    for i in 1 2 3; do
+        ./dev_cli.py -i $i src/model_checker/theory_lib/$theory/examples.py \
+            > docs/specs/baselines/${theory}_iter${i}_baseline.txt 2>&1
+    done
+done
+```
+
+#### 2. Create Comparison Scripts
+
+```bash
+# Create test comparison script
+cat > scripts/test_refactoring.sh << 'EOF'
+#!/bin/bash
+# Compare current output against baseline
+
+# Run current tests
+./run_tests.py --all > current_tests.txt 2>&1
+
+# Compare with baseline
+diff docs/specs/baselines/all_tests_baseline.txt current_tests.txt
+
+# Check for new warnings or errors
+grep -E "WARNING|Error|AttributeError" current_tests.txt
+EOF
+
+chmod +x scripts/test_refactoring.sh
+```
+
+#### 3. Monitor for Regressions
+
+- **No new warnings** in output
+- **No changes in test results** (unless intentional)
+- **No performance degradation**
+- **All examples produce same output**
+
+## Common Refactoring Scenarios
+
+### Moving Classes Between Modules
+
+Based on successful model.py refactoring experience:
+
+#### 1. Preparation Phase
+```python
+# Identify all imports of the class
+grep -r "from.*import.*ClassName" src/
+grep -r "ClassName" src/ | grep -v ".pyc"
+
+# Check for inheritance
+grep -r "class.*\(.*ClassName.*\)" src/
+```
+
+#### 2. Migration Strategy
+```python
+# In original file (e.g., model.py):
+from model_checker.new_location import ClassName  # Add import
+# Leave original class definition during testing
+# Remove only after all tests pass
+
+# In new location:
+# Copy class with all imports it needs
+# Add to __init__.py exports
+```
+
+#### 3. Import Update Pattern
+```python
+# Update direct imports
+# Old: from model_checker.model import ClassName
+# New: from model_checker.models.component import ClassName
+
+# Maintain compatibility in __init__.py:
+# models/__init__.py:
+from .component import ClassName
+__all__ = ['ClassName']
+```
+
+### Handling Z3 Integration Issues
+
+Common Z3-related refactoring pitfalls:
+
+#### 1. Boolean Evaluation Problem
+```python
+# WRONG - Causes "cannot cast to concrete Boolean"
+if z3_expr:  # Python tries to convert to bool
+    ...
+
+# CORRECT - Explicit Z3 evaluation
+if not z3.is_false(z3_expr):
+    ...
+```
+
+#### 2. Solver Context Preservation
+```python
+# Ensure solver context is maintained
+class RefactoredComponent:
+    def __init__(self, z3_context):
+        self.solver = z3.Solver(ctx=z3_context)
+        # Not: self.solver = z3.Solver()  # Wrong context!
+```
+
+### Breaking Up Large Files
+
+Systematic approach used for syntactic.py (895 lines → 5 modules):
+
+#### 1. Identify Natural Boundaries
+```bash
+# Analyze class dependencies
+# Group related functionality
+# Plan module structure before moving code
+```
+
+#### 2. Create Module Structure First
+```python
+# Create all files with placeholders
+component/
+├── __init__.py      # Plan all exports
+├── core.py          # Core functionality  
+├── helpers.py       # Helper classes
+├── processors.py    # Processing logic
+└── tests/           # Test structure mirrors code
+```
+
+#### 3. Move in Dependency Order
+- Move leaf classes first (no dependencies)
+- Move dependent classes after dependencies
+- Update imports incrementally
+- Test after each move
+
+### Theory-Agnostic Refactoring
+
+Removing theory-specific code from framework:
+
+#### 1. Identify Theory-Specific Code
+```python
+# Look for theory names in framework
+grep -r "logos\|bimodal\|exclusion" src/model_checker/*.py
+
+# Check for hardcoded assumptions
+# Example: Special handling for specific operators
+```
+
+#### 2. Extract to Configuration
+```python
+# Before: Hardcoded in framework
+if theory_name == "logos":
+    special_handling()
+
+# After: Configuration-driven
+if hasattr(theory, 'requires_special_handling'):
+    theory.handle_special_case()
 ```
 
 ## Refinement Phase
