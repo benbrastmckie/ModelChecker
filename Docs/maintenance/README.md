@@ -1,4 +1,4 @@
-# Maintenance Documentation: Standards and Best Practices
+# Documentation Maintenance: Standards and Best Practices
 
 [← Back to Docs](../README.md) | [Audience Guidelines →](AUDIENCE.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
 
@@ -6,149 +6,183 @@
 
 ```
 maintenance/
-├── README.md                       # This file - maintenance documentation hub
+├── README.md                       # This file - documentation maintenance hub
 ├── AUDIENCE.md                     # Documentation audience and accessibility goals
-├── FORMULA_FORMATTING.md           # Formula formatting standards
-├── EXAMPLES_STRUCTURE.md           # Examples.py file structure standards
-├── DOCUMENTATION_STANDARDS.md      # General documentation guidelines
+├── DOCUMENTATION_STANDARDS.md      # General documentation principles
 ├── README_STANDARDS.md             # README.md specific standards
-├── CODE_ORGANIZATION.md            # Code structure and organization
-├── TESTING_STANDARDS.md            # Testing guidelines and requirements
-├── ERROR_HANDLING.md               # Error handling best practices
-├── PERFORMANCE.md                  # Performance optimization guidelines
-├── VERSION_CONTROL.md              # Git and version control standards
-├── UNICODE_GUIDELINES.md           # Character encoding standards
-└── templates/                      # Documentation templates
+├── VERSION_CONTROL.md              # Git workflow for documentation changes
+├── UNICODE_GUIDELINES.md           # Unicode usage in documentation
+├── EDUCATIONAL_CONTENT.md          # Tutorial and guide standards (NEW)
+├── METHODOLOGICAL_DOCS.md          # Research methodology standards (NEW)
+├── CROSS_REFERENCES.md             # Inter-document linking standards (NEW)
+└── templates/
     ├── README_TEMPLATE.md          # Standard README template
-    ├── THEORY_README.md            # Theory-specific README template
-    └── SUBTHEORY_README.md         # Subtheory README template
+    ├── TUTORIAL_TEMPLATE.md        # Educational content template (NEW)
+    └── METHODOLOGY_TEMPLATE.md     # Research documentation template (NEW)
 ```
 
 ## Overview
 
-This directory contains **comprehensive maintenance standards** for the ModelChecker codebase, ensuring consistency, quality, and maintainability across all code, documentation, and development practices. These standards guide contributors in creating high-quality, accessible documentation and maintainable code that serves our interdisciplinary audience.
+This directory contains **comprehensive documentation maintenance standards** for the ModelChecker project, ensuring consistency, clarity, and accessibility across all educational materials, methodological documentation, and general documentation practices. These standards guide contributors in creating high-quality documentation that serves our interdisciplinary audience.
 
-The maintenance standards cover **12 key areas**: audience considerations, formula formatting, example structure, documentation guidelines, README standards, code organization, testing practices, error handling, performance optimization, version control, Unicode usage, and template resources. Together, these standards ensure that ModelChecker remains accessible to researchers from diverse backgrounds while maintaining technical excellence.
+The documentation maintenance standards focus on **content creation and organization** rather than code implementation details. For code-specific standards including formula formatting, testing requirements, and code organization, see [Code/maintenance/](../../Code/maintenance/README.md).
 
-Following these standards is **essential for all contributors**, whether adding new theories, improving documentation, fixing bugs, or enhancing features. The standards reflect our commitment to making computational logic tools accessible to logicians, linguists, computer scientists, and AI researchers, regardless of their specific technical background.
+Following these standards is **essential for all documentation contributors**, whether creating tutorials, writing methodology guides, documenting research findings, or improving existing documentation. The standards reflect our commitment to making computational logic accessible to researchers from diverse backgrounds.
 
-## Theory Examples
+## Documentation Examples
 
-### Formula Formatting Example
+### Clear Audience Targeting
 
-Proper formula formatting ensures clarity and consistency:
-
-```python
-# CORRECT - Following standards
-MODAL_TH_1_premises = ["\\Box (A \\rightarrow B)", "\\Box A"]
-MODAL_TH_1_conclusions = ["\\Box B"]
-MODAL_TH_1_settings = {
-    'N': 3,                    # Number of atomic states
-    'contingent': False,       # Modal-specific setting
-    'expectation': False       # False = expect theorem
-}
-
-# INCORRECT - Common mistakes
-bad_premises = ["□(a→b)", "□a"]     # Wrong: Unicode in code, lowercase
-bad_settings = {'N': 3}             # Wrong: No comments
-```
-
-### Documentation Structure Example
+Following [AUDIENCE.md](AUDIENCE.md) principles:
 
 ```markdown
-# Theory Name: Descriptive Tagline
+# Modal Logic Tutorial
 
-[← Back to Parent](../README.md) | [Key Doc →](docs/README.md)
+**Audience**: Logicians new to computational methods
 
-## Directory Structure
+This tutorial introduces modal logic concepts using the ModelChecker framework,
+assuming familiarity with modal logic theory but not with programming.
 
-```
-theory_name/
-├── README.md               # This file - comprehensive overview
-├── semantic.py            # Core semantic implementation
-└── docs/                  # Documentation directory
-```
-
-## Overview
-
-[Content following comprehensive documentation structure...]
+## Prerequisites
+- Understanding of modal operators (□, ◇)
+- Basic knowledge of Kripke semantics
+- No programming experience required
 ```
 
-### Code Organization Example
+### Effective Cross-References
 
-```python
-# Correct import organization
-# Standard library imports
-import os
-from typing import Dict, List, Optional
+Proper linking between related documents:
 
-# Third-party imports
-import z3
+```markdown
+## Related Resources
 
-# Local imports
-from model_checker.defaults import SemanticDefaults
-from model_checker.operators import Operator
+- **[Installation Guide](../installation/README.md)** - Setting up ModelChecker
+- **[Modal Theory Implementation](../../Code/src/model_checker/theory_lib/modal/README.md)** - Technical details
+- **[Computational Methods](../methodology/computational_logic.md)** - Research approach
 
-# Theory-specific imports
-from .proposition import LogosProposition
+For code implementation details, see [Code Maintenance Standards](../../Code/maintenance/README.md).
 ```
 
-For complete standards, see individual standard documents.
+### Educational Content Structure
+
+Following tutorial standards:
+
+```markdown
+# Understanding Counterfactuals
+
+## Learning Objectives
+By the end of this tutorial, you will:
+- Understand counterfactual operators in ModelChecker
+- Create and test counterfactual formulas
+- Interpret countermodel results
+
+## Conceptual Overview
+[Clear explanation with examples]
+
+## Hands-On Exercise
+[Step-by-step practical work]
+
+## Further Reading
+[Academic references and next steps]
+```
 
 ## Subdirectories
 
 ### [templates/](templates/)
-Documentation templates providing starting points for new READMEs, theory documentation, and subtheory guides. See [templates/README_TEMPLATE.md](templates/README_TEMPLATE.md) for the base template.
+Documentation templates providing starting points for different types of content:
+- **README_TEMPLATE.md** - General documentation structure
+- **TUTORIAL_TEMPLATE.md** - Educational content framework
+- **METHODOLOGY_TEMPLATE.md** - Research documentation guide
 
 ## Documentation
 
-### For All Contributors
-- **[Audience Guidelines](AUDIENCE.md)** - Understanding our interdisciplinary audience
-- **[Documentation Standards](DOCUMENTATION_STANDARDS.md)** - General documentation principles
-- **[README Standards](README_STANDARDS.md)** - Comprehensive documentation structure
+### For All Documentation Contributors
+- **[Audience Guidelines](AUDIENCE.md)** - Understanding our interdisciplinary readership
+- **[Documentation Standards](DOCUMENTATION_STANDARDS.md)** - General principles for all docs
+- **[README Standards](README_STANDARDS.md)** - Comprehensive README structure
 
-### For Code Contributors
-- **[Code Organization](CODE_ORGANIZATION.md)** - Module structure and imports
-- **[Formula Formatting](FORMULA_FORMATTING.md)** - LaTeX notation requirements
-- **[Examples Structure](EXAMPLES_STRUCTURE.md)** - Example file standards
+### For Educational Content Creators
+- **[Educational Content](EDUCATIONAL_CONTENT.md)** - Tutorial and guide standards
+- **[Cross References](CROSS_REFERENCES.md)** - Linking between documents effectively
+- **Tutorial Template** - Starting point for new tutorials
 
-### For Maintainers
-- **[Testing Standards](TESTING_STANDARDS.md)** - Test coverage requirements
-- **[Error Handling](ERROR_HANDLING.md)** - Exception and message guidelines
-- **[Version Control](VERSION_CONTROL.md)** - Git workflow and PR standards
+### For Research Documentation
+- **[Methodological Docs](METHODOLOGICAL_DOCS.md)** - Research methodology standards
+- **[Unicode Guidelines](UNICODE_GUIDELINES.md)** - Mathematical symbols in documentation
+- **Methodology Template** - Framework for research documentation
+
+### For Documentation Maintenance
+- **[Version Control](VERSION_CONTROL.md)** - Git workflow for documentation
+- **[Cross References](CROSS_REFERENCES.md)** - Maintaining link integrity
+- **Templates Directory** - Reusable documentation patterns
 
 ## Key Features
 
-### Core Principles
-- **No Emojis** - Never use emojis anywhere in codebase or documentation
-- **LaTeX in Code** - Always use LaTeX notation (`\\wedge`, `\\Box`) in code
-- **Specific Naming** - Use content-specific section names, avoid generic labels
-- **Complete Documentation** - Every directory must have a comprehensive README
+### Core Documentation Principles
+- **Clarity First** - Write for understanding, not impressiveness
+- **Audience Awareness** - Consider reader's background knowledge
+- **Progressive Disclosure** - Layer complexity appropriately
+- **Visual Aids** - Use diagrams and examples liberally
 
 ### Quality Standards
-- **Formula Standards** - Capital letters for atoms, proper parentheses usage
-- **Example Naming** - PREFIX_TYPE_NUMBER pattern (e.g., MODAL_TH_1)
-- **Import Order** - Standard library, third-party, local, theory-specific
-- **Error Messages** - User-friendly, actionable error descriptions
+- **No Emojis** - Maintain professional tone throughout
+- **Unicode in Docs** - Use mathematical symbols for clarity (∧, ∨, ¬, □, ◇)
+- **Consistent Structure** - Follow established templates
+- **Complete Coverage** - Address topic comprehensively
 
-### Development Practices
-- **Test Coverage** - Unit tests for all new functionality
-- **Performance** - Z3 optimization and memory management guidelines
-- **Version Control** - Descriptive commits and structured branching
-- **Unicode Usage** - LaTeX in code, Unicode only in comments/docs
+### Accessibility Features
+- **Multiple Entry Points** - Different paths for different backgrounds
+- **Clear Prerequisites** - State required knowledge upfront
+- **Glossaries** - Define technical terms
+- **Examples** - Concrete illustrations of abstract concepts
+
+## Writing Guidelines
+
+### Mathematical Notation
+
+In documentation, use Unicode symbols for readability:
+
+| Symbol | Meaning | LaTeX | Example Usage |
+|--------|---------|-------|---------------|
+| ∧ | AND | `\wedge` | "A ∧ B is true when..." |
+| ∨ | OR | `\vee` | "A ∨ B means either..." |
+| ¬ | NOT | `\neg` | "¬A negates the formula..." |
+| □ | Box | `\Box` | "□A means necessarily A..." |
+| ◇ | Diamond | `\Diamond` | "◇A means possibly A..." |
+
+**Note**: In code examples, always show LaTeX notation as used by the parser.
+
+### Interdisciplinary Bridges
+
+When writing for mixed audiences:
+
+```markdown
+## Necessity Operator
+
+**For Logicians**: The □ operator represents universal quantification over 
+accessible worlds in Kripke semantics.
+
+**For Programmers**: The Box operator returns True when the formula holds
+in all states reachable from the current state.
+
+**Example**: 
+- Formula: □(P → Q)
+- Code: `"\\Box (P \\rightarrow Q)"`
+- Meaning: "In all accessible states, if P then Q"
+```
 
 ## References
 
-### Implementation Standards
-- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Development workflow
-- **[Style Guide](../../Code/docs/STYLE_GUIDE.md)** - Code style reference
-- **[API Documentation](../../Code/src/model_checker/README.md)** - Framework APIs
+### Related Standards
+- **[Code Maintenance](../../Code/maintenance/README.md)** - Code-specific standards
+- **[Technical Documentation](../../Code/docs/README.md)** - Development guides
+- **[Main Documentation Hub](../README.md)** - Project documentation overview
 
-### Related Documentation
-- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Theory implementations
-- **[Methodology](../methodology/README.md)** - Framework principles
-- **[Installation](../installation/README.md)** - Setup guides
+### Documentation Resources
+- **[Installation Guides](../installation/README.md)** - Setup documentation
+- **[Methodology](../methodology/README.md)** - Research approaches
+- **[Theory Explanations](../theories/README.md)** - Conceptual guides
 
 ---
 
-[← Back to Docs](../README.md) | [Audience Guidelines →](AUDIENCE.md) | [Formula Formatting →](FORMULA_FORMATTING.md)
+[← Back to Docs](../README.md) | [Audience Guidelines →](AUDIENCE.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)

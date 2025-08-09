@@ -1,6 +1,6 @@
 # Performance Guidelines
 
-[← Error Handling](ERROR_HANDLING.md) | [Back to Maintenance](README.md) | [Version Control →](VERSION_CONTROL.md)
+[← Error Handling](ERROR_HANDLING.md) | [Back to Maintenance](README.md) | [Testing Standards →](TESTING_STANDARDS.md)
 
 ## Overview
 
@@ -254,4 +254,4 @@ def log_performance(func):
 
 ---
 
-[← Error Handling](ERROR_HANDLING.md) | [Back to Maintenance](README.md) | [Version Control →](VERSION_CONTROL.md)
+[← Error Handling](ERROR_HANDLING.md) | [Back to Maintenance](README.md) | [Testing Standards →](TESTING_STANDARDS.md)

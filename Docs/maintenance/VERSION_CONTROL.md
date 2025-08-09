@@ -1,267 +1,316 @@
-# Version Control Standards
+# Version Control Standards for Documentation
 
-[← Performance](PERFORMANCE.md) | [Back to Maintenance](README.md) | [Templates →](templates/)
+[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
 
 ## Overview
 
-This document defines version control standards for the ModelChecker repository, including commit messages, branch naming, and workflow guidelines.
+This document defines version control standards for **documentation changes** in the ModelChecker repository, including commit messages, branch naming, and workflow guidelines specific to documentation tasks.
 
-## Commit Message Standards
+For code-specific version control standards, see [Code/maintenance/VERSION_CONTROL.md](../../Code/maintenance/VERSION_CONTROL.md).
 
-### Format
+## Documentation Commit Standards
 
-Use present tense and be descriptive but concise:
+### Commit Message Format
+
+Use clear, descriptive messages for documentation changes:
 
 ```
-Add modal operator support to logos theory
+Add modal logic tutorial for interdisciplinary audience
 
-- Implement Box and Diamond operators
-- Add tests for modal axioms K, T, 4, 5
-- Update documentation with modal examples
+- Create step-by-step guide for non-programmers
+- Include visual diagrams of Kripke models
+- Add glossary of technical terms
+- Link to relevant theory implementations
 ```
 
-### Good Commit Messages
+### Documentation-Specific Commit Examples
 
 ```bash
-# GOOD - Clear and specific
-git commit -m "Fix Z3 timeout in counterfactual evaluation"
-git commit -m "Add iteration support for exclusion theory"
-git commit -m "Update formula formatting standards in MAINTENANCE.md"
+# GOOD - Clear about documentation changes
+git commit -m "Add installation guide for Windows users"
+git commit -m "Update theory explanations with Unicode symbols"
+git commit -m "Reorganize tutorials by difficulty level"
+git commit -m "Fix broken links in methodology section"
 
-# BAD - Too vague
-git commit -m "Fix bug"
+# BAD - Too vague for documentation
 git commit -m "Update docs"
+git commit -m "Fix typos"
 git commit -m "Changes"
 ```
 
-### Reference Issues
+### Documentation Categories
 
-When fixing issues, reference them in the commit:
+Include the type of documentation in commits:
 
 ```bash
-git commit -m "Fix #123: Resolve import error in logos subtheories"
-git commit -m "Address #456: Improve error messages for invalid formulas"
+git commit -m "Tutorial: Add counterfactual logic walkthrough"
+git commit -m "Methodology: Document semantic framework approach"
+git commit -m "README: Update navigation structure"
+git commit -m "Templates: Add educational content template"
 ```
 
-## Branch Naming Conventions
+## Branch Naming for Documentation
 
-### Feature Branches
+### Documentation Updates
 ```bash
-feature/modal-operators
-feature/jupyter-integration
-feature/performance-optimization
+docs/modal-logic-tutorial
+docs/installation-guide-update
+docs/methodology-expansion
 ```
 
-### Bug Fix Branches
+### Documentation Reorganization
 ```bash
-fix/formula-parsing-error
-fix/z3-timeout-handling
-fix/import-cycle
-```
-
-### Documentation Branches
-```bash
-docs/api-reference-update
-docs/theory-examples
+docs/tutorial-restructure
 docs/maintenance-refactor
+docs/cross-reference-update
 ```
 
-### Experimental Branches
+### New Documentation Series
 ```bash
-experimental/new-solver-backend
-experimental/parallel-checking
+docs/theory-explanation-series
+docs/video-tutorial-scripts
+docs/academic-paper-supplements
 ```
 
-## Workflow Guidelines
+## Documentation Development Workflow
 
-### Feature Development
+### 1. Planning Documentation
 
-1. Create feature branch from main:
-   ```bash
-   git checkout -b feature/new-feature main
-   ```
+```bash
+# Create branch for documentation work
+git checkout -b docs/topic-name main
 
-2. Make incremental commits:
-   ```bash
-   git add -p  # Stage changes selectively
-   git commit -m "Implement base functionality for new feature"
-   ```
+# Example
+git checkout -b docs/counterfactual-tutorial
+```
 
-3. Keep branch up to date:
-   ```bash
-   git fetch origin
-   git rebase origin/main
-   ```
+### 2. Incremental Documentation
 
-4. Push to remote:
-   ```bash
-   git push -u origin feature/new-feature
-   ```
+```bash
+# Commit logical sections
+git add tutorials/counterfactuals/introduction.md
+git commit -m "Tutorial: Add counterfactual introduction
 
-### Pull Request Guidelines
+- Explain philosophical background
+- Define key terms for interdisciplinary audience
+- Include historical context"
 
-#### PR Title
-Clear and descriptive, matching the branch purpose:
-- "Add modal operator support to logos theory"
-- "Fix formula parsing for nested implications"
+git add tutorials/counterfactuals/examples.md
+git commit -m "Tutorial: Add interactive examples
 
-#### PR Description Template
+- Show basic counterfactual formulas
+- Demonstrate ModelChecker syntax
+- Include expected outputs"
+```
+
+### 3. Cross-Reference Management
+
+```bash
+# When updating links
+git commit -m "Docs: Update cross-references for new structure
+
+- Fix links after maintenance/ reorganization
+- Update relative paths in all affected files
+- Verify all internal links work"
+```
+
+## Documentation Review Standards
+
+### As a Documentation Reviewer
+
+- **Clarity**: Check for clear explanations
+- **Audience**: Ensure appropriate level for target readers
+- **Completeness**: Verify all sections are covered
+- **Links**: Test all cross-references work
+- **Examples**: Confirm code examples are accurate
+
+### As a Documentation Author
+
+- **Preview**: Check rendered Markdown appearance
+- **Navigation**: Ensure easy navigation flow
+- **Consistency**: Follow documentation standards
+- **Accessibility**: Consider diverse backgrounds
+
+### PR Template for Documentation
+
 ```markdown
 ## Summary
-Brief description of changes
+Brief description of documentation changes
+
+## Documentation Details
+- Type: Tutorial/Guide/Reference/Methodology
+- Target Audience: [Specify reader background]
+- Scope: What topics are covered
 
 ## Changes Made
-- Specific change 1
-- Specific change 2
+- New sections added
+- Updated examples
+- Fixed issues
+- Improved clarity
 
-## Testing
-- How the changes were tested
-- Any new tests added
-
-## Related Issues
-Fixes #123
+## Checklist
+- [ ] Links tested and working
+- [ ] Follows documentation standards
+- [ ] Examples verified
+- [ ] Appropriate for target audience
+- [ ] Navigation structure clear
 ```
 
-### Code Review Standards
+## Git Best Practices for Documentation
 
-#### As a Reviewer
-- Check for adherence to coding standards
-- Verify tests pass and coverage is maintained
-- Ensure documentation is updated
-- Test the changes locally when possible
+### Logical Commits
 
-#### As an Author
-- Respond to all feedback
-- Make requested changes in new commits
-- Squash commits before merging if requested
-- Update PR description with changes made
-
-## Branching Strategy
-
-### Main Branch
-- Always deployable
-- Protected with required reviews
-- All tests must pass
-
-### Development Workflow
-1. Create feature branch
-2. Develop and test
-3. Create pull request
-4. Code review
-5. Merge to main
-
-### Release Process
-1. Tag release on main:
-   ```bash
-   git tag -a v1.2.3 -m "Release version 1.2.3"
-   git push origin v1.2.3
-   ```
-
-2. Create release notes documenting:
-   - New features
-   - Bug fixes
-   - Breaking changes
-   - Migration instructions
-
-## Git Best Practices
-
-### Keep History Clean
+Group related documentation changes:
 
 ```bash
-# Before pushing, clean up commit history
-git rebase -i HEAD~3  # Interactive rebase last 3 commits
+# BAD - Too granular
+git commit -m "Fix typo in line 1"
+git commit -m "Fix typo in line 5"
+git commit -m "Fix typo in line 10"
 
-# Squash related commits
-pick abc1234 Add basic structure
-squash def5678 Fix typo
-squash ghi9012 Add tests
+# GOOD - Grouped improvements
+git commit -m "Tutorial: Fix typos and improve clarity
+
+- Correct mathematical notation
+- Clarify ambiguous explanations
+- Improve example descriptions"
 ```
 
-### Write Good Commit Messages
+### Documentation-First Workflow
 
 ```bash
-# Use git commit without -m for longer messages
-git commit
+# Document before implementing
+git checkout -b docs/new-feature-guide
 
-# Opens editor for detailed message:
-# Add comprehensive theory comparison framework
-#
-# - Implement cross-theory validity checking
-# - Add comparison visualization tools
-# - Support for theory translation mappings
-# - Include extensive test coverage
-#
-# This allows researchers to compare how different
-# theories handle the same logical principles.
+# Write user documentation first
+git add docs/guides/new-feature.md
+git commit -m "Docs: Add guide for upcoming feature"
+
+# This helps clarify feature design
 ```
 
-### Use .gitignore
+## Handling Documentation Conflicts
 
-Ensure .gitignore includes:
+### During Merge
+
+```bash
+# When documentation conflicts occur
+git merge origin/main
+
+# Resolve by:
+# 1. Preserving both improvements
+# 2. Maintaining consistent style
+# 3. Updating cross-references
+
+git add resolved-file.md
+git commit -m "Merge: Combine documentation improvements"
 ```
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
 
-# IDE
-.vscode/
-.idea/
+### Large Documentation Projects
+
+For substantial documentation work:
+
+```bash
+# Feature branch for major docs
+git checkout -b docs/comprehensive-tutorial-series
+
+# Work incrementally
+git commit -m "Tutorial Series: Add part 1 - basics"
+git commit -m "Tutorial Series: Add part 2 - intermediate"
+git commit -m "Tutorial Series: Add part 3 - advanced"
+
+# Squash if needed before merge
+git rebase -i origin/main
+```
+
+## Documentation Release Notes
+
+### Version Documentation
+
+```bash
+# Tag documentation milestones
+git tag -a docs-v1.0 -m "Documentation Release 1.0
+
+- Complete tutorial series
+- Full API reference
+- Methodology documentation
+- Installation guides for all platforms"
+```
+
+### Changelog for Documentation
+
+Maintain a documentation changelog:
+
+```markdown
+# Documentation Changelog
+
+## [1.1.0] - 2024-12-20
+### Added
+- Counterfactual logic tutorial series
+- Video tutorial scripts
+- Glossary of terms
+
+### Changed
+- Reorganized tutorials by difficulty
+- Updated all code examples to v2.0
+
+### Fixed
+- Broken links in methodology section
+- Incorrect Unicode symbols in theory guides
+```
+
+## Documentation-Specific .gitignore
+
+Consider these documentation artifacts:
+
+```
+# Documentation build artifacts
+docs/_build/
+docs/.doctrees/
+*.pdf
+
+# Editor temporary files
 *.swp
-*.swo
+*~
+.#*
 
-# Testing
-.coverage
-htmlcov/
-.pytest_cache/
-
-# OS
+# OS files
 .DS_Store
 Thumbs.db
 
-# Project specific
-*.log
-output/
-temp/
+# Documentation tools
+.vale/
+.markdownlint.json
 ```
 
-### Handle Sensitive Information
+## Quality Assurance
 
-Never commit:
-- API keys or tokens
-- Passwords or credentials  
-- Personal information
-- Large binary files
+### Pre-Commit Checks
 
-If accidentally committed:
 ```bash
-# Remove from history (requires force push)
-git filter-branch --force --index-filter \
-  "git rm --cached --ignore-unmatch path/to/sensitive/file" \
-  --prune-empty --tag-name-filter cat -- --all
+# Check for broken links
+markdownlint docs/
+
+# Verify spelling
+vale docs/
+
+# Test all code examples
+python test_doc_examples.py
 ```
 
-## Collaboration Guidelines
+### Documentation Standards Compliance
 
-### Communicate Changes
-- Announce breaking changes in PRs
-- Document migration steps
-- Update relevant documentation
+```bash
+# Verify structure follows standards
+grep -r "^#" docs/*.md  # Check heading hierarchy
 
-### Maintain Consistency
-- Follow established patterns
-- Don't introduce new conventions without discussion
-- Keep style consistent within files
+# Ensure no emojis
+grep -r ":[a-z_]+:" docs/  # Should return nothing
 
-### Be Respectful
-- Provide constructive feedback
-- Explain reasoning for changes
-- Credit contributors appropriately
+# Check Unicode usage (should be in docs, not code examples)
+grep -r "[∧∨¬□◇]" docs/
+```
 
 ---
 
-[← Performance](PERFORMANCE.md) | [Back to Maintenance](README.md) | [Templates →](templates/)
+[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)

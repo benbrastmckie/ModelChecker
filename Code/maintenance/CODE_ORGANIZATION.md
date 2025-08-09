@@ -1,6 +1,6 @@
 # Code Organization Standards
 
-[← README Standards](README_STANDARDS.md) | [Back to Maintenance](README.md) | [Testing Standards →](TESTING_STANDARDS.md)
+[← Examples Structure](EXAMPLES_STRUCTURE.md) | [Back to Maintenance](README.md) | [Error Handling →](ERROR_HANDLING.md)
 
 ## Overview
 
@@ -252,4 +252,4 @@ bit_size = 2 ** N
 
 ---
 
-[← README Standards](README_STANDARDS.md) | [Back to Maintenance](README.md) | [Testing Standards →](TESTING_STANDARDS.md)
+[← Examples Structure](EXAMPLES_STRUCTURE.md) | [Back to Maintenance](README.md) | [Error Handling →](ERROR_HANDLING.md)

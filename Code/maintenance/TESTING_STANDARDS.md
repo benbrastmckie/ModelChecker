@@ -1,6 +1,6 @@
 # Testing Standards
 
-[← Code Organization](CODE_ORGANIZATION.md) | [Back to Maintenance](README.md) | [Error Handling →](ERROR_HANDLING.md)
+[← Performance](PERFORMANCE.md) | [Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md)
 
 ## Overview
 
@@ -231,4 +231,4 @@ def test_formula_validation(formula, expected):
 
 ---
 
-[← Code Organization](CODE_ORGANIZATION.md) | [Back to Maintenance](README.md) | [Error Handling →](ERROR_HANDLING.md)
+[← Performance](PERFORMANCE.md) | [Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md)
