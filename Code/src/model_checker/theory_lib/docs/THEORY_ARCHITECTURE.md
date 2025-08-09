@@ -37,7 +37,9 @@ theory_lib/
 #### 1. `semantic.py` - Semantic Framework
 
 ```python
-from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefaults
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.structure import ModelDefaults
 
 class SimpleSemantics(SemanticDefaults):
     """Core semantics for simple theory."""
@@ -224,7 +226,9 @@ theory_lib/
 #### 1. `semantic.py` - Shared Semantic Framework
 
 ```python
-from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefaults
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.structure import ModelDefaults
 
 class ModularSemantics(SemanticDefaults):
     """Shared semantic framework for modular theory."""

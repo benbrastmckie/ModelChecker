@@ -1,0 +1,209 @@
+
+MODEL 1/2
+========================================
+
+EXAMPLE CF_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0316 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {b.c}, {a, a.b.c.d} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a, a.b.c.d}, {b.c} >[0m  [33m(False in b.c)[0m
+
+2.  [32m|(A \boxright C)| = < {a.c, b.c}, {a.d} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a, a.b.c.d}, {b.c} >[0m  [33m(False in b.c)[0m
+      [36m|A|-alternatives to b.c = {a.c}[0m
+        [37m|C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >[0m  [33m(True in a.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \wedge B) \boxright C)| = < ∅, {a.c, a.d, b.c} >[0m  [31m(False in b.c)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.d}, {a.b.c, a.c, b.c} >[0m  [33m(False in b.c)[0m
+        [37m|A| = < {a, a.b.c.d}, {b.c} >[0m  [33m(False in b.c)[0m
+        [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, b, b.c.d, b.d, d}, {a.c} >[0m  [33m(True in b.c)[0m
+      [36m|(A \wedge B)|-alternatives to b.c = {a.d}[0m
+        [37m|C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >[0m  [33m(False in a.d)[0m
+
+Total Run Time: 0.3245 seconds
+
+
+========================================
+Finding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0sFinding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.1sFinding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 3) 0.3sFinding 2 models: [██████████████████████████████] 2/2 (checked 3) 0.6sSuccessfully found all 2 requested models
+[1m[0m
+[33m=== DIFFERENCES FROM PREVIOUS MODEL ===[0m
+
+[34mWorld Changes:[0m
+  [32m+ a.b.c.d (now a world)[0m
+  [31m- b.c (no longer a world)[0m
+  [31m- a.d (no longer a world)[0m
+  [31m- a.c (no longer a world)[0m
+
+[34mPossible State Changes:[0m
+  [32m+ a.b (now possible)[0m
+  [32m+ a.c.d (now possible)[0m
+  [32m+ a.b.c.d (now possible)[0m
+  [32m+ b.d (now possible)[0m
+  [32m+ c.d (now possible)[0m
+  [32m+ a.b.d (now possible)[0m
+  [32m+ b.c.d (now possible)[0m
+  [32m+ a.b.c (now possible)[0m
+
+[34mVerification Changes:[0m
+  Letter A:
+    [32m+ □ now verifies A[0m
+    [32m+ b now verifies A[0m
+    [32m+ a.b now verifies A[0m
+    [32m+ c now verifies A[0m
+    [32m+ a.c now verifies A[0m
+    [32m+ b.c now verifies A[0m
+    [32m+ a.b.c now verifies A[0m
+    [32m+ d now verifies A[0m
+    [32m+ a.d now verifies A[0m
+    [32m+ b.d now verifies A[0m
+    [32m+ a.b.d now verifies A[0m
+    [32m+ c.d now verifies A[0m
+    [32m+ a.c.d now verifies A[0m
+    [32m+ b.c.d now verifies A[0m
+  Letter C:
+    [32m+ □ now verifies C[0m
+    [32m+ a now verifies C[0m
+    [32m+ b now verifies C[0m
+    [32m+ a.b now verifies C[0m
+    [32m+ c now verifies C[0m
+    [32m+ b.c now verifies C[0m
+    [32m+ a.b.c now verifies C[0m
+    [32m+ d now verifies C[0m
+    [32m+ a.d now verifies C[0m
+    [32m+ b.d now verifies C[0m
+    [32m+ a.b.d now verifies C[0m
+    [32m+ c.d now verifies C[0m
+    [32m+ a.c.d now verifies C[0m
+    [32m+ b.c.d now verifies C[0m
+    [32m+ a.b.c.d now verifies C[0m
+  Letter B:
+    [32m+ □ now verifies B[0m
+    [32m+ a now verifies B[0m
+    [32m+ c now verifies B[0m
+    [32m+ a.c now verifies B[0m
+    [32m+ b.c now verifies B[0m
+    [32m+ a.d now verifies B[0m
+    [32m+ c.d now verifies B[0m
+    [32m+ a.c.d now verifies B[0m
+
+[34mFalsification Changes:[0m
+  Letter A:
+    [31m- b.c no longer falsifies A[0m
+  Letter C:
+    [31m- b no longer falsifies C[0m
+    [31m- a.d no longer falsifies C[0m
+    [31m- a.b.d no longer falsifies C[0m
+    [31m- a.b.c.d no longer falsifies C[0m
+  Letter B:
+    [31m- a.c no longer falsifies B[0m
+
+
+MODEL 2/2
+========================================
+
+EXAMPLE CF_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0316 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [36ma.b[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [36ma.c[0m
+  [37m#b0110 = [36mb.c[0m
+  [37m#b0111 = [36ma.b.c[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [36mb.d[0m
+  [37m#b1011 = [36ma.b.d[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [36ma.c.d[0m
+  [37m#b1110 = [36mb.c.d[0m
+  [37m#b1111 = [34ma.b.c.d (world)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [31m|\neg A| = < ∅, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □} >[0m  [31m(False in b.c)[0m
+      [37m|A| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □}, ∅ >[0m  [33m(True in b.c)[0m
+
+2.WARNING: the world b.c contains both:
+   The verifier <unknown-None>; and  The falsifier <unknown-None>.
+  [31m|(A \boxright C)| = < {a.b.c.d}, ∅ >[0m  [31m(False in b.c)[0m
+      [37m|A| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □}, ∅ >[0m  [33m(True in b.c)[0m
+      [36m|A|-alternatives to b.c = {a.b.c.d}[0m
+        [37m|C| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □}, ∅ >[0m  [33m(True in a.b.c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+3.WARNING: the world b.c contains both:
+   The verifier <unknown-None>; and  The falsifier <unknown-None>.
+  [31m|((A \wedge B) \boxright C)| = < {a.b.c.d}, ∅ >[0m  [31m(False in b.c)[0m
+      [37m|(A \wedge B)| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □}, ∅ >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □}, ∅ >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □}, ∅ >[0m  [33m(True in b.c)[0m
+      [36m|(A \wedge B)|-alternatives to b.c = {a.b.c.d}[0m
+        [37m|C| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d, □}, ∅ >[0m  [33m(True in a.b.c.d)[0m
+
+Total Run Time: 1.0588 seconds
+
+
+========================================
+
+[ITERATION] Searching for model 2/2...
+[ITERATION] Found invalid model (no possible worlds) - attempt 1/5
+[ITERATION] Searching for model 2/2...
+
+Found 2/2 distinct models.

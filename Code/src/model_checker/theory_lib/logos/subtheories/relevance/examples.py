@@ -60,7 +60,7 @@ REL_CM_1_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 1,
-    'iterate': 1,
+    'iterate': 2,
     'expectation': True,
 }
 REL_CM_1_example = [
@@ -495,15 +495,15 @@ example_range = {
 
     # COUNTERMODELS
     "REL_CM_1": REL_CM_1_example,
-    "REL_CM_2": REL_CM_2_example,
-    "REL_CM_3": REL_CM_3_example,
-    "REL_CM_7": REL_CM_7_example,
+    # "REL_CM_2": REL_CM_2_example,
+    # "REL_CM_3": REL_CM_3_example,
+    # "REL_CM_7": REL_CM_7_example,
 
-    # THEOREMS
-    "REL_TH_5": REL_TH_5_example,
-    "REL_TH_6": REL_TH_6_example,
-    "REL_TH_7": REL_TH_7_example,
-    "REL_TH_8": REL_TH_8_example,
+    # # THEOREMS
+    # "REL_TH_5": REL_TH_5_example,
+    # "REL_TH_6": REL_TH_6_example,
+    # "REL_TH_7": REL_TH_7_example,
+    # "REL_TH_8": REL_TH_8_example,
 
 }
 

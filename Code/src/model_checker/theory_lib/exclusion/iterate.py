@@ -137,59 +137,6 @@ class ExclusionModelIterator(LogosModelIterator):
         return exclusion_diffs
     
     
-    def _create_difference_constraint(self, previous_models):
-        """Create constraints that include witness diversity.
-        
-        This completely overrides the parent method since exclusion theory
-        uses different semantics (excludes instead of falsify).
-        """
-        semantics = self.build_example.model_structure.semantics
-        all_states = self.build_example.model_structure.all_states
-        sentence_letters = self.build_example.model_structure.sentence_letters
-        
-        # Create constraints for each previous model
-        model_constraints = []
-        
-        for prev_model in previous_models:
-            differences = []
-            
-            # Require different verification for at least one state/letter pair
-            for state in all_states:
-                for letter in sentence_letters:
-                    # Get the Z3 atom for this sentence letter
-                    if hasattr(letter, 'sentence_letter') and letter.sentence_letter is not None:
-                        atom = letter.sentence_letter
-                    else:
-                        continue
-                    
-                    prev_verify = prev_model.eval(semantics.verify(state, atom), model_completion=True)
-                    differences.append(
-                        semantics.verify(state, atom) != prev_verify
-                    )
-            
-            # Add exclusion relation differences between states
-            # (not between states and atoms - exclusion is state-to-state)
-            for s1 in all_states[:min(3, len(all_states))]:
-                for s2 in all_states[:min(3, len(all_states))]:
-                    if s1 == s2:
-                        continue
-                    
-                    prev_excludes = prev_model.eval(semantics.excludes(s1, s2), model_completion=True)
-                    differences.append(
-                        semantics.excludes(s1, s2) != prev_excludes
-                    )
-            
-            # Add witness-specific constraints
-            witness_constraints = self._create_witness_constraints([prev_model])
-            if witness_constraints:
-                differences.extend(witness_constraints)
-            
-            # Require at least one difference
-            if differences:
-                model_constraints.append(z3.Or(*differences))
-        
-        # Must differ from all previous models
-        return z3.And(*model_constraints) if model_constraints else z3.BoolVal(True)
     
     def _create_witness_constraints(self, previous_models):
         """Create constraints to ensure witness diversity.
@@ -200,6 +147,34 @@ class ExclusionModelIterator(LogosModelIterator):
         # For now, return empty list since witness predicates are handled
         # differently in exclusion theory through the witness registry
         return []
+    
+    def _create_letter_value_constraints(self, prev_model, semantics):
+        """Create constraints on verify values differing (no falsify in exclusion)."""
+        constraints = []
+        
+        # Get sentence letters from syntax
+        syntax = self.build_example.example_syntax
+        if not hasattr(syntax, 'sentence_letters'):
+            return constraints
+        
+        for letter_obj in syntax.sentence_letters:
+            if hasattr(letter_obj, 'sentence_letter'):
+                atom = letter_obj.sentence_letter
+                
+                # Check each state - only verify, no falsify
+                for state in range(2**semantics.N):
+                    # Get previous values
+                    prev_verify = prev_model.eval(
+                        semantics.verify(state, atom), 
+                        model_completion=True
+                    )
+                    
+                    # Create constraints for differences
+                    constraints.append(
+                        semantics.verify(state, atom) != prev_verify
+                    )
+        
+        return constraints
 
 
 def iterate_example(example, max_iterations=None):

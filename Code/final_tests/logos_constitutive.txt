@@ -1,0 +1,152 @@
+
+MODEL 1/2
+========================================
+
+EXAMPLE CL_CM_9: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. \Box (A \rightarrow B)
+
+Conclusion:
+2. (A \leq B)
+
+Z3 Run Time: 0.0055 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Box (A \rightarrow B)| = < {□}, ∅ >[0m  [32m(True in a.c)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, a.c, b.c}, {a.b.c} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {a.b.c, a.c, b.c, c}, {a.b} >[0m  [33m(False in a.b)[0m
+        [37m|B| = < {a.b.c, a.c, b.c}, {a.b} >[0m  [33m(False in a.b)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, a.c, b.c}, {a.b.c} >[0m  [33m(True in a.c)[0m
+        [37m|A| = < {a.b.c, a.c, b.c, c}, {a.b} >[0m  [33m(True in a.c)[0m
+        [37m|B| = < {a.b.c, a.c, b.c}, {a.b} >[0m  [33m(True in a.c)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, a.c, b.c}, {a.b.c} >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {a.b.c, a.c, b.c, c}, {a.b} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {a.b.c, a.c, b.c}, {a.b} >[0m  [33m(True in b.c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(A \leq B)| = < ∅, {□} >[0m  [31m(False in a.c)[0m
+      [37m|A| = < {a.b.c, a.c, b.c, c}, {a.b} >[0m  [33m(True in a.c)[0m
+      [37m|B| = < {a.b.c, a.c, b.c}, {a.b} >[0m  [33m(True in a.c)[0m
+
+Total Run Time: 0.0515 seconds
+
+
+========================================
+Finding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0sFinding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.0sFinding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 3) 0.1sFinding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 4) 0.2sFinding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 5) 0.3sFinding 2 models: [██████████████████████████████] 2/2 (checked 5) 0.3sSuccessfully found all 2 requested models
+[1m[0m
+[33m=== DIFFERENCES FROM PREVIOUS MODEL ===[0m
+
+[34mWorld Changes:[0m
+  [32m+ c (now a world)[0m
+  [32m+ b (now a world)[0m
+  [31m- b.c (no longer a world)[0m
+  [31m- a.b (no longer a world)[0m
+  [31m- a.c (no longer a world)[0m
+
+[34mPossible State Changes:[0m
+  [31m- □ (now impossible)[0m
+  [31m- b.c (now impossible)[0m
+  [31m- a.b (now impossible)[0m
+  [31m- a.c (now impossible)[0m
+  [31m- a (now impossible)[0m
+
+[34mVerification Changes:[0m
+  Letter A:
+    [32m+ □ now verifies A[0m
+    [32m+ a now verifies A[0m
+    [32m+ b now verifies A[0m
+    [32m+ a.b now verifies A[0m
+  Letter B:
+    [32m+ □ now verifies B[0m
+    [32m+ a now verifies B[0m
+    [32m+ b now verifies B[0m
+    [32m+ a.b now verifies B[0m
+    [32m+ c now verifies B[0m
+
+[34mFalsification Changes:[0m
+  Letter A:
+    [31m- a.b no longer falsifies A[0m
+  Letter B:
+    [31m- a.b no longer falsifies B[0m
+
+
+MODEL 2/2
+========================================
+
+EXAMPLE CL_CM_9: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. \Box (A \rightarrow B)
+
+Conclusion:
+2. (A \leq B)
+
+Z3 Run Time: 0.0055 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [35ma (impossible)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Box (A \rightarrow B)| = < {□}, ∅ >[0m  [32m(True in a.c)[0m
+      [37m|(A \rightarrow B)| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in b)[0m
+        [37m|A| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in b)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in b)[0m
+      [37m|(A \rightarrow B)| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in c)[0m
+        [37m|A| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in c)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [32m|(A \leq B)| = < {□}, ∅ >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in a.c)[0m
+      [37m|B| = < {a, a.b, a.b.c, a.c, b, b.c, c, □}, ∅ >[0m  [33m(True in a.c)[0m
+
+Total Run Time: 0.383 seconds
+
+
+========================================
+
+[ITERATION] Searching for model 2/2...
+[ITERATION] Found invalid model (no possible worlds) - attempt 1/5
+[ITERATION] Searching for model 2/2...
+[ITERATION] Found isomorphic model #3 - will try different constraints
+[ITERATION] Searching for model 2/2...
+[ITERATION] Found isomorphic model #4 - will try different constraints
+[ITERATION] Searching for model 2/2...
+
+Found 2/2 distinct models.

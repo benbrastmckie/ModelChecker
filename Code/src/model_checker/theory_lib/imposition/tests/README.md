@@ -100,7 +100,7 @@ def test_must_counterfactual():
 ```python
 def test_possibility_constraint():
     """Test possibility downward closure."""
-    # Verify if w →_a u and u is possible, then u' ⊆ u implies w →_a u'
+    # Verify if a →_w u and u is possible, then u' ⊆ u implies a →_w u'
     # Check constraint generation in Z3
 ```
 

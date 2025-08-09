@@ -1,0 +1,2 @@
+usage: model-checker [options] input
+model-checker: error: unrecognized arguments: src/model_checker/theory_lib/imposition/examples.py

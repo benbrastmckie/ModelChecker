@@ -35,7 +35,6 @@ Code/.venv
 
 # Ignore all directories named 'notes' anywhere in the repository
 **/notes/
-**/specs/
 Code/src/model_checker/builder/notes_
 *.ipynb_checkpoints
 Code/ARCHITECTURE.md
@@ -44,3 +43,4 @@ Code/STYLE_GUIDE.md
 Code/src/model_checker/theory_lib/imposition/talk/handout.out
 Code/src/model_checker/theory_lib/imposition/talk/handout.pdf
 Code/current
+Code/docs/specs/baselines
