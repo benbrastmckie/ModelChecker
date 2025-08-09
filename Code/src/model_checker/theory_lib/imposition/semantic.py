@@ -328,7 +328,7 @@ class ImpositionModelStructure(LogosModelStructure):
             return
     
     def print_imposition(self, output=sys.__stdout__):
-        """Print imposition relations in the format 'w ->_a u'."""
+        """Print imposition relations in the format 'a ->_w u'."""
         if not self.z3_imposition_relations:
             return
             
@@ -368,8 +368,8 @@ class ImpositionModelStructure(LogosModelStructure):
                 state_color = get_state_color(state)
                 outcome_color = get_state_color(outcome)
                 
-                # Print in format: w ->_a u (meaning: u is the outcome of imposing a on w)
-                print(f"  {world_color}{world_str}{RESET} →_{state_color}{state_str}{RESET} {outcome_color}{outcome_str}{RESET}", file=output)
+                # Print in format: a ->_w u (meaning: u is the outcome of imposing a on w)
+                print(f"  {state_color}{state_str}{RESET} →_{world_color}{world_str}{RESET} {outcome_color}{outcome_str}{RESET}", file=output)
     
     def extract_states(self):
         """Extract categorized states for output."""

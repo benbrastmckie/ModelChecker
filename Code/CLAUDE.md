@@ -140,6 +140,27 @@ file -i filename  # Should show: charset=utf-8
 # Verify all code examples execute correctly
 ```
 
+#### Chronological File Numbering
+```bash
+# IMPORTANT: Before creating any numbered file in specs/
+# ALWAYS check existing files to find the highest number:
+
+# Check highest number in target directory
+ls -1 docs/specs/plans/*.md | sort -n | tail -5
+ls -1 docs/specs/research/*.md | sort -n | tail -5
+ls -1 docs/specs/findings/*.md | sort -n | tail -5
+
+# Use the NEXT number (highest + 1) with 3-digit format
+# Example: If highest is 011_*.md, use 012_*.md
+```
+
+**Numbering Rules**:
+- Each directory maintains independent numbering
+- Always check existing files before creating new ones
+- Format: 001, 002, 003... (3 digits with leading zeros)
+- Never reuse or skip numbers
+- Higher numbers = more recent documents
+
 ### Temporary File Management
 
 #### Cleanup Requirements

@@ -375,17 +375,17 @@ State Space:
   #b1010 = b.d (world)
 
 Imposition Relation:
-  a -->_□ a
+  □ -->_a a
   a -->_a a
-  a -->_b.c b.c
-  a -->_b.d b.d
-  b.c -->_□ b.c
-  b.c -->_b b.c
-  b.c -->_c b.c
+  b.c -->_a b.c
+  b.d -->_a b.d
+  □ -->_b.c b.c
+  b -->_b.c b.c
+  c -->_b.c b.c
   b.c -->_b.c b.c
-  b.d -->_□ b.d
-  b.d -->_b b.d
-  b.d -->_d b.d
+  □ -->_b.d b.d
+  b -->_b.d b.d
+  d -->_b.d b.d
   b.d -->_b.d b.d
 
 The evaluation world is: a
@@ -516,12 +516,12 @@ State Space:
   #b1100 = c.d (world)
 
 Imposition Relation:
-  a -->_□ a
+  □ -->_a a
   a -->_a a
-  a -->_c.d c.d
-  c.d -->_□ c.d
-  c.d -->_c c.d
-  c.d -->_d c.d
+  c.d -->_a c.d
+  □ -->_c.d c.d
+  c -->_c.d c.d
+  d -->_c.d c.d
   c.d -->_c.d c.d
 
 The evaluation world is: a
@@ -656,13 +656,13 @@ State Space:
   #b1000 = d (world)
 
 Imposition Relation:
-  a -->_□ a
+  □ -->_a a
   a -->_a a
-  b -->_□ b
+  □ -->_b b
   b -->_b b
-  c -->_□ c
+  □ -->_c c
   c -->_c c
-  d -->_□ d
+  □ -->_d d
   d -->_d d
 
 The evaluation world is: d
@@ -784,13 +784,13 @@ State Space:
   #b1001 = a.d (world)
 
 Imposition Relation:
-  a.c -->_□ a.c
-  a.c -->_a a.c
-  a.c -->_c a.c
+  □ -->_a.c a.c
+  a -->_a.c a.c
+  c -->_a.c a.c
   a.c -->_a.c a.c
-  a.d -->_□ a.d
-  a.d -->_a a.d
-  a.d -->_d a.d
+  □ -->_a.d a.d
+  a -->_a.d a.d
+  d -->_a.d a.d
   a.d -->_a.d a.d
 
 The evaluation world is: a.c
@@ -888,9 +888,9 @@ State Space:
   #b1000 = d (world)
 
 Imposition Relation:
-  c -->_□ c
+  □ -->_c c
   c -->_c c
-  d -->_□ d
+  □ -->_d d
   d -->_d d
 
 The evaluation world is: d
@@ -916,7 +916,7 @@ INTERPRETED CONCLUSION:
 
 This countermodel reveals a fundamental divergence between the two theories:
 
-1. **Vacuous Truth in Imposition**: The imposition counterfactual (A \boxright B) is **vacuously true** at world d because there are no |A|-alternatives. The imposition relation only allows d -->_c d, but since c is not part of d, no genuine alternatives exist.
+1. **Vacuous Truth in Imposition**: The imposition counterfactual (A \boxright B) is **vacuously true** at world d because there are no |A|-alternatives. The imposition relation only allows c -->_d d, but since c is not part of d, no genuine alternatives exist.
 
 2. **Non-Vacuous Falsehood in Logos**: The logos counterfactual (A \boxrightlogos B) is **non-vacuously false** because:
    - The logos semantics finds world c as an |A|-alternative to d
@@ -953,11 +953,11 @@ State Space:
   #b10 = b (world)
 
 Imposition Relation:
-  a -->_□ a
-  a -->_□ b
+  □ -->_a a
+  □ -->_a b
   a -->_a a
-  a -->_b b
-  b -->_□ b
+  b -->_a b
+  □ -->_b b
   b -->_b b
 
 The evaluation world is: a
@@ -981,7 +981,7 @@ INTERPRETED CONCLUSION:
 
 [View JSON data for IM_CM_27](data/IM_CM_27.json)
 
-This shows the imposition relation a -->_□ b allows "jumping" to unrelated worlds when imposing compatible states.
+This shows the imposition relation □ -->_a b allows "jumping" to unrelated worlds when imposing compatible states.
 
 ## Implications and Conclusions
 
