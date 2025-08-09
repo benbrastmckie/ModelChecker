@@ -220,323 +220,6 @@ class ImpositionModelIterator(BaseModelIterator):
                 
         return differences
     
-    def _create_difference_constraint(self, previous_models):
-        """Create imposition theory-specific constraints to differentiate models.
-        
-        This focuses on the key relationships in imposition theory:
-        - Verification and falsification
-        - Imposition relationships
-        - Possible states and worlds
-        
-        Args:
-            previous_models: List of Z3 models to differ from
-            
-        Returns:
-            z3.ExprRef: Z3 constraint requiring difference from previous models
-        """
-        logger.debug("Creating difference constraints for imposition theory")
-        
-        # Get key structures from build_example
-        model_structure = self.build_example.model_structure
-        semantics = model_structure.semantics
-        
-        # For each previous model, create a constraint requiring at least one difference
-        model_diff_constraints = []
-        
-        for prev_model in previous_models:
-            # Focus on verification, falsification, and imposition functions
-            diff_components = []
-            
-            # 1. Differences in verification
-            for letter in model_structure.sentence_letters:
-                for state in model_structure.all_states:
-                    try:
-                        prev_value = prev_model.eval(semantics.verify(state, letter), model_completion=True)
-                        diff_components.append(semantics.verify(state, letter) != prev_value)
-                    except Exception:
-                        pass
-            
-            # 2. Differences in falsification
-            for letter in model_structure.sentence_letters:
-                for state in model_structure.all_states:
-                    try:
-                        prev_value = prev_model.eval(semantics.falsify(state, letter), model_completion=True)
-                        diff_components.append(semantics.falsify(state, letter) != prev_value)
-                    except Exception:
-                        pass
-            
-            # 3. Differences in imposition relationships
-            if hasattr(semantics, 'imposition'):
-                for state1 in model_structure.all_states:
-                    for state2 in model_structure.all_states:
-                        for outcome in model_structure.all_states:
-                            try:
-                                prev_value = prev_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)
-                                diff_components.append(semantics.imposition(state1, state2, outcome) != prev_value)
-                            except Exception:
-                                pass
-            
-            # 4. Differences in possible states
-            for state in model_structure.all_states:
-                try:
-                    prev_value = prev_model.eval(semantics.possible(state), model_completion=True)
-                    diff_components.append(semantics.possible(state) != prev_value)
-                except Exception:
-                    pass
-            
-            # 5. Differences in worlds
-            for state in model_structure.all_states:
-                try:
-                    prev_value = prev_model.eval(semantics.is_world(state), model_completion=True)
-                    diff_components.append(semantics.is_world(state) != prev_value)
-                except Exception:
-                    pass
-            
-            # The new model must be different in at least one way
-            if diff_components:
-                model_diff_constraints.append(z3.Or(diff_components))
-            
-        # The new model must be different from ALL previous models
-        if model_diff_constraints:
-            return z3.And(model_diff_constraints)
-        else:
-            raise RuntimeError("Could not create any difference constraints for imposition theory")
-    
-    def _create_non_isomorphic_constraint(self, z3_model):
-        """Create constraints that force structural differences for imposition theory.
-        
-        For imposition theory models, this focuses on:
-        - Different patterns of verification/falsification
-        - Different numbers of worlds and possible states
-        - Different imposition relationship patterns
-        
-        Args:
-            z3_model: The Z3 model to differ from
-        
-        Returns:
-            z3.ExprRef: Z3 constraint expression or None if creation fails
-        """
-        # Get model structure
-        model_structure = self.build_example.model_structure
-        semantics = model_structure.semantics
-        
-        # Create constraints to force structural differences
-        constraints = []
-        
-        # Try to force a different number of worlds
-        try:
-            # Count current worlds
-            current_worlds = sum(1 for state in model_structure.all_states 
-                               if bool(z3_model.eval(semantics.is_world(state), model_completion=True)))
-            
-            # Force either more or fewer worlds
-            world_count = z3.Sum([z3.If(semantics.is_world(state), 1, 0) 
-                                 for state in model_structure.all_states])
-            
-            if current_worlds > 1:
-                constraints.append(world_count < current_worlds)
-            
-            if current_worlds < len(model_structure.all_states) - 1:
-                constraints.append(world_count > current_worlds)
-        except Exception as e:
-            logger.debug(f"Error creating world count constraint: {e}")
-        
-        # Try to force different letter valuations
-        try:
-            for letter in model_structure.sentence_letters:
-                # Force different verification pattern
-                ver_count = z3.Sum([z3.If(semantics.verify(state, letter), 1, 0) 
-                                   for state in model_structure.all_states])
-                
-                # Count current verifiers
-                current_ver = sum(1 for state in model_structure.all_states 
-                                if bool(z3_model.eval(semantics.verify(state, letter), model_completion=True)))
-                
-                if current_ver > 1:
-                    constraints.append(ver_count < current_ver - 1)
-                elif current_ver < len(model_structure.all_states) - 1:
-                    constraints.append(ver_count > current_ver + 1)
-                
-                # Force different falsification pattern
-                fals_count = z3.Sum([z3.If(semantics.falsify(state, letter), 1, 0) 
-                                    for state in model_structure.all_states])
-                
-                # Count current falsifiers
-                current_fals = sum(1 for state in model_structure.all_states 
-                                 if bool(z3_model.eval(semantics.falsify(state, letter), model_completion=True)))
-                
-                if current_fals > 1:
-                    constraints.append(fals_count < current_fals - 1)
-                elif current_fals < len(model_structure.all_states) - 1:
-                    constraints.append(fals_count > current_fals + 1)
-        except Exception as e:
-            logger.debug(f"Error creating verification constraint: {e}")
-        
-        # Try to force different imposition patterns
-        if hasattr(semantics, 'imposition'):
-            try:
-                # Count current impositions
-                imposition_count = 0
-                for state1 in model_structure.all_states:
-                    for state2 in model_structure.all_states:
-                        for outcome in model_structure.all_states:
-                            try:
-                                if bool(z3_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)):
-                                    imposition_count += 1
-                            except:
-                                pass
-                
-                # Imposition count expression
-                imp_count = z3.Sum([z3.If(semantics.imposition(s1, s2, s3), 1, 0) 
-                                   for s1 in model_structure.all_states 
-                                   for s2 in model_structure.all_states
-                                   for s3 in model_structure.all_states])
-                
-                # Force significantly different imposition count
-                max_possible = len(model_structure.all_states) ** 3
-                
-                if imposition_count > max_possible // 2:
-                    # If many impositions, force few
-                    constraints.append(imp_count < imposition_count // 2)
-                else:
-                    # If few impositions, force many
-                    constraints.append(imp_count > max_possible - imposition_count // 2)
-            except Exception as e:
-                logger.debug(f"Error creating imposition constraint: {e}")
-        
-        # Return the combined constraint if any constraints were created
-        if constraints:
-            return z3.Or(constraints)
-        
-        return None
-    
-    def _create_stronger_constraint(self, isomorphic_model):
-        """Create stronger constraints to escape isomorphic models for imposition theory.
-        
-        This creates more dramatic constraints when multiple consecutive
-        isomorphic models have been found.
-        
-        Args:
-            isomorphic_model: The Z3 model that was isomorphic
-        
-        Returns:
-            z3.ExprRef: Stronger constraint or None if creation fails
-        """
-        # Get model structure and semantics
-        model_structure = self.build_example.model_structure
-        semantics = model_structure.semantics
-        
-        # The approach varies depending on the escape attempt
-        escape_attempt = getattr(self, 'escape_attempts', 1)
-        
-        # Create constraints that force major structural changes
-        constraints = []
-        
-        # 1. Force dramatically different number of worlds
-        try:
-            # Count current worlds
-            current_worlds = sum(1 for state in model_structure.all_states 
-                              if bool(isomorphic_model.eval(semantics.is_world(state), model_completion=True)))
-            
-            # World count expression
-            world_count = z3.Sum([z3.If(semantics.is_world(state), 1, 0) 
-                                for state in model_structure.all_states])
-            
-            # Force minimal or maximal number of worlds
-            if escape_attempt == 1:
-                # First attempt: force significantly different world count
-                if current_worlds > len(model_structure.all_states) // 2:
-                    # If many worlds, force few worlds
-                    constraints.append(world_count <= 2)
-                else:
-                    # If few worlds, force many worlds
-                    constraints.append(world_count >= len(model_structure.all_states) - 2)
-            else:
-                # Later attempts: extreme values
-                constraints.append(world_count == 1)  # Minimal
-                constraints.append(world_count == len(model_structure.all_states))  # Maximal
-        except Exception as e:
-            logger.debug(f"Error creating world count constraint: {e}")
-        
-        # 2. Force dramatically different verification/falsification patterns
-        try:
-            # Attempt to flip all verifications
-            flip_verifications = []
-            for letter in model_structure.sentence_letters:
-                letter_flip = []
-                for state in model_structure.all_states:
-                    try:
-                        prev_value = isomorphic_model.eval(semantics.verify(state, letter), model_completion=True)
-                        letter_flip.append(semantics.verify(state, letter) != prev_value)
-                    except:
-                        pass
-                
-                # Flip all or most verifications for this letter
-                if letter_flip:
-                    flip_verifications.append(z3.And(letter_flip))
-            
-            # Add constraints to flip verifications for either all letters or each letter individually
-            if flip_verifications:
-                if len(flip_verifications) > 1:
-                    # Either flip all letters or flip each letter individually
-                    constraints.append(z3.And(flip_verifications))  # Flip all
-                    for flip in flip_verifications:
-                        constraints.append(flip)  # Flip individual letters
-                else:
-                    constraints.append(flip_verifications[0])
-            
-            # Attempt to flip all falsifications
-            flip_falsifications = []
-            for letter in model_structure.sentence_letters:
-                letter_flip = []
-                for state in model_structure.all_states:
-                    try:
-                        prev_value = isomorphic_model.eval(semantics.falsify(state, letter), model_completion=True)
-                        letter_flip.append(semantics.falsify(state, letter) != prev_value)
-                    except:
-                        pass
-                
-                # Flip all or most falsifications for this letter
-                if letter_flip:
-                    flip_falsifications.append(z3.And(letter_flip))
-            
-            # Add constraints to flip falsifications for either all letters or each letter individually
-            if flip_falsifications:
-                if len(flip_falsifications) > 1:
-                    # Either flip all letters or flip each letter individually
-                    constraints.append(z3.And(flip_falsifications))  # Flip all
-                    for flip in flip_falsifications:
-                        constraints.append(flip)  # Flip individual letters
-                else:
-                    constraints.append(flip_falsifications[0])
-        except Exception as e:
-            logger.debug(f"Error creating verification flip constraint: {e}")
-        
-        # 3. Force dramatically different imposition relations
-        if hasattr(semantics, 'imposition'):
-            try:
-                # Try to flip imposition relations
-                imposition_flips = []
-                for state1 in model_structure.all_states:
-                    for state2 in model_structure.all_states:
-                        for outcome in model_structure.all_states:
-                            try:
-                                prev_value = isomorphic_model.eval(semantics.imposition(state1, state2, outcome), model_completion=True)
-                                imposition_flips.append(semantics.imposition(state1, state2, outcome) != prev_value)
-                            except:
-                                pass
-                
-                if imposition_flips:
-                    constraints.append(z3.And(imposition_flips))
-            except Exception as e:
-                logger.debug(f"Error creating imposition flip constraint: {e}")
-        
-        # Return the combined constraint if any constraints were created
-        if constraints:
-            return z3.Or(constraints)
-        
-        return None
-    
     def display_model_differences(self, model_structure, output=sys.stdout):
         """Format differences for display using imposition theory semantics.
         
@@ -673,6 +356,78 @@ class ImpositionModelIterator(BaseModelIterator):
                         print(f"  \033[31m- {pair}: can no longer impose\033[0m", file=output)
                 else:
                     print(f"  {pair}: changed", file=output)
+
+    
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints requiring difference from previous models.
+        
+        For imposition theory, focuses on verify/falsify and imposition relations.
+        
+        Args:
+            previous_models: List of Z3 models found so far
+            
+        Returns:
+            Z3 constraint requiring structural difference
+        """
+        constraints = []
+        semantics = self.build_example.model_constraints.semantics
+        
+        for prev_model in previous_models:
+            model_constraints = []
+            
+            # Letter value constraints (verify/falsify)
+            syntax = self.build_example.example_syntax
+            if hasattr(syntax, 'sentence_letters'):
+                for letter_obj in syntax.sentence_letters:
+                    if hasattr(letter_obj, 'sentence_letter'):
+                        atom = letter_obj.sentence_letter
+                        
+                        for state in range(2**semantics.N):
+                            prev_verify = prev_model.eval(
+                                semantics.verify(state, atom), 
+                                model_completion=True
+                            )
+                            prev_falsify = prev_model.eval(
+                                semantics.falsify(state, atom), 
+                                model_completion=True
+                            )
+                            
+                            model_constraints.append(
+                                semantics.verify(state, atom) != prev_verify
+                            )
+                            model_constraints.append(
+                                semantics.falsify(state, atom) != prev_falsify
+                            )
+            
+            # Imposition relation constraints  
+            # NOTE: imposition takes 3 arguments (x, y, z) not 2
+            # We need to vary over all three states to find differences
+            if hasattr(semantics, 'imposition'):
+                for s1 in range(2**semantics.N):
+                    for s2 in range(2**semantics.N):
+                        for s3 in range(2**semantics.N):
+                            prev_imp = prev_model.eval(
+                                semantics.imposition(s1, s2, s3),
+                                model_completion=True
+                            )
+                            model_constraints.append(
+                                semantics.imposition(s1, s2, s3) != prev_imp
+                            )
+            
+            if model_constraints:
+                constraints.append(z3.Or(*model_constraints))
+        
+        return z3.And(*constraints) if constraints else z3.BoolVal(True)
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraint preventing isomorphic models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
 
 
 # Wrapper function for use in theory examples

@@ -43,6 +43,47 @@ class BuildModule:
         maximize (bool): Whether to maximize the model size
     """
 
+    def _discover_theory_module(self, theory_name, semantic_theory):
+        """Dynamically discover the theory module name from semantic theory.
+        
+        This method follows the Theory Agnostic Principle by extracting the module
+        name from the semantic theory's components rather than using hardcoded mappings.
+        
+        Args:
+            theory_name: Display name of the theory (e.g., "BernardChampollion")
+            semantic_theory: Dictionary containing theory components
+            
+        Returns:
+            str: Module name (e.g., "exclusion") or None if not found
+        """
+        # Try to extract module name from semantics class
+        semantics_class = semantic_theory.get("semantics")
+        if semantics_class and hasattr(semantics_class, "__module__"):
+            module_path = semantics_class.__module__
+            # Extract theory module name from path
+            # e.g., "model_checker.theory_lib.exclusion.semantic" -> "exclusion"
+            parts = module_path.split('.')
+            if len(parts) >= 3 and parts[1] == "theory_lib":
+                return parts[2]
+        
+        # Try model class as fallback
+        model_class = semantic_theory.get("model")
+        if model_class and hasattr(model_class, "__module__"):
+            module_path = model_class.__module__
+            parts = module_path.split('.')
+            if len(parts) >= 3 and parts[1] == "theory_lib":
+                return parts[2]
+        
+        # Try proposition class as final fallback
+        prop_class = semantic_theory.get("proposition")
+        if prop_class and hasattr(prop_class, "__module__"):
+            module_path = prop_class.__module__
+            parts = module_path.split('.')
+            if len(parts) >= 3 and parts[1] == "theory_lib":
+                return parts[2]
+        
+        return None
+    
     def __init__(self, module_flags):
         """Initialize BuildModule with module flags containing configuration.
         
@@ -389,7 +430,7 @@ class BuildModule:
                 - success (bool): True if model found within max time, False otherwise
                 - runtime (float): Time taken to attempt finding the model
         """
-        from model_checker.model import ModelConstraints
+        from model_checker.models.constraints import ModelConstraints
 
         premises, conclusions, settings = example_case
         semantics_class = semantic_theory["semantics"]
@@ -439,7 +480,7 @@ class BuildModule:
         Returns:
             tuple: (success, runtime)
         """
-        from model_checker.model import ModelConstraints
+        from model_checker.models.constraints import ModelConstraints
         from model_checker.syntactic import Syntax
         from model_checker.builder.serialize import deserialize_semantic_theory
         
@@ -604,7 +645,7 @@ class BuildModule:
         3. Compares semantic theories by finding maximum model sizes
         4. Prints results showing which theories could handle larger models
         """
-        from model_checker.model import ModelConstraints
+        from model_checker.models.constraints import ModelConstraints
         
         print()
         for example_name, example_case in self.example_range.items():
@@ -733,21 +774,12 @@ class BuildModule:
         try:
             # Get the theory-specific iterate_example function
             try:
-                # Map display name to module name
-                # This mapping handles cases where theory_name is a display name (like "Brast-McKie")
-                # rather than the actual module name used for imports
-                theory_display_to_module = {
-                    "Brast-McKie": "logos",  # Brast-McKie is the logos theory
-                    "Exclusion": "exclusion",
-                    "unilateral_theory": "exclusion",  # Exclusion theory's internal name
-                    "Imposition": "imposition",
-                    "Fine": "imposition",  # Fine is the imposition theory
-                    "Bimodal": "bimodal",
-                    "Logos": "logos"
-                }
+                # Dynamically discover the theory module from the semantic theory
+                module_name = self._discover_theory_module(theory_name, semantic_theory)
                 
-                # Get the module name from the mapping or use the theory name directly
-                module_name = theory_display_to_module.get(theory_name, theory_name.lower())
+                if not module_name:
+                    # Fallback: try theory_name as module name directly
+                    module_name = theory_name.lower()
                 
                 # Import the theory module to access its iterate_example function
                 theory_module = importlib.import_module(f"model_checker.theory_lib.{module_name}")

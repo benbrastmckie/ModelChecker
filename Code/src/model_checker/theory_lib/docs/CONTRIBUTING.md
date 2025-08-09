@@ -229,7 +229,9 @@ Each theory must include these core files:
 Define your semantic framework with the core classes:
 
 ```python
-from model_checker.model import SemanticDefaults, PropositionDefaults, ModelDefaults
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.structure import ModelDefaults
 
 class MySemantics(SemanticDefaults):
     """Core semantics for my theory."""

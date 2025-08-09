@@ -9,12 +9,10 @@ import z3
 import sys
 import os
 
-from model_checker.model import (
-    SemanticDefaults,
-    PropositionDefaults,
-    ModelConstraints,
-    ModelDefaults,
-)
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.constraints import ModelConstraints
+from model_checker.models.structure import ModelDefaults
 from model_checker.syntactic import (
     OperatorCollection,
     Syntax,

@@ -3,11 +3,9 @@
 import unittest
 from unittest.mock import Mock, MagicMock, patch
 
-from model_checker.model import (
-    SemanticDefaults,
-    PropositionDefaults,
-    ModelDefaults
-)
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.structure import ModelDefaults
 from model_checker.syntactic import OperatorCollection
 from model_checker.builder.validation import (
     validate_semantic_theory,

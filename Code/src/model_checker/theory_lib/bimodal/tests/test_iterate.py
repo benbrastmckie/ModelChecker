@@ -14,7 +14,7 @@ from model_checker.theory_lib.bimodal import (
     iterate_example,
 )
 from model_checker.builder.example import BuildExample
-from model_checker.model import ModelConstraints
+from model_checker.models.constraints import ModelConstraints
 from model_checker.syntactic import Syntax
 
 

@@ -32,7 +32,7 @@ if not logger.handlers:
     formatter = logging.Formatter('[ITERATION] %(message)s')
     handler.setFormatter(formatter)
     logger.addHandler(handler)
-    logger.setLevel(logging.WARNING)
+    logger.setLevel(logging.ERROR)  # Changed to ERROR to see full tracebacks
 
 # Check if NetworkX is available for isomorphism checking
 try:
@@ -97,9 +97,23 @@ class BaseModelIterator:
         self.max_iterations = self.settings.get('iterate', 1)
         self.current_iteration = 1  # First model is already found
         
+        # CRITICAL FIX: Preserve original constraints for iteration
+        # The solver.assertions() approach fails because solver gets cleared
+        self.original_constraints = list(build_example.model_constraints.all_constraints)
+        print(f"[ITERATOR] Preserved {len(self.original_constraints)} original constraints for iteration")
+        
+        # Validate constraint preservation
+        if len(self.original_constraints) == 0:
+            raise RuntimeError(
+                "No constraints available for iteration - this will produce invalid models. "
+                "Check that model_constraints.all_constraints is properly populated."
+            )
+        
         # Store the initial model and model structure
         self.found_models = [build_example.model_structure.z3_model]
         self.model_structures = [build_example.model_structure]
+        
+        # Pattern tracking removed - using direct constraints instead
         
         # Create a persistent solver that will accumulate constraints
         self.solver = self._create_persistent_solver()
@@ -235,6 +249,11 @@ class BaseModelIterator:
                 # Build a completely new model structure with the extended constraints
                 new_structure = self._build_new_model_structure(new_model)
                 
+                # Debug marker for MODEL 2+ identification
+                if new_structure:
+                    new_structure._debug_model_number = self.current_iteration + 1
+                    new_structure._is_iteration_model = True
+                
                 if not new_structure:
                     self.debug_messages.append("Could not create new model structure, stopping iteration")
                     break
@@ -252,7 +271,9 @@ class BaseModelIterator:
                     
                     # Add constraint to exclude this invalid model
                     logger.debug("Adding constraint to exclude invalid model")
-                    self.solver.add(self._create_difference_constraint([new_model]))
+                    # Use theory-specific constraint to exclude this model
+                    invalid_constraint = self._create_difference_constraint([new_model])
+                    self.solver.add(invalid_constraint)
                     continue
                 
                 # Check for isomorphism if NetworkX is available
@@ -338,12 +359,8 @@ class BaseModelIterator:
                     
                     # Add a non-isomorphism constraint and try again
                     iso_constraint = self._create_non_isomorphic_constraint(new_model)
-                    if iso_constraint is not None:  # Check for None explicitly instead of using truth value
-                        self.solver.add(iso_constraint)
-                        continue  # Skip to next attempt without incrementing
-                    else:
-                        self.debug_messages.append("Could not create non-isomorphic constraint, stopping search")
-                        break
+                    self.solver.add(iso_constraint)
+                    continue  # Skip to next attempt without incrementing
                 
                 # This is a genuine new model
                 new_structure._is_isomorphic = False
@@ -367,6 +384,8 @@ class BaseModelIterator:
                 self.model_structures.append(new_structure)
                 self.current_iteration += 1
                 
+                # Pattern tracking removed - direct constraints used instead
+                
                 # Add statistics for this model
                 self.stats.add_model(new_structure, differences)
                 
@@ -375,7 +394,9 @@ class BaseModelIterator:
                     progress.update(self.distinct_models_found, self.checked_model_count)
                 
                 # Add the new model to the solver constraints to ensure the next model is different
-                self.solver.add(self._create_difference_constraint([new_model]))
+                # Use theory-specific constraint to exclude this model
+                exclude_constraint = self._create_difference_constraint([new_model])
+                self.solver.add(exclude_constraint)
                 
             except Exception as e:
                 self.debug_messages.append(f"Error during iteration: {str(e)}")
@@ -467,7 +488,7 @@ class BaseModelIterator:
         return self
     
     def _create_extended_constraints(self):
-        """Create extended constraints that require difference from all previous models.
+        """Create extended constraints using pattern-based differences.
         
         Returns:
             list: Z3 constraints requiring difference from all previous models
@@ -475,79 +496,132 @@ class BaseModelIterator:
         Raises:
             RuntimeError: If constraint generation fails
         """
-        # Get original constraints from the first model
-        # Try to get the solver, fallback to stored_solver if solver was cleaned up
-        original_solver = self.build_example.model_structure.solver
-        if original_solver is None:
-            original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
-            
-        if original_solver is None:
-            raise RuntimeError("No solver available - both solver and stored_solver are None")
-            
-        original_constraints = list(original_solver.assertions())
+        # Start with original constraints
+        extended_constraints = list(self.original_constraints)
         
-        # Create difference constraints for all previous models
-        difference_constraints = []
-        for model in self.found_models:
-            diff_constraint = self._create_difference_constraint([model])
-            difference_constraints.append(diff_constraint)
+        # Add theory-specific difference constraints
+        if len(self.found_models) > 0:
+            diff_constraint = self._create_difference_constraint(self.found_models)
+            extended_constraints.append(diff_constraint)
         
-        # Add structural constraints to help find different models
-        if HAS_NETWORKX:
-            for model in self.found_models:
-                iso_constraint = self._create_non_isomorphic_constraint(model)
-                if iso_constraint is not None:  # Check for None explicitly instead of using truth value
-                    difference_constraints.append(iso_constraint)
-        
-        return original_constraints + difference_constraints
+        return extended_constraints
         
     def _build_new_model_structure(self, z3_model):
-        """Build a completely new model structure from a Z3 model.
+        """Build a new model structure with fresh constraints.
         
-        Instead of updating an existing model structure, this creates a fresh
-        model structure from scratch, proper initialization with the Z3 model.
+        This creates new ModelConstraints using the current model's verify/falsify
+        functions, ensuring constraint consistency for MODEL 2+.
         
         Args:
             z3_model: Z3 model to use for the new structure
             
         Returns:
-            ModelStructure: A new model structure built from scratch
+            ModelStructure: A new model structure with fresh constraints
         """
         try:
-            # Get original build example to extract settings and constraints
-            original_build_example = self.build_example
+            # Import required modules
+            from model_checker.syntactic import Syntax
+            from model_checker.models.constraints import ModelConstraints
             
-            # Create a fresh ModelConstraints instance but without the Z3 model
-            model_constraints = original_build_example.model_constraints
+            # Get original build example components
+            original_build = self.build_example
+            settings = original_build.settings.copy()
             
-            # Create a new bare model structure 
-            # DO NOT use the constructor that tries to evaluate Z3 values
-            klass = original_build_example.model_structure.__class__
-            new_structure = object.__new__(klass)
+            # Create fresh syntax (reuses sentence parsing)
+            syntax = Syntax(
+                original_build.premises,
+                original_build.conclusions,
+                original_build.semantic_theory.get("operators")
+            )
             
-            # Initialize only the attributes needed before Z3 model evaluation
-            self._initialize_base_attributes(new_structure, model_constraints, original_build_example.settings)
+            # Create new semantics WITHOUT state transfer
+            semantics_class = original_build.semantic_theory["semantics"]
+            semantics = semantics_class(settings)
             
-            # Now set the Z3 model after basic initialization
-            new_structure.z3_model = z3_model
-            new_structure.z3_model_status = True
+            # Create fresh ModelConstraints with current context
+            proposition_class = original_build.semantic_theory["proposition"]
+            model_constraints = ModelConstraints(
+                settings,
+                syntax,
+                semantics,
+                proposition_class
+            )
             
-            # Transfer runtime from original model structure
-            new_structure.z3_model_runtime = original_build_example.model_structure.z3_model_runtime
+            # We need to inject the concrete constraints into the model constraints
+            # BEFORE creating the model structure, so it solves with them included
             
-            # Properly initialize Z3-dependent attributes
-            self._initialize_z3_dependent_attributes(new_structure, z3_model)
+            # Get semantics
+            semantics = model_constraints.semantics
             
-            # Interpret sentences
-            sentence_objects = new_structure.premises + new_structure.conclusions
-            new_structure.interpret(sentence_objects)
+            # Create a new solver with the base constraints AND concrete values
+            temp_solver = z3.Solver()
+            
+            # Add the base constraints from model_constraints
+            for constraint in model_constraints.all_constraints:
+                temp_solver.add(constraint)
+            
+            # Extract concrete values from iterator's Z3 model and add them
+            # Constrain world states
+            for state in range(2**semantics.N):
+                # Is this state a world in the iterator model?
+                is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
+                if z3.is_true(is_world_val):
+                    temp_solver.add(semantics.is_world(state))
+                else:
+                    temp_solver.add(z3.Not(semantics.is_world(state)))
+                
+                # Is this state possible in the iterator model?
+                is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
+                if z3.is_true(is_possible_val):
+                    temp_solver.add(semantics.possible(state))
+                else:
+                    temp_solver.add(z3.Not(semantics.possible(state)))
+            
+            # Constrain verify/falsify for sentence letters
+            for letter_obj in syntax.sentence_letters:
+                if hasattr(letter_obj, 'sentence_letter'):
+                    atom = letter_obj.sentence_letter
+                    for state in range(2**semantics.N):
+                        # Verify value
+                        verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                        if z3.is_true(verify_val):
+                            temp_solver.add(semantics.verify(state, atom))
+                        else:
+                            temp_solver.add(z3.Not(semantics.verify(state, atom)))
+                        
+                        # Falsify value (if it exists)
+                        if hasattr(semantics, 'falsify'):
+                            falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                            if z3.is_true(falsify_val):
+                                temp_solver.add(semantics.falsify(state, atom))
+                            else:
+                                temp_solver.add(z3.Not(semantics.falsify(state, atom)))
+            
+            # Store the constraints in model_constraints so the model will use them
+            model_constraints.all_constraints = list(temp_solver.assertions())
+            
+            # Now create the model structure which will solve with all constraints
+            model_class = original_build.semantic_theory["model"]
+            new_structure = model_class(model_constraints, settings)
+            
+            # The model structure constructor already solved with all constraints
+            # Check if it was successful
+            if not new_structure.z3_model_status:
+                logger.error("Failed to create MODEL 2 with concrete constraints")
+                return None
+            
+            # CRITICAL: Update propositions to point to new model structure
+            # Without this, sentences still have propositions pointing to MODEL 1
+            new_structure.interpret(new_structure.premises + new_structure.conclusions)
             
             return new_structure
             
         except Exception as e:
             logger.error(f"Error building new model structure: {str(e)}")
-            logger.debug(traceback.format_exc())
+            import traceback
+            logger.error(f"Full traceback:\n{traceback.format_exc()}")
             return None
+    
             
     def _initialize_base_attributes(self, model_structure, model_constraints, settings):
         """Initialize basic attributes of a model structure that don't depend on the Z3 model.
@@ -602,6 +676,13 @@ class BaseModelIterator:
         model_structure.z3_model_runtime = None
         model_structure.timeout = None
         model_structure.unsat_core = None
+        model_structure.satisfiable = None
+        model_structure.solved = False
+        
+        # Initialize helpers as None - will be set up on demand
+        model_structure.printer = None
+        model_structure.analyzer = None
+        model_structure.stored_solver = None
         
         # Get main world from main_point
         if hasattr(model_structure.main_point, "get"):
@@ -632,18 +713,74 @@ class BaseModelIterator:
         semantics = model_structure.semantics
         model_structure.z3_possible_states = [
             state for state in model_structure.all_states
-            if bool(z3_model.eval(semantics.possible(state), model_completion=True))
+            if self._evaluate_z3_boolean(z3_model, semantics.possible(state))
         ]
         
         # Initialize world states 
         model_structure.z3_world_states = [
             state for state in model_structure.z3_possible_states
-            if bool(z3_model.eval(semantics.is_world(state), model_completion=True))
+            if self._evaluate_z3_boolean(z3_model, semantics.is_world(state))
         ]
         
         # Allow theory-specific initialization
         if hasattr(model_structure, 'initialize_from_z3_model'):
             model_structure.initialize_from_z3_model(z3_model)
+    
+    def _evaluate_z3_boolean(self, z3_model, expression):
+        """Safely evaluate a Z3 boolean expression to a Python boolean.
+        
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values, which can cause
+        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
+        
+        Args:
+            z3_model: The Z3 model to use for evaluation
+            expression: The Z3 boolean expression to evaluate
+            
+        Returns:
+            bool: True if the expression evaluates to true, False otherwise
+        """
+        try:
+            # Evaluate the expression with model completion
+            result = z3_model.eval(expression, model_completion=True)
+            
+            # Check if result is a boolean constant (True/False)
+            if z3.is_bool(result):
+                # If it's a boolean sort, try is_true
+                if z3.is_true(result):
+                    return True
+                elif z3.is_false(result):
+                    return False
+                # Otherwise it's still symbolic
+            
+            # Try to simplify the expression
+            simplified = z3.simplify(result)
+            
+            # Check again after simplification
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+                
+            # If it's an equality expression with True/False
+            if str(simplified) == "True":
+                return True
+            elif str(simplified) == "False":
+                return False
+                
+            # As a last resort, try to convert to Python bool
+            # This is the line that can throw the "Symbolic expressions cannot be cast" error
+            try:
+                # Instead of direct bool(), check if it equals Z3's True
+                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
+            except Exception:
+                # If all else fails, assume False (conservative approach)
+                logger.warning(f"Could not evaluate Z3 boolean expression: {expression}, assuming False")
+                return False
+                
+        except Exception as e:
+            logger.warning(f"Error evaluating Z3 boolean expression {expression}: {e}, assuming False")
+            return False
     
     def _calculate_differences(self, new_structure, previous_structure):
         """Calculate differences between two model structures.
@@ -848,53 +985,6 @@ class BaseModelIterator:
     
     # Abstract methods that must be implemented by theory-specific subclasses
     
-    def _create_difference_constraint(self, previous_models):
-        """Create a Z3 constraint requiring difference from all previous models.
-        
-        This is an abstract method that should be implemented by theory-specific subclasses.
-        
-        Args:
-            previous_models: List of Z3 models to differ from
-            
-        Returns:
-            z3.ExprRef: Z3 constraint expression
-            
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
-        """
-        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
-    
-    def _create_non_isomorphic_constraint(self, z3_model):
-        """Create a constraint that forces structural differences to avoid isomorphism.
-        
-        This is an abstract method that should be implemented by theory-specific subclasses.
-        
-        Args:
-            z3_model: The Z3 model to differ from
-        
-        Returns:
-            z3.ExprRef: Z3 constraint expression or None if creation fails
-            
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
-        """
-        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
-        
-    def _create_stronger_constraint(self, isomorphic_model):
-        """Create stronger constraints after multiple isomorphism failures.
-        
-        This is an abstract method that should be implemented by theory-specific subclasses.
-        
-        Args:
-            isomorphic_model: The Z3 model that was isomorphic
-        
-        Returns:
-            z3.ExprRef: Z3 constraint expression or None if creation fails
-            
-        Raises:
-            NotImplementedError: If the subclass does not implement this method
-        """
-        raise NotImplementedError("This method must be implemented by a theory-specific subclass")
     
     def _get_iteration_settings(self):
         """Extract and validate iteration settings from BuildExample.
@@ -980,6 +1070,41 @@ class BaseModelIterator:
         # from the domain, which is typically the world indices
         domain = range(domain_size)
         return itertools.product(domain, repeat=arity)
+    
+    # Abstract methods that must be implemented by theory-specific subclasses
+    
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints requiring difference from previous models.
+        
+        Args:
+            previous_models: List of Z3 models found so far
+            
+        Returns:
+            Z3 constraint requiring structural difference
+        """
+        raise NotImplementedError("Theory-specific implementation required")
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraint preventing isomorphic models.
+        
+        Args:
+            z3_model: The Z3 model to constrain against
+            
+        Returns:
+            Z3 constraint preventing isomorphism
+        """
+        raise NotImplementedError("Theory-specific implementation required")
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models.
+        
+        Args:
+            isomorphic_model: An isomorphic model to strengthen against
+            
+        Returns:
+            Z3 constraint for stronger model
+        """
+        raise NotImplementedError("Theory-specific implementation required")
 
 
 # Module-level convenience function with theory-agnostic implementation

@@ -15,8 +15,10 @@ import z3
 import sys
 import time
 from typing import List, Dict, Set, Optional, Tuple
-from model_checker import model
-from model_checker.model import ModelDefaults, SemanticDefaults, PropositionDefaults
+from model_checker.models.structure import ModelDefaults
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.constraints import ModelConstraints
 from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
 from model_checker import syntactic
 # Integrated witness model and constraint generator classes
@@ -729,12 +731,12 @@ class WitnessModelAdapter(ModelDefaults):
         return self.semantics.extended_compute_verifiers(sentence, model, eval_point)
 
 
-class WitnessStructure(model.ModelDefaults):
+class WitnessStructure(ModelDefaults):
     """Extended model structure for witness predicate semantics with full printing."""
     
     def __init__(self, model_constraints, combined_settings):
         """Initialize with proper constraint checking."""
-        if not isinstance(model_constraints, model.ModelConstraints):
+        if not isinstance(model_constraints, ModelConstraints):
             raise TypeError(
                 f"Expected model_constraints to be a ModelConstraints object, "
                 f"got {type(model_constraints)}."
@@ -818,12 +820,50 @@ class WitnessStructure(model.ModelDefaults):
         """Delegate to semantics for extended verification."""
         return self.semantics.extended_verify(state, sentence, eval_point)
 
+    def _evaluate_z3_boolean(self, z3_model, expression):
+        """Safely evaluate a Z3 boolean expression to a Python boolean.
+        
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values, which can cause
+        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
+        """
+        try:
+            result = z3_model.evaluate(expression, model_completion=True)
+            
+            if z3.is_bool(result):
+                if z3.is_true(result):
+                    return True
+                elif z3.is_false(result):
+                    return False
+                    
+            simplified = z3.simplify(result)
+            
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+            
+            if str(simplified) == "True":
+                return True
+            elif str(simplified) == "False":
+                return False
+                
+            try:
+                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
+            except Exception:
+                # logger.warning(f"Could not evaluate Z3 boolean expression: {expression}, assuming False")
+                return False
+                
+        except Exception as e:
+            # logger.warning(f"Error evaluating Z3 boolean expression {expression}: {e}, assuming False")
+            return False
+    
     def find_verifying_states(self, sentence, eval_point):
         """Find states that verify the sentence at evaluation point."""
         result = set()
         for state in self.all_states:
             constraint = self.extended_verify(state, sentence, eval_point)
-            if z3.is_true(self.z3_model.evaluate(constraint)):
+            if self._evaluate_z3_boolean(self.z3_model, constraint):
                 result.add(state)
         return result
 
@@ -832,7 +872,7 @@ class WitnessStructure(model.ModelDefaults):
         result = set()
         for state in self.all_states:
             constraint = self.semantics.verify(state, atom)
-            if z3.is_true(self.z3_model.evaluate(constraint)):
+            if self._evaluate_z3_boolean(self.z3_model, constraint):
                 result.add(state)
         return result
 
@@ -843,7 +883,7 @@ class WitnessStructure(model.ModelDefaults):
             result[state_x] = set()
             for state_y in self.all_states:
                 constraint = self.semantics.excludes(state_x, state_y)
-                if z3.is_true(self.z3_model.evaluate(constraint)):
+                if self._evaluate_z3_boolean(self.z3_model, constraint):
                     result[state_x].add(state_y)
         return result
     
@@ -1303,8 +1343,13 @@ class WitnessProposition(PropositionDefaults):
         # Check each state to see if it verifies the sentence
         for state in range(2**semantics.N):
             constraint = semantics.extended_verify(state, self.sentence, eval_point)
-            if z3.is_true(self.z3_model.evaluate(constraint)):
-                result.add(state)
+            # Use the model structure's _evaluate_z3_boolean method if available
+            if hasattr(self.model_structure, '_evaluate_z3_boolean'):
+                if self.model_structure._evaluate_z3_boolean(self.z3_model, constraint):
+                    result.add(state)
+            else:
+                if z3.is_true(self.z3_model.evaluate(constraint)):
+                    result.add(state)
         return result
         
     def truth_value_at(self, eval_point):
@@ -1322,11 +1367,19 @@ class WitnessProposition(PropositionDefaults):
         N = self.model_structure.semantics.N
         possible = self.model_structure.semantics.possible
         z3_model = self.model_structure.z3_model
-        ver_states = {
-            bitvec_to_substates(bit, N)
-            for bit in self.verifiers
-            if z3.is_true(z3_model.evaluate(possible(bit))) or self.settings.get('print_impossible', False)
-        }
+        # Use the model structure's _evaluate_z3_boolean method if available
+        if hasattr(self.model_structure, '_evaluate_z3_boolean'):
+            ver_states = {
+                bitvec_to_substates(bit, N)
+                for bit in self.verifiers
+                if self.model_structure._evaluate_z3_boolean(z3_model, possible(bit)) or self.settings.get('print_impossible', False)
+            }
+        else:
+            ver_states = {
+                bitvec_to_substates(bit, N)
+                for bit in self.verifiers
+                if z3.is_true(z3_model.evaluate(possible(bit))) or self.settings.get('print_impossible', False)
+            }
         return pretty_set_print(ver_states)
         
     def print_proposition(self, eval_point, indent_num, use_colors):
@@ -1335,7 +1388,11 @@ class WitnessProposition(PropositionDefaults):
         
         N = self.model_structure.semantics.N
         z3_formula = self.truth_value_at(eval_point)
-        truth_value = z3.is_true(self.model_structure.z3_model.evaluate(z3_formula))
+        # Use the model structure's _evaluate_z3_boolean method if available
+        if hasattr(self.model_structure, '_evaluate_z3_boolean'):
+            truth_value = self.model_structure._evaluate_z3_boolean(self.model_structure.z3_model, z3_formula)
+        else:
+            truth_value = z3.is_true(self.model_structure.z3_model.evaluate(z3_formula))
         world_state = bitvec_to_substates(eval_point["world"], N)
         RESET, FULL, PART = self.set_colors(self.name, indent_num, truth_value, world_state, use_colors)
         print(

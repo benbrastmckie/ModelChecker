@@ -26,7 +26,7 @@ While both theories satisfy the same frame constraints, they generate distinct l
 
 ### 1. [Frame Constraints and Logical Independence](frame_constraints.md)
 
-**Research Question**: Does the constructive definition of alternatives in logos semantics automatically satisfy Fine's frame constraints? And if so, do the theories generate the same logic?
+**Research Question**: Does the definition of alternatives in logos semantics automatically satisfy Fine's frame constraints? And if so, do the theories generate the same logic?
 
 **Key Findings**:
 
@@ -45,7 +45,7 @@ While both theories satisfy the same frame constraints, they generate distinct l
 
 - The imposition semantics cannot define `\Box A` via either `\neg A \boxright \bot` or `\top \boxright A`
 - Countermodels exist because the imposition relation can generate vacuous counterfactuals
-- The logos semantics validates both definitions up to N=6 with no countermodels found
+- The logos semantics validates both definitions up to `N = 6` with no countermodels found
 - The difference stems from how each theory handles alternative world generation - logos ensures alternatives exist when they should theoretically exist
 
 **Technical Insight**: The report includes detailed countermodel analyses showing exactly how vacuous truth in imposition semantics undermines modal definability.
@@ -60,8 +60,8 @@ The smallest countermodel distinguishing the theories has just 2 atomic states:
 State Space: □, a (world), b (world)
 
 Imposition Relation:
-  a -->_□ a    # Expected: imposing □ on a yields a
-  a -->_□ b    # Unexpected: imposing □ on a can yield b!
+  a -->_□ a    # Expected: a is the result of imposing □ on a
+  a -->_□ b    # Unexpected: b is the result of imposing □ on a!
   a -->_a a
   a -->_b b
   b -->_□ b
@@ -91,14 +91,6 @@ The imposition semantics makes counterfactuals true by failing to generate alter
 
 ## Theoretical Implications
 
-### The Frame Constraint Paradox
-
-The analyses reveal a fundamental insight about semantic constraints:
-
-1. **Necessary but not sufficient**: Frame constraints capture essential structural properties but may underdetermine the intended logic
-2. **Multiple realizations**: Different relations can satisfy identical constraints while generating logics that are incomparable for strength
-3. **Content beyond structure**: The logos semantics adds philosophical content through its constructive definition
-
 ### The Jump Problem
 
 The primitive imposition relation exhibits problematic behavior:
@@ -108,13 +100,6 @@ The primitive imposition relation exhibits problematic behavior:
 - But violate the philosophical principle of minimal change
 - Most evident with null state imposition: `a -->\_□ b`
 
-### Philosophical Divergence
-
-The theories embody different conceptions of counterfactual reasoning:
-
-- **Imposition**: Treats frame constraints as complete specification, allowing any compliant relation
-- **Logos**: Uses constraints as minimal requirements, adding content through maximal preservation
-
 ## Methodology
 
 ### Constraint Testing
@@ -122,7 +107,7 @@ The theories embody different conceptions of counterfactual reasoning:
 The reports demonstrate a powerful technique for proving semantic properties:
 
 ```python
-# Traditional: Add constraint and hope it's satisfied
+# Traditional: Prove the following by element tracing or proof by contradiction
 constraints.append(ForAll([x, y], property(x, y)))
 
 # ModelChecker: Search for violations
@@ -158,8 +143,9 @@ The reports establish patterns for systematic theory comparison:
 
 ### Source Code
 
-- [Imposition Semantic.py](../../semantic.py) - Implementation of `derive_imposition` testing
-- [Counterfactual Operators](../../../../logos/subtheories/counterfactual/operators.py) - Comparative operator definitions
+- [Imposition Semantics](../../semantic.py) - Implementation of `derive_imposition` testing
+- [Imposition Operators](../../operators.py) - Implementation of `derive_imposition` testing
+- [Logos Counterfactual Operators](../../../../logos/subtheories/counterfactual/operators.py) - Comparative operator definitions
 
 ### Data Files
 
@@ -171,16 +157,8 @@ The reports establish patterns for systematic theory comparison:
 
 ## Future Directions
 
-### Open Questions
-
 - Can additional constraints force convergence between the theories?
-- What is the computational complexity of finding distinguishing models?
-- How do other counterfactual semantics relate to this distinction?
-
-### Potential Extensions
-
 - Investigate probabilistic or graded notions of alternatives
-- Explore connections to causal semantic theories
 
 ---
 

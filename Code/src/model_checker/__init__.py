@@ -53,10 +53,8 @@ except ImportError:
     # If we can't import, don't add jupyter components to __all__
     pass
 
-# Import model as a whole
-from .model import (
-    ModelConstraints,
-)
+# Import model components
+from .models.constraints import ModelConstraints
 
 # Import syntactic as a whole
 from .syntactic import (

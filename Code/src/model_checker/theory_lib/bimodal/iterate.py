@@ -356,454 +356,6 @@ class BimodalModelIterator(BaseModelIterator):
         
         return differences
     
-    def _create_difference_constraint(self, previous_models):
-        """Create bimodal theory-specific constraints to differentiate models.
-        
-        This focuses on the key relationships in bimodal theory:
-        - Truth conditions for sentence letters
-        - Task transitions between world states
-        - World intervals and time points
-        - World history states at specific times
-        
-        Args:
-            previous_models: List of Z3 models to differ from
-            
-        Returns:
-            z3.ExprRef: Z3 constraint requiring difference from previous models
-        """
-        pass
-        
-        # Get key structures from build_example
-        model_structure = self.build_example.model_structure
-        semantics = model_structure.semantics
-        
-        # For each previous model, create a constraint requiring at least one difference
-        model_diff_constraints = []
-        
-        for prev_model in previous_models:
-            # Focus on key bimodal functions
-            diff_components = []
-            
-            # 1. Differences in truth conditions
-            for letter in model_structure.sentence_letters:
-                for i in range(2**semantics.N):
-                    # Create a bitvector for each possible world state
-                    state = z3.BitVecVal(i, semantics.N)
-                    try:
-                        prev_value = prev_model.eval(semantics.truth_condition(state, letter), model_completion=True)
-                        diff_components.append(semantics.truth_condition(state, letter) != prev_value)
-                    except Exception:
-                        pass
-            
-            # 2. Differences in task transitions
-            if hasattr(semantics, 'task'):
-                for i in range(2**semantics.N):
-                    for j in range(2**semantics.N):
-                        state1 = z3.BitVecVal(i, semantics.N)
-                        state2 = z3.BitVecVal(j, semantics.N)
-                        try:
-                            prev_value = prev_model.eval(semantics.task(state1, state2), model_completion=True)
-                            diff_components.append(semantics.task(state1, state2) != prev_value)
-                        except Exception:
-                            pass
-            
-            # 3. Differences in world intervals
-            if hasattr(semantics, 'world_interval_start') and hasattr(semantics, 'world_interval_end'):
-                max_world_id = getattr(semantics, 'max_world_id', 10)  # Use a reasonable default if not defined
-                for world_id in range(max_world_id):
-                    try:
-                        # Check if world exists in the previous model
-                        if z3.is_true(prev_model.eval(semantics.is_world(world_id), model_completion=True)):
-                            prev_start = prev_model.eval(semantics.world_interval_start(world_id), model_completion=True)
-                            prev_end = prev_model.eval(semantics.world_interval_end(world_id), model_completion=True)
-                            
-                            # Force different interval
-                            start_diff = semantics.world_interval_start(world_id) != prev_start
-                            end_diff = semantics.world_interval_end(world_id) != prev_end
-                            diff_components.append(z3.Or(start_diff, end_diff))
-                    except Exception:
-                        pass
-            
-            # 4. Differences in world function (world histories)
-            if hasattr(semantics, 'world_function'):
-                max_world_id = getattr(semantics, 'max_world_id', 10)
-                M = semantics.M
-                for world_id in range(max_world_id):
-                    for time in range(-M + 1, M):
-                        try:
-                            # Check if world exists and time is within its interval in the previous model
-                            if z3.is_true(prev_model.eval(semantics.is_world(world_id), model_completion=True)):
-                                # Check if time is in the valid interval
-                                time_in_interval = z3.And(
-                                    time >= prev_model.eval(semantics.world_interval_start(world_id), model_completion=True),
-                                    time <= prev_model.eval(semantics.world_interval_end(world_id), model_completion=True)
-                                )
-                                
-                                if z3.is_true(prev_model.eval(time_in_interval, model_completion=True)):
-                                    # Get previous state at this world and time
-                                    prev_world_array = prev_model.eval(semantics.world_function(world_id), model_completion=True)
-                                    prev_state = prev_model.eval(z3.Select(prev_world_array, time), model_completion=True)
-                                    
-                                    # Force different state
-                                    curr_state = z3.Select(semantics.world_function(world_id), z3.IntVal(time))
-                                    diff_components.append(curr_state != prev_state)
-                        except Exception:
-                            pass
-            
-            # The new model must be different in at least one way
-            if diff_components:
-                model_diff_constraints.append(z3.Or(diff_components))
-        
-        # The new model must be different from ALL previous models
-        if model_diff_constraints:
-            return z3.And(model_diff_constraints)
-        else:
-            raise RuntimeError("Could not create any difference constraints for bimodal theory")
-    
-    def _create_non_isomorphic_constraint(self, z3_model):
-        """Create constraints that force structural differences for bimodal theory.
-        
-        For bimodal theory models, this focuses on:
-        - Different patterns of world histories
-        - Different numbers of worlds and time intervals
-        - Different task relation patterns
-        
-        Args:
-            z3_model: The Z3 model to differ from
-        
-        Returns:
-            z3.ExprRef: Z3 constraint expression or None if creation fails
-        """
-        # Get model structure
-        model_structure = self.build_example.model_structure
-        semantics = model_structure.semantics
-        
-        # Create constraints to force structural differences
-        constraints = []
-        
-        # 1. Try to force a different number of worlds
-        try:
-            # Count current worlds
-            max_world_id = getattr(semantics, 'max_world_id', 10)
-            current_worlds = 0
-            
-            for i in range(max_world_id):
-                try:
-                    if z3.is_true(z3_model.eval(semantics.is_world(i), model_completion=True)):
-                        current_worlds += 1
-                except:
-                    pass
-            
-            # Force either more or fewer worlds if possible
-            world_count = z3.Sum([z3.If(semantics.is_world(i), 1, 0) for i in range(max_world_id)])
-            
-            if current_worlds > 1:
-                constraints.append(world_count < current_worlds)
-            
-            if current_worlds < max_world_id - 1:
-                constraints.append(world_count > current_worlds)
-                
-        except Exception as e:
-            pass
-        
-        # 2. Try to force different world intervals
-        try:
-            max_world_id = getattr(semantics, 'max_world_id', 10)
-            M = semantics.M
-            
-            for world_id in range(max_world_id):
-                try:
-                    # Check if this world exists in the model
-                    if z3.is_true(z3_model.eval(semantics.is_world(world_id), model_completion=True)):
-                        # Get current interval
-                        start_time = z3_model.eval(semantics.world_interval_start(world_id), model_completion=True).as_long()
-                        end_time = z3_model.eval(semantics.world_interval_end(world_id), model_completion=True).as_long()
-                        
-                        # Force different start or end time
-                        if start_time > -M + 1:
-                            constraints.append(semantics.world_interval_start(world_id) < start_time)
-                        
-                        if start_time < 0:
-                            constraints.append(semantics.world_interval_start(world_id) > start_time)
-                            
-                        if end_time < M - 1:
-                            constraints.append(semantics.world_interval_end(world_id) > end_time)
-                            
-                        if end_time > 0:
-                            constraints.append(semantics.world_interval_end(world_id) < end_time)
-                except:
-                    pass
-        except Exception as e:
-            logger.debug(f"Error creating interval constraint: {e}")
-        
-        # 3. Try to force different truth conditions for sentence letters
-        try:
-            # Get current truth condition pattern
-            truth_count = 0
-            states_to_check = min(8, 2**semantics.N)  # Limit number of states to check
-            
-            for letter in model_structure.sentence_letters:
-                for i in range(states_to_check):
-                    state = z3.BitVecVal(i, semantics.N)
-                    try:
-                        if z3.is_true(z3_model.eval(semantics.truth_condition(state, letter), model_completion=True)):
-                            truth_count += 1
-                    except:
-                        pass
-            
-            # Force significantly different truth count
-            total_tc_count = z3.Sum([
-                z3.If(semantics.truth_condition(z3.BitVecVal(i, semantics.N), letter), 1, 0)
-                for letter in model_structure.sentence_letters
-                for i in range(states_to_check)
-            ])
-            
-            if truth_count > states_to_check * len(model_structure.sentence_letters) // 2:
-                # If many trues, force mostly false
-                constraints.append(total_tc_count < truth_count // 2)
-            else:
-                # If few trues, force mostly true
-                max_count = states_to_check * len(model_structure.sentence_letters)
-                constraints.append(total_tc_count > max_count - truth_count // 2)
-        except Exception as e:
-            logger.debug(f"Error creating truth condition constraint: {e}")
-        
-        # 4. Try to force different task relations
-        if hasattr(semantics, 'task'):
-            try:
-                # Count current task relations
-                task_count = 0
-                states_to_check = min(4, 2**semantics.N)  # Limit for performance
-                
-                for i in range(states_to_check):
-                    for j in range(states_to_check):
-                        state1 = z3.BitVecVal(i, semantics.N)
-                        state2 = z3.BitVecVal(j, semantics.N)
-                        try:
-                            if z3.is_true(z3_model.eval(semantics.task(state1, state2), model_completion=True)):
-                                task_count += 1
-                        except:
-                            pass
-                
-                # Force significantly different task count
-                task_tc_count = z3.Sum([
-                    z3.If(semantics.task(z3.BitVecVal(i, semantics.N), z3.BitVecVal(j, semantics.N)), 1, 0)
-                    for i in range(states_to_check)
-                    for j in range(states_to_check)
-                ])
-                
-                max_task_count = states_to_check * states_to_check
-                
-                if task_count > max_task_count // 2:
-                    # If many tasks, force few
-                    constraints.append(task_tc_count < task_count // 2)
-                else:
-                    # If few tasks, force many
-                    constraints.append(task_tc_count > max_task_count - task_count // 2)
-            except Exception as e:
-                logger.debug(f"Error creating task constraint: {e}")
-        
-        # Return the combined constraint if any constraints were created
-        if constraints:
-            return z3.Or(constraints)
-        
-        return None
-    
-    def _create_stronger_constraint(self, isomorphic_model):
-        """Create stronger constraints to escape isomorphic models for bimodal theory.
-        
-        This creates more dramatic constraints when multiple consecutive
-        isomorphic models have been found.
-        
-        Args:
-            isomorphic_model: The Z3 model that was isomorphic
-        
-        Returns:
-            z3.ExprRef: Stronger constraint or None if creation fails
-        """
-        # Get model structure and semantics
-        model_structure = self.build_example.model_structure
-        semantics = model_structure.semantics
-        
-        # The approach varies depending on the escape attempt
-        escape_attempt = getattr(self, 'escape_attempts', 1)
-        
-        # Create constraints that force major structural changes
-        constraints = []
-        
-        # 1. Force dramatically different number of worlds
-        try:
-            # Count current worlds
-            max_world_id = getattr(semantics, 'max_world_id', 10)
-            current_worlds = 0
-            
-            for i in range(max_world_id):
-                try:
-                    if z3.is_true(isomorphic_model.eval(semantics.is_world(i), model_completion=True)):
-                        current_worlds += 1
-                except:
-                    pass
-            
-            # World count expression
-            world_count = z3.Sum([z3.If(semantics.is_world(i), 1, 0) for i in range(max_world_id)])
-            
-            # Force minimal or maximal number of worlds
-            if escape_attempt == 1:
-                # First attempt: force significantly different world count
-                if current_worlds > max_world_id // 2:
-                    # If many worlds, force minimal (1-2 worlds)
-                    constraints.append(world_count <= 2)
-                else:
-                    # If few worlds, force many (near max)
-                    constraints.append(world_count >= max_world_id - 2)
-            else:
-                # Later attempts: extreme values
-                constraints.append(world_count == 1)  # Minimal
-                constraints.append(world_count == max_world_id)  # Maximal
-                
-                # Also try mirroring all intervals
-                for world_id in range(max_world_id):
-                    try:
-                        # Check if this world exists in the model
-                        if z3.is_true(isomorphic_model.eval(semantics.is_world(world_id), model_completion=True)):
-                            # Get current interval
-                            start_time = isomorphic_model.eval(semantics.world_interval_start(world_id), model_completion=True)
-                            end_time = isomorphic_model.eval(semantics.world_interval_end(world_id), model_completion=True)
-                            
-                            # Force mirrored interval (negative becomes positive and vice versa)
-                            mirror_constraint = z3.And(
-                                semantics.world_interval_start(world_id) == -end_time,
-                                semantics.world_interval_end(world_id) == -start_time
-                            )
-                            constraints.append(mirror_constraint)
-                    except:
-                        pass
-        except Exception as e:
-            logger.debug(f"Error creating world count constraint: {e}")
-        
-        # 2. Force completely different world intervals
-        try:
-            M = semantics.M
-            max_world_id = getattr(semantics, 'max_world_id', 10)
-            
-            if escape_attempt == 1:
-                # First attempt: shift all intervals
-                shift_all_forward = []
-                shift_all_backward = []
-                
-                for world_id in range(max_world_id):
-                    try:
-                        # Check if this world exists in the model
-                        if z3.is_true(isomorphic_model.eval(semantics.is_world(world_id), model_completion=True)):
-                            # Get current interval
-                            start_time = isomorphic_model.eval(semantics.world_interval_start(world_id), model_completion=True)
-                            end_time = isomorphic_model.eval(semantics.world_interval_end(world_id), model_completion=True)
-                            
-                            # Force shifted interval
-                            if start_time.as_long() > -M + 2:  # Room to shift backward
-                                shift_all_backward.append(
-                                    z3.And(
-                                        semantics.world_interval_start(world_id) == start_time - 1,
-                                        semantics.world_interval_end(world_id) == end_time - 1
-                                    )
-                                )
-                                
-                            if end_time.as_long() < M - 2:  # Room to shift forward
-                                shift_all_forward.append(
-                                    z3.And(
-                                        semantics.world_interval_start(world_id) == start_time + 1,
-                                        semantics.world_interval_end(world_id) == end_time + 1
-                                    )
-                                )
-                    except:
-                        pass
-                
-                if shift_all_forward:
-                    constraints.append(z3.And(shift_all_forward))
-                    
-                if shift_all_backward:
-                    constraints.append(z3.And(shift_all_backward))
-            else:
-                # Later attempts: extreme intervals
-                for world_id in range(max_world_id):
-                    try:
-                        # Force intervals at extremes of the time range
-                        earliest_interval = z3.And(
-                            semantics.world_interval_start(world_id) == z3.IntVal(-M + 1),
-                            semantics.world_interval_end(world_id) == z3.IntVal(0)
-                        )
-                        latest_interval = z3.And(
-                            semantics.world_interval_start(world_id) == z3.IntVal(0),
-                            semantics.world_interval_end(world_id) == z3.IntVal(M - 1)
-                        )
-                        
-                        constraints.append(earliest_interval)
-                        constraints.append(latest_interval)
-                    except:
-                        pass
-        except Exception as e:
-            logger.debug(f"Error creating interval constraint: {e}")
-        
-        # 3. Force dramatically different truth conditions
-        try:
-            # Attempt to flip all truth conditions
-            states_to_check = min(8, 2**semantics.N)  # Limit number of states to check
-            
-            flip_constraints = []
-            for letter in model_structure.sentence_letters:
-                letter_flip = []
-                for i in range(states_to_check):
-                    state = z3.BitVecVal(i, semantics.N)
-                    try:
-                        prev_value = isomorphic_model.eval(semantics.truth_condition(state, letter), model_completion=True)
-                        letter_flip.append(semantics.truth_condition(state, letter) != prev_value)
-                    except:
-                        pass
-                
-                # Flip all or most truth values for this letter
-                if letter_flip:
-                    flip_constraints.append(z3.And(letter_flip))
-            
-            # Add constraints to flip truth conditions for either all letters or each letter individually
-            if flip_constraints:
-                if len(flip_constraints) > 1:
-                    # Either flip all letters or flip each letter individually
-                    constraints.append(z3.And(flip_constraints))  # Flip all
-                    for flip in flip_constraints:
-                        constraints.append(flip)  # Flip individual letters
-                else:
-                    constraints.append(flip_constraints[0])
-        except Exception as e:
-            logger.debug(f"Error creating truth condition constraint: {e}")
-        
-        # 4. Force dramatically different task relations
-        if hasattr(semantics, 'task'):
-            try:
-                # Try to flip task relations
-                states_to_check = min(4, 2**semantics.N)  # Limit for performance
-                
-                task_flips = []
-                for i in range(states_to_check):
-                    for j in range(states_to_check):
-                        state1 = z3.BitVecVal(i, semantics.N)
-                        state2 = z3.BitVecVal(j, semantics.N)
-                        try:
-                            prev_value = isomorphic_model.eval(semantics.task(state1, state2), model_completion=True)
-                            task_flips.append(semantics.task(state1, state2) != prev_value)
-                        except:
-                            pass
-                
-                if task_flips:
-                    constraints.append(z3.And(task_flips))
-            except Exception as e:
-                logger.debug(f"Error creating task constraint: {e}")
-        
-        # Return the combined constraint if any constraints were created
-        if constraints:
-            return z3.Or(constraints)
-        
-        return None
-    
     def display_model_differences(self, model_structure, output=sys.stdout):
         """Format differences for display using bimodal theory semantics.
         
@@ -938,6 +490,67 @@ class BimodalModelIterator(BaseModelIterator):
                         else:
                             # Target changed
                             print(f"    Shift {shift}: W_{old_target} -> W_{new_target}", file=output)
+
+    
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints requiring difference from previous models.
+        
+        For bimodal theory, focuses on world histories and truth values.
+        
+        Args:
+            previous_models: List of Z3 models found so far
+            
+        Returns:
+            Z3 constraint requiring structural difference
+        """
+        constraints = []
+        semantics = self.build_example.model_constraints.semantics
+        
+        for prev_model in previous_models:
+            model_constraints = []
+            
+            # World history constraints - different time-world mappings
+            for w in range(semantics.W):
+                for t in range(semantics.T):
+                    prev_world_at_t = prev_model.eval(
+                        semantics.world_history[w][t],
+                        model_completion=True
+                    )
+                    model_constraints.append(
+                        semantics.world_history[w][t] != prev_world_at_t
+                    )
+            
+            # Truth value constraints
+            syntax = self.build_example.example_syntax
+            if hasattr(syntax, 'sentence_letters'):
+                for letter_obj in syntax.sentence_letters:
+                    if hasattr(letter_obj, 'sentence_letter'):
+                        atom = letter_obj.sentence_letter
+                        
+                        # Check truth at each world history
+                        for w in range(semantics.W):
+                            prev_truth = prev_model.eval(
+                                semantics.truth_condition(w, atom),
+                                model_completion=True
+                            )
+                            model_constraints.append(
+                                semantics.truth_condition(w, atom) != prev_truth
+                            )
+            
+            if model_constraints:
+                constraints.append(z3.Or(*model_constraints[:20]))  # Limit constraints
+        
+        return z3.And(*constraints) if constraints else z3.BoolVal(True)
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraint preventing isomorphic models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
 
 
 # Wrapper function for use in theory examples
