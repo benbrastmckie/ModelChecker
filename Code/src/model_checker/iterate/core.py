@@ -24,7 +24,6 @@ from model_checker.builder.progress import Spinner
 from model_checker.iterate.graph_utils import ModelGraph
 from model_checker.iterate.progress import IterationProgress
 from model_checker.iterate.stats import IterationStatistics
-from model_checker.iterate.patterns import StructuralPattern, create_structural_difference_constraint
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -114,15 +113,7 @@ class BaseModelIterator:
         self.found_models = [build_example.model_structure.z3_model]
         self.model_structures = [build_example.model_structure]
         
-        # Initialize pattern tracking
-        self.found_patterns = []
-        
-        # Extract initial pattern
-        initial_pattern = StructuralPattern(
-            self.build_example.model_constraints,
-            self.found_models[0]
-        )
-        self.found_patterns.append(initial_pattern)
+        # Pattern tracking removed - using direct constraints instead
         
         # Create a persistent solver that will accumulate constraints
         self.solver = self._create_persistent_solver()
@@ -278,13 +269,10 @@ class BaseModelIterator:
                         self.debug_messages.append(f"[ITERATION] Too many consecutive invalid models ({max_consecutive_invalid}) - no more valid models exist")
                         break
                     
-                    # Add constraint to exclude this invalid model using patterns
+                    # Add constraint to exclude this invalid model
                     logger.debug("Adding constraint to exclude invalid model")
-                    invalid_pattern = StructuralPattern(self.build_example.model_constraints, new_model)
-                    invalid_constraint = invalid_pattern.to_difference_constraint(
-                        self.build_example.model_constraints.semantics,
-                        self.build_example.model_constraints.sentence_letters
-                    )
+                    # Use theory-specific constraint to exclude this model
+                    invalid_constraint = self._create_difference_constraint([new_model])
                     self.solver.add(invalid_constraint)
                     continue
                 
@@ -369,12 +357,8 @@ class BaseModelIterator:
                         # Continue to next iteration to try the stronger constraints
                         continue
                     
-                    # Add a non-isomorphism constraint using patterns and try again
-                    iso_pattern = StructuralPattern(self.build_example.model_constraints, new_model)
-                    iso_constraint = iso_pattern.to_difference_constraint(
-                        self.build_example.model_constraints.semantics,
-                        self.build_example.model_constraints.sentence_letters
-                    )
+                    # Add a non-isomorphism constraint and try again
+                    iso_constraint = self._create_non_isomorphic_constraint(new_model)
                     self.solver.add(iso_constraint)
                     continue  # Skip to next attempt without incrementing
                 
@@ -400,12 +384,7 @@ class BaseModelIterator:
                 self.model_structures.append(new_structure)
                 self.current_iteration += 1
                 
-                # Track pattern for the new model
-                new_pattern = StructuralPattern(
-                    self.build_example.model_constraints, 
-                    new_model
-                )
-                self.found_patterns.append(new_pattern)
+                # Pattern tracking removed - direct constraints used instead
                 
                 # Add statistics for this model
                 self.stats.add_model(new_structure, differences)
@@ -415,12 +394,8 @@ class BaseModelIterator:
                     progress.update(self.distinct_models_found, self.checked_model_count)
                 
                 # Add the new model to the solver constraints to ensure the next model is different
-                # Add pattern-based constraint to exclude this model
-                exclude_pattern = StructuralPattern(self.build_example.model_constraints, new_model)
-                exclude_constraint = exclude_pattern.to_difference_constraint(
-                    self.build_example.model_constraints.semantics,
-                    self.build_example.model_constraints.sentence_letters
-                )
+                # Use theory-specific constraint to exclude this model
+                exclude_constraint = self._create_difference_constraint([new_model])
                 self.solver.add(exclude_constraint)
                 
             except Exception as e:
@@ -524,12 +499,10 @@ class BaseModelIterator:
         # Start with original constraints
         extended_constraints = list(self.original_constraints)
         
-        # Add pattern-based difference constraint
-        diff_constraint = create_structural_difference_constraint(
-            self.build_example.model_constraints,
-            self.found_patterns
-        )
-        extended_constraints.append(diff_constraint)
+        # Add theory-specific difference constraints
+        if len(self.found_models) > 0:
+            diff_constraint = self._create_difference_constraint(self.found_models)
+            extended_constraints.append(diff_constraint)
         
         return extended_constraints
         
@@ -554,9 +527,6 @@ class BaseModelIterator:
             original_build = self.build_example
             settings = original_build.settings.copy()
             
-            # Extract verify/falsify state from current Z3 model
-            verify_falsify_state = self._extract_verify_falsify_from_z3(z3_model)
-            
             # Create fresh syntax (reuses sentence parsing)
             syntax = Syntax(
                 original_build.premises,
@@ -564,16 +534,9 @@ class BaseModelIterator:
                 original_build.semantic_theory.get("operators")
             )
             
-            # Create new semantics with current model's functions
+            # Create new semantics WITHOUT state transfer
             semantics_class = original_build.semantic_theory["semantics"]
             semantics = semantics_class(settings)
-            
-            # CRITICAL: Initialize semantics with current model's verify/falsify
-            if verify_falsify_state:
-                # Extract sentence letters from syntax
-                sentence_letters = [letter.sentence_letter for letter in syntax.sentence_letters]
-                semantics.initialize_with_state(verify_falsify_state, sentence_letters)
-                logger.info(f"Initialized semantics with {len(verify_falsify_state)} state entries")
             
             # Create fresh ModelConstraints with current context
             proposition_class = original_build.semantic_theory["proposition"]
@@ -584,68 +547,71 @@ class BaseModelIterator:
                 proposition_class
             )
             
-            # Create new model structure WITHOUT automatic solving
+            # We need to inject the concrete constraints into the model constraints
+            # BEFORE creating the model structure, so it solves with them included
+            
+            # Get semantics
+            semantics = model_constraints.semantics
+            
+            # Create a new solver with the base constraints AND concrete values
+            temp_solver = z3.Solver()
+            
+            # Add the base constraints from model_constraints
+            for constraint in model_constraints.all_constraints:
+                temp_solver.add(constraint)
+            
+            # Extract concrete values from iterator's Z3 model and add them
+            # Constrain world states
+            for state in range(2**semantics.N):
+                # Is this state a world in the iterator model?
+                is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
+                if z3.is_true(is_world_val):
+                    temp_solver.add(semantics.is_world(state))
+                else:
+                    temp_solver.add(z3.Not(semantics.is_world(state)))
+                
+                # Is this state possible in the iterator model?
+                is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
+                if z3.is_true(is_possible_val):
+                    temp_solver.add(semantics.possible(state))
+                else:
+                    temp_solver.add(z3.Not(semantics.possible(state)))
+            
+            # Constrain verify/falsify for sentence letters
+            for letter_obj in syntax.sentence_letters:
+                if hasattr(letter_obj, 'sentence_letter'):
+                    atom = letter_obj.sentence_letter
+                    for state in range(2**semantics.N):
+                        # Verify value
+                        verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                        if z3.is_true(verify_val):
+                            temp_solver.add(semantics.verify(state, atom))
+                        else:
+                            temp_solver.add(z3.Not(semantics.verify(state, atom)))
+                        
+                        # Falsify value (if it exists)
+                        if hasattr(semantics, 'falsify'):
+                            falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                            if z3.is_true(falsify_val):
+                                temp_solver.add(semantics.falsify(state, atom))
+                            else:
+                                temp_solver.add(z3.Not(semantics.falsify(state, atom)))
+            
+            # Store the constraints in model_constraints so the model will use them
+            model_constraints.all_constraints = list(temp_solver.assertions())
+            
+            # Now create the model structure which will solve with all constraints
             model_class = original_build.semantic_theory["model"]
+            new_structure = model_class(model_constraints, settings)
             
-            # Create instance without calling __init__ to avoid auto-solving
-            new_structure = object.__new__(model_class)
+            # The model structure constructor already solved with all constraints
+            # Check if it was successful
+            if not new_structure.z3_model_status:
+                logger.error("Failed to create MODEL 2 with concrete constraints")
+                return None
             
-            # Initialize base attributes manually
-            new_structure.model_constraints = model_constraints
-            new_structure.settings = settings
-            new_structure.max_time = settings["max_time"]
-            new_structure.expectation = settings["expectation"]
-            
-            # Define ANSI color codes (from ModelDefaults)
-            new_structure.COLORS = {
-                "default": "\033[37m",  # WHITE
-                "world": "\033[34m",    # BLUE
-                "possible": "\033[36m", # CYAN
-                "impossible": "\033[35m", # MAGENTA
-                "initial": "\033[33m",  # YELLOW
-            }
-            new_structure.RESET = "\033[0m"
-            new_structure.WHITE = new_structure.COLORS["default"]
-            new_structure.constraint_dict = {}
-            
-            # Store from model_constraints.semantics
-            new_structure.semantics = model_constraints.semantics
-            new_structure.main_point = new_structure.semantics.main_point
-            new_structure.all_states = new_structure.semantics.all_states
-            new_structure.N = new_structure.semantics.N
-            
-            # Store from model_constraints.syntax
-            new_structure.syntax = model_constraints.syntax
-            new_structure.start_time = new_structure.syntax.start_time
-            new_structure.premises = new_structure.syntax.premises
-            new_structure.conclusions = new_structure.syntax.conclusions
-            new_structure.sentence_letters = new_structure.syntax.sentence_letters
-            
-            # Store from model_constraints
-            new_structure.proposition_class = model_constraints.proposition_class
-            
-            # Initialize Z3 attributes
-            new_structure.solver = None
-            new_structure.stored_solver = None
-            new_structure.timeout = False
-            new_structure.unsat_core = None
-            new_structure.result = None
-            
-            # Initialize main_world from main_point
-            if hasattr(new_structure.main_point, "get"):
-                new_structure.main_world = new_structure.main_point.get("world")
-            
-            # Set the Z3 model from iterator
-            new_structure.z3_model = z3_model
-            new_structure.z3_model_status = True
-            new_structure.satisfiable = True
-            new_structure.solved = True
-            new_structure.z3_model_runtime = 0.001  # Placeholder runtime
-            
-            # Initialize Z3-dependent attributes
-            self._initialize_z3_dependent_attributes(new_structure, z3_model)
-            
-            # Interpret sentences with fresh constraints
+            # CRITICAL: Update propositions to point to new model structure
+            # Without this, sentences still have propositions pointing to MODEL 1
             new_structure.interpret(new_structure.premises + new_structure.conclusions)
             
             return new_structure
@@ -656,35 +622,6 @@ class BaseModelIterator:
             logger.error(f"Full traceback:\n{traceback.format_exc()}")
             return None
     
-    def _extract_verify_falsify_from_z3(self, z3_model):
-        """Extract verify/falsify values from Z3 model.
-        
-        Returns:
-            dict: Mapping of (state, letter) -> (verify_value, falsify_value)
-        """
-        state_map = {}
-        original_constraints = self.build_example.model_constraints
-        
-        # Get sentence letters from syntax instead of constraints
-        sentence_letters = self.build_example.example_syntax.sentence_letters
-        
-        for letter_obj in sentence_letters:
-            letter_str = letter_obj.sentence_letter
-            for state in range(2**original_constraints.semantics.N):
-                verify_val = z3_model.eval(
-                    original_constraints.semantics.verify(state, letter_str),
-                    model_completion=True
-                )
-                falsify_val = z3_model.eval(
-                    original_constraints.semantics.falsify(state, letter_str),
-                    model_completion=True
-                )
-                state_map[(state, letter_str)] = (
-                    z3.is_true(verify_val),
-                    z3.is_true(falsify_val)
-                )
-        
-        return state_map
             
     def _initialize_base_attributes(self, model_structure, model_constraints, settings):
         """Initialize basic attributes of a model structure that don't depend on the Z3 model.
@@ -1133,6 +1070,41 @@ class BaseModelIterator:
         # from the domain, which is typically the world indices
         domain = range(domain_size)
         return itertools.product(domain, repeat=arity)
+    
+    # Abstract methods that must be implemented by theory-specific subclasses
+    
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints requiring difference from previous models.
+        
+        Args:
+            previous_models: List of Z3 models found so far
+            
+        Returns:
+            Z3 constraint requiring structural difference
+        """
+        raise NotImplementedError("Theory-specific implementation required")
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraint preventing isomorphic models.
+        
+        Args:
+            z3_model: The Z3 model to constrain against
+            
+        Returns:
+            Z3 constraint preventing isomorphism
+        """
+        raise NotImplementedError("Theory-specific implementation required")
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models.
+        
+        Args:
+            isomorphic_model: An isomorphic model to strengthen against
+            
+        Returns:
+            Z3 constraint for stronger model
+        """
+        raise NotImplementedError("Theory-specific implementation required")
 
 
 # Module-level convenience function with theory-agnostic implementation

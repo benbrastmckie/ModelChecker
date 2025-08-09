@@ -60,8 +60,19 @@ semantic_theory = get_theory()
         # Create test file
         test_file = self._create_test_file(['A'], [], iterate=3)
         
+        # Create module flags object
+        from types import SimpleNamespace
+        module_flags = SimpleNamespace(
+            file_path=test_file,
+            print_impossible=False,
+            print_constraints=False,
+            print_z3=False,
+            save_output=False,
+            maximize=False
+        )
+        
         # Build module
-        build_module = BuildModule(test_file)
+        build_module = BuildModule(module_flags)
         build_module.run()
         
         # Check all models
@@ -128,8 +139,19 @@ semantic_theory = get_theory()
             iterate=2
         )
         
+        # Create module flags object
+        from types import SimpleNamespace
+        module_flags = SimpleNamespace(
+            file_path=test_file,
+            print_impossible=False,
+            print_constraints=False,
+            print_z3=False,
+            save_output=False,
+            maximize=False
+        )
+        
         # Build module
-        build_module = BuildModule(test_file)
+        build_module = BuildModule(module_flags)
         build_module.run()
         
         # Check all models

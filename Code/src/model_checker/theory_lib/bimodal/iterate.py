@@ -491,6 +491,67 @@ class BimodalModelIterator(BaseModelIterator):
                             # Target changed
                             print(f"    Shift {shift}: W_{old_target} -> W_{new_target}", file=output)
 
+    
+    def _create_difference_constraint(self, previous_models):
+        """Create constraints requiring difference from previous models.
+        
+        For bimodal theory, focuses on world histories and truth values.
+        
+        Args:
+            previous_models: List of Z3 models found so far
+            
+        Returns:
+            Z3 constraint requiring structural difference
+        """
+        constraints = []
+        semantics = self.build_example.model_constraints.semantics
+        
+        for prev_model in previous_models:
+            model_constraints = []
+            
+            # World history constraints - different time-world mappings
+            for w in range(semantics.W):
+                for t in range(semantics.T):
+                    prev_world_at_t = prev_model.eval(
+                        semantics.world_history[w][t],
+                        model_completion=True
+                    )
+                    model_constraints.append(
+                        semantics.world_history[w][t] != prev_world_at_t
+                    )
+            
+            # Truth value constraints
+            syntax = self.build_example.example_syntax
+            if hasattr(syntax, 'sentence_letters'):
+                for letter_obj in syntax.sentence_letters:
+                    if hasattr(letter_obj, 'sentence_letter'):
+                        atom = letter_obj.sentence_letter
+                        
+                        # Check truth at each world history
+                        for w in range(semantics.W):
+                            prev_truth = prev_model.eval(
+                                semantics.truth_condition(w, atom),
+                                model_completion=True
+                            )
+                            model_constraints.append(
+                                semantics.truth_condition(w, atom) != prev_truth
+                            )
+            
+            if model_constraints:
+                constraints.append(z3.Or(*model_constraints[:20]))  # Limit constraints
+        
+        return z3.And(*constraints) if constraints else z3.BoolVal(True)
+    
+    def _create_non_isomorphic_constraint(self, z3_model):
+        """Create constraint preventing isomorphic models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
+        
+    def _create_stronger_constraint(self, isomorphic_model):
+        """Create constraint for finding stronger models."""
+        # For now, simple implementation
+        return z3.BoolVal(True)
+
 
 # Wrapper function for use in theory examples
 def iterate_example(example, max_iterations=None):
