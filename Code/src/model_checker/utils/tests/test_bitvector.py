@@ -3,8 +3,8 @@
 import pytest
 import z3
 
-# Import from utils_new
-from model_checker.utils_new.bitvector import (
+# Import from utils
+from model_checker.utils.bitvector import (
     binary_bitvector, int_to_binary, index_to_substate,
     bitvec_to_substates, bitvec_to_worldstate
 )

@@ -3,7 +3,7 @@
 import pytest
 import z3
 
-from model_checker.utils_new.z3_helpers import ForAll, Exists
+from model_checker.utils.z3_helpers import ForAll, Exists
 
 
 class TestForAll:
