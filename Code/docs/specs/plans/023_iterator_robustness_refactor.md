@@ -44,39 +44,28 @@ The following examples have iterate=2 enabled and must pass at each phase:
 
 ## Implementation Phases
 
-### Phase 0: Baseline Capture and Test Infrastructure
+### Phase 0: Baseline Capture and Test Infrastructure ✅
 
 **Goal**: Capture current behavior baselines before any changes.
 
 **Tasks**:
-1. Capture baseline outputs for all iterate=2 examples:
-   ```bash
-   # Create baseline directory
-   mkdir -p docs/specs/baselines/iterator_refactor/
+1. ✅ Capture baseline outputs for all iterate=2 examples:
+   - Created `scripts/capture_baselines.py` to automate baseline capture
+   - Captured all 7 theory baselines with MODEL 2 verification
    
-   # Capture each example's output
-   ./dev_cli.py src/model_checker/theory_lib/exclusion/examples.py > docs/specs/baselines/iterator_refactor/exclusion_baseline.txt
-   ./dev_cli.py src/model_checker/theory_lib/imposition/examples.py > docs/specs/baselines/iterator_refactor/imposition_baseline.txt
-   ./dev_cli.py src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py > docs/specs/baselines/iterator_refactor/constitutive_baseline.txt
-   ./dev_cli.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py > docs/specs/baselines/iterator_refactor/counterfactual_baseline.txt
-   ./dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py > docs/specs/baselines/iterator_refactor/modal_baseline.txt
-   ./dev_cli.py src/model_checker/theory_lib/logos/subtheories/relevance/examples.py > docs/specs/baselines/iterator_refactor/relevance_baseline.txt
-   ./dev_cli.py src/model_checker/theory_lib/logos/subtheories/extensional/examples.py > docs/specs/baselines/iterator_refactor/extensional_baseline.txt
-   ```
+2. ✅ Create regression test script:
+   - Created `scripts/test_iterator_regression.py` with error detection
+   - Verifies MODEL 2 presence for iterate=2 examples
+   - Checks for common errors (AttributeError, Z3 casting, etc.)
 
-2. Create regression test script:
-   ```bash
-   # Create scripts/test_iterator_regression.sh
-   # Runs all iterate examples and compares with baselines
-   ```
+3. ✅ Run initial validation:
+   - All iterate tests passing (18 passed, 9 skipped)
+   - Full test suite passing (all theories and packages)
+   - Regression script confirms all examples working
 
-3. Run initial validation:
-   ```bash
-   ./run_tests.py --all
-   ./run_tests.py iterate --verbose
-   ```
+**Success Criteria**: ✅ All baselines captured, regression script working
 
-**Success Criteria**: All baselines captured, regression script working
+**Commit**: 6b625c94 - "Phase 0 Complete: Baseline capture and test infrastructure"
 
 ### Phase 1: Interface Definition and Testing Infrastructure
 
