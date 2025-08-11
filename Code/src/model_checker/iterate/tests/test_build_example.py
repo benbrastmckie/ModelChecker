@@ -39,6 +39,9 @@ class TestIteratorBuildExample(unittest.TestCase):
         self.mock_build.settings = {'N': 3}
         self.mock_build.settings_manager = Mock()
         self.mock_build.build_module = Mock()
+        # Add missing model_constraints attribute
+        self.mock_build.model_constraints = Mock()
+        self.mock_build.model_constraints.semantics = Mock()
     
     @patch('model_checker.iterate.build_example.Syntax')
     @patch('model_checker.iterate.build_example.ModelConstraints')
@@ -105,7 +108,7 @@ class TestIteratorBuildExample(unittest.TestCase):
         )
         
         # Verify injection was called
-        mock_constraints.inject_z3_values.assert_called_once_with(mock_z3_model)
+        mock_constraints.inject_z3_values.assert_called_once_with(mock_z3_model, self.mock_build.model_constraints.semantics)
     
     @patch('model_checker.iterate.build_example.Syntax')
     @patch('model_checker.iterate.build_example.ModelConstraints')
