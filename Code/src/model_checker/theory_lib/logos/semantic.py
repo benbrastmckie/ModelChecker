@@ -386,6 +386,65 @@ class LogosSemantics(SemanticDefaults):
         # Placeholder: for now, just return False (no ordering)
         # A real implementation would define closeness based on similarity metrics
         return z3.BoolVal(False)
+    
+    def inject_z3_model_values(self, z3_model, original_semantics, model_constraints):
+        """Inject concrete Z3 values from iteration into model constraints.
+        
+        This method extracts values from a Z3 model and adds them as constraints
+        for the next iteration. It handles Logos-specific concepts: worlds,
+        possible states, verify, and falsify relations.
+        
+        Args:
+            z3_model: Z3 model containing concrete values from solver
+            original_semantics: Original semantics instance that created the Z3 functions
+            model_constraints: ModelConstraints instance to update with injected values
+        """
+        # Get number of states from model_constraints settings
+        num_states = 2 ** model_constraints.settings['N']
+        
+        # Inject world constraints
+        for state in range(num_states):
+            # Evaluate using original is_world function
+            is_world_val = z3_model.eval(original_semantics.is_world(state), model_completion=True)
+            # Add constraint using new is_world function
+            if z3.is_true(is_world_val):
+                model_constraints.all_constraints.append(self.is_world(state))
+            else:
+                model_constraints.all_constraints.append(z3.Not(self.is_world(state)))
+        
+        # Inject possible state constraints
+        for state in range(num_states):
+            # Evaluate using original possible function
+            is_possible_val = z3_model.eval(original_semantics.possible(state), model_completion=True)
+            # Add constraint using new possible function
+            if z3.is_true(is_possible_val):
+                model_constraints.all_constraints.append(self.possible(state))
+            else:
+                model_constraints.all_constraints.append(z3.Not(self.possible(state)))
+        
+        # Inject verify/falsify constraints for each sentence letter
+        for sentence_obj in model_constraints.syntax.sentence_letters:
+            atom = sentence_obj.sentence_letter
+            
+            # Inject verify constraints
+            for state in range(num_states):
+                # Evaluate using original verify function
+                verify_val = z3_model.eval(original_semantics.verify(state, atom), model_completion=True)
+                # Add constraint using new verify function
+                if z3.is_true(verify_val):
+                    model_constraints.all_constraints.append(self.verify(state, atom))
+                else:
+                    model_constraints.all_constraints.append(z3.Not(self.verify(state, atom)))
+            
+            # Inject falsify constraints
+            for state in range(num_states):
+                # Evaluate using original falsify function
+                falsify_val = z3_model.eval(original_semantics.falsify(state, atom), model_completion=True)
+                # Add constraint using new falsify function
+                if z3.is_true(falsify_val):
+                    model_constraints.all_constraints.append(self.falsify(state, atom))
+                else:
+                    model_constraints.all_constraints.append(z3.Not(self.falsify(state, atom)))
 
 
 class LogosProposition(PropositionDefaults):

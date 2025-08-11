@@ -167,6 +167,34 @@ class ModelConstraints:
                 self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
 
+    def inject_z3_values(self, z3_model, original_semantics):
+        """Delegate Z3 value injection to theory-specific semantics.
+        
+        This method provides a hook for theories to inject concrete
+        values from iteration. The actual injection logic MUST be
+        implemented in the theory's semantics class.
+        
+        This method contains NO theory-specific logic and makes NO
+        assumptions about model structure or any theory concepts.
+        
+        Args:
+            z3_model: Z3 model with concrete values from iteration
+            original_semantics: Original semantics instance that created the Z3 functions
+            
+        Note:
+            The semantics.inject_z3_model_values method receives the z3_model,
+            original_semantics, and self (ModelConstraints) to allow updating
+            the constraint list.
+        """
+        # Store for potential use by model structure
+        self.injected_z3_model = z3_model
+        
+        # Delegate to theory-specific injection if available
+        if hasattr(self.semantics, 'inject_z3_model_values'):
+            # Pass original semantics and self so semantics can update constraints
+            self.semantics.inject_z3_model_values(z3_model, original_semantics, self)
+        # No else - if theory doesn't implement injection, nothing happens
+
     def print_enumerate(self, output=sys.__stdout__):
         """Prints the premises and conclusions with enumerated numbering.
         
