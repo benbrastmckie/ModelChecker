@@ -42,6 +42,14 @@ The following examples have iterate=2 enabled and must pass at each phase:
 6. **logos/subtheories/relevance/examples.py**: `REL_CM_1`
 7. **logos/subtheories/extensional/examples.py**: `EXT_CM_2`
 
+## Revised Approach
+
+This plan has been revised to follow a more conservative approach:
+- **No premature abstractions**: Only create abstractions when clear patterns emerge
+- **Direct fixes preferred**: Fix issues in-place rather than creating new layers
+- **Utils over new packages**: If abstractions needed, add to existing utils/ package
+- **Document over abstract**: Clear documentation often better than complex abstractions
+
 ## Implementation Phases
 
 ### Phase 0: Baseline Capture and Test Infrastructure ✅
@@ -67,70 +75,47 @@ The following examples have iterate=2 enabled and must pass at each phase:
 
 **Commit**: 6b625c94 - "Phase 0 Complete: Baseline capture and test infrastructure"
 
-### Phase 1: Interface Definition and Testing Infrastructure
+### Phase 1: Documentation and Testing Infrastructure ✅
 
-**Goal**: Establish stable interfaces and comprehensive tests before any refactoring.
-
-**Tasks**:
-1. Create interface definitions for model access:
-   ```python
-   # src/model_checker/interfaces/__init__.py
-   # src/model_checker/interfaces/model_interface.py
-   # src/model_checker/interfaces/solver_interface.py
-   # src/model_checker/interfaces/constraint_interface.py
-   ```
-
-2. Add comprehensive integration tests for current behavior:
-   ```python
-   # tests/integration/test_iterator_contracts.py
-   # tests/integration/test_iterator_model_building.py
-   # tests/integration/test_iterator_solver_lifecycle.py
-   ```
-
-3. Document all implicit contracts and assumptions:
-   ```python
-   # docs/architecture/ITERATOR_CONTRACTS.md
-   ```
-
-**Testing Protocol** (Following IMPLEMENT.md Dual Testing):
-```bash
-# Method 1: Test Runner
-./run_tests.py --all
-./run_tests.py iterate --verbose
-
-# Method 2: Direct CLI Testing (CRITICAL for regression detection)
-./dev_cli.py -i 1 src/model_checker/theory_lib/exclusion/examples.py
-./dev_cli.py -i 2 src/model_checker/theory_lib/exclusion/examples.py
-./dev_cli.py -i 3 src/model_checker/theory_lib/exclusion/examples.py
-
-# Run regression script
-./scripts/test_iterator_regression.sh
-```
-
-**Success Criteria**: All tests pass, baselines match
-
-### Phase 2: Z3 Abstraction Layer
-
-**Goal**: Create clean abstraction for Z3 operations to eliminate boolean evaluation issues.
+**Goal**: Document implicit contracts and establish baseline tests.
 
 **Tasks**:
-1. Create Z3 utilities module:
-   ```python
-   # src/model_checker/z3_core/__init__.py
-   # src/model_checker/z3_core/evaluation.py
-   # src/model_checker/z3_core/constraints.py
-   # src/model_checker/z3_core/solver_manager.py
-   ```
+1. ✅ Document all implicit contracts and assumptions:
+   - Created ITERATOR_CONTRACTS.md with comprehensive documentation
+   - Documented all required attributes and expected behaviors
+   - Identified key abstraction points for future refactoring
 
-2. Replace direct Z3 usage with abstraction:
-   - Extract `_evaluate_z3_boolean` to z3_core
-   - Standardize constraint creation patterns
-   - Centralize solver configuration
+2. ✅ Establish testing infrastructure:
+   - Baseline capture and regression testing scripts remain valuable
+   - Iterator tests: 18 passed, 9 skipped
+   - Regression tests: All 7 theories passing with MODEL 2
 
-3. Update iterator to use new abstractions:
-   - Replace complex boolean evaluation logic
-   - Use consistent constraint handling
-   - Leverage solver manager for lifecycle
+**Decision**: Removed premature interface abstractions. Will create abstractions only when needed during actual refactoring.
+
+**Success Criteria**: ✅ All tests pass, baselines match
+
+**Commit**: 764823a7 - "Phase 1 Complete: Interface definition and testing infrastructure"
+**Revision**: Removing interfaces/ subpackage to avoid premature abstraction
+
+### Phase 2: Fix Z3 Boolean Evaluation Issues
+
+**Goal**: Improve Z3 boolean evaluation directly in iterator code without premature abstraction.
+
+**Tasks**:
+1. Improve `_evaluate_z3_boolean` in core.py:
+   - Analyze why symbolic expressions are returned
+   - Fix root cause instead of adding more fallback logic
+   - Consider using model completion more effectively
+
+2. Simplify solver lifecycle management:
+   - Clear ownership of solver between BuildExample and Iterator
+   - Fix the stored_solver vs solver confusion
+   - Ensure proper solver isolation
+
+3. If abstractions prove necessary:
+   - Create minimal helpers in utils/z3_helpers.py
+   - Only abstract patterns that appear multiple times
+   - Keep abstractions close to their usage
 
 **Testing Protocol**:
 ```bash
@@ -160,24 +145,25 @@ done
 
 **Success Criteria**: No Z3 boolean errors, all tests pass, baselines match
 
-### Phase 3: Model Access Refactoring
+### Phase 3: Clean Up Model Access Patterns
 
-**Goal**: Replace direct attribute access with interface-based access.
+**Goal**: Improve how iterator accesses model structures without over-engineering.
 
 **Tasks**:
-1. Implement model access interfaces:
-   - Create ModelAccessor wrapper class
-   - Define getters for required attributes
-   - Hide internal structure details
+1. Identify repeated model access patterns:
+   - Document which attributes are accessed frequently
+   - Find patterns that could benefit from helper methods
+   - Only create helpers for actual pain points
 
-2. Update iterator to use interfaces:
-   - Replace all direct attribute access
-   - Use dependency injection for model access
-   - Remove knowledge of internal structures
+2. Improve attribute access robustness:
+   - Add proper error handling for missing attributes
+   - Use getattr with defaults where appropriate
+   - Document expected model structure in comments
 
-3. Add adapter layer for existing models:
-   - Temporary adapters for current structure
-   - Allows gradual migration of model packages
+3. Consider minimal helpers if needed:
+   - Simple functions in iterate/core.py
+   - Or small additions to utils/ if generally useful
+   - Avoid creating new abstractions without clear benefit
 
 **Testing Protocol**:
 ```bash
@@ -250,22 +236,20 @@ echo "Testing MODEL 2 construction..."
 **Goal**: Reduce duplication in theory implementations.
 
 **Tasks**:
-1. Create shared constraint utilities:
-   ```python
-   # src/model_checker/iterate/constraints/__init__.py
-   # src/model_checker/iterate/constraints/difference.py
-   # src/model_checker/iterate/constraints/isomorphism.py
-   ```
+1. Identify common patterns across theory iterators:
+   - Compare all theory iterate.py files
+   - Find truly duplicated code (not just similar structure)
+   - Only extract if 3+ theories share exact same logic
 
-2. Refactor theory iterators to use utilities:
-   - Extract common patterns
-   - Reduce code duplication
-   - Standardize constraint generation
+2. If significant duplication found:
+   - Add helper methods to BaseModelIterator
+   - Keep helpers specific and well-named
+   - Avoid premature generalization
 
 3. Improve abstract method design:
-   - Provide more helper methods in base class
-   - Reduce Z3 knowledge requirements
-   - Add template implementations
+   - Provide better documentation and examples
+   - Consider providing partial implementations
+   - But avoid forcing theories into wrong abstractions
 
 **Testing Protocol**:
 ```bash
