@@ -146,15 +146,24 @@ class BaseModelIterator:
         self.stats.add_model(self.build_example.model_structure, {})
     
     def _create_persistent_solver(self):
-        """Create a persistent solver with the initial model's constraints."""
-        # Try to get the solver, fallback to stored_solver if solver was cleaned up
+        """Create a persistent solver with the initial model's constraints.
+        
+        The iterator needs its own solver to avoid modifying the original model's solver.
+        ModelStructure.solver may be cleared after solving, so we also check stored_solver
+        which is a backup copy kept specifically for iteration purposes.
+        """
+        # Try to get the solver from the model structure
         original_solver = self.build_example.model_structure.solver
+        
+        # If solver was cleared (common after solving), use the stored backup
         if original_solver is None:
             original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
             
         if original_solver is None:
-            raise RuntimeError("No solver available - both solver and stored_solver are None")
+            raise RuntimeError("No solver available - both solver and stored_solver are None. "
+                             "Make sure the model was solved before attempting iteration.")
             
+        # Create a new solver for iteration with a copy of all constraints
         persistent_solver = z3.Solver()
         for assertion in original_solver.assertions():
             persistent_solver.add(assertion)
@@ -564,15 +573,15 @@ class BaseModelIterator:
             # Constrain world states
             for state in range(2**semantics.N):
                 # Is this state a world in the iterator model?
-                is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
-                if z3.is_true(is_world_val):
+                is_world_val = self._evaluate_z3_boolean(z3_model, semantics.is_world(state))
+                if is_world_val:
                     temp_solver.add(semantics.is_world(state))
                 else:
                     temp_solver.add(z3.Not(semantics.is_world(state)))
                 
                 # Is this state possible in the iterator model?
-                is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
-                if z3.is_true(is_possible_val):
+                is_possible_val = self._evaluate_z3_boolean(z3_model, semantics.possible(state))
+                if is_possible_val:
                     temp_solver.add(semantics.possible(state))
                 else:
                     temp_solver.add(z3.Not(semantics.possible(state)))
@@ -583,16 +592,16 @@ class BaseModelIterator:
                     atom = letter_obj.sentence_letter
                     for state in range(2**semantics.N):
                         # Verify value
-                        verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
-                        if z3.is_true(verify_val):
+                        verify_val = self._evaluate_z3_boolean(z3_model, semantics.verify(state, atom))
+                        if verify_val:
                             temp_solver.add(semantics.verify(state, atom))
                         else:
                             temp_solver.add(z3.Not(semantics.verify(state, atom)))
                         
                         # Falsify value (if it exists)
                         if hasattr(semantics, 'falsify'):
-                            falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
-                            if z3.is_true(falsify_val):
+                            falsify_val = self._evaluate_z3_boolean(z3_model, semantics.falsify(state, atom))
+                            if falsify_val:
                                 temp_solver.add(semantics.falsify(state, atom))
                             else:
                                 temp_solver.add(z3.Not(semantics.falsify(state, atom)))
@@ -745,38 +754,24 @@ class BaseModelIterator:
             result = z3_model.eval(expression, model_completion=True)
             
             # Check if result is a boolean constant (True/False)
-            if z3.is_bool(result):
-                # If it's a boolean sort, try is_true
-                if z3.is_true(result):
-                    return True
-                elif z3.is_false(result):
-                    return False
-                # Otherwise it's still symbolic
+            if z3.is_true(result):
+                return True
+            elif z3.is_false(result):
+                return False
             
-            # Try to simplify the expression
+            # If not a constant, try simplifying
             simplified = z3.simplify(result)
             
-            # Check again after simplification
             if z3.is_true(simplified):
                 return True
             elif z3.is_false(simplified):
                 return False
-                
-            # If it's an equality expression with True/False
-            if str(simplified) == "True":
-                return True
-            elif str(simplified) == "False":
-                return False
-                
-            # As a last resort, try to convert to Python bool
-            # This is the line that can throw the "Symbolic expressions cannot be cast" error
-            try:
-                # Instead of direct bool(), check if it equals Z3's True
-                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
-            except Exception:
-                # If all else fails, assume False (conservative approach)
-                logger.warning(f"Could not evaluate Z3 boolean expression: {expression}, assuming False")
-                return False
+            
+            # If still not constant, it means the model doesn't fully determine this value
+            # This can happen when the expression involves variables not in the model
+            # In this case, we should add the constraint to force a concrete value
+            logger.debug(f"Expression {expression} not fully determined by model, defaulting to False")
+            return False
                 
         except Exception as e:
             logger.warning(f"Error evaluating Z3 boolean expression {expression}: {e}, assuming False")
