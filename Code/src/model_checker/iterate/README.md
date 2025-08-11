@@ -253,6 +253,15 @@ The framework uses a sophisticated two-phase approach to build MODEL 2+:
 
 This approach resolves Z3 variable namespace separation issues while maintaining model independence.
 
+**IMPORTANT**: The model building process in `_build_new_model_structure()` duplicates 
+some logic from `BuildExample.__init__()`. This duplication is intentional because:
+- Iterator needs to inject concrete Z3 values BEFORE model construction
+- BuildExample builds from scratch without pre-existing constraints
+- The two use cases have fundamentally different requirements
+
+See `tests/test_model_building_sync.py` for tests that ensure both paths remain consistent.
+If the model building process changes, both implementations may need updates.
+
 ### Constraint Generation Strategy
 
 The framework uses multiple constraint types:

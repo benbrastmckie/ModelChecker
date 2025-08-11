@@ -114,6 +114,9 @@ class BuildExample:
         )
         
         # Create model structure
+        # NOTE: This model building process is partially duplicated in
+        # iterate/core.py:_build_new_model_structure() for MODEL 2+ construction.
+        # If this process changes, review the iterator implementation as well.
         self.model_structure = self.model_structure_class(
             self.model_constraints,
             self.settings,
