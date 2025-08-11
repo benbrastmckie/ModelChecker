@@ -57,40 +57,21 @@ class TestSimplifiedIterator(unittest.TestCase):
         # Create iterator
         self.iterator = BaseModelIterator(self.mock_build)
     
-    @patch('model_checker.iterate.build_example.create_with_z3_model')
-    def test_uses_iterator_build_example(self, mock_create):
-        """Test that simplified iterator uses IteratorBuildExample."""
-        # Skip until Phase 2 simplification is implemented
-        self.skipTest("Phase 2 simplification not implemented yet - test written for future implementation")
-        
-        # Set up mock
-        mock_new_build = Mock()
-        mock_new_structure = Mock()
-        mock_new_build.model_structure = mock_new_structure
-        mock_create.return_value = mock_new_build
-        
-        # Create Z3 model
-        z3_model = Mock()
-        
-        # Call the method
-        result = self.iterator._build_new_model_structure(z3_model)
-        
-        # Verify IteratorBuildExample was used
-        mock_create.assert_called_once_with(
-            self.mock_build, z3_model
-        )
-        
-        # Verify structure returned
-        self.assertEqual(result, mock_new_structure)
+    def test_uses_iterator_build_example(self):
+        """Test that simplified iterator uses model builder correctly."""
+        # Skip this test as the architecture has changed
+        # ModelBuilder creates new structures from scratch rather than
+        # using IteratorBuildExample which was part of an older design
+        self.skipTest("Architecture changed - ModelBuilder creates structures from scratch")
     
     def test_no_theory_concepts_in_core(self):
         """Verify no theory concepts in simplified implementation."""
         import inspect
         
-        # Get the source of the method
-        source = inspect.getsource(self.iterator._build_new_model_structure)
+        # Get the source of the core module to check it's theory-agnostic
+        source = inspect.getsource(BaseModelIterator)
         
-        # Theory concepts that should NOT appear
+        # Theory concepts that should NOT appear in core
         forbidden = [
             'is_world', 'possible', 'verify', 'falsify',
             'states', '2**', 'semantics.N', 'sentence_letter'
@@ -111,7 +92,7 @@ class TestSimplifiedIterator(unittest.TestCase):
         z3_model = Mock()
         
         # Call should handle exception gracefully
-        result = self.iterator._build_new_model_structure(z3_model)
+        result = self.iterator.model_builder.build_new_model_structure(z3_model)
         
         # Should return None on failure
         self.assertIsNone(result)
@@ -143,12 +124,12 @@ class TestSimplifiedIterator(unittest.TestCase):
         """Verify the simplified method is much shorter."""
         import inspect
         
-        # Get the source
-        source = inspect.getsource(self.iterator._build_new_model_structure)
+        # Get the source of the model builder's build_new_model_structure method
+        source = inspect.getsource(self.iterator.model_builder.build_new_model_structure)
         lines = source.count('\n')
         
         # Should be much shorter than original ~130 lines
-        # Allow for current length during development
+        # The modular approach delegates to specialized components
         if lines > 50:
             self.skipTest(f"Method still {lines} lines - not simplified yet")
         

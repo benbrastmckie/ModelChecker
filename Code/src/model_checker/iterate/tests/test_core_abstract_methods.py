@@ -71,19 +71,22 @@ class TestAbstractMethods(unittest.TestCase):
                 self.stronger_called = True
                 self.stronger_args = isomorphic_model
                 return z3.BoolVal(True)
+                
+            def _calculate_differences(self, new_structure, previous_structure):
+                return {}
         
         iterator = TestIterator(self.mock_build)
         
-        # Call _create_extended_constraints
-        constraints = iterator._create_extended_constraints()
+        # Test _create_difference_constraint is called
+        iterator.previous_models = [Mock()]
+        diff_constraint = iterator._create_difference_constraint(iterator.previous_models)
         
         # Verify _create_difference_constraint was called
         self.assertTrue(iterator.diff_called, "_create_difference_constraint should be called")
         self.assertIsInstance(iterator.diff_args, list, "Should pass list of previous models")
         self.assertEqual(len(iterator.diff_args), 1, "Should have one previous model")
         
-        # The other methods are not called in _create_extended_constraints
-        # They would be called during isomorphism checking
+        # The other methods would be called during isomorphism checking
     
     def test_abstract_methods_docstrings(self):
         """Test that abstract methods have proper docstrings."""

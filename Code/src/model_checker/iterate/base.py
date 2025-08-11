@@ -4,12 +4,11 @@ This module defines the abstract interface that all theory-specific
 iterators must implement.
 """
 
-from abc import ABC, abstractmethod
 from typing import List, Optional, Any
 import z3
 
 
-class BaseModelIterator(ABC):
+class BaseModelIterator:
     """Abstract base class for model iteration.
     
     Theory-specific iterators must extend this class and implement
@@ -26,7 +25,6 @@ class BaseModelIterator(ABC):
         self.found_models = []
         self.debug_messages = []
     
-    @abstractmethod
     def _calculate_differences(self, new_structure, previous_structure) -> dict:
         """Calculate semantic differences between two models.
         
@@ -40,9 +38,8 @@ class BaseModelIterator(ABC):
         Returns:
             Dictionary describing the differences
         """
-        pass
+        raise NotImplementedError("Subclasses must implement _calculate_differences")
     
-    @abstractmethod
     def _create_difference_constraint(self, previous_models: List[z3.ModelRef]) -> z3.BoolRef:
         """Create constraints ensuring the next model differs from previous ones.
         
@@ -56,9 +53,8 @@ class BaseModelIterator(ABC):
         Returns:
             Z3 constraint ensuring difference
         """
-        pass
+        raise NotImplementedError("Subclasses must implement _create_difference_constraint")
     
-    @abstractmethod
     def _create_non_isomorphic_constraint(self, z3_model: z3.ModelRef) -> z3.BoolRef:
         """Create constraints preventing isomorphic models.
         
@@ -71,7 +67,7 @@ class BaseModelIterator(ABC):
         Returns:
             Z3 constraint preventing isomorphism
         """
-        pass
+        raise NotImplementedError("Subclasses must implement _create_non_isomorphic_constraint")
     
     def _create_stronger_constraint(self, isomorphic_model: z3.ModelRef) -> Optional[z3.BoolRef]:
         """Create stronger constraints after finding isomorphic models.
@@ -88,7 +84,6 @@ class BaseModelIterator(ABC):
         # Default implementation returns None (no stronger constraint)
         return None
     
-    @abstractmethod
     def iterate(self) -> List[Any]:
         """Perform model iteration to find multiple distinct models.
         
@@ -98,4 +93,4 @@ class BaseModelIterator(ABC):
         Returns:
             List of distinct model structures found
         """
-        pass
+        raise NotImplementedError("Subclasses must implement iterate")

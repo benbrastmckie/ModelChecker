@@ -30,6 +30,98 @@ class IteratorBuildExample(BuildExample):
         create properly initialized instances.
         """
         pass
+    
+    def _copy_from_original(self, original):
+        """Copy necessary attributes from original BuildExample.
+        
+        This copies all the configuration needed to build a new model
+        while avoiding any mutable state that could cause issues.
+        
+        Args:
+            original: Original BuildExample to copy from
+        """
+        # Copy immutable configuration
+        self.build_module = original.build_module
+        self.semantic_theory = original.semantic_theory
+        self.semantics = original.semantics
+        self.proposition = original.proposition
+        self.operators = original.operators
+        self.model_structure_class = original.model_structure_class
+        
+        # Copy example definition
+        self.premises = original.premises
+        self.conclusions = original.conclusions
+        
+        # Deep copy settings to avoid mutation
+        self.settings = original.settings.copy()
+        
+        # Copy settings manager for validation
+        self.settings_manager = original.settings_manager
+        
+        # Store reference to original for debugging
+        self._original_build = original
+    
+    def _build_with_injection(self, z3_model):
+        """Build model structure with Z3 value injection.
+        
+        This creates all fresh components and delegates injection
+        to the theory-specific semantics class.
+        
+        Args:
+            z3_model: Z3 model with values to inject
+        """
+        # Create fresh syntax (reuses sentence parsing)
+        self.example_syntax = Syntax(
+            self.premises,
+            self.conclusions,
+            self.operators
+        )
+        
+        # Create fresh semantics instance
+        self.example_semantics = self.semantics(self.settings)
+        
+        # Create model constraints
+        self.model_constraints = ModelConstraints(
+            self.settings,
+            self.example_syntax,
+            self.example_semantics,
+            self.proposition
+        )
+        
+        # Get original semantics for Z3 function evaluation
+        original_semantics = self._original_build.model_constraints.semantics
+        
+        # Delegate injection to theory-specific code
+        # This is where theory concepts are handled
+        self.model_constraints.inject_z3_values(z3_model, original_semantics)
+        
+        # Create model structure with injected constraints
+        self.model_structure = self.model_structure_class(
+            self.model_constraints,
+            self.settings
+        )
+        
+        # Store Z3 model for reference
+        self.model_structure.z3_model = z3_model
+        
+        # Mark as iteration model for debugging
+        self.model_structure._is_iteration_model = True
+        
+        # Interpret sentences in the new model
+        self._interpret_sentences()
+    
+    def _interpret_sentences(self):
+        """Interpret sentences in the new model structure.
+        
+        This finalizes the model by interpreting all sentences
+        according to the injected values.
+        """
+        sentence_objects = (self.model_structure.premises + 
+                          self.model_structure.conclusions)
+        self.model_structure.interpret(sentence_objects)
+        
+        # Store solver reference as BuildExample does
+        self.solver = self.model_structure.solver
 
 
 def create_with_z3_model(original_build, z3_model):
@@ -60,104 +152,3 @@ def create_with_z3_model(original_build, z3_model):
     instance._build_with_injection(z3_model)
     
     return instance
-
-
-def _copy_from_original(self, original):
-    """Copy necessary attributes from original BuildExample.
-    
-    This copies all the configuration needed to build a new model
-    while avoiding any mutable state that could cause issues.
-    
-    Args:
-        original: Original BuildExample to copy from
-    """
-    # Copy immutable configuration
-    self.build_module = original.build_module
-    self.semantic_theory = original.semantic_theory
-    self.semantics = original.semantics
-    self.proposition = original.proposition
-    self.operators = original.operators
-    self.model_structure_class = original.model_structure_class
-    
-    # Copy example definition
-    self.premises = original.premises
-    self.conclusions = original.conclusions
-    
-    # Deep copy settings to avoid mutation
-    self.settings = original.settings.copy()
-    
-    # Copy settings manager for validation
-    self.settings_manager = original.settings_manager
-    
-    # Store reference to original for debugging
-    self._original_build = original
-
-
-def _build_with_injection(self, z3_model):
-    """Build model structure with Z3 value injection.
-    
-    This creates all fresh components and delegates injection
-    to the theory-specific semantics class.
-    
-    Args:
-        z3_model: Z3 model with values to inject
-    """
-    # Create fresh syntax (reuses sentence parsing)
-    self.example_syntax = Syntax(
-        self.premises,
-        self.conclusions,
-        self.operators
-    )
-    
-    # Create fresh semantics instance
-    self.example_semantics = self.semantics(self.settings)
-    
-    # Create model constraints
-    self.model_constraints = ModelConstraints(
-        self.settings,
-        self.example_syntax,
-        self.example_semantics,
-        self.proposition
-    )
-    
-    # Get original semantics for Z3 function evaluation
-    original_semantics = self._original_build.model_constraints.semantics
-    
-    # Delegate injection to theory-specific code
-    # This is where theory concepts are handled
-    self.model_constraints.inject_z3_values(z3_model, original_semantics)
-    
-    # Create model structure with injected constraints
-    self.model_structure = self.model_structure_class(
-        self.model_constraints,
-        self.settings
-    )
-    
-    # Store Z3 model for reference
-    self.model_structure.z3_model = z3_model
-    
-    # Mark as iteration model for debugging
-    self.model_structure._is_iteration_model = True
-    
-    # Interpret sentences in the new model
-    self._interpret_sentences()
-
-
-def _interpret_sentences(self):
-    """Interpret sentences in the new model structure.
-    
-    This finalizes the model by interpreting all sentences
-    according to the injected values.
-    """
-    sentence_objects = (self.model_structure.premises + 
-                      self.model_structure.conclusions)
-    self.model_structure.interpret(sentence_objects)
-    
-    # Store solver reference as BuildExample does
-    self.solver = self.model_structure.solver
-
-
-# Bind methods to class
-IteratorBuildExample._copy_from_original = _copy_from_original
-IteratorBuildExample._build_with_injection = _build_with_injection
-IteratorBuildExample._interpret_sentences = _interpret_sentences

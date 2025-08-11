@@ -103,15 +103,16 @@ class TestConstraintPreservation(unittest.TestCase):
         
         iterator = TestIterator(mock_example)
         
-        # Get extended constraints
+        # Test that constraint generator creates extended constraints correctly
         with patch.object(iterator, '_create_difference_constraint') as mock_diff:
             mock_diff.return_value = z3.Bool('difference')
             
-            extended = iterator._create_extended_constraints()
+            # The constraint generator creates extended constraints internally
+            extended = iterator.constraint_generator.create_extended_constraints([MagicMock()])
             
             # Extended constraints should include difference constraint
             self.assertIsNotNone(extended)
-            # The actual structure of extended constraints is an AND of the difference constraint
+            # The actual structure of extended constraints is a list of difference constraints
             # Just verify it was created without error
     
     def test_solver_isolation(self):

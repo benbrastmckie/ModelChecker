@@ -9,6 +9,7 @@ This document defines the standards for README.md files in the ModelChecker repo
 ## Special Exception: Code/README.md
 
 The `/Code/README.md` file is **exempt** from these standards because it serves as the package description on PyPI. This file:
+
 - Does not require navigation links
 - Does not require a file tree
 - Should be formatted for PyPI display
@@ -19,21 +20,27 @@ All other README.md files should follow the principles below.
 ## Core Documentation Principles
 
 ### 1. Comprehensive Coverage
+
 Every README must thoroughly document its component, including:
+
 - **Purpose and Functionality**: Clear explanation of what the component does
 - **Integration Context**: How it fits within the larger framework
 - **Usage Patterns**: Practical examples and common workflows
 - **Technical Details**: Architecture, design decisions, and implementation notes
 
 ### 2. Relevant Content Only
+
 Include only information directly relevant to understanding and using the component:
+
 - Avoid generic boilerplate
 - Don't repeat information available elsewhere (link instead)
 - Focus on what makes this component unique
 - Omit standard Python patterns unless they're unusual
 
 ### 3. Consistent Navigation
+
 All READMEs should include:
+
 - **Header Navigation**: Links to parent and key related documents
 - **Footer Navigation**: Repeated navigation for long documents
 - **Cross-References**: Links to related components and documentation
@@ -41,6 +48,7 @@ All READMEs should include:
 ## Essential Elements
 
 ### Title and Navigation
+
 ```markdown
 # [Component Name]: [Descriptive Tagline]
 
@@ -48,39 +56,51 @@ All READMEs should include:
 ```
 
 ### Directory Structure (When Applicable)
+
 For directories with multiple files, show the structure:
+
 ```markdown
 ## Directory Structure
+```
+
+component/
+├── README.md # This file - overview and guide
+├── core_file.py # Main implementation
+├── support_file.py # Supporting functionality
+└── tests/ # Test suite
 
 ```
-component/
-├── README.md               # This file - overview and guide
-├── core_file.py           # Main implementation
-├── support_file.py        # Supporting functionality
-└── tests/                 # Test suite
-```
+
 ```
 
 ### Overview Section
+
 Provide context and orientation:
+
 - Primary purpose and goals
 - Key capabilities and features
 - Relationship to other components
 - Theoretical or academic background (if relevant)
 
 ### Usage Examples
+
 Show practical usage with working code:
-```markdown
+
+````markdown
 ## Usage
 
 ### Basic Example
+
 ```python
 from model_checker.component import Feature
 result = Feature().process(input_data)
 ```
+````
 
 ### Advanced Usage
+
 [More complex examples as needed]
+
 ```
 
 ### Technical Documentation
@@ -195,3 +215,4 @@ When creating or updating a README:
 ---
 
 [← Documentation Standards](DOCUMENTATION_STANDARDS.md) | [Back to Maintenance](README.md) | [Code Organization →](CODE_ORGANIZATION.md)
+```

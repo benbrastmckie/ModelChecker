@@ -6,13 +6,29 @@ This script provides a comprehensive interface for running tests across:
 - Unit tests (component/implementation tests)
 - Package tests (framework infrastructure tests)
 
+The test runner uses smart detection to automatically determine whether targets
+are theories or components, with explicit override options when needed.
+
 Usage examples:
     ./run_tests.py                           # Run all tests
-    ./run_tests.py --examples                # Run only example tests
-    ./run_tests.py --unit                    # Run only unit tests
-    ./run_tests.py --package                 # Run only package tests
-    ./run_tests.py logos modal               # Test logos modal subtheory
-    ./run_tests.py --examples logos modal    # Example tests for logos modal
+    ./run_tests.py --examples                # Run only example tests for all theories
+    ./run_tests.py --unit                    # Run only unit tests for all targets
+    ./run_tests.py --package                 # Run only package tests for all components
+    
+    # Auto-detection (theories)
+    ./run_tests.py logos                     # All test types for logos theory
+    ./run_tests.py logos modal               # All test types for logos modal subtheory
+    ./run_tests.py --examples logos modal    # Only example tests for logos modal
+    
+    # Auto-detection (components)
+    ./run_tests.py iterate                   # All test types for iterate component
+    ./run_tests.py iterate builder           # All test types for multiple components
+    ./run_tests.py --unit iterate            # Only unit tests for iterate
+    ./run_tests.py --package --unit iterate  # Package and unit tests for iterate
+    
+    # Explicit type specification
+    ./run_tests.py --theory parser           # Force targets as theories
+    ./run_tests.py --component iterate       # Force targets as components
 """
 
 import os
@@ -39,21 +55,65 @@ class TestConfig:
     coverage: bool
     markers: List[str]
     pytest_args: List[str]
+    force_theory: bool = False  # Force targets as theories
+    force_component: bool = False  # Force targets as components
 
     @classmethod
     def from_args(cls, args, runner: 'TestRunner') -> 'TestConfig':
         """Create configuration from command line arguments."""
-        # Parse positional arguments for theories/subtheories
-        theories, subtheories = runner._parse_positional_args(args.targets or [])
+        # Check for conflicting flags
+        if args.theory and args.component:
+            raise ValueError("Cannot use both --theory and --component flags")
         
-        # If no theories specified and not package-only, use all available theories
-        if not theories and not (args.package and not args.examples and not args.unit):
-            theories = runner.theories
+        # Handle deprecated --components flag
+        if args.components:
+            import warnings
+            warnings.warn(
+                "The --components flag is deprecated. Use positional arguments instead.",
+                DeprecationWarning,
+                stacklevel=2
+            )
+            # Merge components into targets
+            args.targets = list(args.targets or []) + args.components
+            args.component = True  # Force component mode
         
-        # If no components specified and package testing requested, use all components
-        # Also use all components if no specific test type is requested (running all tests)
-        use_all_components = args.package or (not args.examples and not args.unit)
-        components = args.components or (runner.components if use_all_components else [])
+        # Detect target types
+        theories = []
+        components = []
+        subtheories = {}
+        
+        if args.targets:
+            # Use smart detection or explicit type
+            target_type = runner._detect_target_types(args.targets, args.theory, args.component)
+            
+            if target_type == 'theories':
+                theories, subtheories = runner._parse_theory_targets(args.targets)
+            elif target_type == 'components':
+                components = args.targets
+            elif target_type == 'mixed':
+                # Mixed mode when explicitly specified
+                for target in args.targets:
+                    if target in runner.theories:
+                        theories.append(target)
+                    elif target in runner.components:
+                        components.append(target)
+                    else:
+                        raise ValueError(f"Unknown target: {target}")
+        else:
+            # No targets specified - determine defaults based on test types
+            if not any([args.examples, args.unit, args.package]):
+                # No flags - run all tests for all targets
+                theories = runner.theories
+                components = runner.components
+            else:
+                # Specific test types requested
+                if args.examples:
+                    theories = runner.theories  # Examples only apply to theories
+                if args.unit:
+                    theories = runner.theories if not components else theories
+                    components = runner.components if not theories else components
+                if args.package:
+                    components = runner.components  # Package tests only apply to components
         
         # Determine what test types to run
         run_examples = args.examples or (not args.unit and not args.package)
@@ -71,7 +131,9 @@ class TestConfig:
             failfast=args.failfast,
             coverage=getattr(args, 'coverage', False),
             markers=getattr(args, 'markers', []),
-            pytest_args=[]
+            pytest_args=[],
+            force_theory=args.theory,
+            force_component=args.component
         )
         
         config.validate(runner)
@@ -633,8 +695,70 @@ class TestRunner:
             'logos': ['modal', 'counterfactual', 'extensional', 'constitutive', 'relevance']
         }
     
-    def _parse_positional_args(self, targets: List[str]) -> tuple[List[str], Dict[str, List[str]]]:
-        """Parse positional arguments into theories and subtheories.
+    def _detect_target_types(self, targets: List[str], force_theory: bool, force_component: bool) -> str:
+        """Detect whether targets are theories, components, or mixed.
+        
+        Args:
+            targets: List of target names
+            force_theory: Force all targets as theories
+            force_component: Force all targets as components
+            
+        Returns:
+            'theories', 'components', or 'mixed'
+        """
+        if force_theory:
+            return 'theories'
+        if force_component:
+            return 'components'
+        
+        # Auto-detect based on first target and check consistency
+        first_target = targets[0]
+        
+        # Check if it's a subtheory
+        is_subtheory = any(first_target in subs for subs in self.subtheories.values())
+        
+        if first_target in self.theories or is_subtheory:
+            target_type = 'theories'
+            # Verify all targets are theories or subtheories
+            for target in targets[1:]:
+                if target not in self.theories and not any(target in subs for subs in self.subtheories.values()):
+                    if target in self.components:
+                        raise ValueError(
+                            f"Mixed target types detected: '{first_target}' is a theory but '{target}' is a component.\n"
+                            f"Use --theory to force all as theories or --component to force all as components."
+                        )
+                    else:
+                        # Will be caught by theory parser
+                        pass
+        elif first_target in self.components:
+            target_type = 'components'
+            # Verify all targets are components
+            for target in targets[1:]:
+                if target in self.theories:
+                    raise ValueError(
+                        f"Mixed target types detected: '{first_target}' is a component but '{target}' is a theory.\n"
+                        f"Use --component to force all as components or --theory to force all as theories."
+                    )
+                elif target not in self.components:
+                    # Unknown target - will be caught by validation
+                    pass
+        else:
+            # Unknown first target
+            if first_target in self.theories and first_target in self.components:
+                raise ValueError(
+                    f"'{first_target}' exists as both theory and component.\n"
+                    f"Use --theory or --component to specify which type."
+                )
+            else:
+                # Try to give a helpful error
+                all_targets = sorted(set(self.theories + self.components + 
+                                       [sub for subs in self.subtheories.values() for sub in subs]))
+                raise ValueError(f"Unknown target: {first_target}\nAvailable targets: {', '.join(all_targets)}")
+        
+        return target_type
+    
+    def _parse_theory_targets(self, targets: List[str]) -> tuple[List[str], Dict[str, List[str]]]:
+        """Parse targets as theories and subtheories.
         
         Examples:
             ['logos'] -> (['logos'], {})
@@ -674,10 +798,13 @@ class TestRunner:
                     i += 1
             else:
                 # Unknown target
-                all_targets = self.theories + self.components
+                all_theories = self.theories
                 available_subtheories = [sub for subs in self.subtheories.values() for sub in subs]
-                all_targets.extend(available_subtheories)
-                raise ValueError(f"Unknown target: {target}. Available: {', '.join(sorted(all_targets))}")
+                raise ValueError(
+                    f"Unknown theory target: {target}\n"
+                    f"Available theories: {', '.join(sorted(all_theories))}\n"
+                    f"Available subtheories: {', '.join(sorted(available_subtheories))}"
+                )
         
         return theories, subtheories
     
@@ -776,15 +903,27 @@ def create_argument_parser() -> argparse.ArgumentParser:
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
+  # Run all tests
   %(prog)s                          Run all tests (examples + unit + package)
   %(prog)s --examples               Run only example tests for all theories
-  %(prog)s --unit                   Run only unit tests for all theories
+  %(prog)s --unit                   Run only unit tests for all targets
   %(prog)s --package                Run only package tests for all components
-  %(prog)s logos                    Run all test types for logos theory
-  %(prog)s logos modal              Run all test types for logos modal subtheory
-  %(prog)s --examples logos modal   Run example tests for logos modal subtheory
-  %(prog)s exclusion bimodal        Run all test types for exclusion and bimodal
-  %(prog)s --package builder        Run package tests for builder component
+  
+  # Auto-detection (theories)
+  %(prog)s logos                    All test types for logos theory
+  %(prog)s logos modal              All test types for logos modal subtheory
+  %(prog)s --examples logos modal   Only example tests for logos modal
+  %(prog)s exclusion bimodal        All test types for multiple theories
+  
+  # Auto-detection (components)
+  %(prog)s iterate                  All test types for iterate component
+  %(prog)s iterate builder          All test types for multiple components
+  %(prog)s --unit iterate            Only unit tests for iterate
+  %(prog)s --package --unit iterate Package and unit tests for iterate
+  
+  # Explicit type specification
+  %(prog)s --theory parser          Force targets as theories
+  %(prog)s --component iterate      Force targets as components
         """
     )
     
@@ -810,12 +949,27 @@ Examples:
     parser.add_argument(
         "targets",
         nargs="*",
-        help="Theories and subtheories to test (e.g., 'logos modal counterfactual')"
+        help="Targets to test (theories, subtheories, or components)"
     )
+    
+    # Target type specification
+    target_group = parser.add_argument_group("Target Type Specification")
+    target_group.add_argument(
+        "--theory",
+        action="store_true",
+        help="Force targets to be interpreted as theories"
+    )
+    target_group.add_argument(
+        "--component",
+        action="store_true",
+        help="Force targets to be interpreted as components"
+    )
+    
+    # Deprecated
     parser.add_argument(
         "--components",
         nargs="+",
-        help="Specific components to test (for --package)"
+        help=argparse.SUPPRESS  # Hide deprecated option
     )
     
     # Standard options

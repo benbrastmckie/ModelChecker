@@ -6,20 +6,20 @@ between the modular components for finding multiple semantically distinct models
 The iteration framework delegates to specialized modules:
 - iterator.py: Main iteration loop and control flow
 - constraints.py: Constraint generation and management  
-- models.py: Model creation and validation
+- models.py: Model creation and validation (including difference calculation)
 - isomorphism.py: Graph-based isomorphism detection
-- termination.py: Iteration termination logic
-- reporting.py: Results formatting and differences
+- iteration_control.py: Termination logic and result formatting
+- metrics.py: Progress tracking and statistics
 """
 
 import logging
+import time
 import sys
 from model_checker.iterate.iterator import IteratorCore
 from model_checker.iterate.constraints import ConstraintGenerator
-from model_checker.iterate.models import ModelBuilder
-from model_checker.iterate.isomorphism import IsomorphismChecker
-from model_checker.iterate.termination import TerminationManager
-from model_checker.iterate.reporting import DifferenceCalculator, ResultFormatter
+from model_checker.iterate.models import ModelBuilder, DifferenceCalculator
+from model_checker.iterate.graph import IsomorphismChecker
+from model_checker.iterate.metrics import TerminationManager, ResultFormatter
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -121,13 +121,22 @@ class BaseModelIterator:
         
         logger.info(f"Starting iteration to find {self.max_iterations} models")
         
+        # Check if NetworkX is available for isomorphism detection
+        if hasattr(self.isomorphism_checker, 'get_cache_stats'):
+            stats = self.isomorphism_checker.get_cache_stats()
+            if not stats.get('has_networkx', True):
+                logger.warning(
+                    "NetworkX is not installed. Isomorphism detection is disabled, "
+                    "which may result in finding duplicate models. "
+                    "To enable isomorphism detection, install NetworkX: pip install networkx"
+                )
+        
         # Start timing
         self.termination_manager.start_timing()
-        import time
         iteration_start_time = time.time()
         
         consecutive_invalid_count = 0
-        MAX_CONSECUTIVE_INVALID = 20
+        MAX_CONSECUTIVE_INVALID = self.settings.get('max_invalid_attempts', 20)
         
         try:
             while self.current_iteration < self.max_iterations:
@@ -306,59 +315,6 @@ class BaseModelIterator:
         
         logger.debug("BaseModelIterator reset to initial state")
     
-    # Legacy compatibility methods - delegate to appropriate modules
-    
-    def _create_persistent_solver(self):
-        """Legacy compatibility method."""
-        return self.constraint_generator._create_persistent_solver()
-    
-    def _create_extended_constraints(self):
-        """Create extended constraints using theory-specific methods.
-        
-        This method calls the theory-specific _create_difference_constraint method
-        that should be overridden by subclasses.
-        
-        Returns:
-            list: List of extended constraints
-        """
-        extended_constraints = []
-        
-        # Call the theory-specific difference constraint method
-        for model in self.found_models:
-            difference_constraint = self._create_difference_constraint([model])
-            if difference_constraint is not None:
-                extended_constraints.append(difference_constraint)
-        
-        return extended_constraints
-    
-    def _build_new_model_structure(self, z3_model):
-        """Legacy compatibility method."""
-        return self.model_builder.build_new_model_structure(z3_model)
-    
-    def _calculate_differences(self, new_structure, previous_structure):
-        """Legacy compatibility method."""
-        return self.difference_calculator.calculate_differences(new_structure, previous_structure)
-    
-    def _check_isomorphism(self, new_structure, new_model):
-        """Legacy compatibility method."""
-        is_iso, iso_model = self.isomorphism_checker.check_isomorphism(
-            new_structure, new_model, self.model_structures, self.found_models
-        )
-        return is_iso
-    
-    def _get_iteration_settings(self):
-        """Legacy compatibility method."""
-        return self.iterator_core._get_iteration_settings()
-    
-    # Additional utility methods for backwards compatibility
-    
-    def _calculate_basic_differences(self, new_structure, previous_structure):
-        """Legacy compatibility method."""
-        return self.difference_calculator._calculate_basic_differences(new_structure, previous_structure)
-    
-    def _evaluate_z3_boolean(self, z3_model, expression):
-        """Legacy compatibility method."""
-        return self.model_builder._evaluate_z3_boolean(z3_model, expression)
     
     def _create_difference_constraint(self, previous_models):
         """Theory-specific constraint creation method.
@@ -411,14 +367,3 @@ class BaseModelIterator:
         """
         raise NotImplementedError("Theory-specific implementation required for _create_stronger_constraint")
     
-    def _generate_input_combinations(self, arity, domain_size):
-        """Legacy compatibility method."""
-        return self.constraint_generator._generate_input_combinations(arity, domain_size)
-    
-    def _initialize_base_attributes(self, model_structure, model_constraints, settings):
-        """Legacy compatibility method."""
-        return self.model_builder._initialize_base_attributes(model_structure, model_constraints, settings)
-    
-    def _initialize_z3_dependent_attributes(self, model_structure, z3_model):
-        """Legacy compatibility method."""
-        return self.model_builder._initialize_z3_dependent_attributes(model_structure, z3_model)

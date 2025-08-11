@@ -147,36 +147,35 @@ The hybrid approach (monolithic core + selective utilities) actually works well 
 
 ### Target Architecture
 
+**After Phase 2.5 Consolidation + Additional Cleanup**:
+
 ```
 src/model_checker/iterate/
 ├── __init__.py                  (40 lines) - Public API
-├── README.md                    (600 lines) - Architecture documentation
-├── base.py                      (100 lines) - ✅ Keep - Abstract base class
-├── build_example.py             (162 lines) - ✅ Keep - Working integration
-├── validation.py                (164 lines) - ✅ Keep - Successfully integrated
+├── README.md                    (800 lines) - Architecture documentation with logging
+├── base.py                      (96 lines) - ✅ Abstract base class (no decorators)
+├── build_example.py             (154 lines) - ✅ BuildExample extension for iteration
+├── validation.py                (164 lines) - ✅ Successfully integrated
 │
-├── iterator.py                  (200 lines) - Core iteration logic
-├── constraints.py               (180 lines) - Constraint management  
-├── models.py                    (160 lines) - Model creation and management
-├── isomorphism.py               (150 lines) - Graph isomorphism checking
-├── termination.py               (120 lines) - Iteration termination logic
-├── reporting.py                 (100 lines) - Results and statistics
+├── core.py                      (362 lines) - Orchestration layer (no legacy methods)
+├── iterator.py                  (288 lines) - Main iteration loop
+├── constraints.py               (279 lines) - Constraint management  
+├── models.py                    (454 lines) - Model operations + differences
+├── iteration_control.py         (322 lines) - Termination + progress + statistics
 │
-├── progress.py                  (48 lines) - ✅ Keep - Progress tracking
-├── stats.py                     (71 lines) - ✅ Keep - Statistics collection  
-├── debug.py                     (309 lines) - ✅ Keep - Debug infrastructure
-├── graph_utils.py               (316 lines) - ✅ Keep - Isomorphism detection
-├── parallel.py                  (38 lines) - ✅ Keep - Parallel utilities
+├── isomorphism.py               (203 lines) - Graph isomorphism checking
+├── graph_utils.py               (316 lines) - ✅ Graph utilities
 │
 └── tests/                       (1500 lines) - Comprehensive test coverage
     ├── test_iterator.py         - Core iteration logic tests
     ├── test_constraints.py      - Constraint management tests
-    ├── test_models.py           - Model creation tests
+    ├── test_models.py           - Model creation and differences tests
     ├── test_isomorphism.py      - Isomorphism detection tests
-    ├── test_termination.py      - Termination logic tests
-    ├── test_reporting.py        - Reporting tests
+    ├── test_iteration_control.py - Termination, progress, and statistics tests
     └── [existing test files]    - Updated and fixed
 ```
+
+**Summary**: 17 modules → 10 modules (41% reduction) + cleaner architecture
 
 ### Module Responsibilities
 
@@ -346,6 +345,52 @@ src/model_checker/iterate/
   - All theories (logos, exclusion, imposition, bimodal) work with iteration
 - **Key Fix**: Solved "Solver returned sat but no model available" by ensuring the same solver is used for both checking and model retrieval
 
+### Phase 2.5: Module Consolidation (Day 5) 🔄 **NEW PHASE**
+
+**Objectives**:
+- Reduce module count from 17 to 12 for better maintainability
+- Consolidate related functionality without creating oversized modules
+- Remove unused code to eliminate technical debt
+
+**Tasks**:
+
+1. **✅ Combine progress.py + stats.py → metrics.py** (~126 lines)
+   - Merge IterationProgress and IterationStatistics classes
+   - Both handle iteration metrics and reporting
+   - Natural pairing of progress tracking + statistics collection
+   - Update imports in core.py and iterator.py
+
+2. **✅ Reorganize reporting.py functionality** (350 → 250 lines)
+   - Move DifferenceCalculator class to models.py (where model operations belong)
+   - Rename reporting.py to iteration_control.py
+   - Combine ResultFormatter with termination logic for unified iteration control
+   - Update TerminationManager to include result formatting
+
+3. **✅ Remove parallel.py** (38 lines)
+   - Currently unused in the codebase
+   - Adds complexity without benefit
+   - Can be re-added if/when parallelization is actually needed
+   - Remove imports and references
+
+4. **✅ Update module imports and dependencies**
+   - Update core.py to import from new module locations
+   - Update iterator.py for new metrics module
+   - Update all theory-specific iterators
+   - Ensure no circular dependencies
+
+**Success Criteria**:
+- Module count reduced from 17 to 12 (29% reduction)
+- All tests still pass after consolidation
+- No module exceeds 425 lines
+- Clear, single-purpose modules
+- Improved code organization
+
+**Benefits**:
+- **Better cohesion**: Related functionality grouped together
+- **Easier navigation**: Fewer files to understand and maintain
+- **Balanced sizes**: No oversized or undersized modules
+- **Cleaner architecture**: Ready for v1 release
+
 ### Phase 3: Testing and Documentation (Days 6-7)
 
 **Objectives**:
@@ -376,7 +421,7 @@ src/model_checker/iterate/
    - Migration guide - For future maintainers
 
 **Success Criteria**:
-- 95%+ test coverage across all modules
+- 100% test coverage across all modules
 - All documentation accurate and complete
 - Clear extension points documented
 - Migration path documented
@@ -549,12 +594,13 @@ Following IMPLEMENT.md requirements, each phase uses both testing methods:
 
 ## Timeline
 
-**Total Duration**: 8 days
+**Total Duration**: 9 days (updated)
 
-- **Days 1-2**: Technical debt cleanup, test fixes
-- **Days 3-5**: Core module extraction  
+- **Days 1-2**: Technical debt cleanup, test fixes ✅ **COMPLETED**
+- **Days 3-4**: Core module extraction ✅ **COMPLETED**
+- **Day 5**: Module consolidation 🔄 **NEW PHASE**
 - **Days 6-7**: Testing and documentation
-- **Day 8**: v1 release validation
+- **Days 8-9**: v1 release validation
 
 ## Performance Considerations
 
