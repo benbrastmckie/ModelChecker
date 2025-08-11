@@ -530,6 +530,17 @@ class BaseModelIterator:
         This approach ensures that MODEL 2+ maintains the same verify/falsify
         valuations as found by the iterator, preventing inconsistencies.
         
+        IMPORTANT: This method duplicates some logic from BuildExample.__init__
+        (see builder/example.py lines 105-120). The duplication is intentional
+        because:
+        - Iterator needs to inject concrete Z3 values BEFORE model construction
+        - BuildExample builds from scratch without pre-existing constraints
+        - The two use cases have fundamentally different requirements
+        
+        If the model building process in BuildExample changes, corresponding
+        changes may be needed here. See tests/test_model_building_sync.py
+        for tests that verify both paths remain consistent.
+        
         Args:
             z3_model: Z3 model to use for the new structure
             
