@@ -682,6 +682,69 @@ class WitnessSemantics(SemanticDefaults):
     def _conclusion_behavior_method(self, conclusion):
         """Conclusion must be false at main evaluation point."""
         return z3.Not(self.true_at(conclusion, self.main_point))
+    
+    def inject_z3_model_values(self, z3_model, original_semantics, model_constraints):
+        """Inject concrete Z3 values from iteration into model constraints.
+        
+        This method extracts values from a Z3 model and adds them as constraints
+        for the next iteration. It handles Exclusion-specific concepts: worlds,
+        possible states, verify, and excludes relations.
+        
+        Args:
+            z3_model: Z3 model containing concrete values from solver
+            original_semantics: Original semantics instance that created the Z3 functions
+            model_constraints: ModelConstraints instance to update with injected values
+        """
+        # Get number of states from model_constraints settings
+        num_states = 2 ** model_constraints.settings['N']
+        
+        # Inject world constraints
+        for state in range(num_states):
+            # Evaluate using original is_world function
+            is_world_val = z3_model.eval(original_semantics.is_world(state), model_completion=True)
+            # Add constraint using new is_world function
+            if z3.is_true(is_world_val):
+                model_constraints.all_constraints.append(self.is_world(state))
+            else:
+                model_constraints.all_constraints.append(z3.Not(self.is_world(state)))
+        
+        # Inject possible state constraints
+        for state in range(num_states):
+            # Evaluate using original possible function
+            is_possible_val = z3_model.eval(original_semantics.possible(state), model_completion=True)
+            # Add constraint using new possible function
+            if z3.is_true(is_possible_val):
+                model_constraints.all_constraints.append(self.possible(state))
+            else:
+                model_constraints.all_constraints.append(z3.Not(self.possible(state)))
+        
+        # Inject verify/excludes constraints for each sentence letter
+        for sentence_obj in model_constraints.syntax.sentence_letters:
+            atom = sentence_obj.sentence_letter
+            
+            # Inject verify constraints
+            for state in range(num_states):
+                # Evaluate using original verify function
+                verify_val = z3_model.eval(original_semantics.verify(state, atom), model_completion=True)
+                # Add constraint using new verify function
+                if z3.is_true(verify_val):
+                    model_constraints.all_constraints.append(self.verify(state, atom))
+                else:
+                    model_constraints.all_constraints.append(z3.Not(self.verify(state, atom)))
+        
+        # Inject excludes relation constraints (state to state relation)
+        for state1 in range(num_states):
+            for state2 in range(num_states):
+                # Evaluate using original excludes function
+                excludes_val = z3_model.eval(original_semantics.excludes(state1, state2), model_completion=True)
+                # Add constraint using new excludes function
+                if z3.is_true(excludes_val):
+                    model_constraints.all_constraints.append(self.excludes(state1, state2))
+                else:
+                    model_constraints.all_constraints.append(z3.Not(self.excludes(state1, state2)))
+        
+        # Note: Witness predicates are handled separately by the theory
+        # and don't need to be injected here
 
 
 class WitnessModelAdapter(ModelDefaults):

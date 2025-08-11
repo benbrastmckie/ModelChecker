@@ -24,8 +24,6 @@ from model_checker.builder.progress import Spinner
 from model_checker.iterate.graph_utils import ModelGraph
 from model_checker.iterate.progress import IterationProgress
 from model_checker.iterate.stats import IterationStatistics
-from model_checker.iterate.validation import ModelValidator
-from model_checker.iterate.differences import DifferenceCalculator
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -76,15 +74,16 @@ class BaseModelIterator:
         #         f"Expected BuildExample instance, got {type(build_example).__name__}"
         #     )
             
-        # Model validation with safe attribute access
-        model_structure = getattr(build_example, 'model_structure', None)
-        if model_structure is None:
+        # Model validation
+        if not hasattr(build_example, 'model_structure') or build_example.model_structure is None:
             raise ValueError("BuildExample has no model_structure")
             
-        if not getattr(model_structure, 'z3_model_status', False):
+        if not hasattr(build_example.model_structure, 'z3_model_status') or \
+           not build_example.model_structure.z3_model_status:
             raise ValueError("BuildExample does not have a valid model")
             
-        if getattr(model_structure, 'z3_model', None) is None:
+        if not hasattr(build_example.model_structure, 'z3_model') or \
+           build_example.model_structure.z3_model is None:
             raise ValueError("BuildExample has no Z3 model")
             
         # Initialize properties
@@ -147,24 +146,15 @@ class BaseModelIterator:
         self.stats.add_model(self.build_example.model_structure, {})
     
     def _create_persistent_solver(self):
-        """Create a persistent solver with the initial model's constraints.
-        
-        The iterator needs its own solver to avoid modifying the original model's solver.
-        ModelStructure.solver may be cleared after solving, so we also check stored_solver
-        which is a backup copy kept specifically for iteration purposes.
-        """
-        # Try to get the solver from the model structure
+        """Create a persistent solver with the initial model's constraints."""
+        # Try to get the solver, fallback to stored_solver if solver was cleaned up
         original_solver = self.build_example.model_structure.solver
-        
-        # If solver was cleared (common after solving), use the stored backup
         if original_solver is None:
             original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
             
         if original_solver is None:
-            raise RuntimeError("No solver available - both solver and stored_solver are None. "
-                             "Make sure the model was solved before attempting iteration.")
+            raise RuntimeError("No solver available - both solver and stored_solver are None")
             
-        # Create a new solver for iteration with a copy of all constraints
         persistent_solver = z3.Solver()
         for assertion in original_solver.assertions():
             persistent_solver.add(assertion)
@@ -269,8 +259,7 @@ class BaseModelIterator:
                     break
                 
                 # Validate the new model has at least one possible world
-                z3_world_states = getattr(new_structure, 'z3_world_states', [])
-                if not z3_world_states:
+                if not hasattr(new_structure, 'z3_world_states') or not new_structure.z3_world_states:
                     self.debug_messages.append("Found model with no possible worlds - skipping as invalid")
                     consecutive_invalid += 1
                     self.debug_messages.append(f"[ITERATION] Found invalid model (no possible worlds) - attempt {consecutive_invalid}/{max_consecutive_invalid}")
@@ -523,26 +512,6 @@ class BaseModelIterator:
         This creates new ModelConstraints using the current model's verify/falsify
         functions, ensuring constraint consistency for MODEL 2+.
         
-        The process involves:
-        1. Creating fresh syntax, semantics, and model constraints
-        2. Adding concrete value constraints from the Z3 model to ensure the
-           new model structure matches these values exactly
-        3. Building the model structure with these constraints
-        
-        This approach ensures that MODEL 2+ maintains the same verify/falsify
-        valuations as found by the iterator, preventing inconsistencies.
-        
-        IMPORTANT: This method duplicates some logic from BuildExample.__init__
-        (see builder/example.py lines 105-120). The duplication is intentional
-        because:
-        - Iterator needs to inject concrete Z3 values BEFORE model construction
-        - BuildExample builds from scratch without pre-existing constraints
-        - The two use cases have fundamentally different requirements
-        
-        If the model building process in BuildExample changes, corresponding
-        changes may be needed here. See tests/test_model_building_sync.py
-        for tests that verify both paths remain consistent.
-        
         Args:
             z3_model: Z3 model to use for the new structure
             
@@ -595,36 +564,35 @@ class BaseModelIterator:
             # Constrain world states
             for state in range(2**semantics.N):
                 # Is this state a world in the iterator model?
-                is_world_val = self._evaluate_z3_boolean(z3_model, semantics.is_world(state))
-                if is_world_val:
+                is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
+                if z3.is_true(is_world_val):
                     temp_solver.add(semantics.is_world(state))
                 else:
                     temp_solver.add(z3.Not(semantics.is_world(state)))
                 
                 # Is this state possible in the iterator model?
-                is_possible_val = self._evaluate_z3_boolean(z3_model, semantics.possible(state))
-                if is_possible_val:
+                is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
+                if z3.is_true(is_possible_val):
                     temp_solver.add(semantics.possible(state))
                 else:
                     temp_solver.add(z3.Not(semantics.possible(state)))
             
             # Constrain verify/falsify for sentence letters
             for letter_obj in syntax.sentence_letters:
-                # Safe attribute access for sentence letter
-                atom = getattr(letter_obj, 'sentence_letter', None)
-                if atom is not None:
+                if hasattr(letter_obj, 'sentence_letter'):
+                    atom = letter_obj.sentence_letter
                     for state in range(2**semantics.N):
                         # Verify value
-                        verify_val = self._evaluate_z3_boolean(z3_model, semantics.verify(state, atom))
-                        if verify_val:
+                        verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                        if z3.is_true(verify_val):
                             temp_solver.add(semantics.verify(state, atom))
                         else:
                             temp_solver.add(z3.Not(semantics.verify(state, atom)))
                         
                         # Falsify value (if it exists)
                         if hasattr(semantics, 'falsify'):
-                            falsify_val = self._evaluate_z3_boolean(z3_model, semantics.falsify(state, atom))
-                            if falsify_val:
+                            falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                            if z3.is_true(falsify_val):
                                 temp_solver.add(semantics.falsify(state, atom))
                             else:
                                 temp_solver.add(z3.Not(semantics.falsify(state, atom)))
@@ -654,11 +622,116 @@ class BaseModelIterator:
             logger.error(f"Full traceback:\n{traceback.format_exc()}")
             return None
     
+            
+    def _initialize_base_attributes(self, model_structure, model_constraints, settings):
+        """Initialize basic attributes of a model structure that don't depend on the Z3 model.
+        
+        This initializes the core attributes needed before Z3 model evaluation,
+        following a proper two-phase initialization pattern.
+        
+        Args:
+            model_structure: The model structure to initialize
+            model_constraints: The model constraints to use
+            settings: The settings to use
+        """
+        # Define ANSI color codes (copied from ModelDefaults.__init__)
+        model_structure.COLORS = {
+            "default": "\033[37m",  # WHITE
+            "world": "\033[34m",    # BLUE
+            "possible": "\033[36m", # CYAN
+            "impossible": "\033[35m", # MAGENTA
+            "initial": "\033[33m",  # YELLOW
+        }
+        model_structure.RESET = "\033[0m"
+        model_structure.WHITE = model_structure.COLORS["default"]
+        
+        # Copy attributes from ModelDefaults.__init__
+        model_structure.model_constraints = model_constraints
+        model_structure.settings = settings
+        model_structure.max_time = settings.get("max_time", 1.0)
+        model_structure.expectation = settings.get("expectation", True)
+        
+        # Set semantics and related attributes
+        model_structure.semantics = model_constraints.semantics
+        model_structure.main_point = model_structure.semantics.main_point
+        model_structure.all_states = model_structure.semantics.all_states
+        model_structure.N = model_structure.semantics.N
+        
+        # Set syntax and related attributes
+        model_structure.syntax = model_constraints.syntax
+        model_structure.start_time = model_structure.syntax.start_time
+        model_structure.premises = model_structure.syntax.premises
+        model_structure.conclusions = model_structure.syntax.conclusions
+        model_structure.sentence_letters = model_structure.syntax.sentence_letters
+        
+        # Set proposition class and solver
+        model_structure.proposition_class = model_constraints.proposition_class
+        model_structure.solver = z3.Solver()
+        for assertion in model_constraints.all_constraints:
+            model_structure.solver.add(assertion)
+        
+        # Initialize Z3 model attributes as None
+        model_structure.z3_model = None
+        model_structure.z3_model_status = None
+        model_structure.z3_model_runtime = None
+        model_structure.timeout = None
+        model_structure.unsat_core = None
+        model_structure.satisfiable = None
+        model_structure.solved = False
+        
+        # Initialize helpers as None - will be set up on demand
+        model_structure.printer = None
+        model_structure.analyzer = None
+        model_structure.stored_solver = None
+        
+        # Get main world from main_point
+        if hasattr(model_structure.main_point, "get"):
+            model_structure.main_world = model_structure.main_point.get("world")
+        
+        # Initialize Z3 values as None
+        model_structure.z3_main_world = None
+        model_structure.z3_possible_states = None 
+        model_structure.z3_world_states = None
+        
+        # Initialize difference tracking
+        # model_structure.model_differences = None  # Don't initialize, will be set later
+        
+    def _initialize_z3_dependent_attributes(self, model_structure, z3_model):
+        """Initialize attributes that depend on the Z3 model.
+        
+        This is the second phase of initialization that evaluates Z3 model values.
+        
+        Args:
+            model_structure: The model structure to initialize
+            z3_model: The Z3 model to use
+        """
+        # Initialize main world evaluation
+        model_structure.z3_main_world = z3_model.eval(model_structure.main_world, model_completion=True) 
+        model_structure.main_point["world"] = model_structure.z3_main_world
+        
+        # Initialize possible states
+        semantics = model_structure.semantics
+        model_structure.z3_possible_states = [
+            state for state in model_structure.all_states
+            if self._evaluate_z3_boolean(z3_model, semantics.possible(state))
+        ]
+        
+        # Initialize world states 
+        model_structure.z3_world_states = [
+            state for state in model_structure.z3_possible_states
+            if self._evaluate_z3_boolean(z3_model, semantics.is_world(state))
+        ]
+        
+        # Allow theory-specific initialization
+        if hasattr(model_structure, 'initialize_from_z3_model'):
+            model_structure.initialize_from_z3_model(z3_model)
+    
     def _evaluate_z3_boolean(self, z3_model, expression):
         """Safely evaluate a Z3 boolean expression to a Python boolean.
         
-        This method delegates to the ModelValidator for consistent boolean
-        evaluation across the iteration framework.
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values, which can cause
+        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
         
         Args:
             z3_model: The Z3 model to use for evaluation
@@ -667,7 +740,47 @@ class BaseModelIterator:
         Returns:
             bool: True if the expression evaluates to true, False otherwise
         """
-        return ModelValidator.evaluate_z3_boolean(z3_model, expression)
+        try:
+            # Evaluate the expression with model completion
+            result = z3_model.eval(expression, model_completion=True)
+            
+            # Check if result is a boolean constant (True/False)
+            if z3.is_bool(result):
+                # If it's a boolean sort, try is_true
+                if z3.is_true(result):
+                    return True
+                elif z3.is_false(result):
+                    return False
+                # Otherwise it's still symbolic
+            
+            # Try to simplify the expression
+            simplified = z3.simplify(result)
+            
+            # Check again after simplification
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+                
+            # If it's an equality expression with True/False
+            if str(simplified) == "True":
+                return True
+            elif str(simplified) == "False":
+                return False
+                
+            # As a last resort, try to convert to Python bool
+            # This is the line that can throw the "Symbolic expressions cannot be cast" error
+            try:
+                # Instead of direct bool(), check if it equals Z3's True
+                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
+            except Exception:
+                # If all else fails, assume False (conservative approach)
+                logger.warning(f"Could not evaluate Z3 boolean expression: {expression}, assuming False")
+                return False
+                
+        except Exception as e:
+            logger.warning(f"Error evaluating Z3 boolean expression {expression}: {e}, assuming False")
+            return False
     
     def _calculate_differences(self, new_structure, previous_structure):
         """Calculate differences between two model structures.

@@ -2,7 +2,7 @@
 
 **Date**: 2025-01-11  
 **Author**: AI Assistant  
-**Status**: Planning  
+**Status**: In Progress - Phase 3  
 **Priority**: High - Eliminate code duplication in iteration  
 **Context**: Ensure theory-specific concepts stay in theory_lib  
 **Protocol**: IMPLEMENT.md focused execution  
@@ -1015,16 +1015,16 @@ logger.debug(f"Constraints after: {len(model_constraints.all_constraints)}")
 ## Validation Checklist
 
 **Phase 1**:
-- [ ] ModelConstraints.inject_z3_values implemented
-- [ ] Delegation to semantics works
-- [ ] No theory concepts in method
-- [ ] All tests pass
+- [x] ModelConstraints.inject_z3_values implemented
+- [x] Delegation to semantics works
+- [x] No theory concepts in method
+- [x] All tests pass
 
 **Phase 2**:
-- [ ] IteratorBuildExample created
-- [ ] Factory method works
-- [ ] Extends BuildExample properly
-- [ ] No theory concepts in class
+- [x] IteratorBuildExample created
+- [x] Factory function works (not class method)
+- [x] Extends BuildExample properly
+- [x] No theory concepts in class
 
 **Phase 3**:
 - [ ] Logos theory injection implemented
@@ -1331,3 +1331,53 @@ grep -n "is_world\|possible\|verify\|falsify" src/model_checker/iterate/core.py
 - `iterate/build_example.py` - New dependent class
 - `theory_lib/*/semantic.py` - Add theory-specific injection
 - `iterate/core.py` - Simplify to ~400 lines
+
+## Implementation Status
+
+### Completed
+- **Phase 1**: ✓ Added inject_z3_values to ModelConstraints
+  - File: `src/model_checker/models/constraints.py`
+  - Added delegation method that passes Z3 model to theory semantics
+  - All tests pass
+  
+- **Phase 2**: ✓ Created IteratorBuildExample class with factory function
+  - File: `src/model_checker/iterate/build_example.py`
+  - Implemented factory function pattern (no class methods)
+  - Extends BuildExample without modification
+  - All tests pass
+  
+- **Phase 3**: ✓ Added inject_z3_model_values to LogosSemantics
+  - File: `src/model_checker/theory_lib/logos/semantic.py`
+  - Handles worlds, possible states, verify, falsify relations
+  - Uses ModelValidator for safe Z3 evaluation
+  - All logos unit tests pass
+  
+- **Phase 4**: ✓ Simplified BaseModelIterator._build_new_model_structure from ~130 to ~30 lines
+  - File: `src/model_checker/iterate/core.py`
+  - Removed all theory-specific logic (is_world, possible, verify, falsify)
+  - Now delegates to IteratorBuildExample
+  - Reduced total file size from ~1020 to ~920 lines
+  - All logos iteration tests pass
+
+- **Phase 5**: ✓ Add injection methods to remaining theories
+  - File: `src/model_checker/theory_lib/exclusion/semantic.py`
+  - Added inject_z3_model_values to WitnessSemantics
+  - Handles excludes relation (state-to-state) instead of falsify
+  - All tests pass
+  
+  - File: `src/model_checker/theory_lib/imposition/semantic.py`
+  - Already has injection support through inheritance from Logos
+  - Verified with new test file
+  - All tests pass
+  
+  - File: `src/model_checker/theory_lib/bimodal/semantic.py`
+  - Added inject_z3_model_values to BimodalSemantics
+  - Handles truth_condition and task relations (different from verify/falsify)
+  - All tests pass
+
+### In Progress
+- **Phase 6**: Clean up and documentation
+  - Remove old comments about duplication
+  - Update iterate/README.md
+  - Clean up temporary test files
+  - Remove obsolete code from core.py

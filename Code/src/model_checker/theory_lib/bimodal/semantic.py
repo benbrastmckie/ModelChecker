@@ -851,6 +851,60 @@ class BimodalSemantics(SemanticDefaults):
             Z3 formula that is satisfied when sentence is false at eval_point
         """
         return z3.Not(self.true_at(sentence, eval_point))
+    
+    def inject_z3_model_values(self, z3_model, original_semantics, model_constraints):
+        """Inject concrete Z3 values from iteration into model constraints.
+        
+        This method extracts values from a Z3 model and adds them as constraints
+        for the next iteration. It handles Bimodal-specific concepts: world IDs,
+        truth conditions, and temporal task relations.
+        
+        Args:
+            z3_model: Z3 model containing concrete values from solver
+            original_semantics: Original semantics instance that created the Z3 functions
+            model_constraints: ModelConstraints instance to update with injected values
+        """
+        # Get number of states from model_constraints settings
+        num_states = 2 ** model_constraints.settings['N']
+        
+        # Inject world constraints (bimodal uses world IDs)
+        # We need to check valid world IDs instead of states
+        max_world_ids = 10  # Reasonable limit for iteration
+        for world_id in range(max_world_ids):
+            # Evaluate using original is_world function
+            is_world_val = z3_model.eval(original_semantics.is_world(world_id), model_completion=True)
+            # Add constraint using new is_world function
+            if z3.is_true(is_world_val):
+                model_constraints.all_constraints.append(self.is_world(world_id))
+            else:
+                model_constraints.all_constraints.append(z3.Not(self.is_world(world_id)))
+        
+        # Inject truth_condition constraints for each state and sentence letter
+        for sentence_obj in model_constraints.syntax.sentence_letters:
+            atom = sentence_obj.sentence_letter
+            
+            for state in range(num_states):
+                # Evaluate using original truth_condition function
+                truth_val = z3_model.eval(original_semantics.truth_condition(state, atom), model_completion=True)
+                # Add constraint using new truth_condition function
+                if z3.is_true(truth_val):
+                    model_constraints.all_constraints.append(self.truth_condition(state, atom))
+                else:
+                    model_constraints.all_constraints.append(z3.Not(self.truth_condition(state, atom)))
+        
+        # Inject task relation constraints (transitions between world states)
+        for state1 in range(num_states):
+            for state2 in range(num_states):
+                # Evaluate using original task function
+                task_val = z3_model.eval(original_semantics.task(state1, state2), model_completion=True)
+                # Add constraint using new task function
+                if z3.is_true(task_val):
+                    model_constraints.all_constraints.append(self.task(state1, state2))
+                else:
+                    model_constraints.all_constraints.append(z3.Not(self.task(state1, state2)))
+        
+        # Note: World arrays, intervals, and other temporal structures are
+        # handled by the theory's own construction process
 
     def generate_time_intervals(self, M):
         """Generate all valid time intervals of length M that include time 0.
