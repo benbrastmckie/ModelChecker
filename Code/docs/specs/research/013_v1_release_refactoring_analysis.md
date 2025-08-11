@@ -1,5 +1,7 @@
 # V1 Release Refactoring Analysis: Comprehensive Subpackage Review
 
+<!-- Review and revise /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/specs/research/013_v1_release_refactoring_analysis.md and then create a detailed implementation plan in specs/plans/ for the builder/ subpackage that follows IMPLEMENT.md  -->
+
 **Date**: 2025-01-10  
 **Author**: AI Assistant  
 **Status**: Complete  

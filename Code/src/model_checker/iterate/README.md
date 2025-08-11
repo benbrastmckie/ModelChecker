@@ -422,6 +422,32 @@ Run tests:
 pytest src/model_checker/iterate/tests/ -v
 ```
 
+## Maintenance Notes
+
+### Recent Refactoring (2025-01-11)
+
+The iterator package underwent significant robustness improvements:
+
+1. **Z3 Boolean Evaluation**: Simplified `_evaluate_z3_boolean` method
+2. **Attribute Access**: Replaced hasattr() with safe getattr() patterns
+3. **Model Building**: Documented duplication with BuildExample
+4. **Testing**: Added regression tests and sync validation
+
+See `docs/specs/findings/015_iterator_refactoring_summary.md` for details.
+
+### Known Technical Debt
+
+**Model Building Duplication**: The `_build_new_model_structure()` method duplicates
+logic from `BuildExample.__init__()`. This is intentional but creates maintenance
+burden. Both implementations have cross-references and are protected by
+`tests/test_model_building_sync.py`.
+
+### Future Improvements (v2)
+
+- Extract common model building logic into shared utility
+- Consider splitting core.py into focused modules
+- Optimize constraint generation for large state spaces
+
 ## References
 
 - **Graph Isomorphism**: Uses NetworkX's VF2 algorithm implementation
