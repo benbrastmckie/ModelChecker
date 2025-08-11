@@ -74,16 +74,15 @@ class BaseModelIterator:
         #         f"Expected BuildExample instance, got {type(build_example).__name__}"
         #     )
             
-        # Model validation
-        if not hasattr(build_example, 'model_structure') or build_example.model_structure is None:
+        # Model validation with safe attribute access
+        model_structure = getattr(build_example, 'model_structure', None)
+        if model_structure is None:
             raise ValueError("BuildExample has no model_structure")
             
-        if not hasattr(build_example.model_structure, 'z3_model_status') or \
-           not build_example.model_structure.z3_model_status:
+        if not getattr(model_structure, 'z3_model_status', False):
             raise ValueError("BuildExample does not have a valid model")
             
-        if not hasattr(build_example.model_structure, 'z3_model') or \
-           build_example.model_structure.z3_model is None:
+        if getattr(model_structure, 'z3_model', None) is None:
             raise ValueError("BuildExample has no Z3 model")
             
         # Initialize properties
@@ -268,7 +267,8 @@ class BaseModelIterator:
                     break
                 
                 # Validate the new model has at least one possible world
-                if not hasattr(new_structure, 'z3_world_states') or not new_structure.z3_world_states:
+                z3_world_states = getattr(new_structure, 'z3_world_states', [])
+                if not z3_world_states:
                     self.debug_messages.append("Found model with no possible worlds - skipping as invalid")
                     consecutive_invalid += 1
                     self.debug_messages.append(f"[ITERATION] Found invalid model (no possible worlds) - attempt {consecutive_invalid}/{max_consecutive_invalid}")
@@ -588,8 +588,9 @@ class BaseModelIterator:
             
             # Constrain verify/falsify for sentence letters
             for letter_obj in syntax.sentence_letters:
-                if hasattr(letter_obj, 'sentence_letter'):
-                    atom = letter_obj.sentence_letter
+                # Safe attribute access for sentence letter
+                atom = getattr(letter_obj, 'sentence_letter', None)
+                if atom is not None:
                     for state in range(2**semantics.N):
                         # Verify value
                         verify_val = self._evaluate_z3_boolean(z3_model, semantics.verify(state, atom))
@@ -693,9 +694,12 @@ class BaseModelIterator:
         model_structure.analyzer = None
         model_structure.stored_solver = None
         
-        # Get main world from main_point
-        if hasattr(model_structure.main_point, "get"):
-            model_structure.main_world = model_structure.main_point.get("world")
+        # Get main world from main_point with safe access
+        main_point = getattr(model_structure, 'main_point', None)
+        if main_point and hasattr(main_point, "get"):
+            model_structure.main_world = main_point.get("world")
+        else:
+            model_structure.main_world = None
         
         # Initialize Z3 values as None
         model_structure.z3_main_world = None
@@ -731,9 +735,10 @@ class BaseModelIterator:
             if self._evaluate_z3_boolean(z3_model, semantics.is_world(state))
         ]
         
-        # Allow theory-specific initialization
-        if hasattr(model_structure, 'initialize_from_z3_model'):
-            model_structure.initialize_from_z3_model(z3_model)
+        # Allow theory-specific initialization with safe check
+        initialize_method = getattr(model_structure, 'initialize_from_z3_model', None)
+        if initialize_method and callable(initialize_method):
+            initialize_method(z3_model)
     
     def _evaluate_z3_boolean(self, z3_model, expression):
         """Safely evaluate a Z3 boolean expression to a Python boolean.
