@@ -521,6 +521,15 @@ class BaseModelIterator:
         This creates new ModelConstraints using the current model's verify/falsify
         functions, ensuring constraint consistency for MODEL 2+.
         
+        The process involves:
+        1. Creating fresh syntax, semantics, and model constraints
+        2. Adding concrete value constraints from the Z3 model to ensure the
+           new model structure matches these values exactly
+        3. Building the model structure with these constraints
+        
+        This approach ensures that MODEL 2+ maintains the same verify/falsify
+        valuations as found by the iterator, preventing inconsistencies.
+        
         Args:
             z3_model: Z3 model to use for the new structure
             
@@ -631,114 +640,6 @@ class BaseModelIterator:
             import traceback
             logger.error(f"Full traceback:\n{traceback.format_exc()}")
             return None
-    
-            
-    def _initialize_base_attributes(self, model_structure, model_constraints, settings):
-        """Initialize basic attributes of a model structure that don't depend on the Z3 model.
-        
-        This initializes the core attributes needed before Z3 model evaluation,
-        following a proper two-phase initialization pattern.
-        
-        Args:
-            model_structure: The model structure to initialize
-            model_constraints: The model constraints to use
-            settings: The settings to use
-        """
-        # Define ANSI color codes (copied from ModelDefaults.__init__)
-        model_structure.COLORS = {
-            "default": "\033[37m",  # WHITE
-            "world": "\033[34m",    # BLUE
-            "possible": "\033[36m", # CYAN
-            "impossible": "\033[35m", # MAGENTA
-            "initial": "\033[33m",  # YELLOW
-        }
-        model_structure.RESET = "\033[0m"
-        model_structure.WHITE = model_structure.COLORS["default"]
-        
-        # Copy attributes from ModelDefaults.__init__
-        model_structure.model_constraints = model_constraints
-        model_structure.settings = settings
-        model_structure.max_time = settings.get("max_time", 1.0)
-        model_structure.expectation = settings.get("expectation", True)
-        
-        # Set semantics and related attributes
-        model_structure.semantics = model_constraints.semantics
-        model_structure.main_point = model_structure.semantics.main_point
-        model_structure.all_states = model_structure.semantics.all_states
-        model_structure.N = model_structure.semantics.N
-        
-        # Set syntax and related attributes
-        model_structure.syntax = model_constraints.syntax
-        model_structure.start_time = model_structure.syntax.start_time
-        model_structure.premises = model_structure.syntax.premises
-        model_structure.conclusions = model_structure.syntax.conclusions
-        model_structure.sentence_letters = model_structure.syntax.sentence_letters
-        
-        # Set proposition class and solver
-        model_structure.proposition_class = model_constraints.proposition_class
-        model_structure.solver = z3.Solver()
-        for assertion in model_constraints.all_constraints:
-            model_structure.solver.add(assertion)
-        
-        # Initialize Z3 model attributes as None
-        model_structure.z3_model = None
-        model_structure.z3_model_status = None
-        model_structure.z3_model_runtime = None
-        model_structure.timeout = None
-        model_structure.unsat_core = None
-        model_structure.satisfiable = None
-        model_structure.solved = False
-        
-        # Initialize helpers as None - will be set up on demand
-        model_structure.printer = None
-        model_structure.analyzer = None
-        model_structure.stored_solver = None
-        
-        # Get main world from main_point with safe access
-        main_point = getattr(model_structure, 'main_point', None)
-        if main_point and hasattr(main_point, "get"):
-            model_structure.main_world = main_point.get("world")
-        else:
-            model_structure.main_world = None
-        
-        # Initialize Z3 values as None
-        model_structure.z3_main_world = None
-        model_structure.z3_possible_states = None 
-        model_structure.z3_world_states = None
-        
-        # Initialize difference tracking
-        # model_structure.model_differences = None  # Don't initialize, will be set later
-        
-    def _initialize_z3_dependent_attributes(self, model_structure, z3_model):
-        """Initialize attributes that depend on the Z3 model.
-        
-        This is the second phase of initialization that evaluates Z3 model values.
-        
-        Args:
-            model_structure: The model structure to initialize
-            z3_model: The Z3 model to use
-        """
-        # Initialize main world evaluation
-        model_structure.z3_main_world = z3_model.eval(model_structure.main_world, model_completion=True) 
-        model_structure.main_point["world"] = model_structure.z3_main_world
-        
-        # Initialize possible states
-        semantics = model_structure.semantics
-        model_structure.z3_possible_states = [
-            state for state in model_structure.all_states
-            if self._evaluate_z3_boolean(z3_model, semantics.possible(state))
-        ]
-        
-        # Initialize world states 
-        model_structure.z3_world_states = [
-            state for state in model_structure.z3_possible_states
-            if self._evaluate_z3_boolean(z3_model, semantics.is_world(state))
-        ]
-        
-        # Allow theory-specific initialization with safe check
-        initialize_method = getattr(model_structure, 'initialize_from_z3_model', None)
-        if initialize_method and callable(initialize_method):
-            initialize_method(z3_model)
     
     def _evaluate_z3_boolean(self, z3_model, expression):
         """Safely evaluate a Z3 boolean expression to a Python boolean.
