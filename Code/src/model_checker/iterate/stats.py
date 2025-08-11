@@ -9,6 +9,7 @@ class IterationStatistics:
     
     def __init__(self):
         self.model_stats = []
+        self.completion_time = None
     
     def add_model(self, model_structure, differences: Dict[str, Any]):
         """Add statistics for a found model."""
@@ -57,6 +58,10 @@ class IterationStatistics:
             'max_differences': max(diff_counts) if diff_counts else 0,
         }
     
+    def set_completion_time(self, elapsed_time):
+        """Set the total completion time for the iteration."""
+        self.completion_time = elapsed_time
+    
     def print_summary(self):
         """Print a summary of iteration statistics."""
         stats = self.get_summary()
@@ -70,3 +75,5 @@ class IterationStatistics:
         if stats['avg_differences'] > 0:
             print(f"Average differences between consecutive models: {stats['avg_differences']:.1f}")
             print(f"Maximum differences: {stats['max_differences']}")
+        if self.completion_time is not None:
+            print(f"Total completion time: {self.completion_time:.2f} seconds")

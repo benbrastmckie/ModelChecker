@@ -80,11 +80,11 @@ class TestBaseModelIterator:
         iterator = MockModelIterator(mock_example)
         
         # Mock solver to return sat but with invalid model
-        with patch.object(iterator.solver, 'check', return_value=z3.sat):
-            # Mock solver.model() to return a valid Z3 model
+        with patch.object(iterator.constraint_generator.solver, 'check', return_value=z3.sat):
+            # Mock constraint_generator.get_model() to return a valid Z3 model
             mock_z3_model = Mock()
-            with patch.object(iterator.solver, 'model', return_value=mock_z3_model):
-                with patch.object(iterator, '_build_new_model_structure') as mock_build:
+            with patch.object(iterator.constraint_generator, 'get_model', return_value=mock_z3_model):
+                with patch.object(iterator.model_builder, 'build_new_model_structure') as mock_build:
                     # Return structure with no worlds
                     mock_structure = Mock()
                     mock_structure.z3_world_states = []
@@ -109,7 +109,7 @@ class TestBaseModelIterator:
         iterator.settings['max_invalid_attempts'] = 3
         
         # Mock to always return invalid models
-        with patch.object(iterator, '_build_new_model_structure') as mock_build:
+        with patch.object(iterator.model_builder, 'build_new_model_structure') as mock_build:
             mock_structure = Mock()
             mock_structure.z3_world_states = []
             mock_build.return_value = mock_structure
@@ -145,8 +145,12 @@ class TestBaseModelIterator:
         
         # Check debug messages
         debug_msgs = iterator.get_debug_messages()
-        assert all("[ITERATION]" in msg for msg in debug_msgs)
+        # Should have collected some debug messages during iteration
         assert len(debug_msgs) > 0
+        # Messages should be strings describing iteration events
+        assert all(isinstance(msg, str) for msg in debug_msgs)
+        # Should have messages about consecutive invalid models due to mock setup
+        assert any("consecutive invalid" in msg.lower() for msg in debug_msgs)
 
 
 def create_mock_example():
