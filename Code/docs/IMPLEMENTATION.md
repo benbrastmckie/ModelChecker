@@ -366,9 +366,11 @@ Each refactoring step MUST use **BOTH testing methods** to ensure comprehensive 
 
 2. **Test with Iterations** (CRITICAL for iterator regression detection):
    ```bash
-   ./dev_cli.py -i 1 src/model_checker/theory_lib/logos/examples.py
-   ./dev_cli.py -i 2 src/model_checker/theory_lib/logos/examples.py
-   ./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+   # The examples.py files have iterate=2 settings for uncommented examples
+   # This tests the iteration functionality built into the examples
+   ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+   ./dev_cli.py src/model_checker/theory_lib/exclusion/examples.py
+   ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py
    ```
 
 3. **Test All Theories Systematically**:
@@ -523,12 +525,11 @@ For major refactoring efforts, establish comprehensive baselines:
 # Capture test output baseline
 ./run_tests.py --all > docs/specs/baselines/all_tests_baseline.txt 2>&1
 
-# Capture theory-specific baselines with iterations
+# Capture theory-specific baselines
+# Note: examples.py files have iterate=2 settings built-in for uncommented examples
 for theory in logos bimodal exclusion imposition; do
-    for i in 1 2 3; do
-        ./dev_cli.py -i $i src/model_checker/theory_lib/$theory/examples.py \
-            > docs/specs/baselines/${theory}_iter${i}_baseline.txt 2>&1
-    done
+    ./dev_cli.py src/model_checker/theory_lib/$theory/examples.py \
+        > docs/specs/baselines/${theory}_baseline.txt 2>&1
 done
 ```
 
