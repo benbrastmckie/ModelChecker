@@ -78,3 +78,22 @@ def Exists(bvs, formula):
             substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, N)))
             constraints.append(substituted_reduced_formula)
     return Or(constraints)
+
+
+def safe_getattr(obj, attr_name, default=None):
+    """Safely get an attribute with a default value.
+    
+    This is a simple wrapper around getattr that ensures consistent
+    attribute access patterns throughout the codebase. It's particularly
+    useful for accessing model structure attributes that may not always
+    be present.
+    
+    Args:
+        obj: The object to get the attribute from
+        attr_name: The name of the attribute to get
+        default: The default value to return if attribute doesn't exist
+        
+    Returns:
+        The attribute value if it exists, otherwise the default value
+    """
+    return getattr(obj, attr_name, default)
