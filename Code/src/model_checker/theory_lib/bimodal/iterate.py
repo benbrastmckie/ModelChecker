@@ -26,7 +26,7 @@ if not logger.handlers:
 class BimodalModelIterator(BaseModelIterator):
     """Model iterator for the bimodal theory.
     
-    This class extends BaseModelIterator with bimodal theory-specific
+    This class extends CoreModelIterator with bimodal theory-specific
     implementations of the abstract methods required for model iteration.
     It provides specialized difference detection, constraint generation,
     and visualization for bimodal theory models.

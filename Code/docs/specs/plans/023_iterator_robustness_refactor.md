@@ -2,10 +2,11 @@
 
 **Date**: 2025-01-10  
 **Author**: AI Assistant  
-**Status**: Phases 0-5 Complete, Phase 6 Deferred  
+**Status**: Phases 0-5 Complete, Phase 6 Attempted and Reverted  
 **Priority**: Critical for V1 Release  
 **Research**: docs/specs/research/013_v1_release_refactoring_analysis.md
 **Summary**: docs/specs/findings/015_iterator_refactoring_summary.md
+**Update**: 2025-01-11 - Phase 6 attempted but reverted due to breaking relevance theory iteration
 
 ## Executive Summary
 
@@ -290,17 +291,29 @@ echo "\nVerifying distinct models..."
 
 **Success Criteria**: Less code duplication, cleaner abstractions, all theories work
 
-### Phase 6: Core Module Split and Cleanup (DEFERRED)
+### Phase 6: Core Module Split and Cleanup (ATTEMPTED AND REVERTED)
 
 **Goal**: Break up monolithic core.py into focused modules.
 
-**Status**: DEFERRED to v2 release
+**Status**: ATTEMPTED, FAILED, REVERTED - Deferred to v2 release
 
-**Rationale**:
-- Current monolithic structure works well
-- Split may introduce unnecessary complexity
-- Better to gain experience before major restructuring
-- All critical issues addressed in Phases 2-5
+**Implementation Attempt (2025-01-11)**:
+- Split core.py into 6 modules: base.py, solver.py, validation.py, differences.py, isomorphism.py, model_builder.py
+- Created CoreModelIterator that extends BaseModelIterator with concrete implementations
+- Updated all theory iterators to import from CoreModelIterator
+
+**Failure Mode**:
+- Relevance theory (REL_CM_1) could not find MODEL 2 after the split
+- Iterator got stuck in isomorphic models loop, exhausting escape attempts
+- Same issue encountered earlier during model building simplification attempts
+- Indicates deep coupling between components that's not immediately visible
+
+**Rationale for Deferral**:
+- Current monolithic structure works reliably
+- Split introduces subtle bugs in model iteration logic
+- Need deeper understanding of isomorphism detection interaction with constraint generation
+- All critical robustness issues addressed in Phases 2-5
+- Better to gain more experience with the codebase before attempting major restructuring
 
 **Original Tasks** (for future reference):
 1. Split core.py into modules:

@@ -26,7 +26,7 @@ if not logger.handlers:
 class ImpositionModelIterator(BaseModelIterator):
     """Model iterator for the imposition theory.
     
-    This class extends BaseModelIterator with imposition theory-specific
+    This class extends CoreModelIterator with imposition theory-specific
     implementations of the abstract methods required for model iteration.
     It provides specialized difference detection, constraint generation,
     and visualization for imposition theory models.

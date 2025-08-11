@@ -22,6 +22,8 @@ class IterationStatistics:
     
     def _count_differences(self, differences: Dict[str, Any]) -> int:
         """Count total number of differences."""
+        if not differences:
+            return 0
         count = 0
         for category, changes in differences.items():
             if isinstance(changes, dict):

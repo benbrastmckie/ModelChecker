@@ -24,6 +24,8 @@ from model_checker.builder.progress import Spinner
 from model_checker.iterate.graph_utils import ModelGraph
 from model_checker.iterate.progress import IterationProgress
 from model_checker.iterate.stats import IterationStatistics
+from model_checker.iterate.validation import ModelValidator
+from model_checker.iterate.differences import DifferenceCalculator
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -655,9 +657,8 @@ class BaseModelIterator:
     def _evaluate_z3_boolean(self, z3_model, expression):
         """Safely evaluate a Z3 boolean expression to a Python boolean.
         
-        This method handles the case where Z3 returns symbolic expressions
-        instead of concrete boolean values, which can cause
-        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
+        This method delegates to the ModelValidator for consistent boolean
+        evaluation across the iteration framework.
         
         Args:
             z3_model: The Z3 model to use for evaluation
@@ -666,33 +667,7 @@ class BaseModelIterator:
         Returns:
             bool: True if the expression evaluates to true, False otherwise
         """
-        try:
-            # Evaluate the expression with model completion
-            result = z3_model.eval(expression, model_completion=True)
-            
-            # Check if result is a boolean constant (True/False)
-            if z3.is_true(result):
-                return True
-            elif z3.is_false(result):
-                return False
-            
-            # If not a constant, try simplifying
-            simplified = z3.simplify(result)
-            
-            if z3.is_true(simplified):
-                return True
-            elif z3.is_false(simplified):
-                return False
-            
-            # If still not constant, it means the model doesn't fully determine this value
-            # This can happen when the expression involves variables not in the model
-            # In this case, we should add the constraint to force a concrete value
-            logger.debug(f"Expression {expression} not fully determined by model, defaulting to False")
-            return False
-                
-        except Exception as e:
-            logger.warning(f"Error evaluating Z3 boolean expression {expression}: {e}, assuming False")
-            return False
+        return ModelValidator.evaluate_z3_boolean(z3_model, expression)
     
     def _calculate_differences(self, new_structure, previous_structure):
         """Calculate differences between two model structures.
