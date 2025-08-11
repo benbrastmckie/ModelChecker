@@ -36,11 +36,12 @@ class TestConstraintsInjection(unittest.TestCase):
         
         # Call injection
         mock_z3_model = Mock()
-        constraints.inject_z3_values(mock_z3_model)
+        mock_original_semantics = Mock()
+        constraints.inject_z3_values(mock_z3_model, mock_original_semantics)
         
         # Verify delegation
         mock_semantics.inject_z3_model_values.assert_called_once_with(
-            mock_z3_model, constraints
+            mock_z3_model, mock_original_semantics, constraints
         )
         
         # Verify z3_model stored
@@ -69,7 +70,8 @@ class TestConstraintsInjection(unittest.TestCase):
         
         # Should not raise error
         mock_z3_model = Mock()
-        constraints.inject_z3_values(mock_z3_model)
+        mock_original_semantics = Mock()
+        constraints.inject_z3_values(mock_z3_model, mock_original_semantics)
         
         # Z3 model still stored
         self.assertEqual(constraints.injected_z3_model, mock_z3_model)

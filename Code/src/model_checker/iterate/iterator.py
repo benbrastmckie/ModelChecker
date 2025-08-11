@@ -8,8 +8,7 @@ constraint generation, model building, and termination logic.
 import logging
 import sys
 import time
-from model_checker.iterate.progress import IterationProgress
-from model_checker.iterate.stats import IterationStatistics
+from model_checker.iterate.metrics import IterationProgress, IterationStatistics
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -89,7 +88,7 @@ class IteratorCore:
         
         # Progress tracking (no explicit start method needed)
         consecutive_invalid_count = 0
-        MAX_CONSECUTIVE_INVALID = 20
+        MAX_CONSECUTIVE_INVALID = self.settings.get('max_invalid_attempts', 20)
         
         try:
             while self.current_iteration < self.max_iterations:
@@ -163,7 +162,7 @@ class IteratorCore:
                         continue
                         
                     # Check for isomorphism with previous models
-                    from model_checker.iterate.isomorphism import IsomorphismChecker
+                    from model_checker.iterate.graph import IsomorphismChecker
                     iso_checker = IsomorphismChecker()
                     is_isomorphic, isomorphic_model = iso_checker.check_isomorphism(
                         new_structure, new_model, self.model_structures, self.found_models
@@ -184,7 +183,7 @@ class IteratorCore:
                     self.current_iteration += 1
                     
                     # Calculate differences from previous model
-                    from model_checker.iterate.reporting import DifferenceCalculator
+                    from model_checker.iterate.models import DifferenceCalculator
                     diff_calc = DifferenceCalculator()
                     differences = diff_calc.calculate_differences(new_structure, self.model_structures[-2])
                     

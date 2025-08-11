@@ -4,7 +4,7 @@ import unittest
 import z3
 from unittest.mock import Mock, MagicMock
 
-from model_checker.iterate.validation import ModelValidator
+from model_checker.iterate.models import evaluate_z3_boolean, is_valid_model, validate_premises, validate_conclusions
 
 
 class TestModelValidator(unittest.TestCase):
@@ -23,21 +23,21 @@ class TestModelValidator(unittest.TestCase):
     def test_evaluate_z3_boolean_direct_values(self):
         """Test evaluation of direct boolean values."""
         # Python booleans
-        self.assertTrue(ModelValidator.evaluate_z3_boolean(self.model, True))
-        self.assertFalse(ModelValidator.evaluate_z3_boolean(self.model, False))
+        self.assertTrue(evaluate_z3_boolean(self.model, True))
+        self.assertFalse(evaluate_z3_boolean(self.model, False))
         
         # None should be False
-        self.assertFalse(ModelValidator.evaluate_z3_boolean(self.model, None))
+        self.assertFalse(evaluate_z3_boolean(self.model, None))
     
     def test_evaluate_z3_boolean_z3_expressions(self):
         """Test evaluation of Z3 boolean expressions."""
         # Simple variables
-        self.assertTrue(ModelValidator.evaluate_z3_boolean(self.model, self.x))
-        self.assertFalse(ModelValidator.evaluate_z3_boolean(self.model, self.y))
+        self.assertTrue(evaluate_z3_boolean(self.model, self.x))
+        self.assertFalse(evaluate_z3_boolean(self.model, self.y))
         
         # Compound expressions
-        self.assertTrue(ModelValidator.evaluate_z3_boolean(self.model, z3.And(self.x, z3.Not(self.y))))
-        self.assertFalse(ModelValidator.evaluate_z3_boolean(self.model, z3.And(self.x, self.y)))
+        self.assertTrue(evaluate_z3_boolean(self.model, z3.And(self.x, z3.Not(self.y))))
+        self.assertFalse(evaluate_z3_boolean(self.model, z3.And(self.x, self.y)))
     
     def test_evaluate_z3_boolean_numeric_values(self):
         """Test evaluation of numeric Z3 values."""
@@ -49,14 +49,14 @@ class TestModelValidator(unittest.TestCase):
         model = solver.model()
         
         # Non-zero should be True
-        self.assertTrue(ModelValidator.evaluate_z3_boolean(model, i))
+        self.assertTrue(evaluate_z3_boolean(model, i))
         
         # Zero should be False
         solver2 = z3.Solver()
         solver2.add(i == 0)
         solver2.check()
         model2 = solver2.model()
-        self.assertFalse(ModelValidator.evaluate_z3_boolean(model2, i))
+        self.assertFalse(evaluate_z3_boolean(model2, i))
     
     def test_is_valid_model_basic(self):
         """Test basic model validation."""
@@ -67,11 +67,11 @@ class TestModelValidator(unittest.TestCase):
         model.conclusion_formulas = []
         
         settings = {}
-        self.assertTrue(ModelValidator.is_valid_model(model, settings))
+        self.assertTrue(is_valid_model(model, settings))
         
         # Missing required attribute
         delattr(model, 'z3_model')
-        self.assertFalse(ModelValidator.is_valid_model(model, settings))
+        self.assertFalse(is_valid_model(model, settings))
     
     def test_is_valid_model_non_empty(self):
         """Test non-empty model validation."""
@@ -83,11 +83,11 @@ class TestModelValidator(unittest.TestCase):
         model.z3_possible_states = [1, 2, 3]
         
         settings = {'non_empty': True}
-        self.assertTrue(ModelValidator.is_valid_model(model, settings))
+        self.assertTrue(is_valid_model(model, settings))
         
         # Empty states
         model.z3_possible_states = []
-        self.assertFalse(ModelValidator.is_valid_model(model, settings))
+        self.assertFalse(is_valid_model(model, settings))
     
     def test_validate_premises(self):
         """Test premise validation."""
@@ -104,11 +104,11 @@ class TestModelValidator(unittest.TestCase):
         
         # All premises true
         model.premise_formulas = [premise1]
-        self.assertTrue(ModelValidator.validate_premises(model, self.model))
+        self.assertTrue(validate_premises(model, self.model))
         
         # Some premise false
         model.premise_formulas = [premise1, premise2]
-        self.assertFalse(ModelValidator.validate_premises(model, self.model))
+        self.assertFalse(validate_premises(model, self.model))
     
     def test_validate_conclusions_countermodel(self):
         """Test conclusion validation for countermodels."""
@@ -124,11 +124,11 @@ class TestModelValidator(unittest.TestCase):
         
         # For countermodel (expectation=True), we want at least one false conclusion
         model.conclusion_formulas = [conc2]
-        self.assertTrue(ModelValidator.validate_conclusions(model, self.model, expectation=True))
+        self.assertTrue(validate_conclusions(model, self.model, expectation=True))
         
         # All conclusions true - invalid countermodel
         model.conclusion_formulas = [conc1]
-        self.assertFalse(ModelValidator.validate_conclusions(model, self.model, expectation=True))
+        self.assertFalse(validate_conclusions(model, self.model, expectation=True))
     
     def test_validate_conclusions_theorem(self):
         """Test conclusion validation for theorems."""
@@ -144,11 +144,11 @@ class TestModelValidator(unittest.TestCase):
         
         # For theorem (expectation=False), we want all conclusions true
         model.conclusion_formulas = [conc1]
-        self.assertTrue(ModelValidator.validate_conclusions(model, self.model, expectation=False))
+        self.assertTrue(validate_conclusions(model, self.model, expectation=False))
         
         # Some conclusion false - invalid theorem
         model.conclusion_formulas = [conc1, conc2]
-        self.assertFalse(ModelValidator.validate_conclusions(model, self.model, expectation=False))
+        self.assertFalse(validate_conclusions(model, self.model, expectation=False))
 
 
 if __name__ == '__main__':
