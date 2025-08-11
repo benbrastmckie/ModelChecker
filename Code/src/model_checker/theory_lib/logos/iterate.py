@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 class LogosModelIterator(BaseModelIterator):
     """Model iterator for the logos theory.
     
-    This class extends BaseModelIterator with logos theory-specific
+    This class extends CoreModelIterator with logos theory-specific
     implementations of the abstract methods required for model iteration.
     It provides specialized difference detection, constraint generation,
     and visualization for logos theory models.

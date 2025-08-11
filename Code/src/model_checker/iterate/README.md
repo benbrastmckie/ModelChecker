@@ -7,11 +7,17 @@
 ```
 iterate/
 ├── README.md                    # This file - framework overview and guide
-├── core.py                      # BaseModelIterator abstract class
+├── core.py                      # BaseModelIterator implementation (monolithic)
+├── base.py                      # Abstract base class definition
+├── validation.py                # Z3 boolean evaluation utilities
+├── differences.py               # Model difference calculation utilities
+├── solver.py                    # Solver management (created, not integrated)
+├── model_builder.py             # Model construction (created, not integrated)
 ├── progress.py                  # Progress bar and timing utilities
 ├── stats.py                     # Model statistics and analysis
 ├── parallel.py                  # Parallel constraint generation
 ├── graph_utils.py               # Graph-based isomorphism detection
+├── debug.py                     # Debugging infrastructure for iteration
 └── tests/                       # Comprehensive test suite
     ├── test_base_iterator.py    # Abstract method testing
     ├── test_constraint_preservation.py  # Constraint isolation tests
@@ -42,22 +48,20 @@ The iteration framework integrates with:
 
 ## Architecture
 
+### Design Philosophy
+
+The iteration framework follows a **primarily monolithic architecture** with selective modularization. After extensive refactoring attempts (see Phase 6 in `docs/specs/plans/024_iterator_phase6_modular_split.md`), we discovered that the core iteration logic requires tight coupling between components for proper constraint propagation and model building synchronization. The architecture balances maintainability with the technical requirements of Z3 constraint solving.
+
 ### Core Components
 
-#### BaseModelIterator (`core.py`)
+#### BaseModelIterator (`base.py` + `core.py`)
 
-The abstract base class providing theory-agnostic iteration logic:
+The framework uses a two-file approach for the base iterator:
 
+1. **Abstract Definition** (`base.py`):
 ```python
 class BaseModelIterator(ABC):
-    """Abstract base class for model iteration across theories."""
-    
-    def __init__(self, build_example):
-        self.build_example = build_example
-        self.max_iterations = build_example.settings.get('iterate', 2)
-        self.found_models = [build_example.model_structure]
-        self.solver = self._create_persistent_solver()
-        # ... initialization continues
+    """Abstract base class defining the iteration interface."""
     
     @abstractmethod
     def _create_difference_constraint(self, previous_models):
@@ -70,12 +74,137 @@ class BaseModelIterator(ABC):
         pass
 ```
 
-**Key Responsibilities**:
-- Solver lifecycle management with constraint preservation
-- Model validation and invalid model rejection
-- Isomorphism detection via graph comparison
-- Retry logic with escalating constraints
-- Progress reporting and statistics collection
+2. **Concrete Implementation** (`core.py`):
+```python
+from model_checker.iterate.base import BaseModelIterator
+from model_checker.iterate.validation import ModelValidator
+from model_checker.iterate.differences import DifferenceCalculator
+
+class BaseModelIterator(BaseModelIterator):
+    """Concrete implementation with integrated validation module."""
+    
+    def __init__(self, build_example):
+        self.build_example = build_example
+        self.max_iterations = build_example.settings.get('iterate', 2)
+        self.found_models = [build_example.model_structure]
+        self.solver = self._create_persistent_solver()
+        # ... initialization continues
+    
+    def _evaluate_z3_boolean(self, z3_model, expression):
+        """Delegates to validation module for clean separation."""
+        return ModelValidator.evaluate_z3_boolean(z3_model, expression)
+```
+
+**Key Architectural Decision**: The core.py file remains monolithic (except for validation) because:
+- Model building requires complex state synchronization between BuildExample, syntax, semantics, and constraints
+- Different theories have varying constructor signatures and initialization sequences
+- Z3 constraint injection timing is critical and varies by theory
+- Attempting full modularization broke iteration for theories like Relevance
+
+#### Validation Module (`validation.py`) ✓ Integrated
+
+Successfully extracted Z3 boolean evaluation logic:
+
+```python
+class ModelValidator:
+    """Utilities for validating models during iteration."""
+    
+    @staticmethod
+    def evaluate_z3_boolean(z3_model: z3.ModelRef, expression: Any) -> bool:
+        """Safely evaluate a Z3 expression to a Python boolean."""
+        if expression is None:
+            return False
+        
+        evaluated = z3_model.evaluate(expression, model_completion=True)
+        
+        if z3.is_true(evaluated):
+            return True
+        elif z3.is_false(evaluated):
+            return False
+        # ... sophisticated evaluation logic
+```
+
+**Integration**: Used by core.py for all Z3 boolean evaluations, providing a clean abstraction for this specific functionality.
+
+#### Differences Module (`differences.py`) ✓ Created
+
+Utilities for calculating model differences:
+
+```python
+class DifferenceCalculator:
+    """Calculates differences between model structures."""
+    
+    @staticmethod
+    def calculate_basic_differences(new_structure, previous_structure) -> Dict[str, Any]:
+        """Calculate basic theory-agnostic differences between models."""
+        # Compares worlds, verifiers, falsifiers, exclusions, etc.
+    
+    @staticmethod
+    def format_differences_for_display(differences: Dict[str, Any]) -> List[str]:
+        """Format differences for user-friendly display."""
+        # Creates readable difference summaries
+```
+
+**Status**: Created and imported by core.py but not fully integrated due to theory-specific difference calculation requirements.
+
+#### Solver Module (`solver.py`) ✗ Not Integrated
+
+Attempted to extract solver management:
+
+```python
+class IterationSolver:
+    """Manages Z3 solver lifecycle for model iteration."""
+    
+    def __init__(self, build_example):
+        self.build_example = build_example
+        self.original_constraints = self._extract_original_constraints()
+        self.solver = self._create_persistent_solver()
+```
+
+**Why Not Integrated**: Solver state is tightly coupled with constraint generation and model validation logic. Extracting it would require passing complex state between modules, reducing clarity.
+
+#### Model Builder Module (`model_builder.py`) ✗ Not Integrated
+
+Attempted to extract model construction:
+
+```python
+class IterationModelBuilder:
+    """Builds new model structures during iteration."""
+    
+    def build_new_model_structure(self, z3_model: z3.ModelRef, 
+                                attempt_number: int = 1,
+                                total_attempts: int = 1) -> Optional[Any]:
+        """Build a new model structure from a Z3 model."""
+        # Complex two-phase building process
+```
+
+**Why Not Integrated**: Model building is the most complex part of iteration, requiring:
+- Deep knowledge of BuildExample internals
+- Theory-specific constructor patterns
+- Precise Z3 model injection timing
+- Syntax/semantics/constraints coordination
+
+The error encountered during integration (`'LogosSemantics' object has no attribute 'premises'`) revealed fundamental ordering issues that would require significant restructuring to resolve.
+
+#### Debug Infrastructure (`debug.py`)
+
+Provides comprehensive debugging tools:
+
+```python
+class DebugModelIterator(BaseModelIterator):
+    """Instrumented iterator for debugging constraint issues."""
+    
+    def _log_event(self, event_type: str, data: Dict[str, Any]):
+        """Log iteration events with structured data."""
+        timestamp = time.time() - self.start_time
+        self.events.append({
+            'timestamp': timestamp,
+            'type': event_type,
+            'data': data
+        })
+```
+
+**Purpose**: Created during Phase 6 to diagnose why modular splits break iteration. Provides detailed constraint flow tracking and event logging.
 
 #### Progress System (`progress.py`)
 
@@ -235,6 +364,146 @@ The dev_cli automatically handles iteration:
 # MODEL 2/2
 # [model output with differences highlighted]
 ```
+
+## How the Iterate Subpackage Works
+
+### Conceptual Flow
+
+The iterate subpackage implements a sophisticated model discovery algorithm:
+
+1. **Initialization**: Start with an existing model (MODEL 1) from BuildExample
+2. **Constraint Generation**: Create Z3 constraints that force differences from previous models
+3. **Solving**: Use Z3 to find variable assignments satisfying the new constraints
+4. **Model Building**: Construct a new ModelStructure using the Z3 solution
+5. **Validation**: Ensure the new model is valid and non-isomorphic
+6. **Iteration**: Repeat until reaching the requested number of models or exhausting possibilities
+
+### Detailed Implementation Flow
+
+```python
+# Simplified flow of BaseModelIterator.iterate()
+def iterate(self):
+    while len(self.found_models) < self.max_iterations:
+        # 1. Generate constraints for a different model
+        difference_constraint = self._create_difference_constraint(self.found_models)
+        self.solver.add(difference_constraint)
+        
+        # 2. Try to find a solution
+        if self.solver.check() == z3.sat:
+            z3_model = self.solver.model()
+            
+            # 3. Build new model structure (two-phase process)
+            new_structure = self._build_new_model_structure(z3_model)
+            
+            # 4. Validate the model
+            if self._is_valid_model(new_structure):
+                # 5. Check for isomorphism
+                if not self._is_isomorphic_to_any(new_structure):
+                    self.found_models.append(new_structure)
+                else:
+                    # Add stronger constraints and retry
+                    self._handle_isomorphic_model(z3_model)
+        else:
+            # No more models possible
+            break
+    
+    return self.found_models
+```
+
+### Critical Technical Details
+
+#### Solver State Management
+
+The iterator maintains a **persistent Z3 solver** that accumulates constraints:
+
+```python
+def _create_persistent_solver(self):
+    # Extract original constraints from MODEL 1
+    original_constraints = self._extract_original_constraints()
+    
+    # Create solver with same context as original
+    solver = z3.Solver(ctx=self.build_example.z3_context)
+    
+    # Add all original constraints
+    solver.add(original_constraints)
+    
+    return solver
+```
+
+This ensures each new model satisfies the original premises while differing from previous models.
+
+#### Two-Phase Model Building
+
+The most complex part is building new models:
+
+**Phase 1: Constraint Solution**
+```python
+# Z3 solver finds concrete values for variables
+z3_model = solver.model()  # e.g., A=True, B=False, world_1=True, etc.
+```
+
+**Phase 2: Model Construction**
+```python
+def _build_new_model_structure(self, z3_model):
+    # 1. Create fresh syntax (preserves propositions/operators)
+    new_syntax = Syntax(premises, conclusions, operators)
+    
+    # 2. Create fresh semantics (new Z3 variables!)
+    new_semantics = SemanticsClass(settings)
+    
+    # 3. Create constraints that will inject concrete values
+    new_constraints = ModelConstraints(syntax, semantics, settings)
+    
+    # 4. Inject the concrete values from z3_model
+    # This is the KEY step - happens inside ModelStructure.__init__
+    
+    # 5. Build complete model
+    new_structure = ModelStructureClass(syntax, semantics, constraints)
+    new_structure.z3_model = z3_model
+    
+    return new_structure
+```
+
+The complexity arises because:
+- Each ModelStructure needs its own Z3 variable namespace
+- Concrete values from solving must be injected at the right time
+- Different theories have different constructor requirements
+- The injection happens deep inside the initialization chain
+
+#### Module Integration
+
+The current architecture after Phase 6:
+
+```
+core.py (monolithic)
+    ├── imports validation.py ✓
+    │   └── _evaluate_z3_boolean delegates to ModelValidator
+    ├── imports differences.py ✓
+    │   └── (ready for future integration)
+    ├── contains solver management ✗
+    │   └── (too coupled to extract)
+    └── contains model building ✗
+        └── (too complex to extract)
+```
+
+### Why Full Modularization Failed
+
+The attempt to fully modularize revealed fundamental coupling:
+
+1. **State Synchronization**: Model building requires coordinated state from:
+   - BuildExample (original configuration)
+   - Syntax (proposition structure)
+   - Semantics (Z3 variables and constraints)
+   - ModelConstraints (constraint generation)
+
+2. **Theory Variations**: Different theories have incompatible patterns:
+   - Logos: `LogosModelStructure(syntax, semantics, constraints)`
+   - Relevance: Different constructor signature
+   - Exclusion: Additional initialization requirements
+
+3. **Z3 Timing**: Concrete value injection must happen at a precise point during initialization, which varies by theory.
+
+4. **Error Example**: The `'LogosSemantics' object has no attribute 'premises'` error showed that extracting model building changed the initialization order, breaking assumptions made by theory code.
 
 ## Technical Implementation
 
@@ -429,11 +698,32 @@ pytest src/model_checker/iterate/tests/ -v
 The iterator package underwent significant robustness improvements:
 
 1. **Z3 Boolean Evaluation**: Simplified `_evaluate_z3_boolean` method
-2. **Attribute Access**: Replaced hasattr() with safe getattr() patterns
+2. **Attribute Access**: Replaced hasattr() with safe getattr() patterns  
 3. **Model Building**: Documented duplication with BuildExample
 4. **Testing**: Added regression tests and sync validation
+5. **Partial Modularization (Phase 6)**: Successfully extracted validation module and created
+   supporting modules (differences, solver, model_builder). Full integration failed due to
+   model building complexity, but validation.py is now actively used by core.py.
 
-See `docs/specs/findings/015_iterator_refactoring_summary.md` for details.
+See `docs/specs/plans/023_iterator_robustness_refactor.md` and `024_iterator_phase6_modular_split.md` for details.
+
+### Architecture Trade-offs
+
+The current hybrid architecture represents a pragmatic balance:
+
+**Monolithic Core** (core.py):
+- ✓ Maintains critical state synchronization
+- ✓ Preserves Z3 constraint timing requirements
+- ✓ Supports all theory variations without breaking
+- ✗ Harder to understand and modify
+- ✗ Contains significant complexity
+
+**Extracted Modules**:
+- ✓ Validation module provides clean abstraction
+- ✓ Differences module ready for future integration
+- ✓ Debug infrastructure aids troubleshooting
+- ✗ Solver and model_builder remain unintegrated
+- ✗ Full modularization blocked by technical constraints
 
 ### Known Technical Debt
 
@@ -444,9 +734,33 @@ burden. Both implementations have cross-references and are protected by
 
 ### Future Improvements (v2)
 
-- Extract common model building logic into shared utility
-- Consider splitting core.py into focused modules
+- Extract common model building logic into shared utility (requires standardizing theory constructors)
+- Complete integration of differences.py module for cleaner difference calculation
+- Investigate alternative architectures that preserve Z3 constraint timing
 - Optimize constraint generation for large state spaces
+- Consider more sophisticated isomorphism detection for complex theories
+
+### Summary: Current Architecture
+
+After Phase 6 implementation and testing, the iterate subpackage uses a **hybrid architecture**:
+
+1. **Monolithic Core** (`core.py`): Contains the main iteration logic including:
+   - Solver management
+   - Model building
+   - Constraint generation
+   - Isomorphism detection
+
+2. **Integrated Modules**:
+   - `validation.py`: Successfully extracted and actively used for Z3 boolean evaluation
+   - `base.py`: Abstract interface definition
+
+3. **Supporting Modules** (created but not integrated):
+   - `differences.py`: Ready for future integration
+   - `solver.py`: Requires deeper refactoring to integrate
+   - `model_builder.py`: Blocked by theory-specific complexity
+   - `debug.py`: Available for troubleshooting
+
+This architecture represents a pragmatic balance between maintainability and the technical constraints of Z3-based model iteration. The partial modularization achieved with validation.py demonstrates that selective extraction is possible where coupling is minimal.
 
 ## References
 
