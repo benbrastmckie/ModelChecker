@@ -9,6 +9,7 @@ import logging
 import sys
 import time
 from model_checker.iterate.metrics import IterationProgress, IterationStatistics
+from model_checker.iterate.statistics import SearchStatistics, IterationReportGenerator
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -65,6 +66,12 @@ class IteratorCore:
         self.checked_model_count = 1
         self.isomorphic_model_count = 0  # Track skipped isomorphic models
         
+        # Per-search tracking
+        self.search_stats = []  # List of per-model search statistics
+        self.current_search_skipped = 0  # Isomorphic skipped in current search
+        self.current_search_start = None  # Start time of current search
+        self.current_search_checked = 0  # Models checked in current search
+        
         # Initialize stats for the first model
         self.stats.add_model(self.build_example.model_structure, {})
     
@@ -91,12 +98,17 @@ class IteratorCore:
         consecutive_invalid_count = 0
         MAX_CONSECUTIVE_INVALID = self.settings.get('max_invalid_attempts', 20)
         
+        # Initialize search for model 2
+        self.current_search_start = time.time()
+        self.current_search_checked = 0
+        self.current_search_skipped = 0
+        
         try:
             while self.current_iteration < self.max_iterations:
-                # Update progress
+                # Update progress with current search skipped count
                 self.progress.update(
                     len(self.model_structures), 
-                    self.isomorphic_model_count
+                    self.current_search_skipped
                 )
                 
                 # Check timeout
@@ -105,6 +117,17 @@ class IteratorCore:
                 if elapsed > timeout:
                     logger.warning(f"Iteration timeout ({timeout}s) reached")
                     self.debug_messages.append(f"Iteration timeout ({timeout}s) reached")
+                    
+                    # Record incomplete search due to timeout
+                    search_duration = time.time() - self.current_search_start
+                    self.search_stats.append(SearchStatistics(
+                        model_number=len(self.model_structures) + 1,
+                        found=False,
+                        isomorphic_skipped=self.current_search_skipped,
+                        models_checked=self.current_search_checked,
+                        search_duration=search_duration,
+                        termination_reason=f"timeout after {timeout}s"
+                    ))
                     break
                     
                 logger.info(f"Searching for model {len(self.model_structures) + 1}/{self.max_iterations}...")
@@ -118,10 +141,22 @@ class IteratorCore:
                     # Check satisfiability with new constraints
                     check_result = constraint_gen.check_satisfiability(extended_constraints)
                     self.checked_model_count += 1
+                    self.current_search_checked += 1
                     
                     if check_result != 'sat':
                         logger.info(f"No more models found (solver returned {check_result})")
                         self.debug_messages.append(f"No more models found (solver returned {check_result})")
+                        
+                        # Record incomplete search due to exhaustion
+                        search_duration = time.time() - self.current_search_start
+                        self.search_stats.append(SearchStatistics(
+                            model_number=len(self.model_structures) + 1,
+                            found=False,
+                            isomorphic_skipped=self.current_search_skipped,
+                            models_checked=self.current_search_checked,
+                            search_duration=search_duration,
+                            termination_reason="exhausted search space"
+                        ))
                         break
                         
                     # Get the new model
@@ -133,6 +168,17 @@ class IteratorCore:
                         if consecutive_invalid_count >= MAX_CONSECUTIVE_INVALID:
                             logger.error("Too many consecutive invalid models - stopping iteration")
                             self.debug_messages.append("Too many consecutive invalid models - stopping iteration")
+                            
+                            # Record incomplete search due to invalid models
+                            search_duration = time.time() - self.current_search_start
+                            self.search_stats.append(SearchStatistics(
+                                model_number=len(self.model_structures) + 1,
+                                found=False,
+                                isomorphic_skipped=self.current_search_skipped,
+                                models_checked=self.current_search_checked,
+                                search_duration=search_duration,
+                                termination_reason="too many consecutive invalid models"
+                            ))
                             break
                         continue
                         
@@ -159,6 +205,17 @@ class IteratorCore:
                         if consecutive_invalid_count >= MAX_CONSECUTIVE_INVALID:
                             logger.error("Too many consecutive invalid models - stopping iteration")
                             self.debug_messages.append("Too many consecutive invalid models - stopping iteration")
+                            
+                            # Record incomplete search due to invalid models
+                            search_duration = time.time() - self.current_search_start
+                            self.search_stats.append(SearchStatistics(
+                                model_number=len(self.model_structures) + 1,
+                                found=False,
+                                isomorphic_skipped=self.current_search_skipped,
+                                models_checked=self.current_search_checked,
+                                search_duration=search_duration,
+                                termination_reason="too many consecutive invalid models"
+                            ))
                             break
                         continue
                         
@@ -171,6 +228,7 @@ class IteratorCore:
                     
                     if is_isomorphic:
                         self.isomorphic_model_count += 1
+                        self.current_search_skipped += 1
                         logger.info(f"Found isomorphic model #{self.checked_model_count} - will try different constraints")
                         # Generate stronger constraint to avoid this specific isomorphic model
                         stronger_constraint = constraint_gen.create_stronger_constraint(isomorphic_model)
@@ -180,9 +238,25 @@ class IteratorCore:
                         
                     # Found a genuinely new model
                     consecutive_invalid_count = 0  # Reset counter
+                    
+                    # Record search statistics for this model
+                    search_duration = time.time() - self.current_search_start
+                    self.search_stats.append(SearchStatistics(
+                        model_number=len(self.model_structures) + 1,
+                        found=True,
+                        isomorphic_skipped=self.current_search_skipped,
+                        models_checked=self.current_search_checked,
+                        search_duration=search_duration
+                    ))
+                    
                     self.found_models.append(new_model)
                     self.model_structures.append(new_structure)
                     self.current_iteration += 1
+                    
+                    # Reset for next search
+                    self.current_search_skipped = 0
+                    self.current_search_checked = 0
+                    self.current_search_start = time.time()
                     
                     # Calculate differences from previous model
                     from model_checker.iterate.models import DifferenceCalculator
@@ -215,6 +289,16 @@ class IteratorCore:
             logger.info(f"Found {found_count}/{self.max_iterations} distinct models.")
             
         self.stats.set_completion_time(elapsed_time)
+        
+        # Generate and print detailed report
+        report_generator = IterationReportGenerator()
+        report = report_generator.generate_report(
+            self.search_stats, 
+            self.max_iterations, 
+            elapsed_time
+        )
+        print(report)
+        
         return self.model_structures
     
     def get_debug_messages(self):

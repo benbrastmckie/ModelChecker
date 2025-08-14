@@ -899,9 +899,7 @@ class BuildModule:
                     for msg in debug_messages:
                         print(msg)
             
-            # Print enhanced termination summary
-            termination_info = self._get_termination_info(example, distinct_count, expected_total)
-            print(termination_info)
+            # Termination info is now handled by the iterator's detailed report
             
             # Check if there was any partial output
             if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):
@@ -978,9 +976,7 @@ class BuildModule:
             import traceback
             traceback.print_exc()
         
-        # Print summary after iteration completes with enhanced information
-        termination_info = self._get_termination_info(example, distinct_count + 1, iterate_count)
-        print(termination_info)
+        # Termination info is now handled by the iterator's detailed report
         
     def _get_termination_info(self, example, found_count, requested_count):
         """Generate comprehensive termination message.
