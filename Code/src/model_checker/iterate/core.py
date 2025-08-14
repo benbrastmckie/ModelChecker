@@ -398,6 +398,7 @@ class BaseModelIterator:
             elapsed_time,
             initial_time
         )
+        # Print report directly - progress.finish() already moved to next line
         print(report)
         
         # Sync the debug messages back to IteratorCore

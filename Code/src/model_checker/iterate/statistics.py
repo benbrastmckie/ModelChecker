@@ -39,12 +39,12 @@ class SearchStatistics:
             plural = 's' if self.isomorphic_skipped != 1 else ''
             return (f"Model {self.model_number}: Found after skipping "
                    f"{self.isomorphic_skipped} isomorphic model{plural} "
-                   f"({self.search_duration:.1f}s)")
+                   f"({self.search_duration:.2f}s)")
         else:
             reason = self.termination_reason or "exhausted search space"
             return (f"Model {self.model_number}: Not found - {reason} "
                    f"after checking {self.models_checked} models "
-                   f"({self.search_duration:.1f}s)")
+                   f"({self.search_duration:.2f}s)")
 
 
 class IterationReportGenerator:
@@ -65,10 +65,10 @@ class IterationReportGenerator:
             Formatted report string
         """
         lines = []
-        lines.append("ITERATION SEARCH SUMMARY")
+        lines.append("ITERATION REPORT")
         
         # Model 1 shows actual search time
-        lines.append(f"    Model 1: Initial model ({initial_search_time:.1f}s)")
+        lines.append(f"    Model 1: Initial model ({initial_search_time:.2f}s)")
         
         # Report on each search with indentation
         for stat in search_stats:
@@ -83,7 +83,7 @@ class IterationReportGenerator:
         plural_models = 's' if total_skipped != 1 else ''
         lines.append(f"\nTotal: {total_found}/{total_requested} models found, "
                     f"{total_skipped} isomorphic model{plural_models} skipped, "
-                    f"{total_elapsed:.1f}s elapsed")
+                    f"{total_elapsed:.2f}s elapsed")
         
         # Add final divider
         lines.append("\n" + "="*40)
