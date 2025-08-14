@@ -276,7 +276,6 @@ class WitnessSemantics(SemanticDefaults):
         'fusion_closure': False,
         'iterate': 1,
         'iteration_timeout': 1.0,
-        'iteration_attempts': 5,
         'max_time': 1,
         'expectation': None,
     }
@@ -762,7 +761,6 @@ class WitnessModelAdapter(ModelDefaults):
         'fusion_closure': False,
         'iterate': 1,
         'iteration_timeout': 1.0,
-        'iteration_attempts': 5,
         'max_time': 1,
         'expectation': None,
     }

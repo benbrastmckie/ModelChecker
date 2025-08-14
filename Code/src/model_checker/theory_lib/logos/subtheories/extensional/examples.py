@@ -73,13 +73,13 @@ EXT_CM_1_example = [
 EXT_CM_2_premises = ['B', '(A \\rightarrow B)']
 EXT_CM_2_conclusions = ['A']
 EXT_CM_2_settings = {
-    'N': 3,
+    'N': 4,
     'contingent': True,
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
     'max_time': 1,
-    'iterate': 2,
+    'iterate': 3,
     'expectation': True,
 }
 EXT_CM_2_example = [

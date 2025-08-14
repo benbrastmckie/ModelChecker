@@ -97,7 +97,7 @@ CL_CM_2_example = [
 CL_CM_3_premises = ['(A \\leq B)','(C \\leq D)']
 CL_CM_3_conclusions = ['((A \\wedge C) \\leq (B \\wedge D))']
 CL_CM_3_settings = {
-    'N': 3,
+    'N': 4,
     'contingent': True,
     'non_null': True,
     'non_empty': True,
@@ -818,7 +818,7 @@ example_range = {
     # "CL_TH_7": CL_TH_7_example,   # NEGATION TRANSPARENCY
     # "CL_TH_8": CL_TH_8_example,   # REVERSE NEGATION TRANSPARENCY
     # "CL_TH_9": CL_TH_9_example,   # ABSORPTION IDENTITY
-    "CL_TH_10": CL_TH_10_example, # ABSORPTION REDUCTION: CONJUNCTION OVER DISJUNCTION
+    # "CL_TH_10": CL_TH_10_example, # ABSORPTION REDUCTION: CONJUNCTION OVER DISJUNCTION
     # "CL_TH_11": CL_TH_11_example, # ABSORPTION REDUCTION: DISJUNCTION OVER CONJUNCTION
     # "CL_TH_12": CL_TH_12_example, # DISTRIBUTION REDUCTION: DISJUNCTION OVER CONJUNCTION
     # "CL_TH_13": CL_TH_13_example, # DISTRIBUTION REDUCTION: CONJUNCTION OVER DISJUNCTION

@@ -185,7 +185,7 @@ EX_CM_6_settings = {
     'disjoint' : False,
     'fusion_closure': False,
     'max_time' : 5,
-    'iterate' : 2,
+    'iterate' : 3,
     'expectation' : True,
 }
 EX_CM_6_example = [
@@ -959,7 +959,7 @@ example_range = {
     
     # Basic countermodel examples
     # "EX_CM_21": EX_CM_21_example,  # BASIC TEST
-    "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
+    # "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
     
     # # Bilateral negation examples (Problematic in static)
     # "EX_CM_4": EX_CM_4_example,    # NEGATION TO SENTENCE (FALSE PREMISE PROBLEM)

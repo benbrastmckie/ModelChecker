@@ -51,6 +51,8 @@ class TestGeneratorInterface:
         mock_solver.assertions.return_value = []
         example.model_structure.solver = mock_solver
         example.model_structure.z3_model = Mock()
+        example.model_structure.z3_model_runtime = 0.01  # Add runtime for report generation
+        example.model_structure._search_duration = 0.01  # Fallback for report generation
         
         # Mock semantic theory
         example.semantic_theory = {

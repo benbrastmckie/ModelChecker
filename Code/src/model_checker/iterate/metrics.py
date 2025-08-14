@@ -74,9 +74,17 @@ class IterationProgress:
         
         if message:
             sys.stdout.write(f"\r{message}\n")
-        elif add_newline:
-            # Just move to next line
-            sys.stdout.write("\n")
+        else:
+            # Clear the progress line
+            try:
+                terminal_width = os.get_terminal_size().columns
+            except:
+                terminal_width = 100
+            sys.stdout.write(f"\r{' ' * (terminal_width - 1)}\r")
+            
+            if add_newline:
+                # Move to next line
+                sys.stdout.write("\n")
         sys.stdout.flush()
 
 

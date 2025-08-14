@@ -168,6 +168,8 @@ def create_mock_example():
     mock_structure.z3_possible_states = [z3.BitVecVal(0, 4), z3.BitVecVal(1, 4)]
     mock_structure.sentence_letters = []
     mock_structure.semantics = Mock()
+    mock_structure.z3_model_runtime = 0.05  # Add runtime for report generation
+    mock_structure._search_duration = 0.05  # Fallback for report generation
     
     # Mock model constraints (required for constraint preservation)
     mock_constraints = Mock()

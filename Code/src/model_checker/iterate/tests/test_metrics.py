@@ -29,7 +29,7 @@ class TestIterationProgress:
         assert "Finding models" in captured.out
         assert "[██████████" in captured.out  # Partial progress bar
         assert "1/3" in captured.out
-        assert "(checked 2)" in captured.out
+        assert "(skipped 2)" in captured.out
     
     def test_finish_with_message(self, capsys):
         """Test finishing progress with a message."""

@@ -39,7 +39,6 @@ class LogosSemantics(SemanticDefaults):
         'max_time': 10,
         'iterate': False,
         'iteration_timeout': 5,
-        'iteration_attempts': 15,
         'expectation': None,
     }
     
@@ -1032,7 +1031,7 @@ class LogosModelStructure(ModelDefaults):
                 print(f"  {bin_rep} = {state}{label_str}", file=output)
         
         # Print formatted state space
-        print("State Space:", file=output)
+        print("\nState Space:", file=output)
         for bit in self.all_states:
             state = bitvec_to_substates(bit, self.N)
             bin_rep = binary_bitvector(bit)
