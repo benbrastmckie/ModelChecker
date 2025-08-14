@@ -53,7 +53,7 @@ class IteratorCore:
         self.current_iteration = 1  # First model is already found
         
         # Initialize progress tracking and statistics
-        self.progress = IterationProgress(self.max_iterations, "Finding models")
+        self.progress = IterationProgress(self.max_iterations, "Finding non-isomorphic models")
         self.stats = IterationStatistics()
         
         # Store the initial model and model structure
@@ -251,7 +251,7 @@ class IteratorCore:
         self.checked_model_count = 1
         
         # Reset progress and statistics
-        self.progress = IterationProgress(self.max_iterations, "Finding models")
+        self.progress = IterationProgress(self.max_iterations, "Finding non-isomorphic models")
         self.stats = IterationStatistics()
         self.stats.add_model(self.build_example.model_structure, {})
         
