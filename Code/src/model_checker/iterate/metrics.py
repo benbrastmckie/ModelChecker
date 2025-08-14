@@ -199,11 +199,11 @@ class TerminationManager:
         if current_iteration >= max_iterations:
             return True, f"Found all {max_iterations} requested models"
         
-        # Check timeout
-        if self.start_time is not None:
-            elapsed = time.time() - self.start_time
-            if elapsed > self.timeout:
-                return True, f"Timeout ({self.timeout}s) reached after {elapsed:.1f}s"
+        # Skip global timeout check - we handle per-model timeouts separately
+        # if self.start_time is not None:
+        #     elapsed = time.time() - self.start_time
+        #     if elapsed > self.timeout:
+        #         return True, f"Timeout ({self.timeout}s) reached after {elapsed:.1f}s"
         
         # Check consecutive invalid models
         if consecutive_invalid_count >= self.max_consecutive_invalid:
