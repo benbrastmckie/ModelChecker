@@ -128,33 +128,32 @@ def is_alternative(self, u, x, w):
 The framework provides modular operators across five subtheories:
 
 ### Extensional Operators
-- `\\neg` - Negation (swaps verifiers/falsifiers)
-- `\\wedge` - Conjunction (fuses verifiers, distributes falsifiers)
-- `\\vee` - Disjunction (distributes verifiers, fuses falsifiers)
-- `\\rightarrow` - Material conditional
-- `\\leftrightarrow` - Biconditional
-- `\\top` - Tautology (always true)
-- `\\bot` - Contradiction (always false)
+- `¬` - Negation (swaps verifiers/falsifiers)
+- `∧` - Conjunction (fuses verifiers, distributes falsifiers)
+- `∨` - Disjunction (distributes verifiers, fuses falsifiers)
+- `→` - Material conditional
+- `↔` - Biconditional
+- `⊤` - Tautology (always true)
+- `⊥` - Contradiction (always false)
 
 ### Modal Operators
-- `\\Box` - Necessity (true at all worlds)
-- `\\Diamond` - Possibility (true at some world)
+- `□` - Necessity (true at all worlds)
+- `◇` - Possibility (true at some world)
 
 ### Counterfactual Operators
-- `\\boxright` - Would counterfactual (A ⇒ B)
-- `\\diamondright` - Might counterfactual (A ◊→ B)
+- `□→` - Would counterfactual
+- `◇→` - Might counterfactual
 
 ### Constitutive Operators
-- `\\sqsubseteq` - Grounding (A grounds B)
-- `\\preceq` - Essence (A is essential to B)
-- `\\equiv` - Constitutive equivalence
-- `\\leq` - Parthood/relevance
+- `≤` - Grounding (A grounds B)
+- `⊑` - Essence (A is essential to B)
+- `≡` - Constitutive equivalence
 
 ### Theory Examples
 
 #### Hyperintensional Counterfactuals
 
-Test counterfactual reasoning that distinguishes between necessarily equivalent propositions.
+The counterfactual conditional operator is of intermediate strength between the strict and material conditionals.
 
 **Example 1: Counterfactual Antecedent Strengthening (Invalid)**
 
@@ -162,7 +161,7 @@ Test counterfactual reasoning that distinguishes between necessarily equivalent 
 # Enable specific examples in examples.py
 example_range = {
     "CF_CM_1": CF_CM_1_example,   # Antecedent strengthening
-    "CF_CM_16": CF_CM_16_example,  # Simplification of disjunctive consequent
+    "CF_TH_5": CF_TH_5_example,    # Simplification of disjunctive antecedent
 }
 
 # Run the examples
@@ -174,110 +173,44 @@ Output for CF_CM_1:
 EXAMPLE CF_CM_1: there is a countermodel.
 
 Premises:
-1. \neg A
-2. (A \boxright C)
+1. ¬A
+2. (A □→ C)
 
 Conclusion:
-3. ((A \wedge B) \boxright C)
+3. ((A ∧ B) □→ C)
 
 The evaluation world is: b.c
 
 INTERPRETED PREMISES:
 1. |¬A| = < {b.c}, {a, a.b.c.d} > (True in b.c)
-2. |(A ⇒ C)| = < {a.c, b.c}, {a.d} > (True in b.c)
+2. |(A □→ C)| = < {a.c, b.c}, {a.d} > (True in b.c)
      |A|-alternatives to b.c = {a.c}
      |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} > (True in a.c)
 
 INTERPRETED CONCLUSION:
-3. |((A ∧ B) ⇒ C)| = < {}, {a.c, a.d, b.c} > (False in b.c)
+3. |((A ∧ B) □→ C)| = < {}, {a.c, a.d, b.c} > (False in b.c)
      |(A ∧ B)|-alternatives to b.c = {a.d}
      |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} > (False in a.d)
 ```
 
-This shows that "If A were true then C" doesn't entail "If A and B were true then C" - the additional condition B can change which alternatives are relevant.
+This shows that "If A were true then C" doesn't entail "If A and B were true then C" since the additional condition B can change which alternatives are relevant to quantify over. For instance, just the match would light if it were struck, it does not follow that it would light if struck when wet.
 
-**Example 2: Simplification of Disjunctive Consequent (Invalid)**
+**Example 2: Simplification of Disjunctive Antecedent (Valid Theorem)**
 
-Output for CF_CM_16:
+Output for CF_TH_5:
 ```
-EXAMPLE CF_CM_16: there is a countermodel.
-
-Premises:
-1. \neg A
-2. (A \boxright (B \vee C))
-
-Conclusions:
-3. (A \boxright B)
-4. (A \boxright C)
-
-INTERPRETED PREMISES:
-2. |(A ⇒ (B ∨ C))| = < {a.b.c, a.b.d, a.c.d, b.c.d}, {} > (True)
-     |A|-alternatives = {a.b.c, a.b.d, a.c.d}
-     |(B ∨ C)| is true at all A-alternatives
-
-INTERPRETED CONCLUSIONS:
-3. |(A ⇒ B)| = < {}, {a.b.c, a.b.d, a.c.d, b.c.d} > (False)
-     B is true at a.c.d but false at a.b.d and a.b.c
-
-4. |(A ⇒ C)| = < {a.b.c}, {a.b.d, a.c.d, b.c.d} > (False)
-     C is true at a.b.d and a.b.c but false at a.c.d
-```
-
-This countermodel shows that "If A were true, then B or C" doesn't entail both "If A were true, then B" and "If A were true, then C".
-
-#### Constitutive Explanatory Relations
-
-Test grounding and essence operators that capture metaphysical explanation.
-
-**Example 3: Ground Conjunction Supplementation (Invalid)**
-
-```python
-# Enable specific examples in examples.py
-example_range = {
-    "CL_CM_3": CL_CM_3_example,   # Ground conjunction supplementation
-    "CL_TH_10": CL_TH_10_example,  # Absorption reduction theorem
-}
-
-# Run the examples
-./dev_cli.py src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
-```
-
-Output for CL_CM_3:
-```
-EXAMPLE CL_CM_3: there is a countermodel.
-
-Premises:
-1. (A \leq B)
-2. (C \leq D)
-
-Conclusion:
-3. ((A \wedge C) \leq (B \wedge D))
-
-INTERPRETED PREMISES:
-1. |(A ≤ B)| = < {□}, {} > (True)
-2. |(C ≤ D)| = < {□}, {} > (True)
-
-INTERPRETED CONCLUSION:
-3. |((A ∧ C) ≤ (B ∧ D))| = < {}, {□} > (False)
-```
-
-This shows that grounding doesn't distribute over conjunction - A grounds B and C grounds D doesn't mean (A∧C) grounds (B∧D).
-
-**Example 4: Absorption Reduction (Valid Theorem)**
-
-Output for CL_TH_10:
-```
-EXAMPLE CL_TH_10: there is no countermodel.
+EXAMPLE CF_TH_5: there is no countermodel.
 
 Premise:
+1. ((A ∨ B) □→ C)
 
 Conclusion:
-1. (A \Rightarrow (A \wedge (A \vee B)))
+2. (A □→ C)
 
-Z3 Run Time: 0.0735 seconds
+Z3 Run Time: 0.0342 seconds
 ```
 
-This theorem shows that A reduces to its conjunction with (A∨B) - a fundamental principle of absorption in constitutive logic.
+This theorem shows that counterfactuals satisfy simplification of disjunctive antecedent: assuming C would be the case if either A or B were the case, it follows that C would be the case if A alone were the case (similarly for for B).
 
 ### Running Examples
 
@@ -300,12 +233,12 @@ The examples above use different semantic theories implemented in the framework:
 
 ## Counterfactual Operator Implementation
 
-The counterfactual operator (⇒) demonstrates the framework's approach:
+The counterfactual operator (□→) demonstrates the framework's approach:
 
 ### Truth Conditions
 ```python
 def true_at(self, leftarg, rightarg, eval_point):
-    """A ⇒ B is true at w iff:
+    """A □→ B is true at w iff:
     For all verifiers x of A and all x-alternatives u to w,
     B is true at u"""
     return ForAll([x, u],
@@ -319,7 +252,7 @@ def true_at(self, leftarg, rightarg, eval_point):
 ### Falsity Conditions
 ```python
 def false_at(self, leftarg, rightarg, eval_point):
-    """A ⇒ B is false at w iff:
+    """A □→ B is false at w iff:
     There exists a verifier x of A and x-alternative u to w
     where B is false at u"""
     return Exists([x, u],
@@ -405,9 +338,9 @@ GPL-3.0 - see [LICENSE](https://github.com/benbrastmckie/ModelChecker/blob/maste
 
 ModelChecker provides a framework for developing, testing, and comparing semantic theories for logical operators. The current implementation focuses on the objective fragment of the language, with operators for:
 
-- **Extensional logic**: Classical connectives (∧, ∨, ¬, →, ↔)
+- **Extensional logic**: Classical connectives (∧, ∨, ¬, □→, ↔)
 - **Modal logic**: Necessity and possibility (□, ◇)
-- **Counterfactual logic**: Would and might counterfactuals (⇒, ◊→)
+- **Counterfactual logic**: Would and might counterfactuals (□→, ◇→)
 - **Constitutive logic**: Grounding, essence, and identity (≤, ⊑, ≡)
 
 ### Current State and Future Directions
@@ -418,14 +351,9 @@ The framework currently implements operators from the **objective language**, wi
 - **Tested** against known theorems and countermodels
 - **Compared** with other theories to explore logical relationships
 
-The **bimodal theory** provides a purely intensional treatment of temporal-modal interaction, where worlds are functions from times to world states. This demonstrates how temporal and modal dimensions interact correctly in an intensional setting.
+The **bimodal theory** provides a purely intensional treatment of temporal and modal operators, where worlds are functions from times to world states that respect a primitive task relation that specifies which transitions between states are possible.
 
-Future work will integrate this temporal dimension into the Logos framework, completing the implementation of the **hyperintensional semantics** developed in Brast-McKie (2025). This will enable:
-
-- Temporal operators within the hyperintensional framework
-- Dynamic counterfactuals tracking change over time
-- Time-indexed grounding and essence relations
-- Full integration of tense, modality, and hyperintensional operators
+Future work will integrate this temporal dimension into the Logos framework, completing the implementation of the **hyperintensional semantics** developed in Brast-McKie (2025).
 
 ### Research Applications
 
