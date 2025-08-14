@@ -13,19 +13,37 @@ class TestLogosGeneratorInterface:
         # Get logos theory
         theory = get_theory()
         
-        # Create simple example that should have multiple models
-        from model_checker.builder.module import BuildModule
-        module = BuildModule.__new__(BuildModule)
-        module.theory_name = 'logos'
+        # Use run_test to properly set up the example
+        from model_checker import run_test, ModelConstraints, Syntax
+        from model_checker.theory_lib.logos.semantic import LogosSemantics, LogosProposition, LogosModelStructure
+        from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
+        
+        # Create operator registry
+        registry = LogosOperatorRegistry()
+        registry.load_subtheories(['extensional', 'modal'])
         
         example_case = [
-            ["P or Q"],  # premises
-            ["P"],       # conclusions (countermodel expected)
-            {"N": 3}     # settings
+            ["P"],  # premises
+            ["Q"],  # conclusions (countermodel expected)  
+            {"N": 3, "expectation": True, "contingent": False, "non_empty": False, "disjoint": False, "non_null": False, "max_time": 10}  # settings with expectation for countermodel
         ]
         
-        # Build example
-        example = BuildExample(module, theory, example_case, 'logos')
+        # Run the test to build initial model
+        test_result = run_test(
+            example_case,
+            LogosSemantics,
+            LogosProposition,
+            registry.get_operators(),
+            Syntax,
+            ModelConstraints,
+            LogosModelStructure,
+        )
+        
+        # Get the example from test result's state
+        # run_test creates model_result which has the example
+        from model_checker.state import get_model_results
+        model_result = get_model_results()[0]
+        example = model_result.build_example
         
         # Check initial model found
         assert example.model_structure is not None
@@ -56,18 +74,36 @@ class TestLogosGeneratorInterface:
         # Get logos theory
         theory = get_theory()
         
-        # Create simple example
-        from model_checker.builder.module import BuildModule
-        module = BuildModule.__new__(BuildModule)
-        module.theory_name = 'logos'
+        # Use run_test to properly set up the example
+        from model_checker import run_test, ModelConstraints, Syntax
+        from model_checker.theory_lib.logos.semantic import LogosSemantics, LogosProposition, LogosModelStructure
+        from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
+        
+        # Create operator registry
+        registry = LogosOperatorRegistry()
+        registry.load_subtheories(['extensional'])
         
         example_case = [
             ["P"],       # premises
             ["Q"],       # conclusions (countermodel expected)
-            {"N": 2}     # smaller for faster test
+            {"N": 2, "expectation": True, "contingent": False, "non_empty": False, "disjoint": False, "non_null": False, "max_time": 10}     # smaller for faster test
         ]
         
-        example = BuildExample(module, theory, example_case, 'logos')
+        # Run the test to build initial model
+        test_result = run_test(
+            example_case,
+            LogosSemantics,
+            LogosProposition,
+            registry.get_operators(),
+            Syntax,
+            ModelConstraints,
+            LogosModelStructure,
+        )
+        
+        # Get the example from test result's state
+        from model_checker.state import get_model_results
+        model_result = get_model_results()[0]
+        example = model_result.build_example
         
         # Get generator
         gen = iterate_example_generator(example, max_iterations=2)

@@ -43,7 +43,7 @@ model-checker -l bimodal   # Temporal-modal logic
 
 The framework defines semantic theories by extending the base `SemanticDefaults` class:
 
-### Primitives
+### Semantic Primitives
 
 ```python
 class LogosSemantics(SemanticDefaults):
