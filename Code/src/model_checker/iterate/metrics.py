@@ -7,6 +7,7 @@ collection into a unified interface for monitoring and controlling the iteration
 import time
 import logging
 import sys
+import os
 from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
@@ -42,11 +43,23 @@ class IterationProgress:
         bar = "█" * filled + "░" * (bar_length - filled)
         
         # Format message
-        msg = f"\r{self.desc}: [{bar}] {found}/{self.total} "
+        msg = f"{self.desc}: [{bar}] {found}/{self.total} "
         msg += f"(checked {checked}) {elapsed:.1f}s"
         
-        # Write to stdout
-        sys.stdout.write(msg)
+        # Clear the line first to prevent stacking
+        # Pad with spaces to clear any remaining characters
+        try:
+            terminal_width = os.get_terminal_size().columns
+        except:
+            terminal_width = 100  # Safe default
+        
+        # Ensure message doesn't wrap by truncating if needed
+        if len(msg) > terminal_width - 1:
+            msg = msg[:terminal_width - 4] + "..."
+        
+        # Pad with spaces to clear the rest of the line
+        padded_msg = f"\r{msg.ljust(terminal_width - 1)}"
+        sys.stdout.write(padded_msg)
         sys.stdout.flush()
     
     def finish(self, message: Optional[str] = None):
