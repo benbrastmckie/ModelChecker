@@ -885,7 +885,7 @@ class LogosModelStructure(ModelDefaults):
                 total_time = round(time.time() - self.start_time, 4) 
                 print(f"Total Run Time: {total_time} seconds", file=output)
             # Always print closing separator for countermodels  
-            print(f"\n{'='*40}\n", file=output)
+            print(f"\n{'='*40}", file=output)
             return
 
     def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
