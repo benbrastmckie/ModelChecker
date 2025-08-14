@@ -883,9 +883,9 @@ class LogosModelStructure(ModelDefaults):
             self.print_model(output)
             if output is sys.__stdout__:
                 total_time = round(time.time() - self.start_time, 4) 
-                print(f"Total Run Time: {total_time} seconds\n", file=output)
-            # Always print closing separator for countermodels
-            print(f"\n{'='*40}", file=output)
+                print(f"Total Run Time: {total_time} seconds", file=output)
+            # Always print closing separator for countermodels  
+            print(f"\n{'='*40}\n", file=output)
             return
 
     def print_to(self, default_settings, example_name, theory_name, print_constraints=None, output=sys.__stdout__):
@@ -943,50 +943,53 @@ class LogosModelStructure(ModelDefaults):
         print(f"\n{YELLOW}=== DIFFERENCES FROM PREVIOUS MODEL ==={RESET}\n", file=output)
         
         # Print world changes
-        if diffs.get('worlds', {}).get('added') or diffs.get('worlds', {}).get('removed'):
+        if diffs.get('world_changes', {}).get('added') or diffs.get('world_changes', {}).get('removed'):
             print(f"{BLUE}World Changes:{RESET}", file=output)
-            for world in diffs['worlds'].get('added', []):
+            for world in diffs.get('world_changes', {}).get('added', []):
                 world_str = bitvec_to_substates(world, self.N)
                 print(f"  {GREEN}+ {world_str} (now a world){RESET}", file=output)
-            for world in diffs['worlds'].get('removed', []):
+            for world in diffs.get('world_changes', {}).get('removed', []):
                 world_str = bitvec_to_substates(world, self.N)
                 print(f"  {RED}- {world_str} (no longer a world){RESET}", file=output)
             print("", file=output)
         
         # Print possible state changes
-        if diffs.get('possible_states', {}).get('added') or diffs.get('possible_states', {}).get('removed'):
+        if diffs.get('possible_changes', {}).get('added') or diffs.get('possible_changes', {}).get('removed'):
             print(f"{BLUE}Possible State Changes:{RESET}", file=output)
-            for state in diffs['possible_states'].get('added', []):
+            for state in diffs.get('possible_changes', {}).get('added', []):
                 state_str = bitvec_to_substates(state, self.N)
                 print(f"  {GREEN}+ {state_str} (now possible){RESET}", file=output)
-            for state in diffs['possible_states'].get('removed', []):
+            for state in diffs.get('possible_changes', {}).get('removed', []):
                 state_str = bitvec_to_substates(state, self.N)
                 print(f"  {RED}- {state_str} (now impossible){RESET}", file=output)
             print("", file=output)
         
-        # Print verification changes
-        if diffs.get('verify'):
-            print(f"{BLUE}Verification Changes:{RESET}", file=output)
-            for letter, state_changes in diffs['verify'].items():
-                print(f"  Letter {letter}:", file=output)
-                for state_str, change in state_changes.items():
-                    if change['new']:
-                        print(f"    {GREEN}+ {state_str} now verifies {letter}{RESET}", file=output)
-                    else:
-                        print(f"    {RED}- {state_str} no longer verifies {letter}{RESET}", file=output)
-            print("", file=output)
-        
-        # Print falsification changes
-        if diffs.get('falsify'):
-            print(f"{BLUE}Falsification Changes:{RESET}", file=output)
-            for letter, state_changes in diffs['falsify'].items():
-                print(f"  Letter {letter}:", file=output)
-                for state_str, change in state_changes.items():
-                    if change['new']:
-                        print(f"    {GREEN}+ {state_str} now falsifies {letter}{RESET}", file=output)
-                    else:
-                        print(f"    {RED}- {state_str} no longer falsifies {letter}{RESET}", file=output)
-            print("", file=output)
+        # Print atomic changes (verify/falsify)
+        if diffs.get('atomic_changes'):
+            atomic = diffs.get('atomic_changes', {})
+            # Print verification changes
+            if atomic.get('verify'):
+                print(f"{BLUE}Verification Changes:{RESET}", file=output)
+                for letter, state_changes in atomic['verify'].items():
+                    print(f"  Letter {letter}:", file=output)
+                    for state_str, change in state_changes.items():
+                        if change['new']:
+                            print(f"    {GREEN}+ {state_str} now verifies {letter}{RESET}", file=output)
+                        else:
+                            print(f"    {RED}- {state_str} no longer verifies {letter}{RESET}", file=output)
+                print("", file=output)
+            
+            # Print falsification changes
+            if atomic.get('falsify'):
+                print(f"{BLUE}Falsification Changes:{RESET}", file=output)
+                for letter, state_changes in atomic['falsify'].items():
+                    print(f"  Letter {letter}:", file=output)
+                    for state_str, change in state_changes.items():
+                        if change['new']:
+                            print(f"    {GREEN}+ {state_str} now falsifies {letter}{RESET}", file=output)
+                        else:
+                            print(f"    {RED}- {state_str} no longer falsifies {letter}{RESET}", file=output)
+                print("", file=output)
         
         # Print parthood changes
         if diffs.get('parthood'):

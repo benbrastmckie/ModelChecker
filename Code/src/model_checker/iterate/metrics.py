@@ -21,11 +21,16 @@ class IterationProgress:
         self.desc = desc
         self.start_time = time.time()
         self.enabled = True  # Always show for testing  # sys.stdout.isatty()  # Only show in terminal
+        self._first_update = True
     
     def update(self, found: int, checked: int):
         """Update progress display."""
         if not self.enabled:
             return
+        
+        # Don't add spacing before first update - handled by BuildModule
+        if self._first_update:
+            self._first_update = False
         
         self.current = found
         elapsed = time.time() - self.start_time
@@ -52,6 +57,7 @@ class IterationProgress:
         if message:
             sys.stdout.write(f"\r{message}\n")
         else:
+            # Just move to next line
             sys.stdout.write("\n")
         sys.stdout.flush()
 

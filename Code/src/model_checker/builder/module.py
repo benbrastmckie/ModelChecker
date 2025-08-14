@@ -761,10 +761,8 @@ class BuildModule:
             # Override iterate count with user's choice (plus 1 for the model already shown)
             iterate_count = user_iterations + 1
         else:
-            # Print the first model with numbering if we're iterating
-            if iterate_count > 1:
-                print(f"\nMODEL 1/{iterate_count}")
-                
+            # In batch mode, just print the first model without numbering
+            # The numbering starts with the second model from iteration
             self._capture_and_save_output(example, example_name, theory_name)
             
             # Return if we don't need to iterate in batch mode
@@ -820,7 +818,7 @@ class BuildModule:
                     # For the first model, just print it
                     if distinct_count == 1:
                         # Print model header
-                        print(f"\nMODEL {distinct_count}/{expected_total}")
+                        print(f"MODEL {distinct_count}/{expected_total}")
                         
                         # Set the current model structure
                         example.model_structure = structure
@@ -869,7 +867,7 @@ class BuildModule:
                             print(f"Error printing model differences: {str(e)}")
                                 
                         # Print model header
-                        print(f"\nMODEL {distinct_count}/{expected_total}")
+                        print(f"MODEL {distinct_count}/{expected_total}")
                         
                         # Set the current model structure
                         example.model_structure = structure
@@ -898,7 +896,7 @@ class BuildModule:
                     for msg in debug_messages:
                         print(msg)
             
-            print(f"\nFound {distinct_count}/{expected_total} distinct models.")
+            print(f"Found {distinct_count}/{expected_total} distinct models.")
             
             # Check if there was any partial output
             if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):
@@ -926,7 +924,7 @@ class BuildModule:
         model_generator = theory_iterate_example(example, max_iterations=iterate_count)
         
         # Track distinct models
-        distinct_count = 1  # First model already displayed
+        distinct_count = 0  # Will increment when we find the first additional model
         previous_model = example.model_structure
         
         try:
@@ -938,27 +936,25 @@ class BuildModule:
                     
                 distinct_count += 1
                 
-                # Calculate differences if not already done
+                # Always print differences from previous model (except for the first additional model)
                 if previous_model:
-                    # Ensure model_differences are calculated
-                    if not hasattr(structure, 'model_differences') or structure.model_differences is None:
-                        if hasattr(structure, 'detect_model_differences'):
-                            structure.model_differences = structure.detect_model_differences(previous_model)
-                            structure.previous_structure = previous_model
-                        elif hasattr(structure, 'calculate_model_differences'):
-                            # Legacy support
-                            structure.model_differences = structure.calculate_model_differences(previous_model)
-                            structure.previous_structure = previous_model
-                    
                     # Print differences using structure's method
                     if hasattr(structure, 'print_model_differences'):
                         print("\033[1m\033[0m", end="")  # Force ANSI escape sequence processing
                         structure.print_model_differences()
                     else:
-                        print("Error: Theory does not provide print_model_differences method")
+                        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===")
+                        if hasattr(structure, 'model_differences') and structure.model_differences:
+                            # Basic difference display if no custom method
+                            from model_checker.iterate.metrics import ResultFormatter
+                            formatter = ResultFormatter()
+                            diff_report = formatter.format_difference_report(structure.model_differences)
+                            print(diff_report)
+                        else:
+                            print("(No differences calculated)")
                 
-                # Print model header
-                print(f"\nMODEL {distinct_count}/{iterate_count}")
+                # Print model header - now showing correct numbering (2/4, 3/4, 4/4)
+                print(f"MODEL {distinct_count + 1}/{iterate_count}")
                 
                 # Update example with new model
                 example.model_structure = structure
@@ -976,6 +972,9 @@ class BuildModule:
             print(f"Error during iteration: {e}", file=sys.stderr)
             import traceback
             traceback.print_exc()
+        
+        # Print summary after iteration completes
+        print(f"Found {distinct_count + 1}/{iterate_count} distinct models.")
         
     def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
         """Process multiple iterations of model checking for a given example.

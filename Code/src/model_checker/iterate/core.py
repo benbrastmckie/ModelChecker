@@ -185,7 +185,7 @@ class BaseModelIterator:
                 # Update old progress system if still in use (only if no unified progress)
                 if not self.search_progress:
                     self.progress.update(
-                        len(self.model_structures), 
+                        len(self.model_structures) + 1,  # Show the model number we're looking for
                         self.checked_model_count
                     )
                 
@@ -301,6 +301,12 @@ class BaseModelIterator:
                     
                     logger.info(f"Found distinct model #{len(self.model_structures)}")
                     
+                    # Clear the progress line before yielding
+                    if not self.search_progress:
+                        # Just add a newline to move past the progress bar
+                        sys.stdout.write("\n")
+                        sys.stdout.flush()
+                    
                     # YIELD the model instead of just collecting
                     yield new_structure
                     
@@ -385,7 +391,7 @@ class BaseModelIterator:
                 
                 # Update progress
                 self.progress.update(
-                    len(self.model_structures), 
+                    len(self.model_structures) + 1,  # Show the model number we're looking for
                     self.checked_model_count
                 )
                 
