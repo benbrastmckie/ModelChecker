@@ -60,7 +60,7 @@ CF_CM_1_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 10,
-    'iterate': 3,
+    'iterate': 2,
     'expectation': True,
 }
 CF_CM_1_example = [

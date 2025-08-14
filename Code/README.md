@@ -14,7 +14,7 @@ A programmatic semantics framework for modal, counterfactual, and hyperintension
 - **Modular Theory Architecture**: Mix and match logical operators from different theories
 - **Hyperintensional Reasoning**: Distinguishes necessarily equivalent propositions
 - **Multiple Model Generation**: Find diverse models satisfying your constraints
-- **Theory Library**: Pre-built theories for modal, counterfactual, and temporal logic
+- **Theory Library**: Pre-built theories to test, adapt, and share with others
 
 ## Installation
 
