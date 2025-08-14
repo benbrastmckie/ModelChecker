@@ -999,14 +999,14 @@ class BuildModule:
             return f"Found {found_count}/{requested_count} distinct models."
         
         # Get basic stats
-        checked_count = getattr(iterator, 'checked_model_count', 0)
+        skipped_count = getattr(iterator, 'isomorphic_model_count', 0)
         elapsed_time = 0.0
         if hasattr(iterator, 'termination_manager'):
             elapsed_time = iterator.termination_manager.get_elapsed_time()
         
         # Base message with stats
         base_msg = f"Found {found_count}/{requested_count} distinct models "
-        base_msg += f"(checked {checked_count} models in {elapsed_time:.1f}s)."
+        base_msg += f"(skipped {skipped_count} isomorphic models in {elapsed_time:.1f}s)."
         
         # Add termination reason
         if found_count == requested_count:

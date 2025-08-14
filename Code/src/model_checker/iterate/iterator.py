@@ -63,6 +63,7 @@ class IteratorCore:
         # Initialize diagnostic tracking
         self.debug_messages = []
         self.checked_model_count = 1
+        self.isomorphic_model_count = 0  # Track skipped isomorphic models
         
         # Initialize stats for the first model
         self.stats.add_model(self.build_example.model_structure, {})
@@ -95,7 +96,7 @@ class IteratorCore:
                 # Update progress
                 self.progress.update(
                     len(self.model_structures), 
-                    self.checked_model_count
+                    self.isomorphic_model_count
                 )
                 
                 # Check timeout
@@ -169,6 +170,7 @@ class IteratorCore:
                     )
                     
                     if is_isomorphic:
+                        self.isomorphic_model_count += 1
                         logger.info(f"Found isomorphic model #{self.checked_model_count} - will try different constraints")
                         # Generate stronger constraint to avoid this specific isomorphic model
                         stronger_constraint = constraint_gen.create_stronger_constraint(isomorphic_model)
