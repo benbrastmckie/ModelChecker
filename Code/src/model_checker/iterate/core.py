@@ -373,7 +373,11 @@ class BaseModelIterator:
         finally:
             # Finish old progress (only if no unified progress)
             if not self.search_progress:
-                self.progress.finish()
+                # Check if we added extra space after the last model
+                # If iterate was requested but we found fewer models, BuildModule
+                # may have added extra space after what turned out to be the last model
+                found_all_requested = len(self.model_structures) >= self.max_iterations
+                self.progress.finish(add_newline=found_all_requested)
             # New progress is managed by BuildModule
             
         # Final summary
@@ -398,8 +402,9 @@ class BaseModelIterator:
             elapsed_time,
             initial_time
         )
-        # Print report directly - progress.finish() already moved to next line
-        print(report)
+        # Print report directly - progress.finish() already added one newline
+        sys.stdout.write(report)
+        sys.stdout.write("\n")  # Add final newline after report
         
         # Sync the debug messages back to IteratorCore
         self.iterator_core.debug_messages = self.debug_messages

@@ -277,7 +277,9 @@ class IteratorCore:
             logger.info("Iteration interrupted by user")
             
         finally:
-            self.progress.finish()
+            # Check if we found all requested models
+            found_all_requested = len(self.model_structures) >= self.max_iterations
+            self.progress.finish(add_newline=found_all_requested)
             
         # Final summary
         elapsed_time = time.time() - iteration_start_time
@@ -301,8 +303,9 @@ class IteratorCore:
             elapsed_time,
             initial_time
         )
-        # Print report directly - progress.finish() already moved to next line
-        print(report)
+        # Print report directly - progress.finish() already added one newline
+        sys.stdout.write(report)
+        sys.stdout.write("\n")  # Add final newline after report
         
         return self.model_structures
     

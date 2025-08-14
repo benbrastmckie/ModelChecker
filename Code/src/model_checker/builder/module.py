@@ -966,7 +966,9 @@ class BuildModule:
                 self._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
                 
                 # Add extra vertical space after non-isomorphic models (except for the last one)
-                # Check if there might be more models coming
+                # Only add space if we're not at the last model we'll actually find
+                # Note: We can't know if more models exist until we try to get the next one
+                # So we always add space unless we've reached the requested count
                 if distinct_count < iterate_count - 1:
                     print()
                 
