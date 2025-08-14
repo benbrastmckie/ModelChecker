@@ -301,6 +301,12 @@ class BaseModelIterator:
                     
                     logger.info(f"Found distinct model #{len(self.model_structures)}")
                     
+                    # Clear the progress line before yielding
+                    if not self.search_progress:
+                        # Just add a newline to move past the progress bar
+                        sys.stdout.write("\n")
+                        sys.stdout.flush()
+                    
                     # YIELD the model instead of just collecting
                     yield new_structure
                     

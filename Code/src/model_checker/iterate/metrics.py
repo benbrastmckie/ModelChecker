@@ -28,9 +28,8 @@ class IterationProgress:
         if not self.enabled:
             return
         
-        # Add a newline before first update for vertical spacing
+        # Don't add spacing before first update - handled by BuildModule
         if self._first_update:
-            sys.stdout.write("\n")
             self._first_update = False
         
         self.current = found
@@ -58,7 +57,7 @@ class IterationProgress:
         if message:
             sys.stdout.write(f"\r{message}\n")
         else:
-            # Just move to next line and add extra spacing
+            # Just move to next line
             sys.stdout.write("\n")
         sys.stdout.flush()
 

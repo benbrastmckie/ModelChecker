@@ -818,7 +818,7 @@ class BuildModule:
                     # For the first model, just print it
                     if distinct_count == 1:
                         # Print model header
-                        print(f"\nMODEL {distinct_count}/{expected_total}")
+                        print(f"MODEL {distinct_count}/{expected_total}")
                         
                         # Set the current model structure
                         example.model_structure = structure
@@ -867,7 +867,7 @@ class BuildModule:
                             print(f"Error printing model differences: {str(e)}")
                                 
                         # Print model header
-                        print(f"\nMODEL {distinct_count}/{expected_total}")
+                        print(f"MODEL {distinct_count}/{expected_total}")
                         
                         # Set the current model structure
                         example.model_structure = structure
@@ -896,7 +896,7 @@ class BuildModule:
                     for msg in debug_messages:
                         print(msg)
             
-            print(f"\nFound {distinct_count}/{expected_total} distinct models.")
+            print(f"Found {distinct_count}/{expected_total} distinct models.")
             
             # Check if there was any partial output
             if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):
@@ -954,7 +954,7 @@ class BuildModule:
                             print("(No differences calculated)")
                 
                 # Print model header - now showing correct numbering (2/4, 3/4, 4/4)
-                print(f"\nMODEL {distinct_count + 1}/{iterate_count}")
+                print(f"MODEL {distinct_count + 1}/{iterate_count}")
                 
                 # Update example with new model
                 example.model_structure = structure
@@ -972,6 +972,9 @@ class BuildModule:
             print(f"Error during iteration: {e}", file=sys.stderr)
             import traceback
             traceback.print_exc()
+        
+        # Print summary after iteration completes
+        print(f"Found {distinct_count + 1}/{iterate_count} distinct models.")
         
     def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
         """Process multiple iterations of model checking for a given example.
