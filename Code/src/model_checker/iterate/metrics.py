@@ -62,14 +62,19 @@ class IterationProgress:
         sys.stdout.write(padded_msg)
         sys.stdout.flush()
     
-    def finish(self, message: Optional[str] = None):
-        """Complete the progress display."""
+    def finish(self, message: Optional[str] = None, add_newline: bool = True):
+        """Complete the progress display.
+        
+        Args:
+            message: Optional message to display
+            add_newline: Whether to add a newline (default True)
+        """
         if not self.enabled:
             return
         
         if message:
             sys.stdout.write(f"\r{message}\n")
-        else:
+        elif add_newline:
             # Just move to next line
             sys.stdout.write("\n")
         sys.stdout.flush()
