@@ -60,7 +60,7 @@ REL_CM_1_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 1,
-    'iterate': 2,
+    'iterate': 4,
     'expectation': True,
 }
 REL_CM_1_example = [

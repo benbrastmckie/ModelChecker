@@ -39,11 +39,26 @@ model-checker -l imposition # Fine's counterfactuals
 model-checker -l bimodal   # Temporal-modal logic
 ```
 
-## Semantic Theory
+## Programmatic Semantics
 
-The framework defines semantic theories by extending the base `SemanticDefaults` class:
+ModelChecker is a theory-agnostic framework that allows researchers to implement, test, and share semantic theories for logical reasoning. The **[TheoryLib](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** provides a collection of pre-built theories that can be used directly, modified for specific needs, or serve as templates for developing new theories. Users can upload their own theories to share with the community, fostering collaborative development of computational semantics.
+
+### Logos: A Formal Language of Thought
+
+The **[Logos Semantics](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions through verifier and falsifier sets. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
+
+Logos currently includes operators organized into modular subtheories:
+- **[Extensional operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md)**: Classical logical connectives (`∧`, `∨`, `¬`, `→`, `↔`, `⊤`, `⊥`)
+- **[Modal operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/modal/README.md)**: Necessity and possibility (`□`, `◇`)
+- **[Counterfactual operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md)**: Would and might counterfactuals (`□→`, `◇→`)
+- **[Constitutive operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md)**: Grounding, essence, and identity (`≤`, `⊑`, `≡`)
+- **[Relevance operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/relevance/README.md)**: Content connection and relevance (`≼`)
+
+The modular architecture allows users to load only the operators needed for their analysis, with automatic dependency resolution ensuring semantic coherence. Additional operators are actively being developed, expanding the theory's expressiveness for new applications in philosophy, logic, and cognitive science.
 
 ### Semantic Primitives
+
+The framework defines semantic theories by extending the base `SemanticDefaults` class:
 
 ```python
 class LogosSemantics(SemanticDefaults):
@@ -95,7 +110,7 @@ def is_world(self, state_w):
 
 def true_at(self, sentence, eval_point):
     """Evaluates if sentence is true at eval_point.
-    For atoms: ∃x ⊆ w: verify(x, atom)
+    For atoms: `∃x ⊆ w: verify(x, atom)`
     For complex: delegates to operator.true_at()"""
     eval_world = eval_point["world"]
     if sentence.sentence_letter is not None:
@@ -120,7 +135,7 @@ def is_alternative(self, u, x, w):
     """Tests if u is an x-alternative to w.
     Used in counterfactual evaluation."""
     # Implementation varies by theory
-    # Example: u is world where x ∨ (w ∧ ¬x) is maximal
+    # Example: u is world where `x ∨ (w ∧ ¬x)` is maximal
 ```
 
 ## Operators
@@ -149,11 +164,43 @@ The framework provides modular operators across five subtheories:
 - `⊑` - Essence (A is essential to B)
 - `≡` - Constitutive equivalence
 
-### Theory Examples
+### Counterfactual Operator Implementation
 
-#### Hyperintensional Counterfactuals
+The counterfactual operator (`□→`) demonstrates the framework's approach:
 
-The counterfactual conditional operator is of intermediate strength between the strict and material conditionals.
+### Truth Conditions
+```python
+def true_at(self, leftarg, rightarg, eval_point):
+    """A `□→` B is true at w iff:
+    For all verifiers x of A and all x-alternatives u to w,
+    B is true at u"""
+    return ForAll([x, u],
+        Implies(
+            And(extended_verify(x, leftarg, eval_point),
+                is_alternative(u, x, eval_point["world"])),
+            true_at(rightarg, {"world": u})
+        ))
+```
+
+### Falsity Conditions
+```python
+def false_at(self, leftarg, rightarg, eval_point):
+    """A `□→` B is false at w iff:
+    There exists a verifier x of A and x-alternative u to w
+    where B is false at u"""
+    return Exists([x, u],
+        And(extended_verify(x, leftarg, eval_point),
+            is_alternative(u, x, eval_point["world"]),
+            false_at(rightarg, {"world": u})))
+```
+
+This implementation captures the hyperintensional nature of counterfactuals - the alternative worlds depend on which specific verifier of the antecedent we consider.
+
+## Theory Examples
+
+Each semantic theory includes an `examples.py` module with a range of examples. The following subsection will focus on counterfactual conditionals.
+
+### Counterfactual Conditionals
 
 **Example 1: Counterfactual Antecedent Strengthening (Invalid)**
 
@@ -173,24 +220,24 @@ Output for CF_CM_1:
 EXAMPLE CF_CM_1: there is a countermodel.
 
 Premises:
-1. ¬A
-2. (A □→ C)
+1. `¬A`
+2. `(A □→ C)`
 
 Conclusion:
-3. ((A ∧ B) □→ C)
+3. `((A ∧ B) □→ C)`
 
 The evaluation world is: b.c
 
 INTERPRETED PREMISES:
-1. |¬A| = < {b.c}, {a, a.b.c.d} > (True in b.c)
-2. |(A □→ C)| = < {a.c, b.c}, {a.d} > (True in b.c)
-     |A|-alternatives to b.c = {a.c}
-     |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} > (True in a.c)
+1. `|¬A| = < {b.c}, {a, a.b.c.d} >` (True in b.c)
+2. `|(A □→ C)| = < {a.c, b.c}, {a.d} >` (True in b.c)
+     `|A|`-alternatives to b.c = {a.c}
+     `|C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >` (True in a.c)
 
 INTERPRETED CONCLUSION:
-3. |((A ∧ B) □→ C)| = < {}, {a.c, a.d, b.c} > (False in b.c)
-     |(A ∧ B)|-alternatives to b.c = {a.d}
-     |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} > (False in a.d)
+3. `|((A ∧ B) □→ C)| = < {}, {a.c, a.d, b.c} >` (False in b.c)
+     `|(A ∧ B)|`-alternatives to b.c = {a.d}
+     `|C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >` (False in a.d)
 ```
 
 This shows that "If A were true then C" doesn't entail "If A and B were true then C" since the additional condition B can change which alternatives are relevant to quantify over. For instance, just the match would light if it were struck, it does not follow that it would light if struck when wet.
@@ -202,10 +249,10 @@ Output for CF_TH_5:
 EXAMPLE CF_TH_5: there is no countermodel.
 
 Premise:
-1. ((A ∨ B) □→ C)
+1. `((A ∨ B) □→ C)`
 
 Conclusion:
-2. (A □→ C)
+2. `(A □→ C)`
 
 Z3 Run Time: 0.0342 seconds
 ```
@@ -221,47 +268,6 @@ To run specific examples from a theory:
    ```bash
    ./dev_cli.py src/model_checker/theory_lib/logos/subtheories/[subtheory]/examples.py
    ```
-
-## Semantics
-
-The examples above use different semantic theories implemented in the framework:
-
-- **[Logos Semantics](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/semantic.py)** - Hyperintensional truthmaker semantics
-- **[Counterfactual Operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py)** - Would/might counterfactual implementations  
-- **[Constitutive Operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/operators.py)** - Grounding, essence, and identity
-- **[Theory Documentation](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** - Complete semantic theory specifications
-
-## Counterfactual Operator Implementation
-
-The counterfactual operator (□→) demonstrates the framework's approach:
-
-### Truth Conditions
-```python
-def true_at(self, leftarg, rightarg, eval_point):
-    """A □→ B is true at w iff:
-    For all verifiers x of A and all x-alternatives u to w,
-    B is true at u"""
-    return ForAll([x, u],
-        Implies(
-            And(extended_verify(x, leftarg, eval_point),
-                is_alternative(u, x, eval_point["world"])),
-            true_at(rightarg, {"world": u})
-        ))
-```
-
-### Falsity Conditions
-```python
-def false_at(self, leftarg, rightarg, eval_point):
-    """A □→ B is false at w iff:
-    There exists a verifier x of A and x-alternative u to w
-    where B is false at u"""
-    return Exists([x, u],
-        And(extended_verify(x, leftarg, eval_point),
-            is_alternative(u, x, eval_point["world"]),
-            false_at(rightarg, {"world": u})))
-```
-
-This implementation captures the hyperintensional nature of counterfactuals - the alternative worlds depend on which specific verifier of the antecedent we consider.
 
 ## Available Theories
 
@@ -338,10 +344,10 @@ GPL-3.0 - see [LICENSE](https://github.com/benbrastmckie/ModelChecker/blob/maste
 
 ModelChecker provides a framework for developing, testing, and comparing semantic theories for logical operators. The current implementation focuses on the objective fragment of the language, with operators for:
 
-- **Extensional logic**: Classical connectives (∧, ∨, ¬, □→, ↔)
-- **Modal logic**: Necessity and possibility (□, ◇)
-- **Counterfactual logic**: Would and might counterfactuals (□→, ◇→)
-- **Constitutive logic**: Grounding, essence, and identity (≤, ⊑, ≡)
+- **Extensional logic**: Classical connectives (`∧`, `∨`, `¬`, `→`, `↔`)
+- **Modal logic**: Necessity and possibility (`□`, `◇`)
+- **Counterfactual logic**: Would and might counterfactuals (`□→`, `◇→`)
+- **Constitutive logic**: Grounding, essence, and identity (`≤`, `⊑`, `≡`)
 
 ### Current State and Future Directions
 

@@ -116,3 +116,4 @@ class TestLogosGeneratorInterface:
             # At this point, only one model has been generated
         except StopIteration:
             # It's ok if no additional models exist
+            pass

@@ -92,7 +92,7 @@ IM_CM_0_settings = {
     'non_empty' : True,
     'disjoint' : False,
     'max_time' : 10,
-    'iterate' : 2,
+    'iterate' : 3,
     'expectation' : True,
 }
 IM_CM_0_example = [
