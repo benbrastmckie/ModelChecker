@@ -899,7 +899,9 @@ class BuildModule:
                     for msg in debug_messages:
                         print(msg)
             
-            print(f"Found {distinct_count}/{expected_total} distinct models.")
+            # Print enhanced termination summary
+            termination_info = self._get_termination_info(example, distinct_count, expected_total)
+            print(termination_info)
             
             # Check if there was any partial output
             if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):
@@ -976,8 +978,80 @@ class BuildModule:
             import traceback
             traceback.print_exc()
         
-        # Print summary after iteration completes  
-        print(f"Found {distinct_count + 1}/{iterate_count} distinct models.")
+        # Print summary after iteration completes with enhanced information
+        termination_info = self._get_termination_info(example, distinct_count + 1, iterate_count)
+        print(termination_info)
+        
+    def _get_termination_info(self, example, found_count, requested_count):
+        """Generate comprehensive termination message.
+        
+        Args:
+            example: BuildExample with iterator information
+            found_count: Number of distinct models found
+            requested_count: Number of models requested
+            
+        Returns:
+            str: Formatted termination message
+        """
+        # Get iterator if available
+        iterator = getattr(example, '_iterator', None)
+        if not iterator:
+            return f"Found {found_count}/{requested_count} distinct models."
+        
+        # Get basic stats
+        checked_count = getattr(iterator, 'checked_model_count', 0)
+        elapsed_time = 0.0
+        if hasattr(iterator, 'termination_manager'):
+            elapsed_time = iterator.termination_manager.get_elapsed_time()
+        
+        # Base message with stats
+        base_msg = f"Found {found_count}/{requested_count} distinct models "
+        base_msg += f"(checked {checked_count} models in {elapsed_time:.1f}s)."
+        
+        # Add termination reason
+        if found_count == requested_count:
+            reason = "Successfully found all requested models."
+        else:
+            reason = self._get_termination_reason(iterator, found_count, requested_count)
+        
+        return f"{base_msg}\n{reason}"
+    
+    def _get_termination_reason(self, iterator, found_count, requested_count):
+        """Determine why iteration stopped.
+        
+        Returns formatted reason string.
+        """
+        # Check debug messages for specific reasons
+        debug_messages = iterator.get_debug_messages() if hasattr(iterator, 'get_debug_messages') else []
+        
+        # Debug: print messages to understand termination
+        # import sys
+        # print(f"DEBUG: Found {len(debug_messages)} debug messages:", file=sys.stderr)
+        # for msg in debug_messages:
+        #     print(f"  - {msg}", file=sys.stderr)
+        
+        # Look for specific termination indicators
+        for msg in reversed(debug_messages):  # Check most recent first
+            if "No more models found" in msg and "unsat" in msg:
+                return "Search complete: No more non-isomorphic models exist."
+            elif "timeout" in msg.lower() and "reached" in msg.lower():
+                # Extract timeout value from message if present
+                import re
+                timeout_match = re.search(r'(\d+\.?\d*)s\)', msg)
+                if timeout_match:
+                    timeout_val = timeout_match.group(1)
+                    return f"Search stopped: Time limit reached (max {timeout_val}s)."
+                else:
+                    timeout_val = iterator.settings.get('iteration_timeout', iterator.settings.get('timeout', 300))
+                    return f"Search stopped: Time limit reached (max {timeout_val}s)."
+            elif "consecutive invalid" in msg or "consecutive failed" in msg:
+                max_attempts = iterator.settings.get('max_invalid_attempts', 20)
+                return f"Search stopped: {max_attempts} consecutive attempts found only isomorphic models."
+            elif "Insufficient progress" in msg:
+                return "Search stopped: Too many checks with insufficient progress."
+        
+        # Default message if no specific reason found
+        return f"Search ended after finding {found_count} of {requested_count} requested models."
         
     def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
         """Process multiple iterations of model checking for a given example.
