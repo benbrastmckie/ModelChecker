@@ -293,6 +293,9 @@ class BaseModelIterator:
                     else:
                         differences = {}
                     
+                    # Store differences on the model structure for access
+                    new_structure.model_differences = differences
+                    
                     # Add to statistics
                     self.stats.add_model(new_structure, differences)
                     
@@ -463,6 +466,9 @@ class BaseModelIterator:
                         )
                     else:
                         differences = {}
+                    
+                    # Store differences on the model structure for access
+                    new_structure.model_differences = differences
                     
                     # Add to statistics
                     self.stats.add_model(new_structure, differences)
