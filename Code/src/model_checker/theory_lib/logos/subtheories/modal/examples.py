@@ -66,7 +66,7 @@ MOD_CM_1_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 2,
-    'iterate': 2,
+    'iterate': 4,
     'expectation': True,
 }
 MOD_CM_1_example = [

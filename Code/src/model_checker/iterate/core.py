@@ -185,7 +185,7 @@ class BaseModelIterator:
                 # Update old progress system if still in use (only if no unified progress)
                 if not self.search_progress:
                     self.progress.update(
-                        len(self.model_structures), 
+                        len(self.model_structures) + 1,  # Show the model number we're looking for
                         self.checked_model_count
                     )
                 
@@ -293,6 +293,9 @@ class BaseModelIterator:
                     else:
                         differences = {}
                     
+                    # Store differences on the model structure for access
+                    new_structure.model_differences = differences
+                    
                     # Add to statistics
                     self.stats.add_model(new_structure, differences)
                     
@@ -382,7 +385,7 @@ class BaseModelIterator:
                 
                 # Update progress
                 self.progress.update(
-                    len(self.model_structures), 
+                    len(self.model_structures) + 1,  # Show the model number we're looking for
                     self.checked_model_count
                 )
                 
@@ -463,6 +466,9 @@ class BaseModelIterator:
                         )
                     else:
                         differences = {}
+                    
+                    # Store differences on the model structure for access
+                    new_structure.model_differences = differences
                     
                     # Add to statistics
                     self.stats.add_model(new_structure, differences)
