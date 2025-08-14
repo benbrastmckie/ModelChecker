@@ -81,8 +81,11 @@ class IterationReportGenerator:
         total_skipped = sum(s.isomorphic_skipped for s in search_stats if s.found)
         
         plural_models = 's' if total_skipped != 1 else ''
-        lines.append(f"\n    Total: {total_found}/{total_requested} models found, "
+        lines.append(f"\nTotal: {total_found}/{total_requested} models found, "
                     f"{total_skipped} isomorphic model{plural_models} skipped, "
                     f"{total_elapsed:.1f}s elapsed")
+        
+        # Add final divider
+        lines.append("\n" + "="*40)
         
         return "\n".join(lines)
