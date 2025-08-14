@@ -22,7 +22,7 @@ from .semantic import LogosSemantics, LogosProposition, LogosModelStructure
 from .operators import LogosOperatorRegistry
 from .subtheories import list_subtheories, AVAILABLE_SUBTHEORIES
 from .examples import get_examples_by_subtheory, get_examples_by_type, get_example_stats
-from .iterate import LogosModelIterator, iterate_example
+from .iterate import LogosModelIterator, iterate_example, iterate_example_generator
 
 def get_theory(subtheories=None):
     """
@@ -105,6 +105,7 @@ __all__ = [
     # Iterator support
     'LogosModelIterator',
     'iterate_example',
+    'iterate_example_generator',
     
     # Convenience aliases
     'Semantics',

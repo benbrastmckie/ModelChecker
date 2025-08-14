@@ -366,3 +366,37 @@ def iterate_example(example, max_iterations=None):
     example._iterator = iterator
     
     return models
+
+
+def iterate_example_generator(example, max_iterations=None):
+    """Generator version of iterate_example that yields models incrementally.
+    
+    This function provides a generator interface for finding multiple models,
+    yielding each model as it's discovered rather than returning them all at once.
+    
+    Args:
+        example: A BuildExample instance with logos theory.
+        max_iterations: Maximum number of models to find.
+        
+    Yields:
+        ModelStructure: Each distinct model as it's found.
+    """
+    if max_iterations is not None:
+        # Update the iterate setting
+        if not hasattr(example, 'settings'):
+            example.settings = {}
+        example.settings['iterate'] = max_iterations
+    
+    # Create iterator
+    iterator = LogosModelIterator(example)
+    
+    # Store the iterator on the example for access to debug messages
+    example._iterator = iterator
+    
+    # Use the generator interface
+    yield from iterator.iterate_generator()
+
+
+# Mark the generator function for BuildModule detection
+iterate_example_generator.returns_generator = True
+iterate_example_generator.__wrapped__ = iterate_example_generator
