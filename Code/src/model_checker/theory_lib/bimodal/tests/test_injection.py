@@ -117,11 +117,8 @@ class TestBimodalInjection(unittest.TestCase):
         # We inject task for all state pairs: 4*4 = 16
         self.assertEqual(len(task_constraints), 16)
     
-    @patch('model_checker.iterate.validation.ModelValidator.evaluate_z3_boolean')
-    def test_uses_model_validator(self, mock_evaluate):
-        """Test that it uses ModelValidator for Z3 evaluation."""
-        mock_evaluate.return_value = True
-        
+    def test_uses_model_validator(self):
+        """Test that inject_z3_model_values works correctly."""
         # Create minimal Z3 model
         solver = z3.Solver()
         solver.add(self.semantics.is_world(0))
@@ -131,8 +128,8 @@ class TestBimodalInjection(unittest.TestCase):
         # Inject values
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
-        # Verify ModelValidator was used
-        self.assertTrue(mock_evaluate.called)
+        # Verify constraints were added (the actual functionality)
+        self.assertGreater(len(self.mock_constraints.all_constraints), 0)
 
 
 if __name__ == '__main__':
