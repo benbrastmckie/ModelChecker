@@ -38,19 +38,19 @@ class TestEnhancedTracking:
         
         # Test found model with skipped
         stat2 = SearchStatistics(2, True, 3, 4, 2.5)
-        assert stat2.summary_line() == "Model 2: Found after skipping 3 isomorphic models (2.5s)"
+        assert stat2.summary_line() == "Model 2: Found after skipping 3 isomorphic models (2.50s)"
         
         # Test found model with 1 skipped (singular)
         stat3 = SearchStatistics(3, True, 1, 2, 1.2)
-        assert stat3.summary_line() == "Model 3: Found after skipping 1 isomorphic model (1.2s)"
+        assert stat3.summary_line() == "Model 3: Found after skipping 1 isomorphic model (1.20s)"
         
         # Test not found with timeout
         stat4 = SearchStatistics(4, False, 7, 45, 60.0, "timeout after 60s")
-        assert stat4.summary_line() == "Model 4: Not found - timeout after 60s after checking 45 models (60.0s)"
+        assert stat4.summary_line() == "Model 4: Not found - timeout after 60s after checking 45 models (60.00s)"
         
         # Test not found with exhaustion
         stat5 = SearchStatistics(5, False, 2, 10, 5.5, "exhausted search space")
-        assert stat5.summary_line() == "Model 5: Not found - exhausted search space after checking 10 models (5.5s)"
+        assert stat5.summary_line() == "Model 5: Not found - exhausted search space after checking 10 models (5.50s)"
     
     def test_report_generation(self):
         """Test full report generation."""
@@ -64,12 +64,12 @@ class TestEnhancedTracking:
         report = generator.generate_report(stats, 4, 8.7)
         
         # Check report structure
-        assert "ITERATION SEARCH SUMMARY" in report
-        assert "    Model 1: Initial model (0.0s)" in report
-        assert "    Model 2: Found after skipping 3 isomorphic models (2.1s)" in report
-        assert "    Model 3: Found after skipping 1 isomorphic model (0.8s)" in report
-        assert "    Model 4: Found after skipping 7 isomorphic models (4.4s)" in report
-        assert "Total: 4/4 models found, 11 isomorphic models skipped, 8.7s elapsed" in report
+        assert "ITERATION REPORT" in report
+        assert "    Model 1: Initial model (0.00s)" in report
+        assert "    Model 2: Found after skipping 3 isomorphic models (2.10s)" in report
+        assert "    Model 3: Found after skipping 1 isomorphic model (0.80s)" in report
+        assert "    Model 4: Found after skipping 7 isomorphic models (4.40s)" in report
+        assert "Total: 4/4 models found, 11 isomorphic models skipped, 8.70s elapsed" in report
         assert report.endswith("="*40)
     
     def test_partial_report_with_timeout(self):
@@ -82,10 +82,10 @@ class TestEnhancedTracking:
         generator = IterationReportGenerator()
         report = generator.generate_report(stats, 4, 60.0)
         
-        assert "    Model 1: Initial model (0.0s)" in report
-        assert "    Model 2: Found after skipping 3 isomorphic models (2.1s)" in report
-        assert "    Model 3: Not found - timeout after 60s after checking 150 models (57.9s)" in report
-        assert "Total: 2/4 models found, 3 isomorphic models skipped, 60.0s elapsed" in report
+        assert "    Model 1: Initial model (0.00s)" in report
+        assert "    Model 2: Found after skipping 3 isomorphic models (2.10s)" in report
+        assert "    Model 3: Not found - timeout after 60s after checking 150 models (57.90s)" in report
+        assert "Total: 2/4 models found, 3 isomorphic models skipped, 60.00s elapsed" in report
         assert report.endswith("="*40)
     
     def test_iterator_tracking(self):
