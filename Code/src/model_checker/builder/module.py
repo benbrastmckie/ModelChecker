@@ -781,12 +781,16 @@ class BuildModule:
                     # Fallback: try theory_name as module name directly
                     module_name = theory_name.lower()
                 
-                # Import the theory module to access its iterate_example function
+                # Import the theory module to access its iterate function
                 theory_module = importlib.import_module(f"model_checker.theory_lib.{module_name}")
-                if not hasattr(theory_module, 'iterate_example'):
-                    raise ImportError(f"Theory module '{module_name}' does not provide an iterate_example function")
                 
-                theory_iterate_example = theory_module.iterate_example
+                # Check for generator version first
+                if hasattr(theory_module, 'iterate_example_generator'):
+                    theory_iterate_example = theory_module.iterate_example_generator
+                elif hasattr(theory_module, 'iterate_example'):
+                    theory_iterate_example = theory_module.iterate_example
+                else:
+                    raise ImportError(f"Theory module '{module_name}' does not provide an iterate_example function")
             except ImportError as e:
                 print(f"Error: {e}", file=sys.stderr)
                 return example
