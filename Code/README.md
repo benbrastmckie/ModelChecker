@@ -1,12 +1,12 @@
 # ModelChecker
 
-[← Back to Project](https://github.com/benbrastmckie/ModelChecker) | [General Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/README.md) | [Technical Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/docs/README.md)
+[← GitHub Repository](https://github.com/benbrastmckie/ModelChecker) | [General Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/README.md) | [Technical Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/docs/README.md)
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Z3 SMT Solver](https://img.shields.io/badge/Z3-SMT%20Solver-green.svg)](https://github.com/Z3Prover/z3)
 
-A programmatic semantics framework for modal, counterfactual, and hyperintensional logic, powered by the Z3 SMT solver.
+A programmatic framework for implementing modular semantic theories powered by the Z3 SMT solver.
 
 ## Features
 

@@ -768,6 +768,9 @@ class BuildModule:
             # Return if we don't need to iterate in batch mode
             if iterate_count <= 1:
                 return example
+            
+            # Add vertical space after the first model before iteration starts
+            print()
         
         try:
             # Get the theory-specific iterate_example function
@@ -973,7 +976,7 @@ class BuildModule:
             import traceback
             traceback.print_exc()
         
-        # Print summary after iteration completes
+        # Print summary after iteration completes  
         print(f"Found {distinct_count + 1}/{iterate_count} distinct models.")
         
     def process_iterations(self, example_name, example_case, theory_name, semantic_theory):

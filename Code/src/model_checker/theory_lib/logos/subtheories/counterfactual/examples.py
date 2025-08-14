@@ -79,7 +79,7 @@ CF_CM_2_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 10,
-    'iterate': 1,
+    'iterate': 3,
     'expectation': True,
 }
 CF_CM_2_example = [
@@ -865,6 +865,7 @@ semantic_theories = {
 # Or set specific examples
 example_range = {
     "CF_CM_1": CF_CM_1_example,
+    # "CF_CM_2": CF_CM_2_example,
     # "CF_TH_5": CF_TH_5_example,
 }
 
