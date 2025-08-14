@@ -292,8 +292,9 @@ class IteratorCore:
         
         # Generate and print detailed report
         report_generator = IterationReportGenerator()
-        # Get initial model search time if available
-        initial_time = getattr(self.build_example.model_structure, '_search_duration', 0.0)
+        # Get initial model search time - prefer z3_model_runtime over _search_duration
+        initial_time = getattr(self.build_example.model_structure, 'z3_model_runtime', 
+                              getattr(self.build_example.model_structure, '_search_duration', 0.0))
         report = report_generator.generate_report(
             self.search_stats, 
             self.max_iterations, 

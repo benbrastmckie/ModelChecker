@@ -69,7 +69,8 @@ class TestEnhancedTracking:
         assert "    Model 2: Found after skipping 3 isomorphic models (2.1s)" in report
         assert "    Model 3: Found after skipping 1 isomorphic model (0.8s)" in report
         assert "    Model 4: Found after skipping 7 isomorphic models (4.4s)" in report
-        assert "    Total: 4/4 models found, 11 isomorphic models skipped, 8.7s elapsed" in report
+        assert "Total: 4/4 models found, 11 isomorphic models skipped, 8.7s elapsed" in report
+        assert report.endswith("="*40)
     
     def test_partial_report_with_timeout(self):
         """Test report when search times out."""
@@ -84,7 +85,8 @@ class TestEnhancedTracking:
         assert "    Model 1: Initial model (0.0s)" in report
         assert "    Model 2: Found after skipping 3 isomorphic models (2.1s)" in report
         assert "    Model 3: Not found - timeout after 60s after checking 150 models (57.9s)" in report
-        assert "    Total: 2/4 models found, 3 isomorphic models skipped, 60.0s elapsed" in report
+        assert "Total: 2/4 models found, 3 isomorphic models skipped, 60.0s elapsed" in report
+        assert report.endswith("="*40)
     
     def test_iterator_tracking(self):
         """Test that IteratorCore tracks per-search statistics."""
