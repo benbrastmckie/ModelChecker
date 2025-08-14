@@ -53,7 +53,7 @@ This approach balances the benefits of real-time display with the architectural 
 ### Phase 1: Core Iterator Generator Support (Priority: Critical) ✓ COMPLETE
 
 **Completion Date**: 2025-08-14  
-**Commit**: 0bd7379f
+**Commit**: 3d08c40d
 
 **Objective**: Add generator interface to BaseModelIterator while maintaining internal state
 
@@ -155,10 +155,10 @@ def iterate(self):
 ```
 
 **Success Criteria**:
-- [ ] Generator yields models incrementally
-- [ ] Internal state properly maintained
-- [ ] Backward compatibility preserved
-- [ ] All existing tests pass
+- [x] Generator yields models incrementally
+- [x] Internal state properly maintained
+- [x] Backward compatibility preserved
+- [x] All existing tests pass
 
 **Validation Protocol**:
 ```bash
@@ -173,7 +173,7 @@ diff docs/specs/baselines/iterator_batch_baseline.txt current_output.txt
 ### Phase 2: BuildModule Generator Integration (Priority: Critical) ✓ COMPLETE
 
 **Completion Date**: 2025-08-14  
-**Commit**: a9ad2358
+**Commit**: 3d08c40d
 
 **Objective**: Update BuildModule to consume generator for real-time display
 
@@ -242,15 +242,15 @@ def _is_generator_interface(self, iterate_func):
 ```
 
 **Success Criteria**:
-- [ ] Models display as found (not batched)
-- [ ] Progress bars show before each model
-- [ ] Differences calculated and shown correctly
-- [ ] Summary statistics still accurate
+- [x] Models display as found (not batched)
+- [x] Progress bars show before each model
+- [x] Differences calculated and shown correctly (header shown, content needs fix)
+- [x] Summary statistics still accurate
 
 ### Phase 3: Theory Migration - Logos (Priority: High) ✓ COMPLETE
 
 **Completion Date**: 2025-08-14  
-**Commit**: 4a5b511d
+**Commit**: 3d08c40d
 
 **Objective**: Add generator support to logos theory
 
@@ -300,13 +300,15 @@ __all__ = [
 ```
 
 **Success Criteria**:
-- [ ] Generator interface available
-- [ ] Backward compatibility maintained
-- [ ] Theory-specific features preserved
+- [x] Generator interface available
+- [x] Backward compatibility maintained
+- [x] Theory-specific features preserved
 
-### Phase 4: Progress System Updates (Priority: High)
+### Phase 4: Progress System Updates (Priority: Medium - DEFERRED)
 
-**Objective**: Ensure progress synchronizes with generator yielding
+**Note**: After research, we've decided to defer the unified progress system to a future enhancement. The current dual-system approach (spinner for initial, progress bar for iteration) works adequately.
+
+**Objective**: Future unified progress system (not immediate priority)
 
 **Tests to Write First**:
 
@@ -440,15 +442,76 @@ def test_memory_efficiency():
 
 ## Implementation Timeline
 
-- Phase 1: 4 hours (core generator support)
-- Phase 2: 4 hours (BuildModule integration)
-- Phase 3: 2 hours (Logos theory)
-- Phase 4: 2 hours (Progress updates)
-- Phase 5: 4 hours (remaining theories)
-- Phase 6: 4 hours (comprehensive testing)
-- Phase 7: 2 hours (documentation)
+- Phase 1: ✓ COMPLETE (core generator support)
+- Phase 2: ✓ COMPLETE (BuildModule integration)
+- Phase 3: ✓ COMPLETE (Logos theory)
+- Phase 3.5: ✓ COMPLETE (model differences fix)
+- Phase 4: DEFERRED (Progress updates - will be addressed in unified progress system)
+- Phase 5: PENDING (remaining theories)
+- Phase 6: PENDING (comprehensive testing)
+- Phase 7: PENDING (documentation)
 
-**Total: ~22 hours (3 days)**
+**Completed: ~12 hours**
+**Remaining: ~10 hours**
+
+## Phase 3.5: Model Differences Fix (Priority: High) ✓ COMPLETE
+
+**Completion Date**: 2025-08-14  
+**Commit**: (pending)
+
+**Objective**: Fix empty model differences display by properly storing differences on yielded models
+
+**Root Cause**: Research revealed that differences ARE calculated before yielding, but they're stored on the model after it's added to the collection. The yielded model needs the differences stored on it before yielding.
+
+**Implementation**:
+
+1. **Update core.py iterate_generator** to store differences on the yielded model:
+```python
+# After calculating differences (line 293)
+if len(self.model_structures) >= 2:
+    differences = self.difference_calculator.calculate_differences(
+        new_structure, self.model_structures[-2]
+    )
+else:
+    differences = {}
+
+# Store differences on the model structure for access
+new_structure.model_differences = differences
+
+# Add to statistics
+self.stats.add_model(new_structure, differences)
+
+logger.info(f"Found distinct model #{len(self.model_structures)}")
+
+# YIELD the model with differences already attached
+yield new_structure
+```
+
+2. **Fixed key mismatch in LogosModelStructure.print_model_differences**:
+- DifferenceCalculator was using 'world_changes' and 'possible_changes'
+- LogosModelStructure was expecting 'worlds' and 'possible_states'
+- Updated print_model_differences to use the correct keys
+- Also updated to handle 'atomic_changes' structure correctly
+
+**Success Criteria**:
+- [x] Model differences are stored on structure before yielding
+- [x] Differences display with content (not just header)
+- [x] Differences show what changed from previous model
+
+## Known Issues
+
+1. **Model Differences Display**: ✓ FIXED - Key mismatch resolved, differences now display correctly
+2. **Initial Model Numbering**: ✓ FIXED - Initial model no longer shows numbering in batch mode
+3. **Progress Bar Inconsistency**: DEFERRED - Will be addressed in unified progress system
+
+## Implementation Notes
+
+- Generator interface successfully implemented and working
+- Models are displayed incrementally as found
+- Progress bars work correctly (though visually inconsistent)
+- All unit tests passing after fixes to import paths
+- Model numbering now correct (2/4, 3/4, 4/4 instead of 1/4, 2/4, 3/4)
+- Model differences properly displayed between iterations
 
 ## Alternative Approach Considered
 

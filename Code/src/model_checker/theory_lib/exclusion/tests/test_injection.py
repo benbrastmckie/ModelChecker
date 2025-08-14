@@ -5,7 +5,7 @@ Tests verify Exclusion-specific injection including witness predicates.
 """
 
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 import z3
 from model_checker.theory_lib.exclusion.semantic import WitnessSemantics
 from model_checker import syntactic
@@ -149,9 +149,9 @@ class TestExclusionInjection(unittest.TestCase):
         # Inject values
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
         
-        # Verify constraints were added (the actual functionality)
-        self.assertGreater(len(self.mock_constraints.all_constraints), 0)
+        # Verify injection worked
+        constraints = self.mock_constraints.all_constraints
+        self.assertGreater(len(constraints), 0)
 
 
 if __name__ == '__main__':
-    unittest.main()
