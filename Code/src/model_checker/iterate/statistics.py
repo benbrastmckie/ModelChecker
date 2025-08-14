@@ -51,28 +51,29 @@ class IterationReportGenerator:
     """Generates comprehensive iteration search reports."""
     
     def generate_report(self, search_stats: List[SearchStatistics], 
-                       total_requested: int, total_elapsed: float) -> str:
+                       total_requested: int, total_elapsed: float, 
+                       initial_search_time: float = 0.0) -> str:
         """Generate formatted report of iteration search statistics.
         
         Args:
             search_stats: List of search statistics for each model search
             total_requested: Total number of models requested
             total_elapsed: Total elapsed time for entire iteration
+            initial_search_time: Time taken to find the initial model
             
         Returns:
             Formatted report string
         """
         lines = []
-        lines.append("\n" + "="*40)
-        lines.append("\nITERATION SEARCH SUMMARY")
+        lines.append("ITERATION SEARCH SUMMARY")
         
-        # Model 1 is always given
-        lines.append("Model 1: Initial model (given)")
+        # Model 1 shows actual search time
+        lines.append(f"    Model 1: Initial model ({initial_search_time:.1f}s)")
         
-        # Report on each search
+        # Report on each search with indentation
         for stat in search_stats:
             if stat.model_number > 1:  # Skip model 1 as it's handled above
-                lines.append(stat.summary_line())
+                lines.append("    " + stat.summary_line())
         
         # Summary line
         total_found = sum(1 for s in search_stats if s.found) + 1  # +1 for initial
@@ -80,9 +81,8 @@ class IterationReportGenerator:
         total_skipped = sum(s.isomorphic_skipped for s in search_stats if s.found)
         
         plural_models = 's' if total_skipped != 1 else ''
-        lines.append(f"\nTotal: {total_found}/{total_requested} models found, "
+        lines.append(f"\n    Total: {total_found}/{total_requested} models found, "
                     f"{total_skipped} isomorphic model{plural_models} skipped, "
                     f"{total_elapsed:.1f}s elapsed")
-        lines.append("="*40)
         
         return "\n".join(lines)

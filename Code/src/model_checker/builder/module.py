@@ -965,6 +965,11 @@ class BuildModule:
                 # Display model immediately
                 self._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
                 
+                # Add extra vertical space after non-isomorphic models (except for the last one)
+                # Check if there might be more models coming
+                if distinct_count < iterate_count - 1:
+                    print()
+                
                 # Update previous model for next iteration
                 previous_model = structure
                 
