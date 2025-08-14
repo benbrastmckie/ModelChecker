@@ -68,6 +68,7 @@ class BaseModelIterator:
         self.model_structures = self.iterator_core.model_structures
         self.debug_messages = self.iterator_core.debug_messages
         self.checked_model_count = self.iterator_core.checked_model_count
+        self.isomorphic_model_count = self.iterator_core.isomorphic_model_count
         
         # Initialize component modules
         self.constraint_generator = ConstraintGenerator(build_example)
@@ -186,7 +187,7 @@ class BaseModelIterator:
                 if not self.search_progress:
                     self.progress.update(
                         len(self.model_structures) + 1,  # Show the model number we're looking for
-                        self.checked_model_count
+                        self.isomorphic_model_count
                     )
                 
                 # Start search with new progress system if available
@@ -262,6 +263,7 @@ class BaseModelIterator:
                     )
                     
                     if is_isomorphic:
+                        self.isomorphic_model_count += 1
                         logger.info(f"Found isomorphic model #{self.checked_model_count} - will try different constraints")
                         # Generate stronger constraint to avoid this specific isomorphic model
                         stronger_constraint = self.constraint_generator.create_stronger_constraint(isomorphic_model)
@@ -392,7 +394,7 @@ class BaseModelIterator:
                 # Update progress
                 self.progress.update(
                     len(self.model_structures) + 1,  # Show the model number we're looking for
-                    self.checked_model_count
+                    self.isomorphic_model_count
                 )
                 
                 logger.info(f"Searching for model {len(self.model_structures) + 1}/{self.max_iterations}...")
@@ -452,6 +454,7 @@ class BaseModelIterator:
                     )
                     
                     if is_isomorphic:
+                        self.isomorphic_model_count += 1
                         logger.info(f"Found isomorphic model #{self.checked_model_count} - will try different constraints")
                         # Generate stronger constraint to avoid this specific isomorphic model
                         stronger_constraint = self.constraint_generator.create_stronger_constraint(isomorphic_model)

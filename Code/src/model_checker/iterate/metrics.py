@@ -24,7 +24,7 @@ class IterationProgress:
         self.enabled = True  # Always show for testing  # sys.stdout.isatty()  # Only show in terminal
         self._first_update = True
     
-    def update(self, found: int, checked: int):
+    def update(self, found: int, skipped: int):
         """Update progress display."""
         if not self.enabled:
             return
@@ -44,7 +44,7 @@ class IterationProgress:
         
         # Format message
         msg = f"{self.desc}: [{bar}] {found}/{self.total} "
-        msg += f"(checked {checked}) {elapsed:.1f}s"
+        msg += f"(skipped {skipped}) {elapsed:.1f}s"
         
         # Clear the line first to prevent stacking
         # Pad with spaces to clear any remaining characters
