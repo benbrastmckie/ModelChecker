@@ -791,7 +791,14 @@ class BuildModule:
                 print(f"Error: {e}", file=sys.stderr)
                 return example
             
-            # Find additional models using the theory-specific iterate_example function
+            # Check if theory supports generator interface
+            if hasattr(theory_iterate_example, '__wrapped__') and \
+               hasattr(theory_iterate_example.__wrapped__, 'returns_generator'):
+                # Use generator interface for incremental display
+                self._run_generator_iteration(example, theory_iterate_example, example_name, theory_name, iterate_count)
+                return example
+            
+            # Fallback to list-based iteration
             model_structures = theory_iterate_example(example, max_iterations=iterate_count)
             
             # Skip the first model which is already printed
@@ -900,6 +907,71 @@ class BuildModule:
             print(traceback.format_exc())
         
         return example
+    
+    def _run_generator_iteration(self, example, theory_iterate_example, example_name, theory_name, iterate_count):
+        """Run iteration using generator interface for incremental display.
+        
+        Args:
+            example: The BuildExample instance
+            theory_iterate_example: Theory-specific iterate function with generator support
+            example_name: Name of the example being run
+            theory_name: Name of the theory
+            iterate_count: Total number of models to find
+        """
+        # Get generator from theory
+        model_generator = theory_iterate_example(example, max_iterations=iterate_count)
+        
+        # Track distinct models
+        distinct_count = 1  # First model already displayed
+        previous_model = example.model_structure
+        
+        try:
+            # Process models as they're yielded
+            for i, structure in enumerate(model_generator, start=2):
+                # Skip isomorphic models in display
+                if hasattr(structure, '_is_isomorphic') and structure._is_isomorphic:
+                    continue
+                    
+                distinct_count += 1
+                
+                # Calculate differences if not already done
+                if previous_model:
+                    # Ensure model_differences are calculated
+                    if not hasattr(structure, 'model_differences') or structure.model_differences is None:
+                        if hasattr(structure, 'detect_model_differences'):
+                            structure.model_differences = structure.detect_model_differences(previous_model)
+                            structure.previous_structure = previous_model
+                        elif hasattr(structure, 'calculate_model_differences'):
+                            # Legacy support
+                            structure.model_differences = structure.calculate_model_differences(previous_model)
+                            structure.previous_structure = previous_model
+                    
+                    # Print differences using structure's method
+                    if hasattr(structure, 'print_model_differences'):
+                        print("\033[1m\033[0m", end="")  # Force ANSI escape sequence processing
+                        structure.print_model_differences()
+                    else:
+                        print("Error: Theory does not provide print_model_differences method")
+                
+                # Print model header
+                print(f"\nMODEL {distinct_count}/{iterate_count}")
+                
+                # Update example with new model
+                example.model_structure = structure
+                
+                # Display model immediately
+                self._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
+                
+                # Update previous model for next iteration
+                previous_model = structure
+                
+        except StopIteration:
+            # Normal termination - no more models found
+            pass
+        except Exception as e:
+            print(f"Error during iteration: {e}", file=sys.stderr)
+            import traceback
+            traceback.print_exc()
         
     def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
         """Process multiple iterations of model checking for a given example.
