@@ -88,10 +88,15 @@ class BaseModelIterator:
         
         # Initialize statistics and progress (delegated to IteratorCore)
         self.stats = self.iterator_core.stats
-        self.progress = self.iterator_core.progress
         
-        # Initialize search progress (for future progress system updates)
-        self.search_progress = None
+        # Use unified progress if provided, otherwise use old system
+        self.search_progress = getattr(build_example, '_unified_progress', None)
+        if self.search_progress:
+            # Disable old progress system
+            self.progress = None
+        else:
+            # Use old progress system
+            self.progress = self.iterator_core.progress
         
         # Initialize isomorphism cache (formerly model_graphs)
         self.model_graphs = []
@@ -167,6 +172,9 @@ class BaseModelIterator:
         self.current_search_checked = 0
         self.current_search_skipped = 0
         
+        # Track which model we're currently searching for
+        current_search_model = 0
+        
         try:
             while self.current_iteration < self.max_iterations:
                 # Check termination conditions
@@ -182,12 +190,12 @@ class BaseModelIterator:
                 # Model number we're searching for
                 model_number = len(self.model_structures) + 1
                 
-                # Check timeout first
-                elapsed = time.time() - iteration_start_time
+                # Check timeout for current model search
+                elapsed = time.time() - self.current_search_start
                 timeout = self.settings.get('iteration_timeout', self.settings.get('timeout', 300))  # Default 5 minutes
                 if elapsed > timeout:
-                    logger.warning(f"Iteration timeout ({timeout}s) reached")
-                    self.debug_messages.append(f"Iteration timeout ({timeout}s) reached")
+                    logger.warning(f"Model {model_number} search timeout ({timeout}s) reached")
+                    self.debug_messages.append(f"Model {model_number} search timeout ({timeout}s) reached")
                     
                     # Record incomplete search due to timeout
                     search_duration = time.time() - self.current_search_start
@@ -199,6 +207,11 @@ class BaseModelIterator:
                         search_duration=search_duration,
                         termination_reason=f"timeout after {timeout}s"
                     ))
+                    
+                    # Complete the progress bar for this model search
+                    if self.search_progress:
+                        self.search_progress.complete_model_search(found=False)
+                    
                     break
                 
                 # Track search start time
@@ -211,9 +224,10 @@ class BaseModelIterator:
                         self.current_search_skipped
                     )
                 
-                # Start search with new progress system if available
-                if self.search_progress:
-                    self.search_progress.start_search(model_number)
+                # Start search with new progress system if available (only if not already searching for this model)
+                if self.search_progress and current_search_model != model_number:
+                    self.search_progress.start_model_search(model_number)
+                    current_search_model = model_number
                 
                 logger.info(f"Searching for model {model_number}/{self.max_iterations}...")
                 
@@ -225,6 +239,10 @@ class BaseModelIterator:
                     check_result = self.constraint_generator.check_satisfiability(extended_constraints)
                     self.checked_model_count += 1
                     self.current_search_checked += 1
+                    
+                    # Update progress with checked count
+                    if self.search_progress:
+                        self.search_progress.model_checked()
                     
                     if check_result != 'sat':
                         logger.info(f"No more models found (solver returned {check_result})")
@@ -243,7 +261,7 @@ class BaseModelIterator:
                         
                         # Complete search as not found
                         if self.search_progress:
-                            self.search_progress.complete_search(model_number, found=False)
+                            self.search_progress.complete_model_search(found=False)
                         break
                         
                     # Get the new model
@@ -257,7 +275,7 @@ class BaseModelIterator:
                             self.debug_messages.append("Too many consecutive invalid models - stopping iteration")
                             # Complete search as not found
                             if self.search_progress:
-                                self.search_progress.complete_search(model_number, found=False)
+                                self.search_progress.complete_model_search(found=False)
                             break
                         continue
                         
@@ -273,7 +291,7 @@ class BaseModelIterator:
                             self.debug_messages.append("Too many consecutive model building failures - stopping iteration")
                             # Complete search as not found
                             if self.search_progress:
-                                self.search_progress.complete_search(model_number, found=False)
+                                self.search_progress.complete_model_search(found=False)
                             break
                         continue
                     
@@ -287,7 +305,7 @@ class BaseModelIterator:
                             self.debug_messages.append("Too many consecutive invalid models - stopping iteration")
                             # Complete search as not found
                             if self.search_progress:
-                                self.search_progress.complete_search(model_number, found=False)
+                                self.search_progress.complete_model_search(found=False)
                             break
                         continue
                         
@@ -299,6 +317,11 @@ class BaseModelIterator:
                     if is_isomorphic:
                         self.isomorphic_model_count += 1
                         self.current_search_skipped += 1
+                        
+                        # Update progress with skipped count
+                        if self.search_progress:
+                            self.search_progress.model_skipped_isomorphic()
+                        
                         logger.info(f"Found isomorphic model #{self.checked_model_count} - will try different constraints")
                         # Generate stronger constraint to avoid this specific isomorphic model
                         stronger_constraint = self.constraint_generator.create_stronger_constraint(isomorphic_model)
@@ -335,7 +358,7 @@ class BaseModelIterator:
                     
                     # Complete search as found
                     if self.search_progress:
-                        self.search_progress.complete_search(model_number, found=True)
+                        self.search_progress.complete_model_search(found=True)
                     
                     # Calculate differences from previous model
                     if len(self.model_structures) >= 2:
@@ -390,6 +413,15 @@ class BaseModelIterator:
             logger.info(f"Found {found_count}/{self.max_iterations} distinct models.")
             
         self.stats.set_completion_time(elapsed_time)
+        
+        # Ensure any active progress bars are properly completed before printing the report
+        if self.search_progress:
+            # Check if there's an active progress bar that wasn't completed
+            if self.search_progress.model_progress_bars:
+                last_bar = self.search_progress.model_progress_bars[-1]
+                if hasattr(last_bar, 'active') and last_bar.active:
+                    # Force complete any remaining active progress bar
+                    last_bar.complete(False)
         
         # Generate and print detailed report
         report_generator = IterationReportGenerator()
@@ -525,6 +557,11 @@ class BaseModelIterator:
                     if is_isomorphic:
                         self.isomorphic_model_count += 1
                         self.current_search_skipped += 1
+                        
+                        # Update progress with skipped count
+                        if self.search_progress:
+                            self.search_progress.model_skipped_isomorphic()
+                        
                         logger.info(f"Found isomorphic model #{self.checked_model_count} - will try different constraints")
                         # Generate stronger constraint to avoid this specific isomorphic model
                         stronger_constraint = self.constraint_generator.create_stronger_constraint(isomorphic_model)

@@ -15,6 +15,7 @@ import threading
 
 # Relative imports
 from model_checker.builder.progress import Spinner
+from model_checker.output.progress import UnifiedProgress
 from model_checker.syntactic import Syntax
 from model_checker.builder.serialize import (
     serialize_semantic_theory,
@@ -738,16 +739,44 @@ class BuildModule:
         if dictionary:
             example_case = self.translate(example_case, dictionary)
         
+        # Get the iterate count early to set up progress tracking
+        iterate_count = example_case[2].get('iterate', 1)
+        
+        # Create unified progress tracker for all models
+        iteration_timeout = example_case[2].get('iteration_timeout', 60.0)
+        progress = UnifiedProgress(
+            total_models=iterate_count,
+            iteration_timeout=iteration_timeout
+        )
+        
+        # Add vertical space before first progress bar
+        print()
+        
+        # Start progress for first model
+        progress.start_model_search(1)
+        
         # Create and solve the example
         example = BuildExample(self, semantic_theory, example_case, theory_name)
         
+        # Update progress
+        progress.model_checked()
+        
         # Check if a model was found
         if not example.model_structure.z3_model_status:
+            progress.complete_model_search(found=False)
+            progress.finish()
             self._capture_and_save_output(example, example_name, theory_name)
             return example
         
-        # Get the iterate count
-        iterate_count = example.settings.get('iterate', 1)
+        # Complete first model search
+        progress.complete_model_search(found=True)
+        
+        # Add vertical space after first progress bar
+        print()
+        
+        # Pass progress to example for iterator to use
+        if iterate_count > 1:
+            example._unified_progress = progress
         
         # Handle iteration for interactive mode first to get correct count
         if self.interactive_manager and self.interactive_manager.is_interactive():
@@ -757,9 +786,14 @@ class BuildModule:
             # Then prompt for iterations
             user_iterations = self._prompt_for_iterations()
             if user_iterations == 0:
+                progress.finish()
                 return example
             # Override iterate count with user's choice (plus 1 for the model already shown)
             iterate_count = user_iterations + 1
+            
+            # Update progress with new total
+            progress.total_models = iterate_count
+            example._unified_progress = progress
         else:
             # In batch mode, just print the first model without numbering
             # The numbering starts with the second model from iteration
@@ -767,6 +801,7 @@ class BuildModule:
             
             # Return if we don't need to iterate in batch mode
             if iterate_count <= 1:
+                progress.finish()
                 return example
             
             # Add vertical space after the first model before iteration starts
@@ -910,6 +945,9 @@ class BuildModule:
             print(f"Error during iteration: {str(e)}")
             import traceback
             print(traceback.format_exc())
+        finally:
+            # Ensure progress is cleaned up
+            progress.finish()
         
         return example
     
