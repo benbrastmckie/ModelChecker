@@ -8,13 +8,14 @@
 iterate/
 ├── README.md                    # This file - framework overview and guide
 ├── __init__.py                  # Package exports
-├── base.py                      # Abstract base class (no decorators)
-├── core.py                      # BaseModelIterator orchestration (369 lines)
-├── iterator.py                  # Main iteration loop and control (287 lines)
+├── base.py                      # Abstract base class (95 lines)
+├── core.py                      # BaseModelIterator orchestration (729 lines)
+├── iterator.py                  # Main iteration loop and control (381 lines)
 ├── constraints.py               # Constraint generation and management (279 lines)
 ├── models.py                    # Model building, validation, and differences (611 lines)
-├── graph.py                     # Graph representation and isomorphism detection (540 lines)
-├── metrics.py                   # Progress, statistics, termination, and formatting (321 lines)
+├── graph.py                     # Graph representation and isomorphism detection (539 lines)
+├── metrics.py                   # Progress, statistics, termination, and formatting (277 lines)
+├── statistics.py                # Iteration statistics and reporting (91 lines)
 ├── build_example.py             # BuildExample extension for iteration (153 lines)
 └── tests/                       # Comprehensive test suite
     ├── test_base_iterator.py    # Base class and abstract methods
@@ -52,7 +53,14 @@ The iteration framework integrates with:
 
 ### Design Philosophy
 
-The iteration framework follows a **hybrid architecture** balancing modularity with technical requirements. After extensive refactoring (documented in `docs/specs/plans/`), we discovered that the core iteration logic requires tight coupling between components for proper constraint propagation and model building synchronization.
+The iteration framework follows a **hybrid architecture** balancing modularity with technical requirements. After extensive refactoring attempts and successful theory integrations (documented in `docs/specs/plans/048-051`), the framework has reached a stable state where:
+
+1. **Theory-specific differences are fully integrated** - All theories (logos, exclusion, imposition) properly calculate and display their unique semantic differences
+2. **Core orchestration remains centralized** - The 729-line core.py maintains necessary coupling for reliable constraint propagation and model building
+3. **Modular components handle specific concerns** - Constraints, models, graphs, and metrics are properly separated
+4. **Architectural decision for v1** - Further modularization of core.py deemed unnecessary given the high risk of breaking working functionality
+
+This architecture reflects lessons learned from the iterator's fragility and prioritizes stability over theoretical purity.
 
 ### Core Components
 
