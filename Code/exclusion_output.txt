@@ -1,0 +1,364 @@
+
+Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/2 0.0sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/2 0.1sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/2 0.2sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 1/2 0.3sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 1/2 0.4s                                                              Finding non-isomorphic models: [████████████████████] 1/2 0.5s
+
+========================================
+
+EXAMPLE EX_CM_10: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: BernardChampollion
+
+Premise:
+1. (\neg A \vee \neg B)
+
+Conclusion:
+2. \neg (A \wedge B)
+
+Z3 Run Time: 0.0069 seconds
+
+========================================
+State Space
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+Conflicts
+  [36ma[0m conflicts with [34mb[0m
+  [36ma[0m conflicts with [35ma.b[0m
+  [36ma[0m conflicts with [35mb.c[0m
+  [36ma[0m conflicts with [35ma.b.c[0m
+  [34mb[0m conflicts with [36ma[0m
+  [34mb[0m conflicts with [35ma.b[0m
+  [34mb[0m conflicts with [36mc[0m
+  [34mb[0m conflicts with [34ma.c[0m
+  [34mb[0m conflicts with [35mb.c[0m
+  [34mb[0m conflicts with [35ma.b.c[0m
+  [35ma.b[0m conflicts with [36ma[0m
+  [35ma.b[0m conflicts with [34mb[0m
+  [35ma.b[0m conflicts with [35ma.b[0m
+  [35ma.b[0m conflicts with [36mc[0m
+  [35ma.b[0m conflicts with [34ma.c[0m
+  [35ma.b[0m conflicts with [35mb.c[0m
+  [35ma.b[0m conflicts with [35ma.b.c[0m
+  [36mc[0m conflicts with [34mb[0m
+  [36mc[0m conflicts with [35ma.b[0m
+  [36mc[0m conflicts with [35mb.c[0m
+  [36mc[0m conflicts with [35ma.b.c[0m
+  [34ma.c[0m conflicts with [34mb[0m
+  [34ma.c[0m conflicts with [35ma.b[0m
+  [34ma.c[0m conflicts with [35mb.c[0m
+  [34ma.c[0m conflicts with [35ma.b.c[0m
+  [35mb.c[0m conflicts with [36ma[0m
+  [35mb.c[0m conflicts with [34mb[0m
+  [35mb.c[0m conflicts with [35ma.b[0m
+  [35mb.c[0m conflicts with [36mc[0m
+  [35mb.c[0m conflicts with [34ma.c[0m
+  [35mb.c[0m conflicts with [35mb.c[0m
+  [35mb.c[0m conflicts with [35ma.b.c[0m
+  [35ma.b.c[0m conflicts with [36ma[0m
+  [35ma.b.c[0m conflicts with [34mb[0m
+  [35ma.b.c[0m conflicts with [35ma.b[0m
+  [35ma.b.c[0m conflicts with [36mc[0m
+  [35ma.b.c[0m conflicts with [34ma.c[0m
+  [35ma.b.c[0m conflicts with [35mb.c[0m
+  [35ma.b.c[0m conflicts with [35ma.b.c[0m
+
+Coherence
+  [36m□[0m coheres with [36m□[0m
+  [36m□[0m coheres with [36ma[0m
+  [36m□[0m coheres with [34mb[0m
+  [36m□[0m coheres with [35ma.b[0m
+  [36m□[0m coheres with [36mc[0m
+  [36m□[0m coheres with [34ma.c[0m
+  [36m□[0m coheres with [35mb.c[0m
+  [36m□[0m coheres with [35ma.b.c[0m
+  [36ma[0m coheres with [36m□[0m
+  [36ma[0m coheres with [36ma[0m
+  [36ma[0m coheres with [36mc[0m
+  [36ma[0m coheres with [34ma.c[0m
+  [34mb[0m coheres with [36m□[0m
+  [34mb[0m coheres with [34mb[0m
+  [35ma.b[0m coheres with [36m□[0m
+  [36mc[0m coheres with [36m□[0m
+  [36mc[0m coheres with [36ma[0m
+  [36mc[0m coheres with [36mc[0m
+  [36mc[0m coheres with [34ma.c[0m
+  [34ma.c[0m coheres with [36m□[0m
+  [34ma.c[0m coheres with [36ma[0m
+  [34ma.c[0m coheres with [36mc[0m
+  [34ma.c[0m coheres with [34ma.c[0m
+  [35mb.c[0m coheres with [36m□[0m
+  [35ma.b.c[0m coheres with [36m□[0m
+
+Unilateral Exclusion
+  [36ma[0m excludes [34mb[0m
+  [34mb[0m excludes [36ma[0m
+  [34mb[0m excludes [36mc[0m
+  [36mc[0m excludes [34mb[0m
+
+Functions
+  \neg(B)_y: [36m□[0m → [36m□[0m
+  \neg(B)_y: [36ma[0m → [36m□[0m
+  \neg(B)_y: [34mb[0m → [36m□[0m
+  \neg(B)_y: [35ma.b[0m → [36m□[0m
+  \neg(B)_y: [36mc[0m → [36m□[0m
+  \neg(B)_y: [34ma.c[0m → [36m□[0m
+  \neg(B)_y: [35mb.c[0m → [36m□[0m
+  \neg(B)_y: [35ma.b.c[0m → [36m□[0m
+  \neg((A \wedge B))_h: [36m□[0m → [34mb[0m
+  \neg((A \wedge B))_h: [36ma[0m → [34mb[0m
+  \neg((A \wedge B))_h: [34mb[0m → [34mb[0m
+  \neg((A \wedge B))_h: [35ma.b[0m → [34mb[0m
+  \neg((A \wedge B))_h: [36mc[0m → [34mb[0m
+  \neg((A \wedge B))_h: [34ma.c[0m → [34mb[0m
+  \neg((A \wedge B))_h: [35mb.c[0m → [34mb[0m
+  \neg((A \wedge B))_h: [35ma.b.c[0m → [34mb[0m
+  \neg(A)_h: [36m□[0m → [36mc[0m
+  \neg(A)_h: [36ma[0m → [36mc[0m
+  \neg(A)_h: [34mb[0m → [36mc[0m
+  \neg(A)_h: [35ma.b[0m → [36mc[0m
+  \neg(A)_h: [36mc[0m → [36mc[0m
+  \neg(A)_h: [34ma.c[0m → [36mc[0m
+  \neg(A)_h: [35mb.c[0m → [36mc[0m
+  \neg(A)_h: [35ma.b.c[0m → [36ma[0m
+  \neg(B)_h: [36m□[0m → [36mc[0m
+  \neg(B)_h: [36ma[0m → [36mc[0m
+  \neg(B)_h: [34mb[0m → [36mc[0m
+  \neg(B)_h: [35ma.b[0m → [36mc[0m
+  \neg(B)_h: [36mc[0m → [36mc[0m
+  \neg(B)_h: [34ma.c[0m → [36mc[0m
+  \neg(B)_h: [35mb.c[0m → [36mc[0m
+  \neg(B)_h: [35ma.b.c[0m → [36mc[0m
+  \neg((A \wedge B))_y: [36m□[0m → [36m□[0m
+  \neg((A \wedge B))_y: [36ma[0m → [36m□[0m
+  \neg((A \wedge B))_y: [34mb[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35ma.b[0m → [36m□[0m
+  \neg((A \wedge B))_y: [36mc[0m → [36m□[0m
+  \neg((A \wedge B))_y: [34ma.c[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35mb.c[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35ma.b.c[0m → [36m□[0m
+  \neg(A)_y: [36m□[0m → [34mb[0m
+  \neg(A)_y: [36ma[0m → [34mb[0m
+  \neg(A)_y: [34mb[0m → [34mb[0m
+  \neg(A)_y: [35ma.b[0m → [34mb[0m
+  \neg(A)_y: [36mc[0m → [34mb[0m
+  \neg(A)_y: [34ma.c[0m → [34mb[0m
+  \neg(A)_y: [35mb.c[0m → [34mb[0m
+  \neg(A)_y: [35ma.b.c[0m → [34mb[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|(\neg A \vee \neg B)| = {a.c}[0m  [32m(True in a.c)[0m
+      [37m|\neg A| = {a.c}[0m  [33m(True in a.c)[0m
+        [37m|A| = {a.b.c, b.c}[0m  [33m(False in a.c)[0m
+      [37m|\neg B| = {}[0m  [33m(False in a.c)[0m
+        [37m|B| = {a, a.c}[0m  [33m(True in a.c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\neg (A \wedge B)| = {}[0m  [31m(False in a.c)[0m
+      [37m|(A \wedge B)| = {a.b.c}[0m  [33m(False in a.c)[0m
+        [37m|A| = {a.b.c, b.c}[0m  [33m(False in a.c)[0m
+        [37m|B| = {a, a.c}[0m  [33m(True in a.c)[0m
+
+Total Run Time: 0.6429 seconds
+
+
+========================================
+
+Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/2 0.0sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/2 0.1sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/2 0.2sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 2/2 0.3sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 2/2 0.4sFinding non-isomorphic models: [██░░░░░░░░░░░░░░░░░░] 2/2 0.5sFinding non-isomorphic models: [██░░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.6sFinding non-isomorphic models: [██░░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.7sFinding non-isomorphic models: [███░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.8sFinding non-isomorphic models: [███░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.9sFinding non-isomorphic models: [████░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 1.0s                                                                          Finding non-isomorphic models: [████████████████████] 2/2 (1 skipped) 1.1s
+
+ITERATION REPORT
+    Model 1: Initial model (0.48s)
+    Model 2: Found after skipping 1 isomorphic model (1.07s)
+
+Total: 2/2 models found, 1 isomorphic model skipped, 1.10s elapsed
+
+========================================
+[1m[0m
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+
+Structural Properties:
+  Worlds: 1
+MODEL 2/2
+========================================
+
+EXAMPLE EX_CM_10: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: BernardChampollion
+
+Premise:
+1. (\neg A \vee \neg B)
+
+Conclusion:
+2. \neg (A \wedge B)
+
+Z3 Run Time: 0.0055 seconds
+
+========================================
+State Space
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [35ma (impossible)[0m
+  [37m#b010 = [35mb (impossible)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+Conflicts
+  [36m□[0m conflicts with [35ma[0m
+  [36m□[0m conflicts with [35ma.b[0m
+  [36m□[0m conflicts with [35ma.c[0m
+  [36m□[0m conflicts with [35ma.b.c[0m
+  [35ma[0m conflicts with [36m□[0m
+  [35ma[0m conflicts with [35ma[0m
+  [35ma[0m conflicts with [35mb[0m
+  [35ma[0m conflicts with [35ma.b[0m
+  [35ma[0m conflicts with [34mc[0m
+  [35ma[0m conflicts with [35ma.c[0m
+  [35ma[0m conflicts with [35mb.c[0m
+  [35ma[0m conflicts with [35ma.b.c[0m
+  [35mb[0m conflicts with [35ma[0m
+  [35mb[0m conflicts with [35mb[0m
+  [35mb[0m conflicts with [35ma.b[0m
+  [35mb[0m conflicts with [34mc[0m
+  [35mb[0m conflicts with [35ma.c[0m
+  [35mb[0m conflicts with [35mb.c[0m
+  [35mb[0m conflicts with [35ma.b.c[0m
+  [35ma.b[0m conflicts with [36m□[0m
+  [35ma.b[0m conflicts with [35ma[0m
+  [35ma.b[0m conflicts with [35mb[0m
+  [35ma.b[0m conflicts with [35ma.b[0m
+  [35ma.b[0m conflicts with [34mc[0m
+  [35ma.b[0m conflicts with [35ma.c[0m
+  [35ma.b[0m conflicts with [35mb.c[0m
+  [35ma.b[0m conflicts with [35ma.b.c[0m
+  [34mc[0m conflicts with [35ma[0m
+  [34mc[0m conflicts with [35mb[0m
+  [34mc[0m conflicts with [35ma.b[0m
+  [34mc[0m conflicts with [35ma.c[0m
+  [34mc[0m conflicts with [35mb.c[0m
+  [34mc[0m conflicts with [35ma.b.c[0m
+  [35ma.c[0m conflicts with [36m□[0m
+  [35ma.c[0m conflicts with [35ma[0m
+  [35ma.c[0m conflicts with [35mb[0m
+  [35ma.c[0m conflicts with [35ma.b[0m
+  [35ma.c[0m conflicts with [34mc[0m
+  [35ma.c[0m conflicts with [35ma.c[0m
+  [35ma.c[0m conflicts with [35mb.c[0m
+  [35ma.c[0m conflicts with [35ma.b.c[0m
+  [35mb.c[0m conflicts with [35ma[0m
+  [35mb.c[0m conflicts with [35mb[0m
+  [35mb.c[0m conflicts with [35ma.b[0m
+  [35mb.c[0m conflicts with [34mc[0m
+  [35mb.c[0m conflicts with [35ma.c[0m
+  [35mb.c[0m conflicts with [35mb.c[0m
+  [35mb.c[0m conflicts with [35ma.b.c[0m
+  [35ma.b.c[0m conflicts with [36m□[0m
+  [35ma.b.c[0m conflicts with [35ma[0m
+  [35ma.b.c[0m conflicts with [35mb[0m
+  [35ma.b.c[0m conflicts with [35ma.b[0m
+  [35ma.b.c[0m conflicts with [34mc[0m
+  [35ma.b.c[0m conflicts with [35ma.c[0m
+  [35ma.b.c[0m conflicts with [35mb.c[0m
+  [35ma.b.c[0m conflicts with [35ma.b.c[0m
+
+Coherence
+  [36m□[0m coheres with [36m□[0m
+  [36m□[0m coheres with [35mb[0m
+  [36m□[0m coheres with [34mc[0m
+  [36m□[0m coheres with [35mb.c[0m
+  [35mb[0m coheres with [36m□[0m
+  [34mc[0m coheres with [36m□[0m
+  [34mc[0m coheres with [34mc[0m
+  [35mb.c[0m coheres with [36m□[0m
+
+Unilateral Exclusion
+  [36m□[0m excludes [35ma[0m
+  [35ma[0m excludes [36m□[0m
+  [35mb[0m excludes [35mb[0m
+  [35mb[0m excludes [34mc[0m
+  [34mc[0m excludes [35mb[0m
+
+Functions
+  \neg((A \wedge B))_y: [36m□[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35ma[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35mb[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35ma.b[0m → [36m□[0m
+  \neg((A \wedge B))_y: [34mc[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35ma.c[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35mb.c[0m → [36m□[0m
+  \neg((A \wedge B))_y: [35ma.b.c[0m → [36m□[0m
+  \neg(B)_h: [36m□[0m → [36m□[0m
+  \neg(B)_h: [35ma[0m → [36m□[0m
+  \neg(B)_h: [35mb[0m → [36m□[0m
+  \neg(B)_h: [35ma.b[0m → [36m□[0m
+  \neg(B)_h: [34mc[0m → [36m□[0m
+  \neg(B)_h: [35ma.c[0m → [36m□[0m
+  \neg(B)_h: [35mb.c[0m → [36m□[0m
+  \neg(B)_h: [35ma.b.c[0m → [36m□[0m
+  \neg(B)_y: [36m□[0m → [35ma[0m
+  \neg(B)_y: [35ma[0m → [35ma[0m
+  \neg(B)_y: [35mb[0m → [35ma[0m
+  \neg(B)_y: [35ma.b[0m → [35ma[0m
+  \neg(B)_y: [34mc[0m → [35ma[0m
+  \neg(B)_y: [35ma.c[0m → [35ma[0m
+  \neg(B)_y: [35mb.c[0m → [35ma[0m
+  \neg(B)_y: [35ma.b.c[0m → [35ma[0m
+  \neg((A \wedge B))_h: [36m□[0m → [34mc[0m
+  \neg((A \wedge B))_h: [35ma[0m → [34mc[0m
+  \neg((A \wedge B))_h: [35mb[0m → [34mc[0m
+  \neg((A \wedge B))_h: [35ma.b[0m → [34mc[0m
+  \neg((A \wedge B))_h: [34mc[0m → [34mc[0m
+  \neg((A \wedge B))_h: [35ma.c[0m → [34mc[0m
+  \neg((A \wedge B))_h: [35mb.c[0m → [34mc[0m
+  \neg((A \wedge B))_h: [35ma.b.c[0m → [34mc[0m
+  \neg(A)_y: [36m□[0m → [36m□[0m
+  \neg(A)_y: [35ma[0m → [36m□[0m
+  \neg(A)_y: [35mb[0m → [36m□[0m
+  \neg(A)_y: [35ma.b[0m → [36m□[0m
+  \neg(A)_y: [34mc[0m → [36m□[0m
+  \neg(A)_y: [35ma.c[0m → [36m□[0m
+  \neg(A)_y: [35mb.c[0m → [36m□[0m
+  \neg(A)_y: [35ma.b.c[0m → [36m□[0m
+  \neg(A)_h: [36m□[0m → [36m□[0m
+  \neg(A)_h: [35ma[0m → [36m□[0m
+  \neg(A)_h: [35mb[0m → [36m□[0m
+  \neg(A)_h: [35ma.b[0m → [36m□[0m
+  \neg(A)_h: [34mc[0m → [36m□[0m
+  \neg(A)_h: [35ma.c[0m → [36m□[0m
+  \neg(A)_h: [35mb.c[0m → [36m□[0m
+  \neg(A)_h: [35ma.b.c[0m → [36m□[0m
+
+The evaluation world is: [34mc[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|(\neg A \vee \neg B)| = {□}[0m  [32m(True in c)[0m
+      [37m|\neg A| = {}[0m  [33m(False in c)[0m
+        [37m|A| = {b.c}[0m  [33m(False in c)[0m
+      [37m|\neg B| = {□}[0m  [33m(True in c)[0m
+        [37m|B| = {a.b.c}[0m  [33m(False in c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\neg (A \wedge B)| = {}[0m  [31m(False in c)[0m
+      [37m|(A \wedge B)| = {a.b.c}[0m  [33m(False in c)[0m
+        [37m|A| = {b.c}[0m  [33m(False in c)[0m
+        [37m|B| = {a.b.c}[0m  [33m(False in c)[0m
+
+Total Run Time: 0.6395 seconds
+
+
+========================================
