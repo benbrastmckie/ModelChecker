@@ -62,8 +62,11 @@ The LogosModelIterator extends BaseModelIterator with Logos-specific implementat
 class LogosModelIterator(BaseModelIterator):
     """Model iterator for the logos theory with hyperintensional semantics."""
     
-    # Core difference detection
-    def _calculate_differences(self, new_structure, previous_structure)
+    # Core difference detection (comprehensive hyperintensional tracking)
+    def _calculate_logos_differences(self, new_structure, previous_structure)
+    
+    # Generator override for theory-specific difference display
+    def iterate_generator(self)
     
     # Constraint generation for semantic differences  
     def _create_difference_constraint(self, previous_models)
@@ -72,6 +75,12 @@ class LogosModelIterator(BaseModelIterator):
     def _create_non_isomorphic_constraint(self, z3_model)
     def _create_stronger_constraint(self, isomorphic_model)
 ```
+
+The `iterate_generator()` override is crucial for displaying theory-specific differences. It:
+1. Calls the base generator to get models
+2. Calculates logos-specific differences using `_calculate_logos_differences()`
+3. Transforms the data structure to match display expectations
+4. Merges theory-specific differences with generic ones
 
 ### Integration with Logos Subtheories
 
@@ -157,6 +166,19 @@ for i, model in enumerate(models, 1):
 ```
 
 ## Semantic Difference Detection
+
+The LogosModelIterator provides sophisticated difference detection across multiple semantic dimensions. The `_calculate_logos_differences()` method comprehensively tracks all semantic changes, and the `iterate_generator()` override ensures these differences are properly displayed during iteration.
+
+### Enhanced Difference Display
+
+When iterating through models, the framework now displays:
+- **Verification Changes**: States that newly verify or no longer verify propositions
+- **Falsification Changes**: States that newly falsify or no longer falsify propositions  
+- **Parthood Relations**: Changes in hyperintensional part-whole structure
+- **World Changes**: Addition/removal of possible worlds
+- **Possible State Changes**: Changes in state possibility
+
+This rich difference information helps researchers understand the semantic variations between models.
 
 ### Verification/Falsification Changes
 

@@ -96,9 +96,9 @@ Each refactoring step MUST use BOTH testing methods to ensure comprehensive vali
 
 2. **Test with Iterations** (CRITICAL for iterator regression detection):
    ```bash
-   ./dev_cli.py -i 1 src/model_checker/theory_lib/logos/examples.py
-   ./dev_cli.py -i 2 src/model_checker/theory_lib/logos/examples.py
-   ./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+   ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+   ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+   ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
    ```
 
 3. **Test All Theories Systematically**:
@@ -260,7 +260,7 @@ if not z3.is_false(z3_expr):
 # Testing
 ./run_tests.py --all                    # Full test suite
 ./run_tests.py component -v             # Component tests verbose
-./dev_cli.py -i 3 path/to/examples.py   # CLI with iterations
+./dev_cli.py path/to/examples.py   # CLI with iterations
 
 # Validation
 grep -n '[^[:print:][:space:]]' src/   # Bad characters
