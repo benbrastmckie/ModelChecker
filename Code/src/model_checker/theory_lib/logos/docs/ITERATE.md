@@ -122,7 +122,7 @@ settings = {
     'max_invalid_attempts': 3,             # Fewer retries for invalid models
     'iteration_attempts': 7,               # More isomorphism attempts
     'escape_attempts': 4,                  # More escape attempts  
-    'iteration_timeout': 2.0,              # Longer isomorphism checking
+    'max_time': 2000,                      # 2 second timeout for iteration
     'iteration_solver_timeout': 8.0,       # Extended solver timeout (seconds)
 }
 ```
@@ -502,7 +502,7 @@ settings = {
     
     # Performance tuning
     'iteration_solver_timeout': 15000,  # 15 second solver timeout
-    'iteration_timeout': 3.0,          # 3 second isomorphism timeout
+    'max_time': 3000,                  # 3 second timeout
     'max_invalid_attempts': 2,         # Fewer invalid attempts
     'escape_attempts': 5,              # More escape attempts for complex space
 }
@@ -626,9 +626,9 @@ for i, model in enumerate(models[1:], 2):
    - >10 models: Diminishing returns, risk of timeout
 
 3. **Timeout Settings**
-   - Base timeout: 1-2 seconds for simple formulas
-   - Iteration timeout: 2-3 seconds for isomorphism checking
-   - Solver timeout: 5-15 seconds for complex constraints
+   - Base timeout (max_time): 1000-2000ms for simple formulas
+   - Iteration timeout: Use max_time for iteration attempts
+   - Solver timeout: 5000-15000ms for complex constraints
 
 ### Subtheory Considerations
 
@@ -648,7 +648,7 @@ quick_settings = {
     'N': 3,
     'iterate': 3,
     'max_time': 1,
-    'iteration_timeout': 1.0
+    'max_time': 1000
 }
 
 # Thorough investigation pattern
@@ -658,7 +658,7 @@ thorough_settings = {
     'contingent': True,
     'non_empty': True,
     'max_time': 2,
-    'iteration_timeout': 2.0,
+    'max_time': 2000,
     'iteration_solver_timeout': 10000
 }
 
@@ -671,7 +671,7 @@ research_settings = {
     'non_null': True,
     'disjoint': True,
     'max_time': 5,
-    'iteration_timeout': 3.0,
+    'max_time': 3000,
     'iteration_solver_timeout': 30000,
     'escape_attempts': 10
 }

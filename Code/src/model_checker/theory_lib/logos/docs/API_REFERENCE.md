@@ -226,9 +226,8 @@ DEFAULT_EXAMPLE_SETTINGS = {
     'non_empty': True,
     'non_null': True,
     'disjoint': True,
-    'max_time': 10000,
+    'max_time': 10000,          # Also used for iteration attempts
     'iterate': False,
-    'iteration_timeout': 1.0,
     'iteration_attempts': 5,
     'expectation': None,
 }
@@ -460,9 +459,8 @@ DEFAULT_EXAMPLE_SETTINGS = {
     'non_empty': True,          # Require non-empty verifier/falsifier sets
     'non_null': True,           # Prevent null states as verifiers/falsifiers
     'disjoint': True,           # Require disjoint verifier/falsifier sets
-    'max_time': 10000,          # Z3 timeout in milliseconds
+    'max_time': 10000,          # Z3 timeout in milliseconds (also used for iteration)
     'iterate': False,           # Enable model iteration
-    'iteration_timeout': 1.0,   # Timeout per iteration attempt
     'iteration_attempts': 5,    # Max attempts per iteration
     'expectation': None,        # Expected validity result
 }

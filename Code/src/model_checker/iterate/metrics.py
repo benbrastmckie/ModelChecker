@@ -98,7 +98,7 @@ class TerminationManager:
         """
         self.settings = settings
         self.start_time = None
-        self.timeout = settings.get('timeout', 300)  # Default 5 minutes
+        self.timeout = settings.get('max_time', 300)  # Default 5 minutes
         self.max_consecutive_invalid = settings.get('max_consecutive_invalid', 20)
         
     def start_timing(self):

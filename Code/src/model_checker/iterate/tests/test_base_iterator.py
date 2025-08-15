@@ -53,7 +53,7 @@ class TestBaseModelIterator:
         iterator = MockModelIterator(mock_example)
         
         # Set very short timeout
-        iterator.settings['iteration_timeout'] = 0.001
+        iterator.settings['max_time'] = 0.001
         
         # Mock slow solver check
         def slow_check():
@@ -170,6 +170,7 @@ def create_mock_example():
     mock_structure.semantics = Mock()
     mock_structure.z3_model_runtime = 0.05  # Add runtime for report generation
     mock_structure._search_duration = 0.05  # Fallback for report generation
+    mock_structure._total_search_time = 0.05  # Add total search time for iteration report
     
     # Mock model constraints (required for constraint preservation)
     mock_constraints = Mock()

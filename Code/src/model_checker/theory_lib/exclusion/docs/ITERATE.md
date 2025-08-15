@@ -134,7 +134,7 @@ settings = {
     'max_invalid_attempts': 4,             # More tolerance for invalid models
     'iteration_attempts': 6,               # More isomorphism attempts for complex exclusions
     'escape_attempts': 5,                  # More escape attempts for exclusion constraints
-    'iteration_timeout': 2.5,              # Extended isomorphism checking for exclusions
+    'max_time': 2500,                      # 2.5 second timeout for exclusion complexity
     'iteration_solver_timeout': 10.0,      # Longer solver timeout for complex exclusion reasoning (seconds)
 }
 ```
@@ -439,7 +439,7 @@ exclusion_settings = {
     'non_empty': True,                 # Ensure meaningful witness structures
     'max_time': 5,                     # Extended timeout for exclusion reasoning
     'iteration_solver_timeout': 10000, # Extended solver timeout
-    'iteration_timeout': 2.5,          # Longer isomorphism checking
+    'max_time': 2500,                  # 2.5 seconds for complex exclusions
 }
 
 # For witness-intensive examples

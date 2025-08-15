@@ -38,7 +38,6 @@ class LogosSemantics(SemanticDefaults):
         'disjoint': True,
         'max_time': 10,
         'iterate': False,
-        'iteration_timeout': 5,
         'expectation': None,
     }
     

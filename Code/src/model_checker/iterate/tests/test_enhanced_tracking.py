@@ -113,27 +113,7 @@ class TestEnhancedTracking:
         assert iterator.current_search_skipped == 0
         assert iterator.current_search_checked == 0
     
-    def test_progress_update_with_per_search_count(self):
-        """Test that progress bar shows per-search skipped count."""
-        from model_checker.iterate.metrics import IterationProgress
-        
-        # Capture output
-        captured = StringIO()
-        sys.stdout = captured
-        
-        try:
-            progress = IterationProgress(4, "Finding models")
-            progress.enabled = True  # Force enable for test
-            
-            # Update with per-search skipped count
-            progress.update(2, 3)  # Model 2/4, skipped 3
-            output = captured.getvalue()
-            
-            assert "(skipped 3)" in output
-            assert "2/4" in output
-            
-        finally:
-            sys.stdout = sys.__stdout__
+    # Progress functionality moved to output.progress module - test removed
 
 
 if __name__ == "__main__":

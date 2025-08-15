@@ -40,7 +40,6 @@ iteration_settings = {
     'iterate': 3,                # Find 3 distinct models
     'contingent': True,          # Diverse verification
     'non_empty': True,           # Meaningful witnesses
-    'iteration_timeout': 2.5,    # Extended comparison time
     'iteration_attempts': 8      # More retry attempts
 }
 
@@ -125,12 +124,6 @@ These settings control model generation for specific examples and are defined in
 - **Impact**: Triggers model iteration to find multiple valid models
 - **Usage**: Set > 1 to explore semantic diversity
 - **Example**: `'iterate': 3` finds 3 distinct models with different exclusion patterns
-
-**`iteration_timeout` (float, default: 1.0)**
-- **Purpose**: Timeout for isomorphism checking between models (seconds)
-- **Impact**: Controls how long to check if two models are equivalent
-- **Usage**: Increase for complex exclusion patterns that need careful comparison
-- **Example**: `'iteration_timeout': 2.5` allows more thorough equivalence checking
 
 **`iteration_attempts` (integer, default: 5)**
 - **Purpose**: Maximum attempts to find a non-isomorphic model
@@ -244,7 +237,7 @@ settings = {
     'non_empty': True,
     'non_null': True,
     'iterate': 4,
-    'iteration_timeout': 2.5,
+    # max_time already configured above
     'iteration_attempts': 6,
     'max_time': 5,
 }
@@ -265,7 +258,7 @@ general_settings = {
 
 1. **State Space Size**: Keep N ≤ 4 for responsive interaction
 2. **Iteration Count**: Balance `iterate` with `max_time`
-3. **Timeouts**: Set `iteration_timeout` < `max_time` / `iterate`
+3. **Timeouts**: Set `max_time` appropriately for both initial and iteration attempts
 4. **Constraint Complexity**: More constraints need higher timeouts
 
 ## Troubleshooting
@@ -279,7 +272,7 @@ general_settings = {
 
 2. **Iteration finds duplicates**:
    - Increase `iteration_attempts`
-   - Adjust `iteration_timeout`
+   - Adjust `max_time` for iteration
    - Review exclusion patterns
 
 3. **Unexpected impossible states**:
@@ -327,7 +320,7 @@ Settings flow through the system: CLI flags → general settings → example set
 
 ### For Theory Developers
 
-- **[Iteration Settings](#iteration-settings)** - iterate, iteration_timeout, attempts
+- **[Iteration Settings](#iteration-settings)** - iterate, max_time, attempts
 - **[Advanced Settings](#advanced-iteration-settings)** - Fine-tuning parameters
 - **[Setting Interactions](#setting-interactions)** - How parameters affect each other
 

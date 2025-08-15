@@ -66,7 +66,6 @@ iterator = BimodalModelIterator(example)
 
 # Configure iteration
 iterator.max_iterations = 5
-iterator.iteration_timeout = 2.0  # 2 seconds per iteration
 
 # Perform iteration
 models = iterator.iterate()
@@ -87,7 +86,6 @@ settings = {
     "M": 3,                    # Number of time points
     "N": 2,                    # Number of atomic propositions
     "iterate": 5,              # Find up to 5 models
-    "iteration_timeout": 1.0,  # Timeout per iteration (seconds)
     "max_time": 10,           # Overall timeout for first model
 }
 ```
@@ -101,9 +99,6 @@ iterator = BimodalModelIterator(example)
 
 # Maximum models to find
 iterator.max_iterations = 10
-
-# Timeout for each iteration attempt
-iterator.iteration_timeout = 2.0
 
 # Enable debug output
 import logging
@@ -196,7 +191,6 @@ Balance between finding models and performance:
 ```python
 settings = {
     "max_time": 5,            # Initial model timeout
-    "iteration_timeout": 1.0,  # Per-iteration timeout
 }
 ```
 
@@ -397,7 +391,7 @@ If iteration stops after one model:
 ### Slow Iteration
 
 If iteration is taking too long:
-- Reduce `iteration_timeout`
+- Reduce `max_time` in settings
 - Limit `max_iterations`
 - Simplify your formula
 - Use smaller values for `M` and `N`

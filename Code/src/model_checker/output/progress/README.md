@@ -13,9 +13,12 @@ progress/
 ├── display.py            # Display handlers for different environments
 ├── spinner.py            # Simple spinner for indeterminate operations
 └── tests/                # Comprehensive test suite
+    ├── README.md         # Test documentation and coverage guide
     ├── __init__.py
-    ├── test_core.py      # Tests for UnifiedProgress
-    └── test_animated.py  # Tests for animated progress bars
+    ├── test_animated.py  # Tests for animated progress bars
+    ├── test_core.py      # Tests for UnifiedProgress and ProgressBar
+    ├── test_display.py   # Tests for display adapters
+    └── test_spinner.py   # Tests for spinner component
 ```
 
 ## Overview
@@ -34,6 +37,7 @@ Following ModelChecker's **core development principles**, the progress system av
 - **Immediate Completion**: Instant visual feedback when models are found
 - **Clear Status Display**: Shows model number, skip counts, and elapsed time
 - **Responsive Updates**: 100ms refresh rate for smooth animation
+- **Color Support**: Orange/amber progress bars in color-capable terminals
 
 ### Intelligent Display Management
 
@@ -58,11 +62,13 @@ Progress tracking activates automatically when iteration is requested:
 ```python
 # In your example file
 EXAMPLE_settings = {
-    'N': 3,                      # State count
-    'iterate': 4,                # Find 4 models (enables progress)
-    'iteration_timeout': 5.0,    # 5 seconds per model search
+    'N': 3,        # State count
+    'iterate': 4,  # Find 4 models (enables progress)
+    'max_time': 5, # 5 seconds timeout for all operations
 }
 ```
+
+Note: The `iteration_timeout` setting has been removed. All timeout control is now unified under the `max_time` setting.
 
 ### Output Format
 
@@ -205,42 +211,64 @@ if self.search_stats:
 
 ## Testing
 
-### Running Tests
+### Comprehensive Test Suite
 
-Execute the comprehensive test suite:
+The progress module includes a thorough test suite with 54 tests providing complete coverage of all components:
 
 ```bash
-# Run all progress tests
+# Run all progress tests (54 tests)
 pytest src/model_checker/output/progress/tests/ -xvs
 
 # Run specific test file
 pytest src/model_checker/output/progress/tests/test_animated.py -xvs
 
-# Run with coverage
-pytest src/model_checker/output/progress/tests/ --cov=model_checker.output.progress
+# Run with verbose output
+pytest src/model_checker/output/progress/tests/ -v
 ```
 
 ### Test Coverage
 
-The test suite covers:
+The test suite ensures comprehensive coverage across all modules:
 
-- Progress bar animation timing
-- Immediate completion on success
-- Timeout handling and cleanup
-- Count tracking (checked/skipped)
-- Thread lifecycle management
-- Display clearing and formatting
+- **[test_core.py](tests/test_core.py)**: 14 tests for UnifiedProgress and ProgressBar
+  - Single and multiple model progress tracking
+  - Isomorphic skip counting and timing
+  - Edge cases: zero models, custom start times
+  - Abstract interface verification
+  
+- **[test_animated.py](tests/test_animated.py)**: 9 tests for TimeBasedProgress
+  - Time-based animation behavior
+  - Thread lifecycle management
+  - Color support detection
+  - Progress bar visual rendering
+  
+- **[test_display.py](tests/test_display.py)**: 18 tests for display adapters
+  - ProgressDisplay abstract interface
+  - TerminalDisplay carriage return handling
+  - BatchDisplay no-op behavior
+  - Terminal width adaptation
+  
+- **[test_spinner.py](tests/test_spinner.py)**: 13 tests for Spinner component
+  - Animation character cycling
+  - Thread creation and cleanup
+  - Start/stop behavior
+  - Custom message formatting
+
+See [tests/README.md](tests/README.md) for detailed test documentation and coverage guidelines.
 
 ### Integration Testing
 
-Test with real examples:
+Test with real model checking examples:
 
 ```bash
-# Test with iteration
+# Test with iteration progress
 ./dev_cli.py -i 3 examples/my_example.py
 
-# Test timeout behavior
+# Test timeout behavior  
 ./dev_cli.py examples/timeout_example.py
+
+# Test with different theories
+./dev_cli.py -l logos -i 5 examples/logos_example.py
 ```
 
 ## Development Guidelines

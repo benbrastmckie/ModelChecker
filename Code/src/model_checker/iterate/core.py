@@ -195,7 +195,7 @@ class BaseModelIterator:
                 
                 # Check timeout for current model search
                 elapsed = time.time() - self.current_search_start
-                timeout = self.settings.get('iteration_timeout', self.settings.get('timeout', 300))  # Default 5 minutes
+                timeout = self.settings.get('max_time', 300)  # Default 5 minutes
                 if elapsed > timeout:
                     logger.warning(f"Model {model_number} search timeout ({timeout}s) reached")
                     self.debug_messages.append(f"Model {model_number} search timeout ({timeout}s) reached")
@@ -502,7 +502,7 @@ class BaseModelIterator:
                 
                 # Check timeout first
                 elapsed = time.time() - iteration_start_time
-                timeout = self.settings.get('iteration_timeout', self.settings.get('timeout', 300))  # Default 5 minutes
+                timeout = self.settings.get('max_time', 300)  # Default 5 minutes
                 if elapsed > timeout:
                     logger.warning(f"Iteration timeout ({timeout}s) reached")
                     self.debug_messages.append(f"Iteration timeout ({timeout}s) reached")
