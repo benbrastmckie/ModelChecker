@@ -1421,9 +1421,55 @@ class WitnessStructure(ModelDefaults):
                 print(f"  {RED}- {state_str} (now impossible){RESET}", file=output)
             print(file=output)
         
-        # Note: Verification, witness, and exclusion relation differences are tracked
-        # in the theory-specific iterator but not available through the generic calculator.
-        # For now, we display the basic structural differences.
+        # Print theory-specific differences if available
+        
+        # Verification changes
+        verifications = diffs.get('verifications', {})
+        if verifications:
+            print(f"{BLUE}Verification Changes:{RESET}", file=output)
+            for verification_key, change in verifications.items():
+                if change['new']:
+                    print(f"  {GREEN}+ {verification_key}{RESET}", file=output)
+                else:
+                    print(f"  {RED}- {verification_key}{RESET}", file=output)
+            print(file=output)
+        
+        # Exclusion relation changes
+        exclusions = diffs.get('exclusions', {})
+        if exclusions:
+            print(f"{BLUE}Exclusion Changes:{RESET}", file=output)
+            for exclusion_key, change in exclusions.items():
+                if change['new']:
+                    print(f"  {GREEN}+ {exclusion_key}{RESET}", file=output)
+                else:
+                    print(f"  {RED}- {exclusion_key}{RESET}", file=output)
+            print(file=output)
+        
+        # Witness function changes
+        witnesses = diffs.get('witnesses', {})
+        if witnesses and witnesses.get('changed_witnesses'):
+            print(f"{BLUE}Witness Function Changes:{RESET}", file=output)
+            for formula, changes in witnesses['changed_witnesses'].items():
+                print(f"  Formula: {formula}", file=output)
+                
+                # Show h function changes
+                h_changes = changes.get('h_changes', {})
+                if h_changes:
+                    print(f"    {YELLOW}h function:{RESET}", file=output)
+                    for state, change in h_changes.items():
+                        old_state = bitvec_to_substates(change['old'], self.N)
+                        new_state = bitvec_to_substates(change['new'], self.N) 
+                        print(f"      {state}: {old_state} → {new_state}", file=output)
+                
+                # Show y function changes
+                y_changes = changes.get('y_changes', {})
+                if y_changes:
+                    print(f"    {YELLOW}y function:{RESET}", file=output)
+                    for state, change in y_changes.items():
+                        old_state = bitvec_to_substates(change['old'], self.N)
+                        new_state = bitvec_to_substates(change['new'], self.N)
+                        print(f"      {state}: {old_state} → {new_state}", file=output)
+            print(file=output)
 
 
 class WitnessProposition(PropositionDefaults):

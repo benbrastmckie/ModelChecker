@@ -12,7 +12,7 @@ __model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 
 from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure, WitnessAwareModel, WitnessRegistry, WitnessConstraintGenerator
 from .operators import witness_operators
-from .iterate import ExclusionModelIterator, iterate_example
+from .iterate import ExclusionModelIterator, iterate_example, iterate_example_generator
 
 # For ModelChecker discovery
 DefaultSemantics = WitnessSemantics
@@ -33,6 +33,7 @@ __all__ = [
     'ExclusionStructure',  # Legacy alias
     'ExclusionModelIterator',
     'iterate_example',
+    'iterate_example_generator',
     'get_theory',
     'get_examples', 
     'get_test_examples'

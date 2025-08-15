@@ -57,7 +57,7 @@ from model_checker.theory_lib.logos import (
 from .operators import imposition_operators
 
 # Import iteration functionality
-from .iterate import ImpositionModelIterator, iterate_example
+from .iterate import ImpositionModelIterator, iterate_example, iterate_example_generator
 
 # Define the public API of the package
 
@@ -70,6 +70,7 @@ __all__ = [
     "imposition_operators",   # Logical operators including boxright (▷) and diamondright (◇▷)
     "ImpositionModelIterator", # Iterator for finding multiple distinct models
     "iterate_example",        # Function to find multiple distinct models
+    "iterate_example_generator", # Generator version for incremental display
     "__version__",            # Package version information,
     "__model_checker_version__",  # Compatible ModelChecker version
     "get_theory",
