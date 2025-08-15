@@ -140,11 +140,19 @@ class TimeBasedProgress(AnimatedProgressBar):
         if os.environ.get('NO_COLOR'):
             return False
         
+        # Check TERM environment variable
+        term = os.environ.get('TERM', '').lower()
+        if term in ['dumb', 'unknown', '']:
+            return False
+        
         # Check if output is to a terminal
         if not hasattr(self.display.stream, 'isatty'):
             return False
-            
-        return self.display.stream.isatty()
+        
+        if not self.display.stream.isatty():
+            return False
+        
+        return True
     
     def _generate_bar(self, progress: float) -> str:
         """Generate progress bar string with proper width handling and color."""

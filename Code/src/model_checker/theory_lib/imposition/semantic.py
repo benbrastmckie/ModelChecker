@@ -603,9 +603,6 @@ class ImpositionModelStructure(LogosModelStructure):
         
         diffs = self.model_differences
         
-        # Debug: print available keys
-        print(f"DEBUG: model_differences keys: {list(diffs.keys())}", file=output)
-        
         # Print header with colors
         print(f"\n{self.COLORS['world']}=== DIFFERENCES FROM PREVIOUS MODEL ==={self.RESET}\n", file=output)
         
