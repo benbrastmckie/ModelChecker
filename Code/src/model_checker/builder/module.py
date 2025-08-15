@@ -908,9 +908,6 @@ class BuildModule:
                         
                         # Now print the differences
                         try:
-                            # Force setting to properly colorize output
-                            print("\033[1m\033[0m", end="")  # Force ANSI escape sequence processing
-                            
                             # Each theory must provide its own print_model_differences method
                             if hasattr(structure, 'print_model_differences'):
                                 structure.print_model_differences()
@@ -996,7 +993,6 @@ class BuildModule:
                 if previous_model:
                     # Print differences using structure's method
                     if hasattr(structure, 'print_model_differences'):
-                        print("\033[1m\033[0m", end="")  # Force ANSI escape sequence processing
                         structure.print_model_differences()
                     else:
                         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===")
