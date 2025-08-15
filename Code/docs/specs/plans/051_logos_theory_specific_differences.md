@@ -308,8 +308,8 @@ file -i src/model_checker/theory_lib/logos/iterate.py
 
 **Step 3: CLI Testing with Performance Tracking**
 ```bash
-# Time baseline vs implementation
-time ./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+# Time baseline vs implementation (examples have iterate setting configured)
+time ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 
 # Test all subtheories with timing
 for subtheory in modal counterfactual constitutive relevance extensional; do
@@ -323,7 +323,7 @@ done
 # Ensure no impact on other theories
 for theory in logos exclusion imposition bimodal; do
     echo "=== Regression test: $theory ==="
-    ./dev_cli.py -i 2 src/model_checker/theory_lib/$theory/examples.py
+    ./dev_cli.py src/model_checker/theory_lib/$theory/examples.py
 done
 ```
 

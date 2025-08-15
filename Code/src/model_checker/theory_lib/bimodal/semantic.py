@@ -2235,3 +2235,141 @@ class BimodalStructure(ModelDefaults):
                             pass
         
         return propositions
+    
+    def print_model_differences(self, output=sys.stdout):
+        """Print differences from previous model using bimodal theory semantics.
+        
+        Args:
+            output: Output stream for printing
+        """
+        if not hasattr(self, 'model_differences') or not self.model_differences:
+            return
+            
+        diffs = self.model_differences
+        
+        # Skip if all difference categories are empty
+        if not any([
+            diffs.get('world_histories'),
+            diffs.get('truth_conditions'),
+            diffs.get('task_relations'),
+            diffs.get('time_intervals'),
+            diffs.get('time_shifts')
+        ]):
+            return
+        
+        print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
+        
+        # 1. Print world history changes
+        if 'world_histories' in diffs and diffs['world_histories']:
+            print("World History Changes:", file=output)
+            
+            for world_id, changes in diffs['world_histories'].items():
+                if isinstance(changes, dict) and changes.get('added', False):
+                    # New world added
+                    print(f"  + World W_{world_id} added", file=output)
+                    history = changes.get('history', {})
+                    
+                    time_states = []
+                    for time, state in sorted(history.items()):
+                        time_states.append(f"({time}:{state})")
+                    
+                    if time_states:
+                        print(f"    History: {' -> '.join(time_states)}", file=output)
+                
+                elif isinstance(changes, dict) and changes.get('removed', False):
+                    # World removed
+                    print(f"  - World W_{world_id} removed", file=output)
+                
+                else:
+                    # World changed
+                    print(f"  World W_{world_id} changed:", file=output)
+                    
+                    for time, change in sorted(changes.items()):
+                        if isinstance(change, dict):
+                            old_state = change.get('old')
+                            new_state = change.get('new')
+                            
+                            if old_state is None:
+                                # Time point added
+                                print(f"    + Time {time}: {new_state}", file=output)
+                            elif new_state is None:
+                                # Time point removed
+                                print(f"    - Time {time}: {old_state}", file=output)
+                            else:
+                                # State changed at this time
+                                print(f"    Time {time}: {old_state} -> {new_state}", file=output)
+        
+        # 2. Print truth condition changes
+        if 'truth_conditions' in diffs and diffs['truth_conditions']:
+            print("\nTruth Condition Changes:", file=output)
+            
+            for letter, changes in diffs['truth_conditions'].items():
+                print(f"  Letter {letter}:", file=output)
+                
+                for state, change in changes.items():
+                    old_value = change.get('old', False)
+                    new_value = change.get('new', False)
+                    
+                    print(f"    State {state}: {old_value} -> {new_value}", file=output)
+        
+        # 3. Print task relation changes
+        if 'task_relations' in diffs and diffs['task_relations']:
+            print("\nTask Relation Changes:", file=output)
+            
+            for transition, change in diffs['task_relations'].items():
+                old_value = change.get('old', False)
+                new_value = change.get('new', False)
+                
+                status = "added" if new_value and not old_value else "removed" if old_value and not new_value else "changed"
+                print(f"  Task {transition}: {status}", file=output)
+        
+        # 4. Print time interval changes
+        if 'time_intervals' in diffs and diffs['time_intervals']:
+            print("\nTime Interval Changes:", file=output)
+            
+            for world_id, change in diffs['time_intervals'].items():
+                old_interval = change.get('old')
+                new_interval = change.get('new')
+                
+                if old_interval is None:
+                    print(f"  + World W_{world_id} interval: {new_interval}", file=output)
+                elif new_interval is None:
+                    print(f"  - World W_{world_id} interval: {old_interval}", file=output)
+                else:
+                    print(f"  World W_{world_id} interval: {old_interval} -> {new_interval}", file=output)
+        
+        # 5. Print time shift relation changes
+        if 'time_shifts' in diffs and diffs['time_shifts']:
+            print("\nTime Shift Relation Changes:", file=output)
+            
+            for world_id, changes in diffs['time_shifts'].items():
+                if isinstance(changes, dict) and changes.get('added', False):
+                    # New world added
+                    print(f"  + Time shifts for World W_{world_id} added", file=output)
+                    shifts = changes.get('shifts', {})
+                    
+                    for shift, target in sorted(shifts.items()):
+                        print(f"    Shift {shift}: -> W_{target}", file=output)
+                
+                elif isinstance(changes, dict) and changes.get('removed', False):
+                    # World removed
+                    print(f"  - Time shifts for World W_{world_id} removed", file=output)
+                
+                else:
+                    # Shifts changed
+                    print(f"  Time shifts for World W_{world_id} changed:", file=output)
+                    
+                    for shift, change in sorted(changes.items()):
+                        if isinstance(change, dict):
+                            old_target = change.get('old')
+                            new_target = change.get('new')
+                            
+                            if old_target is None:
+                                # Shift added
+                                print(f"    + Shift {shift}: -> W_{new_target}", file=output)
+                            elif new_target is None:
+                                # Shift removed
+                                print(f"    - Shift {shift}: -> W_{old_target}", file=output)
+                            else:
+                                # Target changed
+                                print(f"    Shift {shift}: W_{old_target} -> W_{new_target}", file=output)

@@ -130,9 +130,10 @@ This method validates real-world usage and catches integration issues:
 ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py
 
 # Test with iterations (CRITICAL for iterator regression detection)
-./dev_cli.py -i 1 src/model_checker/theory_lib/logos/examples.py
-./dev_cli.py -i 2 src/model_checker/theory_lib/logos/examples.py
-./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+# Run the same command multiple times to test iteration behavior
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 
 # Test all theories systematically
 for theory in logos bimodal exclusion imposition; do
@@ -238,7 +239,7 @@ Example workflow for refactoring:
 
 # Method 2: Test with dev_cli.py
 ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
-./dev_cli.py -i 3 src/model_checker/theory_lib/bimodal/examples.py
+./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py
 ```
 
 ### Test Structure
@@ -465,10 +466,10 @@ Example regression check:
 
 ```bash
 # Before changes
-./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py > baseline.txt 2>&1
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py > baseline.txt 2>&1
 
 # After changes
-./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py > current.txt 2>&1
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py > current.txt 2>&1
 
 # Check for regressions
 diff baseline.txt current.txt

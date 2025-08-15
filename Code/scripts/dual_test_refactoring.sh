@@ -40,11 +40,12 @@ for theory in logos bimodal exclusion imposition; do
 done
 
 # Test with iteration (critical for catching iterator regressions)
+# Run the same command multiple times to test iteration behavior
 echo ""
 echo "Testing iteration functionality..."
-for i in 1 2 3; do
-    echo -n "  Testing with $i iterations... "
-    if timeout 10 ./dev_cli.py -i $i "src/model_checker/theory_lib/logos/examples.py" 2>&1 | head -200 | grep -E "WARNING|AttributeError" > /dev/null; then
+for run in 1 2 3; do
+    echo -n "  Testing run $run... "
+    if timeout 10 ./dev_cli.py "src/model_checker/theory_lib/logos/examples.py" 2>&1 | head -200 | grep -E "WARNING|AttributeError" > /dev/null; then
         echo "✗ FAILED"
         exit 1
     else

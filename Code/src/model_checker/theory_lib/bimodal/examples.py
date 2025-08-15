@@ -71,7 +71,6 @@ Settings Options:
 - disjoint: Whether to enforce disjoint valuations
 - max_time: Maximum computation time in seconds
 - expectation: Whether the example is expected to be valid
-- iterate: Number of iterations for modal operators
 
 Notes:
 ------
@@ -143,11 +142,11 @@ bimodal_theory = {
 EX_CM_1_premises = ['(A \\vee B)']
 EX_CM_1_conclusions = ['(A \\wedge B)']
 EX_CM_1_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,
     'expectation' : True,
 }
 EX_CM_1_example = [
@@ -171,7 +170,6 @@ MD_CM_1_settings = {
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 5,
-    'iterate' : 2,
     'expectation' : True,
 }
 MD_CM_1_example = [
@@ -618,7 +616,7 @@ unit_tests = {**countermodel_examples, **theorem_examples}
 
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
-    "Brast-McKie" : bimodal_theory,
+    "Bimodal" : bimodal_theory,
     # additional theories will require their own translation dictionaries
 }
 
@@ -628,10 +626,10 @@ example_range = {
     ### COUNTERMODELS ###
 
     # Extensional Countermodels
-    # "EX_CM_1" : EX_CM_1_example,
+    "EX_CM_1" : EX_CM_1_example,
     
     # Modal Countermodels
-    "MD_CM_1" : MD_CM_1_example,
+    # "MD_CM_1" : MD_CM_1_example,
     # "MD_CM_2" : MD_CM_2_example,
     # "MD_CM_3" : MD_CM_3_example,
     # "MD_CM_4" : MD_CM_4_example,

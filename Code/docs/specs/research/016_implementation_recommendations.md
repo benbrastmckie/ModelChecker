@@ -136,7 +136,8 @@ For future enhancement, implement the UnifiedProgress system as outlined in Rese
 ### For Differences Fix:
 ```bash
 # Test with logos theory (known to have print_model_differences)
-./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+# Examples should have iterate: 3 in their settings
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 
 # Verify:
 # 1. Differences sections show content (not just headers)
@@ -147,7 +148,8 @@ For future enhancement, implement the UnifiedProgress system as outlined in Rese
 ### For Progress Fix:
 ```bash
 # Test iteration with progress
-./dev_cli.py -i 5 src/model_checker/theory_lib/logos/examples.py
+# Examples should have iterate: 5 in their settings
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 
 # Verify:
 # 1. No duplicate progress bars
