@@ -339,6 +339,57 @@ class LogosModelIterator(BaseModelIterator):
         # For now, return a simple constraint
         # Full implementation would compare conclusion truth values
         return z3.BoolVal(True)
+    
+    def iterate_generator(self):
+        """Override to add theory-specific differences to logos theory models.
+        
+        This method extends the base iterator's generator to merge logos-specific
+        differences (verification, falsification, parthood) with the generic 
+        differences calculated by the base iterator.
+        
+        Yields:
+            Model structures with both generic and theory-specific differences
+        """
+        for model in super().iterate_generator():
+            # Calculate theory-specific differences if we have a previous model
+            if len(self.model_structures) >= 2:
+                theory_diffs = self._calculate_logos_differences(
+                    model, self.model_structures[-2]
+                )
+                
+                # Transform logos structure to match display expectations
+                if theory_diffs.get('verify') or theory_diffs.get('falsify'):
+                    atomic_changes = {}
+                    
+                    # Transform verify structure
+                    if theory_diffs.get('verify'):
+                        atomic_changes['verify'] = {}
+                        for letter_str, state_changes in theory_diffs['verify'].items():
+                            # Extract clean letter name (A, B, C) from "Proposition_A" or "A" formats
+                            letter_name = letter_str.replace('Proposition_', '').replace('(', '').replace(')', '')
+                            # Handle case where letter_str might be "Proposition A" with space
+                            letter_name = letter_name.replace('Proposition ', '')
+                            atomic_changes['verify'][letter_name] = state_changes
+                    
+                    # Transform falsify structure
+                    if theory_diffs.get('falsify'):
+                        atomic_changes['falsify'] = {}
+                        for letter_str, state_changes in theory_diffs['falsify'].items():
+                            # Extract clean letter name (A, B, C) from "Proposition_A" or "A" formats
+                            letter_name = letter_str.replace('Proposition_', '').replace('(', '').replace(')', '')
+                            # Handle case where letter_str might be "Proposition A" with space
+                            letter_name = letter_name.replace('Proposition ', '')
+                            atomic_changes['falsify'][letter_name] = state_changes
+                    
+                    theory_diffs['atomic_changes'] = atomic_changes
+                
+                # Merge theory-specific differences with existing generic ones
+                if hasattr(model, 'model_differences') and model.model_differences:
+                    model.model_differences.update(theory_diffs)
+                else:
+                    model.model_differences = theory_diffs
+            
+            yield model
 
 
 # Module-level convenience function

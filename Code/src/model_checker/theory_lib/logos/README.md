@@ -11,7 +11,7 @@ logos/
 ├── semantic.py            # Core hyperintensional semantic framework
 ├── operators.py           # Operator registry and loading system
 ├── examples.py            # Unified examples collection (177 examples)
-├── iterate.py             # Model iteration functionality
+├── iterate.py             # Model iteration with enhanced difference display
 ├── docs/                  # Comprehensive documentation
 │   ├── README.md          # Documentation hub and navigation
 │   ├── API_REFERENCE.md   # Complete API documentation
@@ -192,6 +192,53 @@ model-checker src/model_checker/theory_lib/logos/examples.py
 # Run specific subtheory examples
 model-checker src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 ```
+
+## Model Iteration
+
+The Logos theory provides enhanced model iteration capabilities that display rich semantic differences between models:
+
+### Difference Types Tracked
+
+When iterating through models, Logos tracks and displays:
+
+1. **Verification Changes**: Which states verify/falsify propositions differently
+2. **Falsification Changes**: Bilateral complement to verification  
+3. **Parthood Relations**: Changes in hyperintensional part-whole structure
+4. **World Changes**: Addition/removal of possible worlds
+5. **Possible State Changes**: Changes in state possibility
+
+### Example Output
+
+```
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+
+World Changes:
+  + a.b (now a world)
+
+Verification Changes:
+  Letter A:
+    + a.b now verifies A
+    - c no longer verifies A
+  Letter B:
+    + d now verifies B
+
+Falsification Changes:
+  Letter A:
+    + c now falsifies A
+
+Part-of Relation Changes:
+  + a ⊑ a.b
+```
+
+This enhanced difference display helps researchers understand the semantic variations between models, particularly useful for analyzing hyperintensional distinctions.
+
+### Implementation Details
+
+The `LogosModelIterator` class in `iterate.py` extends the base iteration framework with:
+- Comprehensive `_calculate_logos_differences()` method tracking all semantic changes
+- `iterate_generator()` override that merges theory-specific differences with generic ones
+- Data structure transformation to match display expectations
+- Support for all logos subtheories (modal, counterfactual, constitutive, relevance, extensional)
 
 ## Testing
 

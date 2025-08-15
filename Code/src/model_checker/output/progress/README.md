@@ -262,13 +262,13 @@ Test with real model checking examples:
 
 ```bash
 # Test with iteration progress
-./dev_cli.py -i 3 examples/my_example.py
+I./dev_cli.py examples/my_example.py
 
 # Test timeout behavior  
 ./dev_cli.py examples/timeout_example.py
 
 # Test with different theories
-./dev_cli.py -l logos -i 5 examples/logos_example.py
+./dev_cli.py -l logos examples/logos_example.py
 ```
 
 ## Development Guidelines

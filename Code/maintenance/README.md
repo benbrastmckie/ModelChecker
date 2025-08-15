@@ -50,7 +50,7 @@ git checkout -b feature/maintenance-refactor
 ./run_tests.py --all
 
 # 3. Validate with dual testing
-./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 ```
 
 ### Formula Formatting Example

@@ -254,6 +254,22 @@ class MyTheoryIterator(BaseModelIterator):
         """Prevent structurally identical models."""
         # Theory-specific logic
         return constraint
+    
+    def iterate_generator(self):
+        """Optional: Override to add theory-specific differences."""
+        for model in super().iterate_generator():
+            # Calculate theory-specific differences if we have a previous model
+            if len(self.model_structures) >= 2:
+                theory_diffs = self._calculate_theory_differences(
+                    model, self.model_structures[-2]
+                )
+                # Merge theory-specific differences with existing generic ones
+                if hasattr(model, 'model_differences') and model.model_differences:
+                    model.model_differences.update(theory_diffs)
+                else:
+                    model.model_differences = theory_diffs
+            
+            yield model
 ```
 
 2. **Register in Theory's __init__.py**:
@@ -271,6 +287,27 @@ def test_my_theory_iteration():
     models = iterator.iterate()
     assert len(models) >= 2
 ```
+
+### Theory-Specific Difference Display
+
+Theories can provide rich semantic difference information by:
+
+1. **Implementing Custom Difference Calculation**:
+   - Override `_calculate_differences()` or add theory-specific methods
+   - Return structured data describing semantic changes
+
+2. **Overriding iterate_generator()**:
+   - Merge theory-specific differences with generic differences
+   - Transform data structures to match display expectations
+
+3. **Utilizing print_model_differences()**:
+   - Theory's ModelStructure can implement custom display logic
+   - Framework automatically calls this method when differences exist
+
+Current theories with enhanced difference display:
+- **Logos**: Verification/falsification changes, parthood relations
+- **Exclusion**: Verification changes, witness changes, exclusion relations
+- **Imposition**: State impositions, proposition changes
 
 ### NetworkX Integration
 
