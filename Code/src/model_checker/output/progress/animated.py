@@ -5,11 +5,17 @@ update in real-time using background threads. The main implementation
 is TimeBasedProgress, which fills over a specified timeout duration.
 """
 
+import os
 import time
 import threading
 from typing import Optional
 from .core import ProgressBar
 from .display import ProgressDisplay
+
+# Color constants for progress bars
+PROGRESS_COLOR = '\033[38;5;208m'  # Orange/amber (256-color)
+PROGRESS_COLOR_FALLBACK = '\033[33m'  # Yellow (16-color fallback)
+COLOR_RESET = '\033[0m'
 
 
 class AnimatedProgressBar(ProgressBar):
@@ -91,6 +97,7 @@ class TimeBasedProgress(AnimatedProgressBar):
         self.found = False
         self.checked_count = 0
         self.skipped_count = 0
+        self.use_color = self._supports_color()
         
     def start(self, total: int = 100, message: str = "") -> None:
         """Start the animated progress bar."""
@@ -123,10 +130,36 @@ class TimeBasedProgress(AnimatedProgressBar):
             self.display.update(msg)
             time.sleep(update_interval)
             
+    def _supports_color(self) -> bool:
+        """Check if terminal supports color output."""
+        # Check common environment variables
+        if os.environ.get('NO_COLOR'):
+            return False
+        
+        # Check if output is to a terminal
+        if not hasattr(self.display.stream, 'isatty'):
+            return False
+            
+        return self.display.stream.isatty()
+    
+    def _generate_bar(self, progress: float) -> str:
+        """Generate progress bar string with proper width handling and color."""
+        bar_width = 20  # Standard width for all progress bars
+        filled = int(bar_width * progress)
+        remaining = bar_width - filled
+        
+        if self.use_color:
+            # Create colored progress bar
+            filled_bar = f"{PROGRESS_COLOR}{'█' * filled}{COLOR_RESET}"
+            empty_bar = '░' * remaining
+            return f"[{filled_bar}{empty_bar}]"
+        else:
+            # Non-colored version
+            return f"[{'█' * filled}{'░' * remaining}]"
+    
     def _create_bar(self, progress: float, width: int = 20) -> str:
-        """Create visual progress bar."""
-        filled = int(width * progress)
-        return "[" + "█" * filled + "░" * (width - filled) + "]"
+        """Create visual progress bar (legacy method, calls _generate_bar)."""
+        return self._generate_bar(progress)
         
     def update(self, current: int, **kwargs) -> None:
         """Update progress (called when model is checked)."""
@@ -160,8 +193,12 @@ class TimeBasedProgress(AnimatedProgressBar):
         # Only show final state if model was found
         # For timeouts, we just clear the line and don't show anything
         if success:
-            # Fill bar completely
-            bar = "[" + "█" * 20 + "]"
+            # Fill bar completely with color if supported
+            if self.use_color:
+                bar = f"[{PROGRESS_COLOR}{'█' * 20}{COLOR_RESET}]"
+            else:
+                bar = "[" + "█" * 20 + "]"
+            
             msg = f"Finding non-isomorphic models: {bar} {self.model_number}/{self.total_models}"
             if self.skipped_count > 0:
                 msg += f" ({self.skipped_count} skipped)"

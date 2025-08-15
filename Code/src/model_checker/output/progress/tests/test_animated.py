@@ -1,5 +1,6 @@
 """Tests for animated progress bars."""
 
+import os
 import time
 import pytest
 from model_checker.output.progress.animated import TimeBasedProgress
@@ -13,6 +14,8 @@ class MockDisplay(ProgressDisplay):
         self.messages = []
         self.completed = False
         self.cleared = False
+        # Mock stream for color detection
+        self.stream = self
         
     def update(self, message: str) -> None:
         self.messages.append(message)
@@ -23,6 +26,10 @@ class MockDisplay(ProgressDisplay):
     def clear(self) -> None:
         self.cleared = True
         # Don't clear messages in test mock so we can verify what was displayed
+        
+    def isatty(self) -> bool:
+        """Mock isatty for testing."""
+        return False  # Tests run in non-TTY environment
 
 
 class TestTimeBasedProgress:
@@ -154,3 +161,60 @@ class TestTimeBasedProgress:
         
         assert not progress.active
         assert not progress.thread.is_alive()
+        
+    def test_color_support_detection(self):
+        """Test terminal color support detection."""
+        # Test with non-TTY display (should not use color)
+        display = MockDisplay()
+        progress = TimeBasedProgress(
+            timeout=1.0,
+            model_number=1, 
+            total_models=1,
+            display=display
+        )
+        assert not progress.use_color
+        
+        # Test with NO_COLOR environment variable
+        old_no_color = os.environ.get('NO_COLOR')
+        try:
+            os.environ['NO_COLOR'] = '1'
+            progress2 = TimeBasedProgress(
+                timeout=1.0,
+                model_number=1,
+                total_models=1,
+                display=display
+            )
+            assert not progress2.use_color
+        finally:
+            if old_no_color is None:
+                os.environ.pop('NO_COLOR', None)
+            else:
+                os.environ['NO_COLOR'] = old_no_color
+                
+    def test_color_progress_bar(self):
+        """Test colored vs non-colored progress bars."""
+        display = MockDisplay()
+        
+        # Test non-colored bar (isatty returns False)
+        progress = TimeBasedProgress(
+            timeout=1.0,
+            model_number=1,
+            total_models=1,
+            display=display
+        )
+        bar = progress._generate_bar(0.5)
+        assert bar == "[██████████░░░░░░░░░░]"
+        assert '\033[' not in bar  # No color codes
+        
+        # Test colored bar by mocking isatty
+        display.isatty = lambda: True
+        progress_color = TimeBasedProgress(
+            timeout=1.0,
+            model_number=1,
+            total_models=1,
+            display=display
+        )
+        progress_color.use_color = True  # Force color for test
+        bar_color = progress_color._generate_bar(0.5)
+        assert '\033[38;5;208m' in bar_color  # Orange color code
+        assert '\033[0m' in bar_color  # Reset code
