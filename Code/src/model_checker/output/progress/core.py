@@ -54,16 +54,19 @@ class UnifiedProgress:
     def __init__(self, 
                  total_models: int = 1,
                  iteration_timeout: Optional[float] = None,
+                 initial_timeout: Optional[float] = None,
                  display: Optional['ProgressDisplay'] = None):
         """Initialize unified progress tracker.
         
         Args:
             total_models: Total number of models to find
             iteration_timeout: Timeout per iteration in seconds
+            initial_timeout: Timeout for first model (includes setup overhead)
             display: Custom display handler (defaults to TerminalDisplay)
         """
         self.total_models = total_models
         self.iteration_timeout = iteration_timeout or 60.0
+        self.initial_timeout = initial_timeout or self.iteration_timeout
         
         # Lazy import to avoid circular dependency
         if display is None:
@@ -83,8 +86,13 @@ class UnifiedProgress:
         # Progress bars for each model
         self.model_progress_bars: List[ProgressBar] = []
         
-    def start_model_search(self, model_number: int) -> None:
-        """Start searching for a specific model."""
+    def start_model_search(self, model_number: int, start_time: Optional[float] = None) -> None:
+        """Start searching for a specific model.
+        
+        Args:
+            model_number: The model number being searched for
+            start_time: Optional start time to sync with iterator timing
+        """
         # Don't create a new progress bar if we already have one for this model
         if self.current_model == model_number and self.model_progress_bars and \
            hasattr(self.model_progress_bars[-1], 'model_number') and \
@@ -92,7 +100,8 @@ class UnifiedProgress:
             return  # Already searching for this model
             
         self.current_model = model_number
-        self.current_search_start = time.time()
+        # Use provided start time or fallback to current time
+        self.current_search_start = start_time or time.time()
         self.current_search_skipped = 0  # Reset skipped count for new search
         
         # Only start overall timing on first model
@@ -105,13 +114,17 @@ class UnifiedProgress:
             if hasattr(last_bar, 'active') and last_bar.active:
                 last_bar.complete(False)  # Force stop
         
-        # Create animated progress bar for this model
+        # Create animated progress bar for this model with synchronized time
+        # Use appropriate timeout based on model number
+        timeout = self.initial_timeout if model_number == 1 else self.iteration_timeout
+        
         from .animated import TimeBasedProgress
         progress_bar = TimeBasedProgress(
-            timeout=self.iteration_timeout,
+            timeout=timeout,
             model_number=model_number,
             total_models=self.total_models,
-            display=self.display
+            display=self.display,
+            start_time=self.current_search_start  # Pass synchronized time
         )
         self.model_progress_bars.append(progress_bar)
         progress_bar.start()

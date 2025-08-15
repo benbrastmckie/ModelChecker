@@ -201,7 +201,8 @@ class BaseModelIterator:
                     self.debug_messages.append(f"Model {model_number} search timeout ({timeout}s) reached")
                     
                     # Record incomplete search due to timeout
-                    search_duration = time.time() - self.current_search_start
+                    # Use exactly the timeout duration, not total elapsed time
+                    search_duration = timeout
                     self.search_stats.append(SearchStatistics(
                         model_number=model_number,
                         found=False,
@@ -217,9 +218,6 @@ class BaseModelIterator:
                     
                     break
                 
-                # Track search start time
-                search_start_time = time.time()
-                
                 # Update old progress system if still in use (only if no unified progress)
                 if not self.search_progress:
                     self.progress.update(
@@ -229,7 +227,8 @@ class BaseModelIterator:
                 
                 # Start search with new progress system if available (only if not already searching for this model)
                 if self.search_progress and current_search_model != model_number:
-                    self.search_progress.start_model_search(model_number)
+                    # Pass the current_search_start time to progress for synchronization
+                    self.search_progress.start_model_search(model_number, start_time=self.current_search_start)
                     current_search_model = model_number
                 
                 logger.info(f"Searching for model {model_number}/{self.max_iterations}...")
@@ -428,9 +427,9 @@ class BaseModelIterator:
         
         # Generate and print detailed report
         report_generator = IterationReportGenerator()
-        # Get initial model search time - prefer z3_model_runtime over _search_duration
-        initial_time = getattr(self.build_example.model_structure, 'z3_model_runtime', 
-                              getattr(self.build_example.model_structure, '_search_duration', 0.0))
+        # Get initial model search time - use total search time to match progress bar
+        initial_time = getattr(self.build_example.model_structure, '_total_search_time',
+                              getattr(self.build_example.model_structure, 'z3_model_runtime', 0.0))
         report = report_generator.generate_report(
             self.search_stats, 
             self.max_iterations, 

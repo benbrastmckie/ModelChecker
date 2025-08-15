@@ -54,7 +54,7 @@ from ...operators import LogosOperatorRegistry
 REL_CM_1_premises = []
 REL_CM_1_conclusions = ['((A \\wedge B) \\preceq A)']
 REL_CM_1_settings = {
-    'N': 3,
+    'N': 5,
     'contingent': True,
     'non_null': True,
     'non_empty': True,
