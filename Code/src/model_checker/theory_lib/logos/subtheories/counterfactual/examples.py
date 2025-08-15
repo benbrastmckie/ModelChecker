@@ -54,7 +54,7 @@ from ...operators import LogosOperatorRegistry
 CF_CM_1_premises = ['\\neg A', '(A \\boxright C)']
 CF_CM_1_conclusions = ['((A \\wedge B) \\boxright C)']
 CF_CM_1_settings = {
-    'N': 5,
+    'N': 6,
     'contingent': True,
     'non_null': True,
     'non_empty': True,
