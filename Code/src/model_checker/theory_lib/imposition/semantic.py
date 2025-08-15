@@ -466,53 +466,6 @@ class ImpositionModelStructure(LogosModelStructure):
         
         return propositions
     
-    def print_model_differences(self, output=sys.__stdout__):
-        """Print imposition theory differences."""
-        if not hasattr(self, 'model_differences') or not self.model_differences:
-            return
-        
-        diffs = self.model_differences
-        
-        # Print header with colors
-        print(f"\n{self.COLORS['world']}=== DIFFERENCES FROM PREVIOUS MODEL ==={self.RESET}\n", file=output)
-        
-        # World changes - use 'world_changes' key from generic calculator
-        worlds = diffs.get('world_changes', {})
-        if worlds.get('added') or worlds.get('removed'):
-            print(f"{self.COLORS['world']}World Changes:{self.RESET}", file=output)
-            for world in worlds.get('added', []):
-                world_str = bitvec_to_substates(world, self.N)
-                print(f"  {self.COLORS['possible']}+ {world_str} (now a world){self.RESET}", file=output)
-            for world in worlds.get('removed', []):
-                world_str = bitvec_to_substates(world, self.N)
-                print(f"  {self.COLORS['impossible']}- {world_str} (no longer a world){self.RESET}", file=output)
-            print(file=output)
-        
-        # Possible state changes
-        possible = diffs.get('possible_changes', {})
-        if possible.get('added') or possible.get('removed'):
-            print(f"{self.COLORS['world']}Possible State Changes:{self.RESET}", file=output)
-            for state in possible.get('added', []):
-                state_str = bitvec_to_substates(state, self.N)
-                print(f"  {self.COLORS['possible']}+ {state_str} (now possible){self.RESET}", file=output)
-            for state in possible.get('removed', []):
-                state_str = bitvec_to_substates(state, self.N)
-                print(f"  {self.COLORS['impossible']}- {state_str} (now impossible){self.RESET}", file=output)
-            print(file=output)
-        
-        # Imposition relation changes (if available from theory-specific calculation)
-        imp_diffs = diffs.get('imposition_relations', {})
-        if imp_diffs:
-            print(f"{self.COLORS['world']}Imposition Changes:{self.RESET}", file=output)
-            for relation, change in imp_diffs.items():
-                if change.get('new'):
-                    print(f"  {self.COLORS['possible']}+ {relation}{self.RESET}", file=output)
-                else:
-                    print(f"  {self.COLORS['impossible']}- {relation}{self.RESET}", file=output)
-            print(file=output)
-        
-        return True
-    
     def initialize_from_z3_model(self, z3_model):
         """Initialize imposition-specific attributes from Z3 model.
         
@@ -630,15 +583,84 @@ class ImpositionModelStructure(LogosModelStructure):
                 print(f"  {self.COLORS['impossible']}- {state_str} (now impossible){self.RESET}", file=output)
             print(file=output)
         
-        # Imposition relation changes (if available from theory-specific calculation)
+        # Verification changes (theory-specific)
+        verification = diffs.get('verification', {})
+        if verification:
+            print(f"{self.COLORS['world']}Verification Changes:{self.RESET}", file=output)
+            for letter_str, changes in verification.items():
+                letter_name = letter_str.replace('Proposition_', '').replace('(', '').replace(')', '')
+                print(f"  Letter {letter_name}:", file=output)
+                
+                if changes.get('added'):
+                    for state in changes['added']:
+                        try:
+                            state_str = bitvec_to_substates(state, self.N)
+                            print(f"    {self.COLORS['possible']}+ {state_str} now verifies {letter_name}{self.RESET}", file=output)
+                        except:
+                            print(f"    {self.COLORS['possible']}+ {state} now verifies {letter_name}{self.RESET}", file=output)
+                
+                if changes.get('removed'):
+                    for state in changes['removed']:
+                        try:
+                            state_str = bitvec_to_substates(state, self.N)
+                            print(f"    {self.COLORS['impossible']}- {state_str} no longer verifies {letter_name}{self.RESET}", file=output)
+                        except:
+                            print(f"    {self.COLORS['impossible']}- {state} no longer verifies {letter_name}{self.RESET}", file=output)
+            print(file=output)
+        
+        # Falsification changes (theory-specific)
+        falsification = diffs.get('falsification', {})
+        if falsification:
+            print(f"{self.COLORS['world']}Falsification Changes:{self.RESET}", file=output)
+            for letter_str, changes in falsification.items():
+                letter_name = letter_str.replace('Proposition_', '').replace('(', '').replace(')', '')
+                print(f"  Letter {letter_name}:", file=output)
+                
+                if changes.get('added'):
+                    for state in changes['added']:
+                        try:
+                            state_str = bitvec_to_substates(state, self.N)
+                            print(f"    {self.COLORS['possible']}+ {state_str} now falsifies {letter_name}{self.RESET}", file=output)
+                        except:
+                            print(f"    {self.COLORS['possible']}+ {state} now falsifies {letter_name}{self.RESET}", file=output)
+                
+                if changes.get('removed'):
+                    for state in changes['removed']:
+                        try:
+                            state_str = bitvec_to_substates(state, self.N)
+                            print(f"    {self.COLORS['impossible']}- {state_str} no longer falsifies {letter_name}{self.RESET}", file=output)
+                        except:
+                            print(f"    {self.COLORS['impossible']}- {state} no longer falsifies {letter_name}{self.RESET}", file=output)
+            print(file=output)
+        
+        # Imposition relation changes (theory-specific with improved formatting)
         imp_diffs = diffs.get('imposition_relations', {})
         if imp_diffs:
             print(f"{self.COLORS['world']}Imposition Changes:{self.RESET}", file=output)
             for relation, change in imp_diffs.items():
+                # Try to parse the state pair for better formatting
+                try:
+                    states = relation.split(',')
+                    if len(states) == 2:
+                        state1_bitvec = int(states[0])
+                        state2_bitvec = int(states[1])
+                        
+                        state1_str = bitvec_to_substates(state1_bitvec, self.N)
+                        state2_str = bitvec_to_substates(state2_bitvec, self.N)
+                        
+                        if change.get('new'):
+                            print(f"  {self.COLORS['possible']}+ {state1_str} can now impose on {state2_str}{self.RESET}", file=output)
+                        else:
+                            print(f"  {self.COLORS['impossible']}- {state1_str} can no longer impose on {state2_str}{self.RESET}", file=output)
+                        continue
+                except:
+                    pass
+                
+                # Fall back to simple representation if parsing fails
                 if change.get('new'):
-                    print(f"  {self.COLORS['possible']}+ {relation}{self.RESET}", file=output)
+                    print(f"  {self.COLORS['possible']}+ {relation}: can now impose{self.RESET}", file=output)
                 else:
-                    print(f"  {self.COLORS['impossible']}- {relation}{self.RESET}", file=output)
+                    print(f"  {self.COLORS['impossible']}- {relation}: can no longer impose{self.RESET}", file=output)
             print(file=output)
         
         return True
