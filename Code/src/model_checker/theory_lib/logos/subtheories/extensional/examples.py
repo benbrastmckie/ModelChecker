@@ -369,6 +369,7 @@ semantic_theories = {
 # Specify which examples to run by default when running this module directly
 # Testing with first few examples first
 example_range = {
+
     # COUNTERMODELS
     # "EXT_CM_1": EXT_CM_1_example,  # DISJUNCTION INTRODUCTION
     "EXT_CM_2": EXT_CM_2_example,  # DISJUNCTIVE SYLLOGISM
@@ -383,6 +384,7 @@ example_range = {
     # "EXT_TH_7": EXT_TH_7_example,  # CONJUNCTION INTRODUCTION
     # "EXT_TH_8": EXT_TH_8_example,  # BICONDITIONAL ELIMINATION
     # "EXT_TH_9": EXT_TH_9_example,  # DISJUNCTION COMMUTATIVITY
+
 }
 
 def get_examples():

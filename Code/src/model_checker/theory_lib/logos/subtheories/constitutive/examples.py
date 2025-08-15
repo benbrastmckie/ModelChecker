@@ -792,7 +792,7 @@ semantic_theories = {
 # Or specify particular examples to run
 example_range = {
 
-    # # Countermodels
+    # COUNTERMODELS
     # "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
     # "CL_CM_2": CL_CM_2_example,   # EQUIVALENCE OF CONTRADICTIONS
     "CL_CM_3": CL_CM_3_example,   # GROUND CONJUNCTION SUPPLEMENTATION
@@ -808,7 +808,7 @@ example_range = {
     # "CL_CM_13": CL_CM_13_example, # SHANNON EXPANSION
     # "CL_CM_14": CL_CM_14_example, # DUAL SHANNON EXPANSION
 
-    # # Theorems
+    # THEOREMS
     # "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
     # "CL_TH_2": CL_TH_2_example,   # ESSENCE TO GROUND
     # "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
