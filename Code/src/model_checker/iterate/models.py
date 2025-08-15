@@ -89,31 +89,35 @@ class ModelBuilder:
                     temp_solver.add(z3.Not(semantics.is_world(state)))
                 
                 # Is this state possible in the iterator model?
-                is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
-                if z3.is_true(is_possible_val):
-                    temp_solver.add(semantics.possible(state))
-                else:
-                    temp_solver.add(z3.Not(semantics.possible(state)))
+                # Note: Not all theories have a 'possible' predicate (e.g., bimodal theory)
+                if hasattr(semantics, 'possible'):
+                    is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
+                    if z3.is_true(is_possible_val):
+                        temp_solver.add(semantics.possible(state))
+                    else:
+                        temp_solver.add(z3.Not(semantics.possible(state)))
             
             # Constrain verify/falsify for sentence letters
-            for letter_obj in syntax.sentence_letters:
-                if hasattr(letter_obj, 'sentence_letter'):
-                    atom = letter_obj.sentence_letter
-                    for state in range(2**semantics.N):
-                        # Verify value
-                        verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
-                        if z3.is_true(verify_val):
-                            temp_solver.add(semantics.verify(state, atom))
-                        else:
-                            temp_solver.add(z3.Not(semantics.verify(state, atom)))
-                        
-                        # Falsify value (if it exists)
-                        if hasattr(semantics, 'falsify'):
-                            falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
-                            if z3.is_true(falsify_val):
-                                temp_solver.add(semantics.falsify(state, atom))
+            # Note: Some theories (e.g., bimodal) use truth_condition instead of verify/falsify
+            if hasattr(semantics, 'verify'):
+                for letter_obj in syntax.sentence_letters:
+                    if hasattr(letter_obj, 'sentence_letter'):
+                        atom = letter_obj.sentence_letter
+                        for state in range(2**semantics.N):
+                            # Verify value
+                            verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
+                            if z3.is_true(verify_val):
+                                temp_solver.add(semantics.verify(state, atom))
                             else:
-                                temp_solver.add(z3.Not(semantics.falsify(state, atom)))
+                                temp_solver.add(z3.Not(semantics.verify(state, atom)))
+                            
+                            # Falsify value (if it exists)
+                            if hasattr(semantics, 'falsify'):
+                                falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
+                                if z3.is_true(falsify_val):
+                                    temp_solver.add(semantics.falsify(state, atom))
+                                else:
+                                    temp_solver.add(z3.Not(semantics.falsify(state, atom)))
             
             # Store the constraints in model_constraints so the model will use them
             model_constraints.all_constraints = list(temp_solver.assertions())

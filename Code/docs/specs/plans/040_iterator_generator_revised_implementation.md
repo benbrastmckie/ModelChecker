@@ -105,7 +105,8 @@ class TestGeneratorInterface:
 ```bash
 # Capture current behavior before changes
 ./dev_cli.py src/model_checker/theory_lib/logos/examples.py > docs/specs/baselines/iterator_batch_baseline.txt 2>&1
-./dev_cli.py -i 3 src/model_checker/theory_lib/logos/examples.py > docs/specs/baselines/iterator_batch_iterate3.txt 2>&1
+# Examples should have iterate setting configured for multiple models
+./dev_cli.py src/model_checker/theory_lib/logos/examples.py > docs/specs/baselines/iterator_batch_run.txt 2>&1
 ```
 
 **Implementation Tasks**:

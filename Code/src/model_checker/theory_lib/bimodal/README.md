@@ -26,6 +26,9 @@
   - [World and Time Representation](#world-and-time-representation)
   - [Time-Shift Relations](#time-shift-relations)
   - [Model Extraction Process](#model-extraction-process)
+- [Model Iteration](#model-iteration)
+  - [Iterator Functionality](#iterator-functionality)
+  - [Difference Detection](#difference-detection)
 - [Frame Constraints](#frame-constraints)
 - [Known Limitations](#known-limitations)
 - [References](#references)
@@ -838,6 +841,78 @@ task_minimization = z3.ForAll(
 ```
 
 The frame constraints are applied in a specific order to guide Z3's model search efficiently.
+
+## Model Iteration
+
+The bimodal theory supports finding multiple distinct models through the `BimodalModelIterator` class, which extends the core iteration framework with bimodal-specific features.
+
+### Iterator Functionality
+
+The iterator can find multiple non-isomorphic models that satisfy the same logical constraints:
+
+```python
+from model_checker.theory_lib.bimodal import iterate_example
+
+# Find up to 3 distinct models
+models = iterate_example(example, max_iterations=3)
+
+# Each model has different structural properties
+for i, model in enumerate(models):
+    print(f"Model {i+1}:")
+    model.print_all()
+```
+
+### Difference Detection
+
+The bimodal iterator tracks five categories of differences between consecutive models:
+
+1. **World History Changes**: Modifications to time-state mappings
+   - Added/removed worlds
+   - Changed states at specific times
+   - Modified time points within histories
+
+2. **Truth Condition Changes**: How sentence letters are evaluated
+   - Truth value changes at specific states
+   - New/removed truth assignments
+
+3. **Task Relation Changes**: Transitions between world states
+   - Added/removed task transitions
+   - Modified transition relationships
+
+4. **Time Interval Changes**: Valid time ranges for worlds
+   - Extended/shortened intervals
+   - Shifted interval boundaries
+
+5. **Time Shift Relations**: Relationships between temporally shifted worlds
+   - New/removed shift relationships
+   - Changed shift targets
+
+Example output:
+```
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+
+World History Changes:
+  World W_0 changed:
+    Time -1: a -> b
+  + World W_2 added
+    History: (-1:a) -> (0:a) -> (1:b)
+
+Truth Condition Changes:
+  Letter A:
+    State b: False -> True
+
+Task Relation Changes:
+  Task a->b: added
+
+Time Interval Changes:
+  World W_0 interval: (-1, 1) -> (-2, 2)
+
+Time Shift Relation Changes:
+  Time shifts for World W_0 changed:
+    Shift -1: W_1 -> W_2
+```
+
+These comprehensive differences help understand how the iterator explores the model space and what structural variations exist between models.
 
 ## Known Limitations
 

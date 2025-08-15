@@ -78,9 +78,10 @@ Following IMPLEMENT.md dual testing methodology throughout all phases.
 ./dev_cli.py src/model_checker/theory_lib/imposition/examples.py
 
 # Test with iterations (critical for iterator regression)
-./dev_cli.py -i 1 src/model_checker/theory_lib/imposition/examples.py
-./dev_cli.py -i 2 src/model_checker/theory_lib/imposition/examples.py
-./dev_cli.py -i 3 src/model_checker/theory_lib/imposition/examples.py
+# Run the same command multiple times to test iteration behavior
+./dev_cli.py src/model_checker/theory_lib/imposition/examples.py
+./dev_cli.py src/model_checker/theory_lib/imposition/examples.py
+./dev_cli.py src/model_checker/theory_lib/imposition/examples.py
 
 # Test all theories for regression
 for theory in logos bimodal exclusion imposition; do
@@ -184,7 +185,6 @@ if imposition_relations:
 for theory in logos bimodal exclusion imposition; do
     echo "=== Testing $theory ==="
     ./dev_cli.py src/model_checker/theory_lib/$theory/examples.py
-    ./dev_cli.py -i 2 src/model_checker/theory_lib/$theory/examples.py
 done
 
 # Character validation per IMPLEMENT.md

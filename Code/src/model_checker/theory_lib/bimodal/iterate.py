@@ -551,6 +551,31 @@ class BimodalModelIterator(BaseModelIterator):
         """Create constraint for finding stronger models."""
         # For now, simple implementation
         return z3.BoolVal(True)
+    
+    def iterate_generator(self):
+        """Override to add theory-specific differences to bimodal theory models.
+        
+        This method extends the base iterator's generator to merge bimodal-specific
+        differences (world histories, truth conditions, task relations, time intervals,
+        time shifts) with the generic differences calculated by the base iterator.
+        
+        Yields:
+            Model structures with both generic and theory-specific differences
+        """
+        for model in super().iterate_generator():
+            # Calculate theory-specific differences if we have a previous model
+            if len(self.model_structures) >= 2:
+                theory_diffs = self._calculate_bimodal_differences(
+                    model, self.model_structures[-2]
+                )
+                
+                # Merge theory-specific differences with existing generic ones
+                if hasattr(model, 'model_differences') and model.model_differences:
+                    model.model_differences.update(theory_diffs)
+                else:
+                    model.model_differences = theory_diffs
+            
+            yield model
 
 
 # Wrapper function for use in theory examples
