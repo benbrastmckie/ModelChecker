@@ -466,6 +466,53 @@ class ImpositionModelStructure(LogosModelStructure):
         
         return propositions
     
+    def print_model_differences(self, output=sys.__stdout__):
+        """Print imposition theory differences."""
+        if not hasattr(self, 'model_differences') or not self.model_differences:
+            return
+        
+        diffs = self.model_differences
+        
+        # Print header with colors
+        print(f"\n{self.COLORS['world']}=== DIFFERENCES FROM PREVIOUS MODEL ==={self.RESET}\n", file=output)
+        
+        # World changes - use 'world_changes' key from generic calculator
+        worlds = diffs.get('world_changes', {})
+        if worlds.get('added') or worlds.get('removed'):
+            print(f"{self.COLORS['world']}World Changes:{self.RESET}", file=output)
+            for world in worlds.get('added', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {self.COLORS['possible']}+ {world_str} (now a world){self.RESET}", file=output)
+            for world in worlds.get('removed', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {self.COLORS['impossible']}- {world_str} (no longer a world){self.RESET}", file=output)
+            print(file=output)
+        
+        # Possible state changes
+        possible = diffs.get('possible_changes', {})
+        if possible.get('added') or possible.get('removed'):
+            print(f"{self.COLORS['world']}Possible State Changes:{self.RESET}", file=output)
+            for state in possible.get('added', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {self.COLORS['possible']}+ {state_str} (now possible){self.RESET}", file=output)
+            for state in possible.get('removed', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {self.COLORS['impossible']}- {state_str} (now impossible){self.RESET}", file=output)
+            print(file=output)
+        
+        # Imposition relation changes (if available from theory-specific calculation)
+        imp_diffs = diffs.get('imposition_relations', {})
+        if imp_diffs:
+            print(f"{self.COLORS['world']}Imposition Changes:{self.RESET}", file=output)
+            for relation, change in imp_diffs.items():
+                if change.get('new'):
+                    print(f"  {self.COLORS['possible']}+ {relation}{self.RESET}", file=output)
+                else:
+                    print(f"  {self.COLORS['impossible']}- {relation}{self.RESET}", file=output)
+            print(file=output)
+        
+        return True
+    
     def initialize_from_z3_model(self, z3_model):
         """Initialize imposition-specific attributes from Z3 model.
         
@@ -550,21 +597,51 @@ class ImpositionModelStructure(LogosModelStructure):
             return False
     
     def print_model_differences(self, output=sys.__stdout__):
-        """Print differences including imposition relation changes."""
-        # First call parent implementation
-        if not super().print_model_differences(output):
-            return False
+        """Print imposition theory differences."""
+        if not hasattr(self, 'model_differences') or not self.model_differences:
+            return
         
-        # Add imposition-specific differences
-        if hasattr(self, 'model_differences') and self.model_differences:
-            imp_diffs = self.model_differences.get('imposition_relations', {})
-            
-            if imp_diffs:
-                print(f"\n{self.COLORS['world']}Imposition Changes:{self.RESET}", file=output)
-                for relation, change in imp_diffs.items():
-                    if change.get('new'):
-                        print(f"  {self.COLORS['possible']}+ {relation}{self.RESET}", file=output)
-                    else:
-                        print(f"  {self.COLORS['impossible']}- {relation}{self.RESET}", file=output)
+        diffs = self.model_differences
+        
+        # Debug: print available keys
+        print(f"DEBUG: model_differences keys: {list(diffs.keys())}", file=output)
+        
+        # Print header with colors
+        print(f"\n{self.COLORS['world']}=== DIFFERENCES FROM PREVIOUS MODEL ==={self.RESET}\n", file=output)
+        
+        # World changes - use 'world_changes' key from generic calculator
+        worlds = diffs.get('world_changes', {})
+        if worlds.get('added') or worlds.get('removed'):
+            print(f"{self.COLORS['world']}World Changes:{self.RESET}", file=output)
+            for world in worlds.get('added', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {self.COLORS['possible']}+ {world_str} (now a world){self.RESET}", file=output)
+            for world in worlds.get('removed', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {self.COLORS['impossible']}- {world_str} (no longer a world){self.RESET}", file=output)
+            print(file=output)
+        
+        # Possible state changes
+        possible = diffs.get('possible_changes', {})
+        if possible.get('added') or possible.get('removed'):
+            print(f"{self.COLORS['world']}Possible State Changes:{self.RESET}", file=output)
+            for state in possible.get('added', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {self.COLORS['possible']}+ {state_str} (now possible){self.RESET}", file=output)
+            for state in possible.get('removed', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {self.COLORS['impossible']}- {state_str} (now impossible){self.RESET}", file=output)
+            print(file=output)
+        
+        # Imposition relation changes (if available from theory-specific calculation)
+        imp_diffs = diffs.get('imposition_relations', {})
+        if imp_diffs:
+            print(f"{self.COLORS['world']}Imposition Changes:{self.RESET}", file=output)
+            for relation, change in imp_diffs.items():
+                if change.get('new'):
+                    print(f"  {self.COLORS['possible']}+ {relation}{self.RESET}", file=output)
+                else:
+                    print(f"  {self.COLORS['impossible']}- {relation}{self.RESET}", file=output)
+            print(file=output)
         
         return True

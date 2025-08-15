@@ -1374,6 +1374,56 @@ class WitnessStructure(ModelDefaults):
                             pass
         
         return propositions
+    
+    def print_model_differences(self, output=sys.stdout):
+        """Print exclusion-specific model differences."""
+        if not hasattr(self, 'model_differences') or not self.model_differences:
+            return
+        
+        diffs = self.model_differences
+        
+        # Debug: print what keys we have
+        # print(f"DEBUG: model_differences keys: {list(diffs.keys())}", file=output)
+        
+        # Use colors if outputting to terminal
+        if output is sys.stdout:
+            GREEN = "\033[32m"
+            RED = "\033[31m"
+            YELLOW = "\033[33m"
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
+        else:
+            GREEN = RED = YELLOW = BLUE = RESET = ""
+        
+        print(f"\n{YELLOW}=== DIFFERENCES FROM PREVIOUS MODEL ==={RESET}\n", file=output)
+        
+        # Print world changes - use 'world_changes' key from generic calculator
+        worlds = diffs.get('world_changes', {})
+        if worlds.get('added') or worlds.get('removed'):
+            print(f"{BLUE}World Changes:{RESET}", file=output)
+            for world in worlds.get('added', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {GREEN}+ {world_str} (now a world){RESET}", file=output)
+            for world in worlds.get('removed', []):
+                world_str = bitvec_to_substates(world, self.N)
+                print(f"  {RED}- {world_str} (no longer a world){RESET}", file=output)
+            print(file=output)
+        
+        # Print possible state changes
+        possible = diffs.get('possible_changes', {})
+        if possible.get('added') or possible.get('removed'):
+            print(f"{BLUE}Possible State Changes:{RESET}", file=output)
+            for state in possible.get('added', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {GREEN}+ {state_str} (now possible){RESET}", file=output)
+            for state in possible.get('removed', []):
+                state_str = bitvec_to_substates(state, self.N)
+                print(f"  {RED}- {state_str} (now impossible){RESET}", file=output)
+            print(file=output)
+        
+        # Note: Verification, witness, and exclusion relation differences are tracked
+        # in the theory-specific iterator but not available through the generic calculator.
+        # For now, we display the basic structural differences.
 
 
 class WitnessProposition(PropositionDefaults):
