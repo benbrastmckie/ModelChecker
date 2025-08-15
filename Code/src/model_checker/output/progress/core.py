@@ -1,27 +1,47 @@
-"""Core progress tracking interface and base implementation."""
+"""Core progress tracking interface and base implementation.
+
+This module provides the core progress tracking functionality for
+the ModelChecker framework, including the base ProgressBar interface
+and the UnifiedProgress tracker for model iteration.
+"""
 
 import time
-from abc import ABC, abstractmethod
 from typing import Optional, Dict, Any, List
 
 
-class ProgressBar(ABC):
-    """Abstract base class for progress bars."""
+class ProgressBar:
+    """Base class for progress bars.
     
-    @abstractmethod
+    This class defines the interface that all progress bar implementations
+    must follow. Subclasses should implement the three core methods:
+    start, update, and complete.
+    """
+    
     def start(self, total: int = 100, message: str = "") -> None:
-        """Start progress tracking."""
-        pass
+        """Start progress tracking.
+        
+        Args:
+            total: Total number of items to process
+            message: Optional message to display
+        """
+        raise NotImplementedError("Subclasses must implement start()")
     
-    @abstractmethod
     def update(self, current: int, **kwargs) -> None:
-        """Update progress."""
-        pass
+        """Update progress.
+        
+        Args:
+            current: Current progress value
+            **kwargs: Additional progress information
+        """
+        raise NotImplementedError("Subclasses must implement update()")
     
-    @abstractmethod
     def complete(self, success: bool = True) -> None:
-        """Complete progress tracking."""
-        pass
+        """Complete progress tracking.
+        
+        Args:
+            success: Whether the operation completed successfully
+        """
+        raise NotImplementedError("Subclasses must implement complete()")
 
 
 class UnifiedProgress:
@@ -125,8 +145,12 @@ class UnifiedProgress:
             
     def finish(self) -> None:
         """Complete all progress tracking."""
-        # Just clear display - progress bars should already be completed
-        # by the iterator when models are found or timeout occurs
+        # Stop any active progress bars first
+        for bar in self.model_progress_bars:
+            if hasattr(bar, 'active') and bar.active:
+                bar.complete(False)  # Stop without showing final state
+        
+        # Clear display
         self.display.clear()
         # Summary will be handled by iteration report
         

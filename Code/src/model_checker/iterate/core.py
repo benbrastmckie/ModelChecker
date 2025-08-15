@@ -89,14 +89,17 @@ class BaseModelIterator:
         # Initialize statistics and progress (delegated to IteratorCore)
         self.stats = self.iterator_core.stats
         
-        # Use unified progress if provided, otherwise use old system
+        # Use unified progress if provided, otherwise use no-op stub
         self.search_progress = getattr(build_example, '_unified_progress', None)
         if self.search_progress:
             # Disable old progress system
             self.progress = None
         else:
-            # Use old progress system
-            self.progress = self.iterator_core.progress
+            # Create no-op stub for backward compatibility
+            class NoOpProgress:
+                def update(self, *args, **kwargs): pass
+                def finish(self, *args, **kwargs): pass
+            self.progress = NoOpProgress()
         
         # Initialize isomorphism cache (formerly model_graphs)
         self.model_graphs = []
@@ -434,7 +437,21 @@ class BaseModelIterator:
             elapsed_time,
             initial_time
         )
-        # Print report directly - progress.finish() already added one newline
+        
+        # Check if we need extra spacing before the iteration report
+        # If the last search timed out, the progress bar was cleared leaving a blank line
+        # Otherwise, we need to add a blank line after the last model's separator
+        needs_spacing = True
+        if self.search_stats:
+            last_search = self.search_stats[-1]
+            if last_search.termination_reason and "timeout" in last_search.termination_reason:
+                needs_spacing = False  # Timeout already created spacing
+        
+        # Add spacing if needed
+        if needs_spacing:
+            sys.stdout.write("\n")
+        
+        # Print report
         sys.stdout.write(report)
         sys.stdout.write("\n")  # Add final newline after report
         

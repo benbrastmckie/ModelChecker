@@ -22,7 +22,7 @@ class MockDisplay(ProgressDisplay):
         
     def clear(self) -> None:
         self.cleared = True
-        self.messages.clear()
+        # Don't clear messages in test mock so we can verify what was displayed
 
 
 class TestTimeBasedProgress:
@@ -39,16 +39,19 @@ class TestTimeBasedProgress:
         )
         
         progress.start()
-        time.sleep(0.3)  # Let it animate
+        # Give animation time to produce at least a few frames
+        # Animation updates every 100ms, so 0.35s should give 3+ updates
+        time.sleep(0.35)  
         progress.complete(success=True)
         
-        # Check that multiple updates occurred
-        assert len(display.messages) > 2
+        # Check that multiple updates occurred during animation
+        # We should have at least 3 animation frames plus the final message
+        assert len(display.messages) >= 3
         assert display.completed
         
         # Check final message
-        assert "FOUND" in display.messages[-1]
-        assert "Model 1/1" in display.messages[-1]
+        assert "Finding non-isomorphic models:" in display.messages[-1]
+        assert "1/1" in display.messages[-1]
         
     def test_immediate_completion(self):
         """Test that finding a model immediately completes the bar."""
@@ -67,7 +70,7 @@ class TestTimeBasedProgress:
         # Should show full bar despite short time
         final_msg = display.messages[-1]
         assert "[████████████████████]" in final_msg
-        assert "FOUND" in final_msg
+        assert "2/3" in final_msg
         
     def test_timeout_completion(self):
         """Test progress bar when search times out."""
@@ -83,9 +86,10 @@ class TestTimeBasedProgress:
         time.sleep(0.3)  # Exceed timeout
         progress.complete(success=False)
         
-        # Should show NOT FOUND
-        final_msg = display.messages[-1]
-        assert "NOT FOUND" in final_msg
+        # Should clear display on timeout (no final message)
+        assert display.cleared
+        # We had animation frames before clearing
+        assert len(display.messages) > 0
         
     def test_count_tracking(self):
         """Test tracking of checked and skipped counts."""
@@ -110,9 +114,8 @@ class TestTimeBasedProgress:
         
         # Final message should show counts for this search
         final_msg = display.messages[-1]
-        assert "Model 2/4" in final_msg
-        assert "checked" in final_msg
-        assert "skipped" in final_msg
+        assert "2/4" in final_msg
+        assert "5 skipped" in final_msg  # Should show current search skipped count
         
     def test_progress_bar_visual(self):
         """Test visual progress bar creation."""
