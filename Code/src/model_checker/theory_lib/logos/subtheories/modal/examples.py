@@ -60,13 +60,13 @@ from ...operators import LogosOperatorRegistry
 MOD_CM_1_premises = ['\\Diamond A']
 MOD_CM_1_conclusions = ['\\Box A']
 MOD_CM_1_settings = {
-    'N': 5,
+    'N': 4,
     'contingent': True,
     'non_null': True,
     'non_empty': True,
     'disjoint': False,
     'max_time': 2,
-    'iterate': 3,
+    'iterate': 2,
     'expectation': True,
 }
 MOD_CM_1_example = [

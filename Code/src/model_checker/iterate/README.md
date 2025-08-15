@@ -332,8 +332,7 @@ The framework generates increasingly complex constraints as iteration progresses
 ```python
 # Set resource limits
 settings = {
-    'timeout': 60,                  # Per-iteration timeout
-    'iteration_timeout': 300,       # Total iteration timeout
+    'max_time': 60,                 # Timeout for all operations
     'max_solver_memory': 4096,      # MB limit for Z3
     'max_graph_size': 1000          # Node limit for isomorphism
 }

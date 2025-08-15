@@ -40,8 +40,6 @@ class BimodalSemantics(SemanticDefaults):
         'expectation': True,
         # Number of model iterations to generate
         'iterate': 1,
-        # Timeout for each iteration
-        'iteration_timeout': 1.0,
     }
     
     # Bimodal-specific general settings defaults

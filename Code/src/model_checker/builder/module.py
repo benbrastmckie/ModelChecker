@@ -749,12 +749,10 @@ class BuildModule:
             return example
         
         # Create unified progress tracker for all models
-        iteration_timeout = example_case[2].get('iteration_timeout', 60.0)
-        initial_timeout = example_case[2].get('max_time', 60.0)  # Use solver timeout for Model 1
+        max_time = example_case[2].get('max_time', 60.0)
         progress = UnifiedProgress(
             total_models=iterate_count,
-            iteration_timeout=iteration_timeout,
-            initial_timeout=initial_timeout
+            max_time=max_time  # Single timeout for all operations
         )
         
         # Add vertical space before first progress bar

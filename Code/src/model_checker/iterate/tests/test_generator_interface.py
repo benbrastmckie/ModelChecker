@@ -53,6 +53,7 @@ class TestGeneratorInterface:
         example.model_structure.z3_model = Mock()
         example.model_structure.z3_model_runtime = 0.01  # Add runtime for report generation
         example.model_structure._search_duration = 0.01  # Fallback for report generation
+        example.model_structure._total_search_time = 0.01  # Add total search time for iteration report
         
         # Mock semantic theory
         example.semantic_theory = {
@@ -68,6 +69,9 @@ class TestGeneratorInterface:
         
         example.premises = []
         example.conclusions = []
+        
+        # Mock _unified_progress if it exists
+        example._unified_progress = None  # No progress tracking in tests
         
         return example
     

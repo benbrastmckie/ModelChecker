@@ -3,7 +3,7 @@
 import pytest
 import time
 from unittest.mock import Mock, patch
-from model_checker.iterate.metrics import TerminationManager, ResultFormatter, IterationProgress, IterationStatistics
+from model_checker.iterate.metrics import TerminationManager, ResultFormatter, IterationStatistics
 
 
 class TestTerminationManager:
@@ -11,7 +11,7 @@ class TestTerminationManager:
     
     def test_initialization(self):
         """Test termination manager initialization."""
-        settings = {'timeout': 120, 'max_consecutive_invalid': 10}
+        settings = {'max_time': 120, 'max_consecutive_invalid': 10}
         manager = TerminationManager(settings)
         
         assert manager.timeout == 120
@@ -41,11 +41,11 @@ class TestTerminationManager:
         assert "Found all 5 requested models" in reason
     
     def test_should_terminate_timeout(self):
-        """Test termination on timeout."""
-        manager = TerminationManager({'timeout': 0.1})
+        """Test that global timeout check is disabled (handled per-model now)."""
+        manager = TerminationManager({'max_time': 0.1})
         manager.start_timing()
         
-        # Wait for timeout
+        # Wait for what would have been a timeout
         time.sleep(0.15)
         
         should_stop, reason = manager.should_terminate(
@@ -55,9 +55,9 @@ class TestTerminationManager:
             checked_model_count=1
         )
         
-        assert should_stop is True
-        assert "Timeout" in reason
-        assert "0.1s" in reason
+        # Timeout is now handled per-model, not globally
+        assert should_stop is False
+        assert reason == ""
     
     def test_should_terminate_consecutive_invalid(self):
         """Test termination on too many invalid models."""

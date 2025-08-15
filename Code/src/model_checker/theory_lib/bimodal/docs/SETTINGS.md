@@ -30,8 +30,6 @@ These settings control model generation for specific examples:
 
 - **iterate** (integer, default: 1): Number of model iterations to generate. Useful for finding multiple distinct models.
 
-- **iteration_timeout** (float, default: 1.0): Time in seconds allowed for each iteration attempt.
-
 ## General Settings
 
 The bimodal theory supports all standard general settings plus:

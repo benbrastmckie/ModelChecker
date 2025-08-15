@@ -64,8 +64,6 @@ These settings control model generation for specific examples:
 
 - **iterate** (boolean/integer, default: False): When set to an integer, attempts to find multiple distinct models. Useful for exploring the space of countermodels.
 
-- **iteration_timeout** (float, default: 1.0): Time in seconds allowed for each iteration attempt when using iterate mode.
-
 - **iteration_attempts** (integer, default: 5): Maximum number of attempts to find a new model in each iteration.
 
 - **expectation** (boolean/None, default: None): Expected result for testing. Set to True if a model should exist, False if not, None to skip expectation checking.
@@ -119,7 +117,7 @@ logos_hyperintensional_settings = {
     'non_null': True,
     'disjoint': True,  # Essential for proper hyperintensionality
     'iterate': 10,  # Explore multiple models
-    'iteration_timeout': 2.0,
+    'max_time': 2000,  # 2 seconds for iteration attempts
 }
 ```
 
@@ -245,7 +243,7 @@ research_settings = {
     'disjoint': True,
     'max_time': 30000,
     'iterate': 5,
-    'iteration_timeout': 3.0,
+    # max_time already set above
     'iteration_solver_timeout': 20000,
 }
 ```

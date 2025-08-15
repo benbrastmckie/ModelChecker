@@ -53,20 +53,17 @@ class UnifiedProgress:
     
     def __init__(self, 
                  total_models: int = 1,
-                 iteration_timeout: Optional[float] = None,
-                 initial_timeout: Optional[float] = None,
+                 max_time: Optional[float] = None,
                  display: Optional['ProgressDisplay'] = None):
         """Initialize unified progress tracker.
         
         Args:
             total_models: Total number of models to find
-            iteration_timeout: Timeout per iteration in seconds
-            initial_timeout: Timeout for first model (includes setup overhead)
+            max_time: Timeout for all operations in seconds
             display: Custom display handler (defaults to TerminalDisplay)
         """
         self.total_models = total_models
-        self.iteration_timeout = iteration_timeout or 60.0
-        self.initial_timeout = initial_timeout or self.iteration_timeout
+        self.max_time = max_time or 60.0
         
         # Lazy import to avoid circular dependency
         if display is None:
@@ -115,8 +112,8 @@ class UnifiedProgress:
                 last_bar.complete(False)  # Force stop
         
         # Create animated progress bar for this model with synchronized time
-        # Use appropriate timeout based on model number
-        timeout = self.initial_timeout if model_number == 1 else self.iteration_timeout
+        # Use max_time for all models
+        timeout = self.max_time
         
         from .animated import TimeBasedProgress
         progress_bar = TimeBasedProgress(

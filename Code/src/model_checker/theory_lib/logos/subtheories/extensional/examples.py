@@ -60,7 +60,7 @@ EXT_CM_1_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 1,
-    'iterate': 1,
+    'iterate': 2,
     'expectation': True,
 }
 EXT_CM_1_example = [

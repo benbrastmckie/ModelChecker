@@ -3,52 +3,10 @@
 import pytest
 import time
 from unittest.mock import patch
-from model_checker.iterate.metrics import IterationProgress, IterationStatistics
+from model_checker.iterate.metrics import IterationStatistics
 
 
-class TestIterationProgress:
-    """Test cases for IterationProgress functionality."""
-    
-    def test_initialization(self):
-        """Test progress bar initialization."""
-        progress = IterationProgress(5, "Testing models")
-        assert progress.total == 5
-        assert progress.current == 0
-        assert progress.desc == "Testing models"
-        assert progress.enabled is True
-    
-    def test_update_progress(self, capsys):
-        """Test progress update display."""
-        progress = IterationProgress(3, "Finding models")
-        
-        # Update progress
-        progress.update(1, 2)
-        captured = capsys.readouterr()
-        
-        # Should show progress bar
-        assert "Finding models" in captured.out
-        assert "[██████████" in captured.out  # Partial progress bar
-        assert "1/3" in captured.out
-        assert "(skipped 2)" in captured.out
-    
-    def test_finish_with_message(self, capsys):
-        """Test finishing progress with a message."""
-        progress = IterationProgress(2)
-        progress.finish("Complete!")
-        
-        captured = capsys.readouterr()
-        assert "Complete!" in captured.out
-    
-    def test_disabled_progress(self, capsys):
-        """Test that disabled progress doesn't output."""
-        progress = IterationProgress(5)
-        progress.enabled = False
-        
-        progress.update(2, 3)
-        progress.finish()
-        
-        captured = capsys.readouterr()
-        assert captured.out == ""  # No output when disabled
+# IterationProgress tests removed - functionality moved to output.progress module
 
 
 class TestIterationStatistics:

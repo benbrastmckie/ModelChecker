@@ -275,7 +275,6 @@ class WitnessSemantics(SemanticDefaults):
         'disjoint': False,
         'fusion_closure': False,
         'iterate': 1,
-        'iteration_timeout': 1.0,
         'max_time': 1,
         'expectation': None,
     }
@@ -760,7 +759,6 @@ class WitnessModelAdapter(ModelDefaults):
         'disjoint': False,
         'fusion_closure': False,
         'iterate': 1,
-        'iteration_timeout': 1.0,
         'max_time': 1,
         'expectation': None,
     }
