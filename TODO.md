@@ -5,6 +5,27 @@
 - [ ] lint
   - many of the imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py` are not used
   - also use pylint to be systematic about linting the entire codebase
+- [ ] refactor
+  - [ ] subpackages
+    - [ ] builder
+    - [:] iterate
+    - [ ] jupyter
+    - [ ] models
+    - [ ] output
+    - [ ] settings
+    - [ ] syntactic
+    - [ ] tests
+    - [ ] utils
+  - [ ] theories
+    - [ ] exclusion
+    - [ ] imposition
+    - [ ] logos
+    - [ ] tests
+  - [ ] documentation
+    - [ ] `theory_lib/README.md`
+    - [ ] `model_checker/README.md`
+    - [ ] links from `Docs/`
+  - [ ] release
 - [ ] finalize documentation
   - [ ] methodology
   - [ ] usage
