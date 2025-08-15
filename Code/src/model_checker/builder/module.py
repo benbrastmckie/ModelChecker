@@ -14,8 +14,7 @@ import sys
 import threading
 
 # Relative imports
-from model_checker.builder.progress import Spinner
-from model_checker.output.progress import UnifiedProgress
+from model_checker.output.progress import UnifiedProgress, Spinner
 from model_checker.syntactic import Syntax
 from model_checker.builder.serialize import (
     serialize_semantic_theory,

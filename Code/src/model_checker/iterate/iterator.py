@@ -8,7 +8,7 @@ constraint generation, model building, and termination logic.
 import logging
 import sys
 import time
-from model_checker.iterate.metrics import IterationProgress, IterationStatistics
+from model_checker.iterate.metrics import IterationStatistics
 from model_checker.iterate.statistics import SearchStatistics, IterationReportGenerator
 
 # Configure logging
@@ -53,9 +53,10 @@ class IteratorCore:
         self.max_iterations = self.settings.get('iterate', 1)
         self.current_iteration = 1  # First model is already found
         
-        # Initialize progress tracking and statistics
-        self.progress = IterationProgress(self.max_iterations, "Finding non-isomorphic models")
+        # Initialize statistics (progress is now handled by UnifiedProgress)
         self.stats = IterationStatistics()
+        # Legacy progress attribute kept for compatibility
+        self.progress = None
         
         # Store the initial model and model structure
         self.found_models = [build_example.model_structure.z3_model]
@@ -344,8 +345,7 @@ class IteratorCore:
         self.debug_messages = []
         self.checked_model_count = 1
         
-        # Reset progress and statistics
-        self.progress = IterationProgress(self.max_iterations, "Finding non-isomorphic models")
+        # Reset statistics (progress is now handled by UnifiedProgress)
         self.stats = IterationStatistics()
         self.stats.add_model(self.build_example.model_structure, {})
         

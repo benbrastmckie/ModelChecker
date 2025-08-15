@@ -103,7 +103,7 @@ CL_CM_3_settings = {
     'non_empty': True,
     'disjoint': False,
     'max_time': 1,
-    'iterate': 3,
+    'iterate': 2,
     'expectation': True,
 }
 CL_CM_3_example = [

@@ -1,91 +1,15 @@
-"""Iteration control, progress tracking, and statistics collection.
+"""Iteration termination control, statistics collection, and result formatting.
 
-This module combines iteration termination logic, progress tracking, and statistics
-collection into a unified interface for monitoring and controlling the iteration process.
+This module provides utilities for managing the iteration process, including
+termination logic, statistics collection, and formatting of results.
+Progress tracking has been moved to the output.progress module.
 """
 
 import time
 import logging
-import sys
-import os
 from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
-
-
-class IterationProgress:
-    """Progress bar for model iteration."""
-    
-    def __init__(self, total: int, desc: str = "Finding models"):
-        self.total = total
-        self.current = 0
-        self.desc = desc
-        self.start_time = time.time()
-        self.enabled = True  # Always show for testing  # sys.stdout.isatty()  # Only show in terminal
-        self._first_update = True
-    
-    def update(self, found: int, skipped: int):
-        """Update progress display."""
-        if not self.enabled:
-            return
-        
-        # Don't add spacing before first update - handled by BuildModule
-        if self._first_update:
-            self._first_update = False
-        
-        self.current = found
-        elapsed = time.time() - self.start_time
-        
-        # Calculate progress
-        progress = found / self.total
-        bar_length = 30
-        filled = int(bar_length * progress)
-        bar = "█" * filled + "░" * (bar_length - filled)
-        
-        # Format message
-        msg = f"{self.desc}: [{bar}] {found}/{self.total} "
-        msg += f"(skipped {skipped}) {elapsed:.2f}s"
-        
-        # Clear the line first to prevent stacking
-        # Pad with spaces to clear any remaining characters
-        try:
-            terminal_width = os.get_terminal_size().columns
-        except:
-            terminal_width = 100  # Safe default
-        
-        # Ensure message doesn't wrap by truncating if needed
-        if len(msg) > terminal_width - 1:
-            msg = msg[:terminal_width - 4] + "..."
-        
-        # Pad with spaces to clear the rest of the line
-        padded_msg = f"\r{msg.ljust(terminal_width - 1)}"
-        sys.stdout.write(padded_msg)
-        sys.stdout.flush()
-    
-    def finish(self, message: Optional[str] = None, add_newline: bool = True):
-        """Complete the progress display.
-        
-        Args:
-            message: Optional message to display
-            add_newline: Whether to add a newline (default True)
-        """
-        if not self.enabled:
-            return
-        
-        if message:
-            sys.stdout.write(f"\r{message}\n")
-        else:
-            # Clear the progress line
-            try:
-                terminal_width = os.get_terminal_size().columns
-            except:
-                terminal_width = 100
-            sys.stdout.write(f"\r{' ' * (terminal_width - 1)}\r")
-            
-            if add_newline:
-                # Move to next line
-                sys.stdout.write("\n")
-        sys.stdout.flush()
 
 
 class IterationStatistics:

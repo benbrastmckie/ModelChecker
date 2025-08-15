@@ -1,4 +1,9 @@
-"""Animated progress bars with time-based completion."""
+"""Animated progress bars with time-based completion.
+
+This module provides animated progress bar implementations that
+update in real-time using background threads. The main implementation
+is TimeBasedProgress, which fills over a specified timeout duration.
+"""
 
 import time
 import threading
@@ -8,9 +13,24 @@ from .display import ProgressDisplay
 
 
 class AnimatedProgressBar(ProgressBar):
-    """Base class for animated progress bars."""
+    """Base class for animated progress bars.
+    
+    This class provides the threading infrastructure for animated
+    progress bars. Subclasses should implement the _animate method
+    to define their animation behavior.
+    
+    Attributes:
+        display: Display handler for progress output
+        active: Whether animation is currently running
+        thread: Background thread for animation
+    """
     
     def __init__(self, display: Optional[ProgressDisplay] = None):
+        """Initialize animated progress bar.
+        
+        Args:
+            display: Custom display handler (defaults to TerminalDisplay)
+        """
         # Lazy import to avoid circular dependency
         if display is None:
             from .display import TerminalDisplay
@@ -20,15 +40,34 @@ class AnimatedProgressBar(ProgressBar):
         self.thread = None
         
     def _animate(self):
-        """Animation loop - to be implemented by subclasses."""
-        raise NotImplementedError
+        """Animation loop - to be implemented by subclasses.
+        
+        This method runs in a background thread and should contain
+        the animation logic. It should check self.active periodically
+        to know when to stop.
+        """
+        raise NotImplementedError("Subclasses must implement _animate()")
 
 
 class TimeBasedProgress(AnimatedProgressBar):
     """Progress bar that fills over a specified timeout duration.
     
-    The bar animates to fill completely over the timeout period,
-    but completes immediately when a model is found.
+    This progress bar is designed for model search operations. It gradually
+    fills from empty to full over the timeout period, providing visual
+    feedback about how much time remains. If a model is found before the
+    timeout, the bar completes immediately.
+    
+    The display format is:
+    "Finding non-isomorphic models: [████████████████████] 2/4 (1 skipped) 1.1s"
+    
+    Attributes:
+        timeout: Maximum time in seconds for the search
+        model_number: Current model number being searched for
+        total_models: Total number of models to find
+        start_time: When the search started
+        found: Whether a model was found
+        checked_count: Number of models checked
+        skipped_count: Number of isomorphic models skipped
     """
     
     def __init__(self, 
@@ -36,6 +75,14 @@ class TimeBasedProgress(AnimatedProgressBar):
                  model_number: int,
                  total_models: int,
                  display: Optional[ProgressDisplay] = None):
+        """Initialize time-based progress bar.
+        
+        Args:
+            timeout: Search timeout in seconds
+            model_number: Current model number (1-based)
+            total_models: Total models to find
+            display: Custom display handler
+        """
         super().__init__(display)
         self.timeout = timeout
         self.model_number = model_number

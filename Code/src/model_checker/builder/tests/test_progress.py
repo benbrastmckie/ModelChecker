@@ -5,7 +5,7 @@ import unittest
 import io
 from threading import Thread
 
-from model_checker.builder.progress import Spinner
+from model_checker.output.progress import Spinner
 
 class TestSpinner(unittest.TestCase):
     """Test the Spinner class for progress tracking."""

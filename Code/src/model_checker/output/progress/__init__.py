@@ -7,6 +7,7 @@ including both initial model search and iteration over multiple models.
 from .core import UnifiedProgress, ProgressBar
 from .animated import AnimatedProgressBar, TimeBasedProgress
 from .display import ProgressDisplay, TerminalDisplay
+from .spinner import Spinner
 
 __all__ = [
     'UnifiedProgress',
@@ -14,5 +15,6 @@ __all__ = [
     'AnimatedProgressBar',
     'TimeBasedProgress',
     'ProgressDisplay',
-    'TerminalDisplay'
+    'TerminalDisplay',
+    'Spinner'
 ]
