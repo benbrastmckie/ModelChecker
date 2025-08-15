@@ -741,6 +741,13 @@ class BuildModule:
         # Get the iterate count early to set up progress tracking
         iterate_count = example_case[2].get('iterate', 1)
         
+        # If iterate=1, no progress tracking needed
+        if iterate_count == 1:
+            # Create and solve the example without progress tracking
+            example = BuildExample(self, semantic_theory, example_case, theory_name)
+            self._capture_and_save_output(example, example_name, theory_name)
+            return example
+        
         # Create unified progress tracker for all models
         iteration_timeout = example_case[2].get('iteration_timeout', 60.0)
         progress = UnifiedProgress(
