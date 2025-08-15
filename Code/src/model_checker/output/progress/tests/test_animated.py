@@ -218,3 +218,29 @@ class TestTimeBasedProgress:
         bar_color = progress_color._generate_bar(0.5)
         assert '\033[38;5;208m' in bar_color  # Orange color code
         assert '\033[0m' in bar_color  # Reset code
+        
+    def test_custom_start_time(self):
+        """Test progress bar with custom start time for timing sync."""
+        display = MockDisplay()
+        custom_start = time.time() - 2.0  # 2 seconds ago
+        
+        progress = TimeBasedProgress(
+            timeout=5.0,
+            model_number=2,
+            total_models=3,
+            display=display,
+            start_time=custom_start
+        )
+        
+        # Start should use the provided time
+        progress.start()
+        assert progress.start_time == custom_start
+        
+        # Let it run briefly
+        time.sleep(0.2)
+        progress.complete(success=True)
+        
+        # Check that elapsed time accounts for custom start
+        # Should show at least 2 seconds elapsed
+        final_msg = display.messages[-1]
+        assert "2." in final_msg or "3." in final_msg or "4." in final_msg  # 2.x, 3.x, or 4.x seconds

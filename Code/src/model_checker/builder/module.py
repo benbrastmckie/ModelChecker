@@ -750,22 +750,33 @@ class BuildModule:
         
         # Create unified progress tracker for all models
         iteration_timeout = example_case[2].get('iteration_timeout', 60.0)
+        initial_timeout = example_case[2].get('max_time', 60.0)  # Use solver timeout for Model 1
         progress = UnifiedProgress(
             total_models=iterate_count,
-            iteration_timeout=iteration_timeout
+            iteration_timeout=iteration_timeout,
+            initial_timeout=initial_timeout
         )
         
         # Add vertical space before first progress bar
         print()
         
-        # Start progress for first model
-        progress.start_model_search(1)
+        # Capture Model 1 start time BEFORE any work
+        model_1_start = time.time()
+        
+        # Start progress for first model with timing
+        progress.start_model_search(1, start_time=model_1_start)
         
         # Create and solve the example
         example = BuildExample(self, semantic_theory, example_case, theory_name)
         
         # Update progress
         progress.model_checked()
+        
+        # Store timing reference for iteration report
+        # The model already has z3_model_runtime for solver time
+        # Add total search time for consistency
+        example.model_structure._search_start_time = model_1_start
+        example.model_structure._total_search_time = time.time() - model_1_start
         
         # Check if a model was found
         if not example.model_structure.z3_model_status:

@@ -80,7 +80,8 @@ class TimeBasedProgress(AnimatedProgressBar):
                  timeout: float,
                  model_number: int,
                  total_models: int,
-                 display: Optional[ProgressDisplay] = None):
+                 display: Optional[ProgressDisplay] = None,
+                 start_time: Optional[float] = None):
         """Initialize time-based progress bar.
         
         Args:
@@ -88,11 +89,13 @@ class TimeBasedProgress(AnimatedProgressBar):
             model_number: Current model number (1-based)
             total_models: Total models to find
             display: Custom display handler
+            start_time: Optional start time for timing synchronization
         """
         super().__init__(display)
         self.timeout = timeout
         self.model_number = model_number
         self.total_models = total_models
+        self.provided_start_time = start_time  # Store provided start time
         self.start_time = None
         self.found = False
         self.checked_count = 0
@@ -101,7 +104,8 @@ class TimeBasedProgress(AnimatedProgressBar):
         
     def start(self, total: int = 100, message: str = "") -> None:
         """Start the animated progress bar."""
-        self.start_time = time.time()
+        # Use provided start time or current time
+        self.start_time = self.provided_start_time or time.time()
         self.active = True
         self.thread = threading.Thread(target=self._animate)
         self.thread.daemon = True
