@@ -7,7 +7,7 @@
   - also use pylint to be systematic about linting the entire codebase
 - [ ] refactor
   - [ ] subpackages
-    - [ ] builder
+    - [:] builder
     - [x] iterate
     - [ ] jupyter
     - [ ] models
