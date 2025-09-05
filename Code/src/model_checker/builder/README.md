@@ -1,217 +1,281 @@
-# Model Checker Builder Package
+# Builder: Modular Model Checking Framework
 
-This package provides components for building and executing modal logic model checking examples. It replaces the monolithic builder.py with a modular approach, following the project's design philosophy.
+[← Back to ModelChecker](../../README.md) | [API Reference →](../README.md)
 
-## Components
+## Directory Structure
 
-### Core Classes
-
-- **BuildModule**: Manages loading and executing model checking examples from Python modules, including running examples, comparing theories, and handling theory translations.
-- **BuildProject**: Creates new theory implementation projects from templates, including file copying, project setup, and test execution.
-- **BuildExample**: Handles individual model checking examples, including model building, result evaluation, and iterative model finding.
-
-### Utilities
-
-- **progress.py**: Thread-based progress tracking for long-running operations.
-- **validation.py**: Parameter validation utilities with detailed error messages.
-- **iterate.py**: Systematic discovery of multiple distinct models for logical examples.
-- **z3_utils.py**: Utilities for working with Z3 models, including finding alternative models.
-- **graph_utils.py**: Graph representation of models for structural comparison.
-
-## Model Iteration System
-
-The model iteration system (in `iterate.py`) provides capabilities for finding multiple semantically distinct models for a logical example. This is particularly useful for:
-
-1. Finding countermodels that demonstrate formula invalidity
-2. Exploring the space of possible models for a given set of constraints
-3. Comparing different semantic interpretations of the same logical structure
-
-### How Iteration Works
-
-The iteration process systematically finds multiple distinct models by:
-
-1. Starting with an initial valid model found by `BuildExample`
-2. Creating constraints that require each new model to differ from all previous models
-3. Using Z3 to find solutions that satisfy both the original logical constraints and the difference constraints
-4. Checking for model isomorphism to ensure truly distinct models are found
-5. Tracking and reporting differences between successive models
-
-### Difference Mechanism
-
-The iteration system uses a comprehensive approach to find different models by combining several techniques:
-
-1. **Semantic differences**: Ensures changes in sentence letter valuations and semantic function interpretations from one model to the next.
-
-2. **Theory-specific differences**: When available, uses a theory's `calculate_model_differences` method to identify meaningful differences according to the theory's semantics.
-
-3. **Structural checks**: When NetworkX is available, analyzes model graph structures to avoid isomorphic models that have the same structure but different representations.
-
-4. **Escalating constraints**: Uses increasingly stronger constraints when similar models are encountered repeatedly, helping to escape from isomorphic regions of the search space.
-
-The system automatically applies the most appropriate difference methods based on the model's characteristics and theory implementation:
-
-### Iteration Settings
-
-The following settings control the iteration behavior in any theory:
-
-- **iterate**: Maximum number of models to find (default: 1)
-- **max_time**: Maximum solver time for each model (inherited from general settings)
-- **iteration_attempts**: Maximum consecutive isomorphic models before applying stronger constraints (default: 5)
-- **escape_attempts**: Maximum attempts to escape from isomorphic models before giving up (default: 3)
-- **iteration_timeout**: Maximum time for isomorphism checking (default: 1.0 seconds)
-- **difference_type**: Legacy setting, currently only 'semantic' is fully implemented
-
-In the default theory, the `iterate` setting can be used as follows:
-
-```python
-# Example in default theory that finds up to 3 different models
-example = {
-    "name": "iteration_example",
-    "premises": ["(p \\rightarrow q)"],
-    "conclusions": ["(p \\wedge q)"],
-    "settings": {
-        "N": 3,
-        "iterate": 3,  # Find up to 3 distinct models
-        "max_time": 5
-    }
-}
+```
+builder/
+├── README.md                       # This file - builder package overview
+├── __init__.py                     # Public API exports
+├── module.py                       # Core orchestration and initialization
+├── runner.py                       # Model checking execution engine
+├── comparison.py                   # Theory comparison and benchmarking
+├── translation.py                  # Operator translation utilities
+├── loader.py                       # Module loading and discovery
+├── example.py                      # Individual example processing
+├── validation.py                   # Parameter validation with detailed errors
+├── z3_utils.py                     # Z3 solver utilities and helpers
+├── serialize.py                    # Theory serialization for multiprocessing
+├── project.py                      # Theory project generation
+└── tests/                          # Comprehensive test suite
 ```
 
-### Differences Between Models
+## Overview
 
-The iteration system tracks differences between models in several ways:
+The **Builder Package** provides the core infrastructure for constructing and executing modal logic model checking examples. Following a modular architecture, it separates concerns across focused components while maintaining clean interfaces and avoiding backwards compatibility cruft.
 
-1. **Propositional differences**: Different truth values for sentence letters
-2. **Structural differences**: Different accessibility relations or world structures
-3. **Graph differences**: Models with different graph structures
-4. **Function differences**: Theory-specific semantic function interpretations
+### Key Design Principles
 
-Each found model includes a `model_differences` property that details how it differs from the previous model, making it easy to understand the semantic variations.
+1. **No Backwards Compatibility**: Interfaces evolve freely without optional parameters or compatibility layers
+2. **Clear Separation of Concerns**: Each module has a single, well-defined responsibility
+3. **No Decorators**: All methods are instance methods or module-level functions
+4. **Fail-Fast Philosophy**: Errors surface immediately with helpful context
+5. **Explicit Data Flow**: No hidden state or implicit conversions
 
-## Usage Examples
+## Core Components
 
-### Creating a New Theory Project
+### BuildModule (module.py)
+
+The main orchestrator that coordinates all model checking operations:
+
+```python
+from model_checker.builder import BuildModule
+
+# Initialize with command-line flags
+module = BuildModule(module_flags)
+
+# Run all examples defined in the module
+module.run_examples()
+```
+
+**Responsibilities:**
+- Module loading and initialization
+- Settings management and validation
+- Component coordination (runner, comparison, translation)
+- Output management and interactive workflows
+
+**Key Features:**
+- Dynamic module loading from file paths
+- Theory-aware settings validation
+- Interactive and batch output modes
+- Z3 context isolation between examples
+
+### ModelRunner (runner.py)
+
+Executes model checking operations and manages iteration:
+
+```python
+# Internally used by BuildModule
+runner = ModelRunner(build_module)
+result = runner.process_example(example_name, example_case, theory_name, semantic_theory)
+```
+
+**Responsibilities:**
+- Individual example execution
+- Model iteration coordination
+- Progress tracking and timeout handling
+- Theory-specific iterate function integration
+
+**Key Features:**
+- Unified progress tracking for iterations
+- Generator-based incremental model display
+- Detailed difference reporting between models
+- Clean Z3 context management
+
+### ModelComparison (comparison.py)
+
+Benchmarks different semantic theories by finding maximum model sizes:
+
+```python
+# Created when using comparison mode
+comparison = ModelComparison(build_module)
+results = comparison.run_comparison()
+```
+
+**Responsibilities:**
+- Theory performance comparison
+- Maximum N-value discovery
+- Parallel execution management
+- Result aggregation and reporting
+
+### OperatorTranslation (translation.py)
+
+Handles operator notation differences between theories:
+
+```python
+# Translates operators according to theory dictionaries
+translation = OperatorTranslation()
+translated_case = translation.translate(example_case, operator_dictionary)
+```
+
+**Responsibilities:**
+- Operator symbol replacement
+- Formula tree traversal
+- Theory-specific translations
+
+### ModuleLoader (loader.py)
+
+Manages Python module loading and project detection:
+
+```python
+# Used internally for module discovery
+loader = ModuleLoader(module_name, module_path)
+module = loader.load_module()
+```
+
+**Responsibilities:**
+- Dynamic module importing
+- Generated project detection
+- sys.path management
+- Attribute validation
+
+## Usage Patterns
+
+### Running Examples from Command Line
+
+```bash
+# Run a single example file
+./dev_cli.py examples/my_example.py
+
+# Run with specific settings
+./dev_cli.py examples/my_example.py -n -e --N=5
+
+# Compare theories (maximize mode)
+./dev_cli.py -m examples/my_example.py
+
+# Save output interactively
+./dev_cli.py -s examples/my_example.py
+```
+
+### Creating Theory Projects
 
 ```python
 from model_checker.builder import BuildProject
 
-# Create a project builder using 'logos' theory as template
-project = BuildProject('logos')
+# Create a new theory project
+project = BuildProject('logos')  # Use logos as template
+project_path = project.generate('my_new_theory')
 
-# Generate a new project
-project_path = project.generate('my_theory')
-print(f"New theory project created at: {project_path}")
-
-# Or use the interactive mode
+# Or use interactive mode
 project.ask_generate()
 ```
 
-### Running Model Checking Examples
+### Example Module Structure
 
 ```python
-from model_checker.builder import BuildModule
+# my_examples.py
+from model_checker.theory_lib.logos import get_theory
 
-# Initialize with module flags (e.g., from command line)
-module = BuildModule(module_flags)
+theory = get_theory(['modal', 'counterfactual'])
 
-# Run all examples
-module.run_examples()
+semantic_theories = {
+    "Logos": {
+        "semantics": theory["semantics"],
+        "proposition": theory["proposition"],
+        "model": theory["model"],
+        "operators": theory["operators"]
+    }
+}
 
-# Or run a comparison across different semantic theories
-module.run_comparison()
+example_range = {
+    "example1": [
+        ["\\Box p", "\\Box q"],           # Premises
+        ["\\Box (p \\wedge q)"],          # Conclusions
+        {"N": 3, "max_time": 10}          # Settings
+    ]
+}
 
-# Or run a single example (e.g., a counterfactual theorem)
-# Get an example from the logos theory
-from model_checker.theory_lib import get_examples
-logos_examples = get_examples("logos")
-cf_example = logos_examples["CF_TH_1"]  # Counterfactual theorem 1
-
-example = module.run_model_check(
-    cf_example,
-    example_name="CF_TH_1",
-    theory_name="logos",
-    semantic_theory=module.semantic_theories["logos"]
-)
-
-# Get and display results
-result = example.get_result()
-print(f"Model found: {result['model_found']}")
-print(f"Runtime: {result['runtime']} seconds")
+general_settings = {
+    "N": 3,
+    "max_time": 10,
+    "iterate": 1
+}
 ```
 
-### Finding Multiple Models
+## Model Iteration
+
+The builder integrates with theory-specific iteration capabilities:
 
 ```python
-# Continuing from the previous example where we created a BuildExample
-# Assume we have: module = BuildModule(module_flags)
-# And we ran: example = module.run_model_check(...)
-
-# Check if the model is satisfiable
-if example.model_structure.z3_model_status:
-    # Import the appropriate iterator for the theory
-    from model_checker.theory_lib.logos.iterate import LogosModelIterator
-    
-    # Create an iterator to find multiple models
-    iterator = LogosModelIterator(example)
-    
-    # Find up to 3 distinct models
-    models = iterator.iterate()
-    
-    # Print summary information
-    print(f"Found {len(models)} distinct models")
-    
-    # Print differences between models
-    for i, model in enumerate(models[1:], 2):
-        print(f"Model {i} differences:")
-        for key, diff in model.model_differences.items():
-            print(f"  {key}: {diff}")
+# Settings control iteration behavior
+example_settings = {
+    "N": 3,
+    "iterate": 5,  # Find up to 5 distinct models
+    "max_time": 10
+}
 ```
 
-### Theory Translation
-
-```python
-from model_checker.builder import BuildModule
-
-# Initialize module
-module = BuildModule(module_flags)
-
-# Example case with standard notation
-example_case = [["\\Box p"], ["\\Diamond p"], {"N": 3}]
-
-# Translate to alternate notation used by different theories
-translated_examples = module.translate_example(
-    example_case, 
-    module.semantic_theories
-)
-
-# Each theory now has properly translated operators
-for theory_name, semantic_theory, translated_case in translated_examples:
-    print(f"Theory: {theory_name}")
-    print(f"Translated premises: {translated_case[0]}")
-    print(f"Translated conclusions: {translated_case[1]}")
-```
+**Iteration Features:**
+- Automatic integration with theory iterate functions
+- Progress tracking for multi-model searches
+- Difference reporting between successive models
+- Isomorphism detection and avoidance
+- Generator-based incremental display
 
 ## Extension Points
 
-The builder package is designed for modularity and extension:
+### Adding New Theory Support
 
-1. **New Theory Types**: Create new theory implementations by extending the base classes.
-2. **Custom Validation**: Add specialized validation for your theory's parameters.
-3. **Progress Reporting**: Use or extend the progress tracking for long-running operations.
-4. **Z3 Utilities**: Extend the Z3 utilities to support additional constraint types.
-5. **Model Iteration**: Extend the iteration system for theory-specific differentiating constraints.
+1. Create theory implementation following the standard structure
+2. Define `iterate_example` or `iterate_example_generator` function
+3. Implement theory-specific difference detection
+4. Add operator dictionary for translations
+
+### Custom Validation
+
+Extend `validation.py` for theory-specific requirements:
+
+```python
+def validate_my_theory_settings(settings):
+    """Custom validation for my theory."""
+    if settings.get('special_param') not in VALID_VALUES:
+        raise ValueError("Invalid special_param value")
+```
+
+### Progress Tracking
+
+Use the unified progress system for long operations:
+
+```python
+from model_checker.output.progress import UnifiedProgress
+
+progress = UnifiedProgress(total_models=10, max_time=60.0)
+progress.start_model_search(1)
+# ... perform work ...
+progress.model_checked()
+progress.complete_model_search(found=True)
+```
+
+## Performance Considerations
+
+- **Z3 Context Isolation**: Each example runs in a fresh Z3 context
+- **Multiprocessing**: Comparison mode uses ProcessPoolExecutor
+- **Memory Management**: Explicit garbage collection between examples
+- **Timeout Handling**: Configurable timeouts at multiple levels
 
 ## Testing
 
-Run the tests using the project's test infrastructure:
-
 ```bash
 # Run all builder tests
-python test_package.py --components builder
+./run_tests.py builder
 
-# Run specific component tests
-python test_package.py --components builder.validation
+# Run specific test modules
+python -m pytest src/model_checker/builder/tests/test_module.py -xvs
 
-# Run with all theory tests to ensure compatibility
-python test_theories.py
+# Test with example files
+./dev_cli.py test_example.py
 ```
+
+## Migration from Legacy Builder
+
+The refactored builder maintains the same public API while improving internal organization:
+
+- `BuildModule` and `BuildProject` remain in `__all__`
+- Method signatures unchanged for public methods
+- Internal delegation now explicit through component instances
+- No backwards compatibility layers needed
+
+---
+
+[← Back to ModelChecker](../../README.md) | [API Reference →](../README.md)
