@@ -11,6 +11,13 @@ from io import StringIO
 from model_checker.builder.module import BuildModule
 from model_checker.output import InteractiveSaveManager
 from contextlib import contextmanager
+from model_checker.models.semantic import SemanticDefaults
+
+
+class MockSemantics(SemanticDefaults):
+    """Mock semantics class for testing."""
+    DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
+    DEFAULT_GENERAL_SETTINGS = {"save_output": True}
 
 
 class MockFlags:
@@ -50,7 +57,7 @@ class TestBuildModuleInteractive:
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     def test_interactive_mode_initialization(self, mock_load):
         """Test BuildModule initializes with interactive mode."""
         # Mock module loading
@@ -68,7 +75,7 @@ class TestBuildModuleInteractive:
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": True}
         mock_load.return_value = mock_module
         
@@ -87,7 +94,7 @@ class TestBuildModuleInteractive:
             assert module.output_manager.mode == 'interactive'
             mock_provider.get_input.assert_called_once_with("Save all examples (a) or run in sequence (s)? ")
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     def test_batch_mode_no_prompts(self, mock_load):
         """Test batch mode doesn't create interactive manager."""
         mock_module = Mock()
@@ -104,7 +111,7 @@ class TestBuildModuleInteractive:
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": False}
         mock_load.return_value = mock_module
         
@@ -114,7 +121,7 @@ class TestBuildModuleInteractive:
         # No interactive manager in batch mode
         assert module.output_manager.interactive_manager is None
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     @patch('model_checker.output.interactive.prompt_yes_no')
     def test_interactive_workflow_save_decision(self, mock_yes_no, mock_load):
         """Test interactive save decision after model found."""
@@ -160,7 +167,7 @@ class TestBuildModuleInteractive:
             module.interactive_manager.prompt_save_model = Mock(side_effect=track_prompt)
             
             # We need to mock process_example but still make _capture_and_save_output get called
-            with patch.object(module, 'process_example') as mock_process:
+            with patch.object(module.runner, 'process_example') as mock_process:
                 # Set up the mock to trigger our capture method
                 def process_side_effect(example_name, example_case, theory_name, semantic_theory):
                     mock_example = Mock()
@@ -198,7 +205,7 @@ class TestBuildModuleInteractive:
                 assert len(prompt_save_called) >= 1
                 assert "EXAMPLE_1" in prompt_save_called
             
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     @patch('model_checker.output.interactive.prompt_yes_no')
     @patch('builtins.print')
     def test_final_directory_prompt(self, mock_print, mock_yes_no, mock_load):
@@ -206,19 +213,16 @@ class TestBuildModuleInteractive:
         # Mock module
         mock_module = Mock()
         
-        # Create proper semantics mock
-        mock_semantics = Mock()
-        mock_semantics.DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
-        mock_semantics.DEFAULT_GENERAL_SETTINGS = {"save_output": True}
+        # Use the MockSemantics class instead of Mock instance
         
         mock_module.semantic_theories = {"test": {
-            "semantics": mock_semantics,
+            "semantics": MockSemantics,
             "proposition": Mock,
             "model": Mock,
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": True}
         mock_load.return_value = mock_module
         
@@ -236,8 +240,10 @@ class TestBuildModuleInteractive:
             module.output_manager.create_output_directory()
             output_path = os.path.abspath(module.output_manager.output_dir)
             
-            # Run examples (empty, but will still finalize)
-            module.run_examples()
+            # Mock runner's process_example to avoid actually running examples
+            with patch.object(module.runner, 'process_example') as mock_process:
+                # Run examples (will still finalize)
+                module.run_examples()
             
             # Check cd prompt was called
             mock_yes_no.assert_any_call("Change to output directory?", default=False)
@@ -245,7 +251,7 @@ class TestBuildModuleInteractive:
             # Check cd command was displayed
             mock_print.assert_any_call(f"  cd {output_path}")
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     def test_interactive_manager_passed_to_output(self, mock_load):
         """Test interactive manager is properly passed to OutputManager."""
         mock_module = Mock()
@@ -262,7 +268,7 @@ class TestBuildModuleInteractive:
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": True}
         mock_load.return_value = mock_module
         
@@ -280,7 +286,7 @@ class TestBuildModuleInteractive:
             assert module.output_manager.interactive_manager is module.interactive_manager
             assert module.interactive_manager.mode == 'interactive'
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     @patch('model_checker.output.interactive.prompt_yes_no')
     def test_model_saved_only_when_prompted_yes(self, mock_yes_no, mock_load):
         """Test model is saved only when user says yes."""
@@ -362,7 +368,7 @@ class TestBuildModuleInteractive:
                 
             module.output_manager.save_model_interactive = Mock(side_effect=track_save)
             
-            with patch.object(module, 'process_example', side_effect=process_side_effect):
+            with patch.object(module.runner, 'process_example', side_effect=process_side_effect):
                 module.run_examples()
                 
             # Verify only SAVE_ME was saved

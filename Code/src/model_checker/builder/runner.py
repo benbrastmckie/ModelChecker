@@ -370,7 +370,7 @@ class ModelRunner:
             # Get the theory-specific iterate_example function
             try:
                 # Dynamically discover the theory module from the semantic theory
-                module_name = self.build_module.loader.discover_theory_module(theory_name, semantic_theory)
+                module_name = self.build_module.loader.discover_theory_module_for_iteration(theory_name, semantic_theory)
                 
                 if not module_name:
                     # Fallback: try theory_name as module name directly

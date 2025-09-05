@@ -1,194 +1,0 @@
-
-Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/2 0.0sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/2 0.1sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/2 0.2sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 1/2 0.3sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 1/2 0.4s                                                              Finding non-isomorphic models: [████████████████████] 1/2 0.5s
-
-========================================
-
-EXAMPLE EX_CM_10: there is a countermodel.
-
-Atomic States: 3
-
-Semantic Theory: BernardChampollion
-
-Premise:
-1. (\neg A \vee \neg B)
-
-Conclusion:
-2. \neg (A \wedge B)
-
-Z3 Run Time: 0.0074 seconds
-
-========================================
-State Space
-  [37m#b000 = [33m□[0m
-  [37m#b001 = [36ma[0m
-  [37m#b010 = [34mb (world)[0m
-  [37m#b011 = [35ma.b (impossible)[0m
-  [37m#b100 = [36mc[0m
-  [37m#b101 = [34ma.c (world)[0m
-  [37m#b110 = [35mb.c (impossible)[0m
-  [37m#b111 = [35ma.b.c (impossible)[0m
-
-Conflicts
-  [36ma[0m conflicts with [34mb[0m
-  [36ma[0m conflicts with [35ma.b[0m
-  [36ma[0m conflicts with [35mb.c[0m
-  [36ma[0m conflicts with [35ma.b.c[0m
-  [34mb[0m conflicts with [36ma[0m
-  [34mb[0m conflicts with [35ma.b[0m
-  [34mb[0m conflicts with [36mc[0m
-  [34mb[0m conflicts with [34ma.c[0m
-  [34mb[0m conflicts with [35mb.c[0m
-  [34mb[0m conflicts with [35ma.b.c[0m
-  [35ma.b[0m conflicts with [36ma[0m
-  [35ma.b[0m conflicts with [34mb[0m
-  [35ma.b[0m conflicts with [35ma.b[0m
-  [35ma.b[0m conflicts with [36mc[0m
-  [35ma.b[0m conflicts with [34ma.c[0m
-  [35ma.b[0m conflicts with [35mb.c[0m
-  [35ma.b[0m conflicts with [35ma.b.c[0m
-  [36mc[0m conflicts with [34mb[0m
-  [36mc[0m conflicts with [35ma.b[0m
-  [36mc[0m conflicts with [35mb.c[0m
-  [36mc[0m conflicts with [35ma.b.c[0m
-  [34ma.c[0m conflicts with [34mb[0m
-  [34ma.c[0m conflicts with [35ma.b[0m
-  [34ma.c[0m conflicts with [35mb.c[0m
-  [34ma.c[0m conflicts with [35ma.b.c[0m
-  [35mb.c[0m conflicts with [36ma[0m
-  [35mb.c[0m conflicts with [34mb[0m
-  [35mb.c[0m conflicts with [35ma.b[0m
-  [35mb.c[0m conflicts with [36mc[0m
-  [35mb.c[0m conflicts with [34ma.c[0m
-  [35mb.c[0m conflicts with [35mb.c[0m
-  [35mb.c[0m conflicts with [35ma.b.c[0m
-  [35ma.b.c[0m conflicts with [36ma[0m
-  [35ma.b.c[0m conflicts with [34mb[0m
-  [35ma.b.c[0m conflicts with [35ma.b[0m
-  [35ma.b.c[0m conflicts with [36mc[0m
-  [35ma.b.c[0m conflicts with [34ma.c[0m
-  [35ma.b.c[0m conflicts with [35mb.c[0m
-  [35ma.b.c[0m conflicts with [35ma.b.c[0m
-
-Coherence
-  [36m□[0m coheres with [36m□[0m
-  [36m□[0m coheres with [36ma[0m
-  [36m□[0m coheres with [34mb[0m
-  [36m□[0m coheres with [35ma.b[0m
-  [36m□[0m coheres with [36mc[0m
-  [36m□[0m coheres with [34ma.c[0m
-  [36m□[0m coheres with [35mb.c[0m
-  [36m□[0m coheres with [35ma.b.c[0m
-  [36ma[0m coheres with [36m□[0m
-  [36ma[0m coheres with [36ma[0m
-  [36ma[0m coheres with [36mc[0m
-  [36ma[0m coheres with [34ma.c[0m
-  [34mb[0m coheres with [36m□[0m
-  [34mb[0m coheres with [34mb[0m
-  [35ma.b[0m coheres with [36m□[0m
-  [36mc[0m coheres with [36m□[0m
-  [36mc[0m coheres with [36ma[0m
-  [36mc[0m coheres with [36mc[0m
-  [36mc[0m coheres with [34ma.c[0m
-  [34ma.c[0m coheres with [36m□[0m
-  [34ma.c[0m coheres with [36ma[0m
-  [34ma.c[0m coheres with [36mc[0m
-  [34ma.c[0m coheres with [34ma.c[0m
-  [35mb.c[0m coheres with [36m□[0m
-  [35ma.b.c[0m coheres with [36m□[0m
-
-Unilateral Exclusion
-  [36ma[0m excludes [34mb[0m
-  [34mb[0m excludes [36ma[0m
-  [34mb[0m excludes [36mc[0m
-  [36mc[0m excludes [34mb[0m
-
-Functions
-  \neg(B)_y: [36m□[0m → [36m□[0m
-  \neg(B)_y: [36ma[0m → [36m□[0m
-  \neg(B)_y: [34mb[0m → [36m□[0m
-  \neg(B)_y: [35ma.b[0m → [36m□[0m
-  \neg(B)_y: [36mc[0m → [36m□[0m
-  \neg(B)_y: [34ma.c[0m → [36m□[0m
-  \neg(B)_y: [35mb.c[0m → [36m□[0m
-  \neg(B)_y: [35ma.b.c[0m → [36m□[0m
-  \neg((A \wedge B))_h: [36m□[0m → [34mb[0m
-  \neg((A \wedge B))_h: [36ma[0m → [34mb[0m
-  \neg((A \wedge B))_h: [34mb[0m → [34mb[0m
-  \neg((A \wedge B))_h: [35ma.b[0m → [34mb[0m
-  \neg((A \wedge B))_h: [36mc[0m → [34mb[0m
-  \neg((A \wedge B))_h: [34ma.c[0m → [34mb[0m
-  \neg((A \wedge B))_h: [35mb.c[0m → [34mb[0m
-  \neg((A \wedge B))_h: [35ma.b.c[0m → [34mb[0m
-  \neg(A)_h: [36m□[0m → [36mc[0m
-  \neg(A)_h: [36ma[0m → [36mc[0m
-  \neg(A)_h: [34mb[0m → [36mc[0m
-  \neg(A)_h: [35ma.b[0m → [36mc[0m
-  \neg(A)_h: [36mc[0m → [36mc[0m
-  \neg(A)_h: [34ma.c[0m → [36mc[0m
-  \neg(A)_h: [35mb.c[0m → [36mc[0m
-  \neg(A)_h: [35ma.b.c[0m → [36ma[0m
-  \neg(B)_h: [36m□[0m → [36mc[0m
-  \neg(B)_h: [36ma[0m → [36mc[0m
-  \neg(B)_h: [34mb[0m → [36mc[0m
-  \neg(B)_h: [35ma.b[0m → [36mc[0m
-  \neg(B)_h: [36mc[0m → [36mc[0m
-  \neg(B)_h: [34ma.c[0m → [36mc[0m
-  \neg(B)_h: [35mb.c[0m → [36mc[0m
-  \neg(B)_h: [35ma.b.c[0m → [36mc[0m
-  \neg((A \wedge B))_y: [36m□[0m → [36m□[0m
-  \neg((A \wedge B))_y: [36ma[0m → [36m□[0m
-  \neg((A \wedge B))_y: [34mb[0m → [36m□[0m
-  \neg((A \wedge B))_y: [35ma.b[0m → [36m□[0m
-  \neg((A \wedge B))_y: [36mc[0m → [36m□[0m
-  \neg((A \wedge B))_y: [34ma.c[0m → [36m□[0m
-  \neg((A \wedge B))_y: [35mb.c[0m → [36m□[0m
-  \neg((A \wedge B))_y: [35ma.b.c[0m → [36m□[0m
-  \neg(A)_y: [36m□[0m → [34mb[0m
-  \neg(A)_y: [36ma[0m → [34mb[0m
-  \neg(A)_y: [34mb[0m → [34mb[0m
-  \neg(A)_y: [35ma.b[0m → [34mb[0m
-  \neg(A)_y: [36mc[0m → [34mb[0m
-  \neg(A)_y: [34ma.c[0m → [34mb[0m
-  \neg(A)_y: [35mb.c[0m → [34mb[0m
-  \neg(A)_y: [35ma.b.c[0m → [34mb[0m
-
-The evaluation world is: [34ma.c[0m
-
-INTERPRETED PREMISE:
-
-1.  [32m|(\neg A \vee \neg B)| = {a.c}[0m  [32m(True in a.c)[0m
-      [37m|\neg A| = {a.c}[0m  [33m(True in a.c)[0m
-        [37m|A| = {a.b.c, b.c}[0m  [33m(False in a.c)[0m
-      [37m|\neg B| = {}[0m  [33m(False in a.c)[0m
-        [37m|B| = {a, a.c}[0m  [33m(True in a.c)[0m
-
-INTERPRETED CONCLUSION:
-
-2.  [31m|\neg (A \wedge B)| = {}[0m  [31m(False in a.c)[0m
-      [37m|(A \wedge B)| = {a.b.c}[0m  [33m(False in a.c)[0m
-        [37m|A| = {a.b.c, b.c}[0m  [33m(False in a.c)[0m
-        [37m|B| = {a, a.c}[0m  [33m(True in a.c)[0m
-
-Total Run Time: 0.6421 seconds
-
-
-========================================
-
-Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/2 0.0sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/2 0.1sFinding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/2 0.2sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 2/2 0.3sFinding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 2/2 0.4sFinding non-isomorphic models: [██░░░░░░░░░░░░░░░░░░] 2/2 0.5sFinding non-isomorphic models: [██░░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.6sFinding non-isomorphic models: [██░░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.7sFinding non-isomorphic models: [███░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.8sFinding non-isomorphic models: [███░░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 0.9sFinding non-isomorphic models: [████░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 1.0sFinding non-isomorphic models: [████░░░░░░░░░░░░░░░░] 2/2 (1 skipped) 1.1s                                                                          Finding non-isomorphic models: [████████████████████] 2/2 (1 skipped) 1.2s
-Error during iteration: 'WitnessSemantics' object has no attribute 'falsify'
-Traceback (most recent call last):
-  File "/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/module.py", line 985, in _run_generator_iteration
-    for i, structure in enumerate(model_generator, start=2):
-                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/iterate.py", line 294, in iterate_example_generator
-    yield from iterator.iterate_generator()
-  File "/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/iterate.py", line 236, in iterate_generator
-    for model in super().iterate_generator():
-                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/logos/iterate.py", line 356, in iterate_generator
-    theory_diffs = self._calculate_logos_differences(
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/logos/iterate.py", line 154, in _calculate_logos_differences
-    old_falsify = previous_model.eval(semantics.falsify(state, atom), model_completion=True)
-                                      ^^^^^^^^^^^^^^^^^
-AttributeError: 'WitnessSemantics' object has no attribute 'falsify'

@@ -75,7 +75,8 @@ general_settings = {
         """Test run_model_check method exists and works."""
         mock_build_module = Mock()
         mock_build_module.general_settings = {'N': 2, 'max_time': 1}
-        mock_build_module.translate = Mock(return_value=[["p"], ["q"], {"N": 2}])
+        mock_build_module.translation = Mock()
+        mock_build_module.translation.translate = Mock(return_value=[["p"], ["q"], {"N": 2}])
         
         runner = ModelRunner(mock_build_module)
         
@@ -131,8 +132,8 @@ general_settings = {
         # Check if runner attribute exists (will after refactoring)
         if hasattr(build_module, 'runner'):
             self.assertIsNotNone(build_module.runner)
-            # After refactoring, run_model_check should still work
-            self.assertTrue(hasattr(build_module, 'run_model_check'))
+            # After refactoring, run_model_check is accessed via runner
+            self.assertTrue(hasattr(build_module.runner, 'run_model_check'))
 
 
 if __name__ == '__main__':

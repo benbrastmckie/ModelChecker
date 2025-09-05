@@ -114,8 +114,8 @@ class BuildModule:
         from model_checker.builder.runner import ModelRunner
         self.runner = ModelRunner(self)
         
-        # Create comparison instance if in comparison mode
-        if hasattr(module_flags, 'comparison') and module_flags.comparison:
+        # Create comparison instance if in comparison mode or maximize mode
+        if (hasattr(module_flags, 'comparison') and module_flags.comparison) or getattr(self, 'maximize', False):
             from model_checker.builder.comparison import ModelComparison
             self.comparison = ModelComparison(self)
         
@@ -224,6 +224,52 @@ class BuildModule:
         else:
             # Batch mode - save normally
             self.output_manager.save_example(display_name, model_data, formatted_output)
+    
+    def run_comparison(self):
+        """Delegate to comparison module for maximize mode.
+        
+        This method provides backward compatibility for code that calls
+        module.run_comparison() when maximize=True.
+        """
+        if hasattr(self, 'comparison'):
+            self.comparison.run_comparison()
+        else:
+            raise AttributeError("Comparison module not initialized. Set comparison=True in flags.")
+    
+    def translate(self, example_case, dictionary):
+        """Delegate to translation module for operator translation.
+        
+        Args:
+            example_case: Example case to translate
+            dictionary: Translation dictionary
+            
+        Returns:
+            Translated example case
+        """
+        if hasattr(self, 'translation'):
+            return self.translation.translate(example_case, dictionary)
+        else:
+            # Return unchanged if no translation module
+            return example_case
+    
+    def translate_example(self, example_case, semantic_theories):
+        """Delegate to translation module for multi-theory translation.
+        
+        Args:
+            example_case: Example case to translate
+            semantic_theories: Dictionary of semantic theories
+            
+        Returns:
+            List of translated examples for each theory
+        """
+        if hasattr(self, 'translation'):
+            return self.translation.translate_example(example_case, semantic_theories)
+        else:
+            # Return basic structure if no translation module
+            result = []
+            for theory_name in semantic_theories:
+                result.append((theory_name, None, example_case))
+            return result
     
     def run_examples(self):
         """Process and execute each example case with all semantic theories.

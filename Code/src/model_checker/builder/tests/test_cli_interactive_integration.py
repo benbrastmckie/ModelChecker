@@ -8,6 +8,13 @@ from unittest.mock import Mock, patch, MagicMock
 
 from model_checker.builder.module import BuildModule
 from model_checker.output import InteractiveSaveManager
+from model_checker.models.semantic import SemanticDefaults
+
+
+class MockSemantics(SemanticDefaults):
+    """Mock semantics class for testing."""
+    DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
+    DEFAULT_GENERAL_SETTINGS = {"save_output": True}
 
 
 class MockFlags:
@@ -38,25 +45,22 @@ class TestCLIInteractiveIntegration:
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     def test_interactive_flag_sets_mode_directly(self, mock_load):
         """Test that interactive flag bypasses mode prompt."""
         # Mock module
         mock_module = Mock()
         
-        # Create proper semantics mock
-        mock_semantics = Mock()
-        mock_semantics.DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
-        mock_semantics.DEFAULT_GENERAL_SETTINGS = {"save_output": True}
+        # Use MockSemantics class instead of Mock instance
         
         mock_module.semantic_theories = {"test": {
-            "semantics": mock_semantics,
+            "semantics": MockSemantics,
             "proposition": Mock,
             "model": Mock,
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": True}
         mock_load.return_value = mock_module
         
@@ -72,25 +76,22 @@ class TestCLIInteractiveIntegration:
             assert module.interactive_manager.mode == 'interactive'
             mock_prompt.assert_not_called()
             
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     def test_no_interactive_flag_prompts_user(self, mock_load):
         """Test that without interactive flag, user is prompted."""
         # Mock module
         mock_module = Mock()
         
-        # Create proper semantics mock
-        mock_semantics = Mock()
-        mock_semantics.DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
-        mock_semantics.DEFAULT_GENERAL_SETTINGS = {"save_output": True}
+        # Use MockSemantics class instead of Mock instance
         
         mock_module.semantic_theories = {"test": {
-            "semantics": mock_semantics,
+            "semantics": MockSemantics,
             "proposition": Mock,
             "model": Mock,
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": True}
         mock_load.return_value = mock_module
         
@@ -109,25 +110,22 @@ class TestCLIInteractiveIntegration:
             assert module.interactive_manager.mode == 'batch'
             mock_provider.get_input.assert_called_once_with("Save all examples (a) or run in sequence (s)? ")
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     def test_interactive_flag_without_save_output(self, mock_load):
         """Test interactive flag has no effect without save_output."""
         # Mock module
         mock_module = Mock()
         
-        # Create proper semantics mock
-        mock_semantics = Mock()
-        mock_semantics.DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
-        mock_semantics.DEFAULT_GENERAL_SETTINGS = {"save_output": False}
+        # Use MockSemantics class instead of Mock instance
         
         mock_module.semantic_theories = {"test": {
-            "semantics": mock_semantics,
+            "semantics": MockSemantics,
             "proposition": Mock,
             "model": Mock,
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": False}
         mock_load.return_value = mock_module
         
@@ -139,25 +137,22 @@ class TestCLIInteractiveIntegration:
         assert module.interactive_manager is None
         assert module.output_manager.interactive_manager is None
         
-    @patch('model_checker.builder.module.BuildModule._load_module')
+    @patch('model_checker.builder.loader.ModuleLoader.load_module')
     def test_interactive_flag_with_output_manager(self, mock_load):
         """Test interactive flag properly configures OutputManager."""
         # Mock module
         mock_module = Mock()
         
-        # Create proper semantics mock
-        mock_semantics = Mock()
-        mock_semantics.DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
-        mock_semantics.DEFAULT_GENERAL_SETTINGS = {"save_output": True}
+        # Use MockSemantics class instead of Mock instance
         
         mock_module.semantic_theories = {"test": {
-            "semantics": mock_semantics,
+            "semantics": MockSemantics,
             "proposition": Mock,
             "model": Mock,
             "operators": {},
             "dictionary": {}
         }}
-        mock_module.example_range = {}
+        mock_module.example_range = {"TEST_EXAMPLE": [[], [], {"N": 3}]}  # Non-empty
         mock_module.general_settings = {"save_output": True}
         mock_load.return_value = mock_module
         

@@ -68,6 +68,31 @@ python tests/test_project_creation.py
 - **Scenarios**: Default responses, custom project names, theory selection
 - **Validation**: Correct handling of automated input streams
 
+#### Theory and Subtheory Example Testing
+
+The `dev_cli.py` tool can directly test theory examples without creating projects:
+
+```bash
+# Test main theory examples (use full paths)
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/exclusion/examples.py
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/imposition/examples.py
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/bimodal/examples.py
+
+# Test subtheory examples (e.g., Logos subtheories)
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+
+# Run with additional options
+./dev_cli.py -p path/to/examples.py       # Show constraints
+./dev_cli.py -e path/to/examples.py       # Override to make propositions non-empty
+./dev_cli.py -n path/to/examples.py       # Override to make propositions non-null
+```
+
+**Note**: Theory library examples use relative imports which are automatically resolved. The framework handles the necessary Python path setup to ensure proper module importing.
+
 ## Usage Patterns
 
 ### Individual Test Execution
