@@ -5,10 +5,8 @@ running individual examples, handling iterations, and managing Z3 contexts.
 """
 
 # Standard library imports
-import concurrent.futures
 import importlib
 import sys
-import threading
 import time
 
 # Local imports

@@ -6,18 +6,8 @@ settings, and coordinating the model checking process.
 """
 
 # Standard library imports
-import importlib.util
 import os
 import sys
-import threading
-import time
-
-# Local imports
-from model_checker.output.progress import UnifiedProgress, Spinner
-from model_checker.syntactic import Syntax
-
-# Relative imports
-from .serialize import serialize_semantic_theory, deserialize_semantic_theory
 
 
 class BuildModule:
@@ -41,10 +31,6 @@ class BuildModule:
         maximize (bool): Whether to maximize the model size
     """
 
-    def _discover_theory_module(self, theory_name, semantic_theory):
-        """Delegate to loader for theory module discovery."""
-        return self.loader.discover_theory_module(theory_name, semantic_theory)
-    
     def __init__(self, module_flags):
         """Initialize BuildModule with module flags containing configuration.
         
@@ -67,11 +53,11 @@ class BuildModule:
         from model_checker.builder.loader import ModuleLoader
         self.loader = ModuleLoader(self.module_name, self.module_path)
         
-        self.module = self._load_module()
+        self.module = self.loader.load_module()
         
         # Load core attributes
-        self.semantic_theories = self._load_attribute("semantic_theories")
-        self.example_range = self._load_attribute("example_range")
+        self.semantic_theories = self.loader.load_attribute(self.module, "semantic_theories")
+        self.example_range = self.loader.load_attribute(self.module, "example_range")
 
         # Store raw settings - validation happens per-theory in BuildExample
         self.raw_general_settings = getattr(self.module, "general_settings", None)
@@ -137,35 +123,6 @@ class BuildModule:
         from model_checker.builder.translation import OperatorTranslation
         self.translation = OperatorTranslation()
 
-    def _is_generated_project(self, module_dir):
-        """Detect if module is from a generated project."""
-        return self.loader.is_generated_project(module_dir)
-
-    def _find_project_directory(self, module_dir):
-        """Find the root directory of a generated project."""
-        return self.loader.find_project_directory(module_dir)
-
-    def _load_module(self):
-        """Load the Python module from file.
-        
-        Returns:
-            The loaded module object
-            
-        Raises:
-            ImportError: If module cannot be loaded
-        """
-        return self.loader.load_module()
-
-    def _load_attribute(self, attr_name):
-        """Checks if an attribute exists in the module and store it.
-        
-        Args:
-            attr_name: Name of the attribute to check and store
-            
-        Raises:
-            AttributeError: If the attribute is missing from the module
-        """
-        return self.loader.load_attribute(self.module, attr_name)
 
 
     
