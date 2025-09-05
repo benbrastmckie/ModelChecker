@@ -415,7 +415,6 @@ class BuildModule:
         # Delegate to runner
         return self.runner.try_single_N(theory_name, semantic_theory, example_case)
     
-    @staticmethod
     def try_single_N_static(theory_name, theory_config, example_case):
         """
         Static version of try_single_N that can be pickled for multiprocessing.
@@ -431,58 +430,9 @@ class BuildModule:
         Returns:
             tuple: (success, runtime)
         """
-        from model_checker.models.constraints import ModelConstraints
-        from model_checker.syntactic import Syntax
-        from model_checker.builder.serialize import deserialize_semantic_theory
-        
-        # Reconstruct the semantic theory from serialized data
-        semantic_theory = deserialize_semantic_theory(theory_config)
-        
-        # Recreate the logic from try_single_N
-        premises, conclusions, settings = example_case
-        semantics_class = semantic_theory["semantics"]
-        model_structure_class = semantic_theory["model"]
-        operators = semantic_theory["operators"]
-        syntax = Syntax(premises, conclusions, operators)
-        # Different theories have different initialization patterns
-        if 'Logos' in semantics_class.__name__:
-            semantics = semantics_class(combined_settings=settings)
-        else:
-            semantics = semantics_class(settings)
-        model_constraints = ModelConstraints(
-            settings,
-            syntax,
-            semantics,
-            semantic_theory["proposition"],
-        )
-        model_structure = model_structure_class(model_constraints, settings)
-        run_time = model_structure.z3_model_runtime
-        success = run_time < settings['max_time']
-        
-        # Define color constants
-        GREEN = "\033[32m"
-        RED = "\033[31m"
-        RESET = "\033[0m"
-        
-        if success:
-            # Green color for successful runs
-            output = (
-                f"{GREEN}{model_structure.semantics.name} ({theory_name}):\n"
-                f"  RUN TIME = {run_time}, " +
-                f"MAX TIME = {settings['max_time']}, " +
-                f"N = {settings['N']}.{RESET}\n"
-            )
-            print(output, end='', flush=True)
-        else:
-            # Red color for timeouts
-            output = (
-                f"{RED}{model_structure.semantics.name} ({theory_name}): "
-                f"TIMED OUT\n  RUN TIME = {run_time}, " +
-                f"MAX TIME = {settings['max_time']}, " +
-                f"N = {example_case[2]['N']}.{RESET}\n"
-            )
-            print(output, end='', flush=True)
-        return success, run_time
+        # Delegate to the runner's static function
+        from model_checker.builder.runner import try_single_N_static
+        return try_single_N_static(theory_name, theory_config, example_case)
     
     def try_single_N_serialized(self, theory_name, theory_config, example_case):
         """
