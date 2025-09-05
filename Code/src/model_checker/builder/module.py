@@ -5,19 +5,19 @@ examples from Python modules. It handles dynamic module loading, configuration
 settings, and coordinating the model checking process.
 """
 
-import os
+# Standard library imports
 import importlib.util
-import time
+import os
 import sys
 import threading
+import time
 
-# Relative imports
+# Local imports
 from model_checker.output.progress import UnifiedProgress, Spinner
 from model_checker.syntactic import Syntax
-from model_checker.builder.serialize import (
-    serialize_semantic_theory,
-    deserialize_semantic_theory
-)
+
+# Relative imports
+from .serialize import serialize_semantic_theory, deserialize_semantic_theory
 
 
 class BuildModule:
@@ -167,158 +167,9 @@ class BuildModule:
         """
         return self.loader.load_attribute(self.module, attr_name)
 
-    def translate(self, example_case, dictionary):
-        """Use dictionary to replace logical operators in logical formulas.
-        
-        Takes a dictionary mapping old operators to new operators and replaces all
-        occurrences of old operators with their new versions in the premises and
-        conclusions.
-        
-        Args:
-            example_case (list): A list containing [premises, conclusions, settings]
-            dictionary (dict): Mapping of old operators to new operators
-            
-        Returns:
-            list: New example case with translated operators in premises and conclusions
-        """
-        # Delegate to translation module
-        return self.translation.translate(example_case, dictionary)
-    
-    def translate_example(self, example_case, semantic_theories):
-        """Translates example case for each semantic theory using their dictionaries.
 
-        Takes an example case and applies any operator translations defined in each semantic
-        theory's dictionary to create theory-specific versions of the example.
-
-        Args:
-            example_case (list): List containing [premises, conclusions, settings]
-            semantic_theories (dict): Dictionary mapping theory names to their implementations
-
-        Returns:
-            list: List of tuples (theory_name, semantic_theory, translated_case) where:
-                - theory_name (str): Name of the semantic theory
-                - semantic_theory (dict): The semantic theory implementation
-                - translated_case (list): Example case with operators translated for that theory
-        """
-        # Delegate to translation module
-        return self.translation.translate_example(example_case, semantic_theories)
-
-    def run_model_check(self, example_case, example_name, theory_name, semantic_theory):
-        """Run model checking with the given parameters.
-        
-        Args:
-            example_case: List of [premises, conclusions, settings]
-            example_name: Name of the example being processed
-            theory_name: Name of the semantic theory
-            semantic_theory: Dictionary with semantics implementation
-            
-        Returns:
-            BuildExample: The processed example
-            
-        Raises:
-            TimeoutError: If execution exceeds the maximum time
-            ValueError: If parameters are invalid
-        """
-        # Delegate to runner
-        return self.runner.run_model_check(example_case, example_name, theory_name, semantic_theory)
     
-    def try_single_N(self, theory_name, semantic_theory, example_case):
-        """Try a single N value and return (success, runtime).
-        
-        Attempts to find a model with a specific N value (number of worlds) for a given
-        semantic theory and example case. Times out after the maximum allowed time.
-        
-        Args:
-            theory_name (str): Name of the semantic theory being tested
-            semantic_theory (dict): Dictionary containing the semantic theory implementation
-            example_case (list): List containing [premises, conclusions, settings]
-            
-        Returns:
-            tuple: (success, runtime) where:
-                - success (bool): True if model found within max time, False otherwise
-                - runtime (float): Time taken to attempt finding the model
-        """
-        # Delegate to runner
-        return self.runner.try_single_N(theory_name, semantic_theory, example_case)
-    
-    def try_single_N_static(theory_name, theory_config, example_case):
-        """
-        Static version of try_single_N that can be pickled for multiprocessing.
-        
-        This method is designed to be called by ProcessPoolExecutor with
-        serialized data that can be pickled across process boundaries.
-        
-        Args:
-            theory_name: Name of the theory
-            theory_config: Serialized theory configuration
-            example_case: Example case with premises, conclusions, settings
-            
-        Returns:
-            tuple: (success, runtime)
-        """
-        # Delegate to the runner's static function
-        from model_checker.builder.runner import try_single_N_static
-        return try_single_N_static(theory_name, theory_config, example_case)
-    
-    def try_single_N_serialized(self, theory_name, theory_config, example_case):
-        """
-        Wrapper for try_single_N that deserializes the semantic theory first.
-        
-        This method is designed to be called by ProcessPoolExecutor with
-        serialized data that can be pickled across process boundaries.
-        
-        Args:
-            theory_name: Name of the theory
-            theory_config: Serialized theory configuration
-            example_case: Example case with premises, conclusions, settings
-            
-        Returns:
-            tuple: (success, runtime)
-        """
-        # Reconstruct the semantic theory from serialized data
-        semantic_theory = deserialize_semantic_theory(theory_config)
-        
-        # Call the original method with reconstructed objects
-        return self.try_single_N(theory_name, semantic_theory, example_case)
 
-    def compare_semantics(self, example_theory_tuples):
-        """Compare different semantic theories by finding maximum model sizes.
-        
-        This method attempts to find the maximum model size (N) for each semantic theory
-        by incrementally testing larger values of N until a timeout occurs. It runs the
-        tests concurrently using a ProcessPoolExecutor for better performance.
-        
-        The method now uses serialization to avoid pickle errors with complex objects.
-        
-        Args:
-            example_theory_tuples: List of tuples containing (theory_name, semantic_theory, example_case)
-                where example_case is [premises, conclusions, settings]
-                
-        Returns:
-            list: List of tuples containing (theory_name, max_N) where max_N is the largest
-                  number of worlds for which a model was found within the time limit
-        """
-        # Delegate to comparison module
-        if not hasattr(self, 'comparison'):
-            from model_checker.builder.comparison import ModelComparison
-            self.comparison = ModelComparison(self)
-        return self.comparison.compare_semantics(example_theory_tuples)
-    
-    def run_comparison(self):
-        """Compare different semantic theories by running examples and printing results.
-        
-        Iterates through each example in example_range and runs it against all semantic theories.
-        For each example:
-        1. Prints example name and details (premises and conclusions)
-        2. Translates operators according to each theory's dictionary
-        3. Compares semantic theories by finding maximum model sizes
-        4. Prints results showing which theories could handle larger models
-        """
-        # Delegate to comparison module
-        if not hasattr(self, 'comparison'):
-            from model_checker.builder.comparison import ModelComparison
-            self.comparison = ModelComparison(self)
-        return self.comparison.run_comparison()
 
     def _prompt_for_iterations(self):
         """Prompt user for number of iterations in interactive mode.
@@ -343,37 +194,7 @@ class BuildModule:
             print("Please enter a valid number or hit return to continue.")
             return self._prompt_for_iterations()
 
-    def process_example(self, example_name, example_case, theory_name, semantic_theory):
-        """Process a single model checking example with a fresh Z3 context.
-        
-        Args:
-            example_name (str): Name of the example being processed
-            example_case (list): The example case containing [premises, conclusions, settings]
-            theory_name (str): Name of the semantic theory being used
-            semantic_theory (dict): Dictionary containing the semantic theory implementation
-            
-        Returns:
-            BuildExample: The example after processing
-        """
-        # Delegate to runner
-        return self.runner.process_example(example_name, example_case, theory_name, semantic_theory)
     
-    def process_iterations(self, example_name, example_case, theory_name, semantic_theory):
-        """Process multiple iterations of model checking for a given example.
-        
-        Uses ModelIterator to find multiple distinct models for the example.
-        
-        Args:
-            example_name (str): Name of the example being processed
-            example_case (list): The example case containing [premises, conclusions, settings]
-            theory_name (str): Name of the semantic theory being used
-            semantic_theory (dict): Dictionary containing the semantic theory implementation
-        
-        Returns:
-            BuildExample: The final example after all iterations
-        """
-        # Forward to the new process_example method which handles iteration in a better way
-        return self.process_example(example_name, example_case, theory_name, semantic_theory)
 
     def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
         """Capture and save model output if save_output is enabled.
@@ -486,7 +307,7 @@ class BuildModule:
                     # Process the example with our new unified approach
                     # This handles both single models and iterations consistently
                     try:
-                        self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                        self.runner.process_example(example_name, example_copy, theory_name, semantic_theory)
                     finally:
                         # Force cleanup after each example to prevent state leaks
                         gc.collect()

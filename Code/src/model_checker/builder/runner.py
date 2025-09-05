@@ -4,14 +4,19 @@ This module handles the execution of model checking operations, including
 running individual examples, handling iterations, and managing Z3 contexts.
 """
 
-from model_checker.output.progress import Spinner, UnifiedProgress
-from model_checker.syntactic import Syntax
-from model_checker.builder.serialize import serialize_semantic_theory, deserialize_semantic_theory
+# Standard library imports
 import concurrent.futures
-import time
+import importlib
 import sys
 import threading
-import importlib
+import time
+
+# Local imports
+from model_checker.output.progress import Spinner, UnifiedProgress
+from model_checker.syntactic import Syntax
+
+# Relative imports
+from .serialize import serialize_semantic_theory, deserialize_semantic_theory
 
 
 def try_single_N_static(theory_name, theory_config, example_case):
@@ -119,7 +124,7 @@ class ModelRunner:
         # Apply translation if needed
         dictionary = semantic_theory.get("dictionary", None)
         if dictionary:
-            example_case = self.build_module.translate(example_case, dictionary)
+            example_case = self.build_module.translation.translate(example_case, dictionary)
         
         # Start progress tracking
         spinner = Spinner()
@@ -250,7 +255,7 @@ class ModelRunner:
         # Apply translation if needed
         dictionary = semantic_theory.get("dictionary", None) 
         if dictionary:
-            example_case = self.build_module.translate(example_case, dictionary)
+            example_case = self.build_module.translation.translate(example_case, dictionary)
         
         # Apply countdown setting if present
         if show_countdown and len(example_case) > 2 and isinstance(example_case[2], dict):
@@ -367,7 +372,7 @@ class ModelRunner:
             # Get the theory-specific iterate_example function
             try:
                 # Dynamically discover the theory module from the semantic theory
-                module_name = self.build_module._discover_theory_module(theory_name, semantic_theory)
+                module_name = self.build_module.loader.discover_theory_module(theory_name, semantic_theory)
                 
                 if not module_name:
                     # Fallback: try theory_name as module name directly

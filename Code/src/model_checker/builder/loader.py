@@ -4,8 +4,9 @@ This module handles loading user modules, discovering theory implementations,
 and managing project directories.
 """
 
-import os
+# Standard library imports
 import importlib.util
+import os
 import sys
 
 
