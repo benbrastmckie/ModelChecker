@@ -20,6 +20,18 @@ Reports the successful completion of the builder package refactoring, including:
 - Performance impact analysis
 - Lessons learned
 
+### 002 - Builder Test Coverage Analysis
+**File**: [002_builder_test_coverage.md](002_builder_test_coverage.md)  
+**Date**: 2025-09-05  
+**Related**: [001_builder_refactor_success.md](001_builder_refactor_success.md)
+
+Analyzes test coverage for the refactored builder package:
+- 80% module coverage (8/10 modules tested)
+- Critical gaps: loader.py and serialize.py
+- Test maintenance issues from refactoring
+- Recommendations for improvement
+- Detailed module-by-module analysis
+
 ## Document Standards
 
 Findings documents should include:
