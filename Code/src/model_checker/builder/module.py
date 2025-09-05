@@ -42,45 +42,8 @@ class BuildModule:
     """
 
     def _discover_theory_module(self, theory_name, semantic_theory):
-        """Dynamically discover the theory module name from semantic theory.
-        
-        This method follows the Theory Agnostic Principle by extracting the module
-        name from the semantic theory's components rather than using hardcoded mappings.
-        
-        Args:
-            theory_name: Display name of the theory (e.g., "BernardChampollion")
-            semantic_theory: Dictionary containing theory components
-            
-        Returns:
-            str: Module name (e.g., "exclusion") or None if not found
-        """
-        # Try to extract module name from semantics class
-        semantics_class = semantic_theory.get("semantics")
-        if semantics_class and hasattr(semantics_class, "__module__"):
-            module_path = semantics_class.__module__
-            # Extract theory module name from path
-            # e.g., "model_checker.theory_lib.exclusion.semantic" -> "exclusion"
-            parts = module_path.split('.')
-            if len(parts) >= 3 and parts[1] == "theory_lib":
-                return parts[2]
-        
-        # Try model class as fallback
-        model_class = semantic_theory.get("model")
-        if model_class and hasattr(model_class, "__module__"):
-            module_path = model_class.__module__
-            parts = module_path.split('.')
-            if len(parts) >= 3 and parts[1] == "theory_lib":
-                return parts[2]
-        
-        # Try proposition class as final fallback
-        prop_class = semantic_theory.get("proposition")
-        if prop_class and hasattr(prop_class, "__module__"):
-            module_path = prop_class.__module__
-            parts = module_path.split('.')
-            if len(parts) >= 3 and parts[1] == "theory_lib":
-                return parts[2]
-        
-        return None
+        """Delegate to loader for theory module discovery."""
+        return self.loader.discover_theory_module(theory_name, semantic_theory)
     
     def __init__(self, module_flags):
         """Initialize BuildModule with module flags containing configuration.
@@ -99,6 +62,11 @@ class BuildModule:
         self.module_flags = module_flags
         self.module_path = self.module_flags.file_path
         self.module_name = os.path.splitext(os.path.basename(self.module_path))[0]
+        
+        # Create loader instance first, before loading module
+        from model_checker.builder.loader import ModuleLoader
+        self.loader = ModuleLoader(self.module_name, self.module_path)
+        
         self.module = self._load_module()
         
         # Load core attributes
@@ -170,66 +138,12 @@ class BuildModule:
         self.translation = OperatorTranslation()
 
     def _is_generated_project(self, module_dir):
-        """Detect if module is from a generated project.
-        
-        Generated projects are identified by the project_ prefix pattern.
-        This approach is structure-agnostic and works regardless of 
-        internal theory organization. Checks both the current directory
-        and parent directories for the project_ pattern.
-        
-        Args:
-            module_dir (str): Directory containing the module
-            
-        Returns:
-            bool: True if module is from a generated project
-        """
-        # Check current directory
-        current_name = os.path.basename(module_dir)
-        if current_name.startswith('project_'):
-            return True
-        
-        # Check parent directories up to a reasonable depth
-        current_path = module_dir
-        for _ in range(3):  # Check up to 3 levels up
-            parent_path = os.path.dirname(current_path)
-            if parent_path == current_path:  # Reached root
-                break
-            parent_name = os.path.basename(parent_path)
-            if parent_name.startswith('project_'):
-                return True
-            current_path = parent_path
-        
-        return False
+        """Detect if module is from a generated project."""
+        return self.loader.is_generated_project(module_dir)
 
     def _find_project_directory(self, module_dir):
-        """Find the root directory of a generated project.
-        
-        Traverses up the directory tree to find the directory with project_ prefix.
-        
-        Args:
-            module_dir (str): Directory containing the module
-            
-        Returns:
-            str: Path to the project root directory
-        """
-        # Check current directory first
-        current_name = os.path.basename(module_dir)
-        if current_name.startswith('project_'):
-            return module_dir
-        
-        # Check parent directories
-        current_path = module_dir
-        for _ in range(3):  # Check up to 3 levels up
-            parent_path = os.path.dirname(current_path)
-            if parent_path == current_path:  # Reached root
-                break
-            parent_name = os.path.basename(parent_path)
-            if parent_name.startswith('project_'):
-                return parent_path
-            current_path = parent_path
-        
-        # Fallback to module_dir if no project directory found
-        return module_dir
+        """Find the root directory of a generated project."""
+        return self.loader.find_project_directory(module_dir)
 
     def _load_module(self):
         """Load the Python module from file.
@@ -240,91 +154,7 @@ class BuildModule:
         Raises:
             ImportError: If module cannot be loaded
         """
-        try:
-            module_dir = os.path.dirname(os.path.abspath(self.module_path))
-            
-            # Check if this is a generated project
-            is_generated_project = self._is_generated_project(module_dir)
-            
-            if is_generated_project:
-                # Find the actual project directory (may be current dir or a parent)
-                project_dir = self._find_project_directory(module_dir)
-                project_name = os.path.basename(project_dir)
-                
-                # For generated projects, ensure both project and parent directories are in sys.path
-                # This enables both relative imports and sibling module imports
-                project_parent = os.path.dirname(project_dir)
-                if project_parent not in sys.path:
-                    sys.path.insert(0, project_parent)
-                if project_dir not in sys.path:
-                    sys.path.insert(0, project_dir)
-                if module_dir not in sys.path:
-                    sys.path.insert(0, module_dir)
-                
-                # Set package context to enable relative imports
-                # If we're in a subdirectory, build the full package path
-                if module_dir != project_dir:
-                    # Calculate relative path from project to module directory
-                    rel_path = os.path.relpath(module_dir, project_dir)
-                    subpackage_parts = rel_path.split(os.sep)
-                    package_name = project_name + "." + ".".join(subpackage_parts)
-                else:
-                    package_name = project_name
-            else:
-                # Existing package detection logic for theory_lib and installed packages
-                package_parts = []
-                current_dir = module_dir
-                
-                while os.path.exists(os.path.join(current_dir, "__init__.py")):
-                    package_parts.insert(0, os.path.basename(current_dir))
-                    parent_dir = os.path.dirname(current_dir)
-                    if parent_dir == current_dir:
-                        break
-                    current_dir = parent_dir
-                
-                if package_parts:
-                    package_name = ".".join(package_parts)
-                    parent_of_package = os.path.dirname(current_dir)
-                    if parent_of_package not in sys.path:
-                        sys.path.insert(0, parent_of_package)
-                else:
-                    package_name = ""
-                    if module_dir not in sys.path:
-                        sys.path.insert(0, module_dir)
-            
-            # Load the module
-            spec = importlib.util.spec_from_file_location(
-                self.module_name, 
-                self.module_path, 
-                submodule_search_locations=[module_dir]
-            )
-            if spec is None or spec.loader is None:
-                raise ImportError("Module spec could not be loaded.")
-            
-            module = importlib.util.module_from_spec(spec)
-            
-            # Set package attribute for relative imports
-            if package_name:
-                module.__package__ = package_name
-            
-            spec.loader.exec_module(module)
-            return module
-            
-        except Exception as e:
-            if "attempted relative import" in str(e):
-                # Enhanced error message for relative import issues
-                if self._is_generated_project(os.path.dirname(os.path.abspath(self.module_path))):
-                    raise ImportError(
-                        f"Relative import error in generated project '{self.module_name}': {e}\n"
-                        f"Generated projects should have their imports properly configured. "
-                        f"This may indicate an issue with the project template or generation process."
-                    ) from e
-                else:
-                    raise ImportError(
-                        f"Relative import error in '{self.module_name}': {e}\n"
-                        f"To use relative imports, make sure your project follows Python package structure with __init__.py files."
-                    ) from e
-            raise ImportError(f"Failed to load the module '{self.module_name}': {e}") from e
+        return self.loader.load_module()
 
     def _load_attribute(self, attr_name):
         """Checks if an attribute exists in the module and store it.
@@ -335,11 +165,7 @@ class BuildModule:
         Raises:
             AttributeError: If the attribute is missing from the module
         """
-        if not hasattr(self.module, attr_name):
-            raise AttributeError(
-                f"Module '{self.module_name}' is missing the attribute '{attr_name}'. "
-            )
-        return getattr(self.module, attr_name, {})
+        return self.loader.load_attribute(self.module, attr_name)
 
     def translate(self, example_case, dictionary):
         """Use dictionary to replace logical operators in logical formulas.
