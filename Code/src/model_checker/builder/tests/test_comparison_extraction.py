@@ -134,8 +134,8 @@ general_settings = {
         # Check if comparison attribute exists (will after refactoring)
         if hasattr(build_module, 'comparison'):
             self.assertIsNotNone(build_module.comparison)
-            # After refactoring, compare_semantics should still work
-            self.assertTrue(hasattr(build_module, 'compare_semantics'))
+            # After refactoring, compare_semantics is accessed via comparison module
+            self.assertTrue(hasattr(build_module.comparison, 'compare_semantics'))
 
 
 if __name__ == '__main__':

@@ -5,6 +5,7 @@ and managing project directories.
 """
 
 # Standard library imports
+import importlib
 import importlib.util
 import os
 import sys
@@ -22,15 +23,17 @@ class ModuleLoader:
         """
         self.module_name = module_name
         self.module_path = module_path
-        self.module_dir = os.path.dirname(self.module_path)
+        self.module_dir = os.path.dirname(self.module_path) if module_path else None
     
-    def discover_theory_module(self, theory_name, semantic_theory):
+    def discover_theory_module_for_iteration(self, theory_name, semantic_theory):
         """Dynamically discover which theory module a semantic theory belongs to.
         
         This method attempts to find the correct theory module by:
         1. Checking the module path of the semantics class
         2. Looking for theory-specific markers (proposition types, settings)
         3. Falling back to theory name matching
+        
+        Used during iteration to determine the correct theory module for a semantic theory.
         
         Args:
             theory_name: Name of the theory (e.g., "Logos", "Exclusion")
@@ -82,6 +85,86 @@ class ModuleLoader:
         
         # Method 4: Fallback to theory name
         return theory_name.lower() if theory_name else None
+    
+    def _load_generated_project_with_absolute_imports(self, project_dir, theory_name, module_path):
+        """Load a generated project module by converting relative imports to absolute.
+        
+        Generated projects copy theory files that use relative imports. When loaded
+        outside their original package context, these fail. This method reads the
+        file and converts relative imports to absolute imports dynamically.
+        
+        Args:
+            project_dir: The generated project directory
+            theory_name: The name of the theory (e.g., 'logos')
+            module_path: Path to the module file
+            
+        Returns:
+            The loaded module with working imports
+        """
+        # Read the module content
+        with open(module_path, 'r') as f:
+            content = f.read()
+        
+        # Convert relative imports to absolute imports
+        # Replace patterns like "from .semantic import" with "from model_checker.theory_lib.logos.semantic import"
+        import re
+        
+        # Pattern for relative imports: from .module import ...
+        content = re.sub(
+            r'from \.([\w\.]+) import',
+            f'from model_checker.theory_lib.{theory_name}.\\1 import',
+            content
+        )
+        
+        # Pattern for relative imports: from ..module import ...
+        content = re.sub(
+            r'from \.\.([\w\.]+) import',
+            f'from model_checker.theory_lib.{theory_name}.\\1 import',
+            content
+        )
+        
+        # Pattern for relative imports: from ...module import ...
+        content = re.sub(
+            r'from \.\.\.([\w\.]+) import',
+            f'from model_checker.theory_lib.\\1 import',
+            content
+        )
+        
+        # Create a module and exec the modified code
+        import types
+        module = types.ModuleType(self.module_name)
+        module.__file__ = module_path
+        
+        # Add module to sys.modules before exec
+        sys.modules[self.module_name] = module
+        
+        try:
+            # Execute the modified code in the module's namespace
+            exec(content, module.__dict__)
+            return module
+        except Exception as e:
+            # Remove from sys.modules on error
+            if self.module_name in sys.modules:
+                del sys.modules[self.module_name]
+            raise ImportError(f"Failed to load generated project module: {str(e)}")
+    
+    def discover_theory_module(self):
+        """Import a theory module from theory_lib.
+        
+        This is a simplified method for importing theory modules directly.
+        Used when module_name is a theory name and module_path is None.
+        
+        Returns:
+            module: The imported theory module
+            
+        Raises:
+            ImportError: If the theory cannot be imported
+        """
+        try:
+            theory_module = importlib.import_module(f"model_checker.theory_lib.{self.module_name}")
+            return theory_module
+        except ImportError:
+            raise ImportError(f"Theory '{self.module_name}' not found in model_checker.theory_lib")
     
     def is_generated_project(self, module_dir):
         """Detect if module is from a generated project.
@@ -139,8 +222,8 @@ class ModuleLoader:
         """
         current_dir = os.path.abspath(module_dir)
         
-        # Don't search beyond 5 levels up
-        for _ in range(5):
+        # Don't search beyond 25 levels up (increased to handle deep structures)
+        for _ in range(25):
             # Check for project markers
             if os.path.exists(os.path.join(current_dir, 'project.yaml')):
                 return current_dir
@@ -176,23 +259,114 @@ class ModuleLoader:
         original_syspath = sys.path.copy()
         
         try:
-            # For generated projects, add project root to path
+            # Special handling for theory library modules
+            if 'model_checker/theory_lib' in self.module_path.replace('\\', '/'):
+                # This is a theory library file - we need to import it as a package module
+                # Find the src directory that contains model_checker
+                current = os.path.dirname(self.module_path)
+                src_dir = None
+                while current and current != '/':
+                    if os.path.exists(os.path.join(current, 'model_checker', '__init__.py')):
+                        # Found the src directory
+                        src_dir = current
+                        sys.path.insert(0, current)
+                        break
+                    current = os.path.dirname(current)
+                
+                if src_dir:
+                    # Construct the full module path
+                    rel_path = os.path.relpath(self.module_path, src_dir)
+                    # Convert file path to module path
+                    module_parts = rel_path.replace(os.sep, '.').replace('.py', '')
+                    
+                    # Import the module using its full package path
+                    try:
+                        imported_module = importlib.import_module(module_parts)
+                        return imported_module
+                    except ImportError as e:
+                        # If relative imports fail, provide helpful error
+                        if "relative import" in str(e) or "parent package" in str(e):
+                            # Extract theory and subtheory info for helpful error
+                            path_parts = self.module_path.replace('\\', '/').split('/')
+                            if 'theory_lib' in path_parts:
+                                theory_idx = path_parts.index('theory_lib') + 1
+                                if theory_idx < len(path_parts):
+                                    theory_name = path_parts[theory_idx]
+                                    
+                                    # Check if this is a subtheory
+                                    if theory_idx + 1 < len(path_parts) and path_parts[theory_idx + 1] == 'subtheories':
+                                        if theory_idx + 2 < len(path_parts):
+                                            subtheory_name = path_parts[theory_idx + 2]
+                                            raise ImportError(
+                                                f"\nCannot run theory library examples directly.\n"
+                                                f"Theory library modules use relative imports that require proper package context.\n\n"
+                                                f"Please use one of these methods instead:\n"
+                                                f"1. Run tests: ./run_tests.py --examples {theory_name}\n"
+                                                f"2. Use pytest: cd Code && pytest src/model_checker/theory_lib/{theory_name}/subtheories/{subtheory_name}/tests/\n"
+                                                f"3. Create a standalone test file with absolute imports\n\n"
+                                                f"Example standalone file:\n"
+                                                f"  from model_checker.theory_lib.{theory_name} import {theory_name.capitalize()}Semantics\n"
+                                                f"  from model_checker.theory_lib.{theory_name}.subtheories.{subtheory_name}.examples import *\n"
+                                            )
+                                    else:
+                                        # Main theory examples
+                                        raise ImportError(
+                                            f"\nCannot run theory library examples directly.\n"
+                                            f"Theory library modules use relative imports that require proper package context.\n\n"
+                                            f"Please use one of these methods instead:\n"
+                                            f"1. Run tests: ./run_tests.py --examples {theory_name}\n"
+                                            f"2. Use pytest: cd Code && pytest src/model_checker/theory_lib/{theory_name}/tests/\n"
+                                            f"3. Create a standalone test file with absolute imports"
+                                        )
+                        raise
+            
+            # For generated projects, we need special handling
             if self.is_generated_project(self.module_dir):
                 project_dir = self.find_project_directory(self.module_dir)
                 if project_dir:
-                    # Add both project root and src/ to path
+                    # Check if this is a generated project by looking for config.py
+                    config_path = os.path.join(project_dir, 'config.py')
+                    if os.path.exists(config_path):
+                        # This is a generated project - it has relative imports that need
+                        # the original theory context. We'll need to modify the imports
+                        # dynamically or provide the proper context
+                        
+                        # Read the config.py to understand which theory this is from
+                        try:
+                            with open(config_path, 'r') as f:
+                                config_content = f.read()
+                            
+                            # Extract the theory import
+                            if 'from model_checker.theory_lib import' in config_content:
+                                # Find which theory is imported
+                                import re
+                                match = re.search(r'from model_checker\.theory_lib import (\w+)', config_content)
+                                if match:
+                                    theory_name = match.group(1)
+                                    
+                                    # For examples.py, we'll need to handle the relative imports
+                                    # by creating a modified version that uses absolute imports
+                                    if self.module_path.endswith('examples.py'):
+                                        return self._load_generated_project_with_absolute_imports(
+                                            project_dir, theory_name, self.module_path
+                                        )
+                        except Exception:
+                            pass
+                    
+                    # Otherwise, try normal project loading
                     sys.path.insert(0, project_dir)
-                    src_dir = os.path.join(project_dir, 'src')
-                    if os.path.exists(src_dir):
-                        sys.path.insert(0, src_dir)
             
             # Add module directory to Python path
             sys.path.insert(0, self.module_dir)
             
             # Load the module
-            spec = importlib.util.spec_from_file_location(self.module_name, self.module_path)
-            if spec is None:
-                raise ImportError(f"Could not load spec for module '{self.module_name}'")
+            try:
+                spec = importlib.util.spec_from_file_location(self.module_name, self.module_path)
+                if spec is None:
+                    raise ImportError(f"Could not load spec for module '{self.module_name}'")
+            except ImportError as e:
+                # Wrap the ImportError with our standard message
+                raise ImportError(f"Failed to import module '{self.module_name}': {str(e)}")
                 
             module = importlib.util.module_from_spec(spec)
             
@@ -205,14 +379,14 @@ class ModuleLoader:
             except FileNotFoundError:
                 # Try to give a more helpful error message
                 raise ImportError(
-                    f"Could not find the file '{self.module_path}'. "
+                    f"Module file not found: '{self.module_path}'. "
                     f"Please check that the file path is correct."
                 )
             except Exception as e:
                 # Remove from sys.modules on error
                 if self.module_name in sys.modules:
                     del sys.modules[self.module_name]
-                raise ImportError(f"Error executing module '{self.module_name}': {str(e)}")
+                raise ImportError(f"Failed to import module '{self.module_name}': {str(e)}")
             
             return module
             

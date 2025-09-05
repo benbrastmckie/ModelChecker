@@ -189,6 +189,62 @@ pytest -v
 pytest -x
 ```
 
+### Testing Theory Examples and Subtheories
+
+#### Using run_tests.py for Theory Testing
+
+The recommended way to test theory and subtheory examples is through `run_tests.py`:
+
+```bash
+# Test all examples for a specific theory
+./run_tests.py --examples logos       # Tests all logos examples including subtheories
+./run_tests.py --examples exclusion   # Tests exclusion theory examples
+./run_tests.py --examples imposition  # Tests imposition theory examples
+./run_tests.py --examples bimodal     # Tests bimodal theory examples
+
+# Test specific subtheories (if they have test files)
+pytest src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/
+pytest src/model_checker/theory_lib/logos/subtheories/extensional/tests/
+
+# Run all theory tests
+./run_tests.py --examples
+```
+
+#### Using dev_cli.py
+
+The `dev_cli.py` tool can be used for testing both generated projects and theory library files:
+
+```bash
+# Test theory library examples directly (works as of latest updates)
+./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+
+# Test examples in generated projects
+./dev_cli.py -l logos my_project/examples.py
+./dev_cli.py -l exclusion test_theory/examples/test_case.py
+
+# Run with specific settings
+./dev_cli.py -p my_project/examples.py       # Show constraints
+```
+
+#### Important Notes
+
+1. **Import Handling**: Theory library examples.py files use relative imports which are automatically resolved
+2. **Test Organization**: Each theory and subtheory should have proper test files in their tests/ directory
+3. **Coverage Requirements**: All examples must be covered by automated tests
+4. **Module Structure**: Standalone example files can use either relative or absolute imports
+
+### Manual Testing Requirements
+
+In addition to automated tests, manual testing is **REQUIRED** because:
+
+1. **Integration Coverage**: Unit tests with mocks cannot catch all integration issues
+2. **Import Resolution**: Theory library imports behave differently in real execution
+3. **Runtime Errors**: Method signature mismatches only appear during actual use
+
+See [MANUAL_TESTING.md](MANUAL_TESTING.md) for the complete manual testing protocol.
+
+**Critical**: All manual tests must pass before marking any PR as ready for merge.
+
 ### Continuous Integration
 
 Tests should be run automatically on:

@@ -15,6 +15,8 @@ maintenance/
 ├── ERROR_HANDLING.md               # Exception handling patterns
 ├── PERFORMANCE.md                  # Z3 optimization guidelines
 ├── TESTING_STANDARDS.md            # Test requirements and TDD
+├── TEST_ORGANIZATION.md            # Test suite organization standards
+├── MANUAL_TESTING.md               # Manual testing protocol (REQUIRED)
 ├── UNICODE_GUIDELINES.md           # Character encoding for code
 ├── VERSION_CONTROL.md              # Git workflow for code changes
 └── templates/
@@ -27,7 +29,7 @@ maintenance/
 
 This directory contains **comprehensive code maintenance standards** for the ModelChecker framework, ensuring consistency, quality, and maintainability across all code implementation, testing, and development practices. These standards guide developers in writing high-quality, maintainable code that follows established patterns and best practices.
 
-The code maintenance standards cover **11 key areas**: spec execution workflows, unified code standards, formula formatting, example structure, code organization, error handling, performance optimization, testing practices, character encoding, version control, and template resources. Together, these standards ensure technical excellence and consistency across the entire codebase.
+The code maintenance standards cover **12 key areas**: spec execution workflows, unified code standards, formula formatting, example structure, code organization, error handling, performance optimization, testing practices, manual testing requirements, character encoding, version control, and template resources. Together, these standards ensure technical excellence and consistency across the entire codebase.
 
 Following these standards is **essential for all code contributors**, whether implementing new features, fixing bugs, adding theories, or optimizing performance. The standards reflect our commitment to clean architecture, test-driven development, and systematic refactoring practices outlined in [CLAUDE.md](../CLAUDE.md).
 
