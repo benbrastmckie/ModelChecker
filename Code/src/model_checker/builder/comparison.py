@@ -4,10 +4,13 @@ This module handles comparison of different semantic theories by testing
 their performance at increasing model sizes.
 """
 
-from model_checker.builder.serialize import serialize_semantic_theory
-from concurrent.futures import ProcessPoolExecutor, TimeoutError
-import time
+# Standard library imports
 import os
+import time
+from concurrent.futures import ProcessPoolExecutor, TimeoutError
+
+# Relative imports
+from .serialize import serialize_semantic_theory
 
 
 def _find_max_N_static(theory_name, theory_config, example_case):
@@ -37,13 +40,7 @@ def _find_max_N_static(theory_name, theory_config, example_case):
         def __init__(self):
             self.general_settings = settings
             
-        def translate(self, example_case, dictionary):
-            # Simple translation - just return as-is for now
-            return example_case
             
-        def _discover_theory_module(self, theory_name, semantic_theory):
-            # Return theory name lowercased
-            return theory_name.lower()
             
         def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
             # No-op for comparison
@@ -162,7 +159,7 @@ class ModelComparison:
                 # Apply translation if needed
                 dictionary = semantic_theory.get("dictionary", None)
                 if dictionary:
-                    translated_case = self.build_module.translate(example_case, dictionary)
+                    translated_case = self.build_module.translation.translate(example_case, dictionary)
                 else:
                     translated_case = example_case
                 
