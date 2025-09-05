@@ -10,6 +10,70 @@ import time
 import os
 
 
+def _find_max_N_static(theory_name, theory_config, example_case):
+    """Static method to find maximum N for a theory (can be pickled).
+    
+    This static method is designed for use with ProcessPoolExecutor.
+    It deserializes the theory configuration and tests incrementally larger
+    values of N until a timeout occurs.
+    
+    Args:
+        theory_name: Name of the theory being tested
+        theory_config: Serialized theory configuration
+        example_case: Example case with premises, conclusions, and settings
+        
+    Returns:
+        int: Maximum N value that succeeded within time limit
+    """
+    # Import here to avoid circular imports in subprocess
+    from model_checker.builder.runner import ModelRunner
+    
+    premises, conclusions, settings = example_case
+    current_N = settings.get('N', 2)
+    max_N = 0
+    
+    # Create a mock build module for the runner
+    class MockBuildModule:
+        def __init__(self):
+            self.general_settings = settings
+            
+        def translate(self, example_case, dictionary):
+            # Simple translation - just return as-is for now
+            return example_case
+            
+        def _discover_theory_module(self, theory_name, semantic_theory):
+            # Return theory name lowercased
+            return theory_name.lower()
+            
+        def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
+            # No-op for comparison
+            pass
+    
+    mock_module = MockBuildModule()
+    
+    while True:
+        # Update N in settings
+        test_settings = settings.copy()
+        test_settings['N'] = current_N
+        test_case = [premises, conclusions, test_settings]
+        
+        # Use runner's static method
+        from model_checker.builder.runner import try_single_N_static
+        success, runtime = try_single_N_static(
+            theory_name,
+            theory_config,
+            test_case
+        )
+        
+        if success:
+            max_N = current_N
+            current_N += 1
+        else:
+            break
+    
+    return max_N
+
+
 class ModelComparison:
     """Compares performance of different semantic theories."""
     
@@ -52,7 +116,7 @@ class ModelComparison:
                 theory_config = serialize_semantic_theory(theory_name, semantic_theory)
                 
                 future = executor.submit(
-                    self._find_max_N_static,
+                    _find_max_N_static,
                     theory_name, 
                     theory_config,
                     example_case
@@ -71,69 +135,6 @@ class ModelComparison:
                     results.append((theory_name, 0))
         
         return results
-    
-    @staticmethod
-    def _find_max_N_static(theory_name, theory_config, example_case):
-        """Static method to find maximum N for a theory (can be pickled).
-        
-        This static method is designed for use with ProcessPoolExecutor.
-        It deserializes the theory configuration and tests incrementally larger
-        values of N until a timeout occurs.
-        
-        Args:
-            theory_name: Name of the theory being tested
-            theory_config: Serialized theory configuration
-            example_case: Example case with premises, conclusions, and settings
-            
-        Returns:
-            int: Maximum N value that succeeded within time limit
-        """
-        # Import here to avoid circular imports in subprocess
-        from model_checker.builder.runner import ModelRunner
-        
-        premises, conclusions, settings = example_case
-        current_N = settings.get('N', 2)
-        max_N = 0
-        
-        # Create a mock build module for the runner
-        class MockBuildModule:
-            def __init__(self):
-                self.general_settings = settings
-                
-            def translate(self, example_case, dictionary):
-                # Simple translation - just return as-is for now
-                return example_case
-                
-            def _discover_theory_module(self, theory_name, semantic_theory):
-                # Return theory name lowercased
-                return theory_name.lower()
-                
-            def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
-                # No-op for comparison
-                pass
-        
-        mock_module = MockBuildModule()
-        
-        while True:
-            # Update N in settings
-            test_settings = settings.copy()
-            test_settings['N'] = current_N
-            test_case = [premises, conclusions, test_settings]
-            
-            # Use runner's static method
-            success, runtime = ModelRunner.try_single_N_static(
-                theory_name,
-                theory_config,
-                test_case
-            )
-            
-            if success:
-                max_N = current_N
-                current_N += 1
-            else:
-                break
-        
-        return max_N
     
     def run_comparison(self):
         """Compare different semantic theories by running examples and printing results.
