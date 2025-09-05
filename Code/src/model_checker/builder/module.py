@@ -164,6 +164,10 @@ class BuildModule:
         if hasattr(module_flags, 'comparison') and module_flags.comparison:
             from model_checker.builder.comparison import ModelComparison
             self.comparison = ModelComparison(self)
+        
+        # Create translation instance
+        from model_checker.builder.translation import OperatorTranslation
+        self.translation = OperatorTranslation()
 
     def _is_generated_project(self, module_dir):
         """Detect if module is from a generated project.
@@ -351,16 +355,8 @@ class BuildModule:
         Returns:
             list: New example case with translated operators in premises and conclusions
         """
-        premises, conclusions, settings = example_case
-        
-        def replace_operators(logical_list, dictionary):
-            for old, new in dictionary.items():
-                logical_list = [sentence.replace(old, new) for sentence in logical_list]
-            return logical_list
-            
-        new_premises = replace_operators(premises, dictionary)
-        new_conclusion = replace_operators(conclusions, dictionary)
-        return [new_premises, new_conclusion, settings]
+        # Delegate to translation module
+        return self.translation.translate(example_case, dictionary)
     
     def translate_example(self, example_case, semantic_theories):
         """Translates example case for each semantic theory using their dictionaries.
@@ -378,15 +374,8 @@ class BuildModule:
                 - semantic_theory (dict): The semantic theory implementation
                 - translated_case (list): Example case with operators translated for that theory
         """
-        example_theory_tuples = []
-        for theory_name, semantic_theory in semantic_theories.items():
-            translated_case = example_case.copy()
-            dictionary = semantic_theory.get("dictionary", None)
-            if dictionary:
-                translated_case = self.translate(translated_case, dictionary)
-            example_tuple = (theory_name, semantic_theory, translated_case)
-            example_theory_tuples.append(example_tuple)
-        return example_theory_tuples
+        # Delegate to translation module
+        return self.translation.translate_example(example_case, semantic_theories)
 
     def run_model_check(self, example_case, example_name, theory_name, semantic_theory):
         """Run model checking with the given parameters.
