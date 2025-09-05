@@ -7,9 +7,7 @@ settings, and coordinating the model checking process.
 
 import os
 import importlib.util
-import concurrent.futures
 import time
-from concurrent.futures.thread import ThreadPoolExecutor
 import sys
 import threading
 
@@ -161,6 +159,11 @@ class BuildModule:
         # Create runner instance
         from model_checker.builder.runner import ModelRunner
         self.runner = ModelRunner(self)
+        
+        # Create comparison instance if in comparison mode
+        if hasattr(module_flags, 'comparison') and module_flags.comparison:
+            from model_checker.builder.comparison import ModelComparison
+            self.comparison = ModelComparison(self)
 
     def _is_generated_project(self, module_dir):
         """Detect if module is from a generated project.
@@ -530,69 +533,11 @@ class BuildModule:
             list: List of tuples containing (theory_name, max_N) where max_N is the largest
                   number of worlds for which a model was found within the time limit
         """
-        results = []
-        active_cases = {}  # Track active cases and their current N values
-        
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            # Initialize first run for each case
-            futures = {}
-            all_times = []
-            
-            for case in example_theory_tuples:
-                theory_name, semantic_theory, (premises, conclusions, settings) = case
-                
-                # Serialize the semantic theory for pickling
-                theory_config = serialize_semantic_theory(theory_name, semantic_theory)
-                
-                # Create example case with copied settings
-                example_case = [premises, conclusions, settings.copy()]
-                active_cases[theory_name] = settings['N']  # Store initial N
-                all_times.append(settings['max_time'])
-                
-                # Submit with serialized data
-                new_case = (theory_name, theory_config, example_case)
-                futures[executor.submit(BuildModule.try_single_N_static, *new_case)] = (
-                    theory_name, theory_config, example_case, semantic_theory
-                )
-            
-            max_time = max(all_times) if all_times else 1
-                
-            while futures:
-                done, _ = concurrent.futures.wait(
-                    futures,
-                    return_when=concurrent.futures.FIRST_COMPLETED
-                )
-                for future in done:
-                    theory_name, theory_config, example_case, semantic_theory = futures.pop(future)
-                    max_time = example_case[2]['max_time']
-                    
-                    try:
-                        success, runtime = future.result()
-                        
-                        if success and runtime < max_time:
-                            # Increment N and submit new case
-                            example_case[2]['N'] = active_cases[theory_name] + 1
-                            active_cases[theory_name] = example_case[2]['N']
-                            
-                            # Submit with same serialized config but updated N
-                            new_case = (theory_name, theory_config, example_case)
-                            futures[executor.submit(BuildModule.try_single_N_static, *new_case)] = (
-                                theory_name, theory_config, example_case, semantic_theory
-                            )
-                        else:
-                            # Found max N for this case
-                            results.append((theory_name, active_cases[theory_name] - 1))
-                            
-                    except Exception as e:
-                        import traceback
-                        print(
-                            f"\nERROR: {semantic_theory['semantics'].__name__} "
-                            f"({theory_name}) for N = {example_case[2]['N']}. {str(e)}"
-                        )
-                        # Log the error but try to continue with other theories
-                        results.append((theory_name, active_cases.get(theory_name, 0) - 1))
-                        
-        return results
+        # Delegate to comparison module
+        if not hasattr(self, 'comparison'):
+            from model_checker.builder.comparison import ModelComparison
+            self.comparison = ModelComparison(self)
+        return self.comparison.compare_semantics(example_theory_tuples)
     
     def run_comparison(self):
         """Compare different semantic theories by running examples and printing results.
@@ -604,23 +549,11 @@ class BuildModule:
         3. Compares semantic theories by finding maximum model sizes
         4. Prints results showing which theories could handle larger models
         """
-        from model_checker.models.constraints import ModelConstraints
-        
-        print()
-        for example_name, example_case in self.example_range.items():
-            premises, conclusions, settings = example_case
-            print(f"{'='*40}\n")
-            print(f"EXAMPLE = {example_name}")
-            print(f"  Premises:")
-            for prem in premises:
-                print(f"    {prem}")
-            print(f"  Conclusions:")
-            for con in conclusions:
-                print(f"    {con}")
-            print()
-            example_theory_tuples = self.translate_example(example_case, self.semantic_theories)
-            self.compare_semantics(example_theory_tuples)
-            print(f"\n{'='*40}")
+        # Delegate to comparison module
+        if not hasattr(self, 'comparison'):
+            from model_checker.builder.comparison import ModelComparison
+            self.comparison = ModelComparison(self)
+        return self.comparison.run_comparison()
 
     def _prompt_for_iterations(self):
         """Prompt user for number of iterations in interactive mode.
