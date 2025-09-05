@@ -181,6 +181,63 @@ find src/model_checker/builder/tests -name "*.py" -exec wc -l {} \; | sort -n
 3. Document all implicit contracts and dependencies
 4. Set up test infrastructure for phased refactoring
 
+**Explicit Implementation Details**:
+
+1. **Create Integration Test Fixtures**:
+```python
+# tests/test_refactor_baseline.py
+class RefactorBaselineTests(unittest.TestCase):
+    """Capture current behavior before refactoring."""
+    
+    def setUp(self):
+        # Create test modules for each theory
+        self.test_modules = {
+            'logos': create_logos_test_module(),
+            'exclusion': create_exclusion_test_module(),
+            'bimodal': create_bimodal_test_module(),
+            'imposition': create_imposition_test_module()
+        }
+    
+    def test_module_loading_behavior(self):
+        """Document current module loading patterns."""
+        # Test _load_module with generated projects
+        # Test _is_generated_project detection
+        # Test package path construction
+    
+    def test_settings_validation_flow(self):
+        """Capture settings validation behavior."""
+        # Test raw_general_settings processing
+        # Test per-theory settings validation
+        # Test flag override behavior
+    
+    def test_output_manager_initialization(self):
+        """Document output manager creation."""
+        # Test interactive mode detection
+        # Test save mode prompting
+        # Test output directory creation
+```
+
+2. **Document Implicit Contracts**:
+```python
+# docs/refactor_contracts.md
+## BuildModule Implicit Contracts
+
+### Theory Loading Contract
+- Theories must have 'semantics', 'proposition', 'model', 'operators'
+- Theory discovery uses __module__ attribute for package detection
+- Generated projects use 'project_' prefix for identification
+
+### Settings Processing Contract
+- general_settings validated per-theory via SettingsManager
+- First theory's defaults used as baseline
+- Flag overrides applied after validation
+
+### Late Import Contract
+- BuildExample imported in 3 locations to avoid circular imports
+- ModelConstraints imported in 4 locations
+- Z3ContextManager imported once for context isolation
+```
+
 **Dual Testing Protocol**:
 
 **Method 1 - TDD with Test Runner**:
@@ -220,23 +277,113 @@ src/model_checker/builder/tests/test_translation_extraction.py
 3. Extract execution logic from BuildModule
 4. Update all imports and dependencies
 
-**Key Extractions**:
+**Explicit Implementation Details**:
+
+1. **Create runner.py Structure**:
 ```python
-# runner.py
+# src/model_checker/builder/runner.py
+"""Model checking execution engine."""
+
+from model_checker.output.progress import Spinner
+from model_checker.syntactic import Syntax
+from model_checker.builder.serialize import serialize_semantic_theory, deserialize_semantic_theory
+import concurrent.futures
+import time
+
 class ModelRunner:
     """Executes model checking for theories."""
     
-    def __init__(self, settings, output_manager):
-        self.settings = settings
-        self.output_manager = output_manager
+    def __init__(self, build_module):
+        """Initialize with reference to parent BuildModule for settings."""
+        self.build_module = build_module
+        self.settings = build_module.general_settings
     
-    def run_model_check(self, example_case, theory_name, semantic_theory):
-        """Run model checking for a single example."""
-        # Extracted from BuildModule.run_model_check
+    def run_model_check(self, example_case, example_name, theory_name, semantic_theory):
+        """Run model checking with the given parameters (lines 384-416)."""
+        from model_checker.builder.example import BuildExample
+        
+        # Apply translation if needed
+        dictionary = semantic_theory.get("dictionary", None)
+        if dictionary:
+            example_case = self.build_module.translate(example_case, dictionary)
+        
+        # Start progress tracking
+        spinner = Spinner()
+        spinner.start()
+        
+        try:
+            example = BuildExample(self.build_module, semantic_theory, example_case, theory_name)
+            return example
+        finally:
+            spinner.stop()
     
-    def _create_build_example(self, example_case, semantic_theory):
-        """Create BuildExample instance."""
-        # Extracted helper logic
+    def try_single_N(self, theory_name, semantic_theory, example_case):
+        """Try a single N value (lines 417-466)."""
+        from model_checker.models.constraints import ModelConstraints
+        
+        premises, conclusions, settings = example_case
+        semantics_class = semantic_theory["semantics"]
+        model_structure_class = semantic_theory["model"]
+        operators = semantic_theory["operators"]
+        syntax = Syntax(premises, conclusions, operators)
+        
+        # Handle different semantics initialization patterns
+        if hasattr(semantics_class, '__name__') and 'Logos' in semantics_class.__name__:
+            semantics = semantics_class(combined_settings=settings)
+        else:
+            semantics = semantics_class(settings)
+            
+        model_constraints = ModelConstraints(
+            settings,
+            syntax,
+            semantics,
+            semantic_theory["proposition"],
+        )
+        model_structure = model_structure_class(model_constraints, settings)
+        run_time = model_structure.z3_model_runtime
+        success = run_time < settings['max_time']
+        
+        self._print_timing_result(model_structure, theory_name, run_time, settings, success)
+        return success, run_time
+    
+    @staticmethod
+    def try_single_N_static(theory_name, theory_config, example_case):
+        """Static version for multiprocessing (lines 467-535)."""
+        # Keep existing implementation
+    
+    def process_example(self, example_name, example_case, theory_name, semantic_theory):
+        """Process a single example with Z3 context isolation (lines 689-963)."""
+        from model_checker.utils import Z3ContextManager
+        from model_checker.builder.example import BuildExample
+        
+        with Z3ContextManager() as ctx:
+            # Apply translation
+            dictionary = semantic_theory.get("dictionary", None)
+            if dictionary:
+                example_case = self.build_module.translate(example_case, dictionary)
+            
+            # Create and process example
+            example = BuildExample(self.build_module, semantic_theory, example_case, theory_name)
+            
+            # Handle iterations if needed
+            if example.model_structure.z3_model_status and hasattr(example_case[2], 'get'):
+                iterate_count = example_case[2].get('iterate', 0)
+                if iterate_count > 0:
+                    return self._handle_iterations(example, example_name, theory_name, iterate_count)
+            
+            return example
+```
+
+2. **Update BuildModule to Use Runner**:
+```python
+# In BuildModule.__init__ after line 159
+from model_checker.builder.runner import ModelRunner
+self.runner = ModelRunner(self)
+
+# Replace method bodies with delegation
+def run_model_check(self, example_case, example_name, theory_name, semantic_theory):
+    """Delegate to runner."""
+    return self.runner.run_model_check(example_case, example_name, theory_name, semantic_theory)
 ```
 
 **Dual Testing Protocol**:
@@ -278,19 +425,124 @@ done
 4. Clean up comparison output generation
 5. Handle Z3 model comparisons properly
 
-**Key Components**:
+**Explicit Implementation Details**:
+
+1. **Create comparison.py Structure**:
 ```python
-# comparison.py
+# src/model_checker/builder/comparison.py
+"""Theory comparison and benchmarking functionality."""
+
+import concurrent.futures
+from model_checker.builder.serialize import serialize_semantic_theory
+
 class TheoryComparator:
     """Compares results across multiple theories."""
     
-    def compare_theories(self, examples, theories):
-        """Run comparison across theories."""
-        # Extracted from BuildModule.run_comparison
+    def __init__(self, build_module):
+        """Initialize with reference to parent BuildModule."""
+        self.build_module = build_module
+        self.translator = build_module.translator  # Will be created in Phase 4
     
-    def format_comparison_results(self, results):
-        """Format comparison output."""
-        # Consolidated formatting logic
+    def run_comparison(self):
+        """Compare theories across all examples (lines 638-665)."""
+        print()
+        for example_name, example_case in self.build_module.example_range.items():
+            premises, conclusions, settings = example_case
+            print(f"{'='*40}\n")
+            print(f"EXAMPLE = {example_name}")
+            print(f"  Premises:")
+            for prem in premises:
+                print(f"    {prem}")
+            print(f"  Conclusions:")
+            for con in conclusions:
+                print(f"    {con}")
+            print()
+            
+            # Use translator to prepare examples
+            example_theory_tuples = self.translator.translate_example(
+                example_case, self.build_module.semantic_theories
+            )
+            self.compare_semantics(example_theory_tuples)
+            print(f"\n{'='*40}")
+    
+    def compare_semantics(self, example_theory_tuples):
+        """Find maximum model sizes for theories (lines 557-637)."""
+        results = []
+        active_cases = {}  # Track active cases and their current N values
+        
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            futures = {}
+            all_times = []
+            
+            # Initialize first run for each case
+            for case in example_theory_tuples:
+                theory_name, semantic_theory, (premises, conclusions, settings) = case
+                
+                # Serialize for pickling
+                theory_config = serialize_semantic_theory(theory_name, semantic_theory)
+                example_case = [premises, conclusions, settings.copy()]
+                active_cases[theory_name] = settings['N']
+                all_times.append(settings['max_time'])
+                
+                # Submit with serialized data
+                new_case = (theory_name, theory_config, example_case)
+                futures[executor.submit(self._try_single_N_static, *new_case)] = (
+                    theory_name, theory_config, example_case, semantic_theory
+                )
+            
+            # Process results
+            while futures:
+                done, _ = concurrent.futures.wait(
+                    futures,
+                    return_when=concurrent.futures.FIRST_COMPLETED
+                )
+                
+                for future in done:
+                    theory_name, theory_config, example_case, semantic_theory = futures.pop(future)
+                    
+                    try:
+                        success, runtime = future.result()
+                        
+                        if success and runtime < example_case[2]['max_time']:
+                            # Increment N and resubmit
+                            example_case[2]['N'] = active_cases[theory_name] + 1
+                            active_cases[theory_name] = example_case[2]['N']
+                            
+                            new_case = (theory_name, theory_config, example_case)
+                            futures[executor.submit(self._try_single_N_static, *new_case)] = (
+                                theory_name, theory_config, example_case, semantic_theory
+                            )
+                        else:
+                            # Found max N
+                            results.append((theory_name, active_cases[theory_name] - 1))
+                            
+                    except Exception as e:
+                        print(f"\nERROR: {theory_name} for N = {example_case[2]['N']}. {str(e)}")
+                        results.append((theory_name, active_cases.get(theory_name, 0) - 1))
+        
+        return results
+    
+    @staticmethod
+    def _try_single_N_static(theory_name, theory_config, example_case):
+        """Static method for multiprocessing - delegate to runner."""
+        from model_checker.builder.module import BuildModule
+        return BuildModule.try_single_N_static(theory_name, theory_config, example_case)
+```
+
+2. **Update BuildModule**:
+```python
+# In __init__ after runner creation
+from model_checker.builder.comparison import TheoryComparator
+self.comparator = TheoryComparator(self)
+
+# Replace methods with delegation
+def run_comparison(self):
+    """Delegate to comparator."""
+    return self.comparator.run_comparison()
+
+def compare_semantics(self, example_theory_tuples):
+    """Delegate to comparator."""
+    return self.comparator.compare_semantics(example_theory_tuples)
 ```
 
 **Dual Testing Protocol**:
@@ -328,20 +580,103 @@ grep "Theory Comparison Results" test_comparison.txt
 4. Add comprehensive translation tests
 5. Ensure LaTeX notation preserved
 
-**Architecture**:
+**Explicit Implementation Details**:
+
+1. **Create translation.py Structure**:
 ```python
-# translation.py
+# src/model_checker/builder/translation.py
+"""Theory operator translation functionality."""
+
 class TheoryTranslator:
     """Handles operator translation between theories."""
     
-    OPERATOR_MAPPINGS = {
-        'logos': {'\\Box': 'L', '\\Diamond': 'M'},
-        'bimodal': {'\\Box': '\\Box_1', '\\Diamond': '\\Diamond_1'}
-    }
+    def __init__(self, build_module):
+        """Initialize with reference to parent BuildModule."""
+        self.build_module = build_module
     
-    def translate_example(self, example, target_theories):
-        """Translate operators for each theory."""
-        # Consolidated translation logic
+    def translate(self, example_case, dictionary):
+        """Translate operators in example (lines 333-357)."""
+        premises, conclusions, settings = example_case
+        translated_premises = [self._replace_operators(prem, dictionary) for prem in premises]
+        translated_conclusions = [self._replace_operators(conc, dictionary) for conc in conclusions]
+        return [translated_premises, translated_conclusions, settings]
+    
+    def _replace_operators(self, logical_list, dictionary):
+        """Recursively replace operators (lines 349-357)."""
+        if not isinstance(logical_list, list):
+            return logical_list
+        
+        if logical_list and logical_list[0] in dictionary:
+            logical_list[0] = dictionary[logical_list[0]]
+        
+        for i in range(1, len(logical_list)):
+            logical_list[i] = self._replace_operators(logical_list[i], dictionary)
+        
+        return logical_list
+    
+    def translate_example(self, example_case, semantic_theories):
+        """Translate example for all theories (lines 358-383)."""
+        example_theory_tuples = []
+        
+        for theory_name, semantic_theory in semantic_theories.items():
+            dictionary = semantic_theory.get("dictionary", None)
+            
+            if dictionary:
+                # Deep copy to avoid mutation
+                import copy
+                translated_case = copy.deepcopy(example_case)
+                translated_case = self.translate(translated_case, dictionary)
+            else:
+                translated_case = example_case
+            
+            example_tuple = (theory_name, semantic_theory, translated_case)
+            example_theory_tuples.append(example_tuple)
+        
+        return example_theory_tuples
+```
+
+2. **Theory-Specific Translation Patterns**:
+```python
+# Document common translation patterns
+## Standard Translations by Theory:
+
+### Logos Theory
+dictionary = {
+    '\\Box': 'L',          # Necessity to Logos operator
+    '\\Diamond': 'M',      # Possibility to Logos operator
+    '\\boxright': 'C',     # Counterfactual
+}
+
+### Bimodal Theory
+dictionary = {
+    '\\Box': '\\Box_1',       # Modal to temporal necessity
+    '\\Diamond': '\\Diamond_1', # Modal to temporal possibility
+    '\\Box_2': '\\Box_2',     # Spatial modality preserved
+}
+
+### Exclusion Theory
+# Typically uses standard notation - no translation needed
+
+### Imposition Theory
+dictionary = {
+    '\\boxright': '\\rightarrow_f',  # Fine's conditional
+}
+```
+
+3. **Update BuildModule**:
+```python
+# In __init__ after output manager
+from model_checker.builder.translation import TheoryTranslator
+self.translator = TheoryTranslator(self)
+
+# Replace methods with delegation
+def translate(self, example_case, dictionary):
+    """Delegate to translator."""
+    return self.translator.translate(example_case, dictionary)
+
+def translate_example(self, example_case, semantic_theories):
+    """Delegate to translator."""
+    return self.translator.translate_example(example_case, semantic_theories)
 ```
 
 **Dual Testing Protocol**:
@@ -382,21 +717,152 @@ grep "\\\\Box" test_output.txt  # Should see theory-specific translations
 4. Clean up file I/O operations
 5. Rename module.py to core.py
 
-**Final Structure**:
+**Explicit Implementation Details**:
+
+1. **Refactor BuildModule to Pure Orchestration**:
 ```python
-# core.py (renamed from module.py)
+# src/model_checker/builder/core.py (renamed from module.py)
+"""BuildModule orchestration for model checking examples."""
+
+import os
+import sys
+import importlib.util
+from model_checker.output.progress import UnifiedProgress
+from model_checker.syntactic import Syntax
+
 class BuildModule:
     """Orchestrates model checking operations."""
     
     def __init__(self, module_flags):
-        self.settings = self._process_flags(module_flags)
-        self.runner = ModelRunner(self.settings, self.output_manager)
-        self.comparator = TheoryComparator(self.output_manager)
-        self.translator = TheoryTranslator()
+        """Initialize with minimal orchestration logic."""
+        # Core initialization (lines 87-160)
+        self.module_flags = module_flags
+        self.module_path = module_flags.file_path
+        self.module_name = os.path.splitext(os.path.basename(self.module_path))[0]
+        
+        # Load module and attributes
+        self.module = self._load_module()
+        self.semantic_theories = self._load_attribute("semantic_theories")
+        self.example_range = self._load_attribute("example_range")
+        
+        # Process settings
+        self._process_settings()
+        
+        # Initialize output management
+        self._initialize_output_management()
+        
+        # Create component instances
+        self._initialize_components()
+    
+    def _process_settings(self):
+        """Process and validate settings (lines 110-132)."""
+        from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
+        
+        self.raw_general_settings = getattr(self.module, "general_settings", None)
+        
+        if self.raw_general_settings is not None:
+            first_theory = next(iter(self.semantic_theories.values()))
+            temp_manager = SettingsManager(first_theory, DEFAULT_GENERAL_SETTINGS)
+            self.general_settings = temp_manager.validate_general_settings(self.raw_general_settings)
+            self.general_settings = temp_manager.apply_flag_overrides(self.general_settings, self.module_flags)
+        else:
+            self.general_settings = DEFAULT_GENERAL_SETTINGS.copy()
+        
+        # Set attributes for backward compatibility
+        for key, value in self.general_settings.items():
+            setattr(self, key, value)
+    
+    def _initialize_output_management(self):
+        """Initialize output manager (lines 133-160)."""
+        from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider
+        
+        self.interactive_manager = None
+        if self.save_output:
+            input_provider = ConsoleInputProvider()
+            self.interactive_manager = InteractiveSaveManager(input_provider)
+            
+            if hasattr(self.module_flags, 'interactive') and self.module_flags.interactive:
+                self.interactive_manager.set_mode('interactive')
+            else:
+                self.interactive_manager.prompt_save_mode()
+        
+        self.output_manager = OutputManager(
+            save_output=self.save_output,
+            mode=getattr(self.module_flags, 'output_mode', 'batch'),
+            sequential_files=getattr(self.module_flags, 'sequential_files', 'multiple'),
+            interactive_manager=self.interactive_manager
+        )
+        
+        if self.output_manager.should_save():
+            self.output_manager.create_output_directory()
+    
+    def _initialize_components(self):
+        """Create component instances."""
+        from model_checker.builder.runner import ModelRunner
+        from model_checker.builder.comparison import TheoryComparator
+        from model_checker.builder.translation import TheoryTranslator
+        
+        self.translator = TheoryTranslator(self)
+        self.runner = ModelRunner(self)
+        self.comparator = TheoryComparator(self)
+    
+    # Keep these core methods unchanged
+    def _discover_theory_module(self, theory_name, semantic_theory):
+        """Lines 46-86 - keep as is"""
+    
+    def _is_generated_project(self, module_dir):
+        """Lines 161-192 - keep as is"""
+    
+    def _find_project_directory(self, module_dir):
+        """Lines 193-222 - keep as is"""
+    
+    def _load_module(self):
+        """Lines 223-317 - keep as is"""
+    
+    def _load_attribute(self, attr_name):
+        """Lines 318-332 - keep as is"""
+    
+    # Delegate all execution to components
+    def translate(self, example_case, dictionary):
+        return self.translator.translate(example_case, dictionary)
+    
+    def translate_example(self, example_case, semantic_theories):
+        return self.translator.translate_example(example_case, semantic_theories)
+    
+    def run_model_check(self, example_case, example_name, theory_name, semantic_theory):
+        return self.runner.run_model_check(example_case, example_name, theory_name, semantic_theory)
+    
+    def try_single_N(self, theory_name, semantic_theory, example_case):
+        return self.runner.try_single_N(theory_name, semantic_theory, example_case)
+    
+    def process_example(self, example_name, example_case, theory_name, semantic_theory):
+        return self.runner.process_example(example_name, example_case, theory_name, semantic_theory)
+    
+    def run_comparison(self):
+        return self.comparator.run_comparison()
+    
+    def compare_semantics(self, example_theory_tuples):
+        return self.comparator.compare_semantics(example_theory_tuples)
     
     def run_examples(self):
-        """Run all examples with proper orchestration."""
-        # Simplified orchestration logic
+        """Main entry point - simplified orchestration (lines 1197-end)."""
+        from model_checker.builder.example import BuildExample
+        
+        if self.module_flags.comparison:
+            self.run_comparison()
+        else:
+            # Process each example
+            for example_name, example_case in self.example_range.items():
+                print(f"\nExample: {example_name}")
+                
+                for theory_name, semantic_theory in self.semantic_theories.items():
+                    example = self.process_example(example_name, example_case, theory_name, semantic_theory)
+                    
+                    # Handle output capture
+                    self._capture_and_save_output(example, example_name, theory_name)
+    
+    def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
+        """Lines 1125-1196 - keep for output handling"""
 ```
 
 **Dual Testing Protocol**:
@@ -431,6 +897,12 @@ time ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 - [ ] No performance regression
 - [ ] No circular imports
 
+**Migration Strategy**:
+1. Keep static method try_single_N_static in runner.py
+2. Update imports: `from model_checker.builder.module import BuildModule` → `from model_checker.builder.core import BuildModule`
+3. Ensure runner has access to build_module for translation calls
+4. Test iteration support thoroughly with process_example
+
 ### Phase 6: Cleanup and Integration
 
 **Objective**: Remove duplication and integrate improvements
@@ -442,10 +914,107 @@ time ./dev_cli.py src/model_checker/theory_lib/logos/examples.py
 4. Clean up project.py interactions
 5. Update __init__.py exports
 
-**Integration Points**:
-- Update iterate package to use builder's interfaces
-- Ensure consistent validation across modules
-- Remove all circular dependencies
+**Explicit Implementation Details**:
+
+1. **Remove Duplicate graph_utils.py**:
+```bash
+# Remove duplicate functionality
+rm src/model_checker/builder/graph_utils.py
+
+# Update any references to use iterate version
+grep -r "builder.graph_utils" src/
+# Replace with "iterate.graph"
+```
+
+2. **Integrate validation.py**:
+```python
+# Move validation functions to runner.py where they're used
+# In runner.py, add at top:
+
+def validate_premises_conclusions(premises, conclusions):
+    """Validate that premises and conclusions are lists of strings."""
+    if not isinstance(premises, list) or not isinstance(conclusions, list):
+        raise ValueError("Premises and conclusions must be lists")
+    
+    for i, premise in enumerate(premises):
+        if not isinstance(premise, str):
+            raise TypeError(f"Premise {i} must be a string, got {type(premise)}")
+    
+    for i, conclusion in enumerate(conclusions):
+        if not isinstance(conclusion, str):
+            raise TypeError(f"Conclusion {i} must be a string, got {type(conclusion)}")
+
+def validate_semantic_theory(semantic_theory, theory_name):
+    """Validate semantic theory has required components."""
+    required = ['semantics', 'proposition', 'model', 'operators']
+    missing = [key for key in required if key not in semantic_theory]
+    
+    if missing:
+        raise ValueError(
+            f"Semantic theory '{theory_name}' missing required components: {missing}"
+        )
+```
+
+3. **Update All Imports**:
+```python
+# Update __main__.py
+from model_checker.builder.core import BuildModule  # Changed from .module
+
+# Update iterate/build_example.py
+# No changes needed - uses builder.example
+
+# Update jupyter/interactive.py
+from model_checker.builder.core import BuildModule  # Changed from .module
+
+# Update builder/__init__.py
+from model_checker.builder.core import BuildModule  # Changed from .module
+from model_checker.builder.project import BuildProject
+from model_checker.builder.example import BuildExample
+
+__all__ = ['BuildModule', 'BuildProject', 'BuildExample']
+```
+
+4. **Update Import Order in New Modules**:
+```python
+# Ensure proper import order to avoid circular dependencies
+
+# core.py imports (in order):
+import os
+import sys
+import importlib.util
+# NO direct imports of runner, comparison, translation here
+
+# runner.py imports:
+from model_checker.output.progress import Spinner
+from model_checker.syntactic import Syntax
+# Late import BuildExample where needed
+
+# comparison.py imports:
+import concurrent.futures
+from model_checker.builder.serialize import serialize_semantic_theory
+# NO import of BuildModule to avoid circularity
+
+# translation.py imports:
+import copy
+# Minimal imports, no circular dependencies
+```
+
+5. **Test Import Structure**:
+```python
+# Create test_imports.py to verify no circular imports
+import sys
+sys.path.insert(0, 'src')
+
+# Test each module can be imported independently
+import model_checker.builder.core
+import model_checker.builder.runner  
+import model_checker.builder.comparison
+import model_checker.builder.translation
+
+# Test main entry points still work
+from model_checker.builder import BuildModule
+from model_checker.__main__ import ParseFileFlags
+```
 
 **Validation Commands**:
 ```bash
@@ -684,3 +1253,37 @@ if not z3.is_false(z3_expr):
 - Run baseline comparison before changes
 - Use both testing methods to catch different issues
 - Check for implicit dependencies
+
+## Detailed Method Mapping
+
+### Methods Moving to runner.py (~400 lines)
+- `run_model_check` (lines 384-416): Main model checking entry
+- `try_single_N` (lines 417-466): Single N value testing
+- `try_single_N_static` (lines 467-535): Static version for multiprocessing
+- `try_single_N_serialized` (lines 536-556): Serialized version
+- `process_example` (lines 689-963): Full example processing with iterations
+- `process_iterations` (lines 1108-1124): Iteration handling
+- `_run_generator_iteration` (lines 966-1036): Generator iteration support
+- `_get_termination_info` (lines 1037-1070): Iteration termination
+- `_get_termination_reason` (lines 1071-1107): Termination reason formatting
+
+### Methods Moving to comparison.py (~350 lines)
+- `compare_semantics` (lines 557-637): Core comparison logic
+- `run_comparison` (lines 638-665): Main comparison entry point
+- Comparison output formatting logic
+
+### Methods Moving to translation.py (~250 lines)
+- `translate` (lines 333-357): Basic translation
+- `translate_example` (lines 358-383): Full example translation
+- `replace_operators` (nested in translate): Recursive operator replacement
+
+### Methods Staying in core.py (~300 lines)
+- `__init__` (lines 87-160): Initialization and setup
+- `_discover_theory_module` (lines 46-86): Theory discovery
+- `_is_generated_project` (lines 161-192): Project detection
+- `_find_project_directory` (lines 193-222): Project directory location
+- `_load_module` (lines 223-317): Module loading with import handling
+- `_load_attribute` (lines 318-332): Attribute validation
+- `run_examples` (lines 1197-end): Main orchestration
+- `_capture_and_save_output` (lines 1125-1196): Output handling
+- `_prompt_for_iterations` (lines 666-688): Interactive prompting

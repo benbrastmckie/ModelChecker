@@ -5,9 +5,52 @@
 - [ ] lint
   - many of the imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py` are not used
   - also use pylint to be systematic about linting the entire codebase
+  - NOTE: Should be done AFTER builder refactor to avoid fixing imports that will change
 - [ ] refactor
   - [ ] subpackages
-    - [:] builder
+    - [:] builder (HIGHEST PRIORITY - sole major blocker for v1 release)
+      - [ ] Phase 1: Test Infrastructure and Baseline
+        - [ ] Create baseline captures of current behavior for all theories
+        - [ ] Write comprehensive tests for module.py components before refactoring
+        - [ ] Document all implicit contracts and dependencies
+        - [ ] Set up dual testing protocol (unit tests + CLI testing)
+      - [ ] Phase 2: Extract Runner Module (~400 lines)
+        - [ ] Create runner.py with ModelRunner class
+        - [ ] Move run_model_check, try_single_N, process_example methods
+        - [ ] Extract execution logic from BuildModule
+        - [ ] Handle late imports (BuildExample, ModelConstraints, Z3ContextManager)
+      - [ ] Phase 3: Extract Comparison Module (~350 lines)
+        - [ ] Create comparison.py with TheoryComparator class
+        - [ ] Move run_comparison and compare_semantics methods
+        - [ ] Extract comparison statistics and formatting logic
+        - [ ] Handle Z3 model comparisons properly
+      - [ ] Phase 4: Extract Translation Module (~250 lines)
+        - [ ] Create translation.py with TheoryTranslator class
+        - [ ] Move translate and translate_example methods
+        - [ ] Consolidate operator mappings from multiple locations
+        - [ ] Ensure LaTeX notation preserved
+      - [ ] Phase 5: Core Module Refactoring (~300 lines)
+        - [ ] Rename module.py to core.py
+        - [ ] Remove all extracted functionality
+        - [ ] Update BuildModule to orchestration role only
+        - [ ] Clean up file I/O operations
+      - [ ] Phase 6: Cleanup and Integration
+        - [ ] Remove graph_utils.py (use iterate/graph.py instead)
+        - [ ] Integrate validation.py into appropriate modules
+        - [ ] Update all imports throughout codebase
+        - [ ] Clean up project.py interactions
+      - [ ] Phase 7: Documentation and Polish
+        - [ ] Update builder/README.md with new architecture
+        - [ ] Document all public APIs
+        - [ ] Add migration notes for breaking changes
+        - [ ] Update spec 028 as IMPLEMENTED
+      - Key Technical Details:
+        - BuildModule has 23 methods total in 1267 lines
+        - 11 late imports to avoid circular dependencies
+        - Dependencies: settings, output, syntactic, models, utils, iterate
+        - Critical integrations: iterate package, theory loading, output formatting
+        - Test coverage: 2621 lines across 15 test files
+        - Module interactions: Used by __main__.py, jupyter.interactive, iterate.build_example
     - [x] iterate
     - [ ] jupyter
     - [ ] models
@@ -49,6 +92,13 @@
   - [ ] make dependency explicit
   - [ ] update docs
 - [ ] builder refactor
+  - CRITICAL: Currently at 1267 lines (19% growth since spec creation)
+  - See detailed implementation plan in subpackages section above
+  - Key risks to mitigate:
+    - Breaking iterate integration (test after each phase)
+    - Theory loading issues (comprehensive tests needed)
+    - Output format changes (capture baselines)
+    - Z3 context issues (follow iterate's patterns)
 - [.] theory metadata
   - [:] licence
     - [x] implement licensing
