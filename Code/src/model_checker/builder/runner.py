@@ -5,16 +5,34 @@ running individual examples, handling iterations, and managing Z3 contexts.
 """
 
 # Standard library imports
+import gc
 import importlib
+import os
 import sys
 import time
 
-# Local imports
-from model_checker.output.progress import Spinner, UnifiedProgress
-from model_checker.syntactic import Syntax
+import z3
 
-# Relative imports
+# Package imports
+from ..output.progress import Spinner, UnifiedProgress
+from ..syntactic import Syntax
+
+# Local imports
 from .serialize import serialize_semantic_theory, deserialize_semantic_theory
+from .runner_utils import (
+    format_model_output,
+    calculate_model_statistics,
+    validate_runner_state,
+    create_progress_tracker_for_iteration,
+    store_timing_information,
+    handle_iteration_error,
+    extract_iteration_settings,
+    prepare_example_case_with_settings,
+    calculate_model_differences,
+    format_comparison_results,
+    validate_iteration_count,
+    should_show_progress,
+)
 
 
 def try_single_N_static(theory_name, theory_config, example_case):
@@ -225,12 +243,29 @@ class ModelRunner:
             
         Returns:
             BuildExample: The example after processing
-            
-        This method wraps the example processing in a Z3 context to ensure proper
-        isolation between different examples and avoid context pollution.
         """
-        from model_checker.utils import Z3ContextManager
         from model_checker.builder.example import BuildExample
+        
+        # Initialize Z3 context and logging
+        self._initialize_z3_context()
+        
+        # Prepare example case with translations and settings
+        example_case = self._prepare_example_case(example_case, semantic_theory)
+        
+        # Get iteration configuration
+        iterate_count = self._get_iterate_count(example_case)
+        
+        # Handle simple case without iteration
+        if iterate_count == 1:
+            return self._process_single_model(example_name, example_case, theory_name, semantic_theory)
+        
+        # Process example with iteration support
+        return self._process_with_iterations(example_name, example_case, theory_name, 
+                                            semantic_theory, iterate_count)
+    
+    def _initialize_z3_context(self):
+        """Initialize Z3 context and configure logging for clean output."""
+        from model_checker.utils import Z3ContextManager
         import logging
         import z3
         
@@ -246,112 +281,169 @@ class ModelRunner:
         # Reset Z3 solver to ensure clean state for each example
         z3.reset_params()
         z3.set_param(verbose=0)
+    
+    def _prepare_example_case(self, example_case, semantic_theory):
+        """Apply translations and settings to the example case.
         
-        # Check if we should show countdown
-        show_countdown = getattr(self.build_module.module_flags, 'countdown', False)
-        
+        Args:
+            example_case: The example case to prepare
+            semantic_theory: Theory configuration for translations
+            
+        Returns:
+            Modified example_case with applied translations and settings
+        """
         # Apply translation if needed
         dictionary = semantic_theory.get("dictionary", None) 
         if dictionary:
             example_case = self.build_module.translation.translate(example_case, dictionary)
         
-        # Apply countdown setting if present
-        if show_countdown and len(example_case) > 2 and isinstance(example_case[2], dict):
-            example_case[2]['show_countdown'] = True
-        
-        # Get the iterate count early to set up progress tracking
-        iterate_count = example_case[2].get('iterate', 1) if len(example_case) > 2 and isinstance(example_case[2], dict) else 1
-        
-        # If iterate=1, no progress tracking needed
-        if iterate_count == 1:
-            # Create and solve the example without progress tracking
-            example = BuildExample(self.build_module, semantic_theory, example_case, theory_name)
-            self.build_module._capture_and_save_output(example, example_name, theory_name)
-            return example
-        
-        # Create unified progress tracker for all models
-        max_time = example_case[2].get('max_time', 60.0) if len(example_case) > 2 and isinstance(example_case[2], dict) else 60.0
-        progress = UnifiedProgress(
-            total_models=iterate_count,
-            max_time=max_time  # Single timeout for all operations
+        # Apply additional settings from flags
+        return prepare_example_case_with_settings(
+            example_case, semantic_theory, self.build_module.module_flags
         )
+    
+    def _get_iterate_count(self, example_case):
+        """Extract iteration count from example case settings.
         
-        # Add vertical space before first progress bar
-        print()
+        Args:
+            example_case: The example case containing settings
+            
+        Returns:
+            int: Number of iterations to perform
+        """
+        settings = extract_iteration_settings(example_case)
+        return settings['iterate']
+    
+    def _process_single_model(self, example_name, example_case, theory_name, semantic_theory):
+        """Process a single model without iteration.
         
-        # Capture Model 1 start time BEFORE any work
+        Args:
+            example_name: Name of the example
+            example_case: Example case data
+            theory_name: Name of the theory
+            semantic_theory: Theory configuration
+            
+        Returns:
+            BuildExample: The processed example
+        """
+        from model_checker.builder.example import BuildExample
+        
+        example = BuildExample(self.build_module, semantic_theory, example_case, theory_name)
+        self.build_module._capture_and_save_output(example, example_name, theory_name)
+        return example
+    
+    def _process_with_iterations(self, example_name, example_case, theory_name, 
+                                semantic_theory, iterate_count):
+        """Process example with iteration support and progress tracking.
+        
+        Args:
+            example_name: Name of the example
+            example_case: Example case data
+            theory_name: Name of the theory
+            semantic_theory: Theory configuration
+            iterate_count: Number of models to find
+            
+        Returns:
+            BuildExample: The processed example
+        """
+        from model_checker.builder.example import BuildExample
+        
+        # Create progress tracker
+        progress = self._create_progress_tracker(example_case, iterate_count)
+        
+        # Process first model with progress tracking
+        print()  # Add vertical space before first progress bar
         model_1_start = time.time()
-        
-        # Start progress for first model with timing
         progress.start_model_search(1, start_time=model_1_start)
         
-        # Create and solve the example
         example = BuildExample(self.build_module, semantic_theory, example_case, theory_name)
-        
-        # Update progress
         progress.model_checked()
         
-        # Store timing reference for iteration report
-        # The model already has z3_model_runtime for solver time
-        # Add total search time for consistency
-        example.model_structure._search_start_time = model_1_start
-        example.model_structure._total_search_time = time.time() - model_1_start
+        # Store timing information
+        self._store_timing_info(example, model_1_start)
         
-        # Check if a model was found
+        # Check if model was found
         if not example.model_structure.z3_model_status:
             progress.complete_model_search(found=False)
             progress.finish()
             self.build_module._capture_and_save_output(example, example_name, theory_name)
             return example
         
-        # Complete first model search
         progress.complete_model_search(found=True)
+        print()  # Add vertical space after first progress bar
         
-        # Add vertical space after first progress bar
-        print()
-        
-        # Pass progress to example for iterator to use
+        # Set up for iteration
         if iterate_count > 1:
             example._unified_progress = progress
         
-        # Handle iteration for interactive mode first to get correct count
-        if self.build_module.interactive_manager and self.build_module.interactive_manager.is_interactive():
-            # First, print the model without numbering
-            self.build_module._capture_and_save_output(example, example_name, theory_name)
-            
-            # Then prompt for iterations
-            user_iterations = self.build_module._prompt_for_iterations()
-            if user_iterations == 0:
-                progress.finish()
-                return example
-            # Override iterate count with user's choice (plus 1 for the model already shown)
-            iterate_count = user_iterations + 1
-            
-            # Update progress with new total
-            progress.total_models = iterate_count
-            example._unified_progress = progress
-        else:
-            # In batch mode, just print the first model without numbering
-            # The numbering starts with the second model from iteration
-            self.build_module._capture_and_save_output(example, example_name, theory_name)
-            
-            # Return if we don't need to iterate in batch mode
-            if iterate_count <= 1:
-                progress.finish()
-                return example
-            
-            # Add vertical space after the first model before iteration starts
-            print()
+        # Handle interactive vs batch mode
+        iterate_count = self._handle_iteration_mode(example, example_name, theory_name, 
+                                                    iterate_count, progress)
         
+        # Process remaining iterations
         try:
-            # Handle iteration through new process_iterations method
-            self.process_iterations(example, example_name, example_case, theory_name, 
-                                  semantic_theory, iterate_count, progress)
+            if iterate_count > 1:
+                self.process_iterations(example, example_name, example_case, theory_name, 
+                                      semantic_theory, iterate_count, progress)
         finally:
-            # Ensure progress is cleaned up
             progress.finish()
         
         return example
+    
+    def _create_progress_tracker(self, example_case, iterate_count):
+        """Create a unified progress tracker for model iterations.
+        
+        Args:
+            example_case: Example case with settings
+            iterate_count: Total models to find
+            
+        Returns:
+            UnifiedProgress: Progress tracker instance
+        """
+        return create_progress_tracker_for_iteration(example_case, iterate_count)
+    
+    def _store_timing_info(self, example, start_time):
+        """Store timing information in the example for reporting.
+        
+        Args:
+            example: The BuildExample instance
+            start_time: When model search started
+        """
+        store_timing_information(example.model_structure, start_time)
+    
+    def _handle_iteration_mode(self, example, example_name, theory_name, iterate_count, progress):
+        """Handle interactive vs batch mode for iterations.
+        
+        Args:
+            example: The BuildExample instance
+            example_name: Name of the example
+            theory_name: Name of the theory
+            iterate_count: Current iteration count
+            progress: Progress tracker
+            
+        Returns:
+            int: Updated iteration count
+        """
+        if self.build_module.interactive_manager and self.build_module.interactive_manager.is_interactive():
+            # Interactive mode
+            self.build_module._capture_and_save_output(example, example_name, theory_name)
+            
+            user_iterations = self.prompt_for_iterations()
+            if user_iterations == 0:
+                return 1  # No more iterations
+            
+            # Override iterate count with user's choice (plus 1 for the model already shown)
+            iterate_count = user_iterations + 1
+            progress.total_models = iterate_count
+            example._unified_progress = progress
+        else:
+            # Batch mode
+            self.build_module._capture_and_save_output(example, example_name, theory_name)
+            
+            if iterate_count > 1:
+                print()  # Add vertical space before iteration starts
+        
+        return iterate_count
     
     def process_iterations(self, example, example_name, example_case, theory_name, 
                            semantic_theory, iterate_count, progress):
@@ -616,3 +708,90 @@ class ModelRunner:
             return f"Stopped after {iterator.timeout_count} timeouts"
         else:
             return None
+    
+    def run_examples(self):
+        """Process and execute each example case with all semantic theories.
+        
+        Iterates through example cases and theories, translating operators if needed.
+        Runs model checking with progress indicator and timeout handling.
+        Prints results or timeout message for each example/theory combination.
+        """
+        # CRITICAL: This method includes the Z3 context isolation logic
+        # that prevents state leakage between examples
+        
+        try:
+            for example_name, example_case in self.build_module.example_range.items():
+                # Force garbage collection to clean up any lingering Z3 objects
+                gc.collect()
+                
+                # Reset Z3 context to create a fresh environment for this example
+                # This is the critical fix for ensuring proper Z3 state isolation
+                # Each example gets its own fresh Z3 context, preventing any state leakage
+                if hasattr(z3, '_main_ctx'):
+                    z3._main_ctx = None
+                
+                # Force another garbage collection to ensure clean state
+                gc.collect()
+                
+                # Run the system in a clean state
+                for theory_name, semantic_theory in self.build_module.semantic_theories.items():
+                    # Make setting reset for each semantic_theory
+                    example_copy = list(example_case)
+                    example_copy[2] = example_case[2].copy()
+                    
+                    # Process the example with our new unified approach
+                    # This handles both single models and iterations consistently
+                    try:
+                        self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                    finally:
+                        # Force cleanup after each example to prevent state leaks
+                        gc.collect()
+                        
+        except KeyboardInterrupt:
+            print("\n\nExecution interrupted by user.")
+            # Still finalize if we saved any output
+            if self.build_module.output_manager.should_save() and self.build_module.output_manager.output_dir is not None:
+                self.build_module.output_manager.finalize()
+                print(f"\nPartial output saved to: {os.path.abspath(self.build_module.output_manager.output_dir)}")
+            sys.exit(1)
+                    
+        # Finalize output saving if enabled
+        if self.build_module.output_manager.should_save():
+            self.build_module.output_manager.finalize()
+            
+            # Only print path if output was actually saved
+            if self.build_module.output_manager.output_dir is not None:
+                # Get full path for display
+                full_path = os.path.abspath(self.build_module.output_manager.output_dir)
+                
+                # Prompt for directory change
+                if self.build_module.interactive_manager:
+                    self.build_module.interactive_manager.prompt_change_directory(full_path)
+                else:
+                    # No interactive manager - show instructions directly
+                    print(f"\nOutput saved to: {full_path}")
+                    print(f"To change to output directory, run:")
+                    print(f"  cd {full_path}")
+    
+    def prompt_for_iterations(self):
+        """Prompt user for number of iterations in interactive mode.
+        
+        Returns:
+            int: Number of additional models to find (0 means no more)
+        """
+        print("\nDo you want to find another model?")
+        response = input("Enter a number to iterate or hit return to continue: ").strip()
+        
+        if not response:
+            # User hit return - continue to next example
+            return 0
+            
+        try:
+            num_iterations = int(response)
+            if num_iterations < 0:
+                print("Please enter a positive number.")
+                return self.prompt_for_iterations()
+            return num_iterations
+        except ValueError:
+            print("Please enter a valid number or hit return to continue.")
+            return self.prompt_for_iterations()

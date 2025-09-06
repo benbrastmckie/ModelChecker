@@ -9,16 +9,21 @@ maintenance/
 ├── README.md                       # This file - code maintenance hub
 ├── IMPLEMENT.md                    # Spec execution guide (concise workflow)
 ├── CODE_STANDARDS.md               # Unified code quality standards
+├── REFACTORING_METHODOLOGY.md      # Systematic improvement approach
+├── METHOD_COMPLEXITY.md            # Context-aware complexity guidelines
+├── ARCHITECTURAL_PATTERNS.md       # Protocol-based design patterns
+├── UTILITY_ORGANIZATION.md         # Shared vs package-specific utilities
 ├── FORMULA_FORMATTING.md           # LaTeX notation in code
 ├── EXAMPLES_STRUCTURE.md           # examples.py file standards
 ├── CODE_ORGANIZATION.md            # Module structure and imports
-├── ERROR_HANDLING.md               # Exception handling patterns
+├── ERROR_HANDLING.md               # Exception handling patterns (enhanced)
 ├── PERFORMANCE.md                  # Z3 optimization guidelines
-├── TESTING_STANDARDS.md            # Test requirements and TDD
+├── TESTING_STANDARDS.md            # Test requirements with isolation (enhanced)
 ├── TEST_ORGANIZATION.md            # Test suite organization standards
 ├── MANUAL_TESTING.md               # Manual testing protocol (REQUIRED)
 ├── UNICODE_GUIDELINES.md           # Character encoding for code
 ├── VERSION_CONTROL.md              # Git workflow for code changes
+├── PYPI_LINK_REQUIREMENTS.md       # PyPI README link formatting standards
 └── templates/
     ├── THEORY_TEMPLATE.py          # Theory implementation template
     ├── EXAMPLES_TEMPLATE.py        # Examples file template
@@ -29,7 +34,7 @@ maintenance/
 
 This directory contains **comprehensive code maintenance standards** for the ModelChecker framework, ensuring consistency, quality, and maintainability across all code implementation, testing, and development practices. These standards guide developers in writing high-quality, maintainable code that follows established patterns and best practices.
 
-The code maintenance standards cover **12 key areas**: spec execution workflows, unified code standards, formula formatting, example structure, code organization, error handling, performance optimization, testing practices, manual testing requirements, character encoding, version control, and template resources. Together, these standards ensure technical excellence and consistency across the entire codebase.
+The code maintenance standards cover **16 key areas**: systematic refactoring methodology, context-aware complexity guidelines, architectural patterns, utility organization, spec execution workflows, unified code standards, formula formatting, example structure, code organization, enhanced error handling, performance optimization, comprehensive testing with isolation, manual testing requirements, character encoding, version control, and template resources. Together, these standards ensure technical excellence and consistency across the entire codebase.
 
 Following these standards is **essential for all code contributors**, whether implementing new features, fixing bugs, adding theories, or optimizing performance. The standards reflect our commitment to clean architecture, test-driven development, and systematic refactoring practices outlined in [CLAUDE.md](../CLAUDE.md).
 
@@ -105,7 +110,14 @@ Code templates providing starting points for new theory implementations, example
 ### For Feature Implementers
 - **[Spec Execution Guide](IMPLEMENT.md)** - Concise workflow for implementing specs
 - **[Code Standards](CODE_STANDARDS.md)** - Unified code quality requirements
-- **[Testing Standards](TESTING_STANDARDS.md)** - TDD protocols and test coverage
+- **[Refactoring Methodology](REFACTORING_METHODOLOGY.md)** - Systematic improvement approach
+- **[Testing Standards](TESTING_STANDARDS.md)** - TDD protocols with test isolation
+
+### For Code Quality & Architecture
+- **[Method Complexity](METHOD_COMPLEXITY.md)** - Context-aware complexity guidelines
+- **[Architectural Patterns](ARCHITECTURAL_PATTERNS.md)** - Protocol-based design patterns
+- **[Utility Organization](UTILITY_ORGANIZATION.md)** - Shared vs package-specific utilities
+- **[Error Handling](ERROR_HANDLING.md)** - Enhanced exception patterns and hierarchies
 
 ### For Theory Developers
 - **[Formula Formatting](FORMULA_FORMATTING.md)** - LaTeX notation requirements
@@ -113,7 +125,6 @@ Code templates providing starting points for new theory implementations, example
 - **[Code Organization](CODE_ORGANIZATION.md)** - Module structure patterns
 
 ### For Performance & Quality
-- **[Error Handling](ERROR_HANDLING.md)** - Exception patterns and messages
 - **[Performance Guidelines](PERFORMANCE.md)** - Z3 optimization techniques
 - **[Unicode Guidelines](UNICODE_GUIDELINES.md)** - Character encoding for code
 

@@ -25,6 +25,8 @@ class OperatorTranslation:
         premises, conclusions, settings = example_case
         
         def replace_operators(logical_list, dictionary):
+            if not dictionary:
+                return logical_list
             for old, new in dictionary.items():
                 logical_list = [sentence.replace(old, new) for sentence in logical_list]
             return logical_list

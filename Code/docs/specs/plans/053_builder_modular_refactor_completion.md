@@ -2,57 +2,117 @@
 
 **Date**: 2025-09-05  
 **Author**: AI Assistant  
-**Status**: Ready for Review  
+**Status**: Ready for Review - REVISED with detailed implementation  
 **Priority**: HIGH - Complete modular architecture for v1 stability  
 **Related**: [028_builder_v1_modular_refactor.md](028_builder_v1_modular_refactor.md), [029_builder_test_refactor.md](029_builder_test_refactor.md), [052_builder_tests_cleanup_manual_testing.md](052_builder_tests_cleanup_manual_testing.md)  
-**Focus**: Extract components from BuildModule, verify with dual testing strategy
+**Focus**: Complete component extraction from BuildModule, verify with dual testing strategy
 
 ## Specification Validation
 
 **Verification Checklist**:
-- ✅ Clear problem statement (monolithic BuildModule needs component extraction)
-- ✅ Detailed implementation phases (5 phases with specific tasks)
+- ✅ Clear problem statement (BuildModule still contains business logic that belongs in components)
+- ✅ Detailed implementation phases (5 phases with specific code movements)
 - ✅ Success criteria (all tests pass, manual tests work, clean architecture)
-- ✅ Testing strategy (automated tests + manual verification)
+- ✅ Testing strategy (automated tests + manual verification per IMPLEMENT.md)
 - ✅ NO BACKWARD COMPATIBILITY (following CLAUDE.md principles)
+- ✅ Detailed code analysis showing exactly what moves where
 
 ## Executive Summary
 
-Complete the modular refactor of the builder package by extracting runner, comparison, and translation functionality into separate components. This follows up on spec 028 which established the architecture, and spec 052 which prepared comprehensive tests.
+Complete the modular refactor of the builder package. Research shows that ModelRunner, ModelComparison, and OperatorTranslation already exist but BuildModule still contains significant business logic that should be moved to these components.
 
-**Current State**:
-- Monolithic `BuildModule` class with all functionality
-- Tests written for future modular architecture (TDD approach)
-- Manual testing protocol established
+**Current State Analysis**:
+- `ModelRunner`, `ModelComparison`, `OperatorTranslation` classes exist but are incomplete
+- `BuildModule` still contains:
+  - `run_examples()` - 56 lines of execution logic (lines 274-345)
+  - `_prompt_for_iterations()` - 23 lines (lines 131-153)  
+  - `_capture_and_save_output()` - 71 lines (lines 156-227)
+  - Delegation methods for backward compatibility (lines 228-273)
+- Tests expect components to have more functionality than currently implemented
 
 **Target State**:
-- Separate `ModelRunner`, `ModelComparison`, `OperatorTranslation` components
-- Clean architecture with BuildModule as coordinator only
-- All tests passing (unit, integration, manual)
-- NO backward compatibility - update all call sites
+- All business logic moved to appropriate components
+- BuildModule reduced to ~50 lines (pure coordination)
+- Components handle their own responsibilities completely
+- NO delegation methods or backward compatibility
+- All call sites updated to use components directly
 
 ## Current State Analysis
 
-### BuildModule Current Responsibilities
+### Detailed Code Analysis
 
-1. **Module Loading** - Already extracted to `loader.py` ✅
-2. **Validation** - Already extracted to `validation.py` ✅
-3. **Project Management** - Already extracted to `project.py` ✅
-4. **Example Building** - Already extracted to `example.py` ✅
-5. **Model Running** - Still in BuildModule ❌
-6. **Comparison** - Still in BuildModule ❌
-7. **Translation** - Still in BuildModule ❌
-8. **Serialization** - Already extracted to `serialize.py` ✅
-9. **Z3 Utilities** - Already extracted to `z3_utils.py` ✅
+#### BuildModule (module.py - 345 lines total)
 
-### Test Suite Status
+**Lines 1-125: Initialization**
+- Component initialization already done (loader, runner, comparison, translation)
+- Output manager setup
+- Settings management
 
-From spec 052 implementation:
-- `test_components.py` - Tests for future components (15 failures expected)
-- `test_component_integration.py` - Integration tests ready
-- `test_error_propagation.py` - Error handling tests ready
-- `fixtures.py` - Comprehensive test utilities
-- Manual testing protocol documented
+**Lines 131-153: `_prompt_for_iterations()`**
+- User interaction logic that belongs in ModelRunner
+- 23 lines of iteration handling
+- Currently handles interactive mode prompting
+
+**Lines 156-227: `_capture_and_save_output()`** 
+- Output capture and formatting logic
+- Should stay in BuildModule as it coordinates with OutputManager
+- 71 lines of output handling
+
+**Lines 228-273: Delegation Methods**
+- `run_comparison()` - delegates to comparison (line 230)
+- `translate()` - delegates to translation (line 240)  
+- `translate_example()` - delegates to translation (line 250)
+- MUST BE DELETED per no backward compatibility
+
+**Lines 274-345: `run_examples()`**
+- Main execution loop with Z3 isolation logic (lines 286-302)
+- Critical Z3 context reset pattern (lines 294-302)
+- Iteration through examples and theories
+- Should move to ModelRunner
+- 71 lines of core execution logic
+
+#### ModelRunner (runner.py - current state)
+- Has `process_example()` method (line 236) that's called by BuildModule
+- Has `run_model_check()` (line 104) but not used by BuildModule
+- Has `try_single_N()` (line 137) for comparison support
+- Missing the main execution loop from BuildModule
+- Missing iteration handling logic
+- Already has Z3 isolation pattern in static method
+
+#### ModelComparison (comparison.py - current state)  
+- Has `compare_semantics()` (line 87) and related methods
+- Has `run_comparison()` (line 136) - complete implementation
+- Uses ProcessPoolExecutor for parallel execution
+- Mostly complete, just needs BuildModule delegation removed
+
+#### OperatorTranslation (translation.py - current state)
+- Has `translate()` (line 11) and `translate_example()` (line 36)
+- Complete implementation, no dependencies on BuildModule
+- Just needs BuildModule delegation methods removed
+
+### External Call Sites
+
+**Main entry point** (`__main__.py`):
+```python
+# Line 265: Create BuildModule instance
+module = BuildModule(module_flags)
+
+# Line 269: Comparison mode
+if module.general_settings["maximize"]:
+    module.run_comparison()
+    
+# Line 272: Normal execution  
+module.run_examples()
+```
+
+**Dev CLI** (`dev_cli.py`):
+- Line 55: Calls main() from __main__.py
+- No direct BuildModule usage
+
+**Test files**: 
+- `test_components.py` - expects component access patterns
+- `test_loader.py` - tests ModuleLoader functionality
+- `test_serialize.py` - tests serialization utilities
 
 ## Refactoring Philosophy (per CLAUDE.md)
 
@@ -80,185 +140,130 @@ From spec 052 implementation:
 
 ## Implementation Plan
 
-### Phase 1: Create Component Modules
+### Phase 1: NO NEW MODULES NEEDED
 
-**Objective**: Create the three new component modules with proper structure
+**Critical Finding**: ModelRunner, ModelComparison, and OperatorTranslation already exist!
+- `runner.py` - exists with partial implementation
+- `comparison.py` - exists with full implementation
+- `translation.py` - exists with full implementation
 
-#### Task 1.1: Create runner.py
-```python
-# src/model_checker/builder/runner.py
-"""Model runner component for executing model checking tasks."""
+**Actual Task**: Move missing methods from BuildModule to existing components
 
-from typing import Dict, List, Tuple, Any, Optional
-import z3
-from ..defaults import SemanticDefaults
+### Phase 1.5: Analyze Missing Functionality
 
+**What's Missing from Components**:
 
-class ModelRunner:
-    """Handles model checking execution and iteration."""
-    
-    def __init__(self, build_module):
-        """Initialize with reference to parent BuildModule.
-        
-        Args:
-            build_module: Parent BuildModule instance for accessing other components
-        """
-        self.build_module = build_module
-    
-    def run_model_check(self, example_name: str, example_case: List,
-                       semantic_theory: SemanticDefaults, 
-                       build_module, flags) -> Dict[str, Any]:
-        """Run model checking for a single example."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def try_single_N(self, example_name: str, premises: List[str],
-                     conclusions: List[str], N: int,
-                     semantic_theory: SemanticDefaults,
-                     general_settings: Dict, flags) -> Tuple[bool, Optional[Any]]:
-        """Try model checking with specific N value."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def process_example(self, example_name: str, example_case: List,
-                       semantic_theory: SemanticDefaults,
-                       build_module, flags) -> None:
-        """Process a single example."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def process_iterations(self, example_name: str, valid: bool,
-                          model: Any, settings: Dict, flags) -> None:
-        """Handle iteration requests from user."""
-        # Implementation moved from BuildModule
-        pass
-```
+#### ModelRunner needs:
+1. **`run_examples()`** - Main execution loop from BuildModule (lines 274-345)
+   - Critical Z3 context isolation logic (lines 294-302)
+   - Example/theory iteration logic
+   - Keyboard interrupt handling
+   - Output finalization
 
-#### Task 1.2: Create comparison.py
-```python
-# src/model_checker/builder/comparison.py
-"""Model comparison component for comparing semantic theories."""
+2. **`_prompt_for_iterations()`** - Interactive iteration handling (lines 131-153)
+   - User input processing
+   - Validation and retry logic
 
-from typing import Dict, Any
-import multiprocessing
+#### ModelComparison:
+- Already complete! Just needs BuildModule delegation removed
 
-
-class ModelComparison:
-    """Handles comparison of multiple semantic theories."""
-    
-    def __init__(self, build_module):
-        """Initialize with reference to parent BuildModule."""
-        self.build_module = build_module
-    
-    def compare_semantics(self, example_name: str, example_case: List,
-                         semantic_theories: Dict, flags) -> Dict[str, Any]:
-        """Compare example across multiple semantic theories."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def run_comparison(self, module: Any, semantic_theories: Dict,
-                      cpus: int = 1) -> None:
-        """Run full comparison across all examples."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def _find_max_N(self, example_case: List) -> int:
-        """Find maximum N value for comparison."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def _compare_single_example(self, theory_name: str, theory: Any,
-                               example_name: str, example_case: List,
-                               flags) -> Tuple[str, Dict]:
-        """Compare single example with one theory."""
-        # Implementation moved from BuildModule
-        pass
-```
-
-#### Task 1.3: Create translation.py
-```python
-# src/model_checker/builder/translation.py
-"""Operator translation component for formula conversion."""
-
-from typing import Dict, List, Any
-
-
-class OperatorTranslation:
-    """Handles translation of operators in formulas."""
-    
-    def __init__(self):
-        """Initialize translation component."""
-        pass
-    
-    def translate(self, example_case: List, dictionary: Dict[str, str]) -> List:
-        """Translate operators in example case."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def translate_formula(self, formula: str, dictionary: Dict[str, str]) -> str:
-        """Translate operators in a single formula."""
-        # Implementation moved from BuildModule
-        pass
-    
-    def translate_example(self, example_name: str, example_case: List,
-                         dictionary: Dict[str, str]) -> List:
-        """Translate entire example with logging."""
-        # Implementation moved from BuildModule
-        pass
-```
+#### OperatorTranslation:
+- Already complete! Just needs BuildModule delegation removed
 
 ### Phase 2: Extract Methods from BuildModule
 
 **Objective**: Move methods from BuildModule to appropriate components
 
-#### Task 2.1: Identify Methods to Move
+#### Task 2.1: Identify ACTUAL Methods to Move
 
 **To ModelRunner**:
-- `run_model_check()`
-- `try_single_N()` 
-- `process_example()`
-- `process_iterations()`
-- `_extract_settings()`
-- `_handle_user_iteration()`
+- `run_examples()` (lines 274-345) - Main execution loop
+- `_prompt_for_iterations()` (lines 131-153) - Interactive mode handling
 
 **To ModelComparison**:
-- `compare_semantics()`
-- `run_comparison()`
-- `_find_max_N()`
-- `_compare_single_example()`
-- `_process_comparison_results()`
+- No methods to move - comparison.py already has run_comparison()
 
 **To OperatorTranslation**:
-- `translate()`
-- `translate_formula()`
-- `translate_example()`
-- `_replace_operators()`
+- No methods to move - translation.py already has translate() methods
+
+**KEEP in BuildModule**:
+- `_capture_and_save_output()` - coordinates with OutputManager
 
 #### Task 2.2: Extract Runner Methods
 
-1. Copy methods to `runner.py` with proper imports
-2. Update method signatures to use `self.build_module` for dependencies
-3. Handle z3 context management properly
-4. Ensure error handling preserved
+**Move `run_examples()` to ModelRunner:**
+```python
+def run_examples(self):
+    """Process all examples with all theories."""
+    # CRITICAL: Move lines 274-345 from BuildModule INCLUDING Z3 isolation
+    # The Z3 context reset (lines 294-302) is ESSENTIAL:
+    
+    import gc
+    import z3
+    import sys
+    
+    try:
+        for example_name, example_case in self.build_module.example_range.items():
+            # Force garbage collection
+            gc.collect()
+            
+            # CRITICAL Z3 CONTEXT RESET - DO NOT OMIT!
+            if hasattr(z3, '_main_ctx'):
+                z3._main_ctx = None
+            
+            gc.collect()
+            
+            for theory_name, semantic_theory in self.build_module.semantic_theories.items():
+                # Make setting reset for each semantic_theory
+                example_copy = list(example_case)
+                example_copy[2] = example_case[2].copy()
+                
+                try:
+                    self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                finally:
+                    gc.collect()
+                    
+    except KeyboardInterrupt:
+        print("\n\nExecution interrupted by user.")
+        # Handle output finalization...
+        sys.exit(1)
+    
+    # Finalize output if needed
+    if self.build_module.output_manager.should_save():
+        self.build_module.output_manager.finalize()
+        # ... rest of output handling
+```
 
-#### Task 2.3: Extract Comparison Methods
+**Move `_prompt_for_iterations()` to ModelRunner:**
+```python
+def prompt_for_iterations(self):
+    """Prompt user for iterations."""
+    # Move lines 131-153 from BuildModule
+    # Make public (remove underscore)
+```
 
-1. Copy methods to `comparison.py`
-2. Update multiprocessing logic if needed
-3. Ensure proper serialization handling
-4. Maintain backward compatibility
+#### Task 2.3: DELETE Delegation Methods from BuildModule
 
-#### Task 2.4: Extract Translation Methods
-
-1. Copy methods to `translation.py`
-2. Simplify since no BuildModule dependency needed
-3. Add proper validation
+**Methods to DELETE completely**:
+```python
+# DELETE these delegation methods:
+def run_comparison(self):
+    """DELETE - callers use self.comparison.run_comparison()"""
+    
+def translate(self, example_case, dictionary):
+    """DELETE - callers use self.translation.translate()"""
+    
+def translate_example(self, example_case, semantic_theories):
+    """DELETE - callers use self.translation.translate_example()"""
+```
 
 ### Phase 3: Update BuildModule and All Call Sites
 
 **Objective**: Transform BuildModule into a pure coordinator and update ALL call sites
 
 #### Task 3.1: Strip BuildModule to Coordinator Role
+
+**BuildModule after refactor (target ~100 lines)**:
 ```python
 class BuildModule:
     """Coordinator for model checking components.
@@ -268,54 +273,78 @@ class BuildModule:
     """
     
     def __init__(self, module_flags):
+        # Basic setup (lines 40-60)
         self.module_flags = module_flags
         self.module_path = self.module_flags.file_path
         self.module_name = os.path.splitext(os.path.basename(self.module_path))[0]
         
-        # Initialize components
+        # Initialize components (lines 61-80)
         self.loader = ModuleLoader(self.module_name, self.module_path)
         self.runner = ModelRunner(self)
         self.comparison = ModelComparison(self)
         self.translation = OperatorTranslation()
         
-        # Load module and expose needed attributes
+        # Load module and settings (lines 81-105)
         self.loaded_module = self.loader.load_module()
-        self.semantic_theories = self.loaded_module.semantic_theories
-        self.example_range = self.loaded_module.example_range
-        self.general_settings = getattr(self.loaded_module, 'general_settings', {})
+        self.semantic_theories = self.loader.load_semantic_theories(self.loaded_module)
+        self.example_range = self.loader.load_examples(self.loaded_module)
+        self.general_settings = self.loader.extract_settings(self.loaded_module, self.module_flags)
+        
+        # Output management (lines 106-120)
+        self.output_manager = OutputManager(self.module_flags, self.module_name)
+        if self.module_flags.interactive:
+            self.interactive_manager = InteractiveSaveManager(self.output_manager)
+        else:
+            self.interactive_manager = None
+    
+    def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
+        """Coordinate output capture with OutputManager."""
+        # Keep this method - it coordinates components
+        # Lines 156-227 stay here
 ```
 
 #### Task 3.2: Update ALL Call Sites
-```bash
-# Find all places that call BuildModule methods
-grep -r "build_module.run_model_check" src/
-grep -r "build_module.compare_semantics" src/
-grep -r "build_module.translate" src/
 
-# Update each to use components directly:
-# OLD: result = build_module.run_model_check(...)
-# NEW: result = build_module.runner.run_model_check(...)
-```
-
-#### Task 3.3: Update run() Method
+**Main entry point (`__main__.py`):**
 ```python
-    def run(self):
-        """Execute the module based on flags."""
-        if self.module_flags.comparison:
-            self.comparison.run_comparison(
-                self.loader.loaded_module,
-                self.semantic_theories,
-                self.module_flags.cpus
-            )
-        else:
-            # Use runner for normal execution
-            for example_name, example_case in self.example_range.items():
-                for theory_name, theory in self.semantic_theories.items():
-                    self.runner.process_example(
-                        example_name, example_case, theory, 
-                        self, self.module_flags
-                    )
+# Line 269 - OLD:
+module.run_comparison()
+# NEW:
+module.comparison.run_comparison()
+
+# Line 272 - OLD:
+module.run_examples()
+# NEW:
+module.runner.run_examples()
 ```
+
+**Within ModelRunner.process_example():**
+```python
+# Line 256 - OLD:
+example_case = self.build_module.translation.translate(example_case, dictionary)
+# KEEP AS IS - already using component
+```
+
+**Within ModelComparison.run_comparison():**
+```python
+# Line 162 - OLD:
+translated_case = self.build_module.translation.translate(example_case, dictionary)
+# KEEP AS IS - already using component
+```
+
+#### Task 3.3: Delete run_examples() and run_comparison() from BuildModule
+
+**Current BuildModule methods to DELETE**:
+- `run_examples()` (lines 274-345) - moved to ModelRunner
+- `run_comparison()` (if exists) - callers use component directly
+- `translate()` (if exists) - callers use component directly
+- `translate_example()` (if exists) - callers use component directly
+- `_prompt_for_iterations()` (lines 131-153) - moved to ModelRunner
+
+**BuildModule should ONLY have**:
+- `__init__()` - initialization
+- `_capture_and_save_output()` - output coordination
+- Component references and settings
 
 ### Phase 4: Fix Tests and Update All Dependencies
 
@@ -501,58 +530,64 @@ done
 
 ### Risks and Mitigations
 
-1. **Risk**: Breaking existing functionality
+1. **Risk**: Breaking Z3 isolation causing timeouts
+   - **Mitigation**: MUST preserve exact Z3 context reset logic
+   - **Mitigation**: Test with multiple examples in sequence
+   - **Mitigation**: Manual test protocol includes iteration testing
+
+2. **Risk**: Breaking existing functionality
    - **Mitigation**: Update ALL call sites (no compatibility layer to miss)
    - **Mitigation**: Dual testing methodology catches issues
 
-2. **Risk**: Circular dependencies between components
+3. **Risk**: Circular dependencies between components
    - **Mitigation**: Components only reference BuildModule, not each other
    - **Mitigation**: Clear dependency direction enforced
 
-3. **Risk**: Missing call sites during update
+4. **Risk**: Missing call sites during update
    - **Mitigation**: Systematic grep searches for all usages
    - **Mitigation**: Tests will fail if any missed
-
-4. **Risk**: Performance regression
+   
+5. **Risk**: Performance regression
    - **Mitigation**: Profile before/after per IMPLEMENT.md
    - **Mitigation**: Fail-fast on performance degradation
 
-## Implementation Order
+## Implementation Order (REVISED)
 
-1. **Create component files** (30 min)
-   - Create empty modules with class structure
-   - Add docstrings and method signatures
+1. **Extract methods to ModelRunner** (45 min)
+   - Move `run_examples()` with Z3 isolation logic
+   - Move `_prompt_for_iterations()` (make public)
+   - Update all internal references
+   - Test basic functionality
 
-2. **Extract ModelRunner** (1 hour)
-   - Move methods, fix imports
-   - Update BuildModule integration
-   - Test runner functionality
+2. **Delete delegation methods** (15 min)
+   - Remove `run_comparison()` if exists
+   - Remove `translate()` if exists
+   - Remove `translate_example()` if exists
+   - Verify no backward compatibility code remains
 
-3. **Extract ModelComparison** (1 hour)
-   - Move methods, handle multiprocessing
-   - Update BuildModule integration
-   - Test comparison functionality
+3. **Update call sites** (30 min)
+   - Update `__main__.py` lines 269 and 272
+   - Search for any other BuildModule method calls
+   - Update all to use components directly
 
-4. **Extract OperatorTranslation** (30 min)
-   - Move methods (simpler, no dependencies)
-   - Update BuildModule integration
-   - Test translation functionality
+4. **Fix failing tests** (1 hour)
+   - Run `./run_tests.py --package builder`
+   - Fix test_components.py (expect 15 failures)
+   - Update test expectations for new API
+   - Verify all tests pass
 
-5. **Fix all tests** (1 hour)
-   - Update imports and initialization
-   - Fix any breaking changes
-   - Verify coverage
+5. **Manual testing protocol** (30 min)
+   - Test all theory libraries with dev_cli.py
+   - Test iteration mode (-i flag)
+   - Test comparison mode (-m flag)
+   - Verify no AttributeErrors
 
-6. **Manual testing** (30 min)
-   - Run through protocol
-   - Fix any issues found
+6. **Cleanup and documentation** (15 min)
+   - Verify BuildModule is ~100 lines
+   - Update component docstrings
+   - Update README if needed
 
-7. **Cleanup and documentation** (30 min)
-   - Remove old code
-   - Update docs
-   - Final verification
-
-**Total Estimate**: 5 hours
+**Total Estimate**: 3 hours (faster because components already exist!)
 
 ## Appendix: Component Interaction Diagram
 
@@ -562,27 +597,35 @@ done
 └────────┬────────┘
          │
 ┌────────▼────────┐
-│   BuildModule   │ ← Pure coordinator (NO business logic)
+│  __main__.py    │
+└────────┬────────┘
+         │
+┌────────▼────────┐
+│   BuildModule   │ ← Pure coordinator (~100 lines)
 ├─────────────────┤
 │ - module_flags  │
+│ - settings      │
 │ - components:   │
 │   ├─ loader     │──────┐
-│   ├─ runner     │──────┤
-│   ├─ comparison │──────┤  Components reference parent
-│   └─ translation│──────┤  for shared state ONLY
-│ - run()         │      │
-└─────────────────┘      │
-         ▲               │
-         └───────────────┘
+│   ├─ runner     │──────┤  Components reference parent
+│   ├─ comparison │──────┤  for settings/output access
+│   └─ translation│──────┘  
+│ - output_manager│
+│ - _capture_and_save_output()│
+└─────────────────┘
 
 Component responsibilities:
 - loader: Module discovery and loading
-- runner: Model checking execution  
-- comparison: Multi-theory comparison
+- runner: Model checking execution + run_examples()
+- comparison: Multi-theory comparison + run_comparison()
 - translation: Operator conversion
 
+Call flow:
+__main__.py → module.runner.run_examples()
+          → module.comparison.run_comparison()
+
 NO delegation methods in BuildModule
-ALL functionality in components
+ALL execution in components
 ```
 
 ## Appendix: Migration Checklist
@@ -612,18 +655,76 @@ ALL functionality in components
 - [ ] Verify no regressions
 
 ### Phase 5: Cleanup
-- [ ] DELETE all old methods from BuildModule
-- [ ] NO delegation methods remain
-- [ ] Update all documentation
-- [ ] Verify clean architecture
+- [ ] DELETE `run_examples()` from BuildModule
+- [ ] DELETE `_prompt_for_iterations()` from BuildModule  
+- [ ] DELETE any delegation methods (run_comparison, translate, etc)
+- [ ] Verify BuildModule is ~100 lines
+- [ ] NO backward compatibility code remains
+- [ ] Update builder/README.md
 - [ ] Performance verification
+
+### Critical Implementation Details
+
+#### Z3 Context Isolation Pattern
+**MUST PRESERVE** the Z3 context reset logic from BuildModule.run_examples():
+```python
+# Lines 294-302 are CRITICAL for proper Z3 state isolation
+import z3
+if hasattr(z3, '_main_ctx'):
+    z3._main_ctx = None
+```
+
+This prevents state leakage between examples that causes timeout issues.
+
+#### Method Signature Updates
+When moving methods to components:
+1. `self.example_range` → `self.build_module.example_range`
+2. `self.semantic_theories` → `self.build_module.semantic_theories`
+3. `self.output_manager` → `self.build_module.output_manager`
+4. `self.module_flags` → `self.build_module.module_flags`
+
+#### Test Update Pattern
+```python
+# OLD pattern in tests:
+assert hasattr(build_module, 'run_examples')
+build_module.run_examples()
+
+# NEW pattern:
+assert hasattr(build_module.runner, 'run_examples')
+build_module.runner.run_examples()
+```
 
 ### Debugging Philosophy Checklist (per IMPLEMENT.md)
 - [ ] Prefer deterministic failures
 - [ ] Deep root cause analysis for any errors
 - [ ] Implement systematic solutions
 - [ ] Remove all cruft discovered
+- [ ] NO backward compatibility code
 
 ---
 
-**Ready for Implementation**: This plan provides a systematic approach to completing the builder refactor with comprehensive testing at each step.
+## Summary of Key Changes
+
+### What's Actually Happening
+1. **Components Already Exist** - No need to create new files!
+   - ModelRunner, ModelComparison, OperatorTranslation are already implemented
+   - Just need to move missing methods
+
+2. **Critical Methods to Move**:
+   - `run_examples()` → ModelRunner (with Z3 isolation logic!)
+   - `_prompt_for_iterations()` → ModelRunner (make public)
+
+3. **Methods to DELETE from BuildModule**:
+   - All delegation methods (if any exist)
+   - The moved methods above
+   - NO backward compatibility
+
+4. **Call Sites to Update**:
+   - `__main__.py` line 269: `module.run_comparison()` → `module.comparison.run_comparison()`
+   - `__main__.py` line 272: `module.run_examples()` → `module.runner.run_examples()`
+
+5. **Expected Test Failures**:
+   - ~15 tests in test_components.py expect the refactored API
+   - These will pass once implementation is complete
+
+**Ready for Implementation**: This revised plan with detailed code analysis provides clear, actionable steps to complete the builder refactor in ~3 hours instead of 5.

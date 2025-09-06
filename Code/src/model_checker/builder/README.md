@@ -46,7 +46,7 @@ from model_checker.builder import BuildModule
 module = BuildModule(module_flags)
 
 # Run all examples defined in the module
-module.run_examples()
+module.runner.run_examples()
 ```
 
 **Responsibilities:**

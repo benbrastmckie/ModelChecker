@@ -13,43 +13,53 @@ tests/
 ├── README.md                            # This file - test suite documentation
 ├── __init__.py                          # Test package initialization
 ├── conftest.py                          # Pytest configuration and shared fixtures
-├── fixtures.py                          # Shared test data and utilities
+├── improvements.md                      # Test improvement suggestions
 │
-├── Unit Tests (Component-Specific)
-├── test_module.py                       # Core BuildModule functionality
-├── test_example.py                      # BuildExample class behavior
-├── test_loader.py                       # ModuleLoader component tests
-├── test_runner.py                       # ModelRunner component tests
-├── test_comparison.py                   # ModelComparison component tests
-├── test_translation.py                  # OperatorTranslation component tests
-├── test_serialize.py                    # Serialization/deserialization tests
-├── test_validation.py                   # Input validation logic tests
-├── test_project.py                      # Project management tests
-├── test_z3_utils.py                     # Z3 utility function tests
-├── test_version.py                      # Version detection tests
+├── unit/                                # Component isolation tests (102 tests)
+│   ├── test_comparison.py               # ModelComparison component (15 tests)
+│   ├── test_example.py                  # BuildExample component (15 tests)
+│   ├── test_helpers.py                  # Helper functions (8 tests)
+│   ├── test_loader.py                   # ModuleLoader component (12 tests)
+│   ├── test_progress.py                 # Progress tracking (5 tests)
+│   ├── test_project.py                  # BuildProject component (10 tests)
+│   ├── test_project_version.py          # Project version detection (6 tests)
+│   ├── test_runner.py                   # ModelRunner component (7 tests)
+│   ├── test_serialize.py                # Serialization utilities (8 tests)
+│   ├── test_translation.py              # OperatorTranslation (4 tests)
+│   ├── test_validation.py               # Input validation logic (5 tests)
+│   ├── test_z3_isolation.py             # Z3 context isolation (3 tests)
+│   └── test_z3_utils.py                 # Z3 utility functions (4 tests)
 │
-├── Integration Tests (Cross-Component)
-├── test_components.py                   # Consolidated component interactions
-├── test_component_integration.py        # Deep integration scenarios
-├── test_error_propagation.py            # Error handling across components
-├── test_full_pipeline.py                # End-to-end execution paths
-├── test_integration_workflow.py         # Complete workflow scenarios
-├── test_generated_projects.py           # Generated project verification
+├── integration/                         # Component interaction tests (96 tests)
+│   ├── test_build_module_theories.py    # Theory loading integration (15 tests)
+│   ├── test_cli_interactive_integration.py # CLI interactive mode (10 tests)
+│   ├── test_component_integration.py    # Cross-component workflows (20 tests)
+│   ├── test_error_propagation.py        # Error handling flow (15 tests)
+│   ├── test_generated_projects.py       # Generated project structure (8 tests)
+│   ├── test_interactive.py              # Interactive save features (7 tests)
+│   ├── test_output_directory_guidance.py # Output directory handling (5 tests)
+│   ├── test_performance.py              # Performance tests (11 tests)
+│   └── test_workflow.py                 # Complete workflows (5 tests)
 │
-├── Interactive & CLI Tests
-├── test_build_module_interactive.py     # Interactive mode features
-├── test_cli_interactive_integration.py  # CLI integration patterns
-├── test_batch_prompt_fix.py             # Batch mode behavior
-├── test_progress.py                     # Progress tracking functionality
+├── e2e/                                 # End-to-end tests (17 tests)
+│   ├── test_full_pipeline.py            # Complete execution pipeline (12 tests)
+│   └── test_project_edge_cases.py       # Project generation edge cases (5 tests)
 │
-├── Specialized Tests
-├── test_edge_cases.py                   # Boundary conditions and errors
-├── test_z3_isolation.py                 # Z3 context management
-├── test_baseline_simple.py              # Basic functionality baselines
+├── fixtures/                            # Centralized test data and utilities
+│   ├── __init__.py                      # Export commonly used fixtures
+│   ├── assertions.py                    # Custom assertion helpers
+│   ├── mock_objects.py                  # Standardized mock factories
+│   ├── temp_resources.py                # Temporary resource management
+│   └── test_data.py                     # Shared test constants
 │
-└── Deprecated/Legacy (To Remove)
-    └── [Files marked for removal in cleanup]
+└── utils/                               # Test utility functions
+    ├── __init__.py
+    ├── cleanup.py                       # Test environment cleanup
+    ├── file_helpers.py                  # File operation utilities
+    └── validation_helpers.py            # Validation test helpers
 ```
+
+**Total**: 215 tests across 24 test files
 
 ## Test Categories
 

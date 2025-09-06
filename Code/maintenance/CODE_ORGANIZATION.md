@@ -27,12 +27,34 @@ from typing import Dict, List, Optional
 import z3
 import numpy as np
 
-# Local imports
+# Local imports - USE RELATIVE IMPORTS for portability
 from model_checker.base import BaseClass
 from .local_module import LocalClass
 ```
 
 Within each group, sort imports alphabetically.
+
+### Relative Imports for Portability
+
+**ALWAYS use relative imports** for local modules within the same package to maintain portability:
+
+```python
+# CORRECT - Relative imports (portable)
+from .semantic import TheorySemantics
+from .operators import theory_operators
+from ..base import BaseStructure
+from ..defaults import SemanticDefaults
+
+# INCORRECT - Absolute imports (fragile)
+from model_checker.theory_lib.logos.semantic import LogosSemantics
+from model_checker.theory_lib.logos.operators import logos_operators
+```
+
+**Why Relative Imports?**
+- Maintain package portability when moved or renamed
+- Prevent import errors during development and testing
+- Follow Python packaging best practices
+- Ensure consistent behavior across environments
 
 ## Naming Conventions
 
