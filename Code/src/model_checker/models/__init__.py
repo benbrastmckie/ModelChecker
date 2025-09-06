@@ -8,6 +8,7 @@ Components:
     proposition.py - PropositionDefaults class and related functionality  
     constraints.py - ModelConstraints class and Z3 constraint generation
     structure.py - ModelDefaults core structure and Z3 solving
+    errors.py - Custom exception hierarchy for model operations
 
 The refactoring follows the NO BACKWARDS COMPATIBILITY principle - all imports
 have been updated throughout the codebase to use the new structure directly.
@@ -19,9 +20,29 @@ from .proposition import PropositionDefaults
 from .constraints import ModelConstraints
 from .structure import ModelDefaults
 
+# Error hierarchy
+from .errors import (
+    ModelError,
+    ModelConstraintError,
+    ModelSolverError,
+    ModelInterpretationError,
+    ModelStateError,
+    SemanticError,
+    PropositionError,
+)
+
 __all__ = [
+    # Core components
     'SemanticDefaults',
     'PropositionDefaults',
     'ModelConstraints',
     'ModelDefaults',
+    # Errors
+    'ModelError',
+    'ModelConstraintError',
+    'ModelSolverError',
+    'ModelInterpretationError',
+    'ModelStateError',
+    'SemanticError',
+    'PropositionError',
 ]

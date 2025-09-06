@@ -246,8 +246,8 @@ class ModelDefaults:
             return self._create_result(False, self.solver.unsat_core(), False, start_time)
             
         except RuntimeError as e:
-            print(f"An error occurred during solving: {e}")
-            return True, None, False, None
+            from .errors import ModelSolverError
+            raise ModelSolverError(f"Z3 solver encountered an error: {e}") from e
         finally:
             # Ensure proper cleanup to prevent any possible state leakage
             self._cleanup_solver_resources()
@@ -286,8 +286,8 @@ class ModelDefaults:
             return self._create_result(False, self.solver.unsat_core(), False, start_time)
             
         except RuntimeError as e:
-            print(f"An error occurred while running `re_solve()`: {e}")
-            return True, None, False, None
+            from .errors import ModelSolverError
+            raise ModelSolverError(f"Re-solve operation failed: {e}") from e
 
     def check_result(self):
         """Checks if the model's result matches the expected outcome.
@@ -846,10 +846,14 @@ class ModelDefaults:
             dict: Mapping of (state, letter) -> (verify_value, falsify_value)
             
         Raises:
-            RuntimeError: If Z3 model not available
+            ModelStateError: If Z3 model not available
         """
         if not self.z3_model:
-            raise RuntimeError("Cannot extract state without Z3 model")
+            from .errors import ModelStateError
+            raise ModelStateError(
+                "Cannot extract verify/falsify state: No Z3 model available. "
+                "Ensure the model has been solved and is satisfiable before extraction."
+            )
         
         import z3
         
