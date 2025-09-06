@@ -8,6 +8,7 @@ import sys
 import time
 from contextlib import redirect_stdout
 from string import Template
+from typing import Dict, List, Tuple, Optional, Any, TextIO, Union
 
 
 class ModelDefaults:
@@ -38,7 +39,7 @@ class ModelDefaults:
         main_point (dict): The primary evaluation point for the model
     """
 
-    def __init__(self, model_constraints, settings):
+    def __init__(self, model_constraints: 'ModelConstraints', settings: Dict[str, Any]) -> None:
         # Define ANSI color codes
         self.COLORS = {
             "default": "\033[37m",  # WHITE
@@ -99,7 +100,7 @@ class ModelDefaults:
         if self.timeout or self.z3_model is None:
             return
 
-    def _process_solver_results(self, solver_results):
+    def _process_solver_results(self, solver_results: Tuple[bool, Any, bool, float]) -> None:
         """Process and store the results from the Z3 solver.
         
         Takes the raw solver results and updates the model's state attributes including
@@ -127,7 +128,7 @@ class ModelDefaults:
         else:
             self.unsat_core = z3_model
 
-    def _setup_solver(self, model_constraints):
+    def _setup_solver(self, model_constraints: 'ModelConstraints') -> 'z3.Solver':
         """Initialize Z3 solver and add all model constraints with tracking labels.
         
         Sets up a new Z3 solver instance and adds all constraints from the model_constraints
@@ -166,7 +167,7 @@ class ModelDefaults:
                 
         return solver
 
-    def _create_result(self, is_timeout, model_or_core, is_satisfiable, start_time):
+    def _create_result(self, is_timeout: bool, model_or_core: Any, is_satisfiable: bool, start_time: float) -> Tuple[bool, Any, bool, float]:
         """Creates a standardized tuple containing solver results with runtime.
         
         Args:
@@ -182,7 +183,7 @@ class ModelDefaults:
         runtime = round(time.time() - start_time, 4)
         return is_timeout, model_or_core, is_satisfiable, runtime
 
-    def _cleanup_solver_resources(self):
+    def _cleanup_solver_resources(self) -> None:
         """Explicitly clean up Z3 resources to ensure complete isolation between examples.
         
         This method is crucial for preventing state leakage between different examples.
@@ -202,7 +203,7 @@ class ModelDefaults:
         if hasattr(self, 'example_context'):
             self.example_context = None
     
-    def solve(self, model_constraints, max_time):
+    def solve(self, model_constraints: 'ModelConstraints', max_time: int) -> Tuple[bool, Any, bool, Optional[float]]:
         """Uses the Z3 solver to find a model satisfying the given constraints.
         
         Creates a completely fresh Z3 context for each example to ensure
@@ -252,7 +253,7 @@ class ModelDefaults:
             # Ensure proper cleanup to prevent any possible state leakage
             self._cleanup_solver_resources()
     
-    def re_solve(self):
+    def re_solve(self) -> Tuple[bool, Any, bool, float]:
         """Re-solve the existing model constraints with the current solver state.
         
         Attempts to find a new solution using the existing solver instance and its
@@ -289,7 +290,7 @@ class ModelDefaults:
             from .errors import ModelSolverError
             raise ModelSolverError(f"Re-solve operation failed: {e}") from e
 
-    def check_result(self):
+    def check_result(self) -> Optional[bool]:
         """Checks if the model's result matches the expected outcome.
         
         Compares the actual model status (satisfiable/unsatisfiable) against the
@@ -304,7 +305,7 @@ class ModelDefaults:
             return None
         return self.z3_model_status == self.settings["expectation"]
 
-    def interpret(self, sentences):
+    def interpret(self, sentences: List['Sentence']) -> None:
         """Recursively updates sentences with their semantic interpretations in the model.
         
         For each sentence in the input list, creates and attaches a proposition object
@@ -327,7 +328,7 @@ class ModelDefaults:
                 self.interpret(sent_obj.arguments)
             sent_obj.update_proposition(self)
 
-    def print_grouped_constraints(self, output=sys.__stdout__):
+    def print_grouped_constraints(self, output: TextIO = sys.__stdout__) -> None:
         """Prints all model constraints organized by their logical category.
         
         Displays constraints grouped into four categories:
@@ -356,7 +357,7 @@ class ModelDefaults:
         groups = self._organize_constraint_groups(constraints)
         self._print_constraint_groups(groups, output)
     
-    def _get_relevant_constraints(self, output):
+    def _get_relevant_constraints(self, output: TextIO) -> List[Any]:
         """Get the relevant constraints based on model satisfiability status.
         
         Returns:
@@ -372,7 +373,7 @@ class ModelDefaults:
             print("NO CONSTRAINTS AVAILABLE", file=output)
             return []
     
-    def _print_constraint_summary(self, constraints, output):
+    def _print_constraint_summary(self, constraints: List[Any], output: TextIO) -> None:
         """Print summary counts for each constraint category.
         
         Args:
@@ -389,7 +390,7 @@ class ModelDefaults:
         print(f"- Premise constraints: {premise_count}", file=output)
         print(f"- Conclusion constraints: {conclusion_count}\n", file=output)
     
-    def _organize_constraint_groups(self, constraints):
+    def _organize_constraint_groups(self, constraints: List[Any]) -> Dict[str, List[Any]]:
         """Organize constraints into logical groups.
         
         Args:
@@ -417,7 +418,7 @@ class ModelDefaults:
         
         return groups
     
-    def _print_constraint_groups(self, groups, output):
+    def _print_constraint_groups(self, groups: Dict[str, List[Any]], output: TextIO) -> None:
         """Print each group of constraints with headers and numbering.
         
         Args:
@@ -430,7 +431,7 @@ class ModelDefaults:
                 for index, con in enumerate(group_constraints, start=1):
                     print(f"{index}. {con}\n", file=output)
 
-    def print_constraints(self, constraints, name, output=sys.__stdout__):
+    def print_constraints(self, constraints: List[Any], name: str, output: TextIO = sys.__stdout__) -> None:
         """Prints a numbered list of constraints with appropriate header.
         
         Args:
@@ -455,7 +456,7 @@ class ModelDefaults:
         for index, con in enumerate(constraints, start=1):
             print(f"{index}. {con}\n", file=output)
 
-    def build_test_file(self, output):
+    def build_test_file(self, output: TextIO) -> None:
         """Generates a test file from the current model configuration and results.
         
         Creates a Python test file containing the model settings, premises, conclusions,
@@ -521,7 +522,7 @@ class ModelDefaults:
         inputs_content = inputs_template.substitute(inputs_data)
         print(inputs_content, file=output)
 
-    def recursive_print(self, sentence, eval_point, indent_num, use_colors):
+    def recursive_print(self, sentence: 'Sentence', eval_point: Dict[str, Any], indent_num: int, use_colors: bool) -> None:
         """Recursively prints a sentence and its subformulas with their truth values.
 
         This method handles both atomic and complex sentences, printing them with
@@ -549,7 +550,7 @@ class ModelDefaults:
         operator = sentence.original_operator
         operator.print_method(sentence, eval_point, indent_num, use_colors)  # Print complex sentence
 
-    def print_input_sentences(self, output):
+    def print_input_sentences(self, output: TextIO) -> None:
         """Prints the premises and conclusions with their semantic interpretations.
         
         For each premise and conclusion, recursively prints the sentence along with
@@ -589,7 +590,7 @@ class ModelDefaults:
             output
         )
     
-    def _print_sentence_group(self, title_singular, title_plural, sentences, start_index, output):
+    def _print_sentence_group(self, title_singular: str, title_plural: str, sentences: List['Sentence'], start_index: int, output: TextIO) -> None:
         """Print a group of sentences with appropriate title and numbering.
         
         Args:
@@ -614,7 +615,7 @@ class ModelDefaults:
                 self.recursive_print(sentence, self.main_point, 1, use_colors)
                 print(file=output)
 
-    def print_model(self, output):
+    def print_model(self, output: TextIO) -> None:
         """Prints the raw Z3 model or unsat core if print_z3 setting is enabled.
         
         This method prints either the complete Z3 model (if constraints are satisfiable)
@@ -635,7 +636,7 @@ class ModelDefaults:
             else:
                 print(self.unsat_core, file=output)
                 
-    def calculate_model_differences(self, previous_structure):
+    def calculate_model_differences(self, previous_structure: 'ModelDefaults') -> Optional[Dict[str, Any]]:
         """Calculate theory-specific differences between this model and a previous one.
         
         This method identifies semantic differences that are meaningful in this theory's
@@ -654,7 +655,7 @@ class ModelDefaults:
         # Default implementation returns None, meaning use basic difference detection
         return None
         
-    def print_model_differences(self, output=sys.stdout):
+    def print_model_differences(self, output: TextIO = sys.stdout) -> None:
         """Prints differences between this model and the previous one.
         
         Default implementation that provides basic difference display.
@@ -678,7 +679,7 @@ class ModelDefaults:
         if hasattr(self, 'isomorphic_to_previous') and self.isomorphic_to_previous:
             print("NOTE: This model may be isomorphic to a previous model despite syntactic differences.", file=output)
     
-    def _print_sentence_letter_differences(self, output):
+    def _print_sentence_letter_differences(self, output: TextIO) -> None:
         """Print differences in sentence letter values."""
         letter_diffs = self.model_differences.get('sentence_letters', {})
         if not letter_diffs:
@@ -695,7 +696,7 @@ class ModelDefaults:
                 print(f"  {letter}: changed from previous model", file=output)
         print("", file=output)
     
-    def _print_semantic_function_differences(self, output):
+    def _print_semantic_function_differences(self, output: TextIO) -> None:
         """Print differences in semantic functions."""
         func_diffs = self.model_differences.get('semantic_functions', {})
         if not func_diffs:
@@ -714,7 +715,7 @@ class ModelDefaults:
                     print(f"    Input {input_val}: changed from previous model", file=output)
         print("", file=output)
     
-    def _print_model_structure_differences(self, output):
+    def _print_model_structure_differences(self, output: TextIO) -> None:
         """Print differences in model structure."""
         struct_diffs = self.model_differences.get('model_structure', {})
         if not struct_diffs:
@@ -731,12 +732,12 @@ class ModelDefaults:
                 print(f"  {component}: changed from previous model", file=output)
         print("", file=output)
     
-    def _print_structural_metrics(self, output):
+    def _print_structural_metrics(self, output: TextIO) -> None:
         """Print structural properties of the model."""
         print("Structural Properties:", file=output)
         print(f"  Worlds: {len(getattr(self, 'z3_world_states', []))}", file=output)
 
-    def print_info(self, model_status, default_settings, example_name, theory_name, output):
+    def print_info(self, model_status: bool, default_settings: Dict[str, Any], example_name: str, theory_name: str, output: TextIO) -> None:
         """Print comprehensive model information and analysis results.
         
         Displays a formatted output containing the model checking results, including
@@ -771,17 +772,17 @@ class ModelDefaults:
         self.model_constraints.print_enumerate(output)
         self._print_runtime_footer(output)
 
-    def _print_section_header(self, example_name, header, output):
+    def _print_section_header(self, example_name: str, header: str, output: TextIO) -> None:
         """Print the section header with example name and result."""
         print(f"{'='*40}", file=output)
         print(f"\nEXAMPLE {example_name}: {header}\n", file=output)
 
-    def _print_model_details(self, theory_name, output):
+    def _print_model_details(self, theory_name: str, output: TextIO) -> None:
         """Print model details including atomic states and semantic theory."""
         print(f"Atomic States: {self.N}\n", file=output)
         print(f"Semantic Theory: {theory_name}\n", file=output)
 
-    def _print_modified_settings(self, default_settings, output):
+    def _print_modified_settings(self, default_settings: Dict[str, Any], output: TextIO) -> None:
         """Print settings that have been modified from their default values.
         
         Compares the current settings against the default configuration and prints
@@ -808,12 +809,12 @@ class ModelDefaults:
                 print(f"  {key} = {value}", file=output)
             print()
 
-    def _print_runtime_footer(self, output):
+    def _print_runtime_footer(self, output: TextIO) -> None:
         """Print Z3 runtime and separator footer."""
         print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
         print(f"\n{'='*40}", file=output)
     
-    def print_all(self, output=sys.stdout):
+    def print_all(self, output: TextIO = sys.stdout) -> None:
         """Print complete model information.
         
         This method provides comprehensive output of the model checking results,
@@ -835,7 +836,7 @@ class ModelDefaults:
         # Print raw Z3 model if requested
         self.print_model(output)
     
-    def extract_verify_falsify_state(self):
+    def extract_verify_falsify_state(self) -> Dict[Tuple[int, str], Tuple[bool, bool]]:
         """Extract current verify/falsify function values from Z3 model.
         
         This method extracts the current values of verify and falsify functions
