@@ -21,6 +21,7 @@ from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.constraints import ModelConstraints
 from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
 from model_checker import syntactic
+from ..logos.semantic import LogosSemantics
 # Integrated witness model and constraint generator classes
 
 
@@ -261,9 +262,11 @@ class WitnessConstraintGenerator:
         )
 
 
-class WitnessSemantics(SemanticDefaults):
+class WitnessSemantics(LogosSemantics):
     """
     Semantics that includes witness functions as model predicates.
+    Inherits from LogosSemantics to get the falsify predicate and other
+    Logos infrastructure needed for iteration.
     """
     
     DEFAULT_EXAMPLE_SETTINGS = {

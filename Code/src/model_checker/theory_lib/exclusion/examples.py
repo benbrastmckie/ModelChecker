@@ -4,10 +4,8 @@ Examples Module for Exclusion Theory
 This module provides examples for the exclusion (witness negation) semantic framework,
 including both countermodels showing invalidity and theorems showing validity.
 
-The exclusion theory tests witness negation semantics implementation,
-demonstrating that the FALSE PREMISE PROBLEM has been solved through
-witness predicates in the model structure. The witness predicate approach
-makes witness functions first-class model citizens, enabling correct
+The exclusion theory tests witness negation semantics implementation. The witness
+predicate approachmakes witness functions first-class model citizens, enabling correct
 evaluation of formulas with existential quantification.
 
 Example Categories:
@@ -550,10 +548,10 @@ EX_TH_1_example = [
     EX_TH_1_settings,
 ]
 
-# EX_TH_2: DISJUNCTIVE SYLLOGISM
-EX_TH_2_premises = ['(A \\vee B)', '\\neg A']
-EX_TH_2_conclusions = ['B']
-EX_TH_2_settings = {
+# EX_CM_23: DISJUNCTIVE SYLLOGISM (FAILS IN EXCLUSION SEMANTICS)
+EX_CM_23_premises = ['(A \\vee B)', '\\neg A']
+EX_CM_23_conclusions = ['B']
+EX_CM_23_settings = {
     'N' : 3,
     'possible': False,
     'contingent' : False,
@@ -563,12 +561,12 @@ EX_TH_2_settings = {
     'fusion_closure': False,
     'max_time' : 5,
     'iterate' : 2,
-    'expectation' : False,
+    'expectation' : True,
 }
-EX_TH_2_example = [
-    EX_TH_2_premises,
-    EX_TH_2_conclusions,
-    EX_TH_2_settings,
+EX_CM_23_example = [
+    EX_CM_23_premises,
+    EX_CM_23_conclusions,
+    EX_CM_23_settings,
 ]
 
 # EX_TH_3: CONJUNCTION DISTRIBUTION LR
@@ -878,11 +876,11 @@ countermodel_examples = {
     "EX_CM_20": EX_CM_20_example,  # DEMORGAN COMPLEX
     "EX_CM_21": EX_CM_21_example,  # BASIC TEST
     "EX_CM_22": EX_CM_22_example,  # DISTRIBUTION TEST
+    "EX_CM_23": EX_CM_23_example,  # DISJUNCTIVE SYLLOGISM
 }
 
 theorem_examples = {
     "EX_TH_1": EX_TH_1_example,    # ATOMIC THEOREM
-    "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
     "EX_TH_3": EX_TH_3_example,    # CONJUNCTION DISTRIBUTION LR
     "EX_TH_4": EX_TH_4_example,    # CONJUNCTION DISTRIBUTION RL
     "EX_TH_5": EX_TH_5_example,    # DISJUNCTION DISTRIBUTION LR
@@ -960,21 +958,21 @@ example_range = {
     
     # Basic countermodel examples
     # "EX_CM_21": EX_CM_21_example,  # BASIC TEST
-    # "EX_TH_2": EX_TH_2_example,    # DISJUNCTIVE SYLLOGISM
+    "EX_CM_23": EX_CM_23_example,  # DISJUNCTIVE SYLLOGISM (FAILS IN EXCLUSION SEMANTICS)
     
     # # Bilateral negation examples (Problematic in static)
-    # "EX_CM_4": EX_CM_4_example,    # NEGATION TO SENTENCE (FALSE PREMISE PROBLEM)
-    # "EX_CM_5": EX_CM_5_example,    # SENTENCE TO NEGATION (FALSE PREMISE PROBLEM)
-    # "EX_CM_6": EX_CM_6_example,    # DOUBLE NEGATION ELIMINATION (FALSE PREMISE PROBLEM)
-    # "EX_CM_7": EX_CM_7_example,    # DOUBLE NEGATION INTRODUCTION (FALSE PREMISE PROBLEM)
-    # "EX_CM_8": EX_CM_8_example,    # TRIPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
-    # "EX_CM_9": EX_CM_9_example,    # QUADRUPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
+    # "EX_CM_4": EX_CM_4_example,    # NEGATION TO SENTENCE 
+    # "EX_CM_5": EX_CM_5_example,    # SENTENCE TO NEGATION 
+    # "EX_CM_6": EX_CM_6_example,    # DOUBLE NEGATION ELIMINATION 
+    # "EX_CM_7": EX_CM_7_example,    # DOUBLE NEGATION INTRODUCTION 
+    # "EX_CM_8": EX_CM_8_example,    # TRIPLE NEGATION ENTAILMENT 
+    # "EX_CM_9": EX_CM_9_example,    # QUADRUPLE NEGATION ENTAILMENT 
     #
     # # DeMorgan's laws (Problematic in static)
-    "EX_CM_10": EX_CM_10_example,  # CONJUNCTION DEMORGAN LR (FALSE PREMISE PROBLEM)
-    # "EX_CM_11": EX_CM_11_example,  # CONJUNCTION DEMORGAN RL (FALSE PREMISE PROBLEM)
-    # "EX_CM_12": EX_CM_12_example,  # DISJUNCTION DEMORGAN LR (FALSE PREMISE PROBLEM)
-    # "EX_CM_13": EX_CM_13_example,  # DISJUNCTION DEMORGAN RL (FALSE PREMISE PROBLEM)
+    # "EX_CM_10": EX_CM_10_example,  # CONJUNCTION DEMORGAN LR 
+    # "EX_CM_11": EX_CM_11_example,  # CONJUNCTION DEMORGAN RL 
+    # "EX_CM_12": EX_CM_12_example,  # DISJUNCTION DEMORGAN LR 
+    # "EX_CM_13": EX_CM_13_example,  # DISJUNCTION DEMORGAN RL 
     #
     # # Distribution laws
     # "EX_TH_3": EX_TH_3_example,    # CONJUNCTION DISTRIBUTION LR
