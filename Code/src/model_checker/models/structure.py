@@ -346,25 +346,39 @@ class ModelDefaults:
         Args:
             output (file, optional): Output stream to write to. Defaults to sys.stdout.
         """
-        groups = {
-            "FRAME": [],
-            "MODEL": [],
-            "PREMISES": [],
-            "CONCLUSIONS": []
-        }
+        # Get constraints based on model status
+        constraints = self._get_relevant_constraints(output)
         
-        # Get the relevant constraints based on model status
+        # Print summary counts
+        self._print_constraint_summary(constraints, output)
+        
+        # Organize and print constraint groups
+        groups = self._organize_constraint_groups(constraints)
+        self._print_constraint_groups(groups, output)
+    
+    def _get_relevant_constraints(self, output):
+        """Get the relevant constraints based on model satisfiability status.
+        
+        Returns:
+            list: Constraints to display (all constraints if SAT, unsat core if UNSAT)
+        """
         if self.z3_model:
             print("SATISFIABLE CONSTRAINTS:", file=output)
-            constraints = self.model_constraints.all_constraints
+            return self.model_constraints.all_constraints
         elif self.unsat_core is not None:
             print("UNSATISFIABLE CORE CONSTRAINTS:", file=output)
-            constraints = [self.constraint_dict[str(c)] for c in self.unsat_core]
+            return [self.constraint_dict[str(c)] for c in self.unsat_core]
         else:
             print("NO CONSTRAINTS AVAILABLE", file=output)
-            constraints = []
-            
-        # Print summary of constraint groups
+            return []
+    
+    def _print_constraint_summary(self, constraints, output):
+        """Print summary counts for each constraint category.
+        
+        Args:
+            constraints: List of constraints to summarize
+            output: Output stream to write to
+        """
         frame_count = sum(1 for c in constraints if c in self.model_constraints.frame_constraints)
         model_count = sum(1 for c in constraints if c in self.model_constraints.model_constraints) 
         premise_count = sum(1 for c in constraints if c in self.model_constraints.premise_constraints)
@@ -374,8 +388,23 @@ class ModelDefaults:
         print(f"- Model constraints: {model_count}", file=output)
         print(f"- Premise constraints: {premise_count}", file=output)
         print(f"- Conclusion constraints: {conclusion_count}\n", file=output)
+    
+    def _organize_constraint_groups(self, constraints):
+        """Organize constraints into logical groups.
         
-        # Organize constraints into groups
+        Args:
+            constraints: List of constraints to organize
+            
+        Returns:
+            dict: Constraints organized by group (FRAME, MODEL, PREMISES, CONCLUSIONS)
+        """
+        groups = {
+            "FRAME": [],
+            "MODEL": [],
+            "PREMISES": [],
+            "CONCLUSIONS": []
+        }
+        
         for constraint in constraints:
             if constraint in self.model_constraints.frame_constraints:
                 groups["FRAME"].append(constraint)
@@ -386,7 +415,15 @@ class ModelDefaults:
             elif constraint in self.model_constraints.conclusion_constraints:
                 groups["CONCLUSIONS"].append(constraint)
         
-        # Print each group
+        return groups
+    
+    def _print_constraint_groups(self, groups, output):
+        """Print each group of constraints with headers and numbering.
+        
+        Args:
+            groups: Dictionary of constraint groups
+            output: Output stream to write to
+        """
         for group_name, group_constraints in groups.items():
             if group_constraints:  # Only print groups that have constraints
                 print(f"{group_name} CONSTRAINTS:", file=output)
@@ -528,42 +565,54 @@ class ModelDefaults:
             - Premises are numbered starting from 1
             - Conclusions continue the numbering after premises
         """
-        from contextlib import redirect_stdout
-        
-        def print_sentences(title_singular, title_plural, sentences, start_index, destination):
-            """Helper function to print a list of sentences with a title."""
-            if not sentences:
-                return
-                
-            if not self.z3_model:
-                print("No valid model available - cannot interpret sentences", file=output)
-                return
-                
-            title = title_singular if len(sentences) < 2 else title_plural
-            print(title, file=output)
-            for index, sentence in enumerate(sentences, start=start_index):
-                print(f"{index}.", end="", file=output)
-                with redirect_stdout(destination):
-                    use_colors = output is sys.__stdout__
-                    self.recursive_print(sentence, self.main_point, 1, use_colors)
-                    print(file=output)
-        
+        if not self.z3_model:
+            print("No valid model available - cannot interpret sentences", file=output)
+            return
+            
+        # Print premises
         start_index = 1
-        print_sentences(
+        self._print_sentence_group(
             "INTERPRETED PREMISE:\n",
             "INTERPRETED PREMISES:\n",
             self.premises,
             start_index,
             output
         )
+        
+        # Print conclusions  
         continue_index = len(self.premises) + 1
-        print_sentences(
+        self._print_sentence_group(
             "INTERPRETED CONCLUSION:\n",
             "INTERPRETED CONCLUSIONS:\n",
             self.conclusions,
             continue_index,
             output
         )
+    
+    def _print_sentence_group(self, title_singular, title_plural, sentences, start_index, output):
+        """Print a group of sentences with appropriate title and numbering.
+        
+        Args:
+            title_singular: Title to use if there's only one sentence
+            title_plural: Title to use if there are multiple sentences
+            sentences: List of sentences to print
+            start_index: Starting number for the sentences
+            output: Output stream to write to
+        """
+        from contextlib import redirect_stdout
+        
+        if not sentences:
+            return
+            
+        title = title_singular if len(sentences) < 2 else title_plural
+        print(title, file=output)
+        
+        for index, sentence in enumerate(sentences, start=start_index):
+            print(f"{index}.", end="", file=output)
+            with redirect_stdout(output):
+                use_colors = output is sys.__stdout__
+                self.recursive_print(sentence, self.main_point, 1, use_colors)
+                print(file=output)
 
     def print_model(self, output):
         """Prints the raw Z3 model or unsat core if print_z3 setting is enabled.
@@ -619,57 +668,73 @@ class ModelDefaults:
         
         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===\n", file=output)
         
-        # Print sentence letter differences
-        letter_diffs = self.model_differences.get('sentence_letters', {})
-        if letter_diffs:
-            print("Sentence Letter Changes:", file=output)
-            for letter, values in letter_diffs.items():
-                try:
-                    if 'old' in values and 'new' in values:
-                        print(f"  {letter}: {values['old']} → {values['new']}", file=output)
-                    else:
-                        print(f"  {letter}: changed from previous model", file=output)
-                except (KeyError, TypeError) as e:
-                    print(f"  {letter}: changed from previous model", file=output)
-            print("", file=output)
-            
-        # Print semantic function differences
-        func_diffs = self.model_differences.get('semantic_functions', {})
-        if func_diffs:
-            print("Semantic Function Changes:", file=output)
-            for func_name, values in func_diffs.items():
-                print(f"  {func_name}:", file=output)
-                for input_val, change in values.items():
-                    try:
-                        if 'old' in change and 'new' in change:
-                            print(f"    Input {input_val}: {change['old']} → {change['new']}", file=output)
-                        else:
-                            print(f"    Input {input_val}: changed from previous model", file=output)
-                    except (KeyError, TypeError) as e:
-                        print(f"    Input {input_val}: changed from previous model", file=output)
-            print("", file=output)
-            
-        # Print model structure differences
-        struct_diffs = self.model_differences.get('model_structure', {})
-        if struct_diffs:
-            print("Model Structure Changes:", file=output)
-            for component, values in struct_diffs.items():
-                try:
-                    if 'old' in values and 'new' in values:
-                        print(f"  {component}: {values['old']} → {values['new']}", file=output)
-                    else:
-                        print(f"  {component}: changed from previous model", file=output)
-                except (KeyError, TypeError) as e:
-                    print(f"  {component}: changed from previous model", file=output)
-            print("", file=output)
+        # Print each category of differences
+        self._print_sentence_letter_differences(output)
+        self._print_semantic_function_differences(output)
+        self._print_model_structure_differences(output)
+        self._print_structural_metrics(output)
         
-        # Print structural metrics if available
-        print("Structural Properties:", file=output)
-        print(f"  Worlds: {len(getattr(self, 'z3_world_states', []))}", file=output)
-            
-        # If the model is marked as isomorphic to a previous model, note that
+        # Note if model is isomorphic
         if hasattr(self, 'isomorphic_to_previous') and self.isomorphic_to_previous:
             print("NOTE: This model may be isomorphic to a previous model despite syntactic differences.", file=output)
+    
+    def _print_sentence_letter_differences(self, output):
+        """Print differences in sentence letter values."""
+        letter_diffs = self.model_differences.get('sentence_letters', {})
+        if not letter_diffs:
+            return
+            
+        print("Sentence Letter Changes:", file=output)
+        for letter, values in letter_diffs.items():
+            try:
+                if 'old' in values and 'new' in values:
+                    print(f"  {letter}: {values['old']} → {values['new']}", file=output)
+                else:
+                    print(f"  {letter}: changed from previous model", file=output)
+            except (KeyError, TypeError):
+                print(f"  {letter}: changed from previous model", file=output)
+        print("", file=output)
+    
+    def _print_semantic_function_differences(self, output):
+        """Print differences in semantic functions."""
+        func_diffs = self.model_differences.get('semantic_functions', {})
+        if not func_diffs:
+            return
+            
+        print("Semantic Function Changes:", file=output)
+        for func_name, values in func_diffs.items():
+            print(f"  {func_name}:", file=output)
+            for input_val, change in values.items():
+                try:
+                    if 'old' in change and 'new' in change:
+                        print(f"    Input {input_val}: {change['old']} → {change['new']}", file=output)
+                    else:
+                        print(f"    Input {input_val}: changed from previous model", file=output)
+                except (KeyError, TypeError):
+                    print(f"    Input {input_val}: changed from previous model", file=output)
+        print("", file=output)
+    
+    def _print_model_structure_differences(self, output):
+        """Print differences in model structure."""
+        struct_diffs = self.model_differences.get('model_structure', {})
+        if not struct_diffs:
+            return
+            
+        print("Model Structure Changes:", file=output)
+        for component, values in struct_diffs.items():
+            try:
+                if 'old' in values and 'new' in values:
+                    print(f"  {component}: {values['old']} → {values['new']}", file=output)
+                else:
+                    print(f"  {component}: changed from previous model", file=output)
+            except (KeyError, TypeError):
+                print(f"  {component}: changed from previous model", file=output)
+        print("", file=output)
+    
+    def _print_structural_metrics(self, output):
+        """Print structural properties of the model."""
+        print("Structural Properties:", file=output)
+        print(f"  Worlds: {len(getattr(self, 'z3_world_states', []))}", file=output)
 
     def print_info(self, model_status, default_settings, example_name, theory_name, output):
         """Print comprehensive model information and analysis results.
@@ -747,6 +812,28 @@ class ModelDefaults:
         """Print Z3 runtime and separator footer."""
         print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
         print(f"\n{'='*40}", file=output)
+    
+    def print_all(self, output=sys.stdout):
+        """Print complete model information.
+        
+        This method provides comprehensive output of the model checking results,
+        including interpreted sentences and grouped constraints. It's the primary
+        method for displaying full model details to users.
+        
+        Args:
+            output (file, optional): Output stream to write to. Defaults to sys.stdout.
+        """
+        # Print interpreted sentences (premises and conclusions)
+        self.print_input_sentences(output)
+        
+        # Add separator between sentences and constraints
+        print(file=output)
+        
+        # Print grouped constraints
+        self.print_grouped_constraints(output)
+        
+        # Print raw Z3 model if requested
+        self.print_model(output)
     
     def extract_verify_falsify_state(self):
         """Extract current verify/falsify function values from Z3 model.
