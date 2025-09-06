@@ -7,7 +7,8 @@ for use with ProcessPoolExecutor, avoiding pickle errors with complex objects.
 
 import importlib
 from typing import Dict, Any, Union, Type
-from model_checker.syntactic import OperatorCollection
+
+from ..syntactic import OperatorCollection
 
 
 def serialize_operators(operators: Union[OperatorCollection, dict]) -> Dict[str, Dict[str, str]]:
@@ -29,10 +30,18 @@ def serialize_operators(operators: Union[OperatorCollection, dict]) -> Dict[str,
     """
     serialized = {}
     
+    # Handle OperatorCollection class (not instance)
+    if isinstance(operators, type) and hasattr(operators, 'operator_dictionary'):
+        # It's the OperatorCollection class itself - instantiate it
+        operators = operators()
+    
     if isinstance(operators, OperatorCollection):
         operator_dict = operators.operator_dictionary
-    else:
+    elif isinstance(operators, dict):
         operator_dict = operators
+    else:
+        # Fallback - assume it's dict-like
+        operator_dict = operators if hasattr(operators, 'items') else {}
     
     for op_name, op_class in operator_dict.items():
         serialized[op_name] = {
@@ -54,7 +63,7 @@ def deserialize_operators(operator_data: Dict[str, Dict[str, str]]) -> OperatorC
         OperatorCollection instance with all operators restored
     """
     # Import here to avoid circular imports
-    from model_checker.syntactic import OperatorCollection
+    from ..syntactic import OperatorCollection
     
     collection = OperatorCollection()
     
@@ -77,6 +86,31 @@ def serialize_semantic_theory(theory_name: str, semantic_theory: Dict[str, Any])
     Returns:
         Serialized theory configuration with only picklable data
     """
+    # Validate required keys
+    required_keys = ["semantics", "proposition", "model", "operators"]
+    for key in required_keys:
+        if key not in semantic_theory:
+            raise ValueError(f"Semantic theory missing required key: {key}")
+    
+    # Validate that required values are classes
+    for key in ["semantics", "proposition", "model"]:
+        if not hasattr(semantic_theory[key], "__name__"):
+            raise ValueError(f"Semantic theory '{key}' must be a class, not {type(semantic_theory[key])}")
+    
+    # Validate operators is dict or OperatorCollection or None
+    operators = semantic_theory["operators"]
+    if operators is not None:
+        # Check if it's a dict, an OperatorCollection instance, or the OperatorCollection class
+        from model_checker.syntactic.collection import OperatorCollection
+        is_valid = (
+            isinstance(operators, dict) or 
+            isinstance(operators, OperatorCollection) or
+            (isinstance(operators, type) and issubclass(operators, OperatorCollection)) or
+            hasattr(operators, "operators")
+        )
+        if not is_valid:
+            raise ValueError(f"Semantic theory 'operators' must be a dict or OperatorCollection, not {type(operators)}")
+    
     return {
         "theory_name": theory_name,
         "semantics": {

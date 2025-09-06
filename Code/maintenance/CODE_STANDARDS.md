@@ -351,6 +351,27 @@ Before submitting code:
 - [ ] UTF-8 encoding verified
 - [ ] Cross-references updated
 
+## Integration with Enhanced Standards
+
+These unified code standards work with the comprehensive maintenance framework:
+
+### Quality and Architecture
+- **[REFACTORING_METHODOLOGY.md](REFACTORING_METHODOLOGY.md)** - Systematic approach for gradual code improvement
+- **[METHOD_COMPLEXITY.md](METHOD_COMPLEXITY.md)** - Context-aware complexity guidelines that respect domain complexity
+- **[ARCHITECTURAL_PATTERNS.md](ARCHITECTURAL_PATTERNS.md)** - Protocol-based design patterns building on builder/ success
+- **[UTILITY_ORGANIZATION.md](UTILITY_ORGANIZATION.md)** - Guidelines for shared vs package-specific utilities
+
+### Enhanced Error Handling and Testing
+- **[ERROR_HANDLING.md](ERROR_HANDLING.md)** - Enhanced exception patterns with hierarchies based on BuilderError model
+- **[TESTING_STANDARDS.md](TESTING_STANDARDS.md)** - Comprehensive testing standards with test isolation patterns
+
+### Foundation Standards
+- **[CODE_ORGANIZATION.md](CODE_ORGANIZATION.md)** - Module structure and import organization
+- **[FORMULA_FORMATTING.md](FORMULA_FORMATTING.md)** - LaTeX notation requirements
+- **[PERFORMANCE.md](PERFORMANCE.md)** - Z3 optimization techniques
+
+These standards provide **flexible guidance for gradual improvement** rather than rigid rules requiring massive changes. Apply them **opportunistically and practically** as you work with the code, always prioritizing working software over perfect compliance.
+
 ---
 
 [← Back to Maintenance](README.md) | [Code Organization →](CODE_ORGANIZATION.md) | [Testing Standards →](TESTING_STANDARDS.md)

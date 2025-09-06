@@ -5,28 +5,29 @@ individual model checking examples. It handles model construction, constraint
 generation, and result evaluation.
 """
 
-import z3
-import sys
 import os
+import sys
 
-from model_checker.models.semantic import SemanticDefaults
-from model_checker.models.proposition import PropositionDefaults
-from model_checker.models.constraints import ModelConstraints
-from model_checker.models.structure import ModelDefaults
-from model_checker.syntactic import (
+import z3
+
+from ..models.semantic import SemanticDefaults
+from ..models.proposition import PropositionDefaults
+from ..models.constraints import ModelConstraints
+from ..models.structure import ModelDefaults
+from ..syntactic import (
     OperatorCollection,
     Syntax,
 )
-from model_checker.builder.validation import (
+from .validation import (
     validate_semantic_theory,
     validate_example_case,
 )
-from model_checker.builder.z3_utils import (
+from .z3_utils import (
     create_difference_constraint,
     extract_model_values,
     find_next_model as find_next_z3_model
 )
-from model_checker.theory_lib.logos import semantic
+from ..theory_lib.logos import semantic
 
 class BuildExample:
     """Handles the creation and evaluation of a single model checking example.
@@ -190,7 +191,7 @@ class BuildExample:
             
         try:
             # Import the ModelIterator dynamically to avoid circular imports
-            from model_checker.builder.iterate import ModelIterator
+            from .iterate import ModelIterator
             
             # Create a model iterator for this build example
             iterator = ModelIterator(self)

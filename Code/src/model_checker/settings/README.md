@@ -196,7 +196,7 @@ model-checker --print-z3 --print-constraints --print-impossible --max-time=10000
 from model_checker.builder import BuildModule
 
 module = BuildModule({'compare': True, 'theories': ['logos', 'exclusion']})
-module.run_comparison()  # Warnings suppressed for theory-specific settings
+module.comparison.run_comparison()  # Warnings suppressed for theory-specific settings
 ```
 
 ### Environment Variable Control

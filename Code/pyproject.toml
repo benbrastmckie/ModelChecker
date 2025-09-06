@@ -68,3 +68,10 @@ markers = [
     "theorem: Tests that verify a formula is a theorem",
     "performance: Tests that verify performance characteristics",
 ]
+filterwarnings = [
+    # Ignore deprecation warning from z3's use of pkg_resources
+    # This is a third-party library issue that will be fixed upstream
+    "ignore:pkg_resources is deprecated as an API:DeprecationWarning:z3.z3core",
+    # Also ignore if it comes without specific module attribution
+    "ignore:pkg_resources is deprecated as an API:DeprecationWarning",
+]

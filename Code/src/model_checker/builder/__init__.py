@@ -19,8 +19,8 @@ The package follows the project's design philosophy:
 __all__ = ['BuildModule', 'BuildProject']
 
 # Import the core builder components
-from model_checker.builder.module import BuildModule
-from model_checker.builder.project import BuildProject
+from .module import BuildModule
+from .project import BuildProject
 # BuildExample removed from public API - used internally only
 
 # ModelIterator and iterate_example are now imported from theory-specific modules

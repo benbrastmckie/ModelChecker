@@ -7,6 +7,8 @@ reducing duplication and improving consistency.
 import pytest
 import tempfile
 import os
+import glob
+import atexit
 from pathlib import Path
 from unittest.mock import Mock, MagicMock
 from model_checker.builder.module import BuildModule
@@ -242,3 +244,53 @@ def assert_component_initialized(build_module, component_name, component_class=N
     if component_class:
         assert isinstance(component, component_class), \
             f"Component '{component_name}' is not instance of {component_class.__name__}"
+
+
+@pytest.fixture(autouse=True)
+def auto_cleanup_output_dirs():
+    """Automatically clean up output directories after each test.
+    
+    This fixture runs automatically for every test and ensures that
+    any output directories created during test execution are cleaned up
+    to prevent cluttering the codebase.
+    """
+    # Store initial output directories
+    initial_dirs = set(glob.glob('output_*'))
+    
+    yield  # Run the test
+    
+    # Clean up any new output directories created during the test
+    final_dirs = set(glob.glob('output_*'))
+    new_dirs = final_dirs - initial_dirs
+    
+    for output_dir in new_dirs:
+        try:
+            import shutil
+            shutil.rmtree(output_dir)
+        except OSError:
+            pass  # Directory might already be removed
+
+
+@pytest.fixture(scope='session', autouse=True)
+def cleanup_output_dirs_on_exit():
+    """Clean up any remaining output directories when pytest session ends.
+    
+    This provides a final cleanup to catch any directories that might
+    have been missed by the per-test cleanup.
+    """
+    def cleanup_all_output_dirs():
+        """Remove all output directories from current working directory."""
+        import shutil
+        for output_dir in glob.glob('output_*'):
+            try:
+                shutil.rmtree(output_dir)
+            except OSError:
+                pass  # Directory might already be removed
+    
+    # Register cleanup to run at exit
+    atexit.register(cleanup_all_output_dirs)
+    
+    yield  # Run all tests
+    
+    # Final cleanup
+    cleanup_all_output_dirs()

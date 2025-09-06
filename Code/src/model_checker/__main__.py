@@ -266,10 +266,10 @@ def main():
 
     # TODO: create print/save class
     if module.general_settings["maximize"]:
-        module.run_comparison()
+        module.comparison.run_comparison()
         return
 
-    module.run_examples()
+    module.runner.run_examples()
 
 def run():
     """Entry point for the application."""

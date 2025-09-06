@@ -42,35 +42,53 @@ class BuildModule:
             ImportError: If the module cannot be loaded
             AttributeError: If required attributes are missing from the module
         """
-        # Import here to avoid circular imports
-        from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
-
         self.module_flags = module_flags
         self.module_path = self.module_flags.file_path
         self.module_name = os.path.splitext(os.path.basename(self.module_path))[0]
         
-        # Create loader instance first, before loading module
+        # Load the module and its attributes
+        self._load_module()
+        
+        # Initialize settings
+        self._initialize_settings()
+        
+        # Initialize output management
+        self._initialize_output_management()
+        
+        # Initialize component instances
+        self._initialize_components()
+    
+    def _load_module(self):
+        """Load the module and extract required attributes."""
         from model_checker.builder.loader import ModuleLoader
+        
+        # Create loader instance
         self.loader = ModuleLoader(self.module_name, self.module_path)
         
+        # Load the module
         self.module = self.loader.load_module()
+        # Also store as loaded_module for backward compatibility with tests
+        self.loaded_module = self.module
         
         # Load core attributes
         self.semantic_theories = self.loader.load_attribute(self.module, "semantic_theories")
         self.example_range = self.loader.load_attribute(self.module, "example_range")
-
-        # Store raw settings - validation happens per-theory in BuildExample
+        
+        # Store raw settings for later processing
         self.raw_general_settings = getattr(self.module, "general_settings", None)
+    
+    def _initialize_settings(self):
+        """Initialize and validate general settings."""
+        from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
+        import contextlib
+        import io
         
         # For backward compatibility, create general_settings dict
-        # We need this for attributes and existing code that expects it
         if self.raw_general_settings is not None:
             # Use first theory's defaults as baseline (preserving existing behavior)
             first_theory = next(iter(self.semantic_theories.values()))
             # Create a temporary manager just to get the merged defaults
             # Don't print warnings during this setup phase
-            import contextlib
-            import io
             with contextlib.redirect_stdout(io.StringIO()):
                 temp_manager = SettingsManager(first_theory, DEFAULT_GENERAL_SETTINGS)
                 self.general_settings = temp_manager.validate_general_settings(self.raw_general_settings)
@@ -81,8 +99,9 @@ class BuildModule:
         # Set attributes for backward compatibility
         for key, value in self.general_settings.items():
             setattr(self, key, value)
-            
-        # Initialize output manager if save_output is enabled
+    
+    def _initialize_output_management(self):
+        """Initialize output and interactive managers."""
         from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider
         
         # Create interactive manager if save_output is enabled
@@ -99,6 +118,7 @@ class BuildModule:
                 # No interactive flag - prompt for mode
                 self.interactive_manager.prompt_save_mode()
         
+        # Create output manager
         self.output_manager = OutputManager(
             save_output=self.save_output,
             mode=getattr(self.module_flags, 'output_mode', 'batch'),
@@ -109,18 +129,20 @@ class BuildModule:
         # Create output directory if needed
         if self.output_manager.should_save():
             self.output_manager.create_output_directory()
+    
+    def _initialize_components(self):
+        """Initialize runner, comparison, and translation components."""
+        from model_checker.builder.runner import ModelRunner
+        from model_checker.builder.comparison import ModelComparison
+        from model_checker.builder.translation import OperatorTranslation
         
         # Create runner instance
-        from model_checker.builder.runner import ModelRunner
         self.runner = ModelRunner(self)
         
-        # Create comparison instance if in comparison mode or maximize mode
-        if (hasattr(module_flags, 'comparison') and module_flags.comparison) or getattr(self, 'maximize', False):
-            from model_checker.builder.comparison import ModelComparison
-            self.comparison = ModelComparison(self)
+        # Create comparison instance - always initialize for tests
+        self.comparison = ModelComparison(self)
         
         # Create translation instance
-        from model_checker.builder.translation import OperatorTranslation
         self.translation = OperatorTranslation()
 
 
@@ -128,28 +150,6 @@ class BuildModule:
     
 
 
-    def _prompt_for_iterations(self):
-        """Prompt user for number of iterations in interactive mode.
-        
-        Returns:
-            int: Number of additional models to find (0 means no more)
-        """
-        print("\nDo you want to find another model?")
-        response = input("Enter a number to iterate or hit return to continue: ").strip()
-        
-        if not response:
-            # User hit return - continue to next example
-            return 0
-            
-        try:
-            num_iterations = int(response)
-            if num_iterations < 0:
-                print("Please enter a positive number.")
-                return self._prompt_for_iterations()
-            return num_iterations
-        except ValueError:
-            print("Please enter a valid number or hit return to continue.")
-            return self._prompt_for_iterations()
 
     
 
@@ -225,120 +225,3 @@ class BuildModule:
             # Batch mode - save normally
             self.output_manager.save_example(display_name, model_data, formatted_output)
     
-    def run_comparison(self):
-        """Delegate to comparison module for maximize mode.
-        
-        This method provides backward compatibility for code that calls
-        module.run_comparison() when maximize=True.
-        """
-        if hasattr(self, 'comparison'):
-            self.comparison.run_comparison()
-        else:
-            raise AttributeError("Comparison module not initialized. Set comparison=True in flags.")
-    
-    def translate(self, example_case, dictionary):
-        """Delegate to translation module for operator translation.
-        
-        Args:
-            example_case: Example case to translate
-            dictionary: Translation dictionary
-            
-        Returns:
-            Translated example case
-        """
-        if hasattr(self, 'translation'):
-            return self.translation.translate(example_case, dictionary)
-        else:
-            # Return unchanged if no translation module
-            return example_case
-    
-    def translate_example(self, example_case, semantic_theories):
-        """Delegate to translation module for multi-theory translation.
-        
-        Args:
-            example_case: Example case to translate
-            semantic_theories: Dictionary of semantic theories
-            
-        Returns:
-            List of translated examples for each theory
-        """
-        if hasattr(self, 'translation'):
-            return self.translation.translate_example(example_case, semantic_theories)
-        else:
-            # Return basic structure if no translation module
-            result = []
-            for theory_name in semantic_theories:
-                result.append((theory_name, None, example_case))
-            return result
-    
-    def run_examples(self):
-        """Process and execute each example case with all semantic theories.
-        
-        Iterates through example cases and theories, translating operators if needed.
-        Runs model checking with progress indicator and timeout handling.
-        Prints results or timeout message for each example/theory combination.
-        """
-        from model_checker.builder.example import BuildExample
-        import z3
-        import sys
-        import gc
-        
-        # For each example, create a completely isolated Z3 environment
-        # This ensures no state leakage between examples, solving the timeout issues
-        # that can occur when running multiple examples in sequence
-        try:
-            for example_name, example_case in self.example_range.items():
-                # Force garbage collection to clean up any lingering Z3 objects
-                gc.collect()
-                
-                # Reset Z3 context to create a fresh environment for this example
-                # This is the critical fix for ensuring proper Z3 state isolation
-                # Each example gets its own fresh Z3 context, preventing any state leakage
-                import z3
-                if hasattr(z3, '_main_ctx'):
-                    z3._main_ctx = None
-                
-                # Force another garbage collection to ensure clean state
-                gc.collect()
-                
-                # Run the system in a clean state
-                for theory_name, semantic_theory in self.semantic_theories.items():
-                    # Make setting reset for each semantic_theory
-                    example_copy = list(example_case)
-                    example_copy[2] = example_case[2].copy()
-                    
-                    # Process the example with our new unified approach
-                    # This handles both single models and iterations consistently
-                    try:
-                        self.runner.process_example(example_name, example_copy, theory_name, semantic_theory)
-                    finally:
-                        # Force cleanup after each example to prevent state leaks
-                        gc.collect()
-                        
-        except KeyboardInterrupt:
-            print("\n\nExecution interrupted by user.")
-            # Still finalize if we saved any output
-            if self.output_manager.should_save() and self.output_manager.output_dir is not None:
-                self.output_manager.finalize()
-                import os
-                print(f"\nPartial output saved to: {os.path.abspath(self.output_manager.output_dir)}")
-            sys.exit(1)
-                    
-        # Finalize output saving if enabled
-        if self.output_manager.should_save():
-            self.output_manager.finalize()
-            
-            # Only print path if output was actually saved
-            if self.output_manager.output_dir is not None:
-                # Get full path for display
-                import os
-                full_path = os.path.abspath(self.output_manager.output_dir)
-                
-                # Prompt for directory change
-                if self.interactive_manager:
-                    self.interactive_manager.prompt_change_directory(full_path)
-                else:
-                    # No interactive manager - show instructions directly
-                    print(f"\nOutput saved to: {full_path}")
-                    print(f"To change to output directory, run:")
-                    print(f"  cd {full_path}")

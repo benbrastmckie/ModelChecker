@@ -4,12 +4,14 @@ This module provides functions for validating parameters and ensuring
 proper types and values for model checking operations.
 """
 
-from model_checker.models.semantic import SemanticDefaults
-from model_checker.models.proposition import PropositionDefaults
-from model_checker.models.structure import ModelDefaults
-from model_checker.syntactic import (
+from ..models.semantic import SemanticDefaults
+from ..models.proposition import PropositionDefaults
+from ..models.structure import ModelDefaults
+from ..syntactic import (
     OperatorCollection,
 )
+
+from .error_types import ValidationError
 
 def validate_semantic_theory(semantic_theory):
     """Validate that a semantic theory contains all required components.
@@ -24,15 +26,20 @@ def validate_semantic_theory(semantic_theory):
         TypeError: If any component is missing or has an invalid type
     """
     if not isinstance(semantic_theory, dict):
-        raise TypeError(
-            "semantic_theory must be a dictionary containing 'semantics', 'proposition', "
-            "'operators', and 'model' components"
+        raise ValidationError(
+            "semantic_theory",
+            "must be a dictionary",
+            "dict containing 'semantics', 'proposition', 'operators', and 'model' components"
         )
         
     # Check required components
     for key in ['semantics', 'proposition', 'operators', 'model']:
         if key not in semantic_theory:
-            raise TypeError(f"semantic_theory missing required component: {key}")
+            raise ValidationError(
+                "semantic_theory",
+                f"missing required component: {key}",
+                "all of: semantics, proposition, operators, model"
+            )
             
     semantics = semantic_theory["semantics"]
     proposition = semantic_theory["proposition"]
@@ -41,26 +48,34 @@ def validate_semantic_theory(semantic_theory):
     
     # Validate semantics is subclass of SemanticDefaults
     if not issubclass(semantics, SemanticDefaults):
-        raise TypeError(
-            f"'semantics' must be a subclass of SemanticDefaults, got {type(semantics)}"
+        raise ValidationError(
+            "semantics",
+            f"must be a subclass of SemanticDefaults, got {type(semantics)}",
+            "subclass of SemanticDefaults"
         )
 
     # Validate proposition is subclass of PropositionDefaults
     if not issubclass(proposition, PropositionDefaults):
-        raise TypeError(
-            f"'proposition' must be a subclass of PropositionDefaults, got {type(proposition)}"
+        raise ValidationError(
+            "proposition",
+            f"must be a subclass of PropositionDefaults, got {type(proposition)}",
+            "subclass of PropositionDefaults"
         )
 
     # Validate operators is instance of OperatorCollection
     if not isinstance(operators, OperatorCollection):
-        raise TypeError(
-            f"'operators' must be an instance of OperatorCollection, got {type(operators)}"
+        raise ValidationError(
+            "operators",
+            f"must be an instance of OperatorCollection, got {type(operators)}",
+            "instance of OperatorCollection"
         )
 
     # Validate model_class is subclass of ModelDefaults
     if not issubclass(model_class, ModelDefaults):
-        raise TypeError(
-            f"'model' must be a subclass of ModelDefaults, got {type(model_class)}"
+        raise ValidationError(
+            "model",
+            f"must be a subclass of ModelDefaults, got {type(model_class)}",
+            "subclass of ModelDefaults"
         )
             
     return semantics, proposition, operators, model_class
@@ -78,29 +93,36 @@ def validate_example_case(example_case):
         TypeError: If example_case has invalid structure or types
     """
     if not isinstance(example_case, (list, tuple)) or len(example_case) != 3:
-        raise TypeError(
-            "example_case must be a list/tuple containing exactly 3 elements: "
-            "[premises, conclusions, settings]"
+        raise ValidationError(
+            "example_case",
+            f"must be a list/tuple with 3 elements, got {type(example_case)} with {len(example_case) if isinstance(example_case, (list, tuple)) else 'N/A'} elements",
+            "list/tuple of [premises, conclusions, settings]"
         )
         
     premises, conclusions, settings = example_case
     
     # Validate premises is a list of strings
     if not isinstance(premises, list) or not all(isinstance(p, str) for p in premises):
-        raise TypeError(
-            f"premises must be a list of strings, got {type(premises)}"
+        raise ValidationError(
+            "premises",
+            f"must be a list of strings, got {type(premises)}",
+            "list of strings"
         )
         
     # Validate conclusions is a list of strings
     if not isinstance(conclusions, list) or not all(isinstance(c, str) for c in conclusions):
-        raise TypeError(
-            f"conclusions must be a list of strings, got {type(conclusions)}"
+        raise ValidationError(
+            "conclusions",
+            f"must be a list of strings, got {type(conclusions)}",
+            "list of strings"
         )
         
     # Validate settings is a dictionary
     if not isinstance(settings, dict):
-        raise TypeError(
-            f"settings must be a dictionary, got {type(settings)}"
+        raise ValidationError(
+            "settings",
+            f"must be a dictionary, got {type(settings)}",
+            "dictionary"
         )
         
     return premises, conclusions, settings
