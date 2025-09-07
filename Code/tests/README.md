@@ -1,4 +1,4 @@
-# ModelChecker Integration Test Suite
+# ModelChecker Test Suite
 
 [← Back to ModelChecker](../README.md) | [Development Guide →](../docs/DEVELOPMENT.md) | [Testing Guide →](../docs/TESTS.md)
 
@@ -8,40 +8,72 @@
 tests/
 ├── unit/                           # Fast, isolated component tests
 │   ├── test_imports.py            # Import structure validation
-│   └── test_ideal_architecture.py # Architecture conformance tests
+│   ├── test_ideal_architecture.py # Architecture conformance tests
+│   ├── test_formula_validation.py # Formula syntax validation (32 tests)
+│   ├── test_settings_validation.py # Settings validation (59 tests)
+│   └── test_edge_cases.py        # Boundary and edge case tests (41 tests)
 ├── integration/                    # Component interaction tests
 │   ├── test_batch_output_integration.py
 │   ├── test_build_module_interactive.py
-│   ├── test_cli_interactive.py
-│   └── test_model_building_sync.py
+│   ├── test_cli_interactive.py   # CLI flag handling (parameterized)
+│   ├── test_model_building_sync.py
+│   ├── test_error_handling.py    # Error condition tests (30 tests)
+│   ├── test_timeout_resources.py # Resource and timeout tests (14 tests)
+│   └── test_performance.py       # Performance benchmarks (24 tests)
 ├── e2e/                           # End-to-end workflow tests
-│   ├── test_project_creation.py
+│   ├── test_project_creation.py  # Project generation (refactored)
 │   ├── test_batch_output_real.py
 │   └── test_simple_output_verify.py
 ├── fixtures/                      # Shared test data and mocks
 │   ├── example_data.py           # Standard test examples
 │   └── mock_theories.py          # Mock theory implementations
-├── utils/                         # Test utilities
+├── utils/                         # Test utilities and base classes
 │   ├── assertions.py             # Custom assertion functions
-│   └── helpers.py                # Common test helpers
+│   ├── helpers.py                # Common test helpers
+│   └── base.py                   # Base test classes for inheritance
 ├── conftest.py                   # Pytest configuration and fixtures
 └── README.md                      # This file
 ```
 
 ## Overview
 
-The **Integration Test Suite** provides comprehensive validation across three levels:
-- **Unit Tests**: Fast, isolated component verification
-- **Integration Tests**: Component interaction and CLI functionality
+The **ModelChecker Test Suite** provides comprehensive validation across three levels:
+- **Unit Tests**: Fast, isolated component verification (200+ tests)
+- **Integration Tests**: Component interaction and CLI functionality (100+ tests)
 - **End-to-End Tests**: Complete workflow validation with real-world scenarios
 
 This structured approach ensures the ModelChecker framework operates correctly from both developer and user perspectives, with proper test isolation, shared fixtures, and comprehensive coverage.
 
-## Files in This Directory
+### Recent Improvements (Phase 1-4 Refactor)
 
-### test_project_creation.py
+- **Test Organization**: Clear separation by type (unit/integration/e2e)
+- **Shared Infrastructure**: Comprehensive fixtures and utilities
+- **Parameterized Testing**: 150+ parameterized test cases reducing duplication
+- **Error Handling**: 85 error condition and edge case tests
+- **Performance Testing**: 24 performance benchmarks for scaling validation
+- **Base Classes**: Reusable test patterns via inheritance
 
-CLI project generation testing module validating the `dev_cli.py -l <theory>` functionality. Tests project scaffold creation, template copying, file structure validation, and automatic cleanup. Simulates non-interactive usage through piped responses and verifies generated projects have correct structure and dependencies.
+## Key Test Files
+
+### Unit Tests
+
+- **test_imports.py**: Validates package import structure and error hierarchy
+- **test_formula_validation.py**: Parameterized formula syntax tests (LaTeX vs Unicode)
+- **test_settings_validation.py**: Comprehensive settings validation with boundary tests
+- **test_edge_cases.py**: Extreme values, empty inputs, recursion limits
+
+### Integration Tests
+
+- **test_cli_interactive.py**: CLI flag handling with 6 parameterized test methods
+- **test_error_handling.py**: Error conditions, recovery, and cleanup mechanisms
+- **test_timeout_resources.py**: Resource limits, timeouts, and memory management
+- **test_performance.py**: Execution time, memory usage, and scaling benchmarks
+
+### End-to-End Tests
+
+- **test_project_creation.py**: Refactored with focused test methods and helpers
+- **test_batch_output_real.py**: Real batch processing workflow validation
+- **test_simple_output_verify.py**: Output format and content verification
 
 ## Testing Philosophy
 
@@ -142,7 +174,25 @@ python tests/test_project_creation.py --test-theory logos
 
 ## Development Guidelines
 
-### Adding New Integration Tests
+### Using Base Test Classes
+
+The suite provides base classes in `tests/utils/base.py` for common patterns:
+
+```python
+from tests.utils.base import BaseTheoryTest, BaseCLITest
+
+class TestMyTheory(BaseTheoryTest):
+    def get_theory_name(self):
+        return 'mytheory'
+    # Inherits test_theory_loads, test_theory_has_required_components, etc.
+
+class TestMyCLI(BaseCLITest):
+    def test_my_command(self):
+        result = self.assert_cli_success('--flag', 'file.py')
+        # Automatic success assertion and result return
+```
+
+### Adding New Tests
 
 When creating new integration tests:
 
