@@ -93,3 +93,60 @@ class TestTheoryStructure:
         for component in required:
             assert component in theory, \
                 f"Theory {theory_name} missing required component: {component}"
+
+
+class TestPackageImports:
+    """Test package-level imports with parameterization."""
+    
+    @pytest.mark.parametrize("module_path,class_names", [
+        ('model_checker.builder', ['BuildModule', 'BuildProject']),
+        ('model_checker.models', ['SemanticDefaults', 'PropositionDefaults', 'ModelDefaults', 'ModelError']),
+        ('model_checker.syntactic', ['Syntax']),
+        ('model_checker.settings', ['SettingsManager']),
+    ])
+    def test_module_imports(self, module_path, class_names):
+        """Test that modules export expected classes."""
+        import importlib
+        module = importlib.import_module(module_path)
+        
+        for class_name in class_names:
+            assert hasattr(module, class_name), \
+                f"{module_path} missing expected class: {class_name}"
+            
+            # Verify it's actually a class
+            cls = getattr(module, class_name)
+            assert isinstance(cls, type), \
+                f"{class_name} in {module_path} is not a class"
+    
+    @pytest.mark.parametrize("error_class,base_exception", [
+        ('ModelError', Exception),
+        ('ModelConstraintError', 'ModelError'),
+        ('ModelSolverError', 'ModelError'),
+        ('ModelConfigurationError', 'ModelError'),
+    ])
+    def test_error_hierarchy(self, error_class, base_exception):
+        """Test error class hierarchy."""
+        from model_checker import models
+        
+        # Get the error class
+        error_cls = getattr(models, error_class, None)
+        
+        if error_cls is None:
+            # Check in errors submodule if exists
+            if hasattr(models, 'errors'):
+                from model_checker.models import errors
+                error_cls = getattr(errors, error_class, None)
+        
+        # If base_exception is a string, get it from models
+        if isinstance(base_exception, str):
+            base_cls = getattr(models, base_exception, None)
+            if base_cls is None and hasattr(models, 'errors'):
+                from model_checker.models import errors
+                base_cls = getattr(errors, base_exception, Exception)
+        else:
+            base_cls = base_exception
+        
+        # Verify inheritance if class exists
+        if error_cls is not None:
+            assert issubclass(error_cls, base_cls), \
+                f"{error_class} does not inherit from {base_exception}"
