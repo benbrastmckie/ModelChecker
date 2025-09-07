@@ -1,4 +1,4 @@
-# Integration Test Suite: CLI and Workflow Validation
+# ModelChecker Integration Test Suite
 
 [← Back to ModelChecker](../README.md) | [Development Guide →](../docs/DEVELOPMENT.md) | [Testing Guide →](../docs/TESTS.md)
 
@@ -6,18 +6,36 @@
 
 ```
 tests/
-├── README.md                       # This file - integration test suite overview
-├── test_project_creation.py        # CLI project generation testing
-└── __init__.py                     # Test package initialization (if needed)
+├── unit/                           # Fast, isolated component tests
+│   ├── test_imports.py            # Import structure validation
+│   └── test_ideal_architecture.py # Architecture conformance tests
+├── integration/                    # Component interaction tests
+│   ├── test_batch_output_integration.py
+│   ├── test_build_module_interactive.py
+│   ├── test_cli_interactive.py
+│   └── test_model_building_sync.py
+├── e2e/                           # End-to-end workflow tests
+│   ├── test_project_creation.py
+│   ├── test_batch_output_real.py
+│   └── test_simple_output_verify.py
+├── fixtures/                      # Shared test data and mocks
+│   ├── example_data.py           # Standard test examples
+│   └── mock_theories.py          # Mock theory implementations
+├── utils/                         # Test utilities
+│   ├── assertions.py             # Custom assertion functions
+│   └── helpers.py                # Common test helpers
+├── conftest.py                   # Pytest configuration and fixtures
+└── README.md                      # This file
 ```
 
 ## Overview
 
-The **Integration Test Suite** provides comprehensive validation of **user-facing CLI functionality**, **complete workflow testing**, and **cross-component integration verification**. These tests ensure that the ModelChecker framework operates correctly from the user's perspective, testing actual command execution rather than isolated components.
+The **Integration Test Suite** provides comprehensive validation across three levels:
+- **Unit Tests**: Fast, isolated component verification
+- **Integration Tests**: Component interaction and CLI functionality
+- **End-to-End Tests**: Complete workflow validation with real-world scenarios
 
-The integration tests simulate **real-world usage scenarios**, verify **end-to-end functionality**, and validate **CLI script behavior** across different platforms and configurations. This level of testing complements unit tests and theory-specific tests to provide comprehensive framework validation.
-
-This testing approach follows the project's **fail-fast philosophy** with actual command execution, real file system operations, automatic cleanup, and clear reporting to ensure reliable user experiences.
+This structured approach ensures the ModelChecker framework operates correctly from both developer and user perspectives, with proper test isolation, shared fixtures, and comprehensive coverage.
 
 ## Files in This Directory
 
