@@ -1,31 +1,40 @@
-"""Tests for CLI interactive flag integration."""
+"""Tests for CLI interactive flag integration.
+
+Tests the command-line interface handling of interactive mode,
+including flag parsing, argument combinations, and integration
+with the build module.
+"""
 
 import sys
+import os
 import pytest
 from unittest.mock import Mock, patch
 from io import StringIO
+from pathlib import Path
 
 from model_checker.__main__ import ParseFileFlags, main
+from tests.utils.helpers import create_test_module
 
 
 class TestCLIInteractiveFlag:
     """Test CLI handling of interactive flag."""
     
-    def test_interactive_flag_parsing(self):
-        """Test that -I and --interactive flags are parsed correctly."""
-        # Test short flag
+    @pytest.mark.parametrize("flag_variant,expected_interactive", [
+        (['-I'], True),
+        (['--interactive'], True),
+        (['-s', '-I'], True),
+        (['-s', '--interactive'], True),
+        (['-s'], False),
+        ([], False)
+    ])
+    def test_interactive_flag_parsing(self, flag_variant, expected_interactive):
+        """Test that interactive flags are parsed correctly."""
         parser = ParseFileFlags()
-        with patch.object(sys, 'argv', ['model-checker', '-s', '-I', 'test.py']):
+        argv = ['model-checker'] + flag_variant + ['test.py']
+        
+        with patch.object(sys, 'argv', argv):
             flags, _ = parser.parse()
-            assert flags.save_output is True
-            assert flags.interactive is True
-            
-        # Test long flag
-        parser = ParseFileFlags()
-        with patch.object(sys, 'argv', ['model-checker', '-s', '--interactive', 'test.py']):
-            flags, _ = parser.parse()
-            assert flags.save_output is True
-            assert flags.interactive is True
+            assert flags.interactive == expected_interactive
             
     def test_interactive_flag_in_short_to_long_map(self):
         """Test that I is mapped to interactive."""
@@ -45,27 +54,21 @@ class TestCLIInteractiveFlag:
             assert flags.save_output is False
             
     @patch('model_checker.__main__.BuildModule')
-    def test_interactive_flag_passed_to_build_module(self, mock_build_module):
+    def test_interactive_flag_passed_to_build_module(self, mock_build_module, tmp_path):
         """Test that interactive flag is passed to BuildModule."""
-        # Create a test file
-        test_file = 'test_example.py'
-        with open(test_file, 'w') as f:
-            f.write("# Test example file\n")
+        # Create a test file using helper
+        test_content = "# Test example file\n"
+        test_file = create_test_module(test_content, tmp_path, 'test_example.py')
             
-        try:
-            with patch.object(sys, 'argv', ['model-checker', '-s', '-I', test_file]):
-                main()
-                
-            # Check that BuildModule was called with flags containing interactive=True
-            assert mock_build_module.called
-            call_args = mock_build_module.call_args[0][0]
-            assert hasattr(call_args, 'interactive')
-            assert call_args.interactive is True
-            assert call_args.save_output is True
-        finally:
-            import os
-            if os.path.exists(test_file):
-                os.remove(test_file)
+        with patch.object(sys, 'argv', ['model-checker', '-s', '-I', test_file]):
+            main()
+            
+        # Check that BuildModule was called with flags containing interactive=True
+        assert mock_build_module.called
+        call_args = mock_build_module.call_args[0][0]
+        assert hasattr(call_args, 'interactive')
+        assert call_args.interactive is True
+        assert call_args.save_output is True
                 
     def test_help_shows_interactive_flag(self):
         """Test that help text includes interactive flag."""
@@ -75,44 +78,46 @@ class TestCLIInteractiveFlag:
         assert '-I' in help_text
         assert 'interactive save mode' in help_text
         
-    def test_interactive_mode_combinations(self):
+    @pytest.mark.parametrize("output_mode,other_flags", [
+        ('batch', ['-s']),
+        ('sequential', ['-s']),
+        ('batch', ['-p', '-i']),
+        ('sequential', ['-z', '-c'])
+    ])
+    def test_interactive_mode_combinations(self, output_mode, other_flags):
         """Test various flag combinations with interactive."""
         parser = ParseFileFlags()
+        argv = ['model-checker'] + other_flags + ['-I', '--output-mode', output_mode, 'test.py']
         
-        # Interactive with batch mode (should be ignored in favor of interactive)
-        with patch.object(sys, 'argv', ['model-checker', '-s', '-I', '--output-mode', 'batch', 'test.py']):
+        with patch.object(sys, 'argv', argv):
             flags, _ = parser.parse()
-            assert flags.save_output is True
             assert flags.interactive is True
-            assert flags.output_mode == 'batch'
+            assert flags.output_mode == output_mode
             
-        # Interactive with sequential mode
-        with patch.object(sys, 'argv', ['model-checker', '-s', '-I', '--output-mode', 'sequential', 'test.py']):
-            flags, _ = parser.parse()
-            assert flags.save_output is True
-            assert flags.interactive is True
-            assert flags.output_mode == 'sequential'
-            
-    def test_argument_order_independence(self):
+    @pytest.mark.parametrize("arg_order", [
+        ['-I', '-s'],
+        ['-s', '-I'],
+        ['-p', '-I', '-s', '-i'],
+        ['-i', '-s', '-p', '-I'],
+        ['--interactive', '-s'],
+        ['-s', '--interactive']
+    ])
+    def test_argument_order_independence(self, arg_order):
         """Test that argument order doesn't matter."""
         parser = ParseFileFlags()
+        argv = ['model-checker'] + arg_order + ['test.py']
         
-        # Interactive flag before save output
-        with patch.object(sys, 'argv', ['model-checker', '-I', '-s', 'test.py']):
+        with patch.object(sys, 'argv', argv):
             flags, _ = parser.parse()
-            assert flags.save_output is True
-            assert flags.interactive is True
             
-        # Interactive flag after save output
-        with patch.object(sys, 'argv', ['model-checker', '-s', '-I', 'test.py']):
-            flags, _ = parser.parse()
-            assert flags.save_output is True
-            assert flags.interactive is True
+            # Interactive should be set if -I or --interactive present
+            if '-I' in arg_order or '--interactive' in arg_order:
+                assert flags.interactive is True
             
-        # Mixed with other flags
-        with patch.object(sys, 'argv', ['model-checker', '-p', '-I', '-s', '-i', 'test.py']):
-            flags, _ = parser.parse()
-            assert flags.save_output is True
-            assert flags.interactive is True
-            assert flags.print_constraints is True
-            assert flags.print_impossible is True
+            # Check other flags are set correctly
+            if '-s' in arg_order:
+                assert flags.save_output is True
+            if '-p' in arg_order:
+                assert flags.print_constraints is True
+            if '-i' in arg_order:
+                assert flags.print_impossible is True
