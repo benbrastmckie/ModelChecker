@@ -100,12 +100,6 @@ class ModelConstraints:
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
-    # def _store_z3_model(self, old_z3_model):
-    #     if self.old_z3_models is None:
-    #         self.old_z3_models = [old_z3_model]
-    #     else:
-    #         self.old_z3_models.append(old_z3_model)
-
     def _load_sentence_letters(self):
         """Extracts and validates atomic sentence letters from the syntax object.
         
