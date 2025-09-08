@@ -16,6 +16,10 @@ try:
 except ImportError:
     HAVE_IPYWIDGETS = False
 
+# Import UI builders if available
+if HAVE_IPYWIDGETS:
+    from .ui_builders import ModelExplorerUIBuilder, FormulaCheckerUIBuilder
+
 # Define high-level utility functions
 def check_formula(formula, theory_name="logos", premises=None, settings=None):
     """Check if a formula is valid given premises."""
@@ -258,173 +262,10 @@ class ModelExplorer:
         self._build_ui()
     
     def _build_ui(self):
-        """Build the interactive UI components."""
-        # Formula input
-        self.formula_input = widgets.Text(
-            value='p → q',
-            description='Formula:',
-            style={'description_width': 'initial'}
-        )
-        
-        # Premises input
-        self.premises_input = widgets.Textarea(
-            value='',
-            description='Premises:',
-            placeholder='Enter premises (one per line)',
-            style={'description_width': 'initial'}
-        )
-        
-        # Settings accordion
-        self.settings_accordion = self._build_settings_ui()
-        
-        # Theory selector
-        self.theory_selector = widgets.Dropdown(
-            options=self.available_theories,
-            value=self.theory_name,
-            description='Theory:',
-            style={'description_width': 'initial'}
-        )
-        self.theory_selector.observe(self._on_theory_change, names='value')
-        
-        # Check button
-        self.check_button = widgets.Button(
-            description='Check Formula',
-            button_style='primary'
-        )
-        self.check_button.on_click(self._on_check_click)
-        
-        # Next model button
-        self.next_model_button = widgets.Button(
-            description='Find Next Model',
-            button_style='info',
-            disabled=True
-        )
-        self.next_model_button.on_click(self._on_next_model_click)
-        
-        # Visualization selector
-        self.viz_selector = widgets.RadioButtons(
-            options=['Text Output', 'Graph Visualization'],
-            value='Text Output',
-            description='View:',
-            style={'description_width': 'initial'}
-        )
-        self.viz_selector.observe(self._on_viz_change, names='value')
-        
-        # Output area
-        self.output_area = widgets.Output()
-        
-        # Assemble UI components
-        control_panel = widgets.VBox([
-            self.formula_input,
-            self.premises_input,
-            self.theory_selector,
-            self.settings_accordion,
-            widgets.HBox([self.check_button, self.next_model_button]),
-            self.viz_selector
-        ])
-        
-        self.ui = widgets.HBox([
-            control_panel,
-            self.output_area
-        ])
+        """Build the interactive UI components using the UI builder."""
+        builder = ModelExplorerUIBuilder(self)
+        self.ui = builder.build_main_ui()
     
-    def _build_settings_ui(self):
-        """
-        Build settings controls.
-        
-        Returns:
-            widgets.Accordion: Settings accordion widget
-        """
-        # Number of atomic propositions
-        self.n_slider = widgets.IntSlider(
-            value=self.settings['N'],
-            min=1,
-            max=10,
-            step=1,
-            description='Num Props (N):',
-            style={'description_width': 'initial'}
-        )
-        self.n_slider.observe(
-            lambda change: self._update_setting('N', change['new']), 
-            names='value'
-        )
-        
-        # Max time
-        self.max_time_slider = widgets.FloatSlider(
-            value=self.settings['max_time'],
-            min=1,
-            max=30,
-            step=1,
-            description='Max Time (s):',
-            style={'description_width': 'initial'}
-        )
-        self.max_time_slider.observe(
-            lambda change: self._update_setting('max_time', change['new']), 
-            names='value'
-        )
-        
-        # Contingent checkbox
-        self.contingent_checkbox = widgets.Checkbox(
-            value=self.settings['contingent'],
-            description='Contingent Valuations',
-            style={'description_width': 'initial'}
-        )
-        self.contingent_checkbox.observe(
-            lambda change: self._update_setting('contingent', change['new']), 
-            names='value'
-        )
-        
-        # Non-empty checkbox
-        self.non_empty_checkbox = widgets.Checkbox(
-            value=self.settings['non_empty'],
-            description='Non-Empty Valuations',
-            style={'description_width': 'initial'}
-        )
-        self.non_empty_checkbox.observe(
-            lambda change: self._update_setting('non_empty', change['new']), 
-            names='value'
-        )
-        
-        # Expectation selector (validity expectation)
-        self.expectation_selector = widgets.Dropdown(
-            options=[('Expect Valid', True), ('Expect Invalid', False)],
-            value=self.settings.get('expectation', True),
-            description='Expectation:',
-            style={'description_width': 'initial'}
-        )
-        self.expectation_selector.observe(
-            lambda change: self._update_setting('expectation', change['new']),
-            names='value'
-        )
-        
-        # Print constraints checkbox
-        self.print_constraints_checkbox = widgets.Checkbox(
-            value=self.settings['print_constraints'],
-            description='Print Constraints',
-            style={'description_width': 'initial'}
-        )
-        self.print_constraints_checkbox.observe(
-            lambda change: self._update_setting('print_constraints', change['new']), 
-            names='value'
-        )
-        
-        # Create accordion
-        accordion = widgets.Accordion(
-            children=[
-                widgets.VBox([
-                    self.n_slider,
-                    self.max_time_slider,
-                    self.contingent_checkbox,
-                    self.non_empty_checkbox,
-                    self.expectation_selector,
-                    self.print_constraints_checkbox
-                ])
-            ],
-            selected_index=None
-        )
-        accordion.set_title(0, 'Settings')
-        
-        return accordion
     
     def _update_setting(self, key: str, value: Any):
         """
@@ -726,48 +567,9 @@ class FormulaChecker:
         self._build_ui()
     
     def _build_ui(self):
-        """Build the UI components."""
-        # Formula input
-        self.formula_input = widgets.Text(
-            value='p → q',
-            description='Formula:',
-            style={'description_width': 'initial'}
-        )
-        
-        # Premises input
-        self.premises_input = widgets.Textarea(
-            value='',
-            description='Premises:',
-            placeholder='Enter premises (one per line)',
-            style={'description_width': 'initial'}
-        )
-        
-        # Theory selector
-        self.theory_selector = widgets.Dropdown(
-            options=self.available_theories,
-            value=self.theory_name,
-            description='Theory:',
-            style={'description_width': 'initial'}
-        )
-        
-        # Check button
-        self.check_button = widgets.Button(
-            description='Check Formula',
-            button_style='primary'
-        )
-        self.check_button.on_click(self._on_check_click)
-        
-        # Output area
-        self.output_area = widgets.Output()
-        
-        # Assemble UI components
-        self.ui = widgets.VBox([
-            self.formula_input,
-            self.premises_input,
-            self.theory_selector,
-            self.check_button,
-            self.output_area
-        ])
+        """Build the UI components using the UI builder."""
+        builder = FormulaCheckerUIBuilder(self)
+        self.ui = builder.build_main_ui()
     
     def _on_check_click(self, button):
         """
