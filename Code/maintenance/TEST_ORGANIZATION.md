@@ -57,27 +57,40 @@ package_name/
 
 ### 1.2 Theory Library Structure
 
-**For Theory Packages** (maintaining existing pattern):
+**For Theory Packages** (now following builder pattern):
 ```
 theory_name/
 └── tests/
-    ├── README.md               # Test documentation with file tree
-    ├── __init__.py
-    ├── test_semantic.py        # Core semantic functionality
-    ├── test_operators.py       # Individual operator validation
-    ├── test_examples.py        # Example formula verification  
-    ├── test_iterate.py         # Model iteration testing
-    └── fixtures.py             # Theory-specific test data
+    ├── unit/                   # Core theory logic tests
+    │   ├── test_semantic.py    # Semantic functionality
+    │   ├── test_operators.py   # Operator validation
+    │   └── test_proposition.py # Proposition handling
+    ├── integration/            # Theory integration tests
+    │   ├── test_examples.py    # Example verification
+    │   ├── test_iterate.py     # Model iteration
+    │   └── test_injection.py   # Constraint injection
+    ├── e2e/                    # Complete workflows
+    │   └── test_cli_execution.py # CLI testing
+    ├── fixtures/               # Theory-specific test data
+    ├── utils/                  # Theory test utilities
+    ├── conftest.py            # Pytest configuration
+    └── README.md              # Test documentation
 ```
 
-### 1.3 Legacy Test Migration
+### 1.3 Test Migration Complete
 
-**Current State**: Builder tests have 28 files in flat structure
-**Target State**: Organized into clear categories with centralized data
+**Previous State**: 17 packages with flat test structures
+**Current State**: All packages following builder pattern with unit/integration/e2e separation
 
-**Migration Strategy:**
-1. **Categorize Existing Tests**: Sort by unit/integration/e2e
-2. **Extract Common Data**: Move shared fixtures to centralized location
+**Completed Migration:**
+- ✅ iterate/tests/ - 17 tests organized (unit: 7, integration: 9, e2e: 1)
+- ✅ output/tests/ - 21 tests organized (unit: 9, integration: 10, e2e: 1)
+- ✅ models/tests/ - 8 tests organized (unit: 5, integration: 3)
+- ✅ syntactic/tests/ - 5 tests organized (unit: 4, integration: 1)
+- ✅ utils/tests/ - 4 tests organized (unit: 4)
+- ✅ settings/tests/ - 2 tests organized (unit: 1, integration: 1)
+- ✅ All theory tests following builder pattern
+- ✅ Code/tests/ reorganized for system-level tests only
 3. **Consolidate Related Tests**: Combine tests that belong together
 4. **Remove Redundancy**: Eliminate duplicate coverage
 

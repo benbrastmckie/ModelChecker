@@ -355,9 +355,22 @@ The investment in test architecture reorganization will pay dividends through:
 
 **Next Step:** Document the builder/tests/ pattern as the official standard and begin migrating iterate/tests/ as the first pilot.
 
+## Addendum: Code/tests/ Location Best Practice
+
+After analyzing Python best practices from major projects (requests, django, flask), the recommendation is to **keep Code/tests/ at its current location** but reorganize it:
+
+1. **Location**: Keep at project root (standard Python practice)
+2. **Content**: System-level tests only (integration, E2E, performance)
+3. **Unit Tests**: Move to respective packages (src/model_checker/*/tests/unit/)
+4. **Rename**: Change "unit/" subdirectory to "integration/" to reflect actual content
+
+This hybrid approach follows Python community standards while maintaining clear test organization.
+
 ---
 
 **Related Documents:**
 - Research Report 033: tests/ Package Post-Refactor Analysis
 - Plan 062: tests/ Package Refactor Plan
+- Plan 067: Test Architecture Standardization
+- Plan 068: Code/tests/ Migration Strategy
 - Maintenance Standards (maintenance/README.md)

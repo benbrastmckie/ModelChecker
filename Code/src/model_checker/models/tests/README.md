@@ -8,19 +8,30 @@ This test suite validates the refactored model checking components moved from th
 
 ## Test Organization
 
-```
-tests/
-├── README.md                   # This documentation
-├── __init__.py                # Test package initialization
-├── test_semantic.py           # SemanticDefaults unit tests
-├── test_proposition.py        # PropositionDefaults unit tests
-├── test_constraints.py        # ModelConstraints unit tests
-├── test_structure.py          # ModelDefaults unit tests
-├── test_printing.py           # Printing functionality tests
-├── test_analysis.py           # Analysis utilities tests
-├── test_integration.py        # Cross-component integration tests
-└── conftest.py               # Pytest configuration and fixtures
-```
+This directory follows the builder pattern structure:
+
+### unit/
+Unit tests for individual model components:
+- `test_proposition.py` - PropositionDefaults unit tests
+- `test_structure.py` - ModelDefaults structure tests
+- `test_structure_print.py` - Model printing functionality tests
+- `test_constraints.py` - ModelConstraints unit tests
+- `test_semantic.py` - SemanticDefaults unit tests
+
+### integration/
+Integration tests for component interactions:
+- `test_integration.py` - Cross-component integration tests
+- `test_constraints_injection.py` - Constraint injection tests
+- `test_imports.py` - Import validation tests
+
+### e2e/
+End-to-end tests for complete workflows (to be added as needed)
+
+### fixtures/
+Shared test data and mock objects (to be populated as needed)
+
+### utils/
+Test utilities and helpers (to be populated as needed)
 
 ## Running Tests
 

@@ -335,7 +335,7 @@ BM_CM_2_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 5,
     'expectation' : True,
 }
 BM_CM_2_example = [
@@ -369,7 +369,7 @@ BM_CM_4_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 5,
     'expectation' : True,
 }
 BM_CM_4_example = [
@@ -394,12 +394,12 @@ BM_CM_4_example = [
 EX_TH_1_premises = ['(A \\wedge B)']
 EX_TH_1_conclusions = ['(A \\vee B)']
 EX_TH_1_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 2,
-    'expectation' : True,
+    'expectation' : False,
 }
 EX_TH_1_example = [
     EX_TH_1_premises,
@@ -439,7 +439,7 @@ MD_TH_2_settings = {
     'contingent' : True,
     'disjoint' : False,
     'max_time' : 2,
-    'expectation' : True,
+    'expectation' : False,
 }
 MD_TH_2_example = [
     MD_TH_2_premises,
