@@ -14,13 +14,6 @@ Interactive usage:
     explorer.display()
 """
 
-"""
-ModelChecker Jupyter integration package.
-
-This package provides tools for using ModelChecker in Jupyter notebooks
-with interactive visualizations and simplified interfaces.
-"""
-
 import importlib.util
 import warnings
 
@@ -28,6 +21,16 @@ import warnings
 from .unicode import unicode_to_latex, latex_to_unicode
 from .environment import setup_environment, get_available_theories
 from .utils import load_examples
+from .exceptions import (
+    JupyterError,
+    JupyterEnvironmentError,
+    JupyterDependencyError,
+    JupyterWidgetError,
+    JupyterVisualizationError,
+    JupyterFormulaError,
+    JupyterTheoryError,
+    JupyterTimeoutError
+)
 
 # Base API that's always available
 __all__ = [
@@ -36,6 +39,15 @@ __all__ = [
     "setup_environment",
     "get_available_theories",
     "load_examples",
+    # Exceptions
+    "JupyterError",
+    "JupyterEnvironmentError",
+    "JupyterDependencyError",
+    "JupyterWidgetError",
+    "JupyterVisualizationError",
+    "JupyterFormulaError",
+    "JupyterTheoryError",
+    "JupyterTimeoutError",
 ]
 
 # Function to check if dependencies are available
@@ -47,43 +59,35 @@ def has_jupyter_dependencies():
             return False
     return True
 
-# Define stub functions for missing features
-def missing_dependencies_error(feature_name):
-    """Raise error for missing dependencies."""
-    raise ImportError(
-        f"{feature_name} requires additional dependencies. "
-        "Install with 'pip install model-checker[jupyter]' to enable this feature."
-    )
-
 # Stub functions that will be replaced if dependencies are available
 def check_formula(*args, **kwargs):
     """Check if a formula is valid given premises."""
-    missing_dependencies_error("check_formula")
+    raise JupyterDependencyError("ipywidgets", "check_formula")
 
 def find_countermodel(*args, **kwargs):
     """Find a countermodel for a formula with optional premises."""
-    missing_dependencies_error("find_countermodel")
+    raise JupyterDependencyError("ipywidgets", "find_countermodel")
 
 def explore_formula(*args, **kwargs):
     """Create an interactive explorer for a specific formula."""
-    missing_dependencies_error("explore_formula")
+    raise JupyterDependencyError("ipywidgets", "explore_formula")
 
 def display_model(*args, **kwargs):
     """Display a model visualization."""
-    missing_dependencies_error("display_model")
+    raise JupyterDependencyError("matplotlib", "display_model")
 
 def display_formula_check(*args, **kwargs):
     """Display results of checking a formula."""
-    missing_dependencies_error("display_formula_check")
+    raise JupyterDependencyError("IPython", "display_formula_check")
 
 def display_countermodel(*args, **kwargs):
     """Display a countermodel."""
-    missing_dependencies_error("display_countermodel")
+    raise JupyterDependencyError("IPython", "display_countermodel")
 
 class FormulaChecker:
     """Formula checking widget (stub class)."""
     def __init__(self, *args, **kwargs):
-        missing_dependencies_error("FormulaChecker")
+        raise JupyterDependencyError("ipywidgets", "FormulaChecker")
 
 # Add stub functions to API
 __all__.extend([
