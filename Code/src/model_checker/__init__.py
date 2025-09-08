@@ -33,7 +33,7 @@ __all__ = [
     "ParseFileFlags",                               # main.py
     "ForAll", "Exists", "bitvec_to_substates",      # utils.py
     "get_example", "get_theory", "run_test",
-    "BuildModule", "BuildProject",  # builder.py
+    "BuildModule", "BuildProject", "BuildExample",  # builder.py
     "BuildModule", "main",
     "ModelConstraints",
     "Syntax",
@@ -76,6 +76,8 @@ from .builder import (
     BuildModule,
     BuildProject,
 )
+# Import BuildExample directly for notebooks
+from .builder.example import BuildExample
 
 # Import specific items from __main__
 from .__main__ import (

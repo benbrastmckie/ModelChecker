@@ -10,6 +10,9 @@ relevance/
 ├── __init__.py            # Module initialization and public API
 ├── examples.py            # Example formulas and test cases (20 examples)
 ├── operators.py           # Relevance operator import (1 operator)
+├── notebooks/             # Interactive Jupyter notebooks (see notebooks/README.md)
+│   ├── README.md          # Notebook documentation and usage guide
+│   └── relevance_examples.ipynb  # Interactive examples with countermodels and theorems
 └── tests/                 # Test suite (see tests/README.md)
     ├── README.md          # Test documentation and methodology
     ├── __init__.py        # Test module initialization
@@ -24,6 +27,10 @@ Within the Logos framework, the relevance subtheory provides specialized explora
 
 ## Subdirectories
 
+### [notebooks/](notebooks/)
+
+Interactive Jupyter notebooks demonstrating the relevance operator through hands-on examples. Features countermodels showing invalid principles (e.g., antecedent strengthening failure, strict implication vs relevance) and theorems proving valid relationships (e.g., relevance to ground connection, grounding implies relevance). Ideal for exploring how relevance avoids paradoxes of classical implication. See [notebooks/README.md](notebooks/README.md) for usage guide.
+
 ### [tests/](tests/)
 
 Comprehensive test suite with 20 integration examples focusing exclusively on the relevance operator. Includes countermodel examples (invalid relevance principles like antecedent strengthening, transitivity failure) and theorem examples (valid relevance principles like connections to grounding and essence). Tests demonstrate the hyperintensional nature of relevance logic and validate fusion closure conditions. See [tests/README.md](tests/README.md) for complete testing methodology.
@@ -32,6 +39,7 @@ Comprehensive test suite with 20 integration examples focusing exclusively on th
 
 ### For New Users
 
+- **[Interactive Notebooks](notebooks/)** - Hands-on exploration of the relevance operator
 - **[Quick Start](#quick-start)** - Basic relevance logic examples
 - **[Operator Reference](#operator-reference)** - Complete guide to the relevance operator
 - **[Testing Guide](tests/README.md)** - How to run and understand relevance tests

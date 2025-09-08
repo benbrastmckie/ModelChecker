@@ -10,6 +10,9 @@ constitutive/
 ├── __init__.py            # Module initialization and public API
 ├── examples.py            # Example formulas and test cases (33 examples)
 ├── operators.py           # Content relationship operator definitions (5 operators)
+├── notebooks/             # Interactive Jupyter notebooks (see notebooks/README.md)
+│   ├── README.md          # Notebook documentation and usage guide
+│   └── constitutive_examples.ipynb  # Interactive examples with countermodels and theorems
 └── tests/                 # Test suite (see tests/README.md)
     ├── README.md          # Test documentation and methodology
     ├── __init__.py        # Test module initialization
@@ -24,6 +27,10 @@ This subtheory serves as the foundation for hyperintensional reasoning within th
 
 ## Subdirectories
 
+### [notebooks/](notebooks/)
+
+Interactive Jupyter notebooks demonstrating constitutive operators through hands-on examples. Features countermodels showing invalid principles (e.g., non-identity of tautologies, strict implication vs grounding) and theorems proving valid relationships (e.g., ground-essence duality, essence absorption). Ideal for exploring hyperintensional distinctions interactively. See [notebooks/README.md](notebooks/README.md) for usage guide.
+
 ### [tests/](tests/)
 
 Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid intensional principles), theorem examples (valid hyperintensional principles), and exploration of reasoning that is sensitive to differences in subject-matter. Tests validate hyperintensional distinctions that intensional logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
@@ -32,6 +39,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 
 ### For New Users
 
+- **[Interactive Notebooks](notebooks/)** - Hands-on exploration of constitutive operators
 - **[Examples](examples.py)** - Complete collection of validated examples
 - **[Operator Reference](#operator-reference)** - Complete guide to all five content operators
 - **[Testing Guide](tests/README.md)** - How to run and understand hyperintensional tests

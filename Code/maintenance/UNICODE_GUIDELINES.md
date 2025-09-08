@@ -35,20 +35,22 @@ MODAL_TH_1_premises = ["\\Box (A \\rightarrow B)", "\\Box A"]
 MODAL_TH_1_conclusions = ["\\Box B"]
 
 # INCORRECT - Unicode in formulas  
-bad_premises = ["□ (A → B)", "□ A"]  # WRONG: Parser expects LaTeX
+bad_premises = ["□(A → B)", "□A"]  # WRONG: Parser expects LaTeX
 ```
 
 ### Common LaTeX Commands
 
-| Operator | LaTeX Code | Usage in Code |
-|----------|------------|---------------|
-| Negation | `\\neg` | `"\\neg A"` |
-| Conjunction | `\\wedge` | `"(A \\wedge B)"` |
-| Disjunction | `\\vee` | `"(A \\vee B)"` |
-| Implication | `\\rightarrow` | `"(A \\rightarrow B)"` |
-| Biconditional | `\\leftrightarrow` | `"(A \\leftrightarrow B)"` |
-| Necessity | `\\Box` | `"\\Box A"` |
-| Possibility | `\\Diamond` | `"\\Diamond A"` |
+| Operator | LaTeX Code | Usage in Code | Unicode Display |
+|----------|------------|---------------|-----------------|
+| Negation | `\\neg` | `"\\neg A"` | ¬ |
+| Conjunction | `\\wedge` | `"(A \\wedge B)"` | ∧ |
+| Disjunction | `\\vee` | `"(A \\vee B)"` | ∨ |
+| Implication | `\\rightarrow` | `"(A \\rightarrow B)"` | → |
+| Biconditional | `\\leftrightarrow` | `"(A \\leftrightarrow B)"` | ↔ |
+| Necessity | `\\Box` | `"\\Box A"` | □ |
+| Possibility | `\\Diamond` | `"\\Diamond A"` | ◇ |
+| Box-right | `\\boxright` | `"(A \\boxright B)"` | □→ |
+| Diamond-right | `\\diamondright` | `"(A \\diamondright B)"` | ◇→ |
 
 ## Unicode in Comments and Docstrings
 
@@ -83,7 +85,7 @@ def validate_formula(formula: str) -> bool:
 formula = "\\Box (A \\rightarrow B)"  # Box (A → B)
 
 # INCORRECT - Unicode in parsed strings
-formula = "□ (A → B)"  # Parser will fail
+formula = "□(A → B)"  # Parser will fail
 ```
 
 ### File Validation
@@ -126,7 +128,7 @@ Some IDEs convert LaTeX to Unicode. Always verify:
 formula = "\\Box A"
 
 # To this (WRONG):
-formula = "□ A"
+formula = "□A"
 
 # Always check before committing!
 ```
@@ -183,10 +185,52 @@ Before committing code:
 ```bash
 # Quick validation script
 echo "Checking for Unicode in code..."
+# Note: □→ and ◇→ are checked as individual characters
 grep -n '[□◇∧∨¬→↔≡≤⊑⪯⟹]' *.py | grep -v '#' | grep -v '"""'
 
 echo "Checking file encoding..."
 file -i *.py | grep -v "charset=utf-8"
+
+echo "Checking Jupyter notebooks..."
+find . -name "*.ipynb" -exec grep -l '[□◇∧∨¬→↔]' {} \; | \
+  xargs -I {} echo "Check {} for Unicode in code cells"
+```
+
+## Jupyter Notebook Standards
+
+Jupyter notebooks in the ModelChecker framework must follow the same Unicode guidelines as Python code files:
+
+### Code Cells
+- **LaTeX notation required** for all formulas processed by the parser
+- Unicode permitted only in markdown cells and code comments
+- All formula strings must use LaTeX commands
+
+```python
+# CORRECT in Jupyter code cell
+formula = "\\Box (A \\rightarrow B)"
+counterfactual = "(A \\boxright B)"
+
+# INCORRECT in Jupyter code cell  
+formula = "□(A → B)"  # Parser cannot process Unicode
+counterfactual = "(A □→ B)"  # Will cause parsing errors
+```
+
+### Markdown Cells
+- Unicode characters permitted for display and explanation
+- Use Unicode to show visual representation: "The formula `\\Box A` displays as □A"
+- LaTeX math mode also supported: $\Box A \rightarrow \Diamond B$
+
+### Best Practices for Notebooks
+1. **Input cells**: Always use LaTeX notation for formulas
+2. **Output display**: Can render Unicode for readability
+3. **Documentation cells**: Use Unicode freely for explanations
+4. **Example cells**: Show both LaTeX input and Unicode output
+
+```python
+# Example notebook pattern
+input_formula = "\\Box (A \\rightarrow B)"  # LaTeX for parser
+print(f"Input: {input_formula}")
+print(f"Display: □(A → B)")  # Unicode in output only
 ```
 
 ## Migration from Unicode
@@ -202,7 +246,9 @@ replacements = {
     '→': '\\rightarrow',
     '↔': '\\leftrightarrow',
     '□': '\\Box',
-    '◇': '\\Diamond'
+    '◇': '\\Diamond',
+    '□→': '\\boxright',
+    '◇→': '\\diamondright'
 }
 
 # Apply to all formula strings
