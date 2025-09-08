@@ -18,6 +18,7 @@ maintenance/
 ├── CODE_ORGANIZATION.md            # Module structure and imports
 ├── ERROR_HANDLING.md               # Exception handling patterns (enhanced)
 ├── PERFORMANCE.md                  # Z3 optimization guidelines
+├── TEST_STATUS.md                  # Current test status and summary
 ├── TESTING_STANDARDS.md            # Test requirements with isolation (enhanced)
 ├── TEST_ORGANIZATION.md            # Test suite organization standards
 ├── MANUAL_TESTING.md               # Manual testing protocol (REQUIRED)
@@ -127,6 +128,12 @@ Code templates providing starting points for new theory implementations, example
 ### For Performance & Quality
 - **[Performance Guidelines](PERFORMANCE.md)** - Z3 optimization techniques
 - **[Unicode Guidelines](UNICODE_GUIDELINES.md)** - Character encoding for code
+
+### Testing & Quality
+- **[Test Status](TEST_STATUS.md)** - Current test status and summary
+- **[Testing Standards](TESTING_STANDARDS.md)** - Comprehensive testing guidelines
+- **[Test Organization](TEST_ORGANIZATION.md)** - Test structure and categorization  
+- **[Manual Testing](MANUAL_TESTING.md)** - Manual testing procedures
 
 ### For Development Workflow
 - **[Version Control](VERSION_CONTROL.md)** - Git workflow and commit standards

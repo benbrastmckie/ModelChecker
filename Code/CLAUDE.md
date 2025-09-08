@@ -228,10 +228,13 @@ src/model_checker/*/tests/                # Component test files
 ./dev_cli.py -l logos my_counterfactual_theory
 ./dev_cli.py -l my_new_theory          # Generate theory template
 
-# Test theory implementation
-./run_tests.py my_counterfactual_theory --verbose
-./run_tests.py logos exclusion         # Test specific theories
-./run_tests.py --examples              # Example validation only
+# Test theory implementation (NO DESELECTION!)
+./run_tests.py                         # Run ALL tests (no deselection)
+./run_tests.py logos                   # All tests for logos theory
+./run_tests.py iterate builder         # Test multiple packages
+./run_tests.py --unit                  # All unit tests across codebase
+./run_tests.py --unit iterate          # Unit tests for iterate only
+./run_tests.py --integration --e2e     # Integration and e2e tests
 
 # Debug theory constraints
 ./dev_cli.py -p -z examples/my_theory_test.py
@@ -247,10 +250,11 @@ python test_package.py --components builder settings
 # Integration testing
 python tests/test_project_creation.py
 
-# Comprehensive validation
-./run_tests.py --unit --examples --package
-./run_tests.py                        # All tests
-./run_tests.py --unit                 # Unit tests only
+# Comprehensive validation (directory-based, no deselection)
+./run_tests.py                        # All tests (no deselection!)
+./run_tests.py --unit                 # All unit tests
+./run_tests.py --integration          # All integration tests
+./run_tests.py --e2e                  # All end-to-end tests
 ```
 
 ### Interactive Development

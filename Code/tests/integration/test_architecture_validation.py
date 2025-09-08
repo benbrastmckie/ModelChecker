@@ -15,7 +15,7 @@ class TestArchitecturalConstraints:
     
     def test_builder_has_no_theory_imports(self):
         """Builder module should not import any theories."""
-        builder_path = Path(__file__).parent.parent / 'src' / 'model_checker' / 'builder'
+        builder_path = Path(__file__).parent.parent.parent / 'src' / 'model_checker' / 'builder'
         
         for filepath in builder_path.rglob('*.py'):
             # Skip test files
@@ -39,7 +39,7 @@ class TestArchitecturalConstraints:
     def test_no_circular_imports(self):
         """Verify no circular import between builder and iterate."""
         # Check that iterate doesn't import from builder.example
-        iterate_path = Path(__file__).parent.parent / 'src' / 'model_checker' / 'iterate' / 'core.py'
+        iterate_path = Path(__file__).parent.parent.parent / 'src' / 'model_checker' / 'iterate' / 'core.py'
         
         with open(iterate_path) as f:
             content = f.read()

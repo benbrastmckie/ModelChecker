@@ -43,6 +43,8 @@ Tests theory-specific implementations and logical properties:
 - Example validation
 - Theory-specific features
 
+**Note**: Bimodal theory tests are currently skipped as the theory is under development. They will be re-enabled once the bimodal implementation is complete.
+
 ## Test Categories
 
 ### 1. Example Tests (Integration Tests)
@@ -103,7 +105,7 @@ python test_theories.py
 
 # Run specific component tests (for targeted development)
 python test_package.py --components builder settings
-python test_theories.py --theories logos bimodal
+python test_theories.py --theories logos exclusion imposition  # Note: bimodal tests are currently skipped
 
 # Component tests after refactoring
 ./run_tests.py --package --components models

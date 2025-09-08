@@ -24,12 +24,17 @@ def run_cli_command(args: List[str], capture_output: bool = True,
     Returns:
         subprocess.CompletedProcess: Result of command execution
     """
-    cmd = [sys.executable, '-m', 'model_checker'] + args
-    
     # Find the Code directory (project root)
     current_dir = Path(__file__).parent
     while current_dir.name != 'Code' and current_dir.parent != current_dir:
         current_dir = current_dir.parent
+    
+    # Add src to Python path
+    src_dir = current_dir / 'src'
+    env = os.environ.copy()
+    env['PYTHONPATH'] = str(src_dir) + os.pathsep + env.get('PYTHONPATH', '')
+    
+    cmd = [sys.executable, '-m', 'model_checker'] + args
     
     result = subprocess.run(
         cmd,
@@ -37,7 +42,8 @@ def run_cli_command(args: List[str], capture_output: bool = True,
         text=True,
         check=check,
         timeout=timeout,
-        cwd=current_dir
+        cwd=current_dir,
+        env=env
     )
     
     return result

@@ -5,25 +5,26 @@
 ## Directory Structure
 
 ```
-tests/
-├── unit/                           # Fast, isolated component tests
-│   ├── test_imports.py            # Import structure validation
-│   ├── test_ideal_architecture.py # Architecture conformance tests
-│   ├── test_formula_validation.py # Formula syntax validation (32 tests)
-│   ├── test_settings_validation.py # Settings validation (59 tests)
-│   └── test_edge_cases.py        # Boundary and edge case tests (41 tests)
-├── integration/                    # Component interaction tests
+tests/                              # SYSTEM-LEVEL TESTS ONLY
+├── integration/                    # Cross-package integration tests
 │   ├── test_batch_output_integration.py
 │   ├── test_build_module_interactive.py
 │   ├── test_cli_interactive.py   # CLI flag handling (parameterized)
 │   ├── test_model_building_sync.py
 │   ├── test_error_handling.py    # Error condition tests (30 tests)
 │   ├── test_timeout_resources.py # Resource and timeout tests (14 tests)
-│   └── test_performance.py       # Performance benchmarks (24 tests)
+│   ├── test_performance.py       # Performance benchmarks (24 tests)
+│   ├── test_system_imports.py    # System-wide import validation
+│   ├── test_architecture_validation.py # Architecture conformance
+│   ├── test_formula_system.py    # Cross-theory formula validation
+│   ├── test_settings_system.py   # Settings propagation tests
+│   └── test_system_boundaries.py # System-wide edge cases
 ├── e2e/                           # End-to-end workflow tests
 │   ├── test_project_creation.py  # Project generation (refactored)
 │   ├── test_batch_output_real.py
 │   └── test_simple_output_verify.py
+├── performance/                   # Performance and scaling tests
+│   └── (To be populated with dedicated performance tests)
 ├── fixtures/                      # Shared test data and mocks
 │   ├── example_data.py           # Standard test examples
 │   └── mock_theories.py          # Mock theory implementations
@@ -35,12 +36,16 @@ tests/
 └── README.md                      # This file
 ```
 
+**Note**: Unit tests are located with their respective packages at `src/model_checker/*/tests/unit/`
+
 ## Overview
 
-The **ModelChecker Test Suite** provides comprehensive validation across three levels:
-- **Unit Tests**: Fast, isolated component verification (200+ tests)
-- **Integration Tests**: Component interaction and CLI functionality (100+ tests)
+The **ModelChecker Test Suite** provides system-level validation:
+- **Integration Tests**: Cross-package interactions and CLI functionality (100+ tests)
 - **End-to-End Tests**: Complete workflow validation with real-world scenarios
+- **Performance Tests**: Scaling, memory usage, and benchmark validation
+
+Unit tests are distributed with their respective packages following the builder pattern.
 
 This structured approach ensures the ModelChecker framework operates correctly from both developer and user perspectives, with proper test isolation, shared fixtures, and comprehensive coverage.
 
