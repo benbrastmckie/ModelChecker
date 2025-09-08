@@ -258,6 +258,26 @@ python test_theories.py --theories logos --examples
 python test_theories.py --theories logos --examples MOD_TH_5 CON_CM_1
 ```
 
+
+## Notebooks
+
+Interactive Jupyter notebooks are available for each subtheory, providing hands-on examples that parallel the `examples.py` files:
+
+- [Modal Notebooks](subtheories/modal/notebooks/README.md) - Modal logic examples (□, ◇)
+- [Extensional Notebooks](subtheories/extensional/notebooks/README.md) - Classical logical operators (∧, ∨, ¬, →)
+- [Constitutive Notebooks](subtheories/constitutive/notebooks/README.md) - Identity and essence operators
+- [Counterfactual Notebooks](subtheories/counterfactual/notebooks/README.md) - Counterfactual conditionals
+- [Relevance Notebooks](subtheories/relevance/notebooks/README.md) - Relevance logic operators
+
+### Running Notebooks
+
+1. Start Jupyter: `./run_jupyter.sh`
+2. Navigate to the desired subtheory's notebooks directory
+3. Open the examples notebook
+4. Run all cells to see the examples in action
+
+All notebooks use LaTeX notation for formulas (e.g., `\Box` for □) as required by the parser.
+
 ## References
 
 ### Primary Sources

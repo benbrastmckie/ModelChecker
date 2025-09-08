@@ -31,7 +31,7 @@ def check_formula(formula, theory_name="logos", premises=None, settings=None):
     
     try:
         from IPython.display import display, HTML
-        from model_checker import BuildExample
+        from model_checker.jupyter.builder_utils import create_build_example
         from model_checker.theory_lib import logos, exclusion
         
         # Get the appropriate theory
@@ -61,7 +61,7 @@ def check_formula(formula, theory_name="logos", premises=None, settings=None):
         
         # Create example and check
         example = [premises, [formula], settings]
-        model = BuildExample("jupyter_check", theory, example)
+        model = create_build_example("jupyter_check", theory, example)
         
         # Get result
         valid = model.check_result()
@@ -96,7 +96,7 @@ def find_countermodel(formula, theory_name="logos", premises=None, settings=None
     
     try:
         from IPython.display import display, HTML
-        from model_checker import BuildExample
+        from model_checker.jupyter.builder_utils import create_build_example
         from model_checker.theory_lib import logos, exclusion
         from io import StringIO
         
@@ -130,7 +130,7 @@ def find_countermodel(formula, theory_name="logos", premises=None, settings=None
         
         # Create example and check for countermodel
         example = [premises, [formula], settings]
-        model = BuildExample("jupyter_countermodel", theory, example)
+        model = create_build_example("jupyter_countermodel", theory, example)
         
         # Get result
         valid = model.check_result()
@@ -334,17 +334,11 @@ class ModelExplorer:
             example = [premises, [formula], self.settings]
             
             try:
-                # Create a minimal BuildModule for the BuildExample
-                from model_checker.builder import BuildModule
-                from model_checker import BuildExample
-                
-                build_module = type('BuildModule', (), {
-                    'module': type('Module', (), {'general_settings': {}}),
-                    'module_flags': type('Flags', (), {})
-                })
+                # Create the model using the helper function
+                from model_checker.jupyter.builder_utils import create_build_example
                 
                 # Build and check the model
-                self.model = BuildExample(build_module, self.theory, example)
+                self.model = create_build_example('jupyter_interactive', self.theory, example)
                 self.model.theory_name = self.theory_name  # Add theory_name attribute for later use
                 self.next_model_button.disabled = False
                 

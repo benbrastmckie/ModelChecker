@@ -21,6 +21,7 @@ import warnings
 from .unicode import unicode_to_latex, latex_to_unicode
 from .environment import setup_environment, get_available_theories
 from .utils import load_examples
+from .builder_utils import create_build_example, build_and_check
 from .exceptions import (
     JupyterError,
     JupyterEnvironmentError,
@@ -39,6 +40,8 @@ __all__ = [
     "setup_environment",
     "get_available_theories",
     "load_examples",
+    "create_build_example",
+    "build_and_check",
     # Exceptions
     "JupyterError",
     "JupyterEnvironmentError",

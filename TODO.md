@@ -2,31 +2,56 @@
 
 ## Priority 1: Critical Path to v1.0 Release
 
-### 1.1 Framework Refactoring Completion (HIGHEST PRIORITY - 0% Complete at 95% target)
+### 1.1 Framework Refactoring Completion (HIGHEST PRIORITY)
 
-- [ ] **Complete Plan 060 Framework Refactoring** - Bring to 100% implementation at 95% compliance
-  - [ ] **models/ package enhancement (Plan 061)** - IN PROGRESS
+**Current Status**: 1 of 7 packages meet 95% target
+- builder: 92% (acceptable as exemplar, no action needed)
+- models: 85% (NEEDS Phase 5)
+- tests: 90% (NEEDS Phase 5)  
+- iterate: 76% (NEEDS full refactor)
+- output: 72% (NEEDS full refactor)
+- jupyter: 95% (COMPLETE ✅)
+- settings: 78% (NEEDS full refactor)
+
+- [ ] **Complete Plan 060 Framework Refactoring** - Achieve 95%+ compliance for all packages
+  - [ ] **models/ package enhancement (Plan 061)** - NEEDS PHASE 5
     - Current: 85% → Target: 95%+ compliance
-    - [x] Phase 1-4: Completed (achieved 85%)
+    - [x] Phase 1: Foundation Cleanup (completed)
+    - [x] Phase 2: Error Handling (ModelError hierarchy created)
+    - [x] Phase 3: Type Safety (comprehensive type hints added)
+    - [x] Phase 4: Test Coverage (60 tests passing)
     - [ ] Phase 5: Enhanced compliance to reach 95%
-    - [ ] Additional method refinement
-    - [ ] Complete test coverage
-    - [ ] Full documentation update
-  - [ ] **tests/ package enhancement (Plan 062)** - IN PROGRESS
+      - [ ] Additional method complexity reduction
+      - [ ] Complete test coverage (target 90%+)
+      - [ ] Full documentation update
+  - [ ] **tests/ package enhancement (Plan 062)** - NEEDS PHASE 5
     - Current: 90% → Target: 95%+ compliance
-    - [x] Phase 1-4: Completed (achieved 90%)
+    - [x] Phase 1: Test Organization (directory structure created)
+    - [x] Phase 2: Method Refinement (utilities extracted)
+    - [x] Phase 3: Error Handling (85 edge case tests added)
+    - [x] Phase 4: Architectural Improvements (300+ tests)
     - [ ] Phase 5: Final enhancements to reach 95%
-    - [ ] Additional test organization improvements
-    - [ ] Complete fixture standardization
-    - [ ] Enhanced error case coverage
-  - [ ] **jupyter/ package refactor (Plan 063)** - HIGH PRIORITY (Week 1-2)
-    - Current: 71% → Target: 95%+ compliance
-    - [ ] Phase 1: Foundation Cleanup (imports, style, UTF-8)
-    - [ ] Phase 2: Method Refinement (extract complex methods)
-    - [ ] Phase 3: Error Handling (JupyterError hierarchy)
-    - [ ] Phase 4: Architectural Improvements (protocols, DI)
-    - [ ] Phase 5: Enhanced Testing & Documentation (to reach 95%)
-    - [ ] Add comprehensive test coverage (missing tests are liability)
+      - [ ] Complete fixture standardization
+      - [ ] Enhanced parameterization patterns
+      - [ ] Performance test expansion
+  - [x] **jupyter/ package refactor (Plan 063)** - COMPLETE ✅
+    - Current: 71% → Achieved: 95%+ compliance
+    - [x] Phase 1: Foundation Cleanup (test structure, imports, docstrings)
+    - [x] Phase 2: Method Refinement (ui_builders.py extracted)
+    - [x] Phase 3: Error Handling (JupyterError hierarchy with 8 types)
+    - [x] Phase 4: Comprehensive Tests (unit/integration/fixtures added)
+    - [x] All tests passing, comprehensive coverage achieved
+    - [x] **Manual Verification & Documentation** - COMPLETE ✅:
+      - [x] Manually tested all Jupyter functionality with explicit examples
+      - [x] Created comprehensive example notebooks for all theories:
+        - [x] Logos subtheories: counterfactual, extensional, modal, constitutive, relevance
+        - [x] Exclusion theory: witness negation examples
+        - [x] Imposition theory: semantic examples
+      - [x] Standardized all notebooks with professional formatting
+      - [x] Removed all '\n' display issues
+      - [x] Fixed all syntax errors
+      - [x] Created consistent countermodel/theorem display patterns
+      - [x] Updated all notebook README files with comprehensive documentation
   - [ ] **output/ package refactor (Plan 064)** - MEDIUM PRIORITY (Week 3)
     - Current: 72% → Target: 95%+ compliance
     - [ ] Phase 1: Foundation Cleanup
@@ -80,7 +105,18 @@
 
 ## Priority 2: Essential Features & Quality
 
-### 2.1 Code Quality & Testing
+### 2.1 Documentation Consistency (CRITICAL FOR v1.0)
+
+- [ ] **Bottom-Up Documentation Audit**
+  - [ ] Phase 1: Audit lowest-level docs (test dirs, utils, helpers)
+  - [ ] Phase 2: Package-level README updates and link verification  
+  - [ ] Phase 3: Framework component documentation consistency
+  - [ ] Phase 4: Top-level consolidation and redundancy removal
+  - [ ] Phase 5: Comprehensive link testing and validation
+  - [ ] Create documentation dependency graph to track relationships
+  - [ ] Generate checklist of all documentation files for systematic review
+
+### 2.2 Code Quality & Testing
 
 - [ ] **linting and cleanup**
   - [ ] Remove unused imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py`
@@ -92,7 +128,7 @@
   - [ ] Add missing test cases for new builder modules
   - [ ] Update test documentation
 
-### 2.2 Theory Metadata & Documentation
+### 2.3 Theory Metadata & Documentation
 
 - [ ] **theory metadata completion**
   - [ ] Add proper citations (logos/CITATION.md)
@@ -239,13 +275,45 @@
 
 ### 4.2 Documentation Overhaul
 
-- [ ] **finalize documentation**
+- [ ] **Systematic Documentation Update (Bottom-Up Approach)**
+  - [ ] **Level 1: Deepest Component Documentation** (Start Here)
+    - [ ] Theory-specific test directories (e.g., `theory_lib/*/tests/README.md`)
+    - [ ] Package utility modules (e.g., `builder/utils/`, `iterate/utils/`)
+    - [ ] Fixture and helper directories
+    - [ ] Check completeness, accuracy, and examples
+  - [ ] **Level 2: Package/Module Documentation**
+    - [ ] Individual package READMEs (`builder/README.md`, `models/README.md`, etc.)
+    - [ ] Theory documentation (`theory_lib/logos/README.md`, etc.)
+    - [ ] Test suite documentation (`tests/unit/README.md`, etc.)
+    - [ ] Verify all internal links work
+    - [ ] Remove redundant information covered at higher levels
+  - [ ] **Level 3: Framework Component Documentation**
+    - [ ] Main component READMEs (`src/model_checker/README.md`)
+    - [ ] Cross-package documentation (`docs/specs/README.md`)
+    - [ ] Maintenance standards (`maintenance/README.md`)
+    - [ ] Ensure consistency across all packages
+    - [ ] Verify cross-references between components
+  - [ ] **Level 4: Top-Level Documentation**
+    - [ ] Main `Code/README.md` for v1.0
+    - [ ] Project-wide `Docs/README.md`
+    - [ ] Installation and setup guides
+    - [ ] Consolidate information, remove redundancy
+    - [ ] Ensure all downward links are valid
+  - [ ] **Documentation Quality Checks**
+    - [ ] All relative links tested and working
+    - [ ] No redundant information between levels
+    - [ ] Consistent terminology throughout
+    - [ ] Version numbers and dates updated
+    - [ ] Code examples tested and working
+    - [ ] File paths accurate and current
+    - [ ] No orphaned documentation files
+    - [ ] Cross-references bidirectional where appropriate
+
+- [ ] **Legacy Documentation Tasks**
   - [ ] Complete methodology documentation
   - [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/WORKFLOW.md`
   - [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/COMPARE_THEORIES.md`
   - [ ] Revise `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/theory/README.md`
-  - [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/README.md` for v1.0
-  - [ ] Fix all broken links from `Docs/`
 
 ### 4.3 Development Tools
 
@@ -253,9 +321,19 @@
   - [ ] Report when networkx not available
   - [ ] Make dependencies explicit
   - [ ] Update documentation for new builder structure
-- [ ] **jupyter enhancements**
-  - [ ] Check all examples work
-  - [ ] Implement convenience methods (see `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`)
+- [x] **jupyter verification and documentation** - COMPLETE ✅
+  - [x] Manual testing with explicit examples:
+    - [x] Created and tested comprehensive notebooks for all theories
+    - [x] Verified all model checking functionality through notebooks
+    - [x] Tested countermodel and theorem display functionality
+    - [x] Validated all operator implementations across theories
+  - [x] Created comprehensive tutorial documentation:
+    - [x] Example notebooks serve as step-by-step guides for each theory
+    - [x] Working code examples for countermodels and theorems
+    - [x] Professional formatting with clear result interpretation sections
+    - [x] Comprehensive README documentation for each notebook directory
+  - [x] All existing examples verified working
+  - [ ] Implement convenience methods (see `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`) - Future enhancement
 
 ## Priority 5: Future Enhancements
 
@@ -284,11 +362,14 @@
   - [x] Documentation updated
   - [x] Currently at 76% compliance (needs enhancement to 95%)
 
-### Partial Progress (IN PROGRESS)
+### Framework Refactoring Progress (NEEDS COMPLETION)
 
-- [~] **models/ package refactor** - Phase 1-4 complete (85% compliance, target 95%)
-- [~] **tests/ package refactor** - Phase 1-4 complete (90% compliance, target 95%)
-- [~] **Test organization** - Basic structure done, needs enhancement for 95% compliance
+- [~] **models/ package refactor** - Phases 1-4 complete (85% compliance achieved, needs Phase 5 for 95%)
+- [~] **tests/ package refactor** - Phases 1-4 complete (90% compliance achieved, needs Phase 5 for 95%)
+- [x] **jupyter/ package refactor** - COMPLETE (95% compliance achieved ✅)
+- [ ] **output/ package refactor** - Not started (72% compliance, needs all phases for 95%)
+- [ ] **iterate/ package refactor** - Not started (76% compliance, needs all phases for 95%)
+- [ ] **settings/ package refactor** - Not started (78% compliance, needs all phases for 95%)
 
 ### Theory Completions
 
@@ -313,14 +394,24 @@
 
 ## Notes on Current State
 
-**Major Wins**: The builder refactor is COMPLETE! The iterate package has been extracted and modularized. Framework refactoring has begun with models/ at 85% and tests/ at 90% compliance.
+**Progress Summary**: 
+- Builder refactor: COMPLETE at 92% compliance (exemplar package, no further work needed)
+- Jupyter refactor: COMPLETE at 95% compliance ✅
+- Iterate extraction: COMPLETE but at 76% compliance (needs refactoring to 95%)
+- Models package: Phases 1-4 done, stuck at 85% (needs Phase 5 for 95%)
+- Tests package: Phases 1-4 done, stuck at 90% (needs Phase 5 for 95%)
+- Other packages: Not started (output 72%, settings 78%)
 
-**Next Critical Path**: Complete the Framework Refactoring (Plan 060) to achieve 100% implementation:
+**Critical Path to v1.0**: Complete ALL packages to ≥95% compliance
 
-- **Immediate Priority**: jupyter/ package (Plan 063) - critical for user interaction
-- **Then**: output/, iterate/, and settings/ packages in priority order
-- **Enhanced models/ and tests/**: Bring from current 85%/90% to 95%
-- **Goal**: Achieve ≥95% maintenance standards compliance for ALL packages
+**Immediate Priorities (in order)**:
+1. **Complete Phase 5 for models/** - Push from 85% to 95% compliance
+2. **Complete Phase 5 for tests/** - Push from 90% to 95% compliance  
+3. **Full refactor of output/** - Core functionality, currently 72%
+4. **Full refactor of iterate/** - Already extracted but needs 76% → 95%
+5. **Full refactor of settings/** - Closest to target at 78%
+
+**Success Criteria**: No package below 95% compliance (currently ONE package meets this: jupyter)
 
 **Secondary Priority**: The witness framework abstraction, which will:
 
