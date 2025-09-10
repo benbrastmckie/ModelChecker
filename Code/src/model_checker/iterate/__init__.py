@@ -34,6 +34,26 @@ Usage:
     module they are using, not from this package directly.
 """
 
-from model_checker.iterate.core import BaseModelIterator
+from .core import BaseModelIterator
+from .errors import (
+    IterateError,
+    IterationLimitError,
+    IterationStateError,
+    ModelExtractionError,
+    ConstraintGenerationError,
+    IsomorphismCheckError,
+    IterationTimeoutError,
+    ModelValidationError
+)
 
-__all__ = ['BaseModelIterator']
+__all__ = [
+    'BaseModelIterator',
+    'IterateError',
+    'IterationLimitError', 
+    'IterationStateError',
+    'ModelExtractionError',
+    'ConstraintGenerationError',
+    'IsomorphismCheckError',
+    'IterationTimeoutError',
+    'ModelValidationError'
+]

@@ -4,6 +4,7 @@ import pytest
 import z3
 from unittest.mock import Mock, patch, MagicMock
 from model_checker.iterate.models import ModelBuilder, DifferenceCalculator
+from model_checker.iterate.errors import ModelExtractionError
 
 
 class TestModelBuilder:
@@ -86,13 +87,15 @@ class TestModelBuilder:
             "operators": {}
         }
         mock_example.settings = {}
+        mock_example.model_structures = []  # Add this so len() works
         
         builder = ModelBuilder(mock_example)
         
-        # Test with exception during building
+        # Test with exception during building - now raises ModelExtractionError
         with patch('model_checker.syntactic.Syntax', side_effect=Exception("Test error")):
-            result = builder.build_new_model_structure(Mock())
-            assert result is None
+            with pytest.raises(ModelExtractionError) as exc_info:
+                builder.build_new_model_structure(Mock())
+            assert "Test error" in str(exc_info.value)
     
     def test_initialize_z3_dependent_attributes(self):
         """Test initialization of Z3-dependent model attributes."""

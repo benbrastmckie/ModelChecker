@@ -15,12 +15,14 @@ The iteration framework delegates to specialized modules:
 import logging
 import time
 import sys
-from model_checker.iterate.iterator import IteratorCore
-from model_checker.iterate.constraints import ConstraintGenerator
-from model_checker.iterate.models import ModelBuilder, DifferenceCalculator
-from model_checker.iterate.graph import IsomorphismChecker
-from model_checker.iterate.metrics import TerminationManager, ResultFormatter
-from model_checker.iterate.statistics import SearchStatistics, IterationReportGenerator
+from typing import List, Dict, Any, Optional, Generator, Tuple
+from .iterator import IteratorCore
+from .constraints import ConstraintGenerator
+from .models import ModelBuilder, DifferenceCalculator
+from .graph import IsomorphismChecker
+from .metrics import TerminationManager, ResultFormatter
+from .statistics import SearchStatistics, IterationReportGenerator
+from .errors import IterateError, IterationStateError
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -47,7 +49,7 @@ class BaseModelIterator:
         settings: Validated iteration settings
     """
     
-    def __init__(self, build_example):
+    def __init__(self, build_example: 'BuildExample') -> None:
         """Initialize with a BuildExample that already has a valid model.
         
         Args:
@@ -106,7 +108,7 @@ class BaseModelIterator:
         
         logger.debug(f"BaseModelIterator initialized with {self.max_iterations} max iterations")
     
-    def iterate(self):
+    def iterate(self) -> List['ModelStructure']:
         """Find multiple distinct models up to max_iterations.
         
         This method orchestrates the complete iteration process by delegating
@@ -126,7 +128,7 @@ class BaseModelIterator:
         
         return self.model_structures
     
-    def iterate_generator(self):
+    def iterate_generator(self) -> Generator['ModelStructure', None, None]:
         """Generator version of iterate that yields models incrementally.
         
         This hybrid approach maintains internal state (model_structures, found_models)
@@ -387,10 +389,17 @@ class BaseModelIterator:
                     # YIELD the model instead of just collecting
                     yield new_structure
                     
+                except IterateError:
+                    # Re-raise our custom errors
+                    raise
                 except Exception as e:
                     logger.error(f"Error during iteration: {str(e)}")
                     self.debug_messages.append(f"Iteration error: {str(e)}")
-                    break
+                    raise IterationStateError(
+                        state="iteration_loop",
+                        reason=str(e),
+                        suggestion="Check logs for detailed error information"
+                    ) from e
                     
         except KeyboardInterrupt:
             logger.info("Iteration interrupted by user")
@@ -457,7 +466,7 @@ class BaseModelIterator:
         # Sync the debug messages back to IteratorCore
         self.iterator_core.debug_messages = self.debug_messages
     
-    def _orchestrated_iterate(self):
+    def _orchestrated_iterate(self) -> List['ModelStructure']:
         """Orchestrate the iteration using modular components."""
         # Proceed only if first model was successful
         if not self.build_example.model_structure.z3_model_status:
@@ -607,10 +616,17 @@ class BaseModelIterator:
                     
                     logger.info(f"Found distinct model #{len(self.model_structures)}")
                     
+                except IterateError:
+                    # Re-raise our custom errors
+                    raise
                 except Exception as e:
                     logger.error(f"Error during iteration: {str(e)}")
                     self.debug_messages.append(f"Iteration error: {str(e)}")
-                    break
+                    raise IterationStateError(
+                        state="_orchestrated_iterate",
+                        reason=str(e),
+                        suggestion="Check logs for detailed error information"
+                    ) from e
                     
         except KeyboardInterrupt:
             logger.info("Iteration interrupted by user")
@@ -630,7 +646,7 @@ class BaseModelIterator:
         self.stats.set_completion_time(elapsed_time)
         return self.model_structures
     
-    def get_debug_messages(self):
+    def get_debug_messages(self) -> List[str]:
         """Get all debug messages collected during iteration.
         
         Returns:
@@ -638,7 +654,7 @@ class BaseModelIterator:
         """
         return self.iterator_core.get_debug_messages()
     
-    def get_iteration_summary(self):
+    def get_iteration_summary(self) -> Dict[str, Any]:
         """Get summary statistics for the iteration.
         
         Returns:
@@ -646,11 +662,11 @@ class BaseModelIterator:
         """
         return self.iterator_core.get_iteration_summary()
     
-    def print_iteration_summary(self):
+    def print_iteration_summary(self) -> None:
         """Print a summary of the iteration results."""
         self.iterator_core.print_iteration_summary()
     
-    def reset_iterator(self):
+    def reset_iterator(self) -> None:
         """Reset the iterator to initial state.
         
         This removes all models except the first one and resets counters.
@@ -676,7 +692,7 @@ class BaseModelIterator:
         logger.debug("BaseModelIterator reset to initial state")
     
     
-    def _create_difference_constraint(self, previous_models):
+    def _create_difference_constraint(self, previous_models: List['z3.ModelRef']) -> 'z3.BoolRef':
         """Theory-specific constraint creation method.
         
         This method should be overridden by theory-specific implementations
@@ -693,7 +709,7 @@ class BaseModelIterator:
         """
         raise NotImplementedError("Theory-specific implementation required for _create_difference_constraint")
     
-    def _create_non_isomorphic_constraint(self, isomorphic_model):
+    def _create_non_isomorphic_constraint(self, isomorphic_model: 'z3.ModelRef') -> 'z3.BoolRef':
         """Theory-specific non-isomorphic constraint creation method.
         
         This method should be overridden by theory-specific implementations
@@ -710,7 +726,7 @@ class BaseModelIterator:
         """
         raise NotImplementedError("Theory-specific implementation required for _create_non_isomorphic_constraint")
     
-    def _create_stronger_constraint(self, isomorphic_model):
+    def _create_stronger_constraint(self, isomorphic_model: 'z3.ModelRef') -> 'z3.BoolRef':
         """Theory-specific stronger constraint creation method.
         
         This method should be overridden by theory-specific implementations

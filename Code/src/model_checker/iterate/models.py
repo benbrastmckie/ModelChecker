@@ -8,6 +8,7 @@ calculating differences between models.
 import logging
 import z3
 from typing import Any
+from .errors import ModelExtractionError, ModelValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -140,7 +141,18 @@ class ModelBuilder:
             
         except Exception as e:
             logger.error(f"Failed to build model structure: {str(e)}")
-            return None
+            # In tests, model_structures might be a Mock, so handle that case
+            model_structures = getattr(self.build_example, 'model_structures', [])
+            try:
+                model_num = len(model_structures) + 1
+            except (TypeError, AttributeError):
+                # If model_structures is a Mock or has no len, use a default
+                model_num = 0
+            raise ModelExtractionError(
+                model_num=model_num,
+                reason=str(e),
+                suggestion="Check that the Z3 model is complete and valid"
+            ) from e
     
     def _initialize_base_attributes(self, model_structure, model_constraints, settings):
         """Initialize basic model structure attributes.
@@ -205,6 +217,7 @@ class ModelBuilder:
                             
                 except Exception as e:
                     logger.warning(f"Error evaluating state {state}: {e}")
+                    # Continue processing other states rather than failing entirely
                     continue
             
             # Set the collections
@@ -217,6 +230,7 @@ class ModelBuilder:
             
         except Exception as e:
             logger.warning(f"Error initializing Z3-dependent attributes: {e}")
+            # Log but don't fail - partial initialization is better than none
     
     def _evaluate_z3_boolean(self, z3_model, expression):
         """Safely evaluate a Z3 boolean expression.
