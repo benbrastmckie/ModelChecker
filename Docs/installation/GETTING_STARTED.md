@@ -226,7 +226,7 @@ general_settings = {
     "print_impossible": False,    # Show impossible states
     "print_constraints": False,   # Display Z3 constraints
     "print_z3": False,           # Show Z3 model/unsat core
-    "save_output": False,        # Prompt to save results
+    "save_output": False,        # Save results to files
     "maximize": False,           # Find maximum N for each theory
     "align_vertically": False,   # Vertical time display (bimodal)
 }

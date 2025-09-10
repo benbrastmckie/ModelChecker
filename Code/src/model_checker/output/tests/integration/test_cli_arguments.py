@@ -53,13 +53,13 @@ class TestCLIArguments:
         parser = ParseFileFlags()
         
         with patch.object(sys, 'argv', [
-            'model-checker', 'test.py', '-s', 
+            'model-checker', 'test.py', '--save', 
             '--output-mode', 'sequential',
             '--sequential-files', 'single'
         ]):
             flags, _ = parser.parse()
             
-        assert flags.save_output is True
+        assert flags.save is not None  # save flag is used now
         assert flags.output_mode == 'sequential'
         assert flags.sequential_files == 'single'
         

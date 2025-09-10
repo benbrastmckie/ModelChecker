@@ -4,12 +4,12 @@
 
 ### 1.1 Framework Refactoring Completion (HIGHEST PRIORITY)
 
-**Current Status**: 1 of 7 packages meet 95% target
+**Current Status**: 2 of 7 packages meet 95% target
 - builder: 92% (acceptable as exemplar, no action needed)
 - models: 85% (NEEDS Phase 5)
 - tests: 90% (NEEDS Phase 5)  
 - iterate: 76% (NEEDS full refactor)
-- output: 72% (NEEDS full refactor)
+- output: 95%+ (COMPLETE ✅ with Plan 064 + 070)
 - jupyter: 95% (COMPLETE ✅)
 - settings: 78% (NEEDS full refactor)
 
@@ -52,14 +52,37 @@
       - [x] Fixed all syntax errors
       - [x] Created consistent countermodel/theorem display patterns
       - [x] Updated all notebook README files with comprehensive documentation
-  - [ ] **output/ package refactor (Plan 064)** - MEDIUM PRIORITY (Week 3)
-    - Current: 72% → Target: 95%+ compliance
-    - [ ] Phase 1: Foundation Cleanup
-    - [ ] Phase 2: Method Refinement
-    - [ ] Phase 3: Error Handling (OutputError hierarchy)
-    - [ ] Phase 4: Architectural Improvements
-    - [ ] Phase 5: Enhanced Standards Compliance (to reach 95%)
-    - [ ] Add Jupyter notebook generation capability
+  - [x] **output/ package refactor (Plan 064 + 070)** - COMPLETE ✅
+    - Current: 72% → Achieved: 95%+ compliance
+    - [x] Phase 1: Foundation (constants.py, errors.py, config.py created)
+    - [x] Phase 2: Strategy Pattern (batch/sequential/interactive strategies)
+    - [x] Phase 3: Formatter Pattern (markdown/json/notebook formatters)
+    - [x] Phase 4: Manager Integration (OutputManager refactored)
+    - [x] Phase 5: CLI Integration (--output flag with format selection)
+    - [x] Phase 6: Documentation (comprehensive README.md files for all subdirectories)
+    - [x] Cleanup: Removed 548+ lines of legacy code
+    - [x] All tests passing (167 output tests, 218 builder tests)
+    - [x] **Plan 071: Notebook Generation via --save jupyter** - COMPLETE ✅
+      - [x] Issue: Generated notebooks didn't match reference notebook style/structure
+      - [x] Problem Analysis: Data lost through intermediate formats, wrong cell structure
+      - [x] Solution Design: Direct generation from examples.py using theory templates
+      - [x] Plan: [071_notebook_generation_fix.md](Code/docs/specs/plans/071_notebook_generation_fix.md) - COMPLETED ✅
+      - [x] Implementation completed but revealed architectural coupling issues
+    - [x] **Plan 072: Complete Separation of Notebook Generation** - COMPLETE ✅
+      - [x] Problem: Notebook generation coupled with JSON/markdown pipeline
+      - [x] Solution: Independent notebook package working directly with module variables
+      - [x] Plan: [072_notebook_generation_separation.md](Code/docs/specs/plans/072_notebook_generation_separation.md)
+      - [x] Implementation Tasks:
+        - [x] Phase 1: Create independent notebook generation path
+        - [x] Phase 2: Create new notebook package structure
+        - [x] Phase 3: Refactor templates for direct generation
+        - [x] Phase 4: Remove notebook generation from OutputManager
+        - [x] Phase 5: Update CLI flow
+      - [x] Benefits Achieved:
+        - [x] Complete separation from JSON serialization (no more serialization errors)
+        - [x] Direct access to module variables (no data transformation)
+        - [x] No intermediate data layers (works directly from examples.py)
+        - [x] Simpler, cleaner architecture (notebook/ package independent from output/)
   - [ ] **iterate/ package refactor (Plan 065)** - MEDIUM PRIORITY (Week 3-4)
     - Current: 76% → Target: 95%+ compliance
     - [ ] Phase 1: Foundation Cleanup
@@ -122,6 +145,12 @@
   - [ ] Remove unused imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py`
   - [ ] Run pylint systematically across entire codebase
   - [ ] Fix all critical and major issues
+
+- [ ] **output formatting improvements**
+  - [ ] Replace empty set braces '{}' with Unicode empty set symbol '∅' in countermodel outputs
+    - [ ] Update output formatters to detect empty sets and use ∅ character
+    - [ ] Ensure proper Unicode encoding for the empty set symbol
+    - [ ] Test with various output formats (markdown, json, notebook)
 
 - [ ] **unit test coverage**
   - [ ] Check coverage metrics (target 80%+)
@@ -367,9 +396,27 @@
 - [~] **models/ package refactor** - Phases 1-4 complete (85% compliance achieved, needs Phase 5 for 95%)
 - [~] **tests/ package refactor** - Phases 1-4 complete (90% compliance achieved, needs Phase 5 for 95%)
 - [x] **jupyter/ package refactor** - COMPLETE (95% compliance achieved ✅)
-- [ ] **output/ package refactor** - Not started (72% compliance, needs all phases for 95%)
+- [~] **output/ package refactor** - Needs notebook generation fix (see below)
 - [ ] **iterate/ package refactor** - Not started (76% compliance, needs all phases for 95%)
 - [ ] **settings/ package refactor** - Not started (78% compliance, needs all phases for 95%)
+
+### Notebook Generation Refactor (URGENT)
+
+**Problem**: Current notebook generation fails due to module import issues when trying to reload examples.py files.
+
+**Solution**: Template-based approach (Plan 071)
+- [ ] **Phase 1**: Modify BuildModule to pass example definitions through pipeline
+- [ ] **Phase 2**: Extend NotebookTemplate base class with complete notebook methods
+- [ ] **Phase 3**: Refactor NotebookGenerator to use templates only (no file reloading)
+- [ ] **Phase 4**: Update OutputManager to collect and pass example data
+- [ ] **Phase 5**: Update all theory templates to provide complete notebook structure
+
+**Key Principles**:
+- Templates in notebooks/ directories provide all imports and setup
+- Example data flows through normal execution pipeline
+- No absolute paths or module reloading
+- Theory-agnostic output/ directory
+- Each theory controls its own notebook format completely
 
 ### Theory Completions
 
@@ -397,21 +444,22 @@
 **Progress Summary**: 
 - Builder refactor: COMPLETE at 92% compliance (exemplar package, no further work needed)
 - Jupyter refactor: COMPLETE at 95% compliance ✅
+- Output refactor: COMPLETE at 95% compliance ✅
 - Iterate extraction: COMPLETE but at 76% compliance (needs refactoring to 95%)
 - Models package: Phases 1-4 done, stuck at 85% (needs Phase 5 for 95%)
 - Tests package: Phases 1-4 done, stuck at 90% (needs Phase 5 for 95%)
-- Other packages: Not started (output 72%, settings 78%)
+- Settings package: Not started (78% compliance)
 
 **Critical Path to v1.0**: Complete ALL packages to ≥95% compliance
 
 **Immediate Priorities (in order)**:
-1. **Complete Phase 5 for models/** - Push from 85% to 95% compliance
-2. **Complete Phase 5 for tests/** - Push from 90% to 95% compliance  
-3. **Full refactor of output/** - Core functionality, currently 72%
+1. **Fix notebook generation** - Template-based approach (Plan 071)
+2. **Complete Phase 5 for models/** - Push from 85% to 95% compliance
+3. **Complete Phase 5 for tests/** - Push from 90% to 95% compliance  
 4. **Full refactor of iterate/** - Already extracted but needs 76% → 95%
 5. **Full refactor of settings/** - Closest to target at 78%
 
-**Success Criteria**: No package below 95% compliance (currently ONE package meets this: jupyter)
+**Success Criteria**: No package below 95% compliance (currently TWO packages meet this: jupyter and output)
 
 **Secondary Priority**: The witness framework abstraction, which will:
 

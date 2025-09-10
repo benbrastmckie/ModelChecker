@@ -157,6 +157,8 @@ Common flags and their uses:
 --compare               # Compare multiple theories
 
 # Development flags
+--save                  # Save output to files (all formats)
+--save markdown json    # Save specific formats
 --save-output           # Save output to file
 --iso-debug            # Debug isomorphism checking
 ```

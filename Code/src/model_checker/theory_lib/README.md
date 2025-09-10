@@ -126,6 +126,42 @@ Each theory directory contains **complete implementations** with semantic classe
 - **[API Integration](../README.md)** - Framework-level interfaces and coordination
 - **[Examples Standard](../../docs/EXAMPLES.md)** - Standard form for examples.py files
 
+## Theory Completeness Requirements
+
+### Notebook Template Requirement
+
+**All complete theories MUST provide a notebook template** for generating executable Jupyter notebooks from examples. This is a core requirement for theory completeness.
+
+#### Template Location
+`src/model_checker/theory_lib/{theory}/notebook_template.py`
+
+#### Template Requirements
+Each theory must provide a `NotebookTemplate` subclass that implements:
+1. `get_imports()` - Returns list of import statements needed for the theory
+2. `get_theory_setup(examples)` - Generates theory setup code based on examples
+3. Optional: `format_example()` - Custom example formatting if needed
+
+#### Example Template Structure
+```python
+from model_checker.theory_lib.base_template import NotebookTemplate
+
+class MyTheoryNotebookTemplate(NotebookTemplate):
+    def get_imports(self):
+        return [
+            "import sys",
+            "from model_checker.jupyter import create_build_example",
+            "from model_checker.theory_lib.mytheory.semantic import MySemantics",
+            # ... other imports
+        ]
+    
+    def get_theory_setup(self, examples):
+        # Analyze examples if needed
+        # Generate and return setup code
+        return "theory = {...}"
+```
+
+See existing templates in logos/, exclusion/, and imposition/ for complete examples.
+
 ## References
 
 ### Implementation Documentation

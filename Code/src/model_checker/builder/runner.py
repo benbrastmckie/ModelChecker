@@ -759,8 +759,8 @@ class ModelRunner:
         if self.build_module.output_manager.should_save():
             self.build_module.output_manager.finalize()
             
-            # Only print path if output was actually saved
-            if self.build_module.output_manager.output_dir is not None:
+            # Only print path if output was actually saved (and not in notebook-only mode)
+            if self.build_module.output_manager.output_dir is not None and self.build_module.output_manager.should_save():
                 # Get full path for display
                 full_path = os.path.abspath(self.build_module.output_manager.output_dir)
                 
@@ -770,8 +770,6 @@ class ModelRunner:
                 else:
                     # No interactive manager - show instructions directly
                     print(f"\nOutput saved to: {full_path}")
-                    print(f"To change to output directory, run:")
-                    print(f"  cd {full_path}")
     
     def prompt_for_iterations(self):
         """Prompt user for number of iterations in interactive mode.

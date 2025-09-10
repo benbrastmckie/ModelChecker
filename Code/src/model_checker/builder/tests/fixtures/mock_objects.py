@@ -189,7 +189,9 @@ class MockObjectFactory:
             "comparison": False,
             "interactive": False, 
             "iterations": False,
-            "quiet": False
+            "quiet": False,
+            "output": None,  # None means use all formats by default
+            "save": None  # None means --save flag not used
         }
         
         if isinstance(options, dict):

@@ -27,6 +27,10 @@ class TestBuildModule(unittest.TestCase):
         self.mock_flags.save_output = False
         # Add _parsed_args for compatibility with settings manager
         self.mock_flags._parsed_args = []
+        # Add output attribute for OutputConfig
+        self.mock_flags.output = None  # None means use all formats by default
+        # Add save attribute for new --save flag
+        self.mock_flags.save = None  # None means flag not used
         
         # Create a basic example module file
         self.create_test_module_file()
@@ -379,7 +383,9 @@ except ImportError:
         mock_flags.print_constraints = False
         mock_flags.print_z3 = False
         mock_flags.save_output = False
+        mock_flags.output = None
         mock_flags._parsed_args = []
+        mock_flags.save = None  # No saving requested
         
         try:
             build_module = BuildModule(mock_flags)
@@ -442,7 +448,9 @@ except ImportError:
         mock_flags.print_constraints = False
         mock_flags.print_z3 = False
         mock_flags.save_output = False
+        mock_flags.output = None
         mock_flags._parsed_args = []
+        mock_flags.save = None  # No saving requested
         
         try:
             build_module = BuildModule(mock_flags)

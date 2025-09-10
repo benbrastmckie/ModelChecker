@@ -39,7 +39,7 @@ from model_checker.models.structure import ModelDefaults
 
 class InteractiveSemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {"N": 5}
-    DEFAULT_GENERAL_SETTINGS = {"save_output": True}
+    DEFAULT_GENERAL_SETTINGS = {"save_output": False}  # Not used anymore
 
 class InteractiveProposition(PropositionDefaults):
     pass
@@ -71,7 +71,7 @@ example_range = {
 }
 
 general_settings = {
-    "save_output": True,
+    "save_output": False,  # Not used anymore
     "print_constraints": False
 }
 '''
@@ -91,7 +91,7 @@ general_settings = {
         """Test interactive mode initialization creates interactive manager correctly."""
         flags = MockObjectFactory.create_flags({
             'file_path': self.module_path,
-            'save_output': True,
+            'save': ['markdown', 'json'],  # Enable saving with formats
             'interactive': False,
             'output_mode': 'batch',
             'sequential_files': 'multiple'
@@ -149,7 +149,7 @@ general_settings = {
         """Test interactive mode handles 'save all examples' selection correctly."""
         flags = MockObjectFactory.create_flags({
             'file_path': self.module_path,
-            'save_output': True,
+            'save': ['markdown', 'json'],  # Enable saving with formats
             'sequential_files': 'multiple'
         })
         
@@ -207,7 +207,7 @@ general_settings = {
         
         flags = MockObjectFactory.create_flags({
             'file_path': self.module_path,
-            'save_output': True,
+            'save': ['markdown', 'json'],  # Enable saving with formats
             'output_dir': output_dir
         })
         
@@ -332,7 +332,7 @@ example_range = {
     "WORKFLOW_3": [["p"], ["p \\\\vee q"], {"N": 2}]
 }
 
-general_settings = {"save_output": True}
+general_settings = {"save_output": False}  # Not used anymore
 '''
         
         self.module_path = self.cleanup.create_temp_file(
@@ -346,7 +346,7 @@ general_settings = {"save_output": True}
         
         flags = MockObjectFactory.create_flags({
             'file_path': self.module_path,
-            'save_output': True,
+            'save': ['markdown', 'json'],  # Enable saving with formats
             'output_dir': output_dir
         })
         

@@ -183,8 +183,9 @@ class SettingsManager:
                 elif key in self.DEFAULT_EXAMPLE_SETTINGS:
                     # Add it to merged settings so it's available
                     merged_settings[key] = value
-                # Only warn if it's not found in either location and not a standard arg like load_theory
-                elif key not in ['load_theory', 'upgrade', 'version']:
+                # Only warn if it's not found in either location and not a standard arg
+                # Standard args: load_theory, upgrade, version, save, interactive, output_mode, sequential_files
+                elif key not in ['load_theory', 'upgrade', 'version', 'save', 'interactive', 'output_mode', 'sequential_files']:
                     print(f"Warning: Flag '{key}' doesn't correspond to any known setting")
                 
         return merged_settings

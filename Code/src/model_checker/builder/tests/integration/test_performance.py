@@ -58,6 +58,8 @@ general_settings = {}
             interactive=False,
             iterations=False,
             quiet=True,
+            output=None,
+            save=None,  # No saving
             _parsed_args=[]
         )
         
@@ -93,6 +95,8 @@ general_settings = {}
             interactive=False,
             iterations=False,
             quiet=True,
+            output=None,
+            save=None,  # No saving
             _parsed_args=[]
         )
         
@@ -128,6 +132,8 @@ general_settings = {}
             interactive=False,
             iterations=False,
             quiet=True,
+            output=None,
+            save=None,  # No saving
             _parsed_args=[]
         )
         
@@ -173,6 +179,8 @@ general_settings = {}
             interactive=False,
             iterations=False,
             quiet=True,
+            output=None,
+            save=None,  # No saving
             _parsed_args=[]
         )
         
@@ -214,6 +222,8 @@ general_settings = {}
             interactive=False,
             iterations=False,
             quiet=True,
+            output=None,
+            save=None,  # No saving
             _parsed_args=[]
         )
         
@@ -242,6 +252,8 @@ general_settings = {}
             interactive=False,
             iterations=False,
             quiet=True,
+            output=None,
+            save=None,  # No saving
             _parsed_args=[]
         )
         
@@ -310,6 +322,8 @@ general_settings = {{}}
                 interactive=False,
                 iterations=False,
                 quiet=True,
+                output=None,
+                save=None,  # No saving
                 _parsed_args=[]
             )
             

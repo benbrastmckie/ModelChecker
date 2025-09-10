@@ -76,7 +76,7 @@ general_settings = {
         """Test interactive flag bypasses mode prompting and sets mode directly."""
         flags = MockObjectFactory.create_flags({
             'file_path': self.module_path,
-            'save_output': True,
+            'save': ['markdown', 'json'],  # Enable saving with formats
             'interactive': True  # Interactive flag set
         })
         

@@ -6,6 +6,7 @@ import io
 import sys
 
 from model_checker.output.manager import OutputManager
+from model_checker.output.config import OutputConfig
 from model_checker.output.collectors import ModelDataCollector
 from model_checker.output.formatters import MarkdownFormatter
 
@@ -24,11 +25,12 @@ class TestBuildIntegration:
         
         # Test that BuildModule would initialize OutputManager
         # This test verifies the initialization pattern
-        output_manager = OutputManager(
+        config = OutputConfig(
             save_output=mock_flags.save_output,
             mode=getattr(mock_flags, 'output_mode', 'batch'),
             sequential_files=getattr(mock_flags, 'sequential_files', 'multiple')
         )
+        output_manager = OutputManager(config=config)
         
         assert output_manager.save_output is True
         assert output_manager.mode == 'batch'
@@ -98,7 +100,8 @@ class TestBuildIntegration:
     def test_save_workflow(self):
         """Test complete save workflow."""
         # Create output manager
-        manager = OutputManager(save_output=True, mode='batch')
+        config = OutputConfig(save_output=True, mode='batch')
+        manager = OutputManager(config=config)
         manager.create_output_directory("test_output")
         
         # Simulate processing examples
@@ -131,8 +134,9 @@ class TestBuildIntegration:
     def test_sequential_mode_workflow(self):
         """Test sequential mode with multiple files."""
         # Create output manager in sequential mode
-        manager = OutputManager(save_output=True, mode='sequential', 
+        config = OutputConfig(save_output=True, mode='sequential', 
                               sequential_files='multiple')
+        manager = OutputManager(config=config)
         manager.create_output_directory("test_seq_output")
         
         # Save example
