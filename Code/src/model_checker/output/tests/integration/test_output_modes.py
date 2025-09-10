@@ -6,6 +6,7 @@ import shutil
 import pytest
 
 from model_checker.output.manager import OutputManager
+from model_checker.output.config import OutputConfig
 
 
 class TestOutputModes:
@@ -24,47 +25,51 @@ class TestOutputModes:
         
     def test_batch_mode_initialization(self):
         """Test batch mode properly initializes."""
-        manager = OutputManager(save_output=True, mode='batch')
+        config = OutputConfig(save_output=True, mode='batch')
+        manager = OutputManager(config=config)
         assert manager.mode == 'batch'
         assert not hasattr(manager, 'sequential_files') or manager.sequential_files is None
         
     def test_sequential_mode_initialization(self):
         """Test sequential mode properly initializes."""
-        manager = OutputManager(save_output=True, mode='sequential')
+        config = OutputConfig(save_output=True, mode='sequential')
+        manager = OutputManager(config=config)
         assert manager.mode == 'sequential'
         assert manager.sequential_files == 'multiple'  # default
         
-    def test_append_to_batch(self):
-        """Test appending examples in batch mode."""
-        manager = OutputManager(save_output=True, mode='batch')
+    def test_save_example_batch_mode(self):
+        """Test saving examples in batch mode."""
+        config = OutputConfig(save_output=True, mode='batch')
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         # Mock example data
         example_data = {'example': 'test1', 'theory': 'logos'}
         formatted_output = "# Example: test1\\nModel output here..."
         
-        manager._append_to_batch('test1', example_data, formatted_output)
+        # Save example using public interface
+        manager.save_example('test1', example_data, formatted_output)
         
-        # Check internal storage
-        assert len(manager._batch_outputs) == 1
-        assert manager._batch_outputs[0] == formatted_output
+        # Check model data is tracked
         assert len(manager.models_data) == 1
         assert manager.models_data[0] == example_data
         
     def test_save_sequential_multiple_files(self):
         """Test saving to multiple files in sequential mode."""
-        manager = OutputManager(
+        config = OutputConfig(
             save_output=True, 
             mode='sequential',
             sequential_files='multiple'
         )
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         # Mock example data
         example_data = {'example': 'test1', 'theory': 'logos'}
         formatted_output = "# Example: test1\\nModel output here..."
         
-        manager._save_sequential('test1', example_data, formatted_output)
+        # Save using public interface
+        manager.save_example('test1', example_data, formatted_output)
         
         # Check file was created
         expected_file = os.path.join(manager.output_dir, 'sequential', 'test1.md')
@@ -77,22 +82,23 @@ class TestOutputModes:
         
     def test_save_sequential_single_file(self):
         """Test appending to single file in sequential mode."""
-        manager = OutputManager(
+        config = OutputConfig(
             save_output=True,
             mode='sequential', 
             sequential_files='single'
         )
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         # Save first example
         example1_data = {'example': 'test1', 'theory': 'logos'}
         formatted1 = "# Example: test1\\nFirst model..."
-        manager._save_sequential('test1', example1_data, formatted1)
+        manager.save_example('test1', example1_data, formatted1)
         
         # Save second example
         example2_data = {'example': 'test2', 'theory': 'logos'}
         formatted2 = "# Example: test2\\nSecond model..."
-        manager._save_sequential('test2', example2_data, formatted2)
+        manager.save_example('test2', example2_data, formatted2)
         
         # Check single file exists
         expected_file = os.path.join(manager.output_dir, 'EXAMPLES.md')
@@ -108,17 +114,22 @@ class TestOutputModes:
     def test_save_example_delegates_correctly(self):
         """Test save_example delegates to correct method based on mode."""
         # Test batch mode
-        batch_manager = OutputManager(save_output=True, mode='batch')
+        config_batch = OutputConfig(save_output=True, mode='batch')
+        batch_manager = OutputManager(config=config_batch)
         batch_manager.create_output_directory()
-        batch_manager._append_to_batch = lambda n, d, o: setattr(batch_manager, '_batch_called', True)
         
-        batch_manager.save_example('test', {}, '')
-        assert hasattr(batch_manager, '_batch_called')
+        example_data = {'example': 'test', 'has_model': True}
+        batch_manager.save_example('test', example_data, 'output')
         
-        # Test sequential mode
-        seq_manager = OutputManager(save_output=True, mode='sequential')
+        # Should accumulate, not save immediately
+        assert len(batch_manager.models_data) == 1
+        
+        # Test sequential mode saves immediately
+        config_seq = OutputConfig(save_output=True, mode='sequential')
+        seq_manager = OutputManager(config=config_seq)
         seq_manager.create_output_directory()
-        seq_manager._save_sequential = lambda n, d, o: setattr(seq_manager, '_seq_called', True)
         
-        seq_manager.save_example('test', {}, '')
-        assert hasattr(seq_manager, '_seq_called')
+        seq_manager.save_example('test', example_data, 'output')
+        
+        # Should have saved files
+        assert len(seq_manager.models_data) == 1

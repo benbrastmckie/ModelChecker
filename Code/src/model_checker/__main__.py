@@ -103,10 +103,12 @@ class ParseFileFlags:
             help='Overrides to print the Z3 constraints or else the unsat_core constraints if there is no model.'
         )
         parser.add_argument(
-            '--save_output',
+            '--save',
             '-s',
-            action='store_true',
-            help='Overrides to prompt user to save output.'
+            nargs='*',  # Allow 0 or more arguments
+            choices=['markdown', 'json', 'jupyter'],
+            default=None,  # When flag not used at all
+            help='Save output in specified formats. Without arguments: all formats. With arguments: only specified formats (e.g., --save jupyter markdown)'
         )
         parser.add_argument(
             '--print_impossible',
@@ -180,7 +182,7 @@ class ParseFileFlags:
             'm': 'maximize',
             'n': 'non_null',
             'p': 'print_constraints',
-            's': 'save_output',
+            's': 'save',
             'i': 'print_impossible',
             'v': 'version',
             'u': 'upgrade',
@@ -225,7 +227,7 @@ def main():
     No parameters or return values as this is the main program entry point.
     """
     # Check for Jupyter dependencies if they'll be needed
-    jupyter_flags = ["-j", "--jupyter", "-n", "--notebook"]
+    jupyter_flags = ["-j", "--jupyter"]
     needs_jupyter = any(flag in sys.argv for flag in jupyter_flags)
     
     if needs_jupyter:
@@ -261,7 +263,7 @@ def main():
         builder = BuildProject(semantic_theory_name)
         builder.ask_generate()
         return
-
+    
     module = BuildModule(module_flags)
 
     # TODO: create print/save class
@@ -269,6 +271,10 @@ def main():
         module.comparison.run_comparison()
         return
 
+    # Generate notebook FIRST to ensure template purity (before any execution)
+    module.generate_notebook_if_requested()
+    
+    # Then run examples for console output and documentation capture
     module.runner.run_examples()
 
 def run():

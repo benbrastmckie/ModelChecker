@@ -45,13 +45,16 @@ def unicode_to_latex(formula: str) -> str:
         '→': '\\rightarrow',
         '∧': '\\wedge',
         '∨': '\\vee',
-        '¬': '\\neg ',
-        '□': '\\Box ',
-        '◇': '\\Diamond ',
+        '¬': '\\neg',
+        '□': '\\Box',
+        '◇': '\\Diamond',
         '↔': '\\leftrightarrow',
         '≡': '\\equiv',
         '⊥': '\\bot',
-        '⊤': '\\top'
+        '⊤': '\\top',
+        # Add quantifier support that tests expect
+        '∀': '\\forall',
+        '∃': '\\exists'
     }
     
     # Theory-specific mappings (exclusion theory)
@@ -62,41 +65,23 @@ def unicode_to_latex(formula: str) -> str:
         '≔': '\\uniequiv'   # Unilateral equivalence (if used)
     }
     
-    # Apply Unicode replacements
+    # Apply Unicode replacements (with space handling)
+    result = formula
     for unicode_op, latex_op in replacements.items():
-        formula = formula.replace(unicode_op, latex_op)
+        # Add space after certain operators if needed
+        if latex_op in ['\\neg', '\\Box', '\\Diamond', '\\forall', '\\exists']:
+            result = result.replace(unicode_op, latex_op + ' ')
+        else:
+            result = result.replace(unicode_op, ' ' + latex_op + ' ')
     
     # Apply exclusion theory mappings
     for unicode_op, latex_op in exclusion_mappings.items():
-        formula = formula.replace(unicode_op, latex_op)
+        result = result.replace(unicode_op, latex_op)
     
-    # Handle backslash commands that might already be in the formula
-    # If someone writes `\exclude`, we need to make sure it's properly handled
-    # This is important for theories that don't have Unicode equivalents
-    theory_commands = [
-        # Exclusion theory
-        '\\exclude', '\\uniwedge', '\\univee', '\\uniequiv',
-        # Default theory additions
-        '\\Box', '\\Diamond', '\\rightarrow', '\\wedge', '\\vee', 
-        '\\neg', '\\leftrightarrow', '\\equiv', '\\bot', '\\top'
-    ]
+    # Clean up extra spaces
+    result = ' '.join(result.split())
     
-    # Check if formula is already in raw string format
-    is_raw = formula.startswith('r"') or formula.startswith("r'")
-    
-    if not is_raw:
-        # If it's not a raw string, make sure we replace any theory commands
-        # with properly escaped versions for Python strings
-        for cmd in theory_commands:
-            if cmd in formula:
-                # We need to add an extra backslash for Python string processing
-                # \exclude becomes \\exclude in the string
-                formula = formula.replace(cmd, f"\\{cmd}")
-    
-    # Ensure proper parenthesization
-    formula = ensure_parentheses(formula)
-    
-    return formula
+    return result
 
 
 def latex_to_unicode(formula: str) -> str:
@@ -121,6 +106,9 @@ def latex_to_unicode(formula: str) -> str:
         '\\equiv': '≡',
         '\\bot': '⊥',
         '\\top': '⊤',
+        # Add quantifier support
+        '\\forall': '∀',
+        '\\exists': '∃',
         # Exclusion theory
         '\\exclude': '⦻',
         '\\uniwedge': '⊓',
@@ -133,11 +121,25 @@ def latex_to_unicode(formula: str) -> str:
     
     # Replace double backslash LaTeX commands first
     for latex_op, unicode_op in double_backslash_replacements.items():
-        formula = formula.replace(latex_op, unicode_op)
+        # For unary operators, preserve space after
+        if latex_op in ['\\\\neg', '\\\\Box', '\\\\Diamond', '\\\\forall', '\\\\exists']:
+            formula = formula.replace(latex_op + ' ', unicode_op)
+            formula = formula.replace(latex_op, unicode_op)
+        else:
+            # For binary operators, preserve spaces around
+            formula = formula.replace(' ' + latex_op + ' ', ' ' + unicode_op + ' ')
+            formula = formula.replace(latex_op, unicode_op)
     
     # Then replace single backslash commands (for any that weren't caught by the double replacement)
     for latex_op, unicode_op in replacements.items():
-        formula = formula.replace(latex_op, unicode_op)
+        # For unary operators, preserve space after
+        if latex_op in ['\\neg', '\\Box', '\\Diamond', '\\forall', '\\exists']:
+            formula = formula.replace(latex_op + ' ', unicode_op)
+            formula = formula.replace(latex_op, unicode_op)
+        else:
+            # For binary operators, preserve spaces around
+            formula = formula.replace(' ' + latex_op + ' ', ' ' + unicode_op + ' ')
+            formula = formula.replace(latex_op, unicode_op)
     
     return formula
 

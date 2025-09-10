@@ -7,7 +7,7 @@ import shutil
 import pytest
 from unittest.mock import Mock, MagicMock, patch
 
-from model_checker.output import OutputManager, ModelDataCollector, MarkdownFormatter
+from model_checker.output import OutputManager, OutputConfig, ModelDataCollector, MarkdownFormatter
 
 
 class TestEndToEndSave:
@@ -27,7 +27,12 @@ class TestEndToEndSave:
     def test_complete_batch_workflow(self):
         """Test complete batch mode workflow with multiple examples."""
         # Initialize components
-        output_manager = OutputManager(save_output=True, mode='batch')
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='batch',
+            save_output=True
+        )
+        output_manager = OutputManager(config=config)
         output_manager.create_output_directory()
         
         collector = ModelDataCollector()
@@ -103,11 +108,13 @@ class TestEndToEndSave:
     def test_sequential_multiple_files_workflow(self):
         """Test sequential mode with multiple files."""
         # Initialize
-        output_manager = OutputManager(
-            save_output=True,
+        config = OutputConfig(
+            formats=['markdown', 'json'],
             mode='sequential',
-            sequential_files='multiple'
+            sequential_files='multiple',
+            save_output=True
         )
+        output_manager = OutputManager(config=config)
         output_manager.create_output_directory()
         
         # Process examples
@@ -146,11 +153,13 @@ class TestEndToEndSave:
     def test_sequential_single_file_workflow(self):
         """Test sequential mode with single file."""
         # Initialize
-        output_manager = OutputManager(
-            save_output=True,
+        config = OutputConfig(
+            formats=['markdown', 'json'],
             mode='sequential',
-            sequential_files='single'
+            sequential_files='single',
+            save_output=True
         )
+        output_manager = OutputManager(config=config)
         output_manager.create_output_directory()
         
         # Process examples
@@ -187,7 +196,12 @@ class TestEndToEndSave:
         """Test ANSI colors are converted in saved output."""
         from model_checker.output.formatters import ANSIToMarkdown
         
-        output_manager = OutputManager(save_output=True, mode='batch')
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='batch',
+            save_output=True
+        )
+        output_manager = OutputManager(config=config)
         output_manager.create_output_directory()
         
         # Simulate colored output

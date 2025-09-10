@@ -49,6 +49,16 @@ class BuildModule:
         # Load the module and its attributes
         self._load_module()
         
+        # Store module variables for direct notebook generation
+        self.module_variables = {
+            'semantic_theories': self.semantic_theories,
+            'example_range': self.example_range,
+            'general_settings': getattr(self.module, 'general_settings', {})
+        }
+        
+        # Check if notebook generation is requested
+        self.generate_notebook = self._should_generate_notebook()
+        
         # Initialize settings
         self._initialize_settings()
         
@@ -102,31 +112,38 @@ class BuildModule:
     
     def _initialize_output_management(self):
         """Initialize output and interactive managers."""
-        from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider
+        from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider, OutputConfig
         
-        # Create interactive manager if save_output is enabled
+        # Create output configuration from CLI arguments
+        config = OutputConfig.from_cli_args(self.module_flags)
+        
+        # Check if saving is enabled via new --save flag
+        save_enabled = hasattr(self.module_flags, 'save') and self.module_flags.save is not None
+        
+        # Check if we're only generating a notebook (no other formats)
+        only_notebook = (save_enabled and 
+                        isinstance(self.module_flags.save, list) and 
+                        self.module_flags.save == ['jupyter'])
+        
+        # Set save_output for backward compatibility
+        self.save_output = config.save_output and not only_notebook
+        
+        # Create interactive manager if saving is enabled (but not for notebook-only)
         self.interactive_manager = None
-        if self.save_output:
+        if config.save_output and not only_notebook:
             # Create console input provider for production use
             input_provider = ConsoleInputProvider()
             self.interactive_manager = InteractiveSaveManager(input_provider)
-            # Check if interactive flag is set
-            if hasattr(self.module_flags, 'interactive') and self.module_flags.interactive:
-                # Interactive flag specified - set mode directly
-                self.interactive_manager.set_mode('interactive')
-            else:
-                # No interactive flag - prompt for mode
-                self.interactive_manager.prompt_save_mode()
+            # Prompt for save mode (batch vs sequential)
+            self.interactive_manager.prompt_save_mode()
+            # Update config mode based on user choice
+            if self.interactive_manager.is_interactive():
+                config.mode = 'interactive'
         
-        # Create output manager
-        self.output_manager = OutputManager(
-            save_output=self.save_output,
-            mode=getattr(self.module_flags, 'output_mode', 'batch'),
-            sequential_files=getattr(self.module_flags, 'sequential_files', 'multiple'),
-            interactive_manager=self.interactive_manager
-        )
+        # Create output manager with configuration only
+        self.output_manager = OutputManager(config, self.interactive_manager)
         
-        # Create output directory if needed
+        # Create output directory if needed (skip for notebook-only)
         if self.output_manager.should_save():
             self.output_manager.create_output_directory()
     
@@ -199,6 +216,14 @@ class BuildModule:
             theory_name
         )
         
+        # Add the original example data (premises, conclusions, settings)
+        model_data['premises'] = example.premises
+        model_data['conclusions'] = example.conclusions
+        model_data['settings'] = example.example_settings
+        
+        # Note: semantic_theory is not added to model_data because it contains
+        # non-serializable class objects. It's passed separately to notebook generation.
+        
         # If this is part of an iteration, update the example name
         if model_num is not None:
             display_name = f"{example_name}_model{model_num}"
@@ -225,3 +250,54 @@ class BuildModule:
             # Batch mode - save normally
             self.output_manager.save_example(display_name, model_data, formatted_output)
     
+    def _should_generate_notebook(self):
+        """Check if notebook generation is requested.
+        
+        Returns:
+            bool: True if notebook should be generated
+        """
+        if hasattr(self.module_flags, 'save') and self.module_flags.save is not None:
+            # Check if jupyter is in the save list or if save is empty (all formats)
+            if isinstance(self.module_flags.save, list):
+                return 'jupyter' in self.module_flags.save or len(self.module_flags.save) == 0
+        return False
+    
+    def generate_notebook_if_requested(self):
+        """Generate notebook using streaming approach.
+        
+        This method generates a Jupyter notebook directly from module variables,
+        using streaming template decomposition for memory efficiency and scalability.
+        """
+        if not self.generate_notebook:
+            return
+        
+        try:
+            from model_checker.notebook.streaming_generator import StreamingNotebookGenerator
+            from datetime import datetime
+            
+            generator = StreamingNotebookGenerator()
+            
+            # Determine output path
+            if self.output_manager and self.output_manager.output_dir:
+                notebook_path = os.path.join(self.output_manager.output_dir, 'NOTEBOOK.ipynb')
+            else:
+                # Create output directory for notebook-only mode
+                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+                output_dir = f'output_{timestamp}'
+                os.makedirs(output_dir, exist_ok=True)
+                notebook_path = os.path.join(output_dir, 'NOTEBOOK.ipynb')
+            
+            # Generate notebook using streaming approach
+            generator.generate_notebook_stream(
+                self.module_variables,
+                self.module_path,
+                notebook_path
+            )
+            
+            # Only print notebook path if not already printed as part of general output
+            if not self.output_manager.should_save():
+                # Only notebook generated, print its path
+                print(f"Notebook saved to: {notebook_path}")
+        except Exception as e:
+            print(f"Warning: Could not generate notebook: {e}")
+

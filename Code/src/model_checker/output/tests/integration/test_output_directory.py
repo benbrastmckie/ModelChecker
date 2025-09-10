@@ -7,6 +7,7 @@ from datetime import datetime
 import pytest
 
 from model_checker.output.manager import OutputManager
+from model_checker.output.config import OutputConfig
 
 
 class TestOutputDirectory:
@@ -25,7 +26,8 @@ class TestOutputDirectory:
         
     def test_output_manager_initialization(self):
         """Test OutputManager initializes with correct settings."""
-        manager = OutputManager(save_output=True, mode='batch')
+        config = OutputConfig(save_output=True, mode='batch')
+        manager = OutputManager(config=config)
         assert manager.save_output is True
         assert manager.mode == 'batch'
         assert manager.output_dir is None
@@ -33,17 +35,20 @@ class TestOutputDirectory:
         
     def test_output_manager_disabled(self):
         """Test OutputManager when save_output is False."""
-        manager = OutputManager(save_output=False)
+        config = OutputConfig(save_output=False)
+        manager = OutputManager(config=config)
         assert manager.should_save() is False
         
     def test_output_manager_enabled(self):
         """Test OutputManager when save_output is True."""
-        manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        manager = OutputManager(config=config)
         assert manager.should_save() is True
         
     def test_create_output_directory(self):
         """Test output directory creation with timestamp."""
-        manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         assert manager.output_dir is not None
@@ -58,7 +63,8 @@ class TestOutputDirectory:
         
     def test_sequential_subdirectory_creation(self):
         """Test sequential subdirectory is created in sequential mode."""
-        manager = OutputManager(save_output=True, mode='sequential')
+        config = OutputConfig(save_output=True, mode='sequential', sequential_files='multiple')
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         sequential_dir = os.path.join(manager.output_dir, 'sequential')
@@ -67,7 +73,8 @@ class TestOutputDirectory:
         
     def test_batch_mode_no_subdirectory(self):
         """Test no sequential subdirectory in batch mode."""
-        manager = OutputManager(save_output=True, mode='batch')
+        config = OutputConfig(save_output=True, mode='batch')
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         sequential_dir = os.path.join(manager.output_dir, 'sequential')
@@ -75,7 +82,8 @@ class TestOutputDirectory:
         
     def test_custom_output_directory_name(self):
         """Test custom output directory name."""
-        manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        manager = OutputManager(config=config)
         custom_name = "my_custom_output"
         manager.create_output_directory(custom_name)
         
@@ -86,35 +94,41 @@ class TestOutputDirectory:
     def test_output_modes(self):
         """Test different output mode settings."""
         # Test batch mode
-        batch_manager = OutputManager(save_output=True, mode='batch')
+        config_batch = OutputConfig(save_output=True, mode='batch')
+        batch_manager = OutputManager(config=config_batch)
         assert batch_manager.mode == 'batch'
         
         # Test sequential mode
-        seq_manager = OutputManager(save_output=True, mode='sequential')
+        config_seq = OutputConfig(save_output=True, mode='sequential')
+        seq_manager = OutputManager(config=config_seq)
         assert seq_manager.mode == 'sequential'
         
         # Test invalid mode defaults to batch
-        default_manager = OutputManager(save_output=True, mode='invalid')
+        config_default = OutputConfig(save_output=True, mode='invalid')
+        default_manager = OutputManager(config=config_default)
         assert default_manager.mode == 'batch'
         
     def test_sequential_file_options(self):
         """Test sequential file options."""
         # Test single file option
-        single_manager = OutputManager(
+        config_single = OutputConfig(
             save_output=True, 
             mode='sequential',
             sequential_files='single'
         )
+        single_manager = OutputManager(config=config_single)
         assert single_manager.sequential_files == 'single'
         
         # Test multiple files option
-        multi_manager = OutputManager(
+        config_multi = OutputConfig(
             save_output=True,
             mode='sequential', 
             sequential_files='multiple'
         )
+        multi_manager = OutputManager(config=config_multi)
         assert multi_manager.sequential_files == 'multiple'
         
         # Test default is multiple
-        default_manager = OutputManager(save_output=True, mode='sequential')
+        config_def = OutputConfig(save_output=True, mode='sequential')
+        default_manager = OutputManager(config=config_def)
         assert default_manager.sequential_files == 'multiple'

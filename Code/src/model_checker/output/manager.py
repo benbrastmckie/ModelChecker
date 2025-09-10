@@ -1,8 +1,25 @@
 """Output manager for saving model checking results."""
 
 import os
+import logging
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Dict, List, Any
+
+# Set up logger for this module
+logger = logging.getLogger(__name__)
+
+# Import new components
+from .config import OutputConfig
+from .constants import (
+    MODE_BATCH, MODE_SEQUENTIAL, MODE_INTERACTIVE,
+    FORMAT_MARKDOWN, FORMAT_JSON,
+    DEFAULT_FORMATS, EXTENSIONS
+)
+from .helpers import (
+    create_timestamped_directory, save_file, save_json,
+    combine_markdown_sections, ensure_directory_exists
+)
+from .errors import OutputError, OutputDirectoryError, OutputIOError
 
 
 class OutputManager:
@@ -20,18 +37,25 @@ class OutputManager:
         models_data: List of model data dictionaries for JSON export
     """
     
-    def __init__(self, save_output: bool, mode: str = 'batch', 
-                 sequential_files: str = 'multiple',
+    def __init__(self, config: OutputConfig, 
                  interactive_manager=None):
         """Initialize output manager.
         
         Args:
-            save_output: Whether to save output
-            mode: Output mode ('batch' or 'sequential')
-            sequential_files: For sequential mode, 'single' or 'multiple'
+            config: REQUIRED output configuration
             interactive_manager: Optional InteractiveSaveManager instance
+            
+        Raises:
+            ValueError: If config is not provided
         """
-        self.save_output = save_output
+        if not config:
+            raise ValueError(
+                "OutputConfig is required. Create with: "
+                "OutputConfig(formats=['markdown', 'json'], mode='batch')"
+            )
+        
+        self.config = config
+        self.save_output = config.save_output
         self.output_dir = None
         self.models_data = []
         self.interactive_manager = interactive_manager
@@ -40,19 +64,43 @@ class OutputManager:
         if self.interactive_manager and hasattr(self.interactive_manager, 'mode'):
             self.mode = self.interactive_manager.mode
         else:
-            self.mode = mode if mode in ['batch', 'sequential'] else 'batch'
+            self.mode = config.mode if config.mode in ['batch', 'sequential'] else 'batch'
         
         # Sequential mode options
         if self.mode == 'sequential':
-            self.sequential_files = sequential_files
+            self.sequential_files = config.sequential_files
         else:
             self.sequential_files = None
-            
-        # Internal storage for batch mode
-        self._batch_outputs = []
         
+        # Initialize formatters and strategy
+        self._initialize_components()
+            
         # Track saved models in interactive mode
         self._interactive_saves = {}
+    
+    def _initialize_components(self):
+        """Initialize formatters and strategy based on configuration."""
+        # Import formatters lazily to avoid circular imports
+        from .formatters import MarkdownFormatter, JSONFormatter
+        from .strategies import BatchOutputStrategy, SequentialOutputStrategy, InteractiveOutputStrategy
+        
+        # Initialize formatters based on enabled formats
+        self.formatters = {}
+        if self.config.is_format_enabled(FORMAT_MARKDOWN):
+            self.formatters[FORMAT_MARKDOWN] = MarkdownFormatter()
+        if self.config.is_format_enabled(FORMAT_JSON):
+            self.formatters[FORMAT_JSON] = JSONFormatter()
+        # Note: Notebook generation is now handled by StreamingNotebookGenerator in BuildModule
+        
+        # Initialize strategy based on mode
+        if self.mode == MODE_BATCH:
+            self.strategy = BatchOutputStrategy()
+        elif self.mode == MODE_SEQUENTIAL:
+            self.strategy = SequentialOutputStrategy(self.sequential_files)
+        elif self.mode == MODE_INTERACTIVE:
+            self.strategy = InteractiveOutputStrategy(self.interactive_manager)
+        else:
+            self.strategy = BatchOutputStrategy()  # Default to batch
         
     def should_save(self) -> bool:
         """Check if output should be saved.
@@ -62,7 +110,7 @@ class OutputManager:
         """
         return self.save_output
         
-    def create_output_directory(self, custom_name: Optional[str] = None):
+    def create_output_directory(self, custom_name: str = None):
         """Create timestamped output directory.
         
         Creates a directory with timestamp or custom name. For sequential
@@ -88,78 +136,120 @@ class OutputManager:
             
     def save_example(self, example_name: str, example_data: Dict[str, Any],
                     formatted_output: str):
-        """Save example based on current mode.
+        """Save example based on current mode and enabled formats.
         
-        Delegates to appropriate method based on output mode.
+        Generates output in all enabled formats and saves according
+        to the current strategy.
         
         Args:
             example_name: Name of the example
             example_data: Dictionary of model data for JSON export
-            formatted_output: Formatted markdown output
+            formatted_output: Formatted markdown output (legacy parameter)
         """
-        if self.mode == 'batch':
-            self._append_to_batch(example_name, example_data, formatted_output)
-        else:  # sequential
-            self._save_sequential(example_name, example_data, formatted_output)
-            
-    def _append_to_batch(self, example_name: str, example_data: Dict[str, Any],
-                        formatted_output: str):
-        """Append example to batch storage.
+        # Generate outputs for all enabled formats
+        formatted_outputs = {}
         
-        Args:
-            example_name: Name of the example
-            example_data: Dictionary of model data
-            formatted_output: Formatted output
-        """
-        self._batch_outputs.append(formatted_output)
+        for format_name, formatter in self.formatters.items():
+            try:
+                # Use the appropriate formatter
+                if format_name == FORMAT_MARKDOWN and formatted_output:
+                    # Use provided markdown directly when available
+                    formatted_outputs[format_name] = formatted_output
+                else:
+                    # Generate format-specific output
+                    formatted_outputs[format_name] = formatter.format_example(
+                        example_data, formatted_output
+                    )
+            except Exception as e:
+                # Log error but continue with other formats
+                logger.warning(f"Failed to format {format_name}: {e}")
+                continue
+        
+        # Delegate to strategy for saving
+        if self.strategy.should_save_immediately():
+            self._save_all_formats(example_name, formatted_outputs)
+        else:
+            self.strategy.accumulate(example_name, formatted_outputs)
+        
+        # Track model data for JSON export
         self.models_data.append(example_data)
-        
-    def _save_sequential(self, example_name: str, example_data: Dict[str, Any],
-                        formatted_output: str):
-        """Save example in sequential mode.
-        
-        Args:
-            example_name: Name of the example
-            example_data: Dictionary of model data
-            formatted_output: Formatted output
-        """
-        # Add to models data
-        self.models_data.append(example_data)
-        
-        if self.sequential_files == 'multiple':
-            # Save to individual file in sequential subdirectory
-            file_path = os.path.join(self.output_dir, 'sequential', f'{example_name}.md')
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(formatted_output)
-        else:  # single file
-            # Append to single EXAMPLES.md file
-            file_path = os.path.join(self.output_dir, 'EXAMPLES.md')
-            mode = 'a' if os.path.exists(file_path) else 'w'
             
-            with open(file_path, mode, encoding='utf-8') as f:
-                if mode == 'a':
-                    f.write('\n\n---\n\n')  # separator
-                f.write(formatted_output)
                 
-    def finalize(self):
-        """Finalize output and save all files.
+    def _save_all_formats(self, example_name: str, formatted_outputs: Dict[str, str]):
+        """Save outputs in all enabled formats.
         
-        For batch mode, writes the accumulated outputs to EXAMPLES.md.
-        For interactive mode, creates summary.json.
-        Always saves MODELS.json with all collected model data.
+        Args:
+            example_name: Name of the example
+            formatted_outputs: Dictionary mapping format names to content
         """
-        if self.mode == 'batch' and self._batch_outputs:
-            # Save batch outputs to EXAMPLES.md
-            examples_path = os.path.join(self.output_dir, 'EXAMPLES.md')
-            with open(examples_path, 'w', encoding='utf-8') as f:
-                f.write('\n\n---\n\n'.join(self._batch_outputs))
+        for format_name, content in formatted_outputs.items():
+            try:
+                extension = EXTENSIONS.get(format_name, format_name)
+                filepath = self.strategy.get_file_path(
+                    self.output_dir, example_name, format_name, extension
+                )
+                
+                # Handle appending for sequential single file mode
+                if (self.mode == MODE_SEQUENTIAL and 
+                    self.sequential_files == 'single' and
+                    os.path.exists(filepath)):
+                    # Append with separator
+                    with open(filepath, 'a', encoding='utf-8') as f:
+                        f.write('\n\n---\n\n')
+                        f.write(content)
+                else:
+                    # Write new file
+                    save_file(filepath, content)
+                    
+            except OutputIOError as e:
+                logger.warning(f"Failed to save {format_name} for {example_name}: {e}")
+    
+    def finalize(self):
+        """Finalize output and save JSON/Markdown files only."""
+        # Let strategy handle finalization
+        if hasattr(self.strategy, 'finalize'):
+            self.strategy.finalize(lambda name, outputs: self._finalize_outputs(name, outputs))
         
         # Create summary for interactive mode
         if self.mode == 'interactive':
             self._create_interactive_summary()
                 
-        # Save models JSON
-        self._save_models_json()
+        # Save models JSON if JSON format is enabled
+        if self.config.is_format_enabled(FORMAT_JSON):
+            self._save_models_json()
+        
+        # Note: Notebook generation is now handled independently in BuildModule
+    
+    def _finalize_outputs(self, name: str, outputs: Dict):
+        """Helper to finalize outputs from strategy.
+        
+        Args:
+            name: Output name (e.g., 'batch_combined')
+            outputs: Dictionary of format outputs
+        """
+        if name == 'batch_combined':
+            # Handle combined batch outputs
+            for format_name in outputs:
+                if format_name in self.formatters:
+                    formatter = self.formatters[format_name]
+                    combined = formatter.format_batch(outputs[format_name])
+                    
+                    # Determine filename
+                    if format_name == FORMAT_MARKDOWN:
+                        filename = 'EXAMPLES.md'
+                    elif format_name == FORMAT_JSON:
+                        filename = 'MODELS.json'
+                    else:
+                        extension = EXTENSIONS.get(format_name, format_name)
+                        filename = f"output.{extension}"
+                    
+                    filepath = os.path.join(self.output_dir, filename)
+                    save_file(filepath, combined)
+        elif name == 'summary':
+            # Save summary JSON
+            if FORMAT_JSON in outputs:
+                summary_path = os.path.join(self.output_dir, 'summary.json')
+                save_json(summary_path, outputs[FORMAT_JSON])
         
     def _save_models_json(self):
         """Save models data to JSON file.
@@ -233,6 +323,7 @@ class OutputManager:
         self.models_data.append(model_data)
         
         # Display save location
+        # Keep print for user interaction - showing save location
         print(f"Saved to: {md_path}")
         
     def get_output_path(self, example_name: str, filename: str) -> str:
@@ -281,3 +372,4 @@ class OutputManager:
         summary_path = os.path.join(self.output_dir, 'summary.json')
         with open(summary_path, 'w', encoding='utf-8') as f:
             json.dump(summary, f, indent=4, ensure_ascii=False)
+    

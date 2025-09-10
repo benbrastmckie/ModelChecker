@@ -9,6 +9,7 @@ from unittest.mock import Mock, MagicMock, patch
 from datetime import datetime
 
 from model_checker.output import OutputManager, InteractiveSaveManager, MockInputProvider
+from model_checker.output.config import OutputConfig
 
 
 class TestOutputManagerInteractive:
@@ -30,8 +31,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         
@@ -44,8 +51,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()
@@ -62,8 +75,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()
@@ -107,8 +126,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()
@@ -134,8 +159,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'batch'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='batch',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()
@@ -147,7 +178,7 @@ class TestOutputManagerInteractive:
         # Finalize to write batch outputs
         output_manager.finalize()
         
-        # Check it went to main EXAMPLES.md
+        # Check it went to main EXAMPLES.md (not per-example directory)
         assert os.path.exists(os.path.join(output_manager.output_dir, "EXAMPLES.md"))
         assert not os.path.exists(os.path.join(output_manager.output_dir, "BATCH_TEST"))
         
@@ -161,8 +192,14 @@ class TestOutputManagerInteractive:
             "EX3": 3
         }
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()
@@ -191,8 +228,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()
@@ -203,7 +246,8 @@ class TestOutputManagerInteractive:
         
     def test_no_interactive_manager_defaults(self):
         """Test OutputManager works without interactive manager."""
-        output_manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        output_manager = OutputManager(config=config)
         
         assert output_manager.interactive_manager is None
         assert output_manager.mode == 'batch'
@@ -213,8 +257,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()
@@ -250,8 +300,14 @@ class TestOutputManagerInteractive:
         interactive_manager = InteractiveSaveManager(MockInputProvider([]))
         interactive_manager.mode = 'interactive'
         
+        config = OutputConfig(
+            formats=['markdown', 'json'],
+            mode='interactive',
+            save_output=True
+        )
+        
         output_manager = OutputManager(
-            save_output=True,
+            config=config,
             interactive_manager=interactive_manager
         )
         output_manager.create_output_directory()

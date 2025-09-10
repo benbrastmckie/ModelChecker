@@ -169,7 +169,8 @@ result = model.check_validity()
 - `--print-impossible` - Show impossible states in output
 - `--print-constraints` or `-p` - Display Z3 constraints when no model found
 - `--print-z3` or `-z` - Show raw Z3 model or unsat core
-- `--save-output` - Prompt to save output to file
+- `--save [formats]` - Save output to files (markdown, json, notebook)
+- `--save-output` - Save output to file
 - `--maximize` - Compare theories by maximizing model size
 
 #### Usage Examples

@@ -8,6 +8,7 @@ from datetime import datetime
 import pytest
 
 from model_checker.output.manager import OutputManager
+from model_checker.output.config import OutputConfig
 
 
 class TestJSONSerialization:
@@ -26,7 +27,8 @@ class TestJSONSerialization:
         
     def test_save_models_json_structure(self):
         """Test MODELS.json has correct structure."""
-        manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         # Add test model data
@@ -83,7 +85,8 @@ class TestJSONSerialization:
         
     def test_json_formatting(self):
         """Test JSON is properly formatted with indentation."""
-        manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         manager.models_data = [{
@@ -108,7 +111,8 @@ class TestJSONSerialization:
         
     def test_empty_models_json(self):
         """Test JSON structure when no models collected."""
-        manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         # No models added
@@ -123,7 +127,8 @@ class TestJSONSerialization:
         
     def test_json_encoding(self):
         """Test JSON handles UTF-8 encoding properly."""
-        manager = OutputManager(save_output=True)
+        config = OutputConfig(save_output=True)
+        manager = OutputManager(config=config)
         manager.create_output_directory()
         
         # Model with Unicode characters

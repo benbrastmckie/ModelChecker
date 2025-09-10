@@ -17,14 +17,17 @@ The **Interactive Save Mode** provides fine-grained control over which model che
 
 ### Command Line Interface
 
-Enable interactive save mode using the `-I` or `--interactive` flag along with `-s`:
+Enable interactive save mode using the `-I` or `--interactive` flag along with the new consolidated `--save` flag:
 
 ```bash
-# Interactive mode with save output
-model-checker -s -I examples/my_logic.py
+# Interactive mode with save output (new --save flag)
+model-checker --save --interactive examples/my_logic.py
 
-# Long form
-model-checker --save-output --interactive examples/my_logic.py
+# Save specific formats interactively
+model-checker --save markdown json --interactive examples/my_logic.py
+
+# Legacy format (still supported)
+model-checker -s -I examples/my_logic.py
 ```
 
 ### Interactive Workflow
@@ -126,16 +129,23 @@ general_settings = {"save_output": True}
 
 Run with interactive mode:
 ```bash
-model-checker -s -I examples/modal_logic.py
+# Using new --save flag
+model-checker --save --interactive examples/modal_logic.py
+
+# Or save specific formats
+model-checker --save markdown --interactive examples/modal_logic.py
 ```
 
 ### Batch Mode Comparison
 
 ```bash
-# Batch mode - saves all results
-model-checker -s examples/modal_logic.py
+# Batch mode - saves all results (new --save flag)
+model-checker --save examples/modal_logic.py
 
 # Interactive mode - selective saving
+model-checker --save --interactive examples/modal_logic.py
+
+# Legacy format (still supported)
 model-checker -s -I examples/modal_logic.py
 ```
 
@@ -230,8 +240,8 @@ Theory: modal
 ### Common Issues
 
 1. **No Prompts Appearing**:
-   - Ensure both `-s` and `-I` flags are used
-   - Check that `save_output` is True in general_settings
+   - Ensure both `--save` and `--interactive` flags are used (or `-s -I` legacy)
+   - Check that `save_output` is True in general_settings (for legacy compatibility)
 
 2. **Models Not Saved**:
    - Verify model has valid status (not UNSAT)

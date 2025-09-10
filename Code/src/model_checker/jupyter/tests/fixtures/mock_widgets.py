@@ -181,23 +181,93 @@ class MockIPython:
             self.markdown = markdown
 
 
+class MockText(MockWidget):
+    """Mock Text widget."""
+    
+    def __init__(self, **kwargs):
+        """Initialize mock text input."""
+        super().__init__(**kwargs)
+        self.value = kwargs.get('value', '')
+        self.placeholder = kwargs.get('placeholder', '')
+
+
+class MockAccordion(MockWidget):
+    """Mock Accordion widget."""
+    
+    def __init__(self, children=None, **kwargs):
+        """Initialize mock accordion."""
+        super().__init__(**kwargs)
+        self.children = children or []
+        self.selected_index = None
+        self._titles = {}
+        
+    def set_title(self, index, title):
+        """Mock set_title method."""
+        self._titles[index] = title
+
+
+class MockIntSlider(MockWidget):
+    """Mock IntSlider widget."""
+    
+    def __init__(self, **kwargs):
+        """Initialize mock int slider."""
+        super().__init__(**kwargs)
+        self.value = kwargs.get('value', 0)
+        self.min = kwargs.get('min', 0)
+        self.max = kwargs.get('max', 100)
+        self.step = kwargs.get('step', 1)
+
+
+class MockFloatSlider(MockWidget):
+    """Mock FloatSlider widget."""
+    
+    def __init__(self, **kwargs):
+        """Initialize mock float slider."""
+        super().__init__(**kwargs)
+        self.value = kwargs.get('value', 0.0)
+        self.min = kwargs.get('min', 0.0)
+        self.max = kwargs.get('max', 1.0)
+        self.step = kwargs.get('step', 0.01)
+
+
+class MockRadioButtons(MockWidget):
+    """Mock RadioButtons widget."""
+    
+    def __init__(self, **kwargs):
+        """Initialize mock radio buttons."""
+        super().__init__(**kwargs)
+        self.options = kwargs.get('options', [])
+        self.value = kwargs.get('value', self.options[0] if self.options else None)
+
+
+class MockWidgetsModule:
+    """Mock ipywidgets module."""
+    
+    def __init__(self):
+        """Initialize mock widgets module."""
+        self.Text = MockText
+        self.Textarea = MockTextarea
+        self.Button = MockButton
+        self.Dropdown = MockDropdown
+        self.Checkbox = MockCheckbox
+        self.IntSlider = MockIntSlider
+        self.FloatSlider = MockFloatSlider
+        self.RadioButtons = MockRadioButtons
+        self.Output = MockOutput
+        self.VBox = MockVBox
+        self.HBox = MockHBox
+        self.Tab = MockTab
+        self.Accordion = MockAccordion
+        self.Layout = MockLayout
+
+
 def create_mock_widgets():
-    """Create a complete set of mock widgets.
+    """Create a complete mock widgets module.
     
     Returns:
-        dict: Dictionary of mock widget classes
+        MockWidgetsModule: Mock ipywidgets module
     """
-    return {
-        'Dropdown': MockDropdown,
-        'Button': MockButton,
-        'Textarea': MockTextarea,
-        'Checkbox': MockCheckbox,
-        'Output': MockOutput,
-        'VBox': MockVBox,
-        'HBox': MockHBox,
-        'Tab': MockTab,
-        'Layout': MockLayout,
-    }
+    return MockWidgetsModule()
 
 
 def create_mock_ipython():

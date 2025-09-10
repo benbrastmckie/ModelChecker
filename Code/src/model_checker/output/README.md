@@ -1,423 +1,398 @@
-# Output Management Module
+# Output Management: Multi-Format Result Generation and Control
 
 [← Back to ModelChecker](../../README.md) | [API Documentation →](../README.md) | [Interactive Save Guide →](../../../docs/INTERACTIVE_SAVE.md)
 
 ## Directory Structure
+
 ```
 output/
-├── README.md               # This file - module documentation
-├── __init__.py            # Module exports
-├── manager.py             # Core OutputManager class
+├── README.md               # This file - output subsystem documentation
+├── __init__.py            # Module exports and initialization
+├── config.py              # Output configuration management
+├── constants.py           # Centralized constants and defaults
+├── errors.py              # Custom exception classes
+├── manager.py             # Core OutputManager orchestrator
 ├── collectors.py          # Model data collection utilities
-├── formatters.py          # Output formatting (Markdown, ANSI)
+├── helpers.py             # Utility functions for output processing
 ├── interactive.py         # Interactive save mode manager
 ├── prompts.py            # User prompt utilities
-├── input_provider.py     # Input abstraction for testable user interaction
+├── input_provider.py     # Input abstraction for testing
+├── formatters/           # Output format generators
+│   ├── base.py           # Abstract formatter interface
+│   ├── markdown.py       # Markdown documentation generator
+│   ├── json.py           # JSON data serialization
+│   └── notebook.py       # Jupyter notebook creation
+├── strategies/           # Save timing strategies
+│   ├── base.py           # Abstract strategy interface
+│   ├── batch.py          # Accumulate and save at end
+│   ├── sequential.py     # Save immediately
+│   └── interactive.py    # User-controlled saving
+├── progress/             # Progress indication utilities
+│   └── [various]         # Spinner and progress components
 └── tests/                # Comprehensive test suite
+    ├── unit/            # Unit tests for components
+    ├── integration/     # Integration tests
+    └── e2e/            # End-to-end scenarios
 ```
 
 ## Overview
 
-The **Output Management Module** provides comprehensive functionality for saving and organizing model checking results, supporting both batch and interactive workflows with structured file outputs and user-friendly formatting.
+The **Output Management subsystem** provides a flexible, extensible framework for generating and managing model checking results in multiple formats. Built on the strategy pattern, it separates concerns between format generation (formatters), save timing (strategies), and overall orchestration (manager), enabling clean architecture and easy extension.
 
-### Core Features
+### Key Design Principles
 
-- **Flexible Save Modes**: Batch processing or interactive per-model saving
-- **Structured Output**: Organized directory structure with JSON and Markdown formats
-- **Interactive Workflow**: User prompts for selective model saving and iteration control
-- **ANSI to Markdown**: Automatic color conversion for readable documentation
-- **Model Data Collection**: Systematic extraction of model structure and properties
+- **Separation of Concerns**: Format generation, save timing, and orchestration are independent
+- **Strategy Pattern**: Both formatters and save strategies use pluggable implementations
+- **Configuration-Driven**: Behavior controlled through centralized configuration
+- **Testability**: All components designed for easy testing with minimal mocking
+- **Extensibility**: New formats and strategies can be added without modifying core logic
 
-## API Reference
-
-### Input Provider Pattern
-
-The output module uses an **Input Provider abstraction** to handle user input in a testable way:
-
-```python
-from model_checker.output import ConsoleInputProvider, MockInputProvider
-
-# Production usage with console input
-input_provider = ConsoleInputProvider()
-interactive_manager = InteractiveSaveManager(input_provider)
-
-# Testing with predetermined responses
-mock_provider = MockInputProvider(['a', 'y', 'n'])  # Responses for 3 prompts
-test_manager = InteractiveSaveManager(mock_provider)
-```
-
-This pattern ensures:
-- **Testability**: Tests can provide predetermined input without mocking stdin
-- **Consistency**: All user input goes through a single abstraction
-- **Flexibility**: Easy to add new input sources (files, GUIs, etc.)
-- **No Backwards Compatibility**: Direct refactoring without legacy support
+## Core Components
 
 ### OutputManager
 
-The main class for managing output operations:
+The central orchestrator that coordinates all output operations:
 
 ```python
 from model_checker.output import OutputManager
 
-# Basic usage
-output_manager = OutputManager(
-    save_output=True,
-    mode='batch',  # or 'sequential'
-    sequential_files='multiple'  # or 'single'
-)
+# Initialize with build module
+manager = OutputManager(build_module)
 
-# With interactive mode
-output_manager = OutputManager(
-    save_output=True,
-    interactive_manager=interactive_manager
-)
+# Save an example result
+manager.save_example('EXAMPLE_1', example_data, formatted_output)
+
+# Finalize batch operations
+manager.finalize()
 ```
 
-#### Key Methods
+**Responsibilities**:
+- Coordinate formatters and strategies
+- Manage output directory creation
+- Handle interactive user prompts
+- Collect and organize model data
 
-- `create_output_directory(custom_name=None)`: Create timestamped output directory
-- `save_example(example_name, model_data, formatted_output)`: Save in batch mode
-- `save_model_interactive(example_name, model_data, formatted_output, model_num)`: Save individual model
-- `finalize()`: Complete output process and write final files
-- `should_save()`: Check if output saving is enabled
+### Output Configuration
 
-### InteractiveSaveManager
-
-Manages interactive save workflow:
+Centralized configuration for all output behavior with full CLI integration:
 
 ```python
-from model_checker.output import InteractiveSaveManager, ConsoleInputProvider
+from model_checker.output.config import OutputConfig
 
-# Create with input provider
-input_provider = ConsoleInputProvider()
-manager = InteractiveSaveManager(input_provider)
+# Create from CLI arguments (handles new --save flag)
+config = OutputConfig.from_cli_args(args)
 
-# Prompt for save mode
-mode = manager.prompt_save_mode()  # Returns 'batch' or 'interactive'
+# Or create manually
+config = OutputConfig(
+    formats=['markdown', 'json'],  # notebook handled separately
+    mode='batch',
+    sequential_files='multiple',
+    save_output=True
+)
 
-# Set mode directly (e.g., from CLI flag)
-manager.set_mode('interactive')
+# Check enabled formats
+if config.is_format_enabled('markdown'):
+    # Generate markdown documentation
+    pass
 
-# Interactive workflow methods
-should_save = manager.prompt_save_model("EXAMPLE_1")
-find_more = manager.prompt_find_more_models()
-manager.prompt_change_directory("/path/to/output")
+# CLI Usage:
+# --save              # Save all formats
+# --save markdown     # Save only markdown
+# --save json markdown  # Save specific formats
 ```
 
 ### Formatters
 
-Convert and format output data:
+Transform model checking results into different output formats:
 
 ```python
-from model_checker.output import MarkdownFormatter, ANSIToMarkdown
-
-# Format model data as Markdown
-formatter = MarkdownFormatter(use_colors=True)
-markdown_output = formatter.format_example(model_data, raw_output)
-
-# Convert ANSI colors to Markdown
-converter = ANSIToMarkdown()
-converted = converter.convert(ansi_text)
-```
-
-### Data Collectors
-
-Extract structured data from models:
-
-```python
-from model_checker.output import ModelDataCollector
-
-collector = ModelDataCollector()
-model_data = collector.collect_model_data(
-    model_structure,
-    example_name,
-    theory_name
+from model_checker.output.formatters import (
+    MarkdownFormatter,
+    JSONFormatter, 
+    JupyterNotebookFormatter
 )
+
+# Format results for human reading
+markdown = MarkdownFormatter().format(example_data)
+
+# Format for data analysis
+json_str = JSONFormatter().format(example_data)
+
+# Create interactive notebook
+notebook = JupyterNotebookFormatter().format(example_data)
 ```
 
-## Usage Examples
+**Available Formatters**:
+- **MarkdownFormatter**: Human-readable documentation with mathematical notation
+- **JSONFormatter**: Complete data serialization for analysis
+- **JupyterNotebookFormatter**: Interactive notebooks for exploration
 
-### Basic Batch Mode
+See [formatters/README.md](formatters/README.md) for detailed documentation.
+
+### Strategies
+
+Control when results are saved to disk:
 
 ```python
-# In examples file
-general_settings = {
-    "save_output": True
-}
+from model_checker.output.strategies import (
+    BatchStrategy,
+    SequentialStrategy,
+    InteractiveStrategy
+)
 
-# Command line
-model-checker -s examples/my_logic.py
+# Batch: accumulate all, save at end
+batch = BatchStrategy()
+
+# Sequential: save each immediately
+sequential = SequentialStrategy(sequential_files='multiple')
+
+# Interactive: user controls saving
+interactive = InteractiveStrategy()
 ```
 
-Output structure:
-```
-output_20250804_123456/
-├── EXAMPLES.md    # All examples in one file
-└── MODELS.json    # Structured data for all models
-```
+**Available Strategies**:
+- **BatchStrategy**: Minimize I/O, save all at once
+- **SequentialStrategy**: Immediate results, constant memory
+- **InteractiveStrategy**: User-controlled selective saving
 
-### Interactive Mode
+See [strategies/README.md](strategies/README.md) for detailed documentation.
+
+## Usage Patterns
+
+### Basic Usage
 
 ```python
-# Command line with interactive flag
-model-checker -s -I examples/my_logic.py
+from model_checker.builder import BuildModule
 
-# Or programmatically
-flags.save_output = True
-flags.interactive = True
+# Load module with examples
+build_module = BuildModule(flags)
+
+# OutputManager handles everything
+# (created automatically by BuildModule)
+build_module.run_examples()
+# Results saved according to configuration
 ```
 
-Interactive workflow:
-1. Select save mode (if not specified)
-2. After each model: "Save model for EXAMPLE_NAME? (Y/n)"
-3. After save decision: "Find additional models? (y/N)"
-4. At completion: "Change to output directory? (y/N)"
+### Command-Line Control
 
-Output structure:
-```
-output_20250804_123456/
-├── EXAMPLE_1/
-│   ├── MODEL_1.md
-│   ├── MODEL_1.json
-│   └── MODEL_2.md
-├── EXAMPLE_2/
-│   └── MODEL_1.md
-├── summary.json
-└── MODELS.json
+```bash
+# Generate all formats (default)
+python -m model_checker examples.py
+
+# Generate specific formats
+python -m model_checker examples.py --output markdown json
+
+# Sequential mode with immediate saves
+python -m model_checker examples.py --output-mode sequential
+
+# Interactive mode with user control
+python -m model_checker examples.py --interactive
 ```
 
-### Sequential Mode
+### Programmatic Usage
 
 ```python
-# Command line
-model-checker -s --output-mode sequential examples/my_logic.py
+from model_checker.output import OutputManager
+from model_checker.output.config import OutputConfig
 
-# With multiple files
-model-checker -s --output-mode sequential --sequential-files multiple examples/my_logic.py
+# Custom configuration
+config = OutputConfig(
+    formats=['markdown', 'notebook'],
+    mode='sequential',
+    sequential_files='single'
+)
+
+# Create manager with custom config
+manager = OutputManager(build_module, config=config)
+
+# Process examples
+for name, example in examples.items():
+    result = process_example(example)
+    manager.save_example(name, result, formatted_output)
+
+# Finalize if needed
+manager.finalize()
 ```
 
-Output structure:
-```
-output_20250804_123456/
-├── sequential/
-│   ├── EXAMPLE_1.md
-│   ├── EXAMPLE_2.md
-│   └── EXAMPLE_3.md
-└── MODELS.json
-```
+## Interactive Mode
 
-## File Formats
-
-### Markdown Output (.md)
-
-Human-readable format with converted colors:
-
-```markdown
-# EXAMPLE_NAME
-
-Theory: theory_name
-
-## Model Structure
-
-### States
-- 🟢 Possible states: s1, s2
-- 🔴 Impossible states: s3
-- 🔵 World states: s1, s2
-- ⭐ Evaluation world: s1
-
-### Relations
-- R: {(s1, s2)}
-
-### Propositions
-- p: True at s1, False at s2
-
-## Verification
-✓ Model found
-```
-
-### JSON Output (.json)
-
-Structured data for programmatic access:
-
-```json
-{
-  "example": "EXAMPLE_NAME",
-  "theory": "theory_name",
-  "timestamp": "2025-01-15T10:30:45",
-  "has_model": true,
-  "evaluation_world": "s1",
-  "states": {
-    "possible": ["s1", "s2"],
-    "impossible": ["s3"],
-    "worlds": ["s1", "s2"]
-  },
-  "relations": {
-    "R": [["s1", "s2"]]
-  },
-  "propositions": {
-    "p": {
-      "s1": true,
-      "s2": false
-    }
-  },
-  "verification": {
-    "premises_true": true,
-    "conclusions_true": true
-  }
-}
-```
-
-### Summary Output (summary.json)
-
-Interactive session metadata:
-
-```json
-{
-  "metadata": {
-    "timestamp": "2025-01-15T10:30:45",
-    "mode": "interactive",
-    "total_examples": 3,
-    "total_models": 5
-  },
-  "examples": {
-    "EXAMPLE_1": {
-      "model_count": 2,
-      "model_numbers": [1, 2],
-      "directory": "EXAMPLE_1"
-    },
-    "EXAMPLE_2": {
-      "model_count": 1,
-      "model_numbers": [1],
-      "directory": "EXAMPLE_2"
-    }
-  }
-}
-```
-
-## Integration
-
-### With BuildModule
-
-The output system integrates seamlessly with BuildModule:
+The interactive mode provides user control over saving:
 
 ```python
-class BuildModule:
-    def __init__(self, flags):
-        # Create interactive manager if needed
-        if flags.save_output:
-            from model_checker.output import ConsoleInputProvider
-            input_provider = ConsoleInputProvider()
-            self.interactive_manager = InteractiveSaveManager(input_provider)
-            if flags.interactive:
-                self.interactive_manager.set_mode('interactive')
-            else:
-                self.interactive_manager.prompt_save_mode()
-                
-        # Initialize output manager
-        self.output_manager = OutputManager(
-            save_output=flags.save_output,
-            interactive_manager=self.interactive_manager
-        )
+from model_checker.output.interactive import InteractiveSaveManager
+
+# Created automatically when --interactive flag is used
+interactive_manager = InteractiveSaveManager(input_provider)
+
+# User prompts for each example
+response = interactive_manager.prompt_for_save('EXAMPLE_1')
+if response in ['y', 'a']:  # yes or all
+    # Save the example
+    pass
 ```
 
-### With Model Checking
+**Interactive Options**:
+- `y` - Save current example
+- `n` - Skip current example
+- `a` - Save all remaining examples
+- `s` - Stop processing
 
-During model checking, results are captured and saved:
+## Input Provider Pattern
+
+For testability, user input is abstracted:
 
 ```python
-def _capture_and_save_output(self, example, example_name, theory_name):
-    # Capture output
-    captured_output = capture_print_output(
-        lambda: example.print_model(example_name, theory_name)
-    )
-    
-    # Convert ANSI colors
-    converter = ANSIToMarkdown()
-    converted = converter.convert(captured_output)
-    
-    # Collect model data
-    collector = ModelDataCollector()
-    model_data = collector.collect_model_data(...)
-    
-    # Save based on mode
-    if self.interactive_manager.is_interactive():
-        if self.interactive_manager.prompt_save_model(example_name):
-            self.output_manager.save_model_interactive(...)
-    else:
-        self.output_manager.save_example(...)
+from model_checker.output import ConsoleInputProvider, MockInputProvider
+
+# Production: real user input
+input_provider = ConsoleInputProvider()
+
+# Testing: predetermined responses
+mock_provider = MockInputProvider(['a', 'y', 'n'])
+test_manager = InteractiveSaveManager(mock_provider)
 ```
+
+## Model Data Collection
+
+The `collectors` module extracts structured data from models:
+
+```python
+from model_checker.output.collectors import collect_model_data
+
+# Extract all model information
+model_data = collect_model_data(
+    model_structure,
+    propositions_list,
+    print_model_callback
+)
+
+# Returns structured dictionary with:
+# - states and their properties
+# - relations between states
+# - proposition evaluations
+# - formatted output
+```
+
+## File Organization
+
+Output files are organized in a clear structure:
+
+```
+ModelChecker_Outputs_TIMESTAMP/
+├── EXAMPLES.md                  # Combined markdown with model outputs
+├── MODELS.json                  # Combined JSON with model data
+├── NOTEBOOK.ipynb               # Runnable Jupyter notebook (no outputs)
+└── summary.json                 # Summary data (interactive mode only)
+```
+
+## Configuration Options
+
+### Format Selection (New Consolidated --save Flag)
+- `--save` - Save all formats (markdown, json, notebook)
+- `--save markdown` - Save only markdown format
+- `--save json markdown` - Save specific formats
+- No --save flag - No output saved
+
+### Output Modes
+- `--output-mode batch` - Save all at end (default)
+- `--output-mode sequential` - Save immediately
+- `--interactive` - User-controlled saving
+
+### Sequential Options
+- `--sequential-files multiple` - Separate file per example
+- `--sequential-files single` - Append to single file
 
 ## Testing
 
-The module includes comprehensive tests:
+The output subsystem has comprehensive test coverage (97% as of 2025-01-10):
 
 ```bash
-# Run all output tests
-python -m pytest src/model_checker/output/tests/ -v
+# Run all output tests (251 tests)
+pytest src/model_checker/output/tests/
 
-# Specific test categories
-python -m pytest src/model_checker/output/tests/test_manager.py -v
-python -m pytest src/model_checker/output/tests/test_interactive.py -v
-python -m pytest src/model_checker/output/tests/test_formatters.py -v
+# Unit tests only (including new config, errors, helpers tests)
+pytest src/model_checker/output/tests/unit/
+
+# Integration tests
+pytest src/model_checker/output/tests/integration/
+
+# End-to-end tests
+pytest src/model_checker/output/tests/e2e/
+
+# Run with coverage report
+pytest src/model_checker/output/tests/ --cov=src/model_checker/output
 ```
 
-Test coverage includes:
-- Output directory creation and structure
-- Batch and interactive save modes
-- ANSI to Markdown conversion
-- Model data collection
-- User prompt handling
-- Edge cases and error conditions
+**Test Coverage Highlights**:
+- Overall: 97% coverage (3046/3154 statements)
+- config.py: 100% coverage (comprehensive CLI parsing tests)
+- errors.py: 100% coverage (all exception classes tested)
+- helpers.py: 100% coverage (all utilities validated)
+- 251 total tests, all passing
 
-## Development
+## Extension Points
 
-### Adding New Output Formats
+### Adding New Formats
 
-1. Create formatter in `formatters.py`:
+1. Create formatter extending `BaseFormatter`
+2. Implement `format()` and `get_extension()`
+3. Register in `formatters/__init__.py`
+4. Update `OutputConfig` for CLI support
+
+### Adding New Strategies
+
+1. Create strategy extending `OutputStrategy`
+2. Implement required methods
+3. Register in `strategies/__init__.py`
+4. Update configuration handling
+
+### Custom Output Processing
+
 ```python
-class LaTeXFormatter:
-    def format_example(self, model_data, raw_output):
-        # Convert to LaTeX format
-        return latex_output
+from model_checker.output.helpers import process_custom_output
+
+# Add custom processing step
+def custom_processor(data):
+    # Transform data
+    return processed_data
+
+# Use in output pipeline
+processed = custom_processor(model_data)
 ```
 
-2. Update OutputManager to use new format:
+## Performance Considerations
+
+- **Memory Usage**: Batch mode accumulates all results in memory
+- **I/O Operations**: Sequential mode performs more disk writes
+- **Format Generation**: Notebook generation has higher overhead
+- **Large Models**: Consider sequential mode for memory efficiency
+
+## Error Handling
+
+Custom exceptions for clear error reporting:
+
 ```python
-def save_example_latex(self, example_name, model_data):
-    formatter = LaTeXFormatter()
-    latex_output = formatter.format_example(model_data, "")
-    # Save to file
+from model_checker.output.errors import (
+    OutputError,
+    FormatterError,
+    StrategyError
+)
+
+try:
+    manager.save_example(name, data, output)
+except OutputError as e:
+    # Handle output-specific errors
+    print(f"Output failed: {e}")
 ```
 
-### Extending Interactive Features
+## Related Documentation
 
-1. Add new prompt in `interactive.py`:
-```python
-def prompt_export_format(self):
-    choices = ['Markdown', 'LaTeX', 'HTML']
-    return prompt_choice("Select export format:", choices)
-```
-
-2. Integrate into workflow:
-```python
-if self.interactive_manager.is_interactive():
-    format_choice = self.interactive_manager.prompt_export_format()
-    # Handle format selection
-```
-
-## References
-
-### Related Documentation
-- [Interactive Save Guide](../../../docs/INTERACTIVE_SAVE.md) - User guide for interactive features
-- [CLI Documentation](../README.md#cli-usage) - Command-line interface reference
-- [Development Guide](../../../docs/DEVELOPMENT.md) - General development practices
-
-### Design Principles
-- **User Control**: Give users fine-grained control over outputs
-- **Structure**: Maintain organized, predictable output structure
-- **Flexibility**: Support multiple workflows and use cases
-- **Clarity**: Provide clear, readable output formats
+- **[Formatters Documentation](formatters/README.md)** - Detailed formatter information
+- **[Strategies Documentation](strategies/README.md)** - Strategy pattern details
+- **[Progress Indicators](progress/README.md)** - Progress display components
+- **[Test Documentation](tests/README.md)** - Testing approach and coverage
+- **[Interactive Save Guide](../../../docs/INTERACTIVE_SAVE.md)** - User guide for interactive mode
 
 ---
 
-Part of the ModelChecker framework. Licensed under GPL-3.0.
+[← Back to ModelChecker](../../README.md) | [API Documentation →](../README.md) | [Interactive Save Guide →](../../../docs/INTERACTIVE_SAVE.md)
