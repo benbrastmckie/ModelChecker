@@ -8,6 +8,7 @@ import unittest
 from unittest.mock import Mock, patch, MagicMock
 import z3
 from model_checker.iterate.core import BaseModelIterator
+from model_checker.iterate.errors import ModelExtractionError
 
 
 class TestSimplifiedIterator(unittest.TestCase):
@@ -95,24 +96,34 @@ class TestSimplifiedIterator(unittest.TestCase):
         # Create Z3 model
         z3_model = Mock()
         
-        # Call should handle exception gracefully
-        result = self.iterator.model_builder.build_new_model_structure(z3_model)
+        # Setup the mock build to have the necessary attributes
+        self.mock_build.syntax = Mock()
+        self.mock_build.syntax.operator_dictionary = {}
         
-        # Should return None on failure
-        self.assertIsNone(result)
+        # Call should now raise ModelExtractionError
+        with self.assertRaises(ModelExtractionError) as context:
+            self.iterator.model_builder.build_new_model_structure(z3_model)
+        
+        # Check that ModelExtractionError was raised - the exact error message may vary
+        # depending on where in the build process the failure occurs
+        self.assertIsInstance(context.exception, ModelExtractionError)
     
     def test_interpret_called_on_new_structure(self):
         """Test that model builder can be called successfully."""
         # Create Z3 model
         z3_model = Mock()
         
+        # Setup the mock build to have the necessary attributes
+        self.mock_build.syntax = Mock()
+        self.mock_build.syntax.operator_dictionary = {}
+        
         # The model builder's build_new_model_structure method exists
         assert hasattr(self.iterator.model_builder, 'build_new_model_structure')
         
-        # It should handle failures gracefully (returns None on error)
+        # It should now raise ModelExtractionError on failure
         with patch('model_checker.iterate.build_example.create_with_z3_model', side_effect=Exception("Test error")):
-            result = self.iterator.model_builder.build_new_model_structure(z3_model)
-            self.assertIsNone(result)
+            with self.assertRaises(ModelExtractionError):
+                self.iterator.model_builder.build_new_model_structure(z3_model)
     
     def test_simplified_method_shorter(self):
         """Verify the simplified method is much shorter."""

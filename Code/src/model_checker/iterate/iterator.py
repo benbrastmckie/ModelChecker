@@ -8,8 +8,10 @@ constraint generation, model building, and termination logic.
 import logging
 import sys
 import time
-from model_checker.iterate.metrics import IterationStatistics
-from model_checker.iterate.statistics import SearchStatistics, IterationReportGenerator
+from typing import List, Dict, Any, Optional
+from .metrics import IterationStatistics
+from .statistics import SearchStatistics, IterationReportGenerator
+from .errors import IterateError, IterationStateError
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -24,7 +26,7 @@ if not logger.handlers:
 class IteratorCore:
     """Core iteration logic and control flow management."""
     
-    def __init__(self, build_example):
+    def __init__(self, build_example: 'BuildExample') -> None:
         """Initialize iterator with build example.
         
         Args:
@@ -32,15 +34,27 @@ class IteratorCore:
         """
         # Model validation
         if not hasattr(build_example, 'model_structure') or build_example.model_structure is None:
-            raise ValueError("BuildExample has no model_structure")
+            raise IterationStateError(
+                state="initialization",
+                reason="BuildExample has no model_structure",
+                suggestion="Ensure the BuildExample has been properly built before iteration"
+            )
             
         if not hasattr(build_example.model_structure, 'z3_model_status') or \
            not build_example.model_structure.z3_model_status:
-            raise ValueError("BuildExample does not have a valid model")
+            raise IterationStateError(
+                state="initialization",
+                reason="BuildExample does not have a valid model",
+                suggestion="Ensure the initial formula is satisfiable before attempting iteration"
+            )
             
         if not hasattr(build_example.model_structure, 'z3_model') or \
            build_example.model_structure.z3_model is None:
-            raise ValueError("BuildExample has no Z3 model")
+            raise IterationStateError(
+                state="initialization", 
+                reason="BuildExample has no Z3 model",
+                suggestion="Check that the Z3 solver successfully generated a model"
+            )
             
         # Initialize properties
         self.build_example = build_example
@@ -76,7 +90,7 @@ class IteratorCore:
         # Initialize stats for the first model
         self.stats.add_model(self.build_example.model_structure, {})
     
-    def iterate(self):
+    def iterate(self) -> List['ModelStructure']:
         """Find multiple distinct models up to max_iterations.
         
         Returns:
@@ -135,7 +149,7 @@ class IteratorCore:
                 
                 try:
                     # Generate constraints to exclude previous models
-                    from model_checker.iterate.constraints import ConstraintGenerator
+                    from .constraints import ConstraintGenerator
                     constraint_gen = ConstraintGenerator(self.build_example)
                     extended_constraints = constraint_gen.create_extended_constraints(self.found_models)
                     
@@ -184,7 +198,7 @@ class IteratorCore:
                         continue
                         
                     # Build model structure for the new model
-                    from model_checker.iterate.models import ModelBuilder
+                    from .models import ModelBuilder
                     model_builder = ModelBuilder(self.build_example)
                     new_structure = model_builder.build_new_model_structure(new_model)
                     
@@ -221,7 +235,7 @@ class IteratorCore:
                         continue
                         
                     # Check for isomorphism with previous models
-                    from model_checker.iterate.graph import IsomorphismChecker
+                    from .graph import IsomorphismChecker
                     iso_checker = IsomorphismChecker()
                     is_isomorphic, isomorphic_model = iso_checker.check_isomorphism(
                         new_structure, new_model, self.model_structures, self.found_models
@@ -260,7 +274,7 @@ class IteratorCore:
                     self.current_search_start = time.time()
                     
                     # Calculate differences from previous model
-                    from model_checker.iterate.models import DifferenceCalculator
+                    from .models import DifferenceCalculator
                     diff_calc = DifferenceCalculator()
                     differences = diff_calc.calculate_differences(new_structure, self.model_structures[-2])
                     
@@ -269,10 +283,17 @@ class IteratorCore:
                     
                     logger.info(f"Found distinct model #{len(self.model_structures)}")
                     
+                except IterateError:
+                    # Re-raise our custom errors
+                    raise
                 except Exception as e:
                     logger.error(f"Error during iteration: {str(e)}")
                     self.debug_messages.append(f"Iteration error: {str(e)}")
-                    break
+                    raise IterationStateError(
+                        state="iteration_main_loop",
+                        reason=str(e),
+                        suggestion="Check logs for detailed error information"
+                    ) from e
                     
         except KeyboardInterrupt:
             logger.info("Iteration interrupted by user")
@@ -310,7 +331,7 @@ class IteratorCore:
         
         return self.model_structures
     
-    def get_debug_messages(self):
+    def get_debug_messages(self) -> List[str]:
         """Get all debug messages collected during iteration.
         
         Returns:
@@ -318,7 +339,7 @@ class IteratorCore:
         """
         return self.debug_messages.copy()
     
-    def get_iteration_summary(self):
+    def get_iteration_summary(self) -> Dict[str, Any]:
         """Get summary statistics for the iteration.
         
         Returns:
@@ -326,11 +347,11 @@ class IteratorCore:
         """
         return self.stats.get_summary()
     
-    def print_iteration_summary(self):
+    def print_iteration_summary(self) -> None:
         """Print a summary of the iteration results."""
         self.stats.print_summary()
     
-    def reset_iterator(self):
+    def reset_iterator(self) -> None:
         """Reset the iterator to initial state.
         
         This removes all models except the first one and resets counters.
@@ -351,7 +372,7 @@ class IteratorCore:
         
         logger.debug("Iterator reset to initial state")
     
-    def _get_iteration_settings(self):
+    def _get_iteration_settings(self) -> Dict[str, Any]:
         """Get and validate iteration settings from the build example.
         
         Returns:
@@ -374,9 +395,17 @@ class IteratorCore:
         
         # Validation
         if not isinstance(settings['iterate'], int) or settings['iterate'] < 1:
-            raise ValueError(f"iterate must be a positive integer, got {settings['iterate']}")
+            raise IterationStateError(
+                state="settings_validation",
+                reason=f"iterate must be a positive integer, got {settings['iterate']}",
+                suggestion="Set 'iterate' to a positive integer value (e.g., 5)"
+            )
             
         if not isinstance(settings['timeout'], (int, float)) or settings['timeout'] <= 0:
-            raise ValueError(f"timeout must be positive, got {settings['timeout']}")
+            raise IterationStateError(
+                state="settings_validation",
+                reason=f"timeout must be positive, got {settings['timeout']}",
+                suggestion="Set 'timeout' to a positive number in seconds (e.g., 300)"
+            )
             
         return settings
