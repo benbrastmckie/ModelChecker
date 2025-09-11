@@ -5,7 +5,7 @@ statistics about the search process for each model during iteration.
 """
 
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import Optional, List, Dict, Any
 
 
 @dataclass
@@ -31,7 +31,11 @@ class SearchStatistics:
     termination_reason: Optional[str] = None
     
     def summary_line(self) -> str:
-        """Generate a summary line for this search."""
+        """Generate a summary line for this search.
+        
+        Returns:
+            str: Formatted summary of the search statistics.
+        """
         if self.model_number == 1:
             return "Model 1: Initial model (given)"
             

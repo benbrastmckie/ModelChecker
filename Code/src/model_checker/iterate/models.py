@@ -7,8 +7,12 @@ calculating differences between models.
 
 import logging
 import z3
-from typing import Any
+from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
 from .errors import ModelExtractionError, ModelValidationError
+
+if TYPE_CHECKING:
+    from model_checker.builder.example import BuildExample
+    from model_checker.models.structures import ModelStructure
 
 logger = logging.getLogger(__name__)
 
@@ -16,7 +20,7 @@ logger = logging.getLogger(__name__)
 class ModelBuilder:
     """Builds and validates model structures for iteration."""
     
-    def __init__(self, build_example):
+    def __init__(self, build_example: 'BuildExample') -> None:
         """Initialize model builder.
         
         Args:
@@ -24,7 +28,7 @@ class ModelBuilder:
         """
         self.build_example = build_example
     
-    def build_new_model_structure(self, z3_model):
+    def build_new_model_structure(self, z3_model: z3.ModelRef) -> 'ModelStructure':
         """Build a new model structure with fresh constraints.
         
         This creates new ModelConstraints using the current model's verify/falsify
@@ -139,7 +143,7 @@ class ModelBuilder:
             
             return model_structure
             
-        except Exception as e:
+        except (ImportError, AttributeError, KeyError) as e:
             logger.error(f"Failed to build model structure: {str(e)}")
             # In tests, model_structures might be a Mock, so handle that case
             model_structures = getattr(self.build_example, 'model_structures', [])
@@ -153,8 +157,30 @@ class ModelBuilder:
                 reason=str(e),
                 suggestion="Check that the Z3 model is complete and valid"
             ) from e
+        except z3.Z3Exception as e:
+            logger.error(f"Z3 error building model: {str(e)}")
+            model_num = len(getattr(self.build_example, 'model_structures', [])) + 1
+            raise ModelExtractionError(
+                model_num=model_num,
+                reason=f"Z3 error: {str(e)}",
+                suggestion="Verify Z3 model is valid and constraints are satisfiable"
+            ) from e
+        except Exception as e:
+            # Catch-all for unexpected errors (including test mocks)
+            logger.error(f"Unexpected error building model: {str(e)}")
+            model_num = len(getattr(self.build_example, 'model_structures', [])) + 1
+            raise ModelExtractionError(
+                model_num=model_num,
+                reason=str(e),
+                suggestion="An unexpected error occurred during model construction"
+            ) from e
     
-    def _initialize_base_attributes(self, model_structure, model_constraints, settings):
+    def _initialize_base_attributes(
+        self, 
+        model_structure: 'ModelStructure',
+        model_constraints: Any,
+        settings: Dict[str, Any]
+    ) -> None:
         """Initialize basic model structure attributes.
         
         Args:
@@ -182,7 +208,11 @@ class ModelBuilder:
         # Set solver reference
         model_structure.solver = model_constraints.solver if hasattr(model_constraints, 'solver') else None
     
-    def _initialize_z3_dependent_attributes(self, model_structure, z3_model):
+    def _initialize_z3_dependent_attributes(
+        self,
+        model_structure: 'ModelStructure',
+        z3_model: z3.ModelRef
+    ) -> None:
         """Initialize attributes that depend on the Z3 model.
         
         Args:
@@ -215,7 +245,7 @@ class ModelBuilder:
                         else:
                             impossible_states.append(state)
                             
-                except Exception as e:
+                except (z3.Z3Exception, AttributeError) as e:
                     logger.warning(f"Error evaluating state {state}: {e}")
                     # Continue processing other states rather than failing entirely
                     continue
@@ -228,11 +258,15 @@ class ModelBuilder:
             # Also store as attribute for compatibility
             model_structure.z3_worlds = world_states
             
-        except Exception as e:
+        except (z3.Z3Exception, AttributeError, TypeError) as e:
             logger.warning(f"Error initializing Z3-dependent attributes: {e}")
             # Log but don't fail - partial initialization is better than none
     
-    def _evaluate_z3_boolean(self, z3_model, expression):
+    def _evaluate_z3_boolean(
+        self,
+        z3_model: z3.ModelRef,
+        expression: Optional[z3.BoolRef]
+    ) -> bool:
         """Safely evaluate a Z3 boolean expression.
         
         Args:
@@ -254,11 +288,11 @@ class ModelBuilder:
                 return z3.is_true(result)
             
             # Handle numeric results (0 = False, non-zero = True)
-            if z3.is_int_value(result) or z3.is_real_value(result):
+            if z3.is_int_value(result) or z3.is_real(result):
                 try:
                     numeric_val = result.as_long() if z3.is_int_value(result) else float(result.as_decimal(6).replace('?', ''))
                     return numeric_val != 0
-                except:
+                except (ValueError, TypeError, AttributeError):
                     return False
             
             # Handle string representation as fallback
@@ -271,15 +305,23 @@ class ModelBuilder:
             logger.debug(f"Unknown Z3 result type for {expression}: {result} (type: {type(result)})")
             return False
             
-        except Exception as e:
+        except (z3.Z3Exception, AttributeError, TypeError) as e:
             logger.warning(f"Error evaluating Z3 expression {expression}: {e}")
+            return False
+        except Exception as e:
+            # Catch-all for unexpected errors (including test mocks)
+            logger.warning(f"Unexpected error evaluating Z3 expression {expression}: {e}")
             return False
 
 
 class DifferenceCalculator:
     """Calculates differences between model structures."""
     
-    def calculate_differences(self, new_structure, previous_structure):
+    def calculate_differences(
+        self,
+        new_structure: 'ModelStructure',
+        previous_structure: 'ModelStructure'
+    ) -> Dict[str, Any]:
         """Calculate differences between two model structures.
         
         Args:
@@ -304,13 +346,17 @@ class DifferenceCalculator:
             state_diffs = self._calculate_state_differences(new_structure, previous_structure)
             differences.update(state_diffs)
             
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error calculating differences: {e}")
             differences['error'] = str(e)
             
         return differences
     
-    def _calculate_basic_differences(self, new_structure, previous_structure):
+    def _calculate_basic_differences(
+        self,
+        new_structure: 'ModelStructure',
+        previous_structure: 'ModelStructure'
+    ) -> Dict[str, Any]:
         """Calculate basic structural differences.
         
         Args:
@@ -349,13 +395,17 @@ class DifferenceCalculator:
                 'total_change_count': len(possible_added) + len(possible_removed)
             }
             
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error calculating basic differences: {e}")
             differences['basic_error'] = str(e)
             
         return differences
     
-    def _calculate_semantic_differences(self, new_structure, previous_structure):
+    def _calculate_semantic_differences(
+        self,
+        new_structure: 'ModelStructure',
+        previous_structure: 'ModelStructure'
+    ) -> Dict[str, Any]:
         """Calculate semantic differences between models.
         
         Args:
@@ -375,13 +425,17 @@ class DifferenceCalculator:
             
             # Other semantic changes can be added here
             
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error calculating semantic differences: {e}")
             differences['semantic_error'] = str(e)
             
         return differences
     
-    def _calculate_atomic_differences(self, new_structure, previous_structure):
+    def _calculate_atomic_differences(
+        self,
+        new_structure: 'ModelStructure',
+        previous_structure: 'ModelStructure'
+    ) -> Optional[Dict[str, Any]]:
         """Calculate differences in atomic proposition evaluations.
         
         Args:
@@ -405,7 +459,11 @@ class DifferenceCalculator:
         
         return changes if any(changes.values()) else None
     
-    def _calculate_state_differences(self, new_structure, previous_structure):
+    def _calculate_state_differences(
+        self,
+        new_structure: 'ModelStructure',
+        previous_structure: 'ModelStructure'
+    ) -> Dict[str, Any]:
         """Calculate differences in state properties.
         
         Args:
@@ -428,12 +486,16 @@ class DifferenceCalculator:
                     'removed': list(prev_impossible - new_impossible)
                 }
                 
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error calculating state differences: {e}")
             
         return differences
     
-    def _compare_state_evaluations(self, new_structure, previous_structure):
+    def _compare_state_evaluations(
+        self,
+        new_structure: 'ModelStructure',
+        previous_structure: 'ModelStructure'
+    ) -> Dict[str, Any]:
         """Compare state-level evaluations between models.
         
         Args:
@@ -467,7 +529,7 @@ class DifferenceCalculator:
                 if state_info:
                     comparisons[f'state_{state}'] = state_info
                     
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error comparing state evaluations: {e}")
             
         return comparisons

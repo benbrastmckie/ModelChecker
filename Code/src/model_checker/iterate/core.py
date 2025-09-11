@@ -428,11 +428,15 @@ class BaseModelIterator:
         # Ensure any active progress bars are properly completed before printing the report
         if self.search_progress:
             # Check if there's an active progress bar that wasn't completed
-            if self.search_progress.model_progress_bars:
-                last_bar = self.search_progress.model_progress_bars[-1]
-                if hasattr(last_bar, 'active') and last_bar.active:
-                    # Force complete any remaining active progress bar
-                    last_bar.complete(False)
+            try:
+                if self.search_progress.model_progress_bars:
+                    last_bar = self.search_progress.model_progress_bars[-1]
+                    if hasattr(last_bar, 'active') and last_bar.active:
+                        # Force complete any remaining active progress bar
+                        last_bar.complete(False)
+            except (TypeError, AttributeError, IndexError):
+                # Handle mocks or empty lists gracefully
+                pass
         
         # Generate and print detailed report
         report_generator = IterationReportGenerator()

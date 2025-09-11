@@ -10,7 +10,11 @@ from hashlib import sha256
 import json
 import logging
 import sys
-from typing import List, Optional, Set, Any, Tuple
+from typing import List, Optional, Set, Any, Tuple, Dict, TYPE_CHECKING
+import z3
+
+if TYPE_CHECKING:
+    from model_checker.models.structures import ModelStructure
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -43,7 +47,7 @@ class ModelGraph:
         graph: The NetworkX graph representation
     """
     
-    def __init__(self, model_structure, z3_model):
+    def __init__(self, model_structure: 'ModelStructure', z3_model: z3.ModelRef) -> None:
         """Create a graph representation of a logical model.
         
         Args:
@@ -54,7 +58,7 @@ class ModelGraph:
         self.z3_model = z3_model
         self.graph = self._create_graph()
         
-    def _create_graph(self):
+    def _create_graph(self) -> nx.DiGraph:
         """Create a NetworkX graph representing the model structure.
         
         Returns:
@@ -410,7 +414,7 @@ class IsomorphismChecker:
             # If isomorphism checking fails, assume not isomorphic to be safe
             return False, None
     
-    def _check_graph_isomorphism(self, graph1, graph2):
+    def _check_graph_isomorphism(self, graph1: 'ModelGraph', graph2: 'ModelGraph') -> bool:
         """Check if two ModelGraph instances are isomorphic.
         
         Args:
@@ -445,7 +449,7 @@ class IsomorphismChecker:
             logger.warning(f"Error in graph isomorphism check: {e}")
             return False
     
-    def _graphs_structurally_compatible(self, graph1, graph2):
+    def _graphs_structurally_compatible(self, graph1: 'ModelGraph', graph2: 'ModelGraph') -> bool:
         """Quick structural compatibility check.
         
         Args:
@@ -475,7 +479,7 @@ class IsomorphismChecker:
             logger.warning(f"Error in structural compatibility check: {e}")
             return True  # Assume compatible if check fails
     
-    def _networkx_isomorphism_check(self, nx_graph1, nx_graph2):
+    def _networkx_isomorphism_check(self, nx_graph1: nx.DiGraph, nx_graph2: nx.DiGraph) -> bool:
         """Use NetworkX to check graph isomorphism.
         
         Args:
