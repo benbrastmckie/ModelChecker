@@ -20,6 +20,8 @@ The **strategies subsystem** implements the strategy pattern for controlling whe
 
 This separation of concerns enables flexible output behavior while maintaining clean architecture. The strategies work in conjunction with formatters to provide a complete output solution that can handle everything from single examples to large-scale batch processing.
 
+With the unified architecture, all output formats (including notebooks) now use the same strategy pattern, ensuring consistent save timing behavior across all format types.
+
 ## Architecture
 
 ### Design Pattern

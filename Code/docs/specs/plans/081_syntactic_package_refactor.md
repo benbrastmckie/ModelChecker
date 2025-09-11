@@ -7,27 +7,30 @@
 
 ## Executive Summary
 
-The syntactic package handles formula parsing and validation but has critical deficiencies: 0% type hint coverage (122 functions), no error handling framework, and minor technical debt. This refactor will establish it as a model implementation with full type safety and robust error handling.
+The syntactic package handles logical formula processing, operator management, and syntactic validation. Critical deficiencies include 0% type hint coverage (29 functions across 5 core files), minimal error handling, and 2 TODO comments. This refactor will establish comprehensive type safety, robust error handling, and improved maintainability.
 
 ## Current State Analysis
 
 ### Package Structure
 ```
 syntactic/
-├── __init__.py          # Package exports (45 lines)
-├── parser.py            # Formula parsing (267 lines)
-├── validator.py         # Syntax validation (189 lines)
-├── transformer.py       # AST transformation (234 lines)
-├── utils.py            # Parsing utilities (188 lines)
-└── tests/              # Test suite (7 files, 1,018 lines)
+├── __init__.py          # Package exports (25 lines)
+├── atoms.py             # Z3 atomic propositions (33 lines, 1 function)
+├── sentence.py          # Sentence class for formulas (217 lines, 8 methods)
+├── operators.py         # Operator base classes (336 lines, 11 methods)
+├── collection.py        # OperatorCollection registry (120 lines, 6 methods)
+├── syntax.py            # Syntax processor (212 lines, 3 methods)
+└── tests/              # Test suite (7 files, ~1000 lines)
+    ├── unit/           # Unit tests for each module
+    └── integration/    # Integration tests
 ```
 
 ### Compliance Gaps
-- **Type Hints:** 0/122 functions (0%)
+- **Type Hints:** 0/29 core functions (0%)
 - **Error Handling:** No custom exceptions
-- **Technical Debt:** 2 TODO comments
-- **Test Coverage:** Good (1.40 ratio)
-- **Documentation:** Good (README present)
+- **Technical Debt:** 2 TODO comments in operators.py
+- **Test Coverage:** Good (comprehensive test suite)
+- **Documentation:** Good (README present, well-documented)
 
 ## Implementation Plan
 
@@ -86,144 +89,186 @@ class InvalidFormulaError(ValidationError):
     pass
 ```
 
-#### Day 3-4: Type Hints for parser.py (35 functions)
+#### Day 3: Type Hints for atoms.py (1 function)
 ```python
 # Before
-def parse_formula(formula):
-    tokens = tokenize(formula)
-    ast = build_ast(tokens)
-    return ast
+def AtomVal(i):
+    return AtomSort.constructor(0)(i)
 
 # After
-from typing import List, Union, Optional
-from .types import Token, ASTNode, Formula
+from typing import Union
+import z3
+from .types import AtomType
 
-def parse_formula(formula: str) -> ASTNode:
-    """Parse a logical formula into an AST.
+def AtomVal(i: Union[int, str]) -> AtomType:
+    """Create an atomic proposition value.
     
     Args:
-        formula: Logical formula string
+        i: Index or identifier for the atom
         
     Returns:
-        Root node of the AST
+        Z3 datatype reference for the atom
         
-    Raises:
-        ParseError: If formula cannot be parsed
+    Examples:
+        >>> atom_p = AtomVal(0)  # Creates AtomSort!val!0
+        >>> atom_q = AtomVal(1)  # Creates AtomSort!val!1
     """
-    tokens: List[Token] = tokenize(formula)
-    ast: ASTNode = build_ast(tokens)
-    return ast
-
-def tokenize(formula: str) -> List[Token]:
-    """Tokenize a formula string."""
-    ...
-
-def build_ast(tokens: List[Token]) -> ASTNode:
-    """Build AST from tokens."""
-    ...
+    return AtomSort.constructor(0)(i)
 ```
 
-#### Day 5: Type Hints for validator.py (28 functions)
+#### Day 4-5: Type Hints for sentence.py (8 methods)
 ```python
-# Add types for validation functions
-from typing import Set, Tuple, Protocol
+# sentence.py type hints
+from typing import List, Optional, Dict, Any
+from .types import PrefixList, FormulaString
+from .errors import InvalidFormulaError, ParseError
 
-class Validatable(Protocol):
-    """Protocol for validatable objects."""
-    def validate(self) -> bool: ...
-
-def validate_syntax(
-    ast: ASTNode,
-    allowed_operators: Optional[Set[str]] = None
-) -> Tuple[bool, Optional[str]]:
-    """Validate AST syntax.
+class Sentence:
+    def __init__(self, infix_sentence: FormulaString) -> None:
+        """Initialize sentence from infix notation."""
+        if not infix_sentence:
+            raise InvalidFormulaError(
+                "Formula cannot be empty",
+                formula="",
+                context={'suggestion': 'Provide a non-empty formula'}
+            )
+        # ... implementation
     
-    Returns:
-        Tuple of (is_valid, error_message)
-    """
-    ...
-
-def check_operator(
-    operator: str,
-    arity: int,
-    allowed: Set[str]
-) -> bool:
-    """Check if operator is allowed."""
-    ...
+    def prefix(self, infix_sentence: FormulaString) -> PrefixList:
+        """Convert infix to prefix notation."""
+        # ... implementation
+    
+    def update_types(self, operator_collection: 'OperatorCollection') -> None:
+        """Update operator type references."""
+        # ... implementation
 ```
 
 ### Week 2: Remaining Modules and Polish
 
-#### Day 6-7: Type Hints for transformer.py (32 functions)
+#### Day 6-7: Type Hints for operators.py (11 methods)
 ```python
-from typing import TypeVar, Generic, Callable
+from typing import Optional, List, Dict, Any
+from abc import ABC, abstractmethod
+from .types import ISemantics, OperatorName
+from .errors import ArityError
 
-T = TypeVar('T', bound=ASTNode)
+class Operator(ABC):
+    """Abstract base class for logical operators."""
+    
+    name: OperatorName
+    arity: int
+    
+    def __init__(self, semantics: ISemantics) -> None:
+        """Initialize operator with semantics."""
+        # ... implementation
+    
+    def general_print(
+        self, 
+        sentence_obj: 'Sentence',
+        eval_point: Dict[str, Any],
+        indent_num: int,
+        use_colors: bool
+    ) -> str:
+        """Generate formatted output for operator evaluation."""
+        # TODO: make this method more deterministic
+        # ... implementation
 
-class ASTTransformer(Generic[T]):
-    """Transform AST nodes."""
+class DefinedOperator(Operator):
+    """Base class for user-defined operators."""
     
-    def transform(self, node: ASTNode) -> T:
-        """Transform a node."""
-        ...
+    primitive: bool = False
     
-    def visit(self, node: ASTNode) -> Any:
-        """Visit a node."""
-        method_name = f'visit_{node.type}'
-        visitor: Callable = getattr(self, method_name, self.generic_visit)
-        return visitor(node)
+    @abstractmethod
+    def derived_definition(self, *args: Any) -> 'Sentence':
+        """Define operator in terms of primitives."""
+        pass
 ```
 
-#### Day 8: Type Hints for utils.py (27 functions)
+#### Day 8: Type Hints for collection.py (6 methods)
 ```python
-def escape_latex(text: str) -> str:
-    """Escape LaTeX special characters."""
-    ...
+from typing import Dict, List, Optional, Iterator, Type
+from .types import OperatorName, PrefixList
+from .errors import DuplicateOperatorError, UnknownOperatorError
 
-def format_operator(
-    operator: str,
-    style: str = 'latex'
-) -> str:
-    """Format operator for display."""
-    ...
-
-def is_binary_operator(operator: str) -> bool:
-    """Check if operator is binary."""
-    ...
+class OperatorCollection:
+    """Registry for logical operators."""
+    
+    operators: Dict[OperatorName, Type['Operator']]
+    
+    def __init__(self, *input: Type['Operator']) -> None:
+        """Initialize with operator classes."""
+        # ... implementation
+    
+    def __iter__(self) -> Iterator[OperatorName]:
+        """Iterate over operator names."""
+        return iter(self.operators)
+    
+    def __getitem__(self, value: OperatorName) -> Type['Operator']:
+        """Get operator by name."""
+        if value not in self.operators:
+            raise UnknownOperatorError(value, list(self.operators.keys()))
+        return self.operators[value]
+    
+    def add_operator(self, operator: Type['Operator']) -> None:
+        """Add operator to collection."""
+        # ... implementation
+    
+    def apply_operator(self, prefix_sentence: PrefixList) -> Any:
+        """Apply operator to prefix sentence."""
+        # ... implementation
 ```
 
-#### Day 9: Create types.py for Type Definitions
+#### Day 9: Type Hints for syntax.py (3 methods) and Create types.py
+
+**syntax.py type hints:**
+```python
+from typing import List, Optional, Dict, Set
+from .types import FormulaString
+from .errors import CircularDefinitionError
+
+class Syntax:
+    """Process and validate syntactic structures."""
+    
+    def __init__(
+        self,
+        premises: List[FormulaString],
+        conclusions: List[FormulaString],
+        additional_operators: Optional['OperatorCollection'] = None,
+        inference: bool = False
+    ) -> None:
+        """Initialize syntax processor."""
+        # ... implementation
+    
+    def initialize_sentences(
+        self, 
+        infix_sentences: List[FormulaString]
+    ) -> List['Sentence']:
+        """Convert formulas to sentence objects."""
+        # ... implementation
+    
+    def circularity_check(
+        self,
+        operator_collection: 'OperatorCollection'
+    ) -> None:
+        """Check for circular operator definitions."""
+        # ... implementation
+```
+
+**types.py creation:**
 ```python
 # syntactic/types.py
-from typing import Union, List, Dict, Any, Optional
-from dataclasses import dataclass
-from enum import Enum
+from typing import Union, List, Dict, Any, Optional, Protocol
+import z3
 
-class TokenType(Enum):
-    """Token types for parsing."""
-    ATOM = "atom"
-    OPERATOR = "operator"
-    LPAREN = "lparen"
-    RPAREN = "rparen"
-    EOF = "eof"
+# Type aliases
+AtomType = z3.DatatypeRef
+OperatorName = str
+FormulaString = str
+PrefixList = List[Union[str, List]]
 
-@dataclass
-class Token:
-    """Represents a token in formula."""
-    type: TokenType
-    value: str
-    position: int
-
-@dataclass
-class ASTNode:
-    """Abstract syntax tree node."""
-    type: str
-    value: Union[str, None]
-    children: List['ASTNode']
-    metadata: Dict[str, Any]
-
-Formula = Union[str, ASTNode]
-ParseResult = Tuple[bool, Optional[ASTNode], Optional[str]]
+class ISemantics(Protocol):
+    """Protocol for semantic implementations."""
+    def evaluate(self, *args) -> z3.BoolRef: ...
 ```
 
 #### Day 10: Update Error Handling Throughout
@@ -244,13 +289,26 @@ if not formula:
 
 #### Day 11: Resolve TODO Items
 ```python
-# parser.py:156
-# TODO: Optimize recursive descent for deeply nested formulas
-# Solution: Implement iterative parsing with explicit stack
+# operators.py:94
+# TODO: make this method more deterministic
+# Solution: Use OrderedDict for consistent ordering
+from collections import OrderedDict
 
-# validator.py:234  
-# TODO: Add support for custom operator validation
-# Solution: Implement operator registry pattern
+def general_print(self, ...):
+    # Use OrderedDict for world ordering
+    world_results = OrderedDict()
+    # ... rest of implementation
+
+# operators.py:144
+# TODO: is there an approach that is agnostic about what the eval_point includes?
+# Solution: Define EvalPoint protocol
+from typing import Protocol
+
+class EvalPoint(Protocol):
+    """Protocol for evaluation points."""
+    world: Any
+    time: Optional[Any] = None
+    assignment: Optional[Dict] = None
 ```
 
 #### Day 12-13: Testing and Documentation
@@ -331,8 +389,8 @@ except ParseError as e:
 
 ### Quantitative
 - Type hint coverage: 0% → 95%+
-- Functions typed: 0/122 → 116/122
-- Error classes: 0 → 8+
+- Functions typed: 0/29 → 29/29
+- Error classes: 0 → 10+ (framework ready)
 - TODO items: 2 → 0
 - Compliance score: 45/100 → 90/100
 
@@ -364,9 +422,9 @@ If issues arise:
 
 ## Definition of Done
 
-- [ ] All 122 functions have type hints
-- [ ] Error hierarchy implemented and tested
-- [ ] Both TODO items resolved
+- [ ] All 29 core functions have type hints
+- [ ] Error hierarchy implemented and tested (errors.py created)
+- [ ] Both TODO items resolved with documented solutions
 - [ ] All existing tests pass
 - [ ] New error handling tests added
 - [ ] mypy reports no errors with --strict

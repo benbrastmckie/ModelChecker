@@ -15,37 +15,37 @@ The theory_lib package is the largest and most complex in the framework (17,581 
 ```
 theory_lib/
 ├── __init__.py              # Package exports
-├── defaults.py             # Default settings
-├── base_theory.py          # Abstract base classes
-├── bimodal/                # Bimodal logic (5 files, 1,823 lines)
-│   ├── semantics.py        # 34 functions
-│   ├── proposition.py      # 18 functions
-│   ├── model_structure.py  # 22 functions
-│   ├── operators.py        # 15 functions
-│   └── tests/              # 8 test files
-├── exclusion/              # Exclusion semantics (7 files, 2,456 lines)
-│   ├── semantics.py        # 41 functions
-│   ├── proposition.py      # 23 functions
-│   ├── model_structure.py  # 28 functions
-│   ├── operators.py        # 19 functions
-│   ├── witnesses.py        # 23 functions
-│   └── tests/              # 11 test files
-├── imposition/             # Imposition semantics (6 files, 2,134 lines)
-│   ├── semantics.py        # 38 functions
-│   ├── proposition.py      # 21 functions
-│   ├── model_structure.py  # 26 functions
-│   ├── operators.py        # 26 functions
-│   └── tests/              # 9 test files
-├── logos/                  # Hyperintensional logic (9 files, 11,168 lines)
-│   ├── semantics.py        # 52 functions
-│   ├── proposition.py      # 31 functions
-│   ├── model_structure.py  # 36 functions
-│   ├── operators.py        # 23 functions
-│   ├── subtheories/        # 5 subtheories (145 functions total)
-│   └── tests/              # 14 test files
-└── tests/                  # Package-level tests
-
-Total: 621 functions, 27 main files, 42 test files
+├── meta_data.py             # Theory metadata
+├── bimodal/                 # Bimodal logic implementation
+│   ├── __init__.py         # Theory initialization
+│   ├── semantic.py         # Semantic definitions
+│   ├── examples.py         # Theory examples
+│   ├── operators.py        # Logical operators
+│   ├── iterate.py          # Iteration logic
+│   └── tests/              # Test suite
+├── exclusion/              # Exclusion semantics
+│   ├── __init__.py         # Theory initialization
+│   ├── semantic.py         # Semantic definitions
+│   ├── examples.py         # Theory examples
+│   ├── operators.py        # Logical operators
+│   ├── iterate.py          # Iteration logic
+│   └── tests/              # Test suite
+├── imposition/             # Imposition semantics
+│   ├── __init__.py         # Theory initialization
+│   ├── semantic.py         # Semantic definitions
+│   ├── examples.py         # Theory examples
+│   ├── operators.py        # Logical operators
+│   ├── iterate.py          # Iteration logic
+│   └── tests/              # Test suite
+├── logos/                  # Hyperintensional logic
+│   ├── __init__.py         # Theory initialization
+│   ├── semantic.py         # Semantic definitions
+│   ├── examples.py         # Theory examples
+│   ├── operators.py        # Logical operators
+│   ├── iterate.py          # Iteration logic
+│   ├── subtheories/        # Specialized subtheories
+│   └── tests/              # Test suite
+└── docs/                   # Theory documentation
 ```
 
 ### Critical Deficiencies

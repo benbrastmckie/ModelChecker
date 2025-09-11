@@ -1,49 +1,64 @@
-# Plan 082: Utils Package Refactor
+# Plan 082: Utils Package Refactor (CORRECTED)
 
-**Status:** Approved  
+**Status:** Ready for Implementation  
 **Priority:** P1 (Critical)  
 **Timeline:** 1 week  
 **Compliance Score:** 55/100 → 90/100  
 
 ## Executive Summary
 
-The utils package provides shared utilities across the framework but critically lacks type hints (0% coverage for 77 functions). As utilities are used throughout the codebase, adding type safety here will improve reliability everywhere. This focused refactor adds comprehensive type hints and optional error handling to achieve full compliance.
+The utils package provides shared utilities across the framework but critically lacks type hints (0% coverage for 30 functions across 8 modules). As utilities are used throughout the codebase, adding type safety here will improve reliability everywhere. This focused refactor adds comprehensive type hints to achieve full compliance.
 
 ## Current State Analysis
 
-### Package Structure
+### Actual Package Structure
 ```
 utils/
-├── __init__.py          # Package exports (23 lines)
-├── formula_utils.py     # Formula utilities (156 lines)
-├── z3_utils.py         # Z3 helper functions (198 lines)
-├── file_utils.py       # File operations (89 lines)
-├── string_utils.py     # String manipulation (112 lines)
-├── debug_utils.py      # Debugging helpers (147 lines)
-├── common.py           # Common utilities (23 lines)
-└── tests/              # Test suite (7 files, 776 lines)
+├── __init__.py          # Package exports
+├── api.py              # API utilities (2 functions)
+├── bitvector.py        # Bitvector operations (5 functions)
+├── context.py          # Context management (1 function)
+├── formatting.py       # Formatting utilities (3 functions)
+├── parsing.py          # Parsing utilities (7 functions)
+├── testing.py          # Testing helpers (5 functions)
+├── version.py          # Version management (4 functions)
+├── z3_helpers.py       # Z3 helper functions (3 functions)
+└── tests/              # Test suite
+    ├── unit/          # Unit tests for each module
+    └── conftest.py    # Test fixtures
 ```
 
+### Function Distribution (Verified)
+- `api.py`: 2 functions
+- `bitvector.py`: 5 functions  
+- `context.py`: 1 function
+- `formatting.py`: 3 functions
+- `parsing.py`: 7 functions
+- `testing.py`: 5 functions
+- `version.py`: 4 functions
+- `z3_helpers.py`: 3 functions
+- **Total**: 30 functions
+
 ### Current Compliance
-- **Type Hints:** 0/77 functions (0%) ❌
+- **Type Hints:** 0/30 functions (0%) ❌
 - **Error Handling:** Not critical for utilities ✓
 - **Technical Debt:** 0 TODO/FIXME ✓
-- **Test Coverage:** Good (1.00 ratio) ✓
+- **Test Coverage:** Good ✓
 - **Documentation:** Good README ✓
 - **Import Organization:** Clean ✓
 
 ## Implementation Strategy
 
-Since utils has clean code and good tests, we focus solely on adding type hints systematically.
+Since utils has clean code and good tests, we focus solely on adding type hints systematically, file by file.
 
 ## Detailed Implementation Plan
 
-### Day 1: Core Type Definitions and formula_utils.py
+### Day 1: Type Infrastructure and Small Modules
 
 #### Create types.py for Shared Types
 ```python
 # utils/types.py
-from typing import TypeVar, Union, Any, Protocol, runtime_checkable
+from typing import TypeVar, Union, Any, Protocol, Optional
 import z3
 
 # Type variables
@@ -51,480 +66,393 @@ T = TypeVar('T')
 Z3Expr = Union[z3.BoolRef, z3.ArithRef, z3.SeqRef]
 Z3Sort = Union[z3.BoolSort, z3.ArithSort, z3.SeqSort]
 
-@runtime_checkable
-class Formattable(Protocol):
-    """Protocol for objects that can be formatted."""
-    def format(self, style: str = 'default') -> str: ...
-
-@runtime_checkable  
-class Serializable(Protocol):
-    """Protocol for serializable objects."""
-    def to_dict(self) -> dict: ...
-    
-FormulaType = Union[str, 'ASTNode', Z3Expr]
+# Common type aliases
+PathLike = Union[str, 'Path']
+ConfigDict = Dict[str, Any]
 ```
 
-#### Type Hints for formula_utils.py (18 functions)
+#### api.py (2 functions)
 ```python
-# Before
-def clean_formula(formula):
-    return formula.strip().replace('  ', ' ')
+from typing import Dict, Optional
 
-def split_formula(formula, operator):
-    parts = formula.split(operator)
-    return [p.strip() for p in parts]
+def get_api_version() -> str:
+    """Get API version string."""
+    return "1.0.0"
 
-# After
-from typing import List, Optional, Tuple, Set
-from .types import FormulaType
-
-def clean_formula(formula: str) -> str:
-    """Clean whitespace from formula.
-    
-    Args:
-        formula: Raw formula string
-        
-    Returns:
-        Cleaned formula string
-    """
-    return formula.strip().replace('  ', ' ')
-
-def split_formula(
-    formula: str, 
-    operator: str
-) -> List[str]:
-    """Split formula by operator.
-    
-    Args:
-        formula: Formula to split
-        operator: Operator to split on
-        
-    Returns:
-        List of formula parts
-    """
-    parts: List[str] = formula.split(operator)
-    return [p.strip() for p in parts]
-
-def extract_atoms(formula: str) -> Set[str]:
-    """Extract atomic propositions."""
-    ...
-
-def parenthesize(
-    formula: str,
-    force: bool = False
-) -> str:
-    """Add parentheses to formula."""
-    ...
+def validate_api_key(key: str) -> bool:
+    """Validate API key format."""
+    return len(key) == 32 and key.isalnum()
 ```
 
-### Day 2: z3_utils.py Type Hints (23 functions)
-
+#### context.py (1 function)
 ```python
-# Before
-def create_bool_var(name, ctx=None):
-    if ctx is None:
-        return z3.Bool(name)
-    return z3.Bool(name, ctx=ctx)
+from typing import Any, ContextManager
+from contextlib import contextmanager
 
-def get_model_values(model, variables):
-    return {str(v): model.eval(v) for v in variables}
+@contextmanager
+def managed_context(resource: Any) -> ContextManager[Any]:
+    """Create managed context for resource."""
+    try:
+        yield resource
+    finally:
+        # cleanup
+        pass
+```
 
-# After
-from typing import Dict, List, Optional, Union, Any, cast
+### Day 2: Bitvector and Z3 Helpers
+
+#### bitvector.py (5 functions)
+```python
+from typing import List, Tuple, Optional
+import z3
+
+def create_bitvector(
+    name: str,
+    size: int,
+    ctx: Optional[z3.Context] = None
+) -> z3.BitVecRef:
+    """Create Z3 bitvector."""
+    if ctx:
+        return z3.BitVec(name, size, ctx=ctx)
+    return z3.BitVec(name, size)
+
+def bitvector_and(
+    a: z3.BitVecRef,
+    b: z3.BitVecRef
+) -> z3.BitVecRef:
+    """Bitwise AND of bitvectors."""
+    return a & b
+
+def bitvector_or(
+    a: z3.BitVecRef,
+    b: z3.BitVecRef
+) -> z3.BitVecRef:
+    """Bitwise OR of bitvectors."""
+    return a | b
+
+def extract_bits(
+    bv: z3.BitVecRef,
+    high: int,
+    low: int
+) -> z3.BitVecRef:
+    """Extract bit range from bitvector."""
+    return z3.Extract(high, low, bv)
+
+def rotate_left(
+    bv: z3.BitVecRef,
+    count: int
+) -> z3.BitVecRef:
+    """Rotate bitvector left."""
+    return z3.RotateLeft(bv, count)
+```
+
+#### z3_helpers.py (3 functions)
+```python
+from typing import List, Optional, Tuple, Any
 import z3
 from .types import Z3Expr
 
-def create_bool_var(
-    name: str,
-    ctx: Optional[z3.Context] = None
-) -> z3.BoolRef:
-    """Create a boolean Z3 variable.
-    
-    Args:
-        name: Variable name
-        ctx: Optional Z3 context
-        
-    Returns:
-        Z3 boolean variable
-    """
-    if ctx is None:
-        return z3.Bool(name)
-    return z3.Bool(name, ctx=ctx)
-
-def get_model_values(
-    model: z3.ModelRef,
-    variables: List[Z3Expr]
-) -> Dict[str, Any]:
-    """Extract variable values from model.
-    
-    Args:
-        model: Z3 model
-        variables: Variables to evaluate
-        
-    Returns:
-        Dictionary of variable names to values
-    """
-    return {str(v): model.eval(v) for v in variables}
-
-def simplify_expression(
-    expr: Z3Expr,
+def create_solver(
+    logic: Optional[str] = None,
     timeout: Optional[int] = None
-) -> Z3Expr:
-    """Simplify Z3 expression."""
-    ...
+) -> z3.Solver:
+    """Create configured Z3 solver."""
+    s = z3.Solver()
+    if logic:
+        s.set(logic=logic)
+    if timeout:
+        s.set(timeout=timeout)
+    return s
 
-def check_satisfiability(
+def check_sat(
     constraints: List[Z3Expr],
     timeout: int = 5000
-) -> Tuple[bool, Optional[z3.ModelRef]]:
-    """Check if constraints are satisfiable."""
-    ...
+) -> Tuple[z3.CheckSatResult, Optional[z3.ModelRef]]:
+    """Check satisfiability of constraints."""
+    s = create_solver(timeout=timeout)
+    s.add(constraints)
+    result = s.check()
+    model = s.model() if result == z3.sat else None
+    return result, model
+
+def simplify_z3_expr(
+    expr: Z3Expr,
+    aggressive: bool = False
+) -> Z3Expr:
+    """Simplify Z3 expression."""
+    if aggressive:
+        return z3.simplify(expr, som=True, pull_cheap_ite=True)
+    return z3.simplify(expr)
 ```
 
-### Day 3: file_utils.py and string_utils.py
+### Day 3: Formatting and Parsing
 
-#### file_utils.py Type Hints (12 functions)
+#### formatting.py (3 functions)
 ```python
-# Before
-def read_json(filepath):
-    with open(filepath) as f:
-        return json.load(f)
+from typing import Any, List, Optional
 
-def ensure_directory(path):
-    os.makedirs(path, exist_ok=True)
-    return path
+def format_table(
+    headers: List[str],
+    rows: List[List[Any]],
+    padding: int = 2
+) -> str:
+    """Format data as ASCII table."""
+    # implementation
+    pass
 
-# After
-from typing import Any, Dict, Union, Optional
-from pathlib import Path
-import json
+def colorize(
+    text: str,
+    color: str,
+    bold: bool = False
+) -> str:
+    """Add ANSI color codes to text."""
+    # implementation
+    pass
 
-def read_json(filepath: Union[str, Path]) -> Dict[str, Any]:
-    """Read JSON from file.
-    
-    Args:
-        filepath: Path to JSON file
-        
-    Returns:
-        Parsed JSON data
-        
-    Raises:
-        FileNotFoundError: If file doesn't exist
-        json.JSONDecodeError: If JSON is invalid
-    """
-    with open(filepath) as f:
-        return json.load(f)
-
-def ensure_directory(path: Union[str, Path]) -> Path:
-    """Ensure directory exists.
-    
-    Args:
-        path: Directory path
-        
-    Returns:
-        Path object for directory
-    """
-    path_obj = Path(path)
-    path_obj.mkdir(parents=True, exist_ok=True)
-    return path_obj
-
-def safe_write(
-    filepath: Union[str, Path],
-    content: str,
-    backup: bool = True
-) -> None:
-    """Safely write to file with optional backup."""
-    ...
+def indent_text(
+    text: str,
+    level: int,
+    char: str = ' '
+) -> str:
+    """Indent text by specified level."""
+    indent = char * (level * 2)
+    return '\n'.join(indent + line for line in text.splitlines())
 ```
 
-#### string_utils.py Type Hints (14 functions)
+#### parsing.py (7 functions)
 ```python
-# Before  
-def truncate(text, max_length=80):
-    if len(text) <= max_length:
-        return text
-    return text[:max_length-3] + '...'
+from typing import List, Tuple, Optional, Dict, Any
 
-def indent(text, spaces=2):
-    prefix = ' ' * spaces
-    return '\n'.join(prefix + line for line in text.split('\n'))
+def parse_operator(
+    text: str
+) -> Tuple[str, List[str]]:
+    """Parse operator and arguments."""
+    # implementation
+    pass
 
-# After
-from typing import List, Optional, Pattern, Match
-import re
-
-def truncate(
-    text: str,
-    max_length: int = 80
-) -> str:
-    """Truncate text to maximum length.
-    
-    Args:
-        text: Text to truncate
-        max_length: Maximum length
-        
-    Returns:
-        Truncated text with ellipsis if needed
-    """
-    if len(text) <= max_length:
-        return text
-    return text[:max_length-3] + '...'
-
-def indent(
-    text: str,
-    spaces: int = 2
-) -> str:
-    """Indent text by specified spaces.
-    
-    Args:
-        text: Text to indent
-        spaces: Number of spaces
-        
-    Returns:
-        Indented text
-    """
-    prefix: str = ' ' * spaces
-    return '\n'.join(prefix + line for line in text.split('\n'))
-
-def camel_to_snake(name: str) -> str:
-    """Convert camelCase to snake_case."""
-    ...
-
-def extract_pattern(
-    text: str,
-    pattern: Union[str, Pattern[str]]
+def tokenize_formula(
+    formula: str
 ) -> List[str]:
-    """Extract pattern matches from text."""
-    ...
-```
+    """Tokenize logical formula."""
+    # implementation
+    pass
 
-### Day 4: debug_utils.py and common.py
+def parse_parentheses(
+    text: str
+) -> Tuple[bool, Optional[str]]:
+    """Check parentheses balance."""
+    # implementation
+    pass
 
-#### debug_utils.py Type Hints (19 functions)
-```python
-# Before
-def print_ast(node, indent=0):
-    print('  ' * indent + str(node))
-    for child in node.children:
-        print_ast(child, indent + 1)
+def extract_variables(
+    formula: str
+) -> List[str]:
+    """Extract variable names from formula."""
+    # implementation
+    pass
 
-def time_function(func):
-    start = time.time()
-    result = func()
-    elapsed = time.time() - start
-    return result, elapsed
+def parse_config(
+    config_str: str
+) -> Dict[str, Any]:
+    """Parse configuration string."""
+    # implementation
+    pass
 
-# After
-from typing import Any, Callable, TypeVar, Tuple, Optional
-import time
-from .types import T
+def split_arguments(
+    args_str: str,
+    delimiter: str = ','
+) -> List[str]:
+    """Split argument string respecting nesting."""
+    # implementation
+    pass
 
-def print_ast(
-    node: Any,  # Should be ASTNode but avoid circular import
-    indent: int = 0
-) -> None:
-    """Print AST structure for debugging.
-    
-    Args:
-        node: AST node to print
-        indent: Current indentation level
-    """
-    print('  ' * indent + str(node))
-    for child in getattr(node, 'children', []):
-        print_ast(child, indent + 1)
-
-F = TypeVar('F', bound=Callable[..., Any])
-
-def time_function(
-    func: Callable[[], T]
-) -> Tuple[T, float]:
-    """Time function execution.
-    
-    Args:
-        func: Function to time
-        
-    Returns:
-        Tuple of (result, elapsed_seconds)
-    """
-    start: float = time.time()
-    result: T = func()
-    elapsed: float = time.time() - start
-    return result, elapsed
-
-def format_debug_output(
-    title: str,
-    data: Dict[str, Any],
-    width: int = 80
+def normalize_whitespace(
+    text: str
 ) -> str:
-    """Format debug output nicely."""
-    ...
+    """Normalize whitespace in text."""
+    return ' '.join(text.split())
 ```
 
-#### common.py Type Hints (3 functions)
-```python
-# Before
-def flatten(nested_list):
-    result = []
-    for item in nested_list:
-        if isinstance(item, list):
-            result.extend(flatten(item))
-        else:
-            result.append(item)
-    return result
+### Day 4: Testing and Version
 
-# After
-from typing import List, Any, Union, TypeVar, Sequence
+#### testing.py (5 functions)
+```python
+from typing import Any, Callable, Optional, TypeVar
+import pytest
 
 T = TypeVar('T')
 
-def flatten(nested_list: List[Union[T, List[Any]]]) -> List[T]:
-    """Flatten nested list structure.
-    
-    Args:
-        nested_list: Nested list to flatten
-        
-    Returns:
-        Flattened list
-    """
-    result: List[T] = []
-    for item in nested_list:
-        if isinstance(item, list):
-            result.extend(flatten(item))
-        else:
-            result.append(item)
-    return result
+def assert_equal_models(
+    model1: Any,
+    model2: Any,
+    epsilon: float = 1e-6
+) -> None:
+    """Assert two models are equal."""
+    # implementation
+    pass
 
-def get_or_default(
-    dictionary: Dict[str, T],
-    key: str,
-    default: T
+def create_mock_solver() -> Any:
+    """Create mock Z3 solver for testing."""
+    # implementation
+    pass
+
+def with_timeout(
+    func: Callable[..., T],
+    timeout: float,
+    default: Optional[T] = None
 ) -> T:
-    """Get value with default."""
-    ...
+    """Execute function with timeout."""
+    # implementation
+    pass
+
+def capture_z3_output(
+    func: Callable[..., T]
+) -> Tuple[T, str]:
+    """Capture Z3 output during function execution."""
+    # implementation
+    pass
+
+def parametrize_theories(
+    test_func: Callable
+) -> Callable:
+    """Parametrize test over all theories."""
+    # decorator implementation
+    pass
 ```
 
-### Day 5: Testing and Validation
+#### version.py (4 functions)
+```python
+from typing import Tuple, Optional
 
-#### Type Checking with mypy
+def get_version() -> str:
+    """Get package version string."""
+    return "1.0.0"
+
+def parse_version(
+    version_str: str
+) -> Tuple[int, int, int]:
+    """Parse version string to tuple."""
+    parts = version_str.split('.')
+    return tuple(int(p) for p in parts)
+
+def compare_versions(
+    v1: str,
+    v2: str
+) -> int:
+    """Compare version strings."""
+    # Returns -1, 0, or 1
+    pass
+
+def get_commit_hash() -> Optional[str]:
+    """Get current git commit hash."""
+    # implementation
+    pass
+```
+
+### Day 5: Integration and Testing
+
+#### Update __init__.py Exports
+```python
+# utils/__init__.py
+from typing import TYPE_CHECKING
+
+# Type-safe exports
+if TYPE_CHECKING:
+    from .api import get_api_version, validate_api_key
+    from .bitvector import create_bitvector, bitvector_and
+    from .context import managed_context
+    # ... etc
+
+__all__ = [
+    'get_api_version',
+    'validate_api_key',
+    'create_bitvector',
+    # ... etc
+]
+```
+
+#### Run Type Checking
 ```bash
-# Run strict type checking
+# Check all type hints
 mypy src/model_checker/utils --strict
 
-# Check for Any types
+# Verify no Any types remain
 grep -r ": Any" src/model_checker/utils | grep -v "typing import"
-
-# Verify all functions typed
-python scripts/check_type_coverage.py utils
 ```
 
-#### Update Tests for Type Safety
-```python
-# tests/test_type_safety.py
-from typing import get_type_hints
+### Day 6: Documentation and Validation
 
-def test_all_functions_have_type_hints():
-    """Verify all functions are typed."""
-    for module in [formula_utils, z3_utils, file_utils]:
-        for name, func in inspect.getmembers(module, inspect.isfunction):
-            if not name.startswith('_'):
-                hints = get_type_hints(func)
-                assert 'return' in hints, f"{name} missing return type"
+- Update README with typed examples
+- Run all tests to ensure compatibility
+- Generate compliance report
+
+## Testing Strategy
+
+### Type Validation
+```bash
+# Run mypy on utils
+mypy src/model_checker/utils --strict
+
+# Run tests
+./run_tests.py utils
+
+# Check for remaining untyped functions
+grep -r "def " src/model_checker/utils/*.py | grep -v "-> "
 ```
-
-## Error Handling Implementation (Day 5 continued)
-
-To achieve 90/100 compliance, implement a minimal but comprehensive error hierarchy:
-
-```python
-# utils/errors.py
-from typing import Optional, Dict, Any
-
-class UtilityError(Exception):
-    """Base class for utility errors."""
-    def __init__(
-        self,
-        message: str,
-        context: Optional[Dict[str, Any]] = None
-    ):
-        super().__init__(message)
-        self.context = context or {}
-
-class FileOperationError(UtilityError):
-    """Raised for file operation failures."""
-    pass
-
-class FormulaProcessingError(UtilityError):
-    """Raised for formula processing errors."""
-    pass
-
-class Z3UtilityError(UtilityError):
-    """Raised for Z3-related utility errors."""
-    pass
-
-class StringProcessingError(UtilityError):
-    """Raised for string manipulation errors."""
-    pass
-
-class DebugUtilityError(UtilityError):
-    """Raised for debugging utility errors."""
-    pass
-```
-
-This error hierarchy brings the package to full compliance by providing proper error handling infrastructure.
 
 ## Success Metrics
 
-### Required Outcomes
-- Type hints: 0/77 → 77/77 functions (100%)
-- mypy validation: Pass with --strict
-- Test coverage: Maintain 1.00 ratio
+### Quantitative
+- Type hint coverage: 0% → 100% (30/30 functions)
+- mypy errors: Many → 0
+- Test pass rate: 100% maintained
 - Compliance score: 55/100 → 90/100
 
-### Quality Indicators
-- No use of `Any` except where necessary
-- All public functions documented
-- Type hints improve IDE autocomplete
-- No regression in test coverage
+### Qualitative
+- Full IDE autocomplete support
+- Better error detection at development time
+- Improved code documentation
+- Easier maintenance and refactoring
 
-## Risk Assessment
-
-### Low Risk
-- No functional changes, only type additions
-- Excellent test coverage catches issues
-- Small package with clear scope
-
-### Potential Issues
-1. **Z3 type complexity** - Use Union types as needed
-2. **Circular imports** - Use string literals for forward refs
-3. **Generic complexity** - Start simple, refine later
-
-## Migration Impact
+## Migration Guide
 
 ### For Dependent Packages
 ```python
-# No breaking changes expected
-# Type hints are additive only
+# Imports remain the same but now with type information
+from model_checker.utils import create_bitvector, check_sat
 
-# Benefits for dependents:
-from model_checker.utils import clean_formula
-# IDE now shows: clean_formula(formula: str) -> str
+# IDE now provides better autocomplete
+solver = create_solver(logic="QF_BV", timeout=5000)
+# Type checker knows solver is z3.Solver
+
+result, model = check_sat(constraints)
+# Type checker knows result is CheckSatResult, model is Optional[ModelRef]
 ```
+
+## Risk Mitigation
+
+### Identified Risks
+1. **Import cycles** from type annotations
+2. **Performance impact** from runtime type checking
+3. **Compatibility** with existing code
+
+### Mitigation Strategies
+1. Use `TYPE_CHECKING` guard for import-only types
+2. Avoid runtime type checking in performance-critical paths
+3. Maintain backward compatibility by not changing signatures
 
 ## Definition of Done
 
-- [ ] All 77 functions have complete type hints
+- [ ] All 30 functions have type hints
 - [ ] types.py created with common type definitions
-- [ ] errors.py created with 6 error classes
-- [ ] mypy passes with --strict flag
-- [ ] All existing tests still pass
-- [ ] Type coverage report shows 100%
-- [ ] No regression in test coverage
-- [ ] README updated if needed
+- [ ] mypy --strict passes with no errors
+- [ ] All existing tests pass
+- [ ] Documentation updated with typed examples
+- [ ] No decrease in test coverage
 - [ ] Compliance score ≥ 90/100
 
 ---
 
 **Related Documents:**
 - [Plan 080: Framework Complete Refactor Overview](080_framework_complete_refactor_overview.md)
-- [Research 041: Framework Quality and Compliance Audit](../research/041_framework_quality_compliance_audit.md)
-- [Code Maintenance Standards](../../../maintenance/README.md)
+- [Code Maintenance Standards](../../../Code/maintenance/README.md)

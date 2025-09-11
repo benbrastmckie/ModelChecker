@@ -5,10 +5,11 @@ This module provides helper functions for working with Z3, including:
 - Set operations (future)
 """
 
-from z3 import BitVecVal, And, Or, substitute
+from typing import List, Union, Any
+from z3 import BitVecVal, And, Or, substitute, BitVecRef, BoolRef
 
 
-def ForAll(bvs, formula):
+def ForAll(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
     """Implements universal quantification over bit vectors for Z3.
     
     This function explicitly generates universal quantification by substituting
@@ -44,7 +45,7 @@ def ForAll(bvs, formula):
     return And(constraints)
 
 
-def Exists(bvs, formula):
+def Exists(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
     """Implements existential quantification over bit vectors for Z3.
     
     This function explicitly generates existential quantification by substituting
@@ -80,7 +81,7 @@ def Exists(bvs, formula):
     return Or(constraints)
 
 
-def safe_getattr(obj, attr_name, default=None):
+def safe_getattr(obj: Any, attr_name: str, default: Any = None) -> Any:
     """Safely get an attribute with a default value.
     
     This is a simple wrapper around getattr that ensures consistent

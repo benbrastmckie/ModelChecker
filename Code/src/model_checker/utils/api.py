@@ -5,8 +5,10 @@ This module provides functions for retrieving theories and examples from the
 model checker's theory library.
 """
 
+from typing import List, Dict, Any, Optional, Union
 
-def get_example(name, example_range):
+
+def get_example(name: str, example_range: Dict[str, List[Any]]) -> List[Any]:
     """Get a specific example by name from the provided example range.
     
     Args:
@@ -24,7 +26,7 @@ def get_example(name, example_range):
     return example_range[name]
 
 
-def get_theory(name, semantic_theories=None):
+def get_theory(name: str, semantic_theories: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """Get a specific semantic theory by name.
     
     This function can be called in two ways:

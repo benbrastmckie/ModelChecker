@@ -5,9 +5,12 @@ This module provides the OperatorCollection class which serves as a registry
 for all logical operators available in the model checking system.
 """
 
+from typing import Dict, List, Optional, Iterator, Type, Union, Any
 from z3 import Const
 
 from .atoms import AtomSort
+from .types import OperatorName, PrefixList
+from .errors import DuplicateOperatorError, UnknownOperatorError
 
 
 class OperatorCollection:
@@ -24,21 +27,21 @@ class OperatorCollection:
         operator_dictionary (dict): Maps operator names to their corresponding classes
     """
 
-    def __init__(self, *input):
+    def __init__(self, *input: Any) -> None:
         self.operator_dictionary = {}
         if input:
             self.add_operator(input)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[OperatorName]:
         yield from self.operator_dictionary
 
-    def __getitem__(self, value):
+    def __getitem__(self, value: OperatorName) -> Type['Operator']:
         return self.operator_dictionary[value]
     
-    def items(self):
+    def items(self) -> Iterator[tuple]:
         yield from self.operator_dictionary.items()
 
-    def add_operator(self, operator):
+    def add_operator(self, operator: Union[Type['Operator'], List, tuple, 'OperatorCollection']) -> None:
         """Adds one or more operator classes to the operator collection.
 
         This method accepts either a single operator class or multiple operator classes
@@ -79,7 +82,7 @@ class OperatorCollection:
         else:
             raise TypeError(f"Unexpected input type {type(operator)} for add_operator.")
 
-    def apply_operator(self, prefix_sentence):
+    def apply_operator(self, prefix_sentence: PrefixList) -> Any:
         """Converts a prefix notation sentence into a list of operator classes and atomic terms.
 
         This method processes a sentence in prefix notation, converting operator strings to their

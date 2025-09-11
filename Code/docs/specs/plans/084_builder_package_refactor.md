@@ -14,20 +14,21 @@ The builder package orchestrates model checking operations and has good structur
 ### Package Structure
 ```
 builder/
-├── __init__.py              # Package exports (67 lines)
-├── module.py               # Module building (589 lines)
-├── runner.py               # Execution runner (456 lines)
-├── validator.py            # Input validation (312 lines)
-├── config.py               # Configuration (234 lines)
-├── errors.py               # 21 exception classes (289 lines) ✓
-├── utils.py                # Builder utilities (178 lines)
-├── progress.py             # Progress tracking (245 lines)
-├── results.py              # Result management (367 lines)
-├── cache.py                # Build caching (298 lines)
-├── optimizer.py            # Optimization (412 lines)
-├── parallel.py             # Parallel execution (356 lines)
-├── profiler.py             # Performance profiling (234 lines)
-└── tests/                  # Test suite (35 files, 9,604 lines) ✓
+├── __init__.py              # Package exports
+├── comparison.py            # Model comparison functionality
+├── error_types.py           # Error definitions
+├── example.py               # Example building
+├── loader.py                # Module loading
+├── module.py                # Module building and orchestration
+├── project.py               # Project management
+├── protocols.py             # Protocol definitions
+├── runner.py                # Execution runner
+├── runner_utils.py          # Runner utilities
+├── serialize.py             # Serialization utilities
+├── translation.py           # Operator translation
+├── validation.py            # Input validation
+├── z3_utils.py              # Z3 specific utilities
+└── tests/                   # Test suite
 ```
 
 ### Current Compliance

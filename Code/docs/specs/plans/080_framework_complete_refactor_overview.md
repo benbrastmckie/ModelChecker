@@ -23,8 +23,8 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
 | Week | Package | Compliance | Critical Issues | Plan |
 |------|---------|------------|-----------------|------|
 | 1 | output | ✅ 95/100 | **COMPLETED** - Unified architecture, all formats via --save | [Plan 087](087_output_unified_architecture.md) ✅ |
-| 2-3 | syntactic | 45/100 | No type hints, no errors | [Plan 081](081_syntactic_package_refactor.md) |
-| 4 | utils | 55/100 | No type hints | [Plan 082](082_utils_package_refactor.md) |
+| 2-3 | syntactic | ✅ 90/100 | **COMPLETED** - Full type hints, protocols, error handling | [Plan 081](081_syntactic_package_refactor.md) ✅ |
+| 4 | utils | ✅ 90/100 | **COMPLETED** - Full type hints, Z3 types, comprehensive safety | [Plan 082](082_utils_package_refactor.md) ✅ |
 | 5 | models | 73/100 | Low type hints | [Plan 083](083_models_package_refactor.md) |
 | 6-7 | builder | 78/100 | Low type hints | [Plan 084](084_builder_package_refactor.md) |
 | 8 | iterate | 77/100 | Low type hints | [Plan 085](085_iterate_package_enhancement.md) |
@@ -44,9 +44,9 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
 
 | Package | Current | Target | Key Metric |
 |---------|---------|--------|------------|
-| output | 92/100* | 95/100 | Fix tests, unify architecture |
-| syntactic | 45/100 | 90/100 | 0% → 95% type hints |
-| utils | 55/100 | 90/100 | 0% → 95% type hints |
+| output | ✅ 95/100 | 95/100 | ✅ Fix tests, unify architecture |
+| syntactic | ✅ 90/100 | 90/100 | ✅ 0% → 95% type hints |
+| utils | ✅ 90/100 | 90/100 | ✅ 0% → 100% type hints |
 | models | 73/100 | 90/100 | 25% → 95% type hints |
 | builder | 78/100 | 90/100 | 20% → 95% type hints |
 | iterate | 77/100 | 90/100 | 18% → 95% type hints |
@@ -120,18 +120,92 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
 
 ## Quality Assurance
 
+### Proven Implementation Protocols
+
+The following protocols have been successfully validated during syntactic package refactor:
+
+#### Type Safety Protocol
+1. **Create types.py module** with comprehensive type definitions:
+   - Type aliases for domain-specific strings (`FormulaString`, `OperatorName`)
+   - Recursive list types for structured data (`PrefixList`)
+   - Protocol definitions for interfaces (`ISemantics`)
+   - Z3-specific type aliases (`AtomType`)
+
+2. **Implement comprehensive type hints:**
+   - All function parameters and return types
+   - Class attribute annotations
+   - Forward references using `TYPE_CHECKING` imports
+   - Generic type parameters where applicable
+
+3. **Protocol-based design patterns:**
+   - Define interface requirements as protocols
+   - Enable flexible semantic integration
+   - Support duck typing with type safety
+
+#### Error Handling Protocol
+1. **Context-aware error handling:**
+   - Custom exception classes with detailed context
+   - Validation at input boundaries (e.g., empty formula checking)
+   - Meaningful error messages for debugging
+
+2. **Import organization:**
+   - Use `TYPE_CHECKING` to avoid circular imports
+   - Separate runtime and type-checking imports
+   - Clear dependency management
+
+#### Testing Protocol
+1. **Package-specific validation:** `./run_tests.py <package>` (all tests must pass)
+2. **Full suite validation:** `./run_tests.py` (ensure no regressions)
+3. **Manual functionality verification**
+
+#### Documentation Protocol
+1. **Update capability lists** to include new type safety features
+2. **Enhance code examples** with proper type annotations
+3. **Document new architecture patterns** (protocols, error handling)
+4. **Maintain example accuracy** and verify all code works
+
 ### Testing Requirements
-Each package refactor must:
-1. Maintain or improve test coverage
-2. Pass all existing tests
-3. Add tests for new error handling
-4. Validate type hints with mypy
+Each package refactor must follow this rigorous process:
+
+#### Phase 0: Specification Review & Research
+**Before starting any implementation:**
+1. Review associated spec files for the package (e.g., Plan 081 for syntactic)
+2. Research actual codebase structure and validate spec accuracy
+3. Improve and correct spec files to match reality
+4. Ensure spec files comply with `Code/maintenance/` standards
+5. Verify implementation examples are realistic and accurate
+
+#### Phase 1: Implementation & Testing
+1. **Implement refactor changes systematically:**
+   - Create types.py with type aliases and protocols
+   - Add comprehensive type hints to all functions and methods
+   - Implement proper error handling with context-aware exceptions
+   - Use TYPE_CHECKING for forward references to avoid circular imports
+   - Follow Protocol-based design patterns for interfaces
+2. **Test rigorously:**
+   - Run package-specific tests: `./run_tests.py <package>`
+   - Run FULL test suite: `./run_tests.py` (no arguments)
+   - Perform manual testing of key functionality
+   - Validate type hints with mypy (if applicable)
+
+#### Phase 2: Documentation Update
+**Only after ALL tests pass:**
+1. **Review documentation standards** in `Docs/maintenance/`
+2. **Update all README files** in the package with:
+   - New type safety information and capabilities
+   - Updated code examples showing proper type annotations
+   - Enhanced section on protocol-based design patterns
+   - Documentation of new error handling improvements
+3. **Ensure documentation reflects actual implementation**
+4. **Cross-check that examples in docs work correctly**
+5. **Update any related documentation** in other packages
 
 ### Validation Checkpoints
-- **Daily:** Run package-specific tests
-- **Weekly:** Run full framework tests
-- **Per Package:** Generate compliance report
-- **Final:** Complete framework audit
+- **After Each Change:** Run affected tests
+- **Before Documentation:** Run FULL test suite
+- **After Documentation:** Manual verification of examples
+- **Per Package Completion:** Generate compliance report
+- **Final:** Complete framework audit with all tests passing
 
 ## Resource Requirements
 

@@ -11,7 +11,7 @@ formatters/
 ├── base.py            # Abstract base formatter class
 ├── markdown.py        # Markdown (.md) output generation
 ├── json.py            # JSON (.json) data serialization
-└── notebook.py        # Jupyter notebook (.ipynb) creation
+└── notebook.py        # Jupyter notebook (.ipynb) integration adapter
 ```
 
 ## Overview
@@ -24,39 +24,46 @@ This modular design allows the framework to support diverse use cases - from hum
 
 ### Design Pattern
 
-The formatters implement a **strategy pattern** where:
-- `BaseFormatter` defines the abstract interface all formatters must implement
+The formatters implement a **protocol-based strategy pattern** where:
+- `IOutputFormatter` protocol defines the interface all formatters must implement
 - Each concrete formatter (Markdown, JSON, Notebook) provides format-specific implementation
-- The `OutputManager` delegates to formatters based on configuration
+- The `OutputManager` delegates to formatters based on configuration through unified pipeline
 - Formatters are stateless and reusable across multiple examples
+- NotebookFormatter acts as adapter to integrate streaming generation
 
 ### Class Hierarchy
 
 ```
-BaseFormatter (abstract)
+IOutputFormatter (Protocol)
 ├── MarkdownFormatter    # Human-readable documentation
 ├── JSONFormatter        # Machine-readable data
-└── JupyterNotebookFormatter  # Interactive notebooks
+└── NotebookFormatter    # Jupyter notebook adapter
 ```
 
 ## Formatters
 
-### BaseFormatter
+### IOutputFormatter Protocol
 
-Abstract base class defining the formatter interface:
+Protocol defining the formatter interface:
 
 ```python
-from model_checker.output.formatters.base import BaseFormatter
+from model_checker.output.formatters.base import IOutputFormatter
 
-class CustomFormatter(BaseFormatter):
-    def format(self, example_data: Dict[str, Any]) -> str:
-        """Transform example data into format-specific string."""
+class CustomFormatter:
+    def format_example(self, example_data: Dict[str, Any], 
+                      model_output: str) -> str:
+        """Format a single example."""
         # Implementation required
         pass
     
-    def get_extension(self) -> str:
+    def format_batch(self, examples: list) -> str:
+        """Format multiple examples for batch output."""
+        # Implementation required
+        pass
+    
+    def get_file_extension(self) -> str:
         """Return file extension for this format."""
-        return ".custom"
+        return "custom"
 ```
 
 ### MarkdownFormatter
@@ -105,29 +112,33 @@ json_output = formatter.format({
 - Suitable for programmatic analysis
 - Compact representation option
 
-### JupyterNotebookFormatter
+### NotebookFormatter
 
-Creates interactive Jupyter notebooks:
+Adapter that integrates notebook generation with the unified pipeline:
 
 ```python
-from model_checker.output.formatters import JupyterNotebookFormatter
+from model_checker.output.formatters import NotebookFormatter
 
-formatter = JupyterNotebookFormatter()
-notebook_json = formatter.format({
-    'example_name': 'TEST_1',
-    'theory_name': 'Logos',
-    'premises': ['p ∧ q'],
-    'conclusions': ['p'],
-    'model': {...}
-})
+formatter = NotebookFormatter()
+
+# Set module context (required for notebook generation)
+formatter.set_context(module_vars, source_path)
+
+# Generate notebook using streaming approach
+formatter.format_for_streaming(output_path)
 ```
 
 **Features**:
-- Proper .ipynb JSON structure
-- Markdown cells for documentation
-- Code cells showing formulas
-- Metadata for kernel configuration
+- Integrates StreamingNotebookGenerator with formatter interface
+- Efficient streaming generation without memory overhead
+- Produces complete .ipynb JSON structure
+- Includes theory-specific templates and examples
 - Compatible with Jupyter Lab/Notebook
+
+**Architecture**:
+- Acts as adapter between IOutputFormatter protocol and streaming generator
+- Requires module context for semantic theories and settings
+- Supports both batch and streaming generation modes
 
 ## Usage Patterns
 

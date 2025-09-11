@@ -6,14 +6,16 @@ defining the AtomSort type and AtomVal factory function used throughout
 the model checker for representing atomic values in logical formulas.
 """
 
+from typing import Union
 from z3 import DeclareSort, Const
+from .types import AtomType
 
 
 # Declare the Z3 sort for atomic propositions
 AtomSort = DeclareSort("AtomSort")
 
 
-def AtomVal(i):
+def AtomVal(i: Union[int, str]) -> AtomType:
     """Create a constant of AtomSort with the given index.
     
     This helper function creates atomic proposition values for use in semantics.
@@ -21,14 +23,15 @@ def AtomVal(i):
     each atom representing a distinct propositional variable.
     
     Args:
-        i (int): The index for the atomic proposition
+        i: The index for the atomic proposition (int or str identifier)
         
     Returns:
-        Const: A Z3 constant of AtomSort with a unique identifier
+        Z3 datatype reference for the atom
         
-    Example:
+    Examples:
         >>> atom0 = AtomVal(0)  # First atomic proposition
         >>> atom1 = AtomVal(1)  # Second atomic proposition
+        >>> atom_p = AtomVal("p")  # Named atomic proposition
         >>> # These can be used in Z3 constraints and semantic definitions
     """
     return Const(f"AtomSort!val!{i}", AtomSort)

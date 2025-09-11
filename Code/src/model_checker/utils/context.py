@@ -5,6 +5,11 @@ This module provides centralized management of Z3 solver contexts to ensure
 proper isolation between different solver instances.
 """
 
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import z3
+
 
 class Z3ContextManager:
     """Provides centralized management of Z3 solver contexts.
@@ -15,7 +20,7 @@ class Z3ContextManager:
     """
     
     @staticmethod
-    def reset_context():
+    def reset_context() -> None:
         """Explicitly reset the Z3 global context.
         
         This method forces Z3 to create a fresh context for the next solver instance,
