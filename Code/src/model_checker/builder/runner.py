@@ -10,6 +10,7 @@ import importlib
 import os
 import sys
 import time
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 import z3
 
@@ -33,9 +34,21 @@ from .runner_utils import (
     validate_iteration_count,
     should_show_progress,
 )
+from .types import (
+    ExampleSpec, TheoryName, SettingsDict, BuildResult,
+    ExampleDict, TheoryDict
+)
+
+if TYPE_CHECKING:
+    from .module import BuildModule
+    from .example import BuildExample
 
 
-def try_single_N_static(theory_name, theory_config, example_case):
+def try_single_N_static(
+    theory_name: TheoryName,
+    theory_config: Dict[str, Any],
+    example_case: List[Any]
+) -> Tuple[bool, float]:
     """Static version of try_single_N that can be pickled for multiprocessing.
     
     This method is designed to be called by ProcessPoolExecutor with
@@ -109,17 +122,23 @@ def try_single_N_static(theory_name, theory_config, example_case):
 class ModelRunner:
     """Executes model checking for theories."""
     
-    def __init__(self, build_module):
+    def __init__(self, build_module: 'BuildModule') -> None:
         """Initialize with reference to parent BuildModule for settings.
         
         Args:
             build_module: Parent BuildModule instance for accessing settings
                           and utility methods like translate
         """
-        self.build_module = build_module
-        self.settings = build_module.general_settings
+        self.build_module: 'BuildModule' = build_module
+        self.settings: SettingsDict = build_module.general_settings
     
-    def run_model_check(self, example_case, example_name, theory_name, semantic_theory):
+    def run_model_check(
+        self,
+        example_case: List[Any],
+        example_name: str,
+        theory_name: TheoryName,
+        semantic_theory: TheoryDict
+    ) -> 'BuildExample':
         """Run model checking with the given parameters.
         
         Args:
@@ -152,7 +171,12 @@ class ModelRunner:
         finally:
             spinner.stop()
     
-    def try_single_N(self, theory_name, semantic_theory, example_case):
+    def try_single_N(
+        self,
+        theory_name: TheoryName,
+        semantic_theory: TheoryDict,
+        example_case: List[Any]
+    ) -> Tuple[bool, float]:
         """Try a single N value and return (success, runtime).
         
         Attempts to find a model with a specific N value (number of worlds) for a given
@@ -195,7 +219,14 @@ class ModelRunner:
         self._print_timing_result(model_structure, theory_name, run_time, settings, success)
         return success, run_time
     
-    def _print_timing_result(self, model_structure, theory_name, run_time, settings, success):
+    def _print_timing_result(
+        self,
+        model_structure: Any,
+        theory_name: TheoryName,
+        run_time: float,
+        settings: SettingsDict,
+        success: bool
+    ) -> None:
         """Print timing results for a model checking attempt."""
         if success:
             print(
@@ -212,7 +243,12 @@ class ModelRunner:
                 f"N = {settings['N']}."
             )
     
-    def try_single_N_serialized(self, theory_name, theory_config, example_case):
+    def try_single_N_serialized(
+        self,
+        theory_name: TheoryName,
+        theory_config: Dict[str, Any],
+        example_case: List[Any]
+    ) -> Tuple[bool, float]:
         """Try a single N value with serialized theory config.
         
         This method handles the serialization aspect for ProcessPoolExecutor usage
@@ -232,7 +268,13 @@ class ModelRunner:
         # Call the original method with reconstructed objects
         return self.try_single_N(theory_name, semantic_theory, example_case)
     
-    def process_example(self, example_name, example_case, theory_name, semantic_theory):
+    def process_example(
+        self,
+        example_name: str,
+        example_case: List[Any],
+        theory_name: TheoryName,
+        semantic_theory: TheoryDict
+    ) -> 'BuildExample':
         """Process a single model checking example with a fresh Z3 context.
         
         Args:
@@ -263,7 +305,7 @@ class ModelRunner:
         return self._process_with_iterations(example_name, example_case, theory_name, 
                                             semantic_theory, iterate_count)
     
-    def _initialize_z3_context(self):
+    def _initialize_z3_context(self) -> None:
         """Initialize Z3 context and configure logging for clean output."""
         from model_checker.utils import Z3ContextManager
         import logging
@@ -282,7 +324,11 @@ class ModelRunner:
         z3.reset_params()
         z3.set_param(verbose=0)
     
-    def _prepare_example_case(self, example_case, semantic_theory):
+    def _prepare_example_case(
+        self,
+        example_case: List[Any],
+        semantic_theory: TheoryDict
+    ) -> List[Any]:
         """Apply translations and settings to the example case.
         
         Args:
@@ -302,7 +348,7 @@ class ModelRunner:
             example_case, semantic_theory, self.build_module.module_flags
         )
     
-    def _get_iterate_count(self, example_case):
+    def _get_iterate_count(self, example_case: List[Any]) -> int:
         """Extract iteration count from example case settings.
         
         Args:
@@ -314,7 +360,13 @@ class ModelRunner:
         settings = extract_iteration_settings(example_case)
         return settings['iterate']
     
-    def _process_single_model(self, example_name, example_case, theory_name, semantic_theory):
+    def _process_single_model(
+        self,
+        example_name: str,
+        example_case: List[Any],
+        theory_name: TheoryName,
+        semantic_theory: TheoryDict
+    ) -> 'BuildExample':
         """Process a single model without iteration.
         
         Args:
@@ -332,8 +384,14 @@ class ModelRunner:
         self.build_module._capture_and_save_output(example, example_name, theory_name)
         return example
     
-    def _process_with_iterations(self, example_name, example_case, theory_name, 
-                                semantic_theory, iterate_count):
+    def _process_with_iterations(
+        self,
+        example_name: str,
+        example_case: List[Any],
+        theory_name: TheoryName,
+        semantic_theory: TheoryDict,
+        iterate_count: int
+    ) -> 'BuildExample':
         """Process example with iteration support and progress tracking.
         
         Args:
@@ -390,7 +448,11 @@ class ModelRunner:
         
         return example
     
-    def _create_progress_tracker(self, example_case, iterate_count):
+    def _create_progress_tracker(
+        self,
+        example_case: List[Any],
+        iterate_count: int
+    ) -> UnifiedProgress:
         """Create a unified progress tracker for model iterations.
         
         Args:
@@ -402,7 +464,11 @@ class ModelRunner:
         """
         return create_progress_tracker_for_iteration(example_case, iterate_count)
     
-    def _store_timing_info(self, example, start_time):
+    def _store_timing_info(
+        self,
+        example: 'BuildExample',
+        start_time: float
+    ) -> None:
         """Store timing information in the example for reporting.
         
         Args:
@@ -411,7 +477,14 @@ class ModelRunner:
         """
         store_timing_information(example.model_structure, start_time)
     
-    def _handle_iteration_mode(self, example, example_name, theory_name, iterate_count, progress):
+    def _handle_iteration_mode(
+        self,
+        example: 'BuildExample',
+        example_name: str,
+        theory_name: TheoryName,
+        iterate_count: int,
+        progress: UnifiedProgress
+    ) -> int:
         """Handle interactive vs batch mode for iterations.
         
         Args:
@@ -445,8 +518,16 @@ class ModelRunner:
         
         return iterate_count
     
-    def process_iterations(self, example, example_name, example_case, theory_name, 
-                           semantic_theory, iterate_count, progress):
+    def process_iterations(
+        self,
+        example: 'BuildExample',
+        example_name: str,
+        example_case: List[Any],
+        theory_name: TheoryName,
+        semantic_theory: TheoryDict,
+        iterate_count: int,
+        progress: UnifiedProgress
+    ) -> None:
         """Process iterations for an example that supports model iteration.
         
         Args:
@@ -771,7 +852,7 @@ class ModelRunner:
                     # No interactive manager - show instructions directly
                     print(f"\nOutput saved to: {full_path}")
     
-    def prompt_for_iterations(self):
+    def prompt_for_iterations(self) -> int:
         """Prompt user for number of iterations in interactive mode.
         
         Returns:

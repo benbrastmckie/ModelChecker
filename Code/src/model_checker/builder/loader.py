@@ -9,6 +9,15 @@ import importlib
 import importlib.util
 import os
 import sys
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Union
+from types import ModuleType
+from pathlib import Path
+
+# Local imports
+from .types import TheoryName, TheoryDict, ModulePath
+
+if TYPE_CHECKING:
+    from types import ModuleType
 
 
 class ModuleLoader:
@@ -148,7 +157,7 @@ class ModuleLoader:
                 del sys.modules[self.module_name]
             raise ImportError(f"Failed to load generated project module: {str(e)}")
     
-    def discover_theory_module(self):
+    def discover_theory_module(self) -> ModuleType:
         """Import a theory module from theory_lib.
         
         This is a simplified method for importing theory modules directly.
@@ -166,7 +175,7 @@ class ModuleLoader:
         except ImportError:
             raise ImportError(f"Theory '{self.module_name}' not found in model_checker.theory_lib")
     
-    def is_generated_project(self, module_dir):
+    def is_generated_project(self, module_dir: str) -> bool:
         """Detect if module is from a generated project.
         
         Generated projects have a specific structure with:
@@ -206,7 +215,7 @@ class ModuleLoader:
         # If we have config.py and at least one other marker, it's likely generated
         return os.path.exists(config_path) and marker_count >= 1
     
-    def find_project_directory(self, module_dir):
+    def find_project_directory(self, module_dir: str) -> Optional[str]:
         """Find the project root directory for generated projects.
         
         Searches up the directory tree for markers that indicate a project root:
@@ -243,7 +252,7 @@ class ModuleLoader:
         
         return None
     
-    def load_module(self):
+    def load_module(self) -> ModuleType:
         """Load a Python module from the given file path.
         
         This method handles module loading with proper sys.path management
@@ -278,7 +287,7 @@ class ModuleLoader:
             # Restore original sys.path
             sys.path = original_syspath
     
-    def _load_theory_library_module(self):
+    def _load_theory_library_module(self) -> ModuleType:
         """Load a module from the theory library.
         
         Returns:
@@ -306,7 +315,7 @@ class ModuleLoader:
                 self._raise_theory_library_error()
             raise
     
-    def _find_src_directory(self):
+    def _find_src_directory(self) -> Optional[str]:
         """Find the src directory containing model_checker package.
         
         Returns:
@@ -319,7 +328,7 @@ class ModuleLoader:
             current = os.path.dirname(current)
         return None
     
-    def _raise_theory_library_error(self):
+    def _raise_theory_library_error(self) -> None:
         """Raise a helpful error for theory library modules that can't be run directly."""
         path_parts = self.module_path.replace('\\', '/').split('/')
         if 'theory_lib' not in path_parts:
@@ -359,7 +368,7 @@ class ModuleLoader:
                 f"3. Create a standalone test file with absolute imports"
             )
     
-    def _load_generated_project_module(self):
+    def _load_generated_project_module(self) -> ModuleType:
         """Load a module from a generated project.
         
         Returns:
@@ -386,7 +395,7 @@ class ModuleLoader:
         sys.path.insert(0, project_dir)
         return None
     
-    def _extract_theory_from_config(self, config_path):
+    def _extract_theory_from_config(self, config_path: str) -> Optional[str]:
         """Extract the theory name from a generated project's config file.
         
         Args:
@@ -408,7 +417,7 @@ class ModuleLoader:
             pass
         return None
     
-    def _load_standard_module(self):
+    def _load_standard_module(self) -> ModuleType:
         """Load a standard Python module.
         
         Returns:
@@ -449,7 +458,7 @@ class ModuleLoader:
         
         return module
     
-    def load_attribute(self, module, attr_name):
+    def load_attribute(self, module: ModuleType, attr_name: str) -> Any:
         """Load a required attribute from the module with validation.
         
         Args:

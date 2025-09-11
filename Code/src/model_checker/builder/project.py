@@ -17,7 +17,8 @@ and code structure requirements automatically.
 import os
 import shutil
 import subprocess
-from typing import Union
+from typing import Union, Optional, List, Tuple
+from pathlib import Path
 
 class BuildProject:
     """Creates a new theory implementation project from templates.
@@ -36,7 +37,7 @@ class BuildProject:
 
     # No longer enforcing essential files to allow for flexible project structures
 
-    def __init__(self, theory: str = 'logos'):
+    def __init__(self, theory: str = 'logos') -> None:
         """Initialize project builder with specified theory.
         
         Args:
@@ -45,11 +46,11 @@ class BuildProject:
         Raises:
             FileNotFoundError: If the source theory directory doesn't exist
         """
-        self.theory = theory
-        self.source_dir = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'theory_lib', theory)
-        self.project_name = ""
-        self.destination_dir = ""
-        self.log_messages = []
+        self.theory: str = theory
+        self.source_dir: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'theory_lib', theory)
+        self.project_name: str = ""
+        self.destination_dir: str = ""
+        self.log_messages: List[Tuple[str, str]] = []
         
         # Validate source directory exists
         if not os.path.exists(self.source_dir):
@@ -57,7 +58,7 @@ class BuildProject:
                 f"The semantic theory '{self.theory}' was not found at '{self.source_dir}'."
             )
     
-    def log(self, message, level="INFO"):
+    def log(self, message: str, level: str = "INFO") -> None:
         """Log a message with a specified level.
         
         Args:
@@ -71,7 +72,7 @@ class BuildProject:
         elif level == "WARNING":
             print(f"Warning: {message}")
     
-    def ask_generate(self):
+    def ask_generate(self) -> bool:
         """Prompt user to create a new theory implementation project.
         
         Asks the user if they want to generate a new project for the current theory.
@@ -96,7 +97,7 @@ class BuildProject:
         except Exception as e:
             print(f"Error creating project: {e}")
         
-    def generate(self, name: str, destination_dir: Union[str, None] = None):
+    def generate(self, name: str, destination_dir: Optional[str] = None) -> None:
         """Generate a new theory implementation project from templates.
         
         Args:
@@ -147,7 +148,7 @@ class BuildProject:
                 shutil.rmtree(self.destination_dir)
             raise
     
-    def _copy_files(self, project_dir):
+    def _copy_files(self, project_dir: str) -> None:
         """Copy all files from source to destination directory.
         
         Args:
@@ -185,7 +186,7 @@ class BuildProject:
             except Exception as e:
                 self.log(f"Error copying {item}: {str(e)}", "ERROR")
     
-    def _update_file_contents(self, project_dir):
+    def _update_file_contents(self, project_dir: str) -> None:
         """Update file contents with project-specific information.
         
         Args:
@@ -217,7 +218,7 @@ class BuildProject:
         # Add CITATION.md file if it doesn't exist
         self._add_citation_file(project_dir)
     
-    def _update_version_info(self, content, model_checker_version, theory_version):
+    def _update_version_info(self, content: str, model_checker_version: str, theory_version: str) -> str:
         """Update version information in content.
         
         Args:
@@ -286,7 +287,7 @@ class BuildProject:
         
         return content
     
-    def _add_license_file(self, project_dir):
+    def _add_license_file(self, project_dir: str) -> None:
         """Add a license file to the project if it doesn't exist.
         
         If the source theory has a LICENSE.md file, this will create an inherited
@@ -329,7 +330,7 @@ class BuildProject:
             except Exception as e:
                 self.log(f"Error creating license file: {str(e)}", "WARNING")
     
-    def _extract_source_theory_info(self, license_path):
+    def _extract_source_theory_info(self, license_path: str) -> Tuple[str, str, str]:
         """Extract copyright information from source theory's LICENSE.md file.
         
         Args:
@@ -367,7 +368,7 @@ class BuildProject:
             
         return info
     
-    def _add_citation_file(self, project_dir):
+    def _add_citation_file(self, project_dir: str) -> None:
         """Add a citation file to the project if it doesn't exist.
         
         Args:
@@ -403,7 +404,7 @@ please include additional references here.
             except Exception as e:
                 self.log(f"Error creating citation file: {str(e)}", "WARNING")
     
-    def _get_current_version(self):
+    def _get_current_version(self) -> str:
         """Extract the current version from the installed model-checker package.
         
         Returns:
@@ -445,7 +446,7 @@ please include additional references here.
     
     # The _verify_essential_files method has been removed to allow for more flexible project structures
     
-    def _print_success_message(self, project_dir):
+    def _print_success_message(self, project_dir: str) -> None:
         """Print success message with created files as a tree structure.
         
         Args:
@@ -485,7 +486,7 @@ please include additional references here.
                     sub_prefix = "    │   └── " if i < len(dirs) - 1 else "        └── "
                 print(f"{sub_prefix}{subitem}")
     
-    def _handle_example_script(self, project_dir):
+    def _handle_example_script(self, project_dir: str) -> None:
         """Handle running the example script if requested.
         
         Args:

@@ -6,9 +6,12 @@ to keep the main runner module focused and under 500 lines.
 
 import time
 import sys
-from typing import Dict, Any, Tuple, Optional
+from typing import TYPE_CHECKING, Dict, Any, Tuple, Optional, List
 
 from ..output.progress import UnifiedProgress
+
+if TYPE_CHECKING:
+    from .runner import ModelRunner
 
 
 def format_model_output(model_structure, settings: Dict[str, Any], example_name: str) -> str:
@@ -185,10 +188,10 @@ def extract_iteration_settings(example_case: list) -> Dict[str, Any]:
 
 
 def prepare_example_case_with_settings(
-    example_case: list,
+    example_case: List[Any],
     semantic_theory: Dict[str, Any],
-    module_flags
-) -> list:
+    module_flags: Any
+) -> List[Any]:
     """Prepare example case with translations and settings.
     
     Args:
@@ -210,8 +213,8 @@ def prepare_example_case_with_settings(
 
 
 def calculate_model_differences(
-    current_model,
-    previous_model
+    current_model: Any,
+    previous_model: Any
 ) -> Dict[str, Any]:
     """Calculate differences between two model structures.
     

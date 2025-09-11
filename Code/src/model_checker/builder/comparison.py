@@ -8,12 +8,16 @@ their performance at increasing model sizes.
 import os
 import time
 from concurrent.futures import ProcessPoolExecutor, TimeoutError
+from typing import List, Tuple, Dict, Any, TYPE_CHECKING
 
 # Relative imports
 from .serialize import serialize_semantic_theory
 
+if TYPE_CHECKING:
+    from .module import BuildModule
 
-def _find_max_N_static(theory_name, theory_config, example_case):
+
+def _find_max_N_static(theory_name: str, theory_config: Dict[str, Any], example_case: List[Any]) -> int:
     """Static method to find maximum N for a theory (can be pickled).
     
     This static method is designed for use with ProcessPoolExecutor.
@@ -74,7 +78,7 @@ def _find_max_N_static(theory_name, theory_config, example_case):
 class ModelComparison:
     """Compares performance of different semantic theories."""
     
-    def __init__(self, build_module):
+    def __init__(self, build_module: 'BuildModule') -> None:
         """Initialize with reference to parent BuildModule for settings.
         
         Args:
@@ -84,7 +88,7 @@ class ModelComparison:
         self.build_module = build_module
         self.settings = build_module.general_settings
     
-    def compare_semantics(self, example_theory_tuples):
+    def compare_semantics(self, example_theory_tuples: List[Tuple[str, Dict[str, Any], List[Any]]]) -> List[Tuple[str, int]]:
         """Compare different semantic theories by finding maximum model sizes.
         
         This method attempts to find the maximum model size (N) for each semantic theory
@@ -133,7 +137,7 @@ class ModelComparison:
         
         return results
     
-    def run_comparison(self):
+    def run_comparison(self) -> None:
         """Compare different semantic theories by running examples and printing results.
         
         Iterates through each example in example_range and runs it against all semantic theories.

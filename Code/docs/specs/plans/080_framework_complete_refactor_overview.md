@@ -26,7 +26,7 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
 | 2-3 | syntactic | ✅ 90/100 | **COMPLETED** - Full type hints, protocols, error handling | [Plan 081](081_syntactic_package_refactor.md) ✅ |
 | 4 | utils | ✅ 90/100 | **COMPLETED** - Full type hints, Z3 types, comprehensive safety | [Plan 082](082_utils_package_refactor.md) ✅ |
 | 5 | models | ✅ 90/100 | **COMPLETED** - Full type hints, protocols, enhanced structure | [Plan 083](083_models_package_refactor.md) ✅ |
-| 6-7 | builder | 78/100 | Low type hints | [Plan 084](084_builder_package_refactor.md) |
+| 6-7 | builder | ⚡ 78/100 | **IN PROGRESS (30%)** - types.py created, 5 modules typed, 217/218 tests pass | [Plan 084](084_builder_package_refactor.md) ⚡ |
 | 8 | iterate | 77/100 | Low type hints | [Plan 085](085_iterate_package_enhancement.md) |
 | 9-13 | theory_lib | 38/100 | Multiple critical | [Plan 086](086_theory_lib_complete_refactor.md) |
 
@@ -48,7 +48,7 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
 | syntactic | ✅ 90/100 | 90/100 | ✅ 0% → 95% type hints |
 | utils | ✅ 90/100 | 90/100 | ✅ 0% → 100% type hints |
 | models | ✅ 90/100 | 90/100 | ✅ 25% → 95% type hints |
-| builder | 78/100 | 90/100 | 20% → 95% type hints |
+| builder | 78/100 | 90/100 | 30% → 95% type hints |
 | iterate | 77/100 | 90/100 | 18% → 95% type hints |
 | theory_lib | 38/100 | 90/100 | 4% → 95% type hints |
 
@@ -86,9 +86,11 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
    - Resolve 2 TODO items
 
 4. **builder** (Weeks 6-7)
-   - Add type hints to 419 functions
-   - Refactor 4 complex methods
-   - Maintain excellent test coverage
+   - Add type hints to ~65 remaining functions (30% complete)
+   - Refactor 3 complex methods (>75 lines)
+   - Add missing unit tests for module.py and runner_utils.py
+   - Complete protocol definitions
+   - Maintain excellent test coverage (217/218 passing)
 
 5. **iterate** (Week 8)
    - Add type hints to 320 functions
@@ -281,7 +283,7 @@ Each package has a detailed implementation plan with specific tasks, timelines, 
 2. **[Plan 081: Syntactic Package Refactor](081_syntactic_package_refactor.md)** - Weeks 2-3
 3. **[Plan 082: Utils Package Refactor](082_utils_package_refactor.md)** - Week 4
 4. **[Plan 083: Models Package Refactor](083_models_package_refactor.md)** - Week 5
-5. **[Plan 084: Builder Package Enhancement](084_builder_package_refactor.md)** - Weeks 6-7
+5. **[Plan 084: Builder Package Enhancement](084_builder_package_refactor.md)** - Weeks 6-7 (30% complete, ~1 week remaining)
 6. **[Plan 085: Iterate Package Enhancement](085_iterate_package_enhancement.md)** - Week 8
 7. **[Plan 086: Theory_lib Complete Refactor](086_theory_lib_complete_refactor.md)** - Weeks 9-13
 

@@ -8,6 +8,20 @@ settings, and coordinating the model checking process.
 # Standard library imports
 import os
 import sys
+from typing import TYPE_CHECKING, Any, Dict, Optional
+from types import ModuleType
+
+# Local imports
+from .types import (
+    TheoryDict, ExampleDict, SettingsDict, TheoryName
+)
+
+if TYPE_CHECKING:
+    from .loader import ModuleLoader
+    from .runner import ModelRunner
+    from .translation import OperatorTranslation
+    from .example import BuildExample
+    from ..output import OutputManager, InteractiveManager
 
 
 class BuildModule:
@@ -31,7 +45,7 @@ class BuildModule:
         maximize (bool): Whether to maximize the model size
     """
 
-    def __init__(self, module_flags):
+    def __init__(self, module_flags: Any) -> None:
         """Initialize BuildModule with module flags containing configuration.
         
         Args:
@@ -42,9 +56,9 @@ class BuildModule:
             ImportError: If the module cannot be loaded
             AttributeError: If required attributes are missing from the module
         """
-        self.module_flags = module_flags
-        self.module_path = self.module_flags.file_path
-        self.module_name = os.path.splitext(os.path.basename(self.module_path))[0]
+        self.module_flags: Any = module_flags
+        self.module_path: str = self.module_flags.file_path
+        self.module_name: str = os.path.splitext(os.path.basename(self.module_path))[0]
         
         # Load the module and its attributes
         self._load_module()
@@ -65,7 +79,7 @@ class BuildModule:
         # Initialize component instances
         self._initialize_components()
     
-    def _load_module(self):
+    def _load_module(self) -> None:
         """Load the module and extract required attributes."""
         from model_checker.builder.loader import ModuleLoader
         
@@ -84,7 +98,7 @@ class BuildModule:
         # Store raw settings for later processing
         self.raw_general_settings = getattr(self.module, "general_settings", None)
     
-    def _initialize_settings(self):
+    def _initialize_settings(self) -> None:
         """Initialize and validate general settings."""
         from model_checker.settings import SettingsManager, DEFAULT_GENERAL_SETTINGS
         import contextlib
@@ -107,7 +121,7 @@ class BuildModule:
         for key, value in self.general_settings.items():
             setattr(self, key, value)
     
-    def _initialize_output_management(self):
+    def _initialize_output_management(self) -> None:
         """Initialize output and interactive managers."""
         from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider, OutputConfig
         
@@ -151,7 +165,7 @@ class BuildModule:
         if self.output_manager.should_save():
             self.output_manager.create_output_directory()
     
-    def _initialize_components(self):
+    def _initialize_components(self) -> None:
         """Initialize runner, comparison, and translation components."""
         from model_checker.builder.runner import ModelRunner
         from model_checker.builder.comparison import ModelComparison
@@ -174,7 +188,13 @@ class BuildModule:
 
     
 
-    def _capture_and_save_output(self, example, example_name, theory_name, model_num=None):
+    def _capture_and_save_output(
+        self,
+        example: 'BuildExample',
+        example_name: str,
+        theory_name: TheoryName,
+        model_num: Optional[int] = None
+    ) -> None:
         """Capture and save model output if save_output is enabled.
         
         Args:

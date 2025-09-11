@@ -178,7 +178,7 @@ def import_class(module_name: str, class_name: str) -> Type:
         raise AttributeError(f"Class '{class_name}' not found in module '{module_name}': {e}")
 
 
-def safe_import_module(module_name: str):
+def safe_import_module(module_name: str) -> Any:
     """
     Safely import a module with helpful error messages.
     
