@@ -8,6 +8,10 @@ validation.
 import z3
 import itertools
 import logging
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from model_checker.builder.example import BuildExample
 
 logger = logging.getLogger(__name__)
 
@@ -15,7 +19,7 @@ logger = logging.getLogger(__name__)
 class ConstraintGenerator:
     """Generates and manages constraints for model iteration."""
     
-    def __init__(self, build_example):
+    def __init__(self, build_example: 'BuildExample') -> None:
         """Initialize constraint generator.
         
         Args:
@@ -32,7 +36,7 @@ class ConstraintGenerator:
         
         logger.debug(f"Preserved {len(original_constraints)} original constraints for iteration")
     
-    def _create_persistent_solver(self):
+    def _create_persistent_solver(self) -> z3.Solver:
         """Create a persistent solver with original constraints.
         
         Returns:
@@ -51,7 +55,7 @@ class ConstraintGenerator:
             persistent_solver.add(assertion)
         return persistent_solver
     
-    def create_extended_constraints(self, previous_models):
+    def create_extended_constraints(self, previous_models: List[z3.ModelRef]) -> List[z3.BoolRef]:
         """Create constraints that exclude all previous models.
         
         Args:
@@ -70,7 +74,7 @@ class ConstraintGenerator:
         
         return extended_constraints
     
-    def check_satisfiability(self, additional_constraints=None):
+    def check_satisfiability(self, additional_constraints: Optional[List[z3.BoolRef]] = None) -> z3.CheckSatResult:
         """Check if the current constraint set is satisfiable.
         
         This method adds the additional constraints to the persistent solver
@@ -92,7 +96,7 @@ class ConstraintGenerator:
         result = self.solver.check()
         return str(result)
     
-    def get_model(self):
+    def get_model(self) -> Optional[z3.ModelRef]:
         """Get the current model from the solver.
         
         Returns:
@@ -103,7 +107,7 @@ class ConstraintGenerator:
         except z3.Z3Exception:
             return None
     
-    def create_stronger_constraint(self, isomorphic_model):
+    def create_stronger_constraint(self, isomorphic_model: z3.ModelRef) -> Optional[z3.BoolRef]:
         """Create a stronger constraint to avoid specific isomorphic model.
         
         Args:
@@ -114,7 +118,7 @@ class ConstraintGenerator:
         """
         return self._create_non_isomorphic_constraint(isomorphic_model)
     
-    def _create_difference_constraint(self, previous_models):
+    def _create_difference_constraint(self, previous_models: List[z3.ModelRef]) -> Optional[z3.BoolRef]:
         """Create constraint ensuring the new model differs from previous ones.
         
         Args:
@@ -143,7 +147,7 @@ class ConstraintGenerator:
                         # Test if it's a valid Z3 expression by trying to use it in a simple operation
                         test_expr = z3.And(c, z3.BoolVal(True))
                         valid_constraints.append(c)
-                    except Exception:
+                    except (z3.Z3Exception, TypeError, AttributeError):
                         logger.warning(f"Skipping invalid constraint: {c} (type: {type(c)})")
             
             if valid_constraints:
@@ -152,7 +156,7 @@ class ConstraintGenerator:
                 return z3.Or(valid_constraints)
         return None
     
-    def _create_state_difference_constraints(self, prev_model):
+    def _create_state_difference_constraints(self, prev_model: z3.ModelRef) -> List[z3.BoolRef]:
         """Create constraints based on state-level differences.
         
         Args:
@@ -190,16 +194,16 @@ class ConstraintGenerator:
                             # Previous model didn't have this as world, new model should
                             if is_world_expr is not None:
                                 constraints.append(is_world_expr)
-                    except Exception as eval_error:
+                    except (z3.Z3Exception, AttributeError, TypeError) as eval_error:
                         logger.warning(f"Error evaluating is_world({state}): {eval_error}")
                         continue
                         
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error creating state difference constraints: {e}")
             
         return constraints
     
-    def _create_non_isomorphic_constraint(self, isomorphic_model):
+    def _create_non_isomorphic_constraint(self, isomorphic_model: z3.ModelRef) -> Optional[z3.BoolRef]:
         """Create constraint to avoid specific isomorphic model.
         
         Args:
@@ -235,7 +239,7 @@ class ConstraintGenerator:
                         else:
                             if is_world_expr is not None:
                                 difference_constraints.append(is_world_expr)
-                    except Exception as eval_error:
+                    except (z3.Z3Exception, AttributeError, TypeError) as eval_error:
                         logger.warning(f"Error evaluating is_world({state}) in isomorphic constraint: {eval_error}")
                         continue
                         
@@ -248,7 +252,7 @@ class ConstraintGenerator:
                             # Test if it's a valid Z3 expression by trying to use it in a simple operation
                             test_expr = z3.And(c, z3.BoolVal(True))
                             valid_constraints.append(c)
-                        except Exception:
+                        except (z3.Z3Exception, TypeError, AttributeError):
                             logger.warning(f"Skipping invalid constraint: {c} (type: {type(c)})")
                 
                 if valid_constraints:
@@ -256,12 +260,12 @@ class ConstraintGenerator:
                         return valid_constraints[0]
                     return z3.Or(valid_constraints)
                 
-        except Exception as e:
+        except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error creating non-isomorphic constraint: {e}")
             
         return None
     
-    def _generate_input_combinations(self, arity, domain_size):
+    def _generate_input_combinations(self, arity: int, domain_size: int) -> List[Tuple[int, ...]]:
         """Generate all possible input combinations for given arity and domain.
         
         Args:
