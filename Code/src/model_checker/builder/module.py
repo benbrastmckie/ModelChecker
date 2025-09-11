@@ -88,8 +88,6 @@ class BuildModule:
         
         # Load the module
         self.module = self.loader.load_module()
-        # Also store as loaded_module for backward compatibility with tests
-        self.loaded_module = self.module
         
         # Load core attributes
         self.semantic_theories = self.loader.load_attribute(self.module, "semantic_theories")
@@ -104,11 +102,11 @@ class BuildModule:
         import contextlib
         import io
         
-        # For backward compatibility, create general_settings dict
+        # Initialize general settings
         if self.raw_general_settings is not None:
-            # Use first theory's defaults as baseline (preserving existing behavior)
+            # Use first theory's defaults as baseline
             first_theory = next(iter(self.semantic_theories.values()))
-            # Create a temporary manager just to get the merged defaults
+            # Create a temporary manager to get the merged defaults
             # Don't print warnings during this setup phase
             with contextlib.redirect_stdout(io.StringIO()):
                 temp_manager = SettingsManager(first_theory, DEFAULT_GENERAL_SETTINGS)
@@ -117,7 +115,7 @@ class BuildModule:
         else:
             self.general_settings = DEFAULT_GENERAL_SETTINGS.copy()
         
-        # Set attributes for backward compatibility
+        # Set attributes from settings
         for key, value in self.general_settings.items():
             setattr(self, key, value)
     
@@ -136,7 +134,7 @@ class BuildModule:
                         isinstance(self.module_flags.save, list) and 
                         self.module_flags.save == ['jupyter'])
         
-        # Set save_output for backward compatibility
+        # Set save_output flag
         self.save_output = config.save_output and not only_notebook
         
         # Create interactive manager if saving is enabled (but not for notebook-only)

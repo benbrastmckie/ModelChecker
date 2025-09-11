@@ -45,7 +45,32 @@ def new_feature(data):
 # 3. Refactor for quality
 ```
 
-### 3. Fail-Fast Philosophy
+### 3. No Decorators
+
+**NEVER** use decorators in the codebase. This ensures:
+- Explicit, traceable code flow
+- Easier debugging and testing
+- No hidden magic or side effects
+
+```python
+# WRONG - Using decorators
+@property
+def value(self):
+    return self._value
+
+@staticmethod
+def helper():
+    pass
+
+# CORRECT - Use explicit methods
+def get_value(self):
+    return self._value
+
+def helper():  # Just a regular function
+    pass
+```
+
+### 4. Fail-Fast Philosophy
 
 Prefer deterministic failures with helpful messages:
 
