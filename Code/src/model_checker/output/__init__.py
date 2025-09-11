@@ -17,6 +17,9 @@ from .interactive import InteractiveSaveManager
 from .input_provider import InputProvider, ConsoleInputProvider, MockInputProvider
 from .prompts import prompt_yes_no, prompt_choice
 
+# Notebook generation subpackage
+from .notebook import StreamingNotebookGenerator, NotebookWriter, TemplateLoader
+
 __all__ = [
     'OutputManager',
     'OutputConfig',
@@ -30,4 +33,8 @@ __all__ = [
     'MockInputProvider',
     'prompt_yes_no',
     'prompt_choice',
+    # Notebook exports
+    'StreamingNotebookGenerator',
+    'NotebookWriter',
+    'TemplateLoader',
 ]

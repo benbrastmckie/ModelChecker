@@ -182,6 +182,47 @@ output/
 └── strategies/
 ```
 
+## Additional Finding: Missing Notebook Templates
+
+### Current Template Coverage
+During analysis, discovered that **3 of 5 Logos subtheories lack template.json files**:
+
+**Have Templates:**
+- ✅ `counterfactual/notebooks/template.json`
+- ✅ `modal/notebooks/template.json`
+
+**Missing Templates:**
+- ❌ `constitutive/notebooks/` - Has .ipynb but no template.json
+- ❌ `extensional/notebooks/` - Has .ipynb but no template.json
+- ❌ `relevance/notebooks/` - Has .ipynb but no template.json
+
+This gap means these theories cannot generate notebooks programmatically, limiting their usability in automated workflows.
+
+### Template Requirements
+Each theory needs a template.json with:
+1. **Setup cells** - Theory imports and configuration
+2. **Example placeholders** - Where examples get inserted
+3. **Theory-specific imports** - Correct subtheory loading
+
+Example structure from counterfactual:
+```json
+{
+  "setup_cells": [
+    {
+      "cell_type": "markdown",
+      "source": ["# {{THEORY_NAME}} Examples\\n", ...]
+    },
+    {
+      "cell_type": "code",
+      "source": [
+        "from model_checker.theory_lib.logos.operators import LogosOperatorRegistry\\n",
+        "registry.load_subtheories(['extensional', 'modal', 'counterfactual'])\\n"
+      ]
+    }
+  ]
+}
+```
+
 ## Improvement Roadmap
 
 ### Phase 1: Critical Fixes (Priority: HIGH)
@@ -216,6 +257,12 @@ Document:
 - Template creation guide
 - Integration patterns
 - Usage examples
+
+#### 1.4 Add Missing Templates
+Create template.json for:
+- `constitutive/notebooks/template.json`
+- `extensional/notebooks/template.json`
+- `relevance/notebooks/template.json`
 
 ### Phase 2: Architectural Migration (Priority: MEDIUM)
 
@@ -315,6 +362,39 @@ class TemplateNotFoundError(NotebookGenerationError):
 1. **Incremental Migration**: Move in stages with tests at each step
 2. **Backward Compatibility**: Keep old imports working temporarily
 3. **Feature Flag**: Allow switching between old/new architecture
+
+## Implementation Status
+
+### Phase 1: Critical Fixes
+- [x] 1.1 Add Comprehensive Test Suite - **COMPLETED**
+  - Created tests/unit/ and tests/integration/ directories
+  - Added 9 passing unit tests for NotebookWriter and TemplateLoader
+  - Added integration test structure (needs refinement)
+- [ ] 1.2 Refactor Long Method - **NOT STARTED**
+- [x] 1.3 Create README.md - **COMPLETED**
+  - Created comprehensive 200+ line README
+  - Documented architecture, usage, templates, testing
+  - Added API reference and migration notes
+- [x] 1.4 Add Missing Templates - **COMPLETED**
+  - [x] constitutive/notebooks/template.json - Created
+  - [x] extensional/notebooks/template.json - Created
+  - [x] relevance/notebooks/template.json - Created
+
+### Phase 2: Architectural Migration
+- [x] 2.1 Move to output/notebook/ - **COMPLETED**
+  - Moved all files to src/model_checker/output/notebook/
+  - Updated all imports from model_checker.notebook to model_checker.output.notebook
+  - Fixed all relative imports in templates and tests
+  - Updated BuildModule import path
+  - Added notebook exports to output/__init__.py
+  - Unit tests passing (9/9)
+- [ ] 2.2 Integrate with OutputManager - **NOT STARTED**
+- [ ] 2.3 Unify with Formatter Pattern - **NOT STARTED**
+
+### Phase 3: Enhancement
+- [ ] 3.1 Performance Optimization - **NOT STARTED**
+- [ ] 3.2 Enhanced Error Messages - **NOT STARTED**
+- [ ] 3.3 Template Validation - **NOT STARTED**
 
 ## Conclusion
 

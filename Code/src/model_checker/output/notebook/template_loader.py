@@ -26,15 +26,15 @@ class TemplateLoader:
         
         # Import templates based on class name
         if class_name == 'LogosSemantics':
-            from model_checker.notebook.templates.logos import LogosNotebookTemplate
+            from .templates.logos import LogosNotebookTemplate
             return LogosNotebookTemplate()
         elif class_name == 'WitnessSemantics':
-            from model_checker.notebook.templates.exclusion import ExclusionNotebookTemplate
+            from .templates.exclusion import ExclusionNotebookTemplate
             return ExclusionNotebookTemplate()
         elif class_name == 'ImpositionSemantics':
-            from model_checker.notebook.templates.imposition import ImpositionNotebookTemplate
+            from .templates.imposition import ImpositionNotebookTemplate
             return ImpositionNotebookTemplate()
         else:
             # Try to use a generic template as fallback
-            from model_checker.notebook.templates.base import DirectNotebookTemplate
+            from .templates.base import DirectNotebookTemplate
             return DirectNotebookTemplate()

@@ -1,7 +1,7 @@
 """Notebook template for Imposition theory."""
 
 from typing import Dict, List
-from model_checker.notebook.templates.base import DirectNotebookTemplate
+from .base import DirectNotebookTemplate
 
 
 class ImpositionNotebookTemplate(DirectNotebookTemplate):
