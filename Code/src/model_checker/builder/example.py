@@ -7,8 +7,12 @@ generation, and result evaluation.
 
 import os
 import sys
+from typing import Dict, List, Any, Optional, Tuple, TYPE_CHECKING
 
 import z3
+
+if TYPE_CHECKING:
+    from .module import BuildModule
 
 from ..models.semantic import SemanticDefaults
 from ..models.proposition import PropositionDefaults
@@ -48,7 +52,13 @@ class BuildExample:
         model_structure: The resulting model structure after solving
     """
 
-    def __init__(self, build_module, semantic_theory, example_case, theory_name=None):
+    def __init__(
+        self,
+        build_module: 'BuildModule',
+        semantic_theory: Dict[str, Any],
+        example_case: List[Any],
+        theory_name: Optional[str] = None
+    ) -> None:
         """Initialize a model checking example.
         
         Args:
@@ -130,7 +140,7 @@ class BuildExample:
         # Store solver reference
         self.solver = self.model_structure.solver
     
-    def get_result(self):
+    def get_result(self) -> Tuple[bool, Optional[Any], str]:
         """Get the result of the model checking.
         
         Returns:
@@ -153,7 +163,7 @@ class BuildExample:
             "model_structure": self._get_model_structure_data()
         }
     
-    def _get_model_structure_data(self):
+    def _get_model_structure_data(self) -> Dict[str, Any]:
         """Extract relevant data from the model structure.
         
         Returns:
@@ -175,7 +185,7 @@ class BuildExample:
             
         return result
     
-    def find_next_model(self):
+    def find_next_model(self) -> bool:
         """Find a new model that differs from the previous one.
         
         Uses the refactored approach to find a semantically distinct model by:
@@ -229,7 +239,12 @@ class BuildExample:
             print(traceback.format_exc())
             return False
     
-    def print_model(self, example_name=None, theory_name=None, output=sys.stdout):
+    def print_model(
+        self,
+        example_name: Optional[str] = None,
+        theory_name: Optional[str] = None,
+        output: Any = sys.stdout
+    ) -> None:
         """Print model to specified output.
         
         Args:
@@ -252,7 +267,13 @@ class BuildExample:
             output=output
         )
     
-    def save_or_append(self, file_name, save_constraints=False, example_name=None, theory_name=None):
+    def save_or_append(
+        self,
+        file_name: str,
+        save_constraints: bool = False,
+        example_name: Optional[str] = None,
+        theory_name: Optional[str] = None
+    ) -> None:
         """Save or append model output to a file.
         
         Args:
@@ -310,7 +331,7 @@ class BuildExample:
         print(f'\n{file_name}.py created in {destination_dir}\n')
         return output_file
     
-    def check_result(self):
+    def check_result(self) -> str:
         """Compare the model findings against expected model existence.
         
         Returns:

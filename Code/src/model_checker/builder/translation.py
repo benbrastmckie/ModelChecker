@@ -4,11 +4,13 @@ This module handles translation of logical operators in formulas
 according to theory-specific dictionaries.
 """
 
+from typing import List, Dict, Tuple, Any, Optional
+
 
 class OperatorTranslation:
     """Handles translation of logical operators in formulas."""
     
-    def translate(self, example_case, dictionary):
+    def translate(self, example_case: List[Any], dictionary: Dict[str, str]) -> List[Any]:
         """Use dictionary to replace logical operators in logical formulas.
         
         Takes a dictionary mapping old operators to new operators and replaces all
@@ -24,7 +26,7 @@ class OperatorTranslation:
         """
         premises, conclusions, settings = example_case
         
-        def replace_operators(logical_list, dictionary):
+        def replace_operators(logical_list: List[str], dictionary: Dict[str, str]) -> List[str]:
             if not dictionary:
                 return logical_list
             for old, new in dictionary.items():
@@ -35,7 +37,7 @@ class OperatorTranslation:
         new_conclusion = replace_operators(conclusions, dictionary)
         return [new_premises, new_conclusion, settings]
     
-    def translate_example(self, example_case, semantic_theories):
+    def translate_example(self, example_case: List[Any], semantic_theories: Dict[str, Dict[str, Any]]) -> List[Tuple[str, Dict[str, Any], List[Any]]]:
         """Translates example case for each semantic theory using their dictionaries.
 
         Takes an example case and applies any operator translations defined in each semantic

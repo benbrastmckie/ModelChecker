@@ -8,8 +8,12 @@
 builder/
 ├── README.md                       # This file - builder package overview
 ├── __init__.py                     # Public API exports
+├── types.py                        # Type definitions and protocols for type safety
+├── error_types.py                  # Custom exception classes
+├── protocols.py                    # Protocol definitions for interfaces
 ├── module.py                       # Core orchestration and initialization
 ├── runner.py                       # Model checking execution engine
+├── runner_utils.py                 # Runner utility functions
 ├── comparison.py                   # Theory comparison and benchmarking
 ├── translation.py                  # Operator translation utilities
 ├── loader.py                       # Module loading and discovery
@@ -32,6 +36,7 @@ The **Builder Package** provides the core infrastructure for constructing and ex
 3. **No Decorators**: All methods are instance methods or module-level functions
 4. **Fail-Fast Philosophy**: Errors surface immediately with helpful context
 5. **Explicit Data Flow**: No hidden state or implicit conversions
+6. **Type Safety**: Comprehensive type hints throughout for better IDE support and error detection
 
 ## Core Components
 

@@ -4,6 +4,8 @@ This module provides functions for validating parameters and ensuring
 proper types and values for model checking operations.
 """
 
+from typing import Dict, List, Tuple, Any, Type
+
 from ..models.semantic import SemanticDefaults
 from ..models.proposition import PropositionDefaults
 from ..models.structure import ModelDefaults
@@ -12,8 +14,9 @@ from ..syntactic import (
 )
 
 from .error_types import ValidationError
+from .types import TheoryDict, ExampleSpec
 
-def validate_semantic_theory(semantic_theory):
+def validate_semantic_theory(semantic_theory: TheoryDict) -> Tuple[Type[SemanticDefaults], Type[PropositionDefaults], OperatorCollection, Type[ModelDefaults]]:
     """Validate that a semantic theory contains all required components.
     
     Args:
@@ -80,7 +83,7 @@ def validate_semantic_theory(semantic_theory):
             
     return semantics, proposition, operators, model_class
 
-def validate_example_case(example_case):
+def validate_example_case(example_case: Any) -> Tuple[List[str], List[str], Dict[str, Any]]:
     """Validate an example case contains premises, conclusions and settings.
     
     Args:
