@@ -5,13 +5,10 @@ better type checking, dependency injection, and testing.
 """
 
 from typing import Protocol, Any, Dict, List, Tuple, Optional
-from abc import abstractmethod
-
 
 class IModuleLoader(Protocol):
     """Interface for module loading functionality."""
     
-    @abstractmethod
     def load_module(self) -> Any:
         """Load a Python module from a file path.
         
@@ -23,7 +20,6 @@ class IModuleLoader(Protocol):
         """
         ...
     
-    @abstractmethod
     def load_attribute(self, module: Any, attr_name: str) -> Any:
         """Load a required attribute from a module with validation.
         
@@ -39,11 +35,10 @@ class IModuleLoader(Protocol):
         """
         ...
 
-
 class IModelRunner(Protocol):
     """Interface for model checking execution."""
     
-    @abstractmethod
+    
     def run_examples(self, examples: Dict[str, List]) -> None:
         """Run model checking examples.
         
@@ -52,7 +47,7 @@ class IModelRunner(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def process_example(
         self, 
         example_name: str, 
@@ -73,16 +68,15 @@ class IModelRunner(Protocol):
         """
         ...
 
-
 class IComparison(Protocol):
     """Interface for theory comparison functionality."""
     
-    @abstractmethod
+    
     def run_comparison(self) -> None:
         """Run comparison across all theories and examples."""
         ...
     
-    @abstractmethod
+    
     def compare_semantics(self, example_theory_tuples: List[Tuple]) -> List[Tuple]:
         """Compare semantic theories for a single example.
         
@@ -94,11 +88,10 @@ class IComparison(Protocol):
         """
         ...
 
-
 class ITranslation(Protocol):
     """Interface for operator translation functionality."""
     
-    @abstractmethod
+    
     def translate(self, example_case: List, dictionary: Dict[str, str]) -> List:
         """Translate operators in an example case using a dictionary.
         
@@ -111,11 +104,10 @@ class ITranslation(Protocol):
         """
         ...
 
-
 class IOutputManager(Protocol):
     """Interface for output management functionality."""
     
-    @abstractmethod
+    
     def should_save(self) -> bool:
         """Check if output should be saved.
         
@@ -124,12 +116,12 @@ class IOutputManager(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def create_output_directory(self) -> None:
         """Create the output directory if needed."""
         ...
     
-    @abstractmethod
+    
     def save_output(self, content: str, filename: str) -> None:
         """Save output content to a file.
         
@@ -139,11 +131,10 @@ class IOutputManager(Protocol):
         """
         ...
 
-
 class IInteractiveManager(Protocol):
     """Interface for interactive session management."""
     
-    @abstractmethod
+    
     def is_interactive(self) -> bool:
         """Check if currently in interactive mode.
         
@@ -152,7 +143,7 @@ class IInteractiveManager(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def set_mode(self, mode: str) -> None:
         """Set the interactive mode.
         
@@ -161,16 +152,15 @@ class IInteractiveManager(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def prompt_save_mode(self) -> None:
         """Prompt user to select save mode."""
         ...
 
-
 class IValidator(Protocol):
     """Interface for validation functionality."""
     
-    @abstractmethod
+    
     def validate_semantic_theory(self, semantic_theory: Any) -> Tuple:
         """Validate a semantic theory structure.
         
@@ -185,7 +175,7 @@ class IValidator(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def validate_example_case(self, example_case: Any) -> Tuple:
         """Validate an example case structure.
         
@@ -200,11 +190,10 @@ class IValidator(Protocol):
         """
         ...
 
-
 class IProjectGenerator(Protocol):
     """Interface for project generation functionality."""
     
-    @abstractmethod
+    
     def generate(self, project_name: str) -> str:
         """Generate a new project from a template.
         
@@ -216,7 +205,7 @@ class IProjectGenerator(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def create_template_content(self, theory_name: str) -> str:
         """Create template content for a theory.
         
@@ -228,13 +217,10 @@ class IProjectGenerator(Protocol):
         """
         ...
 
-
 class IBuildModule(Protocol):
     """Interface for the main build module functionality."""
     
-    @property
-    @abstractmethod
-    def semantic_theories(self) -> Dict[str, Any]:
+    def get_semantic_theories(self) -> Dict[str, Any]:
         """Get the loaded semantic theories.
         
         Returns:
@@ -242,9 +228,7 @@ class IBuildModule(Protocol):
         """
         ...
     
-    @property
-    @abstractmethod
-    def example_range(self) -> Dict[str, List]:
+    def get_example_range(self) -> Dict[str, List]:
         """Get the loaded example range.
         
         Returns:
@@ -252,21 +236,20 @@ class IBuildModule(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def run_model_check(self) -> None:
         """Run the model checking process."""
         ...
     
-    @abstractmethod
+    
     def run_comparison(self) -> None:
         """Run theory comparison."""
         ...
 
-
 class ISerializable(Protocol):
     """Interface for objects that can be serialized for multiprocessing."""
     
-    @abstractmethod
+    
     def serialize(self) -> Dict[str, Any]:
         """Serialize the object to a dictionary.
         
@@ -275,9 +258,7 @@ class ISerializable(Protocol):
         """
         ...
     
-    @classmethod
-    @abstractmethod
-    def deserialize(cls, data: Dict[str, Any]) -> 'ISerializable':
+    def deserialize(self, data: Dict[str, Any]) -> 'ISerializable':
         """Deserialize an object from a dictionary.
         
         Args:
@@ -288,11 +269,10 @@ class ISerializable(Protocol):
         """
         ...
 
-
 class IProgressTracker(Protocol):
     """Interface for progress tracking functionality."""
     
-    @abstractmethod
+    
     def start_model_search(self, model_number: int, start_time: float = None) -> None:
         """Start tracking a model search.
         
@@ -302,12 +282,12 @@ class IProgressTracker(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def model_checked(self) -> None:
         """Mark that a model check has completed."""
         ...
     
-    @abstractmethod
+    
     def complete_model_search(self, found: bool) -> None:
         """Complete a model search.
         
@@ -316,11 +296,10 @@ class IProgressTracker(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def finish(self) -> None:
         """Finish progress tracking and cleanup."""
         ...
-
 
 # Type aliases for common data structures
 SemanticTheory = Dict[str, Any]
@@ -329,12 +308,11 @@ Settings = Dict[str, Any]
 TheoryTuple = Tuple[str, SemanticTheory, ExampleCase]  # (theory_name, semantic_theory, example_case)
 ComparisonResult = Tuple[str, int]  # (theory_name, max_N)
 
-
 # Factory Protocol for dependency injection
 class IComponentFactory(Protocol):
     """Interface for creating builder components."""
     
-    @abstractmethod
+    
     def create_loader(self, module_name: str, module_path: str) -> IModuleLoader:
         """Create a module loader.
         
@@ -347,7 +325,7 @@ class IComponentFactory(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def create_runner(self, build_module: IBuildModule) -> IModelRunner:
         """Create a model runner.
         
@@ -359,7 +337,7 @@ class IComponentFactory(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def create_comparison(self, build_module: IBuildModule) -> IComparison:
         """Create a comparison instance.
         
@@ -371,7 +349,7 @@ class IComponentFactory(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def create_translation(self) -> ITranslation:
         """Create a translation instance.
         
@@ -380,7 +358,7 @@ class IComponentFactory(Protocol):
         """
         ...
     
-    @abstractmethod
+    
     def create_output_manager(
         self,
         save_output: bool,

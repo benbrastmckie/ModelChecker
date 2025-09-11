@@ -9,7 +9,6 @@ from typing import (
     TypeVar, Dict, List, Optional, Union, Any, Tuple,
     Callable, Protocol, TypedDict, TYPE_CHECKING
 )
-from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
 
@@ -75,21 +74,33 @@ class ExampleSpec(TypedDict):
     conclusions: List[FormulaString]
     settings: SettingsDict
 
-@dataclass
 class SuccessResult:
     """Successful build result."""
-    status: BuildStatus
-    model: Any
-    stats: Dict[str, Any]
-    output: str
+    def __init__(
+        self,
+        status: BuildStatus,
+        model: Any,
+        stats: Dict[str, Any],
+        output: str
+    ) -> None:
+        self.status = status
+        self.model = model
+        self.stats = stats
+        self.output = output
 
-@dataclass
 class FailureResult:
     """Failed build result."""
-    status: BuildStatus
-    error: Exception
-    traceback: str
-    context: Dict[str, Any]
+    def __init__(
+        self,
+        status: BuildStatus,
+        error: Exception,
+        traceback: str,
+        context: Dict[str, Any]
+    ) -> None:
+        self.status = status
+        self.error = error
+        self.traceback = traceback
+        self.context = context
 
 # Protocol definitions
 class BuilderProtocol(Protocol):

@@ -845,15 +845,10 @@ class ModelRunner:
             previous_model = model_structures[previous_idx]
             
             try:
-                # First try using theory-specific difference detection
+                # Use theory-specific difference detection if available
                 if hasattr(structure, 'detect_model_differences'):
                     structure.model_differences = structure.detect_model_differences(previous_model)
                     structure.previous_structure = previous_model
-                else:
-                    # Check if structure has calculate_model_differences for legacy support
-                    if hasattr(structure, 'calculate_model_differences'):
-                        structure.model_differences = structure.calculate_model_differences(previous_model)
-                        structure.previous_structure = previous_model
             except Exception as e:
                 print(f"\nError calculating detailed differences: {str(e)}")
     
