@@ -14,17 +14,18 @@ The iterate package manages model checking iterations and recently underwent par
 ### Package Structure
 ```
 iterate/
-├── __init__.py              # Package exports (45 lines)
-├── core.py                 # Core iteration logic (567 lines)
-├── constraints.py          # Constraint management (489 lines)
-├── models.py              # Model iteration (412 lines)
-├── state_manager.py        # State management (378 lines)
-├── validators.py           # Validation logic (298 lines)
-├── strategies.py           # Iteration strategies (456 lines)
-├── optimizations.py        # Performance optimizations (367 lines)
-├── statistics.py           # Statistics tracking (234 lines)
-├── errors.py              # 11 exception classes (187 lines) ✓
-├── tests/                 # Test suite (28 files, 5,642 lines) ✓
+├── __init__.py              # Package exports
+├── base.py                  # Base classes and interfaces
+├── build_example.py         # Example building functionality
+├── constraints.py           # Constraint management
+├── core.py                  # Core iteration logic
+├── errors.py                # Error definitions ✓
+├── graph.py                 # Graph-based iteration
+├── iterator.py              # Main iterator implementation
+├── metrics.py               # Performance metrics
+├── models.py                # Model iteration handling
+├── statistics.py            # Statistics tracking
+└── tests/                   # Test suite
 ```
 
 ### Recent Improvements (Plan 065)

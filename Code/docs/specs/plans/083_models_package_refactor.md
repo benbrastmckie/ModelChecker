@@ -14,13 +14,15 @@ The models package defines core data structures for model checking but has low t
 ### Package Structure
 ```
 models/
-├── __init__.py              # Package exports (34 lines)
-├── model_variable.py        # Variable representations (312 lines)
-├── model_builder.py         # Model construction (456 lines)
-├── model_extractor.py       # Result extraction (289 lines)
-├── semantic_model.py        # Semantic structures (455 lines)
-├── errors.py               # Error definitions (56 lines) ✓
-└── tests/                  # Test suite (10 files, 1,486 lines)
+├── __init__.py              # Package exports
+├── constraints.py           # Model constraints handling
+├── errors.py                # Error definitions ✓
+├── proposition.py           # Proposition evaluation
+├── semantic.py              # Semantic model structures
+├── structure.py             # Model structure definitions
+└── tests/                   # Test suite
+    ├── unit/               # Unit tests
+    └── integration/        # Integration tests
 ```
 
 ### Current Compliance

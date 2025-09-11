@@ -8,10 +8,11 @@ human-readable state representations, including:
 """
 
 import string
-from z3 import BitVecVal
+from typing import Any, Union, Optional
+from z3 import BitVecVal, BitVecRef
 
 
-def binary_bitvector(bit, N):
+def binary_bitvector(bit: BitVecRef, N: int) -> str:
     """Converts a Z3 bit vector to a binary string representation.
     
     This function takes a Z3 bit vector and converts it to a binary string
@@ -33,14 +34,14 @@ def binary_bitvector(bit, N):
     )
 
 
-def int_to_binary(integer, number):
+def int_to_binary(integer: int, number: int) -> str:
     '''Converts a hexadecimal string to a binary string.'''
     binary_str = bin(integer)[2:]  # Convert to binary string and remove '0b' prefix
     padding = number - len(binary_str)  # Calculate padding
     return '#b' + '0' * padding + binary_str
 
 
-def index_to_substate(index):
+def index_to_substate(index: int) -> str:
     '''
     test cases should make evident what's going on
     >>> index_to_substate(0)
@@ -59,7 +60,7 @@ def index_to_substate(index):
     return ((number//26) + 1) * letter
 
 
-def bitvec_to_substates(bit_vec, N):
+def bitvec_to_substates(bit_vec: Any, N: int) -> str:
     '''converts bitvectors to fusions of atomic states.'''
     # Safety check for non-BitVec objects
     if not hasattr(bit_vec, 'sexpr'):
@@ -116,7 +117,7 @@ def bitvec_to_substates(bit_vec, N):
     return state_repr[:-1] if state_repr else "□"
 
 
-def bitvec_to_worldstate(bit_vec, N=None):
+def bitvec_to_worldstate(bit_vec: Any, N: Optional[int] = None) -> str:
     """Converts a bitvector to a simple alphabetic world state label.
     
     Maps bitvector values to letters: 0→a, 1→b, 2→c, ..., 25→z, 26→aa, 27→bb, etc.

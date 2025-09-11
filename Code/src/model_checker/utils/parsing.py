@@ -5,8 +5,10 @@ This module provides functions for parsing logical expressions from infix
 notation to the prefix notation used internally by the framework.
 """
 
+from typing import List, Tuple, Any, Union
 
-def parse_expression(tokens):
+
+def parse_expression(tokens: List[str]) -> Tuple[List[Any], int]:
     """Parses a list of tokens representing a propositional expression and returns
     the expression in prefix notation.
     """
@@ -43,11 +45,11 @@ def parse_expression(tokens):
     return [token, arg], comp + 1 
 
 
-def op_left_right(tokens):
+def op_left_right(tokens: List[str]) -> Tuple[str, List[str], List[str]]:
     """Divides whatever is inside a pair of parentheses into the left argument,
     right argument, and the operator."""
 
-    def balanced_parentheses(tokens):
+    def balanced_parentheses(tokens: List[str]) -> bool:
         """Check if parentheses are balanced in the argument."""
         stack = []
         for token in tokens:
@@ -59,7 +61,7 @@ def op_left_right(tokens):
                 stack.pop()
         return len(stack) == 0
 
-    def check_right(tokens, operator):
+    def check_right(tokens: List[str], operator: str) -> List[str]:
         if not tokens:
             raise ValueError(f"Expected an argument after the operator {operator}")
         if not balanced_parentheses(tokens):
@@ -69,7 +71,7 @@ def op_left_right(tokens):
             )
         return tokens  # Remaining tokens are the right argument
 
-    def cut_parentheses(left, tokens):
+    def cut_parentheses(left: List[str], tokens: List[str]) -> Tuple[str, List[str], List[str]]:
         count = 1  # To track nested parentheses
         while tokens:
             token = tokens.pop(0)
@@ -89,12 +91,12 @@ def op_left_right(tokens):
                 return operator, left, right
         raise ValueError(f"The expression {tokens} is incomplete.")
 
-    def process_operator(tokens):
+    def process_operator(tokens: List[str]) -> str:
         if tokens:
             return tokens.pop(0)
         raise ValueError("Operator missing after operand")
 
-    def extract_arguments(tokens):
+    def extract_arguments(tokens: List[str]) -> Tuple[str, List[str], List[str]]:
         """Extracts the left argument and right argument from tokens."""
         left = []
         while tokens:

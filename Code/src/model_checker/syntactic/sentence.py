@@ -7,10 +7,16 @@ all metadata needed for evaluation including operator linkages, semantic
 bindings, and proposition values.
 """
 
+from typing import List, Optional, Dict, Any, Union, Tuple, TYPE_CHECKING
 from z3 import ExprRef
 
 from model_checker.utils import parse_expression
 from .atoms import AtomSort
+from .types import FormulaString, PrefixList
+from .errors import InvalidFormulaError, ParseError
+
+if TYPE_CHECKING:
+    from .collection import OperatorCollection
 
 
 class Sentence:
@@ -38,7 +44,22 @@ class Sentence:
         proposition (obj): The proposition representing this sentence (after proposition update)
     """
 
-    def __init__(self, infix_sentence):
+    def __init__(self, infix_sentence: FormulaString) -> None:
+        """Initialize sentence from infix notation.
+        
+        Args:
+            infix_sentence: Formula in infix notation
+            
+        Raises:
+            InvalidFormulaError: If formula is empty or invalid
+            ParseError: If formula cannot be parsed
+        """
+        if not infix_sentence:
+            raise InvalidFormulaError(
+                "Formula cannot be empty",
+                formula="",
+                context={'suggestion': 'Provide a non-empty formula'}
+            )
         
         # store input, prefix string, complexity, and sentences for arguments
         self.name = infix_sentence
@@ -66,13 +87,13 @@ class Sentence:
         # update_proposition via interpret in ModelStructure: z3_model
         self.proposition = None
 
-    def __str__(self):
+    def __str__(self) -> str:
         return self.name
     
-    def __repr__(self):
+    def __repr__(self) -> str:
         return self.name
 
-    def prefix(self, infix_sentence):
+    def prefix(self, infix_sentence: FormulaString) -> Tuple[PrefixList, int]:
         """Converts infix notation to prefix notation.
         
         Transforms a logical expression from infix format (e.g., "(p ∧ q)") to prefix format
@@ -92,7 +113,7 @@ class Sentence:
         derived_object, complexity = parse_expression(tokens)
         return derived_object, complexity
 
-    def infix(self, prefix):
+    def infix(self, prefix: PrefixList) -> FormulaString:
         """Converts prefix notation to infix notation.
         
         Transforms a logical expression from prefix format (e.g., ["∧", "p", "q"]) to infix 
@@ -130,7 +151,7 @@ class Sentence:
             return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
         raise TypeError(f"The prefix {prefix} has a type error in infix().")
 
-    def update_types(self, operator_collection): # used in Syntax
+    def update_types(self, operator_collection: 'OperatorCollection') -> None:
         """Updates the sentence with proper operator types from the operator collection.
         
         This method uses the operator_collection to replace the string representation
@@ -186,7 +207,7 @@ class Sentence:
         derived_type = derive_type(original_type)
         self.operator, self.arguments, self.sentence_letter = store_types(derived_type)
     
-    def update_objects(self, model_constraints): # used in ModelConstraints init
+    def update_objects(self, model_constraints: Any) -> None:
         """Links the sentence to concrete operator instances with semantics.
         
         Given an instance of ModelConstraints, this method updates the operator
@@ -213,6 +234,6 @@ class Sentence:
         self.original_operator = activate_operator(self.original_operator)
         self.operator = activate_operator(self.operator)
 
-    def update_proposition(self, model_structure): # used in ModelStructure init
+    def update_proposition(self, model_structure: Any) -> None:
         """Builds a proposition object for the sentence given the model_structure."""
         self.proposition = model_structure.proposition_class(self, model_structure)

@@ -6,6 +6,8 @@
 
 The **Notebook Generation Package** provides streaming, memory-efficient generation of Jupyter notebooks from model checking results. It uses a template-based approach with theory-specific customization to create interactive, runnable notebooks that demonstrate countermodels and theorem validations.
 
+As of the unified architecture implementation, this package is integrated into the output management pipeline through the NotebookFormatter adapter, ensuring all output formats are generated consistently through the same system.
+
 ## Directory Structure
 
 ```
@@ -75,10 +77,27 @@ Templates are discovered in two ways:
 
 ### Basic Usage
 
-The notebook generator is typically invoked by BuildModule:
+The notebook generator is now invoked through the unified output pipeline via NotebookFormatter:
 
 ```python
-from model_checker.notebook.streaming_generator import StreamingNotebookGenerator
+from model_checker.output.formatters.notebook import NotebookFormatter
+
+# NotebookFormatter acts as adapter
+formatter = NotebookFormatter()
+
+# Set module context
+formatter.set_context(module_vars, source_path)
+
+# Generate through unified pipeline
+formatter.format_for_streaming('output/NOTEBOOK.ipynb')
+```
+
+### Direct Usage (Advanced)
+
+For direct usage outside the unified pipeline:
+
+```python
+from model_checker.output.notebook.streaming_generator import StreamingNotebookGenerator
 
 # Module variables from theory execution
 module_vars = {
@@ -87,7 +106,7 @@ module_vars = {
     # ... other execution context
 }
 
-# Generate notebook
+# Generate notebook directly
 generator = StreamingNotebookGenerator()
 generator.generate_notebook_stream(
     module_vars,

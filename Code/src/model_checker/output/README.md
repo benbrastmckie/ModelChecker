@@ -21,12 +21,15 @@ output/
 │   ├── base.py           # Abstract formatter interface
 │   ├── markdown.py       # Markdown documentation generator
 │   ├── json.py           # JSON data serialization
-│   └── notebook.py       # Jupyter notebook creation
+│   └── notebook.py       # Jupyter notebook integration adapter
 ├── strategies/           # Save timing strategies
 │   ├── base.py           # Abstract strategy interface
 │   ├── batch.py          # Accumulate and save at end
 │   ├── sequential.py     # Save immediately
 │   └── interactive.py    # User-controlled saving
+├── notebook/             # Notebook generation subsystem
+│   ├── streaming_generator.py  # Efficient streaming notebook builder
+│   └── [various]         # Template and cell management
 ├── progress/             # Progress indication utilities
 │   └── [various]         # Spinner and progress components
 └── tests/                # Comprehensive test suite
@@ -51,26 +54,32 @@ The **Output Management subsystem** provides a flexible, extensible framework fo
 
 ### OutputManager
 
-The central orchestrator that coordinates all output operations:
+The central orchestrator that coordinates ALL output operations through a unified pipeline:
 
 ```python
 from model_checker.output import OutputManager
+from model_checker.output.config import OutputConfig
 
-# Initialize with build module
-manager = OutputManager(build_module)
+# Initialize with configuration
+config = OutputConfig.from_cli_args(args)
+manager = OutputManager(config, interactive_manager)
+
+# Set module context for notebook generation
+manager.set_module_context(module_vars, source_path)
 
 # Save an example result
 manager.save_example('EXAMPLE_1', example_data, formatted_output)
 
-# Finalize batch operations
+# Finalize all outputs including notebooks
 manager.finalize()
 ```
 
 **Responsibilities**:
-- Coordinate formatters and strategies
+- Coordinate formatters and strategies through unified pipeline
 - Manage output directory creation
 - Handle interactive user prompts
 - Collect and organize model data
+- Generate ALL output formats including notebooks
 
 ### Output Configuration
 
@@ -84,20 +93,21 @@ config = OutputConfig.from_cli_args(args)
 
 # Or create manually
 config = OutputConfig(
-    formats=['markdown', 'json'],  # notebook handled separately
+    formats=['markdown', 'json', 'notebook'],  # All formats unified
     mode='batch',
     sequential_files='multiple',
     save_output=True
 )
 
 # Check enabled formats
-if config.is_format_enabled('markdown'):
-    # Generate markdown documentation
+if config.is_format_enabled('notebook'):
+    # Notebook generated through unified pipeline
     pass
 
 # CLI Usage:
-# --save              # Save all formats
-# --save markdown     # Save only markdown
+# --save                    # Save ALL formats (markdown, json, notebook)
+# --save markdown           # Save only markdown
+# --save markdown jupyter   # Save markdown and notebook
 # --save json markdown  # Save specific formats
 ```
 
@@ -167,26 +177,28 @@ from model_checker.builder import BuildModule
 # Load module with examples
 build_module = BuildModule(flags)
 
-# OutputManager handles everything
-# (created automatically by BuildModule)
+# OutputManager handles everything through unified pipeline
+# (created automatically by BuildModule with module context)
 build_module.run_examples()
+
+# All formats generated through unified architecture
 # Results saved according to configuration
 ```
 
 ### Command-Line Control
 
 ```bash
-# Generate all formats (default)
-python -m model_checker examples.py
+# Generate all formats (markdown, json, notebook)
+python -m model_checker examples.py --save
 
 # Generate specific formats
-python -m model_checker examples.py --output markdown json
+python -m model_checker examples.py --save markdown jupyter
 
 # Sequential mode with immediate saves
-python -m model_checker examples.py --output-mode sequential
+python -m model_checker examples.py --save --output-mode sequential
 
 # Interactive mode with user control
-python -m model_checker examples.py --interactive
+python -m model_checker examples.py --save --interactive
 ```
 
 ### Programmatic Usage
@@ -203,7 +215,10 @@ config = OutputConfig(
 )
 
 # Create manager with custom config
-manager = OutputManager(build_module, config=config)
+manager = OutputManager(config, interactive_manager=None)
+
+# Set module context for notebook generation
+manager.set_module_context(module_vars, source_path)
 
 # Process examples
 for name, example in examples.items():
@@ -272,6 +287,28 @@ model_data = collect_model_data(
 # - proposition evaluations
 # - formatted output
 ```
+
+## Unified Architecture
+
+The output package implements a **unified pipeline** where ALL output formats (markdown, json, notebook) are generated through the same architecture:
+
+### Key Benefits
+- **Single Responsibility**: OutputManager handles all format generation
+- **No Duplicate Logic**: All formats use the same save strategies
+- **Consistent Behavior**: `--save` generates all formats uniformly
+- **Easy Extension**: New formats integrate through the same pipeline
+
+### Architecture Flow
+1. **Configuration**: OutputConfig determines enabled formats
+2. **Context Setup**: Module variables passed via `set_module_context()`
+3. **Example Processing**: Each example saved through formatters
+4. **Finalization**: All formats generated including notebooks
+
+### Notebook Integration
+Notebooks are generated through the unified pipeline using:
+- **NotebookFormatter**: Adapter between formatter interface and streaming generator
+- **StreamingNotebookGenerator**: Efficient notebook creation without memory overhead
+- **Module Context**: Semantic theories and settings passed through OutputManager
 
 ## File Organization
 

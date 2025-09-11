@@ -8,6 +8,7 @@
 utils/
 ├── README.md               # This file - comprehensive utility documentation
 ├── __init__.py            # Package initialization and exports
+├── types.py               # Type definitions and aliases for type safety
 ├── api.py                 # Theory and example access functions
 ├── bitvector.py           # Bit vector operations and conversions
 ├── context.py             # Z3 context management
@@ -18,10 +19,8 @@ utils/
 ├── z3_helpers.py          # Z3 constraint helpers
 └── tests/                 # Comprehensive test suite
     ├── __init__.py
-    ├── test_bitvector.py
-    ├── test_context.py
-    ├── test_parsing.py
-    └── test_z3_helpers.py
+    ├── unit/              # Unit tests for individual modules
+    └── conftest.py        # Test configuration and fixtures
 ```
 
 ## Overview
@@ -37,6 +36,7 @@ The **utils** package provides essential utility functions for the ModelChecker 
 5. **Version Management**: Track compatibility and generate licenses
 6. **API Functions**: Access theories and examples programmatically
 7. **Test Utilities**: Run model checking tests with detailed analysis
+8. **Type Safety**: Comprehensive type hints ensure code correctness and improved development experience
 
 ### Integration Context
 
@@ -49,20 +49,47 @@ The utils package serves as the foundation for many ModelChecker operations:
 
 ## Module Reference
 
+### types.py - Type Definitions and Safety
+
+Provides type aliases and shared types for enhanced type safety across the utils package.
+
+```python
+from model_checker.utils.types import Z3Expr, PathLike, ConfigDict
+
+# Z3 expression types - covers all common Z3 objects
+constraint: Z3Expr = z3.And(x > 0, y < 10)
+
+# Path-like objects for file operations  
+config_path: PathLike = "/path/to/config.json"  # str or Path
+
+# Configuration dictionaries
+settings: ConfigDict = {"timeout": 5000, "logic": "QF_BV"}
+```
+
+**Key Type Aliases:**
+- `Z3Expr`: Union of Z3 expression types (BoolRef, ArithRef, etc.)
+- `Z3Sort`: Union of Z3 sort types  
+- `PathLike`: String or Path objects for file operations
+- `ConfigDict`: Dictionary with string keys for configuration
+- `TableRow`, `TableData`: Types for tabular data formatting
+- `VersionTuple`: Three-integer tuple for version numbers
+- `ColorCode`: String type for ANSI color codes
+
 ### parsing.py - Expression Parsing
 
 Converts infix logical expressions to prefix notation for internal processing.
 
 ```python
 from model_checker.utils import parse_expression, op_left_right
+from typing import List, Tuple, Any
 
-# Parse a simple expression
-tokens = ['(', 'A', '\\wedge', 'B', ')']
-prefix, complexity = parse_expression(tokens)
+# Parse a simple expression with type safety
+tokens: List[str] = ['(', 'A', '\\wedge', 'B', ')']
+prefix: List[Any], complexity: int = parse_expression(tokens)
 # Result: ['\\wedge', ['A'], ['B']], 1
 
-# Extract operator and operands
-operator, left, right = op_left_right(['\\wedge', 'A', 'B'])
+# Extract operator and operands with proper typing
+operator: str, left: List[str], right: List[str] = op_left_right(['\\wedge', 'A', 'B'])
 # Result: '\\wedge', ['A'], ['B']
 ```
 
@@ -78,17 +105,19 @@ Provides conversions between integers, bit vectors, and state representations.
 from model_checker.utils import (
     binary_bitvector, bitvec_to_substates, bitvec_to_worldstate
 )
+from z3 import BitVecRef
+from typing import Any, Optional
 
-# Create a bit vector from integer
-bv = binary_bitvector(5, N=3)  # 101 in binary
+# Create a bit vector from integer with type safety
+bv: str = binary_bitvector(BitVecRef(5, 3), N=3)  # 101 in binary
 
 # Convert to state representation
-states = bitvec_to_substates(bv, N=3)
+states: str = bitvec_to_substates(bv, N=3)
 # Result: 'a.c' (states a and c are true)
 
 # Convert to world state format
-world = bitvec_to_worldstate(bv, N=3)
-# Result: {'a': True, 'b': False, 'c': True}
+world: str = bitvec_to_worldstate(bv, N=Optional[int])
+# Result: Simple world state representation
 ```
 
 **Key Functions**:
@@ -294,6 +323,8 @@ result = run_test(
 2. **No External Dependencies**: Core utilities rely only on Python stdlib and Z3
 3. **Stateless Functions**: Most utilities are pure functions without side effects
 4. **Consistent Interfaces**: Similar operations use similar parameter patterns
+5. **Comprehensive Type Safety**: All functions include complete type hints for better IDE support and error detection
+6. **Type Alias Strategy**: Custom types.py module provides consistent type definitions across all utils
 
 ### Performance Considerations
 

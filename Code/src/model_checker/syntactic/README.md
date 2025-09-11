@@ -8,18 +8,17 @@
 syntactic/
 ├── README.md               # This file - comprehensive syntactic documentation
 ├── __init__.py            # Package initialization and exports
+├── types.py               # Type aliases and protocol definitions
 ├── atoms.py               # Z3 atomic propositions (AtomSort, AtomVal)
 ├── sentence.py            # Sentence class for formula representation
 ├── operators.py           # Operator and DefinedOperator base classes
 ├── collection.py          # OperatorCollection registry system
 ├── syntax.py              # Syntax processor for argument construction
+├── errors.py              # Syntactic error definitions
 └── tests/                 # Comprehensive test suite
     ├── __init__.py        # Test package initialization
-    ├── test_atoms.py      # Tests for atomic propositions
-    ├── test_sentence.py   # Tests for sentence processing
-    ├── test_operators.py  # Tests for operator functionality
-    ├── test_collection.py # Tests for operator collection
-    └── test_syntax.py     # Tests for syntax processing
+    ├── unit/              # Unit tests for individual components
+    └── integration/       # Integration tests for component interactions
 ```
 
 ## Overview
@@ -33,6 +32,7 @@ The **syntactic package** provides the core logical formula processing framework
 3. **Syntactic Analysis**: Parse complex logical formulas, validate operator usage, and detect circular definitions
 4. **Z3 Integration**: Seamless integration with Z3 solver for atomic propositions and constraint handling
 5. **Theory Independence**: Provides a neutral framework that all theories can build upon
+6. **Type Safety**: Comprehensive type hints ensure code correctness and improved development experience
 
 ### Integration Context
 
@@ -43,6 +43,31 @@ The syntactic package serves as the bridge between:
 
 ## Core Components
 
+### types.py - Type Definitions and Protocols
+
+Defines type aliases and protocols for type safety throughout the package:
+
+```python
+from model_checker.syntactic.types import FormulaString, PrefixList, ISemantics
+
+# Type aliases for clarity
+formula: FormulaString = "(p ∧ q)"
+prefix: PrefixList = ["∧", "p", "q"]
+
+# Protocol for semantics integration
+class MySemantics(ISemantics):
+    def evaluate(self, *args) -> z3.BoolRef:
+        """Implement semantic evaluation."""
+        # Implementation here
+```
+
+**Key Type Definitions:**
+- `FormulaString`: String representing logical formulas
+- `PrefixList`: Recursive list structure for prefix notation
+- `OperatorName`: String identifier for operators
+- `AtomType`: Z3 datatype reference for atomic propositions
+- `ISemantics`: Protocol defining semantic interface requirements
+
 ### atoms.py - Z3 Atomic Propositions
 
 Provides the foundation for atomic propositions using Z3's sort system:
@@ -51,8 +76,8 @@ Provides the foundation for atomic propositions using Z3's sort system:
 from model_checker.syntactic import AtomSort, AtomVal
 
 # AtomSort is the Z3 sort for all atomic propositions
-atom_p = AtomVal(0)  # Creates constant "AtomSort!val!0"
-atom_q = AtomVal(1)  # Creates constant "AtomSort!val!1"
+atom_p = AtomVal(0)  # Creates constant "AtomSort!val!0" -> AtomType
+atom_q = AtomVal(1)  # Creates constant "AtomSort!val!1" -> AtomType
 
 # These atoms can be used in Z3 constraints
 from z3 import Solver, sat
@@ -67,22 +92,23 @@ The `Sentence` class represents logical formulas with comprehensive metadata:
 
 ```python
 from model_checker.syntactic import Sentence
+from model_checker.syntactic.types import FormulaString
 
-# Create sentences from infix notation
-atomic = Sentence("p")
-negation = Sentence("\\neg p")
-conjunction = Sentence("(p \\wedge q)")
-complex = Sentence("((p \\rightarrow q) \\wedge (q \\rightarrow r))")
+# Create sentences from infix notation - now with type safety
+atomic: Sentence = Sentence("p")
+negation: Sentence = Sentence("\\neg p") 
+conjunction: Sentence = Sentence("(p \\wedge q)")
+complex: Sentence = Sentence("((p \\rightarrow q) \\wedge (q \\rightarrow r))")
 
-# Access parsed structure
-print(atomic.prefix_sentence)      # ['p']
-print(conjunction.prefix_sentence) # ['\\wedge', ['p'], ['q']]
-print(conjunction.complexity)      # 1 (nesting depth)
+# Access parsed structure with proper typing
+print(atomic.prefix_sentence)      # ['p'] -> PrefixList
+print(conjunction.prefix_sentence) # ['\\wedge', ['p'], ['q']] -> PrefixList
+print(conjunction.complexity)      # 1 (nesting depth) -> int
 
-# Sentence lifecycle phases:
-# 1. Creation: Stores infix and converts to prefix
-# 2. Type Update: Links to operator classes
-# 3. Object Update: Links to semantic operators
+# Sentence lifecycle phases with type validation:
+# 1. Creation: Stores infix and converts to prefix (FormulaString -> PrefixList)
+# 2. Type Update: Links to operator classes (OperatorCollection)
+# 3. Object Update: Links to semantic operators (ISemantics)
 # 4. Proposition Update: Builds evaluation proposition
 ```
 
@@ -92,26 +118,31 @@ Defines the foundation for all logical operators:
 
 ```python
 from model_checker.syntactic import Operator, DefinedOperator
+from model_checker.syntactic.types import ISemantics, OperatorName
+from typing import Any, List, Dict
 
-# Primitive operator example
+# Primitive operator example with type hints
 class Negation(Operator):
-    name = "\\neg"
-    arity = 1
+    name: OperatorName = "\\neg"
+    arity: int = 1
     
-    def true_at(self, world, sentence):
+    def __init__(self, semantics: ISemantics) -> None:
+        super().__init__(semantics)
+    
+    def true_at(self, world: Any, sentence: 'Sentence') -> Any:
         """Negation is true when the negated sentence is false."""
         return self.semantics.false_at(world, sentence.arguments[0])
     
-    def false_at(self, world, sentence):
+    def false_at(self, world: Any, sentence: 'Sentence') -> Any:
         """Negation is false when the negated sentence is true."""
         return self.semantics.true_at(world, sentence.arguments[0])
 
-# Defined operator example (expressed via other operators)
+# Defined operator example with full type safety
 class Implication(DefinedOperator):
-    name = "\\rightarrow"
-    arity = 2
+    name: OperatorName = "\\rightarrow"
+    arity: int = 2
     
-    def derived_definition(self, p, q):
+    def derived_definition(self, p: Any, q: Any) -> List[Any]:
         """p → q is defined as ¬p ∨ q"""
         return [Disjunction, [Negation, p], q]
 ```
@@ -122,19 +153,21 @@ Manages all available operators for a theory:
 
 ```python
 from model_checker.syntactic import OperatorCollection
+from model_checker.syntactic.types import OperatorName, PrefixList
+from typing import Type, List, Any
 
-# Create collection and add operators
-collection = OperatorCollection()
+# Create collection and add operators with type safety
+collection: OperatorCollection = OperatorCollection()
 collection.add_operator(Negation)
 collection.add_operator([Conjunction, Disjunction])
 collection.add_operator(Implication)
 
 # Apply operators to parsed sentences
-parsed = collection.apply_operator(["\\rightarrow", ["p"], ["q"]])
+parsed: List[Any] = collection.apply_operator(["\\rightarrow", ["p"], ["q"]])
 # Result: [Implication, [Const("p", AtomSort)], [Const("q", AtomSort)]]
 
-# Access operators by name
-neg_op = collection["\\neg"]
+# Access operators by name with proper typing
+neg_op: Type['Operator'] = collection["\\neg"]
 ```
 
 ### syntax.py - Argument Processing
@@ -143,23 +176,26 @@ Orchestrates the complete parsing and validation pipeline:
 
 ```python
 from model_checker.syntactic import Syntax
+from model_checker.syntactic.types import FormulaString
+from typing import List
 
-# Process logical argument
-syntax = Syntax(
+# Process logical argument with type safety
+syntax: Syntax = Syntax(
     infix_premises=["(p \\rightarrow q)", "(q \\rightarrow r)"],
     infix_conclusions=["(p \\rightarrow r)"],
     operator_collection=collection
 )
 
-# Access processed results
-print(len(syntax.all_sentences))    # Total unique sentences found
-print(len(syntax.sentence_letters)) # Atomic propositions used
-print(syntax.premises[0].operator)  # Linked operator instance
+# Access processed results with proper typing
+print(len(syntax.all_sentences))    # Total unique sentences found -> int
+print(len(syntax.sentence_letters)) # Atomic propositions used -> int
+print(syntax.premises[0].operator)  # Linked operator instance -> Optional[Operator]
 
 # Automatic validation includes:
 # - Operator dependency checking
-# - Circular definition detection
+# - Circular definition detection  
 # - Sentence structure validation
+# - Type consistency validation
 ```
 
 ## Usage Patterns

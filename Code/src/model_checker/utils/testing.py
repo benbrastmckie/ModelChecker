@@ -6,17 +6,18 @@ configurations and collecting detailed results.
 """
 
 import time
+from typing import List, Any, Dict, Optional, Type, Union
 
 
 def run_test(
-    example_case,
-    semantic_class,
-    proposition_class,
-    operator_collection,
-    syntax_class,
-    model_constraints,
-    model_structure,
-):
+    example_case: List[Any],
+    semantic_class: Type[Any],
+    proposition_class: Type[Any],
+    operator_collection: Any,
+    syntax_class: Type[Any],
+    model_constraints: Type[Any],
+    model_structure: Type[Any],
+) -> bool:
     """Run a model checking test with the given components.
     
     This function creates a complete model checking pipeline by instantiating
@@ -57,7 +58,7 @@ def run_test(
 class TestResultData:
     """Data class to hold detailed test analysis results."""
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.model_found = False
         self.check_result = False
         self.premise_evaluations = []
@@ -68,7 +69,7 @@ class TestResultData:
         self.error_message = None
         self.strategy_name = None
         
-    def is_valid_countermodel(self):
+    def is_valid_countermodel(self) -> bool:
         """Check if this represents a valid countermodel (true premises, false conclusions)."""
         if not self.model_found:
             return False
@@ -82,15 +83,15 @@ class TestResultData:
 
 
 def run_enhanced_test(
-    example_case,
-    semantic_class,
-    proposition_class,
-    operator_collection,
-    syntax_class,
-    model_constraints,
-    model_structure,
-    strategy_name="default"
-):
+    example_case: List[Any],
+    semantic_class: Type[Any],
+    proposition_class: Type[Any],
+    operator_collection: Any,
+    syntax_class: Type[Any],
+    model_constraints: Type[Any],
+    model_structure: Type[Any],
+    strategy_name: str = "default"
+) -> TestResultData:
     """Run a model checking test with enhanced data collection.
     
     This function extends run_test to capture detailed evaluation data
@@ -201,14 +202,14 @@ def run_enhanced_test(
 
 
 def run_strategy_test(
-    example_case,
-    strategy_name,
-    semantic_class=None,
-    proposition_class=None,
-    syntax_class=None,
-    model_constraints=None,
-    model_structure=None
-):
+    example_case: List[Any],
+    strategy_name: str,
+    semantic_class: Optional[Type[Any]] = None,
+    proposition_class: Optional[Type[Any]] = None,
+    syntax_class: Optional[Type[Any]] = None,
+    model_constraints: Optional[Type[Any]] = None,
+    model_structure: Optional[Type[Any]] = None
+) -> TestResultData:
     """Run a model checking test with a specific exclusion strategy.
     
     This is a convenience function that automatically creates the operator collection

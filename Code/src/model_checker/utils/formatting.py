@@ -6,9 +6,10 @@ standard error messages.
 """
 
 import string
+from typing import Set, FrozenSet, Union, Any, List
 
 
-def pretty_set_print(set_with_strings):
+def pretty_set_print(set_with_strings: Union[Set[Any], FrozenSet[Any]]) -> str:
     """Pretty print a set containing strings.
     
     Args:
@@ -31,7 +32,7 @@ def pretty_set_print(set_with_strings):
     return "{" + ", ".join(elements) + "}"
 
 
-def not_implemented_string(cl_name):
+def not_implemented_string(cl_name: str) -> str:
     """Return a message for NotImplemented Errors on Operator and Proposition classes.
     
     The error is raised when a user creates an Operator object or a Proposition object,
@@ -56,7 +57,7 @@ def not_implemented_string(cl_name):
                 f"subclass instead.")
 
 
-def flatten(structured_list):
+def flatten(structured_list: List[Any]) -> List[Any]:
     """Recursively flatten a nested list structure.
     
     Args:

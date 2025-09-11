@@ -7,12 +7,19 @@ This module provides the base classes for all logical operators in the model che
 """
 
 import inspect
+from typing import Optional, List, Dict, Any, Tuple, TYPE_CHECKING
+from abc import ABC, abstractmethod
 
 from model_checker.utils import (
     bitvec_to_substates,
     not_implemented_string,
     pretty_set_print,
 )
+from .types import ISemantics, OperatorName
+from .errors import ArityError
+
+if TYPE_CHECKING:
+    from .sentence import Sentence
 
 
 class Operator:
@@ -37,11 +44,11 @@ class Operator:
         semantics (object): The semantics object this operator uses for evaluation
     """
 
-    name = None
-    arity = None
-    primitive = True
+    name: Optional[OperatorName] = None
+    arity: Optional[int] = None
+    primitive: bool = True
 
-    def __init__(self, semantics):
+    def __init__(self, semantics: ISemantics) -> None:
         op_class = self.__class__.__name__
         if self.__class__ == Operator:
             raise NotImplementedError(not_implemented_string(op_class))
@@ -52,21 +59,21 @@ class Operator:
             )
         self.semantics = semantics
 
-    def __str__(self):
+    def __str__(self) -> str:
         return str(self.name)
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return str(self.name)
 
-    def __eq__(self, other):
+    def __eq__(self, other: object) -> bool:
         if isinstance(other, Operator):
             return self.name == other.name and self.arity == other.arity
         return False
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash((self.name, self.arity))
 
-    def general_print(self, sentence_obj, eval_point, indent_num, use_colors):
+    def general_print(self, sentence_obj: 'Sentence', eval_point: Dict[str, Any], indent_num: int, use_colors: bool) -> None:
         """Prints a general evaluation of a sentence at a given evaluation point.
 
         This method provides a standard way to print a sentence's evaluation results,
@@ -92,7 +99,7 @@ class Operator:
                 model_structure.recursive_print(arg, eval_point, indent_num, use_colors)
 
     # TODO: make this method more deterministic
-    def print_over_worlds(self, sentence, eval_point, all_worlds, indent_num, use_colors):
+    def print_over_worlds(self, sentence: 'Sentence', eval_point: Dict[str, Any], all_worlds: List[Any], indent_num: int, use_colors: bool) -> None:
         """Print evaluation details for modal/counterfactual operators across possible worlds.
 
         This method handles the printing of evaluation results for modal and counterfactual
@@ -189,7 +196,7 @@ class Operator:
                 alt_point["world"] = alt_world
                 model_structure.recursive_print(right_argument, alt_point, indent_num, use_colors)
     
-    def print_over_times(self, sentence_obj, eval_point, other_times, indent_num, use_colors):
+    def print_over_times(self, sentence_obj: 'Sentence', eval_point: Dict[str, Any], other_times: List[Any], indent_num: int, use_colors: bool) -> None:
         """Print evaluation details for temporal operators across different time points.
 
         This method handles the printing of evaluation results for temporal operators,
@@ -272,7 +279,7 @@ class DefinedOperator(Operator):
 
     primitive = False
 
-    def derived_definition(self, *args):
+    def derived_definition(self, *args: Any) -> List[Any]:
         """
         Returns the definition of the operator in terms of other operators.
         
@@ -293,11 +300,11 @@ class DefinedOperator(Operator):
             f"Derived operator class {self.__class__.__name__} must implement the derived_definition method."
         )
 
-    def __init__(self, semantics):
+    def __init__(self, semantics: ISemantics) -> None:
         super().__init__(semantics)
         self._validate_arity()
 
-    def _validate_arity(self):
+    def _validate_arity(self) -> None:
         """
         Validates that the operator's declared arity matches its implementation.
         

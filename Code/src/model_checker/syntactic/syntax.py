@@ -7,10 +7,13 @@ builds a structured representation of logical arguments.
 
 import time
 import inspect
+from typing import List, Optional, Dict, Set
 
 from model_checker.utils import flatten
-
 from .sentence import Sentence
+from .collection import OperatorCollection
+from .types import FormulaString
+from .errors import CircularDefinitionError
 
 
 class Syntax:
@@ -41,10 +44,10 @@ class Syntax:
 
     def __init__(
         self,
-        infix_premises,
-        infix_conclusions,
-        operator_collection,
-    ):
+        infix_premises: List[FormulaString],
+        infix_conclusions: List[FormulaString],
+        operator_collection: OperatorCollection,
+    ) -> None:
 
         # start timer
         self.start_time = time.time()
@@ -64,7 +67,10 @@ class Syntax:
         # check for interdefined operators
         self.circularity_check(operator_collection)
 
-    def initialize_sentences(self, infix_sentences):
+    def initialize_sentences(
+        self, 
+        infix_sentences: List[FormulaString]
+    ) -> List[Sentence]:
         """Processes a list of sentences and builds a comprehensive dictionary of all sentences and their subsentences.
         
         This method takes a list of infix sentences and:
@@ -135,7 +141,10 @@ class Syntax:
             sentence_objects.append(sentence)
         return sentence_objects
 
-    def circularity_check(self, operator_collection):
+    def circularity_check(
+        self,
+        operator_collection: OperatorCollection
+    ) -> None:
         """Validates operator dependencies and detects circular definitions.
         
         This method performs two key validation checks on the operator collection:

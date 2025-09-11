@@ -8,9 +8,10 @@ and license generation.
 import datetime
 import importlib
 from importlib.metadata import version
+from typing import Dict, Optional, Any
 
 
-def get_model_checker_version():
+def get_model_checker_version() -> str:
     """Get the current version of the model_checker package.
     
     Returns:
@@ -23,7 +24,7 @@ def get_model_checker_version():
         return "0.0.0-dev"
 
 
-def get_theory_version(theory_name):
+def get_theory_version(theory_name: str) -> str:
     """Get the version of a specific theory implementation.
     
     Args:
@@ -39,7 +40,7 @@ def get_theory_version(theory_name):
         return '0.0.0'
 
 
-def check_theory_compatibility(theory_name):
+def check_theory_compatibility(theory_name: str) -> bool:
     """Check if a theory is compatible with the current model_checker version.
     
     Args:
@@ -77,7 +78,11 @@ def check_theory_compatibility(theory_name):
         return False
 
 
-def get_license_template(license_type="GPL-3.0", author_info=None, source_theory_info=None):
+def get_license_template(
+    license_type: str = "GPL-3.0",
+    author_info: Optional[Dict[str, Any]] = None,
+    source_theory_info: Optional[Dict[str, Any]] = None
+) -> str:
     """Get license text for a specified license type with inheritance support.
     
     Args:
