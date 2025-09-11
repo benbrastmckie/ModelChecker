@@ -71,19 +71,39 @@ class BuildExample:
             TypeError: If parameters are invalid
             AttributeError: If required components are missing
         """
-        from model_checker.settings import SettingsManager
-        import z3
+        # Initialize Z3 context and store module reference
+        self._initialize_z3_context()
+        self.build_module = build_module
         
-        # Reset Z3 context to ensure a clean state for this example
+        # Validate inputs and extract components
+        self._validate_and_extract_components(semantic_theory, example_case)
+        
+        # Setup settings with proper validation
+        self._initialize_settings(build_module, theory_name)
+        
+        # Build model structure and interpret
+        self._build_model_structure()
+    
+    def _initialize_z3_context(self) -> None:
+        """Reset Z3 context to ensure a clean state for this example."""
+        import z3
         # This helps ensure different examples don't interfere with each other
         try:
             z3.main_ctx().solver.reset()
         except Exception:
             pass
-            
-        # Store build_module reference
-        self.build_module = build_module
+    
+    def _validate_and_extract_components(
+        self,
+        semantic_theory: Dict[str, Any],
+        example_case: List[Any]
+    ) -> None:
+        """Validate and extract components from inputs.
         
+        Args:
+            semantic_theory: Dictionary containing the semantic theory implementation
+            example_case: List containing [premises, conclusions, settings]
+        """
         # Validate and extract components from semantic_theory
         self.semantics, self.proposition, self.operators, self.model_structure_class = (
             validate_semantic_theory(semantic_theory)
@@ -92,6 +112,19 @@ class BuildExample:
         
         # Validate and extract components from example_case
         self.premises, self.conclusions, self.example_settings = validate_example_case(example_case)
+    
+    def _initialize_settings(
+        self,
+        build_module: 'BuildModule',
+        theory_name: Optional[str]
+    ) -> None:
+        """Initialize settings with proper validation and context.
+        
+        Args:
+            build_module: Parent BuildModule instance
+            theory_name: Name of the theory for warning context
+        """
+        from model_checker.settings import SettingsManager
         
         # Determine if we're in comparison mode
         is_comparison = len(build_module.semantic_theories) > 1
@@ -112,7 +145,9 @@ class BuildExample:
             self.example_settings,
             build_module.module_flags
         )
-        
+    
+    def _build_model_structure(self) -> None:
+        """Build model structure and interpret sentences."""
         # Create syntax object
         self.example_syntax = Syntax(self.premises, self.conclusions, self.operators)
         
