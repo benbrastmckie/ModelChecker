@@ -12,20 +12,33 @@ The **models** package contains the core model checking components refactored fr
 models/
 ├── __init__.py          # Package initialization and exports
 ├── README.md           # This documentation file
+├── types.py            # Type definitions and protocols for type safety
+├── errors.py           # Custom exception classes for model checking
 ├── semantic.py         # SemanticDefaults - semantic evaluation framework
 ├── proposition.py      # PropositionDefaults - proposition management
 ├── constraints.py      # ModelConstraints - Z3 constraint generation
 ├── structure.py        # ModelDefaults - core model structure, solving, printing, and analysis
 └── tests/             # Comprehensive test suite
-    ├── __init__.py
-    ├── test_semantic.py
-    ├── test_proposition.py
-    ├── test_constraints.py
-    ├── test_structure.py
-    └── test_imports.py
+    ├── unit/          # Unit tests for individual components
+    ├── integration/   # Integration tests for component interactions
+    └── conftest.py    # Test configuration and fixtures
 ```
 
 ## Component Overview
+
+### types.py - Type Definitions and Safety
+
+The `types.py` module provides comprehensive type definitions, aliases, and protocols to ensure type safety throughout the models package.
+
+**Key Features**:
+- Z3 type aliases (Z3Expr, Z3Model, Z3Solver)
+- Model checking types (Settings, OperatorDict, EvaluationPoint)
+- Constraint types (ConstraintList, ConstraintGenerator)
+- Protocol definitions (ISemantics, IProposition)
+
+### errors.py - Custom Exception Classes
+
+Custom exception classes for better error handling and debugging in model checking operations.
 
 ### semantic.py - Semantic Evaluation Framework
 
@@ -71,20 +84,33 @@ The `ModelDefaults` class provides the complete model checking functionality inc
 - Counterexample presentation and debugging
 - Test file generation and export functionality
 
+## Type Safety
+
+The models package now includes comprehensive type hints throughout all modules, providing:
+
+- **Better IDE Support**: Full autocomplete and type checking in modern IDEs
+- **Early Error Detection**: Catch type mismatches at development time
+- **Improved Documentation**: Type signatures serve as inline documentation
+- **Protocol-Based Design**: Clear interfaces defined through protocols
+
 ## Usage Examples
 
-### Basic Model Creation
+### Basic Model Creation with Type Safety
 
 ```python
 from model_checker.models import ModelDefaults, SemanticDefaults
+from model_checker.models.types import Settings, ConstraintList
+from typing import Dict, Any
 
-# Create a model with default semantics
-model = ModelDefaults()
-model.N = 3  # 3 possible worlds
+# Create settings with proper typing
+settings: Settings = {"N": 3, "max_time": 5000}
 
-# Add semantic constraints
-semantics = SemanticDefaults()
-semantics.evaluate_formula(model, formula, world)
+# Create a model with type-safe semantics
+semantics: SemanticDefaults = SemanticDefaults(settings)
+model: ModelDefaults = ModelDefaults(model_constraints, settings)
+
+# Type-safe constraint generation
+constraints: ConstraintList = semantics.generate_constraints()
 ```
 
 ### Custom Semantic Implementation
