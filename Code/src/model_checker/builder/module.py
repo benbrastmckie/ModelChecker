@@ -49,15 +49,12 @@ class BuildModule:
         # Load the module and its attributes
         self._load_module()
         
-        # Store module variables for direct notebook generation
+        # Store module variables for output generation
         self.module_variables = {
             'semantic_theories': self.semantic_theories,
             'example_range': self.example_range,
             'general_settings': getattr(self.module, 'general_settings', {})
         }
-        
-        # Check if notebook generation is requested
-        self.generate_notebook = self._should_generate_notebook()
         
         # Initialize settings
         self._initialize_settings()
@@ -142,6 +139,13 @@ class BuildModule:
         
         # Create output manager with configuration only
         self.output_manager = OutputManager(config, self.interactive_manager)
+        
+        # Pass module context for notebook generation
+        if self.output_manager.should_save():
+            self.output_manager.set_module_context(
+                self.module_variables,
+                self.module_path
+            )
         
         # Create output directory if needed (skip for notebook-only)
         if self.output_manager.should_save():
@@ -250,54 +254,5 @@ class BuildModule:
             # Batch mode - save normally
             self.output_manager.save_example(display_name, model_data, formatted_output)
     
-    def _should_generate_notebook(self):
-        """Check if notebook generation is requested.
-        
-        Returns:
-            bool: True if notebook should be generated
-        """
-        if hasattr(self.module_flags, 'save') and self.module_flags.save is not None:
-            # Check if jupyter/notebook is in the save list
-            if isinstance(self.module_flags.save, list):
-                return 'jupyter' in self.module_flags.save or 'notebook' in self.module_flags.save
-        return False
     
-    def generate_notebook_if_requested(self):
-        """Generate notebook using streaming approach.
-        
-        This method generates a Jupyter notebook directly from module variables,
-        using streaming template decomposition for memory efficiency and scalability.
-        """
-        if not self.generate_notebook:
-            return
-        
-        try:
-            from model_checker.output.notebook.streaming_generator import StreamingNotebookGenerator
-            from datetime import datetime
-            
-            generator = StreamingNotebookGenerator()
-            
-            # Determine output path
-            if self.output_manager and self.output_manager.output_dir:
-                notebook_path = os.path.join(self.output_manager.output_dir, 'NOTEBOOK.ipynb')
-            else:
-                # Create output directory for notebook-only mode
-                timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-                output_dir = f'output_{timestamp}'
-                os.makedirs(output_dir, exist_ok=True)
-                notebook_path = os.path.join(output_dir, 'NOTEBOOK.ipynb')
-            
-            # Generate notebook using streaming approach
-            generator.generate_notebook_stream(
-                self.module_variables,
-                self.module_path,
-                notebook_path
-            )
-            
-            # Only print notebook path if not already printed as part of general output
-            if not self.output_manager.should_save():
-                # Only notebook generated, print its path
-                print(f"Notebook saved to: {notebook_path}")
-        except Exception as e:
-            print(f"Warning: Could not generate notebook: {e}")
 
