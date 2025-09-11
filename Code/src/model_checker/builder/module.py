@@ -8,7 +8,7 @@ settings, and coordinating the model checking process.
 # Standard library imports
 import os
 import sys
-from typing import TYPE_CHECKING, Any, Dict, Optional
+from typing import TYPE_CHECKING, Any, Dict, Optional, Tuple
 from types import ModuleType
 
 # Local imports
@@ -207,9 +207,39 @@ class BuildModule:
             # Just print normally if not saving
             example.print_model(example_name, theory_name)
             return
+        
+        # Capture and format output
+        raw_output, converted_output = self._capture_model_output(example, example_name, theory_name)
+        
+        # Collect and prepare model data
+        model_data = self._prepare_model_data(example, example_name, theory_name)
+        
+        # Determine display name
+        display_name = f"{example_name}_model{model_num}" if model_num is not None else example_name
+        
+        # Format and save the output
+        self._format_and_save_output(
+            example, example_name, display_name, model_data, 
+            converted_output, model_num
+        )
+    
+    def _capture_model_output(
+        self,
+        example: 'BuildExample',
+        example_name: str,
+        theory_name: TheoryName
+    ) -> Tuple[str, str]:
+        """Capture model output and convert ANSI colors.
+        
+        Args:
+            example: The BuildExample instance
+            example_name: Name of the example
+            theory_name: Name of the theory
             
-        # Import necessary components
-        from model_checker.output import ModelDataCollector, MarkdownFormatter, ANSIToMarkdown
+        Returns:
+            Tuple of (raw_output, converted_output)
+        """
+        from model_checker.output import ANSIToMarkdown
         import io
         import sys
         
@@ -224,13 +254,33 @@ class BuildModule:
             raw_output = captured_output.getvalue()
         finally:
             sys.stdout = old_stdout
-            
+        
         # Also print to console so user sees output
         print(raw_output, end='')
         
         # Convert ANSI colors if present
         converter = ANSIToMarkdown()
         converted_output = converter.convert(raw_output)
+        
+        return raw_output, converted_output
+    
+    def _prepare_model_data(
+        self,
+        example: 'BuildExample',
+        example_name: str,
+        theory_name: TheoryName
+    ) -> Dict[str, Any]:
+        """Collect and prepare model data for saving.
+        
+        Args:
+            example: The BuildExample instance
+            example_name: Name of the example
+            theory_name: Name of the theory
+            
+        Returns:
+            Dictionary containing model data
+        """
+        from model_checker.output import ModelDataCollector
         
         # Collect model data
         collector = ModelDataCollector()
@@ -248,12 +298,29 @@ class BuildModule:
         # Note: semantic_theory is not added to model_data because it contains
         # non-serializable class objects. It's passed separately to notebook generation.
         
-        # If this is part of an iteration, update the example name
-        if model_num is not None:
-            display_name = f"{example_name}_model{model_num}"
-        else:
-            display_name = example_name
-            
+        return model_data
+    
+    def _format_and_save_output(
+        self,
+        example: 'BuildExample',
+        example_name: str,
+        display_name: str,
+        model_data: Dict[str, Any],
+        converted_output: str,
+        model_num: Optional[int]
+    ) -> None:
+        """Format and save the output based on interactive or batch mode.
+        
+        Args:
+            example: The BuildExample instance
+            example_name: Name of the example
+            display_name: Display name for the output
+            model_data: Collected model data
+            converted_output: ANSI-converted output
+            model_num: Optional model number for iterations
+        """
+        from model_checker.output import MarkdownFormatter
+        
         # Format the output
         formatter = MarkdownFormatter(use_colors=True)
         formatted_output = formatter.format_example(model_data, converted_output)
