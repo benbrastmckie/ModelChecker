@@ -1,7 +1,7 @@
 """Notebook template for Exclusion theory with witness semantics."""
 
 from typing import Dict, List
-from model_checker.notebook.templates.base import DirectNotebookTemplate
+from .base import DirectNotebookTemplate
 
 
 class ExclusionNotebookTemplate(DirectNotebookTemplate):

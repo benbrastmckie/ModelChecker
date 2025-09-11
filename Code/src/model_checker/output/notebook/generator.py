@@ -91,7 +91,7 @@ class IndependentNotebookGenerator:
             return self.template_cache[class_name]
         
         # Import and instantiate appropriate template
-        from model_checker.notebook.template_loader import TemplateLoader
+        from .template_loader import TemplateLoader
         loader = TemplateLoader()
         template = loader.get_template_for_class(semantics_class)
         

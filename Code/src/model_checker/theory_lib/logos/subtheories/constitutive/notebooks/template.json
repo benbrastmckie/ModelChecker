@@ -1,0 +1,49 @@
+{
+  "setup_cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# {{THEORY_NAME}} Examples\n",
+        "\n",
+        "Generated from examples.py - {{DATE}}\n",
+        "\n",
+        "This notebook contains runnable examples for the {{THEORY_NAME}} theory.\n",
+        "Execute each cell to see countermodels or theorem validations."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import sys\n",
+        "from model_checker.jupyter import create_build_example\n",
+        "from model_checker.theory_lib.logos.semantic import LogosSemantics, LogosProposition, LogosModelStructure\n",
+        "from model_checker.theory_lib.logos.operators import LogosOperatorRegistry\n",
+        "\n",
+        "# Create operator registry for constitutive theory\n",
+        "# We need extensional operators as base plus constitutive operators\n",
+        "constitutive_registry = LogosOperatorRegistry()\n",
+        "constitutive_registry.load_subtheories(['extensional', 'constitutive'])\n",
+        "\n",
+        "# Build the semantic theory dictionary\n",
+        "theory = {\n",
+        "    'semantics': LogosSemantics,\n",
+        "    'proposition': LogosProposition,\n",
+        "    'model_structure': LogosModelStructure,\n",
+        "    'operators': constitutive_registry.registry\n",
+        "}"
+      ]
+    }
+  ],
+  "example_cell_template": {
+    "cell_type": "code",
+    "metadata": {},
+    "source": []
+  },
+  "result_cell_template": {
+    "cell_type": "markdown",
+    "metadata": {},
+    "source": []
+  }
+}

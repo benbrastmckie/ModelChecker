@@ -272,7 +272,7 @@ class BuildModule:
             return
         
         try:
-            from model_checker.notebook.streaming_generator import StreamingNotebookGenerator
+            from model_checker.output.notebook.streaming_generator import StreamingNotebookGenerator
             from datetime import datetime
             
             generator = StreamingNotebookGenerator()

@@ -6,7 +6,7 @@ used in examples.
 """
 
 from typing import Dict, List, Set
-from model_checker.notebook.templates.base import DirectNotebookTemplate
+from .base import DirectNotebookTemplate
 
 
 class LogosNotebookTemplate(DirectNotebookTemplate):
