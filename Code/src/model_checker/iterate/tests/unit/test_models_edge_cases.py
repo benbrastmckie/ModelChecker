@@ -390,8 +390,8 @@ class TestDifferenceCalculatorStateMethods(unittest.TestCase):
         # Test comparison
         comparisons = self.calculator._compare_state_evaluations(mock_new, mock_prev)
         
-        # Should detect evaluation differences
-        self.assertIsInstance(comparisons, list)
+        # Should return a dict (may be empty)
+        self.assertIsInstance(comparisons, dict)
     
     def test_calculate_differences_comprehensive(self):
         """Test comprehensive difference calculation with all state types."""
