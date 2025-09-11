@@ -530,6 +530,10 @@ class ModelRunner:
     ) -> None:
         """Process iterations for an example that supports model iteration.
         
+        This method orchestrates the iteration process, discovering the appropriate
+        theory-specific iteration function and routing to either generator or 
+        list-based iteration handling.
+        
         Args:
             example: The BuildExample instance
             example_name: Name of the example
@@ -540,140 +544,31 @@ class ModelRunner:
             progress: UnifiedProgress instance for tracking
         """
         try:
-            # Get the theory-specific iterate_example function
+            # Discover the theory-specific iteration function
             try:
-                # Dynamically discover the theory module from the semantic theory
-                module_name = self.build_module.loader.discover_theory_module_for_iteration(theory_name, semantic_theory)
-                
-                if not module_name:
-                    # Fallback: try theory_name as module name directly
-                    module_name = theory_name.lower()
-                
-                # Import the theory module to access its iterate function
-                theory_module = importlib.import_module(f"model_checker.theory_lib.{module_name}")
-                
-                # Check for generator version first
-                if hasattr(theory_module, 'iterate_example_generator'):
-                    theory_iterate_example = theory_module.iterate_example_generator
-                elif hasattr(theory_module, 'iterate_example'):
-                    theory_iterate_example = theory_module.iterate_example
-                else:
-                    raise ImportError(f"Theory module '{module_name}' does not provide an iterate_example function")
+                theory_iterate_example = self._discover_iteration_function(
+                    theory_name, semantic_theory
+                )
             except ImportError as e:
                 print(f"Error: {e}", file=sys.stderr)
                 return
             
-            # Check if theory supports generator interface
-            if hasattr(theory_iterate_example, '__wrapped__') and \
-               hasattr(theory_iterate_example.__wrapped__, 'returns_generator'):
+            # Check interface type and route to appropriate handler
+            if self._is_generator_interface(theory_iterate_example):
                 # Use generator interface for incremental display
-                self._run_generator_iteration(example, theory_iterate_example, example_name, theory_name, iterate_count)
-                return
-            
-            # Fallback to list-based iteration
-            model_structures = theory_iterate_example(example, max_iterations=iterate_count)
-            
-            # Skip the first model which is already printed
-            # Track distinct models for numbering
-            distinct_count = 1
-            # Use iterate_count for the expected total models rather than actual found models
-            expected_total = iterate_count
-            total_distinct = sum(1 for s in model_structures if not hasattr(s, '_is_isomorphic') or not s._is_isomorphic)
-            
-            for i, structure in enumerate(model_structures[1:], start=2):
-                # Only display non-isomorphic models with their differences
-                if not hasattr(structure, '_is_isomorphic') or not structure._is_isomorphic:
-                    distinct_count += 1
-                    
-                    # For the first model, just print it
-                    if distinct_count == 1:
-                        # Print model header
-                        print(f"MODEL {distinct_count}/{expected_total}")
-                        
-                        # Set the current model structure
-                        example.model_structure = structure
-                        
-                        # Print the model
-                        self.build_module._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
-                    else:
-                        # For subsequent models, first print the differences then the model
-                        # Print detailed differences between this model and the previous one
-                        previous_model = model_structures[i-2]  # The -2 is because i starts at 1, plus we want the previous model
-                        
-                        # Recalculate the detailed differences between this model and the previous one
-                        # This ensures we get the full detailed differences rather than just the summary
-                        # Get a valid previous model
-                        previous_idx = i - 2  # models_structures[0] is the first model, and we're at i=0 for the second model (1-indexed)
-                        if previous_idx >= 0 and previous_idx < len(model_structures):
-                            previous_model = model_structures[previous_idx]
-                                
-                            # Use the model structure's detect_model_differences if available
-                            # BUT only if model_differences hasn't already been set by the iterator
-                            if not hasattr(structure, 'model_differences') or structure.model_differences is None:
-                                try:
-                                    # First try using theory-specific difference detection
-                                    if hasattr(structure, 'detect_model_differences'):
-                                        structure.model_differences = structure.detect_model_differences(previous_model)
-                                        structure.previous_structure = previous_model
-                                    else:
-                                        # Check if structure has calculate_model_differences for legacy support
-                                        if hasattr(structure, 'calculate_model_differences'):
-                                            structure.model_differences = structure.calculate_model_differences(previous_model)
-                                            structure.previous_structure = previous_model
-                                except Exception as e:
-                                    print(f"\nError calculating detailed differences: {str(e)}")
-                        
-                        # Now print the differences
-                        try:
-                            # Each theory must provide its own print_model_differences method
-                            if hasattr(structure, 'print_model_differences'):
-                                structure.print_model_differences()
-                            else:
-                                print("Error: Theory does not provide print_model_differences method")
-                        except Exception as e:
-                            print(f"Error printing model differences: {str(e)}")
-                                
-                        # Print model header
-                        print(f"MODEL {distinct_count}/{expected_total}")
-                        
-                        # Set the current model structure
-                        example.model_structure = structure
-                        
-                        # Mark the last model to prevent partial output issues
-                        if distinct_count == total_distinct or distinct_count == expected_total:
-                            structure._is_last_model = True
-                            
-                        # Print the model
-                        self.build_module._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
-                    
-                # For isomorphic models that are skipped, we could optionally add a subtle indicator
-                # Uncomment to show skipped models
-                # elif hasattr(structure, '_is_isomorphic') and structure._is_isomorphic:
-                #     print(f"\n(Skipped isomorphic model variant {i})")
-            
-            # Print summary after all models have been displayed
-            distinct_count = sum(1 for s in model_structures if not hasattr(s, '_is_isomorphic') or not s._is_isomorphic)
-            
-            # Print any iteration debug messages if available
-            if hasattr(example, '_iterator') and hasattr(example._iterator, 'get_debug_messages'):
-                debug_messages = example._iterator.get_debug_messages()
-                if debug_messages:
-                    # Print a separator line first
-                    print()
-                    for msg in debug_messages:
-                        print(msg)
-            
-            # Termination info is now handled by the iterator's detailed report
-            
-            # Check if there was any partial output
-            if hasattr(example.model_structure, 'model_differences') and not hasattr(example.model_structure, '_is_last_model'):
-                # Clear out any partial difference output
-                print("\n" + "="*40)
+                self._run_generator_iteration(
+                    example, theory_iterate_example, 
+                    example_name, theory_name, iterate_count
+                )
+            else:
+                # Use list-based iteration
+                self._run_list_iteration(
+                    example, theory_iterate_example,
+                    example_name, theory_name, iterate_count
+                )
         
         except Exception as e:
-            print(f"Error during iteration: {str(e)}")
-            import traceback
-            print(traceback.format_exc())
+            self._handle_iteration_error(e)
     
     def _run_generator_iteration(self, example, theory_iterate_example, example_name, theory_name, iterate_count):
         """Run iteration using generator interface for incremental display.
@@ -874,3 +769,243 @@ class ModelRunner:
         except ValueError:
             print("Please enter a valid number or hit return to continue.")
             return self.prompt_for_iterations()
+    
+    def _discover_iteration_function(
+        self,
+        theory_name: TheoryName,
+        semantic_theory: TheoryDict
+    ) -> Any:
+        """Discover and load the theory-specific iteration function.
+        
+        Args:
+            theory_name: Name of the theory
+            semantic_theory: Theory configuration
+            
+        Returns:
+            The theory's iterate_example function
+            
+        Raises:
+            ImportError: If the theory module or iteration function cannot be found
+        """
+        import importlib
+        
+        # Dynamically discover the theory module from the semantic theory
+        module_name = self.build_module.loader.discover_theory_module_for_iteration(
+            theory_name, semantic_theory
+        )
+        
+        if not module_name:
+            # Fallback: try theory_name as module name directly
+            module_name = theory_name.lower()
+        
+        # Import the theory module to access its iterate function
+        theory_module = importlib.import_module(f"model_checker.theory_lib.{module_name}")
+        
+        # Check for generator version first
+        if hasattr(theory_module, 'iterate_example_generator'):
+            return theory_module.iterate_example_generator
+        elif hasattr(theory_module, 'iterate_example'):
+            return theory_module.iterate_example
+        else:
+            raise ImportError(
+                f"Theory module '{module_name}' does not provide an iterate_example function"
+            )
+    
+    def _is_generator_interface(self, theory_iterate_example: Any) -> bool:
+        """Check if the iteration function supports generator interface.
+        
+        Args:
+            theory_iterate_example: The theory's iteration function
+            
+        Returns:
+            True if function supports generator interface, False otherwise
+        """
+        return (hasattr(theory_iterate_example, '__wrapped__') and 
+                hasattr(theory_iterate_example.__wrapped__, 'returns_generator'))
+    
+    def _calculate_model_differences(
+        self,
+        structure: Any,
+        previous_idx: int,
+        model_structures: List[Any]
+    ) -> None:
+        """Calculate differences between current and previous model.
+        
+        Args:
+            structure: Current model structure
+            previous_idx: Index of the previous model
+            model_structures: List of all model structures
+        """
+        # Only calculate if not already set by iterator
+        if hasattr(structure, 'model_differences') and structure.model_differences is not None:
+            return
+            
+        # Get a valid previous model
+        if previous_idx >= 0 and previous_idx < len(model_structures):
+            previous_model = model_structures[previous_idx]
+            
+            try:
+                # First try using theory-specific difference detection
+                if hasattr(structure, 'detect_model_differences'):
+                    structure.model_differences = structure.detect_model_differences(previous_model)
+                    structure.previous_structure = previous_model
+                else:
+                    # Check if structure has calculate_model_differences for legacy support
+                    if hasattr(structure, 'calculate_model_differences'):
+                        structure.model_differences = structure.calculate_model_differences(previous_model)
+                        structure.previous_structure = previous_model
+            except Exception as e:
+                print(f"\nError calculating detailed differences: {str(e)}")
+    
+    def _display_model_differences(self, structure: Any) -> None:
+        """Display differences from previous model.
+        
+        Args:
+            structure: Model structure with difference information
+        """
+        try:
+            # Each theory must provide its own print_model_differences method
+            if hasattr(structure, 'print_model_differences'):
+                structure.print_model_differences()
+            else:
+                print("Error: Theory does not provide print_model_differences method")
+        except Exception as e:
+            print(f"Error printing model differences: {str(e)}")
+    
+    def _display_iteration_model(
+        self,
+        example: 'BuildExample',
+        structure: Any,
+        example_name: str,
+        theory_name: TheoryName,
+        distinct_count: int,
+        expected_total: int,
+        total_distinct: int
+    ) -> None:
+        """Display a single iteration model with appropriate formatting.
+        
+        Args:
+            example: The BuildExample instance
+            structure: Model structure to display
+            example_name: Name of the example
+            theory_name: Name of the theory
+            distinct_count: Current distinct model count
+            expected_total: Total expected models
+            total_distinct: Total distinct models found
+        """
+        # Print model header
+        print(f"MODEL {distinct_count}/{expected_total}")
+        
+        # Set the current model structure
+        example.model_structure = structure
+        
+        # Mark the last model to prevent partial output issues
+        if distinct_count == total_distinct or distinct_count == expected_total:
+            structure._is_last_model = True
+        
+        # Print the model
+        self.build_module._capture_and_save_output(
+            example, example_name, theory_name, model_num=distinct_count
+        )
+    
+    def _display_iteration_summary(
+        self,
+        example: 'BuildExample',
+        model_structures: List[Any]
+    ) -> None:
+        """Display iteration summary and debug messages.
+        
+        Args:
+            example: The BuildExample instance
+            model_structures: List of all model structures found
+        """
+        # Print summary after all models have been displayed
+        distinct_count = sum(
+            1 for s in model_structures 
+            if not hasattr(s, '_is_isomorphic') or not s._is_isomorphic
+        )
+        
+        # Print any iteration debug messages if available
+        if hasattr(example, '_iterator') and hasattr(example._iterator, 'get_debug_messages'):
+            debug_messages = example._iterator.get_debug_messages()
+            if debug_messages:
+                # Print a separator line first
+                print()
+                for msg in debug_messages:
+                    print(msg)
+        
+        # Check if there was any partial output
+        if (hasattr(example.model_structure, 'model_differences') and 
+            not hasattr(example.model_structure, '_is_last_model')):
+            # Clear out any partial difference output
+            print("\n" + "="*40)
+    
+    def _handle_iteration_error(self, e: Exception) -> None:
+        """Handle errors during iteration.
+        
+        Args:
+            e: The exception that occurred
+        """
+        print(f"Error during iteration: {str(e)}")
+        import traceback
+        print(traceback.format_exc())
+    
+    def _run_list_iteration(
+        self,
+        example: 'BuildExample',
+        theory_iterate_example: Any,
+        example_name: str,
+        theory_name: TheoryName,
+        iterate_count: int
+    ) -> None:
+        """Run list-based iteration for theories that return all models at once.
+        
+        Args:
+            example: The BuildExample instance
+            theory_iterate_example: Theory iteration function
+            example_name: Name of the example
+            theory_name: Name of the theory  
+            iterate_count: Number of models to find
+        """
+        # Get all models at once
+        model_structures = theory_iterate_example(example, max_iterations=iterate_count)
+        
+        # Skip the first model which is already printed
+        # Track distinct models for numbering
+        distinct_count = 1
+        # Use iterate_count for the expected total models rather than actual found models
+        expected_total = iterate_count
+        total_distinct = sum(
+            1 for s in model_structures 
+            if not hasattr(s, '_is_isomorphic') or not s._is_isomorphic
+        )
+        
+        for i, structure in enumerate(model_structures[1:], start=2):
+            # Only display non-isomorphic models with their differences
+            if not hasattr(structure, '_is_isomorphic') or not structure._is_isomorphic:
+                distinct_count += 1
+                
+                # For the first additional model, just print it
+                if distinct_count == 2:
+                    # First additional model - no differences to show
+                    self._display_iteration_model(
+                        example, structure, example_name, theory_name,
+                        distinct_count, expected_total, total_distinct
+                    )
+                else:
+                    # For subsequent models, show differences first
+                    # Calculate differences if needed
+                    previous_idx = i - 2  # Adjust for 0-based indexing
+                    self._calculate_model_differences(structure, previous_idx, model_structures)
+                    
+                    # Display differences
+                    self._display_model_differences(structure)
+                    
+                    # Display the model
+                    self._display_iteration_model(
+                        example, structure, example_name, theory_name,
+                        distinct_count, expected_total, total_distinct
+                    )
+        
+        # Display summary
+        self._display_iteration_summary(example, model_structures)
