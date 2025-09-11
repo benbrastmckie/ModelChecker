@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 from .config import OutputConfig
 from .constants import (
     MODE_BATCH, MODE_SEQUENTIAL, MODE_INTERACTIVE,
-    FORMAT_MARKDOWN, FORMAT_JSON,
+    FORMAT_MARKDOWN, FORMAT_JSON, FORMAT_NOTEBOOK,
     DEFAULT_FORMATS, EXTENSIONS
 )
 from .helpers import (
@@ -81,7 +81,7 @@ class OutputManager:
     def _initialize_components(self):
         """Initialize formatters and strategy based on configuration."""
         # Import formatters lazily to avoid circular imports
-        from .formatters import MarkdownFormatter, JSONFormatter
+        from .formatters import MarkdownFormatter, JSONFormatter, NotebookFormatter
         from .strategies import BatchOutputStrategy, SequentialOutputStrategy, InteractiveOutputStrategy
         
         # Initialize formatters based on enabled formats
@@ -90,7 +90,8 @@ class OutputManager:
             self.formatters[FORMAT_MARKDOWN] = MarkdownFormatter()
         if self.config.is_format_enabled(FORMAT_JSON):
             self.formatters[FORMAT_JSON] = JSONFormatter()
-        # Note: Notebook generation is now handled by StreamingNotebookGenerator in BuildModule
+        if self.config.is_format_enabled(FORMAT_NOTEBOOK):
+            self.formatters[FORMAT_NOTEBOOK] = NotebookFormatter()
         
         # Initialize strategy based on mode
         if self.mode == MODE_BATCH:

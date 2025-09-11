@@ -2,7 +2,7 @@
 
 from typing import List, Optional, Set
 from .constants import (
-    DEFAULT_FORMATS, FORMAT_MARKDOWN, FORMAT_JSON,
+    DEFAULT_FORMATS, FORMAT_MARKDOWN, FORMAT_JSON, FORMAT_NOTEBOOK,
     MODE_BATCH, MODE_SEQUENTIAL, MODE_INTERACTIVE,
     SEQUENTIAL_SINGLE, SEQUENTIAL_MULTIPLE
 )
@@ -98,8 +98,8 @@ class OutputConfig:
                         formats.append(FORMAT_MARKDOWN)
                     elif fmt == 'json':
                         formats.append(FORMAT_JSON)
-                    # jupyter format is now handled by StreamingNotebookGenerator
-                    # not added to formats list here
+                    elif fmt in ('notebook', 'jupyter'):
+                        formats.append(FORMAT_NOTEBOOK)
         else:
             # No --save flag, no output saved
             save_output = False

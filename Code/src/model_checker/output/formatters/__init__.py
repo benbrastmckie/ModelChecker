@@ -3,11 +3,12 @@
 from .base import IOutputFormatter
 from .markdown import MarkdownFormatter, ANSIToMarkdown
 from .json import JSONFormatter
-# JupyterNotebookFormatter removed - use StreamingNotebookGenerator instead
+from .notebook import NotebookFormatter
 
 __all__ = [
     'IOutputFormatter',
     'MarkdownFormatter',
     'ANSIToMarkdown', 
-    'JSONFormatter'
+    'JSONFormatter',
+    'NotebookFormatter'
 ]

@@ -257,9 +257,9 @@ class BuildModule:
             bool: True if notebook should be generated
         """
         if hasattr(self.module_flags, 'save') and self.module_flags.save is not None:
-            # Check if jupyter is in the save list or if save is empty (all formats)
+            # Check if jupyter/notebook is in the save list
             if isinstance(self.module_flags.save, list):
-                return 'jupyter' in self.module_flags.save or len(self.module_flags.save) == 0
+                return 'jupyter' in self.module_flags.save or 'notebook' in self.module_flags.save
         return False
     
     def generate_notebook_if_requested(self):
