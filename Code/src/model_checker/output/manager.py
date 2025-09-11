@@ -77,6 +77,28 @@ class OutputManager:
             
         # Track saved models in interactive mode
         self._interactive_saves = {}
+        
+        # Module context for notebook generation
+        self._module_vars = None
+        self._source_path = None
+    
+    def set_module_context(self, module_vars: Dict[str, Any], source_path: str):
+        """Set module context for notebook generation.
+        
+        Must be called before save_example if notebook format is enabled.
+        
+        Args:
+            module_vars: Module variables including semantic_theories
+            source_path: Path to the source examples file
+        """
+        self._module_vars = module_vars
+        self._source_path = source_path
+        
+        # Pass context to notebook formatter if it exists
+        if FORMAT_NOTEBOOK in self.formatters:
+            notebook_formatter = self.formatters[FORMAT_NOTEBOOK]
+            if hasattr(notebook_formatter, 'set_context'):
+                notebook_formatter.set_context(module_vars, source_path)
     
     def _initialize_components(self):
         """Initialize formatters and strategy based on configuration."""
@@ -206,7 +228,7 @@ class OutputManager:
                 logger.warning(f"Failed to save {format_name} for {example_name}: {e}")
     
     def finalize(self):
-        """Finalize output and save JSON/Markdown files only."""
+        """Finalize output and save all formats including notebooks."""
         # Let strategy handle finalization
         if hasattr(self.strategy, 'finalize'):
             self.strategy.finalize(lambda name, outputs: self._finalize_outputs(name, outputs))
@@ -219,7 +241,9 @@ class OutputManager:
         if self.config.is_format_enabled(FORMAT_JSON):
             self._save_models_json()
         
-        # Note: Notebook generation is now handled independently in BuildModule
+        # Generate notebook if enabled through unified pipeline
+        if self.config.is_format_enabled(FORMAT_NOTEBOOK):
+            self._generate_notebook()
     
     def _finalize_outputs(self, name: str, outputs: Dict):
         """Helper to finalize outputs from strategy.
@@ -252,6 +276,40 @@ class OutputManager:
                 summary_path = os.path.join(self.output_dir, 'summary.json')
                 save_json(summary_path, outputs[FORMAT_JSON])
         
+    def _generate_notebook(self):
+        """Generate Jupyter notebook using unified pipeline.
+        
+        Uses the NotebookFormatter through the streaming approach,
+        integrating seamlessly with the output manager architecture.
+        """
+        if FORMAT_NOTEBOOK not in self.formatters:
+            logger.warning("Notebook formatter not initialized")
+            return
+            
+        notebook_formatter = self.formatters[FORMAT_NOTEBOOK]
+        
+        # Ensure context has been set
+        if not self._module_vars or not self._source_path:
+            logger.warning("Module context not set for notebook generation")
+            return
+        
+        try:
+            # Use the streaming method for efficient generation
+            notebook_path = os.path.join(self.output_dir, 'NOTEBOOK.ipynb')
+            
+            if hasattr(notebook_formatter, 'format_for_streaming'):
+                # Direct streaming for efficiency
+                notebook_formatter.format_for_streaming(notebook_path)
+                logger.info(f"Notebook generated: {notebook_path}")
+            else:
+                # Fallback to batch method if streaming not available
+                notebook_content = notebook_formatter.format_batch([])
+                save_file(notebook_path, notebook_content)
+                logger.info(f"Notebook generated via batch: {notebook_path}")
+                
+        except Exception as e:
+            logger.warning(f"Failed to generate notebook: {e}")
+    
     def _save_models_json(self):
         """Save models data to JSON file.
         

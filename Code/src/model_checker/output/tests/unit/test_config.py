@@ -4,7 +4,7 @@ import unittest
 from unittest.mock import Mock, MagicMock
 from model_checker.output.config import OutputConfig
 from model_checker.output.constants import (
-    DEFAULT_FORMATS, FORMAT_MARKDOWN, FORMAT_JSON,
+    DEFAULT_FORMATS, FORMAT_MARKDOWN, FORMAT_JSON, FORMAT_NOTEBOOK,
     MODE_BATCH, MODE_SEQUENTIAL, MODE_INTERACTIVE,
     SEQUENTIAL_SINGLE, SEQUENTIAL_MULTIPLE
 )
@@ -137,16 +137,16 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN, FORMAT_JSON})
     
-    def test_from_cli_args_save_flag_ignores_jupyter(self):
-        """Test --save jupyter is ignored (handled elsewhere)."""
+    def test_from_cli_args_save_flag_includes_jupyter(self):
+        """Test --save jupyter is included in enabled formats."""
         args = Mock()
         args.save = ['markdown', 'jupyter', 'json']
         
         config = OutputConfig.from_cli_args(args)
         
         self.assertTrue(config.save_output)
-        # jupyter should not be in formats (handled by StreamingNotebookGenerator)
-        self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN, FORMAT_JSON})
+        # jupyter should be in formats (unified pipeline)
+        self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN, FORMAT_JSON, FORMAT_NOTEBOOK})
     
     def test_from_cli_args_save_flag_none_value(self):
         """Test save attribute is None (not provided)."""

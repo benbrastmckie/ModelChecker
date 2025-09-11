@@ -271,10 +271,7 @@ def main():
         module.comparison.run_comparison()
         return
 
-    # Generate notebook FIRST to ensure template purity (before any execution)
-    module.generate_notebook_if_requested()
-    
-    # Then run examples for console output and documentation capture
+    # Run examples for console output and documentation capture
     module.runner.run_examples()
 
 def run():
