@@ -5,6 +5,7 @@ semantic evaluation framework that all theory implementations extend.
 """
 
 from functools import reduce
+from typing import Dict, List, Any, Optional, Set, Union, Callable, Tuple, TYPE_CHECKING
 from z3 import (
     And,
     ArrayRef,
@@ -16,7 +17,12 @@ from z3 import (
     Not,
     SetAdd,
     simplify,
+    BitVecRef,
+    BoolRef,
 )
+
+if TYPE_CHECKING:
+    from .types import Settings, ConstraintList
 
 
 class SemanticDefaults:
@@ -43,7 +49,7 @@ class SemanticDefaults:
         conclusion_behavior (str): How conclusions should be handled for validity
     """
 
-    def __init__(self, combined_settings):
+    def __init__(self, combined_settings: 'Settings') -> None:
         # Reset any global state to avoid cross-example interference
         self._reset_global_state()
         
@@ -73,7 +79,7 @@ class SemanticDefaults:
         self.premise_behavior = None
         self.conclusion_behavior = None
         
-    def _reset_global_state(self):
+    def _reset_global_state(self) -> None:
         """Reset any global state that could cause interference between examples.
         
         Following the fail-fast philosophy, this method explicitly resets all cached
@@ -101,7 +107,7 @@ class SemanticDefaults:
         # Reset general caches
         self._cached_values = {}
 
-    def fusion(self, bit_s, bit_t):
+    def fusion(self, bit_s: BitVecRef, bit_t: BitVecRef) -> BitVecRef:
         """Performs the fusion operation on two bit vectors.
         
         In most modal logics, fusion corresponds to combining or merging states.
@@ -117,7 +123,7 @@ class SemanticDefaults:
         """
         return bit_s | bit_t
 
-    def z3_set(self, python_set, N):
+    def z3_set(self, python_set: Set[Any], N: int) -> Any:
         """Convert a Python set to a Z3 set representation with specified bit-width.
         
         Args:
@@ -135,7 +141,7 @@ class SemanticDefaults:
             z3_set = SetAdd(z3_set, elem)
         return z3_set
 
-    def z3_set_to_python_set(self, z3_set, domain):
+    def z3_set_to_python_set(self, z3_set: Any, domain: List[Any]) -> Set[Any]:
         """Convert a Z3 set to a Python set by checking membership of domain elements.
         
         Args:
@@ -154,7 +160,7 @@ class SemanticDefaults:
                 python_set.add(elem)
         return python_set
 
-    def total_fusion(self, set_P):
+    def total_fusion(self, set_P: Union[Set[BitVecRef], ArrayRef]) -> BitVecRef:
         """Compute the fusion of all elements in a set of bit vectors.
         
         Takes a set of bit vectors and returns their total fusion by applying
@@ -173,7 +179,7 @@ class SemanticDefaults:
             set_P = self.z3_set_to_python_set(set_P, self.all_states)
         return reduce(self.fusion, list(set_P))
 
-    def is_part_of(self, bit_s, bit_t):
+    def is_part_of(self, bit_s: BitVecRef, bit_t: BitVecRef) -> BoolRef:
         """Checks if one bit vector is part of another where one bit vector is
         a part of another if their fusion is identical to the second bit vector.
         
@@ -186,7 +192,7 @@ class SemanticDefaults:
         """
         return self.fusion(bit_s, bit_t) == bit_t
 
-    def is_proper_part_of(self, bit_s, bit_t):
+    def is_proper_part_of(self, bit_s: BitVecRef, bit_t: BitVecRef) -> BoolRef:
         """Checks if one bit vector is a proper part of another.
         
         A bit vector is a proper part of another if it is a part of it but not equal to it.
@@ -200,7 +206,7 @@ class SemanticDefaults:
         """
         return And(self.is_part_of(bit_s, bit_t), bit_s != bit_t)
 
-    def non_null_part_of(self, bit_s, bit_t):
+    def non_null_part_of(self, bit_s: BitVecRef, bit_t: BitVecRef) -> BoolRef:
         """Checks if a bit vector is a non-null part of another bit vector.
         
         Args:
@@ -214,7 +220,7 @@ class SemanticDefaults:
         """
         return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
 
-    def product(self, set_A, set_B):
+    def product(self, set_A: Set[BitVecRef], set_B: Set[BitVecRef]) -> Set[BitVecRef]:
         """Compute the set of all pairwise fusions between elements of two sets.
         
         Args:
@@ -234,7 +240,7 @@ class SemanticDefaults:
                 product_set.add(bit_ab)
         return product_set
 
-    def coproduct(self, set_A, set_B):
+    def coproduct(self, set_A: Set[BitVecRef], set_B: Set[BitVecRef]) -> Set[BitVecRef]:
         """Compute the union of two sets closed under pairwise fusion.
         
         Takes two sets and returns their union plus all possible fusions between
@@ -252,7 +258,7 @@ class SemanticDefaults:
         A_U_B = set_A.union(set_B)
         return A_U_B.union(self.product(set_A, set_B))
     
-    def initialize_with_state(self, verify_falsify_state, sentence_letters):
+    def initialize_with_state(self, verify_falsify_state: Dict[Tuple[Any, Any], Tuple[bool, bool]], sentence_letters: List[Any]) -> None:
         """Initialize verify/falsify functions with specific values.
         
         This method is used by the iterator to ensure MODEL 2+ use their own
@@ -281,13 +287,13 @@ class SemanticDefaults:
         self.verify = self._make_constrained_verify()
         self.falsify = self._make_constrained_falsify()
     
-    def _make_constrained_verify(self):
+    def _make_constrained_verify(self) -> Callable[[Any, Any], BoolRef]:
         """Create a constrained verify function using stored state."""
         import z3
         import logging
         logger = logging.getLogger(__name__)
         
-        def constrained_verify(state, letter):
+        def constrained_verify(state: Any, letter: Any) -> BoolRef:
             key = (state, letter)
             if key in self._constrained_state:
                 # Return Z3 BoolVal based on stored boolean
@@ -299,11 +305,11 @@ class SemanticDefaults:
             return self._unconstrained_verify(state, letter)
         return constrained_verify
     
-    def _make_constrained_falsify(self):
+    def _make_constrained_falsify(self) -> Callable[[Any, Any], BoolRef]:
         """Create a constrained falsify function using stored state."""
         import z3
         
-        def constrained_falsify(state, letter):
+        def constrained_falsify(state: Any, letter: Any) -> BoolRef:
             key = (state, letter)
             if key in self._constrained_state:
                 # Return Z3 BoolVal based on stored boolean

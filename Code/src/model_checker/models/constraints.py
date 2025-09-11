@@ -6,7 +6,14 @@ the model checking process.
 """
 
 import sys
+from typing import List, Dict, Any, Optional, Type, TYPE_CHECKING
 from z3 import ExprRef
+
+if TYPE_CHECKING:
+    from model_checker.syntactic import Syntax, Sentence
+    from .semantic import Semantics
+    from .proposition import PropositionDefaults
+    from .types import Settings, OperatorDict, ConstraintList
 
 
 class ModelConstraints:
@@ -36,11 +43,11 @@ class ModelConstraints:
 
     def __init__(
         self,
-        settings,
-        syntax,
-        semantics,
-        proposition_class,
-    ):
+        settings: 'Settings',
+        syntax: 'Syntax',
+        semantics: 'Semantics',
+        proposition_class: Type['PropositionDefaults'],
+    ) -> None:
 
         # Store inputs
         self.syntax = syntax
@@ -86,7 +93,7 @@ class ModelConstraints:
             + self.conclusion_constraints
         )
 
-    def __str__(self):
+    def __str__(self) -> str:
         """Returns a string representation of the ModelConstraints object.
         
         This method is useful when using the model-checker programmatically in Python scripts.
@@ -100,7 +107,7 @@ class ModelConstraints:
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
-    def _load_sentence_letters(self):
+    def _load_sentence_letters(self) -> List[ExprRef]:
         """Extracts and validates atomic sentence letters from the syntax object.
         
         Unpacks each sentence letter from the syntax object and verifies it is a valid
@@ -121,7 +128,7 @@ class ModelConstraints:
             sentence_letters.append(unpacked_letter) 
         return sentence_letters
 
-    def copy_dictionary(self, operator_collection):
+    def copy_dictionary(self, operator_collection: 'OperatorDict') -> 'OperatorDict':
         """Creates a new dictionary by copying operators from the operator collection.
         
         Takes an operator collection and creates a new dictionary where each operator
@@ -139,7 +146,7 @@ class ModelConstraints:
             for (op_name, op_class) in operator_collection.items()
         }
 
-    def instantiate(self, sentences):
+    def instantiate(self, sentences: List['Sentence']) -> List['Sentence']:
         """Recursively updates each sentence in the given list with its proposition.
         
         This method traverses through the sentence tree and updates each sentence object
@@ -161,7 +168,7 @@ class ModelConstraints:
                 self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)
 
-    def inject_z3_values(self, z3_model, original_semantics):
+    def inject_z3_values(self, z3_model: Any, original_semantics: 'Semantics') -> None:
         """Delegate Z3 value injection to theory-specific semantics.
         
         This method provides a hook for theories to inject concrete
@@ -189,7 +196,7 @@ class ModelConstraints:
             self.semantics.inject_z3_model_values(z3_model, original_semantics, self)
         # No else - if theory doesn't implement injection, nothing happens
 
-    def print_enumerate(self, output=sys.__stdout__):
+    def print_enumerate(self, output: Any = sys.__stdout__) -> None:
         """Prints the premises and conclusions with enumerated numbering.
         
         Formats and displays the premises and conclusions with sequential numbering.

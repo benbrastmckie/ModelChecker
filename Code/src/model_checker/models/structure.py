@@ -8,7 +8,12 @@ import sys
 import time
 from contextlib import redirect_stdout
 from string import Template
-from typing import Dict, List, Tuple, Optional, Any, TextIO, Union
+from typing import Dict, List, Tuple, Optional, Any, TextIO, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from model_checker.syntactic import Sentence
+    from .constraints import ModelConstraints
+    import z3
 
 
 class ModelDefaults:

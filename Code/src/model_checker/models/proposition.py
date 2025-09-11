@@ -4,7 +4,12 @@ This module contains the PropositionDefaults class which handles
 proposition creation, management, and evaluation within models.
 """
 
+from typing import Any, Optional, Tuple, TYPE_CHECKING
 from model_checker.utils import not_implemented_string
+
+if TYPE_CHECKING:
+    from model_checker.syntactic import Sentence
+    from .structure import ModelDefaults
 
 
 class PropositionDefaults:
@@ -33,7 +38,7 @@ class PropositionDefaults:
         settings (dict): Model settings
     """
 
-    def __init__(self, sentence, model_structure):
+    def __init__(self, sentence: 'Sentence', model_structure: 'ModelDefaults') -> None:
 
         # Raise error if instantiated directly instead of as a bare class
         if self.__class__ == PropositionDefaults:
@@ -66,15 +71,22 @@ class PropositionDefaults:
         self.sentence_letters = self.model_constraints.sentence_letters
         self.settings = self.model_constraints.settings
 
-    def __hash__(self):
+    def __hash__(self) -> int:
         return hash(self.name)
 
-    def __eq__(self, other):
+    def __eq__(self, other: Any) -> bool:
         if isinstance(other, PropositionDefaults):
             return self.name == other.name
         return False
 
-    def set_colors(self, name, indent_num, truth_value, world_state, use_colors):
+    def set_colors(
+        self, 
+        name: str, 
+        indent_num: int, 
+        truth_value: Optional[bool], 
+        world_state: str, 
+        use_colors: bool
+    ) -> Tuple[str, str, str]:
         """Set color formatting for proposition display.
         
         Args:
