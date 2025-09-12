@@ -6,9 +6,15 @@ This class is completely theory-agnostic - all theory-specific logic
 is delegated to the theory's semantics class.
 """
 
+from typing import TYPE_CHECKING, Any, Dict, Optional
+import z3
+
 from model_checker.builder.example import BuildExample
 from model_checker.syntactic import Syntax
 from model_checker.models.constraints import ModelConstraints
+
+if TYPE_CHECKING:
+    from ..models import ModelStructure
 
 
 class IteratorBuildExample(BuildExample):
@@ -23,7 +29,7 @@ class IteratorBuildExample(BuildExample):
     control over the model building process for iteration.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize without calling BuildExample.__init__.
         
         This empty init is intentional - we use factory functions to
@@ -31,7 +37,7 @@ class IteratorBuildExample(BuildExample):
         """
         pass
     
-    def _copy_from_original(self, original):
+    def _copy_from_original(self, original: BuildExample) -> None:
         """Copy necessary attributes from original BuildExample.
         
         This copies all the configuration needed to build a new model
@@ -61,7 +67,7 @@ class IteratorBuildExample(BuildExample):
         # Store reference to original for debugging
         self._original_build = original
     
-    def _build_with_injection(self, z3_model):
+    def _build_with_injection(self, z3_model: z3.ModelRef) -> None:
         """Build model structure with Z3 value injection.
         
         This creates all fresh components and delegates injection
@@ -110,7 +116,7 @@ class IteratorBuildExample(BuildExample):
         # Interpret sentences in the new model
         self._interpret_sentences()
     
-    def _interpret_sentences(self):
+    def _interpret_sentences(self) -> None:
         """Interpret sentences in the new model structure.
         
         This finalizes the model by interpreting all sentences
@@ -124,7 +130,10 @@ class IteratorBuildExample(BuildExample):
         self.solver = self.model_structure.solver
 
 
-def create_with_z3_model(original_build, z3_model):
+def create_with_z3_model(
+    original_build: BuildExample,
+    z3_model: z3.ModelRef
+) -> IteratorBuildExample:
     """Create a new model structure with Z3 value injection.
     
     This factory function creates a new IteratorBuildExample instance

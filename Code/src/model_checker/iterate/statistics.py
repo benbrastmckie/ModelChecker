@@ -4,11 +4,9 @@ This module provides data structures and utilities for tracking detailed
 statistics about the search process for each model during iteration.
 """
 
-from dataclasses import dataclass
 from typing import Optional, List, Dict, Any
 
 
-@dataclass
 class SearchStatistics:
     """Statistics for a single model search.
     
@@ -23,12 +21,32 @@ class SearchStatistics:
         search_duration: Time taken for this search in seconds
         termination_reason: Reason for search termination if not found
     """
-    model_number: int
-    found: bool
-    isomorphic_skipped: int
-    models_checked: int
-    search_duration: float
-    termination_reason: Optional[str] = None
+    
+    def __init__(
+        self,
+        model_number: int,
+        found: bool,
+        isomorphic_skipped: int,
+        models_checked: int,
+        search_duration: float,
+        termination_reason: Optional[str] = None
+    ) -> None:
+        """Initialize search statistics.
+        
+        Args:
+            model_number: The model number being searched for (1-based)
+            found: Whether the model was successfully found
+            isomorphic_skipped: Number of isomorphic models skipped during this search
+            models_checked: Total number of models checked during this search
+            search_duration: Time taken for this search in seconds
+            termination_reason: Reason for search termination if not found
+        """
+        self.model_number = model_number
+        self.found = found
+        self.isomorphic_skipped = isomorphic_skipped
+        self.models_checked = models_checked
+        self.search_duration = search_duration
+        self.termination_reason = termination_reason
     
     def summary_line(self) -> str:
         """Generate a summary line for this search.
