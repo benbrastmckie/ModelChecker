@@ -9,22 +9,10 @@
 *.pyc
 *.ipynb_checkpoints
 
-Code/__pycache__
-Examples/__pycache__
-model_checker/package/__pycache__
-model_checker/dist
-model_checker/model_checker.egg-info
-model_checker/model_checker.egg-info
-model_checker/modules/__pycache__
-model_checker/examples/__pycache__
-model_checker/package/modules/__pycache__
-Code/dist
-Code/examples/__pycache__
-Code/src/model_checker/__pycache__
-Code/src/model_checker.egg-info
-Code/src/model_checker/.pylintrc
+**/dist
+**/model_checker.egg-info
+**/.pylintrc
 Overview/Overview.pdf
-Code/test/__pycache__
 profile_results
 Design
 Meetings
@@ -34,12 +22,6 @@ Code/src/new_checker/__pycache__/exposed_things.cpython-312.pyc
 Code/src/new_checker/__pycache__/hidden_helpers.cpython-312.pyc
 Code/.venv
 
-# Ignore all directories named 'notes' anywhere in the repository
 **/notes/
-Code/src/model_checker/builder/notes_
-*.ipynb_checkpoints
-Code/ARCHITECTURE.md
-Code/DEVELOPMENT.md
-Code/STYLE_GUIDE.md
-Code/current
-Code/docs/specs/baselines
+**/specs/
+**/__pycache__/
