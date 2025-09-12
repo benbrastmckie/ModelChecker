@@ -95,7 +95,8 @@ class ModelDefaults:
         
         # Reset Z3 context before creating a new solver to ensure isolation
         from model_checker.utils import Z3ContextManager
-        Z3ContextManager.reset_context()
+        from ..utils.context import reset_z3_context
+        reset_z3_context()
 
         # Solve Z3 constraints and store results
         solver_results = self.solve(self.model_constraints, self.max_time)

@@ -68,58 +68,58 @@ class OutputConfig:
             format_name: Format to enable
         """
         self.enabled_formats.add(format_name)
+
+
+def create_output_config_from_cli_args(args) -> OutputConfig:
+    """Create configuration from CLI arguments.
     
-    @classmethod
-    def from_cli_args(cls, args) -> 'OutputConfig':
-        """Create configuration from CLI arguments.
+    Args:
+        args: Parsed command line arguments
         
-        Args:
-            args: Parsed command line arguments
-            
-        Returns:
-            OutputConfig instance configured from CLI
-        """
-        # Determine if saving is enabled and which formats
-        save_output = False
-        formats = []
+    Returns:
+        OutputConfig instance configured from CLI
+    """
+    # Determine if saving is enabled and which formats
+    save_output = False
+    formats = []
+    
+    # Check for new consolidated --save flag
+    if hasattr(args, 'save') and args.save is not None:
+        # --save flag was used, so saving is enabled
+        save_output = True
         
-        # Check for new consolidated --save flag
-        if hasattr(args, 'save') and args.save is not None:
-            # --save flag was used, so saving is enabled
-            save_output = True
-            
-            if len(args.save) == 0:
-                # --save with no arguments means all formats
-                formats = DEFAULT_FORMATS.copy()
-            else:
-                # --save with specific formats
-                for fmt in args.save:
-                    if fmt == 'markdown':
-                        formats.append(FORMAT_MARKDOWN)
-                    elif fmt == 'json':
-                        formats.append(FORMAT_JSON)
-                    elif fmt in ('notebook', 'jupyter'):
-                        formats.append(FORMAT_NOTEBOOK)
+        if len(args.save) == 0:
+            # --save with no arguments means all formats
+            formats = DEFAULT_FORMATS.copy()
         else:
-            # No --save flag, no output saved
-            save_output = False
-            formats = []  # Empty since we're not saving
+            # --save with specific formats
+            for fmt in args.save:
+                if fmt == 'markdown':
+                    formats.append(FORMAT_MARKDOWN)
+                elif fmt == 'json':
+                    formats.append(FORMAT_JSON)
+                elif fmt in ('notebook', 'jupyter'):
+                    formats.append(FORMAT_NOTEBOOK)
+    else:
+        # No --save flag, no output saved
+        save_output = False
+        formats = []  # Empty since we're not saving
+    
+    # Determine mode
+    mode = MODE_BATCH
+    if hasattr(args, 'interactive') and args.interactive:
+        mode = MODE_INTERACTIVE
+    elif hasattr(args, 'output_mode') and args.output_mode:
+        mode = args.output_mode
         
-        # Determine mode
-        mode = MODE_BATCH
-        if hasattr(args, 'interactive') and args.interactive:
-            mode = MODE_INTERACTIVE
-        elif hasattr(args, 'output_mode') and args.output_mode:
-            mode = args.output_mode
-            
-        # Sequential files option
-        sequential_files = SEQUENTIAL_MULTIPLE
-        if hasattr(args, 'sequential_files') and args.sequential_files:
-            sequential_files = args.sequential_files
-        
-        return cls(
-            formats=formats,
-            mode=mode,
-            sequential_files=sequential_files,
-            save_output=save_output
-        )
+    # Sequential files option
+    sequential_files = SEQUENTIAL_MULTIPLE
+    if hasattr(args, 'sequential_files') and args.sequential_files:
+        sequential_files = args.sequential_files
+    
+    return OutputConfig(
+        formats=formats,
+        mode=mode,
+        sequential_files=sequential_files,
+        save_output=save_output
+    )

@@ -14,7 +14,7 @@ T = TypeVar('T')
 
 # Z3 type aliases
 Z3Expr = Union[z3.BoolRef, z3.ArithRef, z3.SeqRef, z3.BitVecRef]
-Z3Sort = Union[z3.BoolSort, z3.ArithSort, z3.SeqSort, z3.BitVecSort]
+Z3Sort = Union[z3.BoolSortRef, z3.ArithSortRef, z3.SeqSortRef, z3.BitVecSortRef]
 
 # Path-like types
 PathLike = Union[str, Path]

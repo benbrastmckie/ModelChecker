@@ -312,7 +312,8 @@ class ModelRunner:
         import z3
         
         # Always reset Z3 context at the start of processing a new example
-        Z3ContextManager.reset_context()
+        from ..utils.context import reset_z3_context
+        reset_z3_context()
         
         # Disable all debug logs for cleaner output
         logging.getLogger().setLevel(logging.ERROR)
