@@ -7,7 +7,10 @@ outputs in Jupyter notebooks, including HTML formatting and visualizations.
 
 import io
 from contextlib import redirect_stdout
-from typing import Dict, List, Any, Optional, Union
+from typing import Dict, List, Any, Optional, Union, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from IPython.display import HTML
 
 # These imports can be problematic in some environments, so we import them when needed
 # from IPython.display import display, HTML, clear_output
@@ -15,7 +18,7 @@ from typing import Dict, List, Any, Optional, Union
 # import networkx as nx
 
 # Define high-level display functions
-def display_model(*args, **kwargs):
+def display_model(*args: Any, **kwargs: Any) -> 'HTML':
     """Display a model visualization."""
     try:
         from IPython.display import display, HTML
@@ -24,7 +27,12 @@ def display_model(*args, **kwargs):
     except ImportError:
         raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
 
-def display_formula_check(formula, theory_name="default", premises=None, settings=None):
+def display_formula_check(
+    formula: str,
+    theory_name: str = "default",
+    premises: Optional[List[str]] = None,
+    settings: Optional[Dict[str, Any]] = None
+) -> 'HTML':
     """Display results of checking if a formula is valid given premises."""
     try:
         from IPython.display import display, HTML
@@ -34,7 +42,12 @@ def display_formula_check(formula, theory_name="default", premises=None, setting
     except ImportError:
         raise ImportError("IPython is required for this feature. Install with 'pip install model-checker[jupyter]'")
 
-def display_countermodel(formula, theory_name="default", premises=None, settings=None):
+def display_countermodel(
+    formula: str,
+    theory_name: str = "default",
+    premises: Optional[List[str]] = None,
+    settings: Optional[Dict[str, Any]] = None
+) -> 'HTML':
     """Display a countermodel for a formula with optional premises."""
     try:
         from IPython.display import display, HTML

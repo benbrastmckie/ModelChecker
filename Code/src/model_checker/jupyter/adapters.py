@@ -1,99 +1,108 @@
-"""
-Theory-specific adapters for Jupyter integration.
+"""Theory-specific adapters for Jupyter integration.
 
 These adapters provide a consistent interface for working with different
 semantic theories in the notebook environment.
 """
 
-# import importlib
-from abc import ABC, abstractmethod
-from typing import Any #, Dict, List, Optional, Union, Tuple
+from typing import TYPE_CHECKING, Any, Dict, Optional
 
-# Import as needed to avoid circular imports
-# import networkx as nx
-# import matplotlib.pyplot as plt
+from .types import TheoryName, FormulaString, HTMLString
+
+if TYPE_CHECKING:
+    import networkx as nx
+    from ..models import ModelStructure
 
 
-class TheoryAdapter(ABC):
-    """Base class for theory-specific adapters."""
+class TheoryAdapter:
+    """Base class for theory-specific adapters.
     
-    def __init__(self, theory_name: str):
-        """
-        Initialize the adapter with a theory name.
+    Subclasses should override the three main methods to provide
+    theory-specific implementations.
+    """
+    
+    def __init__(self, theory_name: TheoryName) -> None:
+        """Initialize the adapter with a theory name.
         
         Args:
             theory_name: Name of the theory
         """
         self.theory_name = theory_name
     
-    @abstractmethod
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
-        """
-        Convert a model to a networkx graph for visualization.
+    def model_to_graph(self, model: 'ModelStructure') -> 'nx.DiGraph':
+        """Convert a model to a networkx graph for visualization.
         
         Args:
             model: ModelStructure object
         
         Returns:
             nx.DiGraph: Directed graph representation of the model
+            
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
         """
-        pass
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement model_to_graph"
+        )
         
-    @abstractmethod
-    def format_formula(self, formula: str) -> str:
-        """
-        Format a formula for display.
+    def format_formula(self, formula: FormulaString) -> str:
+        """Format a formula for display.
         
         Args:
             formula: Formula string
             
         Returns:
             str: Formatted formula for display
+            
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
         """
-        pass
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement format_formula"
+        )
     
-    @abstractmethod
-    def format_model(self, model: Any) -> str:
-        """
-        Format a model for display.
+    def format_model(self, model: 'ModelStructure') -> HTMLString:
+        """Format a model for display.
         
         Args:
             model: Model object
             
         Returns:
             str: HTML string for model display
-        """
-        pass
-    
-    @classmethod
-    def get_adapter(cls, theory_name: str) -> 'TheoryAdapter':
-        """
-        Factory method to get the appropriate adapter.
-        
-        Args:
-            theory_name: Name of the theory
             
-        Returns:
-            TheoryAdapter: The appropriate adapter instance
+        Raises:
+            NotImplementedError: Must be implemented by subclasses
         """
-        # Registry of theory adapters
-        registry = {
-            "logos": DefaultTheoryAdapter,  # Logos uses the generic adapter
-            "exclusion": ExclusionTheoryAdapter,
-            "imposition": ImpositionTheoryAdapter,
-            "bimodal": BimodalTheoryAdapter,
-        }
+        raise NotImplementedError(
+            f"{self.__class__.__name__} must implement format_model"
+        )
+
+
+def get_theory_adapter(theory_name: TheoryName) -> TheoryAdapter:
+    """Factory function to get the appropriate adapter for a theory.
+    
+    Args:
+        theory_name: Name of the theory
         
-        adapter_class = registry.get(theory_name, DefaultTheoryAdapter)
-        return adapter_class(theory_name)
+    Returns:
+        TheoryAdapter: The appropriate adapter instance
+    """
+    # Registry of theory adapters
+    registry: Dict[TheoryName, type[TheoryAdapter]] = {
+        "logos": DefaultTheoryAdapter,  # Logos uses the generic adapter
+        "exclusion": ExclusionTheoryAdapter,
+        "imposition": ImpositionTheoryAdapter,
+        "bimodal": BimodalTheoryAdapter,
+    }
+    
+    adapter_class = registry.get(theory_name, DefaultTheoryAdapter)
+    return adapter_class(theory_name)
 
 
 class DefaultTheoryAdapter(TheoryAdapter):
     """Adapter for the default hyperintensional theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
-        """
-        Convert default model to graph.
+    def model_to_graph(self, model: 'ModelStructure') -> 'nx.DiGraph':
+        """Convert default model to graph.
         
         Args:
             model: ModelStructure object
@@ -104,23 +113,23 @@ class DefaultTheoryAdapter(TheoryAdapter):
         import networkx as nx
         from model_checker.utils import bitvec_to_substates
         
-        G = nx.DiGraph()
+        G: nx.DiGraph = nx.DiGraph()
         
         # Add nodes (states)
         for state in model.z3_world_states:
             # Convert BitVec to string representation
             if hasattr(model.semantics, 'bitvec_to_substates'):
-                state_str = model.semantics.bitvec_to_substates(state, model.N)
+                state_str: str = model.semantics.bitvec_to_substates(state, model.N)
             else:
                 state_str = bitvec_to_substates(state, model.N)
                 
-            attrs = {"world": True}
+            attrs: Dict[str, bool] = {"world": True}
             G.add_node(state_str, **attrs)
         
         # Add the main/evaluation world with special attribute
         main_world = model.main_point["world"]
         if hasattr(model.semantics, 'bitvec_to_substates'):
-            main_str = model.semantics.bitvec_to_substates(main_world, model.N)
+            main_str: str = model.semantics.bitvec_to_substates(main_world, model.N)
         else:
             main_str = bitvec_to_substates(main_world, model.N)
         
@@ -138,9 +147,8 @@ class DefaultTheoryAdapter(TheoryAdapter):
             
         return G
         
-    def format_formula(self, formula: str) -> str:
-        """
-        Format formula for default theory.
+    def format_formula(self, formula: FormulaString) -> str:
+        """Format formula for default theory.
         
         Args:
             formula: Formula string
@@ -152,12 +160,11 @@ class DefaultTheoryAdapter(TheoryAdapter):
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display
-        normalized = normalize_formula(formula, format_type="unicode")
+        normalized: str = normalize_formula(formula, format_type="unicode")
         return sanitize_formula(normalized)
         
-    def format_model(self, model: Any) -> str:
-        """
-        Format model for default theory.
+    def format_model(self, model: 'ModelStructure') -> HTMLString:
+        """Format model for default theory.
         
         Args:
             model: ModelStructure object
@@ -166,7 +173,7 @@ class DefaultTheoryAdapter(TheoryAdapter):
             str: HTML representation of the model
         """
         # Get model key properties for display
-        html = f"<h4>Default Theory Model</h4>"
+        html: str = "<h4>Default Theory Model</h4>"
         
         # Show key model attributes
         if hasattr(model, 'model_structure'):
@@ -182,7 +189,10 @@ class DefaultTheoryAdapter(TheoryAdapter):
             
             # Add settings summary
             if hasattr(model, 'settings') or hasattr(model, 'example_settings'):
-                settings = getattr(model, 'settings', getattr(model, 'example_settings', {}))
+                settings: Dict[str, Any] = getattr(
+                    model, 'settings', 
+                    getattr(model, 'example_settings', {})
+                )
                 html += "<p>Settings:</p><ul>"
                 for key, value in settings.items():
                     html += f"<li><b>{key}:</b> {value}</li>"
@@ -194,9 +204,8 @@ class DefaultTheoryAdapter(TheoryAdapter):
 class ExclusionTheoryAdapter(TheoryAdapter):
     """Adapter for exclusion theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
-        """
-        Convert exclusion model to graph.
+    def model_to_graph(self, model: 'ModelStructure') -> 'nx.DiGraph':
+        """Convert exclusion model to graph.
         
         Args:
             model: ModelStructure object
@@ -204,21 +213,12 @@ class ExclusionTheoryAdapter(TheoryAdapter):
         Returns:
             nx.DiGraph: Directed graph representation of the model
         """
-        import networkx as nx
-        from model_checker.utils import bitvec_to_substates
-        
-        G = nx.DiGraph()
-        
-        # Add nodes (states) - Exclusion-specific implementation
-        # This would need to be customized for exclusion theory's 
-        # specific state representation
-        
         # For now, use the default implementation as a fallback
-        return DefaultTheoryAdapter(self.theory_name).model_to_graph(model)
+        default_adapter = DefaultTheoryAdapter(self.theory_name)
+        return default_adapter.model_to_graph(model)
         
-    def format_formula(self, formula: str) -> str:
-        """
-        Format formula for exclusion theory.
+    def format_formula(self, formula: FormulaString) -> str:
+        """Format formula for exclusion theory.
         
         Args:
             formula: Formula string
@@ -230,16 +230,15 @@ class ExclusionTheoryAdapter(TheoryAdapter):
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display, using exclusion operators
-        normalized = normalize_formula(formula, format_type="unicode")
+        normalized: str = normalize_formula(formula, format_type="unicode")
         
         # Add special formatting for exclusion operators if needed
         # This could include additional replacements for theory-specific symbols
         
         return sanitize_formula(normalized)
         
-    def format_model(self, model: Any) -> str:
-        """
-        Format model for exclusion theory.
+    def format_model(self, model: 'ModelStructure') -> HTMLString:
+        """Format model for exclusion theory.
         
         Args:
             model: ModelStructure object
@@ -248,7 +247,7 @@ class ExclusionTheoryAdapter(TheoryAdapter):
             str: HTML representation of the model
         """
         # Format for exclusion-specific model details
-        html = f"<h4>Exclusion Theory Model</h4>"
+        html: str = "<h4>Exclusion Theory Model</h4>"
         
         # Show key model attributes - customize for exclusion theory
         if hasattr(model, 'model_structure'):
@@ -263,7 +262,10 @@ class ExclusionTheoryAdapter(TheoryAdapter):
             
             # Add settings summary
             if hasattr(model, 'settings') or hasattr(model, 'example_settings'):
-                settings = getattr(model, 'settings', getattr(model, 'example_settings', {}))
+                settings: Dict[str, Any] = getattr(
+                    model, 'settings',
+                    getattr(model, 'example_settings', {})
+                )
                 html += "<p>Settings:</p><ul>"
                 for key, value in settings.items():
                     html += f"<li><b>{key}:</b> {value}</li>"
@@ -275,9 +277,8 @@ class ExclusionTheoryAdapter(TheoryAdapter):
 class ImpositionTheoryAdapter(TheoryAdapter):
     """Adapter for imposition theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
-        """
-        Convert imposition model to graph.
+    def model_to_graph(self, model: 'ModelStructure') -> 'nx.DiGraph':
+        """Convert imposition model to graph.
         
         Args:
             model: ModelStructure object
@@ -286,11 +287,11 @@ class ImpositionTheoryAdapter(TheoryAdapter):
             nx.DiGraph: Directed graph representation of the model
         """
         # For now, use the default implementation as a fallback
-        return DefaultTheoryAdapter(self.theory_name).model_to_graph(model)
+        default_adapter = DefaultTheoryAdapter(self.theory_name)
+        return default_adapter.model_to_graph(model)
         
-    def format_formula(self, formula: str) -> str:
-        """
-        Format formula for imposition theory.
+    def format_formula(self, formula: FormulaString) -> str:
+        """Format formula for imposition theory.
         
         Args:
             formula: Formula string
@@ -302,12 +303,11 @@ class ImpositionTheoryAdapter(TheoryAdapter):
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display
-        normalized = normalize_formula(formula, format_type="unicode")
+        normalized: str = normalize_formula(formula, format_type="unicode")
         return sanitize_formula(normalized)
         
-    def format_model(self, model: Any) -> str:
-        """
-        Format model for imposition theory.
+    def format_model(self, model: 'ModelStructure') -> HTMLString:
+        """Format model for imposition theory.
         
         Args:
             model: ModelStructure object
@@ -316,15 +316,15 @@ class ImpositionTheoryAdapter(TheoryAdapter):
             str: HTML representation of the model
         """
         # Use default implementation for now
-        return DefaultTheoryAdapter(self.theory_name).format_model(model)
+        default_adapter = DefaultTheoryAdapter(self.theory_name)
+        return default_adapter.format_model(model)
 
 
 class BimodalTheoryAdapter(TheoryAdapter):
     """Adapter for bimodal theory."""
     
-    def model_to_graph(self, model: Any) -> 'nx.DiGraph': # type: ignore
-        """
-        Convert bimodal model to graph.
+    def model_to_graph(self, model: 'ModelStructure') -> 'nx.DiGraph':
+        """Convert bimodal model to graph.
         
         Args:
             model: ModelStructure object
@@ -333,11 +333,11 @@ class BimodalTheoryAdapter(TheoryAdapter):
             nx.DiGraph: Directed graph representation of the model
         """
         # For now, use the default implementation as a fallback
-        return DefaultTheoryAdapter(self.theory_name).model_to_graph(model)
+        default_adapter = DefaultTheoryAdapter(self.theory_name)
+        return default_adapter.model_to_graph(model)
         
-    def format_formula(self, formula: str) -> str:
-        """
-        Format formula for bimodal theory.
+    def format_formula(self, formula: FormulaString) -> str:
+        """Format formula for bimodal theory.
         
         Args:
             formula: Formula string
@@ -349,12 +349,11 @@ class BimodalTheoryAdapter(TheoryAdapter):
         from .utils import sanitize_formula
         
         # Convert and sanitize for HTML display
-        normalized = normalize_formula(formula, format_type="unicode")
+        normalized: str = normalize_formula(formula, format_type="unicode")
         return sanitize_formula(normalized)
         
-    def format_model(self, model: Any) -> str:
-        """
-        Format model for bimodal theory.
+    def format_model(self, model: 'ModelStructure') -> HTMLString:
+        """Format model for bimodal theory.
         
         Args:
             model: ModelStructure object
@@ -363,4 +362,5 @@ class BimodalTheoryAdapter(TheoryAdapter):
             str: HTML representation of the model
         """
         # Use default implementation for now
-        return DefaultTheoryAdapter(self.theory_name).format_model(model)
+        default_adapter = DefaultTheoryAdapter(self.theory_name)
+        return default_adapter.format_model(model)

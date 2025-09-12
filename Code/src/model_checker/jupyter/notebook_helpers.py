@@ -2,9 +2,16 @@
 
 import sys
 from io import StringIO
+from typing import TYPE_CHECKING, Any, Optional, Union
+
+if TYPE_CHECKING:
+    from ..models import ModelStructure
 
 
-def print_model(model_structure, capture=False):
+def print_model(
+    model_structure: 'ModelStructure',
+    capture: bool = False
+) -> Optional[str]:
     """
     Print a model structure, showing the interpreted values.
     
