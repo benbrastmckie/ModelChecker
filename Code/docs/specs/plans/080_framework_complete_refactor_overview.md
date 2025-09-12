@@ -2,7 +2,7 @@
 
 **Status:** Approved
 **Priority:** P1 (Critical)
-**Timeline:** 16 weeks (extended for additional quality tasks)
+**Timeline:** 18 weeks (extended for jupyter and settings packages)
 **Dependencies:** Research 041 (Compliance Audit), Research 042 (Theory_lib Analysis), Research 043 (Output Issues)
 
 ## Executive Summary
@@ -11,7 +11,7 @@ This plan orchestrates the complete refactoring of all ModelChecker packages to 
 
 ### Progress Update
 
-**6 of 7 packages completed (86%)** - output, syntactic, utils, models, builder, and iterate packages have all achieved their compliance targets. The builder package notably achieved 100/100 compliance with full type coverage, no decorators, and all methods under 75 lines. The iterate package successfully removed decorators and improved type coverage.
+**6 of 9 packages completed (67%)** - output, syntactic, utils, models, builder, and iterate packages have all achieved their compliance targets. The builder package notably achieved 100/100 compliance with full type coverage, no decorators, and all methods under 75 lines. The iterate package successfully removed decorators and improved type coverage. Two additional packages (jupyter and settings) have been identified and added to the schedule.
 
 ## Package Priority Order
 
@@ -33,10 +33,12 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
 | 5     | models             | ✅ 90/100  | **COMPLETED** - Full type hints, protocols, enhanced structure                             | [Plan 083](083_models_package_refactor.md) ✅       |
 | 6-7   | builder            | ✅ 100/100 | **COMPLETED** - Full type hints, no decorators, all methods < 75 lines, 218/218 tests pass | [Plan 084](084_builder_package_refactor.md) ✅      |
 | 8     | iterate            | ✅ 85/100  | **COMPLETED** - types.py created, @dataclass removed, partial type hints, 207/207 tests pass | [Plan 085](085_iterate_package_enhancement.md) ✅   |
-| 9     | decorator removal  | -          | Remove all decorators from remaining packages (excluding theory_lib)                       | [Plan 088](088_decorator_removal_all_packages.md)  |
-| 10    | test coverage      | -          | Verify and enhance test coverage for all packages (excluding theory_lib)                   | [Plan 089](089_test_coverage_verification.md)      |
-| 11    | optimization       | -          | Performance optimization for model finding and test execution                              | [Plan 090](090_performance_optimization.md)        |
-| 12-16 | theory_lib         | 38/100     | Multiple critical issues - massive refactor                                                | [Plan 086](086_theory_lib_complete_refactor.md)    |
+| 9     | jupyter            | 60/100     | Low type hints (19%), has decorators (@abstractmethod, @classmethod)                       | [Plan 091](091_jupyter_package_refactor.md)        |
+| 10    | settings           | 65/100     | Low type hints (16%), no decorators, needs types.py                                        | [Plan 092](092_settings_package_refactor.md)       |
+| 11    | decorator removal  | -          | Remove all decorators from remaining packages (excluding theory_lib)                       | [Plan 088](088_decorator_removal_all_packages.md)  |
+| 12    | test coverage      | -          | Verify and enhance test coverage for all packages (excluding theory_lib)                   | [Plan 089](089_test_coverage_verification.md)      |
+| 13    | optimization       | -          | Performance optimization for model finding and test execution                              | [Plan 090](090_performance_optimization.md)        |
+| 14-18 | theory_lib         | 38/100     | Multiple critical issues - massive refactor                                                | [Plan 086](086_theory_lib_complete_refactor.md)    |
 
 ## Success Criteria
 
@@ -57,6 +59,8 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
 | models     | ✅ 90/100  | 90/100  | ✅ 25% → 95% type hints          |
 | builder    | ✅ 100/100 | 100/100 | ✅ 30% → 100% type hints         |
 | iterate    | ✅ 85/100  | 85/100  | ✅ 8% → 20% type hints, no decorators |
+| jupyter    | 60/100     | 90/100  | 19% → 97% type hints, remove decorators |
+| settings   | 65/100     | 90/100  | 16% → 98% type hints             |
 | theory_lib | 38/100     | 90/100  | 4% → 95% type hints              |
 
 ## Implementation Strategy
@@ -108,38 +112,54 @@ Based on Research 041's compliance audit and Research 043's critical findings, p
    - ✅ Added type hints to critical modules (20% coverage)
    - ✅ All 207 tests passing (100%)
 
-### Phase 3: Quality Assurance (Weeks 9-11)
+### Phase 3: Additional Packages (Weeks 9-10)
+
+**Objective:** Bring jupyter and settings packages to compliance
+
+6. **jupyter** (Week 9)
+   - Remove @abstractmethod and @classmethod decorators
+   - Add type hints to 250/257 functions (97%)
+   - Create types.py with comprehensive definitions
+   - Enhance error handling
+
+7. **settings** (Week 10)
+   - Add type hints to 60/61 functions (98%)
+   - Create types.py module
+   - Enhance validation system
+   - Improve error handling
+
+### Phase 4: Quality Assurance (Weeks 11-13)
 
 **Objective:** Ensure full compliance and optimize performance before theory_lib
 
-6. **decorator removal** (Week 9)
+8. **decorator removal** (Week 11)
    - Scan all packages (except theory_lib) for decorators
    - Remove all decorators per maintenance standards
    - Convert to explicit methods and functions
    - Ensure all tests pass after removal
 
-7. **test coverage** (Week 10)
+9. **test coverage** (Week 12)
    - Analyze test coverage for all packages (except theory_lib)
    - Add missing unit tests
    - Enhance integration tests
    - Achieve 90%+ coverage targets
 
-8. **performance optimization** (Week 11)
-   - Profile model finding performance
-   - Identify and fix test execution bottlenecks
-   - Optimize Z3 constraint generation
-   - Improve caching strategies
+10. **performance optimization** (Week 13)
+    - Profile model finding performance
+    - Identify and fix test execution bottlenecks
+    - Optimize Z3 constraint generation
+    - Improve caching strategies
 
-### Phase 4: Theory Library (Weeks 12-16)
+### Phase 5: Theory Library (Weeks 14-18)
 
 **Objective:** Complete major refactoring of largest package
 
-9. **theory_lib** (Weeks 12-16)
-   - Week 12: Foundation (errors, imports)
-   - Week 13: Base modules type hints
-   - Week 14: Bimodal/Exclusion theories
-   - Week 15: Imposition/Logos theories
-   - Week 16: Testing and validation
+11. **theory_lib** (Weeks 14-18)
+    - Week 14: Foundation (errors, imports)
+    - Week 15: Base modules type hints
+    - Week 16: Bimodal/Exclusion theories
+    - Week 17: Imposition/Logos theories
+    - Week 18: Testing and validation
 
 ## Risk Management
 
@@ -260,10 +280,11 @@ Each package refactor must follow this rigorous process:
 
 ### Developer Time
 
-- **Total:** 16 weeks full-time equivalent
+- **Total:** 18 weeks full-time equivalent
 - **Emergency fix:** 1 week (output)
 - **Critical packages:** 3 weeks (syntactic, utils)
 - **Core packages:** 4 weeks (models, builder, iterate)
+- **Additional packages:** 2 weeks (jupyter, settings)
 - **Quality assurance:** 3 weeks (decorator removal, test coverage, optimization)
 - **Theory library:** 5 weeks
 
@@ -338,15 +359,17 @@ Each package has a detailed implementation plan with specific tasks, timelines, 
 3. **[Plan 082: Utils Package Refactor](082_utils_package_refactor.md)** - Week 4 ✅ COMPLETED
 4. **[Plan 083: Models Package Refactor](083_models_package_refactor.md)** - Week 5 ✅ COMPLETED
 5. **[Plan 084: Builder Package Enhancement](084_builder_package_refactor.md)** - Weeks 6-7 ✅ COMPLETED
-6. **[Plan 085: Iterate Package Enhancement](085_iterate_package_enhancement.md)** - Week 8
-7. **[Plan 088: Decorator Removal All Packages](088_decorator_removal_all_packages.md)** - Week 9
-8. **[Plan 089: Test Coverage Verification](089_test_coverage_verification.md)** - Week 10
-9. **[Plan 090: Performance Optimization](090_performance_optimization.md)** - Week 11
-10. **[Plan 086: Theory_lib Complete Refactor](086_theory_lib_complete_refactor.md)** - Weeks 12-16
+6. **[Plan 085: Iterate Package Enhancement](085_iterate_package_enhancement.md)** - Week 8 ✅ COMPLETED
+7. **[Plan 091: Jupyter Package Refactor](091_jupyter_package_refactor.md)** - Week 9
+8. **[Plan 092: Settings Package Refactor](092_settings_package_refactor.md)** - Week 10
+9. **[Plan 088: Decorator Removal All Packages](088_decorator_removal_all_packages.md)** - Week 11
+10. **[Plan 089: Test Coverage Verification](089_test_coverage_verification.md)** - Week 12
+11. **[Plan 090: Performance Optimization](090_performance_optimization.md)** - Week 13
+12. **[Plan 086: Theory_lib Complete Refactor](086_theory_lib_complete_refactor.md)** - Weeks 14-18
 
 ## Conclusion
 
-This systematic refactoring will transform the ModelChecker framework from 71% to 90%+ compliance over 16 weeks. By **prioritizing the broken output package first**, then addressing critical packages with 0% type hints, adding quality assurance phases, and leaving the complex theory_lib for last, we ensure immediate restoration of functionality while building toward comprehensive framework quality.
+This systematic refactoring will transform the ModelChecker framework from 71% to 90%+ compliance over 18 weeks. By **prioritizing the broken output package first**, then addressing critical packages with 0% type hints, adding quality assurance phases, and leaving the complex theory_lib for last, we ensure immediate restoration of functionality while building toward comprehensive framework quality.
 
 The investment in code quality will yield:
 
