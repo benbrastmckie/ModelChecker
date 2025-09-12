@@ -13,12 +13,19 @@ The module ensures appropriate validation and warning messages for unknown setti
 """
 
 import os
-from typing import Dict, Any, Optional, Set
+from typing import TYPE_CHECKING, Dict, Any, Optional, Set, Union
+from .types import (
+    SettingsDict, SettingName, SettingValue, TheoryName,
+    SemanticTheoryProtocol, ModuleFlagsProtocol, UserProvidedFlags
+)
 from .errors import (
     SettingsError, ValidationError, TypeConversionError,
     RangeError, MissingRequiredError, UnknownSettingError,
     TheoryCompatibilityError
 )
+
+if TYPE_CHECKING:
+    pass
 
 # Configuration via environment variables
 VERBOSE_SETTINGS = os.environ.get('MODELCHECKER_VERBOSE', '').lower() == 'true'
@@ -41,8 +48,8 @@ class SettingsManager:
         DEFAULT_EXAMPLE_SETTINGS: Example-specific settings defaults
     """
     
-    def __init__(self, semantic_theory: Dict[str, Any], global_defaults: Optional[Dict[str, Any]] = None, 
-                 theory_name: Optional[str] = None, is_comparison: bool = False, 
+    def __init__(self, semantic_theory: Dict[str, Any], global_defaults: Optional[SettingsDict] = None, 
+                 theory_name: Optional[TheoryName] = None, is_comparison: bool = False, 
                  strict_mode: bool = False) -> None:
         """Initialize SettingsManager with a semantic theory.
         
@@ -54,7 +61,7 @@ class SettingsManager:
             strict_mode: If True, raise exceptions for unknown settings instead of warnings
         """
         self.semantic_theory: Dict[str, Any] = semantic_theory
-        self.theory_name: Optional[str] = theory_name
+        self.theory_name: Optional[TheoryName] = theory_name
         self.is_comparison: bool = is_comparison
         self.strict_mode: bool = strict_mode
         
@@ -63,16 +70,16 @@ class SettingsManager:
         theory_defaults = getattr(semantics_class, "DEFAULT_GENERAL_SETTINGS", None)
         
         # Always prefer theory-specific defaults over global defaults
-        self.DEFAULT_GENERAL_SETTINGS: Dict[str, Any] = theory_defaults if theory_defaults is not None else (global_defaults or {})
+        self.DEFAULT_GENERAL_SETTINGS: SettingsDict = theory_defaults if theory_defaults is not None else (global_defaults or {})
         
         # Get DEFAULT_EXAMPLE_SETTINGS from theory
-        self.DEFAULT_EXAMPLE_SETTINGS: Dict[str, Any] = semantic_theory["semantics"].DEFAULT_EXAMPLE_SETTINGS
+        self.DEFAULT_EXAMPLE_SETTINGS: SettingsDict = semantic_theory["semantics"].DEFAULT_EXAMPLE_SETTINGS
         
         # If no theory name provided, try to get it from the semantics class
         if self.theory_name is None:
             self.theory_name = getattr(semantics_class, '__name__', 'unknown').replace('Semantics', '')
     
-    def validate_general_settings(self, user_general_settings: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    def validate_general_settings(self, user_general_settings: Optional[SettingsDict]) -> SettingsDict:
         """Validate user general settings against defaults and warn about unknown settings.
         
         Args:
@@ -88,7 +95,7 @@ class SettingsManager:
         if user_general_settings is None:
             return self.DEFAULT_GENERAL_SETTINGS.copy()
             
-        merged_settings: Dict[str, Any] = self.DEFAULT_GENERAL_SETTINGS.copy()
+        merged_settings: SettingsDict = self.DEFAULT_GENERAL_SETTINGS.copy()
         
         # Check for unknown settings (but don't warn if they're valid example settings)
         for key in user_general_settings:
@@ -96,14 +103,14 @@ class SettingsManager:
                 self._warn_unknown_setting(key, 'general')
         
         # Merge valid settings
-        valid_keys: Set[str] = set(user_general_settings.keys()).intersection(self.DEFAULT_GENERAL_SETTINGS.keys())
+        valid_keys: Set[SettingName] = set(user_general_settings.keys()).intersection(self.DEFAULT_GENERAL_SETTINGS.keys())
         
         for key in valid_keys:
             merged_settings[key] = user_general_settings[key]
             
         return merged_settings
     
-    def validate_example_settings(self, user_example_settings: Optional[Dict[str, Any]]) -> Dict[str, Any]:
+    def validate_example_settings(self, user_example_settings: Optional[SettingsDict]) -> SettingsDict:
         """Validate user example settings against defaults and warn about unknown settings.
         
         Args:
@@ -118,7 +125,7 @@ class SettingsManager:
         if user_example_settings is None:
             return self.DEFAULT_EXAMPLE_SETTINGS.copy()
             
-        merged_settings: Dict[str, Any] = self.DEFAULT_EXAMPLE_SETTINGS.copy()
+        merged_settings: SettingsDict = self.DEFAULT_EXAMPLE_SETTINGS.copy()
         
         # Check for unknown settings
         for key in user_example_settings:
@@ -126,13 +133,13 @@ class SettingsManager:
                 self._warn_unknown_setting(key, 'example')
         
         # Merge valid settings
-        valid_keys: Set[str] = set(user_example_settings.keys()).intersection(self.DEFAULT_EXAMPLE_SETTINGS.keys())
+        valid_keys: Set[SettingName] = set(user_example_settings.keys()).intersection(self.DEFAULT_EXAMPLE_SETTINGS.keys())
         for key in valid_keys:
             merged_settings[key] = user_example_settings[key]
             
         return merged_settings
     
-    def apply_flag_overrides(self, settings: Dict[str, Any], module_flags: Any) -> Dict[str, Any]:
+    def apply_flag_overrides(self, settings: SettingsDict, module_flags: Any) -> SettingsDict:
         """Apply module flags as final overrides to the settings.
         
         Args:
@@ -149,11 +156,11 @@ class SettingsManager:
         if module_flags is None:
             return settings
             
-        merged_settings: Dict[str, Any] = settings.copy()
+        merged_settings: SettingsDict = settings.copy()
         
         # Determine if this is a mock object and which flags were provided
         is_mock: bool = self._is_mock_object(module_flags)
-        user_provided_flags: Set[str] = self._extract_user_provided_flags(module_flags, is_mock)
+        user_provided_flags: UserProvidedFlags = self._extract_user_provided_flags(module_flags, is_mock)
         
         # Apply overrides from flags
         self._apply_overrides(merged_settings, module_flags, user_provided_flags, is_mock)
@@ -171,7 +178,7 @@ class SettingsManager:
         """
         return not hasattr(module_flags, '_parsed_args')
     
-    def _extract_user_provided_flags(self, module_flags: Any, is_mock: bool) -> Set[str]:
+    def _extract_user_provided_flags(self, module_flags: Any, is_mock: bool) -> UserProvidedFlags:
         """Extract which flags were actually provided by the user.
         
         Args:
@@ -181,7 +188,7 @@ class SettingsManager:
         Returns:
             Set of flag names that were explicitly provided
         """
-        user_provided_flags: Set[str] = set()
+        user_provided_flags: UserProvidedFlags = set()
         
         # For real argparse objects, extract flags from the raw command line arguments
         if not is_mock and hasattr(module_flags, '_parsed_args') and module_flags._parsed_args:
@@ -204,8 +211,8 @@ class SettingsManager:
         
         return user_provided_flags
     
-    def _apply_overrides(self, merged_settings: Dict[str, Any], module_flags: Any, 
-                        user_provided_flags: Set[str], is_mock: bool) -> None:
+    def _apply_overrides(self, merged_settings: SettingsDict, module_flags: Any, 
+                        user_provided_flags: UserProvidedFlags, is_mock: bool) -> None:
         """Apply flag overrides to the merged settings.
         
         Args:
@@ -237,7 +244,7 @@ class SettingsManager:
                 elif key not in standard_args:
                     print(f"Warning: Flag '{key}' doesn't correspond to any known setting")
     
-    def _warn_unknown_setting(self, setting_name: str, setting_type: str) -> None:
+    def _warn_unknown_setting(self, setting_name: SettingName, setting_type: str) -> None:
         """Centralized warning logic with context awareness.
         
         Args:
@@ -264,7 +271,7 @@ class SettingsManager:
             print(f"Warning: Unknown {setting_type} setting '{setting_name}' "
                   f"not in {self.theory_name}'s DEFAULT_{setting_type.upper()}_SETTINGS")
     
-    def _validate_setting_type(self, setting_name: str, value: Any, expected_type: type) -> Any:
+    def _validate_setting_type(self, setting_name: SettingName, value: SettingValue, expected_type: type) -> SettingValue:
         """Validate and convert a setting to the expected type.
         
         Args:
@@ -299,9 +306,9 @@ class SettingsManager:
         except (ValueError, TypeError) as e:
             raise TypeConversionError(setting_name, value, expected_type) from e
     
-    def _validate_setting_range(self, setting_name: str, value: Any, 
-                               min_value: Optional[Any] = None, 
-                               max_value: Optional[Any] = None) -> None:
+    def _validate_setting_range(self, setting_name: SettingName, value: SettingValue, 
+                               min_value: Optional[SettingValue] = None, 
+                               max_value: Optional[SettingValue] = None) -> None:
         """Validate that a setting is within the acceptable range.
         
         Args:
@@ -318,9 +325,9 @@ class SettingsManager:
         if max_value is not None and value > max_value:
             raise RangeError(setting_name, value, max_value=max_value)
     
-    def get_complete_settings(self, user_general_settings: Optional[Dict[str, Any]], 
-                              user_example_settings: Optional[Dict[str, Any]], 
-                              module_flags: Any) -> Dict[str, Any]:
+    def get_complete_settings(self, user_general_settings: Optional[SettingsDict], 
+                              user_example_settings: Optional[SettingsDict], 
+                              module_flags: Any) -> SettingsDict:
         """Get complete settings with all validations and overrides applied.
         
         Args:
@@ -332,22 +339,22 @@ class SettingsManager:
             Dictionary of final merged settings with all validations and overrides applied
         """
         # Start with validated general settings
-        general_settings: Dict[str, Any] = self.validate_general_settings(user_general_settings)
+        general_settings: SettingsDict = self.validate_general_settings(user_general_settings)
         
         # Then validate and merge example settings
-        example_settings: Dict[str, Any] = self.validate_example_settings(user_example_settings)
+        example_settings: SettingsDict = self.validate_example_settings(user_example_settings)
         
         # Combine general and example settings (example settings take precedence)
-        combined_settings: Dict[str, Any] = general_settings.copy()
+        combined_settings: SettingsDict = general_settings.copy()
         combined_settings.update(example_settings)
         
         # Apply flag overrides as final step
-        final_settings: Dict[str, Any] = self.apply_flag_overrides(combined_settings, module_flags)
+        final_settings: SettingsDict = self.apply_flag_overrides(combined_settings, module_flags)
         
         return final_settings
 
 # Global defaults as a fallback if theory doesn't define them
-DEFAULT_GENERAL_SETTINGS: Dict[str, Any] = {
+DEFAULT_GENERAL_SETTINGS: SettingsDict = {
     "print_impossible": False,
     "print_constraints": False,
     "print_z3": False,
