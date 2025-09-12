@@ -4,7 +4,11 @@ This module provides a hierarchy of exceptions for handling various error
 conditions that can occur during settings validation and processing.
 """
 
-from typing import Optional, Dict, Any
+from typing import TYPE_CHECKING, Optional, Dict, Any, List
+from .types import SettingName, SettingValue, TheoryName
+
+if TYPE_CHECKING:
+    pass
 
 
 class SettingsError(Exception):
@@ -20,7 +24,7 @@ class SettingsError(Exception):
         context: Additional context information
     """
     
-    def __init__(self, message: str, setting: Optional[str] = None, 
+    def __init__(self, message: str, setting: Optional[SettingName] = None, 
                  suggestion: Optional[str] = None, context: Optional[Dict[str, Any]] = None) -> None:
         """Initialize a SettingsError.
         
@@ -61,7 +65,7 @@ class TypeConversionError(SettingsError):
     to the expected type.
     """
     
-    def __init__(self, setting: str, value: Any, expected_type: type, 
+    def __init__(self, setting: SettingName, value: SettingValue, expected_type: type, 
                  suggestion: Optional[str] = None) -> None:
         """Initialize a TypeConversionError.
         
@@ -86,8 +90,8 @@ class RangeError(SettingsError):
     valid range.
     """
     
-    def __init__(self, setting: str, value: Any, min_value: Optional[Any] = None, 
-                 max_value: Optional[Any] = None) -> None:
+    def __init__(self, setting: SettingName, value: SettingValue, min_value: Optional[SettingValue] = None, 
+                 max_value: Optional[SettingValue] = None) -> None:
         """Initialize a RangeError.
         
         Args:
@@ -122,7 +126,7 @@ class MissingRequiredError(SettingsError):
     operation is not provided.
     """
     
-    def __init__(self, setting: str, suggestion: Optional[str] = None) -> None:
+    def __init__(self, setting: SettingName, suggestion: Optional[str] = None) -> None:
         """Initialize a MissingRequiredError.
         
         Args:
@@ -142,7 +146,7 @@ class UnknownSettingError(SettingsError):
     is not recognized is provided.
     """
     
-    def __init__(self, setting: str, available_settings: Optional[list] = None) -> None:
+    def __init__(self, setting: SettingName, available_settings: Optional[List[SettingName]] = None) -> None:
         """Initialize an UnknownSettingError.
         
         Args:
@@ -170,7 +174,7 @@ class TheoryCompatibilityError(SettingsError):
     are not compatible with the specific theory being used.
     """
     
-    def __init__(self, setting: str, theory_name: str, reason: str, 
+    def __init__(self, setting: SettingName, theory_name: TheoryName, reason: str, 
                  suggestion: Optional[str] = None) -> None:
         """Initialize a TheoryCompatibilityError.
         
