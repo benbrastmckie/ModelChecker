@@ -4,8 +4,12 @@ This module defines the abstract interface that all theory-specific
 iterators must implement.
 """
 
-from typing import List, Optional, Any
+from typing import TYPE_CHECKING, List, Optional, Any, Dict
 import z3
+
+if TYPE_CHECKING:
+    from ..builder.build_example import BuildExample
+    from ..models import ModelStructure
 
 
 class BaseModelIterator:
@@ -15,17 +19,21 @@ class BaseModelIterator:
     the abstract methods to provide theory-specific behavior.
     """
     
-    def __init__(self, build_example):
+    def __init__(self, build_example: 'BuildExample') -> None:
         """Initialize the iterator with a build example.
         
         Args:
             build_example: BuildExample instance containing the initial model
         """
-        self.build_example = build_example
-        self.found_models = []
-        self.debug_messages = []
+        self.build_example: 'BuildExample' = build_example
+        self.found_models: List[z3.ModelRef] = []
+        self.debug_messages: List[str] = []
     
-    def _calculate_differences(self, new_structure, previous_structure) -> dict:
+    def _calculate_differences(
+        self,
+        new_structure: 'ModelStructure',
+        previous_structure: 'ModelStructure'
+    ) -> Dict[str, Any]:
         """Calculate semantic differences between two models.
         
         This method should identify meaningful differences between models
@@ -84,7 +92,7 @@ class BaseModelIterator:
         # Default implementation returns None (no stronger constraint)
         return None
     
-    def iterate(self) -> List[Any]:
+    def iterate(self) -> List['ModelStructure']:
         """Perform model iteration to find multiple distinct models.
         
         This is the main entry point for iteration. Implementations should

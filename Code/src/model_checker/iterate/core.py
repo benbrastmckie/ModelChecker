@@ -15,7 +15,12 @@ The iteration framework delegates to specialized modules:
 import logging
 import time
 import sys
-from typing import List, Dict, Any, Optional, Generator, Tuple
+from typing import TYPE_CHECKING, List, Dict, Any, Optional, Generator, Tuple
+
+from .types import (
+    IterationStatus, IterationResult, IterationState,
+    Z3Model, Z3Solver, SettingsDict, MetricsDict
+)
 from .iterator import IteratorCore
 from .constraints import ConstraintGenerator
 from .models import ModelBuilder, DifferenceCalculator
@@ -23,6 +28,10 @@ from .graph import IsomorphismChecker
 from .metrics import TerminationManager, ResultFormatter
 from .statistics import SearchStatistics, IterationReportGenerator
 from .errors import IterateError, IterationStateError
+
+if TYPE_CHECKING:
+    from ..builder.build_example import BuildExample
+    from ..models import ModelStructure
 
 # Configure logging
 logger = logging.getLogger(__name__)
