@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import Mock, MagicMock
-from model_checker.output.config import OutputConfig
+from model_checker.output.config import OutputConfig, create_output_config_from_cli_args
 from model_checker.output.constants import (
     DEFAULT_FORMATS, FORMAT_MARKDOWN, FORMAT_JSON, FORMAT_NOTEBOOK,
     MODE_BATCH, MODE_SEQUENTIAL, MODE_INTERACTIVE,
@@ -91,7 +91,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         """Test CLI args without save flag."""
         args = Mock(spec=[])  # No attributes at all, including save
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertFalse(config.save_output)
         self.assertEqual(config.enabled_formats, set())
@@ -102,7 +102,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock()
         args.save = []  # Empty list means --save was used without args
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, set(DEFAULT_FORMATS))
@@ -112,7 +112,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock()
         args.save = ['markdown']
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN})
@@ -122,7 +122,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock()
         args.save = ['json']
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, {FORMAT_JSON})
@@ -132,7 +132,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock()
         args.save = ['markdown', 'json']
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN, FORMAT_JSON})
@@ -142,7 +142,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock()
         args.save = ['markdown', 'jupyter', 'json']
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertTrue(config.save_output)
         # jupyter should be in formats (unified pipeline)
@@ -153,7 +153,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock()
         args.save = None
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertFalse(config.save_output)
         self.assertEqual(config.enabled_formats, set())
@@ -164,7 +164,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args.save = []
         args.interactive = True
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertEqual(config.mode, MODE_INTERACTIVE)
     
@@ -175,7 +175,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args.interactive = False
         args.output_mode = MODE_SEQUENTIAL
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertEqual(config.mode, MODE_SEQUENTIAL)
     
@@ -186,7 +186,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args.interactive = True
         args.output_mode = MODE_SEQUENTIAL
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         # Interactive should take precedence
         self.assertEqual(config.mode, MODE_INTERACTIVE)
@@ -197,7 +197,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args.save = []
         args.sequential_files = SEQUENTIAL_SINGLE
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertEqual(config.sequential_files, SEQUENTIAL_SINGLE)
     
@@ -209,7 +209,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args.output_mode = MODE_BATCH  # Should be overridden
         args.sequential_files = SEQUENTIAL_SINGLE
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN, FORMAT_JSON})
@@ -222,7 +222,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock(spec=['save'])  # Only has save attribute
         args.save = ['markdown']
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN})
@@ -233,7 +233,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         """Test with completely empty args object."""
         args = Mock(spec=[])  # No attributes at all
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         self.assertFalse(config.save_output)
         self.assertEqual(config.enabled_formats, set())
@@ -245,7 +245,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         args = Mock()
         args.save = ['markdown', 'unknown', 'json', 'pdf']
         
-        config = OutputConfig.from_cli_args(args)
+        config = create_output_config_from_cli_args(args)
         
         # Only recognized formats should be included
         self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN, FORMAT_JSON})

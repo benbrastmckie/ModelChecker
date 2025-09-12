@@ -10,6 +10,7 @@ import os
 import z3
 from model_checker.builder import BuildModule
 from model_checker.utils import Z3ContextManager
+from model_checker.utils.context import reset_z3_context
 
 class TestZ3ContextIsolation(unittest.TestCase):
     """Test cases for Z3 context isolation."""
@@ -17,7 +18,7 @@ class TestZ3ContextIsolation(unittest.TestCase):
     def setUp(self):
         """Set up test environment."""
         # Make sure we start with a fresh context
-        Z3ContextManager.reset_context()
+        reset_z3_context()
         
         # Minimal settings for a build module
         self.test_settings = {
@@ -39,7 +40,7 @@ class TestZ3ContextIsolation(unittest.TestCase):
         solver1.add(x > 5)
         
         # Reset context
-        Z3ContextManager.reset_context()
+        reset_z3_context()
         
         # Create a new solver that shouldn't see solver1's constraints
         solver2 = z3.Solver()
@@ -53,7 +54,7 @@ class TestZ3ContextIsolation(unittest.TestCase):
     def test_solver_state_isolation(self):
         """Test that solver state doesn't leak between invocations."""
         # First solver with simple constraints
-        Z3ContextManager.reset_context()
+        reset_z3_context()
         solver1 = z3.Solver()
         solver1.add(self.x > 0)
         solver1.add(self.x < 10)
@@ -66,7 +67,7 @@ class TestZ3ContextIsolation(unittest.TestCase):
         self.assertTrue(0 < x_val < 10)
         
         # Create a second solver with completely different constraints
-        Z3ContextManager.reset_context()
+        reset_z3_context()
         solver2 = z3.Solver()
         solver2.add(self.y < 0)  # Different variable
         result2 = solver2.check()
@@ -81,14 +82,14 @@ class TestZ3ContextIsolation(unittest.TestCase):
     def test_conflicting_constraints(self):
         """Test that conflicting constraints in separate solvers don't interfere."""
         # First solver with x > 0
-        Z3ContextManager.reset_context()
+        reset_z3_context()
         solver1 = z3.Solver()
         solver1.add(self.x > 0)
         result1 = solver1.check()
         self.assertEqual(result1, z3.sat)
         
         # Second solver with x < 0 (conflicting with first)
-        Z3ContextManager.reset_context()
+        reset_z3_context()
         solver2 = z3.Solver()
         solver2.add(self.x < 0)
         result2 = solver2.check()
@@ -121,7 +122,7 @@ class TestZ3ContextIsolation(unittest.TestCase):
         model2 = solver2.model()
         
         # Now reset context for clean state
-        Z3ContextManager.reset_context()
+        reset_z3_context()
         
         # Create a third solver with only y == 10 constraint after context reset
         solver3 = z3.Solver()

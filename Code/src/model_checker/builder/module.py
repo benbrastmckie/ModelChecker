@@ -124,7 +124,8 @@ class BuildModule:
         from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider, OutputConfig
         
         # Create output configuration from CLI arguments
-        config = OutputConfig.from_cli_args(self.module_flags)
+        from ..output.config import create_output_config_from_cli_args
+        config = create_output_config_from_cli_args(self.module_flags)
         
         # Check if saving is enabled via new --save flag
         save_enabled = hasattr(self.module_flags, 'save') and self.module_flags.save is not None
