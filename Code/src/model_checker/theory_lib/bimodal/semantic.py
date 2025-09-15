@@ -49,7 +49,7 @@ class BimodalSemantics(SemanticDefaults):
         "print_z3": False,
         "save_output": False,
         "maximize": False,
-        "interactive": False,
+        "sequential": False,
         "align_vertically": True,
     }
 

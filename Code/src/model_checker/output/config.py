@@ -73,10 +73,10 @@ class OutputConfig:
 def create_output_config_from_cli_args(args, general_settings=None) -> OutputConfig:
     """Create configuration from CLI arguments and optional settings.
     
-    Priority order for interactive mode:
-    1. CLI flag --interactive (highest priority)
-    2. 'interactive' setting in general_settings
-    3. Default to batch mode
+    Priority order for sequential mode:
+    1. CLI flag --sequential (highest priority)
+    2. 'sequential' setting in general_settings
+    3. Default to non-sequential (batch)
     
     Args:
         args: Parsed command line arguments
@@ -111,21 +111,28 @@ def create_output_config_from_cli_args(args, general_settings=None) -> OutputCon
         save_output = False
         formats = []  # Empty since we're not saving
     
-    # Determine mode with proper priority
-    mode = MODE_BATCH  # Default
+    # Determine if sequential mode is enabled
+    # Priority: CLI flag > setting > default (False)
+    sequential = False
     
     # Check settings first (lower priority)
-    if general_settings and general_settings.get('interactive', False):
-        mode = MODE_INTERACTIVE
+    if general_settings and general_settings.get('sequential', False):
+        sequential = True
     
-    # Check CLI flags (higher priority - overrides settings)
-    if hasattr(args, 'interactive') and args.interactive:
-        mode = MODE_INTERACTIVE
-    elif hasattr(args, 'output_mode') and args.output_mode:
-        # output_mode flag overrides settings but not --interactive
+    # Check CLI flag (highest priority - overrides settings)
+    if hasattr(args, 'sequential') and args.sequential:
+        sequential = True
+        
+    # For backward compatibility, keep mode but set based on sequential
+    # When sequential, use sequential mode (save immediately)
+    # When not sequential, use batch mode (save at end)
+    mode = MODE_SEQUENTIAL if sequential else MODE_BATCH
+    
+    # Handle explicit --output-mode flag (for non-sequential use)
+    if not sequential and hasattr(args, 'output_mode') and args.output_mode:
         mode = args.output_mode
         
-    # Sequential files option
+    # Sequential files option (only relevant for sequential mode)
     sequential_files = SEQUENTIAL_MULTIPLE
     if hasattr(args, 'sequential_files') and args.sequential_files:
         sequential_files = args.sequential_files

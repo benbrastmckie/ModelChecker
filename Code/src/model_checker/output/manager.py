@@ -38,12 +38,12 @@ class OutputManager:
     """
     
     def __init__(self, config: OutputConfig, 
-                 interactive_manager=None):
+                 sequential_manager=None):
         """Initialize output manager.
         
         Args:
             config: REQUIRED output configuration
-            interactive_manager: Optional InteractiveSaveManager instance
+            sequential_manager: Optional SequentialSaveManager instance
             
         Raises:
             ValueError: If config is not provided
@@ -58,11 +58,11 @@ class OutputManager:
         self.save_output = config.save_output
         self.output_dir = None
         self.models_data = []
-        self.interactive_manager = interactive_manager
+        self.sequential_manager = sequential_manager
         
-        # If interactive manager provided, use its mode
-        if self.interactive_manager and hasattr(self.interactive_manager, 'mode'):
-            self.mode = self.interactive_manager.mode
+        # If sequential manager provided, we're in sequential mode with prompts
+        if self.sequential_manager and hasattr(self.sequential_manager, 'mode'):
+            self.mode = self.sequential_manager.mode
         else:
             self.mode = config.mode if config.mode in ['batch', 'sequential'] else 'batch'
         
@@ -75,8 +75,8 @@ class OutputManager:
         # Initialize formatters and strategy
         self._initialize_components()
             
-        # Track saved models in interactive mode
-        self._interactive_saves = {}
+        # Track saved models in sequential prompted mode
+        self._sequential_saves = {}
         
         # Module context for notebook generation
         self._module_vars = None
@@ -104,7 +104,7 @@ class OutputManager:
         """Initialize formatters and strategy based on configuration."""
         # Import formatters lazily to avoid circular imports
         from .formatters import MarkdownFormatter, JSONFormatter, NotebookFormatter
-        from .strategies import BatchOutputStrategy, SequentialOutputStrategy, InteractiveOutputStrategy
+        from .strategies import BatchOutputStrategy, SequentialOutputStrategy, PromptedOutputStrategy
         
         # Initialize formatters based on enabled formats
         self.formatters = {}
@@ -119,9 +119,12 @@ class OutputManager:
         if self.mode == MODE_BATCH:
             self.strategy = BatchOutputStrategy()
         elif self.mode == MODE_SEQUENTIAL:
-            self.strategy = SequentialOutputStrategy(self.sequential_files)
-        elif self.mode == MODE_INTERACTIVE:
-            self.strategy = InteractiveOutputStrategy(self.interactive_manager)
+            # If we have a sequential manager, use prompted strategy
+            if self.sequential_manager:
+                self.strategy = PromptedOutputStrategy(self.sequential_manager)
+            else:
+                # Otherwise use immediate sequential saves
+                self.strategy = SequentialOutputStrategy(self.sequential_files)
         else:
             self.strategy = BatchOutputStrategy()  # Default to batch
         
@@ -233,12 +236,13 @@ class OutputManager:
         if hasattr(self.strategy, 'finalize'):
             self.strategy.finalize(lambda name, outputs: self._finalize_outputs(name, outputs))
         
-        # Create summary for interactive mode
-        if self.mode == 'interactive':
-            self._create_interactive_summary()
+        # Create summary for sequential prompted mode
+        if self.mode == MODE_SEQUENTIAL and self.sequential_manager:
+            self._create_sequential_summary()
                 
-        # Save models JSON if JSON format is enabled
-        if self.config.is_format_enabled(FORMAT_JSON):
+        # Save models JSON if JSON format is enabled (only in batch mode)
+        # In sequential mode (including interactive), JSON files are already saved per example
+        if self.config.is_format_enabled(FORMAT_JSON) and self.mode == MODE_BATCH:
             self._save_models_json()
         
         # Generate notebook if enabled through unified pipeline
@@ -334,7 +338,7 @@ class OutputManager:
             json.dump(data, f, indent=4, ensure_ascii=False)
             
     def create_example_directory(self, example_name: str) -> str:
-        """Create directory for an example in interactive mode.
+        """Create directory for an example in sequential prompted mode.
         
         Args:
             example_name: Name of the example
@@ -349,9 +353,9 @@ class OutputManager:
         os.makedirs(example_dir, exist_ok=True)
         return example_dir
         
-    def save_model_interactive(self, example_name: str, model_data: Dict[str, Any],
+    def save_model_sequential(self, example_name: str, model_data: Dict[str, Any],
                               formatted_output: str, model_num: int):
-        """Save individual model in interactive mode.
+        """Save individual model in sequential prompted mode.
         
         Args:
             example_name: Name of the example
@@ -374,9 +378,9 @@ class OutputManager:
             json.dump(model_data, f, indent=4, ensure_ascii=False)
             
         # Track this save
-        if example_name not in self._interactive_saves:
-            self._interactive_saves[example_name] = []
-        self._interactive_saves[example_name].append(model_num)
+        if example_name not in self._sequential_saves:
+            self._sequential_saves[example_name] = []
+        self._sequential_saves[example_name].append(model_num)
         
         # Add to models data for overall JSON
         self.models_data.append(model_data)
@@ -389,20 +393,20 @@ class OutputManager:
         """Get full path for output file.
         
         Args:
-            example_name: Name of the example (for interactive mode)
+            example_name: Name of the example (for sequential prompted mode)
             filename: Name of the file
             
         Returns:
             str: Full path to the file
         """
-        if self.mode == 'interactive':
+        if self.mode == MODE_SEQUENTIAL and self.sequential_manager:
             example_dir = os.path.join(self.output_dir, example_name)
             return os.path.join(example_dir, filename)
         else:
             return os.path.join(self.output_dir, filename)
             
-    def _create_interactive_summary(self):
-        """Create summary.json for interactive mode.
+    def _create_sequential_summary(self):
+        """Create summary.json for sequential prompted mode.
         
         Summarizes what was saved for each example.
         """
@@ -412,15 +416,15 @@ class OutputManager:
         summary = {
             "metadata": {
                 "timestamp": datetime.now().isoformat(),
-                "mode": "interactive",
-                "total_examples": len(self._interactive_saves),
-                "total_models": sum(len(models) for models in self._interactive_saves.values())
+                "mode": "sequential",
+                "total_examples": len(self._sequential_saves),
+                "total_models": sum(len(models) for models in self._sequential_saves.values())
             },
             "examples": {}
         }
         
         # Add example summaries
-        for example_name, model_nums in self._interactive_saves.items():
+        for example_name, model_nums in self._sequential_saves.items():
             summary["examples"][example_name] = {
                 "model_count": len(model_nums),
                 "model_numbers": model_nums,

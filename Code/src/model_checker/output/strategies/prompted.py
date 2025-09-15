@@ -1,27 +1,27 @@
-"""Interactive output strategy implementation."""
+"""Prompted output strategy implementation."""
 
 import os
 from typing import Dict, Optional
 
 
-class InteractiveOutputStrategy:
+class PromptedOutputStrategy:
     """Save outputs with user prompts for each model.
     
     This strategy prompts the user after each model to decide whether
-    to save it, allowing selective output generation.
+    to save it, allowing selective output generation in sequential mode.
     """
     
-    def __init__(self, interactive_manager=None):
-        """Initialize interactive strategy.
+    def __init__(self, sequential_manager=None):
+        """Initialize prompted strategy.
         
         Args:
-            interactive_manager: InteractiveSaveManager instance for user prompts
+            sequential_manager: SequentialSaveManager instance for user prompts
         """
-        self.interactive_manager = interactive_manager
+        self.sequential_manager = sequential_manager
         self.saved_models = {}  # Track what was saved per example
         
     def should_save_immediately(self) -> bool:
-        """Interactive mode saves based on user decision.
+        """Prompted mode saves based on user decision.
         
         Returns:
             True - outputs are handled immediately (with user prompt)
@@ -29,16 +29,16 @@ class InteractiveOutputStrategy:
         return True
     
     def accumulate(self, example_name: str, formatted_outputs: Dict[str, str]):
-        """Interactive mode doesn't accumulate (handles immediately).
+        """Prompted mode doesn't accumulate (handles immediately).
         
         Args:
             example_name: Name of the example (unused)
             formatted_outputs: Formatted outputs (unused)
         """
-        pass  # Not used in interactive mode
+        pass  # Not used in prompted mode
     
     def prepare_directory(self, output_dir: str):
-        """Interactive mode creates directories per example as needed.
+        """Prompted mode creates directories per example as needed.
         
         Args:
             output_dir: Path to the base output directory
@@ -72,7 +72,7 @@ class InteractiveOutputStrategy:
         self.saved_models[example_name].append(model_num)
     
     def finalize(self, save_callback) -> None:
-        """Create summary of what was saved in interactive mode.
+        """Create summary of what was saved in prompted mode.
         
         Args:
             save_callback: Function to save the summary
@@ -80,7 +80,7 @@ class InteractiveOutputStrategy:
         if self.saved_models:
             # Create summary data
             summary = {
-                'mode': 'interactive',
+                'mode': 'sequential',
                 'saved_models': self.saved_models,
                 'total_examples': len(self.saved_models),
                 'total_models': sum(len(models) for models in self.saved_models.values())
@@ -91,9 +91,9 @@ class InteractiveOutputStrategy:
     
     def get_file_path(self, output_dir: str, example_name: str, 
                      format_name: str, extension: str, model_num: Optional[int] = None) -> str:
-        """Get file path for interactive outputs.
+        """Get file path for prompted outputs.
         
-        Interactive mode saves to example-specific directories with
+        Prompted mode saves to example-specific directories with
         model numbers in the filename.
         
         Args:

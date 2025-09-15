@@ -154,10 +154,10 @@ class ParseFileFlags:
             help='For sequential mode: single file or multiple files'
         )
         parser.add_argument(
-            '--interactive',
-            '-I',
+            '--sequential',
+            '-q',
             action='store_true',
-            help='Enable interactive save mode - prompts after each model to save'
+            help='Enable sequential save mode - prompts after each model to save'
         )
         return parser
 

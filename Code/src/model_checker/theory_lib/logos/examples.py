@@ -126,7 +126,7 @@ general_settings = {
     "print_z3": False,
     "save_output": False,
     "maximize": False,
-    "interactive": False,
+    "sequential": False,
 }
 
 # Create operator registry for full logos theory

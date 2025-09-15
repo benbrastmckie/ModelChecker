@@ -1,3 +1,4 @@
+I would like to abstract the general settings used by all theories from those that are theory specific which merely adds to the general settings that are used for all theories. Create a detailed implementation plan to make this refactor including updating all tests to provide good coverage and pass as well as updating all relevant documentation that discusses settings in the settings/ package or elsewhere as relevant. 
 {
     "metadata": {
         "timestamp": "2025-09-15T15:53:17.678003",

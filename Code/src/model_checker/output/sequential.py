@@ -1,4 +1,4 @@
-"""Interactive save workflow manager."""
+"""Sequential save workflow manager."""
 
 import os
 from typing import Optional, Dict
@@ -7,21 +7,21 @@ from .prompts import prompt_yes_no, prompt_choice
 from .input_provider import InputProvider
 
 
-class InteractiveSaveManager:
-    """Manages interactive save workflow for model checking results.
+class SequentialSaveManager:
+    """Manages sequential save workflow for model checking results.
     
     This class handles user prompts for saving models, finding additional
     models, and navigating to output directories.
     """
     
     def __init__(self, input_provider: InputProvider):
-        """Initialize the interactive save manager.
+        """Initialize the sequential save manager.
         
         Args:
             input_provider: Provider for user input (required)
         """
         self.input_provider = input_provider
-        self.mode: Optional[str] = None  # 'batch' or 'interactive'
+        self.mode: Optional[str] = None  # 'batch' or 'sequential'
         self.current_example: Optional[str] = None
         self.model_count: Dict[str, int] = {}  # Track models per example
         
@@ -29,17 +29,17 @@ class InteractiveSaveManager:
         """Set the save mode directly.
         
         Args:
-            mode: Either 'batch' or 'interactive'
+            mode: Either 'batch' or 'sequential'
         """
-        if mode not in ['batch', 'interactive']:
-            raise ValueError(f"Invalid mode: {mode}. Must be 'batch' or 'interactive'")
+        if mode not in ['batch', 'sequential']:
+            raise ValueError(f"Invalid mode: {mode}. Must be 'batch' or 'sequential'")
         self.mode = mode
         
     def prompt_save_mode(self) -> str:
         """Prompt user to select save mode.
         
         Returns:
-            str: Selected mode ('batch' or 'interactive')
+            str: Selected mode ('batch' or 'sequential')
         """
         # Use input provider for testable input
         response = self.input_provider.get_input("Save all examples (a) or run in sequence (s)? ").strip().lower()
@@ -48,7 +48,7 @@ class InteractiveSaveManager:
         if response == 'a':
             self.mode = 'batch'
         elif response == 's':
-            self.mode = 'interactive'
+            self.mode = 'sequential'
         else:
             # Default to batch if invalid input
             print("Invalid choice. Defaulting to save all.")
@@ -66,7 +66,7 @@ class InteractiveSaveManager:
             bool: True to save, False to skip
         """
         # Always save in batch mode
-        if self.mode != 'interactive':
+        if self.mode != 'sequential':
             return True
             
         return prompt_yes_no(
@@ -81,7 +81,7 @@ class InteractiveSaveManager:
             bool: True to find more, False to continue
         """
         # Never iterate in batch mode (handled elsewhere)
-        if self.mode != 'interactive':
+        if self.mode != 'sequential':
             return False
             
         return prompt_yes_no(
@@ -137,10 +137,18 @@ class InteractiveSaveManager:
         self.current_example = example_name
         # Model count persists across examples
         
-    def is_interactive(self) -> bool:
-        """Check if in interactive mode.
+    def is_sequential(self) -> bool:
+        """Check if in sequential mode.
         
         Returns:
-            bool: True if interactive mode is active
+            bool: True if sequential mode is active
         """
-        return self.mode == 'interactive'
+        return self.mode == 'sequential'
+    
+    def is_interactive(self) -> bool:
+        """Backward compatibility alias for is_sequential.
+        
+        Returns:
+            bool: True if sequential mode is active
+        """
+        return self.is_sequential()

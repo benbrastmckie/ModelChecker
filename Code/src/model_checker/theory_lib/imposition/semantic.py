@@ -52,7 +52,7 @@ class ImpositionSemantics(LogosSemantics):
         "print_z3": False,
         "save_output": False,
         "maximize": False,
-        "interactive": False,
+        "sequential": False,
         "derive_imposition": False,  # Theory-specific setting
     }
 
