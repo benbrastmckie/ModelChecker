@@ -175,6 +175,23 @@ See existing templates in logos/, exclusion/, and imposition/ for complete examp
 - **[Builder Package](../builder/README.md)** - Model construction and theory coordination
 - **[Settings Management](../settings/README.md)** - Configuration system and theory-specific parameters
 
+## See Also
+
+### Conceptual Documentation
+- **[Hyperintensional Semantics](../../../../Docs/theory/HYPERINTENSIONAL.md)** - Truthmaker semantics concepts
+- **[Theory References](../../../../Docs/theory/REFERENCES.md)** - Academic sources and background
+- **[Z3 Background](../../../../Docs/theory/Z3_BACKGROUND.md)** - SMT solver foundations
+
+### Technical Documentation
+- **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Theory integration architecture
+- **[Implementation Guide](../../../docs/IMPLEMENTATION.md)** - How to implement new theories
+- **[Testing Guide](../../../docs/TESTS.md)** - Testing semantic theories
+
+### Related Components
+- **[Builder Package](../builder/README.md)** - Orchestrates theory execution
+- **[Iterate Package](../iterate/README.md)** - Theory-specific iteration implementations
+- **[Settings Package](../settings/README.md)** - Theory-specific configuration
+
 ---
 
 [← Back to ModelChecker API](../README.md) | [Usage Guide →](docs/USAGE_GUIDE.md) | [Contributing →](docs/CONTRIBUTING.md)

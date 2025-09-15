@@ -1,6 +1,6 @@
 # Hyperintensional Semantics in ModelChecker
 
-[← Back to Docs](../README.md) | [Methodology →](../methodology/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
+[← Back to Docs](../README.md) | [Methodology →](../architecture/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
 
 ## Table of Contents
 
@@ -293,13 +293,23 @@ The hyperintensional framework in ModelChecker builds on several key theoretical
 
 - Fine, K. (2017). ["Truthmaker Semantics"](https://doi.org/10.1002/9781118972090.ch22). In _A Companion to the Philosophy of Language_ (2nd ed.). Wiley-Blackwell.
 
-### Related Documentation
+## See Also
 
-- [Logos Theory Documentation](../Code/src/model_checker/theory_lib/logos/README.md)
-- [Exclusion Theory Documentation](../Code/src/model_checker/theory_lib/exclusion/README.md)
-- [ModelChecker Architecture](../Code/docs/ARCHITECTURE.md)
-- [Development Guide](../Code/docs/DEVELOPMENT.md)
+### Theory Implementation
+- **[Logos Theory Implementation](../../Code/src/model_checker/theory_lib/logos/README.md)** - Hyperintensional truthmaker semantics implementation
+- **[Exclusion Theory Implementation](../../Code/src/model_checker/theory_lib/exclusion/README.md)** - Unilateral semantics with witness-based negation
+- **[Theory Library Overview](../../Code/src/model_checker/theory_lib/README.md)** - All semantic theory implementations
+
+### Technical Documentation
+- **[Implementation Guide](../../Code/docs/IMPLEMENTATION.md)** - How theories are implemented in the framework
+- **[Architecture Documentation](../../Code/docs/PIPELINE.md)** - System design and component relationships
+- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Setting up and contributing to the framework
+
+### Related Concepts
+- **[Z3 Background](Z3_BACKGROUND.md)** - SMT solver foundations
+- **[Semantic Methodology](../architecture/SEMANTICS.md)** - How constraints implement semantics
+- **[Theory References](REFERENCES.md)** - Academic sources and citations
 
 ---
 
-[← Back to Docs](../README.md) | [Methodology →](../methodology/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
+[← Back to Theory](README.md) | [Methodology →](../architecture/README.md) | [Z3 Background →](Z3_BACKGROUND.md)

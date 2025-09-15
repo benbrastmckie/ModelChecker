@@ -4,19 +4,28 @@
 
 ## Overview
 
-Virtual environments provide isolated Python installations, preventing package conflicts and ensuring clean, reproducible setups. This guide covers creating and managing virtual environments for ModelChecker.
+Virtual environments provide isolated Python installations for those who want to keep projects separate. This guide covers virtual environment options for ModelChecker.
 
-**NixOS Users**: See [NixOS Project Isolation](#nixos-project-isolation) for the Nix approach to environment isolation.
+## Do You Need a Virtual Environment?
 
-## Why Use Virtual Environments?
+ModelChecker has minimal dependencies (just z3-solver and networkx), so virtual environments are optional. You can likely install it directly:
 
-- **Isolation**: Keep ModelChecker dependencies separate from other projects
-- **No conflicts**: Avoid version conflicts between packages
-- **Clean uninstall**: Remove everything by deleting one directory
-- **No admin rights**: Install packages without system permissions
-- **Reproducibility**: Share exact environment specifications
+```bash
+pip install model-checker
+```
 
-## Quick Start
+## When to Use Virtual Environments
+
+Consider a virtual environment if you:
+- Want to isolate ModelChecker from other projects
+- Are testing multiple Python versions
+- Have conflicting package versions with other projects
+- Prefer keeping your system Python clean
+- Work on multiple logic research projects with different requirements
+
+Otherwise, the simple pip installation works fine.
+
+## Quick Start (If You Want Isolation)
 
 ```bash
 # Create virtual environment
@@ -229,9 +238,11 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 /usr/bin/python3.9 -m venv modelchecker-env
 ```
 
-## NixOS Project Isolation
+## Optional: Nix for Environment Management
 
-NixOS provides superior project isolation through its declarative package management. Instead of virtual environments, NixOS users should use Nix shells for project-specific dependencies.
+The Nix package manager (available on macOS, Linux, and Windows WSL2) provides an alternative to virtual environments. While not necessary given ModelChecker's simple dependencies, some developers prefer Nix for reproducible environments.
+
+**Note**: NixOS users must use nix-shell as pip doesn't work on NixOS.
 
 ### Using ModelChecker's shell.nix
 
@@ -288,13 +299,14 @@ pkgs.mkShell {
 }
 ```
 
-### Advantages Over Virtual Environments
+### When Nix Might Be Useful
 
-1. **System-wide caching** - Packages shared across projects when versions match
-2. **Atomic updates** - Rollback to previous environments instantly
-3. **Multi-language** - Mix Python, system tools, and other languages
-4. **True isolation** - Even system libraries are isolated
-5. **No activation needed** - Just `nix-shell` and you're ready
+1. **NixOS users** - Required, as pip doesn't work on NixOS
+2. **Team projects** - Ensures everyone has identical environments
+3. **CI/CD pipelines** - Reproducible builds across systems
+4. **Complex dependencies** - Though ModelChecker doesn't have any
+
+For most users, standard pip or venv approaches work perfectly.
 
 ### Direnv Integration
 
@@ -314,6 +326,13 @@ cd ..          # Environment unloads
 ```
 
 See [Developer Setup](DEVELOPER_SETUP.md#nixos-development) for more NixOS-specific details.
+
+## Recommendations
+
+- **For quick testing**: Just use `pip install model-checker` in your main environment
+- **For development**: Consider a venv if you want isolation
+- **For teams**: Nix provides reproducibility if needed
+- **For NixOS**: Must use nix-shell
 
 ## Next Steps
 

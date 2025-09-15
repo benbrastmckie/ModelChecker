@@ -1032,7 +1032,7 @@ def find_witness(self, world, sentence):
     return (None, None)
 ```
 
-<!-- TODO: eventually I will add an entire subpackage for witnessing and include a separate WITNESS.md file in methodology/ and so unless this subsection is essential, it can be removed for now -->
+<!-- TODO: eventually I will add an entire subpackage for witnessing and include a separate WITNESS.md file in architecture/ and so unless this subsection is essential, it can be removed for now -->
 
 ## Output Generation
 

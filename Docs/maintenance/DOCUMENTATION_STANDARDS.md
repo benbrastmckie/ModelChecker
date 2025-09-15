@@ -266,9 +266,9 @@ All non-README documentation must have a table of contents with links:
 - [Audience Guidelines](AUDIENCE.md) - Writing for interdisciplinary audiences
 
 ### Example Documents Following These Standards
-- [BUILDER.md](../../Docs/methodology/BUILDER.md) - Demonstrates professional flowcharts
-- [ARCHITECTURE.md](../../Docs/ARCHITECTURE.md) - Shows component relationships
-- [ITERATOR.md](../../Docs/methodology/ITERATOR.md) - Complex technical documentation
+- [BUILDER.md](../../Docs/architecture/BUILDER.md) - Demonstrates professional flowcharts
+- [PIPELINE.md](../../Docs/PIPELINE.md) - Shows component relationships
+- [ITERATOR.md](../../Docs/architecture/ITERATOR.md) - Complex technical documentation
 
 ---
 

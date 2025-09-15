@@ -480,6 +480,22 @@ python test_package.py --components settings.validation
 - **[Theory Library](../theory_lib/README.md)** - Theory-specific settings definitions
 - **[Command-Line Interface](../../../../CLAUDE.md#quick-reference)** - CLI flags and configuration
 
+## See Also
+
+### Conceptual Documentation
+- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design philosophy
+- **[Builder Methodology](../../../../Docs/methodology/BUILDER.md)** - Pipeline orchestration concepts
+
+### Technical Documentation
+- **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Settings architecture details
+- **[Development Guide](../../../docs/DEVELOPMENT.md)** - Contributing to settings system
+- **[Examples Guide](../../../docs/EXAMPLES.md)** - Configuration in example files
+
+### Related Packages
+- **[Builder Package](../builder/README.md)** - Uses settings for model construction
+- **[Theory Library](../theory_lib/README.md)** - Defines theory-specific settings
+- **[Iterate Package](../iterate/README.md)** - Uses settings for iteration control
+
 ## License
 
 Part of the ModelChecker framework, licensed under GPL-3.0.

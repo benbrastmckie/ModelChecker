@@ -1,6 +1,6 @@
 # Documentation Hub: ModelChecker User and Research Documentation
 
-[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Methodology →](methodology/README.md)
+[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Methodology →](architecture/README.md)
 
 ## Directory Structure
 
@@ -15,9 +15,9 @@ Docs/
 │   ├── VIRTUAL_ENVIRONMENTS.md     # Virtual environment setup
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
 │   └── DEVELOPER_SETUP.md          # Development environment setup
-├── methodology/                    # Programmatic semantics framework
+├── architecture/                    # Programmatic semantics framework
 │   ├── README.md                   # Methodology documentation hub
-│   ├── ARCHITECTURE.md             # System design and integration
+│   ├── PIPELINE.md             # System design and integration
 │   ├── BUILDER.md                  # Pipeline orchestration
 │   ├── SYNTAX.md                   # AST conversion pipeline
 │   ├── SEMANTICS.md                # Constraint generation
@@ -128,9 +128,9 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 
 **Comprehensive installation and setup guides** covering 6 scenarios from basic pip installation to full development environments. Includes platform-specific troubleshooting, virtual environment management, and Jupyter configuration. See [installation/README.md](installation/README.md) for complete setup documentation.
 
-### [methodology/](methodology/)
+### [architecture/](architecture/)
 
-**Programmatic semantics framework documentation** explaining how ModelChecker transforms logical formulas into executable semantic programs. Covers system architecture, pipeline orchestration, syntax processing, constraint generation, model finding, and iteration strategies. See [methodology/README.md](methodology/README.md) for the complete methodology guide.
+**Programmatic semantics framework documentation** explaining how ModelChecker transforms logical formulas into executable semantic programs. Covers system architecture, pipeline orchestration, syntax processing, constraint generation, model finding, and iteration strategies. See [architecture/README.md](architecture/README.md) for the complete methodology guide.
 
 ### [usage/](usage/)
 
@@ -155,7 +155,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 ### For Researchers
 
 - **[Theoretical Foundations](theory/README.md)** - Academic background
-- **[Methodology Overview](methodology/README.md)** - Programmatic semantics
+- **[Methodology Overview](architecture/README.md)** - Programmatic semantics
 - **[Theory Comparison](usage/COMPARE_THEORIES.md)** - Comparative analysis
 - **[Constraint Testing](usage/CONSTRAINTS.md)** - Proving properties by absence
 

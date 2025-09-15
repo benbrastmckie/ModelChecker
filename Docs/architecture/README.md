@@ -1,13 +1,13 @@
 # Methodology Documentation: Programmatic Semantics Framework
 
-[← Back to Docs](../README.md) | [Architecture →](ARCHITECTURE.md) | [Builder Pattern →](BUILDER.md)
+[← Back to Docs](../README.md) | [Architecture →](PIPELINE.md) | [Builder Pattern →](BUILDER.md)
 
 ## Directory Structure
 
 ```
-methodology/
+architecture/
 ├── README.md                       # This file - methodology documentation hub
-├── ARCHITECTURE.md                 # System design and component integration
+├── PIPELINE.md                 # System design and component integration
 ├── BUILDER.md                      # BuildModule/BuildExample orchestration
 ├── SYNTAX.md                       # Language-agnostic AST conversion pipeline
 ├── SEMANTICS.md                    # From syntax trees to Z3 constraint generation
@@ -144,7 +144,7 @@ This directory contains only methodology documentation files (no subdirectories)
 
 ### Core Components
 
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - System design philosophy, component relationships, and extension points for new theories
+- **[PIPELINE.md](PIPELINE.md)** - System design philosophy, component relationships, and extension points for new theories
 - **[BUILDER.md](BUILDER.md)** - Pipeline orchestration through BuildModule/BuildExample, including visual flowcharts and settings management
 - **[SYNTAX.md](SYNTAX.md)** - Formula parsing, AST construction, and the language-agnostic syntax processing pipeline
 - **[SEMANTICS.md](SEMANTICS.md)** - Constraint generation from syntax trees, operator patterns, and theory-agnostic semantic framework
@@ -155,7 +155,7 @@ This directory contains only methodology documentation files (no subdirectories)
 
 ### For Researchers
 
-- **[Architecture Overview](ARCHITECTURE.md)** - System design and theory integration
+- **[Architecture Overview](PIPELINE.md)** - System design and theory integration
 - **[Theory Examples](../theory/README.md)** - Theoretical foundations
 - **[Academic References](../theory/REFERENCES.md)** - Published papers
 
@@ -211,10 +211,10 @@ This directory contains only methodology documentation files (no subdirectories)
 
 ### Related Resources
 
-- **[Technical Architecture](../../Code/docs/ARCHITECTURE.md)** - Implementation details
+- **[Technical Architecture](../../Code/docs/PIPELINE.md)** - Implementation details
 - **[API Documentation](../../Code/src/model_checker/README.md)** - Framework APIs
 - **[Test Suite](../../Code/tests/README.md)** - Validation examples
 
 ---
 
-[← Back to Docs](../README.md) | [Architecture →](ARCHITECTURE.md) | [Syntax →](SYNTAX.md)
+[← Back to Docs](../README.md) | [Architecture →](PIPELINE.md) | [Syntax →](SYNTAX.md)

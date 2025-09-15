@@ -106,7 +106,7 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 ### For Researchers
 - **[Theory Comparison](COMPARE_THEORIES.md)** - Comparative semantics
 - **[Performance Optimization](WORKFLOW.md#performance-optimization)** - Large-scale testing
-- **[Methodology](../methodology/README.md)** - Theoretical foundations
+- **[Methodology](../architecture/README.md)** - Theoretical foundations
 
 ### For Developers
 - **[Development Workflows](WORKFLOW.md#theory-development-workflow)** - Building theories
@@ -143,7 +143,7 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 
 ### Framework Documentation
 - **[Installation Guide](../installation/README.md)** - Setup instructions
-- **[Methodology Guide](../methodology/README.md)** - How ModelChecker works
+- **[Methodology Guide](../architecture/README.md)** - How ModelChecker works
 - **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
 
 ### Related Resources

@@ -181,9 +181,20 @@ This was a deliberate decision to keep related functionality together rather tha
 
 ## See Also
 
-- [API Documentation](../README.md) - Complete API reference
-- [Theory Library](../theory_lib/README.md) - Theory implementations using these models
-- [V1 Release Plan](../../docs/specs/plans/008_v1_release_preparation.md) - Refactoring details
+### Conceptual Documentation
+- **[Model Structure Concepts](../../../../Docs/methodology/MODELS.md)** - High-level model theory
+- **[Semantics Methodology](../../../../Docs/methodology/SEMANTICS.md)** - Semantic framework concepts
+- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design philosophy
+
+### Technical Documentation
+- **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Model system architecture
+- **[Implementation Guide](../../../docs/IMPLEMENTATION.md)** - Implementing model structures
+- **[Testing Guide](../../../docs/TESTS.md)** - Testing model components
+
+### Related Components
+- **[Builder Package](../builder/README.md)** - Uses models for constraint solving
+- **[Theory Library](../theory_lib/README.md)** - Theory implementations using these models
+- **[Iterate Package](../iterate/README.md)** - Model iteration and discovery
 
 ---
 
