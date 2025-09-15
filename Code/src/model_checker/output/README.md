@@ -333,11 +333,19 @@ ModelChecker_Outputs_TIMESTAMP/
 ### Output Modes
 - `--output-mode batch` - Save all at end (default)
 - `--output-mode sequential` - Save immediately
-- `--interactive` - User-controlled saving
+- `--interactive` - User-controlled saving (overrides all settings)
+- `interactive: True` in settings - Enable interactive mode without CLI flag
 
 ### Sequential Options
 - `--sequential-files multiple` - Separate file per example
 - `--sequential-files single` - Append to single file
+
+### Interactive Mode Priority
+The interactive mode follows a clear priority order:
+1. `--interactive` CLI flag (highest priority - always wins)
+2. `--output-mode` CLI flag (overrides settings but not --interactive)
+3. `interactive` setting in general_settings (enables interactive by default)
+4. Default to batch mode if no configuration
 
 ## Testing
 

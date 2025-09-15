@@ -42,6 +42,28 @@ The Box operator □ (written as `\Box` in code) represents necessity.
 | ⊭ | U+22AD | NOT TRUE | Non-entailment |
 | ∀ | U+2200 | FOR ALL | Universal quantifier |
 | ∃ | U+2203 | THERE EXISTS | Existential quantifier |
+| □→ | U+25A1 U+2192 | BOX ARROW | Would counterfactual |
+| ◇→ | U+25C7 U+2192 | DIAMOND ARROW | Could counterfactual |
+| ⊩⁺ | U+22A9 U+207A | VERIFY | Verification |
+| ⊩⁻ | U+22A9 U+207B | FALSIFY | Falsification |
+
+### Counterfactual Operators
+
+For counterfactual conditionals, use these standardized symbols:
+
+| Symbol | Unicode | Name | Usage |
+|--------|---------|------|-------|
+| □→ | U+25A1 U+2192 | Would counterfactual | "If it were the case that P, it would be that Q" |
+| ◇→ | U+25C7 U+2192 | Could counterfactual | "If it were the case that P, it could be that Q" |
+
+**Note**: Always use "would" and "could" terminology (not "must" and "might").
+
+### Verification Operators
+
+| Symbol | Unicode | Name | Usage |
+|--------|---------|------|-------|
+| ⊩⁺ | U+22A9 U+207A | Verify | Positive verification |
+| ⊩⁻ | U+22A9 U+207B | Falsify | Negative verification/falsification |
 
 ### Constitutive Logic Symbols
 

@@ -60,28 +60,34 @@ model-checker example.py --save --verbose --format json
 
 ### Stage 1: Input Loading
 
-```mermaid
-graph LR
-    subgraph "Input Sources"
-        File[Example File]
-        CLI[CLI Arguments]
-        User[User Settings]
-        Theory[Theory Defaults]
-    end
-    
-    subgraph "Loading"
-        Loader[File Loader]
-        Parser[Argument Parser]
-        Merger[Settings Merger]
-    end
-    
-    File --> Loader
-    CLI --> Parser
-    User --> Merger
-    Theory --> Merger
-    Loader --> Builder[Builder]
-    Parser --> Builder
-    Merger --> Builder
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          STAGE 1: INPUT LOADING                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                             Input Sources                                   │
+│                                                                             │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │  Example File    │  │  CLI Arguments   │  │  User Settings   │         │
+│  │ • Premises       │  │ • Flags          │  │ • Config files   │         │
+│  │ • Conclusions    │  │ • Options        │  │ • Preferences    │         │
+│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
+│           │                      │                      │                   │
+│           ▼                      ▼                      ▼                   │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
+│  │  File Loader     │  │ Argument Parser  │  │ Settings Merger  │         │
+│  │ • Read .py files │  │ • Parse CLI args │  │ • Merge configs  │         │
+│  │ • Extract data   │  │ • Validate opts  │  │ • Apply priority │         │
+│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
+│           └──────────────────────┴──────────────────────┘                  │
+│                                  │                                          │
+│                                  ▼                                          │
+│                         ┌──────────────────┐  ┌──────────────────┐         │
+│                         │ Theory Defaults  │──│     Builder      │         │
+│                         │ • Base settings  │  │ • Orchestration  │         │
+│                         └──────────────────┘  └──────────────────┘         │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 The loading stage:
@@ -95,27 +101,52 @@ The loading stage:
 
 ### Stage 2: Formula Processing
 
-```mermaid
-graph TB
-    subgraph "Parsing"
-        Raw[Raw Formulas]
-        Tokenizer[Tokenizer]
-        Parser[Parser]
-        AST[AST Tree]
-    end
-    
-    subgraph "Normalization"
-        Unicode[Unicode Conversion]
-        LaTeX[LaTeX Format]
-        Canonical[Canonical Form]
-    end
-    
-    Raw --> Tokenizer
-    Tokenizer --> Parser
-    Parser --> AST
-    AST --> Unicode
-    Unicode --> LaTeX
-    LaTeX --> Canonical
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       STAGE 2: FORMULA PROCESSING                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                              Parsing Phase                                  │
+│                                                                             │
+│  ┌──────────────────┐                                                       │
+│  │  Raw Formulas    │                                                       │
+│  │ • String input   │                                                       │
+│  │ • LaTeX notation │                                                       │
+│  └────────┬─────────┘                                                       │
+│           │                                                                 │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │    Tokenizer     │                                                       │
+│  │ • Split tokens   │                                                       │
+│  │ • Identify ops   │                                                       │
+│  └────────┬─────────┘                                                       │
+│           │                                                                 │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │      Parser      │                                                       │
+│  │ • Build tree     │                                                       │
+│  │ • Apply grammar  │                                                       │
+│  └────────┬─────────┘                                                       │
+│           │                                                                 │
+│           ▼                                                                 │
+│  ┌──────────────────┐                                                       │
+│  │    AST Tree      │                                                       │
+│  │ • Structure rep  │                                                       │
+│  │ • Operator nodes │                                                       │
+│  └────────┬─────────┘                                                       │
+└──────────────────────────────────────┼───────────────────────────────────────┘
+                                    │
+                                    ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          Normalization Phase                                │
+│                                                                             │
+│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐  │
+│  │ Unicode Conversion │─▶│    LaTeX Format     │─▶│   Canonical Form    │  │
+│  │ • Convert symbols  │  │ • Standard notation │  │ • Final structure   │  │
+│  │ • Normalize chars  │  │ • Consistent style  │  │ • Ready for theory │  │
+│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 Formula processing involves:
@@ -126,20 +157,52 @@ Formula processing involves:
 
 ### Stage 3: Constraint Generation
 
-```mermaid
-graph TD
-    subgraph "Semantic Layer"
-        AST[AST Structures]
-        Theory[Theory Engine]
-        Semantics[Semantic Rules]
-        Constraints[Z3 Constraints]
-    end
-    
-    AST --> Theory
-    Theory --> Semantics
-    Semantics --> Constraints
-    
-    Constraints --> Z3[Z3 Solver]
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                    STAGE 3: CONSTRAINT GENERATION                           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                            Semantic Layer                                   │
+│                                                                             │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                        AST Structures                               │  │
+│  │  • Parsed formula trees                                            │  │
+│  │  • Operator nodes with arguments                                  │  │
+│  │  • Atomic propositions identified                                 │  │
+│  └───────────────────────────────────┬───────────────────────────────────┘  │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                        Theory Engine                                │  │
+│  │  • Loads selected semantic theory                                  │  │
+│  │  • Maps operators to semantic implementations                      │  │
+│  │  • Configures theory-specific settings                             │  │
+│  └───────────────────────────────────┬───────────────────────────────────┘  │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                       Semantic Rules                                │  │
+│  │  • Truth conditions for operators                                  │  │
+│  │  • Frame conditions for models                                     │  │
+│  │  • Atomic proposition behavior                                     │  │
+│  └───────────────────────────────────┬───────────────────────────────────┘  │
+│                                    │                                        │
+│                                    ▼                                        │
+│  ┌───────────────────────────────────────────────────────────────────────┐  │
+│  │                      Z3 Constraints                                 │  │
+│  │  • Frame constraints (model structure)                              │  │
+│  │  • Model constraints (atomic propositions)                         │  │
+│  │  • Premise constraints (must be true)                              │  │
+│  │  • Conclusion constraints (at least one false)                     │  │
+│  └───────────────────────────────────┬───────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ▼
+                          ┌──────────────────┐
+                          │   Z3 Solver      │
+                          │  • SMT solving   │
+                          └──────────────────┘
 ```
 
 The theory engine:
@@ -150,20 +213,35 @@ The theory engine:
 
 ### Stage 4: Model Discovery
 
-```mermaid
-graph LR
-    subgraph "Solving"
-        Z3[Z3 Solver]
-        SAT{SAT?}
-        Model[Model Structure]
-        Iterator[Model Iterator]
-    end
-    
-    Z3 --> SAT
-    SAT -->|Yes| Model
-    SAT -->|No| UNSAT[No Models]
-    Model --> Iterator
-    Iterator -->|Find More| Z3
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       STAGE 4: MODEL DISCOVERY                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│   Z3 Solver      │───▶│  SAT Check       │───▶│ Model Structure  │
+│ • SMT solving    │    │ • Satisfiable?  │    │ • Extract model │
+│ • Find solution  │    │ • Check result  │    │ • Build structure│
+└──────────────────┘    └──────┬──────────┘    └───────┬─────────┘
+                              │                           │
+                              │ SAT?                     │
+                              │                           │
+                   No ┌───────┼───────┐ Yes              │
+                      │               │                   │
+                      ▼               ▼                   ▼
+             ┌──────────────────┐   ┌──────────────────┐    ┌──────────────────┐
+             │  No Models (UNSAT)│   │     Continue     │    │ Model Iterator   │
+             │ • Argument valid  │   │                  │    │ • Find more      │
+             │ • No countermodel │   └──────────────────┘    │ • Track found    │
+             └──────────────────┘                         └───────┬─────────┘
+                                                                   │
+                                                                   │ Find More
+                                                                   │
+                                                          ┌────────▼────────┐
+                                                          │ Add blocking      │
+                                                          │ constraint and    │
+                                                          │ re-solve          │
+                                                          └──────────────────┘
 ```
 
 Model discovery process:
@@ -174,27 +252,41 @@ Model discovery process:
 
 ### Stage 5: Output Formatting
 
-```mermaid
-graph TB
-    subgraph "Formatting"
-        Models[Model Structures]
-        Formatter{Format Type}
-        Text[Text Format]
-        JSON[JSON Format]
-        LaTeX[LaTeX Format]
-    end
-    
-    Models --> Formatter
-    Formatter --> Text
-    Formatter --> JSON
-    Formatter --> LaTeX
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      STAGE 5: OUTPUT FORMATTING                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                        ┌────────────────────────┐
+                        │   Model Structures      │
+                        │  • Worlds & relations  │
+                        │  • Truth valuations    │
+                        │  • Verifier sets       │
+                        └──────────┬─────────────┘
+                                   │
+                                   ▼
+                        ┌────────────────────────┐
+                        │    Format Selector     │
+                        │  • Based on settings   │
+                        │  • Output destination  │
+                        └──────────┬─────────────┘
+                                   │
+        ┌───────────────────────────┼────────────────────────────┐
+        │                          │                              │
+        ▼                          ▼                              ▼
+┌────────────────┐  ┌────────────────┐  ┌────────────────┐  ┌──────────────────┐
+│  Text Format   │  │  JSON Format   │  │ Markdown Format│  │ Jupyter Notebook │
+│ • Terminal     │  │ • Structured   │  │ • Tables       │  │ • Interactive    │
+│ • Human-read   │  │ • Programmatic │  │ • Documentation│  │ • Visualizations │
+│ • Colored      │  │ • Machine-read │  │ • GitHub-ready │  │ • Code & results │
+└────────────────┘  └────────────────┘  └────────────────┘  └──────────────────┘
 ```
 
 Output formatting options:
 1. **Text**: Human-readable terminal output (default)
 2. **JSON**: Structured data for programmatic use
-3. **LaTeX**: Publication-ready mathematical notation
-4. **Custom**: User-defined format templates
+3. **Markdown**: Documentation-friendly format with tables
+4. **Jupyter Notebook**: Interactive notebook with code and visualizations
 
 ## Output Generation
 
@@ -220,18 +312,34 @@ Countermodel found for conclusion "C"
 
 When `--save` flag or `save_output: true` setting is used:
 
-```mermaid
-sequenceDiagram
-    participant Output
-    participant FileSystem
-    participant User
-    
-    Output->>FileSystem: Check output directory
-    FileSystem->>Output: Directory status
-    Output->>User: Prompt for file name
-    User->>Output: Provide name/options
-    Output->>FileSystem: Write formatted output
-    FileSystem->>User: Confirm save location
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          FILE SAVE SEQUENCE                                 │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    Output              FileSystem              User
+       │                    │                    │
+       │ Check output       │                    │
+       │ directory          │                    │
+       ├───────────────────▶│                    │
+       │                    │                    │
+       │  Directory status  │                    │
+       │◀───────────────────┤                    │
+       │                    │                    │
+       │ Prompt for file name                    │
+       ├────────────────────────────────────────▶│
+       │                    │                    │
+       │ Provide name/options                    │
+       │◀────────────────────────────────────────┤
+       │                    │                    │
+       │ Write formatted    │                    │
+       │ output             │                    │
+       ├───────────────────▶│                    │
+       │                    │                    │
+       │                    │ Confirm save       │
+       │                    │ location           │
+       │                    ├───────────────────▶│
+       ▼                    ▼                    ▼
 ```
 
 File saving process:
@@ -243,44 +351,56 @@ File saving process:
 
 ## Complete Flow Diagram
 
-```mermaid
-graph TB
-    subgraph "User Input"
-        Example[example.py<br/>premises, conclusions]
-        CLI[CLI flags<br/>--save, --verbose]
-        Settings[Settings<br/>N=4, max_time=30]
-    end
-    
-    subgraph "Processing"
-        Builder[Builder<br/>Orchestration]
-        Parser[Parser<br/>Formula Processing]
-        Theory[Theory<br/>Constraint Generation]
-        Solver[Z3<br/>Model Finding]
-        Iterator[Iterator<br/>Model Discovery]
-    end
-    
-    subgraph "Output"
-        Terminal[Terminal<br/>Display]
-        File[File<br/>Save]
-    end
-    
-    Example --> Builder
-    CLI --> Builder
-    Settings --> Builder
-    
-    Builder --> Parser
-    Parser --> Theory
-    Theory --> Solver
-    Solver --> Iterator
-    
-    Iterator --> Terminal
-    Iterator -.->|if --save| File
-    
-    style Example fill:#e1f5fe
-    style CLI fill:#e1f5fe
-    style Settings fill:#e1f5fe
-    style Terminal fill:#f3e5f5
-    style File fill:#f3e5f5
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                     COMPLETE PIPELINE FLOW DIAGRAM                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+1. USER INPUT
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ┌────────────────────┐  ┌────────────────────┐  ┌────────────────────┐    │
+│  │    example.py     │  │    CLI Flags      │  │     Settings      │    │
+│  │ • Premises        │  │ • --save          │  │ • N=4             │    │
+│  │ • Conclusions     │  │ • --verbose       │  │ • max_time=30     │    │
+│  └────────┬───────────┘  └────────┬───────────┘  └────────┬───────────┘    │
+│           └─────────────────────────┼──────────────────────┘                │
+└──────────────────────────────────────┼──────────────────────────────────────┘
+                                      │
+                                      ▼
+2. PROCESSING
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                            Builder                                 │    │
+│  │  • Orchestrates pipeline                                          │    │
+│  │  • Manages settings and configuration                            │    │
+│  └────────────────────────────────┬───────────────────────────────────┘    │
+│                                   │                                        │
+│                                   ▼                                        │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐  │
+│  │      Parser      │─▶│      Theory      │─▶│       Z3         │─▶│   Iterator   │  │
+│  │ • Parse formulas │  │ • Apply semantics│  │ • Solve models   │  │ • Find more  │  │
+│  │ • Build AST      │  │ • Gen constraints│  │ • Check SAT/UNSAT│  │ • Track found│  │
+│  └──────────────────┘  └──────────────────┘  └──────────────────┘  └──────┬───────┘  │
+└─────────────────────────────────────────────────────────────────────────────┼───────────┘
+                                                                             │
+                                                                             ▼
+3. OUTPUT
+┌─────────────────────────────────────────────────────────────────────────────┐
+│  ┌────────────────────────────────────────────────────────────────────┐    │
+│  │                    Output Router                                   │    │
+│  │  • Checks --save flag and settings                                │    │
+│  │  • Directs output to appropriate destination                      │    │
+│  └────────────────────────────────┬───────────────────────────────────┘    │
+│                                   │                                        │
+│                    ┌──────────────┴──────────────┐                         │
+│                    │                              │ if --save              │
+│                    ▼                              ▼                        │
+│  ┌────────────────────────────┐  ┌────────────────────────────┐           │
+│  │    Terminal Display        │  │      File Save          │           │
+│  │ • Console output           │  │ • JSON/Markdown         │           │
+│  │ • Pretty printing          │  │ • Saved to output/      │           │
+│  └────────────────────────────┘  └────────────────────────────┘           │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 ## Example Walkthrough

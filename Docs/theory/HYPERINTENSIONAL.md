@@ -164,11 +164,11 @@ Given world `w` and state `s`, an **s-alternative** to `w` is any world `u` that
 1. The state `s`
 2. A maximal part of `w` that is compatible with `s`
 
-**Must Counterfactual (□→)**: "If A were the case, B would be the case"
+**Would Counterfactual (□→)**: "If A were the case, B would be the case"
 
 - `w ⊨ (A □→ B) iff ∀s ∀u : (s ⊩ A ∧ alt(u,s,w)) → u ⊨ B` (B is true at all A-alternatives)
 
-**Might Counterfactual (◇→)**: "If A were the case, B might be the case"
+**Could Counterfactual (◇→)**: "If A were the case, B could be the case"
 
 - `w ⊨ (A ◇→ B) iff ∃s ∃u : (s ⊩ A ∧ alt(u,s,w)) ∧ u ⊨ B` (B is true at some A-alternative)
 

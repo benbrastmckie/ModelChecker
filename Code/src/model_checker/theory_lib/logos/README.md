@@ -125,7 +125,7 @@ The complete Logos theory includes the following operators organized by subtheor
 **Modal** (3):
 - Possibility (◇) - Truth at some world
 - Counterfactual Necessity (CFBox) - Counterfactual from ⊤
-- Counterfactual Possibility (CFDiamond) - Might counterfactual from ⊤
+- Counterfactual Possibility (CFDiamond) - Could counterfactual from ⊤
 
 **Constitutive** (2):
 - Essence (⊑) - Necessary condition relation
@@ -133,7 +133,7 @@ The complete Logos theory includes the following operators organized by subtheor
 
 **Counterfactual** (2):
 - Must Counterfactual (□→) - Would be the case
-- Might Counterfactual (◇→) - Could be the case
+- Could Counterfactual (◇→) - Could be the case
 
 **Relevance** (1):
 - Relevance (≺) - Imported from constitutive

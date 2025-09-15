@@ -123,9 +123,9 @@ class BuildModule:
         """Initialize output and interactive managers."""
         from model_checker.output import OutputManager, InteractiveSaveManager, ConsoleInputProvider, OutputConfig
         
-        # Create output configuration from CLI arguments
+        # Create output configuration from CLI arguments and settings
         from ..output.config import create_output_config_from_cli_args
-        config = create_output_config_from_cli_args(self.module_flags)
+        config = create_output_config_from_cli_args(self.module_flags, self.general_settings)
         
         # Check if saving is enabled via new --save flag
         save_enabled = hasattr(self.module_flags, 'save') and self.module_flags.save is not None
@@ -140,15 +140,13 @@ class BuildModule:
         
         # Create interactive manager if saving is enabled (but not for notebook-only)
         self.interactive_manager = None
-        if config.save_output and not only_notebook:
+        if config.save_output and not only_notebook and config.mode == 'interactive':
+            # Interactive mode is enabled (via flag or setting)
             # Create console input provider for production use
             input_provider = ConsoleInputProvider()
             self.interactive_manager = InteractiveSaveManager(input_provider)
-            # Prompt for save mode (batch vs sequential)
+            # Prompt for save mode within interactive (batch vs sequential)
             self.interactive_manager.prompt_save_mode()
-            # Update config mode based on user choice
-            if self.interactive_manager.is_interactive():
-                config.mode = 'interactive'
         
         # Create output manager with configuration only
         self.output_manager = OutputManager(config, self.interactive_manager)

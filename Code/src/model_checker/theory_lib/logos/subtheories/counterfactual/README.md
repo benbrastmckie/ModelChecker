@@ -18,7 +18,7 @@ counterfactual/
 
 ## Overview
 
-The **Counterfactual Subtheory** implements hyperintensional semantics for counterfactual conditional (□→) and might counterfactual (◇→) operators. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
+The **Counterfactual Subtheory** implements hyperintensional semantics for counterfactual conditional (□→) and could counterfactual (◇→) operators. All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
 
 Within the Logos framework, the counterfactual subtheory implements alternative worlds semantics developed in Brast-McKie (2025), which defines an alternative worlds relation using a primitive space of states closed under parthood together with a semantic primitive for possibility. The two operators (one primitive, one defined) integrate seamlessly with modal, constitutive, and relevance operators while providing much more computationally efficient reasoning than frameworks requiring primitive three-place imposition relations.
 
@@ -105,7 +105,7 @@ The counterfactual subtheory provides two operators: one primitive operator that
 **Arity**: 2 (binary)
 **Type**: Defined operator
 
-**Meaning**: "If A were the case, then B might be the case"
+**Meaning**: "If A were the case, then B could be the case"
 
 **Definition**: `(A \\diamondright B) := \\neg (A \\boxright \\neg B)` - Defined as the negation of the counterfactual conditional with negated consequent.
 

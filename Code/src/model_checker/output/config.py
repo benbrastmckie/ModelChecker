@@ -70,14 +70,20 @@ class OutputConfig:
         self.enabled_formats.add(format_name)
 
 
-def create_output_config_from_cli_args(args) -> OutputConfig:
-    """Create configuration from CLI arguments.
+def create_output_config_from_cli_args(args, general_settings=None) -> OutputConfig:
+    """Create configuration from CLI arguments and optional settings.
+    
+    Priority order for interactive mode:
+    1. CLI flag --interactive (highest priority)
+    2. 'interactive' setting in general_settings
+    3. Default to batch mode
     
     Args:
         args: Parsed command line arguments
+        general_settings: Optional dictionary with general settings
         
     Returns:
-        OutputConfig instance configured from CLI
+        OutputConfig instance configured from CLI and settings
     """
     # Determine if saving is enabled and which formats
     save_output = False
@@ -105,11 +111,18 @@ def create_output_config_from_cli_args(args) -> OutputConfig:
         save_output = False
         formats = []  # Empty since we're not saving
     
-    # Determine mode
-    mode = MODE_BATCH
+    # Determine mode with proper priority
+    mode = MODE_BATCH  # Default
+    
+    # Check settings first (lower priority)
+    if general_settings and general_settings.get('interactive', False):
+        mode = MODE_INTERACTIVE
+    
+    # Check CLI flags (higher priority - overrides settings)
     if hasattr(args, 'interactive') and args.interactive:
         mode = MODE_INTERACTIVE
     elif hasattr(args, 'output_mode') and args.output_mode:
+        # output_mode flag overrides settings but not --interactive
         mode = args.output_mode
         
     # Sequential files option
