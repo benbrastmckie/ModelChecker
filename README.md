@@ -51,13 +51,18 @@ This separation ensures users can quickly find installation and usage informatio
 
 ## Installation
 
-### Basic Installation
-
+For most users:
 ```bash
 pip install model-checker
 ```
 
-For detailed installation instructions including platform-specific notes, see the [Installation Guide](Docs/installation/README.md).
+For comprehensive installation instructions including platform-specific guides, virtual environments, and development setup, see the [Installation Documentation](Docs/installation/README.md).
+
+**Quick Links:**
+- [Basic Installation](Docs/installation/BASIC_INSTALLATION.md) - Standard pip installation
+- [NixOS Installation](Docs/installation/BASIC_INSTALLATION.md#nixos-installation) - NixOS-specific setup
+- [Developer Setup](Docs/installation/DEVELOPER_SETUP.md) - Development environment
+- [Troubleshooting](Docs/installation/TROUBLESHOOTING.md) - Common issues
 
 ### Development Installation
 

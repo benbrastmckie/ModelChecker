@@ -91,7 +91,7 @@ Interactive Jupyter notebooks demonstrating theory concepts, operator usage, and
 - **[Settings Reference](docs/SETTINGS.md)** - Configuration options
 
 ### For Researchers
-- **[Architecture Guide](docs/ARCHITECTURE.md)** - Semantic implementation details
+- **[Architecture Guide](docs/PIPELINE.md)** - Semantic implementation details
 - **[Academic References](#references)** - Theoretical foundations
 - **[Test Examples](examples.py)** - Validation cases
 

@@ -58,7 +58,7 @@ Proper linking between related documents:
 
 - **[Installation Guide](../installation/README.md)** - Setting up ModelChecker
 - **[Modal Theory Implementation](../../Code/src/model_checker/theory_lib/modal/README.md)** - Technical details
-- **[Computational Methods](../methodology/computational_logic.md)** - Research approach
+- **[Computational Methods](../architecture/computational_logic.md)** - Research approach
 
 For code implementation details, see [Code Maintenance Standards](../../Code/maintenance/README.md).
 ```
@@ -180,7 +180,7 @@ in all states reachable from the current state.
 
 ### Documentation Resources
 - **[Installation Guides](../installation/README.md)** - Setup documentation
-- **[Methodology](../methodology/README.md)** - Research approaches
+- **[Methodology](../architecture/README.md)** - Research approaches
 - **[Theory Explanations](../theories/README.md)** - Conceptual guides
 
 ---

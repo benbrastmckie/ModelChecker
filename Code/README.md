@@ -16,19 +16,23 @@ A programmatic framework for implementing modular semantic theories powered by t
 - **Multiple Model Generation**: Find diverse models satisfying your constraints
 - **Theory Library**: Pre-built theories to test, adapt, and share with others
 
-## Installation
+## Quick Start
 
+Install the package:
 ```bash
 pip install model-checker
 ```
 
-For Jupyter notebook support:
-
+For development:
 ```bash
-pip install model-checker[jupyter]
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+pip install -e .
 ```
 
-## Quick Start
+**NixOS users**: Use `nix-shell` instead. See [NixOS Development](../Docs/installation/DEVELOPER_SETUP.md#nixos-development).
+
+For complete installation guides, see [Installation Documentation](../Docs/installation/README.md).
 
 Create a new logic project:
 

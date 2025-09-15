@@ -130,7 +130,7 @@ This directory contains only installation guide files (no subdirectories). Each 
 ### Related Documentation
 - **[Usage Guide](../usage/README.md)** - Using ModelChecker after installation
 - **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
-- **[Methodology](../methodology/README.md)** - How ModelChecker works
+- **[Methodology](../architecture/README.md)** - How ModelChecker works
 
 ---
 

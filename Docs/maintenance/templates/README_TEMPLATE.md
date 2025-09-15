@@ -62,7 +62,7 @@ For complete examples.py file structure, see [Examples Standards](../EXAMPLES_ST
 
 ### For Researchers
 - **[Theory Background](#references)** - Academic foundations
-- **[Architecture](docs/ARCHITECTURE.md)** - Design decisions
+- **[Architecture](docs/PIPELINE.md)** - Design decisions
 
 ### For Developers  
 - **[API Reference](docs/API_REFERENCE.md)** - Technical documentation

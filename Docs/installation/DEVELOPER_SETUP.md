@@ -6,7 +6,34 @@
 
 This guide covers setting up a development environment for contributing to ModelChecker or creating custom semantic theories. For basic usage, see [Basic Installation](BASIC_INSTALLATION.md).
 
-**NixOS Users**: Standard development methods will not work on NixOS. Skip to [NixOS Development](#nixos-development) for the correct approach.
+## Simple Development Setup (Recommended)
+
+ModelChecker has minimal dependencies, making development setup straightforward:
+
+```bash
+# Clone the repository
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+
+# Install in development mode
+pip install -e .
+
+# That's it! Run tests to verify
+./run_tests.py --unit
+```
+
+This simple approach works because:
+- Only two dependencies: z3-solver and networkx
+- No complex build requirements
+- Editable install means changes take effect immediately
+- Development scripts are included in the repository
+
+## Available Development Scripts
+
+- `./dev_cli.py` - Run examples with local code
+- `./run_tests.py` - Run test suites
+- `./run_update.py` - Version management
+- `./run_jupyter.sh` - Launch Jupyter with proper environment
 
 ## Prerequisites
 
@@ -14,7 +41,32 @@ This guide covers setting up a development environment for contributing to Model
 - Git
 - Basic command line knowledge
 
-**Note**: NixOS users only need Git - all other dependencies are handled by `shell.nix`.
+## Optional: Virtual Environment
+
+If you prefer to isolate dependencies (though with only z3-solver and networkx, conflicts are unlikely):
+
+```bash
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -e .
+```
+
+See [Virtual Environments Guide](VIRTUAL_ENVIRONMENTS.md) for more details.
+
+## Optional: Nix Environment
+
+For those who prefer reproducible environments, a shell.nix is provided:
+
+```bash
+nix-shell  # If you have Nix installed
+```
+
+This is particularly useful for:
+- NixOS users (who must use this approach)
+- Teams wanting identical environments
+- CI/CD pipelines
+
+But it's not necessary for general development given the simple dependencies.
 
 ## NixOS Development
 
@@ -69,58 +121,28 @@ direnv allow
 
 For more NixOS-specific details, see the `shell.nix` file in the Code directory.
 
-## Standard Development Installation
+## Development Tools and Testing
 
-**Important**: The following instructions are for non-NixOS systems only.
+### Core Development Tools
 
-### 1. Clone the Repository
-
-```bash
-git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
-```
-
-### 2. Create Virtual Environment
+The repository includes essential development scripts:
 
 ```bash
-python -m venv dev-env
-source dev-env/bin/activate  # Linux/macOS
-# or
-dev-env\Scripts\activate     # Windows
+# Run examples without full installation
+./dev_cli.py examples/my_example.py
+
+# Run with debugging output
+./dev_cli.py -p -z examples/debug.py
+
+# Run test suites
+./run_tests.py          # All tests
+./run_tests.py --unit   # Unit tests only
+./run_tests.py logos    # Specific theory
 ```
 
-See [Virtual Environments Guide](VIRTUAL_ENVIRONMENTS.md) for details.
+### Optional Development Dependencies
 
-### 3. Install in Development Mode
-
-```bash
-# Editable installation
-pip install -e .
-
-# For testing and building packages, install additional tools:
-pip install pytest pytest-cov build twine
-```
-
-The `-e` flag creates an "editable" installation:
-- Changes to source code take effect immediately
-- No need to reinstall after modifications
-- Ideal for development work
-
-### 4. Verify Installation
-
-```bash
-# Run tests
-./run_tests.py
-
-# Check development CLI
-./dev_cli.py --help
-```
-
-## Development Tools
-
-### Recommended Development Dependencies
-
-Install these tools for a complete development environment:
+For a more complete development environment, you may want:
 
 ```bash
 pip install pytest pytest-cov    # Testing framework and coverage
@@ -130,7 +152,9 @@ pip install flake8               # Linting
 pip install pre-commit           # Git hooks
 ```
 
-### Development CLI
+These are optional - the core development work only needs the base installation.
+
+### Using the Development CLI
 
 The `dev_cli.py` script provides development utilities:
 
@@ -231,6 +255,27 @@ flake8 --max-line-length=88 src/
 ```
 
 See [Style Guide](../../Code/docs/STYLE_GUIDE.md) for coding standards.
+
+## Working Without Installation
+
+You can work on ModelChecker without installing it system-wide:
+
+```bash
+# Clone and enter directory
+git clone https://github.com/benbrastmckie/ModelChecker.git
+cd ModelChecker/Code
+
+# Run directly with dev CLI
+./dev_cli.py examples/test.py
+
+# The dev_cli.py automatically sets up paths
+```
+
+This approach is perfect for:
+- Quick testing of changes
+- Running examples
+- Debugging issues
+- Theory development
 
 ## Creating New Theories
 
@@ -395,7 +440,7 @@ pip install -e .
 ## Next Steps
 
 - **Read guidelines**: [Development Guide](../../Code/docs/DEVELOPMENT.md)
-- **Understand architecture**: [Architecture Docs](../../Code/docs/ARCHITECTURE.md)
+- **Understand architecture**: [Architecture Docs](../../Code/docs/PIPELINE.md)
 - **Explore theories**: [Theory Library](../../Code/src/model_checker/theory_lib/README.md)
 - **Start contributing**: [GitHub Issues](https://github.com/benbrastmckie/ModelChecker/issues)
 

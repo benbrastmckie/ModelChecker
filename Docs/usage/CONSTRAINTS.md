@@ -290,9 +290,9 @@ model-checker test.py --test_constraint --N=3
 - **[Z3 Integration](../../Code/src/model_checker/solver/README.md)** - Solver interface
 
 ### Theoretical Background
-- **[Methodology](../methodology/README.md)** - ModelChecker's approach
-- **[Semantic Properties](../methodology/SEMANTICS.md)** - Constraint types
-- **[Model Theory](../methodology/MODELS.md)** - Finite model construction
+- **[Methodology](../architecture/README.md)** - ModelChecker's approach
+- **[Semantic Properties](../architecture/SEMANTICS.md)** - Constraint types
+- **[Model Theory](../architecture/MODELS.md)** - Finite model construction
 
 ---
 

@@ -100,7 +100,7 @@ This directory contains only documentation files (no subdirectories). Each docum
 ### For Framework Users
 
 - **[Getting Started](../installation/GETTING_STARTED.md)** - Practical introduction
-- **[Methodology Overview](../methodology/README.md)** - How the framework operates
+- **[Methodology Overview](../architecture/README.md)** - How the framework operates
 - **[Usage Guide](../usage/README.md)** - Working with theories
 
 ## Key Features
@@ -145,7 +145,7 @@ Key papers include:
 
 - **[Theory Library](../../Code/src/model_checker/theory_lib/)** - Concrete implementations
 - **[Logos Theory](../../Code/src/model_checker/theory_lib/logos/)** - Hyperintensional framework
-- **[Methodology Guide](../methodology/)** - System architecture
+- **[Methodology Guide](../architecture/)** - System architecture
 
 ---
 
