@@ -1,4 +1,4 @@
-"""Tests for OutputManager interactive mode support."""
+"""Tests for OutputManager sequential prompted mode support."""
 
 import os
 import json
@@ -8,12 +8,12 @@ import pytest
 from unittest.mock import Mock, MagicMock, patch
 from datetime import datetime
 
-from model_checker.output import OutputManager, InteractiveSaveManager, MockInputProvider
+from model_checker.output import OutputManager, SequentialSaveManager, MockInputProvider
 from model_checker.output.config import OutputConfig
 
 
-class TestOutputManagerInteractive:
-    """Test OutputManager with interactive mode features."""
+class TestOutputManagerSequential:
+    """Test OutputManager with sequential prompted mode features."""
     
     def setup_method(self):
         """Create temporary directory for tests."""
@@ -26,40 +26,40 @@ class TestOutputManagerInteractive:
         os.chdir(self.original_cwd)
         shutil.rmtree(self.temp_dir)
     
-    def test_initialization_with_interactive_manager(self):
-        """Test OutputManager can be initialized with InteractiveSaveManager."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
+    def test_initialization_with_sequential_manager(self):
+        """Test OutputManager can be initialized with SequentialSaveManager."""
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         
         assert output_manager.save_output is True
-        assert output_manager.interactive_manager is interactive_manager
-        assert output_manager.mode == 'interactive'
+        assert output_manager.sequential_manager is sequential_manager
+        assert output_manager.mode == 'sequential'
         
     def test_create_example_directory(self):
-        """Test creating per-example directories in interactive mode."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
+        """Test creating per-example directories in sequential prompted mode."""
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
@@ -70,20 +70,20 @@ class TestOutputManagerInteractive:
         assert os.path.basename(example_dir) == "TEST_EXAMPLE"
         assert example_dir.startswith(output_manager.output_dir)
         
-    def test_save_model_interactive_mode(self):
-        """Test saving individual models in interactive mode."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
+    def test_save_model_sequential_mode(self):
+        """Test saving individual models in sequential prompted mode."""
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
@@ -96,7 +96,7 @@ class TestOutputManagerInteractive:
         }
         formatted_output = "# Test Model 1"
         
-        output_manager.save_model_interactive(
+        output_manager.save_model_sequential(
             "TEST_EX", 
             model_data, 
             formatted_output,
@@ -123,25 +123,25 @@ class TestOutputManagerInteractive:
             
     def test_save_multiple_models_same_example(self):
         """Test saving multiple models for same example."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
         # Save three models
         for i in range(1, 4):
             model_data = {"example": "MULTI", "model_num": i}
-            output_manager.save_model_interactive(
+            output_manager.save_model_sequential(
                 "MULTI",
                 model_data,
                 f"Model {i}",
@@ -156,8 +156,8 @@ class TestOutputManagerInteractive:
             
     def test_batch_mode_compatibility(self):
         """Test that batch mode still works with interactive manager."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'batch'
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'batch'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
@@ -167,7 +167,7 @@ class TestOutputManagerInteractive:
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
@@ -183,10 +183,10 @@ class TestOutputManagerInteractive:
         assert not os.path.exists(os.path.join(output_manager.output_dir, "BATCH_TEST"))
         
     def test_finalize_with_summary(self):
-        """Test finalize creates summary.json in interactive mode."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
-        interactive_manager.model_count = {
+        """Test finalize creates summary.json in sequential prompted mode."""
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
+        sequential_manager.model_count = {
             "EX1": 2,
             "EX2": 1,
             "EX3": 3
@@ -194,19 +194,19 @@ class TestOutputManagerInteractive:
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
         # Save some models
-        output_manager.save_model_interactive("EX1", {}, "Model", 1)
-        output_manager.save_model_interactive("EX1", {}, "Model", 2)
+        output_manager.save_model_sequential("EX1", {}, "Model", 1)
+        output_manager.save_model_sequential("EX1", {}, "Model", 2)
         
         # Finalize
         output_manager.finalize()
@@ -224,19 +224,19 @@ class TestOutputManagerInteractive:
         assert summary["examples"]["EX1"]["directory"] == "EX1"
         
     def test_get_output_path_interactive(self):
-        """Test getting output paths in interactive mode."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
+        """Test getting output paths in sequential prompted mode."""
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
@@ -244,28 +244,28 @@ class TestOutputManagerInteractive:
         path = output_manager.get_output_path("TEST_EX", "MODEL_1.md")
         assert path.endswith("TEST_EX/MODEL_1.md")
         
-    def test_no_interactive_manager_defaults(self):
+    def test_no_sequential_manager_defaults(self):
         """Test OutputManager works without interactive manager."""
         config = OutputConfig(save_output=True)
         output_manager = OutputManager(config=config)
         
-        assert output_manager.interactive_manager is None
+        assert output_manager.sequential_manager is None
         assert output_manager.mode == 'batch'
         
     def test_directory_structure_interactive(self):
-        """Test complete directory structure in interactive mode."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
+        """Test complete directory structure in sequential prompted mode."""
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
@@ -278,7 +278,7 @@ class TestOutputManagerInteractive:
         
         for example_name, model_count in examples:
             for i in range(1, model_count + 1):
-                output_manager.save_model_interactive(
+                output_manager.save_model_sequential(
                     example_name,
                     {"model": i},
                     f"Model {i} for {example_name}",
@@ -297,23 +297,23 @@ class TestOutputManagerInteractive:
     @patch('builtins.print')
     def test_save_location_display(self, mock_print):
         """Test that save location is displayed after saving."""
-        interactive_manager = InteractiveSaveManager(MockInputProvider([]))
-        interactive_manager.mode = 'interactive'
+        sequential_manager = SequentialSaveManager(MockInputProvider([]))
+        sequential_manager.mode = 'sequential'
         
         config = OutputConfig(
             formats=['markdown', 'json'],
-            mode='interactive',
+            mode='sequential',
             save_output=True
         )
         
         output_manager = OutputManager(
             config=config,
-            interactive_manager=interactive_manager
+            sequential_manager=sequential_manager
         )
         output_manager.create_output_directory()
         
         # Save a model
-        output_manager.save_model_interactive(
+        output_manager.save_model_sequential(
             "DISPLAY_TEST",
             {"test": True},
             "Test output",

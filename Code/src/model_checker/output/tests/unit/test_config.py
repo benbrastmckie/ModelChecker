@@ -5,7 +5,7 @@ from unittest.mock import Mock, MagicMock
 from model_checker.output.config import OutputConfig, create_output_config_from_cli_args
 from model_checker.output.constants import (
     DEFAULT_FORMATS, FORMAT_MARKDOWN, FORMAT_JSON, FORMAT_NOTEBOOK,
-    MODE_BATCH, MODE_SEQUENTIAL, MODE_INTERACTIVE,
+    MODE_BATCH, MODE_SEQUENTIAL,
     SEQUENTIAL_SINGLE, SEQUENTIAL_MULTIPLE
 )
 
@@ -26,13 +26,13 @@ class TestOutputConfig(unittest.TestCase):
         """Test initialization with custom values."""
         config = OutputConfig(
             formats=['markdown'],
-            mode=MODE_INTERACTIVE,
+            mode=MODE_SEQUENTIAL,
             sequential_files=SEQUENTIAL_SINGLE,
             save_output=False
         )
         
         self.assertEqual(config.enabled_formats, {'markdown'})
-        self.assertEqual(config.mode, MODE_INTERACTIVE)
+        self.assertEqual(config.mode, MODE_SEQUENTIAL)
         self.assertEqual(config.sequential_files, SEQUENTIAL_SINGLE)
         self.assertFalse(config.save_output)
     
@@ -166,7 +166,8 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         
         config = create_output_config_from_cli_args(args)
         
-        self.assertEqual(config.mode, MODE_INTERACTIVE)
+        # Interactive flag means sequential mode
+        self.assertEqual(config.mode, MODE_SEQUENTIAL)
     
     def test_from_cli_args_output_mode_specified(self):
         """Test explicit output_mode."""
@@ -188,8 +189,8 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         
         config = create_output_config_from_cli_args(args)
         
-        # Interactive should take precedence
-        self.assertEqual(config.mode, MODE_INTERACTIVE)
+        # Interactive should take precedence - uses sequential mode
+        self.assertEqual(config.mode, MODE_SEQUENTIAL)
     
     def test_from_cli_args_sequential_files_option(self):
         """Test sequential_files option."""
@@ -213,7 +214,7 @@ class TestOutputConfigFromCLI(unittest.TestCase):
         
         self.assertTrue(config.save_output)
         self.assertEqual(config.enabled_formats, {FORMAT_MARKDOWN, FORMAT_JSON})
-        self.assertEqual(config.mode, MODE_INTERACTIVE)
+        self.assertEqual(config.mode, MODE_SEQUENTIAL)  # Interactive uses sequential
         self.assertEqual(config.sequential_files, SEQUENTIAL_SINGLE)
     
     def test_from_cli_args_missing_attributes(self):

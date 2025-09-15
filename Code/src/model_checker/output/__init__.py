@@ -13,7 +13,9 @@ from .formatters import (
     ANSIToMarkdown
 )
 from .config import OutputConfig
-from .interactive import InteractiveSaveManager
+from .sequential import SequentialSaveManager
+# Backward compatibility alias
+InteractiveSaveManager = SequentialSaveManager
 from .input_provider import InputProvider, ConsoleInputProvider, MockInputProvider
 from .prompts import prompt_yes_no, prompt_choice
 
@@ -27,7 +29,8 @@ __all__ = [
     'MarkdownFormatter',
     'JSONFormatter',
     'ANSIToMarkdown',
-    'InteractiveSaveManager',
+    'SequentialSaveManager',
+    'InteractiveSaveManager',  # Backward compatibility
     'InputProvider',
     'ConsoleInputProvider',
     'MockInputProvider',
