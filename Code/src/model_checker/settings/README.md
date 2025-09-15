@@ -97,6 +97,7 @@ class ExclusionSemantics(SemanticDefaults):
 **General Settings** (theory-wide behavior):
 - Output control (`print_z3`, `print_constraints`, `save_output`)
 - Debugging options (`print_impossible`, `maximize`)
+- Interactive mode (`interactive` - enables prompts for saving each model)
 - Theory-specific display (`align_vertically` for bimodal)
 
 **Example Settings** (per-model configuration):

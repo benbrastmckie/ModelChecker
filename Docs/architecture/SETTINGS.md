@@ -10,29 +10,61 @@ The settings management system provides a sophisticated configuration hierarchy 
 
 The ModelChecker uses a five-level settings hierarchy with clear precedence:
 
-```mermaid
-graph TD
-    subgraph "Settings Precedence (High to Low)"
-        CLI[CLI Arguments<br/>Highest Priority]
-        Example[Example File<br/>Problem-specific]
-        User[User Config<br/>Personal preferences]
-        Theory[Theory Defaults<br/>Theory-specific]
-        System[System Defaults<br/>Lowest Priority]
-    end
-    
-    CLI --> Merger[Settings Merger]
-    Example --> Merger
-    User --> Merger
-    Theory --> Merger
-    System --> Merger
-    
-    Merger --> Final[Final Settings]
-    
-    style CLI fill:#ffcdd2
-    style Example fill:#f8bbd0
-    style User fill:#e1bee7
-    style Theory fill:#c5cae9
-    style System fill:#bbdefb
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│              SETTINGS PRECEDENCE HIERARCHY (High to Low Priority)           │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌──────────────────────┐
+│   CLI Arguments      │  [1] HIGHEST PRIORITY
+│ • --verbose          │  Overrides all other settings
+│ • --N=5              │
+│ • --save             │
+└─────────┬────────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   Example File       │  [2] Problem-specific settings
+│ • Problem settings   │  Override user/theory/system
+│ • Test requirements  │
+└─────────┬────────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   User Config        │  [3] Personal preferences
+│ • ~/.modelchecker    │  Override theory/system
+│ • Personal defaults  │
+└─────────┬────────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   Theory Defaults    │  [4] Theory-specific
+│ • Logos: N=16        │  Override system only
+│ • Theory constraints │
+└─────────┬────────────┘
+           │
+           ▼
+┌──────────────────────┐
+│   System Defaults    │  [5] LOWEST PRIORITY  
+│ • Baseline values    │  Base configuration
+│ • Fallback settings  │
+└─────────┬────────────┘
+           │
+           │  All settings flow to:
+           ▼
+   ┌───────────────────────────────────────────────┐
+   │                 Settings Merger                  │
+   │  • Combines all sources by priority              │
+   │  • Resolves conflicts (higher priority wins)     │
+   │  • Validates final configuration                 │
+   └───────────────────────┬───────────────────────┘
+                                │
+                                ▼
+                    ┌──────────────────────┐
+                    │   Final Settings     │
+                    │  • Validated         │
+                    │  • Ready to use      │
+                    └──────────────────────┘
 ```
 
 ### 1. CLI Arguments (Highest Priority)
@@ -92,19 +124,24 @@ SYSTEM_DEFAULTS = {
 ### Core Settings
 Essential parameters that control model checking:
 
-```mermaid
-graph LR
-    subgraph "Core Settings"
-        N[N: Bit-width<br/>State space size]
-        Time[max_time<br/>Z3 timeout]
-        Models[max_models<br/>Models to find]
-        Theory[theory<br/>Semantic theory]
-    end
-    
-    N --> Size[Model Size]
-    Time --> Performance[Performance]
-    Models --> Iteration[Iteration]
-    Theory --> Semantics[Semantics]
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          CORE SETTINGS RELATIONSHIPS                        │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐
+│   N: Bit-width      │    │  max_time          │    │  max_models        │    │  theory            │
+│ • State space size  │    │ • Z3 timeout       │    │ • Models to find   │    │ • Semantic theory  │
+│ • 2^N possible      │    │ • Seconds          │    │ • Iteration limit  │    │ • logos/bimodal    │
+└─────────┬───────────┘    └─────────┬───────────┘    └─────────┬───────────┘    └─────────┬───────────┘
+           │                       │                       │                       │
+           │ Affects               │ Affects               │ Affects               │ Determines
+           ▼                       ▼                       ▼                       ▼
+┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐    ┌────────────────────┐
+│   Model Size        │    │   Performance      │    │   Iteration        │    │   Semantics        │
+│ • Complexity       │    │ • Solving speed    │    │ • Result count     │    │ • Truth conditions │
+│ • Memory usage     │    │ • Timeout behavior│    │ • Exploration     │    │ • Operators        │
+└────────────────────┘    └────────────────────┘    └────────────────────┘    └────────────────────┘
 ```
 
 | Setting | Type | Default | Description |
@@ -117,19 +154,39 @@ graph LR
 ### Output Settings
 Control how results are displayed and saved:
 
-```mermaid
-graph TB
-    subgraph "Output Control"
-        Verbose[verbose<br/>Detail level]
-        Format[output_format<br/>text/json/latex]
-        Save[save_output<br/>Auto-save]
-        Dir[output_dir<br/>Save location]
-    end
-    
-    Verbose --> Display[Terminal Display]
-    Format --> Formatter[Output Formatter]
-    Save --> FileSystem[File System]
-    Dir --> FileSystem
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         OUTPUT CONTROL SETTINGS                             │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+┌────────────────────┐    ┌────────────────────┐
+│   verbose           │    │  output_format     │
+│ • Detail level      │    │ • text/json/md    │
+│ • true/false        │    │ • jupyter (.ipynb)│
+└─────────┬───────────┘    └─────────┬───────────┘
+           │                       │
+           │                       │
+           ▼                       ▼
+┌────────────────────┐    ┌────────────────────┐
+│  Terminal Display   │    │  Output Formatter  │
+│ • Console output    │    │ • Format results   │
+│ • Progress bars     │    │ • Apply styles     │
+└────────────────────┘    └────────────────────┘
+
+┌────────────────────┐    ┌────────────────────┐
+│   save_output       │    │   output_dir       │
+│ • Auto-save         │    │ • Save location    │
+│ • true/false        │    │ • Default: output/│
+└─────────┬───────────┘    └─────────┬───────────┘
+           │                       │
+           └─────────┬───────────┘
+                     │
+                     ▼
+          ┌────────────────────┐
+          │    File System     │
+          │ • Write files      │
+          │ • Create dirs      │
+          └────────────────────┘
 ```
 
 | Setting | Type | Default | Description |
@@ -161,24 +218,42 @@ Settings that only apply to certain theories:
 
 ### Validation Flow
 
-```mermaid
-sequenceDiagram
-    participant User
-    participant Validator
-    participant Theory
-    participant System
-    
-    User->>Validator: Provide settings
-    Validator->>Theory: Check theory constraints
-    Theory-->>Validator: Validation rules
-    Validator->>System: Check system limits
-    System-->>Validator: System constraints
-    
-    alt Valid Settings
-        Validator-->>User: Settings accepted
-    else Invalid Settings
-        Validator-->>User: Error with suggestions
-    end
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        SETTINGS VALIDATION SEQUENCE                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+    User               Validator           Theory              System
+     │                    │                  │                   │
+     ├──────────────────▶│                  │                   │
+     │ Provide settings   │                  │                   │
+     │                    │                  │                   │
+     │                    ├─────────────────▶│                   │
+     │                    │ Check theory     │                   │
+     │                    │ constraints      │                   │
+     │                    │                  │                   │
+     │                    │◀─────────────────┤                   │
+     │                    │ Validation rules │                   │
+     │                    │                  │                   │
+     │                    ├──────────────────────────────────▶│
+     │                    │ Check system limits                  │
+     │                    │                                      │
+     │                    │◀──────────────────────────────────┤
+     │                    │ System constraints                   │
+     │                    │                                      │
+     │                    │                                      │
+     │     ┌─────────────┼─────────────────────────────────┐
+     │     │  Decision:     │                                      │
+     │     │                │                                      │
+     │     │  [Valid Settings]                                    │
+     │     │  │◀────────────┤                                      │
+     │     │  │  Settings accepted                                │
+     │     │  │            │                                      │
+     │     │  │  [Invalid Settings]                               │
+     │     │  │◀────────────┤                                      │
+     │     │  │  Error with suggestions                          │
+     │     └──────────────────────────────────────────────┘
+     ▼                    ▼                  ▼                   ▼
 ```
 
 ### Validation Rules
@@ -215,26 +290,63 @@ sequenceDiagram
 
 ### Merge Algorithm
 
-```mermaid
-graph TD
-    subgraph "Merge Process"
-        Start[Start with System Defaults]
-        Theory[Apply Theory Defaults]
-        User[Apply User Config]
-        Example[Apply Example Settings]
-        CLI[Apply CLI Arguments]
-        Validate[Validate Final Settings]
-    end
-    
-    Start --> Theory
-    Theory --> User
-    User --> Example
-    Example --> CLI
-    CLI --> Validate
-    
-    Validate --> Result{Valid?}
-    Result -->|Yes| Final[Final Settings]
-    Result -->|No| Error[Error Report]
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                         SETTINGS MERGE ALGORITHM                            │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                    ┌──────────────────────────┐
+                    │  Start with System       │
+                    │  Defaults                │
+                    │  • Baseline values       │
+                    └────────────┬─────────────┘
+                                 │
+                                 ▼
+                    ┌──────────────────────────┐
+                    │  Apply Theory Defaults   │
+                    │  • Theory-specific       │
+                    │  • Override system       │
+                    └────────────┬─────────────┘
+                                 │
+                                 ▼
+                    ┌──────────────────────────┐
+                    │  Apply User Config       │
+                    │  • Personal preferences  │
+                    │  • Override theory       │
+                    └────────────┬─────────────┘
+                                 │
+                                 ▼
+                    ┌──────────────────────────┐
+                    │  Apply Example Settings  │
+                    │  • Problem-specific      │
+                    │  • Override user         │
+                    └────────────┬─────────────┘
+                                 │
+                                 ▼
+                    ┌──────────────────────────┐
+                    │  Apply CLI Arguments     │
+                    │  • Highest priority      │
+                    │  • Override all          │
+                    └────────────┬─────────────┘
+                                 │
+                                 ▼
+                    ┌──────────────────────────┐
+                    │  Validate Final Settings │
+                    │  • Check constraints     │
+                    │  • Verify dependencies   │
+                    └────────────┬─────────────┘
+                                 │
+                        ┌────────┴────────┐
+                        │     Valid?      │
+                        └────────┬────────┘
+                                 │
+                    ┌────────────┴────────────┐
+                    ▼                         ▼
+        ┌──────────────────┐      ┌──────────────────┐
+        │  Final Settings  │      │  Error Report    │
+        │  • Ready to use  │      │  • Issue details │
+        │  • Validated     │      │  • Suggestions   │
+        └──────────────────┘      └──────────────────┘
 ```
 
 ### Merge Example
@@ -263,19 +375,50 @@ settings.update({'verbose': False, 'save_output': True})
 
 Some settings can be modified during execution:
 
-```mermaid
-stateDiagram-v2
-    [*] --> Initial: Load Settings
-    Initial --> Running: Start Execution
-    
-    Running --> Modified: User Interrupt
-    Modified --> Running: Resume with New Settings
-    
-    Running --> Timeout: max_time Reached
-    Running --> Complete: Finished
-    
-    Timeout --> [*]
-    Complete --> [*]
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      DYNAMIC SETTINGS STATE MACHINE                         │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                           ┌──────────────────┐
+                           │      START       │
+                           │        [*]       │
+                           └─────────┬────────┘
+                                     │
+                                     │ Load Settings
+                                     ▼
+                           ┌──────────────────┐
+                           │     INITIAL      │
+                           │ • Settings loaded│
+                           │ • Ready to start │
+                           └─────────┬────────┘
+                                     │
+                                     │ Start Execution
+                                     ▼
+        ┌──────────────────────────────────────────────────────┐
+        │                       RUNNING                        │
+        │ • Model checking in progress                         │
+        │ • Settings active                                    │
+        │ • Monitoring performance                             │
+        └───────┬──────────────────┬───────────────┬──────────┘
+                │                  │               │
+                │ User             │ max_time      │ Task
+                │ Interrupt        │ Reached       │ Complete
+                ▼                  ▼               ▼
+     ┌──────────────────┐ ┌──────────────┐ ┌──────────────┐
+     │     MODIFIED     │ │    TIMEOUT   │ │   COMPLETE   │
+     │ • Settings       │ │ • Time limit │ │ • Success    │
+     │   changed        │ │   reached    │ │ • Results    │
+     │ • User control   │ │ • Partial    │ │   ready      │
+     └─────────┬────────┘ │   results    │ └──────┬───────┘
+               │          └───────┬───────┘        │
+               │ Resume with      │                │
+               │ New Settings     │                │
+               │                  ▼                ▼
+               │          ┌──────────────────────────┐
+               └─────────▶│         END             │
+                          │         [*]             │
+                          └──────────────────────────┘
 ```
 
 ### Runtime Modifications

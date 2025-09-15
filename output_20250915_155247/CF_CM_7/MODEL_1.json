@@ -1,0 +1,48 @@
+{
+    "example": "CF_CM_7",
+    "theory": "Brast-McKie",
+    "has_model": true,
+    "evaluation_world": "s3",
+    "states": {
+        "worlds": [
+            "s3",
+            "s5",
+            "s8"
+        ],
+        "possible": [
+            "s0",
+            "s1",
+            "s2",
+            "s4"
+        ],
+        "impossible": [
+            "s6",
+            "s7",
+            "s9",
+            "s10",
+            "s11",
+            "s12",
+            "s13",
+            "s14",
+            "s15"
+        ]
+    },
+    "relations": {},
+    "propositions": {},
+    "premises": [
+        "(A \\boxright B)"
+    ],
+    "conclusions": [
+        "(\\neg B \\boxright \\neg A)"
+    ],
+    "settings": {
+        "N": 4,
+        "contingent": true,
+        "non_null": true,
+        "non_empty": true,
+        "disjoint": false,
+        "max_time": 10,
+        "iterate": 1,
+        "expectation": true
+    }
+}

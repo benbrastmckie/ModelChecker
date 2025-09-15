@@ -536,7 +536,7 @@ registry.load_subtheories(['modal', 'constitutive', 'counterfactual'])
 # Each subtheory provides operators:
 # - modal: □ (Box), ◇ (Diamond)
 # - constitutive: ⊏ (essence), ⊐ (grounding)
-# - counterfactual: ▷ (would), ◁ (might)
+# - counterfactual: □→ (would), ◇→ (could)
 
 # Build semantic theory dictionary
 semantic_theory = {

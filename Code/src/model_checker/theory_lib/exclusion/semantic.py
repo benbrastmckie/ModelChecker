@@ -289,6 +289,7 @@ class WitnessSemantics(LogosSemantics):
         "print_z3": False,
         "save_output": False,
         "maximize": False,
+        "interactive": False,
     }
     
     def __init__(self, settings):
@@ -773,6 +774,7 @@ class WitnessModelAdapter(ModelDefaults):
         "print_z3": False,
         "save_output": False,
         "maximize": False,
+        "interactive": False,
     }
     
     def __init__(self, settings):
