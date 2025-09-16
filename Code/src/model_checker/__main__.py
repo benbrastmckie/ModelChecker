@@ -142,22 +142,10 @@ class ParseFileFlags:
             help='Overrides to display world histories vertically with time flowing from top to bottom.'
         )
         parser.add_argument(
-            '--output-mode',
-            choices=['batch', 'sequential'],
-            default='batch',
-            help='Output mode when saving: batch (single file) or sequential (multiple files)'
-        )
-        parser.add_argument(
-            '--sequential-files',
-            choices=['single', 'multiple'],
-            default='multiple',
-            help='For sequential mode: single file or multiple files'
-        )
-        parser.add_argument(
             '--sequential',
             '-q',
             action='store_true',
-            help='Enable sequential save mode - prompts after each model to save'
+            help='Save models sequentially with prompts'
         )
         return parser
 
@@ -181,14 +169,13 @@ class ParseFileFlags:
             'l': 'load_theory',
             'm': 'maximize',
             'n': 'non_null',
-            'p': 'print_constraints',
+            'q': 'sequential',
             's': 'save',
             'i': 'print_impossible',
             'v': 'version',
             'u': 'upgrade',
             'z': 'print_z3',
-            'a': 'align_vertically',
-            'I': 'interactive'
+            'a': 'align_vertically'
         }
         
         # Store the original command line arguments

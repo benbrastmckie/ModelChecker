@@ -65,12 +65,20 @@ class SettingsManager:
         self.is_comparison: bool = is_comparison
         self.strict_mode: bool = strict_mode
         
-        # Get DEFAULT_GENERAL_SETTINGS from theory or fall back to global defaults
+        # Get semantics class
         semantics_class = semantic_theory.get("semantics")
-        theory_defaults = getattr(semantics_class, "DEFAULT_GENERAL_SETTINGS", None)
         
-        # Always prefer theory-specific defaults over global defaults
-        self.DEFAULT_GENERAL_SETTINGS: SettingsDict = theory_defaults if theory_defaults is not None else (global_defaults or {})
+        # Import SemanticDefaults to access base general settings
+        from model_checker.models.semantic import SemanticDefaults
+        
+        # Start with base class general settings
+        self.DEFAULT_GENERAL_SETTINGS: SettingsDict = SemanticDefaults.DEFAULT_GENERAL_SETTINGS.copy()
+        
+        # Augment with any theory-specific additional general settings
+        if hasattr(semantics_class, 'ADDITIONAL_GENERAL_SETTINGS'):
+            self.DEFAULT_GENERAL_SETTINGS.update(
+                semantics_class.ADDITIONAL_GENERAL_SETTINGS
+            )
         
         # Get DEFAULT_EXAMPLE_SETTINGS from theory
         self.DEFAULT_EXAMPLE_SETTINGS: SettingsDict = semantic_theory["semantics"].DEFAULT_EXAMPLE_SETTINGS

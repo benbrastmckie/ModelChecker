@@ -498,7 +498,7 @@ class ModelRunner:
         Returns:
             int: Updated iteration count
         """
-        if self.build_module.interactive_manager and self.build_module.interactive_manager.is_interactive():
+        if self.build_module.prompt_manager:
             # Interactive mode
             self.build_module._capture_and_save_output(example, example_name, theory_name)
             
@@ -742,8 +742,8 @@ class ModelRunner:
                 full_path = os.path.abspath(self.build_module.output_manager.output_dir)
                 
                 # Prompt for directory change
-                if self.build_module.interactive_manager:
-                    self.build_module.interactive_manager.prompt_change_directory(full_path)
+                if self.build_module.prompt_manager:
+                    self.build_module.prompt_manager.prompt_directory_change(full_path)
                 else:
                     # No interactive manager - show instructions directly
                     print(f"\nOutput saved to: {full_path}")

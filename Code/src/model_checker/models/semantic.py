@@ -48,6 +48,16 @@ class SemanticDefaults:
         premise_behavior (str): How premises should be handled for validity
         conclusion_behavior (str): How conclusions should be handled for validity
     """
+    
+    # General settings used by all theories (defined once)
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_impossible": False,
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        "sequential": False,
+        "maximize": False
+    }
 
     def __init__(self, combined_settings: 'Settings') -> None:
         # Reset any global state to avoid cross-example interference

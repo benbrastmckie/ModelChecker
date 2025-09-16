@@ -12,10 +12,8 @@ from .formatters import (
     JSONFormatter,
     ANSIToMarkdown
 )
-from .config import OutputConfig
-from .sequential import SequentialSaveManager
-# Backward compatibility alias
-InteractiveSaveManager = SequentialSaveManager
+from .config import OutputConfig, create_output_config
+from .sequential_manager import SequentialSaveManager
 from .input_provider import InputProvider, ConsoleInputProvider, MockInputProvider
 from .prompts import prompt_yes_no, prompt_choice
 
@@ -25,12 +23,12 @@ from .notebook import StreamingNotebookGenerator, NotebookWriter, TemplateLoader
 __all__ = [
     'OutputManager',
     'OutputConfig',
+    'create_output_config',
     'ModelDataCollector',
     'MarkdownFormatter',
     'JSONFormatter',
     'ANSIToMarkdown',
     'SequentialSaveManager',
-    'InteractiveSaveManager',  # Backward compatibility
     'InputProvider',
     'ConsoleInputProvider',
     'MockInputProvider',

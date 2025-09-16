@@ -42,15 +42,9 @@ class BimodalSemantics(SemanticDefaults):
         'iterate': 1,
     }
     
-    # Bimodal-specific general settings defaults
-    DEFAULT_GENERAL_SETTINGS = {
-        "print_impossible": False,
-        "print_constraints": False,
-        "print_z3": False,
-        "save_output": False,
-        "maximize": False,
-        "sequential": False,
-        "align_vertically": True,
+    # Optional: Add bimodal-specific general settings
+    ADDITIONAL_GENERAL_SETTINGS = {
+        "align_vertically": True,  # Display option for temporal models
     }
 
     def __init__(self, settings):

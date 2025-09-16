@@ -45,29 +45,17 @@ class ImpositionSemantics(LogosSemantics):
         'expectation' : None,
     }
     
-    # Default general settings for the imposition theory
-    DEFAULT_GENERAL_SETTINGS = {
-        "print_impossible": False,
-        "print_constraints": False,
-        "print_z3": False,
-        "save_output": False,
-        "maximize": False,
-        "sequential": False,
-        "derive_imposition": False,  # Theory-specific setting
+    # Optional: Add imposition-specific general settings
+    ADDITIONAL_GENERAL_SETTINGS = {
+        "derive_imposition": False,  # Theory-specific setting for imposition operations
     }
 
     def __init__(self, settings):
-        # Merge settings with defaults
-        combined_settings = {}
-        combined_settings.update(self.DEFAULT_EXAMPLE_SETTINGS)
-        combined_settings.update(self.DEFAULT_GENERAL_SETTINGS)
-        combined_settings.update(settings)  # User settings override defaults
+        # Initialize the parent LogosSemantics with settings
+        super().__init__(combined_settings=settings)
         
-        # Initialize the parent LogosSemantics with combined_settings
-        super().__init__(combined_settings=combined_settings)
-        
-        # Store derive_imposition setting
-        self.derive_imposition = combined_settings.get('derive_imposition', False)
+        # Store derive_imposition setting (from ADDITIONAL_GENERAL_SETTINGS or user override)
+        self.derive_imposition = settings.get('derive_imposition', False)
         
         # Define imposition-specific operations
         self._define_imposition_operation()

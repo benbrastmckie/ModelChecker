@@ -37,7 +37,9 @@ class TestSettingsManager(unittest.TestCase):
         """Test validating general settings."""
         # Test with None
         settings = self.settings_manager.validate_general_settings(None)
-        self.assertEqual(settings, MockSemantics.DEFAULT_GENERAL_SETTINGS)
+        # Now uses SemanticDefaults general settings
+        from model_checker.models.semantic import SemanticDefaults
+        self.assertEqual(settings, SemanticDefaults.DEFAULT_GENERAL_SETTINGS)
         
         # Test with valid settings
         user_settings = {'print_z3': True}

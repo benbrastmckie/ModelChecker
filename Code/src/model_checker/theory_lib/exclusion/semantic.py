@@ -282,15 +282,7 @@ class WitnessSemantics(LogosSemantics):
         'expectation': None,
     }
     
-    # Default general settings for the negation theory
-    DEFAULT_GENERAL_SETTINGS = {
-        "print_impossible": False,
-        "print_constraints": False,
-        "print_z3": False,
-        "save_output": False,
-        "maximize": False,
-        "sequential": False,
-    }
+    # No additional general settings needed - uses base class defaults
     
     def __init__(self, settings):
         super().__init__(settings)
@@ -767,15 +759,7 @@ class WitnessModelAdapter(ModelDefaults):
         'expectation': None,
     }
     
-    # Default general settings for the negation theory
-    DEFAULT_GENERAL_SETTINGS = {
-        "print_impossible": False,
-        "print_constraints": False,
-        "print_z3": False,
-        "save_output": False,
-        "maximize": False,
-        "sequential": False,
-    }
+    # No additional general settings needed - uses base class defaults
     
     def __init__(self, settings):
         super().__init__(settings)

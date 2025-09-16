@@ -20,7 +20,7 @@ from model_checker.builder.tests.fixtures.assertions import (
 )
 
 from model_checker.builder.module import BuildModule
-from model_checker.output import InteractiveSaveManager
+from model_checker.output import SequentialSaveManager
 
 
 class TestBuildModuleInteractiveIntegration(unittest.TestCase):

@@ -96,28 +96,113 @@ Personal preferences in `~/.model-checker/config.json`:
 ```
 
 ### 4. Theory Defaults
-Theory-specific default settings:
+Theory-specific example settings and optional general settings:
 ```python
-# theory_lib/logos/settings.py
-THEORY_DEFAULTS = {
-    'N': 4,
-    'max_time': 30,
-    'max_models': 10,
-    'use_modal': True
-}
+# theory_lib/logos/semantic.py
+class LogosSemantics(SemanticDefaults):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 16,
+        'contingent': True,
+        'non_empty': True,
+        'non_null': True,
+        'disjoint': True,
+        'max_time': 10,
+        'iterate': False,
+    }
+    # No additional general settings needed
+
+# theory_lib/bimodal/semantic.py  
+class BimodalSemantics(SemanticDefaults):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 2,
+        'M': 2,  # Time points
+        'contingent': False,
+        'max_time': 1,
+    }
+    
+    ADDITIONAL_GENERAL_SETTINGS = {
+        'align_vertically': True,  # Display option for temporal models
+    }
 ```
 
 ### 5. System Defaults (Lowest Priority)
-Framework-wide fallback values:
+Framework-wide general settings defined in base class:
 ```python
-# settings/defaults.py
-SYSTEM_DEFAULTS = {
-    'N': 3,
-    'max_time': 10,
-    'max_models': 1,
-    'verbose': False
-}
+# models/semantic.py - SemanticDefaults base class
+class SemanticDefaults:
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_impossible": False,
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        "sequential": False,
+        "maximize": False
+    }
 ```
+
+## Settings Architecture
+
+### Inheritance-Based Design
+
+The settings system uses Python class inheritance to eliminate duplication:
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                      SETTINGS INHERITANCE ARCHITECTURE                       │
+└─────────────────────────────────────────────────────────────────────────────┘
+
+                    ┌──────────────────────────┐
+                    │    SemanticDefaults      │
+                    │                          │
+                    │ DEFAULT_GENERAL_SETTINGS │  ◄── Framework-wide settings
+                    │ • print_impossible       │      (defined once)
+                    │ • print_constraints      │
+                    │ • print_z3               │
+                    │ • save_output            │
+                    │ • sequential             │
+                    │ • maximize               │
+                    └─────────────┬────────────┘
+                                  │ Inherits
+                    ┌─────────────┴────────────────────────┐
+                    │                                      │
+        ┌───────────▼──────────┐               ┌─────────▼──────────┐
+        │   LogosSemantics      │               │  BimodalSemantics  │
+        │                       │               │                    │
+        │ DEFAULT_EXAMPLE_      │               │ DEFAULT_EXAMPLE_   │
+        │   SETTINGS            │               │   SETTINGS         │
+        │ • N: 16               │               │ • N: 2             │
+        │ • contingent: True    │               │ • M: 2             │
+        │ • non_empty: True     │               │ • max_time: 1      │
+        │                       │               │                    │
+        │ (No additional        │               │ ADDITIONAL_GENERAL_│
+        │  general settings)    │               │   SETTINGS         │
+        └───────────┬───────────┘               │ • align_vertically │
+                    │                            └────────────────────┘
+                    │ Inherits
+        ┌───────────┴────────────────────┐
+        │                                 │
+   ┌────▼──────────┐            ┌────────▼──────────┐
+   │ Exclusion     │            │ Imposition        │
+   │  Semantics    │            │  Semantics        │
+   │               │            │                   │
+   │ DEFAULT_      │            │ DEFAULT_EXAMPLE_  │
+   │  EXAMPLE_     │            │   SETTINGS        │
+   │  SETTINGS     │            │                   │
+   │               │            │ ADDITIONAL_       │
+   │ (No additional│            │  GENERAL_SETTINGS │
+   │  general)     │            │ • derive_imposition│
+   └───────────────┘            └───────────────────┘
+```
+
+### Settings Merging
+
+The SettingsManager combines settings in this priority order:
+
+1. **SemanticDefaults.DEFAULT_GENERAL_SETTINGS** - Base framework settings
+2. **Theory.ADDITIONAL_GENERAL_SETTINGS** - Theory-specific general settings (if defined)
+3. **Theory.DEFAULT_EXAMPLE_SETTINGS** - Theory-specific example defaults
+4. **User settings** - From example files or configuration
+5. **CLI flags** - Command-line arguments (highest priority)
 
 ## Settings Categories
 
@@ -200,17 +285,23 @@ Control how results are displayed and saved:
 Settings that only apply to certain theories:
 
 ```python
-# Logos-specific settings
+# Bimodal-specific example settings
 {
-    'use_modal': True,          # Enable modal operators
-    'use_counterfactual': True, # Enable counterfactuals
-    'use_constitutive': False,  # Enable constitutive operators
+    'M': 2,                      # Number of time points
+    'align_vertically': True,    # Display world histories vertically
 }
 
-# Bimodal-specific settings
+# Imposition-specific settings  
 {
-    'max_time_points': 5,       # Temporal dimension
-    'time_branching': 'linear', # Time structure
+    'derive_imposition': False,  # Whether to derive imposition operations
+}
+
+# Settings common to hyperintensional theories (logos, exclusion, imposition)
+{
+    'contingent': False,         # Make atomic propositions contingent
+    'non_empty': False,          # Require non-empty verifier/falsifier sets
+    'non_null': False,           # Prevent null states as verifiers/falsifiers
+    'disjoint': False,           # Require disjoint subject-matters
 }
 ```
 
