@@ -29,11 +29,11 @@
    - [Solver-Agnostic Interface](#solver-agnostic-interface)
 5. [ModelDefaults and Theory Structures](#modeldefaults-and-theory-structures)
    - [Model Structure Creation](#model-structure-creation)
+   - [Model Differences Tracking](#model-differences-tracking)
+6. [Extension Assignment](#extension-assignment)
    - [SMT Model Interpretation](#smt-model-interpretation)
    - [State Extraction](#state-extraction)
    - [Main World Assignment](#main-world-assignment)
-   - [Model Differences Tracking](#model-differences-tracking)
-6. [Extension Assignment](#extension-assignment)
    - [Verify/Falsify Relations](#verifyfalsify-relations)
    - [Verifier/Falsifier Sets](#verifierfalsifier-sets)
    - [World State Identification](#world-state-identification)
@@ -44,7 +44,6 @@
    - [Recursive Evaluation](#recursive-evaluation)
    - [Truth Value Determination](#truth-value-determination)
    - [Model Structure Population](#model-structure-population)
-   - [Witness Finding](#witness-finding)
 8. [Output Generation](#output-generation)
    - [Model Visualization](#model-visualization)
    - [Extension Display](#extension-display)
@@ -81,29 +80,33 @@ The SMT solver setup orchestrates the transformation from semantic constraints t
 └─────────────────────────────────────────────────────────────────────────┘
 
 1. CONSTRAINT COLLECTION           2. SOLVER SETUP
-┌─────────────────────┐           ┌───────────────────────┐
-│ ModelConstraints    │           │ Fresh Z3 Context      │
-│ • Frame constraints │           │ • Reset global state  │
-│ • Model constraints │ ────────▶ │ • New solver instance │
-│ • Premise true      │           │ • Add with tracking   │
-│ • Conclusion false  │           └───────────────────────┘
-└─────────────────────┘                     │
-                                            ▼
-                                  ┌───────────────────────┐
-                                  │ 3. SOLVING PROCESS    │
-                                  │ • Set timeout         │
-                                  │ • Check satisfiability│
-                                  │ • Handle resources    │
-                                  └───────────────────────┘
-                                            │
-                                            ▼
-                                  ┌──────────────────────┐
-                                  │ 4. RESULT PROCESSING │
-                                  │ • SAT: Extract model │
-                                  │ • UNSAT: Get core    │
-                                  │ • UNKNOWN: Timeout   │
-                                  └──────────────────────┘
+┌──────────────────────────┐           ┌───────────────────────┐
+│ ModelConstraints         │           │ Fresh Z3 Context      │
+│ • Frame constraints      │           │ • Reset global state  │
+│ • Model constraints      │ ────────▶ │ • New solver instance │
+│ • Premise constraints    │           │ • Add with tracking   │
+│ • Conclusion constraints │           └───────────────────────┘
+└──────────────────────────┘                     │
+                                                 ▼
+                                       ┌───────────────────────┐
+                                       │ 3. SOLVING PROCESS    │
+                                       │ • Set timeout         │
+                                       │ • Check satisfiability│
+                                       │ • Handle resources    │
+                                       └───────────────────────┘
+                                                 │
+                                                 ▼
+                                       ┌──────────────────────┐
+                                       │ 4. RESULT PROCESSING │
+                                       │ • SAT: Extract model │
+                                       │ • UNSAT: Get core    │
+                                       │ • UNKNOWN: Timeout   │
+                                       └──────────────────────┘
 ```
+
+**Add with tracking**: Constraints are added using Z3's `assert_and_track(constraint, label)` method instead of plain `assert`. This associates each constraint with a tracking label (e.g., "frame1", "model5", "premises2") that enables unsat core analysis. When constraints are unsatisfiable, the unsat core tells you exactly which labeled constraints conflict - invaluable for debugging semantic theories.
+
+**Handle resources**: Manages solver timeouts, memory cleanup, and state isolation. This includes setting time limits to prevent infinite loops, cleaning up Z3 objects to prevent memory leaks, and ensuring complete state isolation between examples to avoid contamination from previous solving attempts.
 
 ### Solver Initialization
 
@@ -641,7 +644,7 @@ ModelDefaults provides the base infrastructure for solving and interpreting mode
                          │ • Basic display     │
                          └──────────┬──────────┘          Aditional theories...
                                     │ Inheritance
-        ┌───────────────────────────┬───────────────────────────┬────────── ...
+        ┌───────────────────────────┼───────────────────────────┬────────── ...
         │                           │                           │
         ▼                           ▼                           ▼
 ┌────────────────────┐ ┌───────────────────────┐ ┌────────────────────────┐
@@ -680,9 +683,26 @@ The ModelDefaults constructor sets up the solving infrastructure. It stores the 
 
 _Full implementation: [`model_checker/model.py`](../../Code/src/model_checker/model.py)_
 
-### SMT Model Interpretation
+### Model Differences Tracking
 
-<!-- TODO: this section would fit better in "## Extension Assignment" since it introduces extraction -->
+For tracking differences between models during iteration:
+
+```python
+def track_model_differences(self, other_model):
+    """Track differences between two models."""
+    differences = {
+        'states': self.z3_possible_states != other_model.z3_possible_states,
+        'worlds': self.z3_world_states != other_model.z3_world_states,
+        'main_world': self.main_world_value != other_model.main_world_value
+    }
+    return differences
+```
+
+This functionality is primarily used by the iteration system to ensure distinct models are found. See [Iterator System](ITERATE.md) for complete details on model iteration.
+
+## Extension Assignment
+
+### SMT Model Interpretation
 
 Convert Z3 model to usable structure:
 
@@ -705,8 +725,6 @@ def _process_solver_results(self, solver_results):
 This method unpacks the solver results tuple and branches based on satisfiability status. If a model was found (status=True), it stores the Z3 model object and extracts the semantic structure. If no model exists (status=False), it stores the unsat core for debugging. The timeout flag and runtime are always recorded for performance analysis. This separation of concerns keeps the solving logic clean and the model interpretation organized.
 
 ### State Extraction
-
-<!-- TODO: this section would fit better in "## Extension Assignment" since it effects extraction -->
 
 Identify possible states and world states:
 
@@ -733,8 +751,6 @@ This extraction process converts Z3's internal model representation into Python 
 
 ### Main World Assignment
 
-<!-- TODO: this section would fit better in "## Extension Assignment" since it effects extraction -->
-
 Identify evaluation world:
 
 ```python
@@ -755,8 +771,6 @@ print(f"Main world: {main_world_str}")
 ```
 
 The main world extraction demonstrates the conversion from Z3's internal bit vector representation to human-readable format. Z3 represents states as bit vectors for efficiency, but we need readable strings for output. The evaluation point dictionary structure supports theories that may have additional parameters beyond just the world (like temporal theories with time indices). The `bitvec_to_worldstate` function converts numeric values like 7 into state labels like "w1" or "a.b.c".
-
-## Extension Assignment
 
 ### Verify/Falsify Relations
 
@@ -895,16 +909,16 @@ The bit vector representation encodes states as binary numbers where each bit po
 ```
 State Encoding (N=3):
 ┌─────────────────────────────────────────┐
-│ BitVec │ Binary │ State │ Meaning      │
-├────────┼────────┼───────┼──────────────┤
-│   0    │  000   │   □   │ Null state   │
-│   1    │  001   │   a   │ Atomic 'a'   │
-│   2    │  010   │   b   │ Atomic 'b'   │
-│   3    │  011   │  a.b  │ Fusion a,b   │
-│   4    │  100   │   c   │ Atomic 'c'   │
-│   5    │  101   │  a.c  │ Fusion a,c   │
-│   6    │  110   │  b.c  │ Fusion b,c   │
-│   7    │  111   │ a.b.c │ Fusion all   │
+│ BitVec │ Binary │ State │ Meaning       │
+├────────┼────────┼───────┼───────────────┤
+│   0    │  000   │   □   │ Null state    │
+│   1    │  001   │   a   │ Atomic 'a'    │
+│   2    │  010   │   b   │ Atomic 'b'    │
+│   3    │  011   │  a.b  │ Fusion a,b    │
+│   4    │  100   │   c   │ Atomic 'c'    │
+│   5    │  101   │  a.c  │ Fusion a,c    │
+│   6    │  110   │  b.c  │ Fusion b,c    │
+│   7    │  111   │ a.b.c │ Fusion all    │
 └─────────────────────────────────────────┘
 ```
 
@@ -1032,8 +1046,6 @@ def find_witness(self, world, sentence):
     return (None, None)
 ```
 
-<!-- TODO: eventually I will add an entire subpackage for witnessing and include a separate WITNESS.md file in architecture/ and so unless this subsection is essential, it can be removed for now -->
-
 ## Output Generation
 
 The output generation transforms raw model data into human-readable countermodel displays:
@@ -1053,7 +1065,7 @@ The output generation transforms raw model data into human-readable countermodel
                                ▼
                     ┌─────────────────────┐
                     │ Structured Data     │
-                    │ • State sets        │
+                    │ • State space       │
                     │ • Extensions        │
                     │ • Truth values      │
                     └──────────┬──────────┘
@@ -1062,7 +1074,6 @@ The output generation transforms raw model data into human-readable countermodel
                     ┌─────────────────────┐
                     │ Display Output      │
                     │ • World structure   │
-                    │ • Verifier sets     │
                     │ • Evaluation trees  │
                     └─────────────────────┘
 ```
@@ -1282,26 +1293,6 @@ class LogosModelStructure(ModelDefaults):
 
 _Note: Theory-specific model structures are typically implemented as subclasses of ModelDefaults in their respective theory packages._
 
-### Model Iteration Support
-
-<!-- TODO: this should be covered in ITERATE.md and so may be omitted here -->
-
-```python
-def find_next_model(self, previous_model):
-    """Find a different model."""
-    # Add constraint excluding previous model
-    difference = self._create_difference_constraint(previous_model)
-    self.solver.add(difference)
-
-    # Re-solve
-    results = self.re_solve()
-
-    if results[2]:  # satisfiable
-        return self._create_new_structure(results[1])
-    else:
-        return None
-```
-
 ### Debugging Support
 
 ```python
@@ -1374,7 +1365,7 @@ Theory-specific model structures are implemented as subclasses of ModelDefaults 
 
 - [Semantics Pipeline](SEMANTICS.md) - Constraint generation that feeds into solving
 - [Workflow](WORKFLOW.md) - Using the complete model checking system
-- [Iterator System](ITERATOR.md) - Finding multiple distinct models
+- [Iterator System](ITERATE.md) - Finding multiple distinct models
 - [Z3 Python API](https://z3prover.github.io/api/html/namespacez3py.html) - Official Z3 documentation
 
 ---

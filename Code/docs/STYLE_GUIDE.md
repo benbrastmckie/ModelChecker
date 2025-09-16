@@ -147,7 +147,7 @@ See [Testing Standards](../../Docs/maintenance/TESTING_STANDARDS.md) | **[Comple
 
 ### Character Encoding & Unicode
 
-See [Unicode Guidelines](../../Docs/maintenance/UNICODE_GUIDELINES.md) | [CLAUDE.md Character Standards](../CLAUDE.md#character-encoding-standards)
+See [Unicode Guidelines](../maintenance/UNICODE_GUIDELINES.md) | [CLAUDE.md Character Standards](../CLAUDE.md#character-encoding-standards)
 
 **File Requirements:**
 - **UTF-8 encoding** without BOM for all files

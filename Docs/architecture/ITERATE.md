@@ -186,17 +186,17 @@ The `iterate` setting interacts with other configuration (see [Settings Manageme
 ├────────────────────────────────────────────────────────────────────┤
 │                                                                    │
 │  State Space Size:              Semantic Constraints:              │
-│  N=3 → 8 states → Fast         contingent=True → Fewer models    │
-│  N=4 → 16 states → Moderate    non_empty=True → Fewer models     │
-│  N=5 → 32 states → Slower      disjoint=True → Fewer models      │
-│  N=6 → 64 states → Very slow   non_null=True → Fewer models      │
+│  N=3 → 8 states → Fast         contingent=True → Fewer models      │
+│  N=4 → 16 states → Moderate    non_empty=True → Fewer models       │
+│  N=5 → 32 states → Slower      disjoint=True → Fewer models        │
+│  N=6 → 64 states → Very slow   non_null=True → Fewer models        │
 │                                                                    │
 │  Timeout Cascade:                                                  │
-│  max_time (10s) ─────────────────────────┐                     │
-│                                          │                     │
-│  iteration_solver_timeout (5s) ─────────┤ Per attempt        │
-│                                          │                     │
-│  iteration_timeout (1s) ────────────────┘ Isomorphism check  │
+│  max_time (10s) ─────────────────────────┐                         │
+│                                          │                         │
+│  iteration_solver_timeout (5s) ──────────┤ Per attempt             │
+│                                          │                         │
+│  iteration_timeout (1s) ─────────────────┘ Isomorphism check       │
 │                                                                    │
 └────────────────────────────────────────────────────────────────────┘
 ```

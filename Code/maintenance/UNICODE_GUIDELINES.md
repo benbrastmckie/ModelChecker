@@ -6,7 +6,13 @@
 
 This document defines Unicode character usage standards for **code files** in the ModelChecker framework. Unicode characters (∧, ∨, ¬, □, ◇, →, ↔, etc.) are **NEVER** permitted in code that the ModelChecker parser processes.
 
-For Unicode usage in documentation, see [Docs/maintenance/UNICODE_GUIDELINES.md](../../Docs/maintenance/UNICODE_GUIDELINES.md).
+## Unicode in Documentation
+
+Unicode mathematical symbols (∧, ∨, ¬, □, ◇, →, ↔, etc.) are **encouraged** in documentation files for clarity and readability. In documentation:
+- Improves readability for mathematical expressions
+- Creates clear visual distinction between operators
+- Aligns with standard mathematical notation
+- Enhances accessibility for non-programmers
 
 ## Critical Parser Requirements
 

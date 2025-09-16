@@ -52,9 +52,16 @@ def unicode_to_latex(formula: str) -> str:
         '≡': '\\equiv',
         '⊥': '\\bot',
         '⊤': '\\top',
-        # Add quantifier support that tests expect
+        # Quantifiers
         '∀': '\\forall',
-        '∃': '\\exists'
+        '∃': '\\exists',
+        # Counterfactual operators (using composite symbols)
+        '□→': '\\boxright',      # Would counterfactual
+        '◇→': '\\diamondright',  # Could counterfactual
+        # Constitutive logic operators
+        '≤': '\\leq',           # Ground
+        '⊑': '\\sqsubseteq',    # Essence
+        '⪯': '\\preceq'         # Relevance
     }
     
     # Theory-specific mappings (exclusion theory)
@@ -106,14 +113,21 @@ def latex_to_unicode(formula: str) -> str:
         '\\equiv': '≡',
         '\\bot': '⊥',
         '\\top': '⊤',
-        # Add quantifier support
+        # Quantifiers
         '\\forall': '∀',
         '\\exists': '∃',
         # Exclusion theory
         '\\exclude': '⦻',
         '\\uniwedge': '⊓',
         '\\univee': '⊔',
-        '\\uniequiv': '≔'
+        '\\uniequiv': '≔',
+        # Counterfactual operators
+        '\\boxright': '□→',      # Would counterfactual
+        '\\diamondright': '◇→',  # Could counterfactual
+        # Constitutive logic operators
+        '\\leq': '≤',           # Ground
+        '\\sqsubseteq': '⊑',    # Essence
+        '\\preceq': '⪯'         # Relevance
     }
     
     # First handle double backslash version (\\rightarrow, etc.)
@@ -156,7 +170,9 @@ def ensure_parentheses(formula: str) -> str:
     """
     binary_operators = [
         '\\rightarrow', '\\wedge', '\\vee', '\\leftrightarrow', '\\equiv',
-        '\\uniwedge', '\\univee', '\\uniequiv'
+        '\\uniwedge', '\\univee', '\\uniequiv',
+        '\\boxright', '\\diamondright',  # Counterfactual
+        '\\leq', '\\sqsubseteq', '\\preceq'  # Constitutive
     ]
     
     # If formula contains a binary operator and isn't already parenthesized,
@@ -227,7 +243,14 @@ def get_theory_operators(theory_name: str) -> Dict[str, Dict[str, str]]:
             '\\leftrightarrow': '↔',
             '\\equiv': '≡',
             '\\bot': '⊥',
-            '\\top': '⊤'
+            '\\top': '⊤',
+            # Counterfactual operators
+            '\\boxright': '□→',
+            '\\diamondright': '◇→',
+            # Constitutive operators
+            '\\leq': '≤',
+            '\\sqsubseteq': '⊑',
+            '\\preceq': '⪯'
         },
         'unicode_to_latex': {
             '→': '\\rightarrow',
@@ -239,7 +262,14 @@ def get_theory_operators(theory_name: str) -> Dict[str, Dict[str, str]]:
             '↔': '\\leftrightarrow',
             '≡': '\\equiv',
             '⊥': '\\bot',
-            '⊤': '\\top'
+            '⊤': '\\top',
+            # Counterfactual operators
+            '□→': '\\boxright',
+            '◇→': '\\diamondright',
+            # Constitutive operators
+            '≤': '\\leq',
+            '⊑': '\\sqsubseteq',
+            '⪯': '\\preceq'
         }
     }
     
