@@ -68,25 +68,25 @@ model-checker example.py --save --verbose --format json
 ┌─────────────────────────────────────────────────────────────────────────────┐
 │                             Input Sources                                   │
 │                                                                             │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
-│  │  Example File    │  │  CLI Arguments   │  │  User Settings   │         │
-│  │ • Premises       │  │ • Flags          │  │ • Config files   │         │
-│  │ • Conclusions    │  │ • Options        │  │ • Preferences    │         │
-│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
-│           │                      │                      │                   │
-│           ▼                      ▼                      ▼                   │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐         │
-│  │  File Loader     │  │ Argument Parser  │  │ Settings Merger  │         │
-│  │ • Read .py files │  │ • Parse CLI args │  │ • Merge configs  │         │
-│  │ • Extract data   │  │ • Validate opts  │  │ • Apply priority │         │
-│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘         │
-│           └──────────────────────┴──────────────────────┘                  │
-│                                  │                                          │
-│                                  ▼                                          │
-│                         ┌──────────────────┐  ┌──────────────────┐         │
-│                         │ Theory Defaults  │──│     Builder      │         │
-│                         │ • Base settings  │  │ • Orchestration  │         │
-│                         └──────────────────┘  └──────────────────┘         │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐           │
+│  │  Example File    │  │  CLI Arguments   │  │  User Settings   │           │
+│  │ • Premises       │  │ • Flags          │  │ • Config files   │           │
+│  │ • Conclusions    │  │ • Options        │  │ • Preferences    │           │
+│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘           │
+│           │                     │                     │                     │
+│           ▼                     ▼                     ▼                     │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐           │
+│  │  File Loader     │  │ Argument Parser  │  │ Settings Merger  │           │
+│  │ • Read .py files │  │ • Parse CLI args │  │ • Merge configs  │           │
+│  │ • Extract data   │  │ • Validate opts  │  │ • Apply priority │           │
+│  └────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘           │
+│           └─────────────────────┼─────────────────────┘                     │
+│                                 │                                           │
+│                                 ▼                                           │
+│                         ┌──────────────────┐  ┌──────────────────┐          │
+│                         │ Theory Defaults  │──│ Builder          │          │
+│                         │ • Base settings  │  │ • Orchestration  │          │
+│                         └──────────────────┘  └──────────────────┘          │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -107,53 +107,36 @@ The loading stage:
 └─────────────────────────────────────────────────────────────────────────────┘
 
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                              Parsing Phase                                  │
 │                                                                             │
-│  ┌──────────────────┐                                                       │
-│  │  Raw Formulas    │                                                       │
-│  │ • String input   │                                                       │
-│  │ • LaTeX notation │                                                       │
-│  └────────┬─────────┘                                                       │
-│           │                                                                 │
-│           ▼                                                                 │
-│  ┌──────────────────┐                                                       │
-│  │    Tokenizer     │                                                       │
-│  │ • Split tokens   │                                                       │
-│  │ • Identify ops   │                                                       │
-│  └────────┬─────────┘                                                       │
-│           │                                                                 │
-│           ▼                                                                 │
-│  ┌──────────────────┐                                                       │
-│  │      Parser      │                                                       │
-│  │ • Build tree     │                                                       │
-│  │ • Apply grammar  │                                                       │
-│  └────────┬─────────┘                                                       │
-│           │                                                                 │
-│           ▼                                                                 │
-│  ┌──────────────────┐                                                       │
-│  │    AST Tree      │                                                       │
-│  │ • Structure rep  │                                                       │
-│  │ • Operator nodes │                                                       │
-│  └────────┬─────────┘                                                       │
-└──────────────────────────────────────┼───────────────────────────────────────┘
-                                    │
-                                    ▼
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                          Normalization Phase                                │
+│  ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐   │
+│  │   Raw Formulas   │      │  Normalizer      │      │    Tokenizer     │   │
+│  │ • Unicode or     │─────▶│ • Unicode→LaTeX  │─────▶│ • Split on space │   │
+│  │   LaTeX input    │      │ • Keep if LaTeX  │      │ • Add paren gaps │   │
+│  └──────────────────┘      └──────────────────┘      └─────────┬────────┘   │
+│                                                                │            │
+│                                                                ▼            │
+│                                                        ┌──────────────────┐ │
+│                                                        │     Parser       │ │
+│                                                        │ • To prefix form │ │
+│                                                        │ • Extract struct │ │
+│                                                        └───────┬──────────┘ │
+│                                                                │            │
+│  ┌──────────────────┐      ┌──────────────────┐                ▼            │
+│  │  Z3 Expressions  │      │ Operator Resolve │      ┌──────────────────┐   │
+│  │ • Ready for      │◀─────│ • Map \op names  │◀─────│   Prefix Tree    │   │
+│  │   constraints    │      │ • Apply semantics│      │ • Nested lists   │   │
+│  └──────────────────┘      └──────────────────┘      └──────────────────┘   │
 │                                                                             │
-│  ┌─────────────────────┐  ┌─────────────────────┐  ┌─────────────────────┐  │
-│  │ Unicode Conversion │─▶│    LaTeX Format     │─▶│   Canonical Form    │  │
-│  │ • Convert symbols  │  │ • Standard notation │  │ • Final structure   │  │
-│  │ • Normalize chars  │  │ • Consistent style  │  │ • Ready for theory │  │
-│  └─────────────────────┘  └─────────────────────┘  └─────────────────────┘  │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 Formula processing involves:
-1. **Tokenization**: Breaking formulas into logical components
-2. **Parsing**: Building Abstract Syntax Trees (AST)
-3. **Normalization**: Converting to canonical representation
-4. **Operator Resolution**: Binding operators to semantic implementations
+1. **Normalization**: Convert Unicode symbols (→, ∧, ◇) to LaTeX commands (\rightarrow, \wedge, \Diamond) if present
+2. **Tokenization**: Split on whitespace after adding spaces around parentheses
+3. **Parsing**: Convert infix notation to prefix notation (language-agnostic)
+4. **Operator Resolution**: Map LaTeX operator strings to semantic operator classes
+
+The parser is **language-independent**: it only recognizes structural patterns (parentheses for binary operators, backslash for LaTeX commands) without knowing which specific operators exist. The semantic meaning is resolved later through the operator registry for the semantic theory in question.
 
 ### Stage 3: Constraint Generation
 
@@ -166,43 +149,44 @@ Formula processing involves:
 │                            Semantic Layer                                   │
 │                                                                             │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                        AST Structures                               │  │
-│  │  • Parsed formula trees                                            │  │
-│  │  • Operator nodes with arguments                                  │  │
-│  │  • Atomic propositions identified                                 │  │
+│  │                        AST Structures                                 │  │
+│  │  • Parsed formula trees                                               │  │
+│  │  • Operator nodes with arguments                                      │  │
+│  │  • Atomic propositions identified                                     │  │
 │  └───────────────────────────────────┬───────────────────────────────────┘  │
-│                                    │                                        │
-│                                    ▼                                        │
+│                                      │                                      │
+│                                      ▼                                      │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                        Theory Engine                                │  │
-│  │  • Loads selected semantic theory                                  │  │
-│  │  • Maps operators to semantic implementations                      │  │
-│  │  • Configures theory-specific settings                             │  │
+│  │                        Theory Engine                                  │  │
+│  │  • Loads selected semantic theory                                     │  │
+│  │  • Maps operators to semantic implementations                         │  │
+│  │  • Configures theory-specific settings                                │  │
 │  └───────────────────────────────────┬───────────────────────────────────┘  │
-│                                    │                                        │
-│                                    ▼                                        │
+│                                      │                                      │
+│                                      ▼                                      │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                       Semantic Rules                                │  │
-│  │  • Truth conditions for operators                                  │  │
-│  │  • Frame conditions for models                                     │  │
-│  │  • Atomic proposition behavior                                     │  │
+│  │                       Semantic Rules                                  │  │
+│  │  • Truth conditional semantics for operators                          │  │
+│  │  • Frame conditions for models                                        │  │
+│  │  • Proposition conditions for models                                  │  │
 │  └───────────────────────────────────┬───────────────────────────────────┘  │
-│                                    │                                        │
-│                                    ▼                                        │
+│                                      │                                      │
+│                                      ▼                                      │
 │  ┌───────────────────────────────────────────────────────────────────────┐  │
-│  │                      Z3 Constraints                                 │  │
-│  │  • Frame constraints (model structure)                              │  │
-│  │  • Model constraints (atomic propositions)                         │  │
-│  │  • Premise constraints (must be true)                              │  │
-│  │  • Conclusion constraints (at least one false)                     │  │
+│  │                      Z3 Constraints                                   │  │
+│  │  • Frame constraints                                                  │  │
+│  │  • Model constraints (atomic sentences to propositions)               │  │
+│  │  • Premise constraints (all true)                                     │  │
+│  │  • Conclusion constraints (at least one false)                        │  │
 │  └───────────────────────────────────┬───────────────────────────────────┘  │
+│                                      ▼                                      │
 └─────────────────────────────────────────────────────────────────────────────┘
-                                    │
-                                    ▼
-                          ┌──────────────────┐
-                          │   Z3 Solver      │
-                          │  • SMT solving   │
-                          └──────────────────┘
+                                       │
+                                       ▼
+                             ┌──────────────────┐
+                             │   Z3 Solver      │
+                             │  • SMT solving   │
+                             └──────────────────┘
 ```
 
 The theory engine:
@@ -218,37 +202,45 @@ The theory engine:
 │                       STAGE 4: MODEL DISCOVERY                              │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
-│   Z3 Solver      │───▶│  SAT Check       │───▶│ Model Structure  │
-│ • SMT solving    │    │ • Satisfiable?  │    │ • Extract model │
-│ • Find solution  │    │ • Check result  │    │ • Build structure│
-└──────────────────┘    └──────┬──────────┘    └───────┬─────────┘
-                              │                           │
-                              │ SAT?                     │
-                              │                           │
-                   No ┌───────┼───────┐ Yes              │
-                      │               │                   │
-                      ▼               ▼                   ▼
-             ┌──────────────────┐   ┌──────────────────┐    ┌──────────────────┐
-             │  No Models (UNSAT)│   │     Continue     │    │ Model Iterator   │
-             │ • Argument valid  │   │                  │    │ • Find more      │
-             │ • No countermodel │   └──────────────────┘    │ • Track found    │
-             └──────────────────┘                         └───────┬─────────┘
-                                                                   │
-                                                                   │ Find More
-                                                                   │
-                                                          ┌────────▼────────┐
-                                                          │ Add blocking      │
-                                                          │ constraint and    │
-                                                          │ re-solve          │
-                                                          └──────────────────┘
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                                                                             │
+│  ┌──────────────────┐      ┌──────────────────┐      ┌──────────────────┐   │
+│  │ Z3 Solver        │      │ SAT Check        │      │ Model Extraction │   │
+│  │ • Solve SMT      │─────▶│ • Satisfiable?   │─────▶│ • Extract values │   │
+│  │ • Find solution  │      │ • Get assignment │      │ • Build structure│   │
+│  └──────────────────┘      └─────────┬────────┘      └─────────┬────────┘   │
+│      ▲                               │                         │            │
+│      │            ┌──────────────────┴─────────┐               │            │
+│      │            │                            │               │            │
+│      │          UNSAT                         SAT              │            │
+│      │            │                            │               │            │
+│      │            ▼                            ▼               ▼            │
+│      │   ┌──────────────────┐        ┌──────────────────────────────────┐   │
+│      │   │ Valid (✓)        │        │ Model Found                      │   │
+│      │   │ • No countermodel│        │ • Countermodel exists            │   │
+│      │   │ • Argument holds │        │ • Check for more models?         │   │
+│      │   └──────────────────┘        └────────────┬─────────────────────┘   │
+│      │                                            │                         │
+│      │                                            │ If max_models > 1       │
+│      │                                            ▼                         │
+│      │                               ┌──────────────────────────────────┐   │
+│      │                               │ Model Iterator                   │   │
+│      │                               │ • Add blocking constraint        │   │
+│      │                               │ • Exclude current model          │   │
+│      │                               │ • Re-solve with Z3               │   │
+│      │                               └────────────┬─────────────────────┘   │
+│      │     Loop until UNSAT or max                │                         │
+│      └────────────────────────────────────────────┘                         │
+│                                                                             │
+└─────────────────────────────────────────────────────────────────────────────┘
 ```
 
 Model discovery process:
-1. **Initial Solve**: Z3 attempts to find first model
-2. **Model Extraction**: Convert Z3 solution to model structure
-3. **Iteration**: Find additional distinct models
-4. **Isomorphism Check**: Ensure models are structurally different
+1. **Initial Solve**: Z3 attempts to find first model satisfying constraints
+2. **SAT Check**: Determine if constraints are satisfiable
+3. **Model Extraction**: If SAT, convert Z3 solution to model structure
+4. **Iteration**: Find additional distinct models by blocking previous solutions
+5. **Termination**: Stop when UNSAT (no more models) or max_models reached
 
 ### Stage 5: Output Formatting
 
@@ -257,25 +249,25 @@ Model discovery process:
 │                      STAGE 5: OUTPUT FORMATTING                             │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-                        ┌────────────────────────┐
-                        │   Model Structures      │
-                        │  • Worlds & relations  │
-                        │  • Truth valuations    │
-                        │  • Verifier sets       │
-                        └──────────┬─────────────┘
-                                   │
-                                   ▼
-                        ┌────────────────────────┐
-                        │    Format Selector     │
-                        │  • Based on settings   │
-                        │  • Output destination  │
-                        └──────────┬─────────────┘
-                                   │
-        ┌───────────────────────────┼────────────────────────────┐
-        │                          │                              │
-        ▼                          ▼                              ▼
+                           ┌────────────────────────┐
+                           │  Model Structures      │
+                           │  • Semantic primitives │
+                           │  • Interpretations     │
+                           │  • Truth values        │
+                           └──────────┬─────────────┘
+                                      │
+                                      ▼
+                           ┌────────────────────────┐
+                           │  Format Selector       │
+                           │  • Based on settings   │
+                           │  • Output destination  │
+                           └──────────┬─────────────┘
+                                      │
+        ┌───────────────────┬─────────┴─────────┬────────────────────┐
+        │                   │                   │                    │
+        ▼                   ▼                   ▼                    ▼
 ┌────────────────┐  ┌────────────────┐  ┌────────────────┐  ┌──────────────────┐
-│  Text Format   │  │  JSON Format   │  │ Markdown Format│  │ Jupyter Notebook │
+│ Text Format    │  │ JSON Format    │  │ Markdown Format│  │ Jupyter Notebook │
 │ • Terminal     │  │ • Structured   │  │ • Tables       │  │ • Interactive    │
 │ • Human-read   │  │ • Programmatic │  │ • Documentation│  │ • Visualizations │
 │ • Colored      │  │ • Machine-read │  │ • GitHub-ready │  │ • Code & results │
@@ -317,29 +309,29 @@ When `--save` flag or `save_output: true` setting is used:
 │                          FILE SAVE SEQUENCE                                 │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-    Output              FileSystem              User
-       │                    │                    │
-       │ Check output       │                    │
-       │ directory          │                    │
-       ├───────────────────▶│                    │
-       │                    │                    │
-       │  Directory status  │                    │
-       │◀───────────────────┤                    │
-       │                    │                    │
-       │ Prompt for file name                    │
-       ├────────────────────────────────────────▶│
-       │                    │                    │
-       │ Provide name/options                    │
-       │◀────────────────────────────────────────┤
-       │                    │                    │
-       │ Write formatted    │                    │
-       │ output             │                    │
-       ├───────────────────▶│                    │
-       │                    │                    │
-       │                    │ Confirm save       │
-       │                    │ location           │
-       │                    ├───────────────────▶│
-       ▼                    ▼                    ▼
+    Output                  FileSystem              User
+       │                        │                    │
+       │ Check output           │                    │
+       │ directory              │                    │
+       ├───────────────────────▶│                    │
+       │                        │                    │
+       │  Directory status      │                    │
+       │◀───────────────────────┤                    │
+       │                        │                    │
+       │ Prompt for file name   │                    │
+       ├────────────────────────────────────────────▶│
+       │                        │                    │
+       │ Provide name/options   │                    │
+       │◀────────────────────────────────────────────┤
+       │                        │                    │
+       │ Write formatted        │                    │
+       │ output                 │                    │
+       ├───────────────────────▶│                    │
+       │                        │                    │
+       │                        │ Confirm save       │
+       │                        │ location           │
+       │                        ├───────────────────▶│
+       ▼                        ▼                    ▼
 ```
 
 File saving process:
@@ -358,48 +350,56 @@ File saving process:
 
 1. USER INPUT
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  ┌────────────────────┐  ┌────────────────────┐  ┌────────────────────┐    │
-│  │    example.py     │  │    CLI Flags      │  │     Settings      │    │
-│  │ • Premises        │  │ • --save          │  │ • N=4             │    │
-│  │ • Conclusions     │  │ • --verbose       │  │ • max_time=30     │    │
-│  └────────┬───────────┘  └────────┬───────────┘  └────────┬───────────┘    │
-│           └─────────────────────────┼──────────────────────┘                │
-└──────────────────────────────────────┼──────────────────────────────────────┘
-                                      │
-                                      ▼
+│  ┌────────────────────┐  ┌────────────────────┐  ┌────────────────────┐     │
+│  │ example.py         │  │ CLI Flags          │  │ Settings           │     │
+│  │ • Premises         │  │ • --save           │  │ • N=4              │     │
+│  │ • Conclusions      │  │ • --verbose        │  │ • max_time=30      │     │
+│  │                    │  │ • etc.             │  │ • etc.             │     │
+│  └────────┬───────────┘  └─────────┬──────────┘  └────────┬───────────┘     │
+│           └────────────────────────┼──────────────────────┘                 │
+└────────────────────────────────────┼────────────────────────────────────────┘
+                                     │
+                                     ▼
 2. PROCESSING
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │                            Builder                                 │    │
-│  │  • Orchestrates pipeline                                          │    │
-│  │  • Manages settings and configuration                            │    │
-│  └────────────────────────────────┬───────────────────────────────────┘    │
-│                                   │                                        │
-│                                   ▼                                        │
-│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────┐  │
-│  │      Parser      │─▶│      Theory      │─▶│       Z3         │─▶│   Iterator   │  │
-│  │ • Parse formulas │  │ • Apply semantics│  │ • Solve models   │  │ • Find more  │  │
-│  │ • Build AST      │  │ • Gen constraints│  │ • Check SAT/UNSAT│  │ • Track found│  │
-│  └──────────────────┘  └──────────────────┘  └──────────────────┘  └──────┬───────┘  │
-└─────────────────────────────────────────────────────────────────────────────┼───────────┘
-                                                                             │
-                                                                             ▼
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Builder                                                            │    │
+│  │  • Orchestrates pipeline                                            │    │
+│  │  • Manages settings and configuration                               │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│                                   ▼                                         │
+│  ┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐           │
+│  │ Parser           │─▶│ Semantic Theory  │─▶│ Find Models      │           │
+│  │ • Parse formulas │  │ • Apply semantics│  │ • Z3 Solver      │           │
+│  │ • Build AST      │  │ • Gen constraints│  │ • Check SAT/UNSAT│           │
+│  └──────────────────┘  └──────────────────┘  └────────┬─────────┘           │
+│                                                       ▼                     │
+│                                              ┌──────────────────┐           │
+│                                              │ Iterator         │           │
+│                                              │ • Find more      │           │
+│                                              │ • Track found    │           │
+│                                              │ • Return output  │           │
+│                                              └────────┬─────────┘           │
+└───────────────────────────────────────────────────────┼─────────────────────┘
+                                                        │
+                                                        ▼
 3. OUTPUT
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│  ┌────────────────────────────────────────────────────────────────────┐    │
-│  │                    Output Router                                   │    │
-│  │  • Checks --save flag and settings                                │    │
-│  │  • Directs output to appropriate destination                      │    │
-│  └────────────────────────────────┬───────────────────────────────────┘    │
-│                                   │                                        │
-│                    ┌──────────────┴──────────────┐                         │
-│                    │                              │ if --save              │
-│                    ▼                              ▼                        │
-│  ┌────────────────────────────┐  ┌────────────────────────────┐           │
-│  │    Terminal Display        │  │      File Save          │           │
-│  │ • Console output           │  │ • JSON/Markdown         │           │
-│  │ • Pretty printing          │  │ • Saved to output/      │           │
-│  └────────────────────────────┘  └────────────────────────────┘           │
+│  ┌─────────────────────────────────────────────────────────────────────┐    │
+│  │  Output Router                                                      │    │
+│  │  • Checks --save flag and settings                                  │    │
+│  │  • Directs output to appropriate destination                        │    │
+│  └────────────────────────────────┬────────────────────────────────────┘    │
+│                                   │                                         │
+│                    ┌──────────────┴──────────────┐                          │
+│                    │                             │ if --save                │
+│                    ▼                             ▼                          │
+│  ┌────────────────────────────┐  ┌────────────────────────────┐             │
+│  │ Terminal Display           │  │ File Save                  │             │
+│  │ • Console output           │  │ • JSON/Markdown            │             │
+│  │ • Pretty printing          │  │ • Saved to output/         │             │
+│  └────────────────────────────┘  └────────────────────────────┘             │
 └─────────────────────────────────────────────────────────────────────────────┘
 ```
 

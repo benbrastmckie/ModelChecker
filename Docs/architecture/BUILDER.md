@@ -414,48 +414,48 @@ Results flow from Z3 models through interpretation layers:
 
 Result interpretation pipeline:
 ```
-┌─────────────────────┐
-│ Z3 Model            │
-│ • Variable bindings │
-│ • Function values   │
-│ • Satisfying assign │
-└──────────┬──────────┘
-           │
-           ▼
-┌─────────────────────────────────────┐
-│ ModelStructure.interpret()          │
-│ • Extracts world states             │
-│ • Identifies possible worlds        │
-│ • Builds accessibility relations    │
-│ • Maps atomic truth values          │
-└──────────┬──────────────────────────┘
-           │
-           ▼
-┌─────────────────────────────────────┐
-│ Sentence.update_proposition()       │
-│ • Creates proposition objects       │
-│ • Links to sentence structure       │
-│ • Enables recursive evaluation      │
-│ • Caches for efficiency             │
-└──────────┬──────────────────────────┘
-           │
-           ▼
-┌─────────────────────────────────────┐
-│ Proposition Evaluation              │
-│ • Evaluates at each world           │
-│ • Finds verifiers/falsifiers        │
-│ • Computes truth values             │
-│ • Handles complex formulas          │
-└──────────┬──────────────────────────┘
-           │
-           ▼
-┌─────────────────────────────────────┐
-│ Formatted Output Display            │
-│ • World structure visualization     │
-│ • Extension tables (A, B, C...)     │
-│ • Truth value assignments           │
-│ • Countermodel explanation          │
-└─────────────────────────────────────┘
+    ┌─────────────────────┐
+    │ Z3 Model            │
+    │ • Variable bindings │
+    │ • Function values   │
+    │ • Satisfying assign │
+    └──────────┬──────────┘
+               │
+               ▼
+    ┌─────────────────────────────────────┐
+    │ ModelStructure.interpret()          │
+    │ • Extracts world states             │
+    │ • Identifies possible worlds        │
+    │ • Builds accessibility relations    │
+    │ • Maps atomic truth values          │
+    └──────────┬──────────────────────────┘
+               │
+               ▼
+    ┌─────────────────────────────────────┐
+    │ Sentence.update_proposition()       │
+    │ • Creates proposition objects       │
+    │ • Links to sentence structure       │
+    │ • Enables recursive evaluation      │
+    │ • Caches for efficiency             │
+    └──────────┬──────────────────────────┘
+               │
+               ▼
+    ┌─────────────────────────────────────┐
+    │ Proposition Evaluation              │
+    │ • Evaluates at each world           │
+    │ • Finds verifiers/falsifiers        │
+    │ • Computes truth values             │
+    │ • Handles complex formulas          │
+    └──────────┬──────────────────────────┘
+               │
+               ▼
+    ┌─────────────────────────────────────┐
+    │ Formatted Output Display            │
+    │ • World structure visualization     │
+    │ • Extension tables (A, B, C...)     │
+    │ • Truth value assignments           │
+    │ • Countermodel explanation          │
+    └─────────────────────────────────────┘
 ```
 
 ## Code Examples
