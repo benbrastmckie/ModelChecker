@@ -185,7 +185,7 @@ def mock_output_manager():
 
 @pytest.fixture
 def mock_interactive_manager():
-    """Create a mock InteractiveSaveManager for testing interactive mode."""
+    """Create a mock SequentialSaveManager for testing sequential mode."""
     manager = Mock()
     manager.is_interactive.return_value = False
     manager.prompt_save_mode = Mock()

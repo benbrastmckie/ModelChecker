@@ -58,9 +58,20 @@ The settings system integrates across all ModelChecker components:
 
 ### Semantic Theory Settings
 
-Each theory defines only settings relevant to its semantic framework:
+General settings are defined once in the `SemanticDefaults` base class, while each theory defines only settings relevant to its semantic framework:
 
 ```python
+# Base class defines general settings for all theories
+class SemanticDefaults:
+    DEFAULT_GENERAL_SETTINGS = {
+        "print_impossible": False,
+        "print_constraints": False,
+        "print_z3": False,
+        "save_output": False,
+        "sequential": False,
+        "maximize": False
+    }
+
 # Bimodal theory includes temporal settings
 class BimodalSemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {
@@ -68,7 +79,11 @@ class BimodalSemantics(SemanticDefaults):
         'M': 2,                    # Time points (bimodal-specific)
         'max_time': 1,
         'contingent': False,
-        'align_vertically': False,  # Display setting for temporal models
+    }
+    
+    # Optional: Add bimodal-specific general settings
+    ADDITIONAL_GENERAL_SETTINGS = {
+        'align_vertically': True,  # Display setting for temporal models
     }
 
 # Logos theory focuses on hyperintensional settings
@@ -82,29 +97,75 @@ class LogosSemantics(SemanticDefaults):
     }
 
 # Exclusion theory adds unilateral semantics settings
-class ExclusionSemantics(SemanticDefaults):
+class ExclusionSemantics(LogosSemantics):
     DEFAULT_EXAMPLE_SETTINGS = {
         'N': 3,
         'max_time': 1,
         'contingent': False,
-        'coherence_check': True,   # Exclusion-specific validation
-        'witness_optimization': False,  # Performance tuning
+        'non_empty': False,
+        'non_null': False,
+        'disjoint': False,
+    }
+    # No additional general settings needed
+
+# Imposition theory can add theory-specific general settings
+class ImpositionSemantics(LogosSemantics):
+    DEFAULT_EXAMPLE_SETTINGS = {
+        'N': 3,
+        'max_time': 1,
+        'contingent': False,
+    }
+    
+    # Optional: Add imposition-specific general settings
+    ADDITIONAL_GENERAL_SETTINGS = {
+        'derive_imposition': False,  # Imposition-specific operation
     }
 ```
 
 ### Settings Categories
 
-**General Settings** (theory-wide behavior):
+**General Settings** (defined in SemanticDefaults, shared by all theories):
 - Output control (`print_z3`, `print_constraints`, `save_output`)
 - Debugging options (`print_impossible`, `maximize`)
-- Interactive mode (`interactive` - enables prompts for saving each model)
-- Theory-specific display (`align_vertically` for bimodal)
+- Save behavior (`sequential`)
 
 **Example Settings** (per-model configuration):
 - Model size (`N` for states, `M` for time points)
 - Semantic constraints (`contingent`, `disjoint`, `non_empty`)
 - Solver configuration (`max_time`, `expectation`)
 - Theory-specific options (coherence checks, optimization flags)
+
+## Settings Architecture
+
+### Settings Hierarchy
+
+The settings system follows a clear inheritance and priority model:
+
+1. **Base General Settings** (SemanticDefaults.DEFAULT_GENERAL_SETTINGS)
+   - Defined once in the base class
+   - Shared by all theories
+   - Contains output, debugging, and save behavior settings
+
+2. **Theory-Specific General Settings** (Theory.ADDITIONAL_GENERAL_SETTINGS)
+   - Optional augmentation of general settings
+   - Theory-specific display or operation settings
+   - Example: bimodal's `align_vertically`, imposition's `derive_imposition`
+
+3. **Theory Example Settings** (Theory.DEFAULT_EXAMPLE_SETTINGS)
+   - Model configuration defaults
+   - Theory-specific semantic parameters
+   - Example: N (states), M (time points), contingent, disjoint
+
+### Settings Priority Order
+
+Settings are merged in the following priority order (highest to lowest):
+
+1. **Command-line flags** - Highest priority, always override
+2. **User-provided example settings** - From BuildExample constructor
+3. **User-provided general settings** - From module-level configuration
+4. **Theory ADDITIONAL_GENERAL_SETTINGS** - Theory-specific additions
+5. **SemanticDefaults.DEFAULT_GENERAL_SETTINGS** - Base general settings
+6. **Theory.DEFAULT_EXAMPLE_SETTINGS** - Theory defaults (lowest priority)
 
 ## Usage Patterns
 

@@ -1,24 +1,22 @@
-"""Tests for JSON serialization of model data."""
+"""Tests for JSON serialization in the output module."""
 
 import json
 import os
 import tempfile
 import shutil
-from datetime import datetime
 import pytest
-
-from model_checker.output.manager import OutputManager
-from model_checker.output.config import OutputConfig
+from model_checker.output.formatters import JSONFormatter
 
 
 class TestJSONSerialization:
-    """Test JSON output format and structure."""
+    """Test JSON serialization functionality."""
     
     def setup_method(self):
         """Create temporary directory for tests."""
         self.temp_dir = tempfile.mkdtemp()
         self.original_cwd = os.getcwd()
         os.chdir(self.temp_dir)
+        self.formatter = JSONFormatter()
         
     def teardown_method(self):
         """Clean up temporary directory."""
@@ -26,12 +24,8 @@ class TestJSONSerialization:
         shutil.rmtree(self.temp_dir)
         
     def test_save_models_json_structure(self):
-        """Test MODELS.json has correct structure."""
-        config = OutputConfig(save_output=True)
-        manager = OutputManager(config=config)
-        manager.create_output_directory()
-        
-        # Add test model data
+        """Test JSON formatting has correct structure."""
+        # Create test model data
         model1 = {
             "example": "test1",
             "theory": "logos",
@@ -46,107 +40,107 @@ class TestJSONSerialization:
             "propositions": {"p": {"s1": True, "s2": False}}
         }
         
-        model2 = {
-            "example": "test2",
-            "theory": "bimodal",
-            "has_model": False,
-            "evaluation_world": None,
-            "states": {"possible": [], "impossible": [], "worlds": []},
-            "relations": {},
-            "propositions": {}
-        }
+        # Format as JSON
+        json_str = self.formatter.format_example(model1, "Test output")
         
-        manager.models_data = [model1, model2]
+        # Parse and verify structure
+        data = json.loads(json_str)
         
-        # Save JSON
-        manager._save_models_json()
-        
-        # Check file exists
-        json_path = os.path.join(manager.output_dir, 'MODELS.json')
-        assert os.path.exists(json_path)
-        
-        # Load and verify structure
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-            
-        assert "metadata" in data
-        assert "models" in data
-        assert len(data["models"]) == 2
-        
-        # Check metadata
-        metadata = data["metadata"]
-        assert "timestamp" in metadata
-        assert "version" in metadata
-        assert metadata["version"] == "1.0"
-        
-        # Check first model
-        assert data["models"][0] == model1
-        assert data["models"][1] == model2
+        assert data['example'] == 'test1'
+        assert data['theory'] == 'logos'
+        assert data['has_model'] is True
+        assert data['output'] == 'Test output'
+        assert 'states' in data
+        assert 'relations' in data
         
     def test_json_formatting(self):
-        """Test JSON is properly formatted with indentation."""
-        config = OutputConfig(save_output=True)
-        manager = OutputManager(config=config)
-        manager.create_output_directory()
+        """Test JSON is properly formatted."""
+        model = {
+            "example": "format_test",
+            "special_chars": "Test with \"quotes\" and \nnewlines",
+            "unicode": "Test with unicode: λ φ ∧ ∨"
+        }
         
-        manager.models_data = [{
-            "example": "test",
-            "theory": "logos",
-            "has_model": True,
-            "evaluation_world": "s0",
-            "states": {"possible": ["s0"], "impossible": [], "worlds": ["s0"]},
-            "relations": {},
-            "propositions": {}
-        }]
+        json_str = self.formatter.format_example(model, "")
+        data = json.loads(json_str)
         
-        manager._save_models_json()
-        
-        json_path = os.path.join(manager.output_dir, 'MODELS.json')
-        with open(json_path, 'r') as f:
-            content = f.read()
-            
-        # Check for proper formatting
-        assert '    "metadata"' in content  # 4-space indentation
-        assert '"models": [\n        {' in content  # Proper array formatting
+        # Check proper escaping and formatting
+        assert data['special_chars'] == 'Test with "quotes" and \nnewlines'
+        assert data['unicode'] == 'Test with unicode: λ φ ∧ ∨'
         
     def test_empty_models_json(self):
-        """Test JSON structure when no models collected."""
-        config = OutputConfig(save_output=True)
-        manager = OutputManager(config=config)
-        manager.create_output_directory()
+        """Test JSON formatting with empty data."""
+        # Empty model
+        model = {}
+        json_str = self.formatter.format_example(model, "")
+        data = json.loads(json_str)
         
-        # No models added
-        manager._save_models_json()
-        
-        json_path = os.path.join(manager.output_dir, 'MODELS.json')
-        with open(json_path, 'r') as f:
-            data = json.load(f)
-            
-        assert data["models"] == []
-        assert "metadata" in data
+        # Should be valid JSON even if empty
+        assert isinstance(data, dict)
         
     def test_json_encoding(self):
-        """Test JSON handles UTF-8 encoding properly."""
-        config = OutputConfig(save_output=True)
-        manager = OutputManager(config=config)
-        manager.create_output_directory()
+        """Test JSON encoding options."""
+        model = {
+            "example": "encoding_test",
+            "complex_data": {
+                "nested": {
+                    "arrays": [1, 2, [3, 4]],
+                    "objects": {"a": 1, "b": {"c": 2}}
+                }
+            }
+        }
         
-        # Model with Unicode characters
-        manager.models_data = [{
-            "example": "test_unicode",
-            "theory": "logos",
-            "has_model": True,
-            "evaluation_world": "s0",
-            "states": {"possible": ["s0"], "impossible": [], "worlds": ["s0"]},
-            "relations": {},
-            "propositions": {"φ": {"s0": True}}  # Greek phi
-        }]
+        json_str = self.formatter.format_example(model, "")
         
-        manager._save_models_json()
+        # Check file is valid JSON
+        data = json.loads(json_str)  # Should not raise
         
-        json_path = os.path.join(manager.output_dir, 'MODELS.json')
-        with open(json_path, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-            
-        # Verify Unicode preserved
-        assert "φ" in data["models"][0]["propositions"]
+        # Check structure preserved
+        nested = data['complex_data']['nested']
+        assert nested['arrays'] == [1, 2, [3, 4]]
+        assert nested['objects']['b']['c'] == 2
+    
+    def test_batch_formatting(self):
+        """Test batch formatting of multiple examples."""
+        # Create individual JSON strings
+        example1 = json.dumps({"example": "test1", "value": 1})
+        example2 = json.dumps({"example": "test2", "value": 2})
+        
+        # Format as batch
+        batch_json = self.formatter.format_batch([example1, example2])
+        
+        # Parse and verify
+        data = json.loads(batch_json)
+        assert 'models' in data
+        assert 'metadata' in data
+        assert len(data['models']) == 2
+        assert data['models'][0]['example'] == 'test1'
+        assert data['models'][1]['value'] == 2
+    
+    def test_json_formatter_indentation(self):
+        """Test JSON formatter respects indentation setting."""
+        formatter_custom = JSONFormatter(indent=2)
+        
+        model = {"example": "indent_test", "nested": {"value": 42}}
+        json_str = formatter_custom.format_example(model, "")
+        
+        # Check indentation in output
+        lines = json_str.split('\n')
+        # Second level should have 2 spaces
+        nested_line = [l for l in lines if '"nested"' in l][0]
+        assert nested_line.startswith('  ')  # 2 spaces
+    
+    def test_ensure_ascii_option(self):
+        """Test ensure_ascii option for JSON formatting."""
+        formatter_ascii = JSONFormatter(ensure_ascii=True)
+        
+        model = {"example": "ascii_test", "unicode": "λ"}
+        json_str = formatter_ascii.format_example(model, "")
+        
+        # Unicode should be escaped
+        assert 'λ' not in json_str
+        assert '\\u' in json_str
+        
+        # But should decode properly
+        data = json.loads(json_str)
+        assert data['unicode'] == 'λ'

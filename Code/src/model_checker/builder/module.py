@@ -121,11 +121,10 @@ class BuildModule:
     
     def _initialize_output_management(self) -> None:
         """Initialize output and sequential managers."""
-        from model_checker.output import OutputManager, SequentialSaveManager, ConsoleInputProvider, OutputConfig
+        from model_checker.output import OutputManager, SequentialSaveManager, ConsoleInputProvider, OutputConfig, create_output_config
         
         # Create output configuration from CLI arguments and settings
-        from ..output.config import create_output_config_from_cli_args
-        config = create_output_config_from_cli_args(self.module_flags, self.general_settings)
+        config = create_output_config(self.module_flags, self.general_settings)
         
         # Check if saving is enabled via new --save flag
         save_enabled = hasattr(self.module_flags, 'save') and self.module_flags.save is not None
@@ -138,24 +137,15 @@ class BuildModule:
         # Set save_output flag
         self.save_output = config.save_output and not only_notebook
         
-        # Create sequential manager if sequential flag or setting is enabled
-        self.sequential_manager = None
-        sequential_enabled = (
-            (hasattr(self.module_flags, 'sequential') and self.module_flags.sequential) or
-            (self.general_settings and self.general_settings.get('sequential', False))
-        )
-        
-        if config.save_output and not only_notebook and sequential_enabled:
-            # Sequential mode is enabled (via flag or setting)
-            # Create console input provider for production use
+        # Create prompt manager if prompting is enabled
+        self.prompt_manager = None
+        if config.sequential and not only_notebook:
+            # Sequential mode is enabled - create sequential manager
             input_provider = ConsoleInputProvider()
-            self.sequential_manager = SequentialSaveManager(input_provider)
-            # Automatically set to sequential mode without prompting
-            # since batch mode would be the same as not using --sequential
-            self.sequential_manager.set_mode('sequential')
+            self.prompt_manager = SequentialSaveManager(input_provider)
         
-        # Create output manager with configuration only
-        self.output_manager = OutputManager(config, self.sequential_manager)
+        # Create output manager with configuration
+        self.output_manager = OutputManager(config, self.prompt_manager)
         
         # Pass module context for notebook generation
         if self.output_manager.should_save():
@@ -328,16 +318,16 @@ class BuildModule:
         formatter = MarkdownFormatter(use_colors=True)
         formatted_output = formatter.format_example(model_data, converted_output)
         
-        # Handle interactive vs batch save
-        if self.interactive_manager and self.interactive_manager.is_interactive():
+        # Handle prompted vs batch save
+        if self.prompt_manager:
             # Check if model found
             if example.model_structure.z3_model_status:
                 # Prompt to save this model
-                if self.interactive_manager.prompt_save_model(example_name):
+                if self.prompt_manager.should_save(example_name):
                     # Get model number
-                    model_number = model_num or self.interactive_manager.get_next_model_number(example_name)
-                    # Save interactively
-                    self.output_manager.save_model_sequential(
+                    model_number = model_num or self.prompt_manager.get_next_model_number(example_name)
+                    # Save with prompting
+                    self.output_manager.save_prompted_model(
                         example_name, model_data, formatted_output, model_number
                     )
         else:
