@@ -19,9 +19,9 @@ architecture/
 ├── OUTPUT.md          # Output generation and formatting
 ├── SYNTACTIC.md       # Formula parsing and AST construction
 ├── SEMANTICS.md       # Constraint generation from syntax
-├── JUPYTER.md         # Interactive exploration tools (planned)
-├── THEORY_LIB.md      # Theory framework architecture (planned)
-└── UTILS.md           # Shared utilities and patterns (planned)
+├── JUPYTER.md         # Interactive exploration tools
+├── THEORY_LIB.md      # Theory framework architecture
+└── UTILS.md           # Shared utilities and patterns
 ```
 
 ## System Pipeline
@@ -53,12 +53,12 @@ architecture/
 - **[Semantic Framework](SEMANTICS.md)** - Constraint generation from syntax trees
   - Links to: [Technical Docs](../../Code/src/model_checker/README.md)
 
-### Extensions (Planned)
-- **Theory Framework** - Semantic theory architecture (THEORY_LIB.md planned)
+### Extensions
+- **[Theory Framework](THEORY_LIB.md)** - Semantic theory architecture
   - Links to: [Theory Library](../../Code/src/model_checker/theory_lib/README.md)
-- **Interactive Tools** - Notebook and exploration tools (JUPYTER.md planned)
+- **[Interactive Tools](JUPYTER.md)** - Notebook and exploration tools
   - Links to: [Jupyter Docs](../../Code/src/model_checker/jupyter/README.md)
-- **Shared Utilities** - Common patterns and helpers (UTILS.md planned)
+- **[Shared Utilities](UTILS.md)** - Common patterns and helpers
   - Links to: [Utils Docs](../../Code/src/model_checker/utils/README.md)
 
 ## Key Concepts
@@ -230,4 +230,4 @@ All architecture documentation follows these principles:
 
 ---
 
-[← Back to Docs](../README.md) | [Pipeline →](PIPELINE.md) | [Settings →](SETTINGS.md)
+[← Back to Docs](../README.md) | [Pipeline →](PIPELINE.md) | [Builder →](BUILDER.md)

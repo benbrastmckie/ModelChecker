@@ -5,7 +5,7 @@
 ## Table of Contents
 
 1. [Introduction](#introduction)
-2. [Core Methodology](#core-methodology)
+2. [Core Architecture](#core-architecture)
    - [The Constraint Testing Pattern](#the-constraint-testing-pattern)
    - [Proof by Absence](#proof-by-absence)
 3. [Implementation Techniques](#implementation-techniques)
@@ -27,7 +27,7 @@ ModelChecker provides a methods for easily deriving semantic constraints, or est
 
 This guide explains how to use ModelChecker's constraint testing features to verify semantic properties, discover minimal axiom sets, and understand the relationships between different constraint systems. The techniques shown here are particularly valuable for researchers developing new semantic theories or investigating the foundations of existing ones.
 
-## Core Methodology
+## Core Architecture
 
 ### The Constraint Testing Pattern
 
@@ -201,6 +201,32 @@ def _test_fusion_closure(self):
 model-checker your_theory/test.py --test_fusion_closure
 ```
 
+### Saving Constraint Test Results
+
+Document your constraint testing for analysis and publication:
+
+```bash
+# Save constraint test results as Markdown
+model-checker constraint_tests.py --save markdown --verbose
+
+# Generate detailed JSON for programmatic analysis
+model-checker constraint_tests.py --save json --print-constraints
+
+# Create notebook for interactive exploration
+model-checker constraint_tests.py --save notebook
+
+# Save comprehensive test suite results
+for test in tests/*.py; do
+    model-checker "$test" --save all --output-dir "constraint_results/$(basename $test .py)/"
+done
+```
+
+The saved output will include:
+- Whether constraints are satisfied (no countermodel found)
+- Any countermodels that demonstrate violations
+- Z3 constraint details for verification
+- Timing and performance metrics
+
 ## Advanced Applications
 
 ### Discovering Minimal Axioms
@@ -286,11 +312,13 @@ model-checker test.py --test_constraint --N=3
 
 ### Related Documentation
 - **[Theory Development](WORKFLOW.md#theory-development-workflow)** - Creating new theories
+- **[Examples Guide](EXAMPLES.md)** - Writing constraint test examples
+- **[Output Guide](OUTPUT.md)** - Saving constraint test results
 - **[Settings Guide](../../Code/src/model_checker/settings/README.md)** - Settings system details
 - **[Z3 Integration](../../Code/src/model_checker/solver/README.md)** - Solver interface
 
 ### Theoretical Background
-- **[Methodology](../architecture/README.md)** - ModelChecker's approach
+- **[Architecture](../architecture/README.md)** - ModelChecker's approach
 - **[Semantic Properties](../architecture/SEMANTICS.md)** - Constraint types
 - **[Model Theory](../architecture/MODELS.md)** - Finite model construction
 

@@ -1,6 +1,6 @@
 # Output Management: Multi-Format Result Generation
 
-[← Back to Methodology](README.md) | [Pipeline →](PIPELINE.md)
+[← Back to Architecture](README.md) | [Pipeline →](PIPELINE.md)
 
 ## Table of Contents
 
@@ -382,6 +382,26 @@ DEFAULT_GENERAL_SETTINGS = {
 }
 ```
 
+## Technical Implementation
+
+For detailed implementation information, see:
+- [Output Package Documentation](../../Code/src/model_checker/output/README.md) - Complete API reference
+- [Output Manager](../../Code/src/model_checker/output/manager.py) - Output orchestration
+- [Formatters](../../Code/src/model_checker/output/formatters/) - Format implementations
+- [Save Strategies](../../Code/src/model_checker/output/strategies/) - Save strategy implementations
+
+## See Also
+
+### Related Architecture
+- [Pipeline Overview](PIPELINE.md) - Complete data flow
+- [Settings Management](SETTINGS.md) - Output configuration
+- [Builder Pipeline](BUILDER.md) - Output orchestration
+- [Models Structure](MODELS.md) - Model data formatting
+
+### Technical Documentation
+- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
+- [Usage Guide](../usage/OUTPUT.md) - Using output features
+
 ---
 
-*For more details on the ModelChecker framework, see the [main documentation](README.md).*
+[← Back to Architecture](README.md) | [Pipeline →](PIPELINE.md) | [Settings →](SETTINGS.md)

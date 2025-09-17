@@ -1,6 +1,6 @@
 # Semantics: From Strings to Z3 Constraints
 
-[← Syntax Pipeline](SYNTAX.md) | [Back to Methodology](README.md) | [Model Finding →](MODELS.md)
+[← Syntax Pipeline](SYNTAX.md) | [Back to Architecture](README.md) | [Model Finding →](MODELS.md)
 
 ## Table of Contents
 
@@ -1337,12 +1337,26 @@ This example shows the complete constraint generation pipeline. ModelConstraints
 - [`logos/subtheories/counterfactual/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py) - Counterfactual operators (□→)
 - [`logos/subtheories/constitutive/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/constitutive/operators.py) - Constitutive operators (≤_C)
 
-### Related Documentation
+## Technical Implementation
 
-- [Syntax Pipeline](SYNTAX.md) - How formulas become sentences
-- [Model Finding](MODELS.md) - How constraints are solved
+For detailed implementation information, see:
+- [ModelChecker Core Documentation](../../Code/src/model_checker/README.md) - Framework core with semantic engine
+- [Theory Library Documentation](../../Code/src/model_checker/theory_lib/README.md) - Theory implementations
+- [Logos Theory](../../Code/src/model_checker/theory_lib/logos/README.md) - Hyperintensional semantics
+- [Exclusion Theory](../../Code/src/model_checker/theory_lib/exclusion/README.md) - Unilateral semantics
+
+## See Also
+
+### Related Architecture
+- [Syntactic Processing](SYNTACTIC.md) - How formulas become sentences
+- [Model Structure](MODELS.md) - How constraints are solved
+- [Theory Framework](THEORY_LIB.md) - Theory architecture
+- [Builder Pipeline](BUILDER.md) - Semantic orchestration
+
+### Technical Documentation
 - [Theory Development](../../Code/docs/DEVELOPMENT.md) - Creating new theories
+- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
 
 ---
 
-[← Syntax Pipeline](SYNTAX.md) | [Back to Methodology](README.md) | [Model Finding →](MODELS.md)
+[← Back to Architecture](README.md) | [Syntactic →](SYNTACTIC.md) | [Models →](MODELS.md)

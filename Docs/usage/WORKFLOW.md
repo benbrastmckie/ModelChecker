@@ -1,6 +1,6 @@
 # Workflow: Using the ModelChecker Package Effectively
 
-[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Methodology →](../architecture/README.md)
+[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Architecture →](../architecture/README.md)
 
 ## Table of Contents
 
@@ -57,35 +57,7 @@ model-checker examples/my_example.py
 model-checker examples/my_example.py --N=5 --verbose
 ```
 
-**Example file structure**:
-```python
-from model_checker.theory_lib.logos import get_theory
-
-theory = get_theory()
-
-# Define your example
-MY_EXAMPLE_premises = ["A \\wedge B"]
-MY_EXAMPLE_conclusions = ["A"]
-MY_EXAMPLE_settings = {
-    'N': 3,
-    'contingent': False,
-    'max_time': 10
-}
-MY_EXAMPLE_example = [
-    MY_EXAMPLE_premises,
-    MY_EXAMPLE_conclusions,
-    MY_EXAMPLE_settings
-]
-
-# Required exports
-example_range = {
-    "MY_EXAMPLE": MY_EXAMPLE_example
-}
-
-semantic_theories = {
-    "logos": theory
-}
-```
+Example files define logical formulas and settings for testing. See [Examples Guide](EXAMPLES.md) for complete file structure and [Settings Guide](SETTINGS.md) for configuration options.
 
 ### Batch Testing with examples.py
 
@@ -156,42 +128,42 @@ Common flags and their uses:
 --theory=<name>          # Select specific theory
 --compare               # Compare multiple theories
 
+# Output saving options
+--save                  # Interactive save mode (prompts for format)
+--save json             # Save output as JSON
+--save markdown         # Save output as Markdown  
+--save notebook         # Generate Jupyter notebook
+--save all              # Save in all formats
+--output-dir=<path>     # Specify output directory (default: output/)
+
 # Development flags
---save                  # Save output to files (all formats)
---save markdown json    # Save specific formats
---save-output           # Save output to file
 --iso-debug            # Debug isomorphism checking
+--debug                # Enable debug output
 ```
+
+### Saving Output
+
+The ModelChecker can save results in multiple formats (JSON, Markdown, Notebook). Use `--save` with a format name, or just `--save` for interactive selection. See [Output Guide](OUTPUT.md) for complete documentation of formats, directory structure, and advanced options.
 
 ## Theory Development Workflow
 
 ### Creating New Theories from Templates
 
-Start a new theory implementation:
+For detailed guidance on creating and developing new theory projects, see [Project Development Guide](PROJECT.md). This covers:
+- Creating new projects with `model-checker --new` 
+- Copying from existing theories with `-l` flag
+- Running examples with local project files
+- Modifying semantics and adding operators
 
+Quick start:
 ```bash
-# Generate from existing theory template
-model-checker -l logos my_counterfactual_theory
-# or using dev CLI
-./dev_cli.py -l logos my_counterfactual_theory
+# Create from template
+model-checker -l logos my_theory
 
-# Generated structure
-project_my_counterfactual_theory/
-├── __init__.py
-├── semantic.py         # Core semantics implementation
-├── operators.py        # Operator definitions
-├── examples.py         # Example formulas
-├── tests/             # Unit tests
-├── docs/              # Documentation
-└── notebooks/         # Interactive tutorials
+# Run local examples
+cd project_my_theory
+model-checker examples.py
 ```
-
-**Development steps**:
-1. Modify semantic.py to implement your semantics
-2. Define operators in operators.py
-3. Create test examples in examples.py
-4. Write unit tests in tests/
-5. Document your theory in docs/
 
 ### Testing with Unit Tests
 
@@ -281,23 +253,7 @@ model-checker examples/explore.py
 
 ### Using Debug Settings
 
-Enable detailed output for troubleshooting:
-
-```python
-# In your examples.py
-DEBUG_settings = {
-    'N': 3,
-    'print_constraints': True,  # Show all Z3 constraints
-    'print_z3': True,          # Show Z3 model details
-    'print_impossible': True,   # Show impossible states
-    'max_time': 60,            # Longer timeout for debugging
-}
-```
-
-**Debug information interpretation**:
-- Constraints show the logical requirements
-- Z3 output reveals satisfying assignments
-- Impossible states indicate semantic restrictions
+Enable detailed output for troubleshooting with debug settings. See [Settings Guide](SETTINGS.md#debugging) for debug configurations and interpreting output. Key settings include `print_constraints`, `print_z3`, and `verbose` mode.
 
 ### Command-line Debug Flags
 
@@ -741,6 +697,10 @@ valid_settings = {k: v for k, v in settings.items()
 - `.model_checker_config` - User configuration
 
 ### Related Documentation
+- [Project Development](PROJECT.md) - Creating new theory projects
+- [Examples Guide](EXAMPLES.md) - Writing example files
+- [Settings Guide](SETTINGS.md) - Configuration options
+- [Output Guide](OUTPUT.md) - Saving results
 - [Architecture](../architecture/PIPELINE.md) - System design
 - [Iterator System](../architecture/ITERATOR.md) - Model iteration details
 - [Builder Pattern](../architecture/BUILDER.md) - Pipeline orchestration with visual flowcharts
@@ -748,4 +708,4 @@ valid_settings = {k: v for k, v in settings.items()
 
 ---
 
-[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Methodology →](../architecture/README.md)
+[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Architecture →](../architecture/README.md)

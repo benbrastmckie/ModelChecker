@@ -429,9 +429,9 @@ The syntactic framework draws from:
 ## See Also
 
 ### Conceptual Documentation
-- **[Syntactic Processing](../../../../Docs/methodology/SYNTACTIC.md)** - Parsing and AST concepts
-- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design philosophy
-- **[Semantics Methodology](../../../../Docs/methodology/SEMANTICS.md)** - How syntax connects to semantics
+- **[Syntactic Processing](../../../../Docs/architecture/SYNTACTIC.md)** - Parsing and AST concepts
+- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
+- **[Semantics Architecture](../../../../Docs/architecture/SEMANTICS.md)** - How syntax connects to semantics
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Syntactic subsystem architecture

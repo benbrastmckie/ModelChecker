@@ -1,6 +1,6 @@
 # Documentation Hub: ModelChecker User and Research Documentation
 
-[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Methodology →](architecture/README.md)
+[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Architecture →](architecture/README.md)
 
 ## Directory Structure
 
@@ -16,7 +16,7 @@ Docs/
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
 │   └── DEVELOPER_SETUP.md          # Development environment setup
 ├── architecture/                    # Programmatic semantics framework
-│   ├── README.md                   # Methodology documentation hub
+│   ├── README.md                   # Architecture documentation hub
 │   ├── PIPELINE.md             # System design and integration
 │   ├── BUILDER.md                  # Pipeline orchestration
 │   ├── SYNTAX.md                   # AST conversion pipeline
@@ -55,7 +55,7 @@ Docs/
 
 ## Overview
 
-This directory serves as the **comprehensive documentation hub** for the ModelChecker framework, providing user guides, research documentation, and theoretical background. The documentation is organized into **5 major categories**: installation and setup, programmatic semantics methodology, practical usage workflows, theoretical foundations, and maintenance standards.
+This directory serves as the **comprehensive documentation hub** for the ModelChecker framework, providing user guides, research documentation, and theoretical background. The documentation is organized into **5 major categories**: installation and setup, programmatic semantics architecture, practical usage workflows, theoretical foundations, and maintenance standards.
 
 The documentation follows an **interdisciplinary approach**, making computational logic accessible to researchers from diverse backgrounds including logic, linguistics, computer science, and AI. Each section is designed to be self-contained while providing clear navigation to related topics, enabling readers to find exactly what they need without navigating unrelated content.
 
@@ -155,7 +155,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 ### For Researchers
 
 - **[Theoretical Foundations](theory/README.md)** - Academic background
-- **[Methodology Overview](architecture/README.md)** - Programmatic semantics
+- **[Architecture Overview](architecture/README.md)** - Programmatic semantics
 - **[Theory Comparison](usage/COMPARE_THEORIES.md)** - Comparative analysis
 - **[Constraint Testing](usage/CONSTRAINTS.md)** - Proving properties by absence
 
@@ -186,7 +186,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 - **Theoretical grounding** in truthmaker semantics
 - **Academic bibliography** with proper citations
 - **Implementation insights** bridging theory and practice
-- **Methodology documentation** for understanding the approach
+- **Architecture documentation** for understanding the approach
 
 ## References
 

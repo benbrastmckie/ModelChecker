@@ -284,8 +284,8 @@ The refactored builder maintains the same public API while improving internal or
 ## See Also
 
 ### Conceptual Documentation
-- **[Builder Methodology](../../../../Docs/methodology/BUILDER.md)** - High-level pipeline concepts
-- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design principles
+- **[Builder Architecture](../../../../Docs/architecture/BUILDER.md)** - High-level pipeline concepts
+- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design principles
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Detailed component relationships

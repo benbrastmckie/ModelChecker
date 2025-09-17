@@ -1,6 +1,6 @@
 # Models: SMT Solving and Result Interpretation
 
-[← Semantics Pipeline](SEMANTICS.md) | [Back to Methodology](README.md) | [Workflow →](WORKFLOW.md)
+[← Semantics Pipeline](SEMANTICS.md) | [Back to Architecture](README.md) | [Workflow →](WORKFLOW.md)
 
 ## Table of Contents
 
@@ -1351,23 +1351,26 @@ The output customization options allow tailoring the display to different use ca
 **Core Model Classes:**
 
 - [`model_checker/model.py`](../../Code/src/model_checker/model.py) - ModelDefaults base class and ModelConstraints
-- [`model_checker/utils.py`](../../Code/src/model_checker/utils.py) - Z3ContextManager and state conversion utilities
+## Technical Implementation
 
-**Theory-Specific Models:**
+For detailed implementation information, see:
+- [Models Package Documentation](../../Code/src/model_checker/models/README.md) - Complete API reference
+- [Model Base Classes](../../Code/src/model_checker/models/model.py) - Core model infrastructure
+- [Model Defaults](../../Code/src/model_checker/models/defaults.py) - Default model implementation
+- [Model Utilities](../../Code/src/model_checker/models/utilities.py) - Helper functions
 
-Theory-specific model structures are implemented as subclasses of ModelDefaults within each theory's package. These specialized classes add theory-specific extraction and display logic while inheriting the core solving infrastructure.
+## See Also
 
-**Solver Management:**
-
-- [`model_checker/utils.py`](../../Code/src/model_checker/utils.py) - Z3ContextManager and solver utilities
-
-### Related Documentation
-
-- [Semantics Pipeline](SEMANTICS.md) - Constraint generation that feeds into solving
-- [Workflow](WORKFLOW.md) - Using the complete model checking system
+### Related Architecture
+- [Semantic Framework](SEMANTICS.md) - Constraint generation that feeds into models
 - [Iterator System](ITERATE.md) - Finding multiple distinct models
+- [Builder Pipeline](BUILDER.md) - Model orchestration
+- [Theory Framework](THEORY_LIB.md) - Theory-specific model extensions
+
+### Technical Documentation
 - [Z3 Python API](https://z3prover.github.io/api/html/namespacez3py.html) - Official Z3 documentation
+- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
 
 ---
 
-[← Semantics Pipeline](SEMANTICS.md) | [Back to Methodology](README.md) | [Workflow →](WORKFLOW.md)
+[← Back to Architecture](README.md) | [Semantics →](SEMANTICS.md) | [Iterator →](ITERATE.md)

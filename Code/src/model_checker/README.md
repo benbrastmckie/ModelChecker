@@ -265,7 +265,7 @@ Each theory provides:
 ### For Developers
 
 - **[Development Guide](../../docs/DEVELOPMENT.md)** - Framework development and testing
-- **[Architecture Documentation](../../../Docs/methodology/ARCHITECTURE.md)** - System design and implementation
+- **[Architecture Documentation](../../../Docs/architecture/ARCHITECTURE.md)** - System design and implementation
 - **[Contributing Guidelines](theory_lib/README.md#contributing)** - Adding new theories and features
 
 ### Jupyter Integration

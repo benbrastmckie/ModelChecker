@@ -17,8 +17,8 @@ ModelChecker/
 │   ├── usage/                      # Practical usage guides
 │   │   ├── WORKFLOW.md             # Usage workflows
 │   │   └── COMPARE_THEORIES.md     # Theory comparison
-│   ├── methodology/                # Programmatic semantics methodology
-│   │   ├── README.md               # Methodology overview
+│   ├── architecture/               # Programmatic semantics architecture
+│   │   ├── README.md               # Architecture overview
 │   │   ├── BUILDER.md              # Pipeline orchestration
 │   │   ├── SYNTAX.md               # AST conversion
 │   │   ├── SEMANTICS.md            # Constraint generation
@@ -34,7 +34,7 @@ ModelChecker/
 
 ## Overview
 
-The **ModelChecker** provides a [programmatic methodology](Docs/methodology/README.md) for developing and exploring modular semantic theories. Built on the SMT solver [Z3](Docs/theory/Z3_BACKGROUND.md), the framework enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid. The framework includes the [**TheoryLib**](Code/src/model_checker/theory_lib/README.md), a growing library of semantic theories that users can clone, modify, and contribute back to the project for public use. The [Logos](Code/src/model_checker/theory_lib/logos/README.md) theory supports extensional, modal, counterfactual, and constitutive operators through a modular architecture designed for studying [hyperintensional logics](Docs/theory/HYPERINTENSIONAL.md) and promoting transparent, verifiable reasoning.
+The **ModelChecker** provides a [programmatic architecture](Docs/architecture/README.md) for developing and exploring modular semantic theories. Built on the SMT solver [Z3](Docs/theory/Z3_BACKGROUND.md), the framework enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid. The framework includes the [**TheoryLib**](Code/src/model_checker/theory_lib/README.md), a growing library of semantic theories that users can clone, modify, and contribute back to the project for public use. The [Logos](Code/src/model_checker/theory_lib/logos/README.md) theory supports extensional, modal, counterfactual, and constitutive operators through a modular architecture designed for studying [hyperintensional logics](Docs/theory/HYPERINTENSIONAL.md) and promoting transparent, verifiable reasoning.
 
 The project enables exploration of complex logical systems with multiple interacting operators that would be intractable to analyze manually. While Logos implements bilateral hyperintensional semantics, the TheoryLib also includes Bernard and Champollion's unilateral semantics for negation based on exclusion, Fine's imposition semantics for counterfactuals, and a bimodal logic for reasoning with tense and modality. The modular architecture features automatic dependency resolution, making it straightforward to build new theories on existing ones while clearly tracking their differences for comparative study.
 
@@ -44,7 +44,7 @@ The project enables exploration of complex logical systems with multiple interac
 
 The ModelChecker documentation is organized into two main areas:
 
-- **[General Documentation](Docs/README.md)** - Installation, getting started, theoretical background, and research methodology
+- **[General Documentation](Docs/README.md)** - Installation, getting started, theoretical background, and research architecture
 - **[Technical Documentation](Code/docs/README.md)** - Development guides, architecture, testing, and implementation details
 
 This separation ensures users can quickly find installation and usage information while developers have easy access to technical specifications and contribution guidelines.
@@ -215,7 +215,7 @@ Main implementation directory containing the ModelChecker package source code, d
 
 ### [Docs/](Docs/)
 
-Project-level documentation for understanding the ModelChecker's theoretical foundations, development methodology, and advanced usage. Contains guides for installation, development workflows, research methodology, and detailed explanations of the Z3-based implementation approach. Essential reading for researchers and contributors. See [Docs/README.md](Docs/README.md) for documentation navigation.
+Project-level documentation for understanding the ModelChecker's theoretical foundations, development architecture, and advanced usage. Contains guides for installation, development workflows, research architecture, and detailed explanations of the Z3-based implementation approach. Essential reading for researchers and contributors. See [Docs/README.md](Docs/README.md) for documentation navigation.
 
 ### [Images/](Images/)
 
@@ -232,14 +232,14 @@ Visual documentation including architecture diagrams, countermodel visualization
 
 ### For Researchers
 
-- **[Methodology](Docs/methodology/README.md)** - Programmatic semantics approach
+- **[Architecture](Docs/architecture/README.md)** - Programmatic semantics approach
 - **[Theory Library](Code/src/model_checker/theory_lib/README.md)** - Available semantic theories
 - **[Hyperintensional Logic](Docs/theory/HYPERINTENSIONAL.md)** - Theoretical background
 
 ### For Developers
 
 - **[Development Guide](Docs/DEVELOPMENT.md)** - Comprehensive development workflow
-- **[Architecture Documentation](Docs/methodology/ARCHITECTURE.md)** - System design patterns
+- **[Architecture Documentation](Docs/architecture/ARCHITECTURE.md)** - System design patterns
 - **[Contributing Guidelines](Code/MAINTENANCE.md)** - Coding and documentation standards
 
 ## Key Features

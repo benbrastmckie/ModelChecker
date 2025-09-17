@@ -1,12 +1,12 @@
-# Semantic Implementation Wisdom: A Practical Guide
+# Implementing Semantic Theories: A Practical Guide
 
-[← Back to Docs](../README.md) | [Methodology →](../architecture/README.md) | [Theory Library →](../../Code/src/model_checker/theory_lib/README.md)
+[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Theory Library →](../../Code/src/model_checker/theory_lib/README.md)
 
 ## Introduction
 
 This guide consolidates hard-won lessons from implementing complex semantic theories in computational frameworks. It focuses on practical, reusable patterns and principles derived from the exclusion theory implementation journey.
 
-## Z3/SMT Solver Wisdom
+## Z3/SMT Solver
 
 ### Core Principle: Functions Over Variables
 
@@ -366,4 +366,4 @@ Remember: seemingly intractable problems often have elegant solutions when the r
 
 ---
 
-[← Back to Docs](../README.md) | [Methodology →](../architecture/README.md) | [Theory Library →](../../Code/src/model_checker/theory_lib/README.md)
+[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Theory Library →](../../Code/src/model_checker/theory_lib/README.md)

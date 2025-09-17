@@ -1,6 +1,6 @@
 # Hyperintensional Semantics in ModelChecker
 
-[← Back to Docs](../README.md) | [Methodology →](../architecture/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
+[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
 
 ## Table of Contents
 
@@ -307,9 +307,9 @@ The hyperintensional framework in ModelChecker builds on several key theoretical
 
 ### Related Concepts
 - **[Z3 Background](Z3_BACKGROUND.md)** - SMT solver foundations
-- **[Semantic Methodology](../architecture/SEMANTICS.md)** - How constraints implement semantics
+- **[Semantic Architecture](../architecture/SEMANTICS.md)** - How constraints implement semantics
 - **[Theory References](REFERENCES.md)** - Academic sources and citations
 
 ---
 
-[← Back to Theory](README.md) | [Methodology →](../architecture/README.md) | [Z3 Background →](Z3_BACKGROUND.md)
+[← Back to Theory](README.md) | [Architecture →](../architecture/README.md) | [Z3 Background →](Z3_BACKGROUND.md)

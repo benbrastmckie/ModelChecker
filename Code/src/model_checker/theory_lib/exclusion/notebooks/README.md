@@ -215,7 +215,7 @@ debug_info = model_structure.debug_witnesses("\\\\exclude A")
 ### Research Documentation
 - **[Evolution Guide](../docs/EVOLUTION.md)**: Complete development history
 - **[Implementation Summary](../../../../../Docs/theory/IMPLEMENTATION.md)**: Key outcomes and lessons
-- **[Methodology Analysis](../../../../Docs/methodology/README.md)**: Three-level framework explanation
+- **[Architecture Analysis](../../../../Docs/architecture/README.md)**: Three-level framework explanation
 
 ## Future Extensions
 
@@ -229,7 +229,7 @@ debug_info = model_structure.debug_witnesses("\\\\exclude A")
 ### Research Applications
 
 - **Theory Extensions**: Applying witness predicates to other complex semantics
-- **Architecture Generalization**: Extending three-level methodology to other domains
+- **Architecture Generalization**: Extending three-level architecture to other domains
 - **Performance Optimization**: Advanced techniques for large-scale model checking
 - **Educational Tools**: Automated generation of teaching materials
 

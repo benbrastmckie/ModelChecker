@@ -442,8 +442,8 @@ for msg in iterator.get_debug_messages():
 ## See Also
 
 ### Conceptual Documentation
-- **[Iterator Methodology](../../../../Docs/methodology/ITERATOR.md)** - High-level model iteration concepts
-- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design philosophy
+- **[Iterator Architecture](../../../../Docs/architecture/ITERATOR.md)** - High-level model iteration concepts
+- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Detailed system components

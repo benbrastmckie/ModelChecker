@@ -4,7 +4,7 @@
 
 This report presents a comparison of two approaches to counterfactual semantics within the ModelChecker framework: Kit Fine's imposition-based semantics and Benjamin Brast-McKie's alternative-worlds semantics. Both theories employ state-based truthmaker semantics, but they differ in how they determine the worlds relevant for evaluating counterfactual conditionals.
 
-The methodology employed here follows the framework's standard approach for theory comparison, detailed in the [Theory Comparison Guide](../../../../../Docs/usage/COMPARE_THEORIES.md). This involves implementing both semantic theories with identical logical vocabulary, running parallel tests on shared examples, and analyzing where they diverge. For a comprehensive introduction to the ModelChecker workflow, see the [Workflow Guide](../../../../../Docs/usage/WORKFLOW.md). The underlying methodological principles are explained in the [Methodology Documentation](../../../../../Docs/methodology/README.md).
+The methodology employed here follows the framework's standard approach for theory comparison, detailed in the [Theory Comparison Guide](../../../../../Docs/usage/COMPARE_THEORIES.md). This involves implementing both semantic theories with identical logical vocabulary, running parallel tests on shared examples, and analyzing where they diverge. For a comprehensive introduction to the ModelChecker workflow, see the [Workflow Guide](../../../../../Docs/usage/WORKFLOW.md). The underlying methodological principles are explained in the [Architecture Documentation](../../../../../Docs/architecture/README.md).
 
 ## Semantic Implementations
 
@@ -1011,5 +1011,5 @@ For detailed analysis of specific countermodels and their philosophical signific
 ## Further Reading
 
 - For hands-on exploration of these theories, consult the [Workflow Guide](../../../../../Docs/usage/WORKFLOW.md)
-- For systematic theory comparison methodology, see [Compare Theories](../../../../../Docs/usage/COMPARE_THEORIES.md)
-- For the philosophical foundations of programmatic semantics, review the [Methodology Documentation](../../../../../Docs/methodology/README.md)
+- For systematic theory comparison architecture, see [Compare Theories](../../../../../Docs/usage/COMPARE_THEORIES.md)
+- For the philosophical foundations of programmatic semantics, review the [Architecture Documentation](../../../../../Docs/architecture/README.md)

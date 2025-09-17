@@ -529,8 +529,8 @@ For further development guidance, see the implementation strategy in `notes/jupy
 ## See Also
 
 ### Conceptual Documentation
-- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design philosophy
-- **[Interactive Development](../../../../Docs/methodology/JUPYTER.md)** - Jupyter integration concepts
+- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
+- **[Interactive Development](../../../../Docs/architecture/JUPYTER.md)** - Jupyter integration concepts
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Jupyter subsystem architecture
