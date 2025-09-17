@@ -1,6 +1,6 @@
 # Iterator: Model Iteration and the 'iterate' Setting
 
-[← Back to Methodology](README.md) | [Architecture →](PIPELINE.md) | [Workflow →](../usage/WORKFLOW.md)
+[← Back to Architecture](README.md) | [Pipeline →](PIPELINE.md) | [Workflow →](../usage/WORKFLOW.md)
 
 ## Table of Contents
 
@@ -1111,11 +1111,25 @@ Iteration produces various debug messages:
 - `iterate/graph_utils.py` - Graph-based isomorphism
 - `theory_lib/*/iterate.py` - Theory-specific iterators
 
-### Related Documentation
-- [Architecture](PIPELINE.md) - System design and iterator architecture
-- [Workflow](WORKFLOW.md) - Using iteration in practice
+## Technical Implementation
+
+For detailed implementation information, see:
+- [Iterator Package Documentation](../../Code/src/model_checker/iterate/README.md) - Complete API reference
+- [Iterator Implementation](../../Code/src/model_checker/iterate/iterator.py) - Core iteration logic
+- [Difference Detection](../../Code/src/model_checker/iterate/differences.py) - Model comparison algorithms
+- [Isomorphism Prevention](../../Code/src/model_checker/iterate/isomorphism.py) - Structural equivalence detection
+
+## See Also
+
+### Related Architecture
+- [Pipeline Overview](PIPELINE.md) - System design and data flow
+- [Model Structure](MODELS.md) - Model representation
+- [Builder Pipeline](BUILDER.md) - Iteration orchestration
+- [Theory Framework](THEORY_LIB.md) - Theory-specific iteration
+
+### Technical Documentation
 - [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Theory implementations
-- [Iterator README](../../Code/src/model_checker/iterate/README.md) - Technical details
+- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
 
 ### Academic References
 - Graph Isomorphism Problem - Complexity and algorithms
@@ -1124,4 +1138,4 @@ Iteration produces various debug messages:
 
 ---
 
-[← Back to Methodology](README.md) | [Architecture →](PIPELINE.md) | [Workflow →](../usage/WORKFLOW.md)
+[← Back to Architecture](README.md) | [Pipeline →](PIPELINE.md) | [Models →](MODELS.md)

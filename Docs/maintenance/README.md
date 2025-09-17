@@ -109,7 +109,7 @@ Documentation templates providing starting points for different types of content
 ### For Research Documentation
 - **[Methodological Docs](METHODOLOGICAL_DOCS.md)** - Research methodology standards
 - **[Unicode Guidelines](UNICODE_GUIDELINES.md)** - Mathematical symbols in documentation
-- **Methodology Template** - Framework for research documentation
+- **Architecture Template** - Framework for research documentation
 
 ### For Documentation Maintenance
 - **[Version Control](VERSION_CONTROL.md)** - Git workflow for documentation
@@ -180,7 +180,7 @@ in all states reachable from the current state.
 
 ### Documentation Resources
 - **[Installation Guides](../installation/README.md)** - Setup documentation
-- **[Methodology](../architecture/README.md)** - Research approaches
+- **[Architecture](../architecture/README.md)** - Research approaches
 - **[Theory Explanations](../theories/README.md)** - Conceptual guides
 
 ---

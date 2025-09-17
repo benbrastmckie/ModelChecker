@@ -182,9 +182,9 @@ This was a deliberate decision to keep related functionality together rather tha
 ## See Also
 
 ### Conceptual Documentation
-- **[Model Structure Concepts](../../../../Docs/methodology/MODELS.md)** - High-level model theory
-- **[Semantics Methodology](../../../../Docs/methodology/SEMANTICS.md)** - Semantic framework concepts
-- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design philosophy
+- **[Model Structure Concepts](../../../../Docs/architecture/MODELS.md)** - High-level model theory
+- **[Semantics Architecture](../../../../Docs/architecture/SEMANTICS.md)** - Semantic framework concepts
+- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Model system architecture

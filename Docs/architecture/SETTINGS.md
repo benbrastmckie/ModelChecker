@@ -1139,7 +1139,7 @@ WIDGET BINDINGS (from ui_builders.py):
 │                    MODEL CHECKING EXECUTION STATES                          │
 └─────────────────────────────────────────────────────────────────────────────┘
 
-     INIT                    CHECK                    ITERATE
+    INIT                    CHECK                  ITERATE
 ┌─────────────┐        ┌─────────────┐         ┌─────────────┐
 │ BuildModule │───────▶│ BuildExample│────────▶│ModelIterator│
 │             │        │             │         │             │

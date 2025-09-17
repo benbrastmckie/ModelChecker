@@ -1,6 +1,6 @@
 # Syntax: Language-Agnostic AST Conversion
 
-[← Builder Pattern](BUILDER.md) | [Back to Methodology](README.md) | [Semantics Pipeline →](SEMANTICS.md)
+[← Builder Pattern](BUILDER.md) | [Back to Architecture](README.md) | [Semantics Pipeline →](SEMANTICS.md)
 
 ## Table of Contents
 
@@ -752,12 +752,25 @@ This pipeline demonstrates the complete syntax processing flow. The resulting `s
 - [`logos/subtheories/modal/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) - Modal operators (□, ◇)
 - [`logos/registry.py`](../../Code/src/model_checker/theory_lib/logos/registry.py) - LogosOperatorRegistry for dynamic loading
 
-### Related Documentation
+## Technical Implementation
 
-- [Builder Pattern](BUILDER.md) - How syntax fits in the pipeline
-- [Semantics Pipeline](SEMANTICS.md) - How parsed sentences become constraints
-- [API Reference](../../Code/docs/API_REFERENCE.md) - Detailed class documentation
+For detailed implementation information, see:
+- [Syntactic Package Documentation](../../Code/src/model_checker/syntactic/README.md) - Complete API reference
+- [Parser Implementation](../../Code/src/model_checker/syntactic/parser.py) - Core parsing logic
+- [AST Module](../../Code/src/model_checker/syntactic/ast.py) - Abstract syntax tree structures
+- [Operator Registry](../../Code/src/model_checker/syntactic/operators.py) - Operator management
+
+## See Also
+
+### Related Architecture
+- [Builder Pipeline](BUILDER.md) - How syntax fits in the pipeline
+- [Semantic Framework](SEMANTICS.md) - How parsed sentences become constraints
+- [Theory Framework](THEORY_LIB.md) - Theory-specific operators
+
+### Technical Documentation
+- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
+- [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Operator implementations
 
 ---
 
-[← Builder Pattern](BUILDER.md) | [Back to Methodology](README.md) | [Semantics Pipeline →](SEMANTICS.md)
+[← Back to Architecture](README.md) | [Builder →](BUILDER.md) | [Semantics →](SEMANTICS.md)

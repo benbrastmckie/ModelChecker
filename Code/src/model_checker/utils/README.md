@@ -410,7 +410,7 @@ All original functionality has been preserved with improved organization and mai
 ## See Also
 
 ### Conceptual Documentation
-- **[Architecture Overview](../../../../Docs/methodology/ARCHITECTURE.md)** - System design philosophy
+- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
 - **[Z3 Background](../../../../Docs/theory/Z3_BACKGROUND.md)** - SMT solver concepts
 
 ### Technical Documentation

@@ -214,6 +214,40 @@ Always test that comparisons work correctly:
 model-checker src/model_checker/theory_lib/exclusion/examples.py
 ```
 
+### Saving Comparison Results
+
+When comparing theories, save outputs for analysis:
+
+```bash
+# Save comparison results as Markdown
+model-checker comparison_examples.py --save markdown
+
+# Save detailed JSON for programmatic analysis
+model-checker comparison_examples.py --save json --verbose
+
+# Generate notebook for interactive exploration
+model-checker comparison_examples.py --save notebook
+
+# Save all formats for comprehensive documentation
+model-checker comparison_examples.py --save all --output-dir comparisons/
+```
+
+The output will organize results by theory, making it easy to compare:
+```
+output/
+├── Logos_examples/
+│   ├── TEST_1/
+│   │   └── summary.md
+│   └── TEST_2/
+│       └── summary.md
+├── Exclusion_examples/
+│   ├── TEST_1/
+│   │   └── summary.md
+│   └── TEST_2/
+│       └── summary.md
+└── combined_output.md  # Side-by-side comparison
+```
+
 ## Examples
 
 ### Basic Comparison Setup
@@ -317,6 +351,12 @@ semantic_theories = {
    ```
 
 ## Related Documentation
+
+### Usage Guides
+- [Workflow Guide](WORKFLOW.md) - Complete usage patterns
+- [Examples Guide](EXAMPLES.md) - Writing example files for comparisons
+- [Output Guide](OUTPUT.md) - Saving and formatting comparison results
+- [Constraints Testing](CONSTRAINTS.md) - Testing semantic properties
 
 ### Theory-Specific Guides
 - [Exclusion Theory](../Code/src/model_checker/theory_lib/exclusion/README.md) - Unilateral semantics implementation

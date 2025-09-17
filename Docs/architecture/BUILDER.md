@@ -1,6 +1,6 @@
 # Builder Pattern: BuildModule/BuildExample Architecture
 
-[← Back to Methodology](README.md) | [Syntax Pipeline →](SYNTAX.md)
+[← Back to Architecture](README.md) | [Syntax Pipeline →](SYNTAX.md)
 
 ## Table of Contents
 
@@ -609,22 +609,27 @@ else:
 
 Each stage transforms the logical problem: strings are parsed into ASTs (with atomic sentences becoming Z3 constants of AtomSort), operators in the AST invoke their semantic methods (like `extended_verify` or `true_at`) to generate Z3 constraints using the primitive sorts and functions defined by the semantics, these constraints are collected and passed to the Z3 solver, which either finds a satisfying assignment (countermodel) or proves none exists (validity). The countermodel, if found, shows exactly which states verify/falsify each proposition, revealing why the inference fails.
 
-## References
+## Technical Implementation
 
-### Implementation Files
+For detailed implementation information, see:
+- [Builder Package Documentation](../../Code/src/model_checker/builder/README.md) - Complete API reference
+- [BuildModule Implementation](../../Code/src/model_checker/builder/module.py) - Module loading and validation
+- [BuildExample Implementation](../../Code/src/model_checker/builder/example.py) - Example processing logic
+- [BuildProject Implementation](../../Code/src/model_checker/builder/project.py) - Project-level orchestration
 
-- `model_checker/builder/module.py` - BuildModule implementation
-- `model_checker/builder/example.py` - BuildExample implementation
-- `model_checker/builder/project.py` - BuildProject implementation
-- `model_checker/settings.py` - Settings management system
+## See Also
 
-### Related Documentation
+### Related Architecture
+- [Pipeline Overview](PIPELINE.md) - Complete data flow
+- [Settings Management](SETTINGS.md) - Configuration system
+- [Syntactic Processing](SYNTACTIC.md) - Formula parsing
+- [Semantic Framework](SEMANTICS.md) - Constraint generation
+- [Model Structure](MODELS.md) - Model representation
 
-- [Syntax Pipeline](SYNTAX.md) - How formulas are parsed
-- [Semantics Pipeline](SEMANTICS.md) - Constraint generation
-- [Model Finding](MODELS.md) - SMT solving process
+### Technical Documentation
 - [Development Guide](../../Code/docs/DEVELOPMENT.md) - Creating new theories
+- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
 
 ---
 
-[← Back to Methodology](README.md) | [Syntax Pipeline →](SYNTAX.md)
+[← Back to Architecture](README.md) | [Pipeline →](PIPELINE.md) | [Settings →](SETTINGS.md)

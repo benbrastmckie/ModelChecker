@@ -1,8 +1,8 @@
 # Technical Architecture Reference
 
-[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Methodology Architecture →](../../Docs/methodology/ARCHITECTURE.md)
+[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Architecture Documentation →](../../Docs/architecture/ARCHITECTURE.md)
 
-> **Note**: This document provides a technical reference for developers. For a comprehensive educational overview of the architecture and design philosophy, see the [Methodology Architecture Guide](../../Docs/methodology/ARCHITECTURE.md).
+> **Note**: This document provides a technical reference for developers. For a comprehensive educational overview of the architecture and design philosophy, see the [Architecture Documentation Guide](../../Docs/architecture/ARCHITECTURE.md).
 
 ## Table of Contents
 
@@ -430,9 +430,9 @@ def get_settings_validation():
 ## See Also
 
 ### Conceptual Documentation
-- **[Methodology Architecture](../../Docs/methodology/ARCHITECTURE.md)** - High-level architectural concepts
-- **[Builder Methodology](../../Docs/methodology/BUILDER.md)** - Conceptual pipeline orchestration
-- **[Iterator Methodology](../../Docs/methodology/ITERATOR.md)** - Model iteration concepts
+- **[Architecture Documentation](../../Docs/architecture/ARCHITECTURE.md)** - High-level architectural concepts
+- **[Builder Architecture](../../Docs/architecture/BUILDER.md)** - Conceptual pipeline orchestration
+- **[Iterator Architecture](../../Docs/architecture/ITERATOR.md)** - Model iteration concepts
 
 ### Implementation Documentation
 - **[API Documentation](../src/model_checker/README.md)** - Framework API and interfaces
@@ -446,4 +446,4 @@ def get_settings_validation():
 
 ---
 
-[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Methodology Architecture →](../../Docs/methodology/ARCHITECTURE.md)
+[← Back to Technical Docs](README.md) | [Development Guide →](DEVELOPMENT.md) | [Architecture Documentation →](../../Docs/architecture/ARCHITECTURE.md)

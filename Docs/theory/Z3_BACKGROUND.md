@@ -1,6 +1,6 @@
 # Z3 and SMT Solver Background
 
-[← Back to Docs](../README.md) | [Methodology →](../architecture/README.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
+[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
 
 ## Table of Contents
 1. [Introduction to SMT Solvers](#introduction-to-smt-solvers)
@@ -318,4 +318,4 @@ The challenge of implementing `\neg` motivated the witness predicate architectur
 
 ---
 
-[← Back to Docs](../README.md) | [Methodology →](../architecture/README.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
+[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Hyperintensional →](HYPERINTENSIONAL.md)
