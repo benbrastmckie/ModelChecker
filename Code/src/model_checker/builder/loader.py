@@ -253,13 +253,10 @@ class ModuleLoader:
         return None
     
     def load_module(self) -> ModuleType:
-        """Load a Python module from the given file path.
-        
-        This method handles module loading with proper sys.path management
-        for both standalone modules and generated projects.
+        """Load a Python module with package detection.
         
         Returns:
-            module: The loaded Python module
+            ModuleType: The loaded Python module
             
         Raises:
             ImportError: If the module cannot be loaded
@@ -268,13 +265,17 @@ class ModuleLoader:
         original_syspath = sys.path.copy()
         
         try:
-            # Try loading as theory library module first
+            # Check if this is a generated project package
+            if self._is_generated_project_package():
+                return self._load_as_package_module()
+            
+            # Try other loading methods as before
             if 'model_checker/theory_lib' in self.module_path.replace('\\', '/'):
                 module = self._load_theory_library_module()
                 if module:
                     return module
             
-            # Try loading as generated project
+            # Try loading as generated project (legacy)
             if self.is_generated_project(self.module_dir):
                 module = self._load_generated_project_module()
                 if module:
@@ -486,3 +487,105 @@ class ModuleLoader:
             )
         
         return value
+    
+    def _is_generated_project_package(self) -> bool:
+        """Check if module is in a generated project package.
+        
+        Returns:
+            bool: True if this is a generated package project
+        """
+        module_dir = os.path.dirname(self.module_path)
+        
+        # Walk up directory tree looking for markers
+        current_dir = module_dir
+        for _ in range(10):  # Limit search depth
+            marker_path = os.path.join(current_dir, '.modelchecker')
+            init_path = os.path.join(current_dir, '__init__.py')
+            
+            if os.path.exists(marker_path) and os.path.exists(init_path):
+                # Verify it's a package-type project
+                try:
+                    with open(marker_path, 'r') as f:
+                        content = f.read()
+                        if 'package=true' in content:
+                            return True
+                except:
+                    pass
+            
+            # Move up one directory
+            parent = os.path.dirname(current_dir)
+            if parent == current_dir:  # Reached root
+                break
+            current_dir = parent
+        
+        return False
+    
+    def _load_as_package_module(self) -> ModuleType:
+        """Load module with package context for relative imports.
+        
+        Returns:
+            ModuleType: The loaded module
+            
+        Raises:
+            ImportError: If the module cannot be loaded
+        """
+        # Find the package root (directory with .modelchecker)
+        package_root = self._find_package_root()
+        if not package_root:
+            raise ImportError("Could not find package root")
+        
+        # Add parent of package to sys.path
+        parent_dir = os.path.dirname(package_root)
+        if parent_dir not in sys.path:
+            sys.path.insert(0, parent_dir)
+        
+        # Calculate module path relative to package
+        package_name = os.path.basename(package_root)
+        rel_path = os.path.relpath(self.module_path, package_root)
+        
+        # Convert file path to module name
+        if rel_path.endswith('.py'):
+            rel_path = rel_path[:-3]
+        module_parts = rel_path.replace(os.sep, '.')
+        
+        # Full module name including package
+        full_module_name = f"{package_name}.{module_parts}"
+        
+        # Import the module with package context
+        try:
+            module = importlib.import_module(full_module_name)
+            
+            # If module has a main or run function, prepare to execute it
+            if hasattr(module, 'main'):
+                module.main()
+            elif hasattr(module, 'run'):
+                module.run()
+            
+            return module
+            
+        except ImportError as e:
+            # Provide helpful error message
+            raise ImportError(
+                f"Failed to import {full_module_name} from package {package_name}. "
+                f"Make sure all relative imports are correct. Original error: {str(e)}"
+            )
+    
+    def _find_package_root(self) -> Optional[str]:
+        """Find the root directory of the generated package.
+        
+        Returns:
+            Optional[str]: Path to package root or None if not found
+        """
+        current_dir = os.path.dirname(self.module_path)
+        
+        for _ in range(10):  # Limit search depth
+            marker_path = os.path.join(current_dir, '.modelchecker')
+            if os.path.exists(marker_path):
+                return current_dir
+            
+            parent = os.path.dirname(current_dir)
+            if parent == current_dir:  # Reached root
+                break
+            current_dir = parent
+        
+        return None
