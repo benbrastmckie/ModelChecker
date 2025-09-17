@@ -17,8 +17,9 @@ and code structure requirements automatically.
 import os
 import shutil
 import subprocess
-from typing import Union, Optional, List, Tuple
+from typing import Union, Optional, List, Tuple, Dict, Any
 from pathlib import Path
+from datetime import datetime
 
 class BuildProject:
     """Creates a new theory implementation project from templates.
@@ -149,15 +150,21 @@ class BuildProject:
             raise
     
     def _copy_files(self, project_dir: str) -> None:
-        """Copy all files from source to destination directory.
+        """Copy all files and transform into a package.
         
         Args:
             project_dir: Path to the destination project directory
             
         Raises:
             FileNotFoundError: If source files don't exist
-            PermissionError: If files can't be copied due to permissions
+            PermissionError: If files can't be written
         """
+        # 1. Copy files as before (fail-fast on errors)
+        if not os.path.exists(self.source_dir):
+            raise FileNotFoundError(
+                f"Source theory directory not found: {self.source_dir}"
+            )
+        
         # Directories to ignore
         ignore_dirs = ['__pycache__', '.ipynb_checkpoints']
         
@@ -185,6 +192,98 @@ class BuildProject:
                     self.log(f"Copied file: {item}")
             except Exception as e:
                 self.log(f"Error copying {item}: {str(e)}", "ERROR")
+                
+        # 2. Create package marker file (fail-fast philosophy)
+        self._create_package_marker(project_dir)
+        
+        # 3. Ensure __init__.py exists with proper exports
+        self._ensure_package_structure(project_dir)
+        
+        # 4. Ensure subtheories are also packages
+        self._ensure_subpackages(project_dir)
+    
+    def _create_package_marker(self, project_dir: str) -> None:
+        """Create .modelchecker marker file to identify generated packages.
+        
+        Args:
+            project_dir: Path to the project directory
+            
+        Raises:
+            PermissionError: If marker file can't be created
+        """
+        marker_path = os.path.join(project_dir, '.modelchecker')
+        try:
+            with open(marker_path, 'w') as f:
+                f.write(f"# ModelChecker Generated Project Marker\n")
+                f.write(f"theory={self.theory}\n")
+                f.write(f"package=true\n")
+                f.write(f"version=1.0\n")
+                f.write(f"created={datetime.now().isoformat()}\n")
+                f.write(f"model_checker_version={self._get_current_version()}\n")
+            self.log(f"Created package marker: .modelchecker")
+        except IOError as e:
+            raise PermissionError(
+                f"Cannot create marker file at {marker_path}: {str(e)}"
+            )
+    
+    def _ensure_package_structure(self, project_dir: str) -> None:
+        """Ensure __init__.py exists with proper package exports.
+        
+        Args:
+            project_dir: Path to the project directory
+        """
+        init_path = os.path.join(project_dir, '__init__.py')
+        if not os.path.exists(init_path):
+            # Copy from theory if exists, otherwise create new
+            theory_init = os.path.join(self.source_dir, '__init__.py')
+            if os.path.exists(theory_init):
+                shutil.copy2(theory_init, init_path)
+                self.log(f"Copied __init__.py from theory")
+            else:
+                self._create_default_init(init_path)
+        else:
+            self.log(f"Package __init__.py already exists")
+    
+    def _create_default_init(self, init_path: str) -> None:
+        """Create a default __init__.py for the package.
+        
+        Args:
+            init_path: Path to the __init__.py file to create
+        """
+        with open(init_path, 'w') as f:
+            f.write(f'"""Generated {self.theory} theory package."""\n\n')
+            f.write(f'__version__ = "0.1.0"\n')
+            f.write(f'__theory__ = "{self.theory}"\n\n')
+            f.write(f'# Re-export main components\n')
+            f.write(f'try:\n')
+            f.write(f'    from .semantic import *\n')
+            f.write(f'except ImportError:\n')
+            f.write(f'    pass  # semantic.py not present\n')
+            f.write(f'try:\n')
+            f.write(f'    from .operators import *\n')
+            f.write(f'except ImportError:\n')
+            f.write(f'    pass  # operators.py not present\n')
+        self.log(f"Created default __init__.py")
+    
+    def _ensure_subpackages(self, project_dir: str) -> None:
+        """Ensure all subdirectories with .py files are packages.
+        
+        Args:
+            project_dir: Path to the project directory
+        """
+        for root, dirs, files in os.walk(project_dir):
+            # Skip hidden directories and __pycache__
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d != '__pycache__']
+            
+            # If directory contains .py files, ensure it has __init__.py
+            if any(f.endswith('.py') for f in files) and root != project_dir:
+                init_path = os.path.join(root, '__init__.py')
+                if not os.path.exists(init_path):
+                    # Create minimal __init__.py
+                    with open(init_path, 'w') as f:
+                        subpackage_name = os.path.basename(root)
+                        f.write(f'"""Subpackage: {subpackage_name}"""\n')
+                    self.log(f"Created subpackage __init__.py in {os.path.relpath(root, project_dir)}")
     
     def _update_file_contents(self, project_dir: str) -> None:
         """Update file contents with project-specific information.
