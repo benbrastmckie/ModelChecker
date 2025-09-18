@@ -83,11 +83,12 @@ The `-l` flag loads a specific theory template and enters interactive mode where
 
 ### Project Structure
 
-After creation, your project contains the actual files from the theory template:
+After creation, your project is a proper Python package with automatic support for relative imports:
 
 ```
 project_my_theory/
-├── __init__.py              # Package initialization with get_theory()
+├── __init__.py              # Package initialization (enables relative imports)
+├── .modelchecker            # Package marker file (identifies as generated project)
 ├── semantic.py              # Semantic class implementation
 │   └── class TheorySemantics(Semantics):
 │       ├── def __init__(self)
@@ -129,14 +130,27 @@ Additional directories (theory-specific):
 
 ### Running Examples Locally
 
-Run examples using your local project files without installation:
+Generated projects support relative imports automatically, allowing you to create multiple example files:
 
 ```bash
 # Navigate to your project
 cd project_my_theory
 
-# Run examples directly
+# Run the original examples
 model-checker examples.py
+
+# Create and run custom example files with relative imports
+cat > examples2.py << 'EOF'
+from .semantic import MySemantics  # Relative import works!
+from .operators import *
+
+# Your custom examples here
+example_range = {
+    "CUSTOM_1": {...}
+}
+EOF
+
+model-checker examples2.py  # Works with package detection
 
 # Run with specific settings
 model-checker examples.py --N=4 --verbose
@@ -147,6 +161,12 @@ model-checker examples.py --example=TEST_1
 # Save output for analysis
 model-checker examples.py --save markdown
 ```
+
+**New Feature**: Projects are now proper Python packages with:
+- Automatic relative import support
+- `.modelchecker` marker for package detection
+- Ability to create unlimited custom example files
+- All files can use `from .semantic import` style imports
 
 ### Modifying Semantics
 
@@ -335,64 +355,48 @@ semantic_theories = {
 
 ## Testing Your Project
 
-### Important Note on Local Development
+### Local Testing
 
-**Current Limitation**: Generated projects copy files from theory templates that use relative imports (like `from .semantic import`). However, when you run `model-checker examples.py` on these files, the relative imports will fail with "attempted relative import with no known parent package" because the files are not being run as part of a proper Python package structure.
-
-### Workarounds for Local Testing
-
-To test local changes, you need to modify your `examples.py` file to use explicit local imports:
+Generated projects are now proper Python packages, so relative imports work automatically:
 
 ```python
-# examples.py - Modified for local testing
-import sys
-import os
+# examples.py - No modifications needed!
+from .semantic import MyTheorySemantics  # Works out of the box
+from .operators import get_operators     # Relative imports supported
 
-# Add current directory to path for local imports
-sys.path.insert(0, os.path.dirname(__file__))
-
-# Use direct imports instead of relative imports
-import semantic  # Import local semantic.py
-import o
-
-# Create your theory using local modules
+# Your theory code with relative imports
 def get_theory():
     """Get theory with local modifications."""
     return {
-        'semantics': semantic.MyTheorySemantics,
-        'operators': operators.get_operators().operator_dictionary,
+        'semantics': MyTheorySemantics,
+        'operators': get_operators().operator_dictionary,
     }
 
 # Rest of your examples...
 ```
 
-Alternative approach - create a standalone test file:
+You can create as many test files as needed:
 
-```bash
-# Create test_local.py in your project directory
-# This file uses absolute local imports
+```python
+# test_custom.py - Create new files with relative imports
+from .semantic import MyTheorySemantics
+from .operators import my_custom_operator
+from .examples import example_range
 
-# test_local.py
-import sys
-import os
-sys.path.insert(0, os.path.dirname(__file__))
-
-from semantic import MyTheorySemantics
-from operators import get_operators
-from examples import example_range
-
-# Run your tests here
+# Run your custom tests
 semantics = MyTheorySemantics()
 # ... test code ...
 ```
 
-Then run:
+Then run any file directly:
 ```bash
-# Run your local test file
-python test_local.py
-
-# Or use model-checker on the modified examples
+# Run original examples
 model-checker examples.py
+
+# Run custom test files
+model-checker test_custom.py
+
+# All files support relative imports!
 ```
 
 ### Unit Tests
@@ -590,11 +594,17 @@ class MyTheorySemantics(Semantics):
 
 ### Common Issues
 
-**Issue**: ImportError when running examples
+**Issue**: ImportError with relative imports (RESOLVED)
 ```bash
-# Solution: Run from project directory
-cd project_my_theory
-model-checker examples.py
+# Previous versions had issues with relative imports
+# This is now automatically handled by package detection
+
+# Projects created with older versions can be fixed by adding:
+# 1. A .modelchecker marker file
+# 2. An __init__.py file if missing
+
+# Or regenerate the project with the latest version
+model-checker -l your_theory
 
 # Or add to PYTHONPATH
 export PYTHONPATH="${PYTHONPATH}:$(pwd)"

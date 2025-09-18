@@ -69,8 +69,10 @@ The module loader supports:
 
 - Standard theory library modules (`theory_lib/logos/examples.py`)
 - Generated project modules (`project_my_theory/examples.py`)
-- Relative imports within theory packages
+- **Package-aware loading**: Detects `.modelchecker` marker files to identify generated projects
+- **Automatic relative import resolution**: All files in generated projects can use `from .semantic import`
 - Dynamic theory loading without prior registration
+- Multiple example files per project (`examples.py`, `examples2.py`, custom files)
 
 **Why Dynamic Loading?** This approach allows researchers to develop and test new semantic theories without modifying the core framework. You can create a standalone Python file with your logical examples and semantic definitions, and the framework will automatically discover and load the necessary components. This is particularly useful when experimenting with variations of existing theories or developing entirely new semantic frameworks.
 
@@ -253,21 +255,24 @@ This structured output enables systematic analysis of logical validity across di
 
 ### Theory Generation
 
-BuildProject creates new theory implementations from existing templates:
+BuildProject creates new theory implementations as proper Python packages with full relative import support:
 
 ```python
-# Create new theory project
-project = BuildProject(theory='logos')
+# Create new theory project from any available theory
+project = BuildProject(theory='logos')  # or 'exclusion', 'imposition', 'bimodal'
 project_dir = project.generate('my_counterfactual_theory')
 ```
 
-Generated structure:
+**Key Feature**: BuildProject is completely theory-independent. It dynamically discovers and copies any theory from `theory_lib/`, meaning new theories can be added without any changes to BuildProject itself.
+
+Generated package structure:
 ```
 project_my_counterfactual_theory/
-├── __init__.py          # Version info and exports
+├── __init__.py          # Package initialization (enables relative imports)
+├── .modelchecker        # Package marker file for detection
 ├── semantic.py          # Core semantic implementation
-├── operators.py         # Operator definitions
-├── examples.py          # Example formulas
+├── operators.py         # Operator definitions  
+├── examples.py          # Example formulas (with relative imports)
 ├── LICENSE.md           # GPL-3.0 license
 ├── CITATION.md          # Citation template
 ├── docs/                # Documentation
