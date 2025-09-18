@@ -10,7 +10,7 @@ theory_lib/docs/
 ├── CONTRIBUTING.md         # Theory implementation and contribution guide
 ├── THEORY_ARCHITECTURE.md  # Architecture patterns and design principles
 ├── EXAMPLES.md             # Cross-theory examples and comparisons
-└── UNIT_TESTS.md          # Testing methodology and framework usage
+└── UNIT_TESTS.md           # Testing methodology and framework usage
 ```
 
 ## Overview

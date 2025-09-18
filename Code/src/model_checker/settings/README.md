@@ -5,11 +5,11 @@
 ## Directory Structure
 ```
 settings/
-├── README.md               # This file - settings system overview
-├── __init__.py            # Package exports and SettingsManager
-├── settings_manager.py     # Core settings management and validation
-├── default_settings.py     # Global default settings definitions
-└── validation.py          # Settings validation utilities
+├── README.md                # This file - settings system overview
+├── __init__.py              # Package exports and SettingsManager
+├── settings_manager.py      # Core settings management and validation
+├── default_settings.py      # Global default settings definitions
+└── validation.py            # Settings validation utilities
 ```
 
 ## Overview

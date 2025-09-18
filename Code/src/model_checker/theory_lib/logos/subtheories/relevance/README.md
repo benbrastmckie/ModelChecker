@@ -6,17 +6,17 @@
 
 ```
 relevance/
-├── README.md               # This file - relevance subtheory overview
-├── __init__.py            # Module initialization and public API
-├── examples.py            # Example formulas and test cases (20 examples)
-├── operators.py           # Relevance operator import (1 operator)
-├── notebooks/             # Interactive Jupyter notebooks (see notebooks/README.md)
-│   ├── README.md          # Notebook documentation and usage guide
-│   └── relevance_examples.ipynb  # Interactive examples with countermodels and theorems
-└── tests/                 # Test suite (see tests/README.md)
-    ├── README.md          # Test documentation and methodology
-    ├── __init__.py        # Test module initialization
-    └── test_relevance_examples.py  # Integration tests with 20 examples
+├── README.md                         # This file - relevance subtheory overview
+├── __init__.py                       # Module initialization and public API
+├── examples.py                       # Example formulas and test cases (20 examples)
+├── operators.py                      # Relevance operator import (1 operator)
+├── notebooks/                        # Interactive Jupyter notebooks (see notebooks/README.md)
+│   ├── README.md                     # Notebook documentation and usage guide
+│   └── relevance_examples.ipynb      # Interactive examples with countermodels and theorems
+└── tests/                            # Test suite (see tests/README.md)
+    ├── README.md                     # Test documentation and methodology
+    ├── __init__.py                   # Test module initialization
+    └── test_relevance_examples.py    # Integration tests with 20 examples
 ```
 
 ## Overview

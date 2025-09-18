@@ -10,18 +10,18 @@ The **models** package contains the core model checking components refactored fr
 
 ```
 models/
-├── __init__.py          # Package initialization and exports
-├── README.md           # This documentation file
-├── types.py            # Type definitions and protocols for type safety
-├── errors.py           # Custom exception classes for model checking
-├── semantic.py         # SemanticDefaults - semantic evaluation framework
-├── proposition.py      # PropositionDefaults - proposition management
-├── constraints.py      # ModelConstraints - Z3 constraint generation
-├── structure.py        # ModelDefaults - core model structure, solving, printing, and analysis
-└── tests/             # Comprehensive test suite
-    ├── unit/          # Unit tests for individual components
-    ├── integration/   # Integration tests for component interactions
-    └── conftest.py    # Test configuration and fixtures
+├── __init__.py              # Package initialization and exports
+├── README.md                # This documentation file
+├── types.py                 # Type definitions and protocols for type safety
+├── errors.py                # Custom exception classes for model checking
+├── semantic.py              # SemanticDefaults - semantic evaluation framework
+├── proposition.py           # PropositionDefaults - proposition management
+├── constraints.py           # ModelConstraints - Z3 constraint generation
+├── structure.py             # ModelDefaults - core model structure, solving, printing, and analysis
+└── tests/                   # Comprehensive test suite
+    ├── unit/                # Unit tests for individual components
+    ├── integration/         # Integration tests for component interactions
+    └── conftest.py          # Test configuration and fixtures
 ```
 
 ## Component Overview

@@ -15,9 +15,9 @@ Docs/
 │   ├── VIRTUAL_ENVIRONMENTS.md     # Virtual environment setup
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
 │   └── DEVELOPER_SETUP.md          # Development environment setup
-├── architecture/                    # Programmatic semantics framework
+├── architecture/                   # Programmatic semantics framework
 │   ├── README.md                   # Architecture documentation hub
-│   ├── PIPELINE.md             # System design and integration
+│   ├── PIPELINE.md                 # System design and integration
 │   ├── BUILDER.md                  # Pipeline orchestration
 │   ├── SYNTAX.md                   # AST conversion pipeline
 │   ├── SEMANTICS.md                # Constraint generation
@@ -26,7 +26,7 @@ Docs/
 ├── usage/                          # Practical usage guides
 │   ├── README.md                   # Usage documentation hub
 │   ├── WORKFLOW.md                 # Comprehensive workflows
-│   ├── COMPARE_THEORIES.md         # Theory comparison patterns
+│   ├── TOOLS.md                    # Advanced tools and theory comparison
 │   └── CONSTRAINTS.md              # Testing semantic constraints
 ├── theory/                         # Theoretical foundations
 │   ├── README.md                   # Theory documentation hub
@@ -156,7 +156,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 
 - **[Theoretical Foundations](theory/README.md)** - Academic background
 - **[Architecture Overview](architecture/README.md)** - Programmatic semantics
-- **[Theory Comparison](usage/COMPARE_THEORIES.md)** - Comparative analysis
+- **[ModelChecker Tools](usage/TOOLS.md)** - Advanced features and comparison
 - **[Constraint Testing](usage/CONSTRAINTS.md)** - Proving properties by absence
 
 ### For Developers

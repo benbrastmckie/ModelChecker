@@ -1,6 +1,11 @@
-# Debugging Protocol
+# Debugging Protocols
 
-[← Back to Technical Docs](README.md) | [Style Guide →](STYLE_GUIDE.md) | [Development →](DEVELOPMENT.md)
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Feature Implementation →](FEATURE_IMPLEMENTATION.md) | [Testing Framework →](TESTING_FRAMEWORK.md)
+
+**Related Documentation**: 
+- [Feature Implementation](FEATURE_IMPLEMENTATION.md) - Development process that includes debugging
+- [Testing Framework](TESTING_FRAMEWORK.md) - Testing methods for validation
+- [Quality Assurance](../../quality/README.md) - Code quality standards
 
 ## Overview
 
@@ -415,7 +420,11 @@ for i, constraint in enumerate(constraints):
 
 ## See Also
 
-- [Style Guide](STYLE_GUIDE.md) - Coding standards and conventions
-- [Implementation Guide](IMPLEMENTATION.md) - Feature development process
-- [Tests Guide](TESTS.md) - Testing procedures
-- [specs/findings/](specs/findings/) - Historical issues and resolutions
+- [Feature Implementation](FEATURE_IMPLEMENTATION.md) - Development process and coding standards
+- [Testing Framework](TESTING_FRAMEWORK.md) - Testing procedures
+- [Quality Assurance](../../quality/README.md) - Code quality standards
+- [specs/findings/](../specs/findings/) - Historical issues and resolutions
+
+---
+
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Feature Implementation →](FEATURE_IMPLEMENTATION.md) | [Testing Framework →](TESTING_FRAMEWORK.md)

@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── README.md                        # This file - constitutive test documentation
+├── README.md                       # This file - constitutive test documentation
 ├── __init__.py                     # Test module initialization
 └── test_constitutive_examples.py   # Integration tests with 33 comprehensive examples
 ```

@@ -6,7 +6,7 @@
 
 ```
 subtheory_name/
-├── README.md               # This file - subtheory overview
+├── README.md              # This file - subtheory overview
 ├── __init__.py            # Subtheory initialization
 ├── operators.py           # Operator definitions
 ├── examples.py            # Example formulas

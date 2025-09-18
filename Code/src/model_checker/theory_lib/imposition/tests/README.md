@@ -5,7 +5,7 @@
 ## Directory Structure
 ```
 tests/
-├── README.md               # This file - test documentation
+├── README.md              # This file - test documentation
 ├── __init__.py            # Test package initialization
 ├── test_imposition.py     # Core imposition semantic tests
 └── test_iterate.py        # Model iteration tests

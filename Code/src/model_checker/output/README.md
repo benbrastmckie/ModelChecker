@@ -6,30 +6,30 @@
 
 ```
 output/
-├── README.md               # This file - output subsystem documentation
-├── __init__.py            # Module exports and initialization
-├── config.py              # Simple output configuration
-├── constants.py           # Format constants only
-├── errors.py              # Custom exception classes
-├── manager.py             # Simplified OutputManager
-├── collectors.py          # Model data collection utilities
-├── helpers.py             # Utility functions for output processing
-├── sequential_manager.py  # Sequential save manager
-├── prompts.py            # User prompt utilities
-├── input_provider.py     # Input abstraction for testing
-├── formatters/           # Output format generators
-│   ├── base.py           # Abstract formatter interface
-│   ├── markdown.py       # Markdown documentation generator
-│   ├── json.py           # JSON data serialization
-│   └── notebook.py       # Jupyter notebook integration
-├── notebook/             # Notebook generation subsystem
-│   ├── streaming_generator.py  # Efficient streaming notebook builder
-│   └── [various]         # Template and cell management
-├── progress/             # Progress indication utilities
-│   └── [various]         # Spinner and progress components
-└── tests/                # Comprehensive test suite
-    ├── unit/            # Unit tests for components
-    └── integration/     # Integration tests
+├── README.md                       # This file - output subsystem documentation
+├── __init__.py                     # Module exports and initialization
+├── config.py                       # Simple output configuration
+├── constants.py                    # Format constants only
+├── errors.py                       # Custom exception classes
+├── manager.py                      # Simplified OutputManager
+├── collectors.py                   # Model data collection utilities
+├── helpers.py                      # Utility functions for output processing
+├── sequential_manager.py           # Sequential save manager
+├── prompts.py                      # User prompt utilities
+├── input_provider.py               # Input abstraction for testing
+├── formatters/                     # Output format generators
+│   ├── base.py                     # Abstract formatter interface
+│   ├── markdown.py                 # Markdown documentation generator
+│   ├── json.py                     # JSON data serialization
+│   └── notebook.py                 # Jupyter notebook integration
+├── notebook/                       # Notebook generation subsystem
+│   ├── streaming_generator.py      # Efficient streaming notebook builder
+│   └── [various]                   # Template and cell management
+├── progress/                       # Progress indication utilities
+│   └── [various]                   # Spinner and progress components
+└── tests/                          # Comprehensive test suite
+    ├── unit/                       # Unit tests for components
+    └── integration/                # Integration tests
 ```
 
 ## Overview

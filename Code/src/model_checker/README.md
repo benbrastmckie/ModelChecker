@@ -6,15 +6,15 @@
 
 ```
 model_checker/
-├── README.md               # This file - API documentation and architecture
-├── __init__.py            # Main API exports and convenience functions
-├── __main__.py             # Command-line interface and entry points
-├── builder/                # Model construction and example builders (see builder/README.md)
-├── iterate/                # Model iteration and constraint generation (see iterate/README.md)
-├── jupyter/                # Interactive notebook integration (see jupyter/README.md)
-├── settings/               # Centralized settings management (see settings/README.md)
-├── theory_lib/             # Semantic theory implementations (see theory_lib/README.md)
-└── utils/                  # Utility functions and helper modules
+├── README.md                # This file - API documentation and architecture
+├── __init__.py              # Main API exports and convenience functions
+├── __main__.py              # Command-line interface and entry points
+├── builder/                 # Model construction and example builders (see builder/README.md)
+├── iterate/                 # Model iteration and constraint generation (see iterate/README.md)
+├── jupyter/                 # Interactive notebook integration (see jupyter/README.md)
+├── settings/                # Centralized settings management (see settings/README.md)
+├── theory_lib/              # Semantic theory implementations (see theory_lib/README.md)
+└── utils/                   # Utility functions and helper modules
 ```
 
 ## Overview

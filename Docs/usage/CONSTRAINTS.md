@@ -1,6 +1,6 @@
 # Testing Semantic Constraints: Proving Properties Through Countermodel Search
 
-[← Back to Usage](README.md) | [Workflow →](WORKFLOW.md) | [Compare Theories →](COMPARE_THEORIES.md)
+[← Back to Usage](README.md) | [Workflow →](WORKFLOW.md) | [Tools →](TOOLS.md)
 
 ## Table of Contents
 

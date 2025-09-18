@@ -6,26 +6,26 @@
 
 ```
 iterate/
-├── README.md                    # This file - framework overview and guide
-├── __init__.py                  # Package exports
-├── base.py                      # Abstract base class (95 lines)
-├── core.py                      # BaseModelIterator orchestration (729 lines)
-├── iterator.py                  # Main iteration loop and control (381 lines)
-├── constraints.py               # Constraint generation and management (279 lines)
-├── models.py                    # Model building, validation, and differences (611 lines)
-├── graph.py                     # Graph representation and isomorphism detection (539 lines)
-├── metrics.py                   # Progress, statistics, termination, and formatting (277 lines)
-├── statistics.py                # Iteration statistics and reporting (91 lines)
-├── build_example.py             # BuildExample extension for iteration (153 lines)
-└── tests/                       # Comprehensive test suite
-    ├── test_base_iterator.py    # Base class and abstract methods
-    ├── test_models.py           # Model building and differences
-    ├── test_constraints.py      # Constraint generation
-    ├── test_isomorphism.py      # Isomorphism detection
-    ├── test_graph_utils.py      # Graph representation
-    ├── test_iteration_control.py # Progress and termination (tests metrics.py)
-    ├── test_validation.py       # Model validation (tests ModelValidator in models.py)
-    └── [other test files]       # Additional test coverage
+├── README.md                       # This file - framework overview and guide
+├── __init__.py                     # Package exports
+├── base.py                         # Abstract base class (95 lines)
+├── core.py                         # BaseModelIterator orchestration (729 lines)
+├── iterator.py                     # Main iteration loop and control (381 lines)
+├── constraints.py                  # Constraint generation and management (279 lines)
+├── models.py                       # Model building, validation, and differences (611 lines)
+├── graph.py                        # Graph representation and isomorphism detection (539 lines)
+├── metrics.py                      # Progress, statistics, termination, and formatting (277 lines)
+├── statistics.py                   # Iteration statistics and reporting (91 lines)
+├── build_example.py                # BuildExample extension for iteration (153 lines)
+└── tests/                          # Comprehensive test suite
+    ├── test_base_iterator.py       # Base class and abstract methods
+    ├── test_models.py              # Model building and differences
+    ├── test_constraints.py         # Constraint generation
+    ├── test_isomorphism.py         # Isomorphism detection
+    ├── test_graph_utils.py         # Graph representation
+    ├── test_iteration_control.py   # Progress and termination (tests metrics.py)
+    ├── test_validation.py          # Model validation (tests ModelValidator in models.py)
+    └── [other test files]          # Additional test coverage
 ```
 
 ## Overview

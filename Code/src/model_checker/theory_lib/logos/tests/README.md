@@ -5,7 +5,7 @@ This directory contains the core test suite for the Logos theory implementation,
 ## Directory Structure
 ```
 tests/
-├── README.md                  # This file
+├── README.md                 # This file
 ├── __init__.py               # Test package initialization
 ├── conftest.py               # Pytest configuration and fixtures
 ├── test_iterate.py           # Model iteration tests

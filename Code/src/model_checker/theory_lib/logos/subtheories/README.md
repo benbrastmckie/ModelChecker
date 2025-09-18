@@ -5,33 +5,33 @@
 ## Directory Structure
 ```
 subtheories/
-├── README.md                # This file - subtheory coordination
-├── __init__.py             # Public API for subtheory loading
-├── extensional/            # Extensional operators (7 operators)
+├── README.md              # This file - subtheory coordination
+├── __init__.py            # Public API for subtheory loading
+├── extensional/           # Extensional operators (7 operators)
 │   ├── README.md          # Extensional documentation
 │   ├── __init__.py        # Public API exports
 │   ├── operators.py       # Operator implementations
 │   ├── examples.py        # Test examples (32 examples)
 │   └── tests/             # Test suite
-├── modal/                  # Necessity and possibility (4 operators)
+├── modal/                 # Necessity and possibility (4 operators)
 │   ├── README.md          # Modal documentation
 │   ├── __init__.py        # Public API exports
 │   ├── operators.py       # Operator implementations
 │   ├── examples.py        # Test examples (21 examples)
 │   └── tests/             # Test suite
-├── constitutive/           # Content relationships (5 operators)
+├── constitutive/          # Content relationships (5 operators)
 │   ├── README.md          # Constitutive documentation
 │   ├── __init__.py        # Public API exports
 │   ├── operators.py       # Operator implementations
 │   ├── examples.py        # Test examples (33 examples)
 │   └── tests/             # Test suite
-├── counterfactual/         # Counterfactual reasoning (2 operators)
+├── counterfactual/        # Counterfactual reasoning (2 operators)
 │   ├── README.md          # Counterfactual documentation
 │   ├── __init__.py        # Public API exports
 │   ├── operators.py       # Operator implementations
 │   ├── examples.py        # Test examples (2 examples)
 │   └── tests/             # Test suite
-└── relevance/              # Content-sensitive relevance (1 operator)
+└── relevance/             # Content-sensitive relevance (1 operator)
     ├── README.md          # Relevance documentation
     ├── __init__.py        # Public API exports
     ├── operators.py       # Operator implementations

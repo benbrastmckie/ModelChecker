@@ -6,18 +6,18 @@
 
 ```
 theory_lib/
-├── README.md               # This file - theory library overview
-├── __init__.py            # Theory registration and loading functions
-├── docs/                  # Documentation hub (see docs/README.md)
-│   ├── README.md          # Documentation navigation guide
-│   ├── USAGE_GUIDE.md     # Practical usage patterns and examples
-│   ├── CONTRIBUTING.md    # Theory implementation and contribution guide
-│   └── THEORY_ARCHITECTURE.md # Architecture patterns and design principles
-├── tests/                 # Infrastructure tests (see tests/README.md)
-├── logos/                 # Hyperintensional semantics (see logos/README.md)
-├── exclusion/             # Unilateral semantics (see exclusion/README.md)
-├── imposition/            # Fine's counterfactual semantics (see imposition/README.md)
-└── bimodal/               # Temporal-modal logic (see bimodal/README.md)
+├── README.md                    # This file - theory library overview
+├── __init__.py                  # Theory registration and loading functions
+├── docs/                        # Documentation hub (see docs/README.md)
+│   ├── README.md                # Documentation navigation guide
+│   ├── USAGE_GUIDE.md           # Practical usage patterns and examples
+│   ├── CONTRIBUTING.md          # Theory implementation and contribution guide
+│   └── THEORY_ARCHITECTURE.md   # Architecture patterns and design principles
+├── tests/                       # Infrastructure tests (see tests/README.md)
+├── logos/                       # Hyperintensional semantics (see logos/README.md)
+├── exclusion/                   # Unilateral semantics (see exclusion/README.md)
+├── imposition/                  # Fine's counterfactual semantics (see imposition/README.md)
+└── bimodal/                     # Temporal-modal logic (see bimodal/README.md)
 ```
 
 ## Overview

@@ -6,13 +6,13 @@
 
 ```
 counterfactual/
-├── README.md               # This file - counterfactual subtheory overview
-├── __init__.py            # Module initialization and public API
-├── examples.py            # Example formulas and test cases (37 examples)
-├── operators.py           # Counterfactual operator definitions (2 operators)
-└── tests/                 # Test suite (see tests/README.md)
-    ├── README.md          # Test documentation and methodology
-    ├── __init__.py        # Test module initialization
+├── README.md                            # This file - counterfactual subtheory overview
+├── __init__.py                          # Module initialization and public API
+├── examples.py                          # Example formulas and test cases (37 examples)
+├── operators.py                         # Counterfactual operator definitions (2 operators)
+└── tests/                               # Test suite (see tests/README.md)
+    ├── README.md                        # Test documentation and methodology
+    ├── __init__.py                      # Test module initialization
     └── test_counterfactual_examples.py  # Integration tests with 37 examples
 ```
 

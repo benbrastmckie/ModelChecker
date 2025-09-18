@@ -6,16 +6,16 @@
 
 ```
 constitutive/
-├── README.md               # This file - constitutive subtheory overview
-├── __init__.py            # Module initialization and public API
-├── examples.py            # Example formulas and test cases (33 examples)
-├── operators.py           # Content relationship operator definitions (5 operators)
-├── notebooks/             # Interactive Jupyter notebooks (see notebooks/README.md)
-│   ├── README.md          # Notebook documentation and usage guide
-│   └── constitutive_examples.ipynb  # Interactive examples with countermodels and theorems
-└── tests/                 # Test suite (see tests/README.md)
-    ├── README.md          # Test documentation and methodology
-    ├── __init__.py        # Test module initialization
+├── README.md                          # This file - constitutive subtheory overview
+├── __init__.py                        # Module initialization and public API
+├── examples.py                        # Example formulas and test cases (33 examples)
+├── operators.py                       # Content relationship operator definitions (5 operators)
+├── notebooks/                         # Interactive Jupyter notebooks (see notebooks/README.md)
+│   ├── README.md                      # Notebook documentation and usage guide
+│   └── constitutive_examples.ipynb    # Interactive examples with countermodels and theorems
+└── tests/                             # Test suite (see tests/README.md)
+    ├── README.md                      # Test documentation and methodology
+    ├── __init__.py                    # Test module initialization
     └── test_constitutive_examples.py  # Integration tests with 33 examples
 ```
 

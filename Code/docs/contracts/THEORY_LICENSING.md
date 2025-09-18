@@ -1,6 +1,11 @@
-# License Inheritance Guidelines
+# Theory License Inheritance Guidelines
 
-[← Back to Development](DEVELOPMENT.md) | [API Reference →](API_REFERENCE.md) | [Contributing →](CONTRIBUTING.md)
+**Navigation**: [← Back to Contracts](../README.md) | [Maintenance Home](../../README.md) | [Iterator Contracts →](ITERATOR_CONTRACTS.md)
+
+**Related Documentation**: 
+- [Implementation Guidelines](../implementation/README.md) - Development process
+- [Core Architecture](../core/README.md) - Framework licensing structure
+- [Quality Assurance](../quality/README.md) - Contribution standards
 
 ## Overview
 
@@ -249,6 +254,55 @@ These extensions enable reasoning about uncertain impositions.
 See: docs/PROBABILISTIC_EXTENSION.md
 ```
 
+## Licensing Compliance
+
+### GPL-3.0 Requirements
+
+The inheritance model requires maintaining GPL-3.0 compatibility:
+- ✅ Can add additional permissions
+- ❌ Cannot add restrictions
+- ❌ Cannot change to incompatible license
+- ✅ Can dual-license your contributions (with GPL-3.0 as one option)
+
+### Distribution Requirements
+
+When distributing derivative theories:
+
+1. **Include complete source code**
+2. **Maintain all copyright notices**
+3. **Provide LICENSE.md with inheritance documentation**
+4. **Document all modifications clearly**
+5. **Ensure GPL-3.0 compliance**
+
+## Validation and Enforcement
+
+### License Validation Tools
+
+Use provided tools to validate licensing compliance:
+
+```bash
+# Check license consistency across theory
+python test_package.py --metadata-report
+
+# Validate copyright notices
+python test_package.py --validate-licenses
+
+# Generate missing license files
+python test_package.py --create-licenses --author "Your Name"
+```
+
+### Compliance Checklist
+
+Before distributing derivative theory:
+
+- [ ] Original theory copyright preserved
+- [ ] Your contributions clearly documented
+- [ ] LICENSE.md file complete and accurate
+- [ ] All source files have appropriate copyright notices
+- [ ] GPL-3.0 license terms included
+- [ ] Attribution requirements clearly stated
+- [ ] Links to detailed documentation provided
+
 ## Troubleshooting
 
 ### Missing Attribution
@@ -275,13 +329,45 @@ The inheritance model requires maintaining GPL-3.0 compatibility:
 - ❌ Cannot change to incompatible license
 - ✅ Can dual-license your contributions (with GPL-3.0 as one option)
 
+## Framework Integration
+
+### Theory Registration
+
+When registering derivative theories with the framework:
+
+```python
+# In theory __init__.py
+THEORY_METADATA = {
+    'name': 'temporal_logos',
+    'base_theory': 'logos',
+    'version': '1.0.0',
+    'base_version': '0.1.0',
+    'author': 'Your Name',
+    'original_author': 'Benjamin Brast-McKie',
+    'license': 'GPL-3.0',
+    'description': 'Temporal extension of logos theory'
+}
+```
+
+### Automated License Generation
+
+The framework provides automated license generation for derivative works:
+
+```bash
+# Generate license for new derivative theory
+model-checker --generate-license \
+  --base-theory logos \
+  --author "Your Name" \
+  --theory-name temporal_logos
+```
+
 ## References
 
 - [GPL-3.0 License Text](https://www.gnu.org/licenses/gpl-3.0.txt)
-- [Contributing Guidelines](CONTRIBUTING.md)
-- [Theory Development Guide](DEVELOPMENT.md)
+- [Implementation Guidelines](../implementation/README.md) - Development standards
+- [Core Architecture](../core/README.md) - Framework licensing structure
 - [Software Licensing Best Practices](https://opensource.guide/legal/)
 
 ---
 
-[← Back to Development](DEVELOPMENT.md) | [API Reference →](API_REFERENCE.md) | [Contributing →](CONTRIBUTING.md)
+**Navigation**: [← Back to Contracts](../README.md) | [Maintenance Home](../../README.md) | [Iterator Contracts →](ITERATOR_CONTRACTS.md)

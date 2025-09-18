@@ -1,6 +1,15 @@
 # Iterator Architecture Contracts
 
-This document defines the implicit contracts and assumptions that the iterator subsystem relies on. These contracts must be maintained during refactoring to ensure iterator functionality.
+**Navigation**: [← Back to Contracts](../README.md) | [Maintenance Home](../../README.md) | [Theory Licensing →](THEORY_LICENSING.md)
+
+**Related Documentation**: 
+- [Core Architecture](../core/README.md) - Framework components and contracts
+- [Implementation Guidelines](../implementation/README.md) - Development standards
+- [Quality Assurance](../quality/README.md) - Testing and validation
+
+## Overview
+
+This document defines the implicit contracts and assumptions that the iterator subsystem relies on. These contracts must be maintained during refactoring to ensure iterator functionality remains stable and consistent across all theory implementations.
 
 ## Model Structure Contracts
 
@@ -168,3 +177,46 @@ To support gradual refactoring, the iterator should:
 2. Prefer interfaces when available
 3. Fall back to direct access for compatibility
 4. Log deprecation warnings for direct access (future)
+
+## Contract Validation
+
+### Testing Requirements
+
+Iterator contracts must be validated through:
+
+1. **Unit Tests**: Test each contract individually
+2. **Integration Tests**: Test contract compliance across theories
+3. **Regression Tests**: Ensure contracts remain stable during refactoring
+
+### Validation Checklist
+
+When modifying iterator-related code:
+
+- [ ] All required model attributes remain accessible
+- [ ] World state structure preserved
+- [ ] Solver lifecycle contracts maintained
+- [ ] Z3 value extraction handles all return types
+- [ ] Error handling covers all specified cases
+- [ ] Performance contracts respected
+- [ ] Display format contracts maintained
+
+## Breaking Changes Protocol
+
+If iterator contracts must change:
+
+1. **Document Impact**: Identify all affected components
+2. **Migration Plan**: Create step-by-step migration guide
+3. **Backward Compatibility**: Provide temporary compatibility layer if possible
+4. **Update All Theories**: Ensure all theories comply with new contracts
+5. **Test Thoroughly**: Run comprehensive test suite across all theories
+
+## See Also
+
+- [Core Architecture](../core/README.md) - Framework component contracts
+- [Implementation Guidelines](../implementation/README.md) - Development standards
+- [Testing Framework](../development/TESTING_FRAMEWORK.md) - Contract validation methods
+- [Quality Assurance](../quality/README.md) - Code quality standards
+
+---
+
+**Navigation**: [← Back to Contracts](../README.md) | [Maintenance Home](../../README.md) | [Theory Licensing →](THEORY_LICENSING.md)

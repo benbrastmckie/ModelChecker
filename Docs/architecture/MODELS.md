@@ -137,8 +137,7 @@ Z3 context management ensures no state leakage between examples:
 class Z3ContextManager:
     """Manages Z3 context lifecycle."""
 
-    @staticmethod
-    def reset_context():
+    def reset_context(self):
         """Reset Z3 to clean state."""
         import z3
 

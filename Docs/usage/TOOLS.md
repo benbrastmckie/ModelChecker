@@ -1,35 +1,226 @@
-# Theory Comparison Guide
+# ModelChecker Tools Guide
 
-[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Getting Started →](../installation/GETTING_STARTED.md)
+[← Back to Usage](README.md) | [Workflow →](WORKFLOW.md) | [Examples →](EXAMPLES.md)
 
 ## Table of Contents
 
-1. [Introduction](#introduction)
-2. [Core Principles](#core-principles)
+1. [Overview](#overview)
+2. [Using the Iterate Setting](#using-the-iterate-setting)
+   - [Basic Usage](#basic-usage)
+   - [How It Works](#how-it-works)
+   - [Theory-Specific Differences](#theory-specific-differences)
+   - [Advanced Settings](#advanced-settings)
+3. [Comparing Multiple Theories](#comparing-multiple-theories)
+   - [Core Principles](#core-principles)
    - [Import Order Matters](#import-order-matters)
    - [Theory Independence](#theory-independence)
    - [Translation Dictionaries](#translation-dictionaries)
-3. [Comparison Patterns](#comparison-patterns)
-   - [Independent Theory Pattern](#independent-theory-pattern-exclusion)
-   - [Dependent Theory Pattern](#dependent-theory-pattern-imposition)
-4. [Implementation Guidelines](#implementation-guidelines)
+4. [Using the Maximize Flag](#using-the-maximize-flag)
+5. [Debugging and Output Flags](#debugging-and-output-flags)
+6. [Implementation Guidelines](#implementation-guidelines)
    - [Setting Up Comparisons](#setting-up-comparisons)
    - [Avoiding Circular Imports](#avoiding-circular-imports)
-   - [Testing Comparisons](#testing-comparisons)
-5. [Examples](#examples)
-   - [Basic Comparison Setup](#basic-comparison-setup)
-   - [Advanced Multi-Theory Comparison](#advanced-multi-theory-comparison)
-6. [Common Pitfalls](#common-pitfalls)
-7. [Related Documentation](#related-documentation)
+7. [Examples](#examples)
+8. [Common Pitfalls](#common-pitfalls)
+9. [Related Documentation](#related-documentation)
 
-## Introduction
+## Overview
 
-The ModelChecker framework enables systematic comparison of different semantic theories by running the same logical examples across multiple theories. This guide explains how to properly set up theory comparisons while avoiding circular dependencies.
+This guide explains advanced features of the ModelChecker for exploring logical theories, finding multiple models, and comparing different semantic frameworks. These tools are essential for researchers and developers working with complex logical theories and requiring detailed model analysis.
+
+## Using the Iterate Setting
+
+The `iterate` setting allows you to find multiple semantically distinct models for a logical formula. This is useful for exploring the full space of possible models and understanding how different interpretations can satisfy the same logical constraints.
+
+### Basic Usage
+
+In any theory's example file, add the `iterate` setting to request multiple models:
+
+```python
+# Example from logos theory
+LOGOS_CM_1_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'max_time': 5,
+    'iterate': 3,        # Find up to 3 distinct models
+    'expectation': True,
+}
+```
+
+### How It Works
+
+When `iterate` is set to a value greater than 1:
+
+1. The system finds the first model normally
+2. For each additional model, it:
+   - Adds constraints ensuring the new model differs from previous ones
+   - Searches for a structurally distinct solution
+   - Displays differences between consecutive models
+
+### Example Output
+
+```bash
+MODEL 1/3
+========================================
+EXAMPLE LOGOS_CM_1: there is a countermodel.
+[First model details...]
+
+Finding 3 models: [████████████████████] 2/3 (checked 4) 0.8s
+
+MODEL 2/3
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+Verification Changes:
+  w1 verifies A: True → False
+  w2.s1 verifies B: False → True
+
+State Changes:
+  (w1, s2) exists: True → False
+
+[Second model details...]
+
+MODEL 3/3
+=== DIFFERENCES FROM PREVIOUS MODEL ===
+Part-of Changes:
+  s1 ⊝ s3: True → False
+
+Verification Changes:
+  w2 verifies C: False → True
+
+[Third model details...]
+
+Found 3/3 distinct models.
+```
+
+### Theory-Specific Differences
+
+Each theory defines what makes models "semantically distinct":
+
+- **Logos Theory**: Different verification/falsification patterns, world structures, state configurations
+- **Exclusion Theory**: Different exclusion relations between states, witness structures
+- **Bimodal Theory**: Different temporal/modal accessibility relations
+- **Imposition Theory**: Different imposition relations and counterfactual patterns
+
+### Advanced Settings
+
+You can fine-tune the iteration behavior:
+
+```python
+settings = {
+    'iterate': 5,                    # Maximum models to find
+    'max_invalid_attempts': 5,       # Max consecutive invalid models before stopping
+    'iteration_attempts': 5,         # Max isomorphic models before adding stronger constraints
+    'escape_attempts': 3,            # Max attempts to escape isomorphism loops
+    'iteration_timeout': 10,         # Timeout for isomorphism checking
+    'iteration_solver_timeout': 60,  # Timeout for finding each new model
+}
+```
+
+## Comparing Multiple Theories
+
+The ModelChecker framework enables systematic comparison of different semantic theories by running the same logical examples across multiple theories.
 
 Theory comparison is essential for:
 - **Research validation**: Testing how different semantic frameworks handle the same logical principles
 - **Theoretical insights**: Understanding where theories agree and disagree
 - **Framework development**: Ensuring new theories integrate properly with existing ones
+
+## Using the Maximize Flag
+
+The maximize flag (`-m` or `--maximize`) enables a special comparison mode that tests the scalability of different semantic theories.
+
+### What It Does
+
+Instead of finding a single model, maximize mode:
+1. Starts with the initial N (number of worlds) specified in settings
+2. If a model is found within the time limit, increments N and tries again
+3. Continues until the solver times out
+4. Reports the maximum N each theory could handle
+
+### Usage
+
+```bash
+model-checker -m examples_file.py
+model-checker --maximize examples_file.py
+
+# Or in the example file:
+general_settings = {
+    "maximize": True,
+}
+```
+
+### Example Output
+
+```
+========================================
+EXAMPLE = antecedent_strengthening
+  Premises:
+    NOT A
+    (A BOXRIGHT C)
+  Conclusions:
+    ((A AND B) BOXRIGHT C)
+
+ImpositionSemantics (Fine):
+  RUN TIME = 0.23, MAX TIME = 5, N = 4.
+  RUN TIME = 0.89, MAX TIME = 5, N = 5.
+  RUN TIME = 3.45, MAX TIME = 5, N = 6.
+ImpositionSemantics (Fine): TIMED OUT
+  RUN TIME = 5.01, MAX TIME = 5, N = 7.
+
+LogosSemantics (Brast-McKie):
+  RUN TIME = 0.18, MAX TIME = 5, N = 4.
+  RUN TIME = 0.52, MAX TIME = 5, N = 5.
+  RUN TIME = 1.89, MAX TIME = 5, N = 6.
+  RUN TIME = 4.21, MAX TIME = 5, N = 7.
+LogosSemantics (Brast-McKie): TIMED OUT
+  RUN TIME = 5.02, MAX TIME = 5, N = 8.
+========================================
+```
+
+### Use Cases
+
+1. **Performance Benchmarking**: Compare computational efficiency of theories
+2. **Theory Development**: Test if optimizations improve scalability
+3. **Research**: Empirically study complexity of different semantic frameworks
+4. **Debugging**: Identify when theories struggle with larger models
+
+## Debugging and Output Flags
+
+### Essential Debugging Flags
+
+```bash
+# Show generated constraints
+model-checker examples.py --print-constraints
+model-checker examples.py -p  # Short form
+
+# Show Z3 solver details
+model-checker examples.py --print-z3
+model-checker examples.py -z  # Short form
+
+# Show impossible states
+model-checker examples.py --print-impossible
+model-checker examples.py -i  # Short form
+
+# Combine all debug output
+model-checker examples.py -p -z -i --verbose
+```
+
+### Understanding Debug Output
+
+**Constraints Output** (`-p`):
+- Shows the logical constraints generated from your formulas
+- Useful for understanding how semantics translate to Z3
+- Helps identify over-constraining issues
+
+**Z3 Output** (`-z`):
+- Displays the complete Z3 model when found
+- Shows variable assignments and function definitions
+- Essential for debugging unexpected results
+
+**Impossible States** (`-i`):
+- Lists states that cannot exist given the constraints
+- Helps understand semantic restrictions
+- Useful for verifying theory behavior
 
 ## Core Principles
 
@@ -42,13 +233,13 @@ The key to avoiding circular imports is understanding Python's import mechanism 
 3. **Example files** are the proper place for cross-theory imports
 
 ```python
-# ✓ GOOD: Import hierarchy
+# GOOD: Import hierarchy
 # 1. Core components (no theory imports)
 # 2. Theory modules (can import from core)
 # 3. Examples (can import from theories)
 
-# ✗ BAD: Circular dependencies
-# Core → Theory → Core (circular!)
+# BAD: Circular dependencies
+# Core -> Theory -> Core (circular!)
 ```
 
 ### Theory Independence
@@ -310,6 +501,23 @@ semantic_theories = {
     "Logos": logos_theory,  # Common comparison baseline
 }
 ```
+
+## Best Practices
+
+### For Iterate
+- Start with small iterate values (2-3) to understand the model space
+- Use larger values only when exploring specific semantic phenomena
+- Monitor performance as iterate values increase
+
+### For Theory Comparison
+- Ensure operator translations are semantically appropriate
+- Test theories on standard examples first
+- Document any unexpected behavioral differences
+
+### For Maximize Mode
+- Use consistent time limits across comparisons
+- Run multiple examples to get a comprehensive view
+- Consider both worst-case and average-case performance
 
 ## Common Pitfalls
 

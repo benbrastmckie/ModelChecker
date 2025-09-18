@@ -6,14 +6,14 @@
 
 ```
 extensional/
-├── README.md               # This file - extensional subtheory overview
-├── __init__.py            # Module initialization and public API
-├── examples.py            # Example formulas and test cases (14 examples)
-├── operators.py           # Extensional operator definitions (7 operators)
-└── tests/                 # Test suite (see tests/README.md)
-    ├── README.md          # Test documentation and methodology
-    ├── __init__.py        # Test module initialization
-    └── test_extensional_examples.py  # Integration tests with 14 examples
+├── README.md                           # This file - extensional subtheory overview
+├── __init__.py                         # Module initialization and public API
+├── examples.py                         # Example formulas and test cases (14 examples)
+├── operators.py                        # Extensional operator definitions (7 operators)
+└── tests/                              # Test suite (see tests/README.md)
+    ├── README.md                       # Test documentation and methodology
+    ├── __init__.py                     # Test module initialization
+    └── test_extensional_examples.py    # Integration tests with 14 examples
 ```
 
 ## Overview

@@ -6,7 +6,7 @@
 
 ```
 tests/
-├── README.md                          # This file - counterfactual test documentation
+├── README.md                         # This file - counterfactual test documentation
 ├── __init__.py                       # Test module initialization
 └── test_counterfactual_examples.py   # Integration tests with 33 comprehensive examples
 ```

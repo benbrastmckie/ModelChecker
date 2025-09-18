@@ -6,7 +6,7 @@
 
 ```
 component_name/
-├── README.md               # This file - comprehensive overview
+├── README.md              # This file - comprehensive overview
 ├── __init__.py            # Module initialization and public API
 ├── core_file.py           # Core implementation
 ├── docs/                  # Documentation directory (see docs/README.md)

@@ -13,20 +13,20 @@ As of the unified architecture implementation, this package is integrated into t
 ```
 notebook/
 ├── README.md                    # This file - package documentation
-├── __init__.py                 # Package exports
-├── streaming_generator.py      # Main streaming notebook generator
-├── notebook_writer.py          # Low-level JSON streaming writer
-├── template_loader.py          # Template discovery and loading
-├── generator.py                # Legacy generator (deprecated)
-├── templates/                  # Theory-specific template implementations
+├── __init__.py                  # Package exports
+├── streaming_generator.py       # Main streaming notebook generator
+├── notebook_writer.py           # Low-level JSON streaming writer
+├── template_loader.py           # Template discovery and loading
+├── generator.py                 # Legacy generator (deprecated)
+├── templates/                   # Theory-specific template implementations
 │   ├── __init__.py
-│   ├── base.py                # Base template class
-│   ├── logos.py               # Logos theory template
-│   ├── exclusion.py           # Exclusion theory template
-│   └── imposition.py          # Imposition theory template
-└── tests/                     # Test suite
-    ├── unit/                  # Unit tests for components
-    └── integration/           # Integration tests
+│   ├── base.py                  # Base template class
+│   ├── logos.py                 # Logos theory template
+│   ├── exclusion.py             # Exclusion theory template
+│   └── imposition.py            # Imposition theory template
+└── tests/                       # Test suite
+    ├── unit/                    # Unit tests for components
+    └── integration/             # Integration tests
 ```
 
 ## Architecture

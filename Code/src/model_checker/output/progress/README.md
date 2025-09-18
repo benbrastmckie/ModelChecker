@@ -6,19 +6,19 @@
 
 ```
 progress/
-├── README.md              # This file - progress system documentation
-├── __init__.py           # Module exports and initialization
-├── core.py               # Core progress tracking interface
-├── animated.py           # Animated progress bar implementations
-├── display.py            # Display handlers for different environments
-├── spinner.py            # Simple spinner for indeterminate operations
-└── tests/                # Comprehensive test suite
-    ├── README.md         # Test documentation and coverage guide
+├── README.md                      # This file - progress system documentation
+├── __init__.py                    # Module exports and initialization
+├── core.py                        # Core progress tracking interface
+├── animated.py                    # Animated progress bar implementations
+├── display.py                     # Display handlers for different environments
+├── spinner.py                     # Simple spinner for indeterminate operations
+└── tests/                         # Comprehensive test suite
+    ├── README.md                  # Test documentation and coverage guide
     ├── __init__.py
-    ├── test_animated.py  # Tests for animated progress bars
-    ├── test_core.py      # Tests for UnifiedProgress and ProgressBar
-    ├── test_display.py   # Tests for display adapters
-    └── test_spinner.py   # Tests for spinner component
+    ├── test_animated.py           # Tests for animated progress bars
+    ├── test_core.py               # Tests for UnifiedProgress and ProgressBar
+    ├── test_display.py            # Tests for display adapters
+    └── test_spinner.py            # Tests for spinner component
 ```
 
 ## Overview

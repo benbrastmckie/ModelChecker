@@ -7,18 +7,18 @@
 ```
 syntactic/
 ├── README.md               # This file - comprehensive syntactic documentation
-├── __init__.py            # Package initialization and exports
-├── types.py               # Type aliases and protocol definitions
-├── atoms.py               # Z3 atomic propositions (AtomSort, AtomVal)
-├── sentence.py            # Sentence class for formula representation
-├── operators.py           # Operator and DefinedOperator base classes
-├── collection.py          # OperatorCollection registry system
-├── syntax.py              # Syntax processor for argument construction
-├── errors.py              # Syntactic error definitions
-└── tests/                 # Comprehensive test suite
-    ├── __init__.py        # Test package initialization
-    ├── unit/              # Unit tests for individual components
-    └── integration/       # Integration tests for component interactions
+├── __init__.py             # Package initialization and exports
+├── types.py                # Type aliases and protocol definitions
+├── atoms.py                # Z3 atomic propositions (AtomSort, AtomVal)
+├── sentence.py             # Sentence class for formula representation
+├── operators.py            # Operator and DefinedOperator base classes
+├── collection.py           # OperatorCollection registry system
+├── syntax.py               # Syntax processor for argument construction
+├── errors.py               # Syntactic error definitions
+└── tests/                  # Comprehensive test suite
+    ├── __init__.py         # Test package initialization
+    ├── unit/               # Unit tests for individual components
+    └── integration/        # Integration tests for component interactions
 ```
 
 ## Overview

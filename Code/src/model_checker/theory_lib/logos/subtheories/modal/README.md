@@ -6,14 +6,14 @@
 
 ```
 modal/
-├── README.md               # This file - modal subtheory overview
-├── __init__.py            # Module initialization and public API
-├── examples.py            # Example formulas and test cases (18 examples)
-├── operators.py           # Modal operator definitions (4 operators)
-└── tests/                 # Test suite (see tests/README.md)
-    ├── README.md          # Test documentation and methodology
-    ├── __init__.py        # Test module initialization
-    └── test_modal_examples.py  # Integration tests with 18 examples
+├── README.md                      # This file - modal subtheory overview
+├── __init__.py                    # Module initialization and public API
+├── examples.py                    # Example formulas and test cases (18 examples)
+├── operators.py                   # Modal operator definitions (4 operators)
+└── tests/                         # Test suite (see tests/README.md)
+    ├── README.md                  # Test documentation and methodology
+    ├── __init__.py                # Test module initialization
+    └── test_modal_examples.py     # Integration tests with 18 examples
 ```
 
 ## Overview

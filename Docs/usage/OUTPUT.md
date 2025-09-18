@@ -41,7 +41,7 @@ model-checker examples/test.py --quiet
 ```
 
 **Terminal Output Features**:
-- Color-coded results (✓ for valid, ✗ for invalid)
+- Color-coded results (VALID/INVALID indicators)
 - Formatted model displays with truth tables
 - Progress indicators for long-running operations
 - Inline countermodel presentation
@@ -107,7 +107,7 @@ model-checker examples/test.py --save markdown
 ## Conclusions
 1. B
 
-## Result: ✓ VALID
+## Result: VALID
 
 The inference is valid. No countermodel exists.
 ```
@@ -160,18 +160,60 @@ model-checker examples/test.py --save notebook
 
 ### Interactive Save Mode
 
-When using `--save` without specifying a format:
+The **Interactive Save Mode** provides fine-grained control over which model checking results are saved, allowing users to selectively save models and iterate through additional solutions interactively.
+
+#### Enabling Interactive Mode
 
 ```bash
-model-checker examples/test.py --save
+# Interactive mode with save output
+model-checker --save --interactive examples/my_logic.py
+model-checker --save -I examples/my_logic.py  # Short form
 
-# Prompts:
-# Select output format:
-# [1] JSON
-# [2] Markdown
-# [3] Notebook
-# [4] All formats
-# Choice: 2
+# Save specific formats interactively
+model-checker --save markdown json --interactive examples/my_logic.py
+```
+
+#### Interactive Workflow
+
+1. **Mode Selection** (if `-I` not specified):
+   ```
+   Select save mode:
+   1) batch - Save all at end
+   2) interactive - Prompt after each model
+   ```
+
+2. **Model Save Prompt** (after each model):
+   ```
+   Save model for EXAMPLE_NAME? (Y/n):
+   ```
+
+3. **Iteration Prompt** (after saving decision):
+   ```
+   Find additional models? (y/N):
+   ```
+
+4. **Directory Navigation** (at completion):
+   ```
+   All models saved to: /path/to/output_20250804_123456
+   Change to output directory? (y/N):
+   ```
+
+#### Interactive Output Structure
+
+In interactive mode, outputs are organized by example:
+
+```
+output_YYYYMMDD_HHMMSS/
+├── EXAMPLE_1/
+│   ├── MODEL_1.md      # Formatted model with colors
+│   ├── MODEL_1.json    # Structured data
+│   ├── MODEL_2.md      # Second model (if saved)
+│   └── MODEL_2.json
+├── EXAMPLE_2/
+│   ├── MODEL_1.md
+│   └── MODEL_1.json
+├── summary.json        # Interactive session summary
+└── MODELS.json         # All models in single file
 ```
 
 ### Batch Saving
@@ -193,6 +235,8 @@ model-checker examples/*_test.py --save all --output-dir results/
 
 ## Output Directory Structure
 
+### Standard Batch Mode
+
 The ModelChecker organizes saved output hierarchically:
 
 ```
@@ -210,6 +254,10 @@ output/                           # Default output directory
 └── reports/                     # Custom reports
     └── comparison_report.md    # Theory comparison results
 ```
+
+### Interactive Mode Structure
+
+See [Interactive Save Mode](#interactive-save-mode) section above for the specialized directory structure used in interactive mode.
 
 ### Customizing Output Structure
 

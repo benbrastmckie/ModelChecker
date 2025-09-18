@@ -6,9 +6,9 @@
 
 ```
 tests/
-├── README.md                    # This file - modal test documentation and methodology
+├── README.md                   # This file - modal test documentation and methodology
 ├── __init__.py                 # Test module initialization
-└── test_modal_examples.py     # Integration tests with 18 comprehensive examples
+└── test_modal_examples.py      # Integration tests with 18 comprehensive examples
 ```
 
 ## Overview
