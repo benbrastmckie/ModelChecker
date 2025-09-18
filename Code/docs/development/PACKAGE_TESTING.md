@@ -27,6 +27,16 @@ This guide establishes standards for testing and releasing the model-checker pac
 
 **Core Principle**: Every release must pass all tests on all supported platforms (Linux, macOS, Windows) and Python versions (3.8-3.12) before publication.
 
+### Quick Release Reference
+
+| Version Type | Example | Upload Method | Git Operations | Trigger |
+|-------------|---------|---------------|----------------|---------|
+| **Major** | 1.0.0 → 2.0.0 | GitHub Actions | Auto tag & push | Tag `v2.0.0` |
+| **Minor** | 1.0.0 → 1.1.0 | GitHub Actions | Auto tag & push | Tag `v1.1.0` |
+| **Patch** | 1.0.0 → 1.0.1 | Direct from script | Commit & push (no tag) | Manual |
+
+**One Command**: `python run_update.py` handles everything automatically!
+
 ## Philosophy
 
 ### Multi-Platform Testing Requirements
@@ -72,18 +82,28 @@ python run_update.py
 2. **Version Selection**
    - Shows current version from `pyproject.toml`
    - Prompts for increment type:
-     - **PATCH** (1.0.3 → 1.0.4): Bug fixes
-     - **MINOR** (1.0.3 → 1.1.0): New features
-     - **MAJOR** (1.0.3 → 2.0.0): Breaking changes
+     - **PATCH** (1.0.3 → 1.0.4): Bug fixes → Direct PyPI upload
+     - **MINOR** (1.0.3 → 1.1.0): New features → GitHub Actions upload
+     - **MAJOR** (1.0.3 → 2.0.0): Breaking changes → GitHub Actions upload
 
 3. **Package Building**
    - Updates version in `pyproject.toml`
    - Builds wheel and source distributions
    - Validates with `twine check`
 
-4. **Release Path**
-   - **Major/Minor**: Provides git commands for automatic GitHub Actions release
-   - **Patch**: Manual upload only (not auto-released)
+4. **Release Execution**
+   - **Major/Minor**:
+     - Builds package locally (NO upload)
+     - Offers to automatically commit, tag, and push
+     - GitHub Actions handles PyPI upload
+   - **Patch**:
+     - Builds and uploads directly to PyPI
+     - Offers to commit and push (no tag needed)
+
+5. **Git Automation** (NEW)
+   - For major/minor: Automatically creates and pushes version tag
+   - For patches: Commits and pushes without tagging
+   - Falls back to manual instructions if git operations fail
 
 #### Command Line Options
 
@@ -94,34 +114,61 @@ python run_update.py --no-upload   # Build but don't upload
 python run_update.py --test-pypi   # Upload to Test PyPI
 ```
 
-### Automatic PyPI Releases (Major/Minor)
+### Release Types and Workflows
 
-For major and minor versions, releases are automated via GitHub Actions:
+#### Major/Minor Releases (Automated via GitHub Actions)
 
-1. **Version Tag Triggers Release**
+For versions ending in `.0` (e.g., 1.1.0, 2.0.0):
+
+1. **Using run_update.py (Recommended)**
    ```bash
-   git tag v1.1.0  # Minor version ending in .0
-   git push origin v1.1.0
+   cd Code
+   python run_update.py
+   # Choose minor or major
+   # Script will:
+   #   - Build package locally
+   #   - NOT upload to PyPI
+   #   - Offer to automatically tag and push
    ```
 
-2. **GitHub Actions Workflow** (`.github/workflows/pypi-release.yml`)
-   - Detects version tags matching `v[0-9]+.[0-9]+.0`
-   - Runs tests on all platforms
-   - Uploads to PyPI if all tests pass
+2. **What Happens Automatically**
+   - Script creates tag `v1.1.0` and pushes to GitHub
+   - GitHub Actions detects tag matching `v[0-9]+.[0-9]+.0`
+   - Workflow runs tests across all platforms
+   - If tests pass, automatically uploads to PyPI
+   - Creates GitHub release
 
-3. **Requirements for Automatic Release**
+3. **Requirements**
    - `PYPI_API_TOKEN` secret configured in repository
-   - All tests passing on all 15 environments
+   - All tests passing on all environments
    - Version tag matches pattern (x.y.0)
 
-### Manual PyPI Upload
+#### Patch Releases (Direct Upload)
 
-For patches or immediate release needs:
+For bug fix versions (e.g., 1.0.4, 1.1.1):
 
-```bash
-cd Code
-twine upload dist/*
-```
+1. **Using run_update.py**
+   ```bash
+   cd Code
+   python run_update.py
+   # Choose patch
+   # Script will:
+   #   - Build package
+   #   - Upload directly to PyPI
+   #   - Offer to commit and push (no tag)
+   ```
+
+2. **Manual Alternative**
+   ```bash
+   cd Code
+   python -m build
+   twine upload dist/*
+   ```
+
+3. **No GitHub Actions Involved**
+   - Patches don't trigger automated workflows
+   - Direct upload from terminal to PyPI
+   - Useful for quick fixes
 
 ## Local Testing
 
@@ -334,18 +381,25 @@ version = "1.0.4"  # Follow semantic versioning
 
 #### Automated Workflow (Recommended)
 
-Use `run_update.py` for interactive release process:
+The `run_update.py` script provides a complete interactive release process:
 
 ```bash
 cd Code
 python run_update.py
 ```
 
-This handles:
-- Running tests before version change
-- Semantic version selection
-- Building distributions
-- Providing appropriate git commands
+**Complete Feature Set**:
+- ✅ Runs tests BEFORE version changes
+- ✅ Interactive semantic version selection (patch/minor/major)
+- ✅ Builds distributions with validation
+- ✅ **For Major/Minor**: 
+  - No upload from script
+  - Automatic git commit, tag, and push
+  - Triggers GitHub Actions for PyPI upload
+- ✅ **For Patches**:
+  - Direct PyPI upload from script
+  - Automatic git commit and push (no tag)
+- ✅ Error handling with fallback instructions
 
 #### Manual Workflow
 
@@ -457,6 +511,15 @@ dependencies = [
 - Consider pure-Python alternatives
 - Use `cibuildwheel` for complex binary distributions
 
+#### Version Already Exists on PyPI
+
+**Symptoms**: Upload fails with "version already exists"
+**Solutions**:
+- PyPI never allows overwriting versions (security feature)
+- Increment version number and try again
+- The GitHub Actions workflow handles this gracefully (won't fail)
+- Check if version was manually uploaded previously
+
 ### GitHub Actions Debugging
 
 #### Adding Debug Output
@@ -552,13 +615,27 @@ python -c "import model_checker; model_checker.__version__"
 
 ### Release Workflow  
 - **File**: `.github/workflows/pypi-release.yml`
-- **Triggers**: Version tags (v*.*.0), manual
+- **Triggers**: Version tags (v*.*.0), manual dispatch
 - **Purpose**: Automated PyPI releases for major/minor versions
+- **Features**: 
+  - Validates version matches pyproject.toml
+  - Runs abbreviated test matrix (min/max Python versions)
+  - Handles existing versions gracefully
+  - Creates GitHub release on success
 
 ### Helper Scripts
-- **`run_update.py`**: Interactive release management
+- **`run_update.py`**: Complete release automation
+  - Tests → Version → Build → Upload/Tag → Push
+  - Handles major/minor vs patch workflows
+  - Automates git operations
 - **`run_tests.py`**: Comprehensive test runner
-- **`pyproject.toml`**: Package configuration and version
+  - Runs all theory tests
+  - Validates examples and units
+  - Package infrastructure tests
+- **`pyproject.toml`**: Package configuration
+  - Version management
+  - Dependencies
+  - Build configuration
 
 ## Additional Resources
 
