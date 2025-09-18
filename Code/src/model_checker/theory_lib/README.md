@@ -101,6 +101,8 @@ Comprehensive documentation hub with **usage guides**, **architecture documentat
 
 Infrastructure testing suite covering **theory discovery**, **metadata management**, **cross-theory compatibility**, and **common functionality**. Complements theory-specific tests with framework-level validation.
 
+**Important Testing Principle**: Each theory MUST include its own `tests/` directory with theory-specific tests, including verification that project generation works correctly. Infrastructure packages (`builder/`, `output/`, etc.) should maintain theory independence by using mock theories or parameterized tests rather than referencing specific theories by name.
+
 ### Individual Theory Directories
 
 Each theory directory contains **complete implementations** with semantic classes, operators, examples, comprehensive documentation, test suites, and interactive Jupyter notebooks for hands-on exploration.

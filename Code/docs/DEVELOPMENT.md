@@ -249,12 +249,42 @@ For detailed documentation on advanced features like iterate settings, theory co
    AVAILABLE_THEORIES.append('new_theory')
    ```
 
-4. Create tests in `tests/` subdirectory
+4. Create tests in `tests/` subdirectory:
+
+   **Required**: Include a test for project generation:
+   ```python
+   # new_theory/tests/integration/test_project_generation.py
+   def test_new_theory_project_generation():
+       """Verify BuildProject works with this theory."""
+       project = BuildProject('new_theory')
+       # Test project generation succeeds
+   ```
 
 5. Verify with:
    ```bash
    python test_theories.py --theories new_theory
    ```
+
+### Testing Philosophy: Theory Independence
+
+**Important Principle**: Maintain strict separation between theory-specific and infrastructure tests:
+
+- **Theory-specific tests** (in `theory_lib/*/tests/`):
+  - Should test theory-specific functionality
+  - MUST include project generation tests
+  - May reference their own theory by name
+  - Should verify theory-specific examples work
+
+- **Infrastructure tests** (in `builder/tests/`, `output/tests/`, etc.):
+  - Should be theory-agnostic
+  - Should NOT reference specific theories by name (logos, exclusion, etc.)
+  - Should use mock theories or parameterized tests
+  - Should test generic functionality that works across all theories
+
+This separation ensures that:
+- New theories can be added without modifying infrastructure tests
+- Theory structures can evolve independently
+- Infrastructure remains flexible and maintainable
 
 ### Adding a New Operator
 
