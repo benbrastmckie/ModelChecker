@@ -66,6 +66,8 @@ Modify the generated files to implement your semantic framework:
 
 ### 5. Test Your Implementation
 
+#### Running Examples
+
 ```bash
 # Run your examples
 model-checker examples.py
@@ -73,6 +75,62 @@ model-checker examples.py
 # Run specific tests
 model-checker -t my_test_name
 ```
+
+#### Creating Theory-Specific Tests
+
+**IMPORTANT**: Each theory MUST include its own test suite to ensure theory-specific functionality works correctly, including project generation.
+
+Create a `tests/` directory in your theory with the following structure:
+
+```
+my_theory/tests/
+├── __init__.py
+├── conftest.py           # pytest configuration and fixtures
+├── unit/                 # Unit tests for individual components
+│   ├── test_semantic.py  # Test semantic classes
+│   ├── test_operators.py # Test operator implementations
+│   └── test_project_generation.py  # Test project generation works
+├── integration/          # Integration tests
+│   └── test_examples.py  # Test example files run correctly
+└── e2e/                  # End-to-end tests
+    └── test_workflow.py  # Test complete workflows
+```
+
+**Required Test: Project Generation**
+
+Every theory MUST include a test that verifies project generation works correctly:
+
+```python
+# my_theory/tests/integration/test_project_generation.py
+import tempfile
+import os
+from model_checker.builder.project import BuildProject
+
+def test_my_theory_project_generation():
+    """Test that projects can be generated from this theory."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        # Test that BuildProject works with this theory
+        project = BuildProject('my_theory')
+        project_dir = project.generate('test_project', temp_dir)
+        
+        # Verify essential files exist
+        assert os.path.exists(os.path.join(project_dir, '__init__.py'))
+        assert os.path.exists(os.path.join(project_dir, '.modelchecker'))
+        assert os.path.exists(os.path.join(project_dir, 'semantic.py'))
+        assert os.path.exists(os.path.join(project_dir, 'operators.py'))
+        assert os.path.exists(os.path.join(project_dir, 'examples.py'))
+        
+        # Verify marker contains correct theory
+        with open(os.path.join(project_dir, '.modelchecker')) as f:
+            assert f'theory=my_theory' in f.read()
+
+def test_my_theory_relative_imports():
+    """Test that generated projects support relative imports."""
+    # Add tests for relative import functionality specific to your theory
+    pass
+```
+
+**Note on Test Independence**: Tests in `builder/`, `output/`, and other infrastructure packages should NOT reference specific theories by name. They should use mock theories or parameterized tests to maintain theory independence.
 
 ### 6. Move Your Theory to the Library
 
