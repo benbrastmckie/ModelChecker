@@ -5,9 +5,9 @@
 ## Directory Structure
 ```
 tests/
-├── README.md                      # This file - test documentation and methodology
+├── README.md                     # This file - test documentation and methodology
 ├── __init__.py                   # Test module initialization
-└── test_extensional_examples.py # Integration tests with 14 comprehensive examples
+└── test_extensional_examples.py  # Integration tests with 14 comprehensive examples
 ```
 
 ## Overview

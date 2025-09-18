@@ -35,7 +35,7 @@ tests/
 │   ├── mock_modules.py
 │   ├── test_data.py
 │   └── builders.py
-└── conftest.py               # Pytest configuration
+└── conftest.py                # Pytest configuration
 
 ```
 

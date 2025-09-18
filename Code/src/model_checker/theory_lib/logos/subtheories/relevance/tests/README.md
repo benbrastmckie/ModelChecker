@@ -5,7 +5,7 @@
 ## Directory Structure
 ```
 tests/
-├── README.md                      # This file - relevance test documentation
+├── README.md                     # This file - relevance test documentation
 ├── __init__.py                   # Test module initialization
 └── test_relevance_examples.py    # Integration tests with 20 comprehensive examples
 ```

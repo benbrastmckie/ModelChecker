@@ -1,240 +1,265 @@
-# Technical Documentation: Development Resource Hub
+# ModelChecker Maintenance Standards
 
-[← Back to Code](../README.md) | [Implementation Guide →](IMPLEMENTATION.md) | [Style Guide →](STYLE_GUIDE.md) | [General Docs →](../../Docs/README.md)
+This directory contains comprehensive standards and guidelines for maintaining high code quality across the ModelChecker framework. The documentation is organized hierarchically to provide clear navigation from core principles to specific implementation details.
 
-## Directory Structure
+## Quick Navigation
 
 ```
 docs/
-├── README.md                       # This file - technical documentation hub
-├── IMPLEMENTATION.md                # Complete feature development process guide
-├── STYLE_GUIDE.md                  # Quick reference to coding and documentation standards
-├── TESTS.md                        # Comprehensive testing procedures and methodologies
-├── DEVELOPMENT.md                  # Development workflow and environment setup
-├── ARCHITECTURE.md                 # System architecture and design principles
-├── EXAMPLES.md                     # Standard form for examples.py files
-├── TOOLS.md                        # Advanced debugging and analysis tools
-├── LICENSE_INHERITANCE.md          # Guidelines for theory-based derivative works
-└── INTERACTIVE_SAVE.md             # Interactive save mode documentation
+├── core/                          # Foundation standards
+│   ├── CODE_STANDARDS.md          # Code quality and style
+│   ├── ARCHITECTURE.md            # System design patterns  
+│   ├── TESTING.md                 # Test requirements (TDD)
+│   └── DOCUMENTATION.md           # Documentation standards
+│
+├── development/                   # Development practices
+│   ├── FEATURE_IMPLEMENTATION.md  # Feature development process
+│   ├── TESTING_FRAMEWORK.md       # Comprehensive testing guide
+│   ├── DEBUGGING_PROTOCOLS.md     # Systematic debugging
+│   └── ENVIRONMENT_SETUP.md       # Development environment
+│
+├── contracts/                     # System contracts
+│   ├── ITERATOR_CONTRACTS.md      # Iterator architecture contracts
+│   └── THEORY_LICENSING.md        # License inheritance guidelines
+│
+├── implementation/                # Development guidelines
+│   ├── DEVELOPMENT_WORKFLOW.md    # Complete dev process
+│   ├── REFACTORING.md             # Systematic improvement
+│   ├── PERFORMANCE.md             # Optimization guidelines
+│   └── ERROR_HANDLING.md          # Error management
+│
+├── specific/                      # Component standards
+│   ├── ITERATOR.md                # Iterator implementation
+│   ├── FORMULAS.md                # Formula formatting
+│   ├── PACKAGES.md                # Package maintenance
+│   └── UTILITIES.md               # Utility organization
+│
+├── quality/                       # Quality assurance
+│   ├── METRICS.md                 # Quality metrics
+│   ├── REVIEW_CHECKLIST.md        # Code review standards
+│   ├── MANUAL_TESTING.md          # Manual test protocols
+│   └── CONTINUOUS_IMPROVEMENT.md  # Improvement process
+│
+└── templates/                     # Reusable templates
+    ├── theory_template.py         # Theory implementation template
+    ├── examples_template.py       # Examples file template
+    ├── test_template.py           # Test file template
+    └── spec_template.md           # Specification template
 ```
 
-## Overview
+## Learning Path
 
-The **Technical Documentation Hub** provides comprehensive development resources for the ModelChecker framework, serving developers implementing new features, researchers adding semantic theories, and maintainers working on core framework components.
+### 1. For New Contributors
 
-**Purpose**: This documentation collection enables systematic, high-quality development through structured processes, comprehensive testing methodologies, and clear coding standards. Following the principles outlined in [Maintenance Documentation](../../Docs/maintenance/README.md), these guides ensure consistent, maintainable contributions to the framework.
+Start with the core standards to understand fundamental principles:
 
-**Key Coverage Areas**:
-- **[Implementation Process](IMPLEMENTATION.md)** - Complete feature development workflow with test-driven development protocols
-- **[Coding Standards](STYLE_GUIDE.md)** - Quick reference for style, documentation, and quality standards
-- **[Testing Methodology](TESTS.md)** - Comprehensive testing strategies for theories and framework components
-- **[Development Environment](DEVELOPMENT.md)** - Environment setup, workflow procedures, and contribution guidelines
-- **[System Architecture](ARCHITECTURE.md)** - Framework design principles, component relationships, and extension points
+1. **[core/CODE_STANDARDS.md](core/CODE_STANDARDS.md)** - Essential coding principles
+2. **[core/TESTING.md](core/TESTING.md)** - Mandatory Test-Driven Development
+3. **[development/ENVIRONMENT_SETUP.md](development/ENVIRONMENT_SETUP.md)** - Set up development environment
+4. **[development/TESTING_FRAMEWORK.md](development/TESTING_FRAMEWORK.md)** - Comprehensive testing guide
+5. **[implementation/DEVELOPMENT_WORKFLOW.md](implementation/DEVELOPMENT_WORKFLOW.md)** - Complete development process
 
-**Integration with Project Standards**: All documentation follows the comprehensive standards defined in [Maintenance Documentation](../../Docs/maintenance/README.md), ensuring consistency across the entire ModelChecker project ecosystem.
+### 2. For Code Reviewers
 
-## Feature Implementation Workflow
+Focus on quality assurance and review standards:
 
-### Quick Start Guide
+1. **[quality/REVIEW_CHECKLIST.md](quality/REVIEW_CHECKLIST.md)** - Review criteria
+2. **[quality/METRICS.md](quality/METRICS.md)** - Quality thresholds
+3. **[core/ARCHITECTURE.md](core/ARCHITECTURE.md)** - Architectural patterns
 
-For implementing new ModelChecker features, follow this systematic approach:
+### 3. For Package Maintainers
 
-1. **Environment Setup**: 
-   ```bash
-   git clone https://github.com/benbrastmckie/ModelChecker.git
-   cd ModelChecker/Code
-   ```
-   Complete setup following [Installation Guide](../../Docs/installation/README.md).
+Component-specific guidelines for your package:
 
-2. **Review Essential Documentation**:
-   - **[Implementation Guide](IMPLEMENTATION.md)** - Complete development process with TDD protocols
-   - **[Style Guide](STYLE_GUIDE.md)** - Coding standards and quick reference
-   - **[Tests Guide](TESTS.md)** - Testing procedures and best practices
-   - **[Architecture Guide](ARCHITECTURE.md)** - System design and component relationships
+1. **[specific/PACKAGES.md](specific/PACKAGES.md)** - Package boundaries
+2. **[specific/ITERATOR.md](specific/ITERATOR.md)** - Iterator patterns (if working on iterate)
+3. **[specific/UTILITIES.md](specific/UTILITIES.md)** - Utility management
 
-3. **Choose Implementation Path**:
-   - **New Feature**: Follow complete [Implementation Guide](IMPLEMENTATION.md) process
-   - **Existing Plan**: Jump to implementation phase per [Implementation Guide § Quick Start](IMPLEMENTATION.md#quick-start-for-existing-plans)
-   - **Bug Fix**: Use streamlined process with testing focus from [Tests Guide](TESTS.md)
+### 4. For Performance Optimization
 
-### Common Development Tasks
+Performance and optimization focus:
 
-```bash
-# Run comprehensive tests
-./run_tests.py                    # All tests
-./run_tests.py --unit            # Unit tests only
-./run_tests.py --examples        # Example validation
-./run_tests.py logos exclusion   # Test specific theories
+1. **[implementation/PERFORMANCE.md](implementation/PERFORMANCE.md)** - Optimization patterns
+2. **[quality/METRICS.md](quality/METRICS.md)** - Performance targets
+3. **[implementation/REFACTORING.md](implementation/REFACTORING.md)** - Safe optimization
 
-# Theory development
-./dev_cli.py -l new_theory          # Generate theory template
-./run_tests.py new_theory --examples   # Test theory implementation
+## Core Principles
 
-# Framework development
-python test_package.py --components builder settings    # Test components
-python test_theories.py --theories logos exclusion      # Test theories
+The ModelChecker framework follows these fundamental principles:
 
-# Debug and analysis
-./dev_cli.py examples/my_example.py    # Run example
-./dev_cli.py -p -z examples/complex.py    # Show constraints and Z3 output
-./run_jupyter.sh                          # Interactive development
+### 1. No Backwards Compatibility
+- Clean breaks when improving code
+- Complete migration in single commits
+- No compatibility layers
+
+### 2. Test-Driven Development (Mandatory)
+- Write tests BEFORE implementation
+- RED → GREEN → REFACTOR cycle
+- No code without tests
+
+### 3. Fail-Fast Philosophy
+- Early validation of inputs
+- Immediate error reporting
+- User-friendly error messages
+
+### 4. Domain Complexity Respect
+- Logical reasoning is inherently complex
+- Balance simplicity with correctness
+- Document complexity when necessary
+
+## Quick Reference
+
+### File Organization
+
+```python
+# Import order (strictly enforced)
+# 1. Standard library
+import os
+import sys
+from pathlib import Path
+
+# 2. Third-party
+import z3
+from typing import Dict, List
+
+# 3. Local (relative imports preferred)
+from .models import Model
+from ..utils import helpers
 ```
 
-### Testing Strategy
+### Documentation Template
 
-The ModelChecker uses a **dual testing architecture**:
-
-- **Theory Tests** (`./run_tests.py`): Test semantic theory implementations
-- **Package Tests** (`python test_package.py`): Test framework components
-
-See [TESTS.md](TESTS.md) for comprehensive testing documentation.
-
-## Documentation by User Type
-
-Following [README Standards](../../Docs/maintenance/README_STANDARDS.md) for proper audience segmentation:
-
-### For Feature Implementers
-
-Essential guides for developing new ModelChecker features:
-
-- **[Implementation Guide](IMPLEMENTATION.md)** - Complete development process from research to merge
-- **[Style Guide](STYLE_GUIDE.md)** - Quick reference for coding and documentation standards  
-- **[Tests Guide](TESTS.md)** - Comprehensive testing procedures and TDD protocols
-- **[Development Guide](DEVELOPMENT.md)** - Environment setup and workflow procedures
-- **[Maintenance Standards](../../Docs/maintenance/README.md)** - Complete project standards reference
-
-### For Theory Developers
-
-Resources for implementing new semantic theories:
-
-- **[Theory Library Guide](../src/model_checker/theory_lib/README.md)** - Theory implementation patterns and standards
-- **[Examples Standard](EXAMPLES.md)** - Creating standardized examples.py files
-- **[Architecture Guide](ARCHITECTURE.md)** - System design and extension points
-- **[Testing Guide](TESTS.md)** - Theory validation and testing methodology
-- **[License Inheritance](LICENSE_INHERITANCE.md)** - Guidelines for theory-based derivative works
-
-### For Framework Maintainers
-
-Advanced documentation for core framework development:
-
-- **[Architecture Documentation](ARCHITECTURE.md)** - System design principles and component relationships
-- **[Tools Guide](TOOLS.md)** - Advanced debugging and analysis capabilities
-- **[Testing Guide](TESTS.md)** - Framework testing strategies and infrastructure
-- **[Development Guide](DEVELOPMENT.md)** - Advanced workflows and contribution procedures
-
-## Usage Patterns
-
-### Feature Development Process
-
-Following the systematic approach outlined in [Implementation Guide](IMPLEMENTATION.md):
-
-```bash
-# 1. Create feature branch
-git checkout -b feature/your-feature-name
-
-# 2. Research phase (skip if plan exists)
-# Study codebase and design implementation approach
-
-# 3. Implementation with TDD
-./run_tests.py --new-feature-tests  # Write tests first
-# Implement phase by phase with testing validation
-
-# 4. Comprehensive validation
-./run_tests.py --all                # Full test suite
-./run_tests.py --examples           # Example validation
-
-# 5. Documentation updates
-# Update all affected README files and guides
-
-# 6. Prepare for merge
-git rebase origin/main
-git push origin feature/your-feature-name
+```python
+def function_name(param: Type) -> ReturnType:
+    """Brief description (one line).
+    
+    Detailed explanation if needed.
+    
+    Args:
+        param: Description of parameter.
+        
+    Returns:
+        Description of return value.
+        
+    Raises:
+        ExceptionType: When this happens.
+    """
 ```
 
-### Quick Reference Commands
+### Test Template (TDD)
 
-**Testing and Validation**:
-```bash
-./run_tests.py                    # All tests
-./run_tests.py --unit            # Unit tests only  
-./run_tests.py logos exclusion   # Test specific theories
-python test_package.py --components builder settings  # Component tests
+```python
+def test_feature_behavior():
+    """Test that feature behaves correctly."""
+    # Arrange
+    expected = "expected_value"
+    
+    # Act
+    result = function_under_test()
+    
+    # Assert
+    assert result == expected, f"Expected {expected}, got {result}"
 ```
 
-**Development and Debugging**:
-```bash
-./dev_cli.py -l new_theory          # Generate theory template
-./dev_cli.py examples/my_example.py # Run example
-./dev_cli.py -p -z examples/debug.py # Show constraints and Z3 output
-./run_jupyter.sh                    # Interactive development
-```
+## Standard Categories
 
-## Development Standards
+### Core Standards (Start Here)
+Foundation principles that apply to all code:
+- **CODE_STANDARDS** - Coding style, complexity, organization
+- **ARCHITECTURE** - Design patterns, component boundaries
+- **TESTING** - TDD requirements, test organization
+- **DOCUMENTATION** - Docstrings, READMEs, comments
 
-### Code Quality Requirements
+### Development Practices
+Practical development guidance:
+- **FEATURE_IMPLEMENTATION** - Feature development process
+- **TESTING_FRAMEWORK** - Comprehensive testing methodology
+- **DEBUGGING_PROTOCOLS** - Systematic debugging approach
+- **ENVIRONMENT_SETUP** - Development environment configuration
 
-Following [Style Guide](STYLE_GUIDE.md) and [Maintenance Standards](../../Docs/maintenance/README.md):
+### System Contracts
+Architecture and interface contracts:
+- **ITERATOR_CONTRACTS** - Iterator architecture contracts
+- **THEORY_LICENSING** - License inheritance guidelines
 
-- **UTF-8 encoding** without BOM for all files
-- **LaTeX notation** in code (`\\wedge`, `\\Box`, `\\rightarrow`)  
-- **Unicode symbols** in documentation for readability (∧, ∨, ¬, □, ◇)
-- **No emojis** anywhere in codebase or documentation
-- **Comprehensive testing** with TDD protocols
+### Implementation Guidelines
+How to execute development tasks:
+- **DEVELOPMENT_WORKFLOW** - Spec to deployment process
+- **REFACTORING** - Systematic code improvement
+- **PERFORMANCE** - Z3 optimization, benchmarks
+- **ERROR_HANDLING** - Exceptions, recovery, logging
 
-### Process Adherence
+### Component-Specific Standards
+Standards for specific components:
+- **ITERATOR** - Constraint preservation, isomorphism
+- **FORMULAS** - LaTeX notation, examples.py format
+- **PACKAGES** - Package boundaries, interfaces
+- **UTILITIES** - Shared vs package-specific
 
-- **Test-driven development** for all new functionality
-- **Phase-by-phase implementation** with user confirmation
-- **Documentation updates** for all affected components  
-- **Cross-platform compatibility** testing where applicable
+### Quality Assurance
+Ensuring and measuring quality:
+- **METRICS** - Quality thresholds, measurements
+- **REVIEW_CHECKLIST** - Code review process
+- **MANUAL_TESTING** - Exploratory testing
+- **CONTINUOUS_IMPROVEMENT** - Feedback and evolution
 
-## Contributing Guidelines
+## Success Metrics
 
-### Feature Implementation
+Standards compliance is measured by:
 
-Follow the complete process outlined in [Implementation Guide](IMPLEMENTATION.md):
+- **Code Quality**: >90% type coverage, <10 cyclomatic complexity
+- **Test Coverage**: >85% overall, >90% for critical paths
+- **Documentation**: 100% public API coverage
+- **Performance**: Meeting component-specific benchmarks
+- **Review Quality**: <5% post-merge issues
 
-1. **Research Phase**: Study codebase and identify optimal integration approaches
-2. **Design Phase**: Create detailed implementation plan with TDD protocols  
-3. **Implementation Phase**: Execute plan phase-by-phase with comprehensive testing
-4. **Refinement Phase**: Review and improve implementation quality
-5. **Documentation Phase**: Update all affected documentation throughout repository
-6. **Branch Completion**: Final review and merge preparation
+## Maintenance Schedule
 
-### Quality Standards
+- **Daily**: Automated quality checks (CI/CD)
+- **Weekly**: Team retrospectives, metric reviews
+- **Monthly**: Standards updates, quality reports
+- **Quarterly**: Major standard revisions, tool updates
 
-All contributions must meet established standards:
+## Getting Help
 
-- **[Style Guide](STYLE_GUIDE.md)**: Coding conventions and formatting requirements
-- **[Testing Standards](TESTS.md)**: Comprehensive test coverage and TDD protocols
-- **[Maintenance Standards](../../Docs/maintenance/README.md)**: Documentation and code organization
-- **Performance Requirements**: No regressions, maintain or improve existing benchmarks
+1. **Find the Right Standard**: Use the navigation tree above
+2. **Check Templates**: Look in `templates/` for examples
+3. **Review Examples**: Each standard includes good/bad examples
+4. **Ask Questions**: Create issues for clarification
 
-### Theory Development
+## Contributing to Standards
 
-For semantic theory implementations:
+Standards evolve through:
 
-1. **Standard Interfaces**: Implement required `get_theory()`, `get_examples()`, `get_test_examples()` functions
-2. **Pattern Compliance**: Follow existing theory architectural patterns
-3. **Documentation Requirements**: Comprehensive README following [README Standards](../../Docs/maintenance/README_STANDARDS.md)
-4. **Academic Attribution**: Proper citations and theoretical background
-5. **License Inheritance**: Follow [LICENSE_INHERITANCE.md](LICENSE_INHERITANCE.md) guidelines
+1. **Identify Need**: Document the problem/improvement
+2. **Propose Change**: Create spec with rationale
+3. **Review Process**: Team review and feedback
+4. **Update Standard**: Implement approved changes
+5. **Communicate**: Announce to team with migration guide
 
-## Related Resources
+## Migration from Old Structure
 
-- **[Code Package Documentation](../README.md)** - Package overview and quick start
-- **[General Documentation](../../Docs/README.md)** - Installation and getting started
-- **[Tools Guide](TOOLS.md)** - Advanced debugging and analysis features
-- **[API Documentation](../src/model_checker/README.md)** - Framework API and usage patterns
-- **[Theory Library](../src/model_checker/theory_lib/README.md)** - Semantic theory implementations
-- **[Jupyter Integration](../src/model_checker/jupyter/README.md)** - Interactive development tools
+The maintenance documentation has been reorganized for clarity:
 
-## License
+### Files Consolidated
+- CODE_STANDARDS.md, STYLE_GUIDE.md, CODE_ORGANIZATION.md → `core/CODE_STANDARDS.md`
+- TESTING_STANDARDS.md, TEST_ORGANIZATION.md → `core/TESTING.md`  
+- ERROR_HANDLING.md, WARNINGS_AND_FIXES.md → `implementation/ERROR_HANDLING.md`
+- FORMULA_FORMATTING.md, EXAMPLES_STRUCTURE.md, UNICODE_GUIDELINES.md → `specific/FORMULAS.md`
 
-All development documentation is licensed under GPL-3.0 as part of the ModelChecker framework.
+### Files Removed
+- TEST_STATUS.md (snapshot data, not a standard)
+- PYPI_LINK_REQUIREMENTS.md (moved to documentation guide)
 
-For information about the dual licensing structure (static framework license vs inheritable theory licenses), see [LICENSE_INHERITANCE.md](LICENSE_INHERITANCE.md).
+### New Standards Added
+- `core/DOCUMENTATION.md` - Comprehensive documentation standards
+- `specific/ITERATOR.md` - Iterator implementation patterns
+- `specific/PACKAGES.md` - Package-specific guidelines
+- `quality/METRICS.md` - Quality metrics and thresholds
+- `quality/REVIEW_CHECKLIST.md` - Code review standards
+- `quality/CONTINUOUS_IMPROVEMENT.md` - Improvement process
 
 ---
 
-[← Back to Code](../README.md) | [Implementation Guide →](IMPLEMENTATION.md) | [Style Guide →](STYLE_GUIDE.md) | [General Docs →](../../Docs/README.md)
+*Last Updated: 2024*
+*Version: 2.0 (Post-Consolidation)*

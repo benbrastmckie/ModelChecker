@@ -267,10 +267,12 @@ Create interactive formula builders:
 ```python
 from ipywidgets import interact
 
-@interact(n=(2, 10), contingent=True, non_empty=True)
 def explore_models(n, contingent, non_empty):
     settings = {'N': n, 'contingent': contingent, 'non_empty': non_empty}
     # Run model checker with settings
+    
+# Use the interact function to create interactive widget
+interact(explore_models, n=(2, 10), contingent=True, non_empty=True)
 ```
 
 ### Visualization

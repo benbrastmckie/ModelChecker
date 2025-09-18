@@ -23,6 +23,8 @@
 
 Example files are Python modules that define logical formulas, settings, and theory configurations for the ModelChecker to process. They serve as the primary input format for testing logical inferences, exploring semantic theories, and validating philosophical arguments.
 
+The examples.py structure serves as both **documentation and executable code**, demonstrating theory capabilities through carefully crafted logical formulas. These files are essential for validating semantic implementations, providing test cases, and offering practical usage examples for researchers and developers.
+
 ## Basic Example Structure
 
 Every ModelChecker example file must export two dictionaries:
@@ -73,12 +75,21 @@ theory = get_theory(['extensional', 'modal'])
 
 ### 2. Example Definition
 
-Each example follows the naming convention and structure:
+Each example follows the **PREFIX_TYPE_NUMBER** naming convention:
 
 ```python
-# Naming convention: EXAMPLE_NAME_component
+# PREFIX: Theory abbreviation (2-3 characters)
+# TYPE: CM (countermodel) or TH (theorem)
+# NUMBER: Sequential number starting from 1
+
+# Standard examples:
+EXT_TH_1_premises = [...]      # Extensional theorem 1
+LOG_CM_3_premises = [...]      # Logos countermodel 3
+IMP_TH_2_premises = [...]      # Imposition theorem 2
+
+# Complete structure:
 EXAMPLE_NAME_premises = [...]      # List of premise formulas
-EXAMPLE_NAME_conclusions = [...]   # List of conclusion formulas
+EXAMPLE_NAME_conclusions = [...]   # List of conclusion formulas  
 EXAMPLE_NAME_settings = {...}      # Dictionary of settings
 EXAMPLE_NAME_example = [           # Combined list
     EXAMPLE_NAME_premises,
@@ -86,6 +97,20 @@ EXAMPLE_NAME_example = [           # Combined list
     EXAMPLE_NAME_settings
 ]
 ```
+
+#### Standard Theory Prefixes
+
+| Theory          | Prefix | Full Name                   |
+| --------------- | ------ | --------------------------- |
+| Extensional     | EXT    | Basic extensional logic     |
+| Modal           | MOD    | Modal operators             |
+| Counterfactual  | CF     | Counterfactual conditionals |
+| Constitutive    | CON    | Identity and essence        |
+| Relevance       | REL    | Relevance logic             |
+| Logos (general) | LOG    | Hyperintensional logic      |
+| Exclusion       | EX     | Unilateral semantics        |
+| Imposition      | IMP    | Fine's counterfactuals      |
+| Bimodal         | BIM    | Temporal-modal logic        |
 
 ### 3. Export Dictionaries
 
@@ -230,32 +255,49 @@ semantic_theories = {"logos": theory}
 
 ## Settings Configuration
 
-Common settings and their effects:
+### Core Settings
+
+Every example must include these settings with descriptive comments:
 
 ```python
 settings = {
-    # Core settings
-    'N': 4,                    # Maximum atomic propositions
-    'max_time': 30,           # Solver timeout in seconds
-    
-    # Model finding
-    'contingent': False,       # Allow contingent propositions
-    'non_empty': True,        # Require non-empty models
-    
-    # Iteration
-    'max_iterations': 10,     # Maximum models to find
-    'find_all_models': False, # Find all possible models
-    
-    # Theory-specific (logos)
-    'reflexive': True,        # Reflexive accessibility
-    'transitive': True,       # Transitive accessibility
-    'euclidean': False,       # Euclidean accessibility
-    
-    # Output control
-    'verbose': True,          # Detailed output
-    'print_constraints': True # Show Z3 constraints
+    'N': 3,                    # Max number of atomic propositions
+    'contingent': False,       # Allow non-contingent propositions
+    'non_null': False,         # Allow the null state
+    'non_empty': False,        # Allow empty verifier/falsifier sets
+    'disjoint': False,         # Allow verifier/falsifier overlap
+    'max_time': 10,            # Timeout in seconds
+    'iterate': 1,              # Number of models to find
+    'expectation': False,      # True = expect countermodel, False = expect theorem
 }
 ```
+
+**Important**: All settings dictionaries MUST include inline comments after each setting.
+
+### Theory-Specific Settings
+
+Some theories define additional settings:
+
+```python
+# Bimodal settings (temporal-modal logic)
+'M': 2,                    # Number of time points/steps
+
+# Exclusion settings (unilateral semantics)
+'possible': False,         # Require possible propositions
+'fusion_closure': False,   # Enforce fusion closure constraints
+
+# Logos modal settings (when using modal subtheory)
+'reflexive': True,        # Reflexive accessibility
+'transitive': True,       # Transitive accessibility
+'euclidean': False,       # Euclidean accessibility
+```
+
+### Setting Guidelines
+
+1. **Always include 'expectation'**: Explicitly state whether expecting countermodel (True) or theorem (False)
+2. **Use descriptive comments**: Every setting needs a brief explanation
+3. **Order consistently**: Core settings first, theory-specific settings after
+4. **Document constraints**: If settings interact, explain in comments
 
 ## Formula Syntax
 
@@ -294,18 +336,42 @@ premises = [
 conclusions = ["A \\rightarrow D"]
 ```
 
-### Unicode Support
+### Formula Formatting Standards
+
+Binary operators require outer parentheses:
 
 ```python
-# Unicode operators (automatically converted)
-"¬A"                      # Negation
-"A ∧ B"                   # Conjunction
-"A ∨ B"                   # Disjunction
-"A → B"                   # Implication
-"A ↔ B"                   # Biconditional
-"□A"                      # Necessity
-"◇A"                      # Possibility
+# CORRECT - Outer parentheses required for binary operators
+formulas = [
+    "(A \\wedge B)",          # Conjunction
+    "(A \\vee B)",            # Disjunction
+    "(A \\rightarrow B)",     # Implication
+    "(A \\leftrightarrow B)", # Biconditional
+    "(A \\boxright B)",       # Counterfactual
+]
+
+# INCORRECT - Missing parentheses
+formulas = [
+    "A \\wedge B",            # Will cause parsing errors
+    "A \\vee B",
+]
+
+# Unary operators do not need outer parentheses
+"\\neg A"                     # Correct as-is
+"\\Box A"                     # Correct as-is
+"\\Diamond A"                 # Correct as-is
 ```
+
+### Unicode Display (Explanatory Text Only)
+
+Unicode symbols may appear in output or explanatory text:
+- ¬ for NOT (use \\neg in code)
+- ∧ for AND (use \\wedge in code)
+- ∨ for OR (use \\vee in code)
+- → for IMPLIES (use \\rightarrow in code)
+- ↔ for IFF (use \\leftrightarrow in code)
+- □ for NECESSARY (use \\Box in code)
+- ◇ for POSSIBLE (use \\Diamond in code)
 
 ## Advanced Examples
 
@@ -504,7 +570,7 @@ theory = get_theory()  # Don't forget parentheses
 - [Workflow Guide](WORKFLOW.md) - Running examples
 - [Settings Guide](SETTINGS.md) - Configuring examples
 - [Output Guide](OUTPUT.md) - Saving and formatting results
-- [Theory Comparison](COMPARE_THEORIES.md) - Multi-theory examples
+- [ModelChecker Tools](TOOLS.md) - Advanced features and multi-theory examples
 - [Constraints Testing](CONSTRAINTS.md) - Advanced testing techniques
 
 ### Architecture Documentation

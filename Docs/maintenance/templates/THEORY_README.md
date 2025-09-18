@@ -6,7 +6,7 @@
 
 ```
 theory_name/
-├── README.md               # This file - theory overview
+├── README.md              # This file - theory overview
 ├── __init__.py            # Theory initialization and public API
 ├── semantic.py            # Core semantic implementation
 ├── operators.py           # Operator definitions and registry

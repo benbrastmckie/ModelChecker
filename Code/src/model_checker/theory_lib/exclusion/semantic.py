@@ -1469,8 +1469,7 @@ class WitnessProposition(PropositionDefaults):
         self.z3_model = model_structure.z3_model
         self.verifiers = self.find_proposition()
     
-    @classmethod
-    def proposition_constraints(cls, model_constraints, letter_id):
+    def proposition_constraints(self, model_constraints, letter_id):
         """Generate constraints for atomic propositions."""
         return model_constraints.semantics.atom_constraints(
             letter_id,

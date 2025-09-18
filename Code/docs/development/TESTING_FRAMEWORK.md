@@ -1,6 +1,11 @@
-# Testing Guide
+# Testing Framework Guide
 
-[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Style Guide →](STYLE_GUIDE.md) | [Development →](DEVELOPMENT.md) | [Architecture →](ARCHITECTURE.md)
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Feature Implementation →](FEATURE_IMPLEMENTATION.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)
+
+**Related Documentation**: 
+- [Feature Implementation](FEATURE_IMPLEMENTATION.md) - Implementation process using TDD
+- [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Overall development process
+- [Quality Assurance](../../quality/README.md) - Code quality standards
 
 ## Table of Contents
 
@@ -16,7 +21,7 @@
 
 ## Testing Philosophy
 
-Following the project's design philosophy outlined in [CLAUDE.md](../CLAUDE.md), our testing approach emphasizes:
+Following the project's design philosophy outlined in [CLAUDE.md](../../Code/CLAUDE.md), our testing approach emphasizes:
 
 - **Fail Fast**: Tests should expose errors clearly rather than masking them with complex conditional logic
 - **Deterministic Behavior**: No fallbacks or implicit conversions that could hide issues
@@ -332,11 +337,11 @@ theory_name/
 ├── tests/
 │   ├── README.md                    # Test documentation
 │   ├── __init__.py
-│   ├── test_examples.py            # Example validation tests
-│   ├── test_semantic.py            # Semantic method tests
-│   ├── test_operators.py           # Operator tests
-│   ├── test_iterate.py             # Model iteration tests
-│   └── conftest.py                 # Pytest configuration
+│   ├── test_examples.py             # Example validation tests
+│   ├── test_semantic.py             # Semantic method tests
+│   ├── test_operators.py            # Operator tests
+│   ├── test_iterate.py              # Model iteration tests
+│   └── conftest.py                  # Pytest configuration
 └── subtheories/ (if applicable)
     └── subtheory_name/tests/
         └── test_subtheory_examples.py
@@ -480,4 +485,4 @@ grep -E "WARNING|Error|AttributeError" current.txt  # Should be empty
 
 ---
 
-[← Back to Technical Docs](README.md) | [Implementation →](IMPLEMENTATION.md) | [Style Guide →](STYLE_GUIDE.md) | [Development →](DEVELOPMENT.md) | [Examples →](EXAMPLES.md)
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Feature Implementation →](FEATURE_IMPLEMENTATION.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)

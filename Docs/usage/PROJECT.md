@@ -1,172 +1,165 @@
-# Creating and Developing ModelChecker Projects
+# Getting Started: Creating Your First ModelChecker Project
 
-[← Back to Usage](README.md) | [Workflow →](WORKFLOW.md) | [Examples →](EXAMPLES.md)
+[← Back to Usage](README.md) | [Next: Workflow Overview →](WORKFLOW.md)
 
-## Table of Contents
-
-1. [Overview](#overview)
-2. [Creating a New Project](#creating-a-new-project)
-   - [Basic Project Creation](#basic-project-creation)
-   - [Copying from Existing Theories](#copying-from-existing-theories)
-   - [Project Structure](#project-structure)
-3. [Development Workflow](#development-workflow)
-   - [Running Examples Locally](#running-examples-locally)
-   - [Modifying Semantics](#modifying-semantics)
-   - [Adding Operators](#adding-operators)
-   - [Creating Examples](#creating-examples)
-4. [Testing Your Project](#testing-your-project)
-   - [Local Testing](#local-testing)
-   - [Unit Tests](#unit-tests)
-   - [Integration Testing](#integration-testing)
-5. [Project Management](#project-management)
-   - [Version Control](#version-control)
-   - [Documentation](#documentation)
-   - [Publishing](#publishing)
-6. [Common Patterns](#common-patterns)
-7. [Troubleshooting](#troubleshooting)
-
-## Overview
-
-This guide covers creating new ModelChecker projects for developing custom semantic theories. You'll learn how to generate project scaffolding, copy from existing theories, and develop your theory using local project files without needing to modify the core ModelChecker installation.
-
-## Creating a New Project
-
-### Basic Project Creation
-
-Generate a new project with the `model-checker` command without any arguments:
+## Quick Start (2 minutes)
 
 ```bash
-# Run without arguments to enter interactive mode
+# Interactive mode - creates a project from logos template
 model-checker
+# Answer: y (to generate project)
+# Enter: my_project (your project name)
+# Result: project_my_project/ created
 
-# You'll be prompted:
-# "Would you like to generate a new logos-project? (y/n):"
-# Answer 'y' and enter your project name
-
-# This creates (copying from logos template):
-# project_<your_name>/
-#   ├── __init__.py          # Package initialization
-#   ├── semantic.py          # Core semantics implementation  
-#   ├── operators.py         # Operator definitions
-#   ├── examples.py          # Example formulas and test cases
-#   ├── iterate.py           # Model iteration utilities
-#   ├── README.md            # Theory documentation
-#   ├── VERSION              # Version number
-#   ├── LICENSE.md           # GPL-3.0 license
-#   ├── CITATION.md          # Citation information
-#   ├── docs/                # Additional documentation
-#   ├── tests/               # Unit and integration tests
-#   └── subtheories/         # Modular subtheories (logos only)
+# OR copy from a specific theory
+model-checker -l exclusion  # Copy exclusion theory
+model-checker -l imposition  # Copy imposition theory  
+model-checker -l bimodal     # Copy bimodal theory
 ```
 
-### Copying from Existing Theories
+You now have a complete project with:
+- All theory files copied
+- Relative imports working automatically
+- Ready to run: `model-checker project_my_project/examples.py`
 
-Base your project on an existing theory using the `-l` (load_theory) flag:
+## What You Get
+
+Your generated project is a **proper Python package** with these key files:
+
+```
+project_my_project/
+├── semantic.py      # Core logic implementation
+├── operators.py     # Logical operators (∧, ∨, →, etc.)
+├── examples.py      # Test cases to run
+├── __init__.py      # Makes it a Python package
+└── .modelchecker    # Identifies as ModelChecker project
+```
+
+## First Steps After Creation
+
+### 1. Test Your Project Works
 
 ```bash
-# Copy from logos theory (interactive mode)
-model-checker -l logos
-# Prompts: "Would you like to generate a new logos-project? (y/n):"
-# Then: "Enter the name of your project using snake_case:"
-
-# Copy from exclusion theory
-model-checker -l exclusion
-
-# Copy from imposition theory  
-model-checker -l imposition
-
-# Copy from bimodal theory
-model-checker -l bimodal
+cd project_my_project
+model-checker examples.py  # Should show validity results
 ```
 
-The `-l` flag loads a specific theory template and enters interactive mode where you'll be prompted for a project name. The complete structure and code from the specified theory is copied, giving you a working starting point.
+### 2. Create Your Own Examples
 
-### Project Structure
-
-After creation, your project is a proper Python package with automatic support for relative imports:
-
-```
-project_my_theory/
-├── __init__.py              # Package initialization (enables relative imports)
-├── .modelchecker            # Package marker file (identifies as generated project)
-├── semantic.py              # Semantic class implementation
-│   └── class TheorySemantics(Semantics):
-│       ├── def __init__(self)
-│       ├── def _generate_constraints(self)
-│       └── operator methods (true_at, compute_verifiers, etc.)
-├── operators.py             # Operator class definitions
-│   └── class CustomOperator(Operator):
-│       ├── name = "symbol"
-│       ├── arity = N
-│       └── def true_at(self, ...)
-├── examples.py              # Test examples and configurations
-│   ├── example_range = {...}      # Named test cases
-│   └── semantic_theories = {...}  # Theory configurations
-├── iterate.py               # Model iteration utilities
-│   └── class TheoryModelIterator:
-│       └── def iterate_models(self, ...)
-├── tests/                   # Test suite
-│   ├── __init__.py
-│   ├── unit/               # Unit tests
-│   ├── integration/        # Integration tests
-│   └── fixtures/           # Test data
-├── docs/                    # Documentation
-│   ├── README.md           # Usage guide
-│   ├── API_REFERENCE.md   # API documentation
-│   └── ARCHITECTURE.md    # Design decisions
-├── README.md                # Main documentation
-├── VERSION                  # Version number (e.g., "1.0.0")
-├── LICENSE.md              # GPL-3.0 license text
-└── CITATION.md             # How to cite this theory
-
-Additional directories (theory-specific):
-├── subtheories/            # Modular components (logos)
-├── notebooks/              # Jupyter notebooks (exclusion, imposition)
-├── history/                # Version history (exclusion)
-└── reports/                # Analysis reports (imposition)
-```
-
-## Development Workflow
-
-### Running Examples Locally
-
-Generated projects support relative imports automatically, allowing you to create multiple example files:
-
-```bash
-# Navigate to your project
-cd project_my_theory
-
-# Run the original examples
-model-checker examples.py
-
-# Create and run custom example files with relative imports
+```python
+# Create examples2.py with your own tests
 cat > examples2.py << 'EOF'
-from .semantic import MySemantics  # Relative import works!
+from .semantic import *  # Relative imports work!
 from .operators import *
 
-# Your custom examples here
+MY_TEST_premises = ["A", "A → B"]
+MY_TEST_conclusions = ["B"]
+MY_TEST_settings = {'N': 3}
+
 example_range = {
-    "CUSTOM_1": {...}
+    "MY_TEST": [MY_TEST_premises, MY_TEST_conclusions, MY_TEST_settings]
 }
+
+semantic_theories = {"my_theory": get_theory()}
 EOF
 
-model-checker examples2.py  # Works with package detection
-
-# Run with specific settings
-model-checker examples.py --N=4 --verbose
-
-# Run specific examples
-model-checker examples.py --example=TEST_1
-
-# Save output for analysis
-model-checker examples.py --save markdown
+model-checker examples2.py  # Run your custom examples
 ```
 
-**New Feature**: Projects are now proper Python packages with:
-- Automatic relative import support
-- `.modelchecker` marker for package detection
-- Ability to create unlimited custom example files
-- All files can use `from .semantic import` style imports
+### 3. Modify the Theory
+
+Edit `semantic.py` to change how logic works, or `operators.py` to add new operators.
+
+**Next Step**: Read [WORKFLOW.md](WORKFLOW.md) to understand the complete ModelChecker workflow.
+
+---
+
+## Detailed Guide
+
+### Creating a New Project
+
+#### Interactive Mode (Recommended for Beginners)
+
+```bash
+model-checker
+# Prompts: "Would you like to generate a new logos-project? (y/n):"
+# Enter: y
+# Prompts: "Enter the name of your project using snake_case:"
+# Enter: my_theory
+# Creates: project_my_theory/
+```
+
+This copies the complete logos theory as your starting point.
+
+#### Copying from Other Theories
+
+Choose a different theory as your template:
+
+```bash
+model-checker -l exclusion   # Witness-based semantics
+model-checker -l imposition   # Imposition semantics
+model-checker -l bimodal      # Two modal operators
+```
+
+Each theory provides different features:
+- **logos**: Standard hyperintensional logic (default)
+- **exclusion**: Uses witness states for verification
+- **imposition**: Combines theories with imposition
+- **bimodal**: Includes necessity and possibility operators
+
+### Understanding Your Project Structure
+
+#### Essential Files (You'll Edit These)
+
+```python
+# semantic.py - Define how your logic works
+class MyTheorySemantics(Semantics):
+    def _generate_constraints(self):
+        # Your logical rules here
+        
+# operators.py - Define logical operators
+class MyOperator(Operator):
+    name = "\\oplus"  # Your operator symbol (LaTeX notation)
+    arity = 2         # Number of arguments
+    
+# examples.py - Test cases
+TEST_premises = ["A", "B"]
+TEST_conclusions = ["A ∧ B"]
+example_range = {"TEST": [TEST_premises, TEST_conclusions, {'N': 3}]}
+```
+
+#### Supporting Files (Automatically Handled)
+
+- `__init__.py` - Makes relative imports work
+- `.modelchecker` - Identifies as ModelChecker project
+- `iterate.py` - Advanced model iteration (if needed)
+- Other files depend on which theory you copied
+
+### Running Examples
+
+Your project supports unlimited example files with automatic relative imports:
+
+```bash
+# Run default examples
+model-checker examples.py
+
+# Create custom example files
+model-checker examples2.py
+model-checker test_modal.py
+model-checker experiment.py
+# All support relative imports!
+
+# Run with options
+model-checker examples.py --N=4           # More states
+model-checker examples.py --verbose       # Debug output
+model-checker examples.py --save markdown # Save results
+```
+
+**Key Feature**: All files in your project can use relative imports:
+```python
+from .semantic import MySemantics  # Works automatically!
+from .operators import *           # No path configuration needed
+```
 
 ### Modifying Semantics
 

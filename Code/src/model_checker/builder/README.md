@@ -6,23 +6,23 @@
 
 ```
 builder/
-├── README.md                       # This file - builder package overview
-├── __init__.py                     # Public API exports
-├── types.py                        # Type definitions and protocols for type safety
-├── error_types.py                  # Custom exception classes
-├── protocols.py                    # Protocol definitions for interfaces
-├── module.py                       # Core orchestration and initialization
-├── runner.py                       # Model checking execution engine
-├── runner_utils.py                 # Runner utility functions
-├── comparison.py                   # Theory comparison and benchmarking
-├── translation.py                  # Operator translation utilities
-├── loader.py                       # Module loading and discovery
-├── example.py                      # Individual example processing
-├── validation.py                   # Parameter validation with detailed errors
-├── z3_utils.py                     # Z3 solver utilities and helpers
-├── serialize.py                    # Theory serialization for multiprocessing
-├── project.py                      # Theory project generation
-└── tests/                          # Comprehensive test suite
+├── README.md                           # This file - builder package overview
+├── __init__.py                         # Public API exports
+├── types.py                            # Type definitions and protocols for type safety
+├── error_types.py                      # Custom exception classes
+├── protocols.py                        # Protocol definitions for interfaces
+├── module.py                           # Core orchestration and initialization
+├── runner.py                           # Model checking execution engine
+├── runner_utils.py                     # Runner utility functions
+├── comparison.py                       # Theory comparison and benchmarking
+├── translation.py                      # Operator translation utilities
+├── loader.py                           # Module loading and discovery
+├── example.py                          # Individual example processing
+├── validation.py                       # Parameter validation with detailed errors
+├── z3_utils.py                         # Z3 solver utilities and helpers
+├── serialize.py                        # Theory serialization for multiprocessing
+├── project.py                          # Theory project generation
+└── tests/                              # Comprehensive test suite
 ```
 
 ## Overview

@@ -895,7 +895,7 @@ class InteractiveValidator:
                 print(f"\n❌ Validation Error: {e}")
                 
                 if e.suggestion:
-                    print(f"💡 Suggestion: {e.suggestion}")
+                    print(f"Suggestion: {e.suggestion}")
                 
                 # Offer recovery options
                 print("\nOptions:")

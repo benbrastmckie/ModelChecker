@@ -10,53 +10,53 @@ Comprehensive test suite for the ModelChecker builder package, ensuring reliabil
 
 ```
 tests/
-├── README.md                            # This file - test suite documentation
-├── __init__.py                          # Test package initialization
-├── conftest.py                          # Pytest configuration and shared fixtures
-├── improvements.md                      # Test improvement suggestions
+├── README.md                               # This file - test suite documentation
+├── __init__.py                             # Test package initialization
+├── conftest.py                             # Pytest configuration and shared fixtures
+├── improvements.md                         # Test improvement suggestions
 │
-├── unit/                                # Component isolation tests (102 tests)
-│   ├── test_comparison.py               # ModelComparison component (15 tests)
-│   ├── test_example.py                  # BuildExample component (15 tests)
-│   ├── test_helpers.py                  # Helper functions (8 tests)
-│   ├── test_loader.py                   # ModuleLoader component (12 tests)
-│   ├── test_progress.py                 # Progress tracking (5 tests)
-│   ├── test_project.py                  # BuildProject component (10 tests)
-│   ├── test_project_version.py          # Project version detection (6 tests)
-│   ├── test_runner.py                   # ModelRunner component (7 tests)
-│   ├── test_serialize.py                # Serialization utilities (8 tests)
-│   ├── test_translation.py              # OperatorTranslation (4 tests)
-│   ├── test_validation.py               # Input validation logic (5 tests)
-│   ├── test_z3_isolation.py             # Z3 context isolation (3 tests)
-│   └── test_z3_utils.py                 # Z3 utility functions (4 tests)
+├── unit/                                   # Component isolation tests (102 tests)
+│   ├── test_comparison.py                  # ModelComparison component (15 tests)
+│   ├── test_example.py                     # BuildExample component (15 tests)
+│   ├── test_helpers.py                     # Helper functions (8 tests)
+│   ├── test_loader.py                      # ModuleLoader component (12 tests)
+│   ├── test_progress.py                    # Progress tracking (5 tests)
+│   ├── test_project.py                     # BuildProject component (10 tests)
+│   ├── test_project_version.py             # Project version detection (6 tests)
+│   ├── test_runner.py                      # ModelRunner component (7 tests)
+│   ├── test_serialize.py                   # Serialization utilities (8 tests)
+│   ├── test_translation.py                 # OperatorTranslation (4 tests)
+│   ├── test_validation.py                  # Input validation logic (5 tests)
+│   ├── test_z3_isolation.py                # Z3 context isolation (3 tests)
+│   └── test_z3_utils.py                    # Z3 utility functions (4 tests)
 │
-├── integration/                         # Component interaction tests (96 tests)
-│   ├── test_build_module_theories.py    # Theory loading integration (15 tests)
+├── integration/                            # Component interaction tests (96 tests)
+│   ├── test_build_module_theories.py       # Theory loading integration (15 tests)
 │   ├── test_cli_interactive_integration.py # CLI interactive mode (10 tests)
-│   ├── test_component_integration.py    # Cross-component workflows (20 tests)
-│   ├── test_error_propagation.py        # Error handling flow (15 tests)
-│   ├── test_generated_projects.py       # Generated project structure (8 tests)
-│   ├── test_interactive.py              # Interactive save features (7 tests)
-│   ├── test_output_directory_guidance.py # Output directory handling (5 tests)
-│   ├── test_performance.py              # Performance tests (11 tests)
-│   └── test_workflow.py                 # Complete workflows (5 tests)
+│   ├── test_component_integration.py       # Cross-component workflows (20 tests)
+│   ├── test_error_propagation.py           # Error handling flow (15 tests)
+│   ├── test_generated_projects.py          # Generated project structure (8 tests)
+│   ├── test_interactive.py                 # Interactive save features (7 tests)
+│   ├── test_output_directory_guidance.py   # Output directory handling (5 tests)
+│   ├── test_performance.py                 # Performance tests (11 tests)
+│   └── test_workflow.py                    # Complete workflows (5 tests)
 │
-├── e2e/                                 # End-to-end tests (17 tests)
-│   ├── test_full_pipeline.py            # Complete execution pipeline (12 tests)
-│   └── test_project_edge_cases.py       # Project generation edge cases (5 tests)
+├── e2e/                                    # End-to-end tests (17 tests)
+│   ├── test_full_pipeline.py               # Complete execution pipeline (12 tests)
+│   └── test_project_edge_cases.py          # Project generation edge cases (5 tests)
 │
-├── fixtures/                            # Centralized test data and utilities
-│   ├── __init__.py                      # Export commonly used fixtures
-│   ├── assertions.py                    # Custom assertion helpers
-│   ├── mock_objects.py                  # Standardized mock factories
-│   ├── temp_resources.py                # Temporary resource management
-│   └── test_data.py                     # Shared test constants
+├── fixtures/                              # Centralized test data and utilities
+│   ├── __init__.py                        # Export commonly used fixtures
+│   ├── assertions.py                      # Custom assertion helpers
+│   ├── mock_objects.py                    # Standardized mock factories
+│   ├── temp_resources.py                  # Temporary resource management
+│   └── test_data.py                       # Shared test constants
 │
-└── utils/                               # Test utility functions
+└── utils/                                 # Test utility functions
     ├── __init__.py
-    ├── cleanup.py                       # Test environment cleanup
-    ├── file_helpers.py                  # File operation utilities
-    └── validation_helpers.py            # Validation test helpers
+    ├── cleanup.py                         # Test environment cleanup
+    ├── file_helpers.py                    # File operation utilities
+    └── validation_helpers.py              # Validation test helpers
 ```
 
 **Total**: 215 tests across 24 test files

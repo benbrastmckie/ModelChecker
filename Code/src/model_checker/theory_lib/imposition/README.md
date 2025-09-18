@@ -6,16 +6,16 @@
 
 ```
 imposition/
-├── README.md           # This file - theory overview
-├── __init__.py         # Public API and theory registration
-├── semantic.py         # ImpositionSemantics implementation
-├── operators.py        # Counterfactual operators (▷, ◇▷)
-├── examples.py         # 120 test examples
-├── iterate.py          # Model iteration for counterfactuals
-├── docs/               # Comprehensive documentation
-├── notebooks/          # Interactive Jupyter examples
-├── tests/              # Unit and integration tests
-└── talk/               # Presentation materials
+├── README.md                # This file - theory overview
+├── __init__.py              # Public API and theory registration
+├── semantic.py              # ImpositionSemantics implementation
+├── operators.py             # Counterfactual operators (▷, ◇▷)
+├── examples.py              # 120 test examples
+├── iterate.py               # Model iteration for counterfactuals
+├── docs/                    # Comprehensive documentation
+├── notebooks/               # Interactive Jupyter examples
+├── tests/                   # Unit and integration tests
+└── talk/                    # Presentation materials
 ```
 
 ## Overview

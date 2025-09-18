@@ -1,169 +1,168 @@
-# Workflow: Using the ModelChecker Package Effectively
+# Workflow Overview: The Complete ModelChecker Process
 
-[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Architecture →](../architecture/README.md)
+[← Previous: Project Setup](PROJECT.md) | [Next: Writing Examples →](EXAMPLES.md)
 
-## Table of Contents
+## Overview: How ModelChecker Works
 
-1. [Introduction](#introduction)
-2. [Basic Workflows](#basic-workflows)
-   - [Running Single Examples](#running-single-examples)
-   - [Batch Testing with examples.py](#batch-testing-with-examplespy)
-   - [Using dev_cli.py for Development](#using-dev_clipy-for-development)
-   - [Command-line Options and Flags](#command-line-options-and-flags)
-3. [Theory Development Workflow](#theory-development-workflow)
-   - [Creating New Theories from Templates](#creating-new-theories-from-templates)
-   - [Testing with Unit Tests](#testing-with-unit-tests)
-   - [Running Example Validation](#running-example-validation)
-   - [Using Iterate to Explore Semantic Space](#using-iterate-to-explore-semantic-space)
-4. [Debugging Workflows](#debugging-workflows)
-   - [Using Debug Settings](#using-debug-settings)
-   - [Command-line Debug Flags](#command-line-debug-flags)
-   - [Interpreting Z3 Unsat Cores](#interpreting-z3-unsat-cores)
-   - [Common Error Patterns and Fixes](#common-error-patterns-and-fixes)
-5. [Performance Optimization](#performance-optimization)
-   - [Setting Appropriate N Values](#setting-appropriate-n-values)
-   - [Timeout Configuration](#timeout-configuration)
-   - [Iteration Settings Tuning](#iteration-settings-tuning)
-   - [Memory Management Strategies](#memory-management-strategies)
-6. [Integration Patterns](#integration-patterns)
-   - [CLI Integration](#cli-integration)
-   - [Test Framework Integration](#test-framework-integration)
-   - [CI/CD Testing Patterns](#cicd-testing-patterns)
-   - [Documentation Generation](#documentation-generation)
-7. [Common Recipes](#common-recipes)
-8. [Troubleshooting](#troubleshooting)
-9. [References](#references)
+**ModelChecker** tests if logical inferences are valid by searching for counterexamples:
+1. You provide premises and conclusions
+2. ModelChecker searches for a model where premises are true but conclusions false
+3. If no such model exists, the inference is valid
+4. If found, you get the countermodel details
 
-## Introduction
+## Quick Workflow Examples
 
-This guide provides practical workflows for using the ModelChecker framework effectively, from basic usage to advanced development patterns. Whether you're running examples, developing new theories, or debugging complex logical formulas, these workflows will help you work efficiently with the framework.
-
-The ModelChecker follows a pipeline architecture where formulas flow through syntax parsing, semantic constraint generation, and Z3 model finding. Understanding these workflows helps you leverage the full power of the framework for your logical investigations.
-
-## Basic Workflows
-
-### Running Single Examples
-
-The simplest workflow is running a single example file to test logical formulas:
+### 1. Test a Simple Inference
 
 ```bash
-# Using the installed package
-model-checker examples/my_example.py
-
-# Using the development CLI (from Code/ directory)
-./dev_cli.py examples/my_example.py
-
-# With specific settings
-model-checker examples/my_example.py --N=5 --verbose
+# Does "A and (A implies B)" entail "B"?
+model-checker examples.py  # Contains this test
+# Result: VALID (no countermodel found)
 ```
 
-Example files define logical formulas and settings for testing. See [Examples Guide](EXAMPLES.md) for complete file structure and [Settings Guide](SETTINGS.md) for configuration options.
-
-### Batch Testing with examples.py
-
-Theory modules include comprehensive example files for batch testing:
+### 2. Find a Counterexample
 
 ```bash
-# Run all examples for a theory
-model-checker theory_lib/logos/examples.py
-
-# Run specific examples by modifying example_range
-# In examples.py:
-example_range = {
-    "EXT_TH_1": EXT_TH_1_example,  # Include this
-    # "MODAL_TH_1": MODAL_TH_1_example,  # Comment out to skip
-}
+# Does "A or B" entail "A"?
+model-checker invalid_test.py
+# Result: INVALID - Shows model where B is true, A is false
 ```
 
-**Batch testing workflow**:
-1. Navigate to theory directory
-2. Review available examples in examples.py
-3. Modify example_range to select specific tests
-4. Run with appropriate flags for your needs
-
-### Using dev_cli.py for Development
-
-The development CLI provides direct access to local source code without installation:
+### 3. Explore Multiple Models
 
 ```bash
-# Basic usage (same as model-checker)
-./dev_cli.py examples/test.py
-
-# With isomorphism debugging
-./dev_cli.py --iso-debug examples/iterate_test.py
-
-# Generate new theory project
-./dev_cli.py -l logos my_new_theory
-
-# Run with all debug output
-./dev_cli.py -p -z examples/debug_test.py
+# Find different ways premises can be true
+model-checker examples.py --iterate=3
+# Shows up to 3 different models
 ```
 
-**Development workflow advantages**:
-- No installation required
-- Immediate code changes reflection
-- Additional debug flags
-- Direct source debugging
+## Core Workflows
 
-### Command-line Options and Flags
+### Running Examples
 
-Common flags and their uses:
+After creating your project ([see PROJECT.md](PROJECT.md)), test logical formulas:
 
 ```bash
-# Verbosity and output control
---verbose, -v          # Show detailed progress
---quiet, -q           # Suppress non-essential output
-
-# Constraint and Z3 output
---print-constraints, -p    # Show generated constraints
---print-z3, -z            # Show Z3 model details
---print-impossible        # Show impossible states
-
-# Performance settings
---N=<int>                # Set maximum atomic propositions
---max-time=<seconds>     # Set solver timeout
---iterate=<int>          # Find multiple models
-
-# Theory selection
---theory=<name>          # Select specific theory
---compare               # Compare multiple theories
-
-# Output saving options
---save                  # Interactive save mode (prompts for format)
---save json             # Save output as JSON
---save markdown         # Save output as Markdown  
---save notebook         # Generate Jupyter notebook
---save all              # Save in all formats
---output-dir=<path>     # Specify output directory (default: output/)
-
-# Development flags
---iso-debug            # Debug isomorphism checking
---debug                # Enable debug output
-```
-
-### Saving Output
-
-The ModelChecker can save results in multiple formats (JSON, Markdown, Notebook). Use `--save` with a format name, or just `--save` for interactive selection. See [Output Guide](OUTPUT.md) for complete documentation of formats, directory structure, and advanced options.
-
-## Theory Development Workflow
-
-### Creating New Theories from Templates
-
-For detailed guidance on creating and developing new theory projects, see [Project Development Guide](PROJECT.md). This covers:
-- Creating new projects with `model-checker --new` 
-- Copying from existing theories with `-l` flag
-- Running examples with local project files
-- Modifying semantics and adding operators
-
-Quick start:
-```bash
-# Create from template
-model-checker -l logos my_theory
-
-# Run local examples
+# Run examples in your project
 cd project_my_theory
 model-checker examples.py
+
+# Run with options
+model-checker examples.py --N=4        # More atomic propositions  
+model-checker examples.py --verbose    # Show details
+model-checker examples.py --iterate=3  # Find multiple models
 ```
+
+**What happens**: ModelChecker reads your formula, generates logical constraints, and uses Z3 to find models. Details in [EXAMPLES.md](EXAMPLES.md).
+
+### Understanding Results
+
+```python
+# VALID inference (no countermodel)
+Premises: ["A", "A → B"]
+Conclusions: ["B"]
+Result: No countermodel found (VALID)
+
+# INVALID inference (countermodel exists)
+Premises: ["A ∨ B"]
+Conclusions: ["A"]
+Result: Countermodel found:
+  World 0: B is true, A is false
+```
+
+See [OUTPUT.md](OUTPUT.md) for saving and formatting results.
+
+### Common Command-Line Options
+
+Essential flags for daily use:
+
+```bash
+# Control output
+--verbose              # Show detailed progress
+--quiet                # Minimal output only
+
+# Debug issues  
+--print-constraints    # Show logical constraints
+--print-z3            # Show Z3 solver details
+
+# Adjust parameters
+--N=5                 # Set max atomic propositions
+--iterate=3           # Find multiple models
+--max-time=30         # Set timeout (seconds)
+
+# Save results
+--save json           # Save as JSON
+--save markdown       # Save as Markdown
+```
+
+Complete reference in [SETTINGS.md](SETTINGS.md).
+
+## Development Workflow
+
+### Modify Your Theory
+
+After creating a project, develop your custom logic:
+
+```python
+# Edit semantic.py - Define your logic rules
+class MySemantics(Semantics):
+    def _generate_constraints(self):
+        # Add your logical constraints
+        
+# Edit operators.py - Add new operators
+class MyOperator(Operator):
+    name = "⊕"  # Your symbol
+    
+# Edit examples.py - Test your logic
+MY_TEST_premises = ["A ⊕ B"]
+MY_TEST_conclusions = ["B ⊕ A"]
+```
+
+### Test Your Changes
+
+```bash
+# Run your modified examples
+model-checker examples.py
+
+# Create new test files
+model-checker test_symmetry.py
+model-checker test_transitivity.py
+```
+
+Detailed development guide in [Settings](SETTINGS.md) and [Architecture](../architecture/README.md).
+
+## Debugging When Things Go Wrong
+
+### Common Issues and Solutions
+
+```bash
+# No model found? Check your constraints:
+model-checker examples.py --print-constraints
+
+# Timeout? Reduce complexity:
+model-checker examples.py --N=3 --max-time=5
+
+# Wrong result? Enable debug output:
+model-checker examples.py --verbose --print-z3
+```
+
+### Understanding Error Messages
+
+```python
+# Formula parsing error
+Error: Unknown operator '&'
+Fix: Use LaTeX notation '\\wedge'
+
+# Constraint conflict  
+Error: Unsat core [...]
+Fix: Check for contradictory settings
+
+# Timeout
+Error: Z3 timeout after 30s
+Fix: Simplify formula or increase --max-time
+```
+
+Full debugging guide in [CONSTRAINTS.md](CONSTRAINTS.md).
 
 ### Testing with Unit Tests
 
@@ -242,88 +241,18 @@ model-checker examples/explore.py
 # [Structural differences]
 ```
 
-**Iteration workflow**:
-1. Start with small iterate values (2-3)
-2. Analyze differences between models
-3. Adjust constraints if models are too similar
-4. Use for understanding semantic variations
-5. Document interesting model patterns
-
-## Debugging Workflows
-
-### Using Debug Settings
-
-Enable detailed output for troubleshooting with debug settings. See [Settings Guide](SETTINGS.md#debugging) for debug configurations and interpreting output. Key settings include `print_constraints`, `print_z3`, and `verbose` mode.
-
-### Command-line Debug Flags
-
-Override settings from command line:
+### Saving Your Results
 
 ```bash
-# Full debug output
-./dev_cli.py -p -z examples/debug.py
+# Save in different formats
+model-checker examples.py --save json      # For processing
+model-checker examples.py --save markdown  # For documentation
+model-checker examples.py --save notebook  # For Jupyter
 
-# Specific debug aspects
-model-checker examples/test.py --print-constraints
-model-checker examples/test.py --print-z3
-model-checker examples/test.py --print-impossible
-
-# Save debug output
-model-checker examples/test.py -p -z --save-output
+# Results saved to output/ directory
 ```
 
-### Interpreting Z3 Unsat Cores
-
-When no model is found, understand why:
-
-```bash
-# Enable unsat core extraction
-model-checker examples/unsat.py --unsat-core
-
-# Common unsat patterns:
-# 1. Contradictory premises: "A" and "\\neg A"
-# 2. Impossible constraints: contingent=False with tautology
-# 3. Over-constrained semantics: too many restrictions
-```
-
-**Unsat debugging workflow**:
-1. Simplify example to minimal failing case
-2. Enable constraint printing
-3. Check for obvious contradictions
-4. Relax constraints incrementally
-5. Compare with working examples
-
-### Common Error Patterns and Fixes
-
-**Pattern 1: Formula Parsing Errors**
-```python
-# Error: Unmatched parentheses
-BAD: "A \\wedge (B \\vee C"  # Missing closing parenthesis
-GOOD: "A \\wedge (B \\vee C)"
-
-# Error: Unknown operator
-BAD: "A & B"  # Use LaTeX notation
-GOOD: "A \\wedge B"
-```
-
-**Pattern 2: Setting Conflicts**
-```python
-# Error: Incompatible settings
-BAD: {'contingent': False, 'non_contingent': True}
-GOOD: {'contingent': False}  # Use one setting
-
-# Error: N too small
-BAD: {'N': 2}  # With 3 atoms A, B, C
-GOOD: {'N': 3}  # Or reduce atoms
-```
-
-**Pattern 3: Theory Mismatches**
-```python
-# Error: Operator not in theory
-# Using \\boxright in modal-only theory
-# Solution: Load counterfactual subtheory
-theory = get_theory(subtheories=['modal', 'counterfactual'])
-```
+See [OUTPUT.md](OUTPUT.md) for output formats and options.
 
 ## Performance Optimization
 
@@ -430,282 +359,87 @@ process = psutil.Process()
 print(f"Memory: {process.memory_info().rss / 1024 / 1024:.1f} MB")
 ```
 
-## Integration Patterns
+## Next Steps
 
-### CLI Integration
+### Learn the Details
 
-Integrate ModelChecker into shell scripts:
+Now that you understand the workflow, explore:
+
+1. **[EXAMPLES.md](EXAMPLES.md)** - Write logical formulas correctly
+2. **[SETTINGS.md](SETTINGS.md)** - Configure ModelChecker behavior  
+3. **[CONSTRAINTS.md](CONSTRAINTS.md)** - Test semantic properties
+4. **[OUTPUT.md](OUTPUT.md)** - Save and format results
+
+### Advanced Topics
+
+- **[TOOLS.md](TOOLS.md)** - Advanced tools and theory comparison
+- **[Architecture Docs](../architecture/README.md)** - How ModelChecker works internally
+
+## Quick Reference
+
+### Essential Commands
 
 ```bash
-#!/bin/bash
-# run_analysis.sh
+# Create project
+model-checker                    # Interactive creation
+model-checker -l exclusion       # Copy specific theory
 
-# Run multiple theories
-for theory in logos exclusion imposition; do
-    echo "Testing $theory..."
-    model-checker -l $theory test_formula <<EOF
-FORMULA_premises = ["A \\boxright B"]
-FORMULA_conclusions = ["\\neg B \\boxright \\neg A"]
-FORMULA_settings = {'N': 4}
-FORMULA_example = [FORMULA_premises, FORMULA_conclusions, FORMULA_settings]
+# Run examples
+model-checker examples.py        # Run tests
+model-checker examples.py --N=4  # More states
 
-example_range = {"FORMULA": FORMULA_example}
-semantic_theories = {theory: get_theory()}
-EOF
-done
+# Debug
+model-checker examples.py --verbose            # Show details
+model-checker examples.py --print-constraints  # Show logic
 
-# Collect results
-model-checker examples/*.py --save-output > results.txt
+# Save results  
+model-checker examples.py --save json     # JSON format
+model-checker examples.py --save markdown # Markdown format
 ```
 
-### Test Framework Integration
-
-Integrate with pytest or unittest:
+### Common Patterns
 
 ```python
-# test_logical_principles.py
-import pytest
-from model_checker import BuildExample
-from model_checker.theory_lib.logos import get_theory
+# Test if inference is valid
+TEST_premises = ["A", "A → B"]
+TEST_conclusions = ["B"]
+# Expect: Valid (no countermodel)
 
-class TestLogicalPrinciples:
-    @pytest.fixture
-    def theory(self):
-        return get_theory()
-    
-    def test_modus_ponens(self, theory):
-        example = BuildExample(
-            premises=["A", "A \\rightarrow B"],
-            conclusions=["B"],
-            settings={'N': 3}
-        )
-        result = example.check(theory)
-        assert not result.countermodel_found
-    
-    def test_invalid_inference(self, theory):
-        example = BuildExample(
-            premises=["A \\vee B"],
-            conclusions=["A"],
-            settings={'N': 3, 'expectation': True}
-        )
-        result = example.check(theory)
-        assert result.countermodel_found
+# Find counterexample
+INVALID_premises = ["A ∨ B"] 
+INVALID_conclusions = ["A"]
+# Expect: Invalid (shows countermodel)
+
+# Test logical equivalence
+EQUIV1_premises = ["A ∧ B"]
+EQUIV1_conclusions = ["B ∧ A"]
+# Should be valid both directions
 ```
 
-### CI/CD Testing Patterns
+### Formula Syntax
 
-GitHub Actions workflow:
-
-```yaml
-# .github/workflows/test.yml
-name: ModelChecker Tests
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-    
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.10'
-    
-    - name: Install dependencies
-      run: |
-        pip install -e Code/
-        pip install pytest
-    
-    - name: Run theory tests
-      run: |
-        cd Code
-        ./run_tests.py --examples
-    
-    - name: Run unit tests
-      run: |
-        cd Code
-        ./run_tests.py --unit
-    
-    - name: Validate examples
-      run: |
-        model-checker theory_lib/*/examples.py --quiet
+```
+∧  AND         (\\wedge)
+∨  OR          (\\vee)
+¬  NOT         (\\neg)
+→  IMPLIES     (\\rightarrow)
+↔  IFF         (\\leftrightarrow)
+□  NECESSARY   (\\Box)
+◇  POSSIBLE    (\\Diamond)
 ```
 
-### Documentation Generation
+Full syntax guide in [EXAMPLES.md](EXAMPLES.md).
 
-Generate documentation from examples:
+## Summary
 
-```python
-# generate_docs.py
-import os
-from pathlib import Path
+You've learned the ModelChecker workflow:
+1. **Create** a project with your theory
+2. **Run** examples to test inferences
+3. **Debug** with verbose output when needed
+4. **Save** results in various formats
 
-def document_examples(theory_path):
-    """Extract and document examples from theory."""
-    examples_file = Path(theory_path) / "examples.py"
-    
-    # Parse examples
-    examples = parse_example_file(examples_file)
-    
-    # Generate markdown
-    doc = f"# {theory_path.name} Examples\n\n"
-    for name, example in examples.items():
-        doc += f"## {name}\n"
-        doc += f"**Premises**: {example[0]}\n"
-        doc += f"**Conclusions**: {example[1]}\n"
-        doc += f"**Valid**: {not example[2].get('expectation', False)}\n\n"
-    
-    # Save documentation
-    (Path(theory_path) / "docs" / "EXAMPLES.md").write_text(doc)
-
-# Generate for all theories
-for theory in Path("theory_lib").iterdir():
-    if theory.is_dir() and (theory / "examples.py").exists():
-        document_examples(theory)
-```
-
-## Common Recipes
-
-### Recipe: Test Logical Equivalence
-
-```python
-# Test if two formulas are equivalent
-def test_equivalence(formula1, formula2, theory):
-    # Test formula1 → formula2
-    forward = BuildExample(
-        premises=[formula1],
-        conclusions=[formula2],
-        settings={'N': 4}
-    )
-    
-    # Test formula2 → formula1
-    backward = BuildExample(
-        premises=[formula2],
-        conclusions=[formula1],
-        settings={'N': 4}
-    )
-    
-    return (not forward.has_countermodel() and 
-            not backward.has_countermodel())
-
-# Usage
-equiv = test_equivalence(
-    "A \\wedge B",
-    "B \\wedge A",
-    get_theory()
-)
-```
-
-### Recipe: Find Minimal Countermodel
-
-```python
-# Find smallest N that yields countermodel
-def find_minimal_countermodel(premises, conclusions, theory):
-    for n in range(1, 8):
-        example = BuildExample(
-            premises=premises,
-            conclusions=conclusions,
-            settings={'N': n, 'max_time': 5}
-        )
-        result = example.check(theory)
-        if result.countermodel_found:
-            return n, result
-    return None, None
-
-# Usage
-n, model = find_minimal_countermodel(
-    ["A \\boxright B"],
-    ["A \\rightarrow B"],
-    get_theory()
-)
-```
-
-### Recipe: Theory Comparison Report
-
-```python
-# Compare multiple theories on same examples
-def compare_theories(examples_file, theories):
-    from model_checker.builder import BuildModule
-    
-    results = {}
-    for theory_name, theory in theories.items():
-        module = BuildModule(examples_file)
-        module.semantic_theories = {theory_name: theory}
-        
-        results[theory_name] = {}
-        for example_name in module.example_range:
-            result = module.run_example(example_name)
-            results[theory_name][example_name] = result
-    
-    return generate_comparison_table(results)
-```
-
-## Troubleshooting
-
-### Issue: "No module named 'model_checker'"
-
-**Solution**: Install the package or use dev_cli.py
-```bash
-# Install from PyPI
-pip install model-checker
-
-# Or use development CLI
-cd ModelChecker/Code
-./dev_cli.py examples/test.py
-```
-
-### Issue: "Z3 timeout" errors
-
-**Solutions**:
-1. Increase timeout: `--max-time=30`
-2. Reduce N: `--N=3`
-3. Simplify formula
-4. Check for infinite loops in semantics
-
-### Issue: "Unexpected keyword argument" errors
-
-**Solution**: Check theory compatibility
-```python
-# List available settings
-print(theory.get_available_settings())
-
-# Use only compatible settings
-valid_settings = {k: v for k, v in settings.items() 
-                  if k in theory.get_available_settings()}
-```
-
-### Issue: Iteration finds only isomorphic models
-
-**Solutions**:
-1. Increase escape_attempts
-2. Add more diverse constraints
-3. Check theory's iterate implementation
-4. Enable --iso-debug flag
-
-## References
-
-### Command Line Reference
-- `model-checker --help` - Full command documentation
-- `./dev_cli.py --help` - Development CLI options
-- `./run_tests.py --help` - Test runner options
-
-### Configuration Files
-- `examples.py` - Standard example format
-- `settings.py` - Settings validation
-- `.model_checker_config` - User configuration
-
-### Related Documentation
-- [Project Development](PROJECT.md) - Creating new theory projects
-- [Examples Guide](EXAMPLES.md) - Writing example files
-- [Settings Guide](SETTINGS.md) - Configuration options
-- [Output Guide](OUTPUT.md) - Saving results
-- [Architecture](../architecture/PIPELINE.md) - System design
-- [Iterator System](../architecture/ITERATOR.md) - Model iteration details
-- [Builder Pattern](../architecture/BUILDER.md) - Pipeline orchestration with visual flowcharts
-- [Development Guide](../../Code/docs/DEVELOPMENT.md) - Contributing
+Continue to [EXAMPLES.md](EXAMPLES.md) for writing formulas, or return to [PROJECT.md](PROJECT.md) to review project creation.
 
 ---
 
-[← Back to Docs](../README.md) | [Compare Theories →](COMPARE_THEORIES.md) | [Architecture →](../architecture/README.md)
+[← Previous: Project Setup](PROJECT.md) | [Back to Usage](README.md) | [Next: Writing Examples →](EXAMPLES.md)

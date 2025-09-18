@@ -6,32 +6,32 @@
 
 ```
 logos/
-├── README.md               # This file - logos theory overview
-├── __init__.py            # Theory initialization and public API
-├── semantic.py            # Core hyperintensional semantic framework
-├── operators.py           # Operator registry and loading system
-├── examples.py            # Unified examples collection (177 examples)
-├── iterate.py             # Model iteration with enhanced difference display
-├── docs/                  # Comprehensive documentation
-│   ├── README.md          # Documentation hub and navigation
-│   ├── API_REFERENCE.md   # Complete API documentation
-│   ├── ARCHITECTURE.md    # Technical design and implementation
-│   ├── ITERATE.md         # Model iteration guide
-│   ├── SETTINGS.md        # Configuration options
-│   └── USER_GUIDE.md      # Practical usage guide
-├── notebooks/             # Interactive tutorials
-│   └── README.md          # Notebook navigation guide
-├── tests/                 # Core theory tests
-│   ├── README.md          # Test documentation and methodology
-│   ├── __init__.py        # Test module initialization
-│   └── test_logos_examples.py  # Cross-subtheory integration tests
-└── subtheories/           # Modular operator groups (see subtheories/README.md)
-    ├── README.md          # Subtheory coordination and overview
-    ├── extensional/       # Extensional operators (7 operators, 25 examples)
-    ├── modal/            # Necessity and possibility (4 operators, 21 examples)
-    ├── constitutive/     # Content relations (5 operators, 40 examples)
-    ├── counterfactual/   # Counterfactual conditionals (2 operators, 74 examples)
-    └── relevance/        # Relevance logic (1 operator, 17 examples)
+├── README.md                    # This file - logos theory overview
+├── __init__.py                  # Theory initialization and public API
+├── semantic.py                  # Core hyperintensional semantic framework
+├── operators.py                 # Operator registry and loading system
+├── examples.py                  # Unified examples collection (177 examples)
+├── iterate.py                   # Model iteration with enhanced difference display
+├── docs/                        # Comprehensive documentation
+│   ├── README.md                # Documentation hub and navigation
+│   ├── API_REFERENCE.md         # Complete API documentation
+│   ├── ARCHITECTURE.md          # Technical design and implementation
+│   ├── ITERATE.md               # Model iteration guide
+│   ├── SETTINGS.md              # Configuration options
+│   └── USER_GUIDE.md            # Practical usage guide
+├── notebooks/                   # Interactive tutorials
+│   └── README.md                # Notebook navigation guide
+├── tests/                       # Core theory tests
+│   ├── README.md                # Test documentation and methodology
+│   ├── __init__.py              # Test module initialization
+│   └── test_logos_examples.py   # Cross-subtheory integration tests
+└── subtheories/                 # Modular operator groups (see subtheories/README.md)
+    ├── README.md                # Subtheory coordination and overview
+    ├── extensional/             # Extensional operators (7 operators, 25 examples)
+    ├── modal/                   # Necessity and possibility (4 operators, 21 examples)
+    ├── constitutive/            # Content relations (5 operators, 40 examples)
+    ├── counterfactual/          # Counterfactual conditionals (2 operators, 74 examples)
+    └── relevance/               # Relevance logic (1 operator, 17 examples)
 ```
 
 ## Overview

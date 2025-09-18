@@ -1,6 +1,11 @@
-# Implementation Guide
+# Feature Implementation Guide
 
-[← Back to Technical Docs](README.md) | [Style Guide →](STYLE_GUIDE.md) | [Tests Guide →](TESTS.md) | [Development →](DEVELOPMENT.md)
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Testing Framework →](TESTING_FRAMEWORK.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)
+
+**Related Documentation**: 
+- [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Overall development process
+- [Testing Framework](TESTING_FRAMEWORK.md) - Comprehensive testing procedures  
+- [Environment Setup](ENVIRONMENT_SETUP.md) - Development environment configuration
 
 ## Table of Contents
 
@@ -18,7 +23,7 @@
 
 This document provides a **comprehensive development process** for implementing new ModelChecker features following test-driven development (TDD) protocols and systematic design principles. The process ensures thorough research, careful planning, and high-quality implementation while maintaining full integration with existing codebase standards.
 
-**Process Philosophy**: Following the design principles outlined in [CLAUDE.md](../CLAUDE.md), this implementation process emphasizes architectural clarity, test-driven development, and systematic refactoring to ensure maintainable, high-quality code.
+**Process Philosophy**: Following the design principles outlined in [CLAUDE.md](../../Code/CLAUDE.md), this implementation process emphasizes architectural clarity, test-driven development, and systematic refactoring to ensure maintainable, high-quality code.
 
 **CRITICAL: NO BACKWARDS COMPATIBILITY**
 - **Never add optional parameters** to maintain old behavior
@@ -28,9 +33,9 @@ This document provides a **comprehensive development process** for implementing 
 
 **Key Standards Integration**:
 
-- **[Style Guide](STYLE_GUIDE.md)** - Coding and documentation standards
-- **[Tests Guide](TESTS.md)** - Comprehensive testing procedures
-- **[Maintenance Documentation](../../Docs/maintenance/README.md)** - Complete project standards
+- **[Maintenance Documentation](../../README.md)** - Complete project standards
+- **[Testing Framework](TESTING_FRAMEWORK.md)** - Comprehensive testing procedures
+- **[Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md)** - Overall development process
 
 ## Quick Start for Existing Plans
 
@@ -62,7 +67,7 @@ ls docs/specs/plans/your-feature-plan.md
 
 ### Branch Creation and Naming
 
-Following version control standards from [Maintenance Documentation](../../Docs/maintenance/VERSION_CONTROL.md):
+Following version control standards from [Maintenance Documentation](../../quality/VERSION_CONTROL.md):
 
 ```bash
 # Create feature branch with descriptive naming
@@ -240,7 +245,7 @@ Create `docs/specs/plans/00X_feature.md`:
 ## Test-Driven Development Strategy
 
 - **Test categories**: Unit, integration, end-to-end
-- **Testing framework**: Following [Tests Guide](../TESTS.md)
+- **Testing framework**: Following [Testing Framework](../maintenance/development/TESTING_FRAMEWORK.md)
 - **Success criteria**: Measurable outcomes for each phase
 
 ## Implementation Phases
@@ -303,7 +308,7 @@ Present the detailed implementation plan to the user for approval:
 
 ### Phase-by-Phase Development
 
-Following test-driven development protocols outlined in [Tests Guide](TESTS.md):
+Following test-driven development protocols outlined in [Testing Framework](TESTING_FRAMEWORK.md):
 
 #### Phase Implementation Workflow
 
@@ -326,7 +331,7 @@ touch src/model_checker/feature/core.py
 
 # 4. Refactor for quality (Refactor phase)
 # Improve code quality while maintaining test passing
-# Follow Style Guide standards for code organization
+# Follow maintenance standards for code organization
 
 # 5. Final validation
 ./run_tests.py --all  # Ensure no regressions
@@ -338,7 +343,7 @@ Each refactoring step MUST use **BOTH testing methods** to ensure comprehensive 
 
 #### Method 1: Test-Driven Development (TDD) with Test Runner
 
-1. **Write Tests First** (following TESTS.md):
+1. **Write Tests First** (following [Testing Framework](TESTING_FRAMEWORK.md)):
    ```bash
    # Create test file BEFORE moving code
    src/model_checker/models/tests/test_component.py
@@ -826,8 +831,8 @@ grep -r "old_pattern_or_api" docs/ README.md
 
 **Cross-Reference Updates**:
 
-- **Style Guide**: Add any new coding patterns or standards
-- **Tests Guide**: Document new testing patterns if introduced
+- **Maintenance standards**: Add any new coding patterns or standards
+- **Testing protocols**: Document new testing patterns if introduced
 - **Implementation guides**: Update related implementation documentation
 
 #### 3. Documentation Quality Assurance
@@ -899,7 +904,7 @@ find . -name "*.py" -exec file -i {} \; | grep -v "charset=utf-8"
 find . -name "test_*.py" -o -name "debug_*.py" | grep -v "src/" | xargs rm -f
 
 # Ensure consistent code formatting
-# Review final code against Style Guide standards
+# Review final code against maintenance standards
 ```
 
 #### 2. Branch Summary Documentation
@@ -969,4 +974,4 @@ git push origin feature/your-feature-name
 
 ---
 
-[← Back to Technical Docs](README.md) | [Style Guide →](STYLE_GUIDE.md) | [Tests Guide →](TESTS.md) | [Development →](DEVELOPMENT.md)
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Testing Framework →](TESTING_FRAMEWORK.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)

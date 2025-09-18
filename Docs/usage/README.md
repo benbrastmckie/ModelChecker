@@ -1,28 +1,29 @@
 # Usage Documentation: Practical ModelChecker Workflows
 
-[← Back to Docs](../README.md) | [Workflow →](WORKFLOW.md) | [Examples →](EXAMPLES.md)
+[← Back to Docs](../README.md) | [Start Here: Project Setup →](PROJECT.md) | [Workflow Overview →](WORKFLOW.md)
 
-## Directory Structure
+## Quick Start Path
 
-```
-usage/
-├── README.md                       # This file - usage documentation hub
-├── WORKFLOW.md                     # Comprehensive usage patterns and workflows
-├── PROJECT.md                      # Creating and developing new theory projects
-├── EXAMPLES.md                     # Guide to writing example files
-├── SETTINGS.md                     # Settings configuration and management
-├── OUTPUT.md                       # Output formats and saving options
-├── COMPARE_THEORIES.md             # Theory comparison guide and patterns
-└── CONSTRAINTS.md                  # Testing semantic constraints methodology
-```
+Follow this recommended reading order to get up and running quickly:
+
+1. **[PROJECT.md](PROJECT.md)** - Create your first project (Start here!)
+2. **[WORKFLOW.md](WORKFLOW.md)** - Understand the complete workflow
+3. **[EXAMPLES.md](EXAMPLES.md)** - Write your logical formulas
+4. **[SETTINGS.md](SETTINGS.md)** - Configure your analysis
+5. **[CONSTRAINTS.md](CONSTRAINTS.md)** - Test semantic properties
+6. **[OUTPUT.md](OUTPUT.md)** - Save and share results
+7. **[TOOLS.md](TOOLS.md)** - Advanced tools and theory comparison
 
 ## Overview
 
-This directory provides **practical usage guides** for working with the ModelChecker framework, focusing on real-world workflows and theory comparison techniques. The documentation bridges the gap between installation and advanced development, showing how to effectively use ModelChecker for logical investigation and research.
+This directory provides **practical usage guides** organized in a learning progression from basic project setup to advanced semantic comparison. Each guide builds on the previous ones, creating a complete learning path for ModelChecker users.
 
-The usage guides cover **7 complementary aspects**: comprehensive workflows for all ModelChecker features, step-by-step project creation and development, detailed guidance on writing example files, settings configuration and management, output formatting and saving options, specialized techniques for comparing semantic theories, and advanced methods for testing whether constraints are automatically satisfied by semantic definitions. Together, these documents enable users to create new theories, run examples, configure settings, save results, debug formulas, optimize performance, and systematically compare how different semantic theories handle the same logical principles.
+### What You'll Learn
 
-Whether you're validating logical arguments, exploring countermodels, developing new theories, or conducting comparative semantic research, these guides provide the practical knowledge needed to use ModelChecker effectively. The documentation emphasizes **hands-on examples**, **command-line techniques**, and **real-world problem-solving** approaches.
+- **Getting Started** (PROJECT + WORKFLOW): Set up a project and run your first analysis
+- **Core Skills** (EXAMPLES + SETTINGS): Write logical formulas and configure semantic settings
+- **Advanced Techniques** (CONSTRAINTS + OUTPUT): Test properties and save results
+- **Research Tools** (COMPARE_THEORIES): Compare different semantic frameworks
 
 ## Theory Examples
 
@@ -104,7 +105,7 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 
 - **[OUTPUT.md](OUTPUT.md)** - Complete documentation of output formats (JSON, Markdown, Notebook), saving options, directory structure, and practical examples
 
-- **[COMPARE_THEORIES.md](COMPARE_THEORIES.md)** - Specialized guide for comparing semantic theories, including import patterns, avoiding circular dependencies, and interpreting comparison results
+- **[TOOLS.md](TOOLS.md)** - Advanced ModelChecker features including iterate setting, theory comparison, maximize flag, and debugging tools
 
 - **[CONSTRAINTS.md](CONSTRAINTS.md)** - Advanced methodology for testing semantic constraints through countermodel search, proving properties by absence, and discovering minimal axiom sets
 
@@ -117,7 +118,7 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 - **[Troubleshooting](WORKFLOW.md#troubleshooting)** - Common issues
 
 ### For Researchers
-- **[Theory Comparison](COMPARE_THEORIES.md)** - Comparative semantics
+- **[ModelChecker Tools](TOOLS.md)** - Advanced features and comparative semantics
 - **[Constraint Testing](CONSTRAINTS.md)** - Testing semantic properties
 - **[Performance Optimization](WORKFLOW.md#performance-optimization)** - Large-scale testing
 - **[Architecture](../architecture/README.md)** - Theoretical foundations

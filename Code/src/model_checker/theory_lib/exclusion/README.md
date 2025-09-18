@@ -6,15 +6,15 @@
 
 ```
 exclusion/
-├── README.md               # This file - theory overview
-├── __init__.py            # Theory registration and exports
-├── semantic.py            # Core semantic implementation with witness predicates
-├── operators.py           # Unilateral operators (¬, ∧, ∨, ≡)
-├── examples.py            # 38 test examples (22 countermodels, 16 theorems)
-├── docs/                  # Documentation directory (see docs/README.md)
-├── tests/                 # Test suite (see tests/README.md)
-├── notebooks/             # Interactive notebooks (see notebooks/README.md)
-└── history/               # Implementation history (see history/IMPLEMENTATION_STORY.md)
+├── README.md                # This file - theory overview
+├── __init__.py              # Theory registration and exports
+├── semantic.py              # Core semantic implementation with witness predicates
+├── operators.py             # Unilateral operators (¬, ∧, ∨, ≡)
+├── examples.py              # 38 test examples (22 countermodels, 16 theorems)
+├── docs/                    # Documentation directory (see docs/README.md)
+├── tests/                   # Test suite (see tests/README.md)
+├── notebooks/               # Interactive notebooks (see notebooks/README.md)
+└── history/                 # Implementation history (see history/IMPLEMENTATION_STORY.md)
 ```
 
 ## Overview

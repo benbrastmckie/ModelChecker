@@ -5,35 +5,33 @@
 ## Directory Structure
 
 ```
-tests/                              # SYSTEM-LEVEL TESTS ONLY
-├── integration/                    # Cross-package integration tests
+tests/                                      # SYSTEM-LEVEL TESTS ONLY
+├── integration/                            # Cross-package integration tests
 │   ├── test_batch_output_integration.py
 │   ├── test_build_module_interactive.py
-│   ├── test_cli_interactive.py   # CLI flag handling (parameterized)
+│   ├── test_cli_interactive.py             # CLI flag handling (parameterized)
 │   ├── test_model_building_sync.py
-│   ├── test_error_handling.py    # Error condition tests (30 tests)
-│   ├── test_timeout_resources.py # Resource and timeout tests (14 tests)
-│   ├── test_performance.py       # Performance benchmarks (24 tests)
-│   ├── test_system_imports.py    # System-wide import validation
-│   ├── test_architecture_validation.py # Architecture conformance
-│   ├── test_formula_system.py    # Cross-theory formula validation
-│   ├── test_settings_system.py   # Settings propagation tests
-│   └── test_system_boundaries.py # System-wide edge cases
-├── e2e/                           # End-to-end workflow tests
-│   ├── test_project_creation.py  # Project generation (refactored)
+│   ├── test_error_handling.py              # Error condition tests (30 tests)
+│   ├── test_timeout_resources.py           # Resource and timeout tests (14 tests)
+│   ├── test_performance.py                 # Performance benchmarks (24 tests)
+│   ├── test_system_imports.py              # System-wide import validation
+│   ├── test_architecture_validation.py     # Architecture conformance
+│   ├── test_formula_system.py              # Cross-theory formula validation
+│   ├── test_settings_system.py             # Settings propagation tests
+│   └── test_system_boundaries.py           # System-wide edge cases
+├── e2e/                                    # End-to-end workflow tests
+│   ├── test_project_creation.py            # Project generation (refactored)
 │   ├── test_batch_output_real.py
 │   └── test_simple_output_verify.py
-├── performance/                   # Performance and scaling tests
-│   └── (To be populated with dedicated performance tests)
-├── fixtures/                      # Shared test data and mocks
-│   ├── example_data.py           # Standard test examples
-│   └── mock_theories.py          # Mock theory implementations
-├── utils/                         # Test utilities and base classes
-│   ├── assertions.py             # Custom assertion functions
-│   ├── helpers.py                # Common test helpers
-│   └── base.py                   # Base test classes for inheritance
-├── conftest.py                   # Pytest configuration and fixtures
-└── README.md                      # This file
+├── fixtures/                               # Shared test data and mocks
+│   ├── example_data.py                     # Standard test examples
+│   └── mock_theories.py                    # Mock theory implementations
+├── utils/                                  # Test utilities and base classes
+│   ├── assertions.py                       # Custom assertion functions
+│   ├── helpers.py                          # Common test helpers
+│   └── base.py                             # Base test classes for inheritance
+├── conftest.py                             # Pytest configuration and fixtures
+└── README.md                               # This file
 ```
 
 **Note**: Unit tests are located with their respective packages at `src/model_checker/*/tests/unit/`
@@ -49,7 +47,7 @@ Unit tests are distributed with their respective packages following the builder 
 
 This structured approach ensures the ModelChecker framework operates correctly from both developer and user perspectives, with proper test isolation, shared fixtures, and comprehensive coverage.
 
-### Recent Improvements (Phase 1-4 Refactor)
+## Test Suite Features
 
 - **Test Organization**: Clear separation by type (unit/integration/e2e)
 - **Shared Infrastructure**: Comprehensive fixtures and utilities
@@ -76,7 +74,7 @@ This structured approach ensures the ModelChecker framework operates correctly f
 
 ### End-to-End Tests
 
-- **test_project_creation.py**: Refactored with focused test methods and helpers
+- **test_project_creation.py**: Project generation with focused test methods and helpers
 - **test_batch_output_real.py**: Real batch processing workflow validation
 - **test_simple_output_verify.py**: Output format and content verification
 

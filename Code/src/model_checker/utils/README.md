@@ -6,21 +6,21 @@
 
 ```
 utils/
-├── README.md               # This file - comprehensive utility documentation
-├── __init__.py            # Package initialization and exports
-├── types.py               # Type definitions and aliases for type safety
-├── api.py                 # Theory and example access functions
-├── bitvector.py           # Bit vector operations and conversions
-├── context.py             # Z3 context management
-├── formatting.py          # Output formatting and display utilities
-├── parsing.py             # Expression parsing functions
-├── testing.py             # Test runner utilities
-├── version.py             # Version management and compatibility
-├── z3_helpers.py          # Z3 constraint helpers
-└── tests/                 # Comprehensive test suite
+├── README.md                # This file - comprehensive utility documentation
+├── __init__.py              # Package initialization and exports
+├── types.py                 # Type definitions and aliases for type safety
+├── api.py                   # Theory and example access functions
+├── bitvector.py             # Bit vector operations and conversions
+├── context.py               # Z3 context management
+├── formatting.py            # Output formatting and display utilities
+├── parsing.py               # Expression parsing functions
+├── testing.py               # Test runner utilities
+├── version.py               # Version management and compatibility
+├── z3_helpers.py            # Z3 constraint helpers
+└── tests/                   # Comprehensive test suite
     ├── __init__.py
-    ├── unit/              # Unit tests for individual modules
-    └── conftest.py        # Test configuration and fixtures
+    ├── unit/                # Unit tests for individual modules
+    └── conftest.py          # Test configuration and fixtures
 ```
 
 ## Overview

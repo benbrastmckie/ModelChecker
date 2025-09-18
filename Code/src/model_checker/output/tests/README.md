@@ -6,18 +6,18 @@
 
 ```
 tests/
-├── README.md              # This file - test suite documentation
-├── __init__.py           # Test package initialization
-├── conftest.py           # Pytest configuration and fixtures
-├── unit/                 # Unit tests for individual components
-│   ├── formatters/       # Formatter-specific tests
-│   ├── strategies/       # Strategy-specific tests
-│   └── progress/         # Progress indicator tests
-├── integration/          # Integration tests for component interactions
-│   ├── builder/          # Builder integration tests
-│   ├── modes/           # Output mode tests
-│   └── interactive/     # Interactive mode tests
-└── e2e/                 # End-to-end workflow tests
+├── README.md                      # This file - test suite documentation
+├── __init__.py                    # Test package initialization
+├── conftest.py                    # Pytest configuration and fixtures
+├── unit/                          # Unit tests for individual components
+│   ├── formatters/                # Formatter-specific tests
+│   ├── strategies/                # Strategy-specific tests
+│   └── progress/                  # Progress indicator tests
+├── integration/                   # Integration tests for component interactions
+│   ├── builder/                   # Builder integration tests
+│   ├── modes/                     # Output mode tests
+│   └── interactive/               # Interactive mode tests
+└── e2e/                           # End-to-end workflow tests
 ```
 
 ## Overview
