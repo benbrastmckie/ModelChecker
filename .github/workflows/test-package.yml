@@ -44,20 +44,16 @@ jobs:
         pip install build wheel setuptools
     
     - name: Build package
-      run: |
-        cd Code
-        python -m build
+      working-directory: Code
+      run: python -m build
     
     - name: List built distributions
-      run: |
-        ls Code/dist/
+      run: ls Code/dist/
       shell: bash
     
     - name: Test wheel installation
       run: |
-        cd Code
-        pip install dist/*.whl
-        cd ..
+        pip install Code/dist/*.whl
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
     
     - name: Uninstall wheel
@@ -65,9 +61,7 @@ jobs:
     
     - name: Test source distribution installation  
       run: |
-        cd Code
-        pip install dist/*.tar.gz
-        cd ..
+        pip install Code/dist/*.tar.gz
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
     
     - name: Run import tests
@@ -93,9 +87,9 @@ jobs:
     
     - name: Run basic tests
       if: steps.check_tests.outputs.tests_exist == 'true'
+      working-directory: Code
       run: |
         pip install pytest
-        cd Code
         pytest src/model_checker/theory_lib -v --tb=short || echo "Some tests failed but continuing"
       shell: bash
 
@@ -120,27 +114,28 @@ jobs:
         pip install build twine
     
     - name: Build package
+      working-directory: Code
       run: |
-        cd Code
         python -m build
         ls -la dist/
+      shell: bash
     
     - name: Check package with twine
-      run: |
-        cd Code
-        twine check dist/*
+      working-directory: Code
+      run: twine check dist/*
     
     - name: Upload to Test PyPI
+      working-directory: Code
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
       run: |
         if [ -n "$TWINE_PASSWORD" ]; then
-          cd Code
           twine upload --repository testpypi dist/* --skip-existing
         else
           echo "TEST_PYPI_API_TOKEN not set, skipping Test PyPI upload"
         fi
+      shell: bash
       continue-on-error: true
     
     - name: Test installation from Test PyPI (if uploaded)
