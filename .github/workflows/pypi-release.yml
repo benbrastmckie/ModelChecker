@@ -150,8 +150,17 @@ jobs:
       run: |
         if [ -n "$TWINE_PASSWORD" ]; then
           cd Code
-          twine upload dist/*
-          echo "✓ Published to PyPI!"
+          # Try to upload, but don't fail if version already exists
+          if twine upload dist/* 2>&1 | tee upload.log; then
+            echo "✓ Published to PyPI!"
+          elif grep -q "already exists" upload.log; then
+            echo "⚠️ Version already exists on PyPI (may have been manually uploaded)"
+            echo "Continuing with workflow..."
+          else
+            echo "❌ Upload failed for unexpected reason"
+            cat upload.log
+            exit 1
+          fi
           echo "Install with: pip install model-checker==${{ needs.validate-version.outputs.version }}"
         else
           echo "ERROR: PYPI_API_TOKEN not set! Cannot publish to PyPI."
