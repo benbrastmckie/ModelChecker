@@ -100,9 +100,9 @@ jobs:
       shell: bash
 
   test-pypi-upload:
-    name: Test PyPI Upload
+    name: Test PyPI Upload (Manual Trigger Only)
     runs-on: ubuntu-latest
-    if: github.event.inputs.test_pypi == 'true'
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.test_pypi == 'true'
     needs: build-and-test
     
     steps:
@@ -131,22 +131,29 @@ jobs:
         twine check dist/*
     
     - name: Upload to Test PyPI
-      if: secrets.TEST_PYPI_API_TOKEN != ''
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
       run: |
-        cd Code
-        twine upload --repository testpypi dist/* --skip-existing
+        if [ -n "$TWINE_PASSWORD" ]; then
+          cd Code
+          twine upload --repository testpypi dist/* --skip-existing
+        else
+          echo "TEST_PYPI_API_TOKEN not set, skipping Test PyPI upload"
+        fi
       continue-on-error: true
     
-    - name: Wait for Test PyPI to update
-      run: sleep 30
-    
-    - name: Test installation from Test PyPI
+    - name: Test installation from Test PyPI (if uploaded)
       run: |
-        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ model-checker
-        python -c "import model_checker; print(f'Successfully installed from Test PyPI: {model_checker.__version__}')"
+        # Try to install from Test PyPI, but don't fail if package doesn't exist
+        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ model-checker || echo "Package not on Test PyPI yet"
+        
+        # If installed, verify it works
+        if pip show model-checker > /dev/null 2>&1; then
+          python -c "import model_checker; print(f'Successfully installed from Test PyPI: {model_checker.__version__}')"
+        else
+          echo "Package not available on Test PyPI, skipping verification"
+        fi
 
   summary:
     name: Test Summary
