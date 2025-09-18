@@ -47,17 +47,27 @@ jobs:
       run: |
         cd Code
         python -m build
-        ls -la dist/
+    
+    - name: List built distributions
+      run: |
+        ls Code/dist/
+      shell: bash
     
     - name: Test wheel installation
       run: |
-        pip install Code/dist/*.whl
+        cd Code
+        pip install dist/*.whl
+        cd ..
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
-        pip uninstall -y model-checker
     
-    - name: Test source distribution installation
+    - name: Uninstall wheel
+      run: pip uninstall -y model-checker
+    
+    - name: Test source distribution installation  
       run: |
-        pip install Code/dist/*.tar.gz
+        cd Code
+        pip install dist/*.tar.gz
+        cd ..
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
     
     - name: Run import tests
@@ -69,17 +79,24 @@ jobs:
     
     - name: Test CLI availability
       run: |
-        model-checker --help || python -m model_checker --help
+        python -m model_checker --help
     
-    - name: Run basic tests (if available)
+    - name: Check if tests exist
+      id: check_tests
       run: |
         if [ -d "Code/src/model_checker/theory_lib" ]; then
-          pip install pytest
-          cd Code
-          pytest src/model_checker/theory_lib -v || echo "Tests failed but continuing"
+          echo "tests_exist=true" >> $GITHUB_OUTPUT
         else
-          echo "No tests directory found, skipping"
+          echo "tests_exist=false" >> $GITHUB_OUTPUT
         fi
+      shell: bash
+    
+    - name: Run basic tests
+      if: steps.check_tests.outputs.tests_exist == 'true'
+      run: |
+        pip install pytest
+        cd Code
+        pytest src/model_checker/theory_lib -v --tb=short || echo "Some tests failed but continuing"
       shell: bash
 
   test-pypi-upload:
@@ -106,6 +123,7 @@ jobs:
       run: |
         cd Code
         python -m build
+        ls -la dist/
     
     - name: Check package with twine
       run: |
@@ -113,6 +131,7 @@ jobs:
         twine check dist/*
     
     - name: Upload to Test PyPI
+      if: secrets.TEST_PYPI_API_TOKEN != ''
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
