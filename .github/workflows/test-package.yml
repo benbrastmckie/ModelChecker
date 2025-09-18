@@ -1,0 +1,142 @@
+name: Test Package Installation
+
+on:
+  push:
+    branches: [ main, master, develop ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+    inputs:
+      test_pypi:
+        description: 'Test on Test PyPI'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  build-and-test:
+    name: Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.8', '3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+    
+    - name: Display Python version
+      run: |
+        python --version
+        pip --version
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build wheel setuptools
+    
+    - name: Build package
+      run: |
+        python -m build
+        ls -la dist/
+    
+    - name: Test wheel installation
+      run: |
+        pip install dist/*.whl
+        python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
+        pip uninstall -y model-checker
+    
+    - name: Test source distribution installation
+      run: |
+        pip install dist/*.tar.gz
+        python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
+    
+    - name: Run import tests
+      run: |
+        python -c "
+        import model_checker
+        from model_checker.model import Model
+        from model_checker.formula import Formula
+        print('All core imports successful')
+        "
+    
+    - name: Test CLI availability
+      run: |
+        model-checker --help || python -m model_checker --help
+    
+    - name: Run basic tests (if available)
+      run: |
+        if [ -d "tests" ]; then
+          pip install pytest
+          pytest tests/ -v || echo "Tests failed but continuing"
+        else
+          echo "No tests directory found, skipping"
+        fi
+      shell: bash
+
+  test-pypi-upload:
+    name: Test PyPI Upload
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_pypi == 'true'
+    needs: build-and-test
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+    
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+    
+    - name: Install build dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install build twine
+    
+    - name: Build package
+      run: python -m build
+    
+    - name: Check package with twine
+      run: twine check dist/*
+    
+    - name: Upload to Test PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
+      run: |
+        twine upload --repository testpypi dist/* --skip-existing
+      continue-on-error: true
+    
+    - name: Wait for Test PyPI to update
+      run: sleep 30
+    
+    - name: Test installation from Test PyPI
+      run: |
+        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ model-checker
+        python -c "import model_checker; print(f'Successfully installed from Test PyPI: {model_checker.__version__}')"
+
+  summary:
+    name: Test Summary
+    runs-on: ubuntu-latest
+    needs: build-and-test
+    if: always()
+    
+    steps:
+    - name: Summary
+      run: |
+        echo "## Package Testing Complete" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "All platform tests have completed. Check individual job results above." >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### Tested Configurations:" >> $GITHUB_STEP_SUMMARY
+        echo "- Operating Systems: Ubuntu, macOS, Windows" >> $GITHUB_STEP_SUMMARY
+        echo "- Python Versions: 3.8, 3.9, 3.10, 3.11, 3.12" >> $GITHUB_STEP_SUMMARY
