@@ -52,16 +52,24 @@ jobs:
       shell: bash
     
     - name: Test wheel installation
+      shell: bash
       run: |
-        pip install Code/dist/*.whl
+        # Find and install the wheel file
+        WHEEL_FILE=$(ls Code/dist/*.whl | head -1)
+        echo "Installing wheel: $WHEEL_FILE"
+        pip install "$WHEEL_FILE"
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
     
     - name: Uninstall wheel
       run: pip uninstall -y model-checker
     
-    - name: Test source distribution installation  
+    - name: Test source distribution installation
+      shell: bash
       run: |
-        pip install Code/dist/*.tar.gz
+        # Find and install the tar.gz file
+        TAR_FILE=$(ls Code/dist/*.tar.gz | head -1)
+        echo "Installing source distribution: $TAR_FILE"
+        pip install "$TAR_FILE"
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
     
     - name: Run import tests
