@@ -60,7 +60,11 @@ class ModuleLoader:
                 f"Ensure module file exists at specified path"
             )
         
-        if self._is_package():
+        # Check if this is a theory_lib file that should be imported as a module
+        if self._is_theory_lib_file():
+            from .strategies import TheoryLibImportStrategy
+            strategy = TheoryLibImportStrategy()
+        elif self._is_package():
             strategy = PackageImportStrategy()
         else:
             strategy = StandardImportStrategy()
@@ -74,6 +78,18 @@ class ModuleLoader:
             Path to module directory
         """
         return str(Path(self.module_path).parent)
+    
+    def _is_theory_lib_file(self) -> bool:
+        """Check if module is part of the theory_lib directory.
+        
+        Returns:
+            True if module is in theory_lib, False otherwise
+        """
+        # Get absolute path of the module
+        module_path = Path(self.module_path).resolve()
+        
+        # Check if it's under src/model_checker/theory_lib
+        return 'model_checker/theory_lib' in str(module_path) or 'model_checker\\theory_lib' in str(module_path)
     
     def _is_package(self) -> bool:
         """Check if module is part of a package.
