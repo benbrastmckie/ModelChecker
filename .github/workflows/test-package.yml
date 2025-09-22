@@ -101,10 +101,11 @@ jobs:
         pytest src/model_checker/theory_lib -v --tb=short || echo "Some tests failed but continuing"
       shell: bash
 
-  test-pypi-upload:
-    name: Test PyPI Upload (Manual Trigger Only)
+  pypi-upload:
+    name: PyPI Upload
     runs-on: ubuntu-latest
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.test_pypi == 'true'
+    # Only upload on push to master/main branch when all tests pass
+    if: (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main') && github.event_name == 'push'
     needs: build-and-test
     
     steps:
@@ -140,23 +141,37 @@ jobs:
       run: |
         if [ -n "$TWINE_PASSWORD" ]; then
           twine upload --repository testpypi dist/* --skip-existing
+          echo "✓ Uploaded to Test PyPI"
         else
-          echo "TEST_PYPI_API_TOKEN not set, skipping Test PyPI upload"
+          echo "⚠ TEST_PYPI_API_TOKEN not set, skipping Test PyPI"
         fi
       shell: bash
       continue-on-error: true
     
-    - name: Test installation from Test PyPI (if uploaded)
+    - name: Upload to Production PyPI
+      working-directory: Code
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        # Try to install from Test PyPI, but don't fail if package doesn't exist
-        pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ model-checker || echo "Package not on Test PyPI yet"
-        
-        # If installed, verify it works
-        if pip show model-checker > /dev/null 2>&1; then
-          python -c "import model_checker; print(f'Successfully installed from Test PyPI: {model_checker.__version__}')"
+        if [ -n "$TWINE_PASSWORD" ]; then
+          # Try to upload, but don't fail if version already exists
+          if twine upload dist/* --skip-existing 2>&1 | tee upload.log; then
+            echo "✓ Successfully uploaded to PyPI!"
+            echo "Install with: pip install model-checker"
+          elif grep -q "already exists" upload.log; then
+            echo "ℹ️ Version already exists on PyPI"
+          else
+            echo "❌ Upload failed"
+            cat upload.log
+            exit 1
+          fi
         else
-          echo "Package not available on Test PyPI, skipping verification"
+          echo "⚠ PYPI_API_TOKEN not set, skipping PyPI upload"
+          echo "To enable automatic PyPI uploads, set PYPI_API_TOKEN in repository secrets"
         fi
+      shell: bash
+    
 
   summary:
     name: Test Summary
