@@ -337,7 +337,7 @@ general_settings = {"N": 2}
             
             # Scenario 3: File exists with empty semantic_theories
             {
-                'file_content': 'semantic_theories = {}',
+                'file_content': 'semantic_theories = {}\nexample_range = {}\ngeneral_settings = {}',
                 'expected_keywords': ['empty', 'semantic_theories']
             }
         ]

@@ -33,14 +33,27 @@ class TestPackageImports(unittest.TestCase):
         shutil.rmtree(self.temp_dir, ignore_errors=True)
     
     def test_package_detection_methods_exist(self):
-        """Test package detection methods now exist."""
-        # Test loader now has package detection
-        loader = ModuleLoader('test', '/fake/path/test.py')
+        """Test package detection functionality exists."""
+        # Package detection is now handled by ProjectDetector
+        from model_checker.builder.detector import ProjectDetector, ProjectType
         
-        # These methods should now exist
-        self.assertTrue(hasattr(loader, '_is_generated_project_package'))
-        self.assertTrue(hasattr(loader, '_load_as_package_module'))
-        self.assertTrue(hasattr(loader, '_find_package_root'))
+        # Create a real temporary file for testing
+        test_file = os.path.join(self.temp_dir, 'test.py')
+        with open(test_file, 'w') as f:
+            f.write('# Test file\n')
+        
+        # Test detector exists and works with real path
+        detector = ProjectDetector(test_file)
+        self.assertTrue(hasattr(detector, 'detect_project_type'))
+        self.assertTrue(hasattr(detector, 'get_package_root'))
+        
+        # Test detector can detect standard projects
+        project_type = detector.detect_project_type()
+        self.assertEqual(project_type, ProjectType.STANDARD)
+        
+        # ModuleLoader uses detector internally
+        loader = ModuleLoader('test', test_file)
+        self.assertTrue(hasattr(loader, '_is_package'))  # Internal method
     
     def test_relative_imports_now_work_with_package(self):
         """Test that relative imports now work with new package implementation."""

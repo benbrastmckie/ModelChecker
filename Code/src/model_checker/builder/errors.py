@@ -12,18 +12,28 @@ class BuilderError(Exception):
 
 
 class PackageError(BuilderError):
-    """Base error for package-related issues."""
+    """Base error for package-related issues.
     
-    def __init__(self, message: str, *details: str):
-        """Initialize with main message and optional details.
+    All errors include context and suggestions for resolution.
+    """
+    
+    def __init__(self, message: str, context: str = "", suggestion: str = ""):
+        """Initialize with message, context, and suggestion.
         
         Args:
             message: Main error message
-            *details: Additional details to help user resolve the issue
+            context: Additional context about the error
+            suggestion: Suggestion for resolving the error
         """
+        self.context = context
+        self.suggestion = suggestion
+        
         full_message = message
-        if details:
-            full_message += "\nDetails:\n" + "\n".join(f"  - {d}" for d in details)
+        if context:
+            full_message += f"\nContext: {context}"
+        if suggestion:
+            full_message += f"\nSuggestion: {suggestion}"
+            
         super().__init__(full_message)
 
 
@@ -49,13 +59,15 @@ class PackageFormatError(PackageError):
     pass
 
 
-class PackageImportError(PackageError):
+class PackageImportError(PackageError, ImportError):
     """Package cannot be imported.
     
     Raised when:
     - Import statement fails
     - Module not found in package
     - Circular import detected
+    
+    Inherits from both PackageError and ImportError for compatibility.
     """
     pass
 
