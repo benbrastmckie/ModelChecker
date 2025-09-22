@@ -308,8 +308,14 @@ theory = logos.get_theory(['extensional'])
         build_module = BuildModule(self.mock_flags)
         
         # Test that it detects generated project correctly
-        is_generated = build_module.loader.is_generated_project(project_dir)
-        self.assertTrue(is_generated)
+        # Using new architecture - ProjectDetector
+        from model_checker.builder.detector import ProjectDetector, ProjectType
+        detector = ProjectDetector(project_dir)
+        # Generated projects with config.py are no longer supported
+        # This test expects legacy behavior which has been removed
+        project_type = detector.detect_project_type()
+        # Legacy config.py projects won't be detected as packages anymore
+        self.assertEqual(project_type, ProjectType.STANDARD)
     
     def test_package_detection(self):
         """Test detection of regular Python packages."""

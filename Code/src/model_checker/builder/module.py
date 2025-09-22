@@ -70,6 +70,11 @@ class BuildModule:
             'general_settings': getattr(self.module, 'general_settings', {})
         }
         
+        # Validate for interactive mode
+        if hasattr(self.module_flags, 'interactive') and self.module_flags.interactive:
+            if not self.example_range:
+                raise ImportError("Module has empty example_range - cannot run in interactive mode")
+        
         # Initialize settings
         self._initialize_settings()
         
@@ -105,6 +110,8 @@ class BuildModule:
         # Initialize general settings
         if self.raw_general_settings is not None:
             # Use first theory's defaults as baseline
+            if not self.semantic_theories:
+                raise ImportError("Module has empty semantic_theories - cannot initialize settings")
             first_theory = next(iter(self.semantic_theories.values()))
             # Create a temporary manager to get the merged defaults
             # Don't print warnings during this setup phase

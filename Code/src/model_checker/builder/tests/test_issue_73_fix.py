@@ -114,10 +114,15 @@ class TestIssue73Fix(unittest.TestCase):
             examples_path = os.path.join(project_path, "examples.py")
             loader = ModuleLoader("examples", examples_path)
             
-            # Verify the loader detects this as a generated package
-            self.assertTrue(
-                loader._is_generated_project_package(),
-                "Loader should detect generated package"
+            # Verify the project was generated with .modelchecker marker
+            # New architecture requires .modelchecker marker
+            from model_checker.builder.detector import ProjectDetector, ProjectType
+            detector = ProjectDetector(examples_path)
+            # Generated projects now have .modelchecker marker
+            self.assertEqual(
+                detector.detect_project_type(),
+                ProjectType.PACKAGE,
+                "Generated package should have .modelchecker marker"
             )
             
             # Store original sys.path

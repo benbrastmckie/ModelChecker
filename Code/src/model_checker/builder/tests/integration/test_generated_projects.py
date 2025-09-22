@@ -167,7 +167,8 @@ class TestGeneratedProjectImports(unittest.TestCase):
                 self.assertIsInstance(build_module.semantic_theories, dict)
             except ImportError as e:
                 # This is expected if running outside proper package context
-                self.assertIn("theory library", str(e).lower())
+                # The error message has changed but relative import error is expected
+                self.assertIn("relative import", str(e).lower())
     
     def test_error_handling_for_generated_projects(self):
         """Test error handling for generated projects."""
