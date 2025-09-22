@@ -9,7 +9,7 @@ builder/
 ├── README.md                           # This file - builder package overview
 ├── __init__.py                         # Public API exports
 ├── types.py                            # Type definitions and protocols for type safety
-├── error_types.py                      # Custom exception classes
+├── errors.py                           # Custom exception hierarchy
 ├── protocols.py                        # Protocol definitions for interfaces
 ├── module.py                           # Core orchestration and initialization
 ├── runner.py                           # Model checking execution engine
@@ -121,7 +121,7 @@ translated_case = translation.translate(example_case, operator_dictionary)
 
 ### ModuleLoader (loader.py)
 
-Manages Python module loading and project detection:
+Enhanced module loader with improved package detection:
 
 ```python
 # Used internally for module discovery
@@ -131,9 +131,15 @@ module = loader.load_module()
 
 **Responsibilities:**
 - Dynamic module importing
-- Generated project detection
-- sys.path management
-- Attribute validation
+- Package detection via .modelchecker marker or config.py
+- Intelligent sys.path management
+- Clear error messages with actionable solutions
+
+**Key Features:**
+- Supports both .modelchecker marker and legacy config.py
+- Automatic package detection for generated projects
+- Improved error messages for import failures
+- Backwards compatible with existing projects
 
 ## Usage Patterns
 
@@ -272,14 +278,52 @@ python -m pytest src/model_checker/builder/tests/test_module.py -xvs
 ./dev_cli.py test_example.py
 ```
 
-## Migration from Legacy Builder
+## Improvements (Issue #73 Fix)
 
-The refactored builder maintains the same public API while improving internal organization:
+### Package Loading Enhancements
 
-- `BuildModule` and `BuildProject` remain in `__all__`
-- Method signatures unchanged for public methods
-- Internal delegation now explicit through component instances
-- No backwards compatibility layers needed
+The module loader has been enhanced to fix issue #73 while maintaining backwards compatibility:
+
+**New Features:**
+- Support for `.modelchecker` marker files in generated packages
+- Improved package detection with `_is_generated_project_package()` method
+- Better sys.path handling with `_load_as_package_module()` method
+- Clearer error messages when packages cannot be imported
+
+**Supported Formats:**
+- Legacy `config.py` format (still works)
+- New `.modelchecker` marker format (recommended for new projects)
+- Both formats can coexist
+
+**Error Improvements:**
+- New `PackageError` hierarchy provides detailed context
+- `PackageStructureError` - missing or invalid package structure
+- `PackageFormatError` - invalid .modelchecker marker
+- `PackageImportError` - package cannot be imported
+- All errors include actionable solutions
+
+### Using the New Package Format
+
+For new generated projects, you can optionally use the cleaner package format:
+
+1. **Add .modelchecker marker:**
+```bash
+echo "package=true" > project_name/.modelchecker
+```
+
+2. **Ensure proper package structure:**
+```bash
+# Must have __init__.py
+touch project_name/__init__.py
+```
+
+3. **Import normally:**
+```python
+# Package will be automatically detected and loaded
+from project_name import examples
+```
+
+**Note:** Existing projects with `config.py` continue to work without any changes.
 
 ## See Also
 

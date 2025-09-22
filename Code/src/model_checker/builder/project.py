@@ -611,10 +611,36 @@ please include additional references here.
             
         print(f"\nRunning example: {selected_example}")
         try:
-            # Use subprocess to run the example script
-            subprocess.run(["model-checker", selected_example], 
-                         check=True,
-                         timeout=30)  # Add 30 second timeout
+            # Verify package is importable before attempting to run
+            parent_dir = os.path.dirname(project_dir)
+            package_name = os.path.basename(project_dir)
+            
+            # Add parent to sys.path if needed (permanent change)
+            if parent_dir not in sys.path:
+                sys.path.insert(0, parent_dir)
+                self.log(f"Added {parent_dir} to sys.path")
+            
+            # Verify package can be imported
+            try:
+                __import__(package_name)
+                self.log(f"Package '{package_name}' verified as importable")
+            except ImportError as e:
+                from .errors import PackageNotImportableError
+                raise PackageNotImportableError(
+                    f"Package '{package_name}' cannot be imported",
+                    f"Package location: {project_dir}",
+                    f"Parent directory: {parent_dir}",
+                    "Ensure package has __init__.py and proper structure",
+                    f"Import error: {str(e)}"
+                )
+            
+            # Run directly without environment manipulation
+            # Package is now importable via sys.path
+            subprocess.run(
+                ["model-checker", selected_example], 
+                check=True,
+                timeout=30  # Add 30 second timeout
+            )
         except subprocess.TimeoutExpired:
             print("\nScript execution timed out. You can run it manually with:")
             print(f"model-checker {selected_example}")
