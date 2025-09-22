@@ -349,8 +349,8 @@ class TestTargetLoaderBehavior(TestCase):
             methods = [m for m in dir(ModuleLoader) 
                       if not m.startswith('__') and callable(getattr(ModuleLoader, m))]
             
-            # Should have 6 or fewer methods
-            self.assertLessEqual(len(methods), 6, f"Has {len(methods)} methods, should be ≤6")
+            # Should have 7 or fewer methods (added _is_theory_lib_file for theory imports)
+            self.assertLessEqual(len(methods), 7, f"Has {len(methods)} methods, should be ≤7")
             
     def test_fail_fast_validation(self):
         """Target: Fail-fast validation with clear errors."""

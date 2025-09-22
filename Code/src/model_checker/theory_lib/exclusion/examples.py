@@ -1021,6 +1021,50 @@ def get_examples():
     }
 
 
+def print_example_report():
+    """
+    Print a summary report of the exclusion theory examples that were run.
+    """
+    print("\n" + "=" * 80)
+    print("EXCLUSION THEORY EXAMPLE REPORT")
+    print("=" * 80)
+    
+    # Count active examples
+    active_examples = len(example_range)
+    total_available = len(unit_tests)
+    
+    print(f"\nActive Examples: {active_examples} of {total_available} available")
+    
+    # Separate countermodels and theorems
+    active_cms = [name for name in example_range if '_CM_' in name]
+    active_ths = [name for name in example_range if '_TH_' in name]
+    
+    if active_cms:
+        print(f"  Countermodels: {len(active_cms)} - {', '.join(sorted(active_cms))}")
+    if active_ths:
+        print(f"  Theorems: {len(active_ths)} - {', '.join(sorted(active_ths))}")
+    
+    print("\n" + "-" * 80)
+    print("Theory: Exclusion (Unilateral Semantics)")
+    print("Authors: Lucas Champollion & Paul Bernard")
+    print("Implementation: Benjamin Brast-McKie, Miguel Buitrago")
+    print("-" * 80)
+    
+    print("\nFor more information, see:")
+    print("  - Theory documentation: src/model_checker/theory_lib/exclusion/README.md")
+    print("  - General usage guide: Docs/usage/README.md")
+    print("=" * 80)
+
+
+# Register the report to be printed at exit whenever this module is loaded
+import atexit
+
+# Ensure we only register once, even if module is imported multiple times
+if not hasattr(print_example_report, '_atexit_registered'):
+    atexit.register(print_example_report)
+    print_example_report._atexit_registered = True
+
+
 # Make this module runnable from the command line
 if __name__ == '__main__':
     import subprocess

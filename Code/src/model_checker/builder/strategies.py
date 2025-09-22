@@ -193,5 +193,94 @@ class StandardImportStrategy:
             )
 
 
+
+class TheoryLibImportStrategy:
+    """Import strategy for theory library files.
+    
+    Handles importing files from model_checker.theory_lib as proper Python modules
+    to preserve relative imports within the theory library.
+    """
+    
+    def import_module(self, name: str, path: str) -> ModuleType:
+        """Import a theory library file as a Python module.
+        
+        Args:
+            name: Module name (may be ignored)
+            path: Full file path to the theory library file
+            
+        Returns:
+            Imported module
+            
+        Raises:
+            PackageImportError: If import fails
+        """
+        from pathlib import Path
+        import importlib
+        
+        # Convert file path to module path
+        path_obj = Path(path).resolve()
+        
+        # Find where model_checker starts in the path
+        path_parts = path_obj.parts
+        
+        # Look for 'model_checker' in the path
+        try:
+            mc_index = path_parts.index('model_checker')
+        except ValueError:
+            # Fallback to standard import if not in model_checker structure
+            raise PackageImportError(
+                f"File is not in model_checker structure",
+                f"Path: {path}",
+                "Theory library files must be under model_checker/theory_lib"
+            )
+        
+        # Build module name from path
+        module_parts = list(path_parts[mc_index:])
+        
+        # Remove .py extension from last part
+        if module_parts[-1].endswith('.py'):
+            module_parts[-1] = module_parts[-1][:-3]
+        
+        # Create dotted module path
+        module_name = '.'.join(module_parts)
+        
+        try:
+            # Import as a proper Python module
+            module = importlib.import_module(module_name)
+            
+            # Force reload to ensure fresh import
+            importlib.reload(module)
+            
+            return module
+            
+        except ImportError as e:
+            # Check for specific import errors
+            if "No module named" in str(e):
+                raise PackageImportError(
+                    f"Module '{module_name}' not found",
+                    f"Attempted import: {module_name}",
+                    f"Original path: {path}",
+                    "Ensure model_checker is in Python path"
+                )
+            elif "attempted relative import" in str(e):
+                raise PackageImportError(
+                    f"Relative import error in '{module_name}'",
+                    f"Error: {str(e)}",
+                    "Theory library modules must use relative imports"
+                )
+            else:
+                raise PackageImportError(
+                    f"Failed to import module '{module_name}'",
+                    f"Path: {path}, Error: {str(e)}",
+                    "Check module syntax and dependencies"
+                )
+        except Exception as e:
+            raise PackageImportError(
+                f"Failed to import module '{module_name}'",
+                f"Path: {path}, Error: {str(e)}",
+                "Check module syntax and dependencies"
+            )
+
+
 # NO LegacyImportStrategy class - not provided
 # This is a BREAKING CHANGE - no legacy support
