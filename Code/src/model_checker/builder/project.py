@@ -15,6 +15,7 @@ and code structure requirements automatically.
 """
 
 import os
+import sys
 import shutil
 import subprocess
 from typing import Union, Optional, List, Tuple, Dict, Any
@@ -634,12 +635,20 @@ please include additional references here.
                     f"Import error: {str(e)}"
                 )
             
-            # Run directly without environment manipulation
-            # Package is now importable via sys.path
+            # Run with modified PYTHONPATH to ensure package is importable
+            # Need to pass sys.path modifications to subprocess
+            env = os.environ.copy()
+            current_pythonpath = env.get('PYTHONPATH', '')
+            if current_pythonpath:
+                env['PYTHONPATH'] = f"{parent_dir}{os.pathsep}{current_pythonpath}"
+            else:
+                env['PYTHONPATH'] = parent_dir
+            
             subprocess.run(
                 ["model-checker", selected_example], 
                 check=True,
-                timeout=30  # Add 30 second timeout
+                timeout=30,  # Add 30 second timeout
+                env=env  # Pass modified environment with PYTHONPATH
             )
         except subprocess.TimeoutExpired:
             print("\nScript execution timed out. You can run it manually with:")
