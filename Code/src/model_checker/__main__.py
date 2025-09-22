@@ -241,7 +241,7 @@ def main():
     if module_flags.upgrade:
         print("Upgrading package")
         try:
-            subprocess.run(['pip', 'install', '--upgrade', package_name], check=True)
+            subprocess.run([sys.executable, '-m', 'pip', 'install', '--upgrade', package_name], check=True)
         except subprocess.CalledProcessError as e:
             print(f"Failed to upgrade {package_name}: {e}")
         return

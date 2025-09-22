@@ -284,6 +284,35 @@ def upload_package(test_pypi: bool = False) -> bool:
         print(f"❌ Failed to upload to {repository}")
         return False
 
+def check_git_branch() -> bool:
+    """
+    Check if user is on master branch.
+    
+    Returns:
+        True if on master branch, False otherwise
+    """
+    try:
+        result = subprocess.run(['git', 'branch', '--show-current'], 
+                              capture_output=True, text=True, check=True)
+        current_branch = result.stdout.strip()
+        
+        if current_branch != 'master':
+            print(f"\n⚠️  WARNING: You are currently on branch '{current_branch}'")
+            print("This script should be run from the 'master' branch.")
+            print("\nTo switch to master:")
+            print("  git checkout master")
+            if current_branch != 'master':
+                print(f"  git merge {current_branch}  # if you want to merge your changes")
+            print("\nThen run this script again.")
+            return False
+        
+        return True
+        
+    except subprocess.CalledProcessError:
+        print("❌ Error: Could not determine current git branch")
+        print("Make sure you're in a git repository and git is available")
+        return False
+
 def main():
     """Main function to orchestrate the release process."""
     import argparse
@@ -297,6 +326,10 @@ def main():
     print("\n" + "=" * 80)
     print("MODELCHECKER RELEASE PROCESS")
     print("=" * 80)
+    
+    # Check git branch first
+    if not check_git_branch():
+        return 1
     
     # Step 1: Run tests BEFORE any changes
     if not args.skip_tests:
@@ -381,7 +414,7 @@ def main():
         print("This will:")
         print(f"  1. Commit the version change")
         print(f"  2. Create tag v{new_version}")
-        print(f"  3. Push to origin/main with the tag")
+        print(f"  3. Push to origin/master with the tag")
         print(f"  4. Trigger GitHub Actions to upload to PyPI")
         
         auto_git = input("\nAutomate git operations? [Y/n]: ").strip().lower()
@@ -399,7 +432,7 @@ def main():
                 
                 # Push to origin with tags
                 print("🚀 Pushing to GitHub with tags...")
-                subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+                subprocess.run(['git', 'push', 'origin', 'master'], check=True)
                 subprocess.run(['git', 'push', 'origin', f'v{new_version}'], check=True)
                 
                 print("\n" + "=" * 80)
@@ -424,7 +457,7 @@ def main():
                 print(f"  git add Code/pyproject.toml")
                 print(f"  git commit -m 'Release version {new_version}'")
                 print(f"  git tag v{new_version}")
-                print(f"  git push origin main")
+                print(f"  git push origin master")
                 print(f"  git push origin v{new_version}")
         else:
             # User chose manual - provide instructions
@@ -432,7 +465,7 @@ def main():
             print(f"\n  git add Code/pyproject.toml")
             print(f"  git commit -m 'Release version {new_version}'")
             print(f"  git tag v{new_version}")
-            print(f"  git push origin main")
+            print(f"  git push origin master")
             print(f"  git push origin v{new_version}")
             
             print("\n✨ After pushing, GitHub Actions will automatically:")
@@ -451,7 +484,7 @@ def main():
             try:
                 subprocess.run(['git', 'add', 'Code/pyproject.toml'], check=True)
                 subprocess.run(['git', 'commit', '-m', f'Patch release {new_version}'], check=True)
-                subprocess.run(['git', 'push', 'origin', 'main'], check=True)
+                subprocess.run(['git', 'push', 'origin', 'master'], check=True)
                 
                 print(f"\n✅ Patch {new_version} pushed to GitHub")
                 print("📦 Package already uploaded to PyPI directly")
@@ -461,12 +494,12 @@ def main():
                 print("\nManual commands:")
                 print(f"  git add Code/pyproject.toml")
                 print(f"  git commit -m 'Patch release {new_version}'")
-                print(f"  git push origin main")
+                print(f"  git push origin master")
         else:
             print("\n📝 Manual git commands:")
             print(f"  git add Code/pyproject.toml")
             print(f"  git commit -m 'Patch release {new_version}'")
-            print(f"  git push origin main")
+            print(f"  git push origin master")
     
     print("\n✅ Release process complete!")
     return 0
