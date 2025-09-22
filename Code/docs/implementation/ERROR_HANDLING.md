@@ -63,6 +63,33 @@ class ConfigurationError(BuilderError):
 class TheoryNotFoundError(BuilderError):
     """Theory loading and discovery errors."""
 
+# Package Loading Errors (Issue #73 Fix)
+class PackageError(BuilderError):
+    """Base error for package-related issues.
+    
+    Provides detailed context with multiple detail lines."""
+    def __init__(self, message: str, *details: str):
+        full_message = message
+        if details:
+            full_message += "\nDetails:\n" + "\n".join(f"  - {d}" for d in details)
+        super().__init__(full_message)
+
+class PackageStructureError(PackageError):
+    """Package structure does not meet requirements.
+    Examples: Missing .modelchecker, missing __init__.py"""
+
+class PackageFormatError(PackageError):
+    """Package format is invalid.
+    Example: .modelchecker doesn't contain 'package=true'"""
+
+class PackageImportError(PackageError):
+    """Package cannot be imported.
+    Includes package root, parent directory, and original error."""
+
+class PackageNotImportableError(PackageError):
+    """Generated package not in importable state.
+    Package exists but isn't in sys.path or has import errors."""
+
 # Model Package Errors  
 class ModelConstraintError(ModelError):
     """Constraint generation and validation errors."""

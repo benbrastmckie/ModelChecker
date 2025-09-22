@@ -264,9 +264,13 @@ class ModuleLoader:
         # Store original sys.path
         original_syspath = sys.path.copy()
         
+        # Track if we're loading a generated package
+        is_generated_package = False
+        
         try:
             # Check if this is a generated project package
             if self._is_generated_project_package():
+                is_generated_package = True
                 return self._load_as_package_module()
             
             # Try other loading methods as before
@@ -285,8 +289,10 @@ class ModuleLoader:
             return self._load_standard_module()
             
         finally:
-            # Restore original sys.path
-            sys.path = original_syspath
+            # Only restore sys.path for non-generated packages
+            # Generated packages need to remain importable
+            if not is_generated_package:
+                sys.path = original_syspath
     
     def _load_theory_library_module(self) -> ModuleType:
         """Load a module from the theory library.
@@ -523,6 +529,11 @@ class ModuleLoader:
     def _load_as_package_module(self) -> ModuleType:
         """Load module with package context for relative imports.
         
+        This method handles generated packages that use relative imports by:
+        1. Finding the package root via .modelchecker marker
+        2. Adding the parent directory to sys.path for import resolution
+        3. Importing the module with full package context
+        
         Returns:
             ModuleType: The loaded module
             
@@ -532,12 +543,16 @@ class ModuleLoader:
         # Find the package root (directory with .modelchecker)
         package_root = self._find_package_root()
         if not package_root:
-            raise ImportError("Could not find package root")
+            raise ImportError("Could not find package root with .modelchecker marker")
         
-        # Add parent of package to sys.path
+        # Add parent of package to sys.path to enable package imports
         parent_dir = os.path.dirname(package_root)
+        
+        # Store whether we added to sys.path for cleanup
+        added_to_path = False
         if parent_dir not in sys.path:
             sys.path.insert(0, parent_dir)
+            added_to_path = True
         
         # Calculate module path relative to package
         package_name = os.path.basename(package_root)
@@ -553,21 +568,35 @@ class ModuleLoader:
         
         # Import the module with package context
         try:
+            # First ensure the package itself can be imported
+            try:
+                __import__(package_name)
+            except ImportError as pkg_err:
+                # If package can't be imported, provide helpful error
+                raise ImportError(
+                    f"Cannot import package '{package_name}'. "
+                    f"Make sure the parent directory '{parent_dir}' is accessible. "
+                    f"Original error: {str(pkg_err)}"
+                )
+            
+            # Now import the specific module
             module = importlib.import_module(full_module_name)
             
-            # If module has a main or run function, prepare to execute it
-            if hasattr(module, 'main'):
-                module.main()
-            elif hasattr(module, 'run'):
-                module.run()
+            # Note: We don't automatically execute main/run functions
+            # The module should be loaded and returned for normal processing
             
             return module
             
         except ImportError as e:
+            # Clean up sys.path if we modified it and import failed
+            if added_to_path and parent_dir in sys.path:
+                sys.path.remove(parent_dir)
+            
             # Provide helpful error message
             raise ImportError(
                 f"Failed to import {full_module_name} from package {package_name}. "
-                f"Make sure all relative imports are correct. Original error: {str(e)}"
+                f"Package root: {package_root}, Parent dir: {parent_dir}. "
+                f"Original error: {str(e)}"
             )
     
     def _find_package_root(self) -> Optional[str]:
