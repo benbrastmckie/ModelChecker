@@ -44,18 +44,17 @@ jobs:
         pip install build wheel setuptools
     
     - name: Build package
-      working-directory: Code
       run: python -m build
     
     - name: List built distributions
-      run: ls Code/dist/
+      run: ls dist/
       shell: bash
     
     - name: Test wheel installation
       shell: bash
       run: |
         # Find and install the wheel file
-        WHEEL_FILE=$(ls Code/dist/*.whl | head -1)
+        WHEEL_FILE=$(ls dist/*.whl | head -1)
         echo "Installing wheel: $WHEEL_FILE"
         pip install "$WHEEL_FILE"
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
@@ -67,7 +66,7 @@ jobs:
       shell: bash
       run: |
         # Find and install the tar.gz file
-        TAR_FILE=$(ls Code/dist/*.tar.gz | head -1)
+        TAR_FILE=$(ls dist/*.tar.gz | head -1)
         echo "Installing source distribution: $TAR_FILE"
         pip install "$TAR_FILE"
         python -c "import model_checker; print(f'Successfully imported model_checker version: {model_checker.__version__}')"
@@ -86,7 +85,7 @@ jobs:
     - name: Check if tests exist
       id: check_tests
       run: |
-        if [ -d "Code/src/model_checker/theory_lib" ]; then
+        if [ -d "src/model_checker/theory_lib" ]; then
           echo "tests_exist=true" >> $GITHUB_OUTPUT
         else
           echo "tests_exist=false" >> $GITHUB_OUTPUT
@@ -95,7 +94,6 @@ jobs:
     
     - name: Run basic tests
       if: steps.check_tests.outputs.tests_exist == 'true'
-      working-directory: Code
       run: |
         pip install pytest
         pytest src/model_checker/theory_lib -v --tb=short || echo "Some tests failed but continuing"
@@ -122,18 +120,15 @@ jobs:
         pip install build twine
     
     - name: Build package
-      working-directory: Code
       run: |
         python -m build
         ls -la dist/
       shell: bash
     
     - name: Check package with twine
-      working-directory: Code
       run: twine check dist/*
     
     - name: Upload to Test PyPI
-      working-directory: Code
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
