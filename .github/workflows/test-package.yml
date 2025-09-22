@@ -81,7 +81,7 @@ jobs:
     
     - name: Test CLI availability
       run: |
-        python -m model_checker --help
+        model-checker --help
     
     - name: Check if tests exist
       id: check_tests
