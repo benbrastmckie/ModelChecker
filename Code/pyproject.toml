@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "model-checker"
-version = "1.2.2"
+version = "1.2.3"
 description = "A hyperintensional theorem prover for developing and and exploring programmatic semantic theories."
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
