@@ -626,7 +626,7 @@ example_range = {
     ### COUNTERMODELS ###
 
     # Extensional Countermodels
-    "EX_CM_1" : EX_CM_1_example,
+    # "EX_CM_1" : EX_CM_1_example,
     
     # Modal Countermodels
     # "MD_CM_1" : MD_CM_1_example,
@@ -637,7 +637,7 @@ example_range = {
     # "MD_CM_6" : MD_CM_6_example,
 
     # Tense Countermodels
-    # "TN_CM_1" : TN_CM_1_example,
+    "TN_CM_1" : TN_CM_1_example,
     # "TN_CM_2" : TN_CM_2_example,
     
     # Bimodal Countermodel
@@ -652,7 +652,7 @@ example_range = {
     # "EX_TH_1" : EX_TH_1_example,
 
     # Modal Theorems
-    # "MD_TH_1" : MD_TH_1_example,
+    "MD_TH_1" : MD_TH_1_example,
     # "MD_TH_2" : MD_TH_2_example,
 
     # Tense Theorems
@@ -667,94 +667,5 @@ example_range = {
 }
 
 
-def print_example_report():
-    """
-    Print a summary report of the bimodal theory examples that were run.
-    """
-    print("\n" + "=" * 80)
-    print("BIMODAL THEORY EXAMPLE REPORT")
-    print("=" * 80)
-    
-    # Count active examples
-    active_examples = len(example_range)
-    total_available = len(unit_tests)
-    
-    print(f"\nActive Examples: {active_examples} of {total_available} available")
-    
-    # Separate countermodels and theorems by category
-    active_cms = [name for name in example_range if '_CM_' in name]
-    active_ths = [name for name in example_range if '_TH_' in name]
-    
-    # Further categorize by type
-    extensional = [name for name in example_range if name.startswith('EX_')]
-    modal = [name for name in example_range if name.startswith('MD_')]
-    tense = [name for name in example_range if name.startswith('TN_')]
-    bimodal = [name for name in example_range if name.startswith('BM_')]
-    
-    if active_cms:
-        print(f"  Countermodels: {len(active_cms)}")
-        if extensional:
-            ext_cms = [n for n in extensional if '_CM_' in n]
-            if ext_cms:
-                print(f"    Extensional: {', '.join(sorted(ext_cms))}")
-        if modal:
-            mod_cms = [n for n in modal if '_CM_' in n]
-            if mod_cms:
-                print(f"    Modal: {', '.join(sorted(mod_cms))}")
-        if tense:
-            tense_cms = [n for n in tense if '_CM_' in n]
-            if tense_cms:
-                print(f"    Tense: {', '.join(sorted(tense_cms))}")
-        if bimodal:
-            bi_cms = [n for n in bimodal if '_CM_' in n]
-            if bi_cms:
-                print(f"    Bimodal: {', '.join(sorted(bi_cms))}")
-    
-    if active_ths:
-        print(f"  Theorems: {len(active_ths)}")
-        if extensional:
-            ext_ths = [n for n in extensional if '_TH_' in n]
-            if ext_ths:
-                print(f"    Extensional: {', '.join(sorted(ext_ths))}")
-        if modal:
-            mod_ths = [n for n in modal if '_TH_' in n]
-            if mod_ths:
-                print(f"    Modal: {', '.join(sorted(mod_ths))}")
-        if tense:
-            tense_ths = [n for n in tense if '_TH_' in n]
-            if tense_ths:
-                print(f"    Tense: {', '.join(sorted(tense_ths))}")
-        if bimodal:
-            bi_ths = [n for n in bimodal if '_TH_' in n]
-            if bi_ths:
-                print(f"    Bimodal: {', '.join(sorted(bi_ths))}")
-    
-    print("\n" + "-" * 80)
-    print("Theory: Bimodal (Two Orthogonal S5 Modalities)")
-    print("Authors: Benjamin Brast-McKie")
-    print("Implementation: Benjamin Brast-McKie, Miguel Buitrago")
-    print("-" * 80)
-    
-    print("\nFor more information, see:")
-    print("  - Theory documentation: src/model_checker/theory_lib/bimodal/README.md")
-    print("  - General usage guide: Docs/usage/README.md")
-    print("=" * 80)
-
-
-# Register the report to be printed at exit whenever this module is loaded
-import atexit
-
-# Ensure we only register once, even if module is imported multiple times
-if not hasattr(print_example_report, '_atexit_registered'):
-    atexit.register(print_example_report)
-    print_example_report._atexit_registered = True
-
-
-####################
-### RUN EXAMPLES ###
-####################
-
-if __name__ == '__main__':
-    import subprocess
-    file_name = os.path.basename(__file__)
-    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
+# The report will be printed by ModelRunner after all examples complete
+# No atexit registration needed - the runner controls when reports print

@@ -766,7 +766,7 @@ CF_TH_13_example = [
     CF_TH_13_settings,
 ]
 
-# CF_CM_14: CONTRADICTION TO IMPOSSIBILITY
+# CF_TH_14: CONTRADICTION TO IMPOSSIBILITY
 CF_TH_14_premises = ['(A \\boxright \\bot)']
 CF_TH_14_conclusions = ['(\\top \\boxright \\neg A)']
 CF_TH_14_settings = {
@@ -866,45 +866,45 @@ semantic_theories = {
 example_range = {
 
     # COUNTERMODELS
-    "CF_CM_1": CF_CM_1_example,
-    # "CF_CM_2": CF_CM_2_example,
-    # "CF_CM_3": CF_CM_3_example,
-    # "CF_CM_4": CF_CM_4_example,
-    # "CF_CM_5": CF_CM_5_example,
-    # "CF_CM_6": CF_CM_6_example,
-    "CF_CM_7": CF_CM_7_example,
-    # "CF_CM_8": CF_CM_8_example,
-    # "CF_CM_9": CF_CM_9_example,
-    # "CF_CM_10": CF_CM_10_example,
-    # "CF_CM_11": CF_CM_11_example,
-    # "CF_CM_12": CF_CM_12_example,
-    # "CF_CM_13": CF_CM_13_example,
-    # "CF_CM_14": CF_CM_14_example,
-    # "CF_CM_15": CF_CM_15_example,
-    # "CF_CM_16": CF_CM_16_example,
-    # "CF_CM_17": CF_CM_17_example,
-    # "CF_CM_18": CF_CM_18_example,
-    # "CF_CM_19": CF_CM_19_example,
-    # "CF_CM_20": CF_CM_20_example,
-    # "CF_CM_21": CF_CM_21_example,
-    # "CF_CM_24": CF_CM_24_example,
-    # "CF_CM_25": CF_CM_25_example,
+    "CF_CM_1": CF_CM_1_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_2": CF_CM_2_example,  # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "CF_CM_3": CF_CM_3_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+    # "CF_CM_4": CF_CM_4_example,  # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+    # "CF_CM_5": CF_CM_5_example,  # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+    # "CF_CM_6": CF_CM_6_example,  # WEAKENED MONOTONICITY
+    "CF_CM_7": CF_CM_7_example,  # COUNTERFACTUAL CONTRAPOSITION
+    # "CF_CM_8": CF_CM_8_example,  # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+    # "CF_CM_9": CF_CM_9_example,  # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+    # "CF_CM_10": CF_CM_10_example,  # TRANSITIVITY
+    # "CF_CM_11": CF_CM_11_example,  # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+    # "CF_CM_12": CF_CM_12_example,  # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+    # "CF_CM_13": CF_CM_13_example,  # SOBEL SEQUENCE
+    # "CF_CM_14": CF_CM_14_example,  # SOBEL SEQUENCE WITH POSSIBILITY
+    # "CF_CM_15": CF_CM_15_example,  # COUNTERFACTUAL EXCLUDED MIDDLE
+    # "CF_CM_16": CF_CM_16_example,  # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+    # "CF_CM_17": CF_CM_17_example,  # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+    # "CF_CM_18": CF_CM_18_example,  # MUST FACTIVITY
+    # "CF_CM_19": CF_CM_19_example,  # COUNTERFACTUAL EXPORTATION
+    # "CF_CM_20": CF_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+    # "CF_CM_21": CF_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
+    # "CF_CM_24": CF_CM_24_example,  # CONTRADICTION TO IMPOSSIBILITY
+    # "CF_CM_25": CF_CM_25_example,  # CONTRADICTION TO IMPOSSIBILITY
 
     # THEOREMS
-    # "CF_TH_1": CF_TH_1_example,
-    # "CF_TH_2": CF_TH_2_example,
-    # "CF_TH_3": CF_TH_3_example,
-    # "CF_TH_4": CF_TH_4_example,
-    "CF_TH_5": CF_TH_5_example,
-    # "CF_TH_6": CF_TH_6_example,
-    # "CF_TH_7": CF_TH_7_example,
-    # "CF_TH_8": CF_TH_8_example,
-    # "CF_TH_9": CF_TH_9_example,
-    "CF_TH_10": CF_TH_10_example,
-    # "CF_TH_11": CF_TH_11_example,
-    # "CF_TH_12": CF_TH_12_example,
-    # "CF_TH_13": CF_TH_13_example,
-    # "CF_TH_14": CF_TH_14_example,
+    # "CF_TH_1": CF_TH_1_example,  # COUNTERFACTUAL IDENTITY
+    # "CF_TH_2": CF_TH_2_example,  # COUNTERFACTUAL MODUS PONENS
+    # "CF_TH_3": CF_TH_3_example,  # WEAKENED TRANSITIVITY
+    # "CF_TH_4": CF_TH_4_example,  # ANTECEDENT DISJUNCTION TO CONJUNCTION
+    "CF_TH_5": CF_TH_5_example,  # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "CF_TH_6": CF_TH_6_example,  # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "CF_TH_7": CF_TH_7_example,  # COUNTERFACTUAL DISJUNCTION INTRODUCTION
+    # "CF_TH_8": CF_TH_8_example,  # COUNTERFACTUAL CONSEQUENT WEAKENING
+    # "CF_TH_9": CF_TH_9_example,  # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    "CF_TH_10": CF_TH_10_example,  # MIGHT FACTIVITY
+    # "CF_TH_11": CF_TH_11_example,  # DEFINITION OF NEC
+    # "CF_TH_12": CF_TH_12_example,  # CONTRADICTION TO IMPOSSIBILITY
+    # "CF_TH_13": CF_TH_13_example,  # REVERSE DEFINITION OF NEC
+    # "CF_TH_14": CF_TH_14_example,  # CONTRADICTION TO IMPOSSIBILITY
 
 }
 

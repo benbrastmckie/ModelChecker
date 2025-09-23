@@ -852,7 +852,7 @@ EX_TH_16_example = [
 
 
 
-# Organize examples by category
+# Organize examples by category - grouped by type first, then number
 countermodel_examples = {
     "EX_CM_1": EX_CM_1_example,    # EMPTY CASE FOR CHECKING FRAME CONSTRAINTS
     "EX_CM_2": EX_CM_2_example,    # GAPS CASE
@@ -897,8 +897,49 @@ theorem_examples = {
     "EX_TH_16": EX_TH_16_example,  # COMPLEX UNILATERAL FORMULA
 }
 
-# Combine for unit_tests (used by test framework)
-unit_tests = {**countermodel_examples, **theorem_examples}
+# Combine for unit_tests (used by test framework) - ordered by type first
+unit_tests = {
+    # Countermodels first
+    "EX_CM_1": EX_CM_1_example,    # EMPTY CASE FOR CHECKING FRAME CONSTRAINTS
+    "EX_CM_2": EX_CM_2_example,    # GAPS CASE
+    "EX_CM_3": EX_CM_3_example,    # NO GLUT CASE
+    "EX_CM_4": EX_CM_4_example,    # NEGATION TO SENTENCE (FALSE PREMISE PROBLEM)
+    "EX_CM_5": EX_CM_5_example,    # SENTENCE TO NEGATION (FALSE PREMISE PROBLEM)
+    "EX_CM_6": EX_CM_6_example,    # DOUBLE NEGATION ELIMINATION (FALSE PREMISE PROBLEM)
+    "EX_CM_7": EX_CM_7_example,    # DOUBLE NEGATION INTRODUCTION (FALSE PREMISE PROBLEM)
+    "EX_CM_8": EX_CM_8_example,    # TRIPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
+    "EX_CM_9": EX_CM_9_example,    # QUADRUPLE NEGATION ENTAILMENT (FALSE PREMISE PROBLEM)
+    "EX_CM_10": EX_CM_10_example,  # CONJUNCTION DEMORGAN LR (FALSE PREMISE PROBLEM)
+    "EX_CM_11": EX_CM_11_example,  # CONJUNCTION DEMORGAN RL (FALSE PREMISE PROBLEM)
+    "EX_CM_12": EX_CM_12_example,  # DISJUNCTION DEMORGAN LR (FALSE PREMISE PROBLEM)
+    "EX_CM_13": EX_CM_13_example,  # DISJUNCTION DEMORGAN RL (FALSE PREMISE PROBLEM)
+    "EX_CM_14": EX_CM_14_example,  # DOUBLE NEGATION IDENTITY
+    "EX_CM_15": EX_CM_15_example,  # TRIPLE NEGATION IDENTITY
+    "EX_CM_16": EX_CM_16_example,  # CONJUNCTION DEMORGAN IDENTITY
+    "EX_CM_17": EX_CM_17_example,  # DISJUNCTION DEMORGAN IDENTITY
+    "EX_CM_18": EX_CM_18_example,  # DISJUNCTION DISTRIBUTION IDENTITY
+    "EX_CM_19": EX_CM_19_example,  # COMPLEX DEMORGAN (THEOREM 17)
+    "EX_CM_20": EX_CM_20_example,  # DEMORGAN COMPLEX
+    "EX_CM_21": EX_CM_21_example,  # BASIC TEST
+    "EX_CM_22": EX_CM_22_example,  # DISTRIBUTION TEST
+    "EX_CM_23": EX_CM_23_example,  # DISJUNCTIVE SYLLOGISM
+    # Theorems second
+    "EX_TH_1": EX_TH_1_example,    # ATOMIC THEOREM
+    "EX_TH_3": EX_TH_3_example,    # CONJUNCTION DISTRIBUTION LR
+    "EX_TH_4": EX_TH_4_example,    # CONJUNCTION DISTRIBUTION RL
+    "EX_TH_5": EX_TH_5_example,    # DISJUNCTION DISTRIBUTION LR
+    "EX_TH_6": EX_TH_6_example,    # DISJUNCTION DISTRIBUTION RL
+    "EX_TH_7": EX_TH_7_example,    # CONJUNCTION ABSORPTION LR
+    "EX_TH_8": EX_TH_8_example,    # CONJUNCTION ABSORPTION RL
+    "EX_TH_9": EX_TH_9_example,    # DISJUNCTION ABSORPTION LR
+    "EX_TH_10": EX_TH_10_example,  # DISJUNCTION ABSORPTION RL
+    "EX_TH_11": EX_TH_11_example,  # CONJUNCTION ASSOCIATIVITY LR
+    "EX_TH_12": EX_TH_12_example,  # CONJUNCTION ASSOCIATIVITY RL
+    "EX_TH_13": EX_TH_13_example,  # DISJUNCTION ASSOCIATIVITY LR
+    "EX_TH_14": EX_TH_14_example,  # DISJUNCTION ASSOCIATIVITY RL
+    "EX_TH_15": EX_TH_15_example,  # CONJUNCTION DISTRIBUTION IDENTITY
+    "EX_TH_16": EX_TH_16_example,  # COMPLEX UNILATERAL FORMULA
+}
 
 # Aliases for main dictionary (backward compatibility)
 test_example_range = unit_tests
@@ -938,9 +979,6 @@ logos_theory = {
     "dictionary": exclusion_to_logos  # Translation from exclusion to logos operators
 }
 
-# NOTE: The default theory has been removed. 
-# For comparison with classical bilateral semantics, use the logos theory instead.
-
 # Specify which theories to use for comparison
 # NOTE: The translation dictionaries will convert unilateral operators to bilateral equivalents
 semantic_theories = {
@@ -958,40 +996,40 @@ example_range = {
     
     # Basic countermodel examples
     # "EX_CM_21": EX_CM_21_example,  # BASIC TEST
-    "EX_CM_23": EX_CM_23_example,  # DISJUNCTIVE SYLLOGISM (FAILS IN EXCLUSION SEMANTICS)
+    # "EX_CM_23": EX_CM_23_example,  # DISJUNCTIVE SYLLOGISM (FAILS IN EXCLUSION SEMANTICS)
     
-    # # Bilateral negation examples (Problematic in static)
+    # # Bilateral negation examples
     # "EX_CM_4": EX_CM_4_example,    # NEGATION TO SENTENCE 
     # "EX_CM_5": EX_CM_5_example,    # SENTENCE TO NEGATION 
     # "EX_CM_6": EX_CM_6_example,    # DOUBLE NEGATION ELIMINATION 
-    # "EX_CM_7": EX_CM_7_example,    # DOUBLE NEGATION INTRODUCTION 
+    "EX_CM_7": EX_CM_7_example,    # DOUBLE NEGATION INTRODUCTION 
     # "EX_CM_8": EX_CM_8_example,    # TRIPLE NEGATION ENTAILMENT 
     # "EX_CM_9": EX_CM_9_example,    # QUADRUPLE NEGATION ENTAILMENT 
-    #
-    # # DeMorgan's laws (Problematic in static)
+
+    # # DeMorgan's laws
     # "EX_CM_10": EX_CM_10_example,  # CONJUNCTION DEMORGAN LR 
     # "EX_CM_11": EX_CM_11_example,  # CONJUNCTION DEMORGAN RL 
     # "EX_CM_12": EX_CM_12_example,  # DISJUNCTION DEMORGAN LR 
     # "EX_CM_13": EX_CM_13_example,  # DISJUNCTION DEMORGAN RL 
-    #
+
     # # Distribution laws
     # "EX_TH_3": EX_TH_3_example,    # CONJUNCTION DISTRIBUTION LR
     # "EX_TH_4": EX_TH_4_example,    # CONJUNCTION DISTRIBUTION RL
     # "EX_TH_5": EX_TH_5_example,    # DISJUNCTION DISTRIBUTION LR
     # "EX_TH_6": EX_TH_6_example,    # DISJUNCTION DISTRIBUTION RL
-    #
+
     # # Absorption laws
-    # "EX_TH_7": EX_TH_7_example,    # CONJUNCTION ABSORPTION LR
+    "EX_TH_7": EX_TH_7_example,    # CONJUNCTION ABSORPTION LR
     # "EX_TH_8": EX_TH_8_example,    # CONJUNCTION ABSORPTION RL
     # "EX_TH_9": EX_TH_9_example,    # DISJUNCTION ABSORPTION LR
     # "EX_TH_10": EX_TH_10_example,  # DISJUNCTION ABSORPTION RL
-    #
+
     # # Associativity laws
     # "EX_TH_11": EX_TH_11_example,  # CONJUNCTION ASSOCIATIVITY LR
     # "EX_TH_12": EX_TH_12_example,  # CONJUNCTION ASSOCIATIVITY RL
     # "EX_TH_13": EX_TH_13_example,  # DISJUNCTION ASSOCIATIVITY LR
     # "EX_TH_14": EX_TH_14_example,  # DISJUNCTION ASSOCIATIVITY RL
-    #
+
     # # Identity examples
     # "EX_CM_14": EX_CM_14_example,  # DOUBLE NEGATION IDENTITY
     # "EX_CM_15": EX_CM_15_example,  # TRIPLE NEGATION IDENTITY
@@ -999,7 +1037,7 @@ example_range = {
     # "EX_CM_17": EX_CM_17_example,  # DISJUNCTION DEMORGAN IDENTITY
     # "EX_TH_15": EX_TH_15_example,  # CONJUNCTION DISTRIBUTION IDENTITY
     # "EX_CM_18": EX_CM_18_example,  # DISJUNCTION DISTRIBUTION IDENTITY
-    #
+
     # # Complex examples
     # "EX_CM_19": EX_CM_19_example,  # COMPLEX DEMORGAN (THEOREM 17)
     # "EX_CM_20": EX_CM_20_example,  # DEMORGAN COMPLEX
@@ -1007,66 +1045,5 @@ example_range = {
 }
 
 
-def get_examples():
-    """
-    Get all exclusion examples.
-    
-    Returns:
-        dict: Dictionary containing all exclusion examples
-    """
-    return {
-        'countermodels': exclusion_cm_examples,
-        'theorems': exclusion_th_examples,
-        'all': unit_tests
-    }
-
-
-def print_example_report():
-    """
-    Print a summary report of the exclusion theory examples that were run.
-    """
-    print("\n" + "=" * 80)
-    print("EXCLUSION THEORY EXAMPLE REPORT")
-    print("=" * 80)
-    
-    # Count active examples
-    active_examples = len(example_range)
-    total_available = len(unit_tests)
-    
-    print(f"\nActive Examples: {active_examples} of {total_available} available")
-    
-    # Separate countermodels and theorems
-    active_cms = [name for name in example_range if '_CM_' in name]
-    active_ths = [name for name in example_range if '_TH_' in name]
-    
-    if active_cms:
-        print(f"  Countermodels: {len(active_cms)} - {', '.join(sorted(active_cms))}")
-    if active_ths:
-        print(f"  Theorems: {len(active_ths)} - {', '.join(sorted(active_ths))}")
-    
-    print("\n" + "-" * 80)
-    print("Theory: Exclusion (Unilateral Semantics)")
-    print("Authors: Lucas Champollion & Paul Bernard")
-    print("Implementation: Benjamin Brast-McKie, Miguel Buitrago")
-    print("-" * 80)
-    
-    print("\nFor more information, see:")
-    print("  - Theory documentation: src/model_checker/theory_lib/exclusion/README.md")
-    print("  - General usage guide: Docs/usage/README.md")
-    print("=" * 80)
-
-
-# Register the report to be printed at exit whenever this module is loaded
-import atexit
-
-# Ensure we only register once, even if module is imported multiple times
-if not hasattr(print_example_report, '_atexit_registered'):
-    atexit.register(print_example_report)
-    print_example_report._atexit_registered = True
-
-
-# Make this module runnable from the command line
-if __name__ == '__main__':
-    import subprocess
-    file_name = os.path.basename(__file__)
-    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
+# The report will be printed by ModelRunner after all examples complete
+# No atexit registration needed - the runner controls when reports print

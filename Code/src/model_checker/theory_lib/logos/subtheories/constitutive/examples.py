@@ -793,7 +793,7 @@ semantic_theories = {
 example_range = {
 
     # COUNTERMODELS
-    # "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
+    "CL_CM_1": CL_CM_1_example,   # EQUIVALENCE OF TAUTOLOGIES
     # "CL_CM_2": CL_CM_2_example,   # EQUIVALENCE OF CONTRADICTIONS
     "CL_CM_3": CL_CM_3_example,   # GROUND CONJUNCTION SUPPLEMENTATION
     # "CL_CM_4": CL_CM_4_example,   # ESSENCE DISJUNCTION SUPPLEMENTATION
@@ -809,13 +809,13 @@ example_range = {
     # "CL_CM_14": CL_CM_14_example, # DUAL SHANNON EXPANSION
 
     # THEOREMS
-    # "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
+    "CL_TH_1": CL_TH_1_example,   # GROUND TO ESSENCE
     # "CL_TH_2": CL_TH_2_example,   # ESSENCE TO GROUND
     # "CL_TH_3": CL_TH_3_example,   # ESSENCE TO IDENTITY
     # "CL_TH_4": CL_TH_4_example,   # IDENTITY TO ESSENCE
     # "CL_TH_5": CL_TH_5_example,   # GROUND TO IDENTITY
     # "CL_TH_6": CL_TH_6_example,   # IDENTITY TO GROUND
-    # "CL_TH_7": CL_TH_7_example,   # NEGATION TRANSPARENCY
+    "CL_TH_7": CL_TH_7_example,   # NEGATION TRANSPARENCY
     # "CL_TH_8": CL_TH_8_example,   # REVERSE NEGATION TRANSPARENCY
     # "CL_TH_9": CL_TH_9_example,   # ABSORPTION IDENTITY
     # "CL_TH_10": CL_TH_10_example, # ABSORPTION REDUCTION: CONJUNCTION OVER DISJUNCTION

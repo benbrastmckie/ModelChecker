@@ -371,19 +371,22 @@ semantic_theories = {
 example_range = {
 
     # COUNTERMODELS
-    # "EXT_CM_1": EXT_CM_1_example,  # DISJUNCTION INTRODUCTION
-    "EXT_CM_2": EXT_CM_2_example,  # DISJUNCTIVE SYLLOGISM
+    # "EXT_CM_1": EXT_CM_1_example,  # CONTRADICTION
+    "EXT_CM_2": EXT_CM_2_example,  # AFFIRMING THE CONSEQUENT
     
     # THEOREMS
-    # "EXT_TH_1": EXT_TH_1_example,  # IDENTITY REFLEXIVITY
-    # "EXT_TH_2": EXT_TH_2_example,  # MODUS PONENS
-    # "EXT_TH_3": EXT_TH_3_example,  # CONTRAPOSITION
-    # "EXT_TH_4": EXT_TH_4_example,  # HYPOTHETICAL SYLLOGISM
-    # "EXT_TH_5": EXT_TH_5_example,  # ARGUMENT FROM A AND B TO A
-    # "EXT_TH_6": EXT_TH_6_example,  # CONJUNCTION SIMPLIFICATION
-    # "EXT_TH_7": EXT_TH_7_example,  # CONJUNCTION INTRODUCTION
-    # "EXT_TH_8": EXT_TH_8_example,  # BICONDITIONAL ELIMINATION
-    # "EXT_TH_9": EXT_TH_9_example,  # DISJUNCTION COMMUTATIVITY
+    # "EXT_TH_1": EXT_TH_1_example,  # MODUS PONENS
+    # "EXT_TH_2": EXT_TH_2_example,  # MODUS TOLLENS
+    # "EXT_TH_3": EXT_TH_3_example,  # CONJUNCTION ELIMINATION
+    # "EXT_TH_4": EXT_TH_4_example,  # DISJUNCTION INTRODUCTION
+    "EXT_TH_5": EXT_TH_5_example,  # DOUBLE NEGATION ELIMINATION
+    # "EXT_TH_6": EXT_TH_6_example,  # LAW OF EXCLUDED MIDDLE
+    # "EXT_TH_7": EXT_TH_7_example,  # DE MORGAN'S LAW 1
+    # "EXT_TH_8": EXT_TH_8_example,  # DE MORGAN'S LAW 2
+    # "EXT_TH_9": EXT_TH_9_example,  # BICONDITIONAL FORWARD
+    # "EXT_TH_10": EXT_TH_10_example,  # BICONDITIONAL BACKWARD
+    # "EXT_TH_11": EXT_TH_11_example,  # TOP IS TAUTOLOGY
+    # "EXT_TH_12": EXT_TH_12_example,  # EX FALSO QUODLIBET
 
 }
 

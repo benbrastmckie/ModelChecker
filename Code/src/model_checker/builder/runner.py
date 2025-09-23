@@ -731,6 +731,9 @@ class ModelRunner:
                 self.build_module.output_manager.finalize()
                 print(f"\nPartial output saved to: {os.path.abspath(self.build_module.output_manager.output_dir)}")
             sys.exit(1)
+        
+        # Print theory-specific example report if available
+        self._print_theory_report()
                     
         # Finalize output saving if enabled
         if self.build_module.output_manager.should_save():
@@ -747,6 +750,46 @@ class ModelRunner:
                 else:
                     # No interactive manager - show instructions directly
                     print(f"\nOutput saved to: {full_path}")
+    
+    def _print_theory_report(self):
+        """Print theory-specific example report if available.
+        
+        This method checks if the loaded module has a print_example_report
+        function and calls it. This ensures reports are printed exactly once,
+        only for the primary theory being tested.
+        
+        First checks the examples.py module, then checks the theory's __init__.py
+        module if the function isn't found in examples.py.
+        """
+        report_func = None
+        
+        # First check the loaded module (examples.py)
+        if hasattr(self.build_module.module, 'print_example_report'):
+            report_func = getattr(self.build_module.module, 'print_example_report')
+        
+        # If not found, try to find the theory's __init__.py module
+        if report_func is None:
+            try:
+                # Get the parent package name from the module path
+                # e.g., from "model_checker.theory_lib.exclusion.examples" 
+                # extract "model_checker.theory_lib.exclusion"
+                module_name = self.build_module.module.__name__
+                if '.' in module_name:
+                    package_name = '.'.join(module_name.split('.')[:-1])
+                    import importlib
+                    package = importlib.import_module(package_name)
+                    if hasattr(package, 'print_example_report'):
+                        report_func = getattr(package, 'print_example_report')
+            except (ImportError, AttributeError):
+                pass  # No report function available
+        
+        # Call the report function if found
+        if report_func and callable(report_func):
+            try:
+                report_func()
+            except Exception as e:
+                # Don't let report errors break the run
+                print(f"\nWarning: Could not print example report: {e}")
     
     def prompt_for_iterations(self) -> int:
         """Prompt user for number of iterations in interactive mode.

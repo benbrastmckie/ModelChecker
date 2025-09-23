@@ -36,7 +36,8 @@ __all__ = [
     'iterate_example_generator',
     'get_theory',
     'get_examples', 
-    'get_test_examples'
+    'get_test_examples',
+    'print_example_report'
 ]
 
 
@@ -82,3 +83,40 @@ def get_test_examples():
     """
     from .examples import test_example_range
     return test_example_range
+
+
+def print_example_report():
+    """
+    Print a summary report of the exclusion theory examples that were run.
+    """
+    from .examples import example_range, unit_tests
+    
+    print("\n" + "=" * 80)
+    print("EXCLUSION THEORY EXAMPLE REPORT")
+    print("=" * 80)
+    
+    # Count active examples
+    active_examples = len(example_range)
+    total_available = len(unit_tests)
+    
+    print(f"\nActive Examples: {active_examples} of {total_available} available")
+    
+    # Separate countermodels and theorems
+    active_cms = [name for name in example_range if '_CM_' in name]
+    active_ths = [name for name in example_range if '_TH_' in name]
+    
+    if active_cms:
+        print(f"  Countermodels: {len(active_cms)} - {', '.join(sorted(active_cms))}")
+    if active_ths:
+        print(f"  Theorems: {len(active_ths)} - {', '.join(sorted(active_ths))}")
+    
+    print("\n" + "-" * 80)
+    print("Theory: Exclusion (Unilateral Semantics)")
+    print("Authors: Lucas Champollion & Paul Bernard")
+    print("Implementation: Benjamin Brast-McKie, Miguel Buitrago")
+    print("-" * 80)
+    
+    print("\nFor more information, see:")
+    print("  - Theory documentation: src/model_checker/theory_lib/exclusion/README.md")
+    print("  - General usage guide: Docs/usage/README.md")
+    print("=" * 80)
