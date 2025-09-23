@@ -996,125 +996,58 @@ semantic_theories = {
 
 # Default example range (curated subset for direct execution)
 example_range = {
-
-    # Countermodels
-
-    # "IM_TH_5": IM_TH_5_example,   # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    # "IM_TR_0": IM_TR_0_example,   # NO PREMISES OR CONCLUSIONS
-
-    "IM_CM_0": IM_CM_0_example,   # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "IM_CM_1": IM_CM_1_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    #
-    # "IM_TH_11": IM_TH_11_example, # DEFINITION OF NEC
-    # "IM_CM_22": IM_CM_22_example, # REVERSE DEFINITION OF NEC
-    #
-    # "IM_CM_29": IM_CM_29_example, # FLIP DEFINITION OF NEC
-    # "IM_CM_28": IM_CM_28_example, # REVERSE FLIP DEFINITION OF NEC
-
-    # "IM_CM_2": IM_CM_2_example,   # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
-    # "IM_CM_3": IM_CM_3_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
-    # "IM_CM_4": IM_CM_4_example,   # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
-    # "IM_CM_5": IM_CM_5_example,   # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
-    # "IM_CM_6": IM_CM_6_example,   # WEAKENED MONOTONICITY
-    # "IM_CM_7": IM_CM_7_example,   # COUNTERFACTUAL CONTRAPOSITION
-    # "IM_CM_8": IM_CM_8_example,   # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
-    # "IM_CM_9": IM_CM_9_example,   # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
-    # "IM_CM_10": IM_CM_10_example, # TRANSITIVITY
-    # "IM_CM_11": IM_CM_11_example, # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
-    # "IM_CM_12": IM_CM_12_example, # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
-    # "IM_CM_13": IM_CM_13_example, # SOBEL SEQUENCE
-    # "IM_CM_14": IM_CM_14_example, # SOBEL SEQUENCE WITH POSSIBILITY
-    # "IM_CM_15": IM_CM_15_example, # COUNTERFACTUAL EXCLUDED MIDDLE
-    # "IM_CM_16": IM_CM_16_example, # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
-    # "IM_CM_17": IM_CM_17_example, # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
-    # "IM_CM_18": IM_CM_18_example, # MUST FACTIVITY
-    # "IM_CM_19": IM_CM_19_example, # COUNTERFACTUAL EXPORTATION
-    # "IM_CM_20": IM_CM_20_example, # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
-    # "IM_CM_21": IM_CM_21_example, # COUNTERFACTUAL NEGATION DISTRIBUTION
-
-    # "IM_CM_26": IM_CM_26_example, # IMPOSITION TO LOGOS COUNTERFACTUAL
-    # "IM_CM_27": IM_CM_27_example, # LOGOS TO IMPOSITION COUNTERFACTUAL
-
-    # "IM_CM_23": IM_CM_23_example, # CONTRADICTION TO IMPOSSIBILITY
-    # "IM_CM_24": IM_CM_24_example, # NECESSITY OF COUNTERFACTUALS
-    # "IM_CM_25": IM_CM_25_example, # INCOMPATIBILITY TO COUNTERFACTUAL
-
-
-    # # Theorems
-    # "IM_TH_1": IM_TH_1_example,   # COUNTERFACTUAL IDENTITY
-    # "IM_TH_2": IM_TH_2_example,   # COUNTERFACTUAL MODUS PONENS
-    # "IM_TH_3": IM_TH_3_example,   # WEAKENED TRANSITIVITY
-    # "IM_TH_4": IM_TH_4_example,   # ANTECEDENT DISJUNCTION TO CONJUNCTION
-    # "IM_TH_6": IM_TH_6_example,   # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
-    # "IM_TH_7": IM_TH_7_example,   # COUNTERFACTUAL DISJUNCTION INTRODUCTION
-    # "IM_TH_8": IM_TH_8_example,   # COUNTERFACTUAL CONSEQUENT WEAKENING
-    # "IM_TH_9": IM_TH_9_example,   # COUNTERFACTUAL CONJUNCTION INTRODUCTION
-    # "IM_TH_10": IM_TH_10_example, # MIGHT FACTIVITY
+    
+    # COUNTERMODELS
+    # "IM_CM_0": IM_CM_0_example,    # COUNTERFACTUAL AND MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "IM_CM_1": IM_CM_1_example,    # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "IM_CM_2": IM_CM_2_example,    # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    # "IM_CM_3": IM_CM_3_example,    # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
+    # "IM_CM_4": IM_CM_4_example,    # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION
+    # "IM_CM_5": IM_CM_5_example,    # COUNTERFACTUAL DOUBLE ANTECEDENT STRENGTHENING
+    # "IM_CM_6": IM_CM_6_example,    # WEAKENED MONOTONICITY
+    # "IM_CM_7": IM_CM_7_example,    # COUNTERFACTUAL CONTRAPOSITION
+    # "IM_CM_8": IM_CM_8_example,    # COUNTERFACTUAL CONTRAPOSITION WITH NEGATION
+    # "IM_CM_9": IM_CM_9_example,    # COUNTERFACTUAL CONTRAPOSITION WITH TWO NEGATIONS
+    # "IM_CM_10": IM_CM_10_example,  # TRANSITIVITY
+    # "IM_CM_11": IM_CM_11_example,  # COUNTERFACTUAL TRANSITIVITY WITH NEGATION
+    # "IM_CM_12": IM_CM_12_example,  # COUNTERFACTUAL TRANSITIVITY WITH TWO NEGATIONS
+    # "IM_CM_13": IM_CM_13_example,  # SOBEL SEQUENCE
+    # "IM_CM_14": IM_CM_14_example,  # SOBEL SEQUENCE WITH POSSIBILITY
+    # "IM_CM_15": IM_CM_15_example,  # COUNTERFACTUAL EXCLUDED MIDDLE
+    # "IM_CM_16": IM_CM_16_example,  # SIMPLIFICATION OF DISJUNCTIVE CONSEQUENT
+    # "IM_CM_17": IM_CM_17_example,  # INTRODUCTION OF DISJUNCTIVE ANTECEDENT
+    # "IM_CM_18": IM_CM_18_example,  # MUST FACTIVITY
+    # "IM_CM_19": IM_CM_19_example,  # COUNTERFACTUAL EXPORTATION
+    # "IM_CM_20": IM_CM_20_example,  # COUNTERFACTUAL EXPORTATION WITH POSSIBILITY
+    # "IM_CM_21": IM_CM_21_example,  # COUNTERFACTUAL NEGATION DISTRIBUTION
+    # "IM_CM_22": IM_CM_22_example,  # REVERSE DEFINITION OF NEC
+    # "IM_CM_23": IM_CM_23_example,  # CONTRADICTION TO IMPOSSIBILITY
+    # "IM_CM_24": IM_CM_24_example,  # NECESSITY OF COUNTERFACTUALS
+    # "IM_CM_25": IM_CM_25_example,  # INCOMPATIBILITY TO COUNTERFACTUAL
+    # "IM_CM_26": IM_CM_26_example,  # IMPOSITION TO LOGOS COUNTERFACTUAL
+    # "IM_CM_27": IM_CM_27_example,  # LOGOS TO IMPOSITION COUNTERFACTUAL
+    # "IM_CM_28": IM_CM_28_example,  # REVERSE FLIP DEFINITION OF NEC
+    # "IM_CM_29": IM_CM_29_example,  # FLIP DEFINITION OF NEC
+    
+    # THEOREMS
+    # "IM_TH_1": IM_TH_1_example,    # COUNTERFACTUAL IDENTITY
+    # "IM_TH_2": IM_TH_2_example,    # COUNTERFACTUAL MODUS PONENS
+    # "IM_TH_3": IM_TH_3_example,    # WEAKENED TRANSITIVITY
+    # "IM_TH_4": IM_TH_4_example,    # ANTECEDENT DISJUNCTION TO CONJUNCTION
+    "IM_TH_5": IM_TH_5_example,    # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TH_6": IM_TH_6_example,    # DOUBLE SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+    # "IM_TH_7": IM_TH_7_example,    # COUNTERFACTUAL DISJUNCTION INTRODUCTION
+    # "IM_TH_8": IM_TH_8_example,    # COUNTERFACTUAL CONSEQUENT WEAKENING
+    # "IM_TH_9": IM_TH_9_example,    # COUNTERFACTUAL CONJUNCTION INTRODUCTION
+    # "IM_TH_10": IM_TH_10_example,  # MIGHT FACTIVITY
+    # "IM_TH_11": IM_TH_11_example,  # DEFINITION OF NEC
+    
+    # SPECIAL
+    # "IM_TR_0": IM_TR_0_example,  # NO PREMISES OR CONCLUSIONS
     
 }
 
 
 
-def get_examples():
-    """
-    Get all imposition examples.
-    
-    Returns:
-        dict: Dictionary containing all imposition examples
-    """
-    return {
-        'countermodels': imposition_cm_examples,
-        'theorems': imposition_th_examples,
-        'all': unit_tests
-    }
-
-
-def print_example_report():
-    """
-    Print a summary report of the imposition theory examples that were run.
-    """
-    print("\n" + "=" * 80)
-    print("IMPOSITION THEORY EXAMPLE REPORT")
-    print("=" * 80)
-    
-    # Count active examples
-    active_examples = len(example_range)
-    total_available = len(unit_tests)
-    
-    print(f"\nActive Examples: {active_examples} of {total_available} available")
-    
-    # Separate countermodels and theorems
-    active_cms = [name for name in example_range if '_CM_' in name]
-    active_ths = [name for name in example_range if '_TH_' in name]
-    
-    if active_cms:
-        print(f"  Countermodels: {len(active_cms)} - {', '.join(sorted(active_cms))}")
-    if active_ths:
-        print(f"  Theorems: {len(active_ths)} - {', '.join(sorted(active_ths))}")
-    
-    print("\n" + "-" * 80)
-    print("Theory: Imposition (Bilateral Semantics)")
-    print("Author: Kit Fine")
-    print("Implementation: Benjamin Brast-McKie, Miguel Buitrago")
-    print("-" * 80)
-    
-    print("\nFor more information, see:")
-    print("  - Theory documentation: src/model_checker/theory_lib/imposition/README.md")
-    print("  - General usage guide: Docs/usage/README.md")
-    print("=" * 80)
-
-
-# Register the report to be printed at exit whenever this module is loaded
-import atexit
-
-# Ensure we only register once, even if module is imported multiple times
-if not hasattr(print_example_report, '_atexit_registered'):
-    atexit.register(print_example_report)
-    print_example_report._atexit_registered = True
-
-
-# Make this module runnable from the command line
-if __name__ == '__main__':
-    import subprocess
-    file_name = os.path.basename(__file__)
-    subprocess.run(["model-checker", file_name], check=True, cwd=current_dir)
+# The report will be printed by ModelRunner after all examples complete
+# No atexit registration needed - the runner controls when reports print
