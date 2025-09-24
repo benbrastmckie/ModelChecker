@@ -224,7 +224,7 @@ def clean_build_dirs():
 def build_package() -> bool:
     """Build the package using python -m build."""
     print("\n" + "=" * 80)
-    print("STEP 3: BUILD PACKAGE")
+    print("STEP 3: BUILD PACKAGE (NO UPLOAD)")
     print("=" * 80)
     
     print("\nBuilding package distributions...")
@@ -247,42 +247,6 @@ def build_package() -> bool:
         print("❌ Package build failed")
         return False
 
-def upload_package(test_pypi: bool = False) -> bool:
-    """
-    Upload the package to PyPI or Test PyPI.
-    
-    Args:
-        test_pypi: If True, upload to Test PyPI instead of production
-    """
-    print("\n" + "=" * 80)
-    print(f"STEP 4: UPLOAD TO {'TEST ' if test_pypi else ''}PYPI")
-    print("=" * 80)
-    
-    repository = "testpypi" if test_pypi else "pypi"
-    
-    print(f"\nUploading to {repository}...")
-    
-    cmd = ['twine', 'upload']
-    if test_pypi:
-        cmd.extend(['--repository', 'testpypi'])
-    cmd.append('dist/*')
-    
-    result = subprocess.run(cmd, cwd=Path(__file__).parent)
-    
-    if result.returncode == 0:
-        print(f"\n✅ Package uploaded successfully to {repository}!")
-        
-        if test_pypi:
-            print("\nTo test installation:")
-            print("pip install --index-url https://test.pypi.org/simple/ --extra-index-url https://pypi.org/simple/ model-checker")
-        else:
-            print("\nTo install the new version:")
-            print("pip install --upgrade model-checker")
-        
-        return True
-    else:
-        print(f"❌ Failed to upload to {repository}")
-        return False
 
 def check_git_branch() -> bool:
     """
@@ -359,16 +323,11 @@ def main():
     print(f"  New version:     {new_version}")
     print(f"  Increment type:  {increment_type.upper()}")
     
-    if increment_type in ['minor', 'major']:
-        print(f"\n✨ {increment_type.upper()} RELEASE:")
-        print("   • Package will be built locally")
-        print("   • NO upload to PyPI from this script")
-        print("   • GitHub Actions will handle PyPI upload when you push the tag")
-    else:
-        print(f"\n📝 PATCH RELEASE:")
-        print("   • Package will be built locally")
-        print("   • Will be uploaded to PyPI directly from this script")
-        print("   • NOT auto-released by GitHub Actions")
+    print(f"\n✨ {increment_type.upper()} RELEASE:")
+    print("   • Package will be built locally")
+    print("   • NO upload to PyPI from this script")
+    print("   • GitHub Actions will handle PyPI upload when you push the tag")
+    print("   • Tests must pass before PyPI upload happens")
     
     confirm = input("\nProceed with version update? [Y/n]: ").strip().lower()
     if confirm == 'n':
@@ -386,22 +345,18 @@ def main():
         print("❌ Build failed")
         return 1
     
-    # Step 5: Upload decision based on version type
-    if increment_type in ['minor', 'major']:
-        # For minor/major releases, DO NOT upload - GitHub Actions will handle it
-        print("\n" + "=" * 80)
-        print("PACKAGE BUILT - NO UPLOAD (GitHub Actions will handle)")
-        print("=" * 80)
-        print(f"\n📦 Package built successfully for {increment_type} release v{new_version}")
-        print("✨ This will be automatically uploaded to PyPI via GitHub Actions")
-        print("   when you push the tag to GitHub.")
-    elif not args.no_upload:
-        # For patch releases, upload directly (unless --no-upload flag is set)
-        if not upload_package(test_pypi=args.test_pypi):
-            print("❌ Upload failed")
-            return 1
-    else:
-        print("\n📦 Package built but not uploaded (--no-upload flag)")
+    # Step 5: NO direct uploads - GitHub Actions handles all PyPI uploads
+    print("\n" + "=" * 80)
+    print("PACKAGE BUILT - NO UPLOAD (GitHub Actions will handle)")
+    print("=" * 80)
+    print(f"\n📦 Package built successfully for {increment_type} release v{new_version}")
+    print("✨ This will be automatically uploaded to PyPI via GitHub Actions")
+    print("   when you push the tag to GitHub.")
+
+    if args.test_pypi:
+        print("\n⚠️  Note: --test-pypi flag ignored. All uploads now handled by GitHub Actions.")
+    if not args.no_upload:
+        print("\n⚠️  Note: Direct uploads disabled for security. GitHub Actions will handle upload.")
     
     # Step 6: Git operations and finalization
     print("\n" + "=" * 80)
@@ -409,97 +364,68 @@ def main():
     print("=" * 80)
     
     # Ask if user wants to handle git operations automatically
-    if increment_type in ['minor', 'major']:
-        print(f"\n🔧 Would you like to automatically commit, tag, and push this {increment_type} release?")
-        print("This will:")
-        print(f"  1. Commit the version change")
-        print(f"  2. Create tag v{new_version}")
-        print(f"  3. Push to origin/master with the tag")
-        print(f"  4. Trigger GitHub Actions to upload to PyPI")
-        
-        auto_git = input("\nAutomate git operations? [Y/n]: ").strip().lower()
-        
-        if auto_git != 'n':
-            try:
-                # Add the changed files
-                print("\n📝 Committing changes...")
-                subprocess.run(['git', 'add', 'Code/pyproject.toml'], check=True)
-                subprocess.run(['git', 'commit', '-m', f'Release version {new_version}'], check=True)
-                
-                # Create the tag
-                print(f"🏷️  Creating tag v{new_version}...")
-                subprocess.run(['git', 'tag', f'v{new_version}'], check=True)
-                
-                # Push to origin with tags
-                print("🚀 Pushing to GitHub with tags...")
-                subprocess.run(['git', 'push', 'origin', 'master'], check=True)
-                subprocess.run(['git', 'push', 'origin', f'v{new_version}'], check=True)
-                
-                print("\n" + "=" * 80)
-                print("GITHUB ACTIONS TRIGGERED")
-                print("=" * 80)
-                
-                print(f"\n✅ Successfully pushed v{new_version} to GitHub!")
-                print("\n🎬 GitHub Actions is now:")
-                print("  1. Running tests across all platforms")
-                print("  2. Building the package")
-                print("  3. Uploading to PyPI (if all tests pass)")
-                
-                print("\n🔍 Monitor progress at:")
-                print("  https://github.com/benbrastmckie/ModelChecker/actions")
-                
-                print("\n📦 The package will be available on PyPI shortly at:")
-                print("  https://pypi.org/project/model-checker/")
-                
-            except subprocess.CalledProcessError as e:
-                print(f"\n❌ Git operation failed: {e}")
-                print("\nManual git commands needed:")
-                print(f"  git add Code/pyproject.toml")
-                print(f"  git commit -m 'Release version {new_version}'")
-                print(f"  git tag v{new_version}")
-                print(f"  git push origin master")
-                print(f"  git push origin v{new_version}")
-        else:
-            # User chose manual - provide instructions
-            print("\n📝 Manual git commands to finalize release:")
-            print(f"\n  git add Code/pyproject.toml")
+    print(f"\n🔧 Would you like to automatically commit, tag, and push this {increment_type} release?")
+    print("This will:")
+    print(f"  1. Commit the version change")
+    print(f"  2. Create tag v{new_version}")
+    print(f"  3. Push to origin/master with the tag")
+    print(f"  4. Trigger GitHub Actions to upload to PyPI")
+
+    auto_git = input("\nAutomate git operations? [Y/n]: ").strip().lower()
+
+    if auto_git != 'n':
+        try:
+            # Add the changed files
+            print("\n📝 Committing changes...")
+            subprocess.run(['git', 'add', 'Code/pyproject.toml'], check=True)
+            subprocess.run(['git', 'commit', '-m', f'Release version {new_version}'], check=True)
+
+            # Create the tag
+            print(f"🏷️  Creating tag v{new_version}...")
+            subprocess.run(['git', 'tag', f'v{new_version}'], check=True)
+
+            # Push to origin with tags
+            print("🚀 Pushing to GitHub with tags...")
+            subprocess.run(['git', 'push', 'origin', 'master'], check=True)
+            subprocess.run(['git', 'push', 'origin', f'v{new_version}'], check=True)
+
+            print("\n" + "=" * 80)
+            print("GITHUB ACTIONS TRIGGERED")
+            print("=" * 80)
+
+            print(f"\n✅ Successfully pushed v{new_version} to GitHub!")
+            print("\n🎬 GitHub Actions is now:")
+            print("  1. Running tests across all platforms")
+            print("  2. Building the package")
+            print("  3. Uploading to PyPI (if all tests pass)")
+
+            print("\n🔍 Monitor progress at:")
+            print("  https://github.com/benbrastmckie/ModelChecker/actions")
+
+            print("\n📦 The package will be available on PyPI shortly at:")
+            print("  https://pypi.org/project/model-checker/")
+
+        except subprocess.CalledProcessError as e:
+            print(f"\n❌ Git operation failed: {e}")
+            print("\nManual git commands needed:")
+            print(f"  git add Code/pyproject.toml")
             print(f"  git commit -m 'Release version {new_version}'")
             print(f"  git tag v{new_version}")
             print(f"  git push origin master")
             print(f"  git push origin v{new_version}")
-            
-            print("\n✨ After pushing, GitHub Actions will automatically:")
-            print("  1. Run tests on all platforms")
-            print("  2. Upload to PyPI if tests pass")
-            print("  3. Create a GitHub release")
     else:
-        # Patch release - different flow
-        print(f"\n📝 Committing patch release {new_version}...")
-        print("\nWould you like to commit and push this patch?")
-        print("(No tag needed - patches don't trigger GitHub Actions)")
-        
-        auto_git = input("\nCommit and push? [Y/n]: ").strip().lower()
-        
-        if auto_git != 'n':
-            try:
-                subprocess.run(['git', 'add', 'Code/pyproject.toml'], check=True)
-                subprocess.run(['git', 'commit', '-m', f'Patch release {new_version}'], check=True)
-                subprocess.run(['git', 'push', 'origin', 'master'], check=True)
-                
-                print(f"\n✅ Patch {new_version} pushed to GitHub")
-                print("📦 Package already uploaded to PyPI directly")
-                
-            except subprocess.CalledProcessError as e:
-                print(f"\n❌ Git operation failed: {e}")
-                print("\nManual commands:")
-                print(f"  git add Code/pyproject.toml")
-                print(f"  git commit -m 'Patch release {new_version}'")
-                print(f"  git push origin master")
-        else:
-            print("\n📝 Manual git commands:")
-            print(f"  git add Code/pyproject.toml")
-            print(f"  git commit -m 'Patch release {new_version}'")
-            print(f"  git push origin master")
+        # User chose manual - provide instructions
+        print("\n📝 Manual git commands to finalize release:")
+        print(f"\n  git add Code/pyproject.toml")
+        print(f"  git commit -m 'Release version {new_version}'")
+        print(f"  git tag v{new_version}")
+        print(f"  git push origin master")
+        print(f"  git push origin v{new_version}")
+
+        print("\n✨ After pushing, GitHub Actions will automatically:")
+        print("  1. Run tests on all platforms")
+        print("  2. Upload to PyPI if tests pass")
+        print("  3. Create a GitHub release")
     
     print("\n✅ Release process complete!")
     return 0
