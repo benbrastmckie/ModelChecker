@@ -1,11 +1,11 @@
 name: PyPI Release
 
-# Only trigger on version tags for major/minor releases
+# Trigger on ALL version tags (major, minor, and patch releases)
 on:
   push:
     tags:
-      # Match tags like v1.0.0, v2.1.0 but NOT v1.0.1 (patches)
-      - 'v[0-9]+.[0-9]+.0'
+      # Match all semantic version tags like v1.0.0, v1.2.3, v2.0.0, etc.
+      - 'v[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
     inputs:
       version:
@@ -47,14 +47,14 @@ jobs:
         echo "Version: $VERSION"
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         
-        # Check if it's a major or minor release (patch version is 0)
-        if [[ $VERSION =~ ^[0-9]+\.[0-9]+\.0$ ]]; then
-          echo "✓ Major/minor release detected: $VERSION"
+        # All valid semantic versions should be released
+        if [[ $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          echo "✓ Valid semantic version detected: $VERSION"
           echo "should_release=true" >> $GITHUB_OUTPUT
         else
-          echo "✗ Patch release detected: $VERSION (skipping PyPI upload)"
+          echo "✗ Invalid version format: $VERSION"
           echo "should_release=false" >> $GITHUB_OUTPUT
-          exit 0
+          exit 1
         fi
         
         # Verify version in pyproject.toml matches
