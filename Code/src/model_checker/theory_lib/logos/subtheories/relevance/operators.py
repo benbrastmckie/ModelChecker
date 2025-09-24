@@ -6,8 +6,12 @@ logic is handled within the constitutive operators module, so this
 module simply imports the relevance operator from there.
 """
 
-# Import the relevance operator from constitutive
 from ..constitutive.operators import RelevanceOperator
+
+
+
+
+# Import the relevance operator from constitutive
 
 
 def get_operators():

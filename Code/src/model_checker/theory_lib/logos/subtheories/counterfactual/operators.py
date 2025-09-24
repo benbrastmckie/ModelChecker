@@ -8,14 +8,18 @@ This module implements counterfactual logical operators:
 
 import z3
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-)
 from model_checker import syntactic
+from model_checker.utils import ForAll, Exists
+from ..extensional.operators import NegationOperator
+
+
+
+
+
+
+
 
 # Import required operators for defined operators
-from ..extensional.operators import NegationOperator
 
 
 class CounterfactualOperator(syntactic.Operator):

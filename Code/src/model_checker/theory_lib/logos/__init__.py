@@ -15,13 +15,18 @@ API:
     Registry: LogosOperatorRegistry for dynamic operator loading
 """
 
+from .examples import example_range, unit_tests, example_metadata, subtheory_examples
+from .iterate import LogosModelIterator, iterate_example, iterate_example_generator
+from .operators import LogosOperatorRegistry
+from .semantic import LogosSemantics, LogosProposition, LogosModelStructure
+from .subtheories import list_subtheories, AVAILABLE_SUBTHEORIES
+
+
+
+
 __version__ = "1.0.0"
 __model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 
-from .semantic import LogosSemantics, LogosProposition, LogosModelStructure
-from .operators import LogosOperatorRegistry
-from .subtheories import list_subtheories, AVAILABLE_SUBTHEORIES
-from .iterate import LogosModelIterator, iterate_example, iterate_example_generator
 
 def get_theory(subtheories=None):
     """
@@ -71,7 +76,6 @@ def get_examples():
     Returns:
         dict: Mapping of example names to example cases
     """
-    from .examples import example_range
     return example_range
 
 
@@ -81,7 +85,6 @@ def get_test_examples():
     Returns:
         dict: Mapping of test names to test cases
     """
-    from .examples import unit_tests
     return unit_tests
 
 
@@ -98,7 +101,6 @@ def get_examples_by_subtheory(subtheory_name):
     Raises:
         ValueError: If subtheory_name is not valid
     """
-    from .examples import subtheory_examples
     
     if subtheory_name not in subtheory_examples:
         valid_names = list(subtheory_examples.keys())
@@ -117,7 +119,6 @@ def get_examples_by_type(example_type='all'):
     Returns:
         dict: Filtered examples
     """
-    from .examples import unit_tests
     
     if example_type == 'all':
         return unit_tests
@@ -132,10 +133,11 @@ def get_examples_by_type(example_type='all'):
 def get_example_stats():
     """
     Get statistics about the example distribution across subtheories.
-    
+
     Returns:
         dict: Statistics including counts per subtheory and total examples
     """
+    # Get all example collections
     from .examples import (
         extensional_examples, modal_examples, constitutive_examples,
         counterfactual_examples, relevance_examples, unit_tests
@@ -158,7 +160,6 @@ def print_example_report():
     Print a detailed report of all examples being run, organized by subtheory.
     Shows example names, their subtheory source, and file paths.
     """
-    from .examples import example_range, unit_tests, example_metadata
     
     print("\n" + "=" * 80)
     print("LOGOS THEORY EXAMPLE REPORT")

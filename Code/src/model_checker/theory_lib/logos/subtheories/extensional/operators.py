@@ -13,11 +13,11 @@ This module implements the basic extensional logical operators:
 
 import z3
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-)
 from model_checker import syntactic
+from model_checker.utils import ForAll, Exists
+
+
+
 
 
 class NegationOperator(syntactic.Operator):

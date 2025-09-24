@@ -7,11 +7,21 @@ verification can be computed by checking the three conditions using the
 witness predicates stored in the model.
 """
 
+from typing import List, Set, Optional
+
 import z3
+
 from model_checker.syntactic import Operator, OperatorCollection
 from model_checker.utils import ForAll, Exists
-from typing import List, Set, Optional
+
 from .semantic import WitnessAwareModel
+
+
+
+
+
+
+
 
 
 class UniNegationOperator(Operator):
@@ -271,7 +281,6 @@ class UniConjunctionOperator(Operator):
         self.semantics.counter += 1
         
         # Use the same structure as the main exclusion theory
-        from model_checker.utils import Exists
         return Exists(
             [x1, x2],
             z3.And(

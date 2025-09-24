@@ -46,9 +46,20 @@ Usage Examples:
     all_theories = discover_theories()
 """
 
+import datetime
 import importlib
 import os
-import datetime
+from typing import Dict, List, Optional, Any
+
+from model_checker.theory_lib import logos
+
+from ..utils import get_license_template
+
+
+
+
+
+
 
 # Registry of available theories - add new theories here
 AVAILABLE_THEORIES = [
@@ -67,21 +78,21 @@ _theory_versions = {}
 # Dictionary to cache theory license information
 _theory_licenses = {}
 
-def get_examples(theory_name):
+def get_examples(theory_name: str) -> Dict[str, Any]:
     """Access example model configurations from a specific theory.
-    
+
     Each theory provides a set of examples that demonstrate its logical principles.
     These examples are used for demonstration and model checking.
-    
+
     Args:
-        theory_name (str): Name of the registered theory ('default', 'exclusion', etc.)
-        
+        theory_name: Name of the registered theory ('default', 'exclusion', etc.)
+
     Returns:
-        dict: Dictionary mapping example names to (premises, conclusions, settings) tuples
-        
+        Dictionary mapping example names to (premises, conclusions, settings) tuples
+
     Raises:
         ValueError: If the theory is not registered or examples cannot be loaded
-        
+
     Example:
         >>> from model_checker.theory_lib import get_examples
         >>> logos_examples = get_examples('logos')
@@ -97,21 +108,21 @@ def get_examples(theory_name):
     except (ImportError, AttributeError) as e:
         raise ValueError(f"Could not load examples for theory '{theory_name}': {str(e)}")
 
-def get_test_examples(theory_name):
+def get_test_examples(theory_name: str) -> Dict[str, Any]:
     """Access test examples from a specific theory for unit testing.
-    
+
     These examples include test cases with expected results for automated testing.
     Each example typically includes premises, conclusions, settings, and expected outcome.
-    
+
     Args:
-        theory_name (str): Name of the registered theory ('default', 'exclusion', etc.)
-        
+        theory_name: Name of the registered theory ('default', 'exclusion', etc.)
+
     Returns:
-        dict: Dictionary mapping test names to (premises, conclusions, settings) tuples
-        
+        Dictionary mapping test names to (premises, conclusions, settings) tuples
+
     Raises:
         ValueError: If the theory is not registered or test examples cannot be loaded
-        
+
     Example:
         >>> from model_checker.theory_lib import get_test_examples
         >>> tests = get_test_examples('logos')
@@ -129,21 +140,21 @@ def get_test_examples(theory_name):
     except (ImportError, AttributeError) as e:
         raise ValueError(f"Could not load test examples for theory '{theory_name}': {str(e)}")
 
-def get_semantic_theories(theory_name):
+def get_semantic_theories(theory_name: str) -> Dict[str, Any]:
     """Access semantic theory implementations from a specific theory.
-    
+
     This function returns the semantic theory implementations that define
     the logical behavior of each theory variant.
-    
+
     Args:
-        theory_name (str): Name of the registered theory ('default', 'exclusion', etc.)
-        
+        theory_name: Name of the registered theory ('default', 'exclusion', etc.)
+
     Returns:
-        dict: Dictionary mapping semantic theory names to their implementation classes
-        
+        Dictionary mapping semantic theory names to their implementation classes
+
     Raises:
         ValueError: If the theory is not registered or semantic theories cannot be loaded
-        
+
     Example:
         >>> from model_checker.theory_lib import get_semantic_theories
         >>> semantics = get_semantic_theories('logos')
@@ -159,16 +170,16 @@ def get_semantic_theories(theory_name):
     except (ImportError, AttributeError) as e:
         raise ValueError(f"Could not load semantic theories for theory '{theory_name}': {str(e)}")
 
-def discover_theories():
+def discover_theories() -> List[str]:
     """Discover available theories by scanning the directory structure.
-    
+
     Identifies directories that have the required files to be considered a theory
     implementation (examples.py and operators.py). Used primarily for development
     to find unregistered theories.
-    
+
     Returns:
-        list: Alphabetically sorted list of discovered theory names
-        
+        Alphabetically sorted list of discovered theory names
+
     Example:
         >>> from model_checker.theory_lib import discover_theories, AVAILABLE_THEORIES
         >>> discovered = discover_theories()
@@ -189,11 +200,11 @@ def discover_theories():
     return sorted(theories)
 
 # Version and License utility functions
-def get_theory_version_registry():
+def get_theory_version_registry() -> Dict[str, str]:
     """Get a dictionary of all theory versions.
-    
+
     Returns:
-        dict: Dictionary mapping theory names to their versions
+        Dictionary mapping theory names to their versions
     """
     versions = {}
     for theory_name in AVAILABLE_THEORIES:
@@ -211,15 +222,15 @@ def get_theory_version_registry():
     
     return versions
 
-def get_theory_license_info(theory_name):
+def get_theory_license_info(theory_name: str) -> Dict[str, Any]:
     """Get license information for a specific theory.
-    
+
     Args:
-        theory_name (str): Name of the registered theory
-        
+        theory_name: Name of the registered theory
+
     Returns:
-        dict: Dictionary containing license information
-        
+        Dictionary containing license information
+
     Raises:
         ValueError: If the theory is not registered
     """
@@ -270,17 +281,17 @@ def get_theory_license_info(theory_name):
             "path": None
         }
 
-def create_license_file(theory_name, license_type="GPL-3.0", author_info=None):
+def create_license_file(theory_name: str, license_type: str = "GPL-3.0", author_info: Optional[Dict[str, Any]] = None) -> bool:
     """Create a license file for a theory.
-    
+
     Args:
-        theory_name (str): Name of the registered theory
-        license_type (str): Type of license (GPL-3.0, MIT, etc.)
-        author_info (dict): Author information (name, email, year)
-        
+        theory_name: Name of the registered theory
+        license_type: Type of license (GPL-3.0, MIT, etc.)
+        author_info: Author information (name, email, year)
+
     Returns:
-        bool: True if license was created successfully, False otherwise
-        
+        True if license was created successfully, False otherwise
+
     Raises:
         ValueError: If the theory is not registered
     """
@@ -293,7 +304,6 @@ def create_license_file(theory_name, license_type="GPL-3.0", author_info=None):
         license_path = os.path.join(theory_dir, theory_name, "LICENSE.md")
         
         # Get license template
-        from ..utils import get_license_template
         license_text = get_license_template(license_type, author_info)
         
         # Write license file
@@ -312,16 +322,16 @@ def create_license_file(theory_name, license_type="GPL-3.0", author_info=None):
         print(f"Failed to create license file: {str(e)}")
         return False
 
-def create_citation_file(theory_name, citation_text):
+def create_citation_file(theory_name: str, citation_text: str) -> bool:
     """Create a citation file for a theory.
-    
+
     Args:
-        theory_name (str): Name of the registered theory
-        citation_text (str): Citation text in markdown format
-        
+        theory_name: Name of the registered theory
+        citation_text: Citation text in markdown format
+
     Returns:
-        bool: True if citation was created successfully, False otherwise
-        
+        True if citation was created successfully, False otherwise
+
     Raises:
         ValueError: If the theory is not registered
     """
@@ -357,25 +367,24 @@ __all__ = [
 
 # Lazy loading implementation via __getattr__
 
-def __getattr__(name):
+def __getattr__(name: str) -> Any:
     """Lazily load theory modules when accessed.
-    
+
     This special method implements Python's attribute lookup protocol.
     When a module attribute is requested that doesn't exist in globals(),
     Python calls this method to resolve it.
-    
+
     Args:
-        name (str): Name of the requested attribute
-        
+        name: Name of the requested attribute
+
     Returns:
-        module: The imported theory module if the name matches a registered theory
-        
+        The imported theory module if the name matches a registered theory
+
     Raises:
         AttributeError: If the name is not a registered theory
-        
+
     Example:
         # This triggers __getattr__('logos')
-        from model_checker.theory_lib import logos
     """
     if name in AVAILABLE_THEORIES:
         # Load and cache the module if not already loaded

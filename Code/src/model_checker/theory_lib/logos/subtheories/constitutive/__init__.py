@@ -14,6 +14,7 @@ API:
     Individual operator classes can be imported directly for type checking
 """
 
+from .examples import constitutive_cm_examples, constitutive_th_examples, unit_tests
 from .operators import (
     get_operators,
     IdentityOperator,
@@ -22,7 +23,19 @@ from .operators import (
     RelevanceOperator,
     ReductionOperator
 )
-from .examples import get_examples
+
+def get_examples():
+    """
+    Get all constitutive examples.
+
+    Returns:
+        dict: Dictionary containing all constitutive examples
+    """
+    return {
+        'countermodels': constitutive_cm_examples,
+        'theorems': constitutive_th_examples,
+        'all': unit_tests
+    }
 
 __all__ = [
     'get_operators',
