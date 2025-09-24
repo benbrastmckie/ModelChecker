@@ -35,9 +35,19 @@ model-checker path/to/this/examples.py
 To use a specific collection of examples, modify the example_range dictionary below.
 """
 
-# Standard imports
 import os
 import sys
+
+from .operators import witness_operators
+from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition
+from .semantic import WitnessStructure
+
+
+
+
+
+
+# Standard imports
 
 # Add current directory to path for proper imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -45,21 +55,23 @@ if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
 # Import witness negation components
-from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition
-from .operators import witness_operators
 
 # Import custom structure that includes witness printing
-from .semantic import WitnessStructure
 
 # NOTE: The default theory has been removed.
 # For comparison with standard bilateral semantics, use the logos theory instead.
 
+# Import logos theory components for comparison
 from model_checker.theory_lib.logos import (
+    semantic as logos_semantic,
+    operators as logos_operators
+)
+from model_checker.theory_lib.logos.semantic import (
     LogosSemantics,
     LogosProposition,
-    LogosModelStructure,
-    LogosOperatorRegistry,
+    LogosModelStructure
 )
+from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
 
 
 #####################

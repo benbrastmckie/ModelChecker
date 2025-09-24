@@ -1,10 +1,7 @@
 import z3
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-)
 from model_checker import syntactic
+from model_checker.utils import ForAll, Exists
 
 # Import operator collections from logos subtheories for reuse
 from model_checker.theory_lib.logos.subtheories.extensional.operators import (

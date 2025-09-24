@@ -35,9 +35,19 @@ model-checker path/to/this/examples.py
 To use a specific collection of examples, modify the example_range dictionary below.
 """
 
-# Standard imports
 import os
 import sys
+
+from .operators import imposition_operators  # Use the OperatorCollection
+from .semantic import ImpositionSemantics, ImpositionModelStructure as ModelStructure
+from model_checker.theory_lib.logos.semantic import LogosProposition as Proposition
+
+
+
+
+
+
+# Standard imports
 
 # Add current directory to path for proper imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -45,16 +55,14 @@ if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
 # Import imposition components
-from .semantic import ImpositionSemantics
-from .operators import imposition_operators  # Use the OperatorCollection
-from . import Proposition, ModelStructure  # Now imported from logos via __init__.py
 
-from model_checker.theory_lib.logos import (
+# Import logos theory components for comparison
+from model_checker.theory_lib.logos.semantic import (
     LogosSemantics,
     LogosProposition,
     LogosModelStructure,
-    LogosOperatorRegistry,
 )
+from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
 
 
 #####################

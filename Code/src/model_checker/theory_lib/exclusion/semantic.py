@@ -11,17 +11,37 @@ WitnessConstraintGenerator classes that were previously in separate modules
 for simplified architecture and reduced import complexity.
 """
 
-import z3
+from typing import List, Dict, Set, Optional, Tuple
+import sys
+import sys
+import sys
+import sys
 import sys
 import time
-from typing import List, Dict, Set, Optional, Tuple
-from model_checker.models.structure import ModelDefaults
-from model_checker.models.semantic import SemanticDefaults
-from model_checker.models.proposition import PropositionDefaults
-from model_checker.models.constraints import ModelConstraints
-from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
+
+import z3
+
 from model_checker import syntactic
+from model_checker.models.constraints import ModelConstraints
+from model_checker.models.proposition import PropositionDefaults
+from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.structure import ModelDefaults
+from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
+from model_checker.utils import bitvec_to_substates
+from model_checker.utils import bitvec_to_substates
+from model_checker.utils import bitvec_to_substates
+from model_checker.utils import bitvec_to_substates
+from model_checker.utils import bitvec_to_substates, int_to_binary
+from model_checker.utils import bitvec_to_substates, pretty_set_print
+
 from ..logos.semantic import LogosSemantics
+
+
+
+
+
+
+
 # Integrated witness model and constraint generator classes
 
 
@@ -986,8 +1006,6 @@ class WitnessStructure(ModelDefaults):
             
     def print_states(self, output=sys.__stdout__):
         """Print all fusions of atomic states in the model."""
-        from model_checker.utils import bitvec_to_substates, int_to_binary
-        import sys
         
         def binary_bitvector(bit):
             return (
@@ -1033,8 +1051,6 @@ class WitnessStructure(ModelDefaults):
                 
     def print_negation(self, output=sys.__stdout__):
         """Print conflicts, coherence, negation relationships, and witness functions."""
-        from model_checker.utils import bitvec_to_substates
-        import sys
         
         # Set up colors
         use_colors = output is sys.__stdout__
@@ -1100,8 +1116,6 @@ class WitnessStructure(ModelDefaults):
         
     def print_witness_functions(self, output=sys.__stdout__):
         """Print witness predicate and other functions from the model."""
-        from model_checker.utils import bitvec_to_substates
-        import sys
         
         if not self.z3_model:
             return
@@ -1190,8 +1204,6 @@ class WitnessStructure(ModelDefaults):
 
     def print_evaluation(self, output=sys.__stdout__):
         """Print the evaluation world and all sentence letters that are true/false in that world."""
-        from model_checker.utils import bitvec_to_substates
-        import sys
         
         BLUE = ""
         RESET = ""
@@ -1516,7 +1528,6 @@ class WitnessProposition(PropositionDefaults):
         
     def __repr__(self):
         """Return pretty-printed representation of verifiers."""
-        from model_checker.utils import bitvec_to_substates, pretty_set_print
         
         N = self.model_structure.semantics.N
         possible = self.model_structure.semantics.possible
@@ -1538,7 +1549,6 @@ class WitnessProposition(PropositionDefaults):
         
     def print_proposition(self, eval_point, indent_num, use_colors):
         """Print the proposition with its truth value at the evaluation point."""
-        from model_checker.utils import bitvec_to_substates
         
         N = self.model_structure.semantics.N
         z3_formula = self.truth_value_at(eval_point)

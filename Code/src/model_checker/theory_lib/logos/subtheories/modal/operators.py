@@ -10,15 +10,19 @@ This module implements modal logical operators:
 
 import z3
 
-from model_checker.utils import (
-    ForAll,
-    Exists,
-)
 from model_checker import syntactic
+from model_checker.utils import ForAll, Exists
+from ..counterfactual.operators import CounterfactualOperator, MightCounterfactualOperator
+from ..extensional.operators import NegationOperator, TopOperator
+
+
+
+
+
+
+
 
 # Import required operators for defined operators
-from ..extensional.operators import NegationOperator, TopOperator
-from ..counterfactual.operators import CounterfactualOperator, MightCounterfactualOperator
 
 
 class NecessityOperator(syntactic.Operator):

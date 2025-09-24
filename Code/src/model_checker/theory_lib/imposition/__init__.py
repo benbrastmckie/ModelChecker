@@ -40,24 +40,22 @@ Usage:
     examples = get_examples('imposition')
 """
 
-__version__ = "1.0.0"
-
-# Import specific items from semantic
+from .examples import example_range, unit_tests, test_example_range
+from .iterate import ImpositionModelIterator, iterate_example, iterate_example_generator
+from .operators import imposition_operators
 from .semantic import (
     ImpositionSemantics,
     ImpositionModelStructure as ModelStructure,
 )
 
+__version__ = "1.0.0"
+
 # Import Proposition from logos for reuse
-from model_checker.theory_lib.logos import (
-    LogosProposition as Proposition,
-)
+from model_checker.theory_lib.logos.semantic import LogosProposition as Proposition
 
 # Import all operators
-from .operators import imposition_operators
 
 # Import iteration functionality
-from .iterate import ImpositionModelIterator, iterate_example, iterate_example_generator
 
 # Define the public API of the package
 
@@ -114,7 +112,6 @@ def get_examples():
             - 'theorems': Valid theorems
             - 'all': All examples combined
     """
-    from .examples import imposition_cm_examples, imposition_th_examples, unit_tests
     
     return {
         'countermodels': imposition_cm_examples,
@@ -129,7 +126,6 @@ def get_test_examples():
     Returns:
         dict: Mapping of test names to test cases
     """
-    from .examples import test_example_range
     return test_example_range
 
 
@@ -137,7 +133,6 @@ def print_example_report():
     """
     Print a summary report of the imposition theory examples that were run.
     """
-    from .examples import example_range, unit_tests
     
     print("\n" + "=" * 80)
     print("IMPOSITION THEORY EXAMPLE REPORT")

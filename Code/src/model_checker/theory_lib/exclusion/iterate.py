@@ -1,9 +1,17 @@
 """Exclusion theory specific model iteration implementation."""
 
-import z3
 import logging
+
+import z3
+
 from model_checker.theory_lib.logos.iterate import LogosModelIterator
 from model_checker.utils import bitvec_to_substates
+
+
+
+
+
+
 
 logger = logging.getLogger(__name__)
 

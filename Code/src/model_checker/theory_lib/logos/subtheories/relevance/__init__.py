@@ -12,8 +12,25 @@ API:
     RelevanceOperator: Direct access to the relevance operator class
 """
 
+from .examples import relevance_cm_examples, relevance_th_examples, unit_tests
 from .operators import get_operators, RelevanceOperator
-from .examples import get_examples
+
+def get_examples():
+    """
+    Get all relevance examples.
+
+    Returns:
+        dict: Dictionary containing all relevance examples
+    """
+    return {
+        'countermodels': relevance_cm_examples,
+        'theorems': relevance_th_examples,
+        'all': unit_tests
+    }
+
+
+
+
 
 __all__ = [
     'get_operators',

@@ -5,21 +5,31 @@ This module implements the core semantic foundation for all logos subtheories,
 providing unified classes for semantics, propositions, and model structures.
 """
 
-import z3
 import sys
 import time
 
+from z3 import simplify
+import z3
+import z3
+
+from model_checker import syntactic
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
 from model_checker.models.structure import ModelDefaults
 from model_checker.utils import (
+
+
+
+
+
+
+
     ForAll,
     Exists,
     bitvec_to_substates,
     pretty_set_print,
     int_to_binary,
 )
-from model_checker import syntactic
 
 
 class LogosSemantics(SemanticDefaults):
@@ -344,7 +354,6 @@ class LogosSemantics(SemanticDefaults):
         product_set = set()
         for bit_a in set_A:
             for bit_b in set_B:
-                from z3 import simplify
                 bit_ab = simplify(bit_a | bit_b)
                 product_set.add(bit_ab)
         return product_set
@@ -668,7 +677,6 @@ class LogosProposition(PropositionDefaults):
         Returns:
             bool: True if the expression evaluates to true, False otherwise
         """
-        import z3
         
         try:
             # Evaluate the expression with model completion

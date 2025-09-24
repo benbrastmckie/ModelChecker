@@ -27,9 +27,15 @@ model-checker path/to/this/extensional.py
 To use a specific collection of examples, modify the example_range dictionary below.
 """
 
-# Standard imports
-import sys
 import os
+import subprocess
+import sys
+
+from ...operators import LogosOperatorRegistry
+from ...semantic import LogosSemantics, LogosProposition, LogosModelStructure
+
+
+# Standard imports
 
 # Add parent directories to path for proper imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -40,15 +46,9 @@ if parent_dir not in sys.path:
 if parent_parent_dir not in sys.path:
     sys.path.insert(0, parent_parent_dir)
 
-# Import semantic classes
-from ...semantic import (
-    LogosSemantics,
-    LogosProposition,
-    LogosModelStructure,
-)
+# Import semantic classes - already imported above
 
 # Import operators
-from ...operators import LogosOperatorRegistry
 
 # EXT_CM_1: CONTRADICTION (A does not entail not-A)
 EXT_CM_1_premises = ['A']
@@ -390,21 +390,8 @@ example_range = {
 
 }
 
-def get_examples():
-    """
-    Get all extensional examples.
-    
-    Returns:
-        dict: Dictionary containing all extensional examples
-    """
-    return {
-        'countermodels': extensional_cm_examples,
-        'theorems': extensional_th_examples,
-        'all': unit_tests
-    }
 
 # Make this module runnable from the command line
 if __name__ == '__main__':
-    import subprocess
     file_name = os.path.basename(__file__)
     subprocess.run(["model-checker", file_name], check=True, cwd=parent_parent_dir)

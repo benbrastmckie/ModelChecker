@@ -7,12 +7,17 @@ to extract or reconstruct witness functions, they simply exist as queryable
 predicates alongside verify and exclude.
 """
 
+from .examples import example_range, unit_tests, test_example_range
+from .iterate import ExclusionModelIterator, iterate_example, iterate_example_generator
+from .operators import witness_operators
+from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure, WitnessAwareModel, WitnessRegistry, WitnessConstraintGenerator
+
+
+
+
 __version__ = "1.0.0"
 __model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 
-from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure, WitnessAwareModel, WitnessRegistry, WitnessConstraintGenerator
-from .operators import witness_operators
-from .iterate import ExclusionModelIterator, iterate_example, iterate_example_generator
 
 # For ModelChecker discovery
 DefaultSemantics = WitnessSemantics
@@ -71,7 +76,6 @@ def get_examples():
     Returns:
         dict: Mapping of example names to example cases
     """
-    from .examples import example_range
     return example_range
 
 
@@ -81,7 +85,6 @@ def get_test_examples():
     Returns:
         dict: Mapping of test names to test cases
     """
-    from .examples import test_example_range
     return test_example_range
 
 
@@ -89,7 +92,6 @@ def print_example_report():
     """
     Print a summary report of the exclusion theory examples that were run.
     """
-    from .examples import example_range, unit_tests
     
     print("\n" + "=" * 80)
     print("EXCLUSION THEORY EXAMPLE REPORT")

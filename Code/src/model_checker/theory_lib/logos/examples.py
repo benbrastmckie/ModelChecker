@@ -34,34 +34,48 @@ Example Name Prefixes:
 - REL_*: Relevance examples
 """
 
-# Standard imports for example modules
-import sys
 import os
+import sys
+
+from .operators import LogosOperatorRegistry
+from .semantic import LogosSemantics, LogosProposition, LogosModelStructure
+from .subtheories.constitutive import examples as con_module
+from .subtheories.constitutive.examples import example_range as constitutive_examples
+from .subtheories.constitutive.examples import unit_tests as constitutive_all_examples
+from .subtheories.counterfactual import examples as cf_module
+from .subtheories.counterfactual.examples import example_range as counterfactual_examples
+from .subtheories.counterfactual.examples import unit_tests as counterfactual_all_examples
+from .subtheories.extensional import examples as ext_module
+from .subtheories.extensional.examples import example_range as extensional_examples
+from .subtheories.extensional.examples import unit_tests as extensional_all_examples
+from .subtheories.modal import examples as mod_module
+from .subtheories.modal.examples import example_range as modal_examples
+from .subtheories.modal.examples import unit_tests as modal_all_examples
+from .subtheories.relevance import examples as rel_module
+from .subtheories.relevance.examples import example_range as relevance_examples
+from .subtheories.relevance.examples import unit_tests as relevance_all_examples
+
+
+
+
+
+# Standard imports for example modules
 
 # Add current directory to path for subtheory imports
 current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-# Import semantic classes
-from .semantic import (
-    LogosSemantics,
-    LogosProposition,
-    LogosModelStructure,
-)
+# Import semantic classes - already imported above from .semantic
 
 # Import operators
-from .operators import LogosOperatorRegistry
 
 # Import subtheory examples from their example_range (selected examples to run)
-import os
 
 # Store example metadata for reporting
 example_metadata = {}
 
 try:
-    from .subtheories.extensional.examples import example_range as extensional_examples
-    from .subtheories.extensional import examples as ext_module
     for key in extensional_examples:
         example_metadata[key] = {
             'subtheory': 'extensional',
@@ -71,8 +85,6 @@ except ImportError:
     extensional_examples = {}
 
 try:
-    from .subtheories.modal.examples import example_range as modal_examples
-    from .subtheories.modal import examples as mod_module
     for key in modal_examples:
         example_metadata[key] = {
             'subtheory': 'modal',
@@ -82,8 +94,6 @@ except ImportError:
     modal_examples = {}
 
 try:
-    from .subtheories.constitutive.examples import example_range as constitutive_examples
-    from .subtheories.constitutive import examples as con_module
     for key in constitutive_examples:
         example_metadata[key] = {
             'subtheory': 'constitutive',
@@ -93,8 +103,6 @@ except ImportError:
     constitutive_examples = {}
 
 try:
-    from .subtheories.counterfactual.examples import example_range as counterfactual_examples
-    from .subtheories.counterfactual import examples as cf_module
     for key in counterfactual_examples:
         example_metadata[key] = {
             'subtheory': 'counterfactual',
@@ -104,8 +112,6 @@ except ImportError:
     counterfactual_examples = {}
 
 try:
-    from .subtheories.relevance.examples import example_range as relevance_examples
-    from .subtheories.relevance import examples as rel_module
     for key in relevance_examples:
         example_metadata[key] = {
             'subtheory': 'relevance',
@@ -185,31 +191,7 @@ semantic_theories = {
 example_range = unit_tests
 
 # Provide access to individual subtheory example collections  
-# Also import unit_tests for full access when needed
-try:
-    from .subtheories.extensional.examples import unit_tests as extensional_all_examples
-except ImportError:
-    extensional_all_examples = {}
-
-try:
-    from .subtheories.modal.examples import unit_tests as modal_all_examples
-except ImportError:
-    modal_all_examples = {}
-
-try:
-    from .subtheories.constitutive.examples import unit_tests as constitutive_all_examples
-except ImportError:
-    constitutive_all_examples = {}
-
-try:
-    from .subtheories.counterfactual.examples import unit_tests as counterfactual_all_examples
-except ImportError:
-    counterfactual_all_examples = {}
-
-try:
-    from .subtheories.relevance.examples import unit_tests as relevance_all_examples
-except ImportError:
-    relevance_all_examples = {}
+# All subtheory imports are already loaded above - no need for try/except blocks
 
 subtheory_examples = {
     'extensional': extensional_examples,

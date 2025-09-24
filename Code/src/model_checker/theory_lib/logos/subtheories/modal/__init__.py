@@ -1,3 +1,26 @@
+from .examples import modal_cm_examples, modal_th_examples, modal_def_examples, unit_tests
+from .operators import (
+    get_operators,
+    NecessityOperator,
+    PossibilityOperator,
+    CFNecessityOperator,
+    CFPossibilityOperator
+)
+
+def get_examples():
+    """
+    Get all modal examples.
+
+    Returns:
+        dict: Dictionary containing all modal examples
+    """
+    return {
+        'countermodels': modal_cm_examples,
+        'theorems': modal_th_examples,
+        'definitions': modal_def_examples,
+        'all': unit_tests
+    }
+
 r"""
 Modal Subtheory for Logos Theory
 
@@ -13,14 +36,6 @@ API:
     Individual operator classes can be imported directly for type checking
 """
 
-from .operators import (
-    get_operators,
-    NecessityOperator,
-    PossibilityOperator,
-    CFNecessityOperator,
-    CFPossibilityOperator
-)
-from .examples import get_examples
 
 __all__ = [
     'get_operators',

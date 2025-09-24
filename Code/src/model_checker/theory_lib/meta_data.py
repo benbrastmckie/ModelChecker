@@ -11,10 +11,11 @@ It includes functions for:
 - Verifying metadata consistency
 """
 
+from typing import Dict, List, Optional, Any, Tuple
+import datetime
+import importlib
 import os
 import re
-import datetime
-from typing import Dict, List, Optional, Any, Tuple
 
 from model_checker.utils import get_model_checker_version
 
@@ -254,7 +255,6 @@ def verify_metadata_consistency() -> Dict[str, Dict[str, Any]]:
         try:
             # Import the theory module
             try:
-                import importlib
                 theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
                 
                 # Check version
