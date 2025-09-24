@@ -61,9 +61,9 @@ Docs/
 
 This directory serves as the **comprehensive documentation hub** for the ModelChecker framework, providing user guides, research documentation, and theoretical background. The documentation is organized into **5 major categories**: installation and setup, programmatic semantics architecture, practical usage workflows, theoretical foundations, and maintenance standards.
 
-The documentation follows an **interdisciplinary approach**, making computational logic accessible to researchers from diverse backgrounds including logic, linguistics, computer science, and AI. Each section is designed to be self-contained while providing clear navigation to related topics, enabling readers to find exactly what they need without navigating unrelated content.
+The documentation follows an **interdisciplinary approach**, making computational logic accessible to researchers from diverse backgrounds including logic, linguistics, computer science, and AI. Each section is designed to be self-contained while providing clear navigation to related topics, enabling readers to find exactly what they need without navigating through unrelated content.
 
-For **technical implementation details**, including API documentation, development workflows, and architecture specifics, see the [Technical Documentation](../Code/docs/README.md). This separation ensures that users focused on applying ModelChecker can find practical guides here, while developers working on the framework itself have dedicated technical resources.
+For **technical implementation details**, including API documentation, development workflows, and architecture specifics, see the [Developer Documentation](../Code/docs/README.md). This separation ensures that users focused on applying ModelChecker can find practical guides here, while developers working on the framework itself have dedicated technical resources.
 
 ## Theory Examples
 
@@ -105,7 +105,7 @@ The methodology transforms logical arguments through stages:
 
 ```
 Input: premises=["A"], conclusions=["B"], settings={'N': 3}
-   ↓
+
 1. Syntax parsing → AST construction
 2. Semantic interpretation → Z3 constraints
 3. Model finding → Satisfying assignment
@@ -114,14 +114,25 @@ Input: premises=["A"], conclusions=["B"], settings={'N': 3}
 
 ### Exploring Theoretical Foundations
 
-```python
-# Hyperintensional semantics distinguishes content
-# These are logically equivalent but may have different verifiers:
-["A \\wedge B"] vs ["B \\wedge A"]
+The ModelChecker can accommodate a wide range of different semantic theories, providing a methodology for implementing semantic theories programmatically as well as a TheoryLib consisting of different semantic theories that have been implemented so far.
 
-# Different theories handle this differently:
-- Logos: May find countermodels (content-sensitive)
-- Classical: Always equivalent (truth-functional)
+To bring out the contrast between theories with different expressive powers, consider the following sentences:
+
+```python
+# Hyperintensional semantics reveals three levels of equivalence:
+# Consider logically equivalent formulas with different structure
+
+# 1. Material equivalence (same truth value in actual world):
+"(A \\leftrightarrow (A \\wedge (A \\vee B)))"
+# - Logos: Theorem
+
+# 2. Necessary equivalence (same truth value in all possibilities):
+"\\Box(A \\leftrightarrow (A \\wedge (A \\vee B)))"
+# - Logos: Theorem
+
+# 3. Propositional identity (express the same hyperintensional proposition):
+"(A \\equiv (A \\wedge (A \\vee B)))"
+# - Logos: Finds countermodels (different subject-matters)
 ```
 
 For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
