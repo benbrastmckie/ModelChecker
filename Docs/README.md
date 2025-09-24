@@ -37,8 +37,6 @@ Docs/
 └── maintenance/                    # Standards and best practices
     ├── README.md                   # Maintenance documentation hub
     ├── AUDIENCE.md                 # Audience guidelines
-    ├── DOCUMENTATION_STANDARDS.md  # Documentation principles
-    ├── README_STANDARDS.md         # README requirements
     ├── CODE_ORGANIZATION.md        # Code structure guidelines
     ├── ERROR_HANDLING.md           # Error handling patterns
     ├── EXAMPLES_STRUCTURE.md       # Example file standards
@@ -47,7 +45,13 @@ Docs/
     ├── TESTING_STANDARDS.md        # Testing requirements
     ├── UNICODE_GUIDELINES.md       # Unicode character usage
     ├── VERSION_CONTROL.md          # Git best practices
+    ├── quality/                    # Documentation quality control
+    │   ├── README.md               # Quality standards hub
+    │   ├── DOCUMENTATION_STANDARDS.md # Documentation principles
+    │   ├── README_STANDARDS.md     # README requirements
+    │   └── CONTINUOUS_IMPROVEMENT.md # Quality improvement processes
     └── templates/                  # Documentation templates
+        ├── README.md               # Template usage guide
         ├── README_TEMPLATE.md      # Basic README template
         ├── THEORY_README.md        # Theory README template
         └── SUBTHEORY_README.md     # Subtheory README template
@@ -142,7 +146,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 
 ### [maintenance/](maintenance/)
 
-**Standards and best practices** ensuring consistency across the codebase. Covers documentation standards, formula formatting, code organization, testing requirements, and development practices. See [maintenance/README.md](maintenance/README.md) for all standards.
+**Standards and best practices** ensuring consistency across the codebase. Covers comprehensive development standards, documentation quality control, and template resources. Includes specialized quality standards directory and documentation templates for consistent structure. See [maintenance/README.md](maintenance/README.md) for all standards.
 
 ## Documentation
 
@@ -164,13 +168,16 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 - **[Developer Setup](installation/DEVELOPER_SETUP.md)** - Contributing environment
 - **[Technical Docs](../Code/docs/README.md)** - Implementation details
 - **[Maintenance Standards](maintenance/README.md)** - Code quality guides
+- **[Quality Standards](maintenance/quality/README.md)** - Documentation quality control
+- **[Documentation Templates](maintenance/templates/README.md)** - Standardized README structures
 
 ## Key Features
 
 ### Comprehensive Coverage
 
 - **5 major documentation categories** with dedicated README hubs
-- **25+ detailed guides** covering all aspects of ModelChecker
+- **30+ detailed guides** covering all aspects of ModelChecker
+- **Quality-controlled documentation** with comprehensive standards and templates
 - **Interdisciplinary approach** serving diverse academic backgrounds
 - **Clear navigation** with consistent structure and cross-references
 

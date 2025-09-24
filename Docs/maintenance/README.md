@@ -1,6 +1,6 @@
 # Documentation Maintenance: Standards and Best Practices
 
-[← Back to Docs](../README.md) | [Audience Guidelines →](AUDIENCE.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
+[← Back to Docs](../README.md) | [Audience Guidelines →](AUDIENCE.md) | [Quality Standards →](quality/README.md)
 
 ## Directory Structure
 
@@ -8,17 +8,24 @@
 maintenance/
 ├── README.md                       # This file - documentation maintenance hub
 ├── AUDIENCE.md                     # Documentation audience and accessibility goals
-├── DOCUMENTATION_STANDARDS.md      # General documentation principles
-├── README_STANDARDS.md             # README.md specific standards
+├── CODE_ORGANIZATION.md            # Code structure and organization guidelines
+├── ERROR_HANDLING.md               # Error handling patterns and standards
+├── EXAMPLES_STRUCTURE.md           # Example file formatting standards
+├── FORMULA_FORMATTING.md           # Mathematical notation conventions
+├── PERFORMANCE.md                  # Performance optimization guidelines
+├── TESTING_STANDARDS.md            # Testing requirements and standards
+├── UNICODE_GUIDELINES.md           # Unicode character usage guidelines
 ├── VERSION_CONTROL.md              # Git workflow for documentation changes
-├── UNICODE_GUIDELINES.md           # Unicode usage in documentation
-├── EDUCATIONAL_CONTENT.md          # Tutorial and guide standards (NEW)
-├── METHODOLOGICAL_DOCS.md          # Research methodology standards (NEW)
-├── CROSS_REFERENCES.md             # Inter-document linking standards (NEW)
-└── templates/
-    ├── README_TEMPLATE.md          # Standard README template
-    ├── TUTORIAL_TEMPLATE.md        # Educational content template (NEW)
-    └── METHODOLOGY_TEMPLATE.md     # Research documentation template (NEW)
+├── quality/                        # Documentation quality control standards
+│   ├── README.md                   # Quality standards hub
+│   ├── DOCUMENTATION_STANDARDS.md  # General documentation principles
+│   ├── README_STANDARDS.md         # README-specific requirements
+│   └── CONTINUOUS_IMPROVEMENT.md   # Quality improvement processes
+└── templates/                      # Documentation templates and structures
+    ├── README.md                   # Template usage guide
+    ├── README_TEMPLATE.md          # Basic README structure template
+    ├── THEORY_README.md            # Theory documentation template
+    └── SUBTHEORY_README.md         # Subtheory documentation template
 ```
 
 ## Overview
@@ -88,33 +95,36 @@ By the end of this tutorial, you will:
 
 ## Subdirectories
 
+### [quality/](quality/)
+
+**Documentation quality control standards** ensuring consistency and excellence across all project documentation. Includes comprehensive documentation principles, README-specific requirements, and continuous improvement processes. See [quality/README.md](quality/README.md) for complete quality standards.
+
 ### [templates/](templates/)
-Documentation templates providing starting points for different types of content:
-- **README_TEMPLATE.md** - General documentation structure
-- **TUTORIAL_TEMPLATE.md** - Educational content framework
-- **METHODOLOGY_TEMPLATE.md** - Research documentation guide
+
+**Standardized documentation templates** providing consistent structure for README files, theory documentation, and subtheory implementations. Includes usage guidelines and customization instructions. See [templates/README.md](templates/README.md) for template usage guide.
 
 ## Documentation
 
 ### For All Documentation Contributors
 - **[Audience Guidelines](AUDIENCE.md)** - Understanding our interdisciplinary readership
-- **[Documentation Standards](DOCUMENTATION_STANDARDS.md)** - General principles for all docs
-- **[README Standards](README_STANDARDS.md)** - Comprehensive README structure
+- **[Quality Standards](quality/README.md)** - Documentation quality control hub
+- **[Documentation Standards](quality/DOCUMENTATION_STANDARDS.md)** - General principles for all docs
+- **[README Standards](quality/README_STANDARDS.md)** - Comprehensive README structure
 
-### For Educational Content Creators
-- **[Educational Content](EDUCATIONAL_CONTENT.md)** - Tutorial and guide standards
-- **[Cross References](CROSS_REFERENCES.md)** - Linking between documents effectively
-- **Tutorial Template** - Starting point for new tutorials
+### For Template Usage
+- **[Templates Guide](templates/README.md)** - Documentation template usage and customization
+- **[README Template](templates/README_TEMPLATE.md)** - Basic component documentation structure
+- **[Theory Template](templates/THEORY_README.md)** - Semantic theory documentation template
 
-### For Research Documentation
-- **[Methodological Docs](METHODOLOGICAL_DOCS.md)** - Research methodology standards
-- **[Unicode Guidelines](UNICODE_GUIDELINES.md)** - Mathematical symbols in documentation
-- **Architecture Template** - Framework for research documentation
+### For Code Quality Standards
+- **[Code Organization](CODE_ORGANIZATION.md)** - Code structure and organization guidelines
+- **[Testing Standards](TESTING_STANDARDS.md)** - Testing requirements and quality assurance
+- **[Performance Standards](PERFORMANCE.md)** - Performance optimization guidelines
 
 ### For Documentation Maintenance
 - **[Version Control](VERSION_CONTROL.md)** - Git workflow for documentation
-- **[Cross References](CROSS_REFERENCES.md)** - Maintaining link integrity
-- **Templates Directory** - Reusable documentation patterns
+- **[Unicode Guidelines](UNICODE_GUIDELINES.md)** - Mathematical symbols and character usage
+- **[Continuous Improvement](quality/CONTINUOUS_IMPROVEMENT.md)** - Quality enhancement processes
 
 ## Key Features
 
@@ -185,4 +195,4 @@ in all states reachable from the current state.
 
 ---
 
-[← Back to Docs](../README.md) | [Audience Guidelines →](AUDIENCE.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
+[← Back to Docs](../README.md) | [Audience Guidelines →](AUDIENCE.md) | [Quality Standards →](quality/README.md)

@@ -226,6 +226,8 @@ All architecture documentation follows these principles:
 
 ### Maintenance
 - **[Documentation Standards](../maintenance/README.md)** - Documentation guidelines
+- **[Quality Standards](../maintenance/quality/README.md)** - Documentation quality control
+- **[Documentation Templates](../maintenance/templates/README.md)** - Standardized README structures
 - **[Architecture Decisions](../../Code/docs/DECISIONS.md)** - Design rationale
 
 ---

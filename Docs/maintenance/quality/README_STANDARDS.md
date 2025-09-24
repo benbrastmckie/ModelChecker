@@ -1,6 +1,6 @@
 # README.md Standards
 
-[← Documentation Standards](DOCUMENTATION_STANDARDS.md) | [Back to Maintenance](README.md) | [Code Organization →](CODE_ORGANIZATION.md)
+[← Documentation Standards](DOCUMENTATION_STANDARDS.md) | [Back to Maintenance](../README.md) | [Code Organization →](../CODE_ORGANIZATION.md)
 
 ## Overview
 
@@ -214,5 +214,5 @@ When creating or updating a README:
 
 ---
 
-[← Documentation Standards](DOCUMENTATION_STANDARDS.md) | [Back to Maintenance](README.md) | [Code Organization →](CODE_ORGANIZATION.md)
+[← Documentation Standards](DOCUMENTATION_STANDARDS.md) | [Back to Maintenance](../README.md) | [Code Organization →](../CODE_ORGANIZATION.md)
 ```
