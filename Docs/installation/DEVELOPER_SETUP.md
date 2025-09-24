@@ -317,7 +317,10 @@ def test_my_operator():
 
 ### 4. Document
 
-Update `README.md` following [MAINTENANCE.md](../../Code/MAINTENANCE.md) standards.
+Update `README.md` following documentation standards:
+- **[Documentation Standards](../maintenance/quality/DOCUMENTATION_STANDARDS.md)** - General principles
+- **[README Standards](../maintenance/quality/README_STANDARDS.md)** - README-specific requirements
+- **[Theory README Template](../maintenance/templates/THEORY_README.md)** - Theory documentation template
 
 
 ## Git Workflow

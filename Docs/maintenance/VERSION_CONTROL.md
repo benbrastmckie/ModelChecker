@@ -1,6 +1,6 @@
 # Version Control Standards for Documentation
 
-[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
+[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)
 
 ## Overview
 
@@ -313,4 +313,4 @@ grep -r "[∧∨¬□◇]" docs/
 
 ---
 
-[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md)
+[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)

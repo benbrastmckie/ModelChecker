@@ -96,20 +96,20 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 if current_dir not in sys.path:
     sys.path.insert(0, current_dir)
 
-from semantic import (
+from .semantic import (
     BimodalStructure,
     BimodalSemantics,
     BimodalProposition,
 )
-from operators import bimodal_operators
+from .operators import bimodal_operators
 
 #######################
 ### DEFAULT SETTINGS ###
 #######################
 
 general_settings = {
-    "print_constraints": False,
-    "print_z3": False,
+    "print_constraints": True,
+    "print_z3": True,
     "save_output": False,
     "align_vertically": False,
 }
@@ -165,7 +165,7 @@ EX_CM_1_example = [
 MD_CM_1_premises = ['\\Box (A \\vee B)']
 MD_CM_1_conclusions = ['\\Box A', '\\Box B']
 MD_CM_1_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
@@ -182,7 +182,7 @@ MD_CM_1_example = [
 MD_CM_2_premises = ['\\Diamond (A \\vee B)']
 MD_CM_2_conclusions = ['(\\Diamond A \\wedge \\Diamond B)']
 MD_CM_2_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
@@ -199,7 +199,7 @@ MD_CM_2_example = [
 MD_CM_3_premises = ['A']
 MD_CM_3_conclusions = ['\\Box A']
 MD_CM_3_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
@@ -216,7 +216,7 @@ MD_CM_3_example = [
 MD_CM_4_premises = ['\\Diamond A']
 MD_CM_4_conclusions = ['A']
 MD_CM_4_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
@@ -233,7 +233,7 @@ MD_CM_4_example = [
 MD_CM_5_premises = ['\\Diamond A']
 MD_CM_5_conclusions = ['\\Box A']
 MD_CM_5_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
@@ -250,7 +250,7 @@ MD_CM_5_example = [
 MD_CM_6_premises = ['\\Diamond A', '\\Diamond B']
 MD_CM_6_conclusions = ['\\Diamond (A \\wedge B)']
 MD_CM_6_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 1,
     'contingent' : False,
     'disjoint' : False,
@@ -273,7 +273,7 @@ MD_CM_6_example = [
 TN_CM_1_premises = ['A']
 TN_CM_1_conclusions = ['\\Future A']
 TN_CM_1_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -290,7 +290,7 @@ TN_CM_1_example = [
 TN_CM_2_premises = ['\\future A', '\\future B']
 TN_CM_2_conclusions = ['\\future (A \\wedge B)']
 TN_CM_2_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 3,
     'contingent' : False,
     'disjoint' : False,
@@ -314,7 +314,7 @@ TN_CM_2_example = [
 BM_CM_1_premises = ['\\Future A']
 BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
@@ -331,7 +331,7 @@ BM_CM_1_example = [
 BM_CM_2_premises = ['\\Past A']
 BM_CM_2_conclusions = ['\\Box A']
 BM_CM_2_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
@@ -348,7 +348,7 @@ BM_CM_2_example = [
 BM_CM_3_premises = ['\\Diamond A']
 BM_CM_3_conclusions = ['\\future A']
 BM_CM_3_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
@@ -365,7 +365,7 @@ BM_CM_3_example = [
 BM_CM_4_premises = ['\\Diamond A']
 BM_CM_4_conclusions = ['\\past A']
 BM_CM_4_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
@@ -434,7 +434,7 @@ MD_TH_1_example = [
 MD_TH_2_premises = ['\\Box A']
 MD_TH_2_conclusions = []
 MD_TH_2_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
@@ -480,7 +480,7 @@ TN_TH_2_example = [
 BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 BM_TH_1_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -497,7 +497,7 @@ BM_TH_1_example = [
 BM_TH_2_premises = ['\\Box A']
 BM_TH_2_conclusions = ['\\Past A']
 BM_TH_2_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -514,7 +514,7 @@ BM_TH_2_example = [
 BM_TH_3_premises = ['\\future A']
 BM_TH_3_conclusions = ['\\Diamond A']
 BM_TH_3_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -531,7 +531,7 @@ BM_TH_3_example = [
 BM_TH_4_premises = ['\\past A']
 BM_TH_4_conclusions = ['\\Diamond A']
 BM_TH_4_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
@@ -548,7 +548,7 @@ BM_TH_4_example = [
 BM_TH_5_premises = ['\\Box A']
 BM_TH_5_conclusions = ['\\Future \\Box A']
 BM_TH_5_settings = {
-    'N' : 1,
+    'N' : 2,
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,

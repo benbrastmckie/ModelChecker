@@ -1,6 +1,6 @@
 # Documentation Standards
 
-[← Unicode Guidelines](UNICODE_GUIDELINES.md) | [Back to Maintenance](README.md) | [README Standards →](README_STANDARDS.md)
+[← Unicode Guidelines](../UNICODE_GUIDELINES.md) | [Back to Maintenance](../README.md) | [README Standards →](README_STANDARDS.md)
 
 ## Table of Contents
 
@@ -272,4 +272,4 @@ All non-README documentation must have a table of contents with links:
 
 ---
 
-[← Unicode Guidelines](UNICODE_GUIDELINES.md) | [Back to Maintenance](README.md) | [README Standards →](README_STANDARDS.md)
+[← Unicode Guidelines](../UNICODE_GUIDELINES.md) | [Back to Maintenance](../README.md) | [README Standards →](README_STANDARDS.md)
