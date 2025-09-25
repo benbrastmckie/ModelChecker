@@ -405,6 +405,15 @@ def main():
             print("\n📦 The package will be available on PyPI shortly at:")
             print("  https://pypi.org/project/model-checker/")
 
+            print("\n📝 To manually upload to PyPI if needed:")
+            print("  cd Code")
+            print("  python -m build  # Build the package")
+            print(f"  twine upload dist/*{new_version}*  # Upload version {new_version}")
+            print("\n  Or with token authentication:")
+            print("  export TWINE_USERNAME=__token__")
+            print("  export TWINE_PASSWORD=<your-pypi-token>")
+            print(f"  twine upload dist/*{new_version}*")
+
         except subprocess.CalledProcessError as e:
             print(f"\n❌ Git operation failed: {e}")
             print("\nManual git commands needed:")
@@ -426,6 +435,15 @@ def main():
         print("  1. Run tests on all platforms")
         print("  2. Upload to PyPI if tests pass")
         print("  3. Create a GitHub release")
+
+        print("\n📝 To manually upload to PyPI if needed:")
+        print("  cd Code")
+        print("  python -m build  # Build the package")
+        print(f"  twine upload dist/*{new_version}*  # Upload version {new_version}")
+        print("\n  Or with token authentication:")
+        print("  export TWINE_USERNAME=__token__")
+        print("  export TWINE_PASSWORD=<your-pypi-token>")
+        print(f"  twine upload dist/*{new_version}*")
     
     print("\n✅ Release process complete!")
     return 0

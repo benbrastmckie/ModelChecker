@@ -73,9 +73,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     needs: validate-version
     if: needs.validate-version.outputs.should_release == 'true'
-    
+
     strategy:
-      fail-fast: true  # Stop if any test fails
+      fail-fast: true  # Stop immediately if any test fails
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
         python-version: ['3.8', '3.12']  # Test min and max versions
@@ -93,11 +93,15 @@ jobs:
       run: |
         cd Code
         pip install --upgrade pip
-        pip install build
+        pip install build pytest pytest-timeout
         python -m build
         pip install dist/*.whl
         python -c "import model_checker; print(f'Version: {model_checker.__version__}')"
         python -m model_checker --help
+        # Run quick smoke tests if they exist
+        if [ -d "src/model_checker/theory_lib/logos/tests/unit" ]; then
+          pytest src/model_checker/theory_lib/logos/tests/unit -v --tb=short --timeout=30 --ignore=test_generate || true
+        fi
 
   build-and-publish:
     name: Build and Publish to PyPI
@@ -163,8 +167,18 @@ jobs:
           fi
           echo "Install with: pip install model-checker==${{ needs.validate-version.outputs.version }}"
         else
-          echo "ERROR: PYPI_API_TOKEN not set! Cannot publish to PyPI."
-          echo "Please set up the secret in repository settings."
+          echo "::error::PYPI_API_TOKEN not configured in GitHub Secrets!"
+          echo "## ⚠️ PyPI Upload Skipped - Missing Token" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The PYPI_API_TOKEN secret is not configured in this repository." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### To fix this:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to https://pypi.org/manage/account/token/" >> $GITHUB_STEP_SUMMARY
+          echo "2. Create an API token for project 'model-checker'" >> $GITHUB_STEP_SUMMARY
+          echo "3. Add it to https://github.com/${{ github.repository }}/settings/secrets/actions" >> $GITHUB_STEP_SUMMARY
+          echo "4. Name it exactly: PYPI_API_TOKEN" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Package was built successfully but not uploaded to PyPI." >> $GITHUB_STEP_SUMMARY
           exit 1
         fi
     

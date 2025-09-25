@@ -3,6 +3,9 @@ name: Test Package Installation
 on:
   push:
     branches: [ main, master, develop ]
+    # Explicitly exclude tag pushes to prevent duplicate runs with pypi-release.yml
+    tags-ignore:
+      - 'v*'
   pull_request:
     branches: [ main, master ]
   workflow_dispatch:
@@ -97,8 +100,12 @@ jobs:
       if: steps.check_tests.outputs.tests_exist == 'true'
       working-directory: Code
       run: |
-        pip install pytest
-        pytest src/model_checker/theory_lib -v --tb=short || echo "Some tests failed but continuing"
+        pip install pytest pytest-timeout
+        # Run tests with timeout and retry for flaky tests
+        pytest src/model_checker/theory_lib -v --tb=short --timeout=60 --timeout-method=thread || {
+          echo "First test run failed, retrying once..."
+          pytest src/model_checker/theory_lib -v --tb=short --timeout=60 --timeout-method=thread --lf
+        }
       shell: bash
 
     
