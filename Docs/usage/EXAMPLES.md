@@ -526,6 +526,62 @@ CONSTRUCTIVE_DILEMMA_conclusions = ["B \\vee D"]
 
 ## Troubleshooting
 
+### Example Output:
+
+When running counterfactual examples, the output shows detailed semantic evaluations:
+
+```
+========================================
+
+EXAMPLE CF_CM_1: there is a countermodel.
+
+Atomic States: 4
+Semantic Theory: Brast-McKie
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0341 seconds
+
+========================================
+
+State Space:
+  #b0101 = a.c (world)
+  #b0110 = b.c (world)
+  #b1001 = a.d (world)
+
+The evaluation world is: b.c
+
+INTERPRETED PREMISES:
+
+1. |\neg A| = < {b.c}, {a, a.b.c.d} >  (True in b.c)
+    |A| = < {a, a.b.c.d}, {b.c} >  (False in b.c)
+
+2. |(A \boxright C)| = < {a.c, b.c}, {a.d} >  (True in b.c)
+    |A|-alternatives to b.c = {a.c}
+    |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (True in a.c)
+
+INTERPRETED CONCLUSION:
+
+3. |((A \wedge B) \boxright C)| = < {}, {a.c, a.d, b.c} >  (False in b.c)
+    |(A \wedge B)|-alternatives to b.c = {a.d}
+    |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (False in a.d)
+
+Total Run Time: 0.389 seconds
+========================================
+```
+
+This output demonstrates:
+- **Countermodel Found**: Shows the argument is invalid
+- **State Space**: Lists possible worlds and their properties
+- **Evaluation World**: The world where the countermodel exists
+- **Interpreted Formulas**: Shows verifiers/falsifiers for each premise and conclusion
+- **Counterfactual Alternatives**: Displays the nearest possible worlds for counterfactual evaluation
+
 ### Common Errors and Solutions
 
 **Error**: `NameError: name 'example_range' is not defined`
