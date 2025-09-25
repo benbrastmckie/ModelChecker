@@ -11,7 +11,6 @@ API:
     Individual operator classes can be imported directly for type checking
 """
 
-from .examples import counterfactual_cm_examples, counterfactual_th_examples, unit_tests
 from .operators import (
     get_operators,
     CounterfactualOperator,
@@ -20,11 +19,13 @@ from .operators import (
 
 def get_examples():
     """
-    Get all counterfactual examples.
+    Get all counterfactual examples (lazy loaded to avoid circular imports).
 
     Returns:
         dict: Dictionary containing all counterfactual examples
     """
+    # Lazy import to avoid circular dependency
+    from .examples import counterfactual_cm_examples, counterfactual_th_examples, unit_tests
     return {
         'countermodels': counterfactual_cm_examples,
         'theorems': counterfactual_th_examples,
