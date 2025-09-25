@@ -42,110 +42,135 @@ class ParseFileFlags:
         # Create the parser
         parser = argparse.ArgumentParser(
             prog='model-checker',
-            usage='%(prog)s [options] input',
+            usage='%(prog)s [options] [file_path]',
             description="""
-            Running '%(prog)s' without options or an input will prompt the user
-            to generate a project. To run a test on an existing file, include
-            the path to that file as the input.""",
+            ModelChecker: Automated semantic theory validation and countermodel generation.
+            Running without arguments starts interactive project creation mode.""",
             epilog="""
-            More information can be found at:
-            https://github.com/benbrastmckie/ModelChecker/""",
+examples:
+  %(prog)s                          # Interactive project creation
+  %(prog)s examples.py             # Run examples file
+  %(prog)s -l logos examples.py    # Use logos theory
+  %(prog)s --save markdown         # Save output as markdown
+  %(prog)s -c -n examples.py       # Force contingent, non-null propositions
+
+documentation: https://github.com/benbrastmckie/ModelChecker/tree/main/Docs
+repository: https://github.com/benbrastmckie/ModelChecker/""",
+            formatter_class=argparse.RawDescriptionHelpFormatter
         )
-        # Add arguments
+        # Add positional argument
         parser.add_argument(
             "file_path",
             nargs='?',
             default=None,
             type=str,
-            help="Specifies the path to a Python file.",
+            help="Path to Python examples file to analyze",
         )
-        parser.add_argument(
-            '--contingent',
-            '-c',
-            action='store_true',
-            help='Overrides to make all propositions contingent.'
-        )
-        parser.add_argument(
-            '--disjoint',
-            '-d',
-            action='store_true',
-            help='Overrides to make all propositions have disjoint subject-matters.'
-        )
-        parser.add_argument(
-            '--non_empty',
-            '-e',
-            action='store_true',
-            help='Overrides to make all propositions non_empty.'
-        )
-        parser.add_argument(
+
+        # Theory selection group
+        theory_group = parser.add_argument_group('theory selection', 'Choose semantic frameworks')
+        theory_group.add_argument(
             '--load_theory',
             '-l',
             type=str,
-            metavar='NAME',
-            help='Load a specific theory by name.'
+            metavar='THEORY',
+            help='Load semantic theory: logos, exclusion, imposition, bimodal. '
+                 'Logos supports subtheories: extensional, modal, constitutive, '
+                 'counterfactual, relevance (default: all subtheories)'
         )
-        parser.add_argument(
-            '--maximize',
-            '-m',
+
+        # Model constraints group
+        model_group = parser.add_argument_group('model constraints', 'Control proposition behavior')
+        model_group.add_argument(
+            '--contingent',
+            '-c',
             action='store_true',
-            help='Overrides to compare semantic theories.'
+            help='Require all propositions to be neither necessary nor impossible'
         )
-        parser.add_argument(
+        model_group.add_argument(
             '--non_null',
             '-n',
             action='store_true',
-            help='Overrides to make all propositions non_null.'
+            help='Require all propositions to have non-empty verifier sets'
         )
-        parser.add_argument(
-            '--print_constraints',
-            '-p',
+        model_group.add_argument(
+            '--non_empty',
+            '-e',
             action='store_true',
-            help='Overrides to print the Z3 constraints or else the unsat_core constraints if there is no model.'
+            help='Require all propositions to have non-empty subject matter'
         )
-        parser.add_argument(
+        model_group.add_argument(
+            '--disjoint',
+            '-d',
+            action='store_true',
+            help='Require propositions to have disjoint subject matters'
+        )
+        model_group.add_argument(
+            '--maximize',
+            '-m',
+            action='store_true',
+            help='Compare multiple semantic theories on same examples'
+        )
+
+        # Output control group
+        output_group = parser.add_argument_group('output control', 'Save and display options')
+        output_group.add_argument(
             '--save',
             '-s',
             nargs='*',  # Allow 0 or more arguments
             choices=['markdown', 'json', 'jupyter'],
             default=None,  # When flag not used at all
-            help='Save output in specified formats. Without arguments: all formats. With arguments: only specified formats (e.g., --save jupyter markdown)'
+            help='Save results. Formats: markdown, json, jupyter. '
+                 'No args = all formats. With args = specified only'
         )
-        parser.add_argument(
+        output_group.add_argument(
+            '--sequential',
+            '-q',
+            action='store_true',
+            help='Prompt to save each model individually (interactive mode)'
+        )
+        output_group.add_argument(
+            '--align_vertically',
+            '-a',
+            action='store_true',
+            help='Display temporal models vertically (top-to-bottom time flow)'
+        )
+
+        # Debugging group
+        debug_group = parser.add_argument_group('debugging', 'Advanced analysis and troubleshooting')
+        debug_group.add_argument(
+            '--print_constraints',
+            '-p',
+            action='store_true',
+            help='Show internal solver constraints (for debugging)'
+        )
+        debug_group.add_argument(
+            '--print_z3',
+            '-z',
+            action='store_true',
+            help='Show raw Z3 solver output (very technical)'
+        )
+        debug_group.add_argument(
             '--print_impossible',
             '-i',
             action='store_true',
-            help='Overrides to print impossible states.'
+            help='Include impossible states in model display'
         )
-        parser.add_argument(
+
+        # Utility group
+        utility_group = parser.add_argument_group('utility', 'Version, upgrade, and help')
+        utility_group.add_argument(
             '--version',
             '-v',
             action='version',
             version=f"%(prog)s:  {__version__}",
-            help='Prints the version number.'
+            help='Show version and exit'
         )
-        parser.add_argument(
+        utility_group.add_argument(
             '--upgrade',
             '-u',
             action='store_true',
-            help='Upgrade the package.'
-        )
-        parser.add_argument(
-            '--print_z3',
-            '-z',
-            action='store_true',
-            help='Overrides to print Z3 model or unsat_core.'
-        )
-        parser.add_argument(
-            '--align_vertically',
-            '-a',
-            action='store_true',
-            help='Overrides to display world histories vertically with time flowing from top to bottom.'
-        )
-        parser.add_argument(
-            '--sequential',
-            '-q',
-            action='store_true',
-            help='Save models sequentially with prompts'
+            help='Upgrade ModelChecker package'
         )
         return parser
 

@@ -83,8 +83,8 @@ model-checker examples/test.py --print-constraints
 # Show Z3 model details
 model-checker examples/test.py --print-z3
 
-# Find multiple models
-model-checker examples/test.py --iterate=3
+# Include impossible states in output
+model-checker examples/test.py --print-impossible
 ```
 
 For complete workflow patterns, see [WORKFLOW.md](WORKFLOW.md).
