@@ -31,19 +31,20 @@ class ProjectDetector:
     
     def __init__(self, path: str):
         """Initialize detector with path.
-        
+
         Args:
             path: Path to project or module
-            
+
         Raises:
             PackageStructureError: If path does not exist
         """
-        self.path = path
-        
+        # Store the resolved absolute path to ensure consistent detection
+        self.path = str(Path(path).resolve())
+
         # Fail-fast validation
-        if not os.path.exists(path):
+        if not os.path.exists(self.path):
             raise PackageStructureError(
-                f"Path does not exist: {path}",
+                f"Path does not exist: {self.path}",
                 f"Current directory: {os.getcwd()}",
                 "Provide valid path to project or module"
             )
