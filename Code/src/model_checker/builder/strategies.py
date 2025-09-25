@@ -50,55 +50,92 @@ class PackageImportStrategy:
     
     def import_module(self, name: str, path: str) -> ModuleType:
         """Import module as part of a package.
-        
+
         Args:
             name: Module name (REQUIRED)
             path: Module path (REQUIRED)
-            
+
         Returns:
             Imported module
-            
+
         Raises:
             PackageImportError: If import fails
-            
+
         NO FALLBACKS - fails fast on errors.
         """
         package_root = self._get_package_root(path)
-        
+
         if not package_root:
             raise PackageImportError(
                 f"Not a valid package: {path}",
                 "No .modelchecker marker found in parent directories",
                 "Add .modelchecker with 'package=true' to package root"
             )
-        
+
         # Add parent of package to sys.path PERMANENTLY
         parent_dir = str(Path(package_root).parent)
         if parent_dir not in sys.path:
             sys.path.insert(0, parent_dir)
-        
+
+        # Also add the package root itself to sys.path to help with imports
+        if package_root not in sys.path:
+            sys.path.insert(0, package_root)
+
         # Construct full module name
         package_name = Path(package_root).name
         rel_path = Path(path).relative_to(package_root)
-        
+
         # Remove .py extension
         module_path = str(rel_path.with_suffix(''))
-        
+
         # Convert path separators to dots
         module_parts = module_path.replace(os.sep, '.')
         full_module_name = f"{package_name}.{module_parts}"
-        
+
         try:
             # Direct import with no fallbacks
             module = importlib.import_module(full_module_name)
             return module
-            
+
         except ImportError as e:
-            raise PackageImportError(
-                f"Cannot import {full_module_name}",
-                f"Package root: {package_root}, Error: {str(e)}",
-                "Ensure package has __init__.py and valid structure"
-            )
+            # If the error is about relative imports, try a different approach
+            if "attempted relative import" in str(e) or "parent package" in str(e):
+                # Use exec to run the module in a context where relative imports work
+                try:
+                    # Read the file content
+                    with open(path, 'r') as f:
+                        code = f.read()
+
+                    # Create a proper module object
+                    spec = importlib.util.spec_from_file_location(full_module_name, path,
+                                                                   submodule_search_locations=[package_root])
+                    module = importlib.util.module_from_spec(spec)
+
+                    # Set the module's __package__ to enable relative imports
+                    module.__package__ = '.'.join(full_module_name.split('.')[:-1])
+                    module.__file__ = path
+
+                    # Add to sys.modules before execution
+                    sys.modules[full_module_name] = module
+
+                    # Execute the module
+                    exec(compile(code, path, 'exec'), module.__dict__)
+
+                    return module
+
+                except Exception as exec_error:
+                    raise PackageImportError(
+                        f"Cannot import {full_module_name}",
+                        f"Package root: {package_root}, Error: {str(e)}",
+                        f"Exec fallback also failed: {str(exec_error)}",
+                        "Ensure package has __init__.py and valid structure"
+                    )
+            else:
+                raise PackageImportError(
+                    f"Cannot import {full_module_name}",
+                    f"Package root: {package_root}, Error: {str(e)}",
+                    "Ensure package has __init__.py and valid structure"
+                )
     
     def _get_package_root(self, path: str) -> str:
         """Find package root by .modelchecker marker.
