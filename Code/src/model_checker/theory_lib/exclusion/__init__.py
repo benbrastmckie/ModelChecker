@@ -7,7 +7,6 @@ to extract or reconstruct witness functions, they simply exist as queryable
 predicates alongside verify and exclude.
 """
 
-from .examples import example_range, unit_tests, test_example_range
 from .iterate import ExclusionModelIterator, iterate_example, iterate_example_generator
 from .operators import witness_operators
 from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition, WitnessStructure, WitnessAwareModel, WitnessRegistry, WitnessConstraintGenerator
@@ -71,20 +70,24 @@ def get_theory(config=None):
 
 
 def get_examples():
-    """Get exclusion theory example range.
-    
+    """Get exclusion theory example range (lazy loaded to avoid circular imports).
+
     Returns:
         dict: Mapping of example names to example cases
     """
+    # Lazy import to avoid circular dependency
+    from .examples import example_range
     return example_range
 
 
 def get_test_examples():
-    """Get exclusion theory test example range.
-    
+    """Get exclusion theory test example range (lazy loaded to avoid circular imports).
+
     Returns:
         dict: Mapping of test names to test cases
     """
+    # Lazy import to avoid circular dependency
+    from .examples import test_example_range
     return test_example_range
 
 
@@ -92,11 +95,13 @@ def print_example_report():
     """
     Print a summary report of the exclusion theory examples that were run.
     """
-    
+    # Lazy import to avoid circular dependency
+    from .examples import example_range, unit_tests
+
     print("\n" + "=" * 80)
     print("EXCLUSION THEORY EXAMPLE REPORT")
     print("=" * 80)
-    
+
     # Count active examples
     active_examples = len(example_range)
     total_available = len(unit_tests)

@@ -12,16 +12,17 @@ API:
     RelevanceOperator: Direct access to the relevance operator class
 """
 
-from .examples import relevance_cm_examples, relevance_th_examples, unit_tests
 from .operators import get_operators, RelevanceOperator
 
 def get_examples():
     """
-    Get all relevance examples.
+    Get all relevance examples (lazy loaded to avoid circular imports).
 
     Returns:
         dict: Dictionary containing all relevance examples
     """
+    # Lazy import to avoid circular dependency
+    from .examples import relevance_cm_examples, relevance_th_examples, unit_tests
     return {
         'countermodels': relevance_cm_examples,
         'theorems': relevance_th_examples,

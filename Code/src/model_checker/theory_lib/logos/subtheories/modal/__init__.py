@@ -1,4 +1,3 @@
-from .examples import modal_cm_examples, modal_th_examples, modal_def_examples, unit_tests
 from .operators import (
     get_operators,
     NecessityOperator,
@@ -9,11 +8,13 @@ from .operators import (
 
 def get_examples():
     """
-    Get all modal examples.
+    Get all modal examples (lazy loaded to avoid circular imports).
 
     Returns:
         dict: Dictionary containing all modal examples
     """
+    # Lazy import to avoid circular dependency
+    from .examples import modal_cm_examples, modal_th_examples, modal_def_examples, unit_tests
     return {
         'countermodels': modal_cm_examples,
         'theorems': modal_th_examples,
