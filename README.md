@@ -2,52 +2,97 @@
 
 [Code →](Code/README.md) | [Documentation →](Docs/README.md) | [Theory Library →](Code/src/model_checker/theory_lib/README.md)
 
+## Overview
+
+The **ModelChecker** provides a programmatic framework for developing and exploring modular semantic theories. Built on the SMT solver Z3, it enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid.
+
+## Quick Start Workflow
+
+### 1. Create or Load a Theory Project
+
+Start by creating a new project from an existing theory or from scratch:
+
+```bash
+# Load an existing theory
+model-checker -l logos       # Hyperintensional semantics
+model-checker -l exclusion   # Unilateral exclusion semantics
+model-checker -l imposition  # Fine's counterfactual semantics
+model-checker -l bimodal     # Temporal-modal logic
+
+# Or create a blank project
+model-checker
+```
+
+See [Project Creation Guide](Docs/usage/PROJECT.md) for detailed instructions on starting new projects.
+
+### 2. Test and Develop Examples
+
+Each project includes an `examples.py` file where you define logical formulas to test:
+
+```bash
+# Run your examples
+model-checker examples.py
+```
+
+Modify `examples.py` to test different inferences and adjust settings like model size and constraints. See the [Examples Guide](Docs/usage/EXAMPLES.md) and [Settings Guide](Docs/usage/SETTINGS.md) for details.
+
+### 3. Customize Semantic Constraints
+
+Modify `semantic.py` to change how your theory evaluates formulas. Add new constraints, modify existing ones, or create entirely new semantic frameworks. See the [Constraints Guide](Docs/usage/CONSTRAINTS.md).
+
+### 4. Define New Operators
+
+Extend your theory with custom operators:
+
+- **Defined operators** in `operators.py` - built from existing operators
+- **Primitive operators** in `semantic.py` - implemented with Z3 constraints
+
+See the [Operators Guide](Docs/usage/OPERATORS.md) for implementation details.
+
+### 5. Compare Theories and Iterate Models
+
+Use advanced tools to explore your semantics:
+
+- Compare multiple theories on the same examples
+- Find all models satisfying given constraints
+- Generate countermodels systematically
+
+See the [Tools Guide](Docs/usage/TOOLS.md) for these capabilities.
+
+### 6. Save and Export Results
+
+Save your findings in various formats:
+
+- Text files with countermodels
+- LaTeX for publications
+- JSON for further processing
+
+See the [Output Guide](Docs/usage/OUTPUT.md) for export options.
+
 ## Directory Structure
 
 ```
 ModelChecker/
-├── Code/                           # Main implementation directory (see Code/README.md)
+├── Code/                           # Main implementation directory
 │   ├── src/                        # Source code
 │   ├── docs/                       # Technical documentation
 │   ├── specs/                      # Implementation specifications
 │   └── tests/                      # Test suites
-├── Docs/                           # General project documentation (see Docs/README.md)
-│   ├── installation/               # Modular installation guides
-│   ├── GETTING_STARTED.md          # Quick start guide
+├── Docs/                           # General project documentation
+│   ├── installation/               # Installation guides
 │   ├── usage/                      # Practical usage guides
-│   │   ├── WORKFLOW.md             # Usage workflows
-│   │   └── COMPARE_THEORIES.md     # Theory comparison
-│   ├── architecture/               # Programmatic semantics architecture
-│   │   ├── README.md               # Architecture overview
-│   │   ├── BUILDER.md              # Pipeline orchestration
-│   │   ├── SYNTAX.md               # AST conversion
-│   │   ├── SEMANTICS.md            # Constraint generation
-│   │   ├── MODELS.md               # SMT solving
-│   │   └── ITERATOR.md             # Model iteration
-│   ├── ARCHITECTURE.md             # System design and overview
-│   ├── HYPERINTENSIONAL.md         # Theoretical background
-│   ├── Z3_BACKGROUND.md            # SMT solver information
-│   └── FINDINGS.md                 # Research findings
+│   │   ├── PROJECT.md              # Project creation
+│   │   ├── EXAMPLES.md             # Writing examples
+│   │   ├── SETTINGS.md             # Configuration settings
+│   │   ├── CONSTRAINTS.md          # Semantic constraints
+│   │   ├── OPERATORS.md            # Defining operators
+│   │   ├── TOOLS.md                # Advanced tools
+│   │   └── OUTPUT.md               # Saving results
+│   ├── architecture/               # System architecture
+│   └── theory/                     # Theoretical background
 ├── Images/                         # Screenshots and diagrams
-└── README.md                       # This file - project overview
+└── README.md                       # This file
 ```
-
-## Overview
-
-The **ModelChecker** provides a [programmatic architecture](Docs/architecture/README.md) for developing and exploring modular semantic theories. Built on the SMT solver [Z3](Docs/theory/Z3_BACKGROUND.md), the framework enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid. The framework includes the [**TheoryLib**](Code/src/model_checker/theory_lib/README.md), a growing library of semantic theories that users can clone, modify, and contribute back to the project for public use. The [Logos](Code/src/model_checker/theory_lib/logos/README.md) theory supports extensional, modal, counterfactual, and constitutive operators through a modular architecture designed for studying [hyperintensional logics](Docs/theory/HYPERINTENSIONAL.md) and promoting transparent, verifiable reasoning.
-
-The project enables exploration of complex logical systems with multiple interacting operators that would be intractable to analyze manually. While Logos implements bilateral hyperintensional semantics, the TheoryLib also includes Bernard and Champollion's unilateral semantics for negation based on exclusion, Fine's imposition semantics for counterfactuals, and a bimodal logic for reasoning with tense and modality. The modular architecture features automatic dependency resolution, making it straightforward to build new theories on existing ones while clearly tracking their differences for comparative study.
-
-> **Note on Documentation**: This project's documentation is designed for an interdisciplinary audience, welcoming both those new to programming and those new to formal logic and semantics. For our documentation philosophy and accessibility goals, see [Audience Guidelines](Docs/maintenance/AUDIENCE.md) and [Maintenance Standards](Docs/maintenance/README.md).
-
-## Documentation Organization
-
-The ModelChecker documentation is organized into two main areas:
-
-- **[General Documentation](Docs/README.md)** - Installation, getting started, theoretical background, and research architecture
-- **[Technical Documentation](Code/docs/README.md)** - Development guides, architecture, testing, and implementation details
-
-This separation ensures users can quickly find installation and usage information while developers have easy access to technical specifications and contribution guidelines.
 
 ## Installation
 

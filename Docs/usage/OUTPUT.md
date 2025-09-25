@@ -23,6 +23,8 @@
 
 The ModelChecker provides flexible output options to suit different workflows, from quick terminal checks to comprehensive documentation generation. Output can be displayed in the terminal or saved in multiple formats for further analysis, reporting, or interactive exploration.
 
+**Architecture Context**: For the complete output generation system design, see [Output Architecture](../architecture/OUTPUT.md). For how outputs fit into the overall pipeline, see [Pipeline Architecture](../architecture/PIPELINE.md).
+
 ## Output Formats
 
 ### Terminal Output
@@ -33,11 +35,8 @@ Default output displayed in the console with color-coding and formatting:
 # Basic terminal output
 model-checker examples/test.py
 
-# Verbose output with progress indicators
-model-checker examples/test.py --verbose
-
-# Quiet mode - only essential results
-model-checker examples/test.py --quiet
+# Standard output
+model-checker examples/test.py
 ```
 
 **Terminal Output Features**:
@@ -58,21 +57,22 @@ model-checker examples/test.py --save json
 **JSON Structure**:
 ```json
 {
-  "example_name": "MODUS_PONENS",
+  "example": "MODUS_PONENS",
   "theory": "logos",
-  "premises": ["A", "A → B"],
-  "conclusions": ["B"],
-  "valid": true,
-  "settings": {
-    "N": 3,
-    "max_time": 30
+  "has_model": false,
+  "evaluation_world": "w0",
+  "states": [
+    {"state": "s0", "possible": true, "world": true}
+  ],
+  "relations": {
+    "part_of": [["s0", "s1"]],
+    "fusion": [["s0", "s1", "s2"]]
   },
-  "models": [],
-  "metadata": {
-    "timestamp": "2024-01-15T10:30:00",
-    "execution_time": 0.234,
-    "solver_status": "sat"
-  }
+  "propositions": {
+    "A": {"verifiers": ["s0"], "falsifiers": []},
+    "B": {"verifiers": ["s1"], "falsifiers": []}
+  },
+  "output": "Example MODUS_PONENS: there is no countermodel"
 }
 ```
 
@@ -129,6 +129,8 @@ model-checker examples/test.py --save notebook
 
 **Notebook Features**:
 - Re-runnable code cells
+
+**Architecture Reference**: For the complete Jupyter integration design, see [Jupyter Architecture](../architecture/JUPYTER.md).
 - Inline explanations and markdown
 - Interactive model exploration
 - Visualization capabilities
@@ -165,21 +167,21 @@ The **Interactive Save Mode** provides fine-grained control over which model che
 #### Enabling Interactive Mode
 
 ```bash
-# Interactive mode with save output
-model-checker --save --interactive examples/my_logic.py
-model-checker --save -I examples/my_logic.py  # Short form
+# Sequential save mode - prompts after each model
+model-checker --save --sequential examples/my_logic.py
+model-checker --save -q examples/my_logic.py  # Short form
 
-# Save specific formats interactively
-model-checker --save markdown json --interactive examples/my_logic.py
+# Save specific formats sequentially
+model-checker --save markdown json --sequential examples/my_logic.py
 ```
 
 #### Interactive Workflow
 
-1. **Mode Selection** (if `-I` not specified):
+1. **Mode Selection** (if `-q` not specified):
    ```
    Select save mode:
    1) batch - Save all at end
-   2) interactive - Prompt after each model
+   2) sequential - Prompt after each model
    ```
 
 2. **Model Save Prompt** (after each model):
@@ -226,7 +228,7 @@ model-checker theory_lib/logos/examples.py --save markdown
 
 # Process multiple files
 for file in examples/*.py; do
-    model-checker "$file" --save json --quiet
+    model-checker "$file" --save json
 done
 
 # Save with pattern matching
@@ -248,16 +250,16 @@ output/                           # Default output directory
 │   │   ├── MODEL_1.json        # First model (if multiple)
 │   │   ├── MODEL_2.json        # Second model
 │   │   └── countermodel.json   # Countermodel (if invalid)
-│   └── combined_output.md       # All examples combined
+│   └── README.md                # Summary of all examples
 ├── notebooks/                   # Generated notebooks
 │   └── [module]_notebook.ipynb # Interactive notebook
 └── reports/                     # Custom reports
     └── comparison_report.md    # Theory comparison results
 ```
 
-### Interactive Mode Structure
+### Sequential Mode Structure
 
-See [Interactive Save Mode](#interactive-save-mode) section above for the specialized directory structure used in interactive mode.
+See [Interactive Save Mode](#interactive-save-mode) section above for the specialized directory structure used in sequential save mode.
 
 ### Customizing Output Structure
 
@@ -282,7 +284,7 @@ Choose the appropriate format based on your use case:
 | Documentation | Markdown | `--save markdown` |
 | Interactive exploration | Notebook | `--save notebook` |
 | Complete archive | All | `--save all` |
-| CI/CD pipeline | JSON | `--save json --quiet` |
+| CI/CD pipeline | JSON | `--save json` |
 | Academic paper | Markdown + JSON | `--save markdown json` |
 
 ## Practical Examples
@@ -300,7 +302,7 @@ model-checker theory_lib/logos/examples.py \
 # docs/validation/logos_examples/
 #   ├── EXT_TH_1/summary.md
 #   ├── MODAL_TH_1/summary.md
-#   └── combined_output.md
+#   └── README.md
 ```
 
 ### Example 2: Automated Testing Pipeline
@@ -317,7 +319,7 @@ for theory in logos exclusion imposition; do
     model-checker "theory_lib/$theory/examples.py" \
         --save json \
         --output-dir "$OUTPUT_DIR/$theory" \
-        --quiet
+        # No quiet flag needed
 done
 
 # Generate summary report
