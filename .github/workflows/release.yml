@@ -6,6 +6,12 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'  # v1.0.0, v1.2.3, v1.0.1, etc.
 
+# Required permissions for creating releases
+permissions:
+  contents: write  # Needed to create releases
+  actions: read
+  checks: read
+
 jobs:
   test-and-release:
     name: Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
