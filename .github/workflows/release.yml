@@ -128,21 +128,24 @@ jobs:
         echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
     - name: Create GitHub Release
-      uses: actions/create-release@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: ${{ github.ref }}
-        release_name: Release ${{ github.ref_name }}
-        body: |
-          ## ModelChecker ${{ github.ref_name }}
+      run: |
+        VERSION="${{ github.ref_name }}"
 
-          ### Installation
-          ```bash
-          pip install model-checker==${{ github.ref_name }}
-          ```
+        # Create release notes
+        RELEASE_NOTES="## ModelChecker ${VERSION}
 
-          ### What's Changed
-          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
-        draft: false
-        prerelease: false
+        ### Installation
+        \`\`\`bash
+        pip install model-checker==${VERSION#v}
+        \`\`\`
+
+        ### What's Changed
+        See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
+
+        # Create the release using GitHub CLI
+        gh release create "${VERSION}" \
+          --title "Release ${VERSION}" \
+          --notes "${RELEASE_NOTES}" \
+          --verify-tag
