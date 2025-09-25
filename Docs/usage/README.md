@@ -10,7 +10,7 @@ Follow this recommended reading order to get up and running quickly:
 2. **[WORKFLOW.md](WORKFLOW.md)** - Understand the complete workflow
 3. **[EXAMPLES.md](EXAMPLES.md)** - Write your logical formulas
 4. **[SETTINGS.md](SETTINGS.md)** - Configure your analysis
-5. **[CONSTRAINTS.md](CONSTRAINTS.md)** - Test semantic properties
+5. **[SEMANTICS.md](SEMANTICS.md)** - Test semantic properties
 6. **[OUTPUT.md](OUTPUT.md)** - Save and share results
 7. **[TOOLS.md](TOOLS.md)** - Advanced tools and theory comparison
 
@@ -107,7 +107,7 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 
 - **[TOOLS.md](TOOLS.md)** - Advanced ModelChecker features including iterate setting, theory comparison, maximize flag, and debugging tools
 
-- **[CONSTRAINTS.md](CONSTRAINTS.md)** - Advanced methodology for testing semantic constraints through countermodel search, proving properties by absence, and discovering minimal axiom sets
+- **[SEMANTICS.md](SEMANTICS.md)** - Advanced methodology for testing semantic constraints through countermodel search, proving properties by absence, and discovering minimal axiom sets
 
 ## Documentation
 
@@ -119,7 +119,7 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 
 ### For Researchers
 - **[ModelChecker Tools](TOOLS.md)** - Advanced features and comparative semantics
-- **[Constraint Testing](CONSTRAINTS.md)** - Testing semantic properties
+- **[Constraint Testing](SEMANTICS.md)** - Testing semantic properties
 - **[Performance Optimization](WORKFLOW.md#performance-optimization)** - Large-scale testing
 - **[Architecture](../architecture/README.md)** - Theoretical foundations
 

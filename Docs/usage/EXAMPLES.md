@@ -25,6 +25,8 @@ Example files are Python modules that define logical formulas, settings, and the
 
 The examples.py structure serves as both **documentation and executable code**, demonstrating theory capabilities through carefully crafted logical formulas. These files are essential for validating semantic implementations, providing test cases, and offering practical usage examples for researchers and developers.
 
+**Architecture Context**: For how example files are processed through the system, see [Pipeline Architecture](../architecture/PIPELINE.md) and [Builder Architecture](../architecture/BUILDER.md). For formula parsing details, see [Syntactic Architecture](../architecture/SYNTACTIC.md).
+
 ## Basic Example Structure
 
 Every ModelChecker example file must export two dictionaries:
@@ -571,12 +573,14 @@ theory = get_theory()  # Don't forget parentheses
 - [Settings Guide](SETTINGS.md) - Configuring examples
 - [Output Guide](OUTPUT.md) - Saving and formatting results
 - [ModelChecker Tools](TOOLS.md) - Advanced features and multi-theory examples
-- [Constraints Testing](CONSTRAINTS.md) - Advanced testing techniques
+- [Constraints Testing](SEMANTICS.md) - Advanced testing techniques
 
 ### Architecture Documentation
-- [Syntactic Processing](../architecture/SYNTACTIC.md) - How formulas are parsed
-- [Builder Architecture](../architecture/BUILDER.md) - How examples are executed
-- [Pipeline Overview](../architecture/PIPELINE.md) - Complete data flow
+- [Syntactic Processing](../architecture/SYNTACTIC.md) - How formulas are parsed and AST is constructed
+- [Builder Architecture](../architecture/BUILDER.md) - How examples are orchestrated and executed
+- [Pipeline Overview](../architecture/PIPELINE.md) - Complete data flow from examples to outputs
+- [Settings Architecture](../architecture/SETTINGS.md) - How example settings are processed
+- [Models Architecture](../architecture/MODELS.md) - How examples generate semantic models
 
 ---
 

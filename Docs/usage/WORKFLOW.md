@@ -1,444 +1,286 @@
-# Workflow Overview: The Complete ModelChecker Process
+# Methodology Overview: Developing Semantic Theories
 
 [← Previous: Project Setup](PROJECT.md) | [Next: Writing Examples →](EXAMPLES.md)
 
-## Overview: How ModelChecker Works
+## Introduction
 
-**ModelChecker** tests if logical inferences are valid by searching for counterexamples:
-1. You provide premises and conclusions
-2. ModelChecker searches for a model where premises are true but conclusions false
-3. If no such model exists, the inference is valid
-4. If found, you get the countermodel details
+The ModelChecker provides a systematic methodology for developing and studying semantic theories. Rather than working with abstract logical systems, you create concrete computational models that can automatically test inferences, generate counterexamples, and compare different semantic approaches.
 
-## Quick Workflow Examples
+This guide presents the big picture methodology - a step-by-step workflow for developing semantic theories from initial project creation through advanced analysis and output.
 
-### 1. Test a Simple Inference
+**Architecture Foundation**: For the complete system architecture that enables this workflow, see [Architecture Overview](../architecture/README.md) and the [Pipeline Architecture](../architecture/PIPELINE.md) that shows the complete data flow.
 
-```bash
-# Does "A and (A implies B)" entail "B"?
-model-checker examples.py  # Contains this test
-# Result: VALID (no countermodel found)
-```
+## The ModelChecker Methodology
 
-### 2. Find a Counterexample
+### Step 1: Create Your Theory Project
+
+Start by creating a new project or loading an existing theory:
 
 ```bash
-# Does "A or B" entail "A"?
-model-checker invalid_test.py
-# Result: INVALID - Shows model where B is true, A is false
+# Create a blank project interactively
+model-checker
+
+# Load an existing theory as starting point
+model-checker -l logos       # Hyperintensional semantics
+model-checker -l exclusion   # Unilateral exclusion semantics
+model-checker -l imposition  # Fine's counterfactual semantics
+model-checker -l bimodal     # Temporal-modal logic
 ```
 
-### 3. Explore Multiple Models
+This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. You now have a working semantic theory that you can run, test, and modify.
 
-```bash
-# Find different ways premises can be true
-model-checker examples.py --iterate=3
-# Shows up to 3 different models
-```
+**Purpose**: Establish the computational foundation for your semantic investigation.
 
-## Core Workflows
+**Next**: See [Project Creation Guide](PROJECT.md) for detailed project setup options and structure.
 
-### Running Examples
+### Step 2: Develop Examples
 
-After creating your project ([see PROJECT.md](PROJECT.md)), test logical formulas:
-
-```bash
-# Run examples in your project
-cd project_my_theory
-model-checker examples.py
-
-# Run with options
-model-checker examples.py --N=4        # More atomic propositions  
-model-checker examples.py --verbose    # Show details
-model-checker examples.py --iterate=3  # Find multiple models
-```
-
-**What happens**: ModelChecker reads your formula, generates logical constraints, and uses Z3 to find models. Details in [EXAMPLES.md](EXAMPLES.md).
-
-### Understanding Results
+Edit the `examples.py` file to test logical inferences relevant to your theory:
 
 ```python
-# VALID inference (no countermodel)
-Premises: ["A", "A → B"]
-Conclusions: ["B"]
-Result: No countermodel found (VALID)
-
-# INVALID inference (countermodel exists)
-Premises: ["A ∨ B"]
-Conclusions: ["A"]
-Result: Countermodel found:
-  World 0: B is true, A is false
-```
-
-See [OUTPUT.md](OUTPUT.md) for saving and formatting results.
-
-### Common Command-Line Options
-
-Essential flags for daily use:
-
-```bash
-# Control output
---verbose              # Show detailed progress
---quiet                # Minimal output only
-
-# Debug issues  
---print-constraints    # Show logical constraints
---print-z3            # Show Z3 solver details
-
-# Adjust parameters
---N=5                 # Set max atomic propositions
---iterate=3           # Find multiple models
---max-time=30         # Set timeout (seconds)
-
-# Save results
---save json           # Save as JSON
---save markdown       # Save as Markdown
-```
-
-Complete reference in [SETTINGS.md](SETTINGS.md).
-
-## Development Workflow
-
-### Modify Your Theory
-
-After creating a project, develop your custom logic:
-
-```python
-# Edit semantic.py - Define your logic rules
-class MySemantics(Semantics):
-    def _generate_constraints(self):
-        # Add your logical constraints
-        
-# Edit operators.py - Add new operators
-class MyOperator(Operator):
-    name = "⊕"  # Your symbol
-    
-# Edit examples.py - Test your logic
-MY_TEST_premises = ["A ⊕ B"]
-MY_TEST_conclusions = ["B ⊕ A"]
-```
-
-### Test Your Changes
-
-```bash
-# Run your modified examples
-model-checker examples.py
-
-# Create new test files
-model-checker test_symmetry.py
-model-checker test_transitivity.py
-```
-
-Detailed development guide in [Settings](SETTINGS.md) and [Architecture](../architecture/README.md).
-
-## Debugging When Things Go Wrong
-
-### Common Issues and Solutions
-
-```bash
-# No model found? Check your constraints:
-model-checker examples.py --print-constraints
-
-# Timeout? Reduce complexity:
-model-checker examples.py --N=3 --max-time=5
-
-# Wrong result? Enable debug output:
-model-checker examples.py --verbose --print-z3
-```
-
-### Understanding Error Messages
-
-```python
-# Formula parsing error
-Error: Unknown operator '&'
-Fix: Use LaTeX notation '\\wedge'
-
-# Constraint conflict  
-Error: Unsat core [...]
-Fix: Check for contradictory settings
-
-# Timeout
-Error: Z3 timeout after 30s
-Fix: Simplify formula or increase --max-time
-```
-
-Full debugging guide in [CONSTRAINTS.md](CONSTRAINTS.md).
-
-### Testing with Unit Tests
-
-Run comprehensive tests during development:
-
-```bash
-# Run all tests for your theory
-./run_tests.py my_counterfactual_theory
-
-# Run only unit tests
-./run_tests.py --unit my_counterfactual_theory
-
-# Run only example tests
-./run_tests.py --examples my_counterfactual_theory
-
-# Run with verbose output
-./run_tests.py --verbose my_counterfactual_theory
-
-# Run specific test with pytest
-pytest project_my_counterfactual_theory/tests/test_semantic.py -v
-```
-
-**Test-driven development workflow**:
-1. Write failing test for new feature
-2. Implement minimal code to pass
-3. Refactor while keeping tests green
-4. Add integration examples
-5. Run full test suite before committing
-
-### Running Example Validation
-
-Validate your theory against standard examples:
-
-```bash
-# Run your theory's examples
-model-checker project_my_counterfactual_theory/examples.py
-
-# Compare with reference theory
-model-checker project_my_counterfactual_theory/examples.py --compare
-
-# Run with specific settings override
-model-checker project_my_counterfactual_theory/examples.py --N=5 --contingent
-```
-
-**Validation workflow**:
-1. Start with simple tautologies
-2. Add invalid formulas expecting countermodels
-3. Test edge cases (empty premises, contradictions)
-4. Verify expected vs actual results
-5. Compare with established theories
-
-### Using Iterate to Explore Semantic Space
-
-Explore multiple models for your formulas:
-
-```python
-# In your examples.py
-EXPLORE_settings = {
-    'N': 4,
-    'iterate': 5,  # Find up to 5 distinct models
-    'max_time': 30,
-    'expectation': True  # Expect countermodels
-}
-```
-
-```bash
-# Run with iteration
-model-checker examples/explore.py
-
-# Output shows:
-# MODEL 1/5
-# [First model details]
-# 
-# MODEL 2/5
-# === DIFFERENCES FROM PREVIOUS MODEL ===
-# [Structural differences]
-```
-
-### Saving Your Results
-
-```bash
-# Save in different formats
-model-checker examples.py --save json      # For processing
-model-checker examples.py --save markdown  # For documentation
-model-checker examples.py --save notebook  # For Jupyter
-
-# Results saved to output/ directory
-```
-
-See [OUTPUT.md](OUTPUT.md) for output formats and options.
-
-## Performance Optimization
-
-### Setting Appropriate N Values
-
-The N parameter controls state space size (2^N states):
-
-```python
-# Performance impact:
-# N=3: 8 states (fast)
-# N=4: 16 states (moderate)
-# N=5: 32 states (slower)
-# N=6: 64 states (may timeout)
-
-# Optimization strategies:
-# 1. Start with minimal N
-N_minimal = len(atomic_propositions)
-
-# 2. Increase only if needed
-if "unsat" in result:
-    settings['N'] = N_minimal + 1
-
-# 3. Use theory-specific minimums
-# Modal logic often needs N+1 for accessibility
-```
-
-### Timeout Configuration
-
-Balance thoroughness with responsiveness:
-
-```python
-# Quick exploration
-QUICK_settings = {
-    'max_time': 1,  # 1 second timeout
+# Test modus ponens
+MP_premises = ["A", "(A \\rightarrow B)"]
+MP_conclusions = ["B"]
+MP_settings = {
     'N': 3,
+    'max_time': 10,
+    'expectation': False  # Expect valid (no countermodel)
 }
 
-# Thorough analysis
+# Test a potential counterexample
+INVALID_premises = ["(A \\vee B)"]
+INVALID_conclusions = ["A"]
+INVALID_settings = {
+    'N': 3,
+    'max_time': 10,
+    'expectation': True  # Expect countermodel
+}
+```
+
+Run your examples to test whether inferences are valid:
+
+```bash
+model-checker examples.py
+```
+
+**Purpose**: Define the logical questions your theory should answer and verify its behavior on key inferences.
+
+**Next**: See [Examples Guide](EXAMPLES.md) for formula syntax, example patterns, and testing strategies.
+
+### Step 3: Configure Settings
+
+Adjust model parameters to control how ModelChecker searches for countermodels:
+
+```python
+# Quick testing - small state spaces
+QUICK_settings = {
+    'N': 3,              # 8 possible states
+    'max_time': 5,       # 5 second timeout
+    'contingent': False, # Allow non-contingent propositions
+    'iterate': 1,        # Find 1 model
+}
+
+# Thorough analysis - larger search space
 THOROUGH_settings = {
-    'max_time': 60,  # 1 minute timeout
-    'N': 5,
-}
-
-# Iteration with timeouts
-ITERATE_settings = {
-    'max_time': 10,              # Per model timeout
-    'iterate': 5,
-    'iteration_timeout': 2,      # Isomorphism check timeout
-    'iteration_solver_timeout': 5 # Z3 timeout per iteration
+    'N': 5,              # 32 possible states
+    'max_time': 30,      # 30 second timeout
+    'contingent': True,  # Require contingent propositions
+    'iterate': 3,        # Find up to 3 different models
 }
 ```
 
-### Iteration Settings Tuning
+Settings control the computational complexity and the types of models ModelChecker will consider.
 
-Optimize iteration for your use case:
+**Purpose**: Balance computational efficiency with thoroughness to find the models most relevant to your semantic questions.
+
+**Next**: See [Settings Guide](SETTINGS.md) for complete parameter reference and optimization strategies.
+
+### Step 4: Adapt Semantic Framework
+
+Modify `semantic.py` to implement your specific semantic theory by adding constraints:
 
 ```python
-# Fast iteration (find different valuations)
-FAST_ITERATE = {
-    'iterate': 3,
-    'max_invalid_attempts': 2,
-    'iteration_attempts': 3,
-    'escape_attempts': 1
-}
+# Add a new constraint to your semantic class
+class MySemantics(LogosSemantics):
+    def __init__(self, combined_settings=None, **kwargs):
+        super().__init__(combined_settings, **kwargs)
 
-# Thorough iteration (find structurally different)
-THOROUGH_ITERATE = {
-    'iterate': 10,
-    'max_invalid_attempts': 5,
-    'iteration_attempts': 5,
-    'escape_attempts': 3
-}
+        # Add your custom semantic constraints
+        self.frame_constraints.extend([
+            self.my_custom_constraint(),
+            self.another_constraint()
+        ])
 
-# Debug iteration issues
-DEBUG_ITERATE = {
-    'iterate': 2,
-    'verbose': True,
-    'print_constraints': True
-}
+    def my_custom_constraint(self):
+        """Define how your theory differs from the base theory."""
+        x, y = z3.BitVecs("custom_x custom_y", self.N)
+        return ForAll([x, y],
+            z3.Implies(
+                # Your constraint conditions
+                z3.And(self.is_world(x), self.is_world(y)),
+                # Your constraint requirements
+                self.custom_relation(x, y)
+            )
+        )
 ```
 
-### Memory Management Strategies
+**Purpose**: Implement the core logical principles that distinguish your semantic theory from others.
 
-Handle large state spaces efficiently:
+**Next**: See [Semantics Guide](SEMANTICS.md) for constraint implementation patterns and semantic frameworks.
+
+### Step 5: Define Custom Operators
+
+Add new logical operators by creating operator classes in `operators.py`:
 
 ```python
-# 1. Use incremental solving
-for n in range(3, 6):
-    settings['N'] = n
-    result = run_example(settings)
-    if result.satisfiable:
-        break
+# Define a new operator
+class MyOperator(syntactic.DefinedOperator):
+    """Custom logical operator."""
 
-# 2. Limit iteration scope
-settings['iterate'] = min(5, 2**(settings['N']-1))
+    name = "\\myop"  # LaTeX command
+    arity = 2        # Binary operator
 
-# 3. Clean up between runs
-import gc
-gc.collect()
+    def derived_definition(self, leftarg, rightarg):
+        # Define in terms of existing operators
+        return [AndOperator,
+                [NegationOperator, leftarg],
+                rightarg]
 
-# 4. Monitor memory usage
-import psutil
-process = psutil.Process()
-print(f"Memory: {process.memory_info().rss / 1024 / 1024:.1f} MB")
+# Register the operator
+def get_operators():
+    return {
+        "\\neg": NegationOperator,
+        "\\wedge": AndOperator,
+        "\\myop": MyOperator,  # Your new operator
+    }
 ```
+
+Use your new operators in examples:
+
+```python
+premises = ["(A \\myop B)"]
+conclusions = ["(\\neg A \\wedge B)"]
+```
+
+**Purpose**: Extend your theory's expressive power with operators that capture the logical concepts central to your investigation.
+
+**Next**: See [Operators Guide](OPERATORS.md) for both defined and primitive operator implementation.
+
+### Step 6: Iterate Models and Compare Theories
+
+Find multiple models to understand the full space of possibilities, and compare different theoretical approaches:
+
+```python
+# Find multiple models for a single theory
+ITERATION_settings = {
+    'N': 4,
+    'iterate': 5,        # Find up to 5 different models
+    'max_time': 20,
+}
+
+# Compare multiple theories on the same examples
+semantic_theories = {
+    "theory_a": my_theory_a,
+    "theory_b": my_theory_b,
+    "baseline": logos_theory,
+}
+```
+
+Run comparative analysis:
+
+```bash
+# Find multiple models
+model-checker examples.py
+
+# Compare theories (when multiple theories defined)
+model-checker examples.py --maximize
+```
+
+**Purpose**: Explore the space of models your theory allows and systematically compare it with alternative approaches.
+
+**Next**: See [Tools Guide](TOOLS.md) for model iteration, theory comparison, and advanced analysis techniques.
+
+### Step 7: Save and Export Results
+
+Export your findings in formats suitable for further analysis or publication:
+
+```python
+# Configure output in your examples
+general_settings = {
+    "save_output": True,
+    "output_format": "markdown",  # or "json", "latex"
+}
+```
+
+```bash
+# Command-line output options
+model-checker examples.py --save json      # Machine-readable
+model-checker examples.py --save markdown  # Human-readable
+model-checker examples.py --save latex     # Publication-ready
+```
+
+Results are saved in the `output/` directory with countermodels, model comparisons, and iteration analyses.
+
+**Purpose**: Preserve and format your semantic investigations for analysis, documentation, and publication.
+
+**Next**: See [Output Guide](OUTPUT.md) for format options, file organization, and integration workflows.
+
+## Quick Command Reference
+
+```bash
+# Project Setup
+model-checker                    # Create new project
+model-checker -l <theory_name>   # Load existing theory
+
+# Run Examples
+model-checker examples.py        # Basic execution
+model-checker examples.py --N=4  # Larger state space
+model-checker examples.py --iterate=3  # Multiple models
+
+# Debug and Analyze
+model-checker examples.py --verbose     # Detailed output
+model-checker examples.py --maximize    # Compare theories
+
+# Save Results
+model-checker examples.py --save json      # JSON format
+model-checker examples.py --save markdown  # Markdown format
+```
+
+## The Complete Methodology
+
+This systematic approach enables you to:
+
+1. **Start** with working theories as foundations
+2. **Test** logical inferences computationally
+3. **Customize** semantic behavior through constraints
+4. **Extend** expressive power with new operators
+5. **Explore** the space of possible models
+6. **Compare** different theoretical approaches
+7. **Document** and share your findings
+
+Each step builds on the previous ones, creating a complete framework for semantic investigation that combines theoretical rigor with computational verification.
 
 ## Next Steps
 
 ### Learn the Details
 
-Now that you understand the workflow, explore:
+Now that you understand the methodology, dive into the specific guides:
 
-1. **[EXAMPLES.md](EXAMPLES.md)** - Write logical formulas correctly
-2. **[SETTINGS.md](SETTINGS.md)** - Configure ModelChecker behavior  
-3. **[CONSTRAINTS.md](CONSTRAINTS.md)** - Test semantic properties
-4. **[OUTPUT.md](OUTPUT.md)** - Save and format results
+1. **[PROJECT.md](PROJECT.md)** - Project creation and organization
+2. **[EXAMPLES.md](EXAMPLES.md)** - Writing and testing logical formulas
+3. **[SETTINGS.md](SETTINGS.md)** - Model parameters and optimization
+4. **[SEMANTICS.md](SEMANTICS.md)** - Implementing semantic constraints
+5. **[OPERATORS.md](OPERATORS.md)** - Defining new logical operators
+6. **[TOOLS.md](TOOLS.md)** - Advanced analysis and comparison
+7. **[OUTPUT.md](OUTPUT.md)** - Results formatting and export
 
 ### Advanced Topics
 
-- **[TOOLS.md](TOOLS.md)** - Advanced tools and theory comparison
-- **[Architecture Docs](../architecture/README.md)** - How ModelChecker works internally
-
-## Quick Reference
-
-### Essential Commands
-
-```bash
-# Create project
-model-checker                    # Interactive creation
-model-checker -l exclusion       # Copy specific theory
-
-# Run examples
-model-checker examples.py        # Run tests
-model-checker examples.py --N=4  # More states
-
-# Debug
-model-checker examples.py --verbose            # Show details
-model-checker examples.py --print-constraints  # Show logic
-
-# Save results  
-model-checker examples.py --save json     # JSON format
-model-checker examples.py --save markdown # Markdown format
-```
-
-### Common Patterns
-
-```python
-# Test if inference is valid
-TEST_premises = ["A", "A → B"]
-TEST_conclusions = ["B"]
-# Expect: Valid (no countermodel)
-
-# Find counterexample
-INVALID_premises = ["A ∨ B"] 
-INVALID_conclusions = ["A"]
-# Expect: Invalid (shows countermodel)
-
-# Test logical equivalence
-EQUIV1_premises = ["A ∧ B"]
-EQUIV1_conclusions = ["B ∧ A"]
-# Should be valid both directions
-```
-
-### Formula Syntax
-
-```
-∧  AND         (\\wedge)
-∨  OR          (\\vee)
-¬  NOT         (\\neg)
-→  IMPLIES     (\\rightarrow)
-↔  IFF         (\\leftrightarrow)
-□  NECESSARY   (\\Box)
-◇  POSSIBLE    (\\Diamond)
-```
-
-Full syntax guide in [EXAMPLES.md](EXAMPLES.md).
-
-## Summary
-
-You've learned the ModelChecker workflow:
-1. **Create** a project with your theory
-2. **Run** examples to test inferences
-3. **Debug** with verbose output when needed
-4. **Save** results in various formats
-
-Continue to [EXAMPLES.md](EXAMPLES.md) for writing formulas, or return to [PROJECT.md](PROJECT.md) to review project creation.
+- **[Architecture Documentation](../architecture/README.md)** - Complete system architecture and design
+- **[Pipeline Architecture](../architecture/PIPELINE.md)** - Data flow from inputs to outputs
+- **[Builder Architecture](../architecture/BUILDER.md)** - Workflow orchestration details
+- **[Theory Library Architecture](../architecture/THEORY_LIB.md)** - Theory framework design
+- **[Theory Library Implementation](../../Code/src/model_checker/theory_lib/README.md)** - Existing theories for reference
 
 ---
 

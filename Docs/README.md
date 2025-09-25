@@ -27,7 +27,7 @@ Docs/
 │   ├── README.md                   # Usage documentation hub
 │   ├── WORKFLOW.md                 # Comprehensive workflows
 │   ├── TOOLS.md                    # Advanced tools and theory comparison
-│   └── CONSTRAINTS.md              # Testing semantic constraints
+│   └── SEMANTICS.md              # Testing semantic constraints
 ├── theory/                         # Theoretical foundations
 │   ├── README.md                   # Theory documentation hub
 │   ├── HYPERINTENSIONAL.md         # Hyperintensional logic
@@ -172,7 +172,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 - **[Theoretical Foundations](theory/README.md)** - Academic background
 - **[Architecture Overview](architecture/README.md)** - Programmatic semantics
 - **[ModelChecker Tools](usage/TOOLS.md)** - Advanced features and comparison
-- **[Constraint Testing](usage/CONSTRAINTS.md)** - Proving properties by absence
+- **[Constraint Testing](usage/SEMANTICS.md)** - Proving properties by absence
 
 ### For Developers
 

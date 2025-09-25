@@ -35,6 +35,8 @@ project_my_project/
 └── .modelchecker    # Identifies as ModelChecker project
 ```
 
+**Architecture Context**: For understanding how these files work together, see [Theory Library Architecture](../architecture/THEORY_LIB.md). For the complete system design, see [Architecture Overview](../architecture/README.md).
+
 ## First Steps After Creation
 
 ### 1. Test Your Project Works
@@ -651,13 +653,19 @@ print(self.settings)  # Debug settings in semantic.py
 - [Settings Guide](SETTINGS.md) - Configuration options
 - [Output Guide](OUTPUT.md) - Saving results
 
-### Technical Documentation  
+### Architecture Documentation
+- [Theory Library Architecture](../architecture/THEORY_LIB.md) - Theory framework design
+- [Builder Architecture](../architecture/BUILDER.md) - Project execution pipeline
+- [Pipeline Overview](../architecture/PIPELINE.md) - Complete system data flow
+- [Syntactic Architecture](../architecture/SYNTACTIC.md) - Formula parsing and AST
+- [Models Architecture](../architecture/MODELS.md) - Semantic model generation
+
+### Technical Documentation
 - [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Existing theories
 - [Syntactic Package](../../Code/src/model_checker/syntactic/README.md) - Operator and syntax handling
 - [OperatorCollection API](../../Code/src/model_checker/syntactic/collection.py) - Operator registry class
 - [Operator Base Classes](../../Code/src/model_checker/syntactic/operators.py) - Operator implementation
 - [Contributing Guide](../../Code/src/model_checker/theory_lib/docs/CONTRIBUTING.md) - Contributing theories
-- [Architecture](../architecture/THEORY_LIB.md) - Theory framework design
 
 ---
 

@@ -28,9 +28,13 @@
 
 This guide explains advanced features of the ModelChecker for exploring logical theories, finding multiple models, and comparing different semantic frameworks. These tools are essential for researchers and developers working with complex logical theories and requiring detailed model analysis.
 
+**Architecture Context**: For understanding how these tools fit into the complete system, see [Pipeline Architecture](../architecture/PIPELINE.md). For the iteration system's design, see [Iterate Architecture](../architecture/ITERATE.md).
+
 ## Using the Iterate Setting
 
 The `iterate` setting allows you to find multiple semantically distinct models for a logical formula. This is useful for exploring the full space of possible models and understanding how different interpretations can satisfy the same logical constraints.
+
+**Architecture Deep Dive**: For the complete design and implementation of the iteration system, including isomorphism detection and constraint strengthening, see [Iterate Architecture](../architecture/ITERATE.md).
 
 ### Basic Usage
 
@@ -43,7 +47,7 @@ LOGOS_CM_1_settings = {
     'contingent': True,
     'non_null': True,
     'max_time': 5,
-    'iterate': 3,        # Find up to 3 distinct models
+    'iterate': 3,        # Find up to 3 distinct models total (including initial model)
     'expectation': True,
 }
 ```
@@ -103,18 +107,16 @@ Each theory defines what makes models "semantically distinct":
 
 ### Advanced Settings
 
-You can fine-tune the iteration behavior:
+The iteration system uses these internal controls:
 
 ```python
 settings = {
-    'iterate': 5,                    # Maximum models to find
-    'max_invalid_attempts': 5,       # Max consecutive invalid models before stopping
-    'iteration_attempts': 5,         # Max isomorphic models before adding stronger constraints
-    'escape_attempts': 3,            # Max attempts to escape isomorphism loops
-    'iteration_timeout': 10,         # Timeout for isomorphism checking
-    'iteration_solver_timeout': 60,  # Timeout for finding each new model
+    'iterate': 5,                    # Maximum models to find (including initial)
+    'max_time': 30,                  # Overall timeout for the search
 }
 ```
+
+**Note**: The iteration system automatically handles isomorphism detection and constraint strengthening internally. No additional configuration is needed beyond the `iterate` setting.
 
 ## Comparing Multiple Theories
 
@@ -124,6 +126,10 @@ Theory comparison is essential for:
 - **Research validation**: Testing how different semantic frameworks handle the same logical principles
 - **Theoretical insights**: Understanding where theories agree and disagree
 - **Framework development**: Ensuring new theories integrate properly with existing ones
+
+**Architecture References**:
+- [Theory Library Architecture](../architecture/THEORY_LIB.md) - How theories are organized and loaded
+- [Builder Architecture](../architecture/BUILDER.md) - How multiple theories are coordinated during comparison
 
 ## Using the Maximize Flag
 
@@ -551,11 +557,17 @@ semantic_theories = {
    ```python
    # BAD: Using logos operators directly
    "operators": logos_operators  # This might not exist
-   
+
    # GOOD: Use registry
    logos_registry = LogosOperatorRegistry()
    logos_registry.load_subtheories(['modal'])
    "operators": logos_registry.get_operators()
+   ```
+
+5. **Misunderstanding iterate behavior**
+   ```python
+   # Iterate finds UP TO N models, not exactly N
+   'iterate': 5  # May find 1-5 models depending on existence
    ```
 
 ## Related Documentation
@@ -564,7 +576,7 @@ semantic_theories = {
 - [Workflow Guide](WORKFLOW.md) - Complete usage patterns
 - [Examples Guide](EXAMPLES.md) - Writing example files for comparisons
 - [Output Guide](OUTPUT.md) - Saving and formatting comparison results
-- [Constraints Testing](CONSTRAINTS.md) - Testing semantic properties
+- [Constraints Testing](SEMANTICS.md) - Testing semantic properties
 
 ### Theory-Specific Guides
 - [Exclusion Theory](../Code/src/model_checker/theory_lib/exclusion/README.md) - Unilateral semantics implementation
@@ -577,8 +589,11 @@ semantic_theories = {
 - [Development Guide](../Code/docs/DEVELOPMENT.md) - General development workflow
 
 ### Technical References
-- [Builder Architecture](../Code/src/model_checker/builder/README.md) - How examples are built and executed
-- [AI Assistant Guide](../Code/CLAUDE.md) - Development standards and practices
+- [Iterate Architecture](../architecture/ITERATE.md) - Complete iteration system design
+- [Output Architecture](../architecture/OUTPUT.md) - How comparison results are generated
+- [Builder Architecture](../architecture/BUILDER.md) - Pipeline coordination for comparisons
+- [Theory Library Architecture](../architecture/THEORY_LIB.md) - Theory organization and management
+- [Implementation Details](../../Code/src/model_checker/builder/README.md) - Code-level documentation
 
 ---
 
