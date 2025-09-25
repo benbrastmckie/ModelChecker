@@ -203,26 +203,45 @@ class TheoryLibImportStrategy:
     
     def import_module(self, name: str, path: str) -> ModuleType:
         """Import a theory library file as a Python module.
-        
+
         Args:
             name: Module name (may be ignored)
             path: Full file path to the theory library file
-            
+
         Returns:
             Imported module
-            
+
         Raises:
             PackageImportError: If import fails
         """
         from pathlib import Path
         import importlib
-        
-        # Convert file path to module path
+        import site
+
+        # Ensure the model_checker package can be found
+        # by adding site-packages to sys.path if needed
+        site_packages = site.getsitepackages()
+        for sp in site_packages:
+            if sp not in sys.path:
+                sys.path.insert(0, sp)
+
+        # Also try to find model_checker in the source tree
+        # by looking for the src directory that contains model_checker
         path_obj = Path(path).resolve()
-        
-        # Find where model_checker starts in the path
+        current = path_obj.parent
+
+        while current != current.parent:
+            src_dir = current / 'src'
+            if src_dir.exists() and (src_dir / 'model_checker').exists():
+                # Found the src directory containing model_checker
+                if str(src_dir) not in sys.path:
+                    sys.path.insert(0, str(src_dir))
+                break
+            current = current.parent
+
+        # Convert file path to module path
         path_parts = path_obj.parts
-        
+
         # Look for 'model_checker' in the path
         try:
             mc_index = path_parts.index('model_checker')
@@ -233,14 +252,14 @@ class TheoryLibImportStrategy:
                 f"Path: {path}",
                 "Theory library files must be under model_checker/theory_lib"
             )
-        
+
         # Build module name from path
         module_parts = list(path_parts[mc_index:])
-        
+
         # Remove .py extension from last part
         if module_parts[-1].endswith('.py'):
             module_parts[-1] = module_parts[-1][:-3]
-        
+
         # Create dotted module path
         module_name = '.'.join(module_parts)
         
