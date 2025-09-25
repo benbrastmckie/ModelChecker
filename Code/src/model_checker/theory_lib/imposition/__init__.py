@@ -40,7 +40,6 @@ Usage:
     examples = get_examples('imposition')
 """
 
-from .examples import example_range, unit_tests, test_example_range
 from .iterate import ImpositionModelIterator, iterate_example, iterate_example_generator
 from .operators import imposition_operators
 from .semantic import (
@@ -104,28 +103,32 @@ def get_theory(config=None):
 
 def get_examples():
     """
-    Get all imposition examples.
-    
+    Get all imposition examples (lazy loaded to avoid circular imports).
+
     Returns:
         dict: Dictionary containing all imposition examples with categories:
             - 'countermodels': Counter-examples showing invalidity
             - 'theorems': Valid theorems
             - 'all': All examples combined
     """
-    
+    # Lazy import to avoid circular dependency
+    from .examples import countermodel_examples, theorem_examples, unit_tests
+
     return {
-        'countermodels': imposition_cm_examples,
-        'theorems': imposition_th_examples,
+        'countermodels': countermodel_examples,
+        'theorems': theorem_examples,
         'all': unit_tests
     }
 
 
 def get_test_examples():
-    """Get imposition theory test example range.
-    
+    """Get imposition theory test example range (lazy loaded to avoid circular imports).
+
     Returns:
         dict: Mapping of test names to test cases
     """
+    # Lazy import to avoid circular dependency
+    from .examples import test_example_range
     return test_example_range
 
 
@@ -133,11 +136,13 @@ def print_example_report():
     """
     Print a summary report of the imposition theory examples that were run.
     """
-    
+    # Lazy import to avoid circular dependency
+    from .examples import example_range, unit_tests
+
     print("\n" + "=" * 80)
     print("IMPOSITION THEORY EXAMPLE REPORT")
     print("=" * 80)
-    
+
     # Count active examples
     active_examples = len(example_range)
     total_available = len(unit_tests)

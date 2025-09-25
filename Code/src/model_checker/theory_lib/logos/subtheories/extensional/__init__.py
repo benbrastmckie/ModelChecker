@@ -16,7 +16,6 @@ API:
     Individual operator classes can be imported directly for type checking
 """
 
-from .examples import countermodel_examples, theorem_examples, unit_tests
 from .operators import (
     get_operators,
     NegationOperator,
@@ -30,11 +29,13 @@ from .operators import (
 
 def get_examples():
     """
-    Get all extensional examples.
+    Get all extensional examples (lazy loaded to avoid circular imports).
 
     Returns:
         dict: Dictionary containing all extensional examples
     """
+    # Lazy import to avoid circular dependency
+    from .examples import countermodel_examples, theorem_examples, unit_tests
     return {
         'countermodels': countermodel_examples,
         'theorems': theorem_examples,
