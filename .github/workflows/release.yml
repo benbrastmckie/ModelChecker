@@ -1,0 +1,148 @@
+name: Release
+
+# Trigger on version tags for ALL releases - major, minor, and patch
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'  # v1.0.0, v1.2.3, v1.0.1, etc.
+
+jobs:
+  test-and-release:
+    name: Test on ${{ matrix.os }} / Python ${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: true  # Stop immediately if any test fails
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ['3.8', '3.12']  # Test min and max Python versions
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v5
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Get version from tag
+      id: version
+      shell: bash
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "Version: $VERSION"
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: Install and test package
+      shell: bash
+      run: |
+        cd Code
+
+        # Install build dependencies
+        python -m pip install --upgrade pip
+        pip install build wheel setuptools
+
+        # Build the package
+        python -m build
+        ls -la dist/
+
+        # Install the built wheel
+        WHEEL_FILE=$(ls dist/*.whl | head -1)
+        echo "Installing wheel: $WHEEL_FILE"
+        pip install "$WHEEL_FILE"
+
+        # Test basic import
+        python -c "import model_checker; print(f'Version: {model_checker.__version__}')"
+
+        # Test CLI availability
+        python -m model_checker --help
+
+        # Verify version matches tag
+        INSTALLED_VERSION=$(python -c "import model_checker; print(model_checker.__version__)")
+        TAG_VERSION="${{ steps.version.outputs.version }}"
+
+        if [ "$INSTALLED_VERSION" != "$TAG_VERSION" ]; then
+          echo "ERROR: Installed version ($INSTALLED_VERSION) doesn't match tag ($TAG_VERSION)"
+          exit 1
+        fi
+
+        echo "✓ All basic tests passed"
+
+  publish:
+    name: Publish to PyPI
+    needs: test-and-release
+    runs-on: ubuntu-latest
+    # Only run after ALL test jobs succeed
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+
+    - name: Build package
+      run: |
+        cd Code
+        pip install --upgrade pip build
+        python -m build
+        ls -la dist/
+
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        cd Code
+        pip install twine
+
+        if [ -z "$TWINE_PASSWORD" ]; then
+          echo "::error::PYPI_API_TOKEN not configured in GitHub Secrets!"
+          echo "## ⚠️ PyPI Upload Failed - Missing Token" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### To fix this:" >> $GITHUB_STEP_SUMMARY
+          echo "1. Go to https://pypi.org/manage/account/token/" >> $GITHUB_STEP_SUMMARY
+          echo "2. Create an API token for project 'model-checker'" >> $GITHUB_STEP_SUMMARY
+          echo "3. Add it to https://github.com/${{ github.repository }}/settings/secrets/actions" >> $GITHUB_STEP_SUMMARY
+          echo "4. Name it: PYPI_API_TOKEN" >> $GITHUB_STEP_SUMMARY
+          exit 1
+        fi
+
+        # Check package with twine
+        twine check dist/*
+
+        # Upload to PyPI
+        twine upload dist/*
+
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "## ✅ Successfully Published!" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Version $VERSION is now available on PyPI" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "Install with:" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+        echo "pip install model-checker==$VERSION" >> $GITHUB_STEP_SUMMARY
+        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref_name }}
+        body: |
+          ## ModelChecker ${{ github.ref_name }}
+
+          ### Installation
+          ```bash
+          pip install model-checker==${{ github.ref_name }}
+          ```
+
+          ### What's Changed
+          See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details.
+        draft: false
+        prerelease: false
