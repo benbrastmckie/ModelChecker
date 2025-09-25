@@ -114,18 +114,32 @@ jobs:
         # Check package with twine
         twine check dist/*
 
-        # Upload to PyPI
-        twine upload dist/*
-
-        VERSION=${GITHUB_REF#refs/tags/v}
-        echo "## ✅ Successfully Published!" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Version $VERSION is now available on PyPI" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "Install with:" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-        echo "pip install model-checker==$VERSION" >> $GITHUB_STEP_SUMMARY
-        echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        # Upload to PyPI (skip if version already exists)
+        if twine upload dist/* --skip-existing 2>&1 | tee upload.log; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+          if grep -q "Uploading distributions" upload.log; then
+            echo "## ✅ Successfully Published!" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Version $VERSION is now available on PyPI" >> $GITHUB_STEP_SUMMARY
+          elif grep -q "File already exists" upload.log || grep -q "Skipping" upload.log; then
+            echo "## ℹ️ Package Already Published" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Version $VERSION already exists on PyPI" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ✅ Upload Complete" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Version $VERSION processing complete" >> $GITHUB_STEP_SUMMARY
+          fi
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Install with:" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "pip install model-checker==$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "## ❌ Upload Failed" >> $GITHUB_STEP_SUMMARY
+          cat upload.log
+          exit 1
+        fi
 
     - name: Create GitHub Release
       env:
@@ -144,8 +158,13 @@ jobs:
         ### What's Changed
         See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
 
-        # Create the release using GitHub CLI
-        gh release create "${VERSION}" \
-          --title "Release ${VERSION}" \
-          --notes "${RELEASE_NOTES}" \
-          --verify-tag
+        # Check if release already exists
+        if gh release view "${VERSION}" > /dev/null 2>&1; then
+          echo "Release ${VERSION} already exists, skipping creation"
+        else
+          # Create the release using GitHub CLI
+          gh release create "${VERSION}" \
+            --title "Release ${VERSION}" \
+            --notes "${RELEASE_NOTES}" \
+            --verify-tag
+        fi
