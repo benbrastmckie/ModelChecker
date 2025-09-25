@@ -289,6 +289,61 @@ Choose the appropriate format based on your use case:
 
 ## Practical Examples
 
+### Example Output:
+
+Here's an example of counterfactual logic evaluation output:
+
+```
+========================================
+
+EXAMPLE CF_CM_7: there is a countermodel.
+
+Atomic States: 4
+Semantic Theory: Brast-McKie
+
+Premise:
+1. (A \boxright B)
+
+Conclusion:
+2. (\neg B \boxright \neg A)
+
+Z3 Run Time: 0.0131 seconds
+
+========================================
+
+State Space:
+  #b0111 = a.b.c (world)
+  #b1011 = a.b.d (world)
+  #b1101 = a.c.d (world)
+  #b1110 = b.c.d (world)
+
+The evaluation world is: a.c.d
+
+INTERPRETED PREMISE:
+
+1. |(A \boxright B)| = < {a.c.d}, {a.b.c, a.b.d, b.c.d} >  (True in a.c.d)
+    |A| = < {c.d}, {a.b} >  (True in a.c.d)
+    |A|-alternatives to a.c.d = {a.c.d}
+      |B| = < {a.c.d}, {a.b, a.b.c, a.b.c.d, a.b.d, b.d} >  (True in a.c.d)
+
+INTERPRETED CONCLUSION:
+
+2. |(\neg B \boxright \neg A)| = < {a.b.d}, {a.b.c, a.c.d, b.c.d} >  (False in a.c.d)
+    |\neg B| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.d}, {a.c.d} >  (False in a.c.d)
+    |\neg B|-alternatives to a.c.d = {a.b.c, a.b.d, b.c.d}
+      |\neg A| = < {a.b}, {c.d} >  (False in b.c.d)
+
+Total Run Time: 0.4047 seconds
+========================================
+```
+
+Key output components for counterfactual logic:
+- **State Space**: Possible worlds in the model
+- **Evaluation World**: Where the argument is evaluated
+- **Counterfactual Alternatives**: Nearest possible worlds for counterfactual conditionals
+- **Verifiers/Falsifiers**: States that make propositions true or false
+- **Truth Values**: Color-coded indicators (Green=True, Red=False)
+
 ### Example 1: Document Theory Validation
 
 ```bash

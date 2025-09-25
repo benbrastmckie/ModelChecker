@@ -332,6 +332,59 @@ DEFAULT_GENERAL_SETTINGS = {
 
 ## Usage Examples
 
+### Example Output:
+
+Here's a counterfactual logic evaluation demonstrating the output system in action:
+
+```
+========================================
+
+EXAMPLE CF_TH_10: there is no countermodel.
+
+Atomic States: 4
+Semantic Theory: Brast-McKie
+
+Premises:
+1. A
+2. B
+
+Conclusion:
+3. (A \diamondright B)
+
+Z3 Run Time: 0.0215 seconds
+
+========================================
+```
+
+When a countermodel is found, the system provides detailed semantic information:
+
+```
+EXAMPLE CF_CM_1: there is a countermodel.
+
+State Space:
+  #b0101 = a.c (world)
+  #b0110 = b.c (world)
+  #b1001 = a.d (world)
+
+The evaluation world is: b.c
+
+INTERPRETED PREMISES:
+1. |\neg A| = < {b.c}, {a, a.b.c.d} >  (True in b.c)
+2. |(A \boxright C)| = < {a.c, b.c}, {a.d} >  (True in b.c)
+    |A|-alternatives to b.c = {a.c}
+    |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (True in a.c)
+
+INTERPRETED CONCLUSION:
+3. |((A \wedge B) \boxright C)| = < {}, {a.c, a.d, b.c} >  (False in b.c)
+    |(A \wedge B)|-alternatives to b.c = {a.d}
+    |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (False in a.d)
+```
+
+The output system formats this data into multiple representations:
+- **Markdown**: Human-readable documentation with color coding
+- **JSON**: Structured data for programmatic analysis
+- **Notebook**: Interactive exploration with visualizations
+
 ### Basic Usage
 
 ```python
