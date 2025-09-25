@@ -31,17 +31,18 @@ class ModuleLoader:
     
     def __init__(self, module_name: str, module_path: str):
         """Initialize loader with module information.
-        
+
         Args:
             module_name: Name of module to load
             module_path: Path to module file
-            
+
         Raises:
             PackageStructureError: If module file doesn't exist
         """
         self.module_name = module_name
-        self.module_path = module_path
-        self.module_dir = str(Path(module_path).parent) if module_path else None
+        # Resolve module_path to absolute path for consistent handling
+        self.module_path = str(Path(module_path).resolve()) if module_path else module_path
+        self.module_dir = str(Path(self.module_path).parent) if self.module_path else None
     
     def load_module(self) -> ModuleType:
         """Load the module using appropriate strategy.
