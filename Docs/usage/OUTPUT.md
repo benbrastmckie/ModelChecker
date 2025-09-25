@@ -152,12 +152,10 @@ model-checker examples/test.py --save notebook
 --save json              # Save as JSON
 --save markdown          # Save as Markdown
 --save notebook          # Generate Jupyter notebook
---save all               # Save in all formats
+--save                   # Save in all formats
 
-# Additional options
---output-dir=<path>      # Custom output directory (default: output/)
---no-terminal           # Suppress terminal output when saving
---overwrite            # Overwrite existing files without prompting
+# Additional options available through example file settings
+# See SETTINGS.md for configuration options
 ```
 
 ### Interactive Save Mode
@@ -231,8 +229,10 @@ for file in examples/*.py; do
     model-checker "$file" --save json
 done
 
-# Save with pattern matching
-model-checker examples/*_test.py --save all --output-dir results/
+# Save with pattern matching - all formats
+for file in examples/*_test.py; do
+    model-checker "$file" --save
+done
 ```
 
 ## Output Directory Structure
@@ -283,7 +283,7 @@ Choose the appropriate format based on your use case:
 | Automated testing | JSON | `--save json` |
 | Documentation | Markdown | `--save markdown` |
 | Interactive exploration | Notebook | `--save notebook` |
-| Complete archive | All | `--save all` |
+| Complete archive | All | `--save` |
 | CI/CD pipeline | JSON | `--save json` |
 | Academic paper | Markdown + JSON | `--save markdown json` |
 
@@ -398,11 +398,9 @@ jupyter notebook workshop_materials/notebooks/logic_basics_notebook.ipynb
 ```bash
 # Save everything for detailed analysis
 model-checker problematic_example.py \
-    --save all \
-    --print-constraints \
-    --print-z3 \
-    --iterate=5 \
-    --verbose
+    --save \
+    --print_constraints \
+    --print_z3
 
 # Examine results
 ls -la output/problematic_example/
@@ -430,10 +428,10 @@ gzip output/theory_module/*.json
 
 **Issue**: Overwriting existing files
 ```bash
-# Solution: Use --overwrite flag or unique directories
-model-checker file.py --save all --overwrite
-# OR with timestamp
-model-checker file.py --save all --output-dir "output/$(date +%s)"
+# Solution: Remove existing output or use different filenames
+rm -rf output/
+model-checker file.py --save
+# OR use different example names to avoid conflicts
 ```
 
 **Issue**: Notebook generation fails

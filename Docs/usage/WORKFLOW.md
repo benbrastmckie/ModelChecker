@@ -17,15 +17,23 @@ This guide presents the big picture methodology - a step-by-step workflow for de
 Start by creating a new project or loading an existing theory:
 
 ```bash
-# Create a blank project interactively
-model-checker
+# Create a copy of the logos semantics
+model-checker                           # Hyperintensional semantics
 
 # Load an existing theory as starting point
-model-checker -l logos       # Hyperintensional semantics
-model-checker -l exclusion   # Unilateral exclusion semantics
-model-checker -l imposition  # Fine's counterfactual semantics
-model-checker -l bimodal     # Temporal-modal logic
+model-checker -l logos                  # Hyperintensional semantics (all subtheories)
+model-checker -l exclusion              # Unilateral exclusion semantics
+model-checker -l imposition             # Fine's counterfactual semantics
+model-checker -l bimodal                # Temporal-modal logic
 ```
+
+**Available Logos Subtheories:**
+When using `model-checker -l logos`, you get access to all subtheories by default:
+- **extensional**: Basic logical operators (¬, ∧, ∨, →, ↔, ⊤, ⊥)
+- **modal**: Necessity and possibility operators (□, ◇)
+- **constitutive**: Content relationships (≡, ≤, ⊑, ⪯, ⇒)
+- **counterfactual**: Counterfactual conditionals (□→, ◇→)
+- **relevance**: Content-sensitive relevance logic
 
 This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. You now have a working semantic theory that you can run, test, and modify.
 
@@ -62,6 +70,55 @@ Run your examples to test whether inferences are valid:
 ```bash
 model-checker examples.py
 ```
+
+### Example Output:
+
+Here's what you see when running counterfactual logic examples:
+
+```
+========================================
+
+EXAMPLE CF_CM_1: there is a countermodel.
+
+Atomic States: 4
+Semantic Theory: Brast-McKie
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0341 seconds
+
+========================================
+
+State Space:
+  #b0101 = a.c (world)
+  #b0110 = b.c (world)
+  #b1001 = a.d (world)
+
+The evaluation world is: b.c
+
+INTERPRETED PREMISES:
+
+1. |\neg A| = < {b.c}, {a, a.b.c.d} >  (True in b.c)
+2. |(A \boxright C)| = < {a.c, b.c}, {a.d} >  (True in b.c)
+    |A|-alternatives to b.c = {a.c}
+    |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (True in a.c)
+
+INTERPRETED CONCLUSION:
+
+3. |((A \wedge B) \boxright C)| = < {}, {a.c, a.d, b.c} >  (False in b.c)
+    |(A \wedge B)|-alternatives to b.c = {a.d}
+    |C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >  (False in a.d)
+
+Total Run Time: 0.389 seconds
+========================================
+```
+
+This shows the ModelChecker found a countermodel, demonstrating that the counterfactual antecedent strengthening argument is invalid in this semantic theory.
 
 **Purpose**: Define the logical questions your theory should answer and verify its behavior on key inferences.
 
