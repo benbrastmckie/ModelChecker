@@ -58,6 +58,14 @@ class TestBuildProjectCore(unittest.TestCase):
         self.assertEqual(builder.theory, 'logos')
         self.assertTrue(os.path.exists(builder.source_dir))
         self.assertIn('logos', builder.source_dir)
+
+    def test_project_initialization_with_subtheories(self):
+        """Test BuildProject initialization with subtheories."""
+        builder = BuildProject('logos', subtheories=['modal', 'constitutive'])
+        self.assertEqual(builder.theory, 'logos')
+        self.assertEqual(builder.subtheories, ['modal', 'constitutive'])
+        self.assertTrue(os.path.exists(builder.source_dir))
+
     
     def test_logos_project_generation(self):
         """Test that a logos project can be generated successfully."""

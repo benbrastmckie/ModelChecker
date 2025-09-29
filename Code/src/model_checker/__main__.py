@@ -75,8 +75,17 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
             type=str,
             metavar='THEORY',
             help='Load semantic theory: logos, exclusion, imposition, bimodal. '
-                 'Logos supports subtheories: extensional, modal, constitutive, '
-                 'counterfactual, relevance (default: all subtheories)'
+                 'For logos, use --subtheory to specify which subtheories to load'
+        )
+        theory_group.add_argument(
+            '--subtheory',
+            '-st',
+            nargs='+',
+            choices=['extensional', 'modal', 'constitutive', 'counterfactual',
+                     'relevance'],
+            metavar='SUBTHEORY',
+            help='Specify logos subtheories to load (applies only with -l logos). '
+                 'Dependencies are auto-loaded. Without this flag, all subtheories are loaded.'
         )
 
         # Model constraints group
@@ -272,7 +281,16 @@ def main():
         return
     if module_flags.load_theory:
         semantic_theory_name = module_flags.load_theory
-        builder = BuildProject(semantic_theory_name)
+
+        # Check if subtheory flag is used with non-logos theory
+        if hasattr(module_flags, 'subtheory') and module_flags.subtheory:
+            if semantic_theory_name != 'logos':
+                print(f"Error: The --subtheory flag only applies to the logos theory, not '{semantic_theory_name}'")
+                return
+            builder = BuildProject(semantic_theory_name, subtheories=module_flags.subtheory)
+        else:
+            builder = BuildProject(semantic_theory_name)
+
         builder.ask_generate()
         return
     

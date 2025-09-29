@@ -76,6 +76,17 @@ Available theories:
 - `imposition` - Fine's counterfactual semantics
 - `bimodal` - Temporal-modal logic
 
+**Selecting Logos Subtheories**:
+
+For the logos theory, you can specify which subtheories to include:
+
+```bash
+# Load specific subtheories (default loads all)
+model-checker -l logos --subtheory modal         # Modal logic only (+ dependencies)
+model-checker -l logos --subtheory counterfactual constitutive  # Multiple
+model-checker -l logos -st extensional           # Just extensional (short form)
+```
+
 **Example**:
 
 ```bash
