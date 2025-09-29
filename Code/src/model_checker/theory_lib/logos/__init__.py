@@ -54,8 +54,9 @@ def get_theory(subtheories=None):
     if subtheories:
         registry.load_subtheories(subtheories)
     else:
-        # Default: load core subtheories (excluding relevance which is experimental)
-        registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual'])
+        # Default: load all available subtheories
+        from .subtheories import AVAILABLE_SUBTHEORIES
+        registry.load_subtheories(AVAILABLE_SUBTHEORIES)
     
     return {
         'semantics': LogosSemantics,

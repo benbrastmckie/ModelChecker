@@ -13,8 +13,13 @@ model-checker
 
 # OR copy from a specific theory
 model-checker -l exclusion  # Copy exclusion theory
-model-checker -l imposition  # Copy imposition theory  
+model-checker -l imposition  # Copy imposition theory
 model-checker -l bimodal     # Copy bimodal theory
+
+# Create logos project with specific subtheories (default loads all)
+model-checker -l logos --subtheory modal       # Just modal + dependencies
+model-checker -l logos --subtheory counterfactual constitutive  # Multiple
+model-checker -l logos -st extensional         # Just extensional
 ```
 
 You now have a complete project with:
@@ -103,8 +108,19 @@ model-checker -l imposition   # Imposition semantics
 model-checker -l bimodal      # Two modal operators
 ```
 
+#### Selecting Logos Subtheories
+
+For the logos theory, you can specify which subtheories to include:
+
+```bash
+# Load specific subtheories (default loads all)
+model-checker -l logos --subtheory modal            # Modal logic operators
+model-checker -l logos --subtheory counterfactual   # Counterfactual conditionals
+model-checker -l logos -st constitutive relevance   # Multiple subtheories
+```
+
 Each theory provides different features:
-- **logos**: Standard hyperintensional logic (default)
+- **logos**: Standard hyperintensional logic with modular subtheories
 - **exclusion**: Uses witness states for verification
 - **imposition**: Combines theories with imposition
 - **bimodal**: Includes necessity and possibility operators

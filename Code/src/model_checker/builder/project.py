@@ -39,21 +39,23 @@ class BuildProject:
 
     # No longer enforcing essential files to allow for flexible project structures
 
-    def __init__(self, theory: str = 'logos') -> None:
+    def __init__(self, theory: str = 'logos', subtheories: Optional[List[str]] = None) -> None:
         """Initialize project builder with specified theory.
-        
+
         Args:
             theory: Name of the source theory to use as template
-            
+            subtheories: List of subtheories to load (logos only)
+
         Raises:
             FileNotFoundError: If the source theory directory doesn't exist
         """
         self.theory: str = theory
+        self.subtheories: Optional[List[str]] = subtheories
         self.source_dir: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'theory_lib', theory)
         self.project_name: str = ""
         self.destination_dir: str = ""
         self.log_messages: List[Tuple[str, str]] = []
-        
+
         # Validate source directory exists
         if not os.path.exists(self.source_dir):
             raise FileNotFoundError(
@@ -76,12 +78,16 @@ class BuildProject:
     
     def ask_generate(self) -> bool:
         """Prompt user to create a new theory implementation project.
-        
+
         Asks the user if they want to generate a new project for the current theory.
         If yes, prompts for a project name and calls generate(). If no, displays
         information about running existing example files.
         """
-        result = input(f"Would you like to generate a new {self.theory}-project? (y/n): ")
+        if self.theory == 'logos' and self.subtheories:
+            subtheory_desc = f" with subtheories: {', '.join(self.subtheories)}"
+        else:
+            subtheory_desc = ""
+        result = input(f"Would you like to generate a new {self.theory}-project{subtheory_desc}? (y/n): ")
         if result.lower() not in {'yes', 'ye', 'y'}:
             print("\nYou can run an example.py file that already exists with the command:\n")
             print("  $ model-checker example.py\n")

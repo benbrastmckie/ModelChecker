@@ -35,8 +35,12 @@ Every ModelChecker example file must export two dictionaries:
 # Minimal example file
 from model_checker.theory_lib.logos import get_theory
 
-# Get the semantic theory
+# Get the semantic theory (loads all subtheories by default)
 theory = get_theory()
+
+# Or load specific subtheories for logos
+# theory = get_theory(['modal', 'counterfactual'])  # Just modal and counterfactual
+# theory = get_theory(['extensional'])  # Just extensional operators
 
 # Define the example
 MY_EXAMPLE_premises = ["A", "A \\rightarrow B"]

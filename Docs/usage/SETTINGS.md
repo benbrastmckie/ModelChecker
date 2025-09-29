@@ -237,8 +237,7 @@ THOROUGH_settings = {
     'N': 5,                  # More propositions
     'max_time': 120,         # 2 minute timeout
     'max_iterations': 20,    # Many models
-    'iterate': 10,            # Find multiple models
-    'verbose': True          # Detailed output
+    'iterate': 10            # Find multiple models
 }
 ```
 
@@ -250,10 +249,9 @@ For troubleshooting issues:
 DEBUG_settings = {
     'N': 3,
     'max_time': 300,           # 5 minutes
-    'verbose': True,
     'print_constraints': True,  # Show Z3 constraints
     'print_z3': True,          # Show Z3 model
-    'iso_debug': True          # Debug isomorphism checking
+    'print_impossible': True   # Show impossible states
 }
 ```
 

@@ -192,6 +192,17 @@ LogosSemantics (Brast-McKie): TIMED OUT
 
 ## Debugging and Output Flags
 
+### Project Creation with Subtheories
+
+For the logos theory, you can select specific subtheories when creating projects:
+
+```bash
+# Create project with specific subtheories (default loads all)
+model-checker -l logos --subtheory modal         # Modal logic only (+ dependencies)
+model-checker -l logos --subtheory counterfactual constitutive  # Multiple
+model-checker -l logos -st extensional           # Just extensional operators
+```
+
 ### Essential Debugging Flags
 
 ```bash
@@ -208,7 +219,7 @@ model-checker examples.py --print-impossible
 model-checker examples.py -i  # Short form
 
 # Combine all debug output
-model-checker examples.py -p -z -i --verbose
+model-checker examples.py -p -z -i
 ```
 
 ### Understanding Debug Output

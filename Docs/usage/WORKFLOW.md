@@ -18,22 +18,29 @@ Start by creating a new project or loading an existing theory:
 
 ```bash
 # Create a copy of the logos semantics
-model-checker                           # Hyperintensional semantics
+model-checker                           # Creates a logos semantics by default with all subtheories
 
 # Load an existing theory as starting point
-model-checker -l logos                  # Hyperintensional semantics (all subtheories)
+model-checker -l logos                  # Creates a logos semantics by default with all subtheories
 model-checker -l exclusion              # Unilateral exclusion semantics
 model-checker -l imposition             # Fine's counterfactual semantics
 model-checker -l bimodal                # Temporal-modal logic
+
+# Load specific logos subtheories (default loads all)
+model-checker -l logos --subtheory counterfactual       # Just counterfactual + dependencies
+model-checker -l logos --subtheory modal constitutive   # Multiple subtheories
+model-checker -l logos -st extensional                  # Short form (-st)
 ```
 
 **Available Logos Subtheories:**
-When using `model-checker -l logos`, you get access to all subtheories by default:
+When using `model-checker -l logos`, all available subtheories are loaded by default:
 - **extensional**: Basic logical operators (¬, ∧, ∨, →, ↔, ⊤, ⊥)
-- **modal**: Necessity and possibility operators (□, ◇)
+- **modal**: Necessity and possibility operators (□, ◇) - requires extensional, counterfactual
 - **constitutive**: Content relationships (≡, ≤, ⊑, ⪯, ⇒)
-- **counterfactual**: Counterfactual conditionals (□→, ◇→)
-- **relevance**: Content-sensitive relevance logic
+- **counterfactual**: Counterfactual conditionals (□→, ◇→) - requires extensional
+- **relevance**: Content-sensitive relevance logic - requires constitutive
+
+**Note on Dependencies:** When you specify a subtheory, its dependencies are automatically loaded. For example, `--subtheory modal` will also load extensional and counterfactual.
 
 This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. You now have a working semantic theory that you can run, test, and modify.
 
@@ -46,22 +53,22 @@ This creates a complete project directory with `examples.py`, `semantic.py`, `op
 Edit the `examples.py` file to test logical inferences relevant to your theory:
 
 ```python
-# Test modus ponens
-MP_premises = ["A", "(A \\rightarrow B)"]
-MP_conclusions = ["B"]
-MP_settings = {
+# Test counterfactual antecedent strengthening (expects countermodel)
+CF_CM_1_premises = ["\\neg A", "(A \\boxright C)"]
+CF_CM_1_conclusions = ["((A \\wedge B) \\boxright C)"]
+CF_CM_1_settings = {
+    'N': 3,
+    'max_time': 10,
+    'expectation': True  # Expect countermodel (invalid inference)
+}
+
+# Test a counterfactual theorem (expects validity)
+CF_TH_5_premises = ["(A \\boxright B)"]
+CF_TH_5_conclusions = ["(\\neg B \\boxright \\neg A)"]
+CF_TH_5_settings = {
     'N': 3,
     'max_time': 10,
     'expectation': False  # Expect valid (no countermodel)
-}
-
-# Test a potential counterexample
-INVALID_premises = ["(A \\vee B)"]
-INVALID_conclusions = ["A"]
-INVALID_settings = {
-    'N': 3,
-    'max_time': 10,
-    'expectation': True  # Expect countermodel
 }
 ```
 
@@ -288,6 +295,7 @@ Results are saved in the `output/` directory with countermodels, model compariso
 # Project Setup
 model-checker                    # Create new project
 model-checker -l <theory_name>   # Load existing theory
+model-checker -l logos --subtheory modal  # Load logos with specific subtheories
 
 # Run Examples
 model-checker examples.py        # Basic execution
@@ -295,7 +303,6 @@ model-checker examples.py --N=4  # Larger state space
 model-checker examples.py --iterate=3  # Multiple models
 
 # Debug and Analyze
-model-checker examples.py --verbose     # Detailed output
 model-checker examples.py --maximize    # Compare theories
 
 # Save Results
