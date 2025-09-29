@@ -201,8 +201,8 @@ class TestErrorHandling(unittest.TestCase):
         
         # Create mock flags object
         mock_flags = MagicMock()
-        mock_flags._parsed_args = ["--iterate", "5", "--verbose", "true"]
-        mock_flags.iterate = 5
+        mock_flags._parsed_args = ["--contingent", "--verbose", "true"]
+        mock_flags.contingent = True
         mock_flags.verbose = True
         
         # Test is_mock_object

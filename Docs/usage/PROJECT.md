@@ -168,8 +168,7 @@ model-checker experiment.py
 # All support relative imports!
 
 # Run with options
-model-checker examples.py --N=4           # More states
-model-checker examples.py --verbose       # Debug output
+model-checker examples.py --contingent    # Require contingent propositions
 model-checker examples.py --save markdown # Save results
 ```
 

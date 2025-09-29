@@ -28,8 +28,8 @@ Settings flow through a structured priority system:
 
 ```python
 # Priority order (highest to lowest)
-1. Command-line flags          # --print-z3, -N 4, etc.
-2. Example-specific settings   # settings={'N': 3} in BuildExample
+1. Command-line flags          # --print-z3, --contingent, etc.
+2. Example-specific settings   # settings={'N': 3, 'iterate': 2} in BuildExample
 3. User general preferences    # general_settings in configuration
 4. Theory-specific defaults    # DEFAULT_EXAMPLE_SETTINGS per theory
 5. Framework global defaults   # Baseline settings for all theories
@@ -199,9 +199,10 @@ result = model.check_validity()
 #### Core Settings Flags
 
 **Model Configuration:**
-- `-N <int>` or `--N <int>` - Number of atomic states in model space
-- `--max-time <int>` - Maximum Z3 solver execution time in milliseconds
-- `--expectation` - Whether a model is expected to exist (for testing)
+These settings must be configured in example files, not as CLI flags:
+- `N` (int) - Number of atomic states in model space
+- `max_time` (int) - Maximum Z3 solver execution time in seconds
+- `expectation` (bool) - Whether a model is expected to exist (for testing)
 
 **Semantic Constraints:**
 - `--contingent` - Make atomic propositions contingent
@@ -210,7 +211,8 @@ result = model.check_validity()
 - `--non-null` - Prevent null states as verifiers/falsifiers
 
 **Model Iteration:**
-- `--iterate <int>` - Number of distinct models to find
+This setting must be configured in example files, not as CLI flags:
+- `iterate` (int) - Number of distinct models to find
 
 #### Theory-Specific Flags
 
@@ -238,11 +240,11 @@ result = model.check_validity()
 #### Usage Examples
 
 ```bash
-# Basic model configuration
-model-checker -N 5 examples/test.py
+# Basic constraint configuration
+model-checker --contingent --non-null examples/test.py
 
 # Multiple flags with short and long forms
-model-checker -p -z --contingent --iterate=3 examples/complex.py
+model-checker -p -z --contingent --non-empty examples/complex.py
 
 # Theory-specific configuration
 model-checker --M 4 --align-vertically examples/bimodal_test.py

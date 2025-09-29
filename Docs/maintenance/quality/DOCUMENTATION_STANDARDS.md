@@ -189,7 +189,7 @@ BuildModule
 │  Priority Sources:                     ┌──────────────────────┐ │
 │  ┌──────────────────┐                 │   SettingsManager    │ │
 │  │ 1. Command Line  │ ───highest────▶ │                      │ │
-│  │   --N=5 --verbose│ priority        │  • Validates types   │ │
+│  │   --contingent   │ priority        │  • Validates types   │ │
 │  └──────────────────┘                 │  • Merges by priority│ │
 │                                       │  • Checks conflicts  │ │
 │  ┌──────────────────┐                 │                      │ │

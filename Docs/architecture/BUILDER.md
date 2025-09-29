@@ -81,7 +81,7 @@ The module loader supports:
 BuildModule implements a settings management system that handles theory-specific defaults, module-level settings, and command-line overrides:
 
 Settings hierarchy (highest to lowest priority):
-1. Command-line flags (--verbose, --N=5, etc.)
+1. Command-line flags (--contingent, --save, etc.)
 2. Example-specific settings (in example_range)
 3. Module general_settings
 4. Theory-specific defaults
@@ -516,8 +516,8 @@ MODAL_TH_1_settings = {
 }
 
 # Command-line override (highest priority)
-# model-checker examples.py --N=5 --verbose
-# Final N will be 5 (command-line wins)
+# model-checker examples.py --contingent --save json
+# Note: N and iterate must be set in example settings
 # Settings cascade: DEFAULT → general → example → command-line
 ```
 
