@@ -7,9 +7,9 @@ providing unified classes for semantics, propositions, and model structures.
 
 import sys
 import time
+from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING
 
 from z3 import simplify
-import z3
 import z3
 
 from model_checker import syntactic
@@ -17,19 +17,25 @@ from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
 from model_checker.models.structure import ModelDefaults
 from model_checker.utils import (
-
-
-
-
-
-
-
     ForAll,
     Exists,
     bitvec_to_substates,
     pretty_set_print,
     int_to_binary,
 )
+
+# Import protocols for type checking
+if TYPE_CHECKING:
+    from .protocols import (
+        SemanticsProtocol,
+        RegistryProtocol,
+        EvaluationPoint,
+        StateType,
+        Z3Constraint,
+        SettingsDict
+    )
+    from model_checker.syntactic import Sentence
+    from model_checker.models.model_constraints import ModelConstraints
 
 
 class LogosSemantics(SemanticDefaults):
@@ -51,7 +57,8 @@ class LogosSemantics(SemanticDefaults):
         'expectation': None,
     }
     
-    def __init__(self, combined_settings=None, operator_registry=None, **kwargs):
+    def __init__(self, combined_settings: Optional['SettingsDict'] = None,
+                 operator_registry: Optional['RegistryProtocol'] = None, **kwargs: Any) -> None:
         # Ensure we have default settings
         if combined_settings is None:
             combined_settings = self.DEFAULT_EXAMPLE_SETTINGS.copy()
@@ -108,7 +115,7 @@ class LogosSemantics(SemanticDefaults):
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
     
-    def load_subtheories(self, subtheories=None):
+    def load_subtheories(self, subtheories: Optional[List[str]] = None) -> List[Any]:
         """Load specified subtheories."""
         if subtheories is None:
             subtheories = ['extensional', 'modal', 'constitutive', 'counterfactual']
@@ -116,11 +123,11 @@ class LogosSemantics(SemanticDefaults):
             return self.operator_registry.load_subtheories(subtheories)
         return []
 
-    def compatible(self, state_x, state_y):
+    def compatible(self, state_x: 'StateType', state_y: 'StateType') -> 'Z3Constraint':
         """Determines if the fusion of two states is possible."""
         return self.possible(self.fusion(state_x, state_y))
 
-    def maximal(self, state_w):
+    def maximal(self, state_w: 'StateType') -> 'Z3Constraint':
         """Determines if a state is maximal with respect to compatibility."""
         x = z3.BitVec("max_x", self.N)
         return ForAll(
@@ -131,14 +138,14 @@ class LogosSemantics(SemanticDefaults):
             ),
         )
 
-    def is_world(self, state_w):
+    def is_world(self, state_w: 'StateType') -> 'Z3Constraint':
         """Determines if a state represents a possible world in the model."""
         return z3.And(
             self.possible(state_w),
             self.maximal(state_w),
         )
 
-    def true_at(self, sentence, eval_point):
+    def true_at(self, sentence: 'Sentence', eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a sentence is true at a given evaluation point.
         
         For atomic sentences (sentence_letters), it checks if there exists some state x 
@@ -165,7 +172,7 @@ class LogosSemantics(SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_point)
 
-    def false_at(self, sentence, eval_point):
+    def false_at(self, sentence: 'Sentence', eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a sentence is false at a given evaluation point.
         
         For atomic sentences (sentence_letters), it checks if there exists some state x 
@@ -192,7 +199,8 @@ class LogosSemantics(SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.false_at(*arguments, eval_point)
 
-    def extended_verify(self, state, sentence, eval_point):
+    def extended_verify(self, state: 'StateType', sentence: 'Sentence',
+                       eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a state verifies a sentence at an evaluation point.
         
         This method extends the hyperintensional verification relation to all
@@ -221,7 +229,8 @@ class LogosSemantics(SemanticDefaults):
         arguments = sentence.arguments or ()
         return operator.extended_verify(state, *arguments, eval_point)
     
-    def extended_falsify(self, state, sentence, eval_point):
+    def extended_falsify(self, state: 'StateType', sentence: 'Sentence',
+                        eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a state falsifies a sentence at an evaluation point.
         
         This method extends the hyperintensional falsification relation to all
@@ -338,7 +347,7 @@ class LogosSemantics(SemanticDefaults):
             if eval(is_alt(pw, ver, eval_world))
         }
 
-    def product(self, set_A, set_B):
+    def product(self, set_A: Set['StateType'], set_B: Set['StateType']) -> Set['StateType']:
         """Compute the set of all pairwise fusions between elements of two sets.
         
         Args:
@@ -358,7 +367,7 @@ class LogosSemantics(SemanticDefaults):
                 product_set.add(bit_ab)
         return product_set
 
-    def coproduct(self, set_A, set_B):
+    def coproduct(self, set_A: Set['StateType'], set_B: Set['StateType']) -> Set['StateType']:
         """Compute the union of two sets closed under pairwise fusion.
         
         Takes two sets and returns their union plus all possible fusions between
@@ -394,7 +403,9 @@ class LogosSemantics(SemanticDefaults):
         # A real implementation would define closeness based on similarity metrics
         return z3.BoolVal(False)
     
-    def inject_z3_model_values(self, z3_model, original_semantics, model_constraints):
+    def inject_z3_model_values(self, z3_model: z3.ModelRef,
+                              original_semantics: 'LogosSemantics',
+                              model_constraints: 'ModelConstraints') -> None:
         """Inject concrete Z3 values from iteration into model constraints.
         
         This method extracts values from a Z3 model and adds them as constraints
@@ -462,7 +473,8 @@ class LogosProposition(PropositionDefaults):
     with support for all subtheory operators.
     """
     
-    def __init__(self, sentence, model_structure, eval_world='main'):
+    def __init__(self, sentence: 'Sentence', model_structure: Any,
+                 eval_world: Union[str, 'StateType'] = 'main') -> None:
         """Initialize a LogosProposition instance.
 
         Args:
@@ -475,7 +487,7 @@ class LogosProposition(PropositionDefaults):
         self.eval_world = model_structure.main_point["world"] if eval_world == 'main' else eval_world
         self.verifiers, self.falsifiers = self.find_proposition()
     
-    def proposition_constraints(self, sentence_letter):
+    def proposition_constraints(self, sentence_letter: Any) -> List['Z3Constraint']:
         """Generates Z3 constraints for a sentence letter based on semantic settings.
 
         This method generates constraints that govern the behavior of atomic propositions
@@ -624,7 +636,7 @@ class LogosProposition(PropositionDefaults):
             constraints.extend(get_non_null_constraints())
         return constraints
 
-    def find_proposition(self):
+    def find_proposition(self) -> Tuple[Set['StateType'], Set['StateType']]:
         """Computes the verifier and falsifier sets for this proposition.
         
         This method determines the sets of states that verify and falsify
@@ -664,7 +676,7 @@ class LogosProposition(PropositionDefaults):
             return operator.find_verifiers_and_falsifiers(*arguments, eval_point)
         raise ValueError(f"Their is no proposition for {self}.")
     
-    def _evaluate_z3_boolean(self, z3_model, expression):
+    def _evaluate_z3_boolean(self, z3_model: z3.ModelRef, expression: z3.BoolRef) -> bool:
         """Safely evaluate a Z3 boolean expression to a Python boolean.
         
         This method handles the case where Z3 returns symbolic expressions
@@ -707,7 +719,7 @@ class LogosProposition(PropositionDefaults):
         except Exception:
             return False
 
-    def truth_value_at(self, eval_world):
+    def truth_value_at(self, eval_world: 'StateType') -> bool:
         """Determines the truth value of the proposition at a given world.
         
         Checks if the world contains a verifier for the proposition (making it true)
@@ -749,7 +761,8 @@ class LogosProposition(PropositionDefaults):
             )
         return exists_verifier
 
-    def print_proposition(self, eval_point, indent_num, use_colors):
+    def print_proposition(self, eval_point: 'EvaluationPoint',
+                         indent_num: int, use_colors: bool) -> None:
         """Print the proposition with its truth value at the given evaluation point.
 
         Prints the proposition name, its verifiers and falsifiers, and its truth value
@@ -774,7 +787,7 @@ class LogosProposition(PropositionDefaults):
             f"  {PART}({truth_value} in {world_state}){RESET}"
         )
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         """Return a string representation of the proposition.
         
         Returns a string showing the verifiers and falsifiers of the proposition
@@ -809,7 +822,7 @@ class LogosModelStructure(ModelDefaults):
     with support for all subtheories and modular operator loading.
     """
     
-    def __init__(self, model_constraints, settings):
+    def __init__(self, model_constraints: 'ModelConstraints', settings: Dict[str, Any]) -> None:
         super().__init__(model_constraints, settings)
         self.loaded_subtheories = []
         
@@ -840,19 +853,19 @@ class LogosModelStructure(ModelDefaults):
                 if bool(self.z3_model.evaluate(self.semantics.is_world(bit)))
             ]
     
-    def load_subtheories(self, subtheories):
+    def load_subtheories(self, subtheories: List[str]) -> None:
         """Load specified subtheories into the model."""
         self.loaded_subtheories.extend(subtheories)
         if hasattr(self.semantics, 'load_subtheories'):
             self.semantics.load_subtheories(subtheories)
     
-    def get_available_operators(self):
+    def get_available_operators(self) -> Dict[str, Any]:
         """Get all operators from loaded subtheories."""
         if hasattr(self.semantics, 'operator_registry'):
             return self.semantics.operator_registry.get_operators()
         return {}
     
-    def print_model_info(self):
+    def print_model_info(self) -> None:
         """Print information about the loaded model."""
         print(f"Logos Theory Model")
         print(f"Loaded subtheories: {', '.join(self.loaded_subtheories)}")
@@ -1051,7 +1064,7 @@ class LogosModelStructure(ModelDefaults):
             elif self.settings['print_impossible']:
                 format_state(bin_rep, state, self.COLORS["impossible"], "impossible")
     
-    def extract_states(self):
+    def extract_states(self) -> Dict[str, List[str]]:
         """Extract categorized states for output.
         
         Logos distinguishes between worlds, possible states, and impossible states.
@@ -1099,7 +1112,7 @@ class LogosModelStructure(ModelDefaults):
         
         return states
     
-    def extract_evaluation_world(self):
+    def extract_evaluation_world(self) -> Optional[str]:
         """Extract the main evaluation world.
         
         Returns:
@@ -1112,7 +1125,7 @@ class LogosModelStructure(ModelDefaults):
                 return f"s{self.z3_main_world}"
         return None
     
-    def extract_relations(self):
+    def extract_relations(self) -> Dict[str, Any]:
         """Extract relations between states.
         
         For Logos, this includes fusion/fission relations and compatibility.
@@ -1127,7 +1140,7 @@ class LogosModelStructure(ModelDefaults):
         
         return relations
     
-    def extract_propositions(self):
+    def extract_propositions(self) -> Dict[str, Dict[str, bool]]:
         """Extract proposition truth values at worlds.
         
         Returns:
