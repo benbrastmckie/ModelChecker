@@ -8,11 +8,18 @@ This module provides the LogosModelIterator implementation which handles:
 
 import logging
 import sys
+from typing import Dict, List, Set, Any, Optional, Union, Generator, TYPE_CHECKING
 
 import z3
 
 from model_checker.iterate.core import BaseModelIterator
 from model_checker.utils import bitvec_to_substates, pretty_set_print
+
+# Import protocols for type checking
+if TYPE_CHECKING:
+    from .protocols import StateType, Z3Constraint, ModelIteratorProtocol
+    from .semantic import LogosModelStructure
+    from model_checker.models.build_example import BuildExample
 
 
 
@@ -41,7 +48,8 @@ class LogosModelIterator(BaseModelIterator):
     - Support for modal, constitutive, and counterfactual operators
     """
     
-    def _calculate_differences(self, new_structure, previous_structure):
+    def _calculate_differences(self, new_structure: 'LogosModelStructure',
+                              previous_structure: 'LogosModelStructure') -> Dict[str, Any]:
         """Calculate differences between two logos theory model structures.
         
         For logos theory, this focuses on:
@@ -73,7 +81,8 @@ class LogosModelIterator(BaseModelIterator):
         
         return differences
     
-    def _calculate_logos_differences(self, new_structure, previous_structure):
+    def _calculate_logos_differences(self, new_structure: 'LogosModelStructure',
+                                    previous_structure: 'LogosModelStructure') -> Dict[str, Any]:
         """Logos theory specific implementation of difference detection.
         
         This is more sophisticated than the base _calculate_basic_differences method
@@ -202,7 +211,7 @@ class LogosModelIterator(BaseModelIterator):
         
         return differences
     
-    def _create_difference_constraint(self, previous_models):
+    def _create_difference_constraint(self, previous_models: List[z3.ModelRef]) -> 'Z3Constraint':
         """Create constraints requiring difference from previous models.
         
         This implements a smart ordering of constraint generators based on
@@ -247,7 +256,7 @@ class LogosModelIterator(BaseModelIterator):
         # All models must be different
         return z3.And(*constraints) if constraints else z3.BoolVal(True)
     
-    def _create_world_count_constraint(self, prev_model, semantics):
+    def _create_world_count_constraint(self, prev_model: z3.ModelRef, semantics: Any) -> Optional['Z3Constraint']:
         """Create constraint on different number of worlds."""
         # Count worlds in previous model
         prev_world_count = 0
@@ -263,7 +272,7 @@ class LogosModelIterator(BaseModelIterator):
         
         return current_world_count != prev_world_count
     
-    def _create_letter_value_constraints(self, prev_model, semantics):
+    def _create_letter_value_constraints(self, prev_model: z3.ModelRef, semantics: Any) -> List['Z3Constraint']:
         """Create constraints on verify/falsify values differing."""
         constraints = []
         
@@ -298,7 +307,7 @@ class LogosModelIterator(BaseModelIterator):
         
         return constraints
     
-    def _create_structural_constraints(self, prev_model, semantics):
+    def _create_structural_constraints(self, prev_model: z3.ModelRef, semantics: Any) -> List['Z3Constraint']:
         """Create constraints on structural differences (parthood, etc)."""
         constraints = []
         
@@ -316,7 +325,7 @@ class LogosModelIterator(BaseModelIterator):
         
         return constraints
     
-    def _create_non_isomorphic_constraint(self, z3_model):
+    def _create_non_isomorphic_constraint(self, z3_model: z3.ModelRef) -> 'Z3Constraint':
         """Create constraint preventing isomorphic models.
         
         For logos theory, isomorphism means there's a permutation of states
@@ -332,7 +341,7 @@ class LogosModelIterator(BaseModelIterator):
         # Full isomorphism checking would be more complex
         return z3.BoolVal(True)
         
-    def _create_stronger_constraint(self, isomorphic_model):
+    def _create_stronger_constraint(self, isomorphic_model: z3.ModelRef) -> 'Z3Constraint':
         """Create constraint for finding stronger models.
         
         In logos theory, a stronger model typically has more verifiers
@@ -348,7 +357,7 @@ class LogosModelIterator(BaseModelIterator):
         # Full implementation would compare conclusion truth values
         return z3.BoolVal(True)
     
-    def iterate_generator(self):
+    def iterate_generator(self) -> Generator['LogosModelStructure', None, None]:
         """Override to add theory-specific differences to logos theory models.
         
         This method extends the base iterator's generator to merge logos-specific
@@ -401,7 +410,7 @@ class LogosModelIterator(BaseModelIterator):
 
 
 # Module-level convenience function
-def iterate_example(example, max_iterations=None):
+def iterate_example(example: 'BuildExample', max_iterations: Optional[int] = None) -> List['LogosModelStructure']:
     """Iterate a logos theory example to find multiple models.
     
     Args:
@@ -427,7 +436,7 @@ def iterate_example(example, max_iterations=None):
     return models
 
 
-def iterate_example_generator(example, max_iterations=None):
+def iterate_example_generator(example: 'BuildExample', max_iterations: Optional[int] = None) -> Generator['LogosModelStructure', None, None]:
     """Generator version of iterate_example that yields models incrementally.
     
     This function provides a generator interface for finding multiple models,

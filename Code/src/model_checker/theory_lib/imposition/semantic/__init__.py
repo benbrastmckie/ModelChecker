@@ -1,14 +1,17 @@
 """
-Imposition theory semantic module (compatibility wrapper).
+Imposition theory semantic module.
 
-This module maintains backward compatibility by re-exporting classes
-from the new modular semantic package structure.
+This package provides the core semantic classes for imposition theory,
+split into focused modules while maintaining backward compatibility.
+
+Classes:
+    ImpositionSemantics: Core semantics implementation
+    ImpositionModelStructure: Model structure with imposition relations
 """
 
-# Import from the new modular structure
-from .semantic import (
-    ImpositionSemantics,
-    ImpositionModelStructure,
+from .core import ImpositionSemantics
+from .model import ImpositionModelStructure
+from .helpers import (
     safe_bitvec_as_long,
     format_imposition_relation,
     group_impositions_by_world,
@@ -18,7 +21,7 @@ from .semantic import (
     filter_valid_impositions,
 )
 
-# Maintain backward compatibility
+# Export all public classes and functions
 __all__ = [
     'ImpositionSemantics',
     'ImpositionModelStructure',

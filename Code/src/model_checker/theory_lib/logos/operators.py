@@ -6,8 +6,13 @@ supporting selective loading, conflict resolution, and dependency management.
 """
 
 import importlib
+from typing import Dict, List, Any, Optional, TYPE_CHECKING
 
 from model_checker.syntactic import OperatorCollection
+
+# Import protocols for type checking
+if TYPE_CHECKING:
+    from .protocols import RegistryProtocol, SubtheoryProtocol, OperatorClass
 
 
 
@@ -23,7 +28,7 @@ class LogosOperatorRegistry:
     across all logos subtheories.
     """
     
-    def __init__(self):
+    def __init__(self) -> None:
         self.loaded_subtheories = {}
         self.operator_collection = OperatorCollection()
         self.dependencies = {
@@ -34,7 +39,7 @@ class LogosOperatorRegistry:
             'extensional': []
         }
     
-    def load_subtheory(self, name):
+    def load_subtheory(self, name: str) -> Any:
         """
         Load a specific subtheory and its operators.
         
@@ -70,7 +75,7 @@ class LogosOperatorRegistry:
         except ImportError as e:
             raise ValueError(f"Failed to load subtheory '{name}': {e}")
     
-    def load_subtheories(self, names):
+    def load_subtheories(self, names: List[str]) -> List[Any]:
         """
         Load multiple subtheories.
         
@@ -86,7 +91,7 @@ class LogosOperatorRegistry:
             modules.append(module)
         return modules
     
-    def get_operators(self):
+    def get_operators(self) -> OperatorCollection:
         """
         Get all loaded operators.
         
@@ -95,7 +100,7 @@ class LogosOperatorRegistry:
         """
         return self.operator_collection
     
-    def get_loaded_subtheories(self):
+    def get_loaded_subtheories(self) -> List[str]:
         """
         Get list of currently loaded subtheory names.
         
@@ -104,7 +109,7 @@ class LogosOperatorRegistry:
         """
         return list(self.loaded_subtheories.keys())
     
-    def unload_subtheory(self, name):
+    def unload_subtheory(self, name: str) -> None:
         """
         Unload a specific subtheory.
         
@@ -118,7 +123,7 @@ class LogosOperatorRegistry:
         if name in self.loaded_subtheories:
             del self.loaded_subtheories[name]
     
-    def reload_subtheory(self, name):
+    def reload_subtheory(self, name: str) -> Any:
         """
         Reload a specific subtheory.
         
@@ -129,7 +134,7 @@ class LogosOperatorRegistry:
             self.unload_subtheory(name)
         return self.load_subtheory(name)
     
-    def check_dependencies(self, name):
+    def check_dependencies(self, name: str) -> bool:
         """
         Check if all dependencies for a subtheory are loaded.
         
@@ -142,7 +147,7 @@ class LogosOperatorRegistry:
         deps = self.dependencies.get(name, [])
         return all(dep in self.loaded_subtheories for dep in deps)
     
-    def get_operator_by_name(self, operator_name):
+    def get_operator_by_name(self, operator_name: str) -> Optional['OperatorClass']:
         """
         Get a specific operator by name.
         
@@ -157,7 +162,7 @@ class LogosOperatorRegistry:
         except KeyError:
             return None
     
-    def list_available_operators(self):
+    def list_available_operators(self) -> Dict[str, 'OperatorClass']:
         """
         List all available operators from loaded subtheories.
         
@@ -166,7 +171,7 @@ class LogosOperatorRegistry:
         """
         return dict(self.operator_collection.items())
     
-    def get_subtheory_operators(self, subtheory_name):
+    def get_subtheory_operators(self, subtheory_name: str) -> Dict[str, 'OperatorClass']:
         """
         Get operators specific to a subtheory.
         
@@ -184,7 +189,7 @@ class LogosOperatorRegistry:
             return module.get_operators()
         return {}
     
-    def validate_operator_compatibility(self):
+    def validate_operator_compatibility(self) -> List[str]:
         """
         Validate that all loaded operators are compatible.
         
@@ -209,7 +214,7 @@ class LogosOperatorRegistry:
         
         return issues
     
-    def clear_all(self):
+    def clear_all(self) -> None:
         """Clear all loaded subtheories and operators."""
         self.loaded_subtheories.clear()
         self.operator_collection = OperatorCollection()
