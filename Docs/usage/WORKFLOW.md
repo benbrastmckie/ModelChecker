@@ -4,17 +4,17 @@
 
 ## Introduction
 
-The ModelChecker provides a systematic methodology for developing and studying semantic theories. Rather than working with abstract logical systems, you create concrete computational models that can automatically test inferences, generate counterexamples, and compare different semantic approaches.
+The ModelChecker provides a systematic methodology for developing and studying semantic theories. Implementing a semantics with the model-checker provides the computational tools needed to study the logic for language in question by exploring the range of countermodels and theorems in that language.
 
 This guide presents the big picture methodology - a step-by-step workflow for developing semantic theories from initial project creation through advanced analysis and output.
 
-**Architecture Foundation**: For the complete system architecture that enables this workflow, see [Architecture Overview](../architecture/README.md) and the [Pipeline Architecture](../architecture/PIPELINE.md) that shows the complete data flow.
+**Architecture**: For the complete system architecture, see [Architecture Overview](../architecture/README.md) and the [Pipeline](../architecture/PIPELINE.md) which cover the end-to-end data flow.
 
 ## The ModelChecker Methodology
 
 ### Step 1: Create Your Theory Project
 
-Start by creating a new project or loading an existing theory:
+After [installing the model-checker](../installation/README.md), start by creating a new project or loading an existing theory:
 
 ```bash
 # Create a copy of the logos semantics
@@ -24,7 +24,7 @@ model-checker                           # Creates a logos semantics by default w
 model-checker -l logos                  # Creates a logos semantics by default with all subtheories
 model-checker -l exclusion              # Unilateral exclusion semantics
 model-checker -l imposition             # Fine's counterfactual semantics
-model-checker -l bimodal                # Temporal-modal logic
+model-checker -l bimodal                # Bimodal logic for tense and circumstantial modalities
 
 # Load specific logos subtheories (default loads all)
 model-checker -l logos --subtheory counterfactual       # Just counterfactual + dependencies
@@ -44,7 +44,7 @@ When using `model-checker -l logos`, all available subtheories are loaded by def
 
 This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. You now have a working semantic theory that you can run, test, and modify.
 
-**Purpose**: Establish the computational foundation for your semantic investigation.
+**Purpose**: Study an existing semantic theory or else use an existing theory as a template by which to create your own semantics.
 
 **Next**: See [Project Creation Guide](PROJECT.md) for detailed project setup options and structure.
 
@@ -61,14 +61,30 @@ CF_CM_1_settings = {
     'max_time': 10,
     'expectation': True  # Expect countermodel (invalid inference)
 }
+CF_CM_1_example = [
+    CF_CM_1_premises,
+    CF_CM_1_conclusions,
+    CF_CM_1_settings
+]
 
 # Test a counterfactual theorem (expects validity)
-CF_TH_5_premises = ["(A \\boxright B)"]
-CF_TH_5_conclusions = ["(\\neg B \\boxright \\neg A)"]
+CF_TH_5_premises = ["((A \\vee B) \\boxright C)"]
+CF_TH_5_conclusions = ["(A \\boxright C)"]
 CF_TH_5_settings = {
     'N': 3,
     'max_time': 10,
     'expectation': False  # Expect valid (no countermodel)
+}
+CF_TH_5_example = [
+    CF_TH_5_premises,
+    CF_TH_5_conclusions,
+    CF_TH_5_settings
+]
+
+# Export examples for the model checker
+example_range = {
+    "CF_CM_1": CF_CM_1_example,
+    "CF_TH_5": CF_TH_5_example
 }
 ```
 
@@ -127,6 +143,28 @@ Total Run Time: 0.389 seconds
 
 This shows the ModelChecker found a countermodel, demonstrating that the counterfactual antecedent strengthening argument is invalid in this semantic theory.
 
+For theorems (valid inferences), the output is simpler since no countermodel exists:
+
+```
+EXAMPLE CF_TH_5: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. ((A \vee B) \boxright C)
+
+Conclusion:
+2. (A \boxright C)
+
+Z3 Run Time: 0.0441 seconds
+
+========================================
+```
+
+This confirms that CF_TH_5 is a valid theorem - from "If A or B, then C" we can infer "If A, then C" in counterfactual logic - since there are no countermodels with `N = 3`.
+
 **Purpose**: Define the logical questions your theory should answer and verify its behavior on key inferences.
 
 **Next**: See [Examples Guide](EXAMPLES.md) for formula syntax, example patterns, and testing strategies.
@@ -161,29 +199,42 @@ Settings control the computational complexity and the types of models ModelCheck
 
 ### Step 4: Adapt Semantic Framework
 
-Modify `semantic.py` to implement your specific semantic theory by adding constraints:
+Modify `semantic.py` to implement your specific semantic theory by inheriting from LogosSemantics:
 
 ```python
-# Add a new constraint to your semantic class
+from model_checker.theory_lib.logos.semantic import LogosSemantics
+from z3 import *
+
 class MySemantics(LogosSemantics):
     def __init__(self, combined_settings=None, **kwargs):
         super().__init__(combined_settings, **kwargs)
 
-        # Add your custom semantic constraints
+        # LogosSemantics provides these default constraints:
+        #   - possibility_downward_closure (states inherit possibility from their parts)
+        #   - is_world(main_world) (evaluation point must be a world)
+
+        # OPTION 1: Extend existing constraints (adds to defaults)
         self.frame_constraints.extend([
-            self.my_custom_constraint(),
-            self.another_constraint()
+            self.some_new_constraint(),
+            self.another_frame_constraint()
         ])
 
-    def my_custom_constraint(self):
-        """Define how your theory differs from the base theory."""
-        x, y = z3.BitVecs("custom_x custom_y", self.N)
+        # OPTION 2: Replace constraints entirely (removes defaults)
+        # self.frame_constraints = [
+        #     self.possibility_upward_closure(),  # Different from default
+        #     self.is_world(self.main_world),     # Keep this essential constraint
+        # ]
+
+    def possibility_upward_closure(self):
+        """Alternative: parts inherit possibility from wholes."""
+        x, y = z3.BitVecs("up_x up_y", self.N)
         return ForAll([x, y],
             z3.Implies(
-                # Your constraint conditions
-                z3.And(self.is_world(x), self.is_world(y)),
-                # Your constraint requirements
-                self.custom_relation(x, y)
+                z3.And(
+                    self.possible(x),
+                    self.is_part_of(x, y)
+                ),
+                self.possible(y)  # Opposite of default behavior
             )
         )
 ```
@@ -194,36 +245,84 @@ class MySemantics(LogosSemantics):
 
 ### Step 5: Define Custom Operators
 
-Add new logical operators by creating operator classes in `operators.py`:
+Add logical operators in `operators.py`. There are two types:
+
+#### Defined Operators (Convenience - No New Expressive Power)
+
+These are shortcuts for commonly used combinations of existing operators:
 
 ```python
-# Define a new operator
-class MyOperator(syntactic.DefinedOperator):
-    """Custom logical operator."""
+from model_checker.syntactic import DefinedOperator
 
-    name = "\\myop"  # LaTeX command
-    arity = 2        # Binary operator
+class MaterialBiconditional(DefinedOperator):
+    """Material biconditional: P ↔ Q := (P → Q) ∧ (Q → P)"""
+
+    name = "\\leftrightarrow"  # LaTeX command
+    arity = 2                  # Binary operator
 
     def derived_definition(self, leftarg, rightarg):
-        # Define in terms of existing operators
+        # Define using existing operators
         return [AndOperator,
-                [NegationOperator, leftarg],
-                rightarg]
+                [ConditionalOperator, leftarg, rightarg],
+                [ConditionalOperator, rightarg, leftarg]]
 
-# Register the operator
-def get_operators():
-    return {
-        "\\neg": NegationOperator,
-        "\\wedge": AndOperator,
-        "\\myop": MyOperator,  # Your new operator
-    }
+class NecessarilyImplies(DefinedOperator):
+    """Necessary implication: □(P → Q)"""
+
+    name = "\\strictif"
+    arity = 2
+
+    def derived_definition(self, leftarg, rightarg):
+        return [BoxOperator,
+                [ConditionalOperator, leftarg, rightarg]]
 ```
 
-Use your new operators in examples:
+#### Primitive Operators (Extends Expressive Power)
+
+These require semantic interpretation and cannot be defined using other operators:
 
 ```python
-premises = ["(A \\myop B)"]
-conclusions = ["(\\neg A \\wedge B)"]
+from model_checker.syntactic import PrimitiveOperator
+
+class CounterfactualOperator(PrimitiveOperator):
+    """Counterfactual conditional (cannot be reduced to other operators)"""
+
+    name = "\\boxright"
+    arity = 2
+
+    # Must define semantic methods for your theory
+    def true_at(self, leftarg, rightarg, eval_point):
+        """When is A □→ B true at an evaluation point?"""
+        semantics = self.semantics
+        N = semantics.N
+        x = z3.BitVec("t_cf_x", N)
+        u = z3.BitVec("t_cf_u", N)
+        return ForAll([x, u],
+            z3.Implies(
+                z3.And(
+                    semantics.extended_verify(x, leftarg, eval_point),
+                    semantics.is_alternative(u, x, eval_point["world"])
+                ),
+                semantics.true_at(rightarg, {"world": u})
+            )
+        )
+
+    def false_at(self, leftarg, rightarg, eval_point):
+        """When is A □→ B false at an evaluation point?"""
+        semantics = self.semantics
+        N = semantics.N
+        x = z3.BitVec("f_cf_x", N)
+        u = z3.BitVec("f_cf_u", N)
+        return Exists([x, u],
+            z3.And(
+                semantics.extended_verify(x, leftarg, eval_point),
+                semantics.is_alternative(u, x, eval_point["world"]),
+                semantics.false_at(rightarg, {"world": u})
+            )
+        )
+
+    # Many other methods are typically provided for robustness:
+    # find_verifiers_and_falsifiers, semantic_equivalence, etc.
 ```
 
 **Purpose**: Extend your theory's expressive power with operators that capture the logical concepts central to your investigation.
@@ -243,22 +342,34 @@ ITERATION_settings = {
 }
 
 # Compare multiple theories on the same examples
+from model_checker.theory_lib.logos import get_theory as get_logos
+from model_checker.theory_lib.exclusion import get_theory as get_exclusion
+
+logos_theory = get_logos()
+exclusion_theory = get_exclusion()
+
 semantic_theories = {
-    "theory_a": my_theory_a,
-    "theory_b": my_theory_b,
-    "baseline": logos_theory,
+    "Logos": logos_theory,
+    "Exclusion": exclusion_theory,
 }
 ```
+
+When you define multiple theories, ModelChecker will:
+1. **Run each example against all theories** to find different verdicts
+2. **Report which theories validate/invalidate each inference**
+3. **Show countermodels only for theories that find the inference invalid**
 
 Run comparative analysis:
 
 ```bash
-# Find multiple models
+# Test single theory (normal mode)
 model-checker examples.py
 
-# Compare theories (when multiple theories defined)
+# Compare all defined theories and show differences
 model-checker examples.py --maximize
 ```
+
+The `--maximize` flag enables **theory comparison mode**, showing how different semantic theories handle the same logical inferences differently.
 
 **Purpose**: Explore the space of models your theory allows and systematically compare it with alternative approaches.
 
@@ -272,15 +383,16 @@ Export your findings in formats suitable for further analysis or publication:
 # Configure output in your examples
 general_settings = {
     "save_output": True,
-    "output_format": "markdown",  # or "json", "latex"
+    "output_format": "markdown",  # or "json", "jupyter"
 }
 ```
 
 ```bash
 # Command-line output options
-model-checker examples.py --save json      # Machine-readable
-model-checker examples.py --save markdown  # Human-readable
-model-checker examples.py --save latex     # Publication-ready
+model-checker examples.py --save json      # Machine-readable JSON
+model-checker examples.py --save markdown  # Human-readable markdown
+model-checker examples.py --save jupyter   # Interactive Jupyter notebook
+model-checker examples.py --save           # All formats (json, markdown, jupyter)
 ```
 
 Results are saved in the `output/` directory with countermodels, model comparisons, and iteration analyses.
@@ -293,21 +405,16 @@ Results are saved in the `output/` directory with countermodels, model compariso
 
 ```bash
 # Project Setup
-model-checker                    # Create new project
-model-checker -l <theory_name>   # Load existing theory
-model-checker -l logos --subtheory modal  # Load logos with specific subtheories
+model-checker                              # Create new logos project
+model-checker -l <theory_name>             # Load existing theory
+model-checker -l logos --subtheory modal   # Load logos with specific subtheories
 
 # Run Examples
-model-checker examples.py        # Basic execution
-model-checker examples.py --N=4  # Larger state space
-model-checker examples.py --iterate=3  # Multiple models
-
-# Debug and Analyze
-model-checker examples.py --maximize    # Compare theories
+model-checker examples.py                  # Basic execution
+model-checker examples.py --maximize       # Test theories
 
 # Save Results
-model-checker examples.py --save json      # JSON format
-model-checker examples.py --save markdown  # Markdown format
+model-checker examples.py --save           # All formats (json, markdown, jupyter)
 ```
 
 ## The Complete Methodology

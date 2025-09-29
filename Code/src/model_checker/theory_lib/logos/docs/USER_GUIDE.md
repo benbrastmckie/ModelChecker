@@ -424,8 +424,8 @@ MOD_TH_4_example = [
 Some formulas have multiple distinct models:
 
 ```bash
-# Run examples with iteration enabled
-model-checker subtheories/modal/examples.py --iterate 5
+# Run examples with constraints enabled
+model-checker subtheories/modal/examples.py --contingent --non-empty
 
 # This explores different ways modal formulas can be satisfied
 ```

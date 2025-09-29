@@ -45,8 +45,8 @@ MY_TEST_settings = {
     'N': 4  # Example-level setting (overrides theory default)
 }
 
-# Command line override
-# model-checker test.py --N=5  # This would override the example setting
+# Note: N and iterate must be set in example settings, not via CLI
+# Command line flags like --contingent override general/example settings
 ```
 
 ## Core Settings
@@ -209,9 +209,9 @@ EXAMPLE_settings = {
     'max_time': 60
 }
 
-# Command line (overrides all)
-# model-checker example.py --N=5
-# Final N value: 5
+# Command line (overrides general settings only)
+# model-checker example.py --contingent
+# Note: N and iterate must be set in example settings
 ```
 
 ## Common Configurations

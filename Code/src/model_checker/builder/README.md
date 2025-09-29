@@ -150,7 +150,7 @@ module = loader.load_module()
 ./dev_cli.py examples/my_example.py
 
 # Run with specific settings
-./dev_cli.py examples/my_example.py -n -e --N=5
+./dev_cli.py examples/my_example.py -n -e --contingent
 
 # Compare theories (maximize mode)
 ./dev_cli.py -m examples/my_example.py

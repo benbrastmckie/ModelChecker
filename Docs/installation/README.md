@@ -53,7 +53,7 @@ model-checker --version
 model-checker examples/modus_ponens.py
 
 # With specific settings
-model-checker examples/test.py --N=4 --verbose
+model-checker examples/test.py --contingent --save json
 ```
 
 ### Development Setup Test

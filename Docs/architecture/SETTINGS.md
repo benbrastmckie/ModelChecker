@@ -18,7 +18,7 @@ The ModelChecker uses a five-level settings hierarchy with clear precedence:
 ┌──────────────────────┐
 │   CLI Arguments      │  [1] HIGHEST PRIORITY
 │ • --verbose          │  Overrides all other settings
-│ • --N=5              │
+│ • --contingent       │
 │ • --save             │
 └──────────┬───────────┘
            │
@@ -70,8 +70,9 @@ The ModelChecker uses a five-level settings hierarchy with clear precedence:
 ### 1. CLI Arguments (Highest Priority)
 Command-line flags override all other settings:
 ```bash
-model-checker example.py --N 6 --verbose --max-models 5
+model-checker example.py --contingent --save json
 ```
+Note: Settings like N and iterate must be set in example files, not via CLI.
 
 ### 2. Example File Settings
 Settings defined in the example file:

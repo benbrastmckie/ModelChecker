@@ -150,8 +150,8 @@ EXAMPLE_settings = {
     'expectation': True # Expecting countermodels (not theorems)
 }
 
-# Command line override
-model-checker examples.py --iterate=5  # Override to find 5 models instead
+# Note: iterate must be set in example settings, not via CLI
+# Set iterate in your example settings to find multiple models
 ```
 
 The `iterate` setting controls how many structurally distinct models the system attempts to find. Setting it to 1 (default) finds just one model, while higher values trigger the iteration algorithm to search for additional models that differ meaningfully from those already found.
