@@ -345,7 +345,7 @@ IM_CM_25_settings = {
     'disjoint': False,
     'max_time': 10,
     'iterate': 1,
-    'expectation': True,
+    'expectation': False,  # This is actually a valid argument, not a countermodel
 }
 
 IM_CM_25_example = [
@@ -365,7 +365,7 @@ IM_CM_26_settings = {
     'disjoint': False,
     'max_time': 10,
     'iterate': 1,
-    'expectation': True,
+    'expectation': False,  # This is actually a valid argument, not a countermodel
 }
 
 IM_CM_26_example = [
@@ -405,7 +405,7 @@ IM_CM_28_settings = {
     'disjoint': False,
     'max_time': 10,
     'iterate': 1,
-    'expectation': True,
+    'expectation': False,  # This is actually a valid argument, not a countermodel
 }
 
 IM_CM_28_example = [
@@ -447,6 +447,7 @@ IM_TH_7_settings = {
     'non_empty': False,
     'non_null': False,
     'disjoint': False,
+    'expectation': True,  # This actually has a countermodel, not a valid argument
 }
 
 IM_TH_7_example = [

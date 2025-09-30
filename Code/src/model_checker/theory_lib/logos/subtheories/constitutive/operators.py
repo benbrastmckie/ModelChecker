@@ -472,6 +472,70 @@ class ReductionOperator(syntactic.DefinedOperator):
         """Defines reduction as conjunction of ground and essence."""
         return [AndOperator, [GroundOperator, leftarg, rightarg], [EssenceOperator, leftarg, rightarg]]
 
+    def true_at(self, leftarg, rightarg, eval_point):
+        """Defines truth conditions for reduction."""
+        # A ⇒ B is true when (A ≤ B) ∧ (A ⊑ B) is true
+        ground_op = GroundOperator()
+        ground_op.semantics = self.semantics
+        essence_op = EssenceOperator()
+        essence_op.semantics = self.semantics
+        return z3.And(
+            ground_op.true_at(leftarg, rightarg, eval_point),
+            essence_op.true_at(leftarg, rightarg, eval_point)
+        )
+
+    def false_at(self, leftarg, rightarg, eval_point):
+        """Defines falsity conditions for reduction."""
+        # A ⇒ B is false when ¬((A ≤ B) ∧ (A ⊑ B)) is true
+        return z3.Not(self.true_at(leftarg, rightarg, eval_point))
+
+    def extended_verify(self, state, leftarg, rightarg, eval_point):
+        """Defines verification conditions for reduction."""
+        ground_op = GroundOperator()
+        ground_op.semantics = self.semantics
+        essence_op = EssenceOperator()
+        essence_op.semantics = self.semantics
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("red_verify_x", N)
+        y = z3.BitVec("red_verify_y", N)
+        return z3.Exists(
+            [x, y],
+            z3.And(
+                ground_op.extended_verify(x, leftarg, rightarg, eval_point),
+                essence_op.extended_verify(y, leftarg, rightarg, eval_point),
+                state == sem.fusion(x, y)
+            )
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_point):
+        """Defines falsification conditions for reduction."""
+        ground_op = GroundOperator()
+        ground_op.semantics = self.semantics
+        essence_op = EssenceOperator()
+        essence_op.semantics = self.semantics
+        return z3.Or(
+            ground_op.extended_falsify(state, leftarg, rightarg, eval_point),
+            essence_op.extended_falsify(state, leftarg, rightarg, eval_point)
+        )
+
+    def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_point):
+        """Finds the verifiers and falsifiers for reduction."""
+        ground_op = GroundOperator()
+        ground_op.semantics = self.semantics
+        essence_op = EssenceOperator()
+        essence_op.semantics = self.semantics
+
+        ground_V, ground_F = ground_op.find_verifiers_and_falsifiers(leftarg, rightarg, eval_point)
+        essence_V, essence_F = essence_op.find_verifiers_and_falsifiers(leftarg, rightarg, eval_point)
+
+        # Verifiers are the product of both verifiers
+        verifiers = self.semantics.product(ground_V, essence_V)
+        # Falsifiers are the coproduct of either falsifier
+        falsifiers = self.semantics.coproduct(ground_F, essence_F)
+
+        return verifiers, falsifiers
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the reduction operator with proper indentation and formatting."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)

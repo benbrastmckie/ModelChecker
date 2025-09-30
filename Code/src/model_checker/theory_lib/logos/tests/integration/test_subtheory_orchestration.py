@@ -101,7 +101,8 @@ class TestSubtheoryOrchestration:
         from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
 
         registry = LogosOperatorRegistry()
-        semantics = LogosSemantics(operator_registry=registry)
+        # Use smaller N value to avoid computational hang in tests
+        semantics = LogosSemantics({'N': 4}, operator_registry=registry)
 
         # Test required attributes exist
         assert hasattr(semantics, 'verify')

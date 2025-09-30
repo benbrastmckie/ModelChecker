@@ -18,27 +18,66 @@ imposition_theory = {
     'operators': 'imposition_operators',
 }
 
+# Default settings for the examples module
+general_settings = {
+    "print_constraints": False,
+    "print_impossible": False,
+    "print_z3": False,
+    "save_output": False,
+    "maximize": False,
+    "derive_imposition": False,
+    "max_time": 5,  # Default timeout in seconds
+    "expectation": True,  # Default expectation for validity
+}
+
+
+# Helper function to merge general settings with example settings
+def merge_with_general_settings(examples_dict: Dict[str, List], is_theorem: bool = False) -> Dict[str, List]:
+    """Merge general_settings with each example's settings.
+
+    Args:
+        examples_dict: Dictionary of examples to process
+        is_theorem: If True, sets expectation to False (expecting no countermodel)
+    """
+    merged = {}
+    for key, example in examples_dict.items():
+        premises, conclusions, settings = example
+        # Merge general_settings with example-specific settings
+        # Example settings take precedence over general settings
+        merged_settings = {**general_settings, **settings}
+        # For theorems, we expect no countermodel (expectation should be False)
+        # But only override if not explicitly set in the example
+        if (is_theorem or key.startswith('IM_TH')) and 'expectation' not in settings:
+            merged_settings['expectation'] = False
+        merged[key] = [premises, conclusions, merged_settings]
+    return merged
+
 
 # Combined collections for comprehensive testing
 all_countermodels = {**basic_countermodels, **complex_countermodels}
 all_theorems = {**basic_theorems, **complex_theorems}
-all_examples = {**basic_examples, **complex_examples, **edge_case_examples}
+all_examples_raw = {**basic_examples, **complex_examples, **edge_case_examples}
+
+# Apply general settings to all examples
+all_examples = merge_with_general_settings(all_examples_raw)
+all_countermodels = merge_with_general_settings(all_countermodels)
+all_theorems = merge_with_general_settings(all_theorems, is_theorem=True)
 
 
 # Test suite configurations
 test_suites = {
     'basic': {
-        'examples': basic_examples,
+        'examples': merge_with_general_settings(basic_examples),
         'description': 'Basic imposition theory examples',
         'expected_runtime': 'fast',
     },
     'complex': {
-        'examples': complex_examples,
+        'examples': merge_with_general_settings(complex_examples),
         'description': 'Complex imposition theory examples',
         'expected_runtime': 'medium',
     },
     'edge_cases': {
-        'examples': edge_case_examples,
+        'examples': merge_with_general_settings(edge_case_examples),
         'description': 'Edge cases and special scenarios',
         'expected_runtime': 'variable',
     },
@@ -63,19 +102,19 @@ test_suites = {
 # Quick test configurations for development
 quick_tests = {
     'smoke': {
-        'examples': {
+        'examples': merge_with_general_settings({
             'IM_CM_1': basic_examples['IM_CM_1'],
             'IM_TH_5': basic_examples['IM_TH_5'],
-        },
+        }),
         'description': 'Smoke test with one countermodel and one theorem',
     },
     'basic_sample': {
-        'examples': {
+        'examples': merge_with_general_settings({
             'IM_CM_1': basic_examples['IM_CM_1'],
             'IM_CM_7': basic_examples['IM_CM_7'],
             'IM_TH_1': basic_examples['IM_TH_1'],
             'IM_TH_2': basic_examples['IM_TH_2'],
-        },
+        }),
         'description': 'Small sample of basic examples',
     },
 }
@@ -118,17 +157,6 @@ constraint_tests = {
                            v[2].get('non_null', False)])},
         'description': 'Examples with maximum constraint settings',
     },
-}
-
-
-# Default settings for the examples module
-general_settings = {
-    "print_constraints": False,
-    "print_impossible": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,
-    "derive_imposition": False,
 }
 
 

@@ -17,10 +17,13 @@ from ..constitutive.operators import RelevanceOperator
 def get_operators():
     """
     Get all relevance operators.
-    
+
+    Note: The relevance operator (\\preceq) is provided by the constitutive subtheory.
+    This module exists for organizational purposes but doesn't define any unique operators.
+
     Returns:
         dict: Dictionary mapping operator names to operator classes
     """
     return {
-        "\\preceq": RelevanceOperator,
+        # No operators defined here - relevance operators are provided by constitutive subtheory
     }

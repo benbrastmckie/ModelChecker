@@ -6,108 +6,21 @@
 
 The **ModelChecker** provides a programmatic framework for developing and exploring modular semantic theories. Built on the SMT solver Z3, it enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid.
 
-## Quick Start Workflow
-
-### 1. Create or Load a Theory Project
-
-Start by creating a new project from an existing theory or from scratch:
-
-```bash
-# Load an existing theory
-model-checker -l logos       # Hyperintensional semantics
-model-checker -l exclusion   # Unilateral exclusion semantics
-model-checker -l imposition  # Fine's counterfactual semantics
-model-checker -l bimodal     # Temporal-modal logic
-
-# Or create a blank project
-model-checker
-```
-
-See [Project Creation Guide](Docs/usage/PROJECT.md) for detailed instructions on starting new projects.
-
-### 2. Test and Develop Examples
-
-Each project includes an `examples.py` file where you define logical formulas to test:
-
-```bash
-# Run your examples
-model-checker examples.py
-```
-
-Modify `examples.py` to test different inferences and adjust settings like model size and constraints. See the [Examples Guide](Docs/usage/EXAMPLES.md) and [Settings Guide](Docs/usage/SETTINGS.md) for details.
-
-### 3. Customize Semantic Constraints
-
-Modify `semantic.py` to change how your theory evaluates formulas. Add new constraints, modify existing ones, or create entirely new semantic frameworks. See the [Constraints Guide](Docs/usage/CONSTRAINTS.md).
-
-### 4. Define New Operators
-
-Extend your theory with custom operators:
-
-- **Defined operators** in `operators.py` - built from existing operators
-- **Primitive operators** in `semantic.py` - implemented with Z3 constraints
-
-See the [Operators Guide](Docs/usage/OPERATORS.md) for implementation details.
-
-### 5. Compare Theories and Iterate Models
-
-Use advanced tools to explore your semantics:
-
-- Compare multiple theories on the same examples
-- Find all models satisfying given constraints
-- Generate countermodels systematically
-
-See the [Tools Guide](Docs/usage/TOOLS.md) for these capabilities.
-
-### 6. Save and Export Results
-
-Save your findings in various formats:
-
-- Text files with countermodels
-- LaTeX for publications
-- JSON for further processing
-
-See the [Output Guide](Docs/usage/OUTPUT.md) for export options.
-
-## Directory Structure
-
-```
-ModelChecker/
-├── Code/                           # Main implementation directory
-│   ├── src/                        # Source code
-│   ├── docs/                       # Technical documentation
-│   ├── specs/                      # Implementation specifications
-│   └── tests/                      # Test suites
-├── Docs/                           # General project documentation
-│   ├── installation/               # Installation guides
-│   ├── usage/                      # Practical usage guides
-│   │   ├── PROJECT.md              # Project creation
-│   │   ├── EXAMPLES.md             # Writing examples
-│   │   ├── SETTINGS.md             # Configuration settings
-│   │   ├── CONSTRAINTS.md          # Semantic constraints
-│   │   ├── OPERATORS.md            # Defining operators
-│   │   ├── TOOLS.md                # Advanced tools
-│   │   └── OUTPUT.md               # Saving results
-│   ├── architecture/               # System architecture
-│   └── theory/                     # Theoretical background
-├── Images/                         # Screenshots and diagrams
-└── README.md                       # This file
-```
-
 ## Installation
 
-For most users:
+### Basic Installation
+
 ```bash
 pip install model-checker
 ```
 
-For comprehensive installation instructions including platform-specific guides, virtual environments, and development setup, see the [Installation Documentation](Docs/installation/README.md).
+### With Jupyter Support
 
-**Quick Links:**
-- [Basic Installation](Docs/installation/BASIC_INSTALLATION.md) - Standard pip installation
-- [NixOS Installation](Docs/installation/BASIC_INSTALLATION.md#nixos-installation) - NixOS-specific setup
-- [Developer Setup](Docs/installation/DEVELOPER_SETUP.md) - Development environment
-- [Troubleshooting](Docs/installation/TROUBLESHOOTING.md) - Common issues
+```bash
+pip install model-checker[jupyter]
+```
+
+For Jupyter notebook features and interactive exploration, see the [Jupyter Integration Guide](Code/src/model_checker/jupyter/README.md).
 
 ### Development Installation
 
@@ -120,151 +33,174 @@ cd ModelChecker/Code
 
 For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](Code/docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
 
-### With Jupyter Support
+### Installation Guides
 
-```bash
-pip install model-checker[jupyter]
-```
+For comprehensive installation instructions including platform-specific guides, virtual environments, and troubleshooting, see the [Installation Documentation](Docs/installation/README.md).
 
-For Jupyter notebook features and interactive exploration, see the [Jupyter Integration Guide](Code/src/model_checker/jupyter/README.md).
+**Quick Links:**
+- [Basic Installation](Docs/installation/BASIC_INSTALLATION.md) - Further details
+- [NixOS Installation](Docs/installation/BASIC_INSTALLATION.md#nixos-installation) - NixOS-specific setup
+- [Developer Setup](Docs/installation/DEVELOPER_SETUP.md) - Development environment
+- [Troubleshooting](Docs/installation/TROUBLESHOOTING.md) - Common issues
 
 ## Quick Start
 
-### Create a New Theory Project
+### 1. Create a Project
 
 ```bash
-# Create a project from an existing theory
-model-checker -l logos
-model-checker -l exclusion
-model-checker -l imposition
-model-checker -l bimodal
+# Create a copy of the logos semantics (default)
+model-checker
+
+# Or load a specific theory
+model-checker -l logos        # Hyperintensional semantics with all subtheories
+model-checker -l exclusion    # Unilateral exclusion semantics
+model-checker -l imposition   # Fine's counterfactual semantics
+model-checker -l bimodal      # Bimodal logic for tense and circumstantial modalities
+
+# Load specific logos subtheories
+model-checker -l logos --subtheory counterfactual  # Just counterfactual + dependencies
 ```
 
-### Run Examples
+This creates a project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files.
 
-When you load an existing theory using `model-checker -l <theory_name>`, it creates a new project directory containing all necessary files, including an `examples.py` file with pre-configured examples. You can then run this file to test the theory:
+### 2. Run Examples
 
 ```bash
-# Run a specific example file
-model-checker path/to/examples.py
+# Run the examples file created in your project
+model-checker examples.py
+
+# Compare multiple theories
+model-checker examples.py --maximize
+
+# Save results in various formats
+model-checker examples.py --save           # All formats
+model-checker examples.py --save json      # JSON only
 ```
 
-Replace `path/to/` with the actual path to your project directory (e.g., `project_my_theory/examples.py`).
+### 3. Next Steps
 
-### Example Structure
+- **New to ModelChecker?** Follow the [Getting Started Guide](Docs/installation/GETTING_STARTED.md)
+- **Ready to develop?** See [The ModelChecker Methodology](#the-modelchecker-methodology) below
+- **Need examples?** Check the [Examples Guide](Docs/usage/EXAMPLES.md) and [example structure](Docs/installation/GETTING_STARTED.md#example-structure)
 
-Basic `examples.py` files must take the following form:
+## The ModelChecker Methodology
 
-```python
-# Import theory components
-from model_checker.theory_lib.logos import get_theory
+The ModelChecker provides a systematic methodology for developing and studying semantic theories. This section provides an overview of the workflow - for the complete methodology guide, see [Docs/usage/WORKFLOW.md](Docs/usage/WORKFLOW.md).
 
-# Load the theory
-theory = get_theory()
+### 1. Create Your Theory Project
 
-# Define examples following the standard format
+Start by creating a new project or loading an existing theory:
 
-# Example 1: Extensional Modus Ponens
-EXT_TH_1_premises = ["A", "(A \\rightarrow B)"]
-EXT_TH_1_conclusions = ["B"]
-EXT_TH_1_settings = {
-    'N': 3,                         # Max number of atomic propositions
-    'contingent': False,            # Allow non-contingent propositions
-    'non_null': False,              # Allow the null state
-    'non_empty': False,             # Allow empty verifier/falsifier sets
-    'disjoint': False,              # Allow verifier/falsifier overlap
-    'max_time': 10,                 # Timeout in seconds
-    'iterate': 1,                   # Number of models to find
-    'expectation': False,           # True = expect countermodel, False = expect theorem
-}
-EXT_TH_1_example = [
-    EXT_TH_1_premises,
-    EXT_TH_1_conclusions,
-    EXT_TH_1_settings,
-]
+```bash
+# Create a copy of the logos semantics
+model-checker                                        # Creates a logos semantics by default with all subtheories
 
-# Example 2: Counterfactual Modus Ponens
-CF_TH_1_premises = ["A", "(A \\boxright B)"]
-CF_TH_1_conclusions = ["B"]
-CF_TH_1_settings = {
-    'N': 4,                         # Max number of atomic propositions
-    'contingent': False,            # Allow non-contingent propositions
-    'non_null': False,              # Allow the null state
-    'non_empty': False,             # Allow empty verifier/falsifier sets
-    'disjoint': False,              # Allow verifier/falsifier overlap
-    'max_time': 10,                 # Timeout in seconds
-    'iterate': 1,                   # Number of models to find
-    'expectation': False,           # True = expect countermodel, False = expect theorem
-}
-CF_TH_1_example = [
-    CF_TH_1_premises,
-    CF_TH_1_conclusions,
-    CF_TH_1_settings,
-]
-
-# Example 3: Constitutive Identity Reflexivity
-CON_TH_1_premises = []
-CON_TH_1_conclusions = ["(A \\equiv A)"]
-CON_TH_1_settings = {
-    'N': 3,                         # Max number of atomic propositions
-    'contingent': False,            # Allow non-contingent propositions
-    'non_null': False,              # Allow the null state
-    'non_empty': False,             # Allow empty verifier/falsifier sets
-    'disjoint': False,              # Allow verifier/falsifier overlap
-    'max_time': 10,                 # Timeout in seconds
-    'iterate': 1,                   # Number of models to find
-    'expectation': False,           # True = expect countermodel, False = expect theorem
-}
-CON_TH_1_example = [
-    CON_TH_1_premises,
-    CON_TH_1_conclusions,
-    CON_TH_1_settings,
-]
-
-# Collection of all examples (used by test framework)
-unit_tests = {
-    "EXT_TH_1": EXT_TH_1_example,  # Modus ponens theorem
-    "CF_TH_1": CF_TH_1_example,    # Counterfactual modus ponens
-    "CON_TH_1": CON_TH_1_example,  # Identity reflexivity
-}
-
-# The framework expects this to be named 'example_range'
-example_range = {
-    "EXT_TH_1": EXT_TH_1_example,  # Run modus ponens example
-    "CF_TH_1": CF_TH_1_example,    # Run counterfactual example
-    # "CON_TH_1": CON_TH_1_example,  # Commented out to run fewer
-}
-
-# Optional: General settings for execution
-general_settings = {
-    "print_constraints": False,
-    "print_impossible": False,
-    "print_z3": False,
-    "save_output": False,
-    "maximize": False,  # Set to True to compare multiple theories
-}
-
-# Define semantic theories to use
-semantic_theories = {
-    "logos": theory,
-}
+# Load an existing theory as starting point
+model-checker -l logos --subtheory counterfactual    # Just counterfactual + dependencies
+model-checker -l exclusion                           # Unilateral exclusion semantics
+model-checker -l imposition                          # Fine's counterfactual semantics
+model-checker -l bimodal                             # Bimodal logic for tense and circumstantial modalities
 ```
 
-Follow the [Examples Documentation](Docs/installation/GETTING_STARTED.md) to find our more about running `examples.py` files.
+This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. See [Project Creation Guide](Docs/usage/PROJECT.md) for detailed instructions.
 
-## Subdirectories
+### 2. Develop Examples
 
-### [Code/](Code/)
+Edit the `examples.py` file to test logical inferences relevant to your theory:
 
-Main implementation directory containing the ModelChecker package source code, development tools, and technical documentation. Includes the core framework, theory library implementations, builder system, iteration engine, and comprehensive test suites. This is where developers work on extending the framework and contributing new theories. See [Code/README.md](Code/README.md) for package documentation.
+```bash
+# Run your examples
+model-checker examples.py
+```
 
-### [Docs/](Docs/)
+Define the logical questions your theory should answer and verify its behavior on key inferences. See the [Examples Guide](Docs/usage/EXAMPLES.md) and [Settings Guide](Docs/usage/SETTINGS.md) for details.
 
-Project-level documentation for understanding the ModelChecker's theoretical foundations, development architecture, and advanced usage. Contains guides for installation, development workflows, research architecture, and detailed explanations of the Z3-based implementation approach. Essential reading for researchers and contributors. See [Docs/README.md](Docs/README.md) for documentation navigation.
+### 3. Adapt Semantic Framework
 
-### [Images/](Images/)
+Modify `semantic.py` to implement your specific semantic theory. Add new constraints, modify existing ones, or create entirely new semantic frameworks to capture the logical principles that distinguish your theory. See the [Semantics Guide](Docs/usage/SEMANTICS.md).
 
-Visual documentation including architecture diagrams, countermodel visualizations, and screenshots demonstrating the framework in action. Helps illustrate complex semantic concepts and usage patterns that are difficult to convey through text alone.
+### 4. Define Custom Operators
+
+Extend your theory's expressive power with new operators:
+
+- **Defined operators** in `operators.py` - shortcuts for combinations of existing operators
+- **Primitive operators** requiring semantic interpretation in `semantic.py`
+
+See the [Operators Guide](Docs/usage/OPERATORS.md) for implementation patterns.
+
+### 5. Iterate Models and Compare Theories
+
+Explore the space of models your theory allows and systematically compare with alternative approaches:
+
+```bash
+# Test single theory
+model-checker examples.py
+
+# Compare multiple theories
+model-checker examples.py --maximize
+```
+
+See the [Tools Guide](Docs/usage/TOOLS.md) for model iteration and theory comparison.
+
+### 6. Save and Export Results
+
+Export your findings in formats suitable for analysis or publication:
+
+```bash
+model-checker examples.py --save           # All formats (json, markdown, jupyter)
+model-checker examples.py --save json      # Machine-readable JSON
+model-checker examples.py --save markdown  # Human-readable markdown
+```
+
+See the [Output Guide](Docs/usage/OUTPUT.md) for format options.
+
+### Complete Methodology
+
+This systematic approach enables you to:
+1. **Start** with working theories as foundations
+2. **Test** logical inferences computationally
+3. **Customize** semantic behavior through constraints
+4. **Extend** expressive power with new operators
+5. **Explore** the space of possible models
+6. **Compare** different theoretical approaches
+7. **Document** and share your findings
+
+For the complete step-by-step methodology with detailed examples and advanced techniques, see the [full Methodology Guide](Docs/usage/WORKFLOW.md).
+
+## Project Structure
+
+```
+ModelChecker/
+├── Code/                           # Main implementation directory
+│   ├── src/                        # Source code
+│   ├── docs/                       # Technical documentation
+│   ├── scripts/                    # Development and maintenance scripts
+│   └── tests/                      # Test suites
+├── Docs/                           # General project documentation
+│   ├── installation/               # Installation guides
+│   ├── usage/                      # Practical usage guides
+│   │   ├── PROJECT.md              # Project creation
+│   │   ├── EXAMPLES.md             # Writing examples
+│   │   ├── SETTINGS.md             # Configuration settings
+│   │   ├── SEMANTICS.md            # Semantic constraints
+│   │   ├── OPERATORS.md            # Defining operators
+│   │   ├── TOOLS.md                # Advanced tools
+│   │   ├── OUTPUT.md               # Saving results
+│   │   └── WORKFLOW.md             # Complete methodology
+│   ├── architecture/               # System architecture
+│   ├── maintenance/                # Development standards
+│   └── theory/                     # Theoretical background
+├── Images/                         # Screenshots and diagrams
+└── README.md                       # This file
+```
+
+### Main Directories
+
+**[Code/](Code/)** - Main implementation directory containing the ModelChecker package source code, development tools, and technical documentation. Includes the core framework, theory library implementations, builder system, iteration engine, and comprehensive test suites. This is where developers work on extending the framework and contributing new theories. See [Code/README.md](Code/README.md) for package documentation.
+
+**[Docs/](Docs/)** - Project-level documentation for understanding the ModelChecker's theoretical foundations, development architecture, and advanced usage. Contains guides for installation, development workflows, research architecture, and detailed explanations of the Z3-based implementation approach. Essential reading for researchers and contributors. See [Docs/README.md](Docs/README.md) for documentation navigation.
+
+**[Images/](Images/)** - Visual documentation including architecture diagrams, countermodel visualizations, and screenshots demonstrating the framework in action. Helps illustrate complex semantic concepts and usage patterns that are difficult to convey through text alone.
 
 ## Documentation
 
