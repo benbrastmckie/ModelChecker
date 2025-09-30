@@ -6,10 +6,13 @@ as first-class predicates in the model.
 """
 
 # Standard library imports
-from typing import Any, Dict, Optional, Tuple
+from typing import Any, Dict, Optional, Tuple, Union
 
 # Third-party imports
 import z3
+
+# Local imports
+from ...types import StateId
 
 
 class WitnessAwareModel:
@@ -21,13 +24,13 @@ class WitnessAwareModel:
     """
 
     def __init__(self, z3_model: z3.ModelRef, semantics: Any, witness_predicates: Dict[str, z3.FuncDeclRef]) -> None:
-        self.z3_model = z3_model
-        self.semantics = semantics
-        self.witness_predicates = witness_predicates
+        self.z3_model: z3.ModelRef = z3_model
+        self.semantics: Any = semantics
+        self.witness_predicates: Dict[str, z3.FuncDeclRef] = witness_predicates
         # Cache for evaluated predicates
-        self._cache = {}
+        self._cache: Dict[str, Any] = {}
 
-    def eval(self, expr):
+    def eval(self, expr: z3.ExprRef) -> z3.ExprRef:
         """Standard Z3 model evaluation."""
         return self.z3_model.eval(expr)
 
@@ -35,7 +38,7 @@ class WitnessAwareModel:
         """Check if model has witness predicates for given formula."""
         return f"{formula_str}_h" in self.witness_predicates
 
-    def get_h_witness(self, formula_str: str, state: int) -> Optional[int]:
+    def get_h_witness(self, formula_str: str, state: Union[int, StateId]) -> Optional[int]:
         """
         Get h(state) for the given formula.
         This is the key method that makes witnesses accessible.

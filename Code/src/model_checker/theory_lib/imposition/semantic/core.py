@@ -9,7 +9,8 @@ import z3
 
 from model_checker.theory_lib.logos import LogosSemantics
 from model_checker.utils import ForAll, Exists
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Set, Union
+from ...types import StateId, ImpositionSemantics as ImpositionSemanticsProtocol
 
 
 class ImpositionSemantics(LogosSemantics):
@@ -43,7 +44,7 @@ class ImpositionSemantics(LogosSemantics):
         "derive_imposition": False,  # Theory-specific setting for imposition operations
     }
 
-    def __init__(self, settings: Dict[str, Any]):
+    def __init__(self, settings: Dict[str, Any]) -> None:
         """Initialize imposition semantics with settings."""
         # Initialize the parent LogosSemantics with settings
         super().__init__(combined_settings=settings)
@@ -223,7 +224,7 @@ class ImpositionSemantics(LogosSemantics):
         # Return a list to combine
         return [neg_alt_constraints]
 
-    def calculate_outcome_worlds(self, verifiers: List[z3.BitVecRef], eval_point: Dict[str, z3.BitVecRef], model_structure) -> set:
+    def calculate_outcome_worlds(self, verifiers: Set[StateId], eval_point: Dict[str, Any], model_structure: Any) -> Set[StateId]:
         """Calculate alternative worlds given verifiers and eval_point.
 
         Args:

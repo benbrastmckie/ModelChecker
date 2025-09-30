@@ -10,12 +10,17 @@ from .basic import basic_examples, basic_countermodels, basic_theorems
 from .complex import complex_examples, complex_countermodels, complex_theorems
 from .edge_cases import edge_case_examples
 
+# Import required classes for theory configuration
+from ..semantic import ImpositionSemantics, ImpositionModelStructure
+from ..operators import imposition_operators
+from model_checker.theory_lib.logos.semantic import LogosProposition as Proposition
+
 # Import specific theory configuration
 imposition_theory = {
-    'semantics': 'ImpositionSemantics',
-    'model_structure': 'ImpositionModelStructure',
-    'proposition': 'Proposition',
-    'operators': 'imposition_operators',
+    'semantics': ImpositionSemantics,
+    'model': ImpositionModelStructure,
+    'proposition': Proposition,
+    'operators': imposition_operators,
 }
 
 # Default settings for the examples module

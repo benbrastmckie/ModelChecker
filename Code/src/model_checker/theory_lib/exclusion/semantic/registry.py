@@ -19,7 +19,7 @@ class WitnessRegistry:
     """
 
     def __init__(self, N: int) -> None:
-        self.N = N
+        self.N: int = N
         self.predicates: Dict[str, z3.FuncDeclRef] = {}
         self.formula_mapping: Dict[str, Set[str]] = {}
 

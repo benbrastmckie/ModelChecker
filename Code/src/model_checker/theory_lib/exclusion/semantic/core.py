@@ -6,7 +6,7 @@ witness-based negation semantics by inheriting from LogosSemantics.
 """
 
 # Standard library imports
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union, Set
 
 # Third-party imports
 import z3
@@ -17,6 +17,7 @@ from model_checker.utils import Exists, ForAll
 
 # Local imports
 from ...logos.semantic import LogosSemantics
+from ...types import StateId, WitnessSemantics as WitnessSemanticsProtocol
 from .constraints import WitnessConstraintGenerator
 from .model import WitnessAwareModel
 from .registry import WitnessRegistry
@@ -46,31 +47,31 @@ class WitnessSemantics(LogosSemantics):
 
     def __init__(self, settings: Dict[str, Any]) -> None:
         super().__init__(settings)
-        self.witness_registry = WitnessRegistry(self.N)
-        self.constraint_generator = WitnessConstraintGenerator(self)
-        self._processed_formulas = set()
-        self._formula_ast_mapping = {}  # Store formula string -> AST mapping
+        self.witness_registry: WitnessRegistry = WitnessRegistry(self.N)
+        self.constraint_generator: WitnessConstraintGenerator = WitnessConstraintGenerator(self)
+        self._processed_formulas: Set[str] = set()
+        self._formula_ast_mapping: Dict[str, Any] = {}  # Store formula string -> AST mapping
 
         # Define Z3 primitives needed for negation semantics
-        self.verify = z3.Function(
+        self.verify: z3.FuncDeclRef = z3.Function(
             "verify",
             z3.BitVecSort(self.N),
             syntactic.AtomSort,
             z3.BoolSort(),
         )
 
-        self.excludes = z3.Function(
+        self.excludes: z3.FuncDeclRef = z3.Function(
             "excludes",
             z3.BitVecSort(self.N),
             z3.BitVecSort(self.N),
             z3.BoolSort(),
         )
 
-        self.main_world = z3.BitVec("w", self.N)
-        self.main_point = {"world": self.main_world}
+        self.main_world: z3.BitVecRef = z3.BitVec("w", self.N)
+        self.main_point: Dict[str, z3.BitVecRef] = {"world": self.main_world}
 
         # Simple counter for unique naming
-        self.counter = 0
+        self.counter: int = 0
 
         # Override premise and conclusion behavior attributes
         self.premise_behavior = self._premise_behavior_method
@@ -108,7 +109,7 @@ class WitnessSemantics(LogosSemantics):
         x = z3.BitVec("nec_x", self.N)
         return ForAll(x, z3.Implies(self.possible(x), self.compossible(bit_e1, x)))
 
-    def product(self, set_X: set, set_Y: set) -> set:
+    def product(self, set_X: Set[Any], set_Y: Set[Any]) -> Set[Tuple[Any, Any]]:
         """Compute the product of two sets of states."""
         return {self.fusion(x, y) for x in set_X for y in set_Y}
 
@@ -131,7 +132,7 @@ class WitnessSemantics(LogosSemantics):
             )
         )
 
-    def build_model(self, eval_point: Dict[str, Any]) -> Optional['WitnessAwareModel']:
+    def build_model(self, eval_point: Dict[str, Any]) -> Optional[WitnessAwareModel]:
         """
         Build model with witness predicates included.
         """
@@ -181,7 +182,7 @@ class WitnessSemantics(LogosSemantics):
         else:
             return None
 
-    def _register_witness_predicates_recursive(self, formula):
+    def _register_witness_predicates_recursive(self, formula: Any) -> None:
         """
         Recursively register witness predicates for all negation
         subformulas in the formula.
