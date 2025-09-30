@@ -12,6 +12,9 @@ from typing import Any, List, Dict
 # Third-party imports
 import z3
 
+# Local imports
+from ...errors import WitnessConstraintError
+
 
 class WitnessConstraintGenerator:
     """
@@ -31,25 +34,51 @@ class WitnessConstraintGenerator:
         Generate constraints that define the witness predicates
         for a negation formula.
         """
-        constraints = []
+        if not formula_str:
+            raise WitnessConstraintError(
+                "Cannot generate constraints for empty formula",
+                context={'formula_str': formula_str},
+                suggestion="Provide a valid formula string"
+            )
 
-        # For each potential verifier state
-        for state in range(2**self.N):
-            state_bv = z3.BitVecVal(state, self.N)
+        if h_pred is None or y_pred is None:
+            raise WitnessConstraintError(
+                f"Invalid witness predicates for formula '{formula_str}'",
+                context={'h_pred': h_pred, 'y_pred': y_pred},
+                suggestion="Ensure witness predicates are properly registered"
+            )
 
-            # Check if this state could verify the negation
-            if self._could_verify_negation(state, formula_ast, eval_point):
-                # Generate constraints for witness values at this state
-                state_constraints = self._witness_constraints_for_state(
-                    state_bv, formula_ast, h_pred, y_pred, eval_point
-                )
-                constraints.extend(state_constraints)
-            else:
-                # No witness needed for non-verifying states
-                # Could optionally constrain to undefined/zero
-                pass
+        try:
+            constraints = []
 
-        return constraints
+            # For each potential verifier state
+            for state in range(2**self.N):
+                state_bv = z3.BitVecVal(state, self.N)
+
+                # Check if this state could verify the negation
+                if self._could_verify_negation(state, formula_ast, eval_point):
+                    # Generate constraints for witness values at this state
+                    state_constraints = self._witness_constraints_for_state(
+                        state_bv, formula_ast, h_pred, y_pred, eval_point
+                    )
+                    constraints.extend(state_constraints)
+                else:
+                    # No witness needed for non-verifying states
+                    # Could optionally constrain to undefined/zero
+                    pass
+
+            return constraints
+
+        except Exception as e:
+            raise WitnessConstraintError(
+                f"Failed to generate witness constraints for formula '{formula_str}'",
+                context={
+                    'formula_str': formula_str,
+                    'original_error': str(e),
+                    'N': self.N
+                },
+                suggestion="Check formula AST structure and evaluation point format"
+            ) from e
 
     def _could_verify_negation(self, state: int, formula_ast, eval_point) -> bool:
         """
