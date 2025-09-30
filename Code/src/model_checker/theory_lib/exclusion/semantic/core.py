@@ -18,6 +18,7 @@ from model_checker.utils import Exists, ForAll
 # Local imports
 from ...logos.semantic import LogosSemantics
 from ...types import StateId, WitnessSemantics as WitnessSemanticsProtocol
+from ...errors import WitnessSemanticError, WitnessRegistryError, WitnessConstraintError
 from .constraints import WitnessConstraintGenerator
 from .model import WitnessAwareModel
 from .registry import WitnessRegistry
@@ -25,9 +26,61 @@ from .registry import WitnessRegistry
 
 class WitnessSemantics(LogosSemantics):
     """
-    Semantics that includes witness functions as model predicates.
-    Inherits from LogosSemantics to get the falsify predicate and other
-    Logos infrastructure needed for iteration.
+    Witness-based negation semantics for exclusion theory.
+
+    This class implements the three-condition negation semantics where a formula ¬φ
+    is true at a state if and only if:
+    1. The state verifies the negation
+    2. There exists a witness state that makes φ true
+    3. The verifying state excludes the witness state
+
+    Inherits from LogosSemantics to leverage the foundational hyperintensional
+    truthmaker framework while adding exclusion-specific witness predicates.
+
+    Examples:
+        Basic usage with simple formula:
+
+        >>> settings = {
+        ...     'N': 3,
+        ...     'possible': False,
+        ...     'contingent': False,
+        ...     'max_time': 5,
+        ...     'iterate': 1
+        ... }
+        >>> semantics = WitnessSemantics(settings)
+        >>> # Register witness predicates for a formula
+        >>> h_pred, y_pred = semantics.witness_registry.register_witness_predicates("p")
+        >>> # Use in semantic evaluation
+        >>> eval_point = {"world": semantics.main_world}
+        >>> constraints = semantics.constraint_generator.generate_witness_constraints(
+        ...     "p", formula_ast, h_pred, y_pred, eval_point
+        ... )
+
+        Integration with logos operators:
+
+        >>> # Witness semantics inherits all logos operations
+        >>> state1 = z3.BitVecVal(1, 3)
+        >>> state2 = z3.BitVecVal(2, 3)
+        >>> compatibility = semantics.compatible(state1, state2)
+        >>> fusion_result = semantics.fusion(state1, state2)
+
+    Attributes:
+        witness_registry (WitnessRegistry): Registry for witness predicates h and y
+        constraint_generator (WitnessConstraintGenerator): Generates Z3 constraints
+        verify (z3.FuncDeclRef): Z3 function for verification relation
+        excludes (z3.FuncDeclRef): Z3 function for exclusion relation
+        main_world (z3.BitVecRef): Primary world variable for evaluation
+        main_point (Dict[str, z3.BitVecRef]): Evaluation point dictionary
+
+    Performance Notes:
+        - Witness predicate lookups are cached in the registry
+        - Constraint generation is optimized for repeated formula evaluation
+        - Inherits performance optimizations from LogosSemantics base class
+
+    Theory Background:
+        This implements Brast-McKie witness-based negation semantics for
+        hyperintensional logic, providing a foundation for analyzing exclusion
+        inferences and negative free logic constructions.
     """
 
     DEFAULT_EXAMPLE_SETTINGS = {
@@ -46,11 +99,18 @@ class WitnessSemantics(LogosSemantics):
     # No additional general settings needed - uses base class defaults
 
     def __init__(self, settings: Dict[str, Any]) -> None:
-        super().__init__(settings)
-        self.witness_registry: WitnessRegistry = WitnessRegistry(self.N)
-        self.constraint_generator: WitnessConstraintGenerator = WitnessConstraintGenerator(self)
-        self._processed_formulas: Set[str] = set()
-        self._formula_ast_mapping: Dict[str, Any] = {}  # Store formula string -> AST mapping
+        try:
+            super().__init__(settings)
+            self.witness_registry: WitnessRegistry = WitnessRegistry(self.N)
+            self.constraint_generator: WitnessConstraintGenerator = WitnessConstraintGenerator(self)
+            self._processed_formulas: Set[str] = set()
+            self._formula_ast_mapping: Dict[str, Any] = {}  # Store formula string -> AST mapping
+        except Exception as e:
+            raise WitnessSemanticError(
+                "Failed to initialize witness semantics",
+                context={'settings': settings, 'original_error': str(e)},
+                suggestion="Check settings format and ensure all required parameters are provided"
+            ) from e
 
         # Define Z3 primitives needed for negation semantics
         self.verify: z3.FuncDeclRef = z3.Function(

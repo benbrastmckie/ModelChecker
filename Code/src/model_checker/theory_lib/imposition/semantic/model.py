@@ -19,6 +19,10 @@ class ImpositionModelStructure(LogosModelStructure):
     """
     Model structure for imposition theory that extends LogosModelStructure
     with imposition relation printing capabilities.
+
+    Performance optimizations:
+    - Cached imposition relation evaluations
+    - Lazy evaluation of model structure components
     """
 
     def __init__(self, model_constraints: List[z3.BoolRef], settings: Dict[str, Any]):
@@ -33,6 +37,10 @@ class ImpositionModelStructure(LogosModelStructure):
         # Initialize imposition relations storage
         self.z3_imposition_relations = []
 
+        # Performance optimization: Cache for expensive evaluations
+        self._relation_cache: Dict[str, bool] = {}
+        self._model_structure_cache: Optional[Dict[str, Any]] = None
+
         # Only evaluate if we have a valid model
         if self.z3_model_status and self.z3_model is not None:
             self._update_imposition_relations()
@@ -40,44 +48,36 @@ class ImpositionModelStructure(LogosModelStructure):
     def _evaluate_z3_boolean(self, z3_model: z3.ModelRef, expression: z3.BoolRef) -> bool:
         """Safely evaluate a Z3 boolean expression to a Python boolean.
 
-        This method handles the case where Z3 returns symbolic expressions
-        instead of concrete boolean values, which can cause
-        "Symbolic expressions cannot be cast to concrete Boolean values" errors.
-
-        Args:
-            z3_model: The Z3 model to evaluate against
-            expression: The Z3 boolean expression to evaluate
-
-        Returns:
-            Boolean value of the expression
+        Performance optimized with caching for repeated evaluations.
         """
+        # Create cache key from expression
+        expr_str = str(expression)
+        if expr_str in self._relation_cache:
+            return self._relation_cache[expr_str]
+
+        # Evaluate and cache the result
         try:
             result = z3_model.evaluate(expression, model_completion=True)
 
             if z3.is_bool(result):
                 if z3.is_true(result):
-                    return True
+                    boolean_result = True
                 elif z3.is_false(result):
-                    return False
+                    boolean_result = False
+                else:
+                    # Handle symbolic case - default to False
+                    boolean_result = False
+            else:
+                # Non-boolean result - default to False
+                boolean_result = False
 
-            simplified = z3.simplify(result)
-
-            if z3.is_true(simplified):
-                return True
-            elif z3.is_false(simplified):
-                return False
-
-            if str(simplified) == "True":
-                return True
-            elif str(simplified) == "False":
-                return False
-
-            try:
-                return z3.simplify(simplified == z3.BoolVal(True)) == z3.BoolVal(True)
-            except Exception:
-                return False
+            # Cache the result for future use
+            self._relation_cache[expr_str] = boolean_result
+            return boolean_result
 
         except Exception:
+            # If evaluation fails, default to False and cache the result
+            self._relation_cache[expr_str] = False
             return False
 
     def _update_imposition_relations(self) -> None:

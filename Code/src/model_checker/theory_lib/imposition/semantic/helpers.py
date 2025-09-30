@@ -7,6 +7,7 @@ semantic classes.
 
 from typing import Any, List, Dict, Optional, Set
 import z3
+from ...errors import ImpositionHelperError
 
 
 def safe_bitvec_as_long(bitvec: z3.BitVecRef) -> int:
@@ -20,7 +21,15 @@ def safe_bitvec_as_long(bitvec: z3.BitVecRef) -> int:
     """
     if isinstance(bitvec, int):
         return bitvec
-    return bitvec.as_long()
+
+    try:
+        return bitvec.as_long()
+    except Exception as e:
+        raise ImpositionHelperError(
+            "safe_bitvec_as_long",
+            context={'bitvec': str(bitvec), 'bitvec_type': type(bitvec), 'original_error': str(e)},
+            suggestion="Ensure input is a valid Z3 BitVec or integer"
+        ) from e
 
 
 def format_imposition_relation(state: z3.BitVecRef, world: z3.BitVecRef, outcome: z3.BitVecRef) -> str:
@@ -34,10 +43,22 @@ def format_imposition_relation(state: z3.BitVecRef, world: z3.BitVecRef, outcome
     Returns:
         Formatted string representation
     """
-    state_val = safe_bitvec_as_long(state)
-    world_val = safe_bitvec_as_long(world)
-    outcome_val = safe_bitvec_as_long(outcome)
-    return f"s{state_val} ->_{world_val} s{outcome_val}"
+    try:
+        state_val = safe_bitvec_as_long(state)
+        world_val = safe_bitvec_as_long(world)
+        outcome_val = safe_bitvec_as_long(outcome)
+        return f"s{state_val} ->_{world_val} s{outcome_val}"
+    except Exception as e:
+        raise ImpositionHelperError(
+            "format_imposition_relation",
+            context={
+                'state': str(state),
+                'world': str(world),
+                'outcome': str(outcome),
+                'original_error': str(e)
+            },
+            suggestion="Ensure all parameters are valid Z3 BitVec expressions or integers"
+        ) from e
 
 
 def group_impositions_by_world(imposition_relations: List[tuple]) -> Dict[z3.BitVecRef, List[tuple]]:
