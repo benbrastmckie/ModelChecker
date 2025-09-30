@@ -7,7 +7,7 @@ negation semantics.
 """
 
 # Standard library imports
-from typing import Any, List
+from typing import Any, List, Dict
 
 # Third-party imports
 import z3
@@ -20,13 +20,13 @@ class WitnessConstraintGenerator:
     """
 
     def __init__(self, semantics: Any) -> None:
-        self.semantics = semantics
-        self.N = semantics.N
+        self.semantics: Any = semantics
+        self.N: int = semantics.N
 
-    def generate_witness_constraints(self, formula_str: str, formula_ast,
+    def generate_witness_constraints(self, formula_str: str, formula_ast: Any,
                                    h_pred: z3.FuncDeclRef,
                                    y_pred: z3.FuncDeclRef,
-                                   eval_point) -> List[z3.BoolRef]:
+                                   eval_point: Dict[str, Any]) -> List[z3.BoolRef]:
         """
         Generate constraints that define the witness predicates
         for a negation formula.

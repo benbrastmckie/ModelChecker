@@ -86,3 +86,16 @@ __all__ = [
     'get_available_suites',
     'get_suite_info',
 ]
+
+# Default example range (curated subset for direct execution)
+# This is required by the ModelChecker framework
+example_range = {
+    # COUNTERMODELS
+    "IM_CM_1": basic_examples["IM_CM_1"],    # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+
+    # THEOREMS
+    "IM_TH_5": basic_examples["IM_TH_5"],    # SIMPLIFICATION OF DISJUNCTIVE ANTECEDENT
+}
+
+# Add example_range to exports
+__all__.append('example_range')
