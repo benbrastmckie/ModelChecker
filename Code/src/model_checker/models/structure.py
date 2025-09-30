@@ -62,8 +62,9 @@ class ModelDefaults:
         # Store arguments
         self.model_constraints = model_constraints
         self.settings = settings
-        self.max_time = self.settings["max_time"]
-        self.expectation = self.settings["expectation"]
+        # Use defensive defaults for required settings
+        self.max_time = self.settings.get("max_time", 5)  # Default 5 seconds timeout
+        self.expectation = self.settings.get("expectation", True)  # Default expect validity
 
         # Store from model_constraints.semantics
         self.semantics = self.model_constraints.semantics

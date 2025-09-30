@@ -188,6 +188,70 @@ class MightCounterfactualOperator(syntactic.DefinedOperator):
         """Defines might counterfactual as negation of counterfactual with negated consequent."""
         return [NegationOperator, [CounterfactualOperator, leftarg, [NegationOperator, rightarg]]]
 
+    def true_at(self, leftarg, rightarg, eval_point):
+        """Defines truth conditions for might counterfactual."""
+        # A ◇→ B is true when ¬(A ⊃→ ¬B) is true
+        cf_op = CounterfactualOperator()
+        cf_op.semantics = self.semantics
+        neg_op = NegationOperator()
+        neg_op.semantics = self.semantics
+        # Create negated rightarg
+        negated_right = neg_op.true_at(rightarg, eval_point)
+        return z3.Not(cf_op.true_at(leftarg, negated_right, eval_point))
+
+    def false_at(self, leftarg, rightarg, eval_point):
+        """Defines falsity conditions for might counterfactual."""
+        # A ◇→ B is false when A ⊃→ ¬B is true
+        cf_op = CounterfactualOperator()
+        cf_op.semantics = self.semantics
+        neg_op = NegationOperator()
+        neg_op.semantics = self.semantics
+        # Create negated rightarg
+        negated_right = neg_op.true_at(rightarg, eval_point)
+        return cf_op.true_at(leftarg, negated_right, eval_point)
+
+    def extended_verify(self, state, leftarg, rightarg, eval_point):
+        """Defines verification conditions for might counterfactual."""
+        # A ◇→ B is verified when ¬(A ⊃→ ¬B) is verified
+        cf_op = CounterfactualOperator()
+        cf_op.semantics = self.semantics
+        neg_op = NegationOperator()
+        neg_op.semantics = self.semantics
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("mcf_verify_x", N)
+        negated_right = neg_op.true_at(rightarg, eval_point)
+        return z3.Exists(
+            [x],
+            z3.And(
+                cf_op.extended_falsify(x, leftarg, negated_right, eval_point),
+                state == x
+            )
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_point):
+        """Defines falsification conditions for might counterfactual."""
+        # A ◇→ B is falsified when A ⊃→ ¬B is verified
+        cf_op = CounterfactualOperator()
+        cf_op.semantics = self.semantics
+        neg_op = NegationOperator()
+        neg_op.semantics = self.semantics
+        negated_right = neg_op.true_at(rightarg, eval_point)
+        return cf_op.extended_verify(state, leftarg, negated_right, eval_point)
+
+    def find_verifiers_and_falsifiers(self, leftarg, rightarg, eval_point):
+        """Finds the verifiers and falsifiers for might counterfactual."""
+        # For now, delegate to CounterfactualOperator's logic
+        evaluate = leftarg.proposition.model_structure.z3_model.evaluate
+        if bool(evaluate(self.true_at(leftarg, rightarg, eval_point))):
+            return {self.semantics.null_state}, set()
+        if bool(evaluate(self.false_at(leftarg, rightarg, eval_point))):
+            return set(), {self.semantics.null_state}
+        raise ValueError(
+            f"{self.name} {leftarg} {rightarg} "
+            f"is neither true nor false in the world {eval_point}."
+        )
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the might counterfactual with proper indentation and formatting.
         

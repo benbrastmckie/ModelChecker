@@ -274,7 +274,7 @@ class BotOperator(syntactic.Operator):
 
 class ConditionalOperator(syntactic.DefinedOperator):
     """Implementation of the material conditional (→).
-    
+
     This operator represents the material conditional. A → B is equivalent to
     ¬A ∨ B. It is false only when A is true and B is false.
     """
@@ -286,6 +286,71 @@ class ConditionalOperator(syntactic.DefinedOperator):
         """Defines the conditional as negation of antecedent or consequent."""
         return [OrOperator, [NegationOperator, leftarg], rightarg]
 
+    def true_at(self, leftarg, rightarg, eval_point):
+        """Defines truth conditions for conditional at an evaluation point."""
+        # A → B is true when ¬A ∨ B is true
+        return z3.Or(
+            self.semantics.false_at(leftarg, eval_point),
+            self.semantics.true_at(rightarg, eval_point)
+        )
+
+    def false_at(self, leftarg, rightarg, eval_point):
+        """Defines falsity conditions for conditional at an evaluation point."""
+        # A → B is false when A is true and B is false
+        return z3.And(
+            self.semantics.true_at(leftarg, eval_point),
+            self.semantics.false_at(rightarg, eval_point)
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_point):
+        """Defines verification conditions for conditional in the extended semantics."""
+        # A → B is verified when ¬A ∨ B is verified
+        # This delegates to the disjunction of negation of leftarg and rightarg
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("cond_verify_x", N)
+        y = z3.BitVec("cond_verify_y", N)
+        return z3.Or(
+            # Verifier for ¬A
+            sem.extended_falsify(state, leftarg, eval_point),
+            # Verifier for B
+            sem.extended_verify(state, rightarg, eval_point),
+            # Fusion of verifiers for ¬A and B
+            Exists(
+                [x, y],
+                z3.And(
+                    sem.extended_falsify(x, leftarg, eval_point),
+                    sem.extended_verify(y, rightarg, eval_point),
+                    state == sem.fusion(x, y)
+                )
+            )
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_point):
+        """Defines falsification conditions for conditional in the extended semantics."""
+        # A → B is falsified when A is verified and B is falsified
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("cond_falsify_x", N)
+        y = z3.BitVec("cond_falsify_y", N)
+        return Exists(
+            [x, y],
+            z3.And(
+                sem.extended_verify(x, leftarg, eval_point),
+                sem.extended_falsify(y, rightarg, eval_point),
+                state == sem.fusion(x, y)
+            )
+        )
+
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
+        """Finds the verifiers and falsifiers for a conditional."""
+        left_V, left_F = left_sent_obj.proposition.find_proposition()
+        right_V, right_F = right_sent_obj.proposition.find_proposition()
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        # Verifiers for A → B are verifiers for ¬A ∨ B
+        return coproduct(left_F, right_V), product(left_V, right_F)
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the conditional operator with proper indentation and formatting."""
         self.general_print(sentence_obj, eval_point, indent_num, use_colors)
@@ -293,7 +358,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
 
 class BiconditionalOperator(syntactic.DefinedOperator):
     """Implementation of the biconditional (↔).
-    
+
     This operator represents the biconditional. A ↔ B is equivalent to
     (A → B) ∧ (B → A). It is true when both A and B have the same truth value.
     """
@@ -304,6 +369,94 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     def derived_definition(self, leftarg, rightarg):
         """Defines the biconditional as conjunction of two conditionals."""
         return [AndOperator, [ConditionalOperator, leftarg, rightarg], [ConditionalOperator, rightarg, leftarg]]
+
+    def true_at(self, leftarg, rightarg, eval_point):
+        """Defines truth conditions for biconditional at an evaluation point."""
+        # A ↔ B is true when both have the same truth value
+        return z3.Or(
+            z3.And(
+                self.semantics.true_at(leftarg, eval_point),
+                self.semantics.true_at(rightarg, eval_point)
+            ),
+            z3.And(
+                self.semantics.false_at(leftarg, eval_point),
+                self.semantics.false_at(rightarg, eval_point)
+            )
+        )
+
+    def false_at(self, leftarg, rightarg, eval_point):
+        """Defines falsity conditions for biconditional at an evaluation point."""
+        # A ↔ B is false when they have different truth values
+        return z3.Or(
+            z3.And(
+                self.semantics.true_at(leftarg, eval_point),
+                self.semantics.false_at(rightarg, eval_point)
+            ),
+            z3.And(
+                self.semantics.false_at(leftarg, eval_point),
+                self.semantics.true_at(rightarg, eval_point)
+            )
+        )
+
+    def extended_verify(self, state, leftarg, rightarg, eval_point):
+        """Defines verification conditions for biconditional in the extended semantics."""
+        # A ↔ B is verified when both are verified or both are falsified
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("bicond_verify_x", N)
+        y = z3.BitVec("bicond_verify_y", N)
+        return Exists(
+            [x, y],
+            z3.And(
+                z3.Or(
+                    z3.And(
+                        sem.extended_verify(x, leftarg, eval_point),
+                        sem.extended_verify(y, rightarg, eval_point)
+                    ),
+                    z3.And(
+                        sem.extended_falsify(x, leftarg, eval_point),
+                        sem.extended_falsify(y, rightarg, eval_point)
+                    )
+                ),
+                state == sem.fusion(x, y)
+            )
+        )
+
+    def extended_falsify(self, state, leftarg, rightarg, eval_point):
+        """Defines falsification conditions for biconditional in the extended semantics."""
+        # A ↔ B is falsified when one is verified and the other is falsified
+        sem = self.semantics
+        N = sem.N
+        x = z3.BitVec("bicond_falsify_x", N)
+        y = z3.BitVec("bicond_falsify_y", N)
+        return Exists(
+            [x, y],
+            z3.And(
+                z3.Or(
+                    z3.And(
+                        sem.extended_verify(x, leftarg, eval_point),
+                        sem.extended_falsify(y, rightarg, eval_point)
+                    ),
+                    z3.And(
+                        sem.extended_falsify(x, leftarg, eval_point),
+                        sem.extended_verify(y, rightarg, eval_point)
+                    )
+                ),
+                state == sem.fusion(x, y)
+            )
+        )
+
+    def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
+        """Finds the verifiers and falsifiers for a biconditional."""
+        left_V, left_F = left_sent_obj.proposition.find_proposition()
+        right_V, right_F = right_sent_obj.proposition.find_proposition()
+        product = self.semantics.product
+        coproduct = self.semantics.coproduct
+        # Verifiers: both true or both false
+        # Falsifiers: one true and one false
+        verifiers = coproduct(product(left_V, right_V), product(left_F, right_F))
+        falsifiers = coproduct(product(left_V, right_F), product(left_F, right_V))
+        return verifiers, falsifiers
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints the biconditional operator with proper indentation and formatting."""

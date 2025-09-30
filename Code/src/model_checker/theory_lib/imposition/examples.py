@@ -29,23 +29,16 @@ from .semantic import ImpositionSemantics, ImpositionModelStructure as ModelStru
 from model_checker.theory_lib.logos.semantic import LogosProposition as Proposition
 
 # Import all examples and configurations from the organized package
-from .examples import (
-    # Individual example collections
-    basic_examples,
-    complex_examples,
-    edge_case_examples,
-
-    # Combined collections
+from .examples.basic import basic_examples, basic_countermodels, basic_theorems
+from .examples.complex import complex_examples, complex_countermodels, complex_theorems
+from .examples.edge_cases import edge_case_examples
+from .examples.test_suite import (
     all_examples,
     all_countermodels as countermodel_examples,
     all_theorems as theorem_examples,
-
-    # Backward compatibility aliases
     unit_tests,
     test_example_range,
     all_imposition_examples,
-
-    # Configuration
     general_settings,
     semantic_theories,
     imposition_theory,

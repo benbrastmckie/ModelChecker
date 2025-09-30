@@ -201,21 +201,22 @@ class TestErrorHandling(unittest.TestCase):
         
         # Create mock flags object
         mock_flags = MagicMock()
-        mock_flags._parsed_args = ["--contingent", "--verbose", "true"]
+        mock_flags._parsed_args = ["--contingent", "--verbose", "true", "--iterate", "5"]
         mock_flags.contingent = True
         mock_flags.verbose = True
-        
+        mock_flags.iterate = 5
+
         # Test is_mock_object
         self.assertFalse(manager._is_mock_object(mock_flags))
-        
+
         mock_without_parsed = MagicMock(spec=[])
         self.assertTrue(manager._is_mock_object(mock_without_parsed))
-        
+
         # Test extract_user_provided_flags
         flags = manager._extract_user_provided_flags(mock_flags, False)
         self.assertIn("iterate", flags)
         self.assertIn("verbose", flags)
-        
+
         # Test apply_overrides integration
         settings = {"iterate": 1, "verbose": False, "timeout": 300}
         manager._apply_overrides(settings, mock_flags, flags, False)
