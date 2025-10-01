@@ -14,6 +14,12 @@ from model_checker.utils import (
 )
 from model_checker import syntactic
 
+# Witness predicate components (Phase 4 integration)
+# Note: These imports use fully qualified paths because semantic.py is being
+# loaded via importlib by semantic/__init__.py, which makes relative imports ambiguous
+from model_checker.theory_lib.bimodal.semantic.witness_registry import WitnessRegistry
+from model_checker.theory_lib.bimodal.semantic.witness_constraints import WitnessConstraintGenerator
+
 
 
 ##############################################################################
@@ -54,7 +60,10 @@ class BimodalSemantics(SemanticDefaults):
         # Initialize always true/false worlds, updated in the model_structure
         self.all_true = {}
         self.all_false = {}
-        
+
+        # Initialize witness components (Phase 4: Modal Operator Integration)
+        self.witness_registry = WitnessRegistry(self.N, self.M)
+        self.constraint_generator = WitnessConstraintGenerator(self)
 
         # Initialize sorts, primitives, and frame_constraints
         self.define_sorts()
@@ -228,6 +237,37 @@ class BimodalSemantics(SemanticDefaults):
                 body
             )
         )
+
+    def _get_formula_string(self, formula_ast):
+        """Convert formula AST to unique string identifier for witness registration.
+
+        Args:
+            formula_ast: Sentence object representing the formula
+
+        Returns:
+            str: Unique string identifier (e.g., "box_p", "diamond_and_p_q")
+
+        Note: This is a simple implementation. For production, might need to handle
+        more complex formulas and ensure uniqueness across nested structures.
+        """
+        # Base case: sentence letter
+        if hasattr(formula_ast, 'sentence_letter') and formula_ast.sentence_letter:
+            return str(formula_ast.sentence_letter)
+
+        # Recursive case: operator with arguments
+        if hasattr(formula_ast, 'operator') and formula_ast.operator:
+            operator_name = formula_ast.operator.name.replace('\\', '')  # Remove backslash
+
+            if hasattr(formula_ast, 'arguments') and formula_ast.arguments:
+                # Build argument strings recursively
+                arg_strings = [self._get_formula_string(arg) for arg in formula_ast.arguments]
+                args_combined = '_'.join(arg_strings)
+                return f"{operator_name}_{args_combined}"
+            else:
+                return operator_name
+
+        # Fallback: use string representation
+        return str(formula_ast)
 
     def build_frame_constraints(self):
         """Build the frame constraints for the bimodal logic model.
