@@ -13,6 +13,7 @@ from typing import Dict, Any
 from model_checker.theory_lib.exclusion.semantic.core import WitnessSemantics
 from model_checker.theory_lib.exclusion.semantic.registry import WitnessRegistry
 from model_checker.theory_lib.exclusion.semantic.constraints import WitnessConstraintGenerator
+from model_checker import syntactic
 
 
 class TestWitnessSemantics:
@@ -98,12 +99,17 @@ class TestWitnessSemantics:
         assert isinstance(result, z3.BoolRef)
 
     def test_product_method(self, witness_semantics: WitnessSemantics) -> None:
-        """Test the product method returns correct cartesian product."""
+        """Test the product method returns correct fusion product."""
         set_x = {1, 2}
         set_y = {3, 4}
 
         result = witness_semantics.product(set_x, set_y)
-        expected = {(1, 3), (1, 4), (2, 3), (2, 4)}
+        # Product computes fusion (bitwise OR) of all pairs
+        # fusion(1, 3) = 1 | 3 = 3
+        # fusion(1, 4) = 1 | 4 = 5
+        # fusion(2, 3) = 2 | 3 = 3
+        # fusion(2, 4) = 2 | 4 = 6
+        expected = {3, 5, 6}  # Set removes duplicate 3
         assert result == expected
 
     def test_is_world_method(self, witness_semantics: WitnessSemantics) -> None:
@@ -195,7 +201,7 @@ class TestWitnessSemanticsIntegration:
         state2 = z3.BitVecVal(2, N)
 
         # Test that functions can be called
-        verify_result = semantics_with_registry.verify(state1, z3.Int('test_atom'))
+        verify_result = semantics_with_registry.verify(state1, z3.Const('test_atom', syntactic.AtomSort))
         excludes_result = semantics_with_registry.excludes(state1, state2)
 
         assert isinstance(verify_result, z3.BoolRef)

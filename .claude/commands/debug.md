@@ -1,25 +1,14 @@
 ---
 command-type: primary
 dependent-commands: list-reports, report
-description: Investigate issues and create diagnostic analysis in specs/debug/ directory
+description: Investigate issues and create diagnostic report without code changes
 argument-hint: <issue-description> [report-path1] [report-path2] ...
 allowed-tools: Read, Bash, Grep, Glob, WebSearch, WebFetch, TodoWrite, Task
 ---
 
 # /debug Command
 
-Investigates issues and creates a comprehensive diagnostic analysis in `specs/debug/` without making any code changes. Focuses on understanding root causes and documenting findings.
-
-## Document Type
-
-This command creates **debug analyses** - issue investigations and diagnostics stored in `specs/debug/`. Debug analyses include:
-- Bug investigations
-- Root cause analyses
-- Problem diagnostics
-- Issue documentation
-- Error analysis
-
-For general research and architecture analysis, use `/report` instead (creates files in `specs/research/`).
+Investigates issues and creates a comprehensive diagnostic report without making any code changes. Focuses on understanding root causes and documenting findings.
 
 ## Usage
 
@@ -41,7 +30,7 @@ For general research and architecture analysis, use `/report` instead (creates f
 
 ### With Context Reports
 ```
-/debug "Module caching preventing updates" specs/research/001_architecture.md
+/debug "Module caching preventing updates" specs/reports/001_architecture.md
 ```
 
 ### Multiple Reports
@@ -72,7 +61,7 @@ For general research and architecture analysis, use `/report` instead (creates f
 - **Environmental Factors**: Consider system-specific issues
 
 ### 4. Documentation
-- Create numbered debug analysis in `specs/debug/` directory
+- Create numbered report in `specs/reports/` directory
 - Include all findings and evidence
 - Document potential solutions (but don't implement)
 - Provide clear next steps for resolution
@@ -80,7 +69,7 @@ For general research and architecture analysis, use `/report` instead (creates f
 ## Report Structure
 
 ```markdown
-# Debug Analysis: [Issue Title]
+# Debug Report: [Issue Title]
 
 ## Metadata
 - **Date**: [YYYY-MM-DD]
@@ -152,14 +141,12 @@ For general research and architecture analysis, use `/report` instead (creates f
 
 ## Output
 
-Creates a debug analysis at:
+Creates a debug report at:
 ```
-specs/debug/NNN_[issue_name].md
+specs/reports/NNN_debug_[issue_name].md
 ```
 
-Where NNN is the next sequential number (e.g., 023, 024, etc.).
-
-All debug analyses are stored in `specs/debug/` at the project root for easy discovery and organization.
+Where NNN is the next sequential number.
 
 ## Best Practices
 
@@ -214,9 +201,60 @@ All debug analyses are stored in `specs/debug/` at the project root for easy dis
 - Workflow disruptions
 - Feature failures
 
+## Agent Usage
+
+This command delegates investigation work to the `debug-specialist` agent:
+
+### debug-specialist Agent
+- **Purpose**: Root cause analysis and diagnostic reporting
+- **Tools**: Read, Bash, Grep, Glob, WebSearch
+- **Invocation**: Single agent for each debug request
+- **Read-Only**: Never modifies code, only investigates and reports
+
+### Invocation Pattern
+```yaml
+Task {
+  subagent_type: "debug-specialist"
+  description: "Investigate [issue description]"
+  prompt: "
+    Debug Task: Investigate [issue]
+
+    Context:
+    - Issue: [user's description]
+    - Related Reports: [paths if provided]
+    - Project Standards: CLAUDE.md
+
+    Investigation:
+    1. Gather evidence (logs, code, configs)
+    2. Identify root cause
+    3. Analyze contributing factors
+    4. Propose multiple solutions with tradeoffs
+
+    Output:
+    - Debug report at specs/reports/NNN_debug_[issue].md
+    - Summary with root cause and recommended fix
+  "
+}
+```
+
+### Agent Benefits
+- **Specialized Investigation**: Focused on evidence gathering and analysis
+- **Structured Reporting**: Consistent debug report format
+- **Multiple Solutions**: Always proposes alternatives with tradeoffs
+- **Non-Invasive**: Read-only access ensures no unintended modifications
+- **Reusable Diagnostics**: Reports serve as documentation for future issues
+
+### Workflow Integration
+1. User invokes `/debug` with issue description
+2. Command delegates to `debug-specialist` agent
+3. Agent investigates systematically and creates report
+4. Command returns report path and summary
+5. User can use report with `/plan` to create fix implementation
+
 ## Notes
 
 - Debug reports are permanent documentation of issues and investigations
 - Reports help prevent similar issues in the future
 - Clear documentation speeds up resolution when issues recur
 - Investigation without implementation allows for careful planning
+- The `debug-specialist` agent ensures thorough, structured investigations

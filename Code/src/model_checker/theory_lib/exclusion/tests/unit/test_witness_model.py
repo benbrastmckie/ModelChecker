@@ -7,7 +7,7 @@ witness predicate access and Z3 model evaluation.
 
 import pytest
 import z3
-from unittest.mock import Mock, MagicMock
+from unittest.mock import Mock, MagicMock, patch
 from typing import Dict
 
 from model_checker.theory_lib.exclusion.semantic.model import WitnessAwareModel
@@ -79,7 +79,7 @@ class TestWitnessAwareModel:
         mock_result.as_long = Mock(return_value=5)
 
         # Configure the mock to simulate z3.is_bv_value returning True
-        with pytest.mock.patch('z3.is_bv_value', return_value=True):
+        with patch('z3.is_bv_value', return_value=True):
             witness_model.z3_model.eval.return_value = mock_result
 
             result = witness_model.get_h_witness("test_formula", 1)
@@ -95,7 +95,7 @@ class TestWitnessAwareModel:
         # Mock Z3 evaluation to return non-bit-vector value
         witness_model.z3_model.eval.return_value = Mock()
 
-        with pytest.mock.patch('z3.is_bv_value', return_value=False):
+        with patch('z3.is_bv_value', return_value=False):
             result = witness_model.get_h_witness("test_formula", 1)
             assert result is None
 
@@ -107,7 +107,7 @@ class TestWitnessAwareModel:
         mock_result.as_long = Mock(return_value=7)
 
         # Configure the mock to simulate z3.is_bv_value returning True
-        with pytest.mock.patch('z3.is_bv_value', return_value=True):
+        with patch('z3.is_bv_value', return_value=True):
             witness_model.z3_model.eval.return_value = mock_result
 
             result = witness_model.get_y_witness("test_formula", 2)

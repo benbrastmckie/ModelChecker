@@ -192,10 +192,14 @@ class WitnessSemantics(LogosSemantics):
             )
         )
 
-    def build_model(self, eval_point: Dict[str, Any]) -> Optional[WitnessAwareModel]:
+    def build_model(self, eval_point: Optional[Dict[str, Any]]) -> Optional[WitnessAwareModel]:
         """
         Build model with witness predicates included.
         """
+        # Handle None eval_point
+        if eval_point is None:
+            return None
+
         # Clear previous state
         self.witness_registry.clear()
         self._processed_formulas.clear()
