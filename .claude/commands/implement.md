@@ -112,6 +112,7 @@ After completing all phases, I'll:
 ### 2. Generate Summary File
 - Format: `NNN_implementation_summary.md`
 - Number matches the plan number
+- Location: `specs/implementation/NNN_implementation_summary.md`
 - Contains:
   - Implementation overview
   - Plan executed with link

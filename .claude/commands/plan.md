@@ -8,7 +8,7 @@ dependent-commands: list-reports, update-plan, revise
 
 # Create Implementation Plan
 
-I'll create a comprehensive implementation plan for the specified feature or task, following project-specific coding standards and incorporating insights from any provided research reports.
+I'll create a comprehensive implementation plan in `specs/plans/` for the specified feature or task, following project-specific coding standards and incorporating insights from any provided research reports.
 
 ## Feature/Task and Reports
 - **Feature**: First argument before any .md paths
@@ -104,6 +104,15 @@ The plan will be saved as:
 - Feature name converted to lowercase with underscores
 - Comprehensive yet actionable content
 - Clear phase boundaries for `/implement` command compatibility
+
+## Output Location
+
+All implementation plans are created in `specs/plans/` with format:
+```
+specs/plans/NNN_feature_name.md
+```
+
+Where NNN is the next sequential number (e.g., 103, 104, etc.).
 
 ## Output Format
 
