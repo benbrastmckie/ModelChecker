@@ -8,10 +8,21 @@ dependent-commands: update-report, list-reports
 
 # Generate Research Report
 
-I'll research the specified topic and create a comprehensive report in the most appropriate location.
+I'll research the specified topic and create a comprehensive report in `specs/research/`.
 
 ## Topic/Question
 $ARGUMENTS
+
+## Document Type
+
+This command creates **research reports** - comprehensive investigations and analyses stored in `specs/research/`. Research reports include:
+- Topic investigations and comparisons
+- Architectural analyses
+- Technology evaluations
+- Refactoring analyses
+- General research findings
+
+For bug investigations and diagnostics, use `/debug` instead (creates files in `specs/debug/`).
 
 ## Process
 
@@ -98,4 +109,13 @@ The report will be formatted as:
 [Links to relevant files and resources]
 ```
 
-Let me begin researching your topic and determining the best location for the report.
+## Output Location
+
+All research reports are created in `specs/research/` with format:
+```
+specs/research/NNN_topic_name.md
+```
+
+Where NNN is the next sequential number (e.g., 102, 103, etc.).
+
+Let me begin researching your topic and creating the report.

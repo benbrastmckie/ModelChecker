@@ -8,7 +8,7 @@ dependent-commands: report, plan, implement
 
 # Refactoring Analysis Report
 
-I'll analyze the specified part of the project (or the entire project if unspecified) for refactoring opportunities based on CLAUDE.md standards and any specific concerns provided.
+I'll analyze the specified part of the project (or the entire project if unspecified) for refactoring opportunities based on CLAUDE.md standards and create an analysis report in `specs/research/`.
 
 ## Target Scope
 $ARGUMENTS
@@ -97,6 +97,15 @@ I'll create a comprehensive refactoring analysis report in `specs/research/`:
 - Check existing reports in `specs/research/` directory
 - Use next sequential number (NNN format with leading zeros)
 - Name format: `NNN_refactoring_analysis_[scope].md`
+
+## Output Location
+
+All refactoring analysis reports are created in `specs/research/` with format:
+```
+specs/research/NNN_refactoring_analysis_[scope].md
+```
+
+Where NNN is the next sequential number.
 
 #### Report Structure
 ```markdown

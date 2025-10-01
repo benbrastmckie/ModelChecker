@@ -8,7 +8,18 @@ allowed-tools: Read, Bash, Grep, Glob, WebSearch, WebFetch, TodoWrite, Task
 
 # /debug Command
 
-Investigates issues and creates a comprehensive diagnostic report without making any code changes. Focuses on understanding root causes and documenting findings.
+Investigates issues and creates a comprehensive diagnostic analysis in `specs/debug/` without making any code changes. Focuses on understanding root causes and documenting findings.
+
+## Document Type
+
+This command creates **debug analyses** - issue investigations and diagnostics stored in `specs/debug/`. Debug analyses include:
+- Bug investigations
+- Root cause analyses
+- Problem diagnostics
+- Issue documentation
+- Error analysis
+
+For general research and architecture analysis, use `/report` instead (creates files in `specs/research/`).
 
 ## Usage
 
@@ -146,7 +157,9 @@ Creates a debug analysis at:
 specs/debug/NNN_[issue_name].md
 ```
 
-Where NNN is the next sequential number.
+Where NNN is the next sequential number (e.g., 023, 024, etc.).
+
+All debug analyses are stored in `specs/debug/` at the project root for easy discovery and organization.
 
 ## Best Practices
 
