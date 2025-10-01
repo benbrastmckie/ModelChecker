@@ -87,6 +87,9 @@ class TestImpositionSemantics:
         verifiers = {1, 2, 3}
         eval_point = {"world": z3.BitVecVal(1, 3)}
         model_structure = Mock()
+        model_structure.z3_model = Mock()
+        model_structure.z3_model.evaluate = Mock(return_value=False)
+        model_structure.z3_world_states = []  # Empty list of world states
 
         result = imposition_semantics.calculate_outcome_worlds(verifiers, eval_point, model_structure)
         assert isinstance(result, set)
@@ -96,6 +99,9 @@ class TestImpositionSemantics:
         verifiers = set()
         eval_point = {"world": z3.BitVecVal(1, 3)}
         model_structure = Mock()
+        model_structure.z3_model = Mock()
+        model_structure.z3_model.evaluate = Mock(return_value=False)
+        model_structure.z3_world_states = []
 
         result = imposition_semantics.calculate_outcome_worlds(verifiers, eval_point, model_structure)
         assert isinstance(result, set)
@@ -105,6 +111,9 @@ class TestImpositionSemantics:
         verifiers = {1}
         eval_point = {"world": z3.BitVecVal(2, 3)}
         model_structure = Mock()
+        model_structure.z3_model = Mock()
+        model_structure.z3_model.evaluate = Mock(return_value=False)
+        model_structure.z3_world_states = [z3.BitVecVal(0, 3), z3.BitVecVal(1, 3)]
 
         result = imposition_semantics.calculate_outcome_worlds(verifiers, eval_point, model_structure)
         assert isinstance(result, set)
@@ -114,6 +123,9 @@ class TestImpositionSemantics:
         verifiers = {1, 2, 4}
         eval_point = {"world": z3.BitVecVal(3, 3)}
         model_structure = Mock()
+        model_structure.z3_model = Mock()
+        model_structure.z3_model.evaluate = Mock(return_value=True)  # Return True for some outcomes
+        model_structure.z3_world_states = [z3.BitVecVal(0, 3), z3.BitVecVal(1, 3)]
 
         result = imposition_semantics.calculate_outcome_worlds(verifiers, eval_point, model_structure)
         assert isinstance(result, set)
@@ -213,6 +225,9 @@ class TestImpositionSemanticsIntegration:
         # Mock model structure with basic interface
         model_structure = Mock()
         model_structure.get_world_count = Mock(return_value=2)
+        model_structure.z3_world_states = [z3.BitVecVal(0, 2), z3.BitVecVal(1, 2)]
+        model_structure.z3_model = Mock()
+        model_structure.z3_model.evaluate = Mock(return_value=False)
 
         result = integration_semantics.calculate_outcome_worlds(verifiers, eval_point, model_structure)
 

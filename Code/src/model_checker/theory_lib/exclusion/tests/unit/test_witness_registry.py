@@ -10,6 +10,7 @@ import z3
 from typing import Dict, Set
 
 from model_checker.theory_lib.exclusion.semantic.registry import WitnessRegistry
+from model_checker.theory_lib.errors import WitnessRegistryError, WitnessPredicateError
 
 
 class TestWitnessRegistry:
@@ -69,24 +70,25 @@ class TestWitnessRegistry:
             assert f"{formula}_y" in registry.predicates
 
     def test_register_same_formula_twice(self, registry: WitnessRegistry) -> None:
-        """Test registering the same formula twice overwrites previous registration."""
+        """Test registering the same formula twice raises an error."""
         formula_str = "duplicate_formula"
 
         # First registration
         h_pred1, y_pred1 = registry.register_witness_predicates(formula_str)
 
-        # Second registration
-        h_pred2, y_pred2 = registry.register_witness_predicates(formula_str)
+        # Second registration should raise error
+        with pytest.raises(WitnessRegistryError, match="already registered"):
+            registry.register_witness_predicates(formula_str)
 
-        # Check that new predicates are stored (old ones overwritten)
-        assert registry.predicates[f"{formula_str}_h"] is h_pred2
-        assert registry.predicates[f"{formula_str}_y"] is y_pred2
+        # Original predicates should still be stored
+        assert registry.predicates[f"{formula_str}_h"] is h_pred1
+        assert registry.predicates[f"{formula_str}_y"] is y_pred1
 
-        # Formula mapping should still exist and be updated
+        # Formula mapping should still exist
         assert formula_str in registry.formula_mapping
         assert len(registry.formula_mapping[formula_str]) == 2
 
-        # Check that we still have only 2 predicates total (overwritten, not duplicated)
+        # Check that we still have only 2 predicates total
         assert len(registry.predicates) == 2
 
     def test_predicate_function_signatures(self, registry: WitnessRegistry) -> None:
@@ -182,22 +184,25 @@ class TestWitnessRegistry:
 
     def test_special_formula_names(self, registry: WitnessRegistry) -> None:
         """Test registering predicates with special formula names."""
-        special_formulas = [
+        valid_special_formulas = [
             "formula_with_underscores",
             "formula.with.dots",
             "formula-with-hyphens",
             "formula with spaces",
             "123numeric_formula",
             "UPPERCASE_FORMULA",
-            "",  # empty string
         ]
 
-        for formula in special_formulas:
+        for formula in valid_special_formulas:
             h_pred, y_pred = registry.register_witness_predicates(formula)
 
             # Check that predicates are created successfully
             assert isinstance(h_pred, z3.FuncDeclRef)
             assert isinstance(y_pred, z3.FuncDeclRef)
+
+        # Test that empty string raises an error
+        with pytest.raises(WitnessPredicateError, match="registration failed"):
+            registry.register_witness_predicates("")
 
             # Check that mapping is correct
             expected_h_name = f"{formula}_h"

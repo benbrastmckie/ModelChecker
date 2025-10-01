@@ -52,6 +52,10 @@ class TestWitnessConstraintGenerator:
         y_pred = z3.Function("test_y", z3.BitVecSort(3), z3.BitVecSort(3))
         eval_point = {"world": z3.BitVecVal(1, 3)}
 
+        # Mock the helper methods to avoid dependency issues
+        constraint_generator._could_verify_negation = Mock(return_value=False)
+        constraint_generator._witness_constraints_for_state = Mock(return_value=[])
+
         # Test that method can be called without error
         result = constraint_generator.generate_witness_constraints(
             formula_str, formula_ast, h_pred, y_pred, eval_point
