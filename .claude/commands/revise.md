@@ -30,12 +30,12 @@ Revises the most recently discussed implementation plan according to user-provid
 
 ### Revision with Reports
 ```
-/revise "Incorporate security best practices" specs/reports/001_security_analysis.md
+/revise "Incorporate security best practices" specs/research/001_security_analysis.md
 ```
 
 ### Multiple Reports
 ```
-/revise "Update based on performance findings" specs/reports/002_performance.md specs/reports/003_optimization.md
+/revise "Update based on performance findings" specs/research/002_performance.md specs/research/003_optimization.md
 ```
 
 ## Important Notes

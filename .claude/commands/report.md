@@ -1,7 +1,7 @@
 ---
 allowed-tools: Read, Write, Bash, Grep, Glob, WebSearch, WebFetch, Task
 argument-hint: <topic or question>
-description: Research a topic and create a comprehensive report in the appropriate specs/reports/ directory
+description: Research a topic and create a comprehensive report in specs/research/ directory
 command-type: primary
 dependent-commands: update-report, list-reports
 ---
@@ -19,23 +19,17 @@ $ARGUMENTS
 First, I'll analyze the topic to determine:
 - Key concepts and scope
 - Relevant files and directories in the codebase
-- Most appropriate location for the specs/reports/ directory
+- Research scope and boundaries
 
-### 2. Location Determination
-I'll find the deepest directory that encompasses all relevant files by:
-- Searching for files related to the topic
-- Identifying common parent directories
-- Selecting the most specific directory that includes all relevant content
-
-### 3. Report Numbering
+### 2. Report Numbering
 I'll determine the report number by:
-- Checking for existing reports in the target `specs/reports/` directory
+- Checking for existing reports in `specs/research/` directory
 - Finding the highest numbered report (e.g., `002_*.md`)
 - Incrementing to the next number (e.g., `003`)
 - Using `001` if no numbered reports exist
 - Ensuring consistent three-digit format with leading zeros
 
-### 4. Research Phase
+### 3. Research Phase
 I'll conduct thorough research by:
 - **Code Analysis**: Examining relevant source files
 - **Documentation Review**: Reading existing docs and comments
@@ -43,7 +37,7 @@ I'll conduct thorough research by:
 - **Dependency Mapping**: Understanding relationships between components
 - **Web Research** (if needed): Gathering external context and best practices
 
-### 5. Report Structure
+### 4. Report Structure
 The report will include:
 - **Executive Summary**: Brief overview of findings
 - **Background**: Context and problem space
@@ -53,7 +47,7 @@ The report will include:
 - **Recommendations**: Suggested improvements or next steps
 - **References**: Links to relevant files and resources
 
-### 6. Report Creation
+### 5. Report Creation
 I'll create the report as a markdown file with automatic numbering:
 
 #### Numbering System
@@ -64,13 +58,13 @@ I'll create the report as a markdown file with automatic numbering:
 - Example: `003_terminal_compatibility_analysis.md`
 
 #### File Creation
-- Located in `[relevant-dir]/specs/reports/NNN_[topic-name].md`
+- Located in `specs/research/NNN_[topic-name].md`
 - Topic name will be converted to lowercase with underscores
 - Following professional documentation standards
 - Including diagrams and code examples where helpful
 - Cross-referencing relevant files with precise locations
 
-### 7. Report Metadata
+### 6. Report Metadata
 Each report will include:
 - Creation date and time
 - Research scope and boundaries
