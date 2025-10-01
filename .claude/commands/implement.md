@@ -106,7 +106,7 @@ If tests fail or issues arise:
 After completing all phases, I'll:
 
 ### 1. Create Summary Directory
-- Location: Same directory as the plan, in `specs/summaries/`
+- Location: `specs/implementation/` at project root
 - Create if it doesn't exist
 
 ### 2. Generate Summary File

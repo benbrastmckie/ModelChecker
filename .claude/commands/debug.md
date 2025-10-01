@@ -1,7 +1,7 @@
 ---
 command-type: primary
 dependent-commands: list-reports, report
-description: Investigate issues and create diagnostic report without code changes
+description: Investigate issues and create diagnostic analysis in specs/debug/ directory
 argument-hint: <issue-description> [report-path1] [report-path2] ...
 allowed-tools: Read, Bash, Grep, Glob, WebSearch, WebFetch, TodoWrite, Task
 ---
@@ -30,7 +30,7 @@ Investigates issues and creates a comprehensive diagnostic report without making
 
 ### With Context Reports
 ```
-/debug "Module caching preventing updates" specs/reports/001_architecture.md
+/debug "Module caching preventing updates" specs/research/001_architecture.md
 ```
 
 ### Multiple Reports
@@ -61,7 +61,7 @@ Investigates issues and creates a comprehensive diagnostic report without making
 - **Environmental Factors**: Consider system-specific issues
 
 ### 4. Documentation
-- Create numbered report in `specs/reports/` directory
+- Create numbered debug analysis in `specs/debug/` directory
 - Include all findings and evidence
 - Document potential solutions (but don't implement)
 - Provide clear next steps for resolution
@@ -69,7 +69,7 @@ Investigates issues and creates a comprehensive diagnostic report without making
 ## Report Structure
 
 ```markdown
-# Debug Report: [Issue Title]
+# Debug Analysis: [Issue Title]
 
 ## Metadata
 - **Date**: [YYYY-MM-DD]
@@ -141,9 +141,9 @@ Investigates issues and creates a comprehensive diagnostic report without making
 
 ## Output
 
-Creates a debug report at:
+Creates a debug analysis at:
 ```
-specs/reports/NNN_debug_[issue_name].md
+specs/debug/NNN_[issue_name].md
 ```
 
 Where NNN is the next sequential number.

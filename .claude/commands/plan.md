@@ -12,7 +12,7 @@ I'll create a comprehensive implementation plan for the specified feature or tas
 
 ## Feature/Task and Reports
 - **Feature**: First argument before any .md paths
-- **Research Reports**: Any paths to specs/reports/*.md files in arguments
+- **Research Reports**: Any paths to specs/research/*.md files in arguments
 
 I'll parse the arguments to separate the feature description from any report paths.
 
@@ -34,11 +34,8 @@ I'll analyze the feature requirements to determine:
 - Dependencies and prerequisites
 - Alignment with report recommendations (if applicable)
 
-### 3. Location Determination
-I'll find the deepest directory that encompasses all relevant files by:
-- Identifying components that will be modified or created
-- Finding common parent directories
-- Selecting the most specific directory for the plan
+### 3. Plan Location
+All implementation plans are created in the root `specs/plans/` directory for consistency and easy discovery.
 
 ### 4. Plan Numbering
 I'll assign the plan number by:
@@ -103,7 +100,7 @@ Based on discovered standards, I'll ensure:
 
 ### 8. Plan Creation
 The plan will be saved as:
-- Path: `[relevant-dir]/specs/plans/NNN_feature_name.md`
+- Path: `specs/plans/NNN_feature_name.md`
 - Feature name converted to lowercase with underscores
 - Comprehensive yet actionable content
 - Clear phase boundaries for `/implement` command compatibility

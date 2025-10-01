@@ -91,12 +91,12 @@ If user provides specific concerns (e.g., new feature requirements):
 - Highlight architectural changes needed
 
 ### 6. Report Generation
-I'll create a comprehensive refactoring report in `specs/reports/`:
+I'll create a comprehensive refactoring analysis report in `specs/research/`:
 
 #### Report Number Assignment
-- Check existing reports in appropriate `specs/reports/` directory
+- Check existing reports in `specs/research/` directory
 - Use next sequential number (NNN format with leading zeros)
-- Name format: `NNN_refactoring_[scope].md`
+- Name format: `NNN_refactoring_analysis_[scope].md`
 
 #### Report Structure
 ```markdown

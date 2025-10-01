@@ -15,7 +15,7 @@ $1 (optional filter)
 
 ## Process
 
-I'll search for all reports in `specs/reports/` directories throughout the codebase and provide:
+I'll search for all reports in `specs/research/` and `specs/debug/` directories and provide:
 
 1. **Report Inventory**:
    - Location of each report
