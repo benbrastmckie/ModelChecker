@@ -187,9 +187,47 @@ class BimodalSemantics(SemanticDefaults):
         self.main_world = 0             # Store world ID, not array reference
         self.main_time = z3.IntVal(0)   # Fix the main time to 0 
         self.main_point = {
-            "world": self.main_world,  
+            "world": self.main_world,
             "time": self.main_time,
-        } 
+        }
+
+    def ForAllTime(self, world, time_var, body):
+        """Universal quantification over all valid times in world's interval.
+
+        Args:
+            world: World ID (z3.IntSort)
+            time_var: Time variable (z3.IntSort) to quantify over
+            body: Z3 expression to evaluate for each time
+
+        Returns:
+            z3.ForAll expression with validity implications
+        """
+        return z3.ForAll(
+            time_var,
+            z3.Implies(
+                self.is_valid_time_for_world(world, time_var),
+                body
+            )
+        )
+
+    def ExistsTime(self, world, time_var, body):
+        """Existential quantification over valid times in world's interval.
+
+        Args:
+            world: World ID (z3.IntSort)
+            time_var: Time variable (z3.IntSort) to quantify over
+            body: Z3 expression to evaluate
+
+        Returns:
+            z3.Exists expression with validity conjunction
+        """
+        return z3.Exists(
+            time_var,
+            z3.And(
+                self.is_valid_time_for_world(world, time_var),
+                body
+            )
+        )
 
     def build_frame_constraints(self):
         """Build the frame constraints for the bimodal logic model.

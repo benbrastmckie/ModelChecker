@@ -529,29 +529,26 @@ class FutureOperator(syntactic.Operator):
     def true_at(self, argument, eval_point):
         """Returns true if argument is true at all future times in this world's interval."""
         semantics = self.semantics
-        
+
         # Extract world and time from eval_point
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
-        
+
         future_time = z3.Int('future_true_time')
-        return z3.ForAll(
+        return semantics.ForAllTime(
+            eval_world,
             future_time,
             z3.Implies(
-                z3.And(
-                    # Time is within the valid range for this world's interval
-                    semantics.is_valid_time_for_world(eval_world, future_time),
-                    # Time is in the future of eval_time
-                    eval_time < future_time,
-                ),
+                # Time is in the future of eval_time
+                eval_time < future_time,
                 # Then the argument is true in the eval_world at the future_time
-                semantics.true_at(argument, {"world": eval_world, "time": future_time}),
+                semantics.true_at(argument, {"world": eval_world, "time": future_time})
             )
         )
     
     def false_at(self, argument, eval_point):
         """Returns true if argument is false at at least one future time in this world's interval.
-        
+
         Args:
             argument: The argument to apply the future operator to
             eval_point: Dictionary containing evaluation parameters:
@@ -559,21 +556,20 @@ class FutureOperator(syntactic.Operator):
                 - "time": The time for evaluation context
         """
         semantics = self.semantics
-        
+
         # Extract world and time from eval_point
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
-        
+
         future_time = z3.Int('future_false_time')
-        return z3.Exists(
+        return semantics.ExistsTime(
+            eval_world,
             future_time,
             z3.And(
-                # Time is within the valid range for this world's interval
-                semantics.is_valid_time_for_world(eval_world, future_time),
                 # Time is in the future of eval_time
                 eval_time < future_time,
-                # And the argument is true in the eval_world at the future_time
-                semantics.false_at(argument, {"world": eval_world, "time": future_time}),
+                # And the argument is false in the eval_world at the future_time
+                semantics.false_at(argument, {"world": eval_world, "time": future_time})
             )
         )
     
@@ -681,7 +677,7 @@ class PastOperator(syntactic.Operator):
 
     def true_at(self, argument, eval_point):
         """Returns true if argument is true at all past times in this world's interval.
-        
+
         Args:
             argument: The argument to apply the past operator to
             eval_point: Dictionary containing evaluation parameters:
@@ -689,29 +685,26 @@ class PastOperator(syntactic.Operator):
                 - "time": The time for evaluation context
         """
         semantics = self.semantics
-        
+
         # Extract world and time from eval_point
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
-        
+
         past_time = z3.Int('past_true_time')
-        return z3.ForAll(
+        return semantics.ForAllTime(
+            eval_world,
             past_time,
             z3.Implies(
-                z3.And(
-                    # If the past_time is within the eval_world's time interval
-                    semantics.is_valid_time_for_world(eval_world, past_time),
-                    # And the past_time is before the eval_time
-                    past_time < eval_time,
-                ),
+                # The past_time is before the eval_time
+                past_time < eval_time,
                 # Then the argument is true at the past_time in the eval_world
-                semantics.true_at(argument, {"world": eval_world, "time": past_time}),
+                semantics.true_at(argument, {"world": eval_world, "time": past_time})
             )
         )
     
     def false_at(self, argument, eval_point):
         """Returns true if argument is false at at least one past time in this world's interval.
-        
+
         Args:
             argument: The argument to apply the past operator to
             eval_point: Dictionary containing evaluation parameters:
@@ -719,21 +712,20 @@ class PastOperator(syntactic.Operator):
                 - "time": The time for evaluation context
         """
         semantics = self.semantics
-        
+
         # Extract world and time from eval_point
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
-        
+
         past_time = z3.Int('past_false_time')
-        return z3.Exists(
+        return semantics.ExistsTime(
+            eval_world,
             past_time,
             z3.And(
-                # The past_time is within the eval_world's time interval
-                semantics.is_valid_time_for_world(eval_world, past_time),
                 # The past_time is before the eval_time
                 past_time < eval_time,
-                # And the argument is true at the past_time in the eval_world
-                semantics.false_at(argument, {"world": eval_world, "time": past_time}),
+                # And the argument is false at the past_time in the eval_world
+                semantics.false_at(argument, {"world": eval_world, "time": past_time})
             )
         )
     
