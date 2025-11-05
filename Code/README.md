@@ -10,10 +10,10 @@ A programmatic framework for implementing modular semantic theories powered by t
 
 ## Features
 
-- **Automated Model Finding**: Discovers countermodels to invalid formulas automatically
-- **Modular Theory Architecture**: Mix and match logical operators from different theories
+- **Automated Model Finding**: Discovers countermodels to invalid formulas and inferences
+- **Modular Theory Architecture**: Mix and match logical operators for compatible theories
 - **Hyperintensional Reasoning**: Distinguishes necessarily equivalent propositions
-- **Multiple Model Generation**: Find diverse models satisfying your constraints
+- **Multiple Model Generation**: Find diverse models satisfying a set of formulas
 - **Theory Library**: Pre-built theories to test, adapt, and share with others
 
 ## Quick Start
@@ -45,20 +45,20 @@ model-checker -l bimodal   # Temporal-modal logic
 
 ## Programmatic Semantics
 
-ModelChecker is a theory-agnostic framework that allows researchers to implement, test, and share semantic theories for logical reasoning. The **[TheoryLib](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** provides a collection of pre-built theories that can be used directly, modified for specific needs, or serve as templates for developing new theories. Users can upload their own theories to share with the community, fostering collaborative development of computational semantics.
+The ModelChecker is a theory-agnostic framework that allows researchers to implement, test, and share semantic theories for logical reasoning. The **[TheoryLib](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** provides a collection of pre-built theories that can be used directly, modified for specific needs, or serve as templates for developing new theories. Users can upload their own theories to share with the community, fostering collaborative development of computational semantics.
 
 ### Logos: A Formal Language of Thought
 
-The **[Logos Semantics](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions through verifier and falsifier sets. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
+The semantics for the **[Logos](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions through verifier and falsifier sets. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
 
-Logos currently includes operators organized into modular subtheories:
+The Logos currently includes operators organized into modular subtheories:
 - **[Extensional operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md)**: Classical logical connectives (`∧`, `∨`, `¬`, `→`, `↔`, `⊤`, `⊥`)
 - **[Modal operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/modal/README.md)**: Necessity and possibility (`□`, `◇`)
 - **[Counterfactual operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md)**: Would and might counterfactuals (`□→`, `◇→`)
 - **[Constitutive operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md)**: Grounding, essence, and identity (`≤`, `⊑`, `≡`)
 - **[Relevance operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/relevance/README.md)**: Content connection and relevance (`≼`)
 
-The modular architecture allows users to load only the operators needed for their analysis, with automatic dependency resolution ensuring semantic coherence. Additional operators are actively being developed, expanding the theory's expressiveness for new applications in philosophy, logic, and cognitive science.
+The modular architecture allows users to load only the operators needed for their analysis, with automatic dependency resolution ensuring semantic coherence. Additional operators are actively being developed, expanding the theory's expressiveness for new applications in philosophy, logic, linguistics, and AI reasoning.
 
 ### Semantic Primitives
 
@@ -112,6 +112,42 @@ def is_world(self, state_w):
         self.maximal(state_w)
     )
 
+def max_compatible_part(self, state_x, state_w, state_y):
+    """Tests if state_x is a maximal part of state_w compatible with state_y.
+    Used to preserve maximal compatibility in counterfactual semantics."""
+    z = z3.BitVec("max_part", self.N)
+    return z3.And(
+        self.is_part_of(state_x, state_w),
+        self.compatible(state_x, state_y),
+        ForAll(
+            z,
+            z3.Implies(
+                z3.And(
+                    self.is_part_of(z, state_w),
+                    self.compatible(z, state_y),
+                    self.is_part_of(state_x, z),
+                ),
+                state_x == z,
+            ),
+        ),
+    )
+
+def is_alternative(self, state_u, state_y, state_w):
+    """Tests if state_u is a y-alternative world to w by imposing state_y on w.
+    Alternative worlds contain y and maximal compatible parts of w."""
+    z = z3.BitVec("alt_z", self.N)
+    return z3.And(
+        self.is_world(state_u),
+        self.is_part_of(state_y, state_u),
+        Exists(
+            [z],
+            z3.And(
+                self.is_part_of(z, state_u),
+                self.max_compatible_part(z, state_w, state_y)
+            )
+        )
+    )
+
 def true_at(self, sentence, eval_point):
     """Evaluates if sentence is true at eval_point.
     For atoms: `∃x ⊆ w: verify(x, atom)`
@@ -134,12 +170,6 @@ def extended_verify(self, state, sentence, eval_point):
     return sentence.operator.extended_verify(
         state, *sentence.arguments, eval_point
     )
-
-def is_alternative(self, u, x, w):
-    """Tests if u is an x-alternative to w.
-    Used in counterfactual evaluation."""
-    # Implementation varies by theory
-    # Example: u is world where `x ∨ (w ∧ ¬x)` is maximal
 ```
 
 ## Operators
