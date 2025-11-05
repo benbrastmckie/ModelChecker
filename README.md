@@ -85,7 +85,7 @@ model-checker examples.py --save json      # JSON only
 
 ## The ModelChecker Methodology
 
-The ModelChecker provides a systematic methodology for developing and studying semantic theories. This section provides an overview of the workflow - for the complete methodology guide, see [Docs/usage/WORKFLOW.md](Docs/usage/WORKFLOW.md).
+The ModelChecker provides a systematic methodology for developing and studying semantic theories. This section provides an overview of the workflow. For the complete methodology guide, see [Docs/usage/WORKFLOW.md](Docs/usage/WORKFLOW.md).
 
 ### 1. Create Your Theory Project
 
@@ -113,7 +113,7 @@ Edit the `examples.py` file to test logical inferences relevant to your theory:
 model-checker examples.py
 ```
 
-Define the logical questions your theory should answer and verify its behavior on key inferences. See the [Examples Guide](Docs/usage/EXAMPLES.md) and [Settings Guide](Docs/usage/SETTINGS.md) for details.
+Define a range of examples in order to evaluate their behavior in your theory. See the [Examples Guide](Docs/usage/EXAMPLES.md) and [Settings Guide](Docs/usage/SETTINGS.md) for details.
 
 ### 3. Adapt Semantic Framework
 
@@ -250,14 +250,15 @@ ModelChecker/
 
 ### Logos: Hyperintensional Truthmaker Semantics
 
+- 19 operators across 5 modular subtheories
+- Sensitive to differences in subject-matter via verifier/falsifier sets
 - Distinguishes necessarily equivalent propositions
-- Tracks what propositions are "about" through verifier/falsifier sets
 - Supports modal, counterfactual, constitutive, and relevance reasoning
 
 ### Exclusion: Unilateral Semantics
 
-- Implements Bernard & Champollion's exclusion operator
-- First computational implementation of this complex semantics
+- Implements Bernard & Champollion's exclusion operator in a unilateral semantic
+- Uses witness predicates for proper negation handling
 
 ### Imposition: Fine's Counterfactual Theory
 
@@ -268,6 +269,8 @@ ModelChecker/
 
 - Facilitates reasoning about time and possibility
 - World histories as functions from times to world states
+- Includes past, future, and modal operators
+
 
 ## Contributing
 
@@ -283,6 +286,7 @@ We welcome contributions! Please:
 
 ### Primary Sources
 
+- Brast-McKie, B. (draft). ["The Construction of Possible Worlds"](http://www.benbrastmckie.com/wp-content/uploads/2025/11/possible_worlds.pdf).
 - Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). _Journal of Philosophical Logic_.
 - Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). _Journal of Philosophical Logic_, 50, 1471-1503.
 - Fine, K. (2012). ["Counterfactuals without Possible Worlds"](https://doi.org/10.1111/j.1467-9213.2012.00001.x). _Journal of Philosophy_, 109(3), 221-246.

@@ -310,21 +310,21 @@ To run specific examples from a theory:
 - 19 operators across 5 modular subtheories
 - Sensitive to differences in subject-matter via verifier/falsifier sets
 - Distinguishes necessarily equivalent propositions
+- Supports modal, counterfactual, constitutive, and relevance reasoning
 
 ### Exclusion: Unilateral Semantics
 
-- Implementation of Bernard & Champollion's unilatiral semantics
+- Implements Bernard & Champollion's exclusion operator in a unilateral semantic
 - Uses witness predicates for proper negation handling
 
 ### Imposition: Fine's Counterfactual Semantics
 
-- Evaluates counterfactuals without taking possible worlds to be primitive
-- Based on primitive imposition relation between states
-- Implements Fine's five frame constraints
+- Evaluates counterfactuals via imposition
+- Uses primitive imposition relation on states
 
 ### Bimodal: Temporal-Modal Logic
 
-- Combines reasoning about time and possibility
+- Facilitates reasoning about time and possibility
 - World histories as functions from times to world states
 - Includes past, future, and modal operators
 
@@ -364,8 +364,9 @@ If you use ModelChecker in your research, please cite:
 
 The theories implemented with the ModelChecker are developed in:
 
-- Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8), Journal of Philosophical Logic
 - Brast-McKie, B. (draft). ["The Construction of Possible Worlds"](http://www.benbrastmckie.com/wp-content/uploads/2025/11/possible_worlds.pdf).
+- Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8), Journal of Philosophical Logic
+- Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). _Journal of Philosophical Logic_, 50, 1471-1503.
 
 ## License
 
