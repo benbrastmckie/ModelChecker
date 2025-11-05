@@ -49,7 +49,7 @@ The ModelChecker is a theory-agnostic framework that allows researchers to imple
 
 ### Logos: A Formal Language of Thought
 
-The semantics for the **[Logos](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions through verifier and falsifier sets. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
+The semantics for the **[Logos](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions with verifier and falsifier sets of states. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
 
 The Logos currently includes operators organized into modular subtheories:
 - **[Extensional operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md)**: Classical logical connectives (`∧`, `∨`, `¬`, `→`, `↔`, `⊤`, `⊥`)
@@ -228,7 +228,7 @@ def false_at(self, leftarg, rightarg, eval_point):
             false_at(rightarg, {"world": u})))
 ```
 
-This implementation captures the hyperintensional nature of counterfactuals - the alternative worlds depend on which specific verifier of the antecedent we consider.
+This implementation captures the hyperintensional nature of counterfactuals where quantifying over alternative worlds depend on which specific verifier of the antecedent we consider.
 
 ## Theory Examples
 
@@ -274,7 +274,7 @@ INTERPRETED CONCLUSION:
      `|C| = < {a.c}, {a.b.c.d, a.b.d, a.d, b} >` (False in a.d)
 ```
 
-This shows that "If A were true then C" doesn't entail "If A and B were true then C" since the additional condition B can change which alternatives are relevant to quantify over. For instance, just the match would light if it were struck, it does not follow that it would light if struck when wet.
+This shows that "If A were true then C" doesn't entail "If A and B were true then C" since the additional condition B can change which alternatives are relevant to quantify over. For instance, just because the match would light if it were struck, it does not follow that the match would light if it were struck when wet.
 
 **Example 2: Simplification of Disjunctive Antecedent (Valid Theorem)**
 
@@ -308,26 +308,25 @@ To run specific examples from a theory:
 ### Logos: Hyperintensional Truthmaker Semantics
 
 - 19 operators across 5 modular subtheories
-- Tracks what propositions are "about" via verifier/falsifier sets
-- Distinguishes necessarily equivalent but distinct propositions
+- Sensitive to differences in subject-matter via verifier/falsifier sets
+- Distinguishes necessarily equivalent propositions
 
 ### Exclusion: Unilateral Semantics
 
-- Solves the False Premise Problem
-- First computational implementation of Bernard & Champollion's semantics
+- Implementation of Bernard & Champollion's unilatiral semantics
 - Uses witness predicates for proper negation handling
 
 ### Imposition: Fine's Counterfactual Semantics
 
-- Evaluates counterfactuals without possible worlds
+- Evaluates counterfactuals without taking possible worlds to be primitive
 - Based on primitive imposition relation between states
 - Implements Fine's five frame constraints
 
 ### Bimodal: Temporal-Modal Logic
 
 - Combines reasoning about time and possibility
-- World histories as sequences of states
-- Past, future, and modal operators
+- World histories as functions from times to world states
+- Includes past, future, and modal operators
 
 ## Tools
 
@@ -350,7 +349,7 @@ For comprehensive guidance on theory comparison, avoiding circular imports, and 
 
 ## Contributing
 
-We welcome contributions! See our [GitHub repository](https://github.com/benbrastmckie/ModelChecker) for:
+Contributions are welcome! See our [GitHub repository](https://github.com/benbrastmckie/ModelChecker) for:
 
 - Contributing guidelines
 - Development setup instructions
@@ -362,7 +361,11 @@ We welcome contributions! See our [GitHub repository](https://github.com/benbras
 If you use ModelChecker in your research, please cite:
 
 - Brast-McKie, B. (2025). Model-Checker: A Programmatic Semantics Framework. [https://github.com/benbrastmckie/ModelChecker](https://github.com/benbrastmckie/ModelChecker)
+
+The theories implemented with the ModelChecker are developed in:
+
 - Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8), Journal of Philosophical Logic
+- Brast-McKie, B. (draft). ["The Construction of Possible Worlds"](http://www.benbrastmckie.com/wp-content/uploads/2025/11/possible_worlds.pdf).
 
 ## License
 
@@ -385,15 +388,15 @@ ModelChecker provides a framework for developing, testing, and comparing semanti
 
 ### Current State and Future Directions
 
-The framework currently implements operators from the **objective language**, with normative and epistemic operators planned for future development. Each theory can be:
+The framework currently implements operators from an objective language with transparent operators., with normative and epistemic operators planned for future development. Each theory can be:
 
 - **Built** using modular operator definitions
 - **Tested** against known theorems and countermodels
 - **Compared** with other theories to explore logical relationships
 
-The **bimodal theory** provides a purely intensional treatment of temporal and modal operators, where worlds are functions from times to world states that respect a primitive task relation that specifies which transitions between states are possible.
+The **bimodal theory** provides a purely intensional treatment of temporal and modal operators, where worlds are functions from times to world states that respect a primitive task relation that specifies which transitions between states are possible. This theory is elaborated and defended in [Brast-McKie (draft)](http://www.benbrastmckie.com/wp-content/uploads/2025/11/possible_worlds.pdf).
 
-Future work will integrate this temporal dimension into the Logos framework, completing the implementation of the **hyperintensional semantics** developed in Brast-McKie (2025).
+Future work will integrate this temporal dimension into the Logos framework, completing the implementation of the hyperintensional semantics developed for tensed counterfactuals in [Brast-McKie (2025)](https://link.springer.com/article/10.1007/s10992-025-09793-8).
 
 ### Research Applications
 
@@ -404,7 +407,7 @@ Use ModelChecker to:
 3. **Compare frameworks**: See how different semantic approaches handle the same operators
 4. **Develop new theories**: Build and test semantic theories
 
-The framework serves as a research tool for computational semantics and a testing ground for theories about modality, counterfactuals, grounding, and time.
+The framework serves as a research tool for computational semantics and a testing ground for theories about modality, counterfactuals, explanation, and time.
 
 ---
 
