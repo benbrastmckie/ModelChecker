@@ -291,6 +291,6 @@ touch old_project/__init__.py
 ## See Also
 
 - [Migration Guide](../migration/package_loading_v2.md) - Detailed migration instructions
-- [ModuleLoader API](../api/builder/loader.md) - Loader documentation
+- [ModuleLoader API](../api/builder/LOADER.md) - Loader documentation
 - [Builder README](../../src/model_checker/builder/README.md) - Builder package overview
 - [Issue #73](https://github.com/benbrastmckie/ModelChecker/issues/73) - Original issue that prompted these changes

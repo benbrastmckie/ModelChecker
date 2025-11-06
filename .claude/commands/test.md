@@ -17,11 +17,9 @@ I'll run the appropriate tests for the specified feature, module, or file using 
 ## Process
 
 ### 1. Discover Testing Protocols
-I'll check for testing protocols in order of priority:
-1. **CLAUDE.md** in the project root or parent directories
-2. **Project configuration files** (package.json, Makefile, pyproject.toml, etc.)
-3. **Test directories** and existing test patterns
-4. **Language-specific conventions**
+For testing protocol discovery, see [Testing Integration Patterns](../docs/command-patterns.md#testing-integration-patterns).
+
+**Test-specific discovery:** Extract test commands, coverage thresholds, and framework configuration from CLAUDE.md or project files.
 
 ### 2. Identify Test Scope
 Based on the target provided, I'll determine:
@@ -118,84 +116,86 @@ Duration: [Xs]
 [Suggestions for failures if any]
 ```
 
-## Error Recovery
+## Error Recovery and Enhanced Analysis
 
-If tests fail, I'll:
-1. Show detailed error messages
-2. Identify the failing test cases
-3. Suggest potential fixes
-4. Offer to run tests in debug mode
-5. Check if the issue is environment-specific
+If tests fail, I'll provide enhanced error analysis with actionable suggestions:
+
+### 1. Capture Error Output
+- Capture complete test output including error messages
+- Identify failing test cases and error locations
+- Preserve context around failures
+
+### 2. Run Enhanced Error Analysis
+```bash
+# Analyze error output with enhanced error tool
+.claude/lib/analyze-error.sh "$TEST_OUTPUT"
+```
+
+### 3. Enhanced Error Report
+The analysis provides:
+- **Error Type Classification**: syntax, test_failure, file_not_found, import_error, null_error, timeout, permission
+- **Error Location**: File and line number with 3 lines of context before/after
+- **Specific Suggestions**: 2-3 actionable fixes tailored to the error type
+- **Debug Commands**: Next steps for investigation
+
+### 4. Graceful Degradation
+For partial test failures:
+- Document which tests passed vs. failed
+- Identify patterns in failures (e.g., all timeout errors)
+- Suggest manual investigation steps:
+  - `/debug "<specific test failure description>"`
+  - Review recent changes: `git diff`
+  - Run individual tests: `:TestNearest`
+
+### 5. Example Enhanced Test Error Output
+
+```
+===============================================
+Enhanced Error Analysis
+===============================================
+
+Error Type: test_failure
+Location: tests/auth_spec.lua:42
+
+Context (around line 42):
+   39  setup(function()
+   40    session = mock_session_factory()
+   41  end)
+   42  it("should login with valid credentials", function()
+   43    local result = auth.login(session, "user", "pass")
+   44    assert.is_not_nil(result)
+   45  end)
+
+Suggestions:
+1. Check test setup - verify mocks and fixtures are initialized correctly
+2. Review test data - ensure test inputs match expected types and values
+3. Check for race conditions - add delays or synchronization if timing-sensitive
+4. Run test in isolation: :TestNearest to isolate the failure
+
+Debug Commands:
+- Investigate further: /debug "auth login test failing with nil result"
+- View file: nvim tests/auth_spec.lua
+- Run tests: :TestNearest or :TestFile
+===============================================
+```
 
 ## Agent Usage
 
-This command can delegate test execution to the `test-specialist` agent:
+For agent invocation patterns, see [Agent Invocation Patterns](../docs/command-patterns.md#agent-invocation-patterns).
 
-### test-specialist Agent
-- **Purpose**: Execute tests and analyze failures
-- **Tools**: Bash, Read, Grep
-- **Invocation**: Single agent for each test run
-- **Capabilities**: Multi-framework support, error categorization, structured reporting
+**Test-specific agent:**
 
-### Invocation Pattern
-```yaml
-Task {
-  subagent_type: "test-specialist"
-  description: "Run tests for [target]"
-  prompt: "
-    Test Task: Execute tests for [target]
+| Agent | Purpose | Key Capabilities |
+|-------|---------|------------------|
+| test-specialist | Execute tests and analyze failures | Multi-framework support, error categorization, coverage tracking |
 
-    Context:
-    - Target: [feature/module/file from user]
-    - Test Commands: [from CLAUDE.md or detected]
-    - Project Standards: CLAUDE.md Testing Protocols
+**Delegation Benefits:**
+- Framework expertise across multiple test runners
+- Structured failure analysis with error categorization
+- Coverage metrics and gap identification
+- Actionable suggestions for failures
 
-    Execution:
-    1. Determine appropriate test command
-       - Check CLAUDE.md for test commands
-       - Detect test framework from project
-       - Run appropriate tests for target
-
-    2. Execute tests and capture output
-       - Run test command via Bash
-       - Capture stdout and stderr
-       - Note execution time
-
-    3. Analyze results
-       - Count passed/failed/skipped
-       - Extract error messages for failures
-       - Categorize errors (compilation, runtime, assertion)
-       - Calculate coverage if available
-
-    Output Format:
-    - Summary: X passed, Y failed, Z skipped
-    - Failure details with file:line references
-    - Error categorization
-    - Suggested next steps if failures found
-  "
-}
-```
-
-### Agent Benefits
-- **Framework Expertise**: Understands multiple test frameworks
-- **Error Analysis**: Categorizes failures for easier debugging
-- **Structured Output**: Consistent test result format
-- **Coverage Tracking**: Reports coverage metrics when available
-- **Actionable Suggestions**: Provides next steps for failures
-
-### Workflow Integration
-1. User invokes `/test` with target (feature/module/file)
-2. Command detects test configuration from CLAUDE.md or project
-3. Command delegates to `test-specialist` agent
-4. Agent executes tests and analyzes results
-5. Command returns formatted test report
-6. If failures: User can use `/debug` for investigation
-
-### Direct Execution Mode
-For simple, quick tests, the command can execute directly without agent delegation to minimize overhead. Agent delegation is beneficial for:
-- Complex test suites requiring analysis
-- Multi-framework test execution
-- Detailed failure diagnostics
-- Coverage report generation
+**Direct Execution:**
+Quick tests can execute directly without agent overhead. Delegate for complex test suites or detailed diagnostics.
 
 Let me analyze your project and run the appropriate tests.

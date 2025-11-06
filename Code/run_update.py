@@ -226,9 +226,12 @@ def build_package() -> bool:
     print("\n" + "=" * 80)
     print("STEP 3: BUILD PACKAGE (NO UPLOAD)")
     print("=" * 80)
-    
+
     print("\nBuilding package distributions...")
-    result = subprocess.run([sys.executable, '-m', 'build'], cwd=Path(__file__).parent)
+    # Create environment without PIP_USER to avoid conflicts with isolated build environment
+    env = os.environ.copy()
+    env['PIP_USER'] = '0'  # Disable user installs for isolated build
+    result = subprocess.run([sys.executable, '-m', 'build'], cwd=Path(__file__).parent, env=env)
     
     if result.returncode == 0:
         print("✅ Package built successfully")

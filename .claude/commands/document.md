@@ -8,7 +8,17 @@ allowed-tools: Read, Write, Edit, MultiEdit, Grep, Glob, Task, TodoWrite
 
 # /document Command
 
-Updates all relevant documentation based on recent code changes, ensuring compliance with project documentation standards defined in CLAUDE.md.
+**YOU MUST update documentation following exact process:**
+
+**CRITICAL INSTRUCTIONS**:
+- Execute all documentation steps in EXACT sequential order
+- DO NOT skip cross-reference verification
+- DO NOT skip README updates
+- DO NOT skip CLAUDE.md compliance checks
+- DO NOT skip documentation validation
+- Fallback mechanisms ensure 100% documentation completeness
+
+Updates all relevant documentation to accurately reflect the current codebase state, ensuring compliance with project documentation standards defined in CLAUDE.md.
 
 ## Usage
 
@@ -18,36 +28,69 @@ Updates all relevant documentation based on recent code changes, ensuring compli
 
 ### Arguments
 
-- `[change-description]` (optional): Brief description of recent changes to document
-- `[scope]` (optional): Specific directory or module to focus on (defaults to all affected areas)
+- `[scope-description]` (optional): Brief description of area to document
+- `[scope]` (optional): Specific directory or module to focus on (defaults to entire codebase)
 
 ## Examples
 
-### Auto-detect Changes
+### Auto-detect Scope
 ```
 /document
 ```
-Analyzes recent git commits and updates all affected documentation
+Analyzes the codebase and updates all relevant documentation
 
-### With Change Description
+### With Scope Description
 ```
-/document "Added Kitty terminal support and command picker improvements"
+/document "Kitty terminal support and command picker" nvim/lua/neotex
 ```
 
 ### Scoped Documentation
 ```
-/document "Refactored authentication system" nvim/lua/neotex/auth
+/document "Authentication system" nvim/lua/neotex/auth
 ```
 
 ## Process
 
-### 1. **Change Detection**
-- Analyzes recent git commits (uncommitted and recent commits)
-- Identifies modified files and their types
+### 1. **Scope Detection**
+- Analyzes affected areas of the codebase
+- Identifies files and their types
 - Determines which documentation needs updating
 - Reviews implementation summaries if available
 
+**MANDATORY VERIFICATION - Scope and Paths Validated**:
+
+```bash
+# Verify scope is valid
+if [ -z "$SCOPE" ]; then
+  SCOPE="$PWD"
+  echo "✓ Using current directory as scope: $SCOPE"
+fi
+
+# Verify scope path exists
+if [ ! -d "$SCOPE" ]; then
+  echo "❌ ERROR: Scope directory not found: $SCOPE"
+  exit 1
+fi
+
+# Identify documentation files in scope
+DOC_FILES=$(find "$SCOPE" -name "README.md" -o -name "*.md" | sort)
+DOC_COUNT=$(echo "$DOC_FILES" | wc -l)
+
+echo "✓ VERIFIED: Scope validated ($DOC_COUNT documentation files found)"
+```
+
 ### 2. **Standards Verification**
+
+**YOU MUST verify documentation standards. This is NOT optional.**
+
+**STEP 1 (REQUIRED) - Load and Verify Documentation Standards**
+
+**EXECUTE NOW - Read CLAUDE.md Documentation Standards**
+
+**ABSOLUTE REQUIREMENT**: YOU MUST read and apply documentation standards from CLAUDE.md. This is NOT optional.
+
+**WHY THIS MATTERS**: Documentation standards ensure consistency and compliance across all project documentation.
+
 - Reads CLAUDE.md for project documentation standards
 - Checks for specific requirements:
   - README.md requirements per directory
@@ -56,14 +99,34 @@ Analyzes recent git commits and updates all affected documentation
   - Character encoding rules
   - API documentation format
 
+**MANDATORY VERIFICATION - Verify Standards Loaded**
+
+**Verification Steps**:
+```bash
+# Load documentation standards
+STANDARDS_FILE=$(find_upward_claude_md "$PWD")
+
+if [ -z "$STANDARDS_FILE" ] || [ ! -f "$STANDARDS_FILE" ]; then
+  echo "⚠️  CLAUDE.md not found - Using default standards"
+  # Fallback: Use sensible defaults
+else
+  # Extract documentation policy section
+  DOC_POLICY=$(extract_section "$STANDARDS_FILE" "documentation_policy")
+  echo "✓ Documentation standards loaded from: $STANDARDS_FILE"
+fi
+```
+
+**Fallback Mechanism**:
+- If CLAUDE.md not found → Use sensible language-specific defaults
+- If documentation_policy section missing → Use core requirements (README.md, UTF-8, no emojis)
+
 ### 3. **Documentation Identification**
 Automatically identifies and updates:
 - **README.md files** in affected directories
 - **API documentation** for modified functions/modules
-- **Configuration documentation** for setting changes
-- **Command documentation** for CLI changes
-- **Architecture docs** if structure changed
-- **Migration guides** for breaking changes
+- **Configuration documentation** for settings
+- **Command documentation** for CLI functionality
+- **Architecture docs** for system structure
 - **CHANGELOG.md** if present
 
 ### 4. **Documentation Updates**
@@ -96,55 +159,202 @@ Description of what this module does and its key functions.
 
 #### Configuration Documentation
 - Updates available options
-- Documents new settings
+- Documents current settings
 - Updates default values
-- Adds deprecation notices
+- Documents option behaviors
+
+**MANDATORY VERIFICATION - All Documentation Files Created/Updated**:
+
+```bash
+# Verify all required documentation files exist
+REQUIRED_DOCS=()
+MISSING_DOCS=()
+
+# Check for README.md in each directory with code
+for dir in $(find "$SCOPE" -type d); do
+  # Skip hidden and non-code directories
+  [[ "$dir" =~ /\. ]] && continue
+  [[ "$dir" =~ /(node_modules|vendor|dist|build)/ ]] && continue
+
+  # Check if directory has code files
+  CODE_FILES=$(find "$dir" -maxdepth 1 -type f \( -name "*.lua" -o -name "*.md" -o -name "*.sh" \) 2>/dev/null)
+
+  if [ -n "$CODE_FILES" ]; then
+    README_PATH="$dir/README.md"
+    REQUIRED_DOCS+=("$README_PATH")
+
+    if [ ! -f "$README_PATH" ]; then
+      MISSING_DOCS+=("$README_PATH")
+      echo "⚠️  Missing README.md: $dir"
+    fi
+  fi
+done
+
+# Report results
+if [ ${#MISSING_DOCS[@]} -eq 0 ]; then
+  echo "✓ VERIFIED: All required documentation files exist (${#REQUIRED_DOCS[@]} files)"
+else
+  echo "⚠️  WARNING: ${#MISSING_DOCS[@]} missing README.md files (should be created)"
+  for missing in "${MISSING_DOCS[@]}"; do
+    echo "  - $missing"
+  done
+fi
+
+# Verify updated files were actually modified
+for doc_file in "${UPDATED_FILES[@]}"; do
+  if [ ! -f "$doc_file" ]; then
+    echo "❌ ERROR: Updated file not found: $doc_file"
+    exit 1
+  fi
+done
+
+echo "✓ VERIFIED: All updated documentation files exist"
+```
 
 ### 5. **Compliance Checks**
 
+**YOU MUST perform compliance checks. This is NOT optional.**
+
+**STEP 2 (REQUIRED) - Verify Documentation Compliance**
+
+**EXECUTE NOW - Check All Documentation Standards**
+
+**ABSOLUTE REQUIREMENT**: YOU MUST verify all documentation meets standards. This is NOT optional.
+
+**WHY THIS MATTERS**: Compliance checks prevent documentation drift and ensure maintainability.
+
 #### Style Compliance
-- Indentation (as specified in CLAUDE.md)
-- Line length limits
-- Naming conventions
-- Import organization
+**MANDATORY CHECKS**:
+- ✓ Indentation (as specified in CLAUDE.md)
+- ✓ Line length limits
+- ✓ Naming conventions
+- ✓ Import organization
 
 #### Content Requirements
-- All directories have README.md
-- All public functions documented
-- Configuration options explained
-- Breaking changes highlighted
+**MANDATORY CHECKS**:
+- ✓ All directories have README.md
+- ✓ All public functions documented
+- ✓ Configuration options explained
+- ✓ System capabilities accurately described
 
 #### Formatting Standards
-- UTF-8 encoding (no emojis in files)
-- Box-drawing characters for diagrams
-- Markdown formatting consistency
-- Code example syntax highlighting
+**MANDATORY CHECKS**:
+- ✓ UTF-8 encoding (no emojis in files)
+- ✓ Box-drawing characters for diagrams
+- ✓ Markdown formatting consistency
+- ✓ Code example syntax highlighting
+
+**MANDATORY VERIFICATION - Verify Compliance Standards Met**
+
+**Verification Process**:
+```bash
+# Check each updated file for compliance
+COMPLIANCE_ERRORS=0
+
+for doc_file in $UPDATED_FILES; do
+  # Check UTF-8 encoding
+  if ! file "$doc_file" | grep -q "UTF-8"; then
+    echo "❌ Encoding error: $doc_file (not UTF-8)"
+    ((COMPLIANCE_ERRORS++))
+  fi
+
+  # Check for emojis in content
+  if grep -P '[\x{1F300}-\x{1F9FF}]' "$doc_file" > /dev/null 2>&1; then
+    echo "❌ Emoji found in: $doc_file"
+    ((COMPLIANCE_ERRORS++))
+  fi
+
+  # Check for README.md in each directory
+  if [ -d "$doc_file" ] && [ ! -f "$doc_file/README.md" ]; then
+    echo "⚠️  Missing README.md in: $doc_file"
+    ((COMPLIANCE_ERRORS++))
+  fi
+done
+
+if [ $COMPLIANCE_ERRORS -eq 0 ]; then
+  echo "✓ All compliance checks passed"
+else
+  echo "⚠️  Compliance errors found: $COMPLIANCE_ERRORS"
+  echo "Manual review required"
+fi
+```
 
 ### 6. **Cross-Reference Updates**
-- Updates links between documents
-- Fixes broken references
-- Updates navigation sections
-- Maintains document hierarchy
+
+**YOU MUST verify and fix cross-references. This is NOT optional.**
+
+**STEP 3 (REQUIRED) - Verify All Cross-References**
+
+**EXECUTE NOW - Check and Fix Document Links**
+
+**ABSOLUTE REQUIREMENT**: YOU MUST verify all cross-references are valid. This is NOT optional.
+
+**WHY THIS MATTERS**: Broken links reduce documentation usability and indicate documentation drift.
+
+**MANDATORY OPERATIONS**:
+- ✓ Updates links between documents
+- ✓ Fixes broken references
+- ✓ Updates navigation sections
+- ✓ Maintains document hierarchy
+
+**MANDATORY VERIFICATION - Verify All Cross-References Valid**
+
+**Verification Process**:
+```bash
+# Extract and verify all markdown links
+BROKEN_LINKS=0
+
+for doc_file in $UPDATED_FILES; do
+  # Extract all markdown links
+  LINKS=$(grep -oP '\[.*?\]\(\K[^)]+' "$doc_file" 2>/dev/null || echo "")
+
+  while IFS= read -r link; do
+    [ -z "$link" ] && continue
+
+    # Skip external URLs
+    [[ "$link" =~ ^https?:// ]] && continue
+
+    # Resolve relative path
+    DOC_DIR=$(dirname "$doc_file")
+    RESOLVED_PATH=$(cd "$DOC_DIR" && realpath -m "$link" 2>/dev/null)
+
+    # Check if file exists
+    if [ ! -f "$RESOLVED_PATH" ] && [ ! -d "$RESOLVED_PATH" ]; then
+      echo "❌ BROKEN LINK in $doc_file: $link → $RESOLVED_PATH"
+      ((BROKEN_LINKS++))
+    fi
+  done <<< "$LINKS"
+done
+
+if [ $BROKEN_LINKS -eq 0 ]; then
+  echo "✓ All cross-references valid"
+else
+  echo "⚠️  Broken links found: $BROKEN_LINKS"
+  echo "Manual review required"
+fi
+```
+
+**Fallback Mechanism**:
+- If link verification fails → Log broken links but continue
+- Document broken links in update summary
+- Non-blocking (documentation updates complete)
 
 ## Documentation Priorities
 
 ### High Priority
-1. **Breaking Changes** - Must be documented immediately
-2. **New APIs** - Public interfaces need documentation
-3. **Configuration Changes** - User-facing settings
-4. **Removed Features** - Deprecation and migration paths
+1. **Public APIs** - External interfaces and their usage
+2. **Configuration Options** - Available settings and their effects
+3. **Core Functionality** - Primary features and capabilities
 
 ### Medium Priority
-1. **Internal Changes** - Architecture modifications
-2. **Performance Improvements** - Optimization notes
-3. **Bug Fixes** - Notable fixes worth documenting
-4. **Refactoring** - Structure changes
+1. **Internal Architecture** - System structure and organization
+2. **Code Comments** - Inline documentation and explanations
+3. **Module Organization** - Component relationships
 
 ### Low Priority
-1. **Code Comments** - Inline documentation
-2. **TODO Updates** - Task tracking
-3. **Style Changes** - Formatting updates
-4. **Test Documentation** - Test case descriptions
+1. **Performance Characteristics** - Current performance metrics and behavior
+2. **Implementation Details** - Technical specifics and internals
+3. **Test Documentation** - Test case descriptions and coverage
 
 ## Output
 
@@ -180,6 +390,7 @@ Automatically enforces:
 - **ASCII Diagrams**: Using Unicode box-drawing characters
 - **No Emojis**: In file content (only runtime UI)
 - **UTF-8 Encoding**: All documentation files
+- **Timeless Writing**: No historical commentary, temporal markers, or version references (see CLAUDE.md "Development Philosophy → Documentation Standards")
 
 ### Markdown Standards
 - Clear, concise language
@@ -191,11 +402,11 @@ Automatically enforces:
 ## Best Practices
 
 ### DO
-- **Run after significant changes**: Keep docs in sync with code
+- **Keep docs current**: Ensure documentation reflects actual codebase state
 - **Review before committing**: Verify documentation accuracy
-- **Include examples**: Add usage examples for new features
+- **Include examples**: Add usage examples for features
 - **Maintain consistency**: Follow established patterns
-- **Document rationale**: Explain why, not just what
+- **Document behavior**: Explain what the system does and how it works
 
 ### DON'T
 - **Over-document**: Avoid redundant documentation
@@ -203,6 +414,36 @@ Automatically enforces:
 - **Add emojis**: Follow encoding standards
 - **Create without purpose**: Every doc should add value
 - **Ignore standards**: Always check CLAUDE.md
+
+## Documentation Review Checklist
+
+Before finalizing documentation updates, verify:
+
+### Content Quality
+- [ ] Documentation describes current state accurately
+- [ ] Technical details are correct and complete
+- [ ] Examples are functional and relevant
+- [ ] Navigation links work correctly
+
+### Standards Compliance
+- [ ] No emojis in file content (UTF-8 compliance)
+- [ ] Unicode box-drawing used for diagrams (not ASCII art)
+- [ ] Markdown follows CommonMark specification
+- [ ] Line length within limits (if specified in CLAUDE.md)
+
+### Timeless Writing Policy
+- [ ] No temporal markers: "(New)", "(Old)", "(Updated)", "(Current)", "(Deprecated)"
+- [ ] No temporal phrases: "previously", "recently", "now supports", "used to", "no longer"
+- [ ] No migration language: "migration from", "backward compatibility", "breaking change"
+- [ ] No version references in descriptions: "v1.0", "since version", "as of version"
+- [ ] Documentation reads as if current implementation always existed
+- [ ] Historical context moved to CHANGELOG.md if needed
+
+### Directory Structure
+- [ ] Every subdirectory has README.md
+- [ ] README includes: purpose, modules, navigation
+- [ ] Cross-references are complete and accurate
+- [ ] Parent/child links maintained
 
 ## Integration with Other Commands
 
@@ -218,29 +459,23 @@ Automatically enforces:
 
 ## Special Cases
 
-### New Features
+### Feature Documentation
 - Creates comprehensive documentation
 - Adds usage examples
 - Updates feature lists
-- Creates migration guides if needed
+- Documents capabilities and limitations
 
-### Refactoring
+### Architecture Documentation
 - Updates architectural documentation
 - Modifies module descriptions
 - Updates code examples
-- Preserves historical context
+- Documents system organization
 
-### Bug Fixes
-- Documents in CHANGELOG if present
-- Updates known issues sections
-- Adds resolution notes
+### Troubleshooting Documentation
 - Updates troubleshooting guides
-
-### Breaking Changes
-- Creates migration guides
-- Documents removal timelines
-- Updates all affected examples
-- Highlights in CHANGELOG
+- Documents resolution approaches
+- Adds diagnostic procedures
+- Documents common issues and solutions
 
 ## Error Handling
 
@@ -259,72 +494,64 @@ Automatically enforces:
 - Suggests corrections
 - Maintains backup of originals
 
-## Agent Usage
+## Checkpoint Reporting
 
-This command delegates documentation work to the `doc-writer` agent:
+**YOU MUST report documentation update checkpoint. This is NOT optional.**
 
-### doc-writer Agent
-- **Purpose**: Maintain documentation consistency and completeness
-- **Tools**: Read, Write, Edit, Grep, Glob
-- **Invocation**: Single agent for each documentation update
-- **Standards-Aware**: Automatically follows CLAUDE.md documentation policy
+**CHECKPOINT REQUIREMENT - Report Documentation Updates Complete**
 
-### Invocation Pattern
-```yaml
-Task {
-  subagent_type: "doc-writer"
-  description: "Update documentation for [changes]"
-  prompt: "
-    Documentation Task: Update docs for [description]
+**ABSOLUTE REQUIREMENT**: After all documentation updates complete, YOU MUST report this checkpoint. This is NOT optional.
 
-    Context:
-    - Change description: [user input or detected changes]
-    - Files modified: [list if known]
-    - Project standards: CLAUDE.md Documentation Policy
+**WHY THIS MATTERS**: Checkpoint reporting confirms successful documentation updates with compliance verified and cross-references validated.
 
-    Requirements:
-    - Update all affected README.md files
-    - Maintain Unicode box-drawing for diagrams
-    - No emojis in content (UTF-8 encoding)
-    - Cross-reference specs properly
-    - Follow CommonMark specification
+**Report Format**:
 
-    Updates needed:
-    1. Identify affected documentation files
-    2. Update module listings and descriptions
-    3. Update usage examples if API changed
-    4. Fix cross-references and navigation links
-    5. Ensure every directory has README.md
-
-    Output:
-    - List of updated documentation files
-    - Summary of changes made
-    - Compliance verification
-  "
-}
+```
+CHECKPOINT: Documentation Updates Complete
+- Scope: ${SCOPE_DESCRIPTION}
+- Files Updated: ${UPDATED_FILE_COUNT}
+- Compliance Checks: ${COMPLIANCE_STATUS}
+- Cross-References: ${CROSSREF_STATUS}
+- Broken Links Fixed: ${BROKEN_LINKS_FIXED}
+- New Documentation: ${NEW_DOC_COUNT}
+- Standards: ✓ CLAUDE.md COMPLIANT
+- Status: DOCUMENTATION CURRENT
 ```
 
-### Agent Benefits
-- **Consistent Format**: All documentation follows same structure and style
-- **Standards Compliance**: Automatic adherence to documentation policy
-- **Cross-Referencing**: Proper linking between docs, specs, plans, reports
-- **Completeness**: Ensures all required documentation exists
-- **Quality**: Professional, clear, concise documentation
+**Required Information**:
+- Scope description (from user input or auto-detected)
+- Number of files updated
+- Compliance check status (passed/warnings)
+- Cross-reference verification status (all valid/broken links found)
+- Number of broken links fixed
+- Number of new documentation files created
+- Standards compliance confirmation
+- Documentation current status
 
-### Workflow Integration
-1. User invokes `/document` with change description (optional)
-2. Command detects changes if no description provided
-3. Command delegates to `doc-writer` agent with context
-4. Agent updates all affected documentation files
-5. Command returns summary of updates and compliance status
+---
 
-### Documentation Standards Enforced
-- **README Requirements**: Every subdirectory must have README.md
-- **Unicode Box-Drawing**: For diagrams (not ASCII art)
-- **No Emojis**: UTF-8 encoding compliance
-- **CommonMark**: Markdown specification compliance
-- **Cross-References**: Proper links to specs, plans, reports
-- **Navigation**: Parent and child directory links
+## Agent Usage
+
+For agent invocation patterns, see [Agent Invocation Patterns](../docs/command-patterns.md#agent-invocation-patterns). For documentation standards and artifact references, see [Artifact Referencing Patterns](../docs/command-patterns.md#artifact-referencing-patterns).
+
+**Document-specific agent:**
+
+| Agent | Purpose | Key Capabilities |
+|-------|---------|------------------|
+| doc-writer | Maintain documentation consistency | Standards compliance, cross-referencing, completeness checks |
+
+**Delegation Benefits:**
+- Consistent documentation format and style
+- Automatic adherence to CLAUDE.md policy
+- Proper linking between docs, specs, plans, reports
+- Ensures all required documentation exists
+
+**Standards Enforced:**
+- README.md in every subdirectory
+- Unicode box-drawing for diagrams
+- No emojis (UTF-8 compliance)
+- CommonMark specification
+- Proper cross-references and navigation
 
 ## Notes
 
