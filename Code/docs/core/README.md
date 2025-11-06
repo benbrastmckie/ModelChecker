@@ -1,13 +1,13 @@
 # Core: Foundation Standards
 
-[← Back to Docs](../README.md) | [CODE_STANDARDS →](CODE_STANDARDS.md) | [TESTING →](TESTING.md) | [ARCHITECTURE →](ARCHITECTURE.md)
+[← Back to Docs](../README.md) | [CODE_STANDARDS →](CODE_STANDARDS.md) | [TESTING_GUIDE →](TESTING_GUIDE.md) | [ARCHITECTURE →](ARCHITECTURE.md)
 
 ## Directory Structure
 
 ```
 core/
 ├── CODE_STANDARDS.md              # Python coding conventions
-├── TESTING.md                     # Test-driven development practices
+├── TESTING_GUIDE.md               # Comprehensive testing guide
 ├── ARCHITECTURE.md                # System design patterns
 └── DOCUMENTATION.md               # Documentation requirements
 ```
@@ -31,14 +31,16 @@ The standards in this directory are mandatory and apply to all project code with
   - Error handling patterns (fail-fast philosophy)
   - No backwards compatibility policy
 
-### TESTING.md
-- **Purpose**: Establish test-driven development practices and requirements
+### TESTING_GUIDE.md
+- **Purpose**: Comprehensive testing guide consolidating TDD practices, test organization, and requirements
 - **Use When**: Writing tests (which is before writing any implementation code)
 - **Key Sections**:
   - RED-GREEN-REFACTOR workflow
+  - Test organization and structure
   - Test coverage targets (>85% overall, >90% critical paths)
   - Unit vs integration test organization
   - Theory-specific testing patterns
+  - Best practices and patterns
 
 ### ARCHITECTURE.md
 - **Purpose**: Document system design patterns and architectural decisions
@@ -63,7 +65,7 @@ The standards in this directory are mandatory and apply to all project code with
 **Recommended reading order for new contributors**:
 
 1. **Start here**: [CODE_STANDARDS.md](CODE_STANDARDS.md) - Understand coding conventions first
-2. **Then**: [TESTING.md](TESTING.md) - Learn TDD workflow before writing code
+2. **Then**: [TESTING_GUIDE.md](TESTING_GUIDE.md) - Learn TDD workflow before writing code
 3. **Next**: [ARCHITECTURE.md](ARCHITECTURE.md) - Grasp system design patterns
 4. **Finally**: [DOCUMENTATION.md](DOCUMENTATION.md) - Learn how to document your work
 
@@ -71,8 +73,8 @@ The standards in this directory are mandatory and apply to all project code with
 
 ### Common Tasks
 
-- **Starting a new feature?** → Read CODE_STANDARDS.md for style, then TESTING.md for TDD workflow
-- **Writing tests?** → See TESTING.md sections on test organization and coverage
+- **Starting a new feature?** → Read CODE_STANDARDS.md for style, then TESTING_GUIDE.md for TDD workflow
+- **Writing tests?** → See TESTING_GUIDE.md sections on test organization and coverage
 - **Understanding package structure?** → Check ARCHITECTURE.md for design patterns
 - **Creating documentation?** → Follow DOCUMENTATION.md template structure
 - **Need import guidance?** → CODE_STANDARDS.md has detailed import organization rules
@@ -80,7 +82,7 @@ The standards in this directory are mandatory and apply to all project code with
 ### Key Principles
 
 - **Fail-Fast**: Validate inputs early, report errors immediately (CODE_STANDARDS.md)
-- **TDD Always**: Write tests BEFORE implementation (TESTING.md)
+- **TDD Always**: Write tests BEFORE implementation (TESTING_GUIDE.md)
 - **No Compatibility**: Clean breaks when improving code (CODE_STANDARDS.md)
 - **Type Coverage**: >90% of codebase must have type annotations (CODE_STANDARDS.md)
 - **ALL CAPS**: Documentation files use ALL CAPS naming (DOCUMENTATION.md)
