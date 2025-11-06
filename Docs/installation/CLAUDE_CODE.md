@@ -7,7 +7,7 @@
 Claude Code is Anthropic's official command-line interface that allows you to interact with Claude AI directly in your terminal. It's particularly useful for:
 
 - **Automated Installation** - Let Claude handle dependency installation and environment setup
-- **Project Creation** - Use the `model-checker new` command with AI guidance
+- **Project Creation** - Create ModelChecker projects with AI guidance
 - **Debugging** - Get intelligent help diagnosing and fixing issues
 - **Code Understanding** - Ask questions about ModelChecker's implementation
 - **Documentation** - Generate examples and understand theory configurations
@@ -28,7 +28,9 @@ Rather than manually following installation steps, you can simply tell Claude Co
 Before installing Claude Code, you need:
 - **Internet connection** - Required for Claude AI communication
 - **Terminal access** - Command line interface (Terminal, PowerShell, etc.)
+  - New to the terminal? See [Getting Started: Using the Terminal](GETTING_STARTED.md#before-you-begin-using-the-terminal)
 - **Git** (optional but recommended) - For repository management
+  - New to Git/GitHub? See [Getting Started with GitHub](GIT_GOING.md) for setup instructions
 
 ### macOS
 
@@ -85,13 +87,18 @@ paru -S claude-code
 curl -fsSL https://raw.githubusercontent.com/anthropics/claude-code/main/install.sh | sh
 ```
 
-**Fedora/RHEL:**
+**NixOS:**
 ```bash
-# Using dnf
-sudo dnf install claude-code
+# Using nix-env
+nix-env -iA nixpkgs.claude-code
 
-# Or using the install script
-curl -fsSL https://raw.githubusercontent.com/anthropics/claude-code/main/install.sh | sh
+# Or add to your configuration.nix
+environment.systemPackages = with pkgs; [
+  claude-code
+];
+
+# Then rebuild
+sudo nixos-rebuild switch
 ```
 
 ### Verify Installation
@@ -137,8 +144,8 @@ This is where Claude Code shines - instead of manually following installation st
 Choose where you want to work (this will be your workspace):
 ```bash
 # Create a workspace directory
-mkdir -p ~/Documents/Philosophy/Projects
-cd ~/Documents/Philosophy/Projects
+mkdir -p ~/Documents/Projects
+cd ~/Documents/Projects
 
 # Start Claude Code
 claude
@@ -173,30 +180,9 @@ to verify everything works.
    - Run the example to confirm it works
 
 4. **Create Your First Project**
-   - Generate a new project using `model-checker new`
+   - Generate a new project using `model-checker` or `model-checker imposition`
    - Help you understand the project structure
    - Guide you through modifying the example
-
-### Alternative: Manual Installation with AI Assistance
-
-If you prefer more control, install manually and ask Claude for help:
-
-```bash
-# Install ModelChecker
-pip install model-checker
-
-# Start Claude Code to get help
-claude
-
-# Ask questions like:
-```
-
-```
-I just installed ModelChecker. Can you help me:
-1. Verify it's working correctly
-2. Create my first example checking modus ponens
-3. Understand the output format
-```
 
 ## Creating Projects with Claude Code
 
@@ -206,7 +192,7 @@ Once ModelChecker is installed, Claude Code can help you create and manage proje
 
 ```bash
 # Start Claude Code in your workspace
-cd ~/Documents/Philosophy/Projects
+cd ~/Documents/Projects
 claude
 ```
 
@@ -217,7 +203,7 @@ contraposition is valid in classical logic.
 ```
 
 Claude will:
-1. Run `model-checker new my_project`
+1. Run `model-checker` or `model-checker logos` to create a project
 2. Navigate to the project directory
 3. Modify the example file to test contraposition
 4. Explain the configuration options
@@ -228,7 +214,7 @@ Claude will:
 
 ```bash
 # Navigate to your project
-cd ~/Documents/Philosophy/Projects/my_project
+cd ~/Documents/Projects/my_project
 claude
 ```
 
@@ -243,32 +229,34 @@ definitions and help me debug?
 ```
 
 ```
-How do I export these results to JSON format?
+How do I use the ModelChecker to export these results to Markdown, JSON, and Jupyter Notebook formats?
 ```
 
 ## GitHub Integration: Managing Repositories
 
 Claude Code works seamlessly with GitHub CLI (`gh`) to manage repositories, create pull requests, and collaborate on projects.
 
-### Installing GitHub CLI
+**New to GitHub?** See [Getting Started with GitHub](GIT_GOING.md) to:
+- Create a GitHub account
+- Set up SSH keys
+- Learn basic Git/GitHub concepts
+- Understand common workflows
 
-**macOS:**
+### Installing GitHub CLI with Claude Code
+
+The easiest way to install GitHub CLI is to ask Claude Code to do it for you:
+
 ```bash
-brew install gh
+# Start Claude Code
+claude
 ```
 
-**Windows:**
-```powershell
-winget install GitHub.cli
+Then ask:
+```
+Please install the GitHub CLI (gh) for my system and help me authenticate with GitHub.
 ```
 
-**Linux (Debian/Ubuntu):**
-```bash
-sudo apt install gh
-```
-
-**Linux (Other):**
-See [GitHub CLI installation docs](https://github.com/cli/cli#installation)
+Claude will detect your operating system and run the appropriate installation commands, then guide you through authentication.
 
 ### Authenticating with GitHub
 
@@ -285,7 +273,7 @@ Once `gh` is installed and authenticated, Claude Code can help you with reposito
 
 ```bash
 # Navigate to your project
-cd ~/Documents/Philosophy/Projects/my_project
+cd ~/Documents/Projects/my_project
 
 # Start Claude Code
 claude
@@ -348,35 +336,9 @@ Claude will:
 4. Create feature branch for your contribution
 5. Guide you through making changes following [Code Standards](../../Code/docs/core/CODE_STANDARDS.md)
 
-### Common GitHub Workflows with Claude Code
-
-**Syncing with Upstream:**
-```
-The main ModelChecker repository was updated. Help me sync my fork
-with the upstream changes.
-```
-
-**Creating a Release:**
-```
-Help me create a new release (version 0.2.0) with a changelog
-summarizing the changes since the last release.
-```
-
-**Managing Issues:**
-```
-Show me all open issues labeled "bug" and help me create a branch
-to fix issue #42.
-```
-
-**Setting Up GitHub Actions:**
-```
-Help me add a GitHub Actions workflow to automatically run tests
-on every pull request.
-```
-
 ## Example Workflows
 
-### Workflow 1: Complete First-Time Setup
+### Complete First-Time Setup
 
 ```bash
 # Install Claude Code (see platform-specific instructions above)
@@ -386,8 +348,8 @@ claude --version  # Verify installation
 claude auth login
 
 # Create workspace
-mkdir -p ~/Documents/Philosophy/Projects
-cd ~/Documents/Philosophy/Projects
+mkdir -p ~/Documents/Projects
+cd ~/Documents/Projects
 
 # Start Claude Code
 claude
@@ -402,10 +364,10 @@ Please help me:
 4. Create a GitHub repository for this project
 ```
 
-### Workflow 2: Adding a Theory to an Existing Project
+### Adding a Theory to an Existing Project
 
 ```bash
-cd ~/Documents/Philosophy/my_project
+cd ~/Documents/Projects/my_project
 claude
 ```
 
@@ -415,7 +377,7 @@ the same arguments validate under different semantic theories.
 Can you help me modify the code?
 ```
 
-### Workflow 3: Debugging an Installation Issue
+### Debugging an Installation Issue
 
 ```bash
 claude
@@ -426,10 +388,10 @@ I installed ModelChecker but when I run 'model-checker --version'
 I get "command not found". Can you help me diagnose and fix this?
 ```
 
-### Workflow 4: Understanding Theory Implementation
+### Understanding Theory Implementation
 
 ```bash
-cd ~/Documents/Philosophy/Projects/ModelChecker  # Cloned repository
+cd ~/Documents/Projects/ModelChecker  # Cloned repository
 claude
 ```
 
@@ -437,6 +399,62 @@ claude
 Can you explain how the logos theory implements world semantics in
 model_checker/theory_lib/logos/semantic.py? I want to understand
 the Z3 encoding.
+```
+
+### Syncing Your Fork with Upstream
+
+```bash
+cd ~/Documents/Projects/ModelChecker
+claude
+```
+
+```
+The main ModelChecker repository was updated. Help me sync my fork
+with the upstream changes.
+```
+
+### Creating a Pull Request
+
+After developing a new theory or improvement, submit it to the main repository:
+
+```bash
+cd ~/Documents/Projects/ModelChecker
+claude
+```
+
+```
+I've created a new exclusion theory variant. Help me create a pull request
+to submit this to the ModelChecker repository with proper documentation.
+```
+
+Claude will:
+1. Ensure your branch is up to date
+2. Review your changes for completeness
+3. Create a well-formatted PR description
+4. Submit the pull request using `gh pr create`
+
+### Managing Issues
+
+```bash
+cd ~/Documents/Projects/ModelChecker
+claude
+```
+
+```
+Show me all open issues labeled "bug" and help me create a branch
+to fix issue #42.
+```
+
+### Setting Up GitHub Actions
+
+```bash
+cd ~/Documents/Projects/ModelChecker
+claude
+```
+
+```
+Help me add a GitHub Actions workflow to automatically run tests
+on every pull request.
 ```
 
 ## Tips for Effective Use
@@ -570,6 +588,53 @@ ModelChecker has comprehensive development standards in `Code/docs/`. Claude Cod
 Help me add a new theory following the standards in
 Code/docs/core/CODE_STANDARDS.md and Code/docs/core/ARCHITECTURE.md
 ```
+
+### Customizing Claude Code Behavior (CLAUDE.md)
+
+The `CLAUDE.md` file in your project root tells Claude Code about your project structure, commands, and documentation. This helps Claude provide better assistance when working on your ModelChecker projects.
+
+**Setting up CLAUDE.md for your project:**
+
+```bash
+cd ~/Documents/Projects/my_project
+claude
+```
+
+Then ask Claude Code:
+```
+Please create a CLAUDE.md file for this ModelChecker project using the template at:
+https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/installation/CLAUDE_TEMPLATE.md
+
+Then create a docs/ directory and download these usage guides from the ModelChecker repository:
+- https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/EXAMPLES.md (save as docs/examples.md)
+- https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/SETTINGS.md (save as docs/settings.md)
+- https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/TOOLS.md (save as docs/tools.md)
+- https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/OUTPUT.md (save as docs/output.md)
+- https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/OPERATORS.md (save as docs/operators.md)
+- https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/WORKFLOW.md (save as docs/workflow.md)
+- https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/PROJECT.md (save as docs/project.md)
+
+Customize these guides to focus on my specific project and theory.
+```
+
+Claude Code will:
+1. Download the CLAUDE.md template
+2. Customize it with your project name and path
+3. Create a `docs/` directory in your project
+4. Fetch the relevant documentation files from GitHub
+5. Adapt the guides to your specific needs
+
+**Adapting the standards:** Once created, you can ask Claude Code to modify these files as your project evolves. For example:
+
+```
+Update the docs/examples.md guide to include examples specific to modal logic.
+```
+
+```
+Simplify the docs/settings.md guide to only cover the settings I'm actually using.
+```
+
+The CLAUDE.md file links to these local documentation files, creating a self-contained reference for your project.
 
 ### Running Tests
 

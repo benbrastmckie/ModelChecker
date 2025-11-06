@@ -6,13 +6,143 @@ This guide walks you through the basics of using ModelChecker to explore logical
 
 ## Table of Contents
 
-1. [Before You Begin: Setting Up Your Editor](#before-you-begin-setting-up-your-editor)
-2. [Creating Your First Project](#creating-your-first-project)
-3. [Understanding the Project Structure](#understanding-the-project-structure)
-4. [Running Examples](#running-examples)
-5. [Modifying Examples](#modifying-examples)
-6. [Exploring Different Theories](#exploring-different-theories)
-7. [Next Steps](#next-steps)
+1. [Before You Begin: Using the Terminal](#before-you-begin-using-the-terminal)
+2. [Before You Begin: Setting Up Your Editor](#before-you-begin-setting-up-your-editor)
+3. [Creating Your First Project](#creating-your-first-project)
+4. [Understanding the Project Structure](#understanding-the-project-structure)
+5. [Running Examples](#running-examples)
+6. [Modifying Examples](#modifying-examples)
+7. [Exploring Different Theories](#exploring-different-theories)
+8. [Next Steps](#next-steps)
+
+## Before You Begin: Using the Terminal
+
+> NOTE: Skip this section if you're already comfortable using the terminal/command line.
+
+ModelChecker is a command-line tool, which means you interact with it by typing commands in a terminal (also called a command prompt, shell, or console). If you've never used a terminal before, this section will get you started.
+
+### What is the Terminal?
+
+The terminal is a text-based interface for controlling your computer. Instead of clicking icons and menus, you type commands to:
+- Navigate between folders (directories)
+- Run programs like ModelChecker
+- Create and edit files
+- Install software
+
+While it might seem unfamiliar at first, the terminal is a powerful tool that becomes second nature with practice.
+
+### Opening the Terminal
+
+**macOS:**
+1. Press `Cmd + Space` to open Spotlight
+2. Type "Terminal" and press Enter
+3. Or: Navigate to Applications → Utilities → Terminal
+
+**Windows:**
+- **PowerShell** (recommended): Press `Windows + X`, then select "PowerShell"
+- **Command Prompt**: Press `Windows + R`, type `cmd`, press Enter
+- **Windows Terminal** (modern): Search for "Terminal" in the Start menu
+
+**Linux:**
+- Press `Ctrl + Alt + T` (works on most distributions)
+- Or search for "Terminal" in your application menu
+
+### Basic Terminal Commands
+
+Here are the essential commands you'll need:
+
+**Navigating Directories:**
+```bash
+pwd               # Print working directory - shows where you are
+ls                # List files in current directory (dir on Windows)
+cd folder_name    # Change directory - move into a folder
+cd ..             # Go up one directory level
+cd ~              # Go to your home directory
+```
+
+**Common Usage:**
+```bash
+# See where you are
+pwd
+
+# List what's here
+ls
+
+# Move into Documents folder
+cd Documents
+
+# Move up one level
+cd ..
+
+# Go home
+cd ~
+```
+
+**Creating Directories:**
+```bash
+mkdir my_folder        # Create a new folder
+mkdir -p path/to/dir   # Create nested folders
+```
+
+**Tips for Beginners:**
+- **Tab completion**: Start typing a folder name and press Tab - the terminal will complete it
+- **Command history**: Use Up/Down arrow keys to cycle through previous commands
+- **Copy/Paste**: Usually `Ctrl+Shift+C` / `Ctrl+Shift+V` in Linux/Windows terminals, `Cmd+C` / `Cmd+V` on macOS
+- **Clear screen**: Type `clear` (or `cls` on Windows) to clean up your terminal
+- **Get help**: Most commands support `--help` flag, e.g., `model-checker --help`
+
+### Understanding Paths
+
+A path tells your computer where to find a file or folder:
+
+**Absolute path** - Full address from the root:
+```bash
+/home/benjamin/Documents/Projects/my_project     # Linux/macOS
+C:\Users\Benjamin\Documents\Projects\my_project  # Windows
+```
+
+**Relative path** - Location relative to where you are now:
+```bash
+Projects/my_project    # Folder inside current directory
+../my_project          # Folder in parent directory
+./examples.py          # File in current directory
+```
+
+**Home directory shortcut:**
+```bash
+~/Documents            # Your home directory + Documents
+```
+
+### Running Python and ModelChecker
+
+Once installed, you'll use commands like:
+```bash
+# Check Python version
+python --version
+
+# Run ModelChecker
+model-checker examples.py
+
+# Create a new project
+model-checker imposition
+```
+
+The terminal will show output from these commands, including any errors or results.
+
+### When Things Go Wrong
+
+**"Command not found"**: The program isn't installed or not in your PATH
+- Solution: Install the program or check installation instructions
+
+**"Permission denied"**: You don't have rights to access that file/folder
+- Solution: Check file permissions or use appropriate installation method
+
+**"No such file or directory"**: The path you specified doesn't exist
+- Solution: Check spelling, use `ls` to see what's available, verify you're in the right directory
+
+For more help with terminal usage, these resources are excellent:
+- [Terminal basics tutorial](https://ubuntu.com/tutorials/command-line-for-beginners)
+- [The Linux Command Line book](http://linuxcommand.org/tlcl.php) (free)
 
 ## Before You Begin: Setting Up Your Editor
 
@@ -55,6 +185,8 @@ If you haven't already, install ModelChecker:
 ```bash
 pip install model-checker
 ```
+
+**Easier Option:** Use [Claude Code](CLAUDE_CODE.md) to automate the installation process. Claude Code can handle the entire setup, verify everything works, and help you create your first project with AI assistance.
 
 ### Step 2: Create a New Project
 
@@ -390,6 +522,8 @@ Each theory has unique operators and capabilities:
 **In this directory (Docs/):**
 
 - [Installation Guide](INSTALLATION.md) - Platform-specific setup
+- [Claude Code Guide](CLAUDE_CODE.md) - AI-assisted development and installation
+- [Getting Started with GitHub](GIT_GOING.md) - Version control basics and GitHub setup
 - [Development Guide](DEVELOPMENT.md) - Contributing to ModelChecker
 - [Tools Guide](TOOLS.md) - Advanced debugging and analysis
 - [Architecture](architecture/README.md) - Research approach and validation
