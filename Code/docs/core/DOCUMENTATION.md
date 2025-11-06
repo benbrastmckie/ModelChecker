@@ -1,6 +1,6 @@
 # Documentation Standards
 
-[← Code Standards](CODE_STANDARDS.md) | [Back to Maintenance](../README.md) | [Testing Standards →](TESTING.md)
+[← Code Standards](CODE_STANDARDS.md) | [Back to Maintenance](../README.md) | [Testing Standards →](TESTING_GUIDE.md)
 
 ## Table of Contents
 
@@ -745,7 +745,7 @@ docs/
 ├── core/                          # Foundation standards
 │   ├── CODE_STANDARDS.md          # Code quality and style
 │   ├── ARCHITECTURE.md            # System design patterns
-│   └── TESTING.md                 # Test requirements (TDD)
+│   └── TESTING_GUIDE.md                 # Test requirements (TDD)
 ├── implementation/                # Development guidelines
 │   ├── DEVELOPMENT_WORKFLOW.md    # Complete dev process
 │   └── REFACTORING.md             # Systematic improvement
@@ -756,14 +756,14 @@ docs/
 docs/
 ├── core/                           # Foundation standards (# at column 37)
 │   ├── CODE_STANDARDS.md          # Code quality (# at column 36)
-│   └── TESTING.md                 # Test requirements (# at column 36)
+│   └── TESTING_GUIDE.md                 # Test requirements (# at column 36)
 └── templates/                      # Templates (# at column 37)
 
 # INCORRECT - Comments start at wildly different positions
 docs/
 ├── core/               # Foundation standards
 │   ├── CODE_STANDARDS.md  # Code quality
-│   └── TESTING.md    # Test requirements
+│   └── TESTING_GUIDE.md    # Test requirements
 └── templates/     # Templates
 ```
 
@@ -1145,4 +1145,4 @@ Apply these standards consistently to create documentation that truly serves use
 
 ---
 
-[← Code Standards](CODE_STANDARDS.md) | [Back to Maintenance](../README.md) | [Testing Standards →](TESTING.md)
+[← Code Standards](CODE_STANDARDS.md) | [Back to Maintenance](../README.md) | [Testing Standards →](TESTING_GUIDE.md)

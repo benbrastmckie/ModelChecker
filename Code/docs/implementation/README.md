@@ -107,8 +107,8 @@ Use these documents as your operational handbook for building features, handling
 - [Component-Specific Standards](../specific/README.md) - Module-level requirements
 
 ### Testing Resources
-- [Core Testing Standards](../core/TESTING.md) - TDD practices and requirements
-- [Manual Testing Guide](../quality/MANUAL_TESTING.md) - Integration testing procedures
+- [Core Testing Standards](../core/TESTING_GUIDE.md) - TDD practices and requirements
+- [Manual Testing Guide](../quality/MANUAL_TESTING_GUIDE.md) - Integration testing procedures
 
 ### Code Quality
 - [Code Standards](../core/CODE_STANDARDS.md) - Style and convention requirements

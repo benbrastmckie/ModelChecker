@@ -4,7 +4,7 @@
 
 **Related Documentation**: 
 - [Environment Setup](ENVIRONMENT_SETUP.md) - Development environment configuration
-- [Testing Framework](TESTING_FRAMEWORK.md) - Comprehensive testing methodology
+- [Testing Framework](../core/TESTING_GUIDE.md) - Comprehensive testing methodology
 - [PyPI Release Guide](PYPI_RELEASE_GUIDE.md) - Automated release process
 - [GitHub Actions Workflows](../../.github/workflows/) - CI/CD configuration
 

@@ -2026,7 +2026,7 @@ This refactoring methodology integrates seamlessly with the existing development
 **Integration Points:**
 - **[DEVELOPMENT_WORKFLOW.md](DEVELOPMENT_WORKFLOW.md)** - TDD requirements and quality gates
 - **[CODE_STANDARDS.md](../core/CODE_STANDARDS.md)** - Code quality targets and style guidelines
-- **[TESTING_STANDARDS.md](../core/TESTING.md)** - Comprehensive testing requirements
+- **[TESTING_STANDARDS.md](../core/TESTING_GUIDE.md)** - Comprehensive testing requirements
 - **[ARCHITECTURE.md](../core/ARCHITECTURE.md)** - Architectural patterns and protocols
 
 ### 10.2 Quality Gate Integration

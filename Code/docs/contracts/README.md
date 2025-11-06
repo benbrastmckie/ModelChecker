@@ -95,6 +95,6 @@ From [THEORY_LICENSING.md](THEORY_LICENSING.md):
 - [Package Organization](../specific/PACKAGES.md) - How to structure theory packages
 
 ### Testing Contracts
-- [Testing Standards](../core/TESTING.md) - How to verify contract compliance
+- [Testing Standards](../core/TESTING_GUIDE.md) - How to verify contract compliance
 
 [← Back to Docs](../README.md) | [ITERATOR_CONTRACTS →](ITERATOR_CONTRACTS.md)

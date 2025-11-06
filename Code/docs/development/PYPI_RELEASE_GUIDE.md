@@ -1,6 +1,6 @@
 # PyPI Release Guide
 
-**Navigation**: [← Back to Development](../README.md) | [Package Testing →](PACKAGE_TESTING.md)
+**Navigation**: [← Back to Development](../README.md) | [Package Testing →](PACKAGE_TESTING_GUIDE.md)
 
 ## Overview
 

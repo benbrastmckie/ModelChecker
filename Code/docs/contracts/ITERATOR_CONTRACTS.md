@@ -214,7 +214,7 @@ If iterator contracts must change:
 
 - [Core Architecture](../core/README.md) - Framework component contracts
 - [Implementation Guidelines](../implementation/README.md) - Development standards
-- [Testing Framework](../development/TESTING_FRAMEWORK.md) - Contract validation methods
+- [Testing Framework](../development/../core/TESTING_GUIDE.md) - Contract validation methods
 - [Quality Assurance](../quality/README.md) - Code quality standards
 
 ---

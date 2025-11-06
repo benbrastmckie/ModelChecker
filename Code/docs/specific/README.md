@@ -123,7 +123,7 @@ Consult these documents when working on or extending the particular subsystems t
 - [Package Organization](../core/ARCHITECTURE.md#package-structure) - How components fit together
 
 ### Testing Requirements
-- [Testing Standards](../core/TESTING.md) - General testing practices
-- [Manual Testing](../quality/MANUAL_TESTING.md) - Component integration testing
+- [Testing Standards](../core/TESTING_GUIDE.md) - General testing practices
+- [Manual Testing](../quality/MANUAL_TESTING_GUIDE.md) - Component integration testing
 
 [← Back to Docs](../README.md) | [FORMULAS →](FORMULAS.md)

@@ -113,12 +113,12 @@ All templates follow these conventions:
 
 ### Standards to Follow
 - [Code Standards](../core/CODE_STANDARDS.md) - Python conventions and style
-- [Testing Standards](../core/TESTING.md) - TDD workflow and test requirements
+- [Testing Standards](../core/TESTING_GUIDE.md) - TDD workflow and test requirements
 - [Documentation Standards](../core/DOCUMENTATION.md) - How to document code
 
 ### Implementation Resources
 - [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Feature development process
-- [Theory-Specific Testing](../core/TESTING.md#theory-testing) - How to test theories
+- [Theory-Specific Testing](../core/TESTING_GUIDE.md#theory-testing) - How to test theories
 - [Error Handling](../implementation/ERROR_HANDLING.md) - Validation patterns
 
 ### Example Theories

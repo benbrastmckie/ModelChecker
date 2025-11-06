@@ -4,7 +4,7 @@
 
 **Related Documentation**: 
 - [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Complete development process
-- [Testing Framework](TESTING_FRAMEWORK.md) - Test environment setup
+- [Testing Framework](../core/TESTING_GUIDE.md) - Test environment setup
 - [Quality Assurance](../../quality/README.md) - Development standards
 
 ## Overview
@@ -456,7 +456,7 @@ pip cache purge
 ## See Also
 
 - [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Complete development process
-- [Testing Framework](TESTING_FRAMEWORK.md) - Test setup and execution
+- [Testing Framework](../core/TESTING_GUIDE.md) - Test setup and execution
 - [Feature Implementation](FEATURE_IMPLEMENTATION.md) - Implementation guidelines
 - [Quality Assurance](../../quality/README.md) - Code quality standards
 

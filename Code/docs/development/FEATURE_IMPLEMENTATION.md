@@ -1,10 +1,10 @@
 # Feature Implementation Guide
 
-**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Testing Framework →](TESTING_FRAMEWORK.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Testing Framework →](../core/TESTING_GUIDE.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)
 
 **Related Documentation**: 
 - [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Overall development process
-- [Testing Framework](TESTING_FRAMEWORK.md) - Comprehensive testing procedures  
+- [Testing Framework](../core/TESTING_GUIDE.md) - Comprehensive testing procedures  
 - [Environment Setup](ENVIRONMENT_SETUP.md) - Development environment configuration
 
 ## Table of Contents
@@ -34,7 +34,7 @@ This document provides a **comprehensive development process** for implementing 
 **Key Standards Integration**:
 
 - **[Maintenance Documentation](../../README.md)** - Complete project standards
-- **[Testing Framework](TESTING_FRAMEWORK.md)** - Comprehensive testing procedures
+- **[Testing Framework](../core/TESTING_GUIDE.md)** - Comprehensive testing procedures
 - **[Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md)** - Overall development process
 
 ## Quick Start for Existing Plans
@@ -245,7 +245,7 @@ Create `docs/specs/plans/00X_feature.md`:
 ## Test-Driven Development Strategy
 
 - **Test categories**: Unit, integration, end-to-end
-- **Testing framework**: Following [Testing Framework](../maintenance/development/TESTING_FRAMEWORK.md)
+- **Testing framework**: Following [Testing Framework](../maintenance/development/../core/TESTING_GUIDE.md)
 - **Success criteria**: Measurable outcomes for each phase
 
 ## Implementation Phases
@@ -308,7 +308,7 @@ Present the detailed implementation plan to the user for approval:
 
 ### Phase-by-Phase Development
 
-Following test-driven development protocols outlined in [Testing Framework](TESTING_FRAMEWORK.md):
+Following test-driven development protocols outlined in [Testing Framework](../core/TESTING_GUIDE.md):
 
 #### Phase Implementation Workflow
 
@@ -343,7 +343,7 @@ Each refactoring step MUST use **BOTH testing methods** to ensure comprehensive 
 
 #### Method 1: Test-Driven Development (TDD) with Test Runner
 
-1. **Write Tests First** (following [Testing Framework](TESTING_FRAMEWORK.md)):
+1. **Write Tests First** (following [Testing Framework](../core/TESTING_GUIDE.md)):
    ```bash
    # Create test file BEFORE moving code
    src/model_checker/models/tests/test_component.py
@@ -974,4 +974,4 @@ git push origin feature/your-feature-name
 
 ---
 
-**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Testing Framework →](TESTING_FRAMEWORK.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)
+**Navigation**: [← Back to Development](../README.md) | [Maintenance Home](../../README.md) | [Testing Framework →](../core/TESTING_GUIDE.md) | [Debugging →](DEBUGGING_PROTOCOLS.md)
