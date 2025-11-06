@@ -1,12 +1,13 @@
 # Installation Documentation: Setup and Configuration Guides
 
-[← Back to Docs](../README.md) | [Basic Installation →](BASIC_INSTALLATION.md) | [Getting Started →](GETTING_STARTED.md)
+[← Back to Docs](../README.md) | [Claude Code →](CLAUDE_CODE.md) | [Basic Installation →](BASIC_INSTALLATION.md)
 
 ## Directory Structure
 
 ```
 installation/
 ├── README.md                       # This file - installation documentation hub
+├── CLAUDE_CODE.md                  # AI-assisted installation with Claude Code
 ├── BASIC_INSTALLATION.md           # Standard pip installation guide
 ├── GETTING_STARTED.md              # First steps after installation
 ├── TROUBLESHOOTING.md              # Platform-specific troubleshooting
@@ -19,7 +20,7 @@ installation/
 
 This directory provides **comprehensive installation guides** for the ModelChecker framework, organized by use case to help users quickly find the information they need. Each guide focuses on a specific installation scenario, from basic pip installation to full development setup with Jupyter integration.
 
-The documentation covers **6 installation scenarios**: standard pip installation, troubleshooting common issues, virtual environment setup, Jupyter notebook configuration, getting started guide, and developer environment setup. This modular approach ensures users can follow only the guides relevant to their needs without navigating unrelated content.
+The documentation covers **7 installation scenarios**: AI-assisted installation with Claude Code, standard pip installation, troubleshooting common issues, virtual environment setup, Jupyter notebook configuration, getting started guide, and developer environment setup. This modular approach ensures users can follow only the guides relevant to their needs without navigating unrelated content.
 
 Installation options range from the simple `pip install model-checker` for basic usage to complete development environments with editable installs and testing frameworks. Special attention is given to **platform-specific considerations** (Windows, macOS, Linux, NixOS) and **Python environment management** to ensure successful installation across diverse systems.
 
@@ -76,6 +77,7 @@ This directory contains only installation guide files (no subdirectories). Each 
 
 ### Installation Guides
 
+- **[CLAUDE_CODE.md](CLAUDE_CODE.md)** - AI-assisted installation using Claude Code CLI - recommended for beginners and automated setup with GitHub integration
 - **[BASIC_INSTALLATION.md](BASIC_INSTALLATION.md)** - Standard pip installation for most users, including prerequisites, installation options, and Python setup
 - **[GETTING_STARTED.md](GETTING_STARTED.md)** - First steps after installation, including creating examples, understanding output, and common workflows
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Solutions for platform-specific issues, common errors, and debugging installation problems
@@ -86,7 +88,8 @@ This directory contains only installation guide files (no subdirectories). Each 
 ## Documentation
 
 ### For New Users
-- **[Basic Installation](BASIC_INSTALLATION.md)** - Start here for standard installation
+- **[Claude Code Setup](CLAUDE_CODE.md)** - **Recommended**: AI-assisted installation with automated setup
+- **[Basic Installation](BASIC_INSTALLATION.md)** - Manual installation for those preferring traditional approach
 - **[Getting Started](GETTING_STARTED.md)** - First steps and simple examples
 - **[Troubleshooting](TROUBLESHOOTING.md)** - When things go wrong
 
@@ -103,6 +106,7 @@ This directory contains only installation guide files (no subdirectories). Each 
 ## Key Features
 
 ### Multiple Installation Methods
+- **AI-Assisted**: Use Claude Code to automate the entire process - recommended for beginners
 - **Standard**: `pip install model-checker` - Basic installation
 - **Jupyter**: `pip install model-checker[jupyter]` - With notebook support
 - **All**: `pip install model-checker[all]` - Everything included
@@ -134,4 +138,4 @@ This directory contains only installation guide files (no subdirectories). Each 
 
 ---
 
-[← Back to Docs](../README.md) | [Basic Installation →](BASIC_INSTALLATION.md) | [Virtual Environments →](VIRTUAL_ENVIRONMENTS.md)
+[← Back to Docs](../README.md) | [Claude Code →](CLAUDE_CODE.md) | [Basic Installation →](BASIC_INSTALLATION.md)
