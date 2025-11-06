@@ -345,7 +345,7 @@ For comprehensive guidance on theory comparison, avoiding circular imports, and 
 - **[GitHub Repository](https://github.com/benbrastmckie/ModelChecker)** - Full documentation and source code
 - **[Development Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/DEVELOPMENT.md)** - Contributing and development workflow
 - **[Theory Documentation](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** - Detailed theory specifications
-- **[Academic Background](http://www.benbrastmckie.com/research#access)** - Theoretical foundations
+- **[Academic Background](http://www.benbrastmckie.com/research#access)** - Personal website
 
 ## Contributing
 
