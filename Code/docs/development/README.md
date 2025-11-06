@@ -1,6 +1,6 @@
 # Development Documentation: Tools and Workflows for ModelChecker Development
 
-[← Back to Docs](../README.md) | [Environment Setup →](ENVIRONMENT_SETUP.md) | [Testing Framework →](TESTING_FRAMEWORK.md)
+[← Back to Docs](../README.md) | [Environment Setup →](ENVIRONMENT_SETUP.md) | [Testing Guide →](../core/TESTING_GUIDE.md)
 
 ## Directory Structure
 
@@ -9,12 +9,13 @@ development/
 ├── README.md                    # This file - development documentation hub
 ├── ENVIRONMENT_SETUP.md         # Development environment configuration guide
 ├── FEATURE_IMPLEMENTATION.md    # Guidelines for implementing new features
-├── TESTING_FRAMEWORK.md         # Comprehensive testing strategy and tools
 ├── PACKAGE_TESTING.md           # Package installation and integration testing
 ├── TEST_RELEASES.md             # Test PyPI release workflow for pre-production testing
 ├── PYPI_RELEASE_GUIDE.md        # Official PyPI release process and automation
 └── DEBUGGING_PROTOCOLS.md       # Systematic debugging approaches and tools
 ```
+
+**Note**: Testing documentation has been consolidated into [TESTING_GUIDE.md](../core/TESTING_GUIDE.md) in the core/ directory.
 
 ## Overview
 
@@ -46,13 +47,14 @@ The development workflow encompasses **7 key areas**: environment configuration,
 
 ### Testing Strategy
 
-**[TESTING_FRAMEWORK.md](TESTING_FRAMEWORK.md)** ensures comprehensive quality assurance:
+**[TESTING_GUIDE.md](../core/TESTING_GUIDE.md)** (in core/) ensures comprehensive quality assurance:
 
+- **Test-Driven Development**: RED-GREEN-REFACTOR workflow
 - **Test Organization**: Unit, integration, and end-to-end test structure
 - **Theory Testing**: Countermodel and theorem verification patterns
-- **Coverage Requirements**: Minimum coverage standards and measurement
+- **Coverage Requirements**: Minimum coverage standards and measurement (>85% overall, >90% critical paths)
 - **Test Execution**: Running specific test suites with pytest
-- **Continuous Integration**: GitHub Actions test automation
+- **Best Practices**: Patterns for effective testing
 
 ### Package Validation
 
