@@ -1,12 +1,12 @@
 # Quality: Quality Assurance Practices
 
-[← Back to Docs](../README.md) | [MANUAL_TESTING →](MANUAL_TESTING.md) | [METRICS →](METRICS.md) | [REVIEW_CHECKLIST →](REVIEW_CHECKLIST.md)
+[← Back to Docs](../README.md) | [MANUAL_TESTING →](MANUAL_TESTING_GUIDE.md) | [METRICS →](METRICS.md) | [REVIEW_CHECKLIST →](REVIEW_CHECKLIST.md)
 
 ## Directory Structure
 
 ```
 quality/
-├── MANUAL_TESTING.md              # Integration testing procedures
+├── MANUAL_TESTING_GUIDE.md              # Integration testing procedures
 ├── METRICS.md                     # Quality metrics and targets
 └── REVIEW_CHECKLIST.md            # Code review criteria
 ```
@@ -21,7 +21,7 @@ Use these documents to understand quality expectations, perform comprehensive te
 
 ## Documents
 
-### MANUAL_TESTING.md
+### MANUAL_TESTING_GUIDE.md
 - **Purpose**: Guide manual integration and acceptance testing procedures
 - **Use When**: Performing end-to-end testing or validating complex scenarios
 - **Key Sections**:
@@ -58,7 +58,7 @@ Use these documents to understand quality expectations, perform comprehensive te
 
 1. **Before coding**: Review [METRICS.md](METRICS.md) - Understand quality targets
 2. **Before PR**: Check [REVIEW_CHECKLIST.md](REVIEW_CHECKLIST.md) - Self-review your changes
-3. **Before release**: Follow [MANUAL_TESTING.md](MANUAL_TESTING.md) - Comprehensive validation
+3. **Before release**: Follow [MANUAL_TESTING_GUIDE.md](MANUAL_TESTING_GUIDE.md) - Comprehensive validation
 
 ## Quick Reference
 
@@ -66,7 +66,7 @@ Use these documents to understand quality expectations, perform comprehensive te
 
 - **Preparing for PR?** → Use REVIEW_CHECKLIST.md for self-review
 - **Measuring quality?** → Check METRICS.md for targets and measurement tools
-- **Testing integration?** → Follow MANUAL_TESTING.md procedures
+- **Testing integration?** → Follow MANUAL_TESTING_GUIDE.md procedures
 - **Reviewing code?** → Apply REVIEW_CHECKLIST.md systematically
 - **Improving coverage?** → See METRICS.md for coverage targets and gaps
 
@@ -80,7 +80,7 @@ Use these documents to understand quality expectations, perform comprehensive te
 
 **Before PR**:
 - [ ] Self-review against REVIEW_CHECKLIST.md
-- [ ] Manual testing completed per MANUAL_TESTING.md
+- [ ] Manual testing completed per MANUAL_TESTING_GUIDE.md
 - [ ] Documentation updated
 - [ ] No regression in METRICS.md measurements
 
@@ -102,7 +102,7 @@ From [METRICS.md](METRICS.md):
 
 ### Manual Testing Focus Areas
 
-From [MANUAL_TESTING.md](MANUAL_TESTING.md):
+From [MANUAL_TESTING_GUIDE.md](MANUAL_TESTING_GUIDE.md):
 
 - **Theory Integration**: Each theory's examples run correctly
 - **CLI Workflows**: Common command sequences work end-to-end
@@ -118,7 +118,7 @@ From [MANUAL_TESTING.md](MANUAL_TESTING.md):
 - [Component-Specific Standards](../specific/README.md) - Module-level quality requirements
 
 ### Testing Resources
-- [Core Testing Standards](../core/TESTING.md) - TDD practices and automated testing
+- [Core Testing Standards](../core/TESTING_GUIDE.md) - TDD practices and automated testing
 - [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Testing in development lifecycle
 - [Error Handling](../implementation/ERROR_HANDLING.md) - Validation and error reporting quality
 
@@ -126,4 +126,4 @@ From [MANUAL_TESTING.md](MANUAL_TESTING.md):
 - [Code Standards](../core/CODE_STANDARDS.md) - Style requirements that impact quality
 - [Refactoring Guide](../implementation/REFACTORING.md) - Improving code quality safely
 
-[← Back to Docs](../README.md) | [MANUAL_TESTING →](MANUAL_TESTING.md)
+[← Back to Docs](../README.md) | [MANUAL_TESTING →](MANUAL_TESTING_GUIDE.md)

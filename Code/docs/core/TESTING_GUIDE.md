@@ -642,7 +642,7 @@ def test_regression_issue_73_package_loading():
 - [Code Standards](CODE_STANDARDS.md) - Python coding conventions
 - [Development Workflow](../implementation/DEVELOPMENT_WORKFLOW.md) - Feature development process
 - [Architecture](ARCHITECTURE.md) - System design patterns
-- [Manual Testing](../quality/MANUAL_TESTING.md) - Integration and acceptance testing
+- [Manual Testing](../quality/MANUAL_TESTING_GUIDE.md) - Integration and acceptance testing
 - [Quality Metrics](../quality/METRICS.md) - Quality measurement and targets
 
 [← Code Standards](CODE_STANDARDS.md) | [Back to Core](README.md) | [Architecture →](ARCHITECTURE.md)

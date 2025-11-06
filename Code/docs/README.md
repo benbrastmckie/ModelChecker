@@ -9,12 +9,12 @@ docs/
 ├── core/                          # Foundation standards
 │   ├── CODE_STANDARDS.md          # Code quality and style
 │   ├── ARCHITECTURE.md            # System design patterns  
-│   ├── TESTING.md                 # Test requirements (TDD)
+│   ├── TESTING_GUIDE.md                 # Test requirements (TDD)
 │   └── DOCUMENTATION.md           # Documentation standards
 │
 ├── development/                   # Development practices
 │   ├── FEATURE_IMPLEMENTATION.md  # Feature development process
-│   ├── TESTING_FRAMEWORK.md       # Comprehensive testing guide
+│   ├── ../core/TESTING_GUIDE.md       # Comprehensive testing guide
 │   ├── DEBUGGING_PROTOCOLS.md     # Systematic debugging
 │   └── ENVIRONMENT_SETUP.md       # Development environment
 │
@@ -37,7 +37,7 @@ docs/
 ├── quality/                       # Quality assurance
 │   ├── METRICS.md                 # Quality metrics
 │   ├── REVIEW_CHECKLIST.md        # Code review standards
-│   ├── MANUAL_TESTING.md          # Manual test protocols
+│   ├── MANUAL_TESTING_GUIDE.md          # Manual test protocols
 │   └── CONTINUOUS_IMPROVEMENT.md  # Improvement process
 │
 └── templates/                     # Reusable templates
@@ -54,9 +54,9 @@ docs/
 Start with the core standards to understand fundamental principles:
 
 1. **[core/CODE_STANDARDS.md](core/CODE_STANDARDS.md)** - Essential coding principles
-2. **[core/TESTING.md](core/TESTING.md)** - Mandatory Test-Driven Development
+2. **[core/TESTING_GUIDE.md](core/TESTING_GUIDE.md)** - Mandatory Test-Driven Development
 3. **[development/ENVIRONMENT_SETUP.md](development/ENVIRONMENT_SETUP.md)** - Set up development environment
-4. **[development/TESTING_FRAMEWORK.md](development/TESTING_FRAMEWORK.md)** - Comprehensive testing guide
+4. **[development/../core/TESTING_GUIDE.md](development/../core/TESTING_GUIDE.md)** - Comprehensive testing guide
 5. **[implementation/DEVELOPMENT_WORKFLOW.md](implementation/DEVELOPMENT_WORKFLOW.md)** - Complete development process
 
 ### 2. For Code Reviewers
@@ -243,7 +243,7 @@ The maintenance documentation has been reorganized for clarity:
 
 ### Files Consolidated
 - CODE_STANDARDS.md, STYLE_GUIDE.md, CODE_ORGANIZATION.md → `core/CODE_STANDARDS.md`
-- TESTING_STANDARDS.md, TEST_ORGANIZATION.md → `core/TESTING.md`  
+- TESTING_STANDARDS.md, TEST_ORGANIZATION.md → `core/TESTING_GUIDE.md`  
 - ERROR_HANDLING.md, WARNINGS_AND_FIXES.md → `implementation/ERROR_HANDLING.md`
 - FORMULA_FORMATTING.md, EXAMPLES_STRUCTURE.md, UNICODE_GUIDELINES.md → `specific/FORMULAS.md`
 
