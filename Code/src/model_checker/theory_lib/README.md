@@ -52,7 +52,7 @@ The theory library provides four semantic theories implementing different approa
 
 ##### 1. Extensional Subtheory
 
-**Classical logical operators** (¬, ∧, ∨, →, ↔, ⊤, ⊥) implemented with hyperintensional truthmaker semantics, enabling fine-grained content distinctions even for basic connectives.
+**Classical logical operators** (`¬`, `∧`, `∨`, `→`, `↔`, `⊤`, `⊥`) implemented with hyperintensional truthmaker semantics, enabling fine-grained content distinctions even for basic connectives.
 
 **Documentation**: [logos/subtheories/extensional/README.md](logos/subtheories/extensional/README.md) | [Examples](logos/subtheories/extensional/examples.py) | [Notebooks](logos/subtheories/extensional/notebooks/README.md)
 
@@ -62,7 +62,7 @@ The theory library provides four semantic theories implementing different approa
 
 ##### 2. Modal Subtheory
 
-**Necessity and possibility operators** (□, ◇, CFBox, CFDiamond) providing S5 modal logic within hyperintensional framework, distinguishing necessarily equivalent formulas by content.
+**Necessity and possibility operators** (`□`, `◇`, `CFBox`, `CFDiamond`) providing S5 modal logic within hyperintensional framework, distinguishing necessarily equivalent formulas by content.
 
 **Documentation**: [logos/subtheories/modal/README.md](logos/subtheories/modal/README.md) | [Examples](logos/subtheories/modal/examples.py) | [Notebooks](logos/subtheories/modal/notebooks/README.md)
 
@@ -72,7 +72,7 @@ The theory library provides four semantic theories implementing different approa
 
 ##### 3. Constitutive Subtheory
 
-**Content relationship operators** (≡, ≤, ⊑, ⪯, ⇒) for identity, grounding, essence, relevance, and reduction, enabling fine-grained analysis of propositional content and dependencies.
+**Content relationship operators** (`≡`, `≤`, `⊑`, `⪯`, `⇒`) for identity, grounding, essence, relevance, and reduction, enabling fine-grained analysis of propositional content and dependencies.
 
 **Documentation**: [logos/subtheories/constitutive/README.md](logos/subtheories/constitutive/README.md) | [Examples](logos/subtheories/constitutive/examples.py) | [Notebooks](logos/subtheories/constitutive/notebooks/README.md)
 
@@ -83,7 +83,7 @@ The theory library provides four semantic theories implementing different approa
 
 ##### 4. Counterfactual Subtheory
 
-**Counterfactual conditionals** (□→, ◇→) implementing alternative worlds semantics for would-counterfactuals and could-counterfactuals with non-monotonic reasoning.
+**Counterfactual conditionals** (`□→`, `◇→`) implementing alternative worlds semantics for would-counterfactuals and could-counterfactuals with non-monotonic reasoning.
 
 **Documentation**: [logos/subtheories/counterfactual/README.md](logos/subtheories/counterfactual/README.md) | [Examples](logos/subtheories/counterfactual/examples.py) | [Notebooks](logos/subtheories/counterfactual/notebooks/README.md)
 
@@ -94,7 +94,7 @@ The theory library provides four semantic theories implementing different approa
 
 ##### 5. Relevance Subtheory
 
-**Relevance operator** (⪯) imported from constitutive subtheory, providing content-sensitive relevance logic avoiding paradoxes of classical implication.
+**Relevance operator** (`⪯`) imported from constitutive subtheory, providing content-sensitive relevance logic avoiding paradoxes of classical implication.
 
 **Documentation**: [logos/subtheories/relevance/README.md](logos/subtheories/relevance/README.md) | [Examples](logos/subtheories/relevance/examples.py) | [Notebooks](logos/subtheories/relevance/notebooks/README.md)
 
@@ -132,7 +132,7 @@ The theory library provides four semantic theories implementing different approa
 **Theory Metadata**:
 - **Authors**: Lucas Champollion & Paul Bernard
 - **Implementation**: Benjamin Brast-McKie, Miguel Buitrago
-- **Operators**: 4 (¬, ∧, ∨, ≡)
+- **Operators**: 4 (`¬`, `∧`, `∨`, `≡`)
 - **Examples**: 38 test cases (22 countermodels, 16 theorems)
 - **Architecture**: Simple pattern with witness predicate innovations
 - **Key Features**: Witness predicates for complex quantification, exclusion-based negation, verifiers without falsifiers
@@ -153,7 +153,7 @@ The theory library provides four semantic theories implementing different approa
 - **Implementation**: Benjamin Brast-McKie
 - **Operators**: 15 total (9 primitive, 6 defined) across 3 categories
 - **Examples**: 22 test cases
-- **Key Features**: World history semantics, temporal operators (Future, Past), modal operators (□, ◇), time-shift relations
+- **Key Features**: World history semantics, temporal operators (`Future`, `Past`), modal operators (`□`, `◇`), time-shift relations
 - **Focus**: Interaction between temporal and modal operators with lawful world histories
 - **Status**: Under active development
 
