@@ -6,7 +6,7 @@
 
 The **ModelChecker** provides a programmatic framework for developing and exploring modular semantic theories. Built on the SMT solver Z3, it enables researchers to establish logical consequence over finite models, automatically generating readable countermodels when formulas or inferences are invalid.
 
-You can find an overview of the project in this [talk](https://www.youtube.com/watch?v=ZqTpdJKHT_4) given at the [Topos Institute](https://topos.institute/).
+This [talk](https://www.youtube.com/watch?v=ZqTpdJKHT_4) at the [Topos Institute](https://topos.institute/) provides an overview of the project.
 
 ## Installation
 
