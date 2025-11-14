@@ -369,7 +369,7 @@ def true_at(self, world, sentence):
             z3.And(
                 self.semantics.accessible(world, w_prime),
                 self.semantics.true_at(w_prime, A),
-                # w_prime is closest A-world
+                # w_prime is alternative A-world
                 z3.ForAll([w_other],
                     z3.Implies(
                         self.semantics.true_at(w_other, A),
@@ -709,7 +709,7 @@ logos_modal = logos.get_theory(['extensional', 'modal'])
 # Load all operators
 logos_full = logos.get_theory(['extensional', 'modal', 'constitutive',
                                'counterfactual', 'relevance'])
-# Adds: ≡, ⊑, ≼, ⊃→, ◇→, ≺ (relevance)
+# Adds: ≡, ⊑, ≼, □→, ◇→, ≺ (relevance)
 ```
 
 **Technical Implementation**:
@@ -722,7 +722,7 @@ logos_full = logos.get_theory(['extensional', 'modal', 'constitutive',
    - `relevance/`: Relevant implication
 
 2. **Automatic Dependency Resolution**:
-   - Request counterfactual operators `⊃→` automatically loads modal operators (necessity used in counterfactual definitions)
+   - Request counterfactual operators `□→` automatically loads modal operators (necessity used in counterfactual definitions)
    - Ensures semantic coherence without manual tracking
 
 3. **Conflict Resolution**:
@@ -886,14 +886,14 @@ Bit positions:   [2][1][0]
                   c  b  a
 
 State encodings:
-  000₂ = 0 ↦ ∅ (null state)
+  000₂ = 0 ↦  □ (null state)
   001₂ = 1 ↦  a
   010₂ = 2 ↦  b
-  011₂ = 3 ↦ a⊔b (fusion of a and b)
+  011₂ = 3 ↦  a.b (fusion of a and b)
   100₂ = 4 ↦  c
-  101₂ = 5 ↦  a⊔c
-  110₂ = 6 ↦  b⊔c
-  111₂ = 7 ↦ a⊔b⊔c (maximal state)
+  101₂ = 5 ↦  a.c
+  110₂ = 6 ↦  b.c
+  111₂ = 7 ↦  a.b.c (full state)
 ```
 
 **Total States**: 2^N (8 states for N=3, 16 for N=4, etc.)
@@ -907,13 +907,13 @@ a ⊔ c = 001₂ | 101₂ = 101₂
 
 **Part-of** relation: Bitwise AND test
 ```
-a ⊑ a⊔c iff (001₂ & 101₂ == 001₂) ⇒ True
+a ⊑ a.c iff (001₂ & 101₂ == 001₂) ⇒ True
 ```
 
 **Compatibility** (overlap): Bitwise AND non-zero
 ```
 a ∩ b = 001₂ & 010₂ = 000₂ ⇒ Incompatible
-a ∩ (a⊔c) = 001₂ & 101₂ = 001₂ ⇒ Compatible
+a ∩ (a.c) = 001₂ & 101₂ = 001₂ ⇒ Compatible
 ```
 
 **Advantages**:
@@ -940,9 +940,9 @@ a ∩ (a⊔c) = 001₂ & 101₂ = 001₂ ⇒ Compatible
    ```
 
 2. **Generate Constraints**:
-   - Frame constraints: ` s[possible(s) `→` possible(part(s))] (downward closure)`
-   - Model constraints: ` A[contingent(A) `→` (s[verify(s,A)] `∧` s'[falsify(s',A)])]`
-   - Evaluation: `verify(w0, premise1) `∧` verify(w0, premise2) `∧` `¬`verify(w0, conclusion)`
+   - Frame constraints: `∀s[possible(s) → possible(part(s))]` (downward closure)
+   - Model constraints: `∀A[contingent(A) → (∃s[verify(s,A)] ∧ ∃s'[falsify(s',A)])]`
+   - Evaluation: `verify(w0, premise1) ∧ verify(w0, premise2) ∧ ¬verify(w0, conclusion)`
 
 3. **Invoke Solver**:
    ```python
@@ -997,7 +997,7 @@ Constraint-based approach scales better—solver prunes search space via unit pr
 | N | Result | Countermodel |
 |---|--------|--------------|
 | 3 | SAT | Countermodel found! |
-|   |     | Verifiers: v(A'B) = {s_ab}, v(B'A) =  |
+|   |     | Verifiers: v(A'B) = {s_ab}, v(B'A) = ∃ |
 |   |     | s_ab verifies both A and B, but fusion isn't commutative in verification |
 
 **Discovery**: Single countermodel sufficient to prove invalidity
@@ -1089,7 +1089,7 @@ settings = {'N': 4, 'iterate': 5}
   - Extensional (7): `¬`, `∨`, `∧`, `→`, `↔`, `⊤`, `⊥`
   - Modal (2): `□`, `◇`
   - Constitutive (4): `≡` (identity), `≤` (ground), `⊑` (essence), `≼` (relevance)
-  - Counterfactual (4): `⊃→`, `◇→`, and variants
+  - Counterfactual (4): `□→`, `◇→`, and variants
   - Relevance (2): R (relevant implication)
 - **Examples**: 177 validated test cases
 - **Key Features**:
@@ -1112,7 +1112,6 @@ settings = {'N': 4, 'iterate': 5}
 - **Applications**: Causation, disposition semantics, counterfactual reasoning
 
 **4. Bimodal - Temporal-Modal Combined Semantics**
-- **Foundation**: Two-dimensional semantics (time `× worlds)`
 - **Operators**: Temporal (since, until, always, eventually) + modal (necessity, possibility)
 - **Examples**: 28 validated cases
 - **Applications**: Temporal logic, planning, reactive systems
@@ -1123,34 +1122,35 @@ Each theory is self-contained package:
 
 ```
 theory_lib/
-   logos/
-      semantic.py           # Core semantic class
-      operators.py          # Operator registry
-      proposition.py        # Atomic sentence interpretation
-      models.py             # Model structure and output
-      iterate.py            # Model iteration (optional)
-      examples.py           # Validated test cases
-      subtheories/          # Modular operator definitions
-         extensional/
-         modal/
-         constitutive/
-         counterfactual/
-      —   relevance/
-      docs/                 # Theory documentation
-         OPERATORS.md      # Operator semantics
-         EXAMPLES.md       # Example walkthroughs
-      —   THEORY.md         # Philosophical background
-      tests/                # Test suite
-         unit/
-      —   integration/
-   —   notebooks/            # Jupyter tutorials
-       —   logos_tutorial.ipynb
-   exclusion/
-   —   [similar structure]
-   imposition/
-   —   [similar structure]
-—   bimodal/
-    —   [similar structure]
+├── logos/
+│   ├── semantic.py           # Core semantic class
+│   ├── operators.py          # Operator registry
+│   ├── proposition.py        # Atomic sentence interpretation
+│   ├── models.py             # Model structure and output
+│   ├── iterate.py            # Model iteration (optional)
+│   ├── examples.py           # Validated test cases
+│   ├── subtheories/          # Modular operator definitions
+│   │   ├── extensional/
+│   │   ├── modal/
+│   │   ├── constitutive/
+│   │   ├── counterfactual/
+│   │   └── relevance/
+│   ├── docs/                 # Theory documentation
+│   │   ├── OPERATORS.md      # Operator semantics
+│   │   ├── EXAMPLES.md       # Example walkthroughs
+│   │   └── THEORY.md         # Philosophical background
+│   ├── tests/                # Test suite
+│   │   ├── unit/
+│   │   └── integration/
+│   └── notebooks/            # Jupyter tutorials
+│       └── logos_tutorial.ipynb
+├── exclusion/
+│   └── [similar structure]
+├── imposition/
+│   └── [similar structure]
+└── bimodal/
+    └── [similar structure]
+
 ```
 
 **Design Principles**:
@@ -1269,34 +1269,42 @@ Output shows:
 
 #### Core Abstraction: The Semantic Interface
 
-All theories implement common interface:
+All theories extend common base class:
 
 ```python
-class SemanticTheory(ABC):
-    """Abstract base class for semantic theories."""
+class SemanticDefaults:
+    """Base class providing fundamental semantic operations.
 
-    @abstractmethod
-    def declare_z3_primitives(self):
-        """Define Z3 functions (verify, falsify, accessibility, etc.)"""
-        pass
+    Provides core functionality used across all theories including:
+    - Bit vector operations for state representation
+    - Mereological relations (fusion, part-of)
+    - Set operations for verifiers/falsifiers
+    - Evaluation point management
+    """
 
-    @abstractmethod
-    def frame_constraints(self):
-        """Return list of structural constraints"""
-        pass
+    def __init__(self, combined_settings):
+        """Initialize with settings (N, contingent, non_empty, etc.)"""
+        self.N = combined_settings.get('N')
+        self.frame_constraints = []
+        # ... setup state space, evaluation points
 
-    @abstractmethod
-    def model_constraints(self, proposition):
-        """Return constraints for atomic proposition"""
-        pass
+    def fusion(self, bit_s, bit_t):
+        """Bitwise OR for state fusion"""
+        return bit_s | bit_t
 
-    @abstractmethod
-    def operators(self):
-        """Return dictionary of operator implementations"""
-        pass
+    def is_part_of(self, bit_s, bit_t):
+        """Mereological part-of relation"""
+        return (bit_s & bit_t) == bit_s
+
+# Theories extend and override
+class LogosSemantics(SemanticDefaults):
+    def __init__(self, combined_settings):
+        super().__init__(combined_settings)
+        # Define theory-specific Z3 primitives
+        # Add theory-specific frame constraints
 ```
 
-**Key Insight**: Framework calls methods polymorphically—doesn't need to know theory internals
+**Key Insight**: Simple inheritance, no abstract methods—theories override what they need
 
 #### Benefits of Theory-Agnosticism
 
@@ -1348,16 +1356,16 @@ from model_checker.operators.extensional import Conjunction
 class LogosSemantics(SemanticDefaults):
     def operators(self):
         return {
-            ∧\\wedge': Conjunction(self),  # Reuse
-            ∧\\neg': LogosNegation(self),   # Theory-specific
+            '\\wedge': Conjunction(self),  # Reuse
+            '\\neg': LogosNegation(self),   # Theory-specific
             # ...
         }
 
 class ExclusionSemantics(SemanticDefaults):
     def operators(self):
         return {
-            ∧\\wedge': Conjunction(self),  # Same reused operator
-            ∧-': ExclusionNegation(self),  # Different negation
+            '\\wedge': Conjunction(self),  # Same reused operator
+            '\\neg': UniNegationOperator(self),  # Different negation
             # ...
         }
 ```
@@ -1460,23 +1468,6 @@ Shared infrastructure benefits all theories:
 
 ### 6.1 Philosophical Background: The Language of Thought
 
-#### The Problem of Intentionality
-
-Cognitive agents reason with mental representations that:
-1. **Have content**: Representations are *about* things
-2. **Compose**: Complex thoughts built from simpler components
-3. **Guide action**: Beliefs and desires determine behavior
-4. **Distinguish equivalents**: "Superman flies"  "Clark Kent flies" despite coreference
-
-**Classical Approaches Fail**:
-- **Extensional Semantics**: `A ∧ B ≡ B ∧ A `→` Can't distinguish order`
-- **Possible Worlds Semantics**: Logical equivalents have same truth conditions across worlds
-- **Problem**: Mental states require finer-grained distinctions
-
-**Hyperintensional Solution**: Distinguish propositions beyond truth conditions
-- Different verifiers/falsifiers capture different "reasons" for truth
-- Enables modeling content-sensitive reasoning
-
 #### Truthmaker Semantics Foundations
 
 **Core Idea** (Fine 2017): Propositions characterized by what makes them true/false
@@ -1489,15 +1480,15 @@ Cognitive agents reason with mental representations that:
 **Example**:
 ```
 Proposition A: "It is raining"
-Verifiers: States where rain occurs (r, r⊔w, r⊔c, ...)
-Falsifiers: States where no-rain obtains (¬r, ¬r⊔c, ...)
+Verifiers: States where rain occurs (r, r.w, r.c, ...)
+Falsifiers: States where no-rain obtains (¬r, ¬r.c, ...)
 Gaps: Partial states indeterminate about rain
 ```
 
 **Mereological Structure**: States form partial order under part-of (`⊑`)
-- **Null State** (`∅`): Part of everything, verifies/falsifies nothing
+- **Null State** (`□`): Part of everything, verifies/falsifies nothing
 - **Atomic States**: Minimal non-null states (a, b, c, ...)
-- **Fusions**: States combine via `⊔ operation (`a ⊔ b`)`
+- **Fusions**: States combine via `⊔` operation (e.g., `a.b`)
 - **Closure**: If s verifies A and `s ⊑ t`, does t verify A? (Theory-dependent)
 
 ### 6.2 Logos Implementation Strategy
@@ -1533,21 +1524,21 @@ class LogosSemantics(SemanticDefaults):
 
 **Frame Constraints** (9 constraints):
 
-1. **Null State Exists**: `possible(`∅`)`
-2. **Downward Closure**: ` s[possible(s) `→`  t[t `→` s `→` possible(t)]]`
-3. **Fusion Closure**: ` s,t[possible(s) `∧` possible(t) `→` possible(`s ⊑ t`)]`
-4. **World Existence**: `w[is_world(w)]`
+1. **Null State Exists**: `possible(□)`
+2. **Downward Closure**: `∀s[possible(s) → ∀t[t ⊑ s → possible(t)]]`
+3. **Fusion Closure**: `∀s,t[possible(s) ∧ possible(t) → possible(s ⊔ t)]`
+4. **World Existence**: `∃w[is_world(w)]`
 5. **World Maximality**: Worlds contain all possible states as parts
 6. **Modal Reflexivity**: Accessibility relation reflexive (for S4/S5)
 7. **Modal Transitivity**: Accessibility relation transitive
-8. **No Null Verification**: ∀A[`¬`verify(`∅`, A) `∧` `¬`falsify(`∅`, A)]
-9. **Exclusive Verification**: ` A,s[`□`(verify(s,A) `∧` falsify(s,A))] (optional via settings)`
+8. **No Null Verification**: `∀A[¬verify(□, A) ∧ ¬falsify(□, A)]`
+9. **Exclusive Verification**: `∀A,s[¬(verify(s,A) ∧ falsify(s,A))]` (optional via settings)
 
 **Model Constraints** (per atomic proposition A):
 
-1. **Contingency**: `s[verify(s,A)] `∧` s'[falsify(s',A)] (if `contingent setting enabled)
-2. **Non-Empty**: `verify(A)   `∧` falsify(A)  `
-3. **Disjointness**: ∀s[verify(s,A) `→` `¬`falsify(s,A)]
+1. **Contingency**: `∃s[verify(s,A)] ∧ ∃s'[falsify(s',A)]` (if `contingent` setting enabled)
+2. **Non-Empty**: `verify(A) ≠ ∅ ∧ falsify(A) ≠ ∅`
+3. **Disjointness**: `∀s[verify(s,A) → ¬falsify(s,A)]`
 4. **Fusion Verification**: If `s₁ and `s₂ both verify A, does `s₁ ⊔ s₂ verify A?`
    - Default: No (allows hyperintensional distinction)
    - Classical setting: Yes (conjunction fusion closed)
@@ -1575,8 +1566,8 @@ class Conjunction(OperatorDefaults):
 ```
 
 **Interpretation**:
-- s verifies A `∧` B iff s verifies both A and B
-- s falsifies A `∧` B iff s falsifies A or falsifies B
+- s verifies `A ∧ B` iff s verifies both A and B
+- s falsifies `A ∧ B` iff s falsifies A or falsifies B
 
 **Negation** (`¬`):
 ```python
@@ -1593,7 +1584,7 @@ class Negation(OperatorDefaults):
 **Interpretation**: Negation swaps verifiers and falsifiers
 
 **Other Extensional Operators**:
-- Disjunction (`∨``∨`): Defined via De Morgan (`¬(¬A ∧ ¬B)`)
+- Disjunction (`∨`): Defined via De Morgan (`¬(¬A ∧ ¬B)`)
 - Implication (`→`): Defined as `¬A ∨ B`
 - Biconditional (`↔`): `(A → B) ∧ (B → A)`
 - Top (`⊤`): Verified by all states
@@ -1622,18 +1613,18 @@ class Necessity(OperatorDefaults):
 - Configurable (reflexive, transitive, symmetric)
 - Determines modal logic (S4, S5, K, etc.)
 
-**Counterfactual Modal Operators** (`⊃→`, `◇→`):
+**Counterfactual Modal Operators** (`□→`, `◇→`):
 - Combine necessity/possibility with conditional
-- Involve selection functions (closest possible worlds where antecedent true)
+- Involve selection functions (alternative possible worlds where antecedent true)
 
 #### 3. Constitutive Operators
 
-**Ground** (|):
+**Ground** (`≤`):
 ```python
 class Ground(OperatorDefaults):
     def extended_verify(self, state, sentence, eval_point):
         A, B = sentence.sentences
-        # A | B verified iff all B-verifiers verify A
+        # A ≤ B verified iff all B-verifiers verify A
         # (B's truth grounded in A's truth)
         return z3.ForAll([s],
             z3.Implies(
@@ -1643,33 +1634,12 @@ class Ground(OperatorDefaults):
         )
 ```
 
-**Interpretation**: A | B ("A grounds B") holds when B's verifiers are among A's verifiers
+**Interpretation**: `A ≤ B` ("A grounds B") holds when B's verifiers are among A's verifiers
 
-**Essence** (`≤`):
+**Essence** (`⊑`):
 Similar to ground but for essential connections—necessary grounding
 
-**Subject-Matter** (`⊕`):
-```python
-class SubjectMatter(OperatorDefaults):
-    def extended_verify(self, state, sentence, eval_point):
-        A, B = sentence.sentences
-        # A ⊕ B captures content overlap
-        # Verified by states that verify both parts of A and B
-        return z3.And(
-            z3.Exists([s1], z3.And(
-                self.semantics.extended_verify(s1, A, eval_point),
-                self.semantics.part_of(s1, state)
-            )),
-            z3.Exists([s2], z3.And(
-                self.semantics.extended_verify(s2, B, eval_point),
-                self.semantics.part_of(s2, state)
-            ))
-        )
-```
-
-**Interpretation**: A `⊕ B ("subject matter of A and B") captures shared content`
-
-**Propositional Identity** (a):
+**Propositional Identity** (`≡`):
 ```python
 class Identity(OperatorDefaults):
     def extended_verify(self, state, sentence, eval_point):
@@ -1691,26 +1661,26 @@ class Identity(OperatorDefaults):
 
 #### 4. Counterfactual Operators
 
-**Counterfactual Conditional** (`⊃→`):
+**Counterfactual Conditional** (`□→`):
 ```python
 class CounterfactualConditional(OperatorDefaults):
     def true_at(self, world, sentence, eval_point):
         A, B = sentence.sentences
-        # A ⊃→ B true at w iff:
-        # In all closest A-worlds to w, B is true
+        # A □→ B true at w iff:
+        # In all alternative A-worlds to w, B is true
 
-        closest_A_worlds = self.semantics.select_closest(world, A)
+        alternative_A_worlds = self.semantics.select_closest(world, A)
         return z3.And([
             self.semantics.true_at(w_prime, B, eval_point)
-            for w_prime in closest_A_worlds
+            for w_prime in alternative_A_worlds
         ])
 ```
 
 **Interpretation**: "If A were true, B would be true"
-- Evaluated at closest possible worlds where A true
+- Evaluated at alternative possible worlds where A true
 - Requires similarity ordering on worlds
 
-**Might Counterfactual** (ǒ):
+**Might Counterfactual** (`◇→`):
 Dual: "If A were true, B might be true" (some close A-world has B true)
 
 #### 5. Relevance Operators
@@ -1742,103 +1712,7 @@ class RelevantImplication(OperatorDefaults):
 
 **Interpretation**: Relevance logic—implication requires content connection
 
-### 6.4 Philosophical Applications: Language of Thought
-
-#### Planning and Action Evaluation
-
-**Scenario**: Agent deliberates whether to bring umbrella
-
-**Mental Representations**:
-- **Belief**: "It might rain" (`◇`Rain)
-- **Desire**: "Stay dry" (Dry)
-- **Conditional**: "If rain, then umbrella needed" (Rain `→` NeedUmbrella)
-- **Action**: "Bring umbrella" (BringUmbrella)
-
-**Reasoning**:
-```python
-example = {
-    'premises': [
-        ∧\\Diamond Rain',           # Might rain
-        ∧Rain \\rightarrow NeedUmbrella',  # Conditional
-        ∧NeedUmbrella \\rightarrow BringUmbrella∧  # Action connection
-    ],
-    'conclusions': ['BringUmbrella'],
-    'settings': {'N': 4, 'contingent': True}
-}
-
-result = BuildExample.run(example, logos_theory)
-```
-
-**Logos Analysis**:
-- Finds models where premises true, conclusion derivable
-- Shows modal reasoning (possibility) + conditional reasoning
-- Demonstrates practical syllogism in hyperintensional framework
-
-**Comparison with Other Theories**:
-- **Classical Logic**: Loses modal distinctions (`□`Rain vs. Rain)
-- **Modal Logic**: Handles possibility but not content sensitivity
-- **Logos**: Full hyperintensional treatment preserving all structure
-
-#### Content-Sensitive Belief Attribution
-
-**Scenario**: Agent believes "Superman flies" but not "Clark Kent flies"
-
-**Why?** Same individual (Superman = Clark Kent) but different modes of presentation
-
-**Logos Representation**:
-```python
-# Superman flies and Clark Kent flies have different verifiers
-# even though Superman = Clark Kent in world
-
-example = {
-    'premises': [
-        'SupermanFlies',
-        ∧Superman \\equiv ClarkKent∧  # Extensional identity
-    ],
-    'conclusions': ['ClarkKentFlies'],
-    'settings': {'N': 3}
-}
-
-result = BuildExample.run(example, logos_theory)
-```
-
-**Result**: Invalid!
-- Countermodel: State verifies "SupermanFlies" but not "ClarkKentFlies"
-- Explanation: Hyperintensional semantics distinguishes based on content, not just reference
-
-**Application**: Modeling beliefs de dicto vs. de re
-
-#### Grounding Relations for Explanation
-
-**Scenario**: Explain why "The match lights" is true
-
-**Grounding Chain**:
-1. **Base**: "Oxygen present `∧` Match struck `∧` Dry"
-2. **Intermediate**: "Combustion occurs"
-3. **Target**: "Match lights"
-
-**Logos Representation**:
-```python
-example = {
-    'premises': [
-        ∧(Oxygen \\wedge Struck \\wedge Dry) \\preceq Combustion',  # Grounds
-        ∧Combustion \\preceq MatchLights∧                          # Grounds
-    ],
-    'conclusions': [
-        ∧(Oxygen \\wedge Struck \\wedge Dry) \\preceq MatchLights∧  # Transitivity
-    ],
-    'settings': {'N': 4}
-}
-
-result = BuildExample.run(example, logos_theory)
-```
-
-**Result**: Valid!
-- Grounding is transitive in Logos
-- Enables tracking explanatory chains
-- Application: Causal reasoning, scientific explanation
-
-### 6.5 Unification Across Domains
+### 6.4 Unification Across Domains
 
 Logos provides **single semantic framework** for:
 
@@ -1846,7 +1720,7 @@ Logos provides **single semantic framework** for:
 |--------|---------------|-------------|
 | **Classical Logic** | `¬`, `∨`, `∧`, `→`, `↔`, `⊤` | Basic reasoning |
 | **Modal Logic** | `□`, `◇` | Necessity, possibility, knowledge |
-| **Counterfactual Reasoning** | `⊃→`, `◇→` | Planning, causation, dispositions |
+| **Counterfactual Reasoning** | `□→`, `◇→` | Planning, causation, dispositions |
 | **Content Semantics** | `⊕`, `≡` | Belief attribution, aboutness |
 | **Grounding Theory** | `\|`, `≤` | Metaphysical explanation, essence |
 | **Relevance Logic** | R | Meaningful implication |
@@ -1867,29 +1741,22 @@ Logos provides **single semantic framework** for:
 - Classical tautologies: `A → A`, `A ∨ ¬A`
 - Conjunction properties: Commutativity, associativity
 - Implication: Modus ponens, hypothetical syllogism
-- **Hyperintensional Failures**: `A ∧ B ↔ B ∧ A (verifier difference)`
 
-**Modal** (38 examples):
-- S4 axioms: `□A → A`, `□A → □□A`
-- Possibility: `◇A ↔ ¬□¬A`
-- Interaction: `□(A → B)`, `□A → □B (K axiom)`
-- **Novel Hyperintensional**: `□A ∧ □B → □(A ∧ B) in some models`
+*Modal** (38 examples):
+ S4 axioms: `□A → A`, `□A → □□A`
+ Possibility: `◇A ↔ ¬□¬A`
+ Interaction: `□(A → B)`, `□A → □B (K axiom)`
+ **Novel Hyperintensional**: `□A ∧ □B → □(A ∧ B) in some models`
 
 **Constitutive** (35 examples):
-- Ground transitivity: `A | B`, `B | C → A | C`
-- Subject-matter: `A ⊕ B ↔ B ⊕ A (commutativity)`
+- Ground transitivity: `A ≤ B`, `B ≤ C → A ≤ C`
 - Identity: `A ≡ B → B ≡ A (symmetry)`
 - **Distinguishing**: `A ↔ B ≠ A ≡ B (equivalence  identity)`
 
 **Counterfactual** (32 examples):
-- Modus ponens: `A`, `A ⊃→ B → B`
-- Contraposition: `A ⊃→ B ↔ ¬B ⊃→ ¬A`
+- Modus ponens: `A`, `A □→ B → B`
+- Contraposition: `A □→ B ↔ ¬B □→ ¬A`
 - **Failures**: Strengthening antecedent, transitivity (as expected)
-
-**Relevance** (30 examples):
-- Relevance: A R B requires subject-matter overlap
-- **Classical Failures**: A `→` B `→` A fails (irrelevance)
-- Meaningful implication patterns
 
 #### Validation Process
 
@@ -1954,22 +1821,6 @@ def extended_verify(self, state, sentence):
 
 ### 7.1 Quantitative Metrics
 
-#### Theory Implementation Statistics
-
-| Theory | Operators | Examples | Test Coverage | Lines of Code | Development Time |
-|--------|-----------|----------|---------------|---------------|------------------|
-| **Logos** | 19 | 177 | 92% | ~3,500 | 8 months |
-| **Exclusion** | 8 | 45 | 88% | ~1,200 | 2 months |
-| **Imposition** | 6 | 38 | 85% | ~1,000 | 1.5 months |
-| **Bimodal** | 10 | 28 | 87% | ~1,400 | 2 months |
-| **Total** | 43 | 288 | 90% avg | ~7,100 | ~13.5 months |
-
-**Observations**:
-- Logos: Most complex, longest development (bilateral semantics, 5 subtheories)
-- Later theories: Faster development due to framework maturity
-- High test coverage maintained across all theories
-- Modest codebase size—framework handles heavy lifting
-
 #### Performance Benchmarks
 
 **Solving Time by State Space Size** (Average across 50 examples):
@@ -1998,106 +1849,24 @@ def extended_verify(self, state, sentence):
 | Constraint ordering | 15-30% | 0% |
 | Combined | 40-60% | 20-35% |
 
-**Key Takeaway**: Optimization strategies critical for tractability at Ne5
+**Key Takeaway**: Optimization strategies critical for tractability
 
 ### 7.2 Qualitative Validation: Case Studies
 
-#### Case Study 1: Hyperintensional Conjunction
+#### Case Study 1: Counterfactual Non-Transitivity
 
-**Question**: Does A `∧` B logically imply B `∧` A?
-
-**Classical Logic**: Yes (conjunction commutative)
-
-**Logos Prediction**: No (verifiers differ)
-
-**ModelChecker Test**:
-```python
-example = {
-    'premises': ['A \\wedge B'],
-    'conclusions': ['B \\wedge A'],
-    'settings': {'N': 3, 'contingent': True}
-}
-result = run_example(example, logos)
-```
-
-**Result**: Invalid
-
-**Countermodel**:
-```
-States: {⊕, ≡, b, a⊔b, c, a⊔c, b⊔c, a⊔b⊔c}
-Worlds: {w0 = a⊔b⊔c}
-
-Verifiers:
-  v(A) = {a, a⊔b, a⊔c, a⊔b⊔c}
-  v(B) = {b, a⊔b, b⊔c, a⊔b⊔c}
-  v(A ∧ B) = {a⊔b, a⊔b⊔c}       # Requires both parts
-  v(B ∧ A) =                    # Treated differently!
-
-Evaluation:
-  w0 verifies A ∧ B (since a⊔b → w0)
-  w0 does NOT verify B ∧ A
-
-Conclusion: Invalid
-```
-
-**Explanation**:
-- Framework distinguishes conjunctions by verification conditions
-- A `∧` B requires finding an a-state and b-state together
-- B `∧` A requires finding a b-state and a-state together
-- In hyperintensional semantics, order matters for content structure
-
-**Philosophical Import**: Demonstrates computational implementation of Fine's hyperintensionality
-
-#### Case Study 2: Modal K Axiom Validation
-
-**Question**: Does `□`(A `→` B), `¬A` logically imply `¬B`?
-
-**Modal Logic S4**: Yes (K axiom)
-
-**Logos Prediction**: Yes (modal axiom holds)
-
-**ModelChecker Test**:
-```python
-example = {
-    'premises': [
-        ∧\\Box (A \\rightarrow B)',
-        ∧\\Box A'
-    ],
-    'conclusions': ['\\Box B'],
-    'settings': {'N': 4, 'iterate': 5}  # Search for countermodels
-}
-result = run_example(example, logos)
-```
-
-**Result**: Valid (UNSAT—no countermodels found)
-
-**Interpretation**:
-- Searched state space with 16 states
-- Attempted to find 5 distinct countermodels
-- All attempts failed `→` UNSAT
-- Conclusion: K axiom holds in Logos
-
-**Cross-Theory Validation**:
-Tested on modal S4 theory, Bimodal theory `→` same result (UNSAT)
-
-**Confidence**: Very high—K axiom fundamental to modal logic
-
-#### Case Study 3: Counterfactual Non-Transitivity
-
-**Question**: Does `A ⊃→ B`, `B ⊃→ C` imply `A ⊃→ C`?
+**Question**: Does `A □→ B`, `B □→ C` imply `A □→ C`?
 
 **Classical Conditionals**: Yes (hypothetical syllogism)
 
-**Counterfactual Logic**: No (Lewis's triviality results)
-
-**Logos Prediction**: No (selection function can break transitivity)
+**Counterfactual Logic**: No
 
 **ModelChecker Test**:
 ```python
 example = {
     'premises': [
-        ∧A \\boxright B',  # If A, then B
-        ∧B \\boxright C∧   # If B, then C
+        'A \\boxright B',  # If A, then B
+        'B \\boxright C'   # If B, then C
     ],
     'conclusions': ['A \\boxright C'],  # If A, then C?
     'settings': {'N': 4}
@@ -2112,9 +1881,9 @@ result = run_example(example, logos_counterfactual)
 Worlds: {w0, w1, w2, w3}
 
 Accessibility/Similarity:
-  Closest A-worlds to w0: {w1}
-  Closest B-worlds to w0: {w2}
-  Closest A-worlds to w0: {w3}
+  Alternative A-worlds to w0: {w1}
+  Alternative B-worlds to w0: {w2}
+  Alternative A-worlds to w0: {w3}
 
 Truth Assignments:
   w1: A, B, ¬C
@@ -2122,17 +1891,17 @@ Truth Assignments:
   w3: A, ¬B, ¬C
 
 Evaluation at w0:
-  A ⊃→ B: True (at closest A-world w1, B is true)
-  B ⊃→ C: True (at closest B-world w2, C is true)
-  A ⊃→ C: False (at closest A-world w1, C is false)
+  A □→ B: True (at alternative A-world w1, B is true)
+  B □→ C: True (at alternative B-world w2, C is true)
+  A □→ C: False (at alternative A-world w1, C is false)
 
 Conclusion: Invalid (transitivity fails)
 ```
 
 **Explanation**:
-- Counterfactuals evaluate at different "close" worlds
-- Closest A-world  Closest B-world
-- No guarantee C true at closest A-world even if B is
+- Counterfactuals evaluate at different "alternative" worlds
+- Alternative A-world ≠ Alternative B-world
+- No guarantee C true at alternative A-world even if B is
 
 **Philosophical Import**: Confirms Lewis's philosophical analysis computationally
 
@@ -2150,9 +1919,8 @@ Running standard test suite across theories:
 | `□(A → B)`, `□A → □B` | N/A |  Valid |  Valid | N/A | K axiom |
 | `¬A → A` | N/A |  Valid |  Valid | N/A | T axiom (S4) |
 | `¬A → □¬A` | N/A |  Valid |  Valid | N/A | 4 axiom (S4) |
-| `A \| B`, `B \| C → A \| C` | N/A | N/A |  Valid | N/A | Ground transitivity |
-| `A ⊕ B ↔ B ⊕ A` | N/A | N/A |  Valid | N/A | Subject matter comm. |
-| `A ⊃→ B`, `B ⊃→ C → A ⊃→ C` |  Valid | N/A |  Invalid | N/A | Counterfactual trans. |
+| `A ≤ B`, `B ≤ C → A ≤ C` | N/A | N/A |  Valid | N/A | Ground transitivity |
+| `A □→ B`, `B □→ C → A □→ C` |  Valid | N/A |  Invalid | N/A | Counterfactual trans. |
 
 **Observations**:
 - **Classical Logic**: Validates all extensional inferences
@@ -2168,62 +1936,40 @@ Running standard test suite across theories:
 - Choose theory based on desired inference patterns
 - Test philosophical intuitions empirically
 
-#### Divergence Analysis
-
-**Question**: Where do theories predict differently?
-
-**Method**: Run all examples across all applicable theories, extract divergences
-
-**Results** (Sample):
-
-| Example | Classical | Logos | Exclusion | Insight |
-|---------|-----------|-------|-----------|---------|
-| A `∧` B `→` B | Valid | Valid | Valid | Agreement |
-| `A ∧ B → B ∧ A | Valid | Invalid | Invalid | Classical vs. hyperintensional |`
-| A `→` `□¬A` | Valid | Valid | Context-dep | Exclusion negation different |
-| A `∧` `¬A` `→` B | Valid | Valid | Invalid | Exclusion: explosion fails |
-
-**Insight**:
-- Most divergence at extensional level (classical vs. hyperintensional)
-- Exclusion exhibits unique negation behavior
-- Modal fragments show high agreement (axioms validated across theories)
-
 ### 7.4 Validation Against Philosophical Literature
 
-#### Logos vs. Fine's Informal Semantics
+#### Logos vs. Fine's Imposition Semantics
 
-**Fine's Examples** (from "Truthmaker Semantics", 2017):
+**Research Question**: How does Logos's alternative-world selection compare to Fine's primitive imposition relation for counterfactuals?
 
-| Fine's Claim | ModelChecker Result | Match? |
-|--------------|---------------------|--------|
-| `A ∧ B → B ∧ A | Invalid (countermodel found) |  Yes |`
-| A ∨ B not fusion-closed | Verified in model structure |  Yes |
-| Negation swaps verifiers/falsifiers | Implemented, tested |  Yes |
-| Ground is transitive | Valid inference |  Yes |
-| Subject-matter commutative | Valid inference |  Yes |
+**Key Findings**:
 
-**Discrepancies**: None found in tested examples
+| Property | Fine's Imposition | Logos | Result |
+|----------|------------------|-------|--------|
+| Satisfies frame constraints | Yes | Yes | Structural equivalence |
+| Imposition `⊢` Logos | No | N/A | Logically independent |
+| Logos `⊢` Imposition | N/A | No | Logically independent |
+| `□A := (⊤ □→ A)` | Invalid (IM_CM_22) | Valid (N≤6) | Definability difference |
+| `□A := (¬A □→ ⊥)` | Invalid (IM_CM_28) | Valid (N≤6) | Definability difference |
 
-**Conclusion**: Implementation faithfully captures Fine's informal semantics
+**The Jump Problem**:
+- Fine's primitive imposition relation permits "jumps" to unrelated worlds
+- Minimal countermodel (IM_CM_27): 2 states where imposing null state □ on world a yields both a and b
+- Logos: Only maximal preservation (a is alternative)
+- Imposition: Both a and b can be alternatives (violates minimal change intuition)
+
+**Vacuous Truth Issue**:
+- Imposition can make counterfactuals vacuously true by failing to generate alternatives
+- Logos ensures alternatives exist when they should theoretically exist
+- This undermines modal definability in imposition semantics
+
+**Methodology**: Comparison via `derive_imposition=True` flag testing both theories with identical vocabulary
+
+**Conclusion**: Despite satisfying the same frame constraints, the theories generate distinct logics. The primitive imposition relation's flexibility creates problematic "jumps" that Logos's constructive approach avoids
 
 #### Counterfactual Logic vs. Lewis
 
-**Lewis's Claims** (from "Counterfactuals", 1973):
-
-| Lewis's Claim | ModelChecker Result | Match? |
-|---------------|---------------------|--------|
-| Transitivity fails | Invalid (countermodel) |  Yes |
-| Contraposition valid | Valid (no countermodel) |  Yes |
-| Strengthening antecedent fails | Invalid (countermodel) |  Yes |
-| Modus ponens valid | Valid |  Yes |
-
-**Conclusion**: Counterfactual operators correctly implement Lewis semantics
-
-#### Modal Logic Validation
-
-**S4 Axioms**:
-- Reflexivity (T): `¬A` `→` A — Valid  - Transitivity (S4): `¬A` `→` `□¬A` — Valid  - K Axiom: `□(A → B)`, `□A → □B — Valid  - Necessitation: A `→` `¬A` — Invalid (as expected for local modality)  **S5 Extensions** (if symmetric accessibility added):`
-- B Axiom: A `→` `□¬A` — Valid  **Conclusion**: Modal operators correctly implement standard modal logics
+**TODO**: Fill out comparison with Lewis's semantics.
 
 ### 7.5 Bug Discovery and Resolution
 
@@ -2260,27 +2006,6 @@ result = run_example(example, logos)
 **Validation**: Re-ran all 177 examples, confirmed expected results
 
 **Lesson**: Comprehensive test suite catches subtle semantic bugs
-
-#### Example: Parser Ambiguity with Nested Operators
-
-**Symptom**: Formula ``□`(A `→` B) parsed as `(`¬A`) `→` B``
-
-**Investigation**:
-- Examined AST: Implication at root, Box under left child
-- Problem: Operator precedence not respecting parentheses
-
-**Fix**: Enhanced parser to properly handle parenthesized subformulas
-```python
-def parse_formula(self, formula_string):
-    # Tokenize respecting parentheses
-    tokens = self.tokenize(formula_string)
-    # Build AST with correct precedence
-    return self.build_ast(tokens, respect_parens=True)
-```
-
-**Validation**: Added 20 new parser test cases with nested operators
-
-**Lesson**: Parser is critical infrastructure—must be robust
 
 ---
 
@@ -2477,7 +2202,7 @@ def parse_formula(self, formula_string):
 - **Mitigation**: Use as countermodel search, supplement with analytic proofs
 - **Future**: Integrate with proof assistants for completeness
 
-**2. State Space Ceiling** (N d 6 typically)
+**2. State Space Ceiling** (`N = 6` typically)
 - Exponential growth limits model size
 - **Mitigation**: Optimization strategies (symmetry breaking, incremental solving)
 - **Future**: Abstraction refinement, parallel search
@@ -2517,82 +2242,6 @@ def parse_formula(self, formula_string):
 - Z3 errors can be cryptic
 - **Mitigation**: Constraint labeling, unsat core analysis
 - **Future**: Better debugging tools, constraint visualization
-
-### 9.3 Future Research Directions
-
-#### Near-Term Extensions (6-12 months)
-
-**1. Additional Theories**
-- **Epistemic Logic**: Knowledge operators, common knowledge
-- **Game Semantics**: Player strategies, extensive/normal form games
-- **Quantum Logic**: Non-distributive lattice semantics
-- **Paraconsistent Logic**: Contradictions without explosion
-
-**2. Performance Optimizations**
-- **Parallel Solving**: Explore different N values concurrently
-- **Constraint Minimization**: Automated redundancy elimination
-- **Solver Tuning**: Z3 tactic optimization for semantic theories
-- **Incremental Solving**: Reuse constraint bases across examples
-
-**3. Enhanced Output**
-- **Visualization**: State space graphs, model diagrams
-- **LaTeX Export**: Formal models for papers
-- **Interactive Exploration**: Web interface for model manipulation
-- **Formal Certificates**: Proof objects certifying results
-
-**4. Extended Tooling**
-- **Theory Comparison Dashboard**: Interactive comparative analysis
-- **Example Generator**: Automated test case generation
-- **Constraint Profiler**: Identify performance bottlenecks
-- **Regression Tester**: Track theory evolution over versions
-
-#### Medium-Term Research (1-2 years)
-
-**1. Hybrid Approaches**
-- **SMT + Proof Assistants**: Use Z3 models to guide Coq proofs
-- **SMT + Tableaux**: Combine model finding with proof search
-- **SMT + Resolution**: Integrate theorem proving for validity
-
-**2. Bounded Model Checking**
-- **Completeness for Fragments**: Prove decidability for specific logics
-- **Minimal Model Size**: Compute bounds on countermodel size
-- **Abstraction Refinement**: Iteratively increase N based on analysis
-
-**3. Theory Discovery**
-- **Automated Frame Constraint Synthesis**: Learn structural principles from examples
-- **Operator Definition Inference**: Induce semantic rules from truth tables
-- **Theory Refinement**: Adjust constraints to match intuitions
-
-**4. Natural Language Integration**
-- **Formula Parsing from English**: "If it rains, then the ground is wet" `→` Rain `⊃→` Wet
-- **Explanation Generation**: Natural language explanations of countermodels
-- **Interactive Querying**: "Does Logos validate modus ponens?"
-
-#### Long-Term Vision (3-5 years)
-
-**1. Comprehensive TheoryLib**
-- **50+ Implemented Theories**: Cover major semantic frameworks
-- **Community Contributions**: Active developer ecosystem
-- **Versioned Theory Archive**: Historical theory implementations preserved
-- **Citation Network**: Track theory influence and usage
-
-**2. Integrated Research Platform**
-- **Hypothesis Testing**: Formulate semantic claims, test across theories
-- **Empirical Adequacy Metrics**: Compare theories against intuition databases
-- **Theory Selection Advisor**: Recommend theory based on desired inferences
-- **Automated Literature Integration**: Extract examples from published papers
-
-**3. Educational Ecosystem**
-- **Online Course**: "Computational Semantics with ModelChecker"
-- **Interactive Textbook**: Jupyter-based semantics curriculum
-- **Exercise Databases**: Auto-graded semantic theory problems
-- **Visualization Suite**: Real-time model exploration tools
-
-**4. Standardization and Interoperability**
-- **Semantic Theory Exchange Format**: Standard format for theory sharing
-- **Solver Backends**: Support CVC5, Yices, MathSAT, etc.
-- **Integration with Proof Assistants**: Export to Coq, Isabelle, Lean
-- **API for External Tools**: Enable third-party extensions
 
 ### 9.4 Broader Impact
 
@@ -2746,80 +2395,8 @@ The future of semantic theory is computational, modular, and collaborative—and
 
 16. Nipkow, T., Paulson, L., & Wenzel, M. (2002). *Isabelle/HOL: A Proof Assistant for Higher-Order Logic*. Springer.
 
-### Grounding and Metaphysics
-
-17. Correia, F., & Schnieder, B. (Eds.). (2012). *Metaphysical Grounding: Understanding the Structure of Reality*. Cambridge University Press.
-
-18. Fine, K. (2012). Guide to Ground. In F. Correia & B. Schnieder (Eds.), *Metaphysical Grounding* (pp. 37-80). Cambridge University Press.
-
 ### Software Engineering and Modularity
 
 19. Martin, R. (2003). *Agile Software Development: Principles, Patterns, and Practices*. Prentice Hall.
 
 20. Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1994). *Design Patterns: Elements of Reusable Object-Oriented Software*. Addison-Wesley.
-
----
-
-## Appendices
-
-### Appendix A: Installation and Quick Start
-
-**Installation**:
-```bash
-pip install model-checker
-```
-
-**Basic Usage**:
-```python
-from model_checker import BuildModule
-from model_checker.theory_lib import logos
-
-# Define example
-example = {
-    'premises': ['A \\wedge B'],
-    'conclusions': ['B'],
-    'settings': {'N': 3}
-}
-
-# Run with Logos theory
-result = BuildModule.run(example, logos)
-print(result)
-```
-
-### Appendix B: Operator Reference Tables
-
-[Comprehensive tables of all operators across theories with semantic rules]
-
-### Appendix C: Example Database
-
-[Representative examples from each theory with explanations]
-
-### Appendix D: Performance Tuning Guide
-
-[Detailed guidance on optimizing constraint generation and solving]
-
-### Appendix E: Theory Development Tutorial
-
-[Step-by-step guide to implementing a new semantic theory]
-
----
-
-**Acknowledgments**
-
-This research was supported by [funding sources]. We thank [reviewers, collaborators, contributors] for valuable feedback and contributions to the ModelChecker framework and TheoryLib.
-
-**Author Contributions**
-
-[List contributions of each author]
-
-**Data Availability**
-
-All code, examples, and data are publicly available at [repository URL]. The framework is open source under the MIT License.
-
-**Conflict of Interest**
-
-The authors declare no conflicts of interest.
-
----
-
-**END OF OUTLINE**
