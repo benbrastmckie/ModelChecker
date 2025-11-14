@@ -252,17 +252,17 @@ Operators implement up to 6 semantic methods depending on theory requirements:
 
 **Available Subtheories** (5 independent modules):
 
-1. **extensional**: ¬, ∧, ∨, →, ↔, ⊤, ⊥ (classical connectives)
-2. **modal**: □, ◇ (necessity, possibility)
-3. **constitutive**: ≡, ≤, ⊑, ≼ (identity, ground, essence, subject-matter)
-4. **counterfactual**: □→, ◇→ (counterfactual conditionals)
+1. **extensional**: neg, and, or, implies, iff, top, bottom (classical connectives)
+2. **modal**: box, diamond (necessity, possibility)
+3. **constitutive**: equiv, leq, sqsubseteq, preceq (identity, ground, essence, subject-matter)
+4. **counterfactual**: box-arrow, diamond-arrow (counterfactual conditionals)
 5. **relevance**: Content-sensitive relevance operators
 
 **Dependency Resolution** (automatic):
-- modal → [extensional, counterfactual]
-- counterfactual → [extensional]
-- relevance → [constitutive]
-- extensional, constitutive → [] (no dependencies)
+- modal -> [extensional, counterfactual]
+- counterfactual -> [extensional]
+- relevance -> [constitutive]
+- extensional, constitutive -> [] (no dependencies)
 
 **Load Process**:
 1. Check if subtheory already loaded
