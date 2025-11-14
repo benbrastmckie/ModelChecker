@@ -215,7 +215,7 @@ Operators implement up to 6 semantic methods depending on theory requirements:
 
 3. **`extended_verify(self, state, *arguments, eval_point)`** (hyperintensional)
    - Defines verification conditions in state-based semantics
-   - Example (AndOperator): `Exists([x, y], verify(x, left) ∧ verify(y, right) ∧ state == fusion(x, y))`
+   - Example (AndOperator): `Exists([x, y], verify(x, left) AND verify(y, right) AND state == fusion(x, y))`
 
 4. **`extended_falsify(self, state, *arguments, eval_point)`** (hyperintensional bilateral)
    - Defines falsification conditions (distinct from negation of verification)
