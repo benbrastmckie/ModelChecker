@@ -95,7 +95,7 @@ The `BuildModule` class serves as the central orchestrator:
 For each example and theory combination:
 1. Z3 context isolation (`z3._main_ctx = None`) prevents state leakage
 2. BuildExample construction per argument
-3. Syntax parsing → Constraint generation → Z3 solving
+3. Syntax parsing -> Constraint generation -> Z3 solving
 
 **BuildExample Construction** (`builder/example.py:36-177`)
 
