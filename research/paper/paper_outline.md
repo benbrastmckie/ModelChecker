@@ -310,12 +310,215 @@ get_theory()  # Load all subtheories
 - Registry: `theory_lib/logos/operators.py`
 - Example theory: `theory_lib/logos/` (logos), `theory_lib/exclusion/` (exclusion)
 
-### 2.3 Settings-Driven Semantic Control
-- N parameter (state space size)
-- Operator selection
-- Subtheory composition
-- Constraint toggling
-- Output format control
+### 2.3 Settings System and Model Discovery
+
+The framework employs a hierarchical settings system controlling both general behavior and theory-specific semantic constraints, with specialized tools like iterate for systematic countermodel exploration.
+
+#### 2.3.1 Hierarchical Settings Architecture
+
+**Priority Order** (highest to lowest):
+1. Command-line flags (e.g., `--contingent`, `--maximize`)
+2. Example-specific settings (per-argument configuration)
+3. User general preferences (`general_settings` in module)
+4. Theory-specific defaults (`DEFAULT_EXAMPLE_SETTINGS`)
+5. Framework global defaults
+
+**SettingsManager Coordination**:
+- `validate_general_settings()`: Validates against theory defaults
+- `validate_example_settings()`: Ensures per-example consistency
+- `apply_flag_overrides()`: Applies CLI as final overrides
+
+Location: `settings/settings.py:36-176`
+
+#### 2.3.2 Essential Model Configuration Settings
+
+**Core Settings** (shared by all theories):
+
+- **N**: State space size (number of atomic states, default: 16)
+  - Binary encoding: 2^N total states
+  - Directly impacts computational cost
+
+- **max_time**: Z3 solver timeout in milliseconds (default: 10)
+  - Prevents infinite searches
+  - Theory-dependent optimal values
+
+- **iterate**: Number of distinct countermodels to find (default: False)
+  - When > 1, triggers multi-model search (see 2.3.5-2.3.8)
+  - Uses isomorphism detection to ensure non-duplicate models
+
+**Semantic Constraint Settings** (theory-specific):
+
+- **contingent**: Requires propositions have both verifiers and falsifiers
+  - Enforces modal contingency
+  - Implicitly prevents null-state verification
+
+- **non_empty**: Prevents empty verifier/falsifier sets
+  - Ensures propositions have semantic content
+  - Weaker than contingent
+
+- **non_null**: Prevents null state as verifier/falsifier
+  - Excludes trivial models
+  - Often used with disjoint
+
+- **disjoint**: Ensures disjoint subject-matters
+  - Verifier and falsifier sets don't overlap
+  - Enforces semantic separation
+
+#### 2.3.3 Semantic Controls via Constraint Generation
+
+**Example: `contingent` Setting**
+
+When `contingent: True`, generates Z3 constraints requiring both possible verifiers and falsifiers:
+
+```python
+possible_verifier = Exists(x,
+    And(possible(x), verify(x, sentence_letter)))
+possible_falsifier = Exists(y,
+    And(possible(y), falsify(y, sentence_letter)))
+```
+
+**Constraint Composition** (logos/semantic.py:626-637):
+```python
+constraints = get_classical_constraints()
+if settings['contingent']:
+    constraints.extend(get_contingent_constraints())
+if settings['non_empty'] and not settings['contingent']:
+    constraints.extend(get_non_empty_constraints())
+if settings['disjoint']:
+    constraints.extend(get_disjoint_constraints())
+    constraints.extend(get_non_null_constraints())
+```
+
+Settings programmatically enforce logical properties through Z3 SMT solving.
+
+#### 2.3.4 Cross-Theory Comparison with --maximize
+
+**Operation**: `--maximize` flag enables systematic cross-theory comparison
+
+**Mechanism** (__main__.py:297-305):
+- Bypass standard execution
+- Route to `ModelComparison` class
+- Test same examples across multiple theories
+
+**Comparison Process** (builder/comparison.py:78-138):
+1. Take identical example (premises, conclusions, base settings)
+2. Test incrementally larger N values for each theory
+3. Use concurrent execution (ProcessPoolExecutor)
+4. Return comparative results: which theories handled larger models
+
+**Output**: Empirical complexity metrics
+- Theory name, max N achieved, runtime
+- Replaces subjective assessments with objective computational measures
+- Demonstrates practical complexity differences (referenced in Section 2.5)
+
+#### 2.3.5 The Iterate Setting for Model Discovery
+
+**Purpose**: Systematic exploration of countermodel diversity
+
+**Activation**: Set `iterate=N` where N > 1
+
+**Mechanism**: Finds N distinct non-isomorphic countermodels through constraint-based search with graph isomorphism filtering
+
+**Use Cases**:
+- Demonstrate argument admits multiple countermodels
+- Compare model structures across theories
+- Explore semantic diversity within single framework
+
+Location: `iterate/` package
+
+#### 2.3.6 Constraint-Based Model Exclusion Algorithm
+
+**High-Level Algorithm** (iterate/core.py:46-150):
+
+```
+1. Find initial model M₁ via Z3 solving original constraints C_original
+2. For each iteration i (2 to N):
+   a. Generate difference constraints C_diff excluding all previous models
+   b. Solve SAT(C_original ∧ C_diff)
+   c. Check if new model M_i is isomorphic to any previous model
+   d. If isomorphic: strengthen C_diff and retry
+   e. If non-isomorphic: accept M_i and continue
+3. Report statistics and termination reason
+```
+
+**Persistent Solver Architecture**:
+- Maintains original constraints C_original throughout
+- Incrementally adds difference constraints C_diff per iteration
+- Avoids re-solving base problem
+
+**State-Based Difference Constraints**:
+- World structure differences: Number of worlds, accessibility relations
+- Possible state differences: Which states are possible
+- Verification/falsification differences: Semantic value assignments
+
+**Generator Pattern** (runner.py:574-643):
+- Yields models incrementally for display
+- Enables streaming output during long searches
+- Allows early termination if sufficient models found
+
+#### 2.3.7 Graph Isomorphism Detection
+
+**Why Isomorphism Matters**: Models with same structure but different labels should be skipped
+
+**Graph Representation**:
+- Nodes: Worlds (labeled with propositions true/false at that world)
+- Edges: Accessibility relations (or temporal precedence)
+
+**Two-Stage Check** (iterate/graph.py):
+
+**Stage 1: Quick Structural Rejection**
+- Node count comparison
+- Edge count comparison
+- Degree sequence comparison
+If any mismatch → models are non-isomorphic (accept)
+
+**Stage 2: VF2 Algorithm** (via NetworkX)
+- Full graph isomorphism test
+- Checks if graph mapping preserves structure and labels
+- If isomorphic → reject model, add stronger exclusion constraint
+
+**Escape Strategy**:
+- When isomorphic found: add constraint excluding specific Z3 assignment
+- Prevents infinite loops on isomorphism class
+- Ensures termination even if all non-isomorphic models exhausted
+
+**Graceful Degradation**: Works without NetworkX but may find label-equivalent duplicates
+
+#### 2.3.8 Iteration Statistics and Progress Tracking
+
+**Per-Search Statistics** (displayed after iteration complete):
+
+- Models found: Total non-isomorphic countermodels discovered
+- Isomorphic skipped: Models rejected due to isomorphism
+- Search duration: Total wall-clock time
+- Termination reason: Max reached, timeout, exhausted, consecutive failures
+
+**Termination Conditions**:
+1. **Max reached**: Found requested N models
+2. **Timeout**: Exceeded time limit (max_time × iterations)
+3. **Search space exhausted**: Z3 returns UNSAT (no more models exist)
+4. **Consecutive failures**: Too many isomorphic attempts (heuristic cutoff)
+
+**Progress Tracking** (via UnifiedProgress):
+- Real-time display during search
+- Shows current iteration, models found, time elapsed
+- Enables monitoring long-running searches
+
+**Example Output**:
+```
+Iteration Statistics:
+  Models found: 5
+  Isomorphic skipped: 12
+  Duration: 45.3s
+  Termination: Max reached
+```
+
+**Key Implementation Locations**:
+- Settings: `settings/settings.py`
+- CLI parsing: `__main__.py:36-184`
+- Semantic controls: `theory_lib/logos/semantic.py:569-637`
+- Comparison: `builder/comparison.py`
+- Iteration engine: `iterate/core.py`, `iterate/constraints.py`, `iterate/graph.py`
 
 ### 2.4 Constraint Generation Process
 Five-step pipeline:
