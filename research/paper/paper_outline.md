@@ -63,7 +63,7 @@ The system accepts a Python module containing three core structures:
 
 2. **example_range** (dict): Maps example names to argument specifications
    - Format: `[premises], [conclusions], {settings}`
-   - Example: `["A", "A -> B"], ["B"], {"N": 3, "model": False}`
+   - Example: `["A", "A � B"], ["B"], {"N": 3, "model": False}`
 
 3. **general_settings** (dict): Global configuration overrides
    - Controls model size (`N`), timeout (`max_time`), debugging flags
@@ -95,7 +95,7 @@ The `BuildModule` class serves as the central orchestrator:
 For each example and theory combination:
 1. Z3 context isolation (`z3._main_ctx = None`) prevents state leakage
 2. BuildExample construction per argument
-3. Syntax parsing → Constraint generation → Z3 solving
+3. Syntax parsing -> Constraint generation -> Z3 solving
 
 **BuildExample Construction** (`builder/example.py:36-177`)
 
