@@ -95,7 +95,7 @@ The `BuildModule` class serves as the central orchestrator:
 For each example and theory combination:
 1. Z3 context isolation (`z3._main_ctx = None`) prevents state leakage
 2. BuildExample construction per argument
-3. Syntax parsing -> Constraint generation -> Z3 solving
+3. Syntax parsing → Constraint generation → Z3 solving
 
 **BuildExample Construction** (`builder/example.py:36-177`)
 
@@ -215,7 +215,7 @@ Operators implement up to 6 semantic methods depending on theory requirements:
 
 3. **`extended_verify(self, state, *arguments, eval_point)`** (hyperintensional)
    - Defines verification conditions in state-based semantics
-   - Example (AndOperator): `Exists([x, y], verify(x, left) AND verify(y, right) AND state == fusion(x, y))`
+   - Example (AndOperator): `Exists([x, y], verify(x, left) ∧ verify(y, right) ∧ state == fusion(x, y))`
 
 4. **`extended_falsify(self, state, *arguments, eval_point)`** (hyperintensional bilateral)
    - Defines falsification conditions (distinct from negation of verification)
@@ -252,17 +252,17 @@ Operators implement up to 6 semantic methods depending on theory requirements:
 
 **Available Subtheories** (5 independent modules):
 
-1. **extensional**: neg, and, or, implies, iff, top, bottom (classical connectives)
-2. **modal**: box, diamond (necessity, possibility)
-3. **constitutive**: equiv, leq, sqsubseteq, preceq (identity, ground, essence, subject-matter)
-4. **counterfactual**: box-arrow, diamond-arrow (counterfactual conditionals)
+1. **extensional**: ¬, ∧, ∨, →, ↔, ⊤, ⊥ (classical connectives)
+2. **modal**: □, ◇ (necessity, possibility)
+3. **constitutive**: ≡, ≤, ⊑, ≼ (identity, ground, essence, subject-matter)
+4. **counterfactual**: □→, ◇→ (counterfactual conditionals)
 5. **relevance**: Content-sensitive relevance operators
 
 **Dependency Resolution** (automatic):
-- modal -> [extensional, counterfactual]
-- counterfactual -> [extensional]
-- relevance -> [constitutive]
-- extensional, constitutive -> [] (no dependencies)
+- modal → [extensional, counterfactual]
+- counterfactual → [extensional]
+- relevance → [constitutive]
+- extensional, constitutive → [] (no dependencies)
 
 **Load Process**:
 1. Check if subtheory already loaded
@@ -300,8 +300,8 @@ get_theory()  # Load all subtheories
 - Example: And operator fuses verifier states
 
 **Defined Operators** (only `derived_definition`):
-- Material conditional: `NOT A OR B`
-- Biconditional: `(A -> B) AND (B -> A)`
+- Material conditional: `¬A ∨ B`
+- Biconditional: `(A → B) ∧ (B → A)`
 - No semantic methods needed (expand to definition)
 
 **Key Implementation Locations**:
@@ -431,10 +431,10 @@ Location: `iterate/` package
 **High-Level Algorithm** (iterate/core.py:46-150):
 
 ```
-1. Find initial model M_1 via Z3 solving original constraints C_original
+1. Find initial model M₁ via Z3 solving original constraints C_original
 2. For each iteration i (2 to N):
    a. Generate difference constraints C_diff excluding all previous models
-   b. Solve SAT(C_original AND C_diff)
+   b. Solve SAT(C_original ∧ C_diff)
    c. Check if new model M_i is isomorphic to any previous model
    d. If isomorphic: strengthen C_diff and retry
    e. If non-isomorphic: accept M_i and continue
@@ -470,12 +470,12 @@ Location: `iterate/` package
 - Node count comparison
 - Edge count comparison
 - Degree sequence comparison
-If any mismatch -> models are non-isomorphic (accept)
+If any mismatch → models are non-isomorphic (accept)
 
 **Stage 2: VF2 Algorithm** (via NetworkX)
 - Full graph isomorphism test
 - Checks if graph mapping preserves structure and labels
-- If isomorphic -> reject model, add stronger exclusion constraint
+- If isomorphic → reject model, add stronger exclusion constraint
 
 **Escape Strategy**:
 - When isomorphic found: add constraint excluding specific Z3 assignment
@@ -495,7 +495,7 @@ If any mismatch -> models are non-isomorphic (accept)
 
 **Termination Conditions**:
 1. **Max reached**: Found requested N models
-2. **Timeout**: Exceeded time limit (max_time * iterations)
+2. **Timeout**: Exceeded time limit (max_time × iterations)
 3. **Search space exhausted**: Z3 returns UNSAT (no more models exist)
 4. **Consecutive failures**: Too many isomorphic attempts (heuristic cutoff)
 
@@ -597,9 +597,9 @@ Examples:
 
 ### 4.6 Theoretical Complexity Classification
 **Complexity Hierarchy**:
-- Class 1 (Fast): Arity <=2, no alternation
-- Class 2 (Moderate): Arity 3 or forall-exists patterns
-- Class 3 (Slow): Arity >=4 or forall-exists-forall patterns
+- Class 1 (Fast): Arity ≤2, no alternation
+- Class 2 (Moderate): Arity 3 or ∀∃ patterns
+- Class 3 (Slow): Arity ≥4 or ∀∃∀ patterns
 
 ### 4.7 Design Principle: Minimize Arity
 **Recommendation**: Prefer binary/unary primitives when designing theories
@@ -801,12 +801,12 @@ Key findings:
 - Essence operations
 
 #### 4. Counterfactual Operators
-- Would-counterfactual (box-arrow)
-- Might-counterfactual (diamond-arrow)
+- Would-counterfactual (□→)
+- Might-counterfactual (◇→)
 - Alternative world selection
 
 #### 5. Relevance Operators
-- Relevance implication (arrow-c)
+- Relevance implication (→c)
 - Subject-matter overlap
 - Meaningful connections
 
