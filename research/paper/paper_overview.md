@@ -271,17 +271,17 @@ The computational complexity is especially sensitive to **quantifier alternation
 
 | Theory | Primitive | Arity | Typical Quantifier Pattern | Complexity |
 |--------|-----------|-------|----------------------------|------------|
-| **Classical** | `true_at` | 2 (world, sentence) | ∀w∀A[...] | Moderate |
-| **Modal** | `accessible` | 2 (world, world) | ∀w∀w'[R(w,w') → ...] | Moderate |
-| | `true_at` | 2 (world, sentence) | ∀w∀A[...] | Moderate |
-| **Logos** | `verify` | 2 (state, sentence) | ∀s∀A[verify(s,A) → ...] | Moderate |
-| | `falsify` | 2 (state, sentence) | ∀s∀A[falsify(s,A) → ...] | Moderate |
-| | `accessible` | 2 (world, world) | ∀w∀w'[...] | Moderate |
-| | `fusion` | 3 (state, state, state) | ∀s₁∀s₂∀s₃[fusion(s₁,s₂) = s₃ → ...] | **High** |
-| **Exclusion** | `witness` | 2 (state, sentence) | ∀s∀A[...] | Moderate |
-| | `excludes` | 3 (state, state, sentence) | ∀s₁∀s₂∀A[excludes(s₁,s₂,A) → ...] | **High** |
-| **Imposition** | `imposes` | 3 (world, sentence, world) | ∀w∀A∀w'[imposes(w,A,w') → ...] | **High** |
-| | `closer` | 4 (world, world, world, sentence) | ∀w₁∀w₂∀w₃∀A[closer(w₁,w₂,w₃,A) → ...] | **Very High** |
+| **Classical** | `true_at` | 2 (world, sentence) | ∀w∀A(...) | Moderate |
+| **Modal** | `accessible` | 2 (world, world) | ∀w∀w'(R(w,w') → ...) | Moderate |
+| | `true_at` | 2 (world, sentence) | ∀w∀A(...) | Moderate |
+| **Logos** | `verify` | 2 (state, sentence) | ∀s∀A(verify(s,A) → ...) | Moderate |
+| | `falsify` | 2 (state, sentence) | ∀s∀A(falsify(s,A) → ...) | Moderate |
+| | `accessible` | 2 (world, world) | ∀w∀w'(...) | Moderate |
+| | `fusion` | 3 (state, state, state) | ∀s₁∀s₂∀s₃(fusion(s₁,s₂) = s₃ → ...) | **High** |
+| **Exclusion** | `witness` | 2 (state, sentence) | ∀s∀A(...) | Moderate |
+| | `excludes` | 3 (state, state, sentence) | ∀s₁∀s₂∀A(excludes(s₁,s₂,A) → ...) | **High** |
+| **Imposition** | `imposes` | 3 (world, sentence, world) | ∀w∀A∀w'(imposes(w,A,w') → ...) | **High** |
+| | `closer` | 4 (world, world, world, sentence) | ∀w₁∀w₂∀w₃∀A(closer(w₁,w₂,w₃,A) → ...) | **Very High** |
 
 **Observations**:
 
@@ -730,7 +730,7 @@ logos_full = logos.get_theory(['extensional', 'modal', 'constitutive',
    - Enables override patterns for theory variations
 
 **Performance Benefit**:
-- Fewer operators > fewer constraints > faster solving
+- Fewer operators &gt; fewer constraints &gt; faster solving
 - Example: Extensional-only loads ~15 constraints vs. full Logos ~80 constraints
 - Enables tractability for complex formulas
 
@@ -965,7 +965,7 @@ a ∩ (a⊔c) = 001₂ & 101₂ = 001₂ ⇒ Compatible
 | **Enumeration** | 8 states | 16 | 32 | 64 |
 | **Models to check** | 2^8 = 256 | 2^16 = 65K | 2^32 = 4B | Intractable |
 | **Constraint-based** | ~30 constraints | ~50 | ~80 | ~120 |
-| **Solver time** | <1s | ~1-5s | ~10-60s | Variable |
+| **Solver time** | &lt;1s | ~1-5s | ~10-60s | Variable |
 
 Constraint-based approach scales better—solver prunes search space via unit propagation, conflict-driven clause learning
 
@@ -1048,7 +1048,7 @@ settings = {'N': 4, 'iterate': 5}
 #### Current Limitations
 
 1. **Incompleteness**: Can't prove validity in general (only invalidate)
-2. **State Space Ceiling**: N > 6 often intractable
+2. **State Space Ceiling**: N &gt; 6 often intractable
 3. **Timeout Sensitivity**: Complex formulas may exceed solver capacity
 4. **No Infinite Models**: Can't detect properties requiring infinity (e.g., `ω`-chains)
 
@@ -1420,7 +1420,7 @@ Shared infrastructure benefits all theories:
 6. **Integration**: Merge into TheoryLib
 
 **Quality Standards**:
-- Test coverage >85%
+- Test coverage &gt;85%
 - All operators documented with semantic rules
 - Minimum 20 validated examples
 - Tutorial notebook explaining theory basics
@@ -1901,7 +1901,7 @@ Logos provides **single semantic framework** for:
    ```python
    pytest Code/src/model_checker/theory_lib/logos/tests/unit/
    ```
-   - Each example runs in < 5 seconds (N=3 or N=4)
+   - Each example runs in &lt; 5 seconds (N=3 or N=4)
    - Assertion checks expected result (valid/invalid)
    - Countermodel inspection when invalid
 
@@ -2144,15 +2144,15 @@ Running standard test suite across theories:
 
 | Inference | Classical | Modal S4 | Logos | Exclusion | Notes |
 |-----------|-----------|----------|-------|-----------|-------|
-| **`A ∧ B ↔ B ∧ A`** |  Valid |  Valid |  Invalid |  Invalid | Hyperintensional |
-| **A `→` A ∨ B** |  Valid |  Valid |  Invalid |  Invalid | Disjunction intro fails |
-| **A `∧` (B ∨ C) `→` (A `∧` B) `∨` (A `∧` C)** |  Valid |  Valid |  Invalid |  Invalid | Distribution fails |
-| **`□(A → B)`, `□A → □B`** | N/A |  Valid |  Valid | N/A | K axiom |
-| **`¬A` `→` A** | N/A |  Valid |  Valid | N/A | T axiom (S4) |
-| **`¬A` `→` `□¬A`** | N/A |  Valid |  Valid | N/A | 4 axiom (S4) |
-| **`A \| B`, `B \| C → A \| C`** | N/A | N/A |  Valid | N/A | Ground transitivity |
-| **`A ⊕ B ↔ B ⊕ A`** | N/A | N/A |  Valid | N/A | Subject matter comm. |
-| **`A ⊃→ B`, `B ⊃→ C` `→` `A ⊃→ C`** |  Valid | N/A |  Invalid | N/A | Counterfactual trans. |
+| `A ∧ B ↔ B ∧ A` |  Valid |  Valid |  Invalid |  Invalid | Hyperintensional |
+| `A → A ∨ B` |  Valid |  Valid |  Invalid |  Invalid | Disjunction intro fails |
+| `A ∧ (B ∨ C) → (A ∧ B) ∨ (A ∧ C)` |  Valid |  Valid |  Invalid |  Invalid | Distribution fails |
+| `□(A → B)`, `□A → □B` | N/A |  Valid |  Valid | N/A | K axiom |
+| `¬A → A` | N/A |  Valid |  Valid | N/A | T axiom (S4) |
+| `¬A → □¬A` | N/A |  Valid |  Valid | N/A | 4 axiom (S4) |
+| `A \| B`, `B \| C → A \| C` | N/A | N/A |  Valid | N/A | Ground transitivity |
+| `A ⊕ B ↔ B ⊕ A` | N/A | N/A |  Valid | N/A | Subject matter comm. |
+| `A ⊃→ B`, `B ⊃→ C → A ⊃→ C` |  Valid | N/A |  Invalid | N/A | Counterfactual trans. |
 
 **Observations**:
 - **Classical Logic**: Validates all extensional inferences
