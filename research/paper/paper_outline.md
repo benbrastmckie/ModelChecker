@@ -300,8 +300,8 @@ get_theory()  # Load all subtheories
 - Example: And operator fuses verifier states
 
 **Defined Operators** (only `derived_definition`):
-- Material conditional: `¬A ∨ B`
-- Biconditional: `(A → B) ∧ (B → A)`
+- Material conditional: `NOT A OR B`
+- Biconditional: `(A -> B) AND (B -> A)`
 - No semantic methods needed (expand to definition)
 
 **Key Implementation Locations**:
