@@ -597,9 +597,9 @@ Examples:
 
 ### 4.6 Theoretical Complexity Classification
 **Complexity Hierarchy**:
-- Class 1 (Fast): Arity ≤2, no alternation
-- Class 2 (Moderate): Arity 3 or ∀∃ patterns
-- Class 3 (Slow): Arity ≥4 or ∀∃∀ patterns
+- Class 1 (Fast): Arity <=2, no alternation
+- Class 2 (Moderate): Arity 3 or forall-exists patterns
+- Class 3 (Slow): Arity >=4 or forall-exists-forall patterns
 
 ### 4.7 Design Principle: Minimize Arity
 **Recommendation**: Prefer binary/unary primitives when designing theories
@@ -801,12 +801,12 @@ Key findings:
 - Essence operations
 
 #### 4. Counterfactual Operators
-- Would-counterfactual (��)
-- Might-counterfactual (ǒ)
+- Would-counterfactual (box-arrow)
+- Might-counterfactual (diamond-arrow)
 - Alternative world selection
 
 #### 5. Relevance Operators
-- Relevance implication (�c)
+- Relevance implication (arrow-c)
 - Subject-matter overlap
 - Meaningful connections
 
