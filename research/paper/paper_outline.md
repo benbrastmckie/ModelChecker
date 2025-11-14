@@ -470,12 +470,12 @@ Location: `iterate/` package
 - Node count comparison
 - Edge count comparison
 - Degree sequence comparison
-If any mismatch → models are non-isomorphic (accept)
+If any mismatch -> models are non-isomorphic (accept)
 
 **Stage 2: VF2 Algorithm** (via NetworkX)
 - Full graph isomorphism test
 - Checks if graph mapping preserves structure and labels
-- If isomorphic → reject model, add stronger exclusion constraint
+- If isomorphic -> reject model, add stronger exclusion constraint
 
 **Escape Strategy**:
 - When isomorphic found: add constraint excluding specific Z3 assignment
@@ -495,7 +495,7 @@ If any mismatch → models are non-isomorphic (accept)
 
 **Termination Conditions**:
 1. **Max reached**: Found requested N models
-2. **Timeout**: Exceeded time limit (max_time × iterations)
+2. **Timeout**: Exceeded time limit (max_time * iterations)
 3. **Search space exhausted**: Z3 returns UNSAT (no more models exist)
 4. **Consecutive failures**: Too many isomorphic attempts (heuristic cutoff)
 
