@@ -431,10 +431,10 @@ Location: `iterate/` package
 **High-Level Algorithm** (iterate/core.py:46-150):
 
 ```
-1. Find initial model M₁ via Z3 solving original constraints C_original
+1. Find initial model M_1 via Z3 solving original constraints C_original
 2. For each iteration i (2 to N):
    a. Generate difference constraints C_diff excluding all previous models
-   b. Solve SAT(C_original ∧ C_diff)
+   b. Solve SAT(C_original AND C_diff)
    c. Check if new model M_i is isomorphic to any previous model
    d. If isomorphic: strengthen C_diff and retry
    e. If non-isomorphic: accept M_i and continue
