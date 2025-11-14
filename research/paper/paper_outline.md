@@ -520,67 +520,6 @@ Iteration Statistics:
 - Comparison: `builder/comparison.py`
 - Iteration engine: `iterate/core.py`, `iterate/constraints.py`, `iterate/graph.py`
 
-### 2.4 Constraint Generation Process
-Five-step pipeline:
-1. Parse formula
-2. Generate truth constraints
-3. Add frame constraints
-4. Encode premise/conclusion semantics
-5. Query Z3 solver
-
-### 2.5 Computational Complexity of Semantic Primitives and Arity
-
-**Central Thesis**: Arity of semantic primitives directly determines computational tractability
-
-#### 2.5.1 Arity and Quantifier Complexity
-- Unary functions: 1 quantifier (tractable)
-- Binary functions/relations: 2 quantifiers (manageable)
-- Ternary functions: 3 quantifiers (challenging)
-- Quantifier alternation impact (   hardest)
-
-#### 2.5.2 Theory Comparison by Primitive Arity
-**Table**: Theories ranked by primitive complexity
-- Classical: Unary/binary only � Fast
-- Modal: Binary accessibility � Moderate
-- Truthmaker: Binary verify/falsify � Moderate
-- Imposition: Quaternary closeness � Slow
-
-#### 2.5.3 Constraint Structure and Primitive Interaction
-Examples:
-- Negation: Simple swap (no added quantifiers)
-- Disjunction: Existential fusion (2 quantifiers)
-- Necessity: Universal over worlds (1 quantifier + recursion)
-- Counterfactual: Triple nesting + quaternary primitive (very expensive)
-
-#### 2.5.4 Empirical Performance by Arity
-**Data**: Solve times and timeout rates by primitive arity
-
-#### 2.5.5 Optimization Strategies for High-Arity Primitives
-- Currying: Reduce effective arity
-- Lazy evaluation: Defer constraint generation
-- Conditional loading: Only declare needed primitives
-
-#### 2.5.6 Theoretical Complexity Classification
-**Complexity Hierarchy**:
-- Class 1 (Fast): Arity d2, no alternation
-- Class 2 (Moderate): Arity 3 or   patterns
-- Class 3 (Slow): Arity e4 or    patterns
-
-#### 2.5.7 Design Principle: Minimize Arity
-**Recommendation**: Prefer binary/unary primitives when designing theories
-
-#### 2.5.8 Case Study: Arity Impact on Logos Theory
-- Binary truthmaking: Efficient core
-- Counterfactuals: Performance bottleneck
-- Optimization outcomes
-
-#### 2.5.9 Summary: Arity as Complexity Driver
-Key findings:
-- Arity predicts performance
-- Quantifier structure matters
-- Design implications for theorists
-
----
 
 ## 3. Modularity, Extensibility, and Systematic Theory Comparison
 
@@ -624,9 +563,63 @@ Key findings:
 
 ---
 
-## 4. Finite Model Exploration and Countermodel Methodology
+## 4. Computational Complexity of Semantic Primitives and Arity
 
-### 4.1 The Finite Model Approach
+**Central Thesis**: Arity of semantic primitives directly determines computational tractability
+
+### 4.1 Arity and Quantifier Complexity
+- Unary functions: 1 quantifier (tractable)
+- Binary functions/relations: 2 quantifiers (manageable)
+- Ternary functions: 3 quantifiers (challenging)
+- Quantifier alternation impact (hardest)
+
+### 4.2 Theory Comparison by Primitive Arity
+**Table**: Theories ranked by primitive complexity
+- Classical: Unary/binary only - Fast
+- Modal: Binary accessibility - Moderate
+- Truthmaker: Binary verify/falsify - Moderate
+- Imposition: Quaternary closeness - Slow
+
+### 4.3 Constraint Structure and Primitive Interaction
+Examples:
+- Negation: Simple swap (no added quantifiers)
+- Disjunction: Existential fusion (2 quantifiers)
+- Necessity: Universal over worlds (1 quantifier + recursion)
+- Counterfactual: Triple nesting + quaternary primitive (very expensive)
+
+### 4.4 Empirical Performance by Arity
+**Data**: Solve times and timeout rates by primitive arity
+
+### 4.5 Optimization Strategies for High-Arity Primitives
+- Currying: Reduce effective arity
+- Lazy evaluation: Defer constraint generation
+- Conditional loading: Only declare needed primitives
+
+### 4.6 Theoretical Complexity Classification
+**Complexity Hierarchy**:
+- Class 1 (Fast): Arity ≤2, no alternation
+- Class 2 (Moderate): Arity 3 or ∀∃ patterns
+- Class 3 (Slow): Arity ≥4 or ∀∃∀ patterns
+
+### 4.7 Design Principle: Minimize Arity
+**Recommendation**: Prefer binary/unary primitives when designing theories
+
+### 4.8 Case Study: Arity Impact on Logos Theory
+- Binary truthmaking: Efficient core
+- Counterfactuals: Performance bottleneck
+- Optimization outcomes
+
+### 4.9 Summary: Arity as Complexity Driver
+Key findings:
+- Arity predicts performance
+- Quantifier structure matters
+- Design implications for theorists
+
+---
+
+## 5. Finite Model Exploration and Countermodel Methodology
+
+### 5.1 The Finite Model Approach
 
 #### Rationale
 - Bounded model checking for logics
@@ -638,7 +631,7 @@ Key findings:
 - But provides strong evidence
 - Finds genuine countermodels
 
-### 4.2 State Space Representation
+### 5.2 State Space Representation
 
 #### Bitvector Encoding
 - Mereological structure
@@ -650,7 +643,7 @@ Key findings:
 - Fusion construction
 - Null state handling
 
-### 4.3 Constraint-Based Model Discovery
+### 5.3 Constraint-Based Model Discovery
 
 #### Process
 1. Generate truth constraints
@@ -659,7 +652,7 @@ Key findings:
 4. Query solver
 5. Extract/display models
 
-### 4.4 Evidence for Validity via Countermodel Exclusion
+### 5.4 Evidence for Validity via Countermodel Exclusion
 
 #### Progressive Search Strategy
 - Start with small N
@@ -671,12 +664,12 @@ Key findings:
 - Minimal distinguishing models
 - Theory comparison insights
 
-### 4.5 Model Iteration for Diversity
+### 5.5 Model Iteration for Diversity
 - Block previous models
 - Explore alternative countermodels
 - Understand solution space
 
-### 4.6 Limitations and Future Work
+### 5.6 Limitations and Future Work
 
 #### Current Limitations
 - No completeness guarantees
@@ -695,7 +688,7 @@ Key findings:
 
 ---
 
-## 5. Theory-Agnostic Methodology and the TheoryLib Vision
+## 6. Theory-Agnostic Methodology and the TheoryLib Vision
 
 ### 5.1 TheoryLib: A Library of Executable Semantic Theories
 
@@ -769,7 +762,7 @@ Key findings:
 
 ---
 
-## 6. Case Study: Logos Theory and Unified Hyperintensional Semantics
+## 7. Case Study: Logos Theory and Unified Hyperintensional Semantics
 
 ### 6.1 Philosophical Background: The Language of Thought
 
@@ -842,7 +835,7 @@ Key findings:
 
 ---
 
-## 7. Implementation Results and Empirical Validation
+## 8. Implementation Results and Empirical Validation
 
 ### 7.1 Quantitative Metrics
 
@@ -907,7 +900,7 @@ Key findings:
 
 ---
 
-## 8. Related Work
+## 9. Related Work
 
 ### 8.1 Automated Reasoning in Philosophy
 
@@ -958,7 +951,7 @@ Key findings:
 
 ---
 
-## 9. Discussion and Future Directions
+## 10. Discussion and Future Directions
 
 ### 9.1 Contributions Summary
 
@@ -1028,7 +1021,7 @@ Key findings:
 
 ---
 
-## 10. References
+## 11. References
 
 ### Primary Framework Papers
 - ModelChecker documentation
