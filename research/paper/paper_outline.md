@@ -112,9 +112,9 @@ The framework accepts logical arguments alongside semantic theory specifications
 
 Each logical argument consists of premise formulas, conclusion formulas, and settings. This structure mirrors standard logical notation while permitting precise control over the semantic search space. For example, constraining atomic propositions to be contingent (having both verifiers and falsifiers) filters out trivial models where propositions are necessarily true or false.
 
-**Multi-Theory Comparison Architecture**
+**Multi-Theory Evaluation Architecture**
 
-The input structure supports evaluating identical arguments across multiple semantic frameworks simultaneously. This enables direct theory comparison in order to evaluate validity determinations computational times side-by-side.
+The input structure accepts multiple semantic frameworks, evaluating each argument with each theory in turn. This enables direct theory comparison by measuring validity determinations and computational times side-by-side.
 
 ### 2.2 Logical Processing Pipeline
 
@@ -206,29 +206,19 @@ Once the solver produces a satisfying assignment, operators translate raw solver
 
 The three-layer architecture achieves theory-agnosticism through strategic abstraction points. Layers 1 and 3 (syntax and output) provide stable interfaces, while Layer 2 (semantics) serves as the plugin point where theory-specific interpretations enter. This design pattern recurs throughout the framework and enables the extensibility that subsequent sections explore.
 
---- CONTINUE ---
-
 ### 3.2 Subtheory Composition and Modular Loading
 
-Semantic theories are not monolithic. Classical logic comprises connectives with distinct semantic behaviors; modal logic extends classical logic with intensional operators. The framework reflects this compositional structure through subtheory modules that can be selectively loaded and combined.
+Semantic theories are not monolithic. Classical logic comprises connectives with distinct semantic behaviors; modal logic extends classical logic with intensional operators. The ModelChecker accommodates extensibility through subtheory modules that can be selectively loaded and combined.
 
 **Compositional Theory Design**
 
-Rather than implementing theories as indivisible units, the framework treats them as compositions of operator subtheories. The Logos truthmaker framework, for instance, comprises five independent subtheories: extensional connectives, modal operators, constitutive operators, counterfactual conditionals, and relevance operators. Each subtheory can be loaded independently or in combination.
+Rather than implementing theories as indivisible units, the framework treats them as compositions of operator subtheories. For instance, the Logos theory comprises five independent subtheories: extensional connectives, modal operators, constitutive operators, counterfactual conditionals, and relevance operators. Each subtheory can be loaded independently or in combination.
 
-This modularity serves both practical and theoretical purposes. Practically, loading only required operators reduces the constraint set sent to the solver, improving performance. Theoretically, subtheory composition enables exploring "fragments" of semantic frameworks—what inferences does truthmaker semantics validate using only extensional operators versus including modal operators?
+Modular subtheories serves both practical and theoretical purposes. Practically, loading only required operators reduces overhead, improving performance. Theoretically, subtheory composition enables exploring fragments of semantic frameworks that make sense to study independent of other operators.
 
 **Dependency Management**
 
-Subtheories exhibit dependency relationships: modal operators are typically defined using extensional connectives; counterfactual operators may rely on both. The framework automatically resolves these dependencies, ensuring that loading a subtheory transitively loads all required dependencies. This enables users to request high-level operator sets while the system handles dependency graphs transparently.
-
-The dependency structure also reveals semantic relationships. That modal operators depend on extensional operators reflects the standard semantic pattern where modal operators are defined using quantification over worlds where extensional operators apply. Dependency graphs thus encode semantic architectural decisions.
-
-**Performance-Modularity Trade-off**
-
-Modularity creates a performance optimization opportunity: fewer operators means fewer constraint variables and simpler search spaces. A user exploring purely extensional inferences can load only extensional operators, yielding significantly faster solving than loading the complete operator set. This demonstrates an important principle: semantic modularity translates directly into computational modularity.
-
-The framework thus provides granular control over the theory-complexity-performance trade-off. Need comprehensive semantic coverage? Load all subtheories. Need fast iteration on specific fragments? Load minimal operator sets. The architecture makes this choice explicit and easy to modify.
+Subtheories exhibit dependency relationships: modal operators are interdefinable in the presence of extensional connectives and may be defined in the presence of counterfactual and extensional operators. The framework automatically resolves these dependencies, ensuring that loading a subtheory transitively loads all required dependencies without circularity. This enables users to request high-level operator sets while the system handles dependencies.
 
 ### 3.3 Semantic Framework Patterns and Operator Responsibilities
 
@@ -236,72 +226,49 @@ While operators are theory-specific plugins, certain patterns emerge across sema
 
 **Intensional Semantics Pattern**
 
-Intensional frameworks (modal, temporal, epistemic logics) share a common structure: operators define truth conditions relative to evaluation points in some structured space (possible worlds, times, epistemic states). Operators in these frameworks implement methods specifying truth-at-point conditions, typically involving quantification or relation-following through the evaluation space.
+Intensional frameworks (modal, temporal, epistemic logics) share a common structure: operators define truth conditions relative to evaluation points in some structured space (worlds, times, information states). Operators in these frameworks implement methods specifying truth-at-point conditions, typically involving quantification over accessible points.
 
 This pattern reflects a deep semantic commitment: meaning involves truth conditions across alternative scenarios. The framework accommodates this through evaluation-point-parameterized semantic methods, enabling operators to implement the "look at alternative points" semantic pattern that characterizes intensional logics.
 
-**Bilateral Semantics Pattern**
+**Bimodal Semantics Pattern**
 
-Bilateral frameworks distinguish truth from falsity, allowing gaps or gluts. Operators must independently specify both truth and falsity conditions rather than defining falsity as negation of truth. Negation, paradigmatically, swaps truth and falsity conditions—an operation only meaningful in bilateral frameworks.
+Bimodal frameworks combine two evaluation dimensions by integrating temporal and modal operators within a unified semantic structure. For instance, operators receive both a world-history parameter (for modal evaluation) and a time parameter (for temporal evaluation), with truth conditions specified relative to history-time pairs. Operators must coordinate these dimensions: a temporal operator like "always" quantifies over times within a world-history, while a modal operator like "necessarily" quantifies over histories at a given time.
 
-This semantic pattern challenges classical assumptions about the relationship between truth and falsity. The framework's support for independent truth/falsity methods enables exploring bilateral semantics computationally, testing whether bilateral distinctions affect validation patterns.
+This pattern reflects a compositional semantic commitment: different semantic dimensions can be independently varied and systematically combined. The framework supports this through multi-parameter evaluation dictionaries, enabling operators to access whichever contextual coordinates their semantics require. Bimodal theories demonstrate that the framework's parameter-passing architecture scales naturally from single-dimension to multi-dimension evaluation without architectural modification.
 
 **Hyperintensional Semantics Pattern**
 
-Hyperintensional frameworks (truthmaker semantics, situation semantics) evaluate formulas not at worlds but at partial states or situations. Operators implement verification and falsification methods that quantify over states, often with mereological structure (part-whole relations, fusion operations).
+Hyperintensional frameworks (truthmaker semantics, situation semantics) evaluate formulas not at worlds but at partial states or situations. Operators implement verification and falsification methods that quantify over states, often with mereological structure (part-whole relations, fusion operations). For instance, negation swaps the verifiers and falsifiers for its argument where neither verifiers nor falsifiers are defined in terms of each other. Although bilateral frameworks permit gaps or gluts in truth-values, these may be eliminated by imposing frame constraints.
 
 The key semantic innovation is *partiality*: formulas are verified or falsified by states that might be partial, representing fragmentary information. Conjunction, for instance, is verified by fusing the verifier states of its conjuncts. This semantic pattern enables hyperintensional distinctions between necessarily equivalent formulas based on their verification structure.
 
 **Defined Operator Abstraction**
 
-Some operators are not semantically primitive but defined in terms of others. The material conditional is standardly defined as "¬A ∨ B". Such operators need no semantic methods—they expand to their definitions before semantic evaluation. This enables notational richness without semantic complexity: users can write familiar notation while the system works with semantic primitives.
-
-The framework thus distinguishes semantic from notational complexity. Defined operators have zero semantic cost (they disappear during semantic evaluation) while providing ergonomic benefits. This reflects sound design: separate the interface users interact with from the semantic machinery that performs evaluation.
+Some operators are not semantically primitive but defined in terms of others. For instance, the material conditional may be defined as `(\\neg A \\vee B)`. Defined operators do not need semantic methods since they expand to their definitions before semantic evaluation. This provides notational convenience without semantic complexity, following standard practices of metalinguistic abbreviation in semantics.
 
 **Implications for Theory Design**
 
-These patterns suggest design principles for implementing semantic theories: Identify core semantic primitives, implement their semantic methods, define convenient abbreviations as derived operators. The framework's architecture encourages this separation, rewarding clean semantic design with improved performance and maintainability. Theories with fewer, simpler semantic primitives yield faster, more reliable implementations—a computational pressure toward semantic parsimony.
+These patterns suggest design principles for implementing semantic theories: Identify core semantic primitives, implement their semantic methods, define convenient abbreviations as derived operators. The framework's architecture encourages this separation, rewarding clean semantic design with improved performance and maintainability. Theories with fewer, simpler semantic primitives yield reliable implementations that are easy to maintain.
 
 ## 4 Configurable Semantic Constraints and Model Discovery
 
-Semantic theories make diverse assumptions about model structure: some require propositions to be contingent, others permit necessary truths; some demand disjoint subject-matters, others allow overlap. The framework addresses this diversity through configurable semantic constraints that are enforced computationally rather than stipulated informally. This section examines how constraint configuration enables both precise model control and systematic countermodel exploration.
+Semantic theories make diverse assumptions about model structure: some require propositions to be contingent, others permit necessary truths; some demand disjoint subject-matters, others allow overlap. The framework addresses this diversity through configurable semantic constraints. This section examines how constraint configuration enables precise model control to assist exploration.
 
 ### 4.1 Hierarchical Configuration and Research Flexibility
 
-The framework implements a multi-level configuration hierarchy balancing global defaults with local overrides. This design reflects a methodological insight: semantic research involves different granularities of control depending on context.
+The framework implements a multi-level configuration hierarchy balancing global defaults with local overrides. This design assists research by providing different levels of control depending for flexibility and ease of use.
 
 **Configuration Hierarchy as Research Tool**
 
-At the broadest level, framework-wide defaults ensure sensible baseline behavior. Theory-specific defaults capture semantic assumptions distinctive to particular frameworks—truthmaker semantics might default to requiring contingent propositions while classical logic does not. User-level preferences enable researchers to establish their own working assumptions. Example-level settings permit fine-grained control for specific test cases. Command-line flags provide immediate overrides for exploratory queries.
+At the broadest level, framework-wide defaults ensure sensible baseline behavior. Theory-specific defaults capture semantic assumptions distinctive to particular frameworks. User-level preferences enable researchers to establish their own working assumptions. Example-level settings permit fine-grained control for specific test cases. Command-line flags provide immediate overrides.
 
-This hierarchy addresses a practical problem in semantic research: how to balance consistency with flexibility. Global defaults ensure reproducibility and comparability across experiments. Local overrides enable exploring variations without modifying core configurations. The architecture makes the distinction between standing assumptions and temporary variations explicit in the configuration structure itself.
+This hierarchy allows researchers to restrict the space of models while remaining flexible. Global defaults ensure reproducibility and comparability across experiments. Local overrides enable exploring variations without modifying core configurations. The architecture makes the distinction between standing assumptions and temporary variations explicit in the configuration structure.
 
 **Methodological Significance**
 
-The hierarchical design has methodological implications beyond mere convenience. It distinguishes theory-constitutive constraints (embedded in semantic implementations) from investigative constraints (imposed by researchers exploring consequences). A truthmaker theory might constitutively require state-based verification; a researcher might additionally investigate what follows if we require contingency. The configuration system makes this distinction computationally precise.
+The hierarchical design has methodological implications beyond mere convenience. It distinguishes theory-constitutive constraints (embedded in semantic implementations) from investigative constraints (imposed by researchers exploring consequences).
 
-### 4.2 Semantic Constraints as Computational Enforcements
-
-Traditional semantic theorizing often leaves model constraints informal: "assume propositions are contingent," "suppose subject-matters are disjoint." The framework makes such constraints computationally explicit, enforcing them through SMT constraints rather than stipulating them in natural language.
-
-**Computational vs. Informal Constraints**
-
-The difference is significant. Informal constraints require human discipline to maintain—it's easy to accidentally consider models violating unstated assumptions. Computational constraints are enforced by the solver: models violating the constraints simply cannot be found. This shifts semantic assumptions from informal guidelines to formal requirements.
-
-Consider contingency: requiring that atomic propositions have both possible verifiers and possible falsifiers. Informally, this requires checking each model manually. Computationally, the solver only returns models satisfying the contingency constraints. The semantic assumption becomes part of the search specification rather than a post-hoc filter.
-
-**Types of Semantic Constraints**
-
-The framework supports several categories of semantic constraints, each enforcing different theoretical commitments:
-
-- **Search space bounds** control the size of semantic structures explored (state space size, timeout limits)
-- **Logical property constraints** enforce modal characteristics (contingency, necessity, possibility)
-- **Structural constraints** impose mereological requirements (non-null states, non-empty valuations)
-- **Semantic separation constraints** require independence (disjoint verifier/falsifier sets, distinct subject-matters)
-
-Each constraint category translates theoretical assumptions into solver requirements, making implicit commitments explicit and computationally enforceable.
-
-**Constraint Composition and Interaction**
+### 4.2 Constraint Composition and Interaction
 
 Constraints compose: requiring both contingency and disjointness yields models satisfying both conditions. But constraints also interact: contingency implies non-emptiness (contingent propositions must have verifiers and falsifiers), so redundant constraints can be omitted. The framework handles these interactions, applying only the minimal constraint set expressing the desired conditions.
 
@@ -309,19 +276,19 @@ This compositional approach mirrors theoretical practice. Semantic theorists oft
 
 ### 4.3 Systematic Cross-Theory Comparison
 
-A persistent challenge in semantic theory development is comparison: How do different frameworks fare on identical test cases? Which theories handle complexity better? Traditional comparison is informal and unsystematic. The framework enables systematic empirical comparison by running identical examples through multiple theories under controlled conditions.
+A persistent challenge in semantic theory development is comparison in order to determine how different frameworks fare on identical test cases or which theory is simpler than the other. Traditional comparison is informal and unsystematic. The ModelChecker enables systematic empirical comparison by running identical examples through multiple theories while measuring computational costs.
 
 **Comparative Methodology**
 
-The comparison mode tests each theory on the same argument with identical settings, measuring both validation outcomes (which theories validate the inference?) and computational costs (how long did each theory take?). This produces concrete, reproducible comparative data replacing informal assessments like "theory X seems more complex than theory Y."
+When multiple theories are provided, the framework evaluates each theory on the same argument with identical settings, measuring both validation outcomes and computational costs. This produces concrete, reproducible comparative data replacing subjective assessments of theory complexity.
 
-The methodology controls for confounds: same argument structure, same search bounds, same semantic constraints (when applicable). Differences in outcomes or performance reflect genuine theoretical differences rather than variations in test conditions. This experimental control is rarely achievable in traditional semantic theorizing.
+The methodology controls for discrepancies in test conditions so that differences in outcomes or performance reflect genuine theoretical differences rather than variations in test conditions. Experimental measures are not provided by traditional semantic theorizing which rely on manual proofs.
 
 **Empirical Complexity Metrics**
 
-Comparison yields empirical complexity data: which theories timeout on which examples, which scale to larger state spaces, which validate or invalidate particular patterns. These metrics complement traditional theoretical complexity analysis with empirical performance data.
+Evaluating examples with multiple theories yields empirical complexity data: which theories timeout on which examples, which scale to larger state spaces, which validate or invalidate particular patterns. These metrics complement traditional theoretical complexity analysis with empirical performance data.
 
-The distinction matters. Theoretical complexity (quantifier alternation, primitive arity) predicts computational cost; empirical performance measures actual cost. Sometimes they align, sometimes they diverge (optimizations, solver heuristics). The framework provides both: Section 4 develops theoretical complexity analysis, this section provides the empirical measurement methodology.
+Whereas theoretical complexity (quantifier alternation, primitive arity) predicts computational costs, empirical performance measures actual cost. Sometimes they align, sometimes they diverge (optimizations, solver heuristics). The framework provides both. [Section 5] develops a theoretical complexity analysis that builds on the empirical measurement methodology provided here.
 
 ### 4.4 Countermodel Discovery and Semantic Diversity
 
@@ -329,19 +296,19 @@ Finding a single countermodel establishes invalidity. But how many structurally 
 
 **The Model Iteration Problem**
 
-Naively requesting multiple countermodels risks redundancy: the solver might return the same model structure with different variable assignments (world w₁ becomes w₂, etc.). Such label variants are structurally identical—they represent the same countermodel under different naming schemes. Meaningful diversity requires structural distinctness, not mere label variation.
+Naively requesting multiple countermodels risks redundancy: the solver might return the same model structure with different variable assignments (e.g., where world w₁ merely trade names w₂). Such label variants are structurally identical, representing the same countermodel under different naming schemes. Meaningful diversity requires structural distinctness, not mere label variation.
 
-This is the model iteration problem: how to systematically explore structurally distinct countermodels while avoiding label variants. The framework addresses this through iterative constraint-based exclusion combined with graph isomorphism detection.
+To systematically explore structurally distinct countermodels while avoiding label variants, the ModelChecker implements iterative constraint-based exclusion combined with graph isomorphism detection.
 
 **Constraint-Based Model Exclusion**
 
-The core strategy is incremental: find one countermodel, add constraints excluding it, find another, add exclusion constraints, repeat. Each iteration narrows the search space by excluding previously discovered models while maintaining the original semantic requirements.
+The core strategy is incremental: find one countermodel, add constraints excluding it, find another model, add further exclusion constraints, repeat. Each iteration narrows the search space by excluding previously discovered models while maintaining the original semantic requirements.
 
 This approach has theoretical elegance: model exclusion is itself expressed as constraints, so the iteration process works within the same constraint-satisfaction framework used for initial discovery. We're not switching paradigms (from solving to enumeration); we're incrementally refining constraints to explore the solution space systematically.
 
 **The Isomorphism Challenge**
 
-But constraint-based exclusion alone is insufficient. Excluding a specific variable assignment doesn't exclude isomorphic variants—models with identical structure but different variable bindings. Without isomorphism detection, iteration might return infinitely many label variants of the same structural model.
+Constraint-based exclusion alone is insufficient since excluding a specific variable assignment doesn't rule out isomorphic variants. Without isomorphism detection, iteration might return many label variants of a model with the same structure.
 
 Graph isomorphism detection solves this: represent models as labeled graphs (worlds as nodes, accessibility relations as edges, valuations as labels) and check whether new models are isomorphic to previous ones. Isomorphic models are rejected, triggering additional exclusion constraints. Only structurally distinct models are accepted.
 
@@ -375,9 +342,9 @@ These conditions reflect different search outcomes. Successful completion means 
 
 **Epistemic Status of Termination**
 
-Each termination condition has different epistemic status. Successful completion: we have N distinct countermodels (definite). Resource exhaustion: countermodel space may be richer than explored (indefinite). Search space exhaustion within bounds: no more countermodels exist in bounded space (definite within bounds). Heuristic exhaustion: likely found all accessible distinct models (probabilistic).
+Each termination condition has different epistemic status. Successful completion: we have N distinct countermodels (definite within specified bounds). Resource exhaustion: countermodel space may be richer than explored (indefinite). Search space exhaustion within bounds: no more countermodels exist in bounded space (definite within bounded models). Heuristic exhaustion: likely found all accessible distinct models (supporting evidence).
 
-The framework reports termination reasons, enabling users to interpret results epistemically. Finding 5 models then timing out means "at least 5 distinct countermodels exist"; finding 5 models then exhausting search space means "exactly 5 distinct countermodels exist within these bounds." The distinction matters for theoretical conclusions drawn from iteration results.
+The framework reports termination reasons, enabling users to interpret results. Finding 5 models then timing out means "at least 5 distinct countermodels exist"; finding 5 models then exhausting search space means "exactly 5 distinct countermodels exist within the bounded space of models." The distinction matters for theoretical conclusions drawn from iteration results.
 
 ## 5. Computational Complexity of Semantic Primitives and Arity
 
