@@ -98,127 +98,117 @@ The framework provides empirical measures of semantic theory complexity through 
 
 Section 2 presents the ModelChecker architecture: input processing, logical pipeline, and output generation (2.1); operator modularity and three-layer architecture (2.2); configurable constraints and model discovery (2.3). Section 3 examines modularity and extensibility in detail. Section 4 develops the arity-complexity thesis with empirical validation. Section 5 discusses finite model methodology and epistemic limitations. Section 6 presents the TheoryLib vision and contribution model. Section 7 provides a detailed case study of Logos theory implementation. Section 8 reports empirical results and theory comparisons. Section 9 reviews related work. Section 10 concludes with future directions and broader impact.
 
---- CONTINUE ---
+---
 
-## 2. ModelChecker Pipeline
+## 2. Complete Pipeline Architecture
 
-### 2.1 Complete Pipeline Architecture
+This section presents the basic architecture of the ModelChecker pipeline which transforms logical arguments into validity determinations. Understanding this transformation is essential to grasping how the framework achieves theory-agnostic semantic evaluation.
 
-This section presents the conceptual architecture of the ModelChecker pipeline, which transforms logical arguments into validity determinations through three principal stages: input specification, logical processing, and result generation. Understanding this transformation is essential to grasping how the framework achieves theory-agnostic semantic evaluation.
+### 2.1 Input Specification and Configuration
 
-#### 2.1.1 Input Specification and Configuration
-
-The framework accepts logical arguments alongside semantic theory specifications, enabling systematic exploration of how different semantic frameworks evaluate identical inference patterns. This design decision—requiring both arguments and theories as input—reflects a core commitment: semantic theories should be executable programs that can be systematically compared on shared test cases.
+The framework accepts logical arguments alongside semantic theory specifications, enabling systematic exploration of how different semantic frameworks evaluate identical inference patterns.
 
 **Argument Specification Design**
 
-Each logical argument consists of premise formulas, conclusion formulas, and an optional configuration specifying model constraints. This structure mirrors standard logical notation while permitting precise control over the semantic search space. For example, constraining atomic propositions to be contingent (having both verifiers and falsifiers) filters out trivial models where propositions are necessarily true or false.
+Each logical argument consists of premise formulas, conclusion formulas, and settings. This structure mirrors standard logical notation while permitting precise control over the semantic search space. For example, constraining atomic propositions to be contingent (having both verifiers and falsifiers) filters out trivial models where propositions are necessarily true or false.
 
 **Multi-Theory Comparison Architecture**
 
-The input structure supports evaluating identical arguments across multiple semantic frameworks simultaneously. This enables direct empirical comparison: Given premises P and conclusion C, which theories validate the inference? How do computational costs differ? The comparative methodology addresses a longstanding challenge in semantic theory development—the lack of systematic empirical comparison methods.
+The input structure supports evaluating identical arguments across multiple semantic frameworks simultaneously. This enables direct theory comparison in order to evaluate validity determinations computational times side-by-side.
 
-**Configuration Hierarchy**
+### 2.2 Logical Processing Pipeline
 
-Settings follow a priority hierarchy where command-line flags override module-level specifications, which in turn override theory defaults. This design balances flexibility with sensible defaults: users can globally configure model size constraints while allowing individual examples to override these settings when needed. The hierarchy ensures predictable behavior while supporting diverse use cases from quick exploration to systematic benchmarking.
-
-#### 2.1.2 Logical Processing Pipeline
-
-The core transformation from symbolic formulas to validity determinations proceeds through four conceptual stages, each addressing a distinct aspect of the semantic evaluation problem.
+The core transformation from symbolic formulas to validity determinations proceeds through four stages while remaining theory-agnostic.
 
 **Stage 1: Syntactic Parsing**
 
-Object-language formulas (e.g., "A ∧ B → C") must be transformed into structured representations amenable to semantic interpretation. The parser builds recursive sentence structures while remaining agnostic to operator semantics—it recognizes "∧" as a binary operator without knowing whether it represents classical conjunction, fusion, or some other operation. This separation between syntactic structure and semantic interpretation is fundamental to theory-agnosticism.
+Object-language formulas (e.g., `((A \\wedge B) \\rightarrow C)`) are transformed into structured representations amenable to semantic interpretation. The parser builds recursive sentence structures while remaining agnostic to operator semantics by requiring all formulas to consist of binary operators prefixed with `\\` and wrapped in parentheses and unary operators that bind to the next immediate argument. The separation between syntactic structure and semantic interpretation is fundamental to maintaining theory independence.
 
 **Stage 2: Semantic Constraint Generation**
 
 Each formula generates constraints in the SMT solver expressing what it means for that formula to be verified or falsified according to the chosen semantic theory. This translation from semantic metalanguage (the theory's truth/verification conditions) to SMT constraints is where theory-specific semantics enter the pipeline.
 
 Four categories of constraints jointly specify the countermodel search problem:
-1. **Frame constraints** encode the semantic structure (e.g., accessibility relations, mereological principles)
-2. **Model constraints** ensure atomic propositions receive valid semantic values
+1. **Frame constraints** encode the semantic structure (e.g., accessibility relations, mereological principles, etc.)
+2. **Model constraints** ensure atomic propositions receive valid semantic values determined by the definition of a proposition in that theory
 3. **Premise constraints** require all premises to be satisfied
-4. **Conclusion constraints** require conclusions to fail (the countermodel condition)
+4. **Conclusion constraints** require at least one conclusion to be false
 
-The combination forms a satisfiability problem: Does there exist a model satisfying the semantic framework's structural principles where premises are true but conclusions are not?
+The combination forms a satisfiability problem: Is there a model satisfying the semantic framework's structural principles where the premises are all true but conclusions are not?
 
 **Stage 3: SMT Solving**
 
-The Z3 solver attempts to find a satisfying assignment to all constraints, bounded by user-specified timeouts and state-space size limits. This is bounded model checking for semantic theories: we search finite portions of the model space rather than attempting complete decision procedures. If the solver finds a satisfying assignment, it has discovered a countermodel. If no satisfying assignment exists within the bounded search, we gain evidence (though not proof) that the argument is valid.
+The Z3 solver attempts to find an assignment that satisfies all constraints, bounded by user-specified timeouts and state-space size limits. This is bounded model checking for semantic theories: we search finite portions of the model space rather than attempting complete decision procedures. If the solver finds a satisfying assignment, it has discovered a countermodel. If no satisfying assignment exists within the bounded search, we gain evidence that the argument is valid rather than providing a proof.
 
 **Stage 4: Model Iteration (Optional)**
 
-When multiple countermodels are requested, the system iteratively excludes previously discovered models through additional constraints while checking for structural isomorphism to avoid presenting mere labelings of identical model structures. This exploration of countermodel diversity reveals the richness (or poverty) of the countermodel space for particular inferences.
+When multiple countermodels are requested, the system iteratively excludes previously discovered models through additional constraints while checking for structural isomorphism to avoid presenting mere relabelings of identical model structures. This exploration of countermodel diversity reveals the deeper structure of the countermodel space for particular inferences.
 
-**Isolation and Modularity**
+### 2.3 Output Generation and Interpretation
 
-A critical technical detail with conceptual significance: each argument evaluation occurs in an isolated solver context. This prevents constraint contamination between examples but, more importantly, reflects the philosophical principle that distinct arguments should receive independent semantic evaluation. The architecture enforces logical independence at the implementation level.
-
-#### 2.1.3 Output Generation and Interpretation
-
-The final stage transforms raw solver results into interpretable semantic information, with output formats tailored to different use cases.
+SMT solver results are transformed into interpretable semantic structures if a satisfying countermodel is found, with output formats tailored to the use case.
 
 **Validity Reporting**
 
-For valid arguments (no countermodel found within search bounds), the system reports the search space explored. This qualified validity statement is epistemically honest: we have found no countermodel within a bounded search, providing evidence for but not proof of validity. As search bounds increase, confidence in genuine validity grows.
+For valid arguments (no countermodel found within search bounds), the system reports the search space explored, providing evidence for but not proof of validity. As search bounds increase, confidence in genuine validity is strengthened.
 
 **Countermodel Visualization**
 
-Invalid arguments yield countermodels displayed according to theory-specific conventions. A classical model shows atomic valuations; a modal model adds accessibility relations between worlds; a hyperintensional model displays state-based verification and falsification. The visualization adapts to the semantic primitives of the chosen theory.
+Invalid arguments yield countermodels displayed according to theory specifications. An extensional model specifies truth-vales; an intensional model specifies the worlds each sentence is true in and the extension of an accessibility relation; a hyperintensional model displays state-based verification and falsification along with a parthood relation while distinguishing possible states, world states, and impossible states. The visualization is encoded alongside each operator to ensure modularity.
 
 **Comparative Analysis**
 
-Comparison mode runs identical arguments through multiple theories, generating empirical data on how semantic frameworks differ in their validation patterns and computational costs. This produces the kind of systematic comparative data rarely available in traditional semantic theorizing: concrete, reproducible evidence of which theories validate which inferences and at what computational expense.
+Identical arguments can be run through multiple theories, generating empirical data on how semantic frameworks differ in their validation patterns and computability. This produces systematic comparative data rarely available in traditional semantic theorizing: concrete, reproducible evidence of which theories validate which inferences and at what computational expense.
 
 **Multiple Output Formats**
 
-Different research activities require different output formats. Interactive console output supports rapid exploration; structured JSON enables programmatic analysis; Jupyter notebooks provide reproducible computational narratives. The framework recognizes that semantic research involves diverse workflows from initial exploration to formal publication.
+Different research tasks require different output formats. Interactive console output supports rapid exploration; structured JSON enables programmatic analysis; Jupyter notebooks provide reproducible computational narratives for reporting and presentation; Markdown outputs provide a baseline for capturing outputs in a minimal and readable form for later reference.
 
 **Pipeline Integration**
 
-The three-stage architecture—input specification, constraint-based solving, and theory-specific output—achieves a crucial design goal: theory-agnostic infrastructure with theory-specific plugins. Core components (parsing, constraint solving, output management) operate independently of particular semantic frameworks, while theory modules provide the semantic interpretation that gives formal symbols their meaning. This separation enables the extensibility and systematic comparison that subsequent sections explore in detail.
+The three-stage architecture (input specification, constraint-based solving, and theory-specific output) achieves a crucial design goal: theory-agnostic infrastructure with theory-specific plugins. Core components (parsing, constraint solving, output management) operate independently of particular semantic frameworks, while theory modules provide the semantic interpretation that gives formal symbols their meaning. This separation enables the extensibility and systematic comparison that the subsequent sections explore.
 
-### 2.2 Modularity Through Operator Classes
+## 3 Modular Operator Classes
 
-The framework's modularity emerges from a design principle: logical operators should be self-contained units that encapsulate syntactic recognition, semantic interpretation, and result presentation. This operator-centric architecture enables theory composition, selective loading, and systematic reuse across semantic frameworks. Understanding how operators bridge syntax, semantics, and models reveals the mechanism underlying the framework's extensibility.
+The framework's modularity emerges from a fundamental design principle: logical operators should be self-contained units that encapsulate syntactic recognition, semantic interpretation, and result presentation. This architecture enables theory composition, selective loading, and systematic reuse across semantic frameworks, providing framework extensibility.
 
-#### 2.2.1 Three-Layer Operator Architecture
+### 3.1 Three-Layer Operator Architecture
 
-Logical operators in the framework simultaneously operate at three distinct conceptual levels, each addressing a different aspect of the semantic evaluation problem. This layered design enforces separation of concerns while maintaining compositional coherence.
+Logical operators provide methods for operating at three distinct conceptual levels, each addressing a different aspect of the semantic evaluation problem. This layered design enforces separation of concerns while maintaining compositional coherence.
 
-**Layer 1: Syntactic Recognition (Theory-Independent)**
+**Layer 1: Syntactic Recognition**
 
-At the syntactic level, operators are purely structural entities characterized by their symbol, arity, and parsing behavior. A binary operator "∧" is recognized as requiring exactly two arguments and having specific precedence relationships, but nothing at this level specifies what conjunction *means*. This abstraction is what enables the same parser to handle classical, modal, hyperintensional, and temporal operators uniformly.
+At the syntactic level, operators are purely structural entities characterized by their name, LaTeX code, and arity. Infix sentences of the form `(A \\wedge B)` are converted to prefix notation `[\\wedge, A, B]` in preparation for interpretation. Although the binary operator `\\wedge` is recognized as requiring exactly two arguments, nothing at this level specifies what `\\wedge` *means*. This abstraction is what enables the same parser to handle the operators included in different languages uniformly.
 
-The critical innovation is that syntactic parsing proceeds without semantic knowledge. The parser builds recursive formula structures recognizing only operator arities and associativities, not their semantic interpretations. This means adding a new operator to a theory requires no modification to the parsing infrastructure—the parser recognizes any operator symbol meeting structural requirements.
+The parser builds recursive formula structures recognizing only operator arities, not their semantic interpretations. This means adding a new operator to a theory requires no modification to the parsing infrastructure since the parser recognizes any operator symbol meeting structural requirements.
 
-Defined operators exemplify this separation: the material conditional can be treated syntactically as a primitive binary operator "→" while semantically being defined as "¬A ∨ B". The parser sees the structure; the semantic layer sees through the definition. This enables theoretical economy (fewer primitives) without sacrificing notational convenience.
+Defined operators exemplify this separation: the material conditional can be treated syntactically as a primitive binary operator `\\rightarrow` while semantically being defined as `(\\neg A \\vee B)`. Whereas the parser sees the structure, the semantic layer sees through the definition. This enables theoretical economy (fewer primitives) without any cost to convenience.
 
-**Layer 2: Semantic Interpretation (Theory-Specific Plugin)**
+**Layer 2: Semantic Interpretation**
 
-At the semantic level, operators implement methods translating informal semantic clauses into formal SMT constraints. This is where theory-specific semantics enter: a conjunction operator in classical logic implements different semantic methods than conjunction in hyperintensional truthmaker semantics, despite sharing syntactic structure.
+Operators provide theory-specific semantic methods to translate purely syntactic constructions in prefix notation into formal SMT constraints. Despite sharing the same syntactic structure, a conjunction operator in classical logic implements different semantic methods than conjunction in hyperintensional semantics.
 
-Different semantic frameworks require different operator capabilities:
-- **Intensional theories** require operators to specify truth conditions at evaluation points (worlds, times)
-- **Bilateral theories** require independent specification of truth and falsity conditions
-- **Hyperintensional theories** require verification and falsification conditions over partial states
-- **All theories** require model extraction (translating solver assignments into readable semantic values)
+Rather than hardcoding "worlds" as evaluation points, the framework passes extensible dictionaries containing whatever contextual parameters the theory requires to evaluate sentences:
+ **Extensional theories** require no contextual parameters since sentences receive truth-values directly
+ **Intensional theories** require a single contextual parameter which is interpreted to be a world for circumstantial modals, information state for epistemic modals, or a time for tense operators
+ **Bimodal theories** require two contextual parameters that specify both the world-history and a time in that history
+ **Normative theories** require additional parameters for utility functions or preference orderings over the space of worlds, states, or evolutions depending
 
-This design accommodates semantic diversity: the framework does not impose a single semantic interface. Instead, operators implement whichever methods their semantic framework requires. Modal necessity implements truth-at-world methods; hyperintensional conjunction implements state-based verification methods. The framework adapts to the theory rather than forcing theories into a procrustean semantic template.
+Beyond evaluation parameters, frameworks also differ in structural requirements: bilateral theories require independent specification of truth and falsity conditions, while unilateral theories define falsity as negation of truth. All theories require model extraction methods translating solver assignments into readable semantic values.
 
-The evaluation point abstraction enables this flexibility. Rather than hardcoding "worlds" as evaluation points, the framework passes extensible dictionaries containing whatever semantic coordinates the theory requires: worlds for modal frameworks, world-time pairs for temporal frameworks, or more complex structures for hybrid systems. New semantic frameworks can introduce novel evaluation dimensions without modifying core infrastructure.
+This design accommodates semantic diversity: the framework does not impose a single semantic interface. Instead, operators implement whichever methods their semantic framework requires. The framework adapts to the theory rather than forcing theories into a single semantic pattern.
 
-**Layer 3: Model Interpretation (Theory-Dependent Output)**
+**Layer 3: Model Interpretation**
 
-Once the solver produces a satisfying assignment, operators translate raw solver values into theory-appropriate semantic presentations. The same logical negation operator displays differently depending on the semantic framework: classical negation shows simple truth-value flips, while hyperintensional negation displays verifier-falsifier swaps at the state level.
-
-This layer recognizes that semantic theories differ not just in their validation patterns but in how they conceptualize and present semantic information. The framework delegates presentation to operators because operators encapsulate semantic understanding. A counterfactual operator knows how to extract and display the alternative-world structures relevant to counterfactual semantics.
+Once the solver produces a satisfying assignment, operators translate raw solver values into theory-appropriate model structures, calling methods to present the semantic information. The same logical negation operator displays differently depending on the semantic framework: classical negation shows simple truth-value flips, while bilateral negation inverts the sets of verifiers and falsifiers. This layer recognizes that semantic theories differ not just in their validation patterns but in how they conceptualize and present semantic information.
 
 **Architectural Significance**
 
-The three-layer architecture achieves theory-agnosticism through strategic abstraction points. Layers 1 and 3 (syntax and output) provide stable interfaces, while Layer 2 (semantics) serves as the plugin point where theory-specific interpretations enter. This design pattern—stable infrastructure with semantic plugins—recurs throughout the framework and enables the extensibility that subsequent sections explore.
+The three-layer architecture achieves theory-agnosticism through strategic abstraction points. Layers 1 and 3 (syntax and output) provide stable interfaces, while Layer 2 (semantics) serves as the plugin point where theory-specific interpretations enter. This design pattern recurs throughout the framework and enables the extensibility that subsequent sections explore.
 
-#### 2.2.2 Subtheory Composition and Modular Loading
+--- CONTINUE ---
+
+### 3.2 Subtheory Composition and Modular Loading
 
 Semantic theories are not monolithic. Classical logic comprises connectives with distinct semantic behaviors; modal logic extends classical logic with intensional operators. The framework reflects this compositional structure through subtheory modules that can be selectively loaded and combined.
 
@@ -240,7 +230,7 @@ Modularity creates a performance optimization opportunity: fewer operators means
 
 The framework thus provides granular control over the theory-complexity-performance trade-off. Need comprehensive semantic coverage? Load all subtheories. Need fast iteration on specific fragments? Load minimal operator sets. The architecture makes this choice explicit and easy to modify.
 
-#### 2.2.3 Semantic Framework Patterns and Operator Responsibilities
+### 3.3 Semantic Framework Patterns and Operator Responsibilities
 
 While operators are theory-specific plugins, certain patterns emerge across semantic frameworks. Understanding these patterns illuminates both the diversity and commonalities of formal semantic approaches.
 
@@ -272,11 +262,11 @@ The framework thus distinguishes semantic from notational complexity. Defined op
 
 These patterns suggest design principles for implementing semantic theories: Identify core semantic primitives, implement their semantic methods, define convenient abbreviations as derived operators. The framework's architecture encourages this separation, rewarding clean semantic design with improved performance and maintainability. Theories with fewer, simpler semantic primitives yield faster, more reliable implementations—a computational pressure toward semantic parsimony.
 
-### 2.3 Configurable Semantic Constraints and Model Discovery
+## 4 Configurable Semantic Constraints and Model Discovery
 
 Semantic theories make diverse assumptions about model structure: some require propositions to be contingent, others permit necessary truths; some demand disjoint subject-matters, others allow overlap. The framework addresses this diversity through configurable semantic constraints that are enforced computationally rather than stipulated informally. This section examines how constraint configuration enables both precise model control and systematic countermodel exploration.
 
-#### 2.3.1 Hierarchical Configuration and Research Flexibility
+### 4.1 Hierarchical Configuration and Research Flexibility
 
 The framework implements a multi-level configuration hierarchy balancing global defaults with local overrides. This design reflects a methodological insight: semantic research involves different granularities of control depending on context.
 
@@ -290,7 +280,7 @@ This hierarchy addresses a practical problem in semantic research: how to balanc
 
 The hierarchical design has methodological implications beyond mere convenience. It distinguishes theory-constitutive constraints (embedded in semantic implementations) from investigative constraints (imposed by researchers exploring consequences). A truthmaker theory might constitutively require state-based verification; a researcher might additionally investigate what follows if we require contingency. The configuration system makes this distinction computationally precise.
 
-#### 2.3.2 Semantic Constraints as Computational Enforcements
+### 4.2 Semantic Constraints as Computational Enforcements
 
 Traditional semantic theorizing often leaves model constraints informal: "assume propositions are contingent," "suppose subject-matters are disjoint." The framework makes such constraints computationally explicit, enforcing them through SMT constraints rather than stipulating them in natural language.
 
@@ -317,7 +307,7 @@ Constraints compose: requiring both contingency and disjointness yields models s
 
 This compositional approach mirrors theoretical practice. Semantic theorists often build up model requirements incrementally: start with basic structural requirements, add contingency, impose subject-matter constraints. The framework's constraint composition enables the same incremental specification, with each addition narrowing the model space explored.
 
-#### 2.3.3 Systematic Cross-Theory Comparison
+### 4.3 Systematic Cross-Theory Comparison
 
 A persistent challenge in semantic theory development is comparison: How do different frameworks fare on identical test cases? Which theories handle complexity better? Traditional comparison is informal and unsystematic. The framework enables systematic empirical comparison by running identical examples through multiple theories under controlled conditions.
 
@@ -333,7 +323,7 @@ Comparison yields empirical complexity data: which theories timeout on which exa
 
 The distinction matters. Theoretical complexity (quantifier alternation, primitive arity) predicts computational cost; empirical performance measures actual cost. Sometimes they align, sometimes they diverge (optimizations, solver heuristics). The framework provides both: Section 4 develops theoretical complexity analysis, this section provides the empirical measurement methodology.
 
-#### 2.3.4 Countermodel Discovery and Semantic Diversity
+### 4.4 Countermodel Discovery and Semantic Diversity
 
 Finding a single countermodel establishes invalidity. But how many structurally distinct countermodels exist? Is the countermodel space rich or sparse? Exploring countermodel diversity reveals semantic properties invisible from single-model examination.
 
@@ -373,7 +363,7 @@ Model iteration enables several research methodologies:
 
 Each methodology leverages systematic countermodel exploration to address questions beyond simple validity testing, demonstrating how computational tools enable new forms of semantic investigation.
 
-#### 2.3.5 Termination and Search Space Boundaries
+### 4.5 Termination and Search Space Boundaries
 
 Model iteration raises a termination question: when should the search stop? Unlike validity checking (stop when countermodel found or search space exhausted), iteration could continue indefinitely seeking ever more countermodels. The framework employs multiple termination conditions reflecting different exhaustion scenarios.
 
@@ -389,96 +379,53 @@ Each termination condition has different epistemic status. Successful completion
 
 The framework reports termination reasons, enabling users to interpret results epistemically. Finding 5 models then timing out means "at least 5 distinct countermodels exist"; finding 5 models then exhausting search space means "exactly 5 distinct countermodels exist within these bounds." The distinction matters for theoretical conclusions drawn from iteration results.
 
-
-## 3. Modularity, Extensibility, and Systematic Theory Comparison
-
-### 3.1 Theory-Agnostic Core Framework
-
-#### Separation of Concerns Architecture
-- Core abstractions independent of theories
-- Plugin system for semantic implementations
-- Benefits:
-  - Implement new theories without core changes
-  - Reuse infrastructure
-  - Systematic comparison
-
-### 3.2 Modular Operator Registry System
-- Selective operator loading
-- Subtheory composition
-- Dependency resolution
-- Example: Load only extensional, extensional+modal, or all operators
-
-### 3.3 Systematic Comparative Analysis
-
-#### Same Input, Multiple Theories
-- Identical examples across frameworks
-- Parallel evaluation
-- Result comparison
-
-#### Translation Mechanism
-- Symbol mapping between theories
-- Example: Logos � vs. Exclusion -
-
-#### Comparative Results Database
-- Structured output
-- Divergence identification
-
-### 3.4 Extensibility Dimensions
-1. New operators in existing theories
-2. New semantic theories
-3. New semantic frameworks
-4. New output formats
-5. New solvers (beyond Z3)
-
----
-
-## 4. Computational Complexity of Semantic Primitives and Arity
+## 5. Computational Complexity of Semantic Primitives and Arity
 
 **Central Thesis**: Arity of semantic primitives directly determines computational tractability
 
-### 4.1 Arity and Quantifier Complexity
+### 5.1 Arity and Quantifier Complexity
 - Unary functions: 1 quantifier (tractable)
 - Binary functions/relations: 2 quantifiers (manageable)
 - Ternary functions: 3 quantifiers (challenging)
 - Quantifier alternation impact (hardest)
 
-### 4.2 Theory Comparison by Primitive Arity
+### 5.2 Theory Comparison by Primitive Arity
 **Table**: Theories ranked by primitive complexity
 - Classical: Unary/binary only - Fast
 - Modal: Binary accessibility - Moderate
 - Truthmaker: Binary verify/falsify - Moderate
 - Imposition: Quaternary closeness - Slow
 
-### 4.3 Constraint Structure and Primitive Interaction
+### 5.3 Constraint Structure and Primitive Interaction
 Examples:
 - Negation: Simple swap (no added quantifiers)
 - Disjunction: Existential fusion (2 quantifiers)
 - Necessity: Universal over worlds (1 quantifier + recursion)
 - Counterfactual: Triple nesting + quaternary primitive (very expensive)
 
-### 4.4 Empirical Performance by Arity
+### 5.4 Empirical Performance by Arity
 **Data**: Solve times and timeout rates by primitive arity
 
-### 4.5 Optimization Strategies for High-Arity Primitives
+### 5.5 Optimization Strategies for High-Arity Primitives
 - Currying: Reduce effective arity
 - Lazy evaluation: Defer constraint generation
 - Conditional loading: Only declare needed primitives
 
-### 4.6 Theoretical Complexity Classification
+### 5.6 Theoretical Complexity Classification
 **Complexity Hierarchy**:
 - Class 1 (Fast): Arity ≤2, no alternation
 - Class 2 (Moderate): Arity 3 or ∀∃ patterns
 - Class 3 (Slow): Arity ≥4 or ∀∃∀ patterns
 
-### 4.7 Design Principle: Minimize Arity
+### 5.7 Design Principle: Minimize Arity
 **Recommendation**: Prefer binary/unary primitives when designing theories
 
-### 4.8 Case Study: Arity Impact on Logos Theory
+### 5.8 Case Study: Arity Impact on Logos Theory
 - Binary truthmaking: Efficient core
 - Counterfactuals: Performance bottleneck
 - Optimization outcomes
 
-### 4.9 Summary: Arity as Complexity Driver
+### 5.9 Summary: Arity as Complexity Driver
 Key findings:
 - Arity predicts performance
 - Quantifier structure matters
@@ -486,173 +433,36 @@ Key findings:
 
 ---
 
-## 5. Finite Model Exploration and Countermodel Methodology
+## 6. TheoryLib
 
-### 5.1 The Finite Model Approach
-
-#### Rationale
-- Bounded model checking for logics
-- Evidence for validity via exclusion
-- Practical exploration of model space
-
-#### Not a Complete Decision Procedure
-- Finite search doesn't prove validity
-- But provides strong evidence
-- Finds genuine countermodels
-
-### 5.2 State Space Representation
-
-#### Bitvector Encoding
-- Mereological structure
-- Fusion operations
-- State ordering
-
-#### Mereological Operations
-- Part-of relations
-- Fusion construction
-- Null state handling
-
-### 5.3 Constraint-Based Model Discovery
-
-#### Process
-1. Generate truth constraints
-2. Add frame constraints
-3. Encode inference structure
-4. Query solver
-5. Extract/display models
-
-### 5.4 Evidence for Validity via Countermodel Exclusion
-
-#### Progressive Search Strategy
-- Start with small N
-- Increase if no countermodel found
-- Confidence grows with larger N
-
-#### Countermodel Discovery Cases
-- Invalid inferences detected
-- Minimal distinguishing models
-- Theory comparison insights
-
-### 5.5 Model Iteration for Diversity
-- Block previous models
-- Explore alternative countermodels
-- Understand solution space
-
-### 5.6 Limitations and Future Work
-
-#### Current Limitations
-- No completeness guarantees
-- Performance constraints
-- Undecidability for some logics
-
-#### Mitigation Strategies
-- Progressive search
-- Optimization techniques
-- Bounded fragments
-
-#### Future Extensions
-- Decidability results for fragments
-- Abstraction refinement
-- Parallel solving
-
----
-
-## 6. Theory-Agnostic Methodology and the TheoryLib Vision
-
-### 5.1 TheoryLib: A Library of Executable Semantic Theories
-
-#### Current Implementation (4 Theories)
+### 6.1 Current Implementation (4 Theories)
 1. **Logos**: Bilateral truthmaker semantics (19 operators)
 2. **Exclusion**: Unilateral truthmaker semantics
 3. **Imposition**: Fine's counterfactual theory
 4. **Bimodal**: Temporal-modal logic
 
-#### TheoryLib Architecture
+### 6.2 TheoryLib Architecture
 - Standardized interfaces
 - Shared infrastructure
 - Theory registry
 - Dependency management
 
-### 5.2 Vision: A Collaborative Platform for Semantic Research
-
-#### Ambitions
-- 50+ theories
+### 6.3 Ambitions
 - Community contributions
 - Comparative benchmarking
 - Citation and versioning
 - Educational resources
 
-### 5.3 Theory-Agnostic Framework Design
-
-#### Core Abstraction: The Semantic Interface
-- `true_at()` method
-- Frame constraint specification
-- Operator registration
-- Benefits of abstraction
-
-### 5.4 Sharing, Reuse, and Modularity
-
-#### Operator Sharing Across Theories
-- Classical operators reused
-- Consistent implementations
-
-#### Subtheory Composition
-- Dependency resolution
-- Conflict handling
-- Modular loading
-
-#### Cross-Theory Utilities
-- Parsing
-- Output formatting
-- Model iteration
-
-### 5.5 Community and Contribution Model
-
-#### Open Source Foundations
-- GPL-3 license
-- Public repository
-
-#### Contribution Workflow
-1. Implement theory
-2. Add test suite
-3. Submit PR
-4. Review and merge
-5. Documentation
-
-#### Governance
-- Maintainer oversight
-- Standards enforcement
-- Quality control
-
-#### Incentives for Contribution
-- Citation credit
-- Academic recognition
-- Research tool access
-
 ---
 
 ## 7. Case Study: Logos Theory and Unified Hyperintensional Semantics
 
-### 6.1 Philosophical Background: The Language of Thought
+### 7.1 Truthmaker Semantics Foundations
+ States as truthmakers
+ Bilateral verification/falsification
+ Hyperintensional distinctions
 
-#### Truthmaker Semantics Foundations
-- States as truthmakers
-- Bilateral verification/falsification
-- Hyperintensional distinctions
-
-### 6.2 Logos Implementation Strategy
-
-#### Design Goals
-- Unified framework for all operators
-- Modular subtheories
-- Systematic testing
-
-#### Technical Architecture
-- State space structure
-- Bilateral semantics
-- Five operator subtheories
-
-### 6.3 Operator Semantics: Five Subtheories
+### 7.2 Operator Semantics: Five Subtheories
 
 #### 1. Extensional Operators
 - Negation, disjunction, conjunction
@@ -679,12 +489,7 @@ Key findings:
 - Subject-matter overlap
 - Meaningful connections
 
-### 6.4 Unification Across Domains
-- Single semantic framework
-- Consistent truthmaker base
-- Operator interactions
-
-### 6.6 Empirical Validation and Test Suite
+### 7.3 Empirical Validation and Test Suite
 
 #### Example Categories (177 total)
 - Extensional: 55 examples
@@ -698,131 +503,11 @@ Key findings:
 - Expected vs. actual results
 - Bug detection
 
-#### Bug Discovery Through Testing
-- Fusion closure bug example
-- Diagnostic process
-
 ---
 
-## 8. Implementation Results and Empirical Validation
+## 8. Discussion and Future Directions
 
-### 7.1 Quantitative Metrics
-
-#### Performance Benchmarks
-- Solve times by theory
-- State space sizes
-- Timeout rates
-- Success rates
-
-### 7.2 Qualitative Validation: Case Studies
-
-#### Case Study 1: Counterfactual Non-Transitivity
-- Lewis's famous example
-- ModelChecker test
-- Countermodel structure
-- Philosophical import
-
-### 7.3 Theory Comparison Results
-
-#### Comparative Inference Table
-**Table showing**:
-- Classical vs. Modal vs. Constitutive vs. Counterfactual
-- Key inferences for each theory
-- Validity/invalidity results
-- Distinguishing features
-
-**Observations**:
-- Classical validates extensional inferences
-- Modal adds necessity patterns
-- Constitutive grounds and essence
-- Counterfactuals non-monotonic
-- Relevance filters irrelevance
-
-### 7.4 Validation Against Philosophical Literature
-
-#### Logos vs. Fine's Imposition Semantics
-**Research Question**: How does Logos compare to Fine's primitive imposition?
-
-**Key Findings**:
-- Both satisfy same frame constraints
-- Logically independent (neither entails other)
-- Modal definability differences
-- The "Jump Problem": Imposition permits unrelated world jumps
-- Vacuous truth issue in Imposition
-- Minimal countermodels (IM_CM_27, IM_CM_22, IM_CM_28)
-
-**Methodology**: `derive_imposition=True` flag testing
-
-**Conclusion**: Structural equivalence ` logical equivalence
-
-#### Counterfactual Logic vs. Lewis
-**TODO**: Fill out comparison (note: different semantic predictions)
-
-### 7.5 Bug Discovery and Resolution
-
-#### Example: Fusion Closure Bug in Early Logos
-- Symptom: Unexpected validity
-- Investigation: Z3 model inspection
-- Diagnosis: Frame constraint too strong
-- Fix: Corrected constraint
-- Lesson: Automated testing catches errors
-
----
-
-## 9. Related Work
-
-### 8.1 Automated Reasoning in Philosophy
-
-#### Computational Metaphysics
-- G�del's ontological argument
-- Modal metaphysics automation
-- Previous applications
-
-#### Automated Theorem Proving for Modal Logic
-- Existing provers
-- Comparison with ModelChecker
-
-### 8.2 SMT Solvers in Verification
-
-#### Program Verification
-- SMT applications
-- Constraint solving
-
-#### Model Checking
-- Bounded model checking
-- State space exploration
-
-### 8.3 Semantic Frameworks and Implementations
-
-#### Computational Semantics
-- Previous semantic tools
-- Comparison with ModelChecker
-
-#### Proof Assistants
-- Coq, Isabelle, Lean
-- Differences from SMT approach
-
-### 8.4 Truthmaker Semantics Implementations
-- Prior computational work
-- ModelChecker's novelty
-
-### 8.5 Modular Software Architecture for Logic
-
-#### Logic Frameworks
-- Existing modular systems
-- Design patterns
-
-#### Comparison: ModelChecker vs. Existing Approaches
-**Table comparing**:
-- Features
-- Strengths
-- Limitations
-
----
-
-## 10. Discussion and Future Directions
-
-### 9.1 Contributions Summary
+### 8.1 Contributions Summary
 
 #### Theoretical Contributions
 1. First computational bilateral truthmaker semantics
@@ -839,7 +524,7 @@ Key findings:
 5. Empirical validation methodology
 6. Bug detection capabilities
 
-### 9.2 Limitations and Challenges
+### 8.2 Limitations and Challenges
 
 #### Computational Limitations
 1. **No Completeness**: Finite search limitations
@@ -863,134 +548,9 @@ Key findings:
    - Mitigation: Labeling, unsat cores
    - Future: Better debugging tools
 
-### 9.4 Broader Impact
+### 8.3 Conclusion
+ Recap main contributions
+ Significance of computational approach
+ TheoryLib vision
+ Call for community engagement
 
-#### Philosophy and Logic
-- Computational turn in semantics
-- Empirical theory evaluation
-- Systematic comparison
-- Educational applications
-
-#### Computer Science and AI
-- SMT solver applications
-- Knowledge representation
-- Automated reasoning
-- Program verification analogies
-
-#### Cognitive Science
-- Computational models of reasoning
-- Semantic competence modeling
-- Theory testing
-
-### 9.5 Conclusion
-- Recap main contributions
-- Significance of computational approach
-- TheoryLib vision
-- Call for community engagement
-
----
-
-## 11. References
-
-### Primary Framework Papers
-- ModelChecker documentation
-- Logos theory papers
-- Z3 solver
-
-### Truthmaker Semantics
-- Fine's truthmaker semantics
-- Correia and Schneider
-- Related bilateral frameworks
-
-### Modal and Counterfactual Logic
-- Lewis on counterfactuals
-- Modal logic textbooks
-- Hyperintensional logic
-
-### Automated Reasoning
-- SMT solver literature
-- Model checking
-- Automated theorem proving
-
-### Computational Philosophy
-- Previous computational metaphysics
-- Logic automation
-
-### SMT and Model Checking
-- Z3 papers
-- Constraint solving
-- Satisfiability
-
-### Proof Assistants
-- Coq, Isabelle, Lean
-- Interactive theorem proving
-
-### Software Engineering and Modularity
-- Design patterns
-- Plugin architectures
-- Software engineering principles
-
----
-
-## Key Themes Throughout Paper
-
-1. **Theory-agnosticism**: Framework independent of specific theories
-2. **Modularity**: Compositional operator and subtheory design
-3. **Empiricism**: Objective computational metrics replace subjective assessments
-4. **Arity as complexity driver**: Central organizing principle
-5. **Systematic comparison**: Same examples across theories
-6. **Finite model methodology**: Evidence through countermodel exclusion
-7. **TheoryLib vision**: Collaborative semantic research platform
-8. **Practical validation**: Real implementation, 177+ examples
-9. **Bug discovery**: Computational testing finds errors
-10. **Extensibility**: Multiple dimensions of extension
-
----
-
-## Tables and Figures
-
-### Proposed Tables
-1. Theory comparison by primitive arity (Section 2.5.2)
-2. Performance benchmarks by arity (Section 2.5.4)
-3. Complexity classification (Section 2.5.6)
-4. Comparative inference table (Section 7.3)
-5. Logos vs. Imposition comparison (Section 7.4)
-6. ModelChecker vs. existing approaches (Section 8.5)
-
-### Proposed Figures
-1. Three-level architecture diagram (Section 2.1)
-2. Builder pattern orchestration (Section 2.2)
-3. Constraint generation pipeline (Section 2.4)
-4. State space bitvector encoding (Section 4.2)
-5. TheoryLib architecture (Section 5.1)
-6. Logos subtheory structure (Section 6.3)
-
----
-
-## Writing Notes
-
-### Target Audience
-- Automated reasoning researchers
-- Computational philosophers
-- Modal/non-classical logicians
-- Semantic theorists
-- SMT solver practitioners
-
-### Tone
-- Rigorous and technical
-- Emphasize empirical results
-- Balance theory and implementation
-- Accessible to both CS and philosophy
-
-### Key Messages
-1. Semantic theories can be executable programs
-2. Arity determines tractability
-3. Modularity enables systematic comparison
-4. Finite models provide practical evidence
-5. TheoryLib enables collaborative semantics
-
-### Emphasis
-- Novel contributions (bilateral truthmaker, arity metrics)
-- Practical validation (real examples, bug discovery)
-- Extensibility and modularity
-- Community vision
