@@ -30,7 +30,7 @@ Semantic theorizing faces a fundamental tension between expressive power of the 
 
 As theories grow more complex, verifying their consequences increases in difficult. The problem intensifies when theories combine multiple operators in order to study their interactions.
 
-*The Comparison Problem**
+**The Comparison Problem**
 
 Semantic theorists frequently propose alternative frameworks claiming to better capture some semantic domain. Comparing theories is typically informal, relying on judgments of theoretical parsimony. Without empirical metrics, theory choice often reflects subjective assessments of elegance or intuitive fit rather than systematic benchmarking that compares semantic theories on standardized inputs to measure comparative performance.
 
@@ -39,6 +39,8 @@ Semantic theorists frequently propose alternative frameworks claiming to better 
 Some semantic theories are computationally demanding. Others are much more tractable, yielding efficiently solvable constraints. Traditional semantic theorizing treats computational complexity as an implementation detail, external to semantic concerns. We argue that computational complexity should inform semantic theory development, taking computability to be a theoretical virtue that can be measured and used to guide theory choice.
 
 ### 1.2 The Computational Turn in Semantics
+
+**TODO**: Expand with specific recent projects in computational philosophy/automated reasoning, identifying their scope and limitations relative to our approach.
 
 SMT solvers, originally developed for program verification, provide powerful engines for constraint satisfaction over complex mathematical structures. Applying SMT technology to semantic theory development is a natural extension: semantic models are mathematical structures; semantic theories specify constraints over these structures; SMT solvers find assignments satisfying constraints.
 
@@ -55,8 +57,6 @@ Several research programs have explored computational approaches to semantic the
 **The Gap: Theory-Agnostic Semantic Frameworks**
 
 What's missing is a theory-agnostic framework enabling researchers to implement diverse semantic theories, test them on shared examples, and compare their validation patterns and computational characteristics systematically. Whereas existing tools target specific logics and focus on theorem proving, we need infrastructure supporting arbitrary semantic frameworks in order to explore the space of countermodels for invalid inferences. Instead of treating theories individually, we need systematic comparative methodology to enhance theory selection. Moreover, pure first-order encodings can be cumbersome for semantic structures. By contrast, SMT solvers that support bitvectors for state spaces, uninterpreted functions for semantic relations, and arithmetic for cardinality constraints provide more natural and efficient representations.
-
-**TODO**: Expand with specific recent projects in computational philosophy/automated reasoning, identifying their scope and limitations relative to our approach.
 
 ### 1.3 Contributions: A Programmatic Framework for Semantic Theory Development
 
@@ -96,7 +96,7 @@ The framework provides empirical measures of semantic theory complexity through 
 
 **Paper Structure**
 
-Section 2 presents the ModelChecker architecture: input processing, logical pipeline, and output generation (2.1); operator modularity and three-layer architecture (2.2); configurable constraints and model discovery (2.3). Section 3 examines modularity and extensibility in detail. Section 4 develops the arity-complexity thesis with empirical validation. Section 5 discusses finite model methodology and epistemic limitations. Section 6 presents the TheoryLib vision and contribution model. Section 7 provides a detailed case study of Logos theory implementation. Section 8 reports empirical results and theory comparisons. Section 9 reviews related work. Section 10 concludes with future directions and broader impact.
+Section 2 presents the complete pipeline architecture from input specification through constraint generation to output formatting. Section 3 examines the three-layer operator architecture and compositional modularity that enables theory-agnostic extensibility. Section 4 develops the systematic comparative methodology: controlled experimental design, empirical complexity metrics, and cross-theory validation patterns. Section 5 addresses model exploration through configurable semantic constraints and bounded search via countermodel iteration with isomorphism detection. Section 6 establishes the arity-complexity thesis, demonstrating that primitive arity determines tractability boundaries through model space analysis, frame constraint complexity examination, and comparative case studies. Section 7 concludes by developing the TheoryLib vision, providing practical guidance for testing existing theories and implementing new semantic frameworks, and inviting collaborative contribution to computational formal semantics.
 
 ---
 
@@ -250,11 +250,80 @@ Some operators are not semantically primitive but defined in terms of others. Fo
 
 These patterns suggest design principles for implementing semantic theories: Identify core semantic primitives, implement their semantic methods, define convenient abbreviations as derived operators. The framework's architecture encourages this separation, rewarding clean semantic design with improved performance and maintainability. Theories with fewer, simpler semantic primitives yield reliable implementations that are easy to maintain.
 
-## 4 Configurable Semantic Constraints and Model Discovery
+## 4. Systematic Comparative Methodology
 
-Semantic theories make diverse assumptions about model structure: some require propositions to be contingent, others permit necessary truths; some demand disjoint subject-matters, others allow overlap. The framework addresses this diversity through configurable semantic constraints. This section examines how constraint configuration enables precise model control to assist exploration.
+A persistent challenge in semantic theory development is comparison: how do different frameworks fare on identical test cases? Which theories are computationally simpler? Traditional comparison is informal and unsystematic, relying on selective examples and subjective assessments. The ModelChecker enables systematic empirical comparison by running identical arguments through multiple semantic theories under controlled conditions, measuring both validation outcomes and computational costs. This implements **Contribution 3: Systematic Comparative Methodology** (Section 1.3).
 
-### 4.1 Hierarchical Configuration and Research Flexibility
+### 4.1 Comparative Framework Design
+
+When multiple theories are provided, the framework evaluates each theory on the same argument with identical settings, measuring both validation outcomes and computational costs. This produces concrete, reproducible comparative data replacing subjective assessments of theory complexity.
+
+The methodology controls for discrepancies in test conditions so that differences in outcomes or performance reflect genuine theoretical differences rather than variations in test conditions. Experimental measures are not provided by traditional semantic theorizing which relies on manual proofs.
+
+**Multi-Theory Evaluation Protocol**
+
+The input structure accepts multiple semantic frameworks, evaluating each argument with each theory in turn (Section 2.1). This enables direct theory comparison: identical inputs, identical configuration, identical search bounds. The only variation is the semantic theory itself. Differences in validation patterns or performance thus reflect theoretical commitments rather than experimental artifacts.
+
+This experimental control is the methodological innovation. Traditional semantic comparison lacks controlled conditions: different researchers test different examples, use different proof techniques, focus on different fragments. The framework provides standardized conditions enabling systematic evidence-based theory evaluation.
+
+### 4.2 Empirical Complexity Metrics
+
+Evaluating examples with multiple theories yields empirical complexity data: which theories timeout on which examples, which scale to larger state spaces, which validate or invalidate particular patterns. These metrics complement traditional theoretical complexity analysis with empirical performance data.
+
+**Metrics Collected**
+
+- **Validation outcomes**: Which theories declare the argument valid vs. invalid
+- **Solve times**: Time required to reach validity determination (in milliseconds)
+- **Timeout rates**: Percentage of test cases exceeding time bounds
+- **Maximum tractable domain size**: Largest N value permitting solution within timeout
+- **Constraint counts**: Number of SMT constraints generated by each theory
+
+**Theoretical vs. Empirical Complexity**
+
+Theoretical complexity (quantifier alternation, primitive arity) predicts computational costs based on model space size and constraint structure. Empirical performance measures actual cost on specific examples. Sometimes they align (primitive arity correctly predicts timeouts), sometimes they diverge (solver heuristics, optimizations, formula-specific structure).
+
+The framework provides both perspectives. Empirical measurements validate theoretical predictions (Section 6) while revealing performance variations within complexity tiers. Theory A and Theory B might share the same primitive arity (same tier) yet differ by 2-3× in solve time due to frame constraint differences.
+
+### 4.3 Cross-Theory Validation Patterns
+
+Beyond performance metrics, comparison reveals how theories differ in their validation patterns: which inferences they accept as valid, which they reject, and why.
+
+**Validation Agreement and Divergence**
+
+Some inferences produce agreement: all theories validate modus ponens, all reject affirming the consequent. These represent semantic universals—logical patterns independent of semantic framework choices.
+
+Other inferences produce divergence: Theory A validates while Theory B invalidates. These divergences reveal theoretical commitments. Hyperintensional theories may invalidate inferences that intensional theories validate, reflecting their sensitivity to verification structure beyond truth conditions.
+
+**Comparison as Theoretical Insight**
+
+Systematic comparison transforms theory evaluation from informal assessment to empirical investigation. Instead of asking "Does this theory seem simpler?", we ask "How does this theory perform on 177 test cases relative to alternatives?"
+
+Concrete questions become answerable:
+- Do bilateral and unilateral frameworks validate the same inferences?
+- How much computational overhead does bilateral tracking impose?
+- Which theory differences matter for validation, which only affect performance?
+
+The comparative methodology enables evidence-based answers grounded in reproducible measurements.
+
+### 4.4 Setting Up Complexity Analysis
+
+The empirical observations raise explanatory questions: Why do theories differ in performance? What structural properties determine computational costs?
+
+Section 6 develops a theoretical explanation: **primitive arity determines tractability boundaries**. The empirical comparison provides evidence for this thesis:
+
+- Logos and Exclusion (binary primitives) show similar performance tier despite different primitive counts
+- Imposition (ternary primitive) exhibits dramatic performance degradation
+- Performance gaps align with model space predictions from primitive arity
+
+This section establishes the empirical phenomena; Section 6 explains them theoretically. The progression from comparative observation to theoretical analysis demonstrates how computational tools enable new forms of semantic investigation: systematic measurement generating explanatory hypotheses validated through formal analysis.
+
+---
+
+## 5. Model Exploration and Bounded Search
+
+The framework enables systematic exploration of model spaces through configurable constraints and iterative countermodel discovery. This section examines how researchers control the search space through hierarchical configuration and how the system discovers structurally distinct countermodels through constraint-based iteration combined with isomorphism detection.
+
+### 5.1 Hierarchical Configuration and Research Flexibility
 
 The framework implements a multi-level configuration hierarchy balancing global defaults with local overrides. This design assists research by providing different levels of control depending for flexibility and ease of use.
 
@@ -268,29 +337,13 @@ This hierarchy allows researchers to restrict the space of models while remainin
 
 The hierarchical design has methodological implications beyond mere convenience. It distinguishes theory-constitutive constraints (embedded in semantic implementations) from investigative constraints (imposed by researchers exploring consequences).
 
-### 4.2 Constraint Composition and Interaction
+### 5.2 Constraint Composition and Interaction
 
 Constraints compose: requiring both contingency and disjointness yields models satisfying both conditions. But constraints also interact: contingency implies non-emptiness (contingent propositions must have verifiers and falsifiers), so redundant constraints can be omitted. The framework handles these interactions, applying only the minimal constraint set expressing the desired conditions.
 
 This compositional approach mirrors theoretical practice. Semantic theorists often build up model requirements incrementally: start with basic structural requirements, add contingency, impose subject-matter constraints. The framework's constraint composition enables the same incremental specification, with each addition narrowing the model space explored.
 
-### 4.3 Systematic Cross-Theory Comparison
-
-A persistent challenge in semantic theory development is comparison in order to determine how different frameworks fare on identical test cases or which theory is simpler than the other. Traditional comparison is informal and unsystematic. The ModelChecker enables systematic empirical comparison by running identical examples through multiple theories while measuring computational costs.
-
-**Comparative Methodology**
-
-When multiple theories are provided, the framework evaluates each theory on the same argument with identical settings, measuring both validation outcomes and computational costs. This produces concrete, reproducible comparative data replacing subjective assessments of theory complexity.
-
-The methodology controls for discrepancies in test conditions so that differences in outcomes or performance reflect genuine theoretical differences rather than variations in test conditions. Experimental measures are not provided by traditional semantic theorizing which rely on manual proofs.
-
-**Empirical Complexity Metrics**
-
-Evaluating examples with multiple theories yields empirical complexity data: which theories timeout on which examples, which scale to larger state spaces, which validate or invalidate particular patterns. These metrics complement traditional theoretical complexity analysis with empirical performance data.
-
-Whereas theoretical complexity (quantifier alternation, primitive arity) predicts computational costs, empirical performance measures actual cost. Sometimes they align, sometimes they diverge (optimizations, solver heuristics). The framework provides both. [Section 5] develops a theoretical complexity analysis that builds on the empirical measurement methodology provided here.
-
-### 4.4 Countermodel Discovery and Semantic Diversity
+### 5.3 Countermodel Discovery and Iteration
 
 Finding a single countermodel establishes invalidity. But how many structurally distinct countermodels exist? Is the countermodel space rich or sparse? Exploring countermodel diversity reveals semantic properties invisible from single-model examination.
 
@@ -312,7 +365,7 @@ Constraint-based exclusion alone is insufficient since excluding a specific vari
 
 Graph isomorphism detection solves this: represent models as labeled graphs (worlds as nodes, accessibility relations as edges, valuations as labels) and check whether new models are isomorphic to previous ones. Isomorphic models are rejected, triggering additional exclusion constraints. Only structurally distinct models are accepted.
 
-**Two-Stage Isomorphism Checking**
+### 5.4 Isomorphism Detection and Structural Distinctness
 
 Full graph isomorphism is computationally expensive. The framework employs a two-stage strategy: quick structural checks (node count, edge count, degree sequences) cheaply reject most non-isomorphic models; expensive full isomorphism checking runs only when cheap checks pass. This optimizes for the common case while maintaining correctness.
 
@@ -330,7 +383,7 @@ Model iteration enables several research methodologies:
 
 Each methodology leverages systematic countermodel exploration to address questions beyond simple validity testing, demonstrating how computational tools enable new forms of semantic investigation.
 
-### 4.5 Termination and Search Space Boundaries
+### 5.5 Termination and Search Space Boundaries
 
 Model iteration raises a termination question: when should the search stop? Unlike validity checking (stop when countermodel found or search space exhausted), iteration could continue indefinitely seeking ever more countermodels. The framework employs multiple termination conditions reflecting different exhaustion scenarios.
 
@@ -346,13 +399,13 @@ Each termination condition has different epistemic status. Successful completion
 
 The framework reports termination reasons, enabling users to interpret results. Finding 5 models then timing out means "at least 5 distinct countermodels exist"; finding 5 models then exhausting search space means "exactly 5 distinct countermodels exist within the bounded space of models." The distinction matters for theoretical conclusions drawn from iteration results.
 
-## 5. Computational Complexity and Primitive Arity
+## 6. Computational Complexity and Primitive Arity
 
 Semantic theories differ dramatically in their computational characteristics. Some theories enable rapid model checking across large state spaces, while others timeout on modest search bounds. This section examines how the computational complexity of semantic theories is directly determined by the arity of their semantic primitives—the fundamental Z3 relations and functions that constitute the theory's model structure—with higher-arity primitives inducing exponentially larger model spaces that must be searched.
 
 This arity-complexity relationship has both theoretical and practical significance. Theoretically, it identifies a structural property of semantic frameworks—primitive arity—that predicts computational behavior independently of implementation details or solver optimizations. Practically, it provides design guidance for semantic theorists: theories built from lower-arity primitives exhibit better computational tractability than theories requiring higher-arity primitives.
 
-### 5.1 Semantic Primitives and Model Space
+### 6.1 Semantic Primitives and Model Space
 
 Computational tractability is determined by the primitive fundamental Z3 functions and relations that constitute a semantic theory's model structure. These *semantic primitives* are declared using z3.Function() and represent the basic elements over which the SMT solver searches when seeking countermodels.
 
@@ -404,7 +457,7 @@ Strong evidence for validity findings requires scaling both D (larger domains) a
 
 The exponential scaling of model space with primitive arity establishes arity as the dominant factor in computational complexity. While frame constraint complexity, formula nesting depth, and sentence letter count all affect performance, none produces comparable impact. This dominance explains why maximum primitive arity serves as the primary complexity classifier for semantic theories.
 
-### 5.2 Frame Constraints and the Pruning-Complexity Tradeoff
+### 6.2 Frame Constraints and the Pruning-Complexity Tradeoff
 
 Frame constraints impose structural requirements on semantic primitives, ruling out invalid model regions before the solver explores them. These constraints exhibit a fundamental performance tradeoff: while they prune invalid search space through constraint propagation, they also impose computational overhead through constraint expansion, memory consumption, and propagation costs. Well-designed frame constraints dramatically accelerate solving; poorly-designed constraints degrade performance or exhaust available memory, crashing the solver.
 
@@ -441,7 +494,7 @@ Empirical testing confirms Imposition crashes at N≥13 from constraint explosio
 
 Even with optimal frame constraint design, primitive arity remains the dominant complexity driver. Higher-arity primitives require more frame constraints to ensure semantic validity, and those constraints expand more rapidly (D³ vs. D²). Frame constraint complexity thus *compounds* with primitive arity, reinforcing that semantic primitive arity determines the fundamental tractability boundaries of SMT-based semantic theory implementation.
 
-### 5.3 The Primitive Count Tradeoff: Logos vs. Exclusion
+### 6.3 The Primitive Count Tradeoff: Logos vs. Exclusion
 
 The choice of semantic primitives involves a fundamental tradeoff: more primitives enable simpler semantic clauses and frame constraints, while fewer primitives require complex semantic clauses and additional frame constraints to achieve equivalent expressive power. This section examines this tradeoff through the comparison of Logos and Exclusion theories.
 
@@ -520,9 +573,9 @@ The Logos-Exclusion comparison demonstrates that primitive *count* is negotiable
 
 This analysis reinforces the central conclusion: primitive arity determines tractability boundaries, while primitive count and semantic clause complexity determine performance within those boundaries.
 
-### 5.4 Empirical Performance Data and Arity Effects
+### 6.4 Empirical Performance Data and Arity Effects
 
-**TODO: Conduct systematic empirical comparison of Logos, Exclusion, and Imposition theories using the following methodology:**
+**TODO: Conduct systematic empirical comparison of Logos, Exclusion, and Imposition theories using the following methodology, adjusting numbers accordingly.**
 
 **1. Test Suite Design**
 - Select 15-20 representative inference problems spanning:
@@ -569,9 +622,9 @@ This analysis reinforces the central conclusion: primitive arity determines trac
 - Bar chart: Maximum tractable N by theory
 - Statistical test: Correlation between model space exponent and timeout rate
 
-### 5.5 Conclusion: The Dominance of Primitive Arity
+### 6.5 Conclusion: The Dominance of Primitive Arity
 
-**TODO: After completing empirical testing (Section 5.4), populate this section with specific tractability numbers for each primitive arity tier (maximum tractable N values, timeout rates, solve times).**
+**TODO: After completing empirical testing (Section 6.4), populate this section with specific tractability numbers for each primitive arity tier (maximum tractable N values, timeout rates, solve times).**
 
 The analysis of semantic primitive complexity establishes primitive arity—specifically, the number of arguments ranging over states—as the primary determinant of computational tractability in SMT-based semantic theory implementation. This conclusion emerges from three complementary investigations: model space analysis, frame constraint complexity, and the Logos-Exclusion comparison.
 
@@ -634,3 +687,126 @@ Semantic theory tractability follows a clear hierarchy:
 This hierarchy yields a clear design principle: minimize k (state arguments per primitive) as the primary complexity criterion. Theories with k≥3 should be avoided unless absolutely necessary for semantic adequacy. When higher arity proves essential, modular architecture can isolate high-arity primitives in optional subtheories, enabling users to access Tier 1 performance for formulas not requiring the high-arity primitive.
 
 The analysis establishes computational tractability as objective, measurable, and predictable from primitive structure. Semantic theorists can calculate tractability boundaries before implementation by identifying maximum k across primitives. This transforms tractability from an empirical surprise into a design criterion, enabling informed choices between semantic expressiveness and computational feasibility.
+
+---
+
+## 7. Conclusion: TheoryLib and Collaborative Semantic Theory Development
+
+This paper has presented the ModelChecker framework treating semantic theories as executable programs enabling systematic model exploration, empirical theory comparison, and automated validation checking. Six principal contributions advance semantic methodology: theory-agnostic architecture, compositional modularity, systematic comparative methodology, bounded model exploration, computational complexity as theoretical virtue, and TheoryLib extensible library. This concluding section develops the TheoryLib vision and provides practical guidance for researchers to use the framework, test existing theories, implement new semantic frameworks, and contribute to collaborative formal semantics.
+
+### 7.1 TheoryLib: A Shared Repository for Semantic Theories
+
+TheoryLib provides for formal semantics what proof assistant libraries provide for formalized mathematics: shared, reusable, validated implementations in standardized format. The current library includes four semantic theories—bilateral truthmaker semantics (Logos), unilateral truthmaker semantics (Exclusion), Fine's imposition semantics, and bimodal temporal-modal logic—demonstrating theory-agnosticism across diverse frameworks while providing foundation for collaborative expansion.
+
+**Benefits of Standardized Implementation**
+
+Implementing theories in TheoryLib format yields multiple research benefits. **Reproducibility**: Published theories become executable, enabling other researchers to validate results and test new examples. **Direct comparison**: Standardized format permits running identical arguments through multiple theories under controlled conditions (Section 4), producing empirical comparative data rarely available in traditional semantic theorizing. **Educational use**: Students can explore semantic frameworks through concrete models rather than abstract definitions, building intuition about how theories validate inferences. **Theory reuse**: Shared operator implementations promote consistency while enabling researchers to build on prior work rather than reimplementing from scratch.
+
+**Current Coverage and Future Expansion**
+
+The four implemented theories cover 177+ validated examples spanning propositional logic, modal operators, counterfactual conditionals, and constitutive operators. This demonstrates framework viability while establishing baseline for expansion. Future TheoryLib development envisions implementations of epistemic semantics, normative logics, causal frameworks, dynamic semantics, and hybrid approaches combining multiple semantic dimensions.
+
+### 7.2 Testing and Adapting Existing Theories
+
+Researchers can immediately use TheoryLib to explore how semantic frameworks evaluate inferences without implementing theories from scratch.
+
+**Basic Workflow: Testing Inferences**
+
+1. **Select theory**: Choose from Logos, Exclusion, Imposition, or Bimodal based on the semantic domain under investigation
+2. **Specify argument**: Define premises and conclusions using the framework's syntactic notation
+3. **Configure settings**: Set search bounds (domain size N), timeout limits, and semantic constraints (e.g., contingency requirements)
+4. **Run validation**: The framework generates SMT constraints, invokes Z3 solver, and reports validity determination with countermodel if invalid
+5. **Interpret results**: Valid arguments provide evidence for semantic entailment; invalid arguments yield concrete countermodels illustrating why the inference fails
+
+### 7.3 Implementing New Semantic Theories
+
+Contributing new theories to TheoryLib requires systematic implementation following the framework's architecture. This section provides step-by-step methodology informed by Sections 3 (modularity) and 6 (complexity).
+
+**Step 1: Design Semantic Primitives**
+
+Identify the fundamental Z3 functions and relations constituting the theory's model structure. These primitives are where theory-specific semantics enter the framework (Section 3.1).
+
+*Guidance*: Minimize the maximum state-argument count k to maximize computational tractability (Section 6).
+
+**Step 2: Implement Semantic Clauses**
+
+Define truth or verification conditions for each logical operator through SMT constraint generation methods. Follow the three-layer operator architecture (Section 3.1): syntactic recognition (arity specification), semantic interpretation (constraint generation), model presentation (result formatting).
+
+*Guidance*: Keep semantic clauses simple when possible. More primitives with simple semantics often outperform fewer primitives with complex semantics due to reduced constraint overhead (Section 6.3).
+
+*Step 3: Specify Frame Constraints**
+
+Encode structural requirements on semantic primitives ruling out invalid model regions. Well-designed frame constraints dramatically improve performance through constraint propagation, but excessive constraints cause memory exhaustion (Section 6.2).
+
+*Guidance*: Balance pruning benefits against complexity costs. Frame constraints over k-ary primitives expand as D^k, so theories with higher-arity primitives face greater constraint overhead. Test constraint expansion at moderate domain sizes (N=5-8) to identify memory issues before they become catastrophic failures.
+
+**Step 4: Create Example Suite**
+
+Validate theory implementation through comprehensive test cases covering expected validities, characteristic invalidities, and edge cases distinguishing the theory from alternatives.
+
+*Guidance*: Include both positive tests (inferences the theory should validate) and negative tests (inferences it should invalidate). Compare validation patterns with related theories to confirm the implementation captures intended distinctions. Use the comparative methodology (Section 4) to benchmark performance relative to existing TheoryLib implementations.
+
+**Step 5: Documentation and Contribution**
+
+Document primitives, operators, frame constraints, and theoretical motivations. Include references to semantic literature establishing the theory's philosophical foundations. Submit implementations, examples, and documentation to TheoryLib repository for community review, validation, and integration.
+
+### 7.4 A Methodology for Computational Formal Semantics
+
+The ModelChecker framework enables new research methodologies transforming how semantic theories are developed, tested, and compared.
+
+**Theory Development Cycle**
+
+1. **Implement**: Encode semantic theory as executable program
+2. **Test**: Run example suites validating expected inferences
+3. **Refine**: Identify bugs, optimize performance, simplify implementations
+4. **Compare**: Benchmark against alternative theories on shared examples
+5. **Iterate**: Revise based on empirical results and theoretical insights
+
+This cycle replaces informal theory development with systematic engineering methodology. Bugs become obvious (theory validates/invalidates unexpectedly), performance becomes measurable (timeout rates, solve times), and comparisons become reproducible (standardized test suites, controlled conditions).
+
+**Empirical Validation**
+
+Run standardized test suites across theories, collecting validation patterns and performance metrics. Which theories agree on classical validities? Where do hyperintensional frameworks diverge from intensional approaches? How much does bilateral tracking cost computationally? These questions receive empirical answers grounded in concrete measurements (Section 4.2).
+
+**Educational Applications**
+
+Teaching semantic frameworks becomes interactive: students can execute theories, examine countermodels, modify operators, and observe validation changes in real time. Abstract metalogical definitions become concrete algorithmic implementations. Exploring how conjunction verification works in truthmaker semantics transitions from reading formal clauses to running code, examining models, and testing predictions.
+
+**Reproducibility and Cumulative Progress**
+
+Standardized implementations enable reproducibility: publish the theory file alongside the paper, allowing reviewers to validate results and other researchers to build on prior work. This addresses a persistent challenge in formal philosophy where theory comparisons depend on informal assessments differing across researchers. TheoryLib provides shared infrastructure enabling cumulative progress through validated, reusable implementations.
+
+**The Computational Turn in Semantics**
+
+The methodology represents broader shifts in semantic theorizing:
+- From informal comparison → systematic empirical benchmarking
+- From hand-verified proofs → automated model exploration
+- From subjective complexity → objective tractability metrics
+- From isolated theories → collaborative theory libraries
+- From philosophical intuition → computational constraint
+
+These shifts don't replace traditional semantic methods but complement them with new forms of evidence, validation, and comparison.
+
+### 7.5 Future Directions
+
+The ModelChecker framework enables multiple research trajectories extending its contributions to semantic methodology.
+
+**Expanding TheoryLib Coverage**
+
+Implementing additional theories—epistemic logics, normative semantics, causal frameworks, dynamic semantics—would broaden framework applicability. Hybrid approaches combining multiple semantic dimensions (temporal-epistemic, modal-normative) would demonstrate extensibility to complex interactions. Domain-specific applications (legal reasoning, linguistic semantics, metaphysical theories) would establish the framework's versatility beyond philosophical logic.
+
+**Advancing Computational Methods**
+
+Solver optimization through improved heuristics, parallel search, and incremental solving could push tractability boundaries established in Section 6. Integration with theorem provers would combine SMT-based bounded search with complete decision procedures where available. Automated assistance through machine learning—predicting formula timeout likelihood, identifying optimal primitive designs, suggesting frame constraints—could guide theory implementation. These advances would expand the framework's reach while maintaining its theory-agnostic architecture.
+
+**Transforming Semantic Methodology**
+
+Computational complexity could become a formal adequacy criterion alongside logical correctness and intuitive fit, with tractability boundaries constraining theory design (Section 6.5). Reproducibility standards requiring published theories to include executable implementations would enable systematic validation and cumulative progress. Educational infrastructure including interactive environments for exploring semantic frameworks, countermodel visualization, and theory comparison tools would make formal semantics accessible to broader audiences.
+
+**Invitation to Contribute**
+
+TheoryLib is an open research platform inviting collaboration from the formal semantics community. Contributions take multiple forms: implementing new theories, extending existing theories with additional operators, creating example suites testing specific semantic domains, improving solver performance, developing educational materials, or proposing methodological innovations. The ModelChecker repository includes comprehensive documentation covering installation, theory implementation, example creation, and contribution guidelines.
+
+**Concluding Thought**
+
+The ModelChecker framework provides infrastructure transforming semantic theorizing from isolated analyses to collaborative computational methodology. TheoryLib invites the formal semantics community to implement theories, share examples, and advance the computational turn.
