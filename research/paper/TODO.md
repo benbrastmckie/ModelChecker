@@ -1,6 +1,6 @@
 # Paper TODOs
 
-- [ ] finish outline
+- [ ] finish [outline](paper_outline.md)
   - [ ] finalize structure
   - [ ] cleanup sections
 - [ ] conduct testing
