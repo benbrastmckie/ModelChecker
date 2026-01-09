@@ -1,0 +1,40 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(/home/benjamin/Documents/Philosophy/Projects/ModelChecker/**)",
+      "Read(/home/benjamin/Documents/Philosophy/Projects/ModelChecker/**)",
+      "Bash(python -m pytest src/model_checker/builder/tests/unit/test_example.py -xvs)",
+      "Bash(python -m pytest src/model_checker/builder/tests/ -q --tb=no)",
+      "Bash(./run_tests.py:*)",
+      "Bash(python -m pytest src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleCore::test_init_with_valid_inputs_succeeds -v)",
+      "Bash(timeout 10 python -m pytest:*)",
+      "Bash(tree:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(python:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(timeout 30 pytest src/model_checker --tb=no -q)",
+      "Bash(timeout 120 pytest src/model_checker --tb=no)",
+      "Bash(pytest:*)",
+      "Bash(timeout 180 pytest src/model_checker tests/ -q --tb=no)",
+      "Bash(for test in \"BM_CM_2-example_case10\" \"BM_CM_4-example_case12\" \"EX_TH_1-example_case13\" \"MD_TH_2-example_case15\")",
+      "Bash(do)",
+      "Bash(echo:*)",
+      "Bash(done)",
+      "Read(/home/benjamin/Documents/Philosophy/Projects/ModelChecker/**)",
+      "Read(//home/benjamin/Documents/Philosophy/Projects/ModelChecker/**)",
+      "Bash(./Code/dev_cli.py:*)",
+      "Bash(./dev_cli.py:*)",
+      "Bash(timeout 60 pytest /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/output/tests/unit/test_config.py -v)",
+      "Bash(timeout 30 python -m pytest src/model_checker/jupyter/tests/unit/test_display.py src/model_checker/jupyter/tests/unit/test_environment.py -q --tb=no)",
+      "Bash(timeout 30 python -m pytest:*)",
+      "Bash(timeout 60 pytest src/model_checker --tb=no -q)",
+      "Bash(timeout 30 pytest src/model_checker/models/tests/ -q --tb=no)",
+      "Bash(timeout 60 python -m pytest:*)",
+      "Bash(sed:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
