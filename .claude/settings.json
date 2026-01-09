@@ -1,0 +1,77 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(lake *)",
+      "Bash(cd *)",
+      "Bash(ls *)",
+      "Bash(mkdir *)",
+      "Bash(cp *)",
+      "Bash(mv *)",
+      "Bash(chmod +x *)",
+      "Read",
+      "Write",
+      "Edit",
+      "Glob",
+      "Grep",
+      "WebSearch",
+      "WebFetch",
+      "Task",
+      "TodoWrite",
+      "mcp__lean-lsp__*"
+    ],
+    "deny": [
+      "Bash(rm -rf /)",
+      "Bash(rm -rf ~)",
+      "Bash(sudo *)",
+      "Bash(chmod 777 *)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r \".file_path // empty\" 2>/dev/null); if [[ \"$FILE\" == *\"state.json\"* ]]; then echo \"{\\\"permissionDecision\\\": \\\"allow\\\", \\\"permissionDecisionReason\\\": \\\"State file write\\\"}\"; else echo \"{\\\"permissionDecision\\\": \\\"allow\\\"}\"; fi'"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r \".file_path // empty\" 2>/dev/null); if [[ \"$FILE\" == *\".claude/specs/state.json\"* ]]; then bash .claude/hooks/validate-state-sync.sh 2>/dev/null || echo \"{}\"; else echo \"{}\"; fi'"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/log-session.sh 2>/dev/null || echo '{}'"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/post-command.sh 2>/dev/null || echo '{}'"
+          }
+        ]
+      }
+    ]
+  },
+  "model": "claude-opus-4-5-20251101"
+}
