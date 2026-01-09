@@ -1,8 +1,26 @@
 # Context Organization
 
-**Version**: 3.0  
-**Updated**: 2026-01-05 (Task 314 - Context Refactor)  
-**Purpose**: Organize context files for efficient loading and clear separation of concerns
+[Back to Docs](../docs/README.md) | [Architecture](../ARCHITECTURE.md) | [CLAUDE.md](../CLAUDE.md)
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Directory Structure](#directory-structure)
+3. [Core Context](#core-context)
+4. [Project Context](#project-context)
+5. [Context Loading Strategy](#context-loading-strategy)
+6. [File Naming Conventions](#file-naming-conventions)
+7. [Adding New Context Files](#adding-new-context-files)
+
+---
+
+## Overview
+
+The `context/` directory organizes domain knowledge and standards for the Claude agent system. Files are loaded on-demand based on task requirements.
+
+**Structure**:
+- `core/` - Reusable patterns applicable to any project (41 files)
+- `project/` - ModelChecker-specific domain knowledge (54 files)
 
 ---
 
@@ -10,132 +28,228 @@
 
 ```
 .claude/context/
-├── core/                           # General/reusable context (36 files)
-│   ├── orchestration/              # System orchestration (8 files)
-│   │   ├── architecture.md         # Three-layer delegation pattern
-│   │   ├── orchestrator.md         # Orchestrator design and guide
-│   │   ├── routing.md              # Routing logic and patterns
-│   │   ├── delegation.md           # Delegation patterns and safety
-│   │   ├── validation.md           # Validation strategies and rules
-│   │   ├── state-management.md     # State and artifact management
-│   │   ├── state-lookup.md         # State.json query patterns
-│   │   └── sessions.md             # Session management
-│   │
-│   ├── formats/                    # Output formats and structures (7 files)
-│   │   ├── command-structure.md    # Command files as agents
-│   │   ├── subagent-return.md      # Subagent return format
-│   │   ├── command-output.md       # Command output format
-│   │   ├── plan-format.md          # Implementation plan format
-│   │   ├── report-format.md        # Research report format
-│   │   ├── summary-format.md       # Summary format
-│   │   └── frontmatter.md          # Frontmatter standard
-│   │
-│   ├── standards/                  # Quality standards (8 files)
-│   │   ├── code-patterns.md        # Code and pattern standards
-│   │   ├── error-handling.md       # Error handling patterns
-│   │   ├── git-safety.md           # Git safety patterns
-│   │   ├── documentation.md        # Documentation standards
-│   │   ├── testing.md              # Testing standards
-│   │   ├── xml-structure.md        # XML structure patterns
-│   │   ├── task-management.md      # Task management standards
-│   │   └── analysis-framework.md   # Analysis framework
-│   │
-│   ├── workflows/                  # Workflow patterns (5 files)
-│   │   ├── command-lifecycle.md    # Command lifecycle
-│   │   ├── status-transitions.md   # Status transition rules
-│   │   ├── task-breakdown.md       # Task breakdown patterns
-│   │   ├── review-process.md       # Review process workflow
-│   │   └── preflight-postflight.md # Workflow timing standards
-│   │
-│   ├── templates/                  # Reusable templates (6 files)
-│   │   ├── agent-template.md       # Agent template
-│   │   ├── subagent-template.md    # Subagent template
-│   │   ├── command-template.md     # Command template
-│   │   ├── orchestrator-template.md # Orchestrator template
-│   │   ├── delegation-context.md   # Delegation context template
-│   │   └── state-template.json     # State.json template
-│   │
-│   └── schemas/                    # JSON/YAML schemas (2 files)
-│       ├── frontmatter-schema.json # Frontmatter JSON schema
-│       └── subagent-frontmatter.yaml # Subagent frontmatter template
+├── README.md                           # This file
+├── index.md                            # Context loading index
 │
-├── project/                        # ProofChecker-specific context
-│   ├── meta/                       # Meta-builder context (4 files)
-│   │   ├── domain-patterns.md      # Domain pattern recognition
-│   │   ├── architecture-principles.md # Architecture principles
-│   │   ├── meta-guide.md           # Meta-builder guide
-│   │   └── interview-patterns.md   # Interview patterns
-│   │
-│   ├── lean4/                      # Lean 4 domain knowledge
-│   │   ├── domain/
-│   │   ├── patterns/
-│   │   ├── processes/
-│   │   ├── standards/
-│   │   ├── templates/
-│   │   └── tools/
-│   │
-│   ├── logic/                      # Logic domain knowledge
-│   │   ├── domain/
-│   │   ├── processes/
-│   │   └── standards/
-│   │
-│   ├── math/                       # Math domain knowledge
-│   │   ├── algebra/
-│   │   ├── lattice-theory/
-│   │   ├── order-theory/
-│   │   └── topology/
-│   │
-│   ├── physics/                    # Physics domain knowledge
-│   │   └── dynamical-systems/
-│   │
-│   └── repo/                       # Repository-specific
-│       ├── project-overview.md
-│       └── self-healing-implementation-details.md
+├── core/                               # Reusable patterns (41 files)
+│   ├── orchestration/                  # System orchestration (11 files)
+│   ├── formats/                        # Output formats (7 files)
+│   ├── standards/                      # Quality standards (10 files)
+│   ├── workflows/                      # Workflow patterns (5 files)
+│   ├── templates/                      # Reusable templates (5 files)
+│   └── schemas/                        # JSON/YAML schemas (2 files)
 │
-└── README.md                       # This file
+└── project/                            # ModelChecker-specific (54 files)
+    ├── modelchecker/                   # Core project context
+    ├── meta/                           # Meta-builder context
+    ├── logic/                          # Logic domain knowledge
+    ├── lean4/                          # Lean 4 knowledge (shared)
+    ├── math/                           # Math domain knowledge
+    ├── physics/                        # Physics domain knowledge
+    ├── processes/                      # Development workflows
+    └── repo/                           # Repository-specific
 ```
 
 ---
 
-## Core vs Project
+## Core Context
 
-### core/ (36 files across 6 directories)
-**Purpose**: General, reusable context applicable to any project
+Reusable patterns applicable to any Claude agent system.
 
-**Contents**:
-- **orchestration/** - System architecture, routing, delegation, state management
-- **formats/** - Output formats for plans, reports, summaries, returns
-- **standards/** - Quality standards for code, errors, git, documentation, testing
-- **workflows/** - Workflow patterns for commands, status transitions, reviews
-- **templates/** - Reusable templates for agents, commands, orchestrator
-- **schemas/** - JSON/YAML schemas for validation
+### orchestration/ (11 files)
 
-**When to use**: Context that doesn't depend on ProofChecker specifics
+System architecture, routing, and delegation patterns.
 
-**Key Files**:
-- `orchestration/architecture.md` - Three-layer delegation pattern (critical for meta-builder)
-- `formats/command-structure.md` - Commands as agents pattern
-- `workflows/preflight-postflight.md` - Workflow timing standards
-- `orchestration/state-lookup.md` - State.json query patterns (8x faster than TODO.md)
+| File | Purpose |
+|------|---------|
+| `architecture.md` | Three-layer delegation pattern |
+| `orchestrator.md` | Orchestrator design and guide |
+| `routing.md` | Routing logic and patterns |
+| `delegation.md` | Delegation patterns and safety |
+| `validation.md` | Validation strategies |
+| `subagent-validation.md` | Subagent return validation |
+| `state-management.md` | State and artifact management |
+| `state-lookup.md` | State.json query patterns (jq) |
+| `sessions.md` | Session management |
+| `preflight-pattern.md` | Pre-execution patterns |
+| `postflight-pattern.md` | Post-execution patterns |
 
-### project/
-**Purpose**: ProofChecker-specific domain knowledge
+### formats/ (7 files)
 
-**Contents**:
-- **meta/** - Meta-builder context (domain patterns, architecture principles)
-- **lean4/** - Lean 4 theorem proving knowledge
-- **logic/** - Logic domain knowledge (modal, temporal)
-- **math/** - Math domain knowledge (algebra, topology, etc.)
-- **physics/** - Physics domain knowledge
-- **repo/** - Repository-specific information
+Output formats and document structures.
 
-**When to use**: Context specific to ProofChecker's domains
+| File | Purpose |
+|------|---------|
+| `command-structure.md` | Command files as agents |
+| `command-output.md` | Command output format |
+| `subagent-return.md` | Subagent return JSON format |
+| `plan-format.md` | Implementation plan format |
+| `report-format.md` | Research report format |
+| `summary-format.md` | Summary document format |
+| `frontmatter.md` | Frontmatter standard |
+
+### standards/ (10 files)
+
+Quality standards for code, documentation, and processes.
+
+| File | Purpose |
+|------|---------|
+| `code-patterns.md` | Code and pattern standards |
+| `error-handling.md` | Error handling patterns |
+| `git-safety.md` | Git safety patterns |
+| `git-integration.md` | Git integration patterns |
+| `documentation.md` | Documentation standards |
+| `testing.md` | Testing standards |
+| `xml-structure.md` | XML structure patterns |
+| `task-management.md` | Task management standards |
+| `status-markers.md` | Status marker conventions |
+| `analysis-framework.md` | Analysis framework |
+
+### workflows/ (5 files)
+
+Command and task workflow patterns.
+
+| File | Purpose |
+|------|---------|
+| `command-lifecycle.md` | Command execution lifecycle |
+| `status-transitions.md` | Status transition rules |
+| `task-breakdown.md` | Task breakdown patterns |
+| `review-process.md` | Review process workflow |
+| `preflight-postflight.md` | Workflow timing standards |
+
+### templates/ (5 files)
+
+Reusable templates for creating new components.
+
+| File | Purpose |
+|------|---------|
+| `agent-template.md` | Agent definition template |
+| `subagent-template.md` | Subagent template |
+| `command-template.md` | Command file template |
+| `orchestrator-template.md` | Orchestrator template |
+| `delegation-context.md` | Delegation context template |
+
+### schemas/ (2 files)
+
+JSON and YAML schemas for validation.
+
+| File | Purpose |
+|------|---------|
+| `frontmatter-schema.json` | Frontmatter JSON schema |
+| `subagent-frontmatter.yaml` | Subagent frontmatter template |
+
+---
+
+## Project Context
+
+ModelChecker-specific domain knowledge and patterns.
+
+### modelchecker/ (3 files)
+
+Core ModelChecker project context.
+
+| File | Purpose |
+|------|---------|
+| `architecture.md` | ModelChecker system architecture |
+| `theories.md` | Theory library overview (logos, exclusion, imposition, bimodal) |
+| `z3-patterns.md` | Z3 solver patterns and best practices |
+
+### meta/ (6 files)
+
+Meta-builder context for creating agent systems.
+
+| File | Purpose |
+|------|---------|
+| `domain-patterns.md` | Domain pattern recognition |
+| `architecture-principles.md` | Architecture design principles |
+| `meta-guide.md` | Meta-builder guide |
+| `interview-patterns.md` | Interview patterns for system design |
+| `context-revision-guide.md` | Context revision guide |
+| `standards-checklist.md` | Standards compliance checklist |
+
+### logic/ (12 files)
+
+Logic domain knowledge for semantic theory development.
+
+```
+logic/
+├── README.md
+├── domain/                     # Core concepts
+│   ├── kripke-semantics-overview.md
+│   ├── metalogic-concepts.md
+│   ├── proof-theory-concepts.md
+│   └── task-semantics.md
+├── processes/                  # Proof workflows
+│   ├── modal-proof-strategies.md
+│   ├── proof-construction.md
+│   ├── temporal-proof-strategies.md
+│   └── verification-workflow.md
+└── standards/                  # Conventions
+    ├── naming-conventions.md
+    ├── notation-standards.md
+    └── proof-conventions.md
+```
+
+### lean4/ (22 files)
+
+Lean 4 theorem proving knowledge (shared from ProofChecker).
+
+```
+lean4/
+├── README.md
+├── domain/                     # Lean 4 concepts
+├── patterns/                   # Tactic patterns
+├── processes/                  # Proof workflows
+├── standards/                  # Style guides
+├── templates/                  # File templates
+└── tools/                      # Tool integration (LSP, LeanSearch, Loogle)
+```
+
+### math/ (5 files)
+
+Mathematical domain knowledge.
+
+| Directory | Topics |
+|-----------|--------|
+| `algebra/` | Groups, monoids, rings, fields |
+| `lattice-theory/` | Lattice structures |
+| `order-theory/` | Partial orders |
+| `topology/` | Topological spaces |
+
+### physics/ (1 file)
+
+Physics domain knowledge.
+
+| Directory | Topics |
+|-----------|--------|
+| `dynamical-systems/` | Dynamical systems concepts |
+
+### processes/ (3 files)
+
+Development workflow processes.
+
+| File | Purpose |
+|------|---------|
+| `research-workflow.md` | Research phase workflow |
+| `planning-workflow.md` | Planning phase workflow |
+| `implementation-workflow.md` | Implementation phase workflow |
+
+### repo/ (2 files)
+
+Repository-specific information.
+
+| File | Purpose |
+|------|---------|
+| `project-overview.md` | Project overview |
+| `self-healing-implementation-details.md` | Self-healing patterns |
 
 ---
 
 ## Context Loading Strategy
 
 ### Three-Tier Loading
+
+Context is loaded based on operation type to minimize context window usage.
 
 **Tier 1: Orchestrator (Minimal)**
 - Budget: <5% context window (~10KB)
@@ -144,100 +258,67 @@
 
 **Tier 2: Commands (Targeted)**
 - Budget: 10-20% context window (~20-40KB)
-- Files: `formats/subagent-return.md`, `workflows/status-transitions.md`, command-specific
+- Files: `formats/subagent-return.md`, `workflows/status-transitions.md`
 - Purpose: Command validation and formatting
 
-**Tier 3: Agents (Domain-Specific)**
+**Tier 3: Skills (Domain-Specific)**
 - Budget: 60-80% context window (~120-160KB)
-- Files: `project/lean4/*`, `project/logic/*`, etc.
+- Files: `project/modelchecker/*`, `project/logic/*`
 - Purpose: Domain-specific work with full context
 
-**Performance Optimization**:
-- State.json queries are 8x faster than TODO.md parsing (12ms vs 100ms)
-- See `orchestration/state-lookup.md` for query patterns
+### Performance Note
+
+State.json queries via jq are 8x faster than TODO.md parsing (12ms vs 100ms). See `orchestration/state-lookup.md` for query patterns.
 
 ---
 
 ## File Naming Conventions
 
-**Pattern**: `{topic}-{type}.md`
+**Pattern**: `{topic}-{qualifier}.md`
 
 **Examples**:
-- `subagent-return.md` (not `subagent-return-format.md`)
-- `plan-format.md` (not `plan.md`)
-- `code-patterns.md` (not `code.md` or `patterns.md`)
+- `subagent-return.md` (topic: subagent, qualifier: return)
+- `plan-format.md` (topic: plan, qualifier: format)
+- `code-patterns.md` (topic: code, qualifier: patterns)
 
 **Rules**:
 - Use kebab-case
 - Be descriptive but concise
-- Avoid redundant suffixes (e.g., `-format` only when needed for clarity)
+- Avoid redundant suffixes
 - Group by purpose in appropriate directory
 
 ---
 
 ## Adding New Context Files
 
-### For General/Reusable Context
-Add to `core/`:
-- Orchestration → `core/orchestration/`
-- Formats → `core/formats/`
-- Standards → `core/standards/`
-- Workflows → `core/workflows/`
-- Templates → `core/templates/`
-- Schemas → `core/schemas/`
+### For Reusable Patterns
 
-### For ProofChecker-Specific Context
-Add to `project/`:
-- Meta-builder → `project/meta/`
-- Lean 4 → `project/lean4/`
-- Logic → `project/logic/`
-- Math → `project/math/`
-- Physics → `project/physics/`
-- Repo-specific → `project/repo/`
+Add to `core/` in the appropriate subdirectory:
+
+| Type | Directory |
+|------|-----------|
+| Orchestration | `core/orchestration/` |
+| Output formats | `core/formats/` |
+| Quality standards | `core/standards/` |
+| Workflows | `core/workflows/` |
+| Templates | `core/templates/` |
+| Schemas | `core/schemas/` |
+
+### For ModelChecker-Specific Context
+
+Add to `project/` in the appropriate subdirectory:
+
+| Type | Directory |
+|------|-----------|
+| Project architecture | `project/modelchecker/` |
+| Meta-builder | `project/meta/` |
+| Logic domain | `project/logic/` |
+| Lean 4 knowledge | `project/lean4/` |
+| Math concepts | `project/math/` |
+| Physics concepts | `project/physics/` |
+| Workflows | `project/processes/` |
+| Repository-specific | `project/repo/` |
 
 ---
 
-## Migration from Old Structure (Task 314 - 2026-01-05)
-
-### Changes Summary
-- **File Count**: 48 → 36 files (25% reduction)
-- **Directories**: 5 → 6 directories (better organization)
-- **New Files**: 3 critical architecture files added
-- **Merged Files**: 6 pairs of redundant files consolidated
-- **Renamed Files**: 9 files renamed for consistency
-
-### Directory Mapping
-
-**Old** → **New**:
-- `system/` → `orchestration/` (system-level files)
-- `standards/` → `formats/` (format files) + `standards/` (quality standards)
-- `workflows/` → `workflows/` (kept, some files moved)
-- `templates/` → `templates/` (kept, some files moved to schemas/)
-- `schemas/` → `schemas/` (kept, added subagent-frontmatter.yaml)
-
-### New Files Created
-1. `orchestration/architecture.md` - Three-layer delegation pattern
-2. `formats/command-structure.md` - Commands as agents
-3. `workflows/preflight-postflight.md` - Workflow timing standards
-
-### Merged Files
-1. `orchestrator-design.md` + `orchestrator-guide.md` → `orchestration/orchestrator.md`
-2. `routing-guide.md` + `routing-logic.md` → `orchestration/routing.md`
-3. `delegation.md` + `delegation-guide.md` → `orchestration/delegation.md`
-4. `validation-strategy.md` + `validation-rules.md` → `orchestration/validation.md`
-5. `state-management.md` + `artifact-management.md` → `orchestration/state-management.md`
-6. `code.md` + `patterns.md` → `standards/code-patterns.md`
-
-### Meta-Builder Files Moved
-- `standards/domain-patterns.md` → `project/meta/domain-patterns.md`
-- `standards/architecture-principles.md` → `project/meta/architecture-principles.md`
-- `templates/meta-guide.md` → `project/meta/meta-guide.md`
-- `workflows/interview-patterns.md` → `project/meta/interview-patterns.md`
-
-### Benefits
-- ✅ Single source of truth for each concept
-- ✅ Clear naming and logical grouping
-- ✅ Critical architecture documentation for meta-builder
-- ✅ Improved organization (orchestration vs formats vs standards)
-- ✅ State.json optimization patterns documented
-- ✅ Workflow timing standards integrated
+[Back to Docs](../docs/README.md) | [Architecture](../ARCHITECTURE.md) | [CLAUDE.md](../CLAUDE.md)
