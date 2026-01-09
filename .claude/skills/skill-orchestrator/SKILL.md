@@ -34,7 +34,7 @@ Route to appropriate skill based on task language:
 
 | Language | Research Skill | Implementation Skill |
 |----------|---------------|---------------------|
-| lean | skill-lean-research | skill-lean-implementation |
+| python | skill-python-research | skill-theory-implementation |
 | general | skill-researcher | skill-implementer |
 | meta | skill-researcher | skill-implementer |
 | markdown | skill-researcher | skill-implementer |
@@ -57,7 +57,7 @@ Prepare context package for delegated skill:
 {
   "task_number": 259,
   "task_name": "task_slug",
-  "language": "lean",
+  "language": "python",
   "status": "planned",
   "description": "Full task description",
   "artifacts": {
@@ -80,6 +80,28 @@ Prepare context package for delegated skill:
 7. Receive and validate result
 8. Return result to caller
 ```
+
+## ModelChecker-Specific Routing
+
+### Python Tasks
+- **Research**: skill-python-research
+  - Z3 API exploration
+  - Codebase pattern discovery
+  - Theory implementation patterns
+
+- **Implementation**: skill-theory-implementation
+  - TDD workflow enforcement
+  - pytest integration
+  - Theory component creation
+
+### General Tasks
+- **Research**: skill-researcher
+  - Web search
+  - Documentation exploration
+
+- **Implementation**: skill-implementer
+  - Direct code changes
+  - Non-theory modifications
 
 ## Return Format
 
