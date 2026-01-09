@@ -1,34 +1,51 @@
-# ModelChecker Agent System Architecture
+# Claude Agent System Architecture
 
-**Version**: 2.0
-**Status**: Active
-**Created**: 2026-01-09
-**Purpose**: Document the architecture of the .claude system for ModelChecker
+[Back to ModelChecker](../README.md) | [Docs](docs/README.md) | [Context](context/README.md) | [CLAUDE.md](CLAUDE.md)
+
+## Table of Contents
+
+1. [Overview](#overview)
+2. [Architecture Principles](#architecture-principles)
+3. [Component Hierarchy](#component-hierarchy)
+4. [Command Workflow](#command-workflow)
+5. [Skill Details](#skill-details)
+6. [State Management](#state-management)
+7. [Language-Based Routing](#language-based-routing)
+8. [Error Handling](#error-handling)
+9. [Python/Z3 Integration](#pythonz3-integration)
+10. [Extensibility](#extensibility)
+11. [Related Documentation](#related-documentation)
 
 ---
 
-## System Overview
+## Overview
 
-The .claude system is a task management and automation framework designed for Python/Z3 semantic theory development. This document describes the architecture adapted for the ModelChecker project.
+The `.claude/` system is a task management and automation framework for Python/Z3 semantic theory development. It provides structured workflows for research, planning, and implementation with language-based routing.
 
-### Purpose and Goals
+### Key Capabilities
 
-- Provide structured task management with research, planning, and implementation workflows
-- Prevent delegation hangs and infinite loops through explicit return handling
-- Enable atomic state synchronization across multiple tracking files
-- Support language-specific routing (Python vs general development)
-- Track and analyze errors for continuous improvement
-- Automate git commits with clear, scoped changes
-- Enforce TDD workflow for all implementations
+- **Task Lifecycle**: Create, research, plan, implement, and archive tasks
+- **Atomic State Sync**: TODO.md and state.json stay synchronized
+- **Resume Support**: Interrupted implementations continue from last phase
+- **Language Routing**: Python tasks route to Z3-specialized skills
+- **Automatic Commits**: Scoped git commits after each stage
+- **Error Tracking**: Persistent error logging with fix effectiveness analysis
 
-### Key Adaptations for ModelChecker
+### Directory Structure
 
-This system was adapted from a Lean 4 theorem proving system with these changes:
-
-1. **Python/Z3 Focus**: Skills and rules target Python development with Z3 solver
-2. **Theory Library**: Context organized around semantic theories (logos, exclusion, imposition, bimodal)
-3. **Testing Integration**: pytest workflow with PYTHONPATH management
-4. **No External MCP**: Uses standard tools (no lean-lsp equivalent needed)
+```
+.claude/
+├── ARCHITECTURE.md                 # This file
+├── CLAUDE.md                       # Quick reference entry point
+├── commands/                       # Slash commands (9)
+├── context/                        # Domain knowledge (95 files)
+│   ├── core/                       # Reusable patterns (41 files)
+│   └── project/                    # ModelChecker-specific (54 files)
+├── docs/                           # Documentation
+├── rules/                          # Automatic behaviors (6)
+├── skills/                         # Specialized agents (8)
+└── specs/                          # Task artifacts and state
+```
 
 ---
 
@@ -36,141 +53,178 @@ This system was adapted from a Lean 4 theorem proving system with these changes:
 
 ### 1. Delegation Safety
 
-All delegation follows strict safety patterns to prevent hangs and loops:
+All delegation follows strict safety patterns:
 
-- **Session ID Tracking**: Every delegation has a unique session ID for tracking
-- **Depth Limits**: Maximum delegation depth of 3 levels
-- **Cycle Detection**: Check delegation path before routing to prevent loops
-- **Timeout Enforcement**: All delegations have timeouts (default 3600s)
-- **Return Validation**: All subagent returns validated against standard format
+| Pattern | Purpose |
+|---------|---------|
+| Session ID Tracking | Unique ID for each delegation |
+| Depth Limits | Maximum 3 delegation levels |
+| Cycle Detection | Check path before routing |
+| Timeout Enforcement | Default 3600s timeout |
+| Return Validation | Validate against standard format |
 
 ### 2. Standardized Returns
 
-All skills return a consistent JSON format:
+All skills return consistent JSON:
 
 ```json
 {
   "status": "completed|failed|partial|blocked",
   "summary": "Brief 2-5 sentence summary",
-  "artifacts": [...],
+  "artifacts": [{"path": "...", "type": "..."}],
   "metadata": {
     "session_id": "...",
     "duration_seconds": 123,
     "agent_type": "...",
-    "delegation_depth": 1,
-    "delegation_path": [...]
+    "delegation_depth": 1
   },
-  "errors": [...],
+  "errors": [],
   "next_steps": "..."
 }
 ```
 
 ### 3. Atomic State Updates
 
-Status changes are synchronized atomically across multiple files:
+Status changes synchronize across files atomically:
 
-- **Two-Phase Commit**: Prepare all updates in memory, then commit all or rollback
-- **Files Synced**: TODO.md, state.json, project state.json, plan files
-- **Rollback on Failure**: If any file update fails, all changes are rolled back
-- **Consistency Guarantee**: Status is always consistent across all tracking files
+```
+Two-Phase Commit:
+1. Prepare all updates in memory
+2. Write state.json (machine state)
+3. Write TODO.md (user-facing)
+4. Rollback all on any failure
+```
 
-### 4. Language-Based Routing
+### 4. Fail-Safe Commits
 
-Tasks are routed to appropriate skills based on the Language field:
-
-- `Language: python` → python-research, theory-implementation skills
-- `Language: general` → general researcher, implementer skills
-- `Language: meta` → meta system builder skills
-
-### 5. Error Tracking and Recovery
-
-All errors are logged to errors.json with:
-
-- Error type and severity
-- Context (command, task, skill, session)
-- Fix status tracking
-- Recurrence detection
-- Fix effectiveness analysis
+Git commit failures are logged but do NOT block operations. Task progress is preserved.
 
 ---
 
 ## Component Hierarchy
 
-The system has four levels of components:
+```
+Level 0: Orchestrator
+    │
+    ├── Level 1: Commands (/task, /research, /plan, /implement, ...)
+    │       │
+    │       └── Level 2: Skills (skill-researcher, skill-planner, ...)
+    │               │
+    │               └── Level 3: Context Files (domain knowledge)
+```
 
 ### Level 0: Orchestrator
 
-**Skill**: `skill-orchestrator`
+**Skill**: [skill-orchestrator](skills/skill-orchestrator/SKILL.md)
 
-**Responsibilities**:
-- Central coordination and routing
+Central coordination responsible for:
+- Language-based routing decisions
 - Delegation registry management
 - Cycle detection and depth enforcement
-- Timeout monitoring
 - Return validation
 
 ### Level 1: Commands
 
-**Directory**: `.claude/commands/`
+**Directory**: [commands/](commands/)
 
-**Commands**:
-- `/task`: Create tasks in TODO.md
-- `/research`: Conduct research and create reports
-- `/plan`: Create implementation plans
-- `/implement`: Execute implementation with resume support
-- `/revise`: Revise existing plans
-- `/review`: Analyze codebase
-- `/todo`: Maintain TODO.md (clean completed tasks)
-- `/errors`: Analyze errors and create fix plans
-- `/meta`: Build custom architectures through interactive interview
-
-**Common Pattern**:
-All commands that invoke skills follow this workflow:
-1. ArgumentParsing: Extract and validate arguments
-2. Preflight: Validate inputs and update status
-3. CheckLanguage: Determine routing based on task language
-4. InvokeSkill: Delegate to appropriate skill with session tracking
-5. ReceiveResults: Wait for and receive skill return (with timeout)
-6. ProcessResults: Extract artifacts and determine next steps
-7. Postflight: Update status atomically and create git commit
-8. ReturnSuccess: Return summary to user
+| Command | Purpose |
+|---------|---------|
+| [/task](commands/task.md) | Create, recover, divide, sync, abandon tasks |
+| [/research](commands/research.md) | Conduct research, create reports |
+| [/plan](commands/plan.md) | Create implementation plans |
+| [/implement](commands/implement.md) | Execute with resume support |
+| [/revise](commands/revise.md) | Create new plan version |
+| [/review](commands/review.md) | Analyze codebase |
+| [/errors](commands/errors.md) | Analyze errors, create fix plans |
+| [/todo](commands/todo.md) | Archive completed tasks |
+| [/meta](commands/meta.md) | Interactive system builder |
 
 ### Level 2: Skills
 
-**Directory**: `.claude/skills/`
+**Directory**: [skills/](skills/)
 
 **Core Skills**:
-- `skill-orchestrator`: Central coordination and routing
-- `skill-status-sync`: Atomic multi-file status updates
-- `skill-git-workflow`: Scoped git commits with auto-generated messages
-- `skill-researcher`: General research for non-Python tasks
-- `skill-planner`: Implementation plan creation
-- `skill-implementer`: Direct implementation for simple tasks
+| Skill | Purpose |
+|-------|---------|
+| [skill-orchestrator](skills/skill-orchestrator/SKILL.md) | Central routing and coordination |
+| [skill-status-sync](skills/skill-status-sync/SKILL.md) | Atomic multi-file updates |
+| [skill-git-workflow](skills/skill-git-workflow/SKILL.md) | Scoped git commits |
 
-**Python-Specific Skills**:
-- `skill-python-research`: Python/Z3 library research and pattern discovery
-- `skill-theory-implementation`: Semantic theory development with TDD
+**Research Skills**:
+| Skill | Purpose |
+|-------|---------|
+| [skill-researcher](skills/skill-researcher/SKILL.md) | General web/codebase research |
+| [skill-python-research](skills/skill-python-research/SKILL.md) | Z3 API and pattern research |
 
-### Level 3: Context Files
+**Implementation Skills**:
+| Skill | Purpose |
+|-------|---------|
+| [skill-planner](skills/skill-planner/SKILL.md) | Create phased implementation plans |
+| [skill-implementer](skills/skill-implementer/SKILL.md) | General implementation |
+| [skill-theory-implementation](skills/skill-theory-implementation/SKILL.md) | TDD for semantic theories |
 
-**Directory**: `.claude/context/`
+### Level 3: Context
 
-Two-tier organization:
-- `core/`: Reusable, project-agnostic patterns and standards
-- `project/`: ModelChecker-specific domain knowledge
+**Directory**: [context/](context/README.md)
+
+- **core/**: Reusable patterns (orchestration, formats, standards, workflows)
+- **project/**: ModelChecker-specific (modelchecker, logic, lean4, math)
 
 ---
 
-## Skill Overview
+## Command Workflow
+
+All task-based commands follow this pattern:
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                      Command Execution                          │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                 │
+│  1. Parse Arguments                                             │
+│     Extract task number and options from $ARGUMENTS             │
+│                              │                                  │
+│                              ▼                                  │
+│  2. Preflight                                                   │
+│     Validate task exists, status allows operation               │
+│     Update status to "in progress" variant                      │
+│                              │                                  │
+│                              ▼                                  │
+│  3. Check Language                                              │
+│     Read task language from state.json                          │
+│     Determine target skill                                      │
+│                              │                                  │
+│                              ▼                                  │
+│  4. Invoke Skill                                                │
+│     Delegate to skill with session tracking                     │
+│     Wait for return (with timeout)                              │
+│                              │                                  │
+│                              ▼                                  │
+│  5. Process Results                                             │
+│     Validate return format                                      │
+│     Extract artifacts                                           │
+│                              │                                  │
+│                              ▼                                  │
+│  6. Postflight                                                  │
+│     Update status atomically                                    │
+│     Create git commit                                           │
+│                              │                                  │
+│                              ▼                                  │
+│  7. Return                                                      │
+│     Report summary to user                                      │
+│                                                                 │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## Skill Details
 
 ### skill-python-research
 
-Specialized research for Python/Z3 development tasks:
+Specialized for Python/Z3 development:
 
-**Tools Used**:
-- WebSearch, WebFetch for Z3 documentation
-- Read, Grep, Glob for codebase exploration
-- Python REPL exploration when needed
+**Tools**: WebSearch, WebFetch, Read, Grep, Glob
 
 **Research Targets**:
 - Z3 API patterns and solver strategies
@@ -180,12 +234,9 @@ Specialized research for Python/Z3 development tasks:
 
 ### skill-theory-implementation
 
-Execute semantic theory implementation with TDD:
+TDD workflow for semantic theories:
 
-**Tools Used**:
-- Read, Write, Edit for code modification
-- Bash(pytest) for test execution
-- Bash(python) for validation
+**Tools**: Read, Write, Edit, Bash(pytest), Bash(python)
 
 **Workflow**:
 1. Load implementation plan
@@ -194,154 +245,147 @@ Execute semantic theory implementation with TDD:
 4. Refactor while tests pass
 5. Verify with full test suite
 
-### skill-researcher
+### skill-status-sync
 
-General-purpose research skill:
+Atomic multi-file status updates:
 
-**Tools Used**:
-- WebSearch, WebFetch for external research
-- Read, Grep for codebase analysis
+**Files Updated**:
+- `specs/TODO.md` - Status marker
+- `specs/state.json` - Status field
+- Plan files - Phase markers
 
-### skill-planner
-
-Create implementation plans from research:
-
-**Tools Used**:
-- Read for loading research reports
-- Write for creating plan files
-
-### skill-implementer
-
-Direct implementation for simple tasks:
-
-**Tools Used**:
-- Read, Write, Edit for code changes
-- Bash for validation commands
+**Pattern**: Two-phase commit with rollback on failure
 
 ---
 
 ## State Management
 
-### TODO.md
+### Dual-File System
 
-**Location**: `.claude/specs/TODO.md`
+| File | Purpose | Format |
+|------|---------|--------|
+| [specs/TODO.md](specs/TODO.md) | User-facing task list | Markdown |
+| [specs/state.json](specs/state.json) | Machine-readable state | JSON |
+| [specs/errors.json](specs/errors.json) | Error tracking | JSON |
 
-**Purpose**: User-facing task list with status markers
+### Status Transitions
 
-**Format**:
-```markdown
-### 191. Add new operator to logos theory
-- **Effort**: 4 hours
-- **Status**: [PLANNED]
-- **Priority**: medium
-- **Language**: python
-- **Started**: 2026-01-09T10:00:00Z
-- **Plan**: [implementation-001.md](191_add_new_operator/plans/implementation-001.md)
-- **Research**: [research-001.md](191_add_new_operator/reports/research-001.md)
+```
+[NOT STARTED] ──► [RESEARCHING] ──► [RESEARCHED]
+                                         │
+                                         ▼
+                               [PLANNING] ──► [PLANNED]
+                                                  │
+                                                  ▼
+                                      [IMPLEMENTING] ──► [COMPLETED]
+                                             │
+                                             ▼
+                                        [PARTIAL] (enables resume)
+
+Any state ──► [BLOCKED] (with reason)
+Any state ──► [ABANDONED] (moves to archive)
 ```
 
-**Status Markers**:
-- `[NOT STARTED]`: Task created but not started
-- `[RESEARCHING]`: Research in progress
-- `[RESEARCHED]`: Research completed
-- `[PLANNING]`: Plan being created
-- `[PLANNED]`: Plan created
-- `[IMPLEMENTING]`: Implementation in progress
-- `[COMPLETED]`: Task fully completed
-- `[ABANDONED]`: Task abandoned
+### Task Artifact Structure
 
-### state.json
-
-**Location**: `.claude/specs/state.json`
-
-**Purpose**: Machine-readable project state
-
-**Format**:
-```json
-{
-  "next_project_number": 346,
-  "active_projects": [
-    {
-      "project_number": 191,
-      "project_name": "add_new_operator",
-      "status": "planned",
-      "language": "python",
-      "priority": "medium",
-      "started": "2026-01-09T10:00:00Z"
-    }
-  ]
-}
 ```
-
-### errors.json
-
-**Location**: `.claude/specs/errors.json`
-
-**Purpose**: Error tracking and fix effectiveness analysis
+specs/{N}_{SLUG}/
+├── reports/
+│   └── research-001.md         # Research findings
+├── plans/
+│   └── implementation-001.md   # Phased implementation plan
+└── summaries/
+    └── implementation-summary-{DATE}.md
+```
 
 ---
 
-## Git Workflow
+## Language-Based Routing
 
-### Automatic Commits
+The orchestrator routes tasks to skills based on the Language field:
 
-Git commits are created automatically after:
-- Task completion
-- Phase completion (if using plan)
-- Research completion
-- Plan creation
-- Error fix plan creation
+| Language | Research Skill | Implementation Skill |
+|----------|---------------|---------------------|
+| `python` | skill-python-research | skill-theory-implementation |
+| `general` | skill-researcher | skill-implementer |
+| `meta` | skill-researcher | skill-implementer |
 
-### Commit Message Format
+### Language Detection
 
-**Per-phase commits**:
-```
-task {number} phase {N}: {phase_description}
-```
+For `/task` command, language is auto-detected from keywords:
 
-**Full task commits**:
-```
-task {number}: {task_description}
-```
+| Keywords | Language |
+|----------|----------|
+| Z3, pytest, theory, semantic | python |
+| agent, command, skill, meta | meta |
+| (default) | general |
 
-### Non-Blocking Failures
+---
 
-Git commit failures are logged but do NOT fail the task.
+## Error Handling
+
+### Error Types
+
+| Type | Description |
+|------|-------------|
+| `tool_failure` | External tool failed |
+| `status_sync_failure` | TODO.md/state.json desync |
+| `test_failure` | Tests failed during implementation |
+| `import_error` | Python import failed |
+| `z3_timeout` | Z3 solver timed out |
+| `git_commit_failure` | Git operation failed |
+| `timeout` | Operation exceeded timeout |
+
+### Recovery Patterns
+
+**Test Failure**:
+1. Capture test output
+2. Log to errors.json
+3. Keep task [IMPLEMENTING]
+4. Report failure with context
+
+**Timeout/Interruption**:
+1. Mark current phase [PARTIAL]
+2. Commit partial progress
+3. Next `/implement` resumes from partial phase
+
+**State Sync Failure**:
+1. Use git blame to determine latest
+2. Sync to latest version
+3. Log resolution
 
 ---
 
 ## Python/Z3 Integration
 
-### Testing Workflow
-
-All implementations follow TDD:
+### Testing Commands
 
 ```bash
+# Run all tests
+PYTHONPATH=Code/src pytest Code/tests/ -v
+
 # Run specific theory tests
 PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/logos/tests/ -v
 
 # Run with coverage
 pytest --cov=model_checker --cov-report=term-missing
-
-# Quick validation
-PYTHONPATH=Code/src python -c "from model_checker import ..."
 ```
 
 ### Theory Development Pattern
 
 ```python
-# 1. Define semantic defaults in semantic.py
+# 1. semantic.py - Define semantic defaults
 class MyTheorySemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {...}
 
-# 2. Register operators in operators.py
+# 2. operators.py - Register operators
 def get_operators():
     return OperatorCollection([...])
 
-# 3. Create examples in examples.py
+# 3. examples.py - Create test examples
 examples = [BuildExample(...), ...]
 
-# 4. Add iteration support in iterate.py
+# 4. iterate.py - Add iteration support
 class MyTheoryIterator(BaseModelIterator):
     ...
 ```
@@ -356,94 +400,61 @@ class MyTheoryIterator(BaseModelIterator):
 
 ---
 
-## Context Organization
-
-### Core Context (`context/core/`)
-
-Reusable patterns and standards:
-- `formats/`: Document structure templates
-- `orchestration/`: Delegation and routing patterns
-- `standards/`: Code and documentation standards
-- `workflows/`: Command lifecycle patterns
-
-### Project Context (`context/project/`)
-
-ModelChecker-specific knowledge:
-- `modelchecker/`: Architecture, theories, Z3 patterns
-- `logic/`: Modal logic domain knowledge (shared from ProofChecker)
-- `processes/`: Development workflows
-
----
-
-## Rules
-
-**Directory**: `.claude/rules/`
-
-| Rule | Scope | Purpose |
-|------|-------|---------|
-| `state-management.md` | `.claude/specs/**` | Task state patterns |
-| `git-workflow.md` | All | Commit conventions |
-| `python-z3.md` | `**/*.py` | Python/Z3 development |
-| `error-handling.md` | `.claude/**` | Error recovery |
-| `artifact-formats.md` | `.claude/specs/**` | Document formats |
-| `workflows.md` | `.claude/**` | Command lifecycle |
-
----
-
-## Error Handling and Recovery
-
-### Error Types
-
-- `tool_failure`: External tool failed
-- `status_sync_failure`: Failed to update TODO.md/state.json
-- `test_failure`: Tests failed during implementation
-- `import_error`: Python import failed
-- `z3_timeout`: Z3 solver timed out
-- `git_commit_failure`: Git commit failed
-- `timeout`: Operation exceeded timeout
-
-### Recovery Patterns
-
-**Test Failure**:
-1. Capture test output
-2. Log to errors.json
-3. Keep task IN PROGRESS
-4. Report failure with context
-
-**Z3 Timeout**:
-1. Reduce constraint complexity
-2. Increase timeout if justified
-3. Consider incremental solving
-
-**Import Error**:
-1. Check PYTHONPATH set correctly
-2. Verify package installed
-3. Check relative import paths
-
----
-
-## Future Enhancements
-
-### Planned Features
-
-1. **Parallel Phase Execution**: Execute independent phases in parallel
-2. **Test Coverage Tracking**: Track coverage changes per task
-3. **Theory Validation**: Automated semantic theory validation
-4. **Performance Profiling**: Track and optimize slow operations
-
-### Extensibility
+## Extensibility
 
 The architecture supports extension through:
-- New commands (add to `.claude/commands/`)
-- New skills (add to `.claude/skills/`)
-- New context (add to `.claude/context/project/`)
-- New rules (add to `.claude/rules/`)
+
+| Component | Location | How to Add |
+|-----------|----------|------------|
+| Commands | `commands/` | Create `{name}.md` with frontmatter |
+| Skills | `skills/` | Create `skill-{name}/SKILL.md` |
+| Context | `context/project/` | Add domain-specific `.md` files |
+| Rules | `rules/` | Create `{name}.md` with scope patterns |
+
+### Adding a New Command
+
+1. Create `commands/{name}.md` with frontmatter:
+   ```yaml
+   ---
+   description: What the command does
+   allowed-tools: Read, Write, Edit, Bash(git:*)
+   argument-hint: ARGS
+   model: claude-opus-4-5-20251101
+   ---
+   ```
+2. Define execution steps
+3. Document in [docs/README.md](docs/README.md)
+
+### Adding a New Skill
+
+1. Create `skills/skill-{name}/SKILL.md` with frontmatter:
+   ```yaml
+   ---
+   name: skill-{name}
+   description: What the skill does
+   allowed-tools: Tool1, Tool2
+   context: fork
+   ---
+   ```
+2. Define trigger conditions and workflow
+3. Update orchestrator routing if needed
 
 ---
 
 ## Related Documentation
 
-- Quick Reference: `.claude/CLAUDE.md`
-- Project Standards: `Code/docs/README.md`
-- Testing Guide: `Code/docs/core/TESTING_GUIDE.md`
-- Architecture Overview: `Code/docs/core/ARCHITECTURE.md`
+### Quick Reference
+- [CLAUDE.md](CLAUDE.md) - Entry point and quick reference
+
+### Detailed Documentation
+- [docs/README.md](docs/README.md) - Complete documentation hub
+- [context/README.md](context/README.md) - Context organization
+
+### Project Documentation
+- [ModelChecker README](../README.md) - Main project documentation
+- [Code/docs/](../Code/docs/) - Technical development standards
+- [Code/docs/core/TESTING_GUIDE.md](../Code/docs/core/TESTING_GUIDE.md) - TDD requirements
+
+---
+
+[Back to ModelChecker](../README.md) | [Docs](docs/README.md) | [Context](context/README.md) | [CLAUDE.md](CLAUDE.md)
