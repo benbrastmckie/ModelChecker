@@ -2,13 +2,17 @@
   "permissions": {
     "allow": [
       "Bash(git:*)",
-      "Bash(lake *)",
       "Bash(cd *)",
       "Bash(ls *)",
       "Bash(mkdir *)",
       "Bash(cp *)",
       "Bash(mv *)",
       "Bash(chmod +x *)",
+      "Bash(PYTHONPATH=* pytest *)",
+      "Bash(PYTHONPATH=* python *)",
+      "Bash(python -m build)",
+      "Bash(python -m pytest *)",
+      "Bash(pip *)",
       "Read",
       "Write",
       "Edit",
@@ -17,8 +21,7 @@
       "WebSearch",
       "WebFetch",
       "Task",
-      "TodoWrite",
-      "mcp__lean-lsp__*"
+      "TodoWrite"
     ],
     "deny": [
       "Bash(rm -rf /)",
