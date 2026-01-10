@@ -1,6 +1,6 @@
 ---
 last_updated: 2026-01-10T12:00:00Z
-next_project_number: 350
+next_project_number: 351
 repository_health:
   overall_score: 92
   production_readiness: excellent
@@ -306,6 +306,27 @@ technical_debt:
 ---
 
 ## Medium Priority
+
+### 350. Improve GETTING_STARTED.md with terminal setup section
+- **Effort**: 2-3 hours
+- **Status**: [NOT STARTED]
+- **Priority**: Medium
+- **Language**: general
+- **Blocking**: None
+- **Dependencies**: None
+
+**Description**: Improve Docs/installation/GETTING_STARTED.md to include a section on how to install and configure quality-of-life terminal tools:
+
+1. **WezTerm** - Modern terminal emulator with GPU acceleration
+2. **Zoxide** - Smarter cd command with frecency-based directory jumping
+3. **Fish shell** - User-friendly shell with excellent autocompletion
+
+Link to configuration files at https://github.com/benbrastmckie/.dotfiles/config/ and explain how to use or modify these configs. Mention Kitty + Zsh as alternative combinations, noting that differences are inconsequential - what matters is having basic quality-of-life features like path completion.
+
+**Files Affected**:
+- Docs/installation/GETTING_STARTED.md (update)
+
+---
 
 ### 176. Enhance proof search with domain-specific heuristics and caching
 - **Effort**: 18 hours
