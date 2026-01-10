@@ -1,6 +1,6 @@
 # Copy .claude/ Directory Guide
 
-[Back to Docs](../README.md) | [User Installation](user-installation.md) | [Commands Reference](../commands/README.md)
+[Back to Docs](../README.md) | [Claude Code Guide](../../../Docs/installation/CLAUDE_CODE.md) | [Commands Reference](../commands/README.md)
 
 Instructions for copying the `.claude/` agent system directory from the ModelChecker repository into your project.
 
@@ -283,7 +283,7 @@ Remove-Item -Recurse -Force .claude.backup
 After installation, explore the available commands:
 
 - **[Commands Reference](../commands/README.md)** - Full documentation of all commands
-- **[User Installation Guide](user-installation.md)** - Complete setup guide
+- **[Claude Code Guide](../../../Docs/installation/CLAUDE_CODE.md)** - Complete Claude Code setup
 - **[Documentation Hub](../README.md)** - All documentation
 
 ### Quick Start with Commands
@@ -298,4 +298,4 @@ After installation, explore the available commands:
 
 ---
 
-[Back to Docs](../README.md) | [User Installation](user-installation.md) | [Commands Reference](../commands/README.md)
+[Back to Docs](../README.md) | [Claude Code Guide](../../../Docs/installation/CLAUDE_CODE.md) | [Commands Reference](../commands/README.md)

@@ -83,7 +83,7 @@ gh auth status
 
 | Document | Purpose |
 |----------|---------|
-| `guides/user-installation.md` | Quick-start for new users |
+| `guides/copy-claude-directory.md` | Install the .claude/ agent system |
 | `guides/context-management.md` | Context loading patterns |
 
 ## Project Creation
