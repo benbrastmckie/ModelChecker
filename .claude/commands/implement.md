@@ -119,8 +119,10 @@ git commit -m "task {N} phase {P}: {phase_name}"
 After all phases done:
 
 1. **Update Status to COMPLETED**
-   - state.json: status = "completed"
-   - TODO.md: Status: [COMPLETED], add Completed date
+   - state.json: status = "completed", completed = today's date, last_updated = now
+   - TODO.md: Status: [COMPLETED], Completed: {date}
+
+**Timestamp**: Set `completed` to today's date to record when implementation finished.
 
 2. **Create Summary**
    Write to `.claude/specs/{N}_{SLUG}/summaries/implementation-summary-{DATE}.md`:

@@ -11,13 +11,14 @@ TODO.md and state.json MUST stay synchronized. Any update to one requires updati
 ### Canonical Sources
 - **state.json**: Machine-readable source of truth
   - next_project_number
-  - active_projects array with status, language, priority
+  - active_projects array with status, language, priority, timestamps
   - Faster to query (12ms vs 100ms for TODO.md parsing)
 
 - **TODO.md**: User-facing source of truth
   - Human-readable task list with descriptions
   - Status markers in brackets: [STATUS]
   - Grouped by priority (High/Medium/Low)
+  - Frontmatter with task_counts statistics
 
 ## Status Transitions
 
@@ -58,6 +59,28 @@ When updating task status:
 4. If either fails: log error, preserve original state
 ```
 
+## TODO.md Frontmatter
+
+The frontmatter contains metadata about the task list:
+
+```yaml
+---
+last_updated: 2026-01-10T19:00:00Z
+next_project_number: 3
+task_counts:
+  active: 2
+  completed: 1
+  in_progress: 1
+---
+```
+
+### task_counts Fields
+- `active`: Tasks not completed or abandoned
+- `completed`: Tasks with status = completed
+- `in_progress`: Tasks with status = researching, planning, or implementing
+
+**Update task_counts**: Recalculate after task creation, completion, or archival.
+
 ## Task Entry Format
 
 ### TODO.md Entry
@@ -65,15 +88,28 @@ When updating task status:
 ### {NUMBER}. {TITLE}
 - **Effort**: {estimate}
 - **Status**: [{STATUS}]
+- **Started**: {YYYY-MM-DD}
+- **Researched**: {YYYY-MM-DD}
+- **Planned**: {YYYY-MM-DD}
+- **Completed**: {YYYY-MM-DD}
 - **Priority**: {High|Medium|Low}
-- **Language**: {lean|general|meta|markdown}
-- **Started**: {ISO timestamp}
-- **Completed**: {ISO timestamp}
+- **Language**: {python|general|meta|markdown}
+- **Blocking**: {None|task numbers}
+- **Dependencies**: {None|task numbers}
 - **Research**: [link to report]
 - **Plan**: [link to plan]
+- **Summary**: [link to summary]
 
 **Description**: {full description}
 ```
+
+### Lifecycle Timestamps
+| Field | Set When |
+|-------|----------|
+| Started | First transition from NOT STARTED (typically /research) |
+| Researched | Research completes (/research) |
+| Planned | Planning completes (/plan) |
+| Completed | Implementation completes (/implement) |
 
 ### state.json Entry
 ```json
@@ -81,13 +117,38 @@ When updating task status:
   "project_number": 334,
   "project_name": "task_slug_here",
   "status": "planned",
-  "language": "lean",
+  "language": "python",
   "priority": "high",
   "effort": "4 hours",
   "created": "2026-01-08T10:00:00Z",
-  "last_updated": "2026-01-08T14:30:00Z"
+  "last_updated": "2026-01-08T14:30:00Z",
+  "started": "2026-01-08",
+  "researched": "2026-01-08",
+  "planned": "2026-01-08",
+  "completed": null,
+  "artifacts": [
+    ".claude/specs/334_task_slug/reports/research-001.md",
+    ".claude/specs/334_task_slug/plans/implementation-001.md"
+  ],
+  "plan_path": ".claude/specs/334_task_slug/plans/implementation-001.md",
+  "plan_metadata": {
+    "plan_version": 1
+  }
 }
 ```
+
+### state.json Timestamp Fields
+| Field | Type | Description |
+|-------|------|-------------|
+| created | ISO timestamp | When task was created |
+| last_updated | ISO timestamp | Last modification time |
+| started | ISO date | When work began |
+| researched | ISO date | When research completed |
+| planned | ISO date | When planning completed |
+| completed | ISO date | When implementation completed |
+| artifacts | array | Paths to all artifacts |
+| plan_path | string | Path to current plan |
+| plan_metadata | object | Version and revision info |
 
 ## Status Values Mapping
 

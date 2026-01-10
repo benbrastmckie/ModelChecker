@@ -4,6 +4,50 @@ paths: .claude/specs/**/*
 
 # Artifact Format Rules
 
+## TODO.md Task Entry Format
+
+Each task entry in TODO.md follows this structure:
+
+```markdown
+### {NUMBER}. {TITLE}
+- **Effort**: {estimate}
+- **Status**: [{STATUS}]
+- **Started**: {YYYY-MM-DD}
+- **Researched**: {YYYY-MM-DD}
+- **Planned**: {YYYY-MM-DD}
+- **Completed**: {YYYY-MM-DD}
+- **Priority**: {High|Medium|Low}
+- **Language**: {python|general|meta|markdown}
+- **Blocking**: {None|task numbers}
+- **Dependencies**: {None|task numbers}
+- **Research**: [path/to/research-001.md]
+- **Plan**: [path/to/implementation-001.md]
+- **Summary**: [path/to/summary.md]
+
+**Description**: {full description}
+
+**Files Affected**:
+- path/to/file1
+- path/to/file2
+
+---
+```
+
+### Timestamp Fields
+Include timestamps as they become available:
+- `Started`: Added when /research begins (first work on task)
+- `Researched`: Added when /research completes
+- `Planned`: Added when /plan completes
+- `Completed`: Added when /implement completes
+
+### Artifact Links
+Add links as artifacts are created:
+- `Research`: Link to research report
+- `Plan`: Link to implementation plan
+- `Summary`: Link to implementation summary
+
+---
+
 ## Research Reports
 
 **Location**: `.claude/specs/{N}_{SLUG}/reports/research-{NNN}.md`

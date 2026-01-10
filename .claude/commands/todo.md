@@ -89,6 +89,17 @@ Optionally add to archive section at bottom (collapsed).
 Task directories remain in .claude/specs/{N}_{SLUG}/
 (Don't move or delete - they're still valuable reference)
 
+**E. Update task_counts**
+
+Recalculate task_counts from remaining active_projects:
+```bash
+active=$(jq '[.active_projects[] | select(.status != "completed" and .status != "abandoned")] | length' .claude/specs/state.json)
+completed=$(jq '[.active_projects[] | select(.status == "completed")] | length' .claude/specs/state.json)
+in_progress=$(jq '[.active_projects[] | select(.status == "implementing" or .status == "researching" or .status == "planning")] | length' .claude/specs/state.json)
+```
+
+Update TODO.md frontmatter with new counts.
+
 ### 6. Git Commit
 
 ```bash
