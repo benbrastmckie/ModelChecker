@@ -19,14 +19,20 @@
       "project_number": 349,
       "project_name": "claude_code_user_installation_guide",
       "type": "documentation",
-      "phase": "not_started",
-      "status": "not_started",
+      "phase": "researched",
+      "status": "researched",
       "priority": "high",
       "language": "general",
       "created": "2026-01-10T09:19:10Z",
-      "last_updated": "2026-01-10T09:19:10Z",
+      "last_updated": "2026-01-10T12:49:23Z",
       "effort": "4-6 hours",
-      "description": "Expand .claude/docs/ to include an installation guide for users new to the terminal, explaining how to install and use Claude Code to pip install the model-checker, create Logos projects, and configure GitHub CLI for issue reporting. Create installation context file in .claude/context/project/modelchecker/."
+      "description": "Expand .claude/docs/ to include an installation guide for users new to the terminal, explaining how to install and use Claude Code to pip install the model-checker, create Logos projects, and configure GitHub CLI for issue reporting. Create installation context file in .claude/context/project/modelchecker/.",
+      "artifacts": [
+        {
+          "path": ".claude/specs/349_claude_code_user_installation_guide/reports/research-001.md",
+          "type": "research"
+        }
+      ]
     },
     {
       "project_number": 348,
