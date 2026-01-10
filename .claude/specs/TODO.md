@@ -1,8 +1,8 @@
 ---
 last_updated: 2026-01-10T22:30:00Z
-next_project_number: 5
+next_project_number: 6
 task_counts:
-  active: 0
+  active: 1
   completed: 1
   in_progress: 0
 ---
@@ -12,6 +12,19 @@ task_counts:
 ---
 
 ## High Priority
+
+### 5. Fix /task command implementation bug
+- **Effort**: 30 minutes
+- **Status**: [NOT STARTED]
+- **Priority**: High
+- **Language**: meta
+- **Blocking**: None
+- **Dependencies**: None
+
+**Description**: Fix the /task command which interprets task descriptions as instructions to execute rather than text to record. Apply the solution from .claude/specs/task-command-implementation-bug.md: (1) Restrict allowed-tools to only .claude/specs/* paths, (2) Add prominent "CRITICAL" section explaining $ARGUMENTS is a DESCRIPTION to record, not instructions to execute, (3) Strengthen Constraints section with HARD STOP and explicit forbidden actions list.
+
+**Files Affected**:
+- .claude/commands/task.md
 
 ---
 
