@@ -35,6 +35,13 @@ Before installing Claude Code, you need:
 ### macOS
 
 **Option 1: Using Homebrew (Recommended)**
+
+Requires [Homebrew](https://brew.sh/). If not installed, run first:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Then install Claude Code:
 ```bash
 brew install anthropics/claude/claude-code
 ```
@@ -649,6 +656,56 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/logos/tests/unit/ -
 Help me update the theory library documentation after adding my custom
 theory implementation.
 ```
+
+## Setting Up Claude Agent Commands (Optional)
+
+The ModelChecker repository includes an optional `.claude/` agent system that provides enhanced task management and workflow commands for Claude Code.
+
+### What the Agent System Provides
+
+- **Task Management**: Create, track, and archive development tasks
+- **Structured Workflow**: `/research` → `/plan` → `/implement` cycle
+- **Specialized Skills**: Language-specific agents for Python/Z3 development
+- **Context Files**: Domain knowledge for logic, semantics, and theorem proving
+- **State Persistence**: Track progress across Claude Code sessions
+
+### Installation
+
+To install the agent system, paste this URL into Claude Code:
+
+```
+https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/.claude/docs/guides/copy-claude-directory.md
+```
+
+Then give Claude this prompt:
+
+```
+Please read the instructions at the URL above and follow them to copy
+the .claude/ directory into my current working directory.
+```
+
+**Alternative**: Follow the instructions in the guide manually.
+
+### After Installation
+
+1. **Restart Claude Code** - Exit and restart for commands to be available
+2. **Test the setup** - Try creating a test task:
+   ```
+   /task "Test task"
+   ```
+3. **Learn the commands** - Read the full command reference at `.claude/docs/commands/README.md`
+
+### Available Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/task` | Create and manage tasks |
+| `/research` | Conduct research on a task |
+| `/plan` | Create implementation plan |
+| `/implement` | Execute implementation |
+| `/todo` | Archive completed tasks |
+
+For complete documentation, see the [Commands Reference](../../.claude/docs/commands/README.md).
 
 ## Additional Resources
 
