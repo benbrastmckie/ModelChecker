@@ -1,329 +1,168 @@
-# Development Templates
+# Templates
 
-This directory contains templates for creating new commands and agents in the ProofChecker OpenCode system.
+[Back to Docs](../README.md) | [Commands](../commands/README.md) | [Skills](../skills/README.md)
+
+Templates for creating new commands and skills in the ModelChecker `.claude/` agent system.
 
 ---
 
 ## Available Templates
 
-### Command Template
-
-**File**: `command-template.md`  
-**Purpose**: Template for creating new command files  
-**Use When**: Adding a new user-facing command to the system
-
-**Key Features**:
-- Frontmatter delegation pattern
-- Standard command structure
-- Usage examples
-- Validation checklist
-- File size requirements (<300 lines)
-
-**Usage**:
-1. Copy `command-template.md` to `.claude/command/<command-name>.md`
-2. Replace all `<placeholders>` with actual values
-3. Fill in all sections (Purpose, Usage, Workflow, etc.)
-4. Ensure frontmatter specifies correct agent
-5. Validate using checklist at end of template
-6. Test command with valid and invalid inputs
-
-### Agent Template
-
-**File**: `agent-template.md`  
-**Purpose**: Template for creating new agent files  
-**Use When**: Adding a new agent to handle command execution
-
-**Key Features**:
-- Complete 8-stage workflow implementation
-- Stage 7 requirements (artifact validation, status updates, git commits)
-- Return format specification
-- Context loading pattern
-- Validation checklist
-
-**Usage**:
-1. Copy `agent-template.md` to `.claude/skills/<agent-name>.md`
-2. Replace all `<placeholders>` with actual values
-3. Implement all 8 workflow stages
-4. **Ensure Stage 7 is fully implemented** (critical for reliability)
-5. Validate using checklist at end of template
-6. Test agent with valid and invalid inputs
+| Template | Purpose | Use When |
+|----------|---------|----------|
+| [Command Template](command-template.md) | New slash commands | Adding user-facing commands |
+| [Skill Template](skill-template.md) | New skills | Adding specialized agents |
 
 ---
 
-## Template Standards
+## Command Template
 
-### Frontmatter Delegation Pattern
+**File**: [command-template.md](command-template.md)
 
-All commands must use frontmatter to specify their agent:
+Create new slash commands that users invoke with `/command` syntax.
+
+### Quick Start
+
+1. Copy template to `.claude/commands/{name}.md`
+2. Replace placeholders with actual values
+3. Define frontmatter (description, tools, arguments)
+4. Document usage and workflow
+5. Test with valid and invalid inputs
+
+### Key Requirements
+
+- Commands delegate to skills (don't execute directly)
+- Keep under 300 lines
+- Include usage examples
+- Document all arguments
+
+---
+
+## Skill Template
+
+**File**: [skill-template.md](skill-template.md)
+
+Create new skills that execute specific types of work.
+
+### Quick Start
+
+1. Create directory `.claude/skills/skill-{name}/`
+2. Copy template to `SKILL.md` in that directory
+3. Replace placeholders with actual values
+4. Define frontmatter (name, tools, context)
+5. Implement workflow
+6. Update orchestrator routing if needed
+
+### Key Requirements
+
+- Return structured JSON matching format
+- Handle errors gracefully
+- Support resume for long operations
+- Create artifacts in task directories
+
+---
+
+## Frontmatter Standards
+
+### Command Frontmatter
 
 ```yaml
 ---
-agent: <agent-name>
+description: Brief command description
+allowed-tools: Read, Write, Edit, Bash(git:*)
+argument-hint: TASK_NUMBER [focus]
+model: claude-opus-4-5-20251101
 ---
 ```
 
-**Requirements**:
-- Agent name must match agent file (without `.md` extension)
-- Agent file must exist in `.claude/skills/`
-- Frontmatter must be at top of file (before any content)
+### Skill Frontmatter
 
-**Example**:
 ```yaml
 ---
-agent: research-agent
+name: skill-name
+description: Brief skill description
+allowed-tools: Read, Write, Edit, Bash(pytest)
+context: fork
+---
+```
+
 ---
 
-# /research Command
-...
+## ModelChecker-Specific Patterns
+
+### Python/Z3 Skills
+
+For skills working with Python/Z3 code:
+
+**Tools**: `Read, Write, Edit, Bash(pytest), Bash(python)`
+
+**Testing**:
+```bash
+PYTHONPATH=Code/src pytest Code/tests/ -v
 ```
 
-### 8-Stage Workflow Pattern
-
-All agents must implement the complete 8-stage workflow:
-
-1. **Stage 1: Input Validation** - Validate parameters and prerequisites
-2. **Stage 2: Context Loading** - Load required context on-demand
-3. **Stage 3: Core Execution** - Perform core work
-4. **Stage 4: Output Generation** - Generate outputs in required formats
-5. **Stage 5: Artifact Creation** - Create artifacts in task directory
-6. **Stage 6: Return Formatting** - Format return following subagent-return-format.md
-7. **Stage 7: Artifact Validation and Status Updates** - Validate artifacts, update TODO.md, state.json, create git commit
-8. **Stage 8: Cleanup** - Perform cleanup
-
-**Critical**: Stage 7 must be fully implemented. Stage 7 failures cause system-wide reliability issues.
-
-### File Size Requirements
-
-**Commands**:
-- **Target**: <250 lines
-- **Maximum**: <300 lines
-- **Rationale**: Keep commands simple and focused on delegation
-
-**Agents**:
-- **No strict limit**: Agents can be larger (they own complete workflow)
-- **Recommendation**: Keep under 500 lines if possible
-- **Rationale**: Agents are more complex, but should still be maintainable
-
-### Context Loading Pattern
-
-All agents must use lazy-loading pattern:
-
-1. Load `.claude/context/index.md` first
-2. Discover available context files from index
-3. Load only required context files on-demand
-4. Load context after routing (not during)
-
-**Example**:
-```markdown
-## Stage 2: Context Loading
-
-1. Read `.claude/context/index.md`
-2. Load required context:
-   - `.claude/context/core/standards/agent-workflow.md`
-   - `.claude/context/agents/research-context.md`
-3. Parse context for relevant information
+**Theory Structure**:
 ```
+theory_lib/{theory}/
+├── semantic.py      # Core semantic framework
+├── operators.py     # Operator registry
+├── examples.py      # Test cases
+├── iterate.py       # Theory-specific iteration
+└── tests/           # Unit & integration tests
+```
+
+### Research Skills
+
+For skills that conduct research:
+
+**Tools**: `WebSearch, WebFetch, Read, Grep, Glob`
+
+**Output**: `reports/research-{NNN}.md`
+
+### Implementation Skills
+
+For skills that implement code:
+
+**Tools**: `Read, Write, Edit, Bash(pytest)`
+
+**Output**: `summaries/implementation-summary-{DATE}.md`
 
 ---
 
 ## Validation Checklists
 
-### Command Validation Checklist
+### Command Checklist
 
-Before submitting a new command, verify:
-
-**Frontmatter**:
-- [ ] Frontmatter includes `agent:` field
-- [ ] Agent name matches agent file
-- [ ] Agent file exists
-
-**Documentation**:
-- [ ] Purpose section complete
+- [ ] Frontmatter includes all required fields
+- [ ] Description is clear and concise
 - [ ] Usage section with examples
-- [ ] Workflow section describes 8 stages
-- [ ] Artifacts section lists outputs
-- [ ] Prerequisites documented
-
-**File Size**:
-- [ ] Command file <250 lines (target)
-- [ ] Command file <300 lines (maximum)
-- [ ] No embedded routing logic
-- [ ] No embedded workflow execution
-
-**Testing**:
-- [ ] Tested with valid arguments
-- [ ] Tested with invalid arguments
-- [ ] Artifacts created successfully
-- [ ] Stage 7 execution verified
-
-### Agent Validation Checklist
-
-Before submitting a new agent, verify:
-
-**8-Stage Workflow**:
-- [ ] Stage 1 (Input Validation) implemented
-- [ ] Stage 2 (Context Loading) implemented
-- [ ] Stage 3 (Core Execution) implemented
-- [ ] Stage 4 (Output Generation) implemented
-- [ ] Stage 5 (Artifact Creation) implemented
-- [ ] Stage 6 (Return Formatting) implemented
-- [ ] **Stage 7 (Artifact Validation, Status Updates, Git Commits) implemented**
-- [ ] Stage 8 (Cleanup) implemented
-
-**Stage 7 Requirements**:
-- [ ] Artifact validation implemented
-- [ ] TODO.md update implemented
-- [ ] state.json update implemented
-- [ ] Git commit creation implemented
-- [ ] Timestamp recording implemented
-
-**Return Format**:
-- [ ] Matches subagent-return-format.md
-- [ ] All required fields present
-- [ ] Summary concise (<100 tokens)
-- [ ] Artifacts array populated
-
-**Testing**:
+- [ ] Workflow documented
+- [ ] Arguments documented
+- [ ] Under 300 lines
 - [ ] Tested with valid inputs
 - [ ] Tested with invalid inputs
-- [ ] Stage 7 execution verified
-- [ ] Artifacts validated
-- [ ] Return format validated
 
----
+### Skill Checklist
 
-## Examples
-
-### Example Command: /analyze
-
-```yaml
----
-agent: analyzer
----
-
-# /analyze Command
-
-## Purpose
-
-Analyzes code for potential issues and suggests improvements.
-
-**Use this command when you need to**: Review code quality and identify improvement opportunities.
-
-## Usage
-
-```
-/analyze <file-path> [--depth=shallow|deep]
-```
-
-### Arguments
-
-- `<file-path>`: Path to file or directory to analyze
-- `[--depth]`: Analysis depth (default: shallow)
-
-### Examples
-
-```
-# Analyze single file
-/analyze Logos/Core/Syntax/Formula.lean
-
-# Deep analysis of directory
-/analyze Logos/Core/ --depth=deep
-```
-
-## Workflow
-
-This command delegates to the `analyzer` agent, which executes the 8-stage workflow...
-
-[Rest of command documentation]
-```
-
-### Example Agent: Analyzer
-
-```markdown
-# Analyzer Agent
-
-**Agent Type**: analyzer  
-**Delegation Depth**: 1  
-**Timeout**: 600s  
-**Status**: Active
-
-## Purpose
-
-Analyzes code for potential issues and suggests improvements.
-
-**Responsibilities**:
-- Parse code files
-- Identify potential issues
-- Suggest improvements
-- Generate analysis report
-
-## 8-Stage Workflow
-
-### Stage 1: Input Validation
-
-**Objective**: Validate file path and analysis depth
-
-**Tasks**:
-1. Validate file path exists
-2. Validate depth parameter (shallow|deep)
-3. Check file is readable
-4. Validate delegation depth < 3
-
-[Rest of workflow implementation]
-```
-
----
-
-## Best Practices
-
-### Command Development
-
-1. **Keep Commands Simple**: Commands should delegate, not execute
-2. **Document Thoroughly**: Include clear examples and usage instructions
-3. **Use Frontmatter**: Always specify agent in frontmatter
-4. **Stay Under 300 Lines**: If command exceeds 300 lines, refactor
-5. **Test Thoroughly**: Test with valid and invalid inputs
-
-### Agent Development
-
-1. **Implement All 8 Stages**: Don't skip stages, especially Stage 7
-2. **Load Context On-Demand**: Use lazy-loading pattern
-3. **Follow Return Format**: Match subagent-return-format.md exactly
-4. **Handle Errors Gracefully**: Provide clear error messages and recovery steps
-5. **Validate Stage 7**: Ensure artifacts validated, TODO.md updated, git commit created
-
-### Testing
-
-1. **Test Valid Inputs**: Verify command works with correct inputs
-2. **Test Invalid Inputs**: Verify error handling works
-3. **Test Stage 7**: Verify TODO.md, state.json, git commit created
-4. **Test Artifacts**: Verify artifacts created and validated
-5. **Test Return Format**: Verify return matches subagent-return-format.md
+- [ ] Frontmatter includes all required fields
+- [ ] Trigger conditions documented
+- [ ] Workflow steps defined
+- [ ] Return format matches standard
+- [ ] Error handling implemented
+- [ ] Artifacts created in correct locations
+- [ ] Tested with valid inputs
+- [ ] Tested with invalid inputs
 
 ---
 
 ## Related Documentation
 
-- **Migration Guide**: `.claude/docs/migrations/001-openagents-migration/README.md`
-- **ADR-001: Context Index**: `.claude/docs/migrations/001-openagents-migration/adr/ADR-001-context-index.md`
-- **ADR-002: Agent Workflow Ownership**: `.claude/docs/migrations/001-openagents-migration/adr/ADR-002-agent-workflow-ownership.md`
-- **ADR-003: Frontmatter Delegation**: `.claude/docs/migrations/001-openagents-migration/adr/ADR-003-frontmatter-delegation.md`
-- **Workflow Standard**: `.claude/context/core/standards/agent-workflow.md`
-- **Return Format**: `.claude/context/core/standards/subagent-return-format.md`
+- [Creating Commands Guide](../guides/creating-commands.md)
+- [Creating Skills Guide](../guides/creating-skills.md)
+- [Commands Reference](../commands/README.md)
+- [Skills Reference](../skills/README.md)
+- [ARCHITECTURE.md](../../ARCHITECTURE.md)
 
 ---
 
-## Support
-
-For questions or issues with templates:
-
-1. Review migration guide and ADRs
-2. Check existing commands and agents for examples
-3. Consult workflow standard and return format documentation
-4. Create task for template improvements if needed
-
----
-
-**Document Version**: 1.0  
-**Last Updated**: 2025-12-29  
-**Maintained By**: ProofChecker Development Team
+[Back to Docs](../README.md) | [Commands](../commands/README.md) | [Skills](../skills/README.md)
