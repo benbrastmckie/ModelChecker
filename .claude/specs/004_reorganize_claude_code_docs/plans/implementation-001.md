@@ -38,7 +38,7 @@ Consolidate Claude Code documentation by merging the unique "Agent Commands" sec
 ### Phase 2: Delete user-installation.md
 
 **Estimated effort**: 5 minutes
-**Status**: [NOT STARTED]
+**Status**: [COMPLETED]
 
 **Objectives**:
 1. Remove the redundant file
