@@ -19,19 +19,24 @@
       "project_number": 3,
       "project_name": "update_docs_zero_padding_standard",
       "directory": "003_update_docs_zero_padding_standard",
-      "status": "researched",
+      "status": "planned",
       "language": "meta",
       "priority": "low",
       "effort": "30 minutes",
       "created": "2026-01-10T21:15:00Z",
-      "last_updated": "2026-01-10T21:25:00Z",
+      "last_updated": "2026-01-10T21:30:00Z",
       "started": "2026-01-10",
       "researched": "2026-01-10",
-      "planned": null,
+      "planned": "2026-01-10",
       "completed": null,
       "artifacts": [
-        ".claude/specs/003_update_docs_zero_padding_standard/reports/research-001.md"
-      ]
+        ".claude/specs/003_update_docs_zero_padding_standard/reports/research-001.md",
+        ".claude/specs/003_update_docs_zero_padding_standard/plans/implementation-001.md"
+      ],
+      "plan_path": ".claude/specs/003_update_docs_zero_padding_standard/plans/implementation-001.md",
+      "plan_metadata": {
+        "plan_version": 1
+      }
     },
     {
       "project_number": 2,
