@@ -14,7 +14,7 @@ Consolidate Claude Code documentation by merging the unique "Agent Commands" sec
 ### Phase 1: Enhance CLAUDE_CODE.md
 
 **Estimated effort**: 30 minutes
-**Status**: [NOT STARTED]
+**Status**: [COMPLETED]
 
 **Objectives**:
 1. Add Homebrew installation note for macOS
