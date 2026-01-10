@@ -1,0 +1,3354 @@
+{
+  "_schema_version": "1.1.0",
+  "_comment": "Main state tracking file for ProofChecker .opencode system. Auto-created with self-healing on 2025-12-27. Links to specialized state files for archives and maintenance.",
+  "_last_updated": "2026-01-08T00:00:00Z",
+  "next_project_number": 350,
+  "project_numbering": {
+    "min": 0,
+    "max": 999,
+    "policy": "increment_modulo_1000",
+    "_comment": "Project numbers wrap around to 000 after 999. Ensure old projects are archived before reuse."
+  },
+  "state_references": {
+    "archive_state_path": ".claude/specs/archive/state.json",
+    "maintenance_state_path": ".claude/specs/maintenance/state.json",
+    "_comment": "References to specialized state files. These files are auto-created if missing."
+  },
+  "active_projects": [
+    {
+      "project_number": 349,
+      "project_name": "claude_code_user_installation_guide",
+      "type": "documentation",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "general",
+      "created": "2026-01-10T09:19:10Z",
+      "last_updated": "2026-01-10T09:19:10Z",
+      "effort": "4-6 hours",
+      "description": "Expand .claude/docs/ to include an installation guide for users new to the terminal, explaining how to install and use Claude Code to pip install the model-checker, create Logos projects, and configure GitHub CLI for issue reporting. Create installation context file in .claude/context/project/modelchecker/."
+    },
+    {
+      "project_number": 348,
+      "project_name": "jq_based_state_lookup_for_commands",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "planning",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-09T13:19:56Z",
+      "last_updated": "2026-01-09T13:39:05Z",
+      "effort": "4-6 hours",
+      "description": "Enhance claude code agent system to use jq for efficient state.json lookups by task number in /research, /plan, /revise, /implement, and /task commands. From task lookup, use grep to find relevant TODO.md sections for synchronized updates via skill-status-sync."
+    },
+    {
+      "project_number": 132,
+      "project_name": "prove_lindenbaum_maximal_consistency_lemma_in_completeness.lean",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "3 hours"
+    },
+    {
+      "project_number": 133,
+      "project_name": "build_canonical_model_constructors_in_completeness.lean",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "3 hours"
+    },
+    {
+      "project_number": 134,
+      "project_name": "prove_truth_lemma_structure_in_completeness.lean",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "3 hours"
+    },
+    {
+      "project_number": 135,
+      "project_name": "remove_provable_iff_valid_sorry_in_completeness.lean",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "2 hours"
+    },
+    {
+      "project_number": 136,
+      "project_name": "design_decidability.lean_architecture_and_signatures",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "2 hours"
+    },
+    {
+      "project_number": 137,
+      "project_name": "implement_tableau_core_rules_in_decidability.lean",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "3 hours"
+    },
+    {
+      "project_number": 138,
+      "project_name": "implement_satisfiability_and_validity_decision_procedure_tests",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "3 hours"
+    },
+    {
+      "project_number": 139,
+      "project_name": "draft_layer_1_counterfactual_operator_plan",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "2 hours"
+    },
+    {
+      "project_number": 140,
+      "project_name": "draft_layer_2_epistemic_operator_plan",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "2 hours"
+    },
+    {
+      "project_number": 141,
+      "project_name": "draft_layer_3_normative_operator_plan",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "2 hours"
+    },
+    {
+      "project_number": 175,
+      "project_name": "establish_ci/cd_pipeline_with_automated_testing_and_linting",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "13 hours"
+    },
+    {
+      "project_number": 176,
+      "project_name": "enhance_proof_search_with_domain_specific_heuristics_and_caching",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "18 hours"
+    },
+    {
+      "project_number": 178,
+      "project_name": "complete_advanced_tutorial_sections_with_hands_on_exercises",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "13 hours"
+    },
+    {
+      "project_number": 179,
+      "project_name": "implement_performance_benchmarks_for_proof_search_and_derivation",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "13 hours"
+    },
+    {
+      "project_number": 180,
+      "project_name": "add_test_coverage_metrics_and_reporting",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "9 hours"
+    },
+    {
+      "project_number": 205,
+      "project_name": "implement_lean_tool_usage_verification_and_monitoring_system",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "6-8 hours"
+    },
+    {
+      "project_number": 218,
+      "project_name": "fix_lean_lsp_mcp_integration_and_opencode_module_import_errors",
+      "type": "feature",
+      "phase": "planning_completed",
+      "status": "planned",
+      "priority": "high",
+      "language": "python",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "0.75 hours"
+    },
+    {
+      "project_number": 257,
+      "project_name": "completeness_proofs",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "70-90 hours",
+      "description": "Implement the completeness proof for TM logic using the canonical model method. The infrastructure (types and axiom statements) is present in `Logos/Core/Metalogic/Completeness.lean`."
+    },
+    {
+      "project_number": 260,
+      "project_name": "proof_search",
+      "type": "feature",
+      "phase": "blocked",
+      "status": "blocked",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T16:30:00Z",
+      "effort": "40-60 hours",
+      "description": "Implement automated proof search for TM logic.",
+      "planning_completed": "2026-01-05T08:07:35-08:00",
+      "plan_path": ".claude/specs/260_proof_search/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 76,
+        "complexity": "medium-high",
+        "research_integrated": true,
+        "language": "lean",
+        "proof_strategy": "Extend existing bounded DFS with proof term construction, tactic integration, and BFS variant",
+        "mathlib_dependencies": [
+          "Std.Data.HashMap",
+          "Std.Data.HashSet",
+          "Lean.Elab.Tactic",
+          "Aesop"
+        ]
+      },
+      "estimated_hours": 76,
+      "artifacts": [
+        ".claude/specs/260_proof_search/plans/implementation-001.md",
+        ".claude/specs/260_proof_search/summaries/implementation-summary-20260105.md",
+        "Logos/Core/Automation/ProofSearch.lean"
+      ],
+      "started": "2026-01-05",
+      "completed": "2026-01-05",
+      "blocking_reason": "Phase 1 (Proof Term Construction) blocked by Axiom being Prop instead of Type. Cannot return Option (Axiom φ) from witness function."
+    },
+    {
+      "project_number": 261,
+      "project_name": "decidability",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "40-60 hours",
+      "description": "Implement decision procedures for TM logic."
+    },
+    {
+      "project_number": 263,
+      "project_name": "refactor_context.lean",
+      "type": "feature",
+      "phase": "implementing",
+      "status": "in_progress",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-08T00:00:00Z",
+      "effort": "2-4 hours",
+      "description": "Refactor the `Context.lean` file to improve clarity, performance, and alignment with the LEAN 4 style guide. This involves reviewing the existing implementation of proof contexts and applying best practices for data structures and function definitions in LEAN 4.",
+      "started": "2026-01-08"
+    },
+    {
+      "project_number": 264,
+      "project_name": "update_context_references",
+      "type": "feature",
+      "phase": "researching",
+      "status": "researching",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T01:22:38Z",
+      "effort": "1-2 hours",
+      "description": "After refactoring `Context.lean`, update all references to the `Context` module throughout the codebase to ensure they are compatible with any changes made to the API. This task involves searching for all usages of `Context` and updating them as necessary."
+    },
+    {
+      "project_number": 291,
+      "project_name": "fix_lean_research_agent_delegate_status_updates",
+      "type": "bugfix",
+      "phase": "research_completed",
+      "status": "researched",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2026-01-04T17:19:31Z",
+      "last_updated": "2026-01-04T17:50:00Z",
+      "estimated_hours": 2.5,
+      "started": "2026-01-04",
+      "research_completed": "2026-01-04",
+      "artifacts": [
+        ".claude/specs/291_fix_lean_research_agent_delegate_status_updates/reports/research-001.md"
+      ]
+    },
+    {
+      "project_number": 296,
+      "project_name": "create_sync_command_to_synchronize_todo_md_and_state_json",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Create a /sync command that bidirectionally synchronizes .claude/specs/TODO.md and .claude/specs/state.json, ensuring both files contain identical task information with the most recent changes from either file. The command should detect discrepancies between the two files, intelligently resolve conflicts by preferring the most recently updated data, and perform atomic updates to both files using the existing status-sync-manager's two-phase commit protocol. This addresses the architectural requirement that state.json is the authoritative source for metadata reads while TODO.md serves as the user-facing view, with synchronization ensuring consistency between them.",
+      "created": "2026-01-05T07:51:30Z",
+      "last_updated": "2026-01-05T07:51:30Z"
+    },
+    {
+      "project_number": 306,
+      "project_name": "refactor_/meta_command_to_create_tasks_instead_of_direct_implementation",
+      "type": "feature",
+      "phase": "planning_completed",
+      "status": "planned",
+      "priority": "high",
+      "language": "meta",
+      "description": "Refactor the /meta command to always create an appropriate number of tasks (similar to /task command) rather than directly implementing the work. Preserve the interview functionality to clarify requirements when needed, or run in full interactive mode when /meta is called with no arguments. The result should be task creation with dependencies indicated and plan artifacts stored in the appropriate artifact structure per artifact-management.md.",
+      "effort": "8 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T08:00:00Z",
+      "last_updated": "2026-01-05",
+      "research_completed": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/306_refactor_meta_command_to_create_tasks_instead_of_direct_implementation/reports/research-001.md",
+        ".claude/specs/306_refactor_meta_command_to_create_tasks_instead_of_direct_implementation/plans/implementation-001.md",
+        ".claude/specs/306_refactor_meta_command_to_create_tasks_instead_of_direct_implementation/plans/implementation-002.md",
+        ".claude/specs/306_refactor_meta_command_to_create_tasks_instead_of_direct_implementation/plans/implementation-003.md"
+      ],
+      "planning_completed": "2026-01-05",
+      "plan_path": ".claude/specs/306_refactor_meta_command_to_create_tasks_instead_of_direct_implementation/plans/implementation-003.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 8,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 3,
+        "revision_reason": "User requested single task with detailed plan containing appropriate number of phases (not hardcoded), rather than multiple subtasks"
+      },
+      "plan_revised": "2026-01-05"
+    },
+    {
+      "project_number": 308,
+      "project_name": "final_cleanup_and_comprehensive_testing_5_5",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "general",
+      "description": "Complete final cleanup of any remaining cruft from files not reverted. Test all commands (/task, /meta, /todo, /review) comprehensively to ensure everything works correctly. Commit clean changes with proper documentation.",
+      "effort": "15 minutes",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T09:38:06Z",
+      "last_updated": "2026-01-05T09:38:06Z"
+    },
+    {
+      "project_number": 315,
+      "project_name": "research_and_resolve_axiom_prop_vs_type_blocker_for_proof_term_construction",
+      "type": "feature",
+      "phase": "planning_completed",
+      "status": "planned",
+      "priority": "high",
+      "language": "lean",
+      "created": "2026-01-05T08:34:20.462436Z",
+      "last_updated": "2026-01-05T19:00:00Z",
+      "effort": "61-97 hours",
+      "description": "Research and implement solution to unblock Phase 1 (Proof Term Construction) of task 260. The blocker is that Axiom φ is a Prop, not a Type, making it impossible to return Option (Axiom φ) from find_axiom_witness. Investigate three approaches: (1) Classical.choice with decidability, (2) Refactor Axiom to Type instead of Prop, (3) Pivot to tactic-mode proof construction. Choose and implement the most viable approach to enable programmatic proof term construction.",
+      "started": "2026-01-05",
+      "researched": "2026-01-05",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": ".claude/specs/315_research_and_resolve_axiom_prop_vs_type_blocker_for_proof_term_construction/reports/research-001.md",
+          "created": "2026-01-05T18:06:50Z",
+          "summary": "Comprehensive analysis of three approaches to resolve Axiom Prop vs Type blocker. Recommends Approach 3 (Tactic-Mode) with 9/10 viability rating."
+        },
+        {
+          "type": "research",
+          "path": ".claude/specs/315_research_and_resolve_axiom_prop_vs_type_blocker_for_proof_term_construction/reports/research-002.md",
+          "created": "2026-01-05T18:36:09Z",
+          "summary": "Comparative analysis of Approach 2 vs 3 for AI training data generation. Findings: (1) Approach 3 is Lean 4 standard, (2) Both approaches compatible (hybrid viable), (3) Approach 2 superior for AI training (5/5 vs 0/5). Recommends hybrid strategy: tactic first (28-44h), then programmatic API (33-53h)."
+        },
+        {
+          "type": "plan",
+          "path": ".claude/specs/315_research_and_resolve_axiom_prop_vs_type_blocker_for_proof_term_construction/plans/implementation-001.md",
+          "created": "2026-01-05T19:00:00Z",
+          "summary": "Hybrid implementation plan: Phase 1 (Tactic Mode, 28-44h) + Phase 2 (Refactor to Type, 33-53h). Total 23 phases, 61-97 hours."
+        }
+      ],
+      "planned": "2026-01-05",
+      "plan_path": ".claude/specs/315_research_and_resolve_axiom_prop_vs_type_blocker_for_proof_term_construction/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 23,
+        "total_effort_hours": 79,
+        "complexity": "complex",
+        "research_integrated": true,
+        "language": "lean",
+        "proof_strategy": "Hybrid: Phase 1 (Tactic Mode) + Phase 2 (Refactor to Type)",
+        "mathlib_dependencies": [
+          "Lean.Elab.Tactic",
+          "Lean.Meta",
+          "Aesop"
+        ],
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          },
+          {
+            "path": "reports/research-002.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      }
+    },
+    {
+      "project_number": 316,
+      "project_name": "implement_tactic_integration_for_modal_search_tactic_phase_2",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "researched",
+      "priority": "high",
+      "language": "lean",
+      "created": "2026-01-05T08:34:20.462436Z",
+      "last_updated": "2026-01-08T07:31:35.021153Z",
+      "effort": "8-12 hours",
+      "description": "Implement Phase 2 of task 260: Tactic Integration. Create modal_search tactic that constructs proofs in tactic mode, avoiding Prop vs Type issues. This phase is prioritized over Phase 1 as it may be easier than programmatic proof term construction and is more useful for end users (interactive proof development). Integrate with existing ProofSearch.lean infrastructure.",
+      "artifacts": [
+        ".claude/specs/316_implement_tactic_integration_for_modal_search_tactic_phase_2/reports/research-001.md"
+      ]
+    },
+    {
+      "project_number": 317,
+      "project_name": "implement_bfs_variant_for_proof_search_completeness_phase_3",
+      "type": "feature",
+      "phase": "planning_completed",
+      "status": "planning",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T08:34:20.462436Z",
+      "last_updated": "2026-01-07",
+      "effort": "10-15 hours",
+      "description": "Implement Phase 3 of task 260: BFS Variant. Add breadth-first search variant to ProofSearch.lean to ensure completeness guarantees. Current implementation uses bounded DFS which may miss proofs. BFS variant will explore search space level-by-level, guaranteeing shortest proofs are found first.",
+      "research_completed": "2026-01-07",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": ".claude/specs/317_bfs_variant_phase3/reports/research-001.md",
+          "summary": "Comprehensive 1403-line research report analyzing BFS implementation strategies, completeness guarantees, and integration approaches for Lean 4 proof search"
+        }
+      ],
+      "planning_completed": "2026-01-07"
+    },
+    {
+      "project_number": 318,
+      "project_name": "implement_advanced_heuristics_for_proof_search_performance_phase_4",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "partial",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T08:34:20.462436Z",
+      "last_updated": "2026-01-08T00:00:00Z",
+      "effort": "12-18 hours",
+      "description": "Implement Phase 4 of task 260: Advanced Heuristics. Enhance proof search with domain-specific heuristics and caching to improve performance. Implement proper sorting in orderSubgoalsByScore (currently returns targets in original order). Add heuristic scoring based on formula structure, proof depth, and historical success rates. Implement proof caching to avoid redundant search.",
+      "artifacts": [
+        ".claude/specs/318_implement_advanced_heuristics_for_proof_search_performance_phase_4/reports/research-001.md",
+        ".claude/specs/318_implement_advanced_heuristics_for_proof_search_performance_phase_4/summaries/implementation-summary-20260108.md",
+        ".claude/specs/318_implement_advanced_heuristics_for_proof_search_performance_phase_4/summaries/implementation-summary-phase2-20260108.md"
+      ],
+      "plan_path": ".claude/specs/318_implement_advanced_heuristics_for_proof_search_performance_phase_4/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 5,
+        "estimated_hours": 15,
+        "complexity": "medium"
+      }
+    },
+    {
+      "project_number": 319,
+      "project_name": "expand_testing_for_proof_search_automation_phase_5",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-05T08:34:20.462436Z",
+      "last_updated": "2026-01-05T08:34:20.462436Z",
+      "effort": "8-12 hours",
+      "description": "Implement Phase 5 of task 260: Expanded Testing. Add comprehensive tests for proof search automation covering all phases. Test proof term construction, tactic integration, BFS variant, and advanced heuristics. Add property-based tests for completeness and soundness guarantees. Ensure test coverage for edge cases and performance benchmarks."
+    },
+    {
+      "project_number": 323,
+      "project_name": "fix_/todo_command_to_run_markdown_formatter_after_completion",
+      "type": "feature",
+      "phase": "planning_completed",
+      "status": "planned",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Fix the /todo command to run the markdown formatter on TODO.md after completing its archival operations. This ensures TODO.md remains properly formatted after task archival.",
+      "effort": "TBD",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T00:00:00Z",
+      "last_updated": "2026-01-07",
+      "research_completed": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/323_fix_todo_command_to_run_markdown_formatter_after_completion/reports/research-001.md",
+        ".claude/specs/323_fix_todo_command_to_run_markdown_formatter_after_completion/plans/implementation-001.md"
+      ],
+      "planning_completed": "2026-01-07",
+      "plan_path": ".claude/specs/323_fix_todo_command_to_run_markdown_formatter_after_completion/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      }
+    },
+    {
+      "project_number": 334,
+      "project_name": "create_latex_documentation_for_logos_system_mirroring_layer_structure",
+      "type": "feature",
+      "phase": "planning_completed",
+      "status": "planning",
+      "priority": "medium",
+      "language": "general",
+      "description": "Create a copy of /home/benjamin/Projects/Philosophy/Teaching/LogicNotes/ in /home/benjamin/Projects/ProofChecker/Documentation/LaTeX/ with a cleaned up structure that mirrors the Logos layers. The documentation should: (1) Create and import a subfile for each Logos layer, (2) Maintain the same formatting standards as the original LaTeX document, (3) Exclude problem sets, (4) Include standardized sections for each layer: Syntax extensions from previous layer, Semantic frames and models definitions, Proof system extensions from previous layer, Metalogical properties that have been established, (5) Compile definitions in a clear and concise way without proofs, (6) Provide minimal explanation, (7) Serve as a nicely formatted readable LaTeX reference for learning the Logos system without reading Lean code.",
+      "effort": "4-6 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-07T00:00:00Z",
+      "last_updated": "2026-01-08T00:00:00Z",
+      "researched": "2026-01-08",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": ".claude/specs/334_latex_documentation_structure/reports/research-001.md",
+          "summary": "Comprehensive research report analyzing source LaTeX structure and designing target documentation structure"
+        },
+        {
+          "type": "research",
+          "path": ".claude/specs/334_latex_documentation_structure/reports/research-002.md",
+          "summary": "Supplemental research report focusing on Constitutive and Causal layers from LAYER_EXTENSIONS.md for future Layer 1 documentation"
+        }
+      ],
+      "planned": "2026-01-08"
+    },
+    {
+      "project_number": 335,
+      "project_name": "refactor_errors_command_and_error_diagnostics_agent",
+      "type": "refactoring",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "general",
+      "description": "Refactor the /errors command and error-diagnostics-agent subagent to follow modern .opencode standards. Simplify command file to <300 lines with 4-stage pattern, refactor subagent to use 8-stage workflow_execution, move all workflow logic from command to subagent, optimize context loading to Level 2, ensure standardized return format.",
+      "effort": "3-4 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-08T08:50:00Z",
+      "last_updated": "2026-01-08T08:50:00Z",
+      "artifacts": [
+        {
+          "type": "plan",
+          "path": ".claude/specs/335_refactor_errors_command/plans/implementation-001.md",
+          "summary": "Implementation plan for refactoring /errors command"
+        }
+      ]
+    },
+    {
+      "project_number": 338,
+      "project_name": "update_task_command_to_use_status_sync_manager_directly",
+      "type": "bugfix",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "general",
+      "created": "2026-01-08T20:27:20Z",
+      "last_updated": "2026-01-08T20:27:20Z",
+      "effort": "2-3 hours",
+      "description": "Update Stage 3 (CreateTasks) in /task command to delegate directly to status-sync-manager with operation: create_task instead of deprecated task-creator. Follow the pattern from /research and /implement commands (Stage 1.5 Preflight). Add validation gates to verify task creation succeeded. Test with multiple scenarios.",
+      "plan_path": ".claude/specs/338_update_task_command_to_use_status_sync_manager_directly/plans/implementation-001.md"
+    },
+    {
+      "project_number": 339,
+      "project_name": "remove_deprecated_task_creator_subagent",
+      "type": "maintenance",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "general",
+      "created": "2026-01-08T20:27:20Z",
+      "last_updated": "2026-01-08T20:27:20Z",
+      "effort": "1 hour",
+      "description": "Remove .claude/agent/subagents/task-creator.md file since it is deprecated and no longer used. Update any documentation that references it. Verify no other commands depend on it.",
+      "dependencies": [
+        338
+      ],
+      "plan_path": ".claude/specs/339_remove_deprecated_task_creator_subagent/plans/implementation-001.md"
+    },
+    {
+      "project_number": 340,
+      "project_name": "add_validation_gates_to_all_command_files",
+      "type": "enhancement",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "general",
+      "created": "2026-01-08T20:27:20Z",
+      "last_updated": "2026-01-08T20:27:20Z",
+      "effort": "3-4 hours",
+      "description": "Audit all command files in .claude/command/ to ensure they have proper validation gates that prevent architectural violations. Add pre-execution and post-execution validation following patterns from /research and /implement. Document validation gate patterns in .claude/context/core/standards/validation-gates.md.",
+      "plan_path": ".claude/specs/340_add_validation_gates_to_all_command_files/plans/implementation-001.md"
+    },
+    {
+      "project_number": 341,
+      "project_name": "create_deprecation_policy_and_migration_guide",
+      "type": "documentation",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2026-01-08T20:27:20Z",
+      "last_updated": "2026-01-08T20:27:20Z",
+      "effort": "2 hours",
+      "description": "Create .claude/context/core/standards/deprecation-policy.md documenting how to deprecate agents/commands safely. Include migration checklist: (1) Mark as deprecated with reason, (2) Update all callers, (3) Add deprecation warnings, (4) Remove after migration complete. Create migration guide for moving from deprecated agents to replacements.",
+      "plan_path": ".claude/specs/341_create_deprecation_policy_and_migration_guide/plans/implementation-001.md"
+    },
+    {
+      "project_number": 342,
+      "project_name": "research_orchestrator_command_file_workflow_execution_mechanism",
+      "type": "research",
+      "phase": "researching",
+      "status": "in_progress",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-08T20:45:00Z",
+      "last_updated": "2026-01-08T00:00:00Z",
+      "effort": "4-6 hours",
+      "description": "Research how the orchestrator should execute command file workflow_execution stages. Analyze current orchestrator delegation mechanism, identify why command file stages are not being executed, compare with OpenAgents architecture (tasks 240-247), and design solution for parsing and executing workflow_execution stages including stage sequencing, context passing, error handling, and rollback mechanisms.",
+      "started": "2026-01-08"
+    },
+    {
+      "project_number": 343,
+      "project_name": "design_command_file_workflow_execution_architecture",
+      "type": "design",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-08T20:45:00Z",
+      "last_updated": "2026-01-08T20:45:00Z",
+      "effort": "3-4 hours",
+      "description": "Design comprehensive architecture for orchestrator to execute command file workflow_execution stages. Define stage parsing mechanism, execution engine design, context passing between stages, error handling and rollback strategy, and integration with existing delegation system.",
+      "dependencies": [
+        342
+      ]
+    },
+    {
+      "project_number": 344,
+      "project_name": "implement_orchestrator_workflow_execution_engine",
+      "type": "implementation",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-08T20:45:00Z",
+      "last_updated": "2026-01-08T20:45:00Z",
+      "effort": "8-12 hours",
+      "description": "Implement orchestrator workflow execution engine that parses command file workflow_execution stages and executes them in sequence. Implement stage parser, execution engine, context passing mechanism, error handling and rollback, and integration with existing delegation system. Ensure Stage 3.5 (Postflight) executes correctly for all workflow commands.",
+      "dependencies": [
+        342,
+        343
+      ]
+    },
+    {
+      "project_number": 345,
+      "project_name": "test_and_validate_all_workflow_commands_with_postflight_execution",
+      "type": "testing",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-08T20:45:00Z",
+      "last_updated": "2026-01-08T20:45:00Z",
+      "effort": "4-6 hours",
+      "description": "Comprehensive testing of all workflow commands (/implement, /research, /plan, /revise) to verify postflight stages execute correctly. Test artifact creation and linking, status updates to completed markers, git commit creation, error handling and rollback, and defense-in-depth verification. Validate that Task 335 scenario is fixed.",
+      "dependencies": [
+        342,
+        343,
+        344
+      ]
+    },
+    {
+      "project_number": 346,
+      "project_name": "refactor_commands_to_delegate_to_skills",
+      "type": "refactor",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "low",
+      "language": "meta",
+      "created": "2026-01-09T02:30:00Z",
+      "last_updated": "2026-01-09T02:30:00Z",
+      "effort": "8-12 hours",
+      "description": "Refactor the .claude/ agent system to use 'thin wrapper' commands that parse arguments and delegate to corresponding skills for execution, enabling skill reuse across commands and cleaner separation of concerns."
+    },
+    {
+      "project_number": 347,
+      "project_name": "logos_layer_documentation_revision",
+      "type": "documentation",
+      "phase": "planning",
+      "status": "planning",
+      "priority": "high",
+      "language": "general",
+      "created": "2026-01-09T12:00:00Z",
+      "last_updated": "2026-01-09T13:00:00Z",
+      "effort": "6-8 hours",
+      "artifacts": [
+        {
+          "path": ".claude/specs/347_logos_layer_documentation_revision/reports/research-001.md",
+          "type": "research"
+        },
+        {
+          "path": ".claude/specs/347_logos_layer_documentation_revision/reports/research-002.md",
+          "type": "research"
+        }
+      ],
+      "description": "Revise LAYER_EXTENSIONS.md using FIX tags for new Logos layer organization (Constitutive, Causal, Epistemic, Normative, Agential). Update GLOSSARY.md to match. Create new RECURSIVE_SEMANTICS.md with full hyperintensional semantics for Constitutive Layer and intensional semantics for following layers. Use [DETAILS] and [QUESTION: ...] tags for uncertain content."
+    }
+  ],
+  "completed_projects": [
+    {
+      "project_number": 258,
+      "project_name": "resolve_truth_lean_sorries",
+      "type": "implementation",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-03T10:00:00Z",
+      "started": "2026-01-03",
+      "research_completed": "2026-01-03",
+      "plan_created": "2026-01-04",
+      "completed": "2026-01-04",
+      "last_updated": "2026-01-04T09:35:46Z",
+      "artifacts": [
+        ".claude/specs/258_resolve_truth_lean_sorries/reports/research-001.md",
+        ".claude/specs/258_resolve_truth_lean_sorries/summaries/research-summary.md",
+        ".claude/specs/258_resolve_truth_lean_sorries/plans/implementation-001.md",
+        ".claude/specs/258_resolve_truth_lean_sorries/summaries/implementation-summary-20260104.md"
+      ],
+      "summary": "Task 258 objectives already achieved through Task 213 (commit 1cf688b). Truth.lean has 0 sorries and builds successfully. No implementation work needed."
+    },
+    {
+      "project_number": 284,
+      "project_name": "todo_auto_commit",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "general",
+      "created": "2026-01-04T06:00:00Z",
+      "started": "2026-01-04",
+      "completed": "2026-01-04",
+      "last_updated": "2026-01-04",
+      "artifacts": [
+        ".claude/command/todo.md",
+        ".claude/specs/284_todo_auto_commit/summaries/implementation-summary-20260103.md"
+      ],
+      "git_commit": "d961fa9",
+      "summary": "Modified /todo command to auto-commit changes before archiving, eliminating manual git commit step"
+    },
+    {
+      "project_number": 269,
+      "project_name": "fix_meta_command_accept_user_prompts",
+      "type": "bugfix",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2026-01-03T18:15:00Z",
+      "started": "2026-01-03",
+      "completed": "2026-01-03",
+      "last_updated": "2026-01-03",
+      "artifacts": [
+        ".claude/command/meta.md",
+        ".claude/agent/subagents/meta.md"
+      ],
+      "git_commit": "a4fa33f",
+      "summary": "Fixed /meta command to accept user prompts directly via $ARGUMENTS, supporting both prompt mode (skip interview) and interactive mode (full interview)"
+    },
+    {
+      "project_number": 241,
+      "project_name": "optimize_no_emoji_validation",
+      "type": "enhancement",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2025-12-28T22:20:19Z",
+      "started": "2025-12-28",
+      "research_completed": "2025-12-28",
+      "planning_completed": "2025-12-28",
+      "completed": "2025-12-28",
+      "last_updated": "2025-12-28",
+      "artifacts": [
+        ".claude/specs/241_optimize_no_emoji_validation/reports/research-001.md",
+        ".claude/specs/241_optimize_no_emoji_validation/plans/implementation-001.md",
+        ".claude/specs/241_optimize_no_emoji_validation/summaries/implementation-summary-20251228.md",
+        ".claude/AGENTS.md",
+        ".claude/agent/subagents/researcher.md",
+        ".claude/agent/subagents/planner.md",
+        ".claude/agent/subagents/implementer.md",
+        ".claude/agent/subagents/task-executor.md",
+        ".claude/agent/subagents/lean-research-agent.md",
+        ".claude/agent/subagents/lean-implementation-agent.md",
+        ".claude/agent/subagents/reviewer.md",
+        ".claude/command/research.md",
+        ".claude/command/plan.md",
+        ".claude/command/implement.md",
+        ".claude/command/revise.md",
+        ".claude/command/task.md",
+        ".claude/command/review.md",
+        ".claude/command/errors.md",
+        ".claude/command/todo.md",
+        ".claude/agent/subagents/error-diagnostics-agent.md",
+        ".claude/context/common/templates/command-template.md",
+        ".claude/context/common/standards/documentation.md"
+      ],
+      "plan_path": ".claude/specs/241_optimize_no_emoji_validation/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 7,
+        "estimated_hours": 5,
+        "complexity": "medium"
+      },
+      "estimated_hours": 5.0,
+      "phases": 7,
+      "dependencies": [
+        238
+      ],
+      "files_modified": [
+        ".claude/AGENTS.md",
+        ".claude/agent/subagents/researcher.md",
+        ".claude/agent/subagents/planner.md",
+        ".claude/agent/subagents/implementer.md",
+        ".claude/agent/subagents/task-executor.md",
+        ".claude/agent/subagents/lean-research-agent.md",
+        ".claude/agent/subagents/lean-implementation-agent.md",
+        ".claude/agent/subagents/reviewer.md",
+        ".claude/command/research.md",
+        ".claude/command/plan.md",
+        ".claude/command/implement.md",
+        ".claude/command/revise.md",
+        ".claude/command/task.md",
+        ".claude/command/review.md",
+        ".claude/command/errors.md",
+        ".claude/command/todo.md",
+        ".claude/agent/subagents/error-diagnostics-agent.md",
+        ".claude/context/common/templates/command-template.md",
+        ".claude/context/common/standards/documentation.md"
+      ]
+    },
+    {
+      "project_number": 230,
+      "project_name": "fix_review_command_to_create_completed_task_entry_in_todomd_with_review_summary_link",
+      "type": "bugfix",
+      "completed": "2025-12-29",
+      "summary": "Fix /review command to create completed task entry in TODO.md with review summary link"
+    },
+    {
+      "project_number": 233,
+      "project_name": "research_and_fix_systematic_command_execution_failures_causing_incomplete_todomd_updates",
+      "type": "bugfix",
+      "completed": "2025-12-29",
+      "summary": "Research and fix systematic command execution failures causing incomplete TODO.md updates"
+    },
+    {
+      "project_number": 229,
+      "project_name": "review_and_optimize_orchestrator_command_integration_for_context_efficiency",
+      "type": "bugfix",
+      "completed": "2025-12-29",
+      "abandoned": "2025-12-29",
+      "summary": "ABANDONED: Root cause analysis incorrect - assumed orchestrator bypasses commands, but commands ARE loaded. Real issue is Stage 7 execution incompleteness. Superseded by task 231."
+    },
+    {
+      "project_number": 228,
+      "project_name": "fix_orchestrator_routing_to_invoke_commands_instead_of_bypassing_to_subagents_directly",
+      "type": "bugfix",
+      "completed": "2025-12-29",
+      "abandoned": "2025-12-29",
+      "summary": "ABANDONED: Partially correct diagnosis but wrong solution - orchestrator does load commands, issue is Stage 7 skipping within commands. Superseded by task 231."
+    },
+    {
+      "project_number": 227,
+      "project_name": "fix_systematic_status_sync_manager_failures",
+      "type": "bugfix",
+      "completed": "2025-12-29",
+      "abandoned": "2025-12-29",
+      "summary": "ABANDONED: Assumed status-sync-manager was being invoked but failing - actually not being invoked because Stage 7 skipped. Superseded by task 231."
+    },
+    {
+      "project_number": 225,
+      "project_name": "codebase_review",
+      "type": "review",
+      "completed": "2025-12-29",
+      "summary": "Comprehensive codebase review completed. Updated all 4 registries. Found 6 sorry (down from 10), 11 axioms, 11 build errors. Test coverage 87.5%. Created review summary and identified 5 follow-up tasks."
+    },
+    {
+      "project_number": 219,
+      "project_name": "restructure_module_hierarchy",
+      "type": "refactoring",
+      "completed": "2025-12-28",
+      "summary": "Restructured module hierarchy by extracting TemporalDuality namespace to SoundnessLemmas.lean bridge module, eliminating circular dependency between Truth.lean and Soundness.lean. Truth.lean reduced from 1277 to 579 lines (pure semantics). All modules compile successfully."
+    },
+    {
+      "project_number": 170,
+      "project_name": "improve_maintenance_report_system_and_documentation",
+      "type": "enhancement",
+      "completed": "2025-12-28",
+      "summary": "Integrated /review command with status-sync-manager for atomic state updates, added project state.json lazy creation, and updated repository_health metrics"
+    },
+    {
+      "project_number": 215,
+      "project_name": "fix_todo_task_removal",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fixed /todo command specification to remove complete task blocks (heading + body) with explicit structure definition, boundary patterns, and validation"
+    },
+    {
+      "project_number": 213,
+      "project_name": "resolve_is_valid_swap_involution_blocker",
+      "type": "research",
+      "completed": "2025-12-29",
+      "summary": "Resolved is_valid_swap_involution blocker through architectural verification. Research proved the sorry in SoundnessLemmas.lean (temporal_duality case) is correct and architecturally necessary. No code changes needed - circular dependency correctly resolved at file level (SoundnessLemmas → Soundness). Full soundness proof succeeds."
+    },
+    {
+      "project_number": 214,
+      "project_name": "orchestrator_improvements",
+      "type": "enhancement",
+      "completed": "2025-12-28",
+      "summary": "Removed historical comparisons and applied full XML styling to orchestrator.md (100% consistent with error-diagnostics-agent.md pattern)"
+    },
+    {
+      "project_number": 177,
+      "project_name": "examples_update",
+      "type": "enhancement",
+      "completed": "2025-12-25",
+      "summary": "Update examples to use latest proof strategies and patterns"
+    },
+    {
+      "project_number": 183,
+      "project_name": "deduction_theorem_build_errors",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fixed 3 build errors in DeductionTheorem.lean by replacing .elim patterns with by_cases tactic"
+    },
+    {
+      "project_number": 190,
+      "project_name": "improve_maintenance_md_documentation",
+      "type": "documentation",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2025-12-26T00:00:00Z",
+      "started": "2025-12-26",
+      "completed": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "summary": "Improved MAINTENANCE.md documentation by adding missing registry references, creating comprehensive Backwards Compatibility Policy section, and enhancing cross-references (458 → 571 lines, +113 lines)",
+      "artifacts": [
+        ".claude/specs/190_improve_maintenance_md_documentation/plans/implementation-002.md",
+        ".claude/specs/190_improve_maintenance_md_documentation/summaries/implementation-summary-20251229.md",
+        "Documentation/Development/MAINTENANCE.md"
+      ],
+      "estimated_hours": 2.0,
+      "files_modified": [
+        "Documentation/Development/MAINTENANCE.md"
+      ]
+    },
+    {
+      "project_number": 192,
+      "project_name": "fix_generalized_necessitation_termination",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fixed 2 termination proof errors by adding noncomputable keyword to generalized_modal_k and generalized_temporal_k"
+    },
+    {
+      "project_number": 206,
+      "project_name": "update_review_command_summaries",
+      "type": "enhancement",
+      "completed": "2025-12-28",
+      "summary": "Added review summary artifacts to /review command with reviewer.md subagent, lazy directory creation, and state.json schema v1.1.0"
+    },
+    {
+      "project_number": 208,
+      "project_name": "fix_lean_routing",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Enhanced routing logic in /research, /implement commands and orchestrator to ensure Lean tasks route to lean-implementation-agent and lean-research-agent with validation and logging"
+    },
+    {
+      "project_number": 207,
+      "project_name": "reduce_implement_output_verbosity",
+      "type": "enhancement",
+      "completed": "2025-12-28",
+      "summary": "Reduced command output verbosity for /implement and /plan commands with artifact-based summaries and brief return formats, achieving 90-95% context window reduction"
+    },
+    {
+      "project_number": 202,
+      "project_name": "fix_verbose_artifact_output",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fixed verbose artifact output in legacy subagents (implementer.md, task-executor.md) by replacing full artifact echoing with brief summaries, achieving 90-95% context window reduction"
+    },
+    {
+      "project_number": 212,
+      "project_name": "research_lean_lsp_mcp_usage",
+      "type": "research",
+      "completed": "2025-12-28",
+      "summary": "Implemented MCP client wrapper and enhanced lean-lsp-mcp integration enabling real-time Lean compilation checking during implementation tasks"
+    },
+    {
+      "project_number": 216,
+      "project_name": "systematically_improve_task_tracking_file_update_p",
+      "type": "markdown",
+      "completed": "2025-12-28",
+      "summary": "Systematically improve task tracking file update procedures across all commands"
+    },
+    {
+      "project_number": 211,
+      "project_name": "standardize_pre_flight_and_post_flight_procedures_",
+      "type": "markdown",
+      "completed": "2025-12-28",
+      "summary": "Standardize pre-flight and post-flight procedures across research, planning, revision, and implementation workflows"
+    },
+    {
+      "project_number": 217,
+      "project_name": "research_artifact_creation",
+      "type": "research",
+      "completed": "2025-12-28",
+      "summary": "Research artifact creation by all commands and their subagents in the .claude/ agent system"
+    },
+    {
+      "project_number": 184,
+      "project_name": "truth_lean_build_error",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fixed Truth.lean build error (swap_past_future proof) via task 219 module restructuring. Code moved to SoundnessLemmas.lean. Truth.lean now builds successfully (579 lines, pure semantics)."
+    },
+    {
+      "project_number": 218,
+      "project_name": "fix_lean_lsp_mcp_integration_and_opencode_module_import_errors",
+      "type": "bugfix",
+      "completed": "2025-12-29",
+      "summary": "Fix lean-lsp-mcp integration and opencode module import errors in Lean implementation workflow"
+    },
+    {
+      "project_number": 209,
+      "project_name": "research_lean4_involution_techniques",
+      "type": "research",
+      "completed": "2025-12-29",
+      "summary": "Research Lean 4 techniques for completing task 193 involution proof"
+    },
+    {
+      "project_number": 235,
+      "project_name": "find_and_fix_root_cause_of_todo_command_not_archiving_completed_tasks",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Find and fix root cause of /todo command not archiving completed tasks"
+    },
+    {
+      "project_number": 234,
+      "project_name": "systematically_improve_commands_to_protect_context_window_and_eliminate_confirmation_prompts",
+      "type": "enhancement",
+      "completed": "2025-12-28",
+      "summary": "Systematically improve all commands to protect context window and eliminate confirmation prompts"
+    },
+    {
+      "project_number": 148,
+      "project_name": "ensure_command_updates_also_sync_sorry_and_tactic_",
+      "type": "task",
+      "completed": "2025-12-28",
+      "summary": "Ensure command updates also sync SORRY and TACTIC registries",
+      "abandoned": "2025-12-29"
+    },
+    {
+      "project_number": 172,
+      "project_name": "complete_api_documentation_for_all_logos_modules",
+      "type": "task",
+      "completed": "2025-12-28",
+      "summary": "Complete API documentation for all Logos modules"
+    },
+    {
+      "project_number": 174,
+      "project_name": "add_property_based_testing_framework_and_metalogic",
+      "type": "task",
+      "completed": "2025-12-28",
+      "summary": "Add property-based testing framework and metalogic tests"
+    },
+    {
+      "project_number": 185,
+      "project_name": "fix_integration_test_helper_api_mismatches",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fix integration test helper API mismatches"
+    },
+    {
+      "project_number": 186,
+      "project_name": "refactor_maintenancemd_to_include_review_update_in",
+      "type": "task",
+      "completed": "2025-12-28",
+      "summary": "Refactor MAINTENANCE.md to include /review update instructions"
+    },
+    {
+      "project_number": 187,
+      "project_name": "refactor_reviewmd_workflow_context_to_specify_regi",
+      "type": "task",
+      "completed": "2025-12-28",
+      "summary": "Refactor review.md workflow context to specify registry update workflow"
+    },
+    {
+      "project_number": 188,
+      "project_name": "refactor_review_command_to_load_reviewmd_workflow_",
+      "type": "task",
+      "completed": "2025-12-28",
+      "summary": "Refactor /review command to load review.md workflow context"
+    },
+    {
+      "project_number": 210,
+      "project_name": "fix_lean_subagents",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fix Lean subagents to follow artifact-management.md, status-markers.md, and state-schema.md"
+    },
+    {
+      "project_number": 220,
+      "project_name": "metadata_passing_compliance_verification",
+      "type": "compliance_verification",
+      "completed": "2025-12-28",
+      "summary": "Metadata Passing Compliance Verification"
+    },
+    {
+      "project_number": 222,
+      "project_name": "investigate_artifact_path_errors",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Investigate and fix artifact creation in /specs instead of /.claude/specs"
+    },
+    {
+      "project_number": 224,
+      "project_name": "configure_opencode_default_agent",
+      "type": "configuration",
+      "completed": "2025-12-28",
+      "summary": "Configure OpenCode to start in Orchestrator mode or auto-switch agent modes for workflow commands"
+    },
+    {
+      "project_number": 231,
+      "project_name": "fix_systematic_command_stage_7_postflight_execution_failures",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Fix systematic command Stage 7 (Postflight) execution failures causing incomplete TODO.md and state.json updates"
+    },
+    {
+      "project_number": 232,
+      "project_name": "systematically_fix_todomd_path_references",
+      "type": "bugfix",
+      "completed": "2025-12-28",
+      "summary": "Systematically fix TODO.md path references and migrate tasks from project root to .claude/specs"
+    },
+    {
+      "project_number": 236,
+      "project_name": "investigate_and_fix_task_standard_violations_in_todomd_tasks_1_9",
+      "type": "bugfix",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2025-12-29T05:28:00Z",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "completed": "2025-12-28",
+      "last_updated": "2025-12-28",
+      "artifacts": [
+        ".claude/specs/236_investigate_and_fix_task_standard_violations_in_todomd_tasks_1_9/reports/research-001.md",
+        ".claude/specs/236_investigate_and_fix_task_standard_violations_in_todomd_tasks_1_9/plans/implementation-001.md",
+        ".claude/specs/236_investigate_and_fix_task_standard_violations_in_todomd_tasks_1_9/summaries/implementation-summary-20251228.md",
+        ".claude/specs/TODO.md",
+        ".claude/command/task.md",
+        ".claude/command/review.md",
+        ".claude/context/common/standards/tasks.md"
+      ],
+      "plan_path": ".claude/specs/236_investigate_and_fix_task_standard_violations_in_todomd_tasks_1_9/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 5,
+        "estimated_hours": 4,
+        "complexity": "medium"
+      },
+      "estimated_hours": 4.0,
+      "phases": 5,
+      "files_modified": [
+        ".claude/specs/TODO.md",
+        ".claude/command/task.md",
+        ".claude/command/review.md",
+        ".claude/context/common/standards/tasks.md"
+      ]
+    },
+    {
+      "project_number": 238,
+      "project_name": "find_and_eliminate_all_emojis",
+      "type": "maintenance",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2025-12-29T05:43:30Z",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "completed": "2025-12-28",
+      "last_updated": "2025-12-28",
+      "artifacts": [
+        ".claude/specs/238_find_and_eliminate_all_emojis/reports/research-001.md",
+        ".claude/specs/238_find_and_eliminate_all_emojis/plans/implementation-001.md",
+        ".claude/specs/238_find_and_eliminate_all_emojis/summaries/implementation-summary-20251228.md",
+        ".claude/agent/subagents/researcher.md",
+        ".claude/agent/subagents/planner.md",
+        ".claude/agent/subagents/implementer.md",
+        ".claude/agent/subagents/task-executor.md",
+        ".claude/agent/subagents/lean-research-agent.md",
+        ".claude/agent/subagents/lean-implementation-agent.md",
+        ".claude/command/research.md",
+        ".claude/command/plan.md",
+        ".claude/command/implement.md",
+        ".claude/command/revise.md",
+        ".claude/command/task.md",
+        ".claude/command/review.md",
+        ".claude/context/common/standards/documentation.md",
+        ".claude/context/common/system/status-markers.md"
+      ],
+      "plan_path": ".claude/specs/238_find_and_eliminate_all_emojis/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 6,
+        "estimated_hours": 6,
+        "complexity": "medium"
+      },
+      "estimated_hours": 6.0,
+      "phases": 6,
+      "files_modified": [
+        ".claude/agent/subagents/researcher.md",
+        ".claude/agent/subagents/planner.md",
+        ".claude/agent/subagents/implementer.md",
+        ".claude/agent/subagents/task-executor.md",
+        ".claude/agent/subagents/lean-research-agent.md",
+        ".claude/agent/subagents/lean-implementation-agent.md",
+        ".claude/command/research.md",
+        ".claude/command/plan.md",
+        ".claude/command/implement.md",
+        ".claude/command/revise.md",
+        ".claude/command/task.md",
+        ".claude/command/review.md",
+        ".claude/context/common/standards/documentation.md",
+        ".claude/context/common/system/status-markers.md"
+      ]
+    },
+    {
+      "project_number": 237,
+      "project_name": "investigate_fix_context_window_bloat_workflow_commands",
+      "type": "bugfix",
+      "phase": "superseded",
+      "status": "superseded",
+      "superseded_by": 240,
+      "priority": "critical",
+      "language": "markdown",
+      "created": "2025-12-29T05:34:54Z",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "implementation_started": "2025-12-28",
+      "superseded": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "artifacts": [
+        ".claude/specs/237_investigate_fix_context_window_bloat_workflow_commands/reports/research-001.md",
+        ".claude/specs/237_investigate_fix_context_window_bloat_workflow_commands/plans/implementation-001.md",
+        ".claude/specs/237_investigate_fix_context_window_bloat_workflow_commands/summaries/implementation-summary-20251228-phase3.md",
+        ".claude/specs/237_investigate_fix_context_window_bloat_workflow_commands/summaries/implementation-summary-final.md",
+        ".claude/specs/240_systematically_investigate_and_fix_persistent_workflow_command_stage_7_postflight_failures/reports/research-001.md",
+        ".claude/command/research.md",
+        ".claude/command/plan.md",
+        ".claude/command/implement.md",
+        ".claude/command/revise.md"
+      ],
+      "plan_path": ".claude/specs/237_investigate_fix_context_window_bloat_workflow_commands/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 4,
+        "phases_completed": 2,
+        "phases_deferred": 1,
+        "estimated_hours": 35,
+        "actual_hours": 6,
+        "complexity": "medium"
+      },
+      "estimated_hours": 35.0
+    },
+    {
+      "project_number": 242,
+      "project_name": "phase2_split_command_files",
+      "type": "abandonment",
+      "phase": "planning_completed",
+      "status": "planned",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2025-12-29T06:25:00Z",
+      "started": "2025-12-28",
+      "research_completed": "2025-12-28",
+      "planning_completed": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "artifacts": [
+        ".claude/specs/242_phase2_split_command_files/reports/research-001.md",
+        ".claude/specs/242_phase2_split_command_files/plans/implementation-001.md"
+      ],
+      "plan_path": ".claude/specs/242_phase2_split_command_files/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 3,
+        "estimated_hours": 2.5,
+        "complexity": "low"
+      },
+      "estimated_hours": 2.5
+    },
+    {
+      "project_number": 243,
+      "project_name": "implement_phase_4_aggressive_command_deduplication",
+      "type": "implementation",
+      "phase": "planning_completed",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2025-12-29T06:30:00Z",
+      "started": "2025-12-29",
+      "abandoned": "2025-12-29",
+      "abandonment_reason": "Superseded by task 240 OpenAgents migration approach. Task 240 research determined that the command file deduplication approach (task 237, phase 4 = task 243) should be replaced with OpenAgents frontmatter delegation pattern. See task 240 comparative analysis for systematic improvements. Partial work (phases 1-3): delegation-patterns.md created (503 lines consolidated), state-management.md pending.",
+      "superseded_by": 240,
+      "last_updated": "2025-12-29",
+      "artifacts": [
+        ".claude/specs/243_implement_phase_4_aggressive_command_deduplication/reports/research-001.md",
+        ".claude/specs/243_implement_phase_4_aggressive_command_deduplication/plans/implementation-001.md"
+      ],
+      "plan_path": ".claude/specs/243_implement_phase_4_aggressive_command_deduplication/plans/implementation-001.md",
+      "estimated_hours": 24.0
+    },
+    {
+      "project_number": 244,
+      "project_name": "phase_1_context_index_and_research_frontmatter_prototype",
+      "type": "implementation",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2025-12-28T23:24:32Z",
+      "started": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "implementation_started": "2025-12-29",
+      "completed": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "artifacts": [
+        ".claude/specs/244_phase_1_context_index_and_research_frontmatter_prototype/reports/research-001.md",
+        ".claude/specs/244_phase_1_context_index_and_research_frontmatter_prototype/plans/implementation-001.md",
+        ".claude/context/system/routing-guide.md",
+        ".claude/command/research.md",
+        ".tmp/sessions/README.md",
+        ".claude/scripts/cleanup-sessions.sh",
+        ".claude/scripts/measure-context-usage.sh",
+        ".claude/scripts/test-stage7-reliability.sh",
+        ".claude/specs/244_phase_1_context_index_and_research_frontmatter_prototype/reports/validation-001.md",
+        ".claude/specs/244_phase_1_context_index_and_research_frontmatter_prototype/summaries/implementation-summary-20251229.md"
+      ],
+      "plan_path": ".claude/specs/244_phase_1_context_index_and_research_frontmatter_prototype/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 7,
+        "estimated_hours": 14,
+        "complexity": "medium"
+      },
+      "estimated_hours": 14.0,
+      "phases": 7,
+      "phases_completed": [
+        1,
+        2,
+        4,
+        5,
+        7
+      ],
+      "phases_abandoned": [
+        3,
+        6
+      ],
+      "git_commit_hash": "2c7c328"
+    },
+    {
+      "project_number": 245,
+      "project_name": "phase_2_core_architecture_migrate_all_commands_and_simplify_orchestrator",
+      "type": "implementation",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2025-12-29T00:00:00Z",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "implementation_started": "2025-12-29",
+      "phase_1_completed": "2025-12-29",
+      "phase_2_completed": "2025-12-29",
+      "phase_3_completed": "2025-12-29",
+      "phase_4_completed": "2025-12-29",
+      "phase_5_completed": "2025-12-29",
+      "phase_6_completed": "2025-12-29",
+      "phase_6_note": "Completed via Task 249",
+      "phase_7_note": "Completed via Task 250",
+      "phase_8_completed": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "artifacts": [
+        ".claude/specs/245_phase2_core_architecture/reports/research-001.md",
+        ".claude/specs/245_phase2_core_architecture/plans/implementation-001.md",
+        ".claude/specs/245_phase2_core_architecture/reports/validation-001.md",
+        ".claude/specs/245_phase2_core_architecture/summaries/implementation-summary-20251229.md",
+        ".claude/backups/phase2/backup-phase2-files.sh",
+        ".claude/backups/phase2/measure-context-usage.sh",
+        ".claude/backups/phase2/validate-stage7.sh",
+        ".claude/backups/phase2/rollback-command.sh",
+        ".claude/backups/phase2/rollback-orchestrator.sh",
+        ".claude/command/plan.md",
+        ".claude/agent/subagents/planner.md",
+        ".claude/command/revise.md",
+        ".claude/command/implement.md",
+        ".claude/agent/subagents/implementer.md",
+        ".claude/agent/orchestrator.md",
+        ".claude/context/system/orchestrator-guide.md"
+      ],
+      "plan_path": ".claude/specs/245_phase2_core_architecture/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 8,
+        "estimated_hours": 32.5,
+        "complexity": "high"
+      },
+      "estimated_hours": 32.5,
+      "phases": 8,
+      "phases_completed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        8
+      ],
+      "dependencies": [
+        244
+      ],
+      "completed": "2025-12-29",
+      "phase_7_completed": "2025-12-29"
+    },
+    {
+      "project_number": 247,
+      "project_name": "phase_4_testing_and_documentation",
+      "type": "implementation",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2025-12-29T17:30:55Z",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "completed": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "artifacts": [
+        ".claude/specs/247_phase_4_testing_and_documentation/reports/research-001.md",
+        ".claude/specs/247_phase_4_testing_and_documentation/plans/implementation-001.md",
+        ".claude/specs/247_phase_4_testing_and_documentation/scripts/test-stage7-reliability.sh",
+        ".claude/specs/247_phase_4_testing_and_documentation/scripts/validate-artifacts.sh",
+        ".claude/specs/247_phase_4_testing_and_documentation/scripts/measure-context-usage.sh",
+        ".claude/specs/247_phase_4_testing_and_documentation/scripts/track-stage7-rate.sh",
+        ".claude/specs/247_phase_4_testing_and_documentation/reports/test-execution-report.md",
+        ".claude/docs/migrations/001-openagents-migration/README.md",
+        ".claude/docs/migrations/001-openagents-migration/lessons-learned.md",
+        ".claude/docs/migrations/001-openagents-migration/adr/ADR-001-context-index.md",
+        ".claude/docs/migrations/001-openagents-migration/adr/ADR-002-agent-workflow-ownership.md",
+        ".claude/docs/migrations/001-openagents-migration/adr/ADR-003-frontmatter-delegation.md",
+        ".claude/docs/templates/command-template.md",
+        ".claude/docs/templates/agent-template.md",
+        ".claude/docs/templates/README.md",
+        ".claude/specs/247_phase_4_testing_and_documentation/reports/validation-001.md",
+        ".claude/specs/247_phase_4_testing_and_documentation/metrics/before-after-summary.md",
+        ".claude/specs/247_phase_4_testing_and_documentation/summaries/implementation-summary-20251229.md"
+      ],
+      "plan_path": ".claude/specs/247_phase_4_testing_and_documentation/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 6,
+        "estimated_hours": 18,
+        "complexity": "medium-high"
+      },
+      "estimated_hours": 18.0,
+      "dependencies": [
+        246
+      ],
+      "phases": 6,
+      "phases_completed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    },
+    {
+      "project_number": 299,
+      "project_name": "create_task_reviser_subagent",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-05T01:22:38Z",
+      "started": "2026-01-05",
+      "planning_completed": "2026-01-05",
+      "implementation_started": "2026-01-05",
+      "completed": "2026-01-05",
+      "last_updated": "2026-01-05T13:30:00Z",
+      "effort": "3 hours",
+      "description": "Create a new subagent task-reviser.md that handles task-only revision mode when no plan exists. This subagent will update task descriptions, requirements, and metadata in TODO.md and state.json atomically.",
+      "artifacts": [
+        ".claude/specs/299_create_task_reviser_subagent/plans/implementation-001.md",
+        ".claude/specs/299_create_task_reviser_subagent/summaries/implementation-summary-20260105.md",
+        ".claude/agent/subagents/task-reviser.md"
+      ],
+      "plan_path": ".claude/specs/299_create_task_reviser_subagent/plans/implementation-001.md",
+      "git_commit": "5fab08d",
+      "summary": "Implemented task-reviser.md subagent (515 lines, 20KB) with 7-step workflow for task metadata revision. Delegates to status-sync-manager for atomic updates and git-workflow-manager for commits. Ready for integration with /revise command."
+    },
+    {
+      "project_number": 240,
+      "project_name": "systematically_investigate_and_fix_persistent_workflow_command_stage_7_postflight_failures",
+      "type": "research",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "critical",
+      "language": "markdown",
+      "created": "2025-12-29T05:50:22Z",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "completed": "2025-12-29",
+      "last_updated": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/240_systematically_investigate_and_fix_persistent_workflow_command_stage_7_postflight_failures/reports/research-001.md"
+      ],
+      "research_summary": "Comparative analysis of OpenAgents and ProofChecker systems reveals architectural solution: adopt frontmatter delegation pattern, lazy-loading context index, session-based temporary context, and simplified orchestrator. Eliminates Stage 7 failures by moving workflow ownership from commands to agents. 4-phase migration (56-78 hours) achieves 60-70% systematic improvements.",
+      "supersedes_tasks": [
+        237
+      ],
+      "estimated_hours": 56.0,
+      "revised_hours": 78.0,
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "User requested abandonment"
+    },
+    {
+      "project_number": 265,
+      "project_name": "clean_up_context_directory_structure_by_migrating_common_to_core_and_removing_archive",
+      "type": "refactoring",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2025-12-30T00:38:18.504339Z",
+      "started": "2026-01-03",
+      "research_completed": "2025-12-29",
+      "plan_created": "2026-01-03",
+      "last_updated": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/265_clean_up_context_directory_structure_by_migrating_common_to_core_and_removing_archive/reports/research-001.md",
+        ".claude/specs/265_clean_up_context_directory_structure_by_migrating_common_to_core_and_removing_archive/plans/implementation-001.md"
+      ],
+      "plan_path": ".claude/specs/265_clean_up_context_directory_structure_by_migrating_common_to_core_and_removing_archive/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 10,
+        "complexity": "medium",
+        "research_integrated": true
+      },
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "User requested abandonment"
+    },
+    {
+      "project_number": 266,
+      "project_name": "fix_research_command_language_based_routing_to_properly_invoke_lean_research_agent_for_lean_tasks",
+      "type": "bugfix",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2025-12-30T00:45:00Z",
+      "started": "2026-01-03",
+      "research_completed": "2026-01-03",
+      "last_updated": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/266_fix_research_command_language_based_routing_to_properly_invoke_lean_research_agent_for_lean_tasks/reports/research-001.md"
+      ],
+      "research_summary": "Root cause: orchestrator does NOT implement Stage 2 (DetermineRouting). Language extraction exists only in documentation. Lean tasks route to default researcher instead of lean-research-agent, causing phantom research. Fix: implement Stage 2 to extract language from TODO.md and route based on command frontmatter. Estimated 5-7 hours.",
+      "estimated_hours": 6.0,
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "User requested abandonment"
+    },
+    {
+      "project_number": 271,
+      "project_name": "revise_meta_command_task_creation",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2026-01-03T18:45:00Z",
+      "started": "2026-01-03",
+      "research_completed": "2026-01-03",
+      "last_updated": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/271_revise_meta_command_task_creation/reports/research-001.md",
+        ".claude/specs/271_revise_meta_command_task_creation/plans/implementation-001.md"
+      ],
+      "research_summary": "Comprehensive revision plan to align /meta command with research → plan → implement workflow. Creates tasks with linked artifacts (research reports and implementation plans) instead of directly implementing. Includes task breakdown strategy, artifact structure, and 13-hour implementation estimate.",
+      "estimated_hours": 13.0,
+      "plan_created": "2026-01-03",
+      "plan_path": ".claude/specs/271_revise_meta_command_task_creation/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 9,
+        "total_effort_hours": 13,
+        "complexity": "medium-high",
+        "research_integrated": true
+      },
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "Task has been effectively implemented. The /meta command now creates tasks with plan artifacts instead of directly implementing the system (Stage 7: CreateTasksWithArtifacts). The core functionality described in task 271 is already present in the codebase, making this task redundant."
+    },
+    {
+      "project_number": 280,
+      "project_name": "fix_orchestrator_stage_4_validation_to_enforce_subagent_return_format_and_prevent_phantom_research",
+      "type": "bugfix",
+      "phase": "completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2026-01-04T05:00:30Z",
+      "last_updated": "2026-01-05T15:50:00Z",
+      "started": "2026-01-03",
+      "research_completed": "2026-01-03",
+      "planning_completed": "2026-01-03",
+      "artifacts": [
+        ".claude/specs/280_fix_orchestrator_stage_4_validation/plans/implementation-001.md",
+        ".claude/specs/280_fix_orchestrator_stage_4_validation/plans/implementation-002.md",
+        ".claude/specs/280_fix_orchestrator_stage_4_validation/reports/research-001.md",
+        ".claude/specs/280_fix_orchestrator_stage_4_validation/validation-template.md",
+        ".claude/specs/280_fix_orchestrator_stage_4_validation/summaries/implementation-summary-20260105.md",
+        ".claude/command/research.md",
+        ".claude/command/plan.md",
+        ".claude/command/revise.md",
+        ".claude/command/implement.md",
+        ".claude/context/core/system/validation-rules.md",
+        ".claude/context/core/system/validation-strategy.md"
+      ],
+      "plan_path": ".claude/specs/280_fix_orchestrator_stage_4_validation/plans/implementation-002.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 6,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 2
+      },
+      "estimated_hours": 6.0,
+      "effort_hours": 6.0,
+      "revised_date": "2026-01-05",
+      "completed": "2026-01-05"
+    },
+    {
+      "project_number": 301,
+      "project_name": "enhance_revise_command_with_dual_mode_routing",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05T08:07:00-08:00",
+      "effort": "3 hours",
+      "description": "Update `/revise` command to detect plan presence and route to either task-reviser (no plan) or planner (plan exists with report integration).",
+      "research_artifacts": [
+        ".claude/specs/301_enhance_revise_command_with_dual_mode_routing/reports/research-001.md"
+      ],
+      "plan_path": ".claude/specs/301_enhance_revise_command_with_dual_mode_routing/plans/implementation-001.md",
+      "planning_completed": "2026-01-05T07:47:12-08:00",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      },
+      "completed": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/301_enhance_revise_command_with_dual_mode_routing/summaries/implementation-summary-20260105.md",
+        ".claude/command/revise.md"
+      ]
+    },
+    {
+      "project_number": 305,
+      "project_name": "remove_performance_cruft_from_all_6_modified_files_3_5",
+      "type": "feature",
+      "phase": "completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "markdown",
+      "description": "Remove optimization sections from frontmatter, performance blocks from workflow stages, and verbose comments from all 6 files (todo.md, review.md, reviewer.md, meta.md, task-creator.md, state-lookup.md). Keep state-lookup.md documentation changes.",
+      "effort": "30 minutes",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T08:00:00Z",
+      "last_updated": "2026-01-05",
+      "research_completed": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/305_remove_performance_cruft_from_all_6_modified_files_3_5/reports/research-001.md",
+        ".claude/specs/305_remove_performance_cruft_from_all_6_modified_files_3_5/plans/implementation-001.md",
+        ".claude/specs/305_remove_performance_cruft_from_all_6_modified_files_3_5/summaries/implementation-summary-20260105.md"
+      ],
+      "plan_completed": "2026-01-05",
+      "completed": "2026-01-05"
+    },
+    {
+      "project_number": 312,
+      "project_name": "fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates",
+      "type": "bugfix",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "meta",
+      "description": "Fix systematic postflight failures in workflow commands (/research, /plan, /revise, /implement) where artifacts are created successfully but not linked in TODO.md and status is not updated. Root cause: postflight steps (step_4_postflight in researcher, step_7 in planner) are not executing or failing silently. Example: /research 307 created research-001.md but task status remains [NOT STARTED] with no research link. Ensure all workflow commands invoke status-sync-manager in postflight with validated_artifacts array to atomically update status and link artifacts.",
+      "effort": "6-8 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T05:31:28-08:00",
+      "last_updated": "2026-01-05",
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "User requested abandonment",
+      "artifacts": [
+        ".claude/specs/312_fix_workflow_command_postflight_failures/reports/research-001.md"
+      ],
+      "plan_path": ".claude/specs/312_fix_workflow_command_postflight_failures/plans/implementation-002.md",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 5,
+        "complexity": "low-medium",
+        "research_integrated": true,
+        "plan_version": 2,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      }
+    },
+    {
+      "project_number": 313,
+      "project_name": "configure_opencode_agent_system_to_prevent_permission_interruptions",
+      "type": "feature",
+      "phase": "completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Configure opencode agent system to prevent permission interruptions and ensure greater autonomy by relying on git commits for safety while avoiding other backups.",
+      "effort": "12 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05",
+      "last_updated": "2026-01-05",
+      "planning_completed": "2026-01-05",
+      "implementation_completed": "2026-01-05",
+      "plan_path": ".claude/specs/313_configure_opencode_agent_system_to_prevent_permission_interruptions/plans/implementation-001.md",
+      "implementation_path": ".claude/specs/313_configure_opencode_agent_system_to_prevent_permission_interruptions/summaries/implementation-summary-20260105.md",
+      "plan_metadata": {
+        "phases": 6,
+        "total_effort_hours": 12,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      }
+    },
+    {
+      "project_number": 282,
+      "project_name": "add_json_return_format_enforcement_to_subagent_invocation",
+      "type": "bugfix",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "general",
+      "created": "2026-01-04T05:47:55Z",
+      "last_updated": "2026-01-06T04:01:34Z",
+      "abandoned": "2026-01-06"
+    },
+    {
+      "project_number": 290,
+      "project_name": "fix_lean_research_agent_preflight_status_updates_and_artifact_linking",
+      "type": "bugfix",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2026-01-04T09:00:00Z",
+      "started": "2026-01-04",
+      "research_completed": "2026-01-04",
+      "last_updated": "2026-01-05T00:00:00Z",
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "User requested abandonment",
+      "artifacts": [
+        ".claude/specs/290_fix_lean_research_agent_preflight_status_updates_and_artifact_linking/reports/research-001.md",
+        ".claude/specs/290_fix_lean_research_agent_preflight_status_updates_and_artifact_linking/plans/implementation-001.md"
+      ],
+      "research_summary": "Research completed on Task 290. Investigation reveals preflight status updates ARE working correctly (Task 289 fix successful). The actual issue is outdated documentation in lean-research-agent.md requiring summary artifact creation, contradicting standard workflow. Recommended fix: remove summary artifact requirements to match researcher.md behavior. Estimated effort: 2-3 hours.",
+      "estimated_hours": 2.5,
+      "planning_completed": "2026-01-04",
+      "plan_path": ".claude/specs/290_fix_lean_research_agent_preflight_status_updates_and_artifact_linking/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 2.5,
+        "complexity": "low-medium",
+        "research_integrated": true
+      }
+    },
+    {
+      "project_number": 294,
+      "project_name": "revise_meta_command_to_accept_optional_task_number",
+      "type": "feature",
+      "phase": "completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2026-01-05T03:39:48Z",
+      "last_updated": "2026-01-05",
+      "started": "2026-01-04",
+      "research_completed": "2026-01-04",
+      "artifacts": [
+        ".claude/specs/294_revise_meta_command_to_accept_optional_task_number/reports/research-001.md",
+        ".claude/specs/294_revise_meta_command_to_accept_optional_task_number/plans/implementation-001.md",
+        ".claude/specs/294_revise_meta_command_to_accept_optional_task_number/summaries/implementation-summary-20260105.md"
+      ],
+      "planning_completed": "2026-01-04",
+      "plan_path": ".claude/specs/294_revise_meta_command_to_accept_optional_task_number/plans/implementation-001.md",
+      "completed": "2026-01-05"
+    },
+    {
+      "project_number": 295,
+      "project_name": "create_sync_command_to_synchronize_todo_md_and_state_json",
+      "type": "feature",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "meta",
+      "created": "2026-01-04T20:25:54-08:00",
+      "last_updated": "2026-01-04T20:25:54-08:00"
+    },
+    {
+      "project_number": 307,
+      "project_name": "verify_or_revert_core_logic_changes_in_high_risk_files_4_5",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "markdown",
+      "description": "Based on test results from task 304, either keep the core logic changes in meta.md and task-creator.md (if commands work) or revert them to previous versions (if commands fail or create_task doesn't exist). This is a critical decision point.",
+      "effort": "1 hour",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T08:00:00Z",
+      "last_updated": "2026-01-05T16:38:30Z",
+      "research_completed": "2026-01-05",
+      "abandoned": "2026-01-05T16:38:30Z",
+      "artifacts": [
+        ".claude/specs/307_verify_or_revert_core_logic_changes_in_high_risk_files_4_5/reports/research-001.md"
+      ]
+    },
+    {
+      "project_number": 311,
+      "project_name": "refactor_/abandon_command_to_support_ranges_and_lists_of_task_numbers",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Refactor the /abandon command to accept a range or list of task numbers (e.g., '293-295, 302, 303') to abandon multiple tasks in a single invocation. This enables efficient bulk abandonment of tasks without requiring multiple command executions.",
+      "effort": "3-4 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T10:30:00Z",
+      "last_updated": "2026-01-05",
+      "researched": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/311_refactor_abandon_command_to_support_ranges_and_lists_of_task_numbers/reports/research-001.md",
+        ".claude/specs/311_refactor_abandon_command_to_support_ranges_and_lists_of_task_numbers/summaries/implementation-summary-20260105.md"
+      ],
+      "planning_completed": "2026-01-05",
+      "plan_path": ".claude/specs/311_refactor_abandon_command_to_support_ranges_and_lists_of_task_numbers/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 3.5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      },
+      "estimated_hours": 3.5,
+      "completed": "2026-01-05"
+    },
+    {
+      "project_number": 321,
+      "project_name": "fix_workflow_command_preflight_status_update_failures",
+      "type": "bugfix",
+      "phase": "planning_completed",
+      "status": "revised",
+      "priority": "high",
+      "language": "meta",
+      "description": "Fix systematic preflight failures in workflow commands (/research, /plan, /revise, /implement) where status is not updated to in-progress markers ([RESEARCHING], [PLANNING], [REVISING], [IMPLEMENTING]) when starting work. Example: /research 315 does not update status to [RESEARCHING] at start. Ensure all workflow commands invoke status-sync-manager in preflight to atomically update status before delegating to subagents.",
+      "effort": "6-8 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T18:10:00Z",
+      "last_updated": "2026-01-05",
+      "started": "2026-01-05",
+      "researched": "2026-01-05",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": ".claude/specs/321_fix_workflow_command_preflight_status_update_failures/reports/research-001.md",
+          "created": "2026-01-05",
+          "summary": "Comprehensive analysis of preflight status update failures with 7.5 hour fix estimate"
+        },
+        {
+          "type": "plan",
+          "path": ".claude/specs/321_fix_workflow_command_preflight_status_update_failures/plans/implementation-001.md",
+          "created": "2026-01-05",
+          "summary": "Implementation plan with 6 phases focusing on root cause debugging"
+        },
+        {
+          "type": "plan",
+          "path": ".claude/specs/321_fix_workflow_command_preflight_status_update_failures/plans/implementation-002.md",
+          "created": "2026-01-05",
+          "summary": "Revised plan integrating task 320 findings, error logging, and context window hypothesis"
+        },
+        {
+          "type": "plan",
+          "path": ".claude/specs/321_fix_workflow_command_preflight_status_update_failures/plans/implementation-003.md",
+          "created": "2026-01-05",
+          "summary": "Revised plan v3 integrating status-sync-manager bug analysis, eliminating file locking, using git-only rollback, and focusing on timing-aware architecture"
+        }
+      ],
+      "planned": "2026-01-05",
+      "plan_path": ".claude/specs/321_fix_workflow_command_preflight_status_update_failures/plans/implementation-003.md",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 4.5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 3,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          },
+          {
+            "path": "../320_fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates/reports/research-001.md",
+            "integrated_in_plan_version": 2,
+            "integrated_date": "2026-01-05"
+          },
+          {
+            "path": "../320_fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates/reports/research-002.md",
+            "integrated_in_plan_version": 3,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      },
+      "revised": "2026-01-05"
+    },
+    {
+      "project_number": 320,
+      "project_name": "fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates",
+      "type": "bugfix",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "meta",
+      "description": "Fix systematic postflight failures in workflow commands (/research, /plan, /revise, /implement) where artifacts are created successfully but not linked in TODO.md and status is not updated. Root cause: postflight steps (step_4_postflight in researcher, step_7 in planner) are not executing or failing silently. Example: /research 314 created research-001.md but task status remains [NOT STARTED] with no research link. Ensure all workflow commands invoke status-sync-manager in postflight with validated_artifacts array to atomically update status and link artifacts.",
+      "effort": "6-8 hours",
+      "blocking": [],
+      "dependencies": [
+        "324"
+      ],
+      "created": "2026-01-05T05:31:28-08:00",
+      "last_updated": "2026-01-06",
+      "started": "2026-01-05",
+      "researched": "2026-01-05",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": ".claude/specs/320_fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates/reports/research-001.md",
+          "created": "2026-01-05T18:45:00Z",
+          "summary": "Comprehensive analysis of postflight failures. Root cause: silent git commit failures, not missing postflight steps."
+        },
+        {
+          "type": "research",
+          "path": ".claude/specs/320_fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates/reports/research-002.md",
+          "created": "2026-01-05T19:36:27-08:00",
+          "summary": "Analysis of 7 potential bugs in status-sync-manager with 3 critical issues directly causing task 320 symptoms"
+        },
+        ".claude/specs/320_fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates/reports/research-004.md",
+        ".claude/specs/320_fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates/summaries/implementation-summary-20260106.md"
+      ],
+      "planning_completed": "2026-01-05",
+      "plan_path": ".claude/specs/320_fix_workflow_command_postflight_failures_causing_missing_artifact_links_and_status_updates/plans/implementation-007.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": null,
+        "complexity": "high",
+        "research_integrated": true,
+        "plan_version": 7,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          },
+          {
+            "path": "reports/research-002.md",
+            "integrated_in_plan_version": 3,
+            "integrated_date": "2026-01-05"
+          },
+          {
+            "path": "reports/research-003.md",
+            "integrated_in_plan_version": 4,
+            "integrated_date": "2026-01-05"
+          },
+          {
+            "path": "reports/research-003.md",
+            "integrated_in_plan_version": 5,
+            "integrated_date": "2026-01-05"
+          },
+          {
+            "path": "reports/research-004.md",
+            "integrated_in_plan_version": 7,
+            "integrated_date": "2026-01-06"
+          }
+        ],
+        "revision_reason": "Integrated research-004.md findings: researcher.md bypasses status-sync-manager. Fix is straightforward - copy working pattern from planner.md."
+      },
+      "research_completed": "2026-01-06",
+      "completed": "2026-01-06",
+      "implementation_completed": "2026-01-06"
+    },
+    {
+      "project_number": 314,
+      "project_name": "conduct_systematic_review_to_complete_context_refactor_plan_aims",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "meta",
+      "description": "Conduct a systematic review of the opencode system to complete all aims of the original context refactor plan (.claude/specs/context-refactor-plan.md) given recent changes. The plan aims to: (1) Eliminate redundancy by consolidating 47 files to 35 files (26% reduction), (2) Document ProofChecker's three-layer delegation architecture, (3) Improve naming consistency, (4) Reorganize context structure (orchestration, formats, standards, workflows, templates, schemas), (5) Update all references across agent/command/context files, (6) Integrate state.json optimization documentation. Review current state against plan objectives, identify completed work, remaining work, and any deviations requiring plan updates.",
+      "effort": "20 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T08:23:48.417376Z",
+      "last_updated": "2026-01-05",
+      "planning_completed": "2026-01-05",
+      "plan_path": ".claude/specs/314_conduct_systematic_review_to_complete_context_refactor_plan_aims/plans/implementation-002.md",
+      "plan_metadata": {
+        "phases": 7,
+        "total_effort_hours": 20,
+        "complexity": "high",
+        "research_integrated": true,
+        "plan_version": 2,
+        "reports_integrated": [
+          {
+            "path": ".claude/specs/314_conduct_systematic_review_to_complete_context_refactor_plan_aims/reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ],
+        "revision_reason": "Incorporated preflight/postflight workflow context from tasks 320 and 321 to ensure adequate (not excessive) representation of workflow standards in refactored context structure"
+      },
+      "estimated_hours": 20,
+      "revised": "2026-01-05",
+      "started": "2026-01-05",
+      "implementation_artifacts": [
+        ".claude/specs/314_conduct_systematic_review_to_complete_context_refactor_plan_aims/systematic-review-report.md",
+        ".claude/specs/314_conduct_systematic_review_to_complete_context_refactor_plan_aims/summaries/implementation-summary-20260105.md"
+      ],
+      "completed": "2026-01-05"
+    },
+    {
+      "project_number": 324,
+      "project_name": "investigate_and_prove_root_cause_of_persistent_workflow_command_postflight_failures_after_task_321",
+      "type": "bugfix",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "meta",
+      "description": "Investigate and prove the root cause of persistent workflow command postflight failures where artifacts are created but TODO.md is not updated with status markers or artifact links. Task 323 provides a concrete test case: /research 323 created research-001.md and updated state.json correctly, but TODO.md still shows [NOT STARTED] with no artifact links. This contradicts task 320 plan (implementation-005.md) which claims task 321 already fixed all critical bugs. Study the workflow execution report, compare expected vs actual behavior, identify the specific failure point in the preflight/postflight process, and prove the root cause with evidence before attempting any solution.",
+      "effort": "TBD",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T00:00:00Z",
+      "last_updated": "2026-01-06",
+      "research_completed": "2026-01-06",
+      "artifacts": [
+        "324_investigate_and_prove_root_cause_of_persistent_workflow_command_postflight_failures_after_task_321/reports/research-001.md",
+        "324_investigate_and_prove_root_cause_of_persistent_workflow_command_postflight_failures_after_task_321/summaries/implementation-summary-20260106.md"
+      ],
+      "planning_completed": "2026-01-06",
+      "plan_path": ".claude/specs/324_investigate_and_prove_root_cause_of_persistent_workflow_command_postflight_failures_after_task_321/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 6,
+        "total_effort_hours": 7,
+        "complexity": "medium-high",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-06"
+          }
+        ]
+      },
+      "implementation_completed": "2026-01-06"
+    },
+    {
+      "project_number": 277,
+      "project_name": "improve_opencode_header_and_summary_display_for_task_commands",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "general",
+      "created": "2026-01-03T20:35:00Z",
+      "started": "2026-01-03",
+      "research_completed": "2026-01-03",
+      "planning_completed": "2026-01-03",
+      "plan_revised": "2026-01-03",
+      "last_updated": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/277_improve_opencode_header_and_summary_display_for_task_commands/reports/research-001.md",
+        ".claude/specs/277_improve_opencode_header_and_summary_display_for_task_commands/plans/implementation-001.md",
+        ".claude/specs/277_improve_opencode_header_and_summary_display_for_task_commands/plans/implementation-002.md"
+      ],
+      "estimated_hours": 3.5,
+      "research_summary": "Research into OpenCode header and summary display patterns reveals orchestrator already formats prompts as 'Task: {number}' for internal delegation but lacks user-facing headers. Recommended solution: modify orchestrator Stage 5 (PostflightCleanup) to add headers. Estimated effort: 3.5 hours (revised from 4.5 hours - removed summary conclusions as redundant with header).",
+      "plan_metadata": {
+        "phase_count": 5,
+        "estimated_hours": 3.5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 2,
+        "revision_reason": "Removed summary conclusion formatting (redundant with header display)"
+      },
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "User requested abandonment"
+    },
+    {
+      "project_number": 300,
+      "project_name": "add_report_detection_to_planner",
+      "type": "feature",
+      "phase": "planning_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-05",
+      "effort": "4 hours",
+      "description": "Enhance the planner subagent to detect new reports created since the last plan version and integrate their findings into plan revisions.",
+      "started": "2026-01-05",
+      "research_completed": "2026-01-05",
+      "planned": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/300_add_report_detection_to_planner/reports/research-001.md",
+        ".claude/specs/300_add_report_detection_to_planner/plans/implementation-001.md",
+        ".claude/specs/300_add_report_detection_to_planner/summaries/implementation-summary-20260105.md"
+      ],
+      "plan_path": ".claude/specs/300_add_report_detection_to_planner/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": ".claude/specs/300_add_report_detection_to_planner/reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-05"
+          }
+        ]
+      },
+      "research_summary": "Research completed on enhancing planner to detect new reports. Current planner harvests ALL research but cannot distinguish new reports from already-integrated ones. Solution: use filesystem timestamps (mtime) to detect reports created after last plan version. Requires plan_metadata schema extension to track reports_integrated array. 4-phase implementation (4 hours): schema extension, report detection, research harvesting enhancement, postflight integration.",
+      "completed": "2026-01-05"
+    },
+    {
+      "project_number": 304,
+      "project_name": "test_commands_after_unintended_changes_2_5",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "general",
+      "description": "Test /task, /meta, and /todo commands to verify they still work correctly after the unintended changes. Document any failures or unexpected behavior. This determines whether to keep or revert core logic changes.",
+      "effort": "30 minutes",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T08:00:00Z",
+      "last_updated": "2026-01-05",
+      "abandoned": "2026-01-05",
+      "abandonment_reason": "User requested abandonment via /abandon command"
+    },
+    {
+      "project_number": 309,
+      "project_name": "implement_option_1_direct_delegation_from_task_309_analysis_to_optimize_/task_command_performance",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Implement Option 1 (Direct Delegation) from task 309 analysis to optimize /task command performance. Modify /task command Stage 4 to delegate directly to status-sync-manager instead of task-creator, eliminating unnecessary delegation layer and achieving 40-50% performance improvement.",
+      "effort": "3 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T09:50:00Z",
+      "started": "2026-01-05",
+      "research_completed": "2026-01-05",
+      "last_updated": "2026-01-05T02:22:00Z",
+      "artifacts": [
+        ".claude/specs/309_optimize_task_command_performance/reports/research-001.md",
+        ".claude/specs/309_optimize_task_command_performance/plans/implementation-001.md",
+        ".claude/specs/309_optimize_task_command_performance/summaries/implementation-summary-20260105.md"
+      ],
+      "planned": "2026-01-05",
+      "implemented": "2026-01-05"
+    },
+    {
+      "project_number": 310,
+      "project_name": "enhance_workflow_commands_with_start_and_end_status_updates",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Enhance workflow commands (/research, /plan, /revise, /implement) to update task status at the beginning and end of execution. Commands should set status to '[RESEARCHING]', '[PLANNING]', '[REVISING]', or '[IMPLEMENTING]' at start, report if already in progress, and update to final status ('[RESEARCHED]', '[PLANNED]', '[REVISED]', '[IMPLEMENTED]'/'[BLOCKED]'/'[PARTIAL]') at completion.",
+      "effort": "9-12 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T10:00:00Z",
+      "last_updated": "2026-01-05T02:40:00Z",
+      "research_completed": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/310_enhance_workflow_commands_with_start_and_end_status_updates/reports/research-001.md",
+        ".claude/specs/310_enhance_workflow_commands_with_start_and_end_status_updates/plans/implementation-001.md",
+        ".claude/specs/310_enhance_workflow_commands_with_start_and_end_status_updates/summaries/implementation-summary-20260105.md"
+      ],
+      "plan_path": ".claude/specs/310_enhance_workflow_commands_with_start_and_end_status_updates/plans/implementation-001.md",
+      "planned": "2026-01-05",
+      "implemented": "2026-01-05"
+    },
+    {
+      "project_number": 189,
+      "project_name": "research_divide_flag",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2025-12-25T00:00:00Z",
+      "started": "2025-12-25",
+      "research_completed": "2025-12-25",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 203,
+      "project_name": "add___complex_flag_to_/research_for_subtopic_subdivision_with_summary",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "markdown",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "effort": "TBD",
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 279,
+      "project_name": "systematically_fix_metadata_lookup_to_use_state_json_instead_of_todo_md",
+      "type": "bugfix",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "markdown",
+      "created": "2026-01-04T04:44:02Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "research_completed": "2026-01-05",
+      "artifacts": [
+        ".claude/specs/279_systematically_fix_metadata_lookup_to_use_state_json_instead_of_todo_md/reports/research-001.md"
+      ],
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 302,
+      "project_name": "test_dual_mode_revision_workflow",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "meta",
+      "created": "2026-01-05T01:22:38Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "effort": "2 hours",
+      "description": "Create comprehensive tests for the dual-mode revision workflow, covering task-only revision, plan revision without new reports, and plan revision with new reports.",
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 322,
+      "project_name": "add_bulk_operation_to_status_sync_manager_for_creating_updating_many_tasks",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Add new bulk operation to status-sync-manager for creating/updating many tasks, integrating with existing bulk functionality implemented for /abandon and /task --divide commands. The aim is optimization for elegant executions with bulk operations.",
+      "effort": "TBD",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T00:00:00Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 325,
+      "project_name": "create___recover_flag_for_/task_command_to_unarchive_projects",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Create a --recover flag for the /task command together with a task number as an argument that can be used to unarchive a project directory from specs/archive/, updating the specs/TODO.md and specs/state.json files accordingly.",
+      "effort": "6 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T00:00:00Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "research_completed": "2026-01-06",
+      "planning_completed": "2026-01-06",
+      "artifacts": [
+        ".claude/specs/325_create___recover_flag_for_task_command_to_unarchive_projects/reports/research-001.md",
+        ".claude/specs/325_create___recover_flag_for_task_command_to_unarchive_projects/plans/implementation-001.md"
+      ],
+      "plan_path": ".claude/specs/325_create___recover_flag_for_task_command_to_unarchive_projects/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 6,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-06"
+          }
+        ]
+      },
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 326,
+      "project_name": "create___divide_flag_for_/task_command_with_task_division_capability",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Create a --divide flag for the /task command that accepts a task number as an argument. This flag should divide an existing task into an appropriate number of subtasks, add the new task numbers as dependencies to the original task, and create the new task entries atomically.",
+      "effort": "TBD",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-05T00:00:00Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "research_completed": "2026-01-06",
+      "artifacts": [
+        ".claude/specs/326_create___divide_flag_for_task_command_with_task_division_capability/reports/research-001.md"
+      ],
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 328,
+      "project_name": "fix_task_command_to_only_create_task_entries_and_never_implement_directly",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "meta",
+      "description": "Fix the /task command to ensure it ONLY creates task entries in TODO.md and state.json, and NEVER implements the work described in the task. The command should parse the task description, reformulate it naturally, optionally divide into subtasks if --divide flag is present, delegate to status-sync-manager for atomic task creation, and return task numbers to the user. The command must be architecturally prevented from creating code files, running build tools, or doing any implementation work. Implementation happens later via /implement command.",
+      "effort": "4-6 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-06T00:00:00Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "research_completed": "2026-01-06",
+      "artifacts": [
+        ".claude/specs/328_fix_task_command_to_only_create_task_entries_and_never_implement_directly/reports/research-001.md"
+      ],
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 329,
+      "project_name": "research_and_fix_persistent_state_synchronization_failures_between_todo_md_and_state_json",
+      "type": "bugfix",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "high",
+      "language": "meta",
+      "description": "Research and address the persistent issue where workflow commands (/research, /plan, /revise, /implement) successfully update state.json but fail to update TODO.md with status changes and artifact links. This is a postflight failure where status-sync-manager is either not being invoked or failing silently. Example: Task 323 research completed, state.json shows status 'researched' with artifact link, but TODO.md shows [NOT STARTED] with no artifacts. This violates the architectural requirement that both files must be kept in sync via status-sync-manager. Related to tasks 312, 320, and 321.",
+      "effort": "TBD",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-06T00:00:00Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 330,
+      "project_name": "create___sync_flag_for_task_command_to_synchronize_todo_md_and_state_json",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Create a --sync flag for the /task command that synchronizes TODO.md and state.json. The flag should accept optional task number ranges (e.g., 343-345, 337) to sync specific tasks, or sync all tasks if no numbers are provided. Improve upon the current /sync command implementation, avoiding needless complexity and omitting dry-run mode.",
+      "effort": "TBD",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-06T17:40:11.648072Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 331,
+      "project_name": "create___abandon_flag_for_task_command_to_abandon_multiple_tasks_via_ranges_lists",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Create the --abandon flag for the /task command to be able to specify a list or range of task numbers (or a list of ranges) in order to abandon those tasks in a manner similar to how the /abandon command works now while avoiding needless complexity.",
+      "effort": "TBD",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-06T00:00:00Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 332,
+      "project_name": "design_and_implement_comprehensive_task_command_enhancements",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Design and implement comprehensive /task command enhancements by consolidating --recover, --divide, bulk operations, and --sync features into a cohesive architecture. Ensure atomic operations, proper error handling, and integration with status-sync-manager patterns.",
+      "effort": "18-24 hours",
+      "blocking": [],
+      "dependencies": [
+        325,
+        326,
+        322,
+        330
+      ],
+      "created": "2026-01-07T00:00:00Z",
+      "last_updated": "2026-01-07T23:51:40Z",
+      "artifacts": [
+        ".claude/specs/332_design_and_implement_comprehensive_task_command_enhancements/reports/research-001.md"
+      ],
+      "abandoned": "2026-01-07"
+    },
+    {
+      "project_number": 259,
+      "project_name": "automation_tactics",
+      "type": "feature",
+      "phase": "abandoned",
+      "status": "abandoned",
+      "priority": "medium",
+      "language": "lean",
+      "created": "2026-01-04T00:00:00Z",
+      "started": "2026-01-04",
+      "research_completed": "2026-01-04",
+      "planning_completed": "2026-01-04",
+      "last_updated": "2026-01-07T01:51:08.078129Z",
+      "artifacts": [
+        ".claude/specs/259_automation_tactics/reports/research-001.md",
+        ".claude/specs/259_automation_tactics/plans/implementation-001.md"
+      ],
+      "research_summary": "Research completed on automation tactics implementation. Found 10/12 tactics fully implemented (83% complete), 2 tactics with infrastructure ready but delegating to tm_auto. Aesop integration functional with 2 noncomputable errors. ProofSearch.lean provides production-ready bounded search infrastructure (461 lines). Revised effort estimate: 17-23 hours (down from 40-60 hours).",
+      "plan_path": ".claude/specs/259_automation_tactics/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 6,
+        "total_effort_hours": 20,
+        "complexity": "medium",
+        "research_integrated": true
+      },
+      "estimated_hours": 20.0,
+      "abandoned": "2026-01-06"
+    },
+    {
+      "project_number": 327,
+      "project_name": "review_context_file_references_and_optimize_context_loading_strategy",
+      "type": "feature",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "medium",
+      "language": "meta",
+      "description": "Verify that all context file references are current and valid following task 314 implementation. Conduct systematic review of context loading patterns across commands and agents to identify opportunities for optimization. Goals: (1) Eliminate broken references to deprecated context files, (2) Prevent context bloating by loading only necessary context, (3) Ensure sufficient context is loaded for each operation type, (4) Document context loading best practices.",
+      "effort": "4-6 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-06T00:00:00Z",
+      "last_updated": "2026-01-06",
+      "research_completed": "2026-01-06",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": ".claude/specs/327_review_context_file_references_and_optimize_context_loading_strategy/reports/research-001.md",
+          "summary": "Comprehensive analysis of context file references and loading patterns with 19 broken references identified"
+        },
+        {
+          "type": "implementation",
+          "path": ".claude/specs/327_review_context_file_references_and_optimize_context_loading_strategy/summaries/implementation-summary-001.md",
+          "summary": "Fixed 45 broken context references, created validation infrastructure, documented best practices (1000+ lines), optimized context loading (91% command coverage)"
+        }
+      ],
+      "planning_completed": "2026-01-06",
+      "plan_path": ".claude/specs/327_review_context_file_references_and_optimize_context_loading_strategy/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 6,
+        "total_effort_hours": 11,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-06"
+          }
+        ]
+      },
+      "completed": "2026-01-06"
+    },
+    {
+      "project_number": 333,
+      "project_name": "fix_workflow_command_todo_md_state_json_synchronization_failures",
+      "type": "bugfix",
+      "phase": "implementation_completed",
+      "status": "completed",
+      "priority": "high",
+      "language": "meta",
+      "description": "Systematically fix persistent synchronization failures in /research, /plan, /revise, and /implement commands where manual file manipulation (sed/awk) fails silently, leaving TODO.md unchanged while state.json updates successfully. Root cause identified in root-cause-analysis-todo-state-sync-failures.md: commands don't delegate to status-sync-manager for atomic updates. Solution: Add postflight stage to all workflow commands that delegates to status-sync-manager with validated_artifacts array, ensuring both files update atomically or neither updates. This addresses the architectural requirement that state.json and TODO.md must be kept in sync via status-sync-manager's two-phase commit protocol.",
+      "effort": "6-8 hours",
+      "blocking": [],
+      "dependencies": [],
+      "created": "2026-01-06T00:00:00Z",
+      "last_updated": "2026-01-06",
+      "planning_completed": "2026-01-06",
+      "plan_path": ".claude/specs/333_fix_workflow_command_todo_md_state_json_synchronization_failures/plans/implementation-001.md",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 7,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "reports_integrated": [
+          {
+            "path": "reports/research-001.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-01-06"
+          }
+        ]
+      },
+      "completed": "2026-01-06",
+      "artifacts": [
+        {
+          "type": "implementation",
+          "path": ".claude/specs/333_fix_workflow_command_todo_md_state_json_synchronization_failures/summaries/implementation-summary-20260106.md",
+          "summary": "Verification that all subagent specifications already implement correct status-sync-manager delegation pattern"
+        }
+      ]
+    }
+  ],
+  "repository_health": {
+    "last_assessed": "2026-01-05T02:00:00Z",
+    "overall_score": 92,
+    "active_tasks": 6,
+    "completed_tasks": 51,
+    "blocked_tasks": 2,
+    "in_progress_tasks": 2,
+    "not_started_tasks": 25,
+    "critical_priority_tasks": 1,
+    "high_priority_tasks": 16,
+    "medium_priority_tasks": 12,
+    "low_priority_tasks": 11,
+    "production_readiness": "excellent",
+    "technical_debt": {
+      "sorry_count": 6,
+      "axiom_count": 11,
+      "build_errors": 11,
+      "status": "well-documented",
+      "_comment": "Technical debt tracked in task system. 6 sorry (3 documentation examples, 1 invalid theorem, 1 completeness, 1 SoundnessLemmas), 11 axioms (all completeness). Build errors: 6 noncomputable (Perpetuity/Principles + AesopRules), 5 ProofSearch errors."
+    },
+    "review_artifacts": [
+      {
+        "timestamp": "2025-12-29T00:05:34Z",
+        "path": ".claude/specs/225_codebase_review/summaries/review-summary.md",
+        "scope": "full"
+      }
+    ]
+  },
+  "recent_activities": [
+    {
+      "timestamp": "2026-01-05T07:51:30Z",
+      "activity": "Created task 296: Create /sync command for bidirectional TODO.md and state.json synchronization (6-8 hours, Medium priority, meta)"
+    },
+    {
+      "timestamp": "2026-01-05T03:39:53Z",
+      "activity": "Created task 294: Revise /meta command to accept optional task number (TBD, Medium priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-05T02:00:00Z",
+      "activity": "Created task 260: Investigate Claude Code CLI Argument Mechanism (2 hours, Critical priority, meta)"
+    },
+    {
+      "timestamp": "2026-01-05T01:49:54Z",
+      "activity": "Created task 293: Design and implement better command argument handling for orchestrator (4-6 hours, High priority, general)"
+    },
+    {
+      "timestamp": "2026-01-04T17:47:49Z",
+      "activity": "Completed research for task 292: Investigation reveals issue may already be fixed by Task 281. Task 259 exists and is valid. Recommendation: verify /implement 259 works."
+    },
+    {
+      "timestamp": "2026-01-04T17:30:00Z",
+      "activity": "Created task 292: Diagnose and fix /implement 259 command failure - orchestrator unable to extract $ARGUMENTS (TBD, High priority, general)"
+    },
+    {
+      "timestamp": "2026-01-04T12:05:00Z",
+      "activity": "Completed research for task 287: Fix /revise command to replace old plan link instead of appending new link. Root cause identified in status-sync-manager. Estimated effort: 2-3 hours."
+    },
+    {
+      "timestamp": "2026-01-04T12:00:00Z",
+      "activity": "Created task 289: Extend Task 283 fix to all remaining subagents with inconsistent step naming (2-3 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-04T12:00:00Z",
+      "activity": "Created task 288: Fix command confusion and status synchronization issues (TBD, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-04T06:30:00Z",
+      "activity": "Created task 286: Fix /revise command to replace old plan link instead of appending new link (TBD, Medium priority, general)"
+    },
+    {
+      "timestamp": "2026-01-04T06:20:00Z",
+      "activity": "Created task 286: Research alternative to task 283 with subagent-owned pre-flight and post-flight work (6-8 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-04T06:15:00Z",
+      "activity": "Created task 285: Audit and fix status update behavior in /research, /plan, /revise, and /implement commands (8-12 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-04T06:00:00Z",
+      "activity": "Created task 284: Modify /todo command to commit changes before archiving instead of prompting user (TBD, Medium priority, general)"
+    },
+    {
+      "timestamp": "2026-01-04T05:58:01Z",
+      "activity": "Created task 283: Fix /research command to properly handle already-completed tasks and sync TODO.md status with state.json (3-4 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-04T05:47:55Z",
+      "activity": "Created task 282: Add JSON return format enforcement to subagent invocation via task tool (4-6 hours, High priority, general)"
+    },
+    {
+      "timestamp": "2026-01-03T18:30:00Z",
+      "activity": "Completed task 269: Fixed /meta command to accept user prompts directly via $ARGUMENTS. Added dual mode support (prompt mode skips interview, interactive mode conducts full interview). Git commit: a4fa33f"
+    },
+    {
+      "timestamp": "2026-01-04T05:00:30Z",
+      "activity": "Created task 280: Fix orchestrator Stage 4 validation to enforce subagent return format and prevent phantom research (6-8 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-04T04:44:02Z",
+      "activity": "Created task 279: Systematically fix metadata lookup to use state.json instead of TODO.md (12-16 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T20:45:00Z",
+      "activity": "Completed research for task 277: Recommended modifying orchestrator Stage 5 to add headers and summary conclusions. Estimated effort: 4.5 hours."
+    },
+    {
+      "timestamp": "2026-01-03T20:35:00Z",
+      "activity": "Created task 277: Improve OpenCode header and summary display for task commands (TBD, High priority, general)"
+    },
+    {
+      "timestamp": "2026-01-03T20:35:00Z",
+      "activity": "Created task 277: Improve OpenCode header and summary display for task commands (TBD, High priority, general)"
+    },
+    {
+      "timestamp": "2026-01-03T20:11:00Z",
+      "activity": "Created task 276: Investigate and remove redundant project-level state.json files in favor of centralized specs/state.json (6-8 hours, Medium priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T20:03:00Z",
+      "activity": "Created task 275: Fix workflow commands to update status at beginning and end in both TODO.md and state.json (8-12 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T19:15:00Z",
+      "activity": "Created task 274: Remove status metadata from research reports (belongs in TODO.md and state.json only) (2-3 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T19:00:00Z",
+      "activity": "Created task 273: Fix /research command to link research artifacts in TODO.md task entries (4-6 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T19:51:30Z",
+      "activity": "Created task 272: Add standardized YAML header to TODO.md with state.json metadata (TBD, Medium priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T18:45:00Z",
+      "activity": "Created task 271: Revise /meta command to create tasks with linked artifacts instead of implementing directly (8-12 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T18:30:00Z",
+      "activity": "Completed task 270: Fixed /research command by adding explicit constraints to researcher.md preventing implementation, restricting permissions, and enforcing [RESEARCHED] status transitions"
+    },
+    {
+      "timestamp": "2026-01-03T18:18:35Z",
+      "activity": "Created task 270: Fix /research command to conduct research instead of implementing tasks (6-8 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T18:15:00Z",
+      "activity": "Created task 269: Fix /meta command to accept user prompts directly instead of forcing interactive interview (2-3 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T18:09:11.240570Z",
+      "activity": "Completed task 267: Integrated context/meta/ into context/core/ with proper subdirectory organization. Moved 4 files, updated all references, removed empty meta/ directory. Git commit: 33d4d45"
+    },
+    {
+      "timestamp": "2026-01-03T12:35:00.000000Z",
+      "activity": "Created task 268: Fix orchestrator and subagent argument parsing for slash commands like /research 267 (3-4 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2026-01-03T12:30:00.000000Z",
+      "activity": "Created task 267: Integrate context/meta/ into context/core/ with proper subdirectory organization (4-6 hours, Medium priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-30T00:45:00.000000Z",
+      "activity": "Created task 266: Fix /research command language-based routing to properly invoke lean-research-agent for Lean tasks (4-6 hours, High priority)"
+    },
+    {
+      "timestamp": "2025-12-30T00:38:18.504339Z",
+      "activity": "Created task 265: Clean up context directory structure by migrating common/ to core/ and removing archive/ (8-12 hours, High priority)"
+    },
+    {
+      "timestamp": "2025-12-29T23:00:00.000000Z",
+      "activity": "Migrated tasks 1-9 to proper numbering: Created tasks 257-264 following task standards (using next_project_number from state.json) and removed old tasks 1-9 that violated numbering standards"
+    },
+    {
+      "timestamp": "2025-12-29T22:30:00.000000Z",
+      "activity": "Created task 256: Add /meta command from OpenAgents with system-builder subagents (8-12 hours, Medium priority)"
+    },
+    {
+      "timestamp": "2025-12-29T22:25:00.000000Z",
+      "activity": "Completed implementation for task 253: Created dedicated Python script (.claude/scripts/todo_cleanup.py) with divider fixing algorithm, updated /todo command to use git commits instead of backups, fixed 2 stacked dividers in TODO.md. Implementation summary: .claude/specs/253_improve_todo_command/summaries/implementation-summary-20251229.md"
+    },
+    {
+      "timestamp": "2025-12-29T22:23:30.000000Z",
+      "activity": "Created task 255: Improve opencode system following the improvement plan (8-12 hours, Medium priority)"
+    },
+    {
+      "timestamp": "2025-12-29T13:55:51.037302Z",
+      "activity": "Completed research for task 253: Comprehensive analysis of /todo command implementation, git safety patterns, divider handling bug (21+ stacked dividers), and Python script design. Research report: .claude/specs/253_improve_todo_command/reports/research-001.md"
+    },
+    {
+      "timestamp": "2025-12-29T18:42:36.826645Z",
+      "activity": "Completed research for task 254: Root cause identified - workflow defined as XML documentation causing stage 4-8 skip. Solution: frontmatter delegation pattern from Task 240. Research report: .claude/research/task-254-research-command-refactor.md"
+    },
+    {
+      "timestamp": "2025-12-29T18:35:00.000000Z",
+      "activity": "Created task 254: Refactor /research command to directly invoke agents and properly manage task status and state updates (6-8 hours, High priority)"
+    },
+    {
+      "timestamp": "2025-12-29T18:25:00.000000Z",
+      "activity": "Created task 253: Improve /todo command to use git commits instead of backups and fix divider stacking (4-6 hours, High priority)"
+    },
+    {
+      "timestamp": "2025-12-29T18:18:49.941644Z",
+      "activity": "Archived 3 tasks: 3 completed, 0 abandoned"
+    },
+    {
+      "timestamp": "2025-12-29T16:35:00Z",
+      "activity": "Created task 252: Implement Task 244 Phase 6: Stage 7 Reliability Testing with OpenCode CLI Integration (4-6 hours, Medium priority)"
+    },
+    {
+      "timestamp": "2025-12-29T16:30:00Z",
+      "activity": "Created task 251: Validate and Document Task 244 Phase 1 Abandoned Work (Phase 3 and Phase 6) (3-4 hours, Medium priority)"
+    },
+    {
+      "timestamp": "2025-12-29T07:11:02.503804",
+      "activity": "Created task 249: Phase 2 Follow-up - Add YAML Frontmatter to All 6 Subagents (4.5 hours, High priority)"
+    },
+    {
+      "timestamp": "2025-12-29T07:11:02.503792",
+      "activity": "Created task 250: Phase 2 Follow-up - Comprehensive Testing and Validation (6 hours, High priority)"
+    },
+    {
+      "timestamp": "2025-12-29T08:01:19Z",
+      "activity": "Created task 248: Systematically investigate root cause of /research and /plan TODO.md update failures (6-8 hours, High priority)"
+    },
+    {
+      "timestamp": "2025-12-28T23:28:52.938283Z",
+      "activity": "Archived 5 tasks: 4 completed, 1 abandoned"
+    },
+    {
+      "timestamp": "2025-12-28T23:24:32Z",
+      "activity": "Created task 247: Phase 4 - Testing and Documentation for Task 240 OpenAgents Migration (8-12 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-28T23:24:32Z",
+      "activity": "Created task 246: Phase 3 - Consolidation for Task 240 OpenAgents Migration, merge context files and remove obsolete (16-20 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-28T23:24:32Z",
+      "activity": "Created task 245: Phase 2 - Core Architecture for Task 240 OpenAgents Migration, migrate all commands and simplify orchestrator (20-30 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-28T23:24:32Z",
+      "activity": "Created task 244: Phase 1 - Context Index and /research Frontmatter Prototype for Task 240 OpenAgents Migration (12-16 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T07:00:00Z",
+      "activity": "Task 240 comparative research completed: OpenAgents vs ProofChecker architectural analysis identifies systematic improvements - frontmatter delegation, lazy-loading context index, session-based temporary context, simplified orchestrator. Task 237 superseded by architectural solution."
+    },
+    {
+      "timestamp": "2025-12-29T06:30:00Z",
+      "activity": "Created task 243: Implement Phase 4 from task 237 implementation plan (aggressive command file deduplication) (12-16 hours, Medium priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T06:25:00Z",
+      "activity": "Created task 242: Implement Phase 2 from task 237 implementation plan (split command files into routing and execution) (8-12 hours, Medium priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T06:20:19.367000Z",
+      "activity": "Created task 241: Optimize NO EMOJI validation to eliminate redundant checks and reduce system overhead (4-6 hours effort, Medium priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-28T21:58:40.040731",
+      "activity": "Archived 20 tasks: 19 completed, 1 abandoned"
+    },
+    {
+      "timestamp": "2025-12-29T06:00:00Z",
+      "activity": "Marked task 238 as RESEARCHED: Comprehensive emoji analysis completed - Found 88 emoji instances across 24 files, root causes identified (agent non-compliance, missing validation), elimination strategy with prevention recommendations"
+    },
+    {
+      "timestamp": "2025-12-29T05:50:22Z",
+      "activity": "Created task 240: Systematically investigate and fix persistent workflow command Stage 7 (Postflight) failures causing incomplete status updates (12-16 hours effort, Critical priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T05:43:30Z",
+      "activity": "Created task 238: Find and eliminate all emojis from .opencode system to maintain NO EMOJI standard (4-6 hours effort, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T05:34:54Z",
+      "activity": "Created task 237: Investigate and systematically fix context window bloat in workflow commands (10-15 hours effort, Critical priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T05:28:00.000000Z",
+      "activity": "Created task 236: Investigate and fix task standard violations in TODO.md tasks 1-9 (4 hours effort, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T05:20:00.000000Z",
+      "activity": "Created task 235: Find and fix root cause of /todo command not archiving completed tasks (TBD effort, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T05:14:32.850951Z",
+      "activity": "Archived 5 tasks: 0 completed, 0 abandoned"
+    },
+    {
+      "timestamp": "2025-12-29T02:48:00Z",
+      "activity": "Marked task 234 as RESEARCHED: Command context window protection research completed - Found NO confirmation prompts, primary issue is context loaded too early (60-70% waste), fix is moving context loading from frontmatter to Stage 4 execution (8 hours estimated)"
+    },
+    {
+      "timestamp": "2025-12-29T02:30:00Z",
+      "activity": "Created task 234: Systematically improve all commands to protect context window and eliminate confirmation prompts (8-10 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T02:01:18Z",
+      "activity": "Created task 233: Research and fix systematic command execution failures causing incomplete TODO.md updates (10-15 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T01:42:33Z",
+      "activity": "Created task 232: Systematically fix TODO.md path references and migrate tasks from project root to .claude/specs (TBD effort, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T02:30:00Z",
+      "activity": "Created task 231: Fix systematic command Stage 7 (Postflight) execution failures (8-10 hours, Critical priority). ROOT CAUSE CORRECTION: Commands ARE loaded by orchestrator, but Claude skips Stage 7 (Postflight) causing incomplete TODO.md/state.json updates. Abandoned tasks 227, 228, 229 (all based on incorrect assumption that orchestrator bypasses commands)."
+    },
+    {
+      "timestamp": "2025-12-29T02:00:00Z",
+      "activity": "Marked task 229 as PLANNED: 7-phase implementation plan created (6 hours total) - Audit command invocability, reduce orchestrator context to 3 files, refactor Step 7 RouteToCommand, refactor Step 4 PrepareRouting, simplify Step 3 CheckLanguage, testing and validation, documentation updates. Fixes critical architectural flaw causing 100% workflow failure and 60-70% context bloat."
+    },
+    {
+      "timestamp": "2025-12-29T02:00:00Z",
+      "activity": "Marked task 229 as PLANNED: 7-phase implementation plan created (6 hours total) - Audit command invocability, reduce orchestrator context to 3 files, refactor Step 7 RouteToCommand, refactor Step 4 PrepareRouting, simplify Step 3 CheckLanguage, testing and validation, documentation updates. Fixes critical architectural flaw causing 100% workflow failure and 60-70% context bloat."
+    },
+    {
+      "timestamp": "2025-12-29T01:15:00Z",
+      "activity": "Marked task 229 as RESEARCHED: Orchestrator-command integration research completed - Identified critical routing flaw (orchestrator bypasses commands), 60-70% context bloat, 100% workflow failure. Fix: route to commands not subagents. Resolves tasks 227/228."
+    },
+    {
+      "timestamp": "2025-12-29T00:50:44Z",
+      "activity": "Created task 229: Review and optimize orchestrator-command integration for context efficiency (6-8 hours, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T00:41:46.063824+00:00",
+      "activity": "Created task 228: Fix orchestrator routing to invoke commands instead of bypassing to subagents directly (TBD effort, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-28T16:28:14.744760Z",
+      "activity": "Created task 226: Fix /review command to use next_project_number, create matching task, include actionable follow-up tasks in summary, reduce verbosity, and improve context file organization (8-10 hours effort, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-29T00:09:58Z",
+      "activity": "Created task 225: Fix systematic status-sync-manager TODO.md update failures across all workflow commands (6-8 hours effort, High priority, markdown)"
+    },
+    {
+      "timestamp": "2025-12-28T16:09:41.625413+00:00",
+      "activity": "Completed codebase review 225: Updated registries, found 6 sorry/11 axioms/11 build errors, 87.5% test coverage"
+    },
+    {
+      "timestamp": "2025-12-29T00:00:50.867075+00:00",
+      "activity": "Archived 5 tasks: 2 completed, 3 abandoned"
+    },
+    {
+      "timestamp": "2026-01-03T21:15:00Z",
+      "activity": "Created task 281: Fix OpenCode $ARGUMENTS variable not being passed to orchestrator (4-6 hours, High priority)"
+    }
+  ],
+  "pending_tasks": [
+    {
+      "project_number": 173,
+      "title": "Implement integration tests for proof system and semantics",
+      "status": "planned",
+      "started": "2025-12-24",
+      "research_completed": "2025-12-24",
+      "planning_completed": "2025-12-28",
+      "priority": "high",
+      "language": "lean",
+      "plan_path": ".claude/specs/173_integration_tests/plans/implementation-001.md",
+      "estimated_hours": 3,
+      "phases": 2,
+      "dependencies": [
+        183,
+        184,
+        185
+      ],
+      "implementation_notes": "Implementation 83% complete - 146 tests created with 82% coverage, blocked only by core build errors in tasks 183, 184, 185."
+    },
+    {
+      "project_number": 200,
+      "title": "Review command-specific status marker implementation for consistency",
+      "status": "researched",
+      "started": "2025-12-27",
+      "completed": "2025-12-27",
+      "priority": "high",
+      "language": "markdown"
+    },
+    {
+      "project_number": 193,
+      "title": "Prove is_valid_swap_involution theorem in Truth.lean (currently sorry)",
+      "status": "impossible",
+      "started": "2025-12-28",
+      "research_completed": "2025-12-28",
+      "planning_completed": "2025-12-28",
+      "blocked": "2025-12-28",
+      "abandoned": "2025-12-29",
+      "implementation_status": "impossible_as_stated",
+      "completion_percentage": 0,
+      "priority": "high",
+      "language": "lean",
+      "plan_path": ".claude/specs/193_prove_is_valid_swap_involution/plans/implementation-003.md",
+      "estimated_hours": 0.5,
+      "actual_hours": 3.7,
+      "remaining_hours": 0,
+      "phases": 1,
+      "artifacts": [
+        ".claude/specs/193_prove_is_valid_swap_involution/reports/research-001.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/summaries/research-summary.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/plans/implementation-001.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/plans/implementation-002.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/plans/implementation-003.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/reports/implementation-001.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/summaries/implementation-summary.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/summaries/implementation-failure-20251228.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/reports/task209-review-and-revised-plan.md",
+        ".claude/specs/193_prove_is_valid_swap_involution/summaries/task209-review-summary.md",
+        "Logos/Core/Semantics/Truth.lean"
+      ],
+      "modified_files": [
+        "Logos/Core/Semantics/Truth.lean"
+      ],
+      "implementation_notes": "IMPOSSIBLE AS STATED. Task 213 research proved the theorem is_valid T φ.swap → is_valid T φ is semantically FALSE for arbitrary formulas. Counterexample: φ = all_past(p), model where p is true in all future but false in some past. Code moved to SoundnessLemmas.lean by task 219. The sorry is architecturally correct and will remain.",
+      "blocking_reason": "Theorem is semantically false for arbitrary formulas (proven by task 213). Not a type theory limitation but a fundamental logical impossibility. Task correctly marked impossible."
+    },
+    {
+      "project_number": 194,
+      "title": "Verify original task completion (tasks 183-184)",
+      "status": "completed",
+      "started": "2025-12-28",
+      "completed": "2025-12-28",
+      "priority": "high",
+      "language": "lean",
+      "artifacts": [
+        ".claude/specs/194_verify_original_task_completion/summaries/implementation-summary-20251228.md"
+      ]
+    },
+    {
+      "project_number": 195,
+      "title": "Review and improve proof search automation",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "lean"
+    },
+    {
+      "project_number": 196,
+      "title": "Complete opencode refactor per plan",
+      "status": "not_started",
+      "priority": "high",
+      "language": "markdown"
+    },
+    {
+      "project_number": 198,
+      "title": "Revert command argument handling fixes and implement $ARGUMENTS pattern",
+      "status": "not_started",
+      "priority": "high",
+      "language": "markdown"
+    },
+    {
+      "project_number": 249,
+      "title": "Phase 2 Follow-up: Add YAML Frontmatter to All 6 Subagents (Task 245 Phase 6)",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "estimated_hours": 4.5,
+      "dependencies": [
+        245
+      ],
+      "started": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "completed": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "plan_path": ".claude/specs/249_yaml_frontmatter_subagents/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 9,
+        "estimated_hours": 4.5,
+        "complexity": "medium"
+      },
+      "artifacts": [
+        ".claude/context/common/templates/subagent-frontmatter-template.yaml",
+        ".claude/context/common/schemas/frontmatter-schema.json",
+        ".claude/scripts/validate_frontmatter.py",
+        ".claude/context/common/standards/frontmatter-standard.md",
+        ".claude/specs/249_yaml_frontmatter_subagents/summaries/implementation-summary-20251229.md",
+        ".claude/agent/subagents/researcher.md",
+        ".claude/agent/subagents/planner.md",
+        ".claude/agent/subagents/implementer.md",
+        ".claude/agent/subagents/task-executor.md",
+        ".claude/agent/subagents/lean-research-agent.md",
+        ".claude/agent/subagents/lean-implementation-agent.md"
+      ],
+      "phases": 9,
+      "phases_completed": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9
+      ]
+    },
+    {
+      "project_number": 250,
+      "title": "Phase 2 Follow-up: Comprehensive Testing and Validation (Task 245 Phase 7)",
+      "status": "completed",
+      "priority": "high",
+      "language": "markdown",
+      "estimated_hours": 6.0,
+      "dependencies": [
+        245,
+        249
+      ],
+      "started": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "completed": "2025-12-29",
+      "last_updated": "2025-12-29",
+      "plan_path": ".claude/specs/250_phase_2_followup/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 7,
+        "estimated_hours": 6,
+        "complexity": "medium"
+      },
+      "artifacts": [
+        ".claude/specs/250_phase_2_followup/reports/research-001.md",
+        ".claude/specs/250_phase_2_followup/plans/implementation-001.md",
+        ".claude/specs/250_phase_2_followup/reports/validation-001.md",
+        ".claude/specs/250_phase_2_followup/summaries/implementation-summary-20251229.md",
+        ".claude/specs/250_phase_2_followup/metrics/baseline_metrics.json",
+        ".claude/specs/250_phase_2_followup/metrics/current_state.json",
+        ".claude/specs/250_phase_2_followup/metrics/line_count_report.json",
+        ".claude/specs/250_phase_2_followup/scripts/measure_current_state.sh"
+      ]
+    }
+  ],
+  "maintenance_summary": {
+    "_comment": "Quick reference to maintenance status - full history in maintenance/state.json",
+    "last_maintenance": "2025-12-24T22:00:00Z",
+    "next_scheduled": "2026-01-27T00:00:00Z",
+    "health_trend": "stable_excellent"
+  },
+  "archive_summary": {
+    "_comment": "Quick reference to archived projects - full details in archive/state.json",
+    "archive_location": ".claude/specs/archive/",
+    "archive_state_file": ".claude/specs/archive/state.json"
+  },
+  "schema_info": {
+    "version": "1.0.0",
+    "backward_compatible": true,
+    "extensible": true,
+    "self_healing_enabled": true,
+    "_comment": "This schema supports backward compatibility and self-healing. New fields are additive and optional. Missing infrastructure files are auto-created."
+  },
+  "tasks": {
+    "246": {
+      "status": "completed",
+      "started": "2025-12-29",
+      "completed": "2025-12-29",
+      "updated": "2025-12-29",
+      "plan_path": ".claude/specs/246_phase_3_consolidation_merge_context_files_and_remove_obsolete/plans/implementation-001.md",
+      "artifacts": [
+        ".claude/context/core/standards/delegation.md",
+        ".claude/context/core/system/state-management.md",
+        ".claude/context/index.md",
+        ".claude/specs/246_phase_3_consolidation_merge_context_files_and_remove_obsolete/content-mapping.md",
+        ".claude/specs/246_phase_3_consolidation_merge_context_files_and_remove_obsolete/reports/validation-001.md",
+        ".claude/specs/246_phase_3_consolidation_merge_context_files_and_remove_obsolete/summaries/implementation-summary-20251229.md"
+      ]
+    },
+    "254": {
+      "status": "completed",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "planning_started": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "implementation_started": "2025-12-29",
+      "completed": "2025-12-29",
+      "updated": "2025-12-29",
+      "language": "markdown",
+      "priority": "high",
+      "artifacts": [
+        ".claude/research/task-254-research-command-refactor.md",
+        ".claude/specs/254_research_command_refactor/plans/implementation-001.md",
+        ".claude/command/research.md",
+        ".claude/agent/subagents/researcher.md",
+        ".claude/specs/254_research_command_refactor/summaries/implementation-summary-20251229.md"
+      ],
+      "plan_path": ".claude/specs/254_research_command_refactor/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 7,
+        "estimated_hours": 8,
+        "complexity": "medium"
+      }
+    },
+    "253": {
+      "status": "completed",
+      "started": "2025-12-29",
+      "research_completed": "2025-12-29",
+      "planning_completed": "2025-12-29",
+      "completed": "2025-12-29",
+      "updated": "2025-12-29",
+      "language": "python",
+      "priority": "high",
+      "artifacts": [
+        ".claude/specs/253_improve_todo_command/reports/research-001.md",
+        ".claude/specs/253_improve_todo_command/plans/implementation-001.md",
+        ".claude/specs/253_improve_todo_command/summaries/implementation-summary-20251229.md",
+        ".claude/scripts/todo_cleanup.py",
+        ".claude/command/todo.md",
+        ".claude/specs/TODO.md"
+      ],
+      "plan_path": ".claude/specs/253_improve_todo_command/plans/implementation-001.md",
+      "plan_metadata": {
+        "phase_count": 4,
+        "estimated_hours": 5,
+        "complexity": "medium"
+      },
+      "implementation_summary": ".claude/specs/253_improve_todo_command/summaries/implementation-summary-20251229.md",
+      "files_modified": [
+        ".claude/scripts/todo_cleanup.py",
+        ".claude/command/todo.md",
+        ".claude/specs/TODO.md"
+      ]
+    },
+    "266": {
+      "status": "planned",
+      "plan_path": ".claude/specs/266_fix_research_command_language_based_routing_to_properly_invoke_lean_research_agent_for_lean_tasks/plans/implementation-001.md",
+      "updated_at": "2026-01-03T09:50:30Z"
+    },
+    "278": {
+      "status": "planned",
+      "plan_path": ".claude/specs/278_investigate_fix_implement_argument_parsing/plans/implementation-001.md",
+      "updated_at": "2026-01-03T21:00:00Z"
+    },
+    "287": {
+      "status": "completed",
+      "plan_path": ".claude/specs/287_fix_revise_command_plan_link_replacement/plans/implementation-001.md",
+      "updated_at": "2026-01-04T00:00:00Z",
+      "completed_at": "2026-01-04T00:00:00Z",
+      "artifacts": [
+        {
+          "type": "research_report",
+          "path": ".claude/specs/287_fix_revise_command_plan_link_replacement/reports/research-001.md"
+        },
+        {
+          "type": "plan",
+          "path": ".claude/specs/287_fix_revise_command_plan_link_replacement/plans/implementation-001.md"
+        },
+        {
+          "type": "implementation",
+          "path": ".claude/specs/287_fix_revise_command_plan_link_replacement/summaries/implementation-summary-20260104.md"
+        }
+      ]
+    }
+  }
+}
