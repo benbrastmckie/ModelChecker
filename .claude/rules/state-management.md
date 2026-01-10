@@ -59,6 +59,25 @@ When updating task status:
 4. If either fails: log error, preserve original state
 ```
 
+## Project Number Format
+
+Project numbers use **3-digit zero-padded format** for directory names and artifact paths:
+
+```
+Format: {NNN}  →  printf "%03d" $project_number
+Examples: 001, 012, 345
+```
+
+This ensures:
+- Consistent lexicographic sorting in file explorers
+- Readable directory listings (001, 002, ... not 1, 10, 100, 2)
+- Support for up to 999 active projects
+
+**Usage in paths**: `.claude/specs/{NNN}_{SLUG}/`
+
+**Note**: The `project_number` field in state.json stores the integer value (e.g., 1),
+while directory names use the padded format (e.g., 001).
+
 ## TODO.md Frontmatter
 
 The frontmatter contains metadata about the task list:
@@ -130,6 +149,7 @@ task_counts:
     ".claude/specs/334_task_slug/reports/research-001.md",
     ".claude/specs/334_task_slug/plans/implementation-001.md"
   ],
+  "directory": "334_task_slug",
   "plan_path": ".claude/specs/334_task_slug/plans/implementation-001.md",
   "plan_metadata": {
     "plan_version": 1
@@ -172,27 +192,27 @@ When creating artifacts, update TODO.md with links:
 ### Research Completion
 ```markdown
 - **Status**: [RESEARCHED]
-- **Research**: [.claude/specs/{N}_{SLUG}/reports/research-001.md]
+- **Research**: [.claude/specs/{NNN}_{SLUG}/reports/research-001.md]
 ```
 
 ### Plan Completion
 ```markdown
 - **Status**: [PLANNED]
-- **Plan**: [.claude/specs/{N}_{SLUG}/plans/implementation-001.md]
+- **Plan**: [.claude/specs/{NNN}_{SLUG}/plans/implementation-001.md]
 ```
 
 ### Implementation Completion
 ```markdown
 - **Status**: [COMPLETED]
 - **Completed**: 2026-01-08
-- **Summary**: [.claude/specs/{N}_{SLUG}/summaries/implementation-summary-20260108.md]
+- **Summary**: [.claude/specs/{NNN}_{SLUG}/summaries/implementation-summary-20260108.md]
 ```
 
 ## Directory Creation
 
 Create task directories lazily (only when first artifact is created):
 ```
-.claude/specs/{NUMBER}_{SLUG}/
+.claude/specs/{NNN}_{SLUG}/
 ├── reports/      # Created on first research
 ├── plans/        # Created on first plan
 └── summaries/    # Created on completion

@@ -35,8 +35,14 @@ Allowed: not_started, researched, partial
 
 ### 3. Load Context
 
+Get directory name from state.json `directory` field, or construct it:
+```bash
+DIR=$(jq -r ".active_projects[] | select(.project_number == {N}) | .directory" .claude/specs/state.json)
+# Fallback: PADDED=$(printf "%03d" {N}); DIR="${PADDED}_{SLUG}"
+```
+
 1. **Task description** from TODO.md
-2. **Research reports** from .claude/specs/{N}_{SLUG}/reports/
+2. **Research reports** from .claude/specs/${DIR}/reports/
 3. **Relevant codebase context**:
    - For lean: Related .lean files
    - For general: Related source files
@@ -49,14 +55,14 @@ Update both files atomically:
 
 ### 5. Create Implementation Plan
 
-Create directory if needed:
-```
-mkdir -p .claude/specs/{N}_{SLUG}/plans/
+Create directory if needed (use DIR from step 3):
+```bash
+mkdir -p .claude/specs/${DIR}/plans/
 ```
 
 Find next plan version (implementation-001.md, implementation-002.md, etc.)
 
-Write to `.claude/specs/{N}_{SLUG}/plans/implementation-{NNN}.md`:
+Write to `.claude/specs/${DIR}/plans/implementation-{NNN}.md`:
 
 ```markdown
 # Implementation Plan: Task #{N}
@@ -159,7 +165,7 @@ git commit -m "task {N}: create implementation plan"
 ```
 Plan created for Task #{N}
 
-Plan: .claude/specs/{N}_{SLUG}/plans/implementation-{NNN}.md
+Plan: .claude/specs/${DIR}/plans/implementation-{NNN}.md
 
 Phases:
 1. {Phase 1 name} - {effort}

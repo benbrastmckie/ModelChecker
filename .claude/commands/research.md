@@ -72,14 +72,17 @@ Search strategy:
 
 ### 5. Create Research Report
 
-Create directory if needed:
-```
-mkdir -p .claude/specs/{N}_{SLUG}/reports/
+Get directory name from state.json `directory` field, or construct it:
+```bash
+# If directory field exists in state.json, use it
+DIR=$(jq -r ".active_projects[] | select(.project_number == {N}) | .directory" .claude/specs/state.json)
+# Otherwise construct: PADDED=$(printf "%03d" {N}); DIR="${PADDED}_{SLUG}"
+mkdir -p .claude/specs/${DIR}/reports/
 ```
 
 Find next report number (research-001.md, research-002.md, etc.)
 
-Write report to `.claude/specs/{N}_{SLUG}/reports/research-{NNN}.md`:
+Write report to `.claude/specs/${DIR}/reports/research-{NNN}.md`:
 
 ```markdown
 # Research Report: Task #{N}
@@ -145,7 +148,7 @@ git commit -m "task {N}: complete research"
 ```
 Research completed for Task #{N}
 
-Report: .claude/specs/{N}_{SLUG}/reports/research-{NNN}.md
+Report: .claude/specs/${DIR}/reports/research-{NNN}.md
 
 Key findings:
 - {finding 1}

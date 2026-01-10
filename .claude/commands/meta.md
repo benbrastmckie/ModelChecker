@@ -142,9 +142,11 @@ jq '.next_project_number' .claude/specs/state.json
 
 For each component (command, skill, rule, context file, doc update):
 
-**A. Create task directory:**
+**A. Create task directory** (use 3-digit zero-padded number):
 ```bash
-mkdir -p .claude/specs/{N}_{SLUG}/plans/
+PADDED=$(printf "%03d" {N})
+DIR="${PADDED}_{SLUG}"
+mkdir -p .claude/specs/${DIR}/plans/
 ```
 
 **B. Update state.json** (add to active_projects):
@@ -152,6 +154,7 @@ mkdir -p .claude/specs/{N}_{SLUG}/plans/
 {
   "project_number": {N},
   "project_name": "{slug}",
+  "directory": "{NNN}_{slug}",
   "status": "planned",
   "language": "meta",
   "priority": "{high|medium|low}",
@@ -168,7 +171,7 @@ mkdir -p .claude/specs/{N}_{SLUG}/plans/
 - **Priority**: {High|Medium|Low}
 - **Language**: meta
 - **Created**: {ISO_DATE}
-- **Plan**: [implementation-001.md](.claude/specs/{N}_{SLUG}/plans/implementation-001.md)
+- **Plan**: [implementation-001.md](.claude/specs/${DIR}/plans/implementation-001.md)
 
 **Description**: {detailed description of component to create}
 
@@ -176,7 +179,7 @@ mkdir -p .claude/specs/{N}_{SLUG}/plans/
 - {target file path}
 ```
 
-**D. Create plan artifact** at `.claude/specs/{N}_{SLUG}/plans/implementation-001.md`:
+**D. Create plan artifact** at `.claude/specs/${DIR}/plans/implementation-001.md`:
 ```markdown
 # Implementation Plan: Task #{N}
 

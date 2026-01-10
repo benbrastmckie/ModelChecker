@@ -48,9 +48,22 @@ Add links as artifacts are created:
 
 ---
 
+## Directory Naming Convention
+
+Task directories use **3-digit zero-padded** project numbers for consistent sorting:
+
+```
+.claude/specs/{NNN}_{SLUG}/
+Examples: 001_task_name/, 012_feature_slug/, 345_bug_fix/
+```
+
+See state-management.md "Project Number Format" for formatting details.
+
+---
+
 ## Research Reports
 
-**Location**: `.claude/specs/{N}_{SLUG}/reports/research-{NNN}.md`
+**Location**: `.claude/specs/{NNN}_{SLUG}/reports/research-{NNN}.md`
 
 ```markdown
 # Research Report: Task #{N}
@@ -84,7 +97,7 @@ Add links as artifacts are created:
 
 ## Implementation Plans
 
-**Location**: `.claude/specs/{N}_{SLUG}/plans/implementation-{NNN}.md`
+**Location**: `.claude/specs/{NNN}_{SLUG}/plans/implementation-{NNN}.md`
 
 ```markdown
 # Implementation Plan: Task #{N}
@@ -135,7 +148,7 @@ Add links as artifacts are created:
 
 ## Implementation Summaries
 
-**Location**: `.claude/specs/{N}_{SLUG}/summaries/implementation-summary-{DATE}.md`
+**Location**: `.claude/specs/{NNN}_{SLUG}/summaries/implementation-summary-{DATE}.md`
 
 ```markdown
 # Implementation Summary: Task #{N}
