@@ -1,5 +1,5 @@
 ---
-last_updated: 2026-01-10T21:45:00Z
+last_updated: 2026-01-10T22:00:00Z
 next_project_number: 5
 task_counts:
   active: 1
@@ -19,14 +19,16 @@ task_counts:
 
 ### 4. Reorganize Claude Code documentation to avoid redundancy
 - **Effort**: 1-2 hours
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Started**: 2026-01-10
 - **Researched**: 2026-01-10
+- **Planned**: 2026-01-10
 - **Priority**: Medium
 - **Language**: general
 - **Blocking**: None
 - **Dependencies**: None
 - **Research**: [.claude/specs/004_reorganize_claude_code_docs/reports/research-001.md]
+- **Plan**: [.claude/specs/004_reorganize_claude_code_docs/plans/implementation-001.md]
 
 **Description**: Review .claude/docs/guides/user-installation.md and Docs/installation/CLAUDE_CODE.md to avoid redundancy. Consider removing user-installation.md in preference of a revised CLAUDE_CODE.md with appropriate cross-links to docs in .claude/. Determine the best way to reorganize information between these files.
 
