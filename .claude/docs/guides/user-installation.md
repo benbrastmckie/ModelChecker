@@ -11,10 +11,11 @@ A quick-start guide for installing Claude Code and using it to set up ModelCheck
 This guide helps you:
 1. Install Claude Code (Anthropic's AI CLI)
 2. Use Claude Code to install ModelChecker
-3. Create and modify Logos projects
-4. Set up GitHub CLI for issue reporting
+3. Set up Claude agent commands (optional)
+4. Create and modify Logos projects
+5. Set up GitHub CLI for issue reporting
 
-**New to the terminal?** See [Getting Started: Using the Terminal](../../../Docs/installation/GETTING_STARTED.md#before-you-begin-using-the-terminal) first.
+**New to the terminal?** See [Getting Started: Using the Terminal](../../../Docs/installation/GETTING_STARTED.md) first.
 
 ---
 
@@ -22,7 +23,11 @@ This guide helps you:
 
 Claude Code is Anthropic's command-line interface for AI-assisted development.
 
+<!-- FIX: include a linke to claude-code official installation webpage -->
+
 ### Quick Installation
+
+<!-- FIX: what if the user doesn't have brew installed and doesn't know how to install this? provide brief instructions on how to install brew for mac, and similarly for windows if irm is something that one needs to have installed. -->
 
 **macOS:**
 ```bash
@@ -118,6 +123,61 @@ pip install model-checker[jupyter]
 ```bash
 model-checker --version
 ```
+
+---
+
+## Setting Up Claude Agent Commands (Optional)
+
+The ModelChecker repository includes an optional `.claude/` agent system that provides enhanced task management and workflow commands for Claude Code.
+
+### What the Agent System Provides
+
+- **Task Management**: Create, track, and archive development tasks
+- **Structured Workflow**: `/research` → `/plan` → `/implement` cycle
+- **Specialized Skills**: Language-specific agents for Python/Z3 development
+- **Context Files**: Domain knowledge for logic, semantics, and theorem proving
+- **State Persistence**: Track progress across Claude Code sessions
+
+### Installation
+
+To install the agent system, paste this URL into Claude Code:
+
+```
+https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/.claude/docs/guides/copy-claude-directory.md
+```
+
+Then give Claude this prompt:
+
+```
+Please read the instructions at the URL above and follow them to copy
+the .claude/ directory into my current working directory.
+```
+
+**Alternative**: Follow the instructions in the guide manually.
+
+### After Installation
+
+1. **Restart Claude Code** - Exit and restart for commands to be available
+2. **Test the setup** - Try creating a test task:
+   ```
+   /task "Test task"
+   ```
+3. **Learn the commands** - Read the full command reference:
+   ```
+   https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/.claude/docs/commands/README.md
+   ```
+
+### Available Commands
+
+| Command | Purpose |
+|---------|---------|
+| `/task` | Create and manage tasks |
+| `/research` | Conduct research on a task |
+| `/plan` | Create implementation plan |
+| `/implement` | Execute implementation |
+| `/todo` | Archive completed tasks |
+
+For complete documentation, see the [Commands Reference](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/.claude/docs/commands/README.md).
 
 ---
 
