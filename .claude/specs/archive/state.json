@@ -1,6 +1,78 @@
 {
   "_schema_version": "1.0.0",
   "_comment": "State tracking file for archived projects. Projects are moved here from specs/state.json when completed and archived.",
-  "_last_updated": "2026-01-09T02:30:00Z",
-  "archived_projects": []
+  "_last_updated": "2026-01-10T21:40:00Z",
+  "archived_projects": [
+    {
+      "project_number": 3,
+      "project_name": "update_docs_zero_padding_standard",
+      "directory": "003_update_docs_zero_padding_standard",
+      "status": "completed",
+      "language": "meta",
+      "priority": "low",
+      "effort": "30 minutes",
+      "created": "2026-01-10T21:15:00Z",
+      "last_updated": "2026-01-10T21:35:00Z",
+      "started": "2026-01-10",
+      "researched": "2026-01-10",
+      "planned": "2026-01-10",
+      "completed": "2026-01-10",
+      "archived": "2026-01-10",
+      "artifacts": [
+        ".claude/specs/003_update_docs_zero_padding_standard/reports/research-001.md",
+        ".claude/specs/003_update_docs_zero_padding_standard/plans/implementation-001.md",
+        ".claude/specs/003_update_docs_zero_padding_standard/summaries/implementation-summary-20260110.md"
+      ],
+      "plan_path": ".claude/specs/003_update_docs_zero_padding_standard/plans/implementation-001.md",
+      "plan_metadata": {
+        "plan_version": 1
+      }
+    },
+    {
+      "project_number": 2,
+      "project_name": "improve_metadata_system",
+      "directory": "002_improve_metadata_system",
+      "status": "completed",
+      "language": "meta",
+      "priority": "high",
+      "effort": "4-6 hours",
+      "created": "2026-01-10T19:00:00Z",
+      "last_updated": "2026-01-10T20:00:00Z",
+      "started": "2026-01-10",
+      "researched": "2026-01-10",
+      "planned": "2026-01-10",
+      "completed": "2026-01-10",
+      "archived": "2026-01-10",
+      "artifacts": [
+        ".claude/specs/002_improve_metadata_system/reports/research-001.md",
+        ".claude/specs/002_improve_metadata_system/plans/implementation-001.md",
+        ".claude/specs/002_improve_metadata_system/summaries/implementation-summary-20260110.md"
+      ],
+      "plan_path": ".claude/specs/002_improve_metadata_system/plans/implementation-001.md",
+      "plan_metadata": {
+        "plan_version": 1
+      }
+    },
+    {
+      "project_number": 1,
+      "project_name": "claude_directory_copy_instructions",
+      "directory": "001_claude_directory_copy_instructions",
+      "status": "completed",
+      "language": "general",
+      "priority": "high",
+      "effort": "2-3 hours",
+      "created": "2026-01-10T18:18:00Z",
+      "last_updated": "2026-01-10T18:45:00Z",
+      "started": "2026-01-10",
+      "researched": "2026-01-10",
+      "planned": "2026-01-10",
+      "completed": "2026-01-10",
+      "archived": "2026-01-10",
+      "artifacts": [
+        ".claude/specs/001_claude_directory_copy_instructions/reports/research-001.md",
+        ".claude/specs/001_claude_directory_copy_instructions/plans/implementation-001.md",
+        ".claude/specs/001_claude_directory_copy_instructions/summaries/implementation-summary-20260110.md"
+      ]
+    }
+  ]
 }
