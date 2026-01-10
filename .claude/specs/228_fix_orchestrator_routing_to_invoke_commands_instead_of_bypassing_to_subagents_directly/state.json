@@ -1,0 +1,25 @@
+{
+  "project_name": "fix_orchestrator_routing_to_invoke_commands_instead_of_bypassing_to_subagents_directly",
+  "project_number": 228,
+  "type": "bugfix",
+  "phase": "planning_completed",
+  "reports": [
+    {
+      "path": ".opencode/specs/228_fix_orchestrator_routing_to_invoke_commands_instead_of_bypassing_to_subagents_directly/reports/research-001.md",
+      "created": "2025-12-29T00:00:00Z",
+      "summary": "Root cause analysis: orchestrator bypasses command layer and directly invokes subagents, preventing command Stage 7 postflight from executing"
+    }
+  ],
+  "plans": [
+    {
+      "version": 1,
+      "path": ".opencode/specs/228_fix_orchestrator_routing_to_invoke_commands_instead_of_bypassing_to_subagents_directly/plans/implementation-001.md",
+      "created": "2025-12-29T00:00:00Z",
+      "summary": "6-phase implementation plan (4 hours): Refactor orchestrator to route to commands instead of subagents, enabling full 8-stage lifecycle execution"
+    }
+  ],
+  "summaries": [],
+  "status": "active",
+  "created": "2025-12-29T00:00:00Z",
+  "last_updated": "2025-12-29"
+}

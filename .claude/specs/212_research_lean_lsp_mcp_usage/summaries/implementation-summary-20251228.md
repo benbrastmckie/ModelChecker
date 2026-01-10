@@ -1,0 +1,3 @@
+# Implementation Summary: lean-lsp-mcp Usage Integration
+
+Implemented MCP client wrapper at .opencode/tool/mcp/ with check_mcp_server_configured and invoke_mcp_tool functions. Updated lean-implementation-agent.md step_4 with concrete MCP tool invocation patterns including iteration loop and error handling. Enhanced mcp-tools-guide.md with comprehensive agent integration section covering tool invocation examples and troubleshooting. Created integration tests verifying MCP client functionality. All phases completed successfully enabling real-time Lean compilation checking during implementation tasks.

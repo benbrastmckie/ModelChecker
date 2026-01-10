@@ -32,10 +32,11 @@ technical_debt:
 
 ### 349. Expand .claude/docs/ with Claude Code installation guide for new users
 - **Effort**: 4-6 hours
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Started**: 2026-01-10
 - **Researched**: 2026-01-10
 - **Planned**: 2026-01-10
+- **Implementing**: 2026-01-10
 - **Priority**: High
 - **Language**: general
 - **Blocking**: None
