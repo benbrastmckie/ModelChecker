@@ -1,0 +1,42 @@
+{
+  "project_name": "systematically_improve_commands_to_protect_context_window_and_eliminate_confirmation_prompts",
+  "project_number": 234,
+  "type": "enhancement",
+  "phase": "planning_completed",
+  "reports": [
+    {
+      "path": ".opencode/specs/234_systematically_improve_commands_to_protect_context_window_and_eliminate_confirmation_prompts/reports/research-001.md",
+      "type": "research_report",
+      "created": "2025-12-29",
+      "summary": "Command context window protection research completed - Found NO confirmation prompts, primary issue is context loaded too early (60-70% waste), fix is moving context loading from frontmatter to Stage 4 execution"
+    }
+  ],
+  "plans": [
+    {
+      "path": ".opencode/specs/234_systematically_improve_commands_to_protect_context_window_and_eliminate_confirmation_prompts/plans/implementation-001.md",
+      "version": 1,
+      "created": "2025-12-29",
+      "summary": "7-phase implementation plan (8 hours total) - Move context loading from frontmatter to Stage 4, update all 4 commands, add validation, testing, and documentation"
+    }
+  ],
+  "summaries": [],
+  "status": "planned",
+  "created": "2025-12-29T07:27:56Z",
+  "last_updated": "2025-12-29",
+  "plan_path": ".opencode/specs/234_systematically_improve_commands_to_protect_context_window_and_eliminate_confirmation_prompts/plans/implementation-001.md",
+  "plan_metadata": {
+    "phase_count": 7,
+    "estimated_hours": 8,
+    "complexity": "medium",
+    "extracted_from": "plans/implementation-001.md",
+    "extracted_at": "2025-12-29T07:27:56Z"
+  },
+  "plan_versions": [
+    {
+      "version": 1,
+      "path": ".opencode/specs/234_systematically_improve_commands_to_protect_context_window_and_eliminate_confirmation_prompts/plans/implementation-001.md",
+      "created": "2025-12-29T07:27:56Z",
+      "reason": "Initial implementation plan"
+    }
+  ]
+}

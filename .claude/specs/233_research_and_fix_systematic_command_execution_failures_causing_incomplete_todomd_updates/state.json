@@ -1,0 +1,16 @@
+{
+  "project_name": "research_and_fix_systematic_command_execution_failures_causing_incomplete_todomd_updates",
+  "project_number": 233,
+  "type": "bugfix",
+  "phase": "research_completed",
+  "reports": [
+    "reports/research-001.md"
+  ],
+  "plans": [],
+  "summaries": [],
+  "status": "researched",
+  "created": "2025-12-29T02:01:18Z",
+  "started": "2025-12-28",
+  "research_completed": "2025-12-29",
+  "last_updated": "2025-12-29"
+}

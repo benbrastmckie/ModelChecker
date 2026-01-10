@@ -1,0 +1,32 @@
+{
+  "type": "review",
+  "status": "completed",
+  "scope": "full",
+  "created": "2025-12-29T00:05:34Z",
+  "completed": "2025-12-29T00:05:34Z",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "summaries/review-summary.md",
+      "summary": "Review findings and recommendations"
+    }
+  ],
+  "metrics": {
+    "sorry_count": 6,
+    "axiom_count": 11,
+    "build_errors": 11,
+    "undocumented_tactics": 0,
+    "missing_features": 0,
+    "tasks_created": 0,
+    "test_files": 28,
+    "core_files": 32,
+    "test_coverage_percent": 87.5,
+    "documentation_files": 47
+  },
+  "registries_updated": [
+    "IMPLEMENTATION_STATUS",
+    "SORRY_REGISTRY",
+    "TACTIC_REGISTRY",
+    "FEATURE_REGISTRY"
+  ]
+}

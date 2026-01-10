@@ -1,0 +1,52 @@
+{
+  "project_name": "fix_systematic_command_stage_7_postflight_execution_failures",
+  "project_number": 231,
+  "type": "bugfix",
+  "phase": "implementation_completed",
+  "status": "completed",
+  "priority": "critical",
+  "language": "markdown",
+  "created": "2025-12-29T02:30:00Z",
+  "started": "2025-12-29",
+  "completed": "2025-12-29",
+  "last_updated": "2025-12-29",
+  "reports": [
+    ".opencode/specs/231_fix_systematic_command_stage_7_postflight_execution_failures/reports/research-001.md"
+  ],
+  "plans": [
+    ".opencode/specs/231_fix_systematic_command_stage_7_postflight_execution_failures/plans/implementation-001.md"
+  ],
+  "summaries": [
+    ".opencode/specs/231_fix_systematic_command_stage_7_postflight_execution_failures/summaries/implementation-summary-20251228.md"
+  ],
+  "plan_path": ".opencode/specs/231_fix_systematic_command_stage_7_postflight_execution_failures/plans/implementation-001.md",
+  "plan_metadata": {
+    "phase_count": 5,
+    "estimated_hours": 10,
+    "complexity": "medium"
+  },
+  "plan_versions": [
+    {
+      "version": 1,
+      "path": ".opencode/specs/231_fix_systematic_command_stage_7_postflight_execution_failures/plans/implementation-001.md",
+      "created": "2025-12-29T01:57:10Z",
+      "reason": "Initial implementation plan"
+    }
+  ],
+  "estimated_hours": 10.0,
+  "phases": 5,
+  "files_modified": [
+    ".opencode/command/plan.md",
+    ".opencode/command/research.md",
+    ".opencode/command/implement.md",
+    ".opencode/command/revise.md",
+    ".opencode/agent/orchestrator.md",
+    ".opencode/context/common/workflows/command-lifecycle.md"
+  ],
+  "supersedes": [
+    227,
+    228,
+    229
+  ],
+  "supersedes_reason": "Tasks 227, 228, 229 based on incorrect root cause (orchestrator bypass). Real issue is Stage 7 execution incompleteness within commands."
+}
