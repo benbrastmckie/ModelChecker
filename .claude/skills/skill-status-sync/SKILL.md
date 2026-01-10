@@ -69,16 +69,23 @@ If any write fails:
 
 ## Status Mapping
 
-| Operation | Old Status | New Status |
-|-----------|------------|------------|
-| Start research | not_started | researching |
-| Complete research | researching | researched |
-| Start planning | researched | planning |
-| Complete planning | planning | planned |
-| Start implement | planned | implementing |
-| Complete implement | implementing | completed |
-| Block task | any | blocked |
-| Abandon task | any | abandoned |
+| Operation | Old Status | New Status | Sets Timestamp |
+|-----------|------------|------------|----------------|
+| Start research | not_started | researching | `started` (if null) |
+| Complete research | researching | researched | `researched` |
+| Start planning | researched | planning | - |
+| Complete planning | planning | planned | `planned` |
+| Start implement | planned | implementing | - |
+| Complete implement | implementing | completed | `completed` |
+| Block task | any | blocked | - |
+| Abandon task | any | abandoned | - |
+
+### Timestamp Fields
+Lifecycle timestamps track when each phase completed:
+- `started`: ISO date (YYYY-MM-DD) when work began
+- `researched`: ISO date when research completed
+- `planned`: ISO date when planning completed
+- `completed`: ISO date when implementation completed
 
 ## Task Creation (Special Case)
 
@@ -113,9 +120,11 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   "project_number": N,
   "status": "new_status",
   "last_updated": "ISO_TIMESTAMP",
-  "artifacts": [
-    {"path": "...", "type": "research|plan|summary"}
-  ]
+  "started": "YYYY-MM-DD",
+  "researched": "YYYY-MM-DD",
+  "planned": "YYYY-MM-DD",
+  "completed": "YYYY-MM-DD",
+  "artifacts": ["path1", "path2"]
 }
 ```
 
@@ -123,8 +132,66 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
 ```markdown
 ### {N}. {Title}
 - **Status**: [{NEW_STATUS}]
+- **Started**: {YYYY-MM-DD}
+- **Researched**: {YYYY-MM-DD}
+- **Planned**: {YYYY-MM-DD}
+- **Completed**: {YYYY-MM-DD}
 - **{Artifact}**: [link](path)
 ```
+
+## Timestamp Update Patterns
+
+### Set Timestamp (state.json)
+```bash
+# Set a specific timestamp field
+jq --arg ts "$(date +%Y-%m-%d)" \
+  '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
+    "started": $ts,
+    "last_updated": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+  }' .claude/specs/state.json > /tmp/state.json && \
+  mv /tmp/state.json .claude/specs/state.json
+```
+
+### Set Timestamp (TODO.md)
+Use Edit tool to add/update timestamp line in task entry:
+```markdown
+- **Started**: 2026-01-10
+```
+
+### Add Artifact (state.json)
+```bash
+# Add artifact to artifacts array
+jq --arg path "$artifact_path" \
+  '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
+    "artifacts": ((.artifacts // []) + [$path]),
+    "last_updated": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"
+  }' .claude/specs/state.json > /tmp/state.json && \
+  mv /tmp/state.json .claude/specs/state.json
+```
+
+## Task Counts Management
+
+### Calculate task_counts
+```bash
+# Calculate counts from active_projects
+active=$(jq '[.active_projects[] | select(.status != "completed" and .status != "abandoned")] | length' .claude/specs/state.json)
+completed=$(jq '[.active_projects[] | select(.status == "completed")] | length' .claude/specs/state.json)
+in_progress=$(jq '[.active_projects[] | select(.status == "implementing" or .status == "researching" or .status == "planning")] | length' .claude/specs/state.json)
+```
+
+### Update TODO.md Frontmatter task_counts
+After calculating, update the frontmatter:
+```yaml
+task_counts:
+  active: {active}
+  completed: {completed}
+  in_progress: {in_progress}
+```
+
+### When to Update task_counts
+- After task creation (/task)
+- After task completion (/implement)
+- After task archival (/todo)
 
 ## Execution Flow
 

@@ -60,11 +60,18 @@ When $ARGUMENTS contains a description (no flags):
         "language": "detected",
         "priority": "medium",
         "created": $ts,
-        "last_updated": $ts
+        "last_updated": $ts,
+        "started": null,
+        "researched": null,
+        "planned": null,
+        "completed": null,
+        "artifacts": []
       }] + .active_projects' \
      .claude/specs/state.json > /tmp/state.json && \
      mv /tmp/state.json .claude/specs/state.json
    ```
+
+   **Note**: Initialize timestamp fields as null; they will be set by respective commands.
 
 7. **Update TODO.md** (TWO parts - frontmatter AND entry):
 
@@ -82,9 +89,14 @@ When $ARGUMENTS contains a description (no flags):
    - **Status**: [NOT STARTED]
    - **Priority**: {priority}
    - **Language**: {language}
+   - **Blocking**: None
+   - **Dependencies**: None
 
    **Description**: {description}
    ```
+
+   **Part C - Update task_counts** in frontmatter (if present):
+   Recalculate and update task_counts after adding new task.
 
    **CRITICAL**: Both state.json AND TODO.md frontmatter MUST have matching next_project_number values.
 

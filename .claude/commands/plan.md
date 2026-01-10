@@ -135,11 +135,17 @@ Write to `.claude/specs/{N}_{SLUG}/plans/implementation-{NNN}.md`:
 Update both files atomically:
 1. state.json:
    - status = "planned"
-   - plan_version = NNN
-   - artifacts += [{path, type: "plan"}]
+   - planned = today's date (YYYY-MM-DD)
+   - artifacts += [plan_path]
+   - plan_path = path to plan
+   - plan_metadata = {plan_version: NNN}
+   - last_updated = now
 2. TODO.md:
    - Status: [PLANNED]
+   - Planned: {date}
    - Add Plan link
+
+**Timestamp**: Set `planned` to today's date to record when planning completed.
 
 ### 7. Git Commit
 

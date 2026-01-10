@@ -23,11 +23,11 @@ This guide helps you:
 
 Claude Code is Anthropic's command-line interface for AI-assisted development.
 
-<!-- FIX: include a linke to claude-code official installation webpage -->
+<!-- [FIX]: include a linke to claude-code official installation webpage -->
 
 ### Quick Installation
 
-<!-- FIX: what if the user doesn't have brew installed and doesn't know how to install this? provide brief instructions on how to install brew for mac, and similarly for windows if irm is something that one needs to have installed. -->
+<!-- [FIX]: what if the user doesn't have brew installed and doesn't know how to install this? provide brief instructions on how to install brew for mac, and similarly for windows if irm is something that one needs to have installed. -->
 
 **macOS:**
 ```bash

@@ -38,8 +38,10 @@ Allowed statuses: not_started, planned, partial, blocked
 ### 3. Update Status to RESEARCHING
 
 Update both files atomically:
-1. state.json: status = "researching"
-2. TODO.md: Status: [RESEARCHING]
+1. state.json: status = "researching", set `started` if null
+2. TODO.md: Status: [RESEARCHING], add Started: {date} if not present
+
+**Timestamp**: If this is the first work on the task (status was not_started), set `started` to today's date.
 
 ### 4. Route by Language
 
@@ -121,10 +123,15 @@ Write report to `.claude/specs/{N}_{SLUG}/reports/research-{NNN}.md`:
 Update both files atomically:
 1. state.json:
    - status = "researched"
-   - artifacts = [{path, type: "research"}]
+   - researched = today's date (YYYY-MM-DD)
+   - artifacts += [artifact_path]
+   - last_updated = now
 2. TODO.md:
    - Status: [RESEARCHED]
+   - Researched: {date}
    - Add Research link
+
+**Timestamp**: Set `researched` to today's date to record when research completed.
 
 ### 7. Git Commit
 
