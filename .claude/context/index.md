@@ -179,6 +179,15 @@ Load for: Proof theory tasks
 - **proof-theory-concepts.md** - Proof theory foundations
 - **task-semantics.md** - Task-based semantics
 
+### ModelChecker Context (project/modelchecker/)
+
+Load for: ModelChecker-specific assistance (installation, theories, Z3)
+
+- **installation.md** - Installation commands, documentation paths, troubleshooting
+- **architecture.md** - System architecture overview
+- **theories.md** - Semantic theory library documentation
+- **z3-patterns.md** - Z3 solver patterns
+
 ### Repo Context (project/repo/)
 
 Load for: General markdown/documentation tasks (Language: markdown)
@@ -340,11 +349,13 @@ Language-specific:
 
 ## Quick Navigation
 
-**For Delegation**: → `core/standards/delegation.md`  
-**For State Management**: → `core/system/state-management.md`  
-**For Artifacts**: → `core/system/artifact-management.md`  
-**For Git Commits**: → `core/system/git-commits.md`  
-**For Task Format**: → `core/standards/tasks.md`  
-**For Plan Format**: → `core/standards/plan.md`  
-**For Lean Style**: → `project/lean4/standards/lean4-style-guide.md`  
+**For Delegation**: → `core/standards/delegation.md`
+**For State Management**: → `core/system/state-management.md`
+**For Artifacts**: → `core/system/artifact-management.md`
+**For Git Commits**: → `core/system/git-commits.md`
+**For Task Format**: → `core/standards/tasks.md`
+**For Plan Format**: → `core/standards/plan.md`
+**For Installation Help**: → `project/modelchecker/installation.md`
+**For Z3 Patterns**: → `project/modelchecker/z3-patterns.md`
+**For Lean Style**: → `project/lean4/standards/lean4-style-guide.md`
 **For Proof Conventions**: → `project/logic/standards/proof-conventions.md`
