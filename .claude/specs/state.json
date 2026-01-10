@@ -19,17 +19,19 @@
       "project_number": 4,
       "project_name": "reorganize_claude_code_docs",
       "directory": "004_reorganize_claude_code_docs",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "priority": "medium",
       "effort": "1-2 hours",
       "created": "2026-01-10T21:45:00Z",
-      "last_updated": "2026-01-10T21:45:00Z",
-      "started": null,
-      "researched": null,
+      "last_updated": "2026-01-10T21:55:00Z",
+      "started": "2026-01-10",
+      "researched": "2026-01-10",
       "planned": null,
       "completed": null,
-      "artifacts": []
+      "artifacts": [
+        ".claude/specs/004_reorganize_claude_code_docs/reports/research-001.md"
+      ]
     }
   ]
 }
