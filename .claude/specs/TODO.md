@@ -1,8 +1,8 @@
 ---
 last_updated: 2026-01-10T20:00:00Z
-next_project_number: 3
+next_project_number: 4
 task_counts:
-  active: 0
+  active: 1
   completed: 2
   in_progress: 0
 ---
@@ -71,5 +71,19 @@ task_counts:
 ---
 
 ## Low Priority
+
+### 3. Update documentation for zero-padding standard
+- **Effort**: 30 minutes
+- **Status**: [NOT STARTED]
+- **Priority**: Low
+- **Language**: meta
+- **Blocking**: None
+- **Dependencies**: None
+
+**Description**: Update relevant documentation or context files to enforce the zero-padded directory naming standard (003_slug format) without bloating documentation or over-representing the issue. Add minimal references where needed.
+
+**Files Affected**:
+- .claude/CLAUDE.md (if task artifact paths mentioned)
+- Other context files as needed
 
 ---
