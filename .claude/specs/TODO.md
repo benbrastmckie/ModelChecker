@@ -24,9 +24,9 @@ task_counts:
 - **Blocking**: None
 - **Dependencies**: None
 - **Research**: [.claude/specs/005_fix_task_command_implementation_bug/reports/research-001.md]
-- **Plan**: [.claude/specs/005_fix_task_command_implementation_bug/plans/implementation-001.md]
+- **Plan**: [.claude/specs/005_fix_task_command_implementation_bug/plans/implementation-002.md] (v2)
 
-**Description**: Fix the /task command which interprets task descriptions as instructions to execute rather than text to record. Apply the solution from .claude/specs/task-command-implementation-bug.md: (1) Restrict allowed-tools to only .claude/specs/* paths, (2) Add prominent "CRITICAL" section explaining $ARGUMENTS is a DESCRIPTION to record, not instructions to execute, (3) Strengthen Constraints section with HARD STOP and explicit forbidden actions list.
+**Description**: Fix the /task command which interprets task descriptions as instructions to execute rather than text to record. Expanded scope: verify alignment across ModelChecker, ProofChecker (reference), and Global config (~/.config/.claude). Also addresses global config task #11.
 
 **Files Affected**:
 - .claude/commands/task.md
