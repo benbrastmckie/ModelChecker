@@ -32,9 +32,10 @@ technical_debt:
 
 ### 349. Expand .claude/docs/ with Claude Code installation guide for new users
 - **Effort**: 4-6 hours
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Started**: 2026-01-10
 - **Researched**: 2026-01-10
+- **Planned**: 2026-01-10
 - **Priority**: High
 - **Language**: general
 - **Blocking**: None
@@ -42,6 +43,9 @@ technical_debt:
 
 **Research Artifacts**:
   - Research Report: [.claude/specs/349_claude_code_user_installation_guide/reports/research-001.md]
+
+**Plan Artifacts**:
+  - Implementation Plan: [.claude/specs/349_claude_code_user_installation_guide/plans/implementation-001.md]
 
 **Description**: Expand the documentation in .claude/docs/ to include an installation guide which explains to users new to the terminal how to install Claude Code and then use Claude Code to pip install the model-checker, create and modify example Logos projects, and manage their work. The guide should:
 
