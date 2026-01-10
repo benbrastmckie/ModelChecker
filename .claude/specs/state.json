@@ -2,7 +2,7 @@
   "_schema_version": "1.1.0",
   "_comment": "Main state tracking file for ProofChecker .opencode system. Auto-created with self-healing on 2025-12-27. Links to specialized state files for archives and maintenance.",
   "_last_updated": "2026-01-08T00:00:00Z",
-  "next_project_number": 351,
+  "next_project_number": 352,
   "project_numbering": {
     "min": 0,
     "max": 999,
@@ -15,6 +15,28 @@
     "_comment": "References to specialized state files. These files are auto-created if missing."
   },
   "active_projects": [
+    {
+      "project_number": 351,
+      "project_name": "claude_directory_copy_instructions",
+      "status": "not_started",
+      "language": "general",
+      "priority": "high",
+      "created": "2026-01-10T18:18:16Z",
+      "last_updated": "2026-01-10T18:18:16Z"
+    },
+    {
+      "project_number": 351,
+      "project_name": "create_pull_request_documentation",
+      "type": "documentation",
+      "phase": "not_started",
+      "status": "not_started",
+      "priority": "medium",
+      "language": "general",
+      "created": "2026-01-10T14:38:54Z",
+      "last_updated": "2026-01-10T14:38:54Z",
+      "effort": "3-4 hours",
+      "description": "Create PULL_REQUEST.md with gh CLI PR workflow, rename GIT_GOING.md to USING_GIT.md, update crosslinks"
+    },
     {
       "project_number": 350,
       "project_name": "improve_getting_started_terminal_setup",
