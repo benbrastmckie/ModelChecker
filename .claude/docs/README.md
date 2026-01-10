@@ -22,6 +22,7 @@ This documentation provides comprehensive coverage of the `.claude/` agent syste
 │   ├── task-lifecycle.md       # Task state machine
 │   └── implementation-cycle.md # Research → Plan → Implement
 ├── guides/                      # How-to guides
+│   ├── user-installation.md    # Quick-start for new users
 │   ├── creating-commands.md    # How to create commands
 │   ├── creating-skills.md      # How to create skills
 │   └── context-management.md   # Context loading patterns
@@ -333,6 +334,11 @@ theory_lib/{theory}/
 ---
 
 ## Related Documentation
+
+### For New Users
+- [User Installation Guide](guides/user-installation.md) - Quick-start for Claude Code and ModelChecker
+- [Docs/installation/](../../Docs/installation/) - Comprehensive installation documentation
+- [Docs/installation/CLAUDE_CODE.md](../../Docs/installation/CLAUDE_CODE.md) - Full Claude Code guide
 
 ### System Architecture
 - [ARCHITECTURE.md](../ARCHITECTURE.md) - Detailed system architecture
