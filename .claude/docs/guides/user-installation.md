@@ -23,18 +23,25 @@ This guide helps you:
 
 Claude Code is Anthropic's command-line interface for AI-assisted development.
 
-<!-- [FIX]: include a linke to claude-code official installation webpage -->
+For official documentation, see: https://docs.anthropic.com/en/docs/claude-code
 
 ### Quick Installation
 
-<!-- [FIX]: what if the user doesn't have brew installed and doesn't know how to install this? provide brief instructions on how to install brew for mac, and similarly for windows if irm is something that one needs to have installed. -->
-
 **macOS:**
+
+Requires [Homebrew](https://brew.sh/). If not installed, run first:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Then install Claude Code:
 ```bash
 brew install anthropics/claude/claude-code
 ```
 
 **Windows (PowerShell as Administrator):**
+
+The `irm` command is built into PowerShell (no additional installation needed):
 ```powershell
 irm https://raw.githubusercontent.com/anthropics/claude-code/main/install.ps1 | iex
 ```
