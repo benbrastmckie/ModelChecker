@@ -1,6 +1,6 @@
 # Semantics: From Strings to Z3 Constraints
 
-[← Syntax Pipeline](SYNTAX.md) | [Back to Architecture](README.md) | [Model Finding →](MODELS.md)
+[← Syntax Pipeline](SYNTACTIC.md) | [Back to Architecture](README.md) | [Model Finding →](MODELS.md)
 
 ## Table of Contents
 
@@ -56,7 +56,7 @@ Key architectural insights:
 - **Settings-Driven Behavior**: Runtime configuration controls semantic properties without code changes
 - **Modular Operators**: New logical connectives integrate through a consistent interface
 
-For the parsing stage that precedes semantic interpretation, see [Syntax Pipeline](SYNTAX.md). For how generated constraints are solved, see [Model Finding](MODELS.md).
+For the parsing stage that precedes semantic interpretation, see [Syntax Pipeline](SYNTACTIC.md). For how generated constraints are solved, see [Model Finding](MODELS.md). For practical constraint testing techniques, see [Testing Semantic Constraints](../usage/SEMANTICS.md).
 
 ## Semantic Pipeline Overview
 
