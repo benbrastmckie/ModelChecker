@@ -523,7 +523,7 @@ Each theory has unique operators and capabilities:
 
 - [Installation Guide](INSTALLATION.md) - Platform-specific setup
 - [Claude Code Guide](CLAUDE_CODE.md) - AI-assisted development and installation
-- [Getting Started with GitHub](GIT_GOING.md) - Version control basics and GitHub setup
+- [Getting Started with GitHub](USING_GIT.md) - Version control basics and GitHub setup
 - [Development Guide](DEVELOPMENT.md) - Contributing to ModelChecker
 - [Tools Guide](TOOLS.md) - Advanced debugging and analysis
 - [Architecture](architecture/README.md) - Research approach and validation

@@ -31,7 +31,7 @@ Before installing Claude Code, you'll need the following:
   - See [Setting Up Your Editor](GETTING_STARTED.md#setting-up-your-editor) for recommended options (VSCodium for beginners, NeoVim for advanced users)
 
 - **Git** - For version control and collaboration. Git tracks changes to your files, enables collaboration, and integrates with GitHub for issue tracking and pull requests.
-  - New to Git/GitHub? See [Getting Started with GitHub](GIT_GOING.md)
+  - New to Git/GitHub? See [Getting Started with GitHub](USING_GIT.md)
 
 ---
 
@@ -255,7 +255,7 @@ Claude will:
 3. Push to remote
 4. Create PR using `gh pr create`
 
-For comprehensive Git/GitHub workflows, see [Getting Started with GitHub](GIT_GOING.md).
+For comprehensive Git/GitHub workflows, see [Getting Started with GitHub](USING_GIT.md).
 
 ---
 
@@ -310,7 +310,7 @@ gh repo view benbrastmckie/ModelChecker  # Test access
 ## 7. Next Steps
 
 - **[Getting Started](GETTING_STARTED.md)** - Using ModelChecker
-- **[Getting Started with GitHub](GIT_GOING.md)** - Git/GitHub workflows
+- **[Getting Started with GitHub](USING_GIT.md)** - Git/GitHub workflows
 - **[Basic Installation](BASIC_INSTALLATION.md)** - Manual installation
 - **[Developer Setup](DEVELOPER_SETUP.md)** - Contributing to ModelChecker
 - **[Agent System Docs](../../.claude/docs/README.md)** - Full command reference

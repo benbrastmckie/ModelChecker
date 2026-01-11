@@ -1,6 +1,6 @@
 # Version Control Standards for Documentation
 
-[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)
+[← Back to Maintenance](README.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)
 
 ## Overview
 
@@ -311,6 +311,10 @@ grep -r ":[a-z_]+:" docs/  # Should return nothing
 grep -r "[∧∨¬□◇]" docs/
 ```
 
+## See Also
+
+- **[Using Git](../installation/USING_GIT.md)** - Practical Git commands and GitHub workflow tutorial
+
 ---
 
-[← Back to Maintenance](README.md) | [Unicode Guidelines →](UNICODE_GUIDELINES.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)
+[← Back to Maintenance](README.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)

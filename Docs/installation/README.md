@@ -7,13 +7,15 @@
 ```
 installation/
 ├── README.md                       # This file - installation documentation hub
-├── CLAUDE_CODE.md                  # AI-assisted installation with Claude Code
 ├── BASIC_INSTALLATION.md           # Standard pip installation guide
 ├── GETTING_STARTED.md              # First steps after installation
 ├── TROUBLESHOOTING.md              # Platform-specific troubleshooting
 ├── VIRTUAL_ENVIRONMENTS.md         # Virtual environment setup guide
 ├── JUPYTER_SETUP.md                # Jupyter notebook configuration
-└── DEVELOPER_SETUP.md              # Development environment setup
+├── DEVELOPER_SETUP.md              # Development environment setup
+├── USING_GIT.md                    # Git tutorial and GitHub workflow
+├── CLAUDE_CODE.md                  # AI-assisted installation with Claude Code
+└── CLAUDE_TEMPLATE.md              # Claude Code project templates
 ```
 
 ## Overview
@@ -77,13 +79,15 @@ This directory contains only installation guide files (no subdirectories). Each 
 
 ### Installation Guides
 
-- **[CLAUDE_CODE.md](CLAUDE_CODE.md)** - AI-assisted installation using Claude Code CLI - recommended for beginners and automated setup with GitHub integration
 - **[BASIC_INSTALLATION.md](BASIC_INSTALLATION.md)** - Standard pip installation for most users, including prerequisites, installation options, and Python setup
 - **[GETTING_STARTED.md](GETTING_STARTED.md)** - First steps after installation, including creating examples, understanding output, and common workflows
 - **[TROUBLESHOOTING.md](TROUBLESHOOTING.md)** - Solutions for platform-specific issues, common errors, and debugging installation problems
 - **[VIRTUAL_ENVIRONMENTS.md](VIRTUAL_ENVIRONMENTS.md)** - Creating isolated Python environments for clean installations and project management
 - **[JUPYTER_SETUP.md](JUPYTER_SETUP.md)** - Configuring Jupyter notebooks with widgets for interactive ModelChecker development
 - **[DEVELOPER_SETUP.md](DEVELOPER_SETUP.md)** - Complete development environment with editable installs, testing setup, and contribution preparation
+- **[USING_GIT.md](USING_GIT.md)** - Git tutorial and GitHub workflow for version control beginners
+- **[CLAUDE_CODE.md](CLAUDE_CODE.md)** - AI-assisted installation using Claude Code CLI - recommended for beginners and automated setup with GitHub integration
+- **[CLAUDE_TEMPLATE.md](CLAUDE_TEMPLATE.md)** - Project templates for Claude Code users
 
 ## Documentation
 

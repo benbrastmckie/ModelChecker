@@ -15,7 +15,7 @@ Docs/
 │   ├── VIRTUAL_ENVIRONMENTS.md     # Virtual environment setup
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
 │   ├── DEVELOPER_SETUP.md          # Development environment setup
-│   ├── GIT_GOING.md                # Git tutorial and workflow
+│   ├── USING_GIT.md                # Git tutorial and workflow
 │   ├── CLAUDE_CODE.md              # AI-assisted development
 │   └── CLAUDE_TEMPLATE.md          # Claude Code templates
 ├── architecture/                   # Programmatic semantics framework
