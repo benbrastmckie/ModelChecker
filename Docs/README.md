@@ -14,20 +14,33 @@ Docs/
 │   ├── TROUBLESHOOTING.md          # Platform-specific solutions
 │   ├── VIRTUAL_ENVIRONMENTS.md     # Virtual environment setup
 │   ├── JUPYTER_SETUP.md            # Jupyter notebook configuration
-│   └── DEVELOPER_SETUP.md          # Development environment setup
+│   ├── DEVELOPER_SETUP.md          # Development environment setup
+│   ├── GIT_GOING.md                # Git tutorial and workflow
+│   ├── CLAUDE_CODE.md              # AI-assisted development
+│   └── CLAUDE_TEMPLATE.md          # Claude Code templates
 ├── architecture/                   # Programmatic semantics framework
 │   ├── README.md                   # Architecture documentation hub
 │   ├── PIPELINE.md                 # System design and integration
 │   ├── BUILDER.md                  # Pipeline orchestration
-│   ├── SYNTAX.md                   # AST conversion pipeline
+│   ├── SYNTACTIC.md                # AST conversion pipeline
 │   ├── SEMANTICS.md                # Constraint generation
 │   ├── MODELS.md                   # SMT solving and interpretation
-│   └── ITERATOR.md                 # Model iteration system
+│   ├── ITERATE.md                  # Model iteration system
+│   ├── SETTINGS.md                 # Configuration hierarchy
+│   ├── OUTPUT.md                   # Output generation
+│   ├── THEORY_LIB.md               # Theory framework
+│   ├── JUPYTER.md                  # Interactive tools
+│   └── UTILS.md                    # Shared utilities
 ├── usage/                          # Practical usage guides
 │   ├── README.md                   # Usage documentation hub
 │   ├── WORKFLOW.md                 # Comprehensive workflows
-│   ├── TOOLS.md                    # Advanced tools and theory comparison
-│   └── SEMANTICS.md              # Testing semantic constraints
+│   ├── PROJECT.md                  # Project setup guide
+│   ├── EXAMPLES.md                 # Example file structure
+│   ├── SETTINGS.md                 # Settings configuration
+│   ├── OPERATORS.md                # Operator definitions
+│   ├── SEMANTICS.md                # Testing semantic constraints
+│   ├── OUTPUT.md                   # Output formats
+│   └── TOOLS.md                    # Advanced tools and comparison
 ├── theory/                         # Theoretical foundations
 │   ├── README.md                   # Theory documentation hub
 │   ├── HYPERINTENSIONAL.md         # Hyperintensional logic
@@ -37,13 +50,6 @@ Docs/
 └── maintenance/                    # Standards and best practices
     ├── README.md                   # Maintenance documentation hub
     ├── AUDIENCE.md                 # Audience guidelines
-    ├── CODE_ORGANIZATION.md        # Code structure guidelines
-    ├── ERROR_HANDLING.md           # Error handling patterns
-    ├── EXAMPLES_STRUCTURE.md       # Example file standards
-    ├── FORMULA_FORMATTING.md       # Formula notation conventions
-    ├── PERFORMANCE.md              # Performance optimization
-    ├── TESTING_STANDARDS.md        # Testing requirements
-    ├── UNICODE_GUIDELINES.md       # Unicode character usage
     ├── VERSION_CONTROL.md          # Git best practices
     ├── quality/                    # Documentation quality control
     │   ├── README.md               # Quality standards hub

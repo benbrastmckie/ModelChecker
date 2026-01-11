@@ -8,13 +8,6 @@
 maintenance/
 ├── README.md                       # This file - documentation maintenance hub
 ├── AUDIENCE.md                     # Documentation audience and accessibility goals
-├── CODE_ORGANIZATION.md            # Code structure and organization guidelines
-├── ERROR_HANDLING.md               # Error handling patterns and standards
-├── EXAMPLES_STRUCTURE.md           # Example file formatting standards
-├── FORMULA_FORMATTING.md           # Mathematical notation conventions
-├── PERFORMANCE.md                  # Performance optimization guidelines
-├── TESTING_STANDARDS.md            # Testing requirements and standards
-├── UNICODE_GUIDELINES.md           # Unicode character usage guidelines
 ├── VERSION_CONTROL.md              # Git workflow for documentation changes
 ├── quality/                        # Documentation quality control standards
 │   ├── README.md                   # Quality standards hub
@@ -27,6 +20,8 @@ maintenance/
     ├── THEORY_README.md            # Theory documentation template
     └── SUBTHEORY_README.md         # Subtheory documentation template
 ```
+
+**Note**: For code-specific standards (code organization, error handling, testing, performance), see [Code/docs/](../../Code/docs/README.md).
 
 ## Overview
 
@@ -117,13 +112,14 @@ By the end of this tutorial, you will:
 - **[Theory Template](templates/THEORY_README.md)** - Semantic theory documentation template
 
 ### For Code Quality Standards
-- **[Code Organization](CODE_ORGANIZATION.md)** - Code structure and organization guidelines
-- **[Testing Standards](TESTING_STANDARDS.md)** - Testing requirements and quality assurance
-- **[Performance Standards](PERFORMANCE.md)** - Performance optimization guidelines
+
+See [Code/docs/](../../Code/docs/README.md) for code-specific standards including:
+- Code organization and structure
+- Testing requirements and quality assurance
+- Performance optimization guidelines
 
 ### For Documentation Maintenance
 - **[Version Control](VERSION_CONTROL.md)** - Git workflow for documentation
-- **[Unicode Guidelines](UNICODE_GUIDELINES.md)** - Mathematical symbols and character usage
 - **[Continuous Improvement](quality/CONTINUOUS_IMPROVEMENT.md)** - Quality enhancement processes
 
 ## Key Features
@@ -191,7 +187,7 @@ in all states reachable from the current state.
 ### Documentation Resources
 - **[Installation Guides](../installation/README.md)** - Setup documentation
 - **[Architecture](../architecture/README.md)** - Research approaches
-- **[Theory Explanations](../theories/README.md)** - Conceptual guides
+- **[Theory Explanations](../theory/README.md)** - Conceptual guides
 
 ---
 
