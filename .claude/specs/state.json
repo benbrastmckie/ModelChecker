@@ -19,17 +19,19 @@
       "project_number": 9,
       "project_name": "refactor_claude_code_documentation",
       "directory": "009_refactor_claude_code_documentation",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "priority": "medium",
       "effort": "1-2 hours",
       "created": "2026-01-11T00:59:37Z",
-      "last_updated": "2026-01-11T00:59:37Z",
-      "started": null,
-      "researched": null,
+      "last_updated": "2026-01-11T01:03:53Z",
+      "started": "2026-01-11",
+      "researched": "2026-01-11",
       "planned": null,
       "completed": null,
-      "artifacts": []
+      "artifacts": [
+        ".claude/specs/009_refactor_claude_code_documentation/reports/research-001.md"
+      ]
     },
     {
       "project_number": 8,

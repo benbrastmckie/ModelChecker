@@ -38,11 +38,14 @@ task_counts:
 
 ### 9. Refactor CLAUDE_CODE.md documentation
 - **Effort**: 1-2 hours
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Started**: 2026-01-11
+- **Researched**: 2026-01-11
 - **Priority**: Medium
 - **Language**: general
 - **Blocking**: None
 - **Dependencies**: None
+- **Research**: [.claude/specs/009_refactor_claude_code_documentation/reports/research-001.md]
 
 **Description**: Refactor Docs/installation/CLAUDE_CODE.md to provide a clear, concise guide: (1) install model-checker and test an example, (2) copy .claude/ directory via GitHub path, (3) link to .claude/docs/README.md for agent system, (4) install/use gh CLI for issues and PRs. Include appropriate examples without overwhelming. Cross-link to GETTING_STARTED.md, GIT_GOING.md, and other relevant docs.
 
