@@ -19,37 +19,43 @@
       "project_number": 9,
       "project_name": "refactor_claude_code_documentation",
       "directory": "009_refactor_claude_code_documentation",
-      "status": "planning",
+      "status": "planned",
       "language": "general",
       "priority": "medium",
       "effort": "1-2 hours",
       "created": "2026-01-11T00:59:37Z",
-      "last_updated": "2026-01-11T01:06:51Z",
+      "last_updated": "2026-01-11T01:07:48Z",
       "started": "2026-01-11",
       "researched": "2026-01-11",
-      "planned": null,
+      "planned": "2026-01-11",
       "completed": null,
       "artifacts": [
-        ".claude/specs/009_refactor_claude_code_documentation/reports/research-001.md"
-      ]
+        ".claude/specs/009_refactor_claude_code_documentation/reports/research-001.md",
+        ".claude/specs/009_refactor_claude_code_documentation/plans/implementation-001.md"
+      ],
+      "plan_path": ".claude/specs/009_refactor_claude_code_documentation/plans/implementation-001.md",
+      "plan_metadata": {
+        "plan_version": 1
+      }
     },
     {
       "project_number": 8,
       "project_name": "fix_skill_context_loading",
       "directory": "008_fix_skill_context_loading",
-      "status": "implementing",
+      "status": "completed",
       "language": "meta",
       "priority": "medium",
       "effort": "30 minutes",
       "created": "2026-01-11T00:45:21Z",
-      "last_updated": "2026-01-11T01:06:25Z",
+      "last_updated": "2026-01-11T01:07:35Z",
       "started": "2026-01-10",
       "researched": "2026-01-10",
       "planned": "2026-01-10",
-      "completed": null,
+      "completed": "2026-01-10",
       "artifacts": [
         ".claude/specs/008_fix_skill_context_loading/reports/research-001.md",
-        ".claude/specs/008_fix_skill_context_loading/plans/implementation-001.md"
+        ".claude/specs/008_fix_skill_context_loading/plans/implementation-001.md",
+        ".claude/specs/008_fix_skill_context_loading/summaries/implementation-summary-20260111.md"
       ],
       "plan_path": ".claude/specs/008_fix_skill_context_loading/plans/implementation-001.md",
       "plan_metadata": {
