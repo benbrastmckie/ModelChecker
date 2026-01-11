@@ -50,14 +50,16 @@ task_counts:
 
 ### 6. Create model-checker researcher skill
 - **Effort**: 2-4 hours
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Started**: 2026-01-11
 - **Researched**: 2026-01-11
+- **Planned**: 2026-01-11
 - **Priority**: Medium
 - **Language**: meta
 - **Blocking**: None
 - **Dependencies**: None
 - **Research**: [.claude/specs/006_model_checker_skill/reports/research-001.md]
+- **Plan**: [.claude/specs/006_model_checker_skill/plans/implementation-001.md]
 
 **Description**: Research the model-checker usage patterns carefully in order to create a skill that is geared for using the model-checker in all of the standard ways, including defining new operators, adjusting frame constraints, running tests, and reporting findings in order to help researchers streamline their work with the model-checker using claude code to facilitate everything.
 

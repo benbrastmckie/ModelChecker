@@ -1,7 +1,7 @@
 {
   "_schema_version": "1.1.0",
   "_comment": "Main state tracking file for ModelChecker .claude system. Manages task lifecycle for Python/Z3 semantic theory development.",
-  "_last_updated": "2026-01-10T21:45:00Z",
+  "_last_updated": "2026-01-11T01:35:00Z",
   "next_project_number": 8,
   "project_numbering": {
     "min": 0,
@@ -35,19 +35,24 @@
       "project_number": 6,
       "project_name": "model_checker_skill",
       "directory": "006_model_checker_skill",
-      "status": "researched",
+      "status": "planned",
       "language": "meta",
       "priority": "medium",
       "effort": "2-4 hours",
       "created": "2026-01-11T00:08:24Z",
-      "last_updated": "2026-01-11T00:12:34Z",
+      "last_updated": "2026-01-11T01:35:00Z",
       "started": "2026-01-10",
       "researched": "2026-01-10",
-      "planned": null,
+      "planned": "2026-01-10",
       "completed": null,
       "artifacts": [
-        ".claude/specs/006_model_checker_skill/reports/research-001.md"
-      ]
+        ".claude/specs/006_model_checker_skill/reports/research-001.md",
+        ".claude/specs/006_model_checker_skill/plans/implementation-001.md"
+      ],
+      "plan_path": ".claude/specs/006_model_checker_skill/plans/implementation-001.md",
+      "plan_metadata": {
+        "plan_version": 1
+      }
     },
     {
       "project_number": 5,
