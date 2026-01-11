@@ -53,7 +53,7 @@ task_counts:
 
 ### 8. Fix skill context loading in model-checker skill
 - **Effort**: 30 minutes
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Started**: 2026-01-11
 - **Researched**: 2026-01-11
 - **Planned**: 2026-01-11
