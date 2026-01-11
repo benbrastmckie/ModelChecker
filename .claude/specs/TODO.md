@@ -15,7 +15,7 @@ task_counts:
 
 ### 5. Fix /task command implementation bug
 - **Effort**: 30 minutes
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Started**: 2026-01-11
 - **Researched**: 2026-01-11
 - **Planned**: 2026-01-11
