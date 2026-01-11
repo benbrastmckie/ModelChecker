@@ -28,7 +28,7 @@ task_counts:
 - **Blocking**: None
 - **Dependencies**: None
 - **Research**: [.claude/specs/010_docs_documentation_review_refactor/reports/research-010.md]
-- **Plan**: [.claude/specs/010_docs_documentation_review_refactor/plans/implementation-010.md]
+- **Plan**: [.claude/specs/010_docs_documentation_review_refactor/plans/implementation-002.md]
 
 **Description**: Systematically review and refactor the /home/benjamin/Projects/ModelChecker/Docs/ documentation to be clear, concise, well-organized, avoiding redundancy, bloat, or critical gaps.
 

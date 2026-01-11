@@ -23,18 +23,19 @@
       "language": "general",
       "priority": "medium",
       "created": "2026-01-11T01:31:43Z",
-      "last_updated": "2026-01-11T01:58:17Z",
+      "last_updated": "2026-01-11T02:10:46Z",
       "started": "2026-01-11",
       "researched": "2026-01-11",
       "planned": "2026-01-11",
       "completed": null,
       "artifacts": [
         ".claude/specs/010_docs_documentation_review_refactor/reports/research-010.md",
-        ".claude/specs/010_docs_documentation_review_refactor/plans/implementation-010.md"
+        ".claude/specs/010_docs_documentation_review_refactor/plans/implementation-010.md",
+        ".claude/specs/010_docs_documentation_review_refactor/plans/implementation-002.md"
       ],
-      "plan_path": ".claude/specs/010_docs_documentation_review_refactor/plans/implementation-010.md",
+      "plan_path": ".claude/specs/010_docs_documentation_review_refactor/plans/implementation-002.md",
       "plan_metadata": {
-        "plan_version": 1
+        "plan_version": 2
       }
     }
   ]
