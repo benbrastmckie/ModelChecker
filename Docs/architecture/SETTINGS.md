@@ -6,6 +6,8 @@
 
 The settings management system provides a sophisticated configuration hierarchy that allows fine-grained control over ModelChecker behavior while maintaining sensible defaults. Settings can be specified at multiple levels with clear precedence rules, enabling both simple usage and advanced customization.
 
+**For practical configuration**: See the [Settings Configuration Guide](../usage/SETTINGS.md) for how to configure settings in your example files and command-line usage.
+
 ## Settings Hierarchy
 
 The ModelChecker uses a five-level settings hierarchy with clear precedence:
