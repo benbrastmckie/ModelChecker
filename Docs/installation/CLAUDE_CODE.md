@@ -313,7 +313,7 @@ gh repo view benbrastmckie/ModelChecker  # Test access
 - **[Getting Started with GitHub](USING_GIT.md)** - Git/GitHub workflows
 - **[Basic Installation](BASIC_INSTALLATION.md)** - Manual installation
 - **[Developer Setup](DEVELOPER_SETUP.md)** - Contributing to ModelChecker
-- **[Agent System Docs](../../.claude/docs/README.md)** - Full command reference
+- **[Claude Code Template](CLAUDE_TEMPLATE.md)** - Project template for your own ModelChecker projects
 
 ### Additional Resources
 
