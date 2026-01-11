@@ -25,6 +25,8 @@
 
 The Output Management subsystem provides a clean, simple framework for generating model checking results in multiple formats. The architecture uses a single boolean flag to control whether results are saved in batch mode (all at once) or sequential mode (with user prompts).
 
+**For practical usage**: See [Output Formats Guide](../usage/OUTPUT.md) for command-line options, format selection, and examples.
+
 Key capabilities:
 - **Multiple Formats**: Generate markdown documentation, JSON data, and Jupyter notebooks
 - **Simple Control**: One boolean flag controls save behavior
