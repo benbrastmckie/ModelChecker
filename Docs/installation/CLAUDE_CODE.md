@@ -17,10 +17,20 @@ Claude Code is Anthropic's official command-line interface for interacting with 
 
 ### Prerequisites
 
-- **Internet connection** - Required for Claude AI communication
-- **Terminal access** - Command line interface (Terminal, PowerShell, etc.)
+Before installing Claude Code, you'll need the following:
+
+- **Anthropic subscription** - Claude Code requires an active Anthropic account with API access. This provides the AI capabilities that power Claude Code's intelligent assistance.
+  - [Sign up for Anthropic](https://console.anthropic.com/) and set up billing
+
+- **Internet connection** - Required for Claude AI communication. Claude Code sends your queries to Anthropic's servers and returns responses in real-time.
+
+- **Terminal access** - Claude Code runs in a command-line interface (Terminal on macOS/Linux, PowerShell on Windows). The terminal lets you navigate directories, run commands, and interact with Claude directly in your development workflow.
   - New to the terminal? See [Getting Started: Using the Terminal](GETTING_STARTED.md#before-you-begin-using-the-terminal)
-- **Git** (optional but recommended) - For version control
+
+- **Text editor** - A properly configured editor makes working with ModelChecker much easier, providing syntax highlighting, Unicode support for logical symbols (∧, ∨, ¬, □, ◇), and integrated terminal access.
+  - See [Setting Up Your Editor](GETTING_STARTED.md#setting-up-your-editor) for recommended options (VSCodium for beginners, NeoVim for advanced users)
+
+- **Git** - For version control and collaboration. Git tracks changes to your files, enables collaboration, and integrates with GitHub for issue tracking and pull requests.
   - New to Git/GitHub? See [Getting Started with GitHub](GIT_GOING.md)
 
 ---

@@ -144,9 +144,9 @@ For more help with terminal usage, these resources are excellent:
 - [Terminal basics tutorial](https://ubuntu.com/tutorials/command-line-for-beginners)
 - [The Linux Command Line book](http://linuxcommand.org/tlcl.php) (free)
 
-## Before You Begin: Setting Up Your Editor
+## Setting Up Your Editor
 
-> NOTE: Skip this section if you already have an editor set up.
+> Skip this section if you already have an editor set up.
 
 Working with ModelChecker involves editing Python files containing logical formulas. A properly configured text editor makes this much easier by providing:
 
@@ -552,7 +552,6 @@ Each theory has unique operators and capabilities:
 - Review theory-specific documentation
 - Examine the example files in each theory
 - Create an issue on [GitHub](https://github.com/benbrastmckie/ModelChecker/issues)
-
 ---
 
 [← Back to Docs](README.md) | [Installation →](INSTALLATION.md) | [Technical Docs →](../Code/docs/README.md)
