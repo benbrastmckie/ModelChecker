@@ -1,6 +1,6 @@
 # Documentation Audience and Accessibility Goals
 
-[← Back to Maintenance](README.md) | [Style Guide →](../../Code/docs/STYLE_GUIDE.md)
+[← Back to Maintenance](README.md) | [Code Standards →](../../Code/docs/core/CODE_STANDARDS.md)
 
 ## Overview
 
