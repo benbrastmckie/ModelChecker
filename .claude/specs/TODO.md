@@ -50,14 +50,16 @@ task_counts:
 
 ### 8. Fix skill context loading in model-checker skill
 - **Effort**: 30 minutes
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Started**: 2026-01-11
 - **Researched**: 2026-01-11
+- **Planned**: 2026-01-11
 - **Priority**: Medium
 - **Language**: meta
 - **Blocking**: None
 - **Dependencies**: None
 - **Research**: [.claude/specs/008_fix_skill_context_loading/reports/research-001.md]
+- **Plan**: [.claude/specs/008_fix_skill_context_loading/plans/implementation-001.md]
 
 **Description**: Replace 'context: fork' in /home/benjamin/Projects/ModelChecker/.claude/skills/skill-model-checker/SKILL.md with proper loading of context files from /home/benjamin/Projects/ModelChecker/.claude/context/project/modelchecker/, adding additional context files as appropriate.
 
