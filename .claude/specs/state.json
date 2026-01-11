@@ -19,17 +19,19 @@
       "project_number": 6,
       "project_name": "model_checker_skill",
       "directory": "006_model_checker_skill",
-      "status": "not_started",
+      "status": "researched",
       "language": "meta",
       "priority": "medium",
       "effort": "2-4 hours",
       "created": "2026-01-11T00:08:24Z",
-      "last_updated": "2026-01-11T00:08:24Z",
-      "started": null,
-      "researched": null,
+      "last_updated": "2026-01-11T00:12:34Z",
+      "started": "2026-01-10",
+      "researched": "2026-01-10",
       "planned": null,
       "completed": null,
-      "artifacts": []
+      "artifacts": [
+        ".claude/specs/006_model_checker_skill/reports/research-001.md"
+      ]
     },
     {
       "project_number": 5,
