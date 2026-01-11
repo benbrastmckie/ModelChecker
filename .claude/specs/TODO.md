@@ -1,8 +1,8 @@
 ---
-last_updated: 2026-01-11T00:45:00Z
-next_project_number: 6
+last_updated: 2026-01-11T01:00:00Z
+next_project_number: 7
 task_counts:
-  active: 0
+  active: 1
   completed: 2
   in_progress: 0
 ---
@@ -35,6 +35,18 @@ task_counts:
 ---
 
 ## Medium Priority
+
+### 6. Create model-checker researcher skill
+- **Effort**: 2-4 hours
+- **Status**: [NOT STARTED]
+- **Priority**: Medium
+- **Language**: meta
+- **Blocking**: None
+- **Dependencies**: None
+
+**Description**: Research the model-checker usage patterns carefully in order to create a skill that is geared for using the model-checker in all of the standard ways, including defining new operators, adjusting frame constraints, running tests, and reporting findings in order to help researchers streamline their work with the model-checker using claude code to facilitate everything.
+
+---
 
 ### 4. Reorganize Claude Code documentation to avoid redundancy
 - **Effort**: 1-2 hours
