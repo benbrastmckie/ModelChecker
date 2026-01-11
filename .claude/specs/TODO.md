@@ -1,8 +1,8 @@
 ---
-last_updated: 2026-01-11T02:15:00Z
-next_project_number: 8
+last_updated: 2026-01-11T02:30:00Z
+next_project_number: 9
 task_counts:
-  active: 1
+  active: 2
   completed: 3
   in_progress: 0
 ---
@@ -35,6 +35,18 @@ task_counts:
 ---
 
 ## Medium Priority
+
+### 8. Fix skill context loading in model-checker skill
+- **Effort**: 30 minutes
+- **Status**: [NOT STARTED]
+- **Priority**: Medium
+- **Language**: meta
+- **Blocking**: None
+- **Dependencies**: None
+
+**Description**: Replace 'context: fork' in /home/benjamin/Projects/ModelChecker/.claude/skills/skill-model-checker/SKILL.md with proper loading of context files from /home/benjamin/Projects/ModelChecker/.claude/context/project/modelchecker/, adding additional context files as appropriate.
+
+---
 
 ### 7. Document gh CLI setup and issue creation
 - **Effort**: 30-60 minutes
