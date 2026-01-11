@@ -1,8 +1,8 @@
 ---
-last_updated: 2026-01-11T02:30:00Z
-next_project_number: 9
+last_updated: 2026-01-11T03:00:00Z
+next_project_number: 10
 task_counts:
-  active: 2
+  active: 3
   completed: 3
   in_progress: 0
 ---
@@ -35,6 +35,18 @@ task_counts:
 ---
 
 ## Medium Priority
+
+### 9. Refactor CLAUDE_CODE.md documentation
+- **Effort**: 1-2 hours
+- **Status**: [NOT STARTED]
+- **Priority**: Medium
+- **Language**: general
+- **Blocking**: None
+- **Dependencies**: None
+
+**Description**: Refactor Docs/installation/CLAUDE_CODE.md to provide a clear, concise guide: (1) install model-checker and test an example, (2) copy .claude/ directory via GitHub path, (3) link to .claude/docs/README.md for agent system, (4) install/use gh CLI for issues and PRs. Include appropriate examples without overwhelming. Cross-link to GETTING_STARTED.md, GIT_GOING.md, and other relevant docs.
+
+---
 
 ### 8. Fix skill context loading in model-checker skill
 - **Effort**: 30 minutes
