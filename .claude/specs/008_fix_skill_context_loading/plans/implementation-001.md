@@ -14,7 +14,7 @@ Add explicit context loading instructions to the model-checker skill (`SKILL.md`
 ### Phase 1: Add Context Loading Section
 
 **Estimated effort**: 15 minutes
-**Status**: [NOT STARTED]
+**Status**: [COMPLETED]
 
 **Objectives**:
 1. Add a "Context Loading" section to SKILL.md

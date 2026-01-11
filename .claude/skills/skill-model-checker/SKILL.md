@@ -20,6 +20,21 @@ This skill activates when:
 - Running theory tests
 - Analyzing countermodels or theorem results
 
+## Context Loading
+
+Load these context files as needed during skill execution:
+
+### Core ModelChecker Context (Always Load)
+- @.claude/context/project/modelchecker/architecture.md - System architecture and package structure
+- @.claude/context/project/modelchecker/theories.md - Theory library overview (logos, exclusion, imposition, bimodal)
+- @.claude/context/project/modelchecker/z3-patterns.md - Z3 solver patterns and best practices
+
+### Domain Context (Load When Relevant)
+- @.claude/context/project/logic/domain/kripke-semantics-overview.md - Modal semantics background
+
+### Installation Context (Load for Troubleshooting)
+- @.claude/context/project/modelchecker/installation.md - Installation and CLI usage
+
 ## Sub-Commands
 
 | Command | Purpose |
