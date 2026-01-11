@@ -1,8 +1,8 @@
 ---
-last_updated: 2026-01-11T01:00:00Z
-next_project_number: 7
+last_updated: 2026-01-11T01:15:00Z
+next_project_number: 8
 task_counts:
-  active: 1
+  active: 2
   completed: 2
   in_progress: 0
 ---
@@ -35,6 +35,18 @@ task_counts:
 ---
 
 ## Medium Priority
+
+### 7. Document gh CLI setup and issue creation
+- **Effort**: 30-60 minutes
+- **Status**: [NOT STARTED]
+- **Priority**: Medium
+- **Language**: general
+- **Blocking**: None
+- **Dependencies**: None
+
+**Description**: In /home/benjamin/Projects/ModelChecker/Docs/installation/CLAUDE_CODE.md, include details about how to get Claude Code to install the gh CLI, help you configure the gh CLI, and then use the gh CLI to create issues when issues occur.
+
+---
 
 ### 6. Create model-checker researcher skill
 - **Effort**: 2-4 hours
