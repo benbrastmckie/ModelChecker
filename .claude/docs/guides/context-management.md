@@ -146,6 +146,8 @@ This skill loads:
 - `project/modelchecker/theories.md` - For theory structure
 ```
 
+**Example**: See `.claude/skills/skill-model-checker/SKILL.md` for a complete implementation of context loading with categorized context files.
+
 ### 4. Check Before Loading
 
 Verify the file exists and is relevant:
