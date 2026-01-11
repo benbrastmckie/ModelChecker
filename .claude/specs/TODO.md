@@ -38,18 +38,22 @@ task_counts:
 
 ### 9. Refactor CLAUDE_CODE.md documentation
 - **Effort**: 1-2 hours
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Started**: 2026-01-11
 - **Researched**: 2026-01-11
 - **Planned**: 2026-01-11
+- **Completed**: 2026-01-11
 - **Priority**: Medium
 - **Language**: general
 - **Blocking**: None
 - **Dependencies**: None
 - **Research**: [.claude/specs/009_refactor_claude_code_documentation/reports/research-001.md]
 - **Plan**: [.claude/specs/009_refactor_claude_code_documentation/plans/implementation-001.md]
+- **Summary**: [.claude/specs/009_refactor_claude_code_documentation/summaries/implementation-summary-20260111.md]
 
 **Description**: Refactor Docs/installation/CLAUDE_CODE.md to provide a clear, concise guide: (1) install model-checker and test an example, (2) copy .claude/ directory via GitHub path, (3) link to .claude/docs/README.md for agent system, (4) install/use gh CLI for issues and PRs. Include appropriate examples without overwhelming. Cross-link to GETTING_STARTED.md, GIT_GOING.md, and other relevant docs.
+
+**Outcome**: Refactored from 765 to 315 lines. 7 numbered sections with clear progression. Added gh CLI issue creation (addresses task #7).
 
 ---
 
@@ -76,13 +80,16 @@ task_counts:
 
 ### 7. Document gh CLI setup and issue creation
 - **Effort**: 30-60 minutes
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-01-11
 - **Priority**: Medium
 - **Language**: general
 - **Blocking**: None
 - **Dependencies**: None
 
 **Description**: In /home/benjamin/Projects/ModelChecker/Docs/installation/CLAUDE_CODE.md, include details about how to get Claude Code to install the gh CLI, help you configure the gh CLI, and then use the gh CLI to create issues when issues occur.
+
+**Outcome**: Absorbed into Task #9. See CLAUDE_CODE.md Section 5 "Using gh CLI for GitHub".
 
 ---
 
