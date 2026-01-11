@@ -27,7 +27,7 @@ architecture/
 ## System Pipeline
 
 - **[Data Flow Pipeline](PIPELINE.md)** - Complete flow from user inputs to outputs
-- **[Technical Implementation](../../Code/docs/ARCHITECTURE.md)** - Code-level architecture details
+- **[Technical Implementation](../../Code/docs/core/ARCHITECTURE.md)** - Code-level architecture details
 
 ## Core Components
 
@@ -228,7 +228,7 @@ All architecture documentation follows these principles:
 - **[Documentation Standards](../maintenance/README.md)** - Documentation guidelines
 - **[Quality Standards](../maintenance/quality/README.md)** - Documentation quality control
 - **[Documentation Templates](../maintenance/templates/README.md)** - Standardized README structures
-- **[Architecture Decisions](../../Code/docs/DECISIONS.md)** - Design rationale
+- **[Development Docs](../../Code/docs/README.md)** - Design rationale
 
 ---
 

@@ -104,8 +104,8 @@ This directory contains only installation guide files (no subdirectories). Each 
 
 ### For Developers
 - **[Developer Setup](DEVELOPER_SETUP.md)** - Full development environment
-- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Contribution workflow
-- **[Testing Guide](../../Code/docs/TESTS.md)** - Running the test suite
+- **[Development Guide](../../Code/docs/development/README.md)** - Contribution workflow
+- **[Testing Guide](../../Code/docs/core/TESTING_GUIDE.md)** - Running the test suite
 
 ## Key Features
 

@@ -301,9 +301,9 @@ The hyperintensional framework in ModelChecker builds on several key theoretical
 - **[Theory Library Overview](../../Code/src/model_checker/theory_lib/README.md)** - All semantic theory implementations
 
 ### Technical Documentation
-- **[Implementation Guide](../../Code/docs/IMPLEMENTATION.md)** - How theories are implemented in the framework
-- **[Architecture Documentation](../../Code/docs/PIPELINE.md)** - System design and component relationships
-- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Setting up and contributing to the framework
+- **[Implementation Guide](../../Code/docs/implementation/README.md)** - How theories are implemented in the framework
+- **[Architecture Documentation](../../Code/docs/README.md)** - System design and component relationships
+- **[Development Guide](../../Code/docs/development/README.md)** - Setting up and contributing to the framework
 
 ### Related Concepts
 - **[Z3 Background](Z3_BACKGROUND.md)** - SMT solver foundations

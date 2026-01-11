@@ -330,7 +330,7 @@ example_range = {
 }
 ```
 
-For more detailed information, see the [Examples Documentation](Code/docs/EXAMPLES.md).
+For more detailed information, see the [Examples Documentation](usage/EXAMPLES.md).
 
 #### 3. `unit_tests` (Common but Optional)
 
@@ -548,7 +548,7 @@ Each theory has unique operators and capabilities:
 
 ### Getting Help
 
-- Check the [Tools Guide](../Code/docs/TOOLS.md#troubleshooting) for troubleshooting
+- Check the [Tools Guide](../usage/TOOLS.md#troubleshooting) for troubleshooting
 - Review theory-specific documentation
 - Examine the example files in each theory
 - Create an issue on [GitHub](https://github.com/benbrastmckie/ModelChecker/issues)

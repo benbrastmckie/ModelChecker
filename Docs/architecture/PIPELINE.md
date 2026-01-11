@@ -1,6 +1,6 @@
 # Data Flow Pipeline: From User Input to Model Output
 
-[← Back to Architecture](README.md) | [Builder →](BUILDER.md) | [Output →](OUTPUT.md) | [Technical Implementation →](../../Code/docs/PIPELINE.md)
+[← Back to Architecture](README.md) | [Builder →](BUILDER.md) | [Output →](OUTPUT.md) | [Technical Implementation →](../../Code/docs/README.md)
 
 ## Overview
 
@@ -499,7 +499,7 @@ The pipeline includes error handling at each stage:
 - **[Iterator Design](ITERATE.md)** - Model discovery process
 
 ### Technical Documentation
-- **[Implementation Details](../../Code/docs/PIPELINE.md)** - Code-level architecture
+- **[Implementation Details](../../Code/docs/README.md)** - Code-level architecture
 - **[Performance Guide](../../Code/docs/PERFORMANCE.md)** - Optimization strategies
 - **[Extension Guide](../../Code/docs/EXTENSIONS.md)** - Adding new components
 
