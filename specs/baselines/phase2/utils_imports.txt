@@ -1,0 +1,59 @@
+src/model_checker/models/structure.py:        from model_checker.utils import Z3ContextManager
+src/model_checker/models/proposition.py:from model_checker.utils import not_implemented_string
+src/model_checker/builder/module.py:        from model_checker.utils import Z3ContextManager
+src/model_checker/builder/project.py:            if 'from model_checker.utils import get_model_checker_version' not in content:
+src/model_checker/builder/project.py:                    r'\1# Import version utilities\nfrom model_checker.utils import get_model_checker_version\n\n',
+src/model_checker/builder/project.py:                from model_checker.utils import get_license_template
+src/model_checker/builder/project.py:                from model_checker.utils import get_model_checker_version
+src/model_checker/builder/notes/diff.md:    from model_checker.utils import bitvec_to_substates
+src/model_checker/builder/notes/modular.md:                from model_checker.utils import bitvec_to_substates
+src/model_checker/builder/notes/modular.md:                from model_checker.utils import bitvec_to_substates
+src/model_checker/builder/notes/modular.md:                from model_checker.utils import bitvec_to_substates
+src/model_checker/builder/notes/modular.md:                from model_checker.utils import bitvec_to_substates
+src/model_checker/builder/tests/test_z3_isolation.py:from model_checker.utils import Z3ContextManager
+src/model_checker/theory_lib/exclusion/semantic.py:from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
+src/model_checker/theory_lib/exclusion/semantic.py:        from model_checker.utils import bitvec_to_substates, int_to_binary
+src/model_checker/theory_lib/exclusion/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/semantic.py:        from model_checker.utils import bitvec_to_substates, pretty_set_print
+src/model_checker/theory_lib/exclusion/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/semantic.py:from model_checker.utils import ForAll, Exists, bitvec_to_substates, pretty_set_print, int_to_binary
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/semantic.py:        from model_checker.utils import bitvec_to_substates, int_to_binary
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/semantic.py:        from model_checker.utils import bitvec_to_substates, pretty_set_print
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/semantic.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/operators.py:from model_checker.utils import ForAll, Exists
+src/model_checker/theory_lib/exclusion/archive/strategy2_witness/operators.py:        from model_checker.utils import Exists
+src/model_checker/theory_lib/exclusion/archive/strategy1_multi/semantic.py:from model_checker.utils import (
+src/model_checker/theory_lib/exclusion/archive/strategy1_multi/operators.py:from model_checker.utils import (
+src/model_checker/theory_lib/exclusion/operators.py:from model_checker.utils import ForAll, Exists
+src/model_checker/theory_lib/exclusion/operators.py:        from model_checker.utils import Exists
+src/model_checker/theory_lib/exclusion/iterate.py:from model_checker.utils import bitvec_to_substates
+src/model_checker/theory_lib/meta_data.py:from model_checker.utils import get_model_checker_version
+src/model_checker/theory_lib/meta_data.py:                if 'from model_checker.utils import get_model_checker_version' not in content:
+src/model_checker/theory_lib/meta_data.py:                            r'\1# Import version utilities\nfrom model_checker.utils import get_model_checker_version\n\n',
+src/model_checker/theory_lib/meta_data.py:                                content = content[:insertion_point] + '\n\n# Import version utilities\nfrom model_checker.utils import get_model_checker_version\n' + content[insertion_point:]
+src/model_checker/theory_lib/meta_data.py:                            content = '# Import version utilities\nfrom model_checker.utils import get_model_checker_version\n\n' + content
+src/model_checker/theory_lib/imposition/semantic.py:from model_checker.utils import (
+src/model_checker/theory_lib/imposition/operators.py:from model_checker.utils import (
+src/model_checker/theory_lib/imposition/iterate.py:from model_checker.utils import bitvec_to_substates, pretty_set_print
+src/model_checker/theory_lib/imposition/talk/semantic_alt_alt.py:from model_checker.utils import (
+src/model_checker/theory_lib/imposition/tests/test_imposition.py:from model_checker.utils import run_test
+src/model_checker/theory_lib/logos/semantic.py:from model_checker.utils import (
+src/model_checker/theory_lib/logos/iterate.py:from model_checker.utils import bitvec_to_substates, pretty_set_print
+src/model_checker/theory_lib/logos/subtheories/modal/operators.py:from model_checker.utils import (
+src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py:from model_checker.utils import (
+src/model_checker/theory_lib/logos/subtheories/extensional/operators.py:from model_checker.utils import (
+src/model_checker/theory_lib/logos/subtheories/constitutive/operators.py:from model_checker.utils import (
+src/model_checker/theory_lib/bimodal/semantic.py:from model_checker.utils import (
+src/model_checker/theory_lib/bimodal/operators.py:from model_checker.utils import pretty_set_print
+src/model_checker/theory_lib/bimodal/iterate.py:from model_checker.utils import bitvec_to_worldstate, pretty_set_print
+src/model_checker/theory_lib/LICENSING.md:from model_checker.utils import get_model_checker_version
+src/model_checker/theory_lib/LICENSING.md:from model_checker.utils import get_theory_version
+src/model_checker/theory_lib/LICENSING.md:from model_checker.utils import check_theory_compatibility
+src/model_checker/theory_lib/tests/test_meta_data.py:from model_checker.utils import (
+src/model_checker/jupyter/adapters.py:        from model_checker.utils import bitvec_to_substates
+src/model_checker/jupyter/adapters.py:        from model_checker.utils import bitvec_to_substates

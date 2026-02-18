@@ -1,0 +1,139 @@
+
+MODEL 1/2
+========================================
+
+EXAMPLE EXT_CM_2: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. B
+2. (A \rightarrow B)
+
+Conclusion:
+3. A
+
+Z3 Run Time: 0.0036 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|B| = < {b.c, c}, {a} >[0m  [32m(True in b.c)[0m
+
+2.  [32m|(A \rightarrow B)| = < {b.c, c}, {a} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a}, {b.c} >[0m  [33m(False in b.c)[0m
+      [37m|B| = < {b.c, c}, {a} >[0m  [33m(True in b.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|A| = < {a}, {b.c} >[0m  [31m(False in b.c)[0m
+
+Total Run Time: 0.0382 seconds
+
+
+========================================
+[ITERATOR] Preserved 21 original constraints for iteration
+
+Finding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0s
+Finding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.0s
+Finding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 3) 0.1s
+Finding 2 models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 4) 0.1s
+Finding 2 models: [██████████████████████████████] 2/2 (checked 4) 0.2s
+Successfully found all 2 requested models
+[1m[0m
+[33m=== DIFFERENCES FROM PREVIOUS MODEL ===[0m
+
+[34mWorld Changes:[0m
+  [32m+ c (now a world)[0m
+  [32m+ b (now a world)[0m
+  [31m- b.c (no longer a world)[0m
+
+[34mPossible State Changes:[0m
+  [31m- b.c (now impossible)[0m
+
+[34mVerification Changes:[0m
+  Letter B:
+    [32m+ a now verifies B[0m
+    [32m+ b now verifies B[0m
+    [32m+ a.b now verifies B[0m
+    [31m- c no longer verifies B[0m
+    [31m- b.c no longer verifies B[0m
+
+[34mFalsification Changes:[0m
+  Letter B:
+    [31m- a no longer falsifies B[0m
+    [32m+ c now falsifies B[0m
+  Letter A:
+    [32m+ b now falsifies A[0m
+    [32m+ c now falsifies A[0m
+
+
+MODEL 2/2
+========================================
+
+EXAMPLE EXT_CM_2: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. B
+2. (A \rightarrow B)
+
+Conclusion:
+3. A
+
+Z3 Run Time: 0.0023 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|B| = < {a, a.b, b}, {c} >[0m  [32m(True in b)[0m
+
+2.  [32m|(A \rightarrow B)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {a.c} >[0m  [32m(True in b)[0m
+      [37m|A| = < {a}, {b, b.c, c} >[0m  [33m(False in b)[0m
+      [37m|B| = < {a, a.b, b}, {c} >[0m  [33m(True in b)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|A| = < {a}, {b, b.c, c} >[0m  [31m(False in b)[0m
+
+Total Run Time: 0.0739 seconds
+
+
+========================================
+
+[ITERATION] Searching for model 2/2...
+[ITERATION] Found isomorphic model #2 - will try different constraints
+[ITERATION] Searching for model 2/2...
+[ITERATION] Found isomorphic model #3 - will try different constraints
+[ITERATION] Searching for model 2/2...
+
+Found 2/2 distinct models.

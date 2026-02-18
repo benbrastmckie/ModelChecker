@@ -1,0 +1,4671 @@
+========================================
+
+EXAMPLE EXT_CM_1: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. A
+
+Conclusion:
+2. \neg A
+
+Z3 Run Time: 0.0019 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|A| = < {a.c}, {b, b.c} >[0m  [32m(True in a.c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\neg A| = < {b, b.c}, {a.c} >[0m  [31m(False in a.c)[0m
+      [37m|A| = < {a.c}, {b, b.c} >[0m  [33m(True in a.c)[0m
+
+Total Run Time: 0.0282 seconds
+
+
+========================================
+
+MODEL 1/2
+========================================
+
+EXAMPLE EXT_CM_2: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. B
+2. (A \rightarrow B)
+
+Conclusion:
+3. A
+
+Z3 Run Time: 0.0023 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|B| = < {b.c}, {a} >[0m  [32m(True in b.c)[0m
+
+2.  [32m|(A \rightarrow B)| = < {b.c}, {a} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a}, {b.c} >[0m  [33m(False in b.c)[0m
+      [37m|B| = < {b.c}, {a} >[0m  [33m(True in b.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|A| = < {a}, {b.c} >[0m  [31m(False in b.c)[0m
+
+Total Run Time: 0.0376 seconds
+
+
+========================================
+Finding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.1sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 3) 0.1s
+[1m[0m
+MODEL 2/2
+========================================
+
+EXAMPLE EXT_CM_2: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. B
+2. (A \rightarrow B)
+
+Conclusion:
+3. A
+
+Z3 Run Time: 0.0023 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|B| = < {c}, {a.b} >[0m  [32m(True in b.c)[0m
+
+2.  [32m|(A \rightarrow B)| = < {a.b, a.b.c, b.c, c}, {a.b.c} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, b.c} >[0m  [33m(False in b.c)[0m
+      [37m|B| = < {c}, {a.b} >[0m  [33m(True in b.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|A| = < {a.c}, {a.b, a.b.c, b.c} >[0m  [31m(False in b.c)[0m
+
+Total Run Time: 0.0548 seconds
+
+
+========================================
+
+Found 2/2 distinct models.
+========================================
+
+EXAMPLE EXT_TH_1: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. A
+2. (A \rightarrow B)
+
+Conclusion:
+3. B
+
+Z3 Run Time: 0.0032 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_2: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg B
+2. (A \rightarrow B)
+
+Conclusion:
+3. \neg A
+
+Z3 Run Time: 0.0044 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_3: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \wedge B)
+
+Conclusion:
+2. A
+
+Z3 Run Time: 0.0023 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_4: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. A
+
+Conclusion:
+2. (A \vee B)
+
+Z3 Run Time: 0.004 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_5: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \neg \neg A
+
+Conclusion:
+2. A
+
+Z3 Run Time: 0.0017 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_6: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \vee \neg A)
+
+Z3 Run Time: 0.0017 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_7: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \neg (A \wedge B)
+
+Conclusion:
+2. (\neg A \vee \neg B)
+
+Z3 Run Time: 0.0029 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_8: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \neg (A \vee B)
+
+Conclusion:
+2. (\neg A \wedge \neg B)
+
+Z3 Run Time: 0.0038 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_9: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \leftrightarrow B)
+2. A
+
+Conclusion:
+3. B
+
+Z3 Run Time: 0.0038 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_10: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \leftrightarrow B)
+2. B
+
+Conclusion:
+3. A
+
+Z3 Run Time: 0.0052 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_11: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. \top
+
+Z3 Run Time: 0.0004 seconds
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_12: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \bot
+
+Conclusion:
+2. A
+
+Z3 Run Time: 0.0013 seconds
+
+========================================
+
+MODEL 1/2
+========================================
+
+EXAMPLE MOD_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Diamond A
+
+Conclusion:
+2. \Box A
+
+Z3 Run Time: 0.0047 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [35mb (impossible)[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Diamond A| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a.c}, {c.d} >[0m  [33m(True in a.c)[0m
+      [37m|A| = < {a.c}, {c.d} >[0m  [33m(False in c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\Box A| = < {}, {□} >[0m  [31m(False in a.c)[0m
+      [37m|A| = < {a.c}, {c.d} >[0m  [33m(True in a.c)[0m
+      [37m|A| = < {a.c}, {c.d} >[0m  [33m(False in c.d)[0m
+
+Total Run Time: 0.0709 seconds
+
+
+========================================
+Finding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.1s
+[1m[0m
+MODEL 2/2
+========================================
+
+EXAMPLE MOD_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Diamond A
+
+Conclusion:
+2. \Box A
+
+Z3 Run Time: 0.0048 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [34md (world)[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34md[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Diamond A| = < {□}, {} >[0m  [32m(True in d)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(False in a.b)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(True in a.c)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(False in b.c)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(False in d)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\Box A| = < {}, {□} >[0m  [31m(False in d)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(False in a.b)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(True in a.c)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(False in b.c)[0m
+      [37m|A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c, b.c.d, b.d, c.d, d} >[0m  [33m(False in d)[0m
+
+Total Run Time: 0.133 seconds
+
+
+========================================
+
+Found 2/2 distinct models.
+========================================
+
+EXAMPLE MOD_CM_2: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Diamond A
+
+Conclusion:
+2. A
+
+Z3 Run Time: 0.0053 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [36ma.b[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [36ma.c[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [36mb.d[0m
+  [37m#b1011 = [34ma.b.d (world)[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [34ma.c.d (world)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.c.d[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Diamond A| = < {□}, {} >[0m  [32m(True in a.c.d)[0m
+      [37m|A| = < {b.c}, {a, a.c.d, a.d, d} >[0m  [33m(True in b.c)[0m
+      [37m|A| = < {b.c}, {a, a.c.d, a.d, d} >[0m  [33m(False in a.b.d)[0m
+      [37m|A| = < {b.c}, {a, a.c.d, a.d, d} >[0m  [33m(False in a.c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|A| = < {b.c}, {a, a.c.d, a.d, d} >[0m  [31m(False in a.c.d)[0m
+
+Total Run Time: 0.0643 seconds
+
+
+========================================
+========================================
+
+EXAMPLE MOD_CM_3: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \boxright B)
+
+Conclusion:
+2. \Box (A \rightarrow B)
+
+Z3 Run Time: 0.0034 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|(A \boxright B)| = < {b.c}, {a.b, a.c} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {c}, {a.b} >[0m  [33m(True in b.c)[0m
+      [36m|A|-alternatives to b.c = {b.c}[0m
+        [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(True in b.c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\Box (A \rightarrow B)| = < {}, {□} >[0m  [31m(False in b.c)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, b.c}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {c}, {a.b} >[0m  [33m(False in a.b)[0m
+        [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.b)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, b.c}, {a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+        [37m|A| = < {c}, {a.b} >[0m  [33m(True in a.c)[0m
+        [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, b.c}, {a.b.c, a.c} >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {c}, {a.b} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(True in b.c)[0m
+
+Total Run Time: 0.0711 seconds
+
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_1: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box (A \wedge B)
+
+Conclusion:
+2. (\Box A \wedge \Box B)
+
+Z3 Run Time: 0.0133 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_2: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (\Diamond A \vee \Diamond B)
+
+Conclusion:
+2. \Diamond (A \vee B)
+
+Z3 Run Time: 0.0133 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_3: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box A
+
+Conclusion:
+2. \neg \Diamond \neg A
+
+Z3 Run Time: 0.0062 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_4: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Diamond A
+
+Conclusion:
+2. \neg \Box \neg A
+
+Z3 Run Time: 0.0058 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_5: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \Box (A \rightarrow B)
+2. \Box A
+
+Conclusion:
+3. \Box B
+
+Z3 Run Time: 0.0162 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_6: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. \Box (A \rightarrow A)
+
+Z3 Run Time: 0.0059 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_7: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \CFBox A
+
+Conclusion:
+2. \Box A
+
+Z3 Run Time: 0.0182 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_8: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Diamond A
+
+Conclusion:
+2. \CFDiamond A
+
+Z3 Run Time: 0.0193 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_9: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \CFBox A
+
+Conclusion:
+2. \neg \CFDiamond \neg A
+
+Z3 Run Time: 0.0157 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_10: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box \Box A
+
+Conclusion:
+2. \Box A
+
+Z3 Run Time: 0.0106 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_11: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \Diamond A
+
+Conclusion:
+2. \Box \Diamond A
+
+Z3 Run Time: 0.0038 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_12: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box A
+
+Conclusion:
+2. (\top \boxright A)
+
+Z3 Run Time: 0.0034 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_13: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (\top \boxright A)
+
+Conclusion:
+2. \Box A
+
+Z3 Run Time: 0.0022 seconds
+
+========================================
+========================================
+
+EXAMPLE MOD_TH_14: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. \Box ((A \vee \neg A) \leftrightarrow (B \vee \neg B))
+
+Z3 Run Time: 0.0027 seconds
+
+========================================
+
+MODEL 1/2
+========================================
+
+EXAMPLE CON_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \vee \neg A) \equiv (B \vee \neg B))
+
+Z3 Run Time: 0.0106 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [36ma.c[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [34ma.c.d (world)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \vee \neg A) \equiv (B \vee \neg B))| = < {}, {□} >[0m  [31m(False in b.c)[0m
+      [37m|(A \vee \neg A)| = < {a.b.c.d, a.c.d, b, b.c}, {a.b.c.d} >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {a.b.c.d, a.c.d}, {b, b.c} >[0m  [33m(False in b.c)[0m
+        [37m|\neg A| = < {b, b.c}, {a.b.c.d, a.c.d} >[0m  [33m(True in b.c)[0m
+          [37m|A| = < {a.b.c.d, a.c.d}, {b, b.c} >[0m  [33m(False in b.c)[0m
+      [37m|(B \vee \neg B)| = < {a.b.c.d, a.c.d, b}, {a.b.c.d} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {a.b.c.d, a.c.d}, {b} >[0m  [33m(False in b.c)[0m
+        [37m|\neg B| = < {b}, {a.b.c.d, a.c.d} >[0m  [33m(True in b.c)[0m
+          [37m|B| = < {a.b.c.d, a.c.d}, {b} >[0m  [33m(False in b.c)[0m
+
+Total Run Time: 0.1199 seconds
+
+
+========================================
+Finding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.2sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 3) 0.4sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 4) 0.7s
+[1m[0m
+MODEL 2/2
+========================================
+
+EXAMPLE CON_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \vee \neg A) \equiv (B \vee \neg B))
+
+Z3 Run Time: 0.0136 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [35md (impossible)[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \vee \neg A) \equiv (B \vee \neg B))| = < {}, {□} >[0m  [31m(False in a.b)[0m
+      [37m|(A \vee \neg A)| = < {a.b, a.b.c, a.b.c.d, a.c, b, b.c}, {a.b.c, a.b.c.d} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {a.b.c.d, a.c}, {a.b, a.b.c, b, b.c} >[0m  [33m(False in a.b)[0m
+        [37m|\neg A| = < {a.b, a.b.c, b, b.c}, {a.b.c.d, a.c} >[0m  [33m(True in a.b)[0m
+          [37m|A| = < {a.b.c.d, a.c}, {a.b, a.b.c, b, b.c} >[0m  [33m(False in a.b)[0m
+      [37m|(B \vee \neg B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d, d}, {a.b.c, a.b.c.d, a.c.d, b.c.d, c.d} >[0m  [33m(True in a.b)[0m
+        [37m|B| = < {a.b, a.b.c.d, a.b.d, a.c.d, c.d, d}, {b.c.d, c} >[0m  [33m(True in a.b)[0m
+        [37m|\neg B| = < {b.c.d, c}, {a.b, a.b.c.d, a.b.d, a.c.d, c.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|B| = < {a.b, a.b.c.d, a.b.d, a.c.d, c.d, d}, {b.c.d, c} >[0m  [33m(True in a.b)[0m
+
+Total Run Time: 0.1925 seconds
+
+
+========================================
+
+Found 2/2 distinct models.
+========================================
+
+EXAMPLE CON_CM_2: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \wedge \neg A) \equiv (B \wedge \neg B))
+
+Z3 Run Time: 0.0154 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [34mc (world)[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb.d[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \wedge \neg A) \equiv (B \wedge \neg B))| = < {}, {□} >[0m  [31m(False in b.d)[0m
+      [37m|(A \wedge \neg A)| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in b.d)[0m
+        [37m|A| = < {c}, {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, b.d, d} >[0m  [33m(False in b.d)[0m
+        [37m|\neg A| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, b.d, d}, {c} >[0m  [33m(True in b.d)[0m
+          [37m|A| = < {c}, {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, b.d, d} >[0m  [33m(False in b.d)[0m
+      [37m|(B \wedge \neg B)| = < {a.b.c.d, a.b.d, a.c.d, a.d, b.c.d, c.d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in b.d)[0m
+        [37m|B| = < {b.d, d}, {a, a.b, a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c} >[0m  [33m(True in b.d)[0m
+        [37m|\neg B| = < {a, a.b, a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c}, {b.d, d} >[0m  [33m(False in b.d)[0m
+          [37m|B| = < {b.d, d}, {a, a.b, a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c} >[0m  [33m(True in b.d)[0m
+
+Total Run Time: 0.1455 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_3: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \leq B)
+2. (C \leq D)
+
+Conclusion:
+3. ((A \wedge C) \leq (B \wedge D))
+
+Z3 Run Time: 0.0057 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [35mc (impossible)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|(A \leq B)| = < {□}, {} >[0m  [32m(True in a)[0m
+      [37m|A| = < {a, a.b, a.b.c, a.c}, {a.b.c, a.c, b} >[0m  [33m(True in a)[0m
+      [37m|B| = < {a, a.b, a.b.c, a.c}, {a.b, a.b.c, b} >[0m  [33m(True in a)[0m
+
+2.  [32m|(C \leq D)| = < {□}, {} >[0m  [32m(True in a)[0m
+      [37m|C| = < {a.b, a.b.c, a.c, b, b.c, c}, {a} >[0m  [33m(False in a)[0m
+      [37m|D| = < {a.b, a.b.c, a.c, b, b.c, c}, {a, a.b} >[0m  [33m(False in a)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \wedge C) \leq (B \wedge D))| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|(A \wedge C)| = < {a.b, a.b.c, a.c}, {a, a.b, a.b.c, a.c, b} >[0m  [33m(False in a)[0m
+        [37m|A| = < {a, a.b, a.b.c, a.c}, {a.b.c, a.c, b} >[0m  [33m(True in a)[0m
+        [37m|C| = < {a.b, a.b.c, a.c, b, b.c, c}, {a} >[0m  [33m(False in a)[0m
+      [37m|(B \wedge D)| = < {a.b, a.b.c, a.c}, {a, a.b, a.b.c, b} >[0m  [33m(False in a)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.c}, {a.b, a.b.c, b} >[0m  [33m(True in a)[0m
+        [37m|D| = < {a.b, a.b.c, a.c, b, b.c, c}, {a, a.b} >[0m  [33m(False in a)[0m
+
+Total Run Time: 0.1166 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_4: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \sqsubseteq B)
+2. (C \sqsubseteq D)
+
+Conclusion:
+3. ((A \vee C) \sqsubseteq (B \vee D))
+
+Z3 Run Time: 0.0057 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|(A \sqsubseteq B)| = < {□}, {} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {c}, {a.b} >[0m  [33m(True in b.c)[0m
+      [37m|B| = < {c}, {a.b, a.b.c} >[0m  [33m(True in b.c)[0m
+
+2.  [32m|(C \sqsubseteq D)| = < {□}, {} >[0m  [32m(True in b.c)[0m
+      [37m|C| = < {a.c, c}, {a.b} >[0m  [33m(True in b.c)[0m
+      [37m|D| = < {a.b.c, b.c}, {a, a.b, a.b.c} >[0m  [33m(True in b.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \vee C) \sqsubseteq (B \vee D))| = < {}, {□} >[0m  [31m(False in b.c)[0m
+      [37m|(A \vee C)| = < {a.c, c}, {a.b} >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {c}, {a.b} >[0m  [33m(True in b.c)[0m
+        [37m|C| = < {a.c, c}, {a.b} >[0m  [33m(True in b.c)[0m
+      [37m|(B \vee D)| = < {a.b.c, b.c, c}, {a.b, a.b.c} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {c}, {a.b, a.b.c} >[0m  [33m(True in b.c)[0m
+        [37m|D| = < {a.b.c, b.c}, {a, a.b, a.b.c} >[0m  [33m(True in b.c)[0m
+
+Total Run Time: 0.0949 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_5: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \equiv (A \vee (A \wedge B)))
+
+Z3 Run Time: 0.0109 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [34mb (world)[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [34mc (world)[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mc[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(A \equiv (A \vee (A \wedge B)))| = < {}, {□} >[0m  [31m(False in c)[0m
+      [37m|A| = < {a, a.b, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d, c.d, d}, {c} >[0m  [33m(False in c)[0m
+      [37m|(A \vee (A \wedge B))| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c.d, d}, {a.b.c.d, b.c, b.c.d, c} >[0m  [33m(False in c)[0m
+        [37m|A| = < {a, a.b, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d, c.d, d}, {c} >[0m  [33m(False in c)[0m
+        [37m|(A \wedge B)| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b.c, b.c.d, b.d, c.d, d}, {a.b.c.d, b, b.c, b.c.d, c} >[0m  [33m(False in c)[0m
+          [37m|A| = < {a, a.b, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d, c.d, d}, {c} >[0m  [33m(False in c)[0m
+          [37m|B| = < {a, a.c, a.c.d, a.d, c, c.d, d}, {a.b.c.d, b, b.c.d} >[0m  [33m(True in c)[0m
+
+Total Run Time: 0.3282 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_6: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \equiv (A \wedge (A \vee B)))
+
+Z3 Run Time: 0.0166 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [34ma (world)[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [34md (world)[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(A \equiv (A \wedge (A \vee B)))| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|A| = < {a, a.c.d, a.d, d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b, b.c, b.c.d, b.d, c} >[0m  [33m(True in a)[0m
+      [37m|(A \wedge (A \vee B))| = < {a, a.c, a.c.d, a.d, d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, b.d, c, c.d} >[0m  [33m(True in a)[0m
+        [37m|A| = < {a, a.c.d, a.d, d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b, b.c, b.c.d, b.d, c} >[0m  [33m(True in a)[0m
+        [37m|(A \vee B)| = < {a, a.c, a.c.d, a.d, d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, b.d, c, c.d} >[0m  [33m(True in a)[0m
+          [37m|A| = < {a, a.c.d, a.d, d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b, b.c, b.c.d, b.d, c} >[0m  [33m(True in a)[0m
+          [37m|B| = < {a, a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(True in a)[0m
+
+Total Run Time: 0.3423 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_7: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \wedge (B \vee C)) \equiv ((A \wedge B) \vee (A \wedge C)))
+
+Z3 Run Time: 0.0065 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [35mb (impossible)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \wedge (B \vee C)) \equiv ((A \wedge B) \vee (A \wedge C)))| = < {}, {□} >[0m  [31m(False in a.c)[0m
+      [37m|(A \wedge (B \vee C))| = < {}, {a} >[0m  [33m(False in a.c)[0m
+        [37m|A| = < {}, {a} >[0m  [33m(False in a.c)[0m
+        [37m|(B \vee C)| = < {a.c}, {} >[0m  [33m(True in a.c)[0m
+          [37m|B| = < {a.c}, {} >[0m  [33m(True in a.c)[0m
+          [37m|C| = < {}, {a.b.c, a.c, b.c, c} >[0m  [33m(False in a.c)[0m
+      [37m|((A \wedge B) \vee (A \wedge C))| = < {}, {a, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+        [37m|(A \wedge B)| = < {}, {a} >[0m  [33m(False in a.c)[0m
+          [37m|A| = < {}, {a} >[0m  [33m(False in a.c)[0m
+          [37m|B| = < {a.c}, {} >[0m  [33m(True in a.c)[0m
+        [37m|(A \wedge C)| = < {}, {a, a.b.c, a.c, b.c, c} >[0m  [33m(False in a.c)[0m
+          [37m|A| = < {}, {a} >[0m  [33m(False in a.c)[0m
+          [37m|C| = < {}, {a.b.c, a.c, b.c, c} >[0m  [33m(False in a.c)[0m
+
+Total Run Time: 0.124 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_8: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \vee (B \wedge C)) \equiv ((A \vee B) \wedge (A \vee C)))
+
+Z3 Run Time: 0.0063 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [35mc (impossible)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \vee (B \wedge C)) \equiv ((A \vee B) \wedge (A \vee C)))| = < {}, {□} >[0m  [31m(False in a.b)[0m
+      [37m|(A \vee (B \wedge C))| = < {a.b, b}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {a.b, b}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+        [37m|(B \wedge C)| = < {}, {a, a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+          [37m|B| = < {c}, {a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+          [37m|C| = < {}, {a, a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+      [37m|((A \vee B) \wedge (A \vee C))| = < {a.b, a.b.c, b, b.c}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+        [37m|(A \vee B)| = < {a.b, a.b.c, b, b.c, c}, {a.b.c} >[0m  [33m(True in a.b)[0m
+          [37m|A| = < {a.b, b}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+          [37m|B| = < {c}, {a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+        [37m|(A \vee C)| = < {a.b, b}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+          [37m|A| = < {a.b, b}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+          [37m|C| = < {}, {a, a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+
+Total Run Time: 0.1324 seconds
+
+
+========================================
+
+MODEL 1/2
+========================================
+
+EXAMPLE CON_CM_9: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box (A \rightarrow B)
+
+Conclusion:
+2. (A \leq B)
+
+Z3 Run Time: 0.0027 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Box (A \rightarrow B)| = < {□}, {} >[0m  [32m(True in a.b)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, b, b.c, c}, {a.b.c, a.c} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {a.b.c, a.c, b.c, c}, {a.b, a.b.c, b, b.c} >[0m  [33m(False in a.b)[0m
+        [37m|B| = < {c}, {a, a.c} >[0m  [33m(False in a.b)[0m
+      [37m|(A \rightarrow B)| = < {a.b, a.b.c, b, b.c, c}, {a.b.c, a.c} >[0m  [33m(True in c)[0m
+        [37m|A| = < {a.b.c, a.c, b.c, c}, {a.b, a.b.c, b, b.c} >[0m  [33m(True in c)[0m
+        [37m|B| = < {c}, {a, a.c} >[0m  [33m(True in c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(A \leq B)| = < {}, {□} >[0m  [31m(False in a.b)[0m
+      [37m|A| = < {a.b.c, a.c, b.c, c}, {a.b, a.b.c, b, b.c} >[0m  [33m(False in a.b)[0m
+      [37m|B| = < {c}, {a, a.c} >[0m  [33m(False in a.b)[0m
+
+Total Run Time: 0.0508 seconds
+
+
+========================================
+Finding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.1sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 3) 0.1sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 4) 0.2sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 5) 0.3sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 6) 0.3sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 7) 0.4sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 8) 0.5sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 9) 0.6sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 10) 0.7sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 11) 0.8sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 12) 0.8sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 13) 0.9s
+
+Iteration timeout (1.0s) reached
+
+Found 1/2 distinct models.
+
+========================================
+========================================
+
+EXAMPLE CON_CM_10: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box (B \rightarrow A)
+
+Conclusion:
+2. (A \sqsubseteq B)
+
+Z3 Run Time: 0.0033 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Box (B \rightarrow A)| = < {□}, {} >[0m  [32m(True in a)[0m
+      [37m|(B \rightarrow A)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {b.c} >[0m  [33m(True in a)[0m
+        [37m|B| = < {c}, {a, a.b, b} >[0m  [33m(False in a)[0m
+        [37m|A| = < {a, a.b.c, a.c, c}, {b} >[0m  [33m(True in a)[0m
+      [37m|(B \rightarrow A)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {b.c} >[0m  [33m(True in b)[0m
+        [37m|B| = < {c}, {a, a.b, b} >[0m  [33m(False in b)[0m
+        [37m|A| = < {a, a.b.c, a.c, c}, {b} >[0m  [33m(False in b)[0m
+      [37m|(B \rightarrow A)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {b.c} >[0m  [33m(True in c)[0m
+        [37m|B| = < {c}, {a, a.b, b} >[0m  [33m(True in c)[0m
+        [37m|A| = < {a, a.b.c, a.c, c}, {b} >[0m  [33m(True in c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(A \sqsubseteq B)| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|A| = < {a, a.b.c, a.c, c}, {b} >[0m  [33m(True in a)[0m
+      [37m|B| = < {c}, {a, a.b, b} >[0m  [33m(False in a)[0m
+
+Total Run Time: 0.0537 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_11: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (((A \vee B) \wedge (A \vee C)) \sqsubseteq (A \vee (B \wedge C)))
+
+Z3 Run Time: 0.0064 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(((A \vee B) \wedge (A \vee C)) \sqsubseteq (A \vee (B \wedge C)))| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|((A \vee B) \wedge (A \vee C))| = < {a, a.b, a.b.c, b.c}, {a.b, a.b.c, a.c} >[0m  [33m(True in a)[0m
+        [37m|(A \vee B)| = < {a, a.b, a.b.c, b}, {a.b, a.b.c, a.c} >[0m  [33m(True in a)[0m
+          [37m|A| = < {a}, {a.b, a.b.c, b.c, c} >[0m  [33m(True in a)[0m
+          [37m|B| = < {a.b.c, b}, {a, a.b.c} >[0m  [33m(False in a)[0m
+        [37m|(A \vee C)| = < {a, a.b.c, b.c}, {a.b, a.b.c, a.c} >[0m  [33m(True in a)[0m
+          [37m|A| = < {a}, {a.b, a.b.c, b.c, c} >[0m  [33m(True in a)[0m
+          [37m|C| = < {b.c}, {a, a.b.c, a.c} >[0m  [33m(False in a)[0m
+      [37m|(A \vee (B \wedge C))| = < {a, a.b.c, b.c}, {a.b, a.b.c, a.c} >[0m  [33m(True in a)[0m
+        [37m|A| = < {a}, {a.b, a.b.c, b.c, c} >[0m  [33m(True in a)[0m
+        [37m|(B \wedge C)| = < {a.b.c, b.c}, {a, a.b.c, a.c} >[0m  [33m(False in a)[0m
+          [37m|B| = < {a.b.c, b}, {a, a.b.c} >[0m  [33m(False in a)[0m
+          [37m|C| = < {b.c}, {a, a.b.c, a.c} >[0m  [33m(False in a)[0m
+
+Total Run Time: 0.1351 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_12: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (((A \wedge B) \vee (A \wedge C)) \leq (A \wedge (B \vee C)))
+
+Z3 Run Time: 0.0061 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [35mc (impossible)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(((A \wedge B) \vee (A \wedge C)) \leq (A \wedge (B \vee C)))| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|((A \wedge B) \vee (A \wedge C))| = < {a, a.b, a.b.c, a.c, b.c}, {a.b, a.b.c, b, b.c} >[0m  [33m(True in a)[0m
+        [37m|(A \wedge B)| = < {a, a.b, a.b.c, a.c, b.c}, {a.b.c, b, b.c} >[0m  [33m(True in a)[0m
+          [37m|A| = < {a, a.b, a.b.c, a.c, b.c}, {b} >[0m  [33m(True in a)[0m
+          [37m|B| = < {a, a.b, a.b.c, a.c, b.c, c}, {a.b.c, b, b.c} >[0m  [33m(True in a)[0m
+        [37m|(A \wedge C)| = < {a.b, a.b.c, a.c, b.c}, {a, a.b, b} >[0m  [33m(False in a)[0m
+          [37m|A| = < {a, a.b, a.b.c, a.c, b.c}, {b} >[0m  [33m(True in a)[0m
+          [37m|C| = < {a.b, a.b.c, a.c, b, b.c, c}, {a} >[0m  [33m(False in a)[0m
+      [37m|(A \wedge (B \vee C))| = < {a, a.b, a.b.c, a.c, b.c}, {a.b, a.b.c, b} >[0m  [33m(True in a)[0m
+        [37m|A| = < {a, a.b, a.b.c, a.c, b.c}, {b} >[0m  [33m(True in a)[0m
+        [37m|(B \vee C)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {a.b, a.b.c} >[0m  [33m(True in a)[0m
+          [37m|B| = < {a, a.b, a.b.c, a.c, b.c, c}, {a.b.c, b, b.c} >[0m  [33m(True in a)[0m
+          [37m|C| = < {a.b, a.b.c, a.c, b, b.c, c}, {a} >[0m  [33m(False in a)[0m
+
+Total Run Time: 0.15 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_13: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \equiv ((A \wedge B) \vee (A \wedge \neg B)))
+
+Z3 Run Time: 0.0036 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(A \equiv ((A \wedge B) \vee (A \wedge \neg B)))| = < {}, {□} >[0m  [31m(False in a.b)[0m
+      [37m|A| = < {a.b.c, c}, {a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+      [37m|((A \wedge B) \vee (A \wedge \neg B))| = < {a.b.c, b.c, c}, {a.b, a.b.c, b.c} >[0m  [33m(False in a.b)[0m
+        [37m|(A \wedge B)| = < {a.b.c, c}, {a.b, a.b.c, b} >[0m  [33m(False in a.b)[0m
+          [37m|A| = < {a.b.c, c}, {a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+          [37m|B| = < {c}, {a.b, a.b.c, b} >[0m  [33m(False in a.b)[0m
+        [37m|(A \wedge \neg B)| = < {a.b.c, b.c}, {a.b, a.b.c, c} >[0m  [33m(False in a.b)[0m
+          [37m|A| = < {a.b.c, c}, {a.b, a.b.c} >[0m  [33m(False in a.b)[0m
+          [37m|\neg B| = < {a.b, a.b.c, b}, {c} >[0m  [33m(True in a.b)[0m
+            [37m|B| = < {c}, {a.b, a.b.c, b} >[0m  [33m(False in a.b)[0m
+
+Total Run Time: 0.0787 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_CM_14: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \equiv ((A \vee B) \wedge (A \vee \neg B)))
+
+Z3 Run Time: 0.0072 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(A \equiv ((A \vee B) \wedge (A \vee \neg B)))| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|A| = < {a}, {b, b.c, c} >[0m  [33m(True in a)[0m
+      [37m|((A \vee B) \wedge (A \vee \neg B))| = < {a, a.c}, {a.b, a.b.c, a.c, b.c, c} >[0m  [33m(True in a)[0m
+        [37m|(A \vee B)| = < {a}, {a.b.c, a.c, b.c, c} >[0m  [33m(True in a)[0m
+          [37m|A| = < {a}, {b, b.c, c} >[0m  [33m(True in a)[0m
+          [37m|B| = < {a}, {a.c, c} >[0m  [33m(True in a)[0m
+        [37m|(A \vee \neg B)| = < {a, a.c, c}, {a.b, a.b.c, a.c} >[0m  [33m(True in a)[0m
+          [37m|A| = < {a}, {b, b.c, c} >[0m  [33m(True in a)[0m
+          [37m|\neg B| = < {a.c, c}, {a} >[0m  [33m(False in a)[0m
+            [37m|B| = < {a}, {a.c, c} >[0m  [33m(True in a)[0m
+
+Total Run Time: 0.1223 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CON_TH_1: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (\neg A \sqsubseteq \neg B)
+
+Z3 Run Time: 0.0114 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_2: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \sqsubseteq B)
+
+Conclusion:
+2. (\neg A \leq \neg B)
+
+Z3 Run Time: 0.0091 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_3: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \sqsubseteq B)
+
+Conclusion:
+2. ((A \wedge B) \equiv B)
+
+Z3 Run Time: 0.024 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_4: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \wedge B) \equiv B)
+
+Conclusion:
+2. (A \sqsubseteq B)
+
+Z3 Run Time: 0.0405 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_5: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. ((A \vee B) \equiv B)
+
+Z3 Run Time: 0.0177 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_6: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \vee B) \equiv B)
+
+Conclusion:
+2. (A \leq B)
+
+Z3 Run Time: 0.0226 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_7: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \equiv B)
+
+Conclusion:
+2. (\neg A \equiv \neg B)
+
+Z3 Run Time: 0.01 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_8: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (\neg A \equiv \neg B)
+
+Conclusion:
+2. (A \equiv B)
+
+Z3 Run Time: 0.0068 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_9: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \vee (A \wedge B))
+
+Conclusion:
+2. (A \wedge (A \vee B))
+
+Z3 Run Time: 0.0099 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_10: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \Rightarrow (A \wedge (A \vee B)))
+
+Z3 Run Time: 0.0776 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_11: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \Rightarrow (A \vee (A \wedge B)))
+
+Z3 Run Time: 0.1325 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_12: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \vee (A \wedge B)) \Rightarrow (A \wedge (A \vee B)))
+
+Z3 Run Time: 0.7582 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_13: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \wedge (A \vee B)) \Rightarrow (A \vee (A \wedge B)))
+
+Z3 Run Time: 0.8245 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_14: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. \Box (A \rightarrow B)
+
+Z3 Run Time: 0.0171 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_15: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \sqsubseteq B)
+
+Conclusion:
+2. \Box (B \rightarrow A)
+
+Z3 Run Time: 0.0116 seconds
+
+========================================
+Warning: Unknown example setting 'M' not in Primary's DEFAULT_EXAMPLE_SETTINGS
+========================================
+
+EXAMPLE CON_TH_16: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \leq B)
+2. (B \leq A)
+
+Conclusion:
+3. (A \equiv B)
+
+Z3 Run Time: 0.0016 seconds
+
+========================================
+Warning: Unknown example setting 'M' not in Primary's DEFAULT_EXAMPLE_SETTINGS
+========================================
+
+EXAMPLE CON_TH_17: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \sqsubseteq B)
+2. (B \sqsubseteq A)
+
+Conclusion:
+3. (A \equiv B)
+
+Z3 Run Time: 0.0013 seconds
+
+========================================
+Warning: Unknown example setting 'M' not in Primary's DEFAULT_EXAMPLE_SETTINGS
+========================================
+
+EXAMPLE CON_TH_18: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \leq B)
+2. (B \leq C)
+
+Conclusion:
+3. (A \leq C)
+
+Z3 Run Time: 0.0022 seconds
+
+========================================
+Warning: Unknown example setting 'M' not in Primary's DEFAULT_EXAMPLE_SETTINGS
+========================================
+
+EXAMPLE CON_TH_19: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \sqsubseteq B)
+2. (B \sqsubseteq C)
+
+Conclusion:
+3. (A \sqsubseteq C)
+
+Z3 Run Time: 0.0021 seconds
+
+========================================
+========================================
+
+EXAMPLE CON_TH_20: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \vee (A \wedge B)) \equiv (A \wedge (A \vee B)))
+
+Z3 Run Time: 0.1037 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_CM_1: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0317 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {b}, {a, a.b.c, a.b.c.d, a.c.d} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d, a.c.d}, {b} >[0m  [33m(False in b.c)[0m
+
+2.  [32m|(A \boxright C)| = < {a.c, b.c}, {a.d} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d, a.c.d}, {b} >[0m  [33m(False in b.c)[0m
+      [36m|A|-alternatives to b.c = {a.c}[0m
+        [37m|C| = < {a.b.c.d, a.c}, {a.b.c.d, a.d, b.c} >[0m  [33m(True in a.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \wedge B) \boxright C)| = < {}, {a.c, a.d, b.c} >[0m  [31m(False in b.c)[0m
+      [37m|(A \wedge B)| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, a.d}, {a.b.c, a.c, b} >[0m  [33m(False in b.c)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d, a.c.d}, {b} >[0m  [33m(False in b.c)[0m
+        [37m|B| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b.c, b.c.d}, {a.c} >[0m  [33m(True in b.c)[0m
+      [36m|(A \wedge B)|-alternatives to b.c = {a.d}[0m
+        [37m|C| = < {a.b.c.d, a.c}, {a.b.c.d, a.d, b.c} >[0m  [33m(False in a.d)[0m
+
+Total Run Time: 0.4859 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_2: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. (A \diamondright C)
+
+Conclusion:
+3. ((A \wedge B) \diamondright C)
+
+Z3 Run Time: 0.0207 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [36ma.b[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [36mb.d[0m
+  [37m#b1011 = [34ma.b.d (world)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mc.d[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {c.d}, {a, a.b} >[0m  [32m(True in c.d)[0m
+      [37m|A| = < {a, a.b}, {c.d} >[0m  [33m(False in c.d)[0m
+
+2.  [32m|(A \diamondright C)| = < {a.c, c.d}, {a.b.d} >[0m  [32m(True in c.d)[0m
+      [37m|A| = < {a, a.b}, {c.d} >[0m  [33m(False in c.d)[0m
+      [36m|A|-alternatives to c.d = {a.b.d, a.c}[0m
+        [37m|C| = < {a.c}, {a.c.d, a.d, c.d} >[0m  [33m(False in a.b.d)[0m
+        [37m|C| = < {a.c}, {a.c.d, a.d, c.d} >[0m  [33m(True in a.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \wedge B) \diamondright C)| = < {}, {a.b.d, a.c, c.d} >[0m  [31m(False in c.d)[0m
+      [37m|(A \wedge B)| = < {a.b.d}, {a.c, a.c.d, c, c.d} >[0m  [33m(False in c.d)[0m
+        [37m|A| = < {a, a.b}, {c.d} >[0m  [33m(False in c.d)[0m
+        [37m|B| = < {a.b.d}, {a.c, a.c.d, c} >[0m  [33m(False in c.d)[0m
+      [36m|(A \wedge B)|-alternatives to c.d = {a.b.d}[0m
+        [37m|C| = < {a.c}, {a.c.d, a.d, c.d} >[0m  [33m(False in a.b.d)[0m
+
+Total Run Time: 0.319 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_3: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+3. \Diamond (A \wedge B)
+
+Conclusion:
+4. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0403 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mc.d[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {a.b.c.d, c}, {a, a.b.c, a.b.c.d} >[0m  [32m(True in c.d)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d}, {a.b.c.d, c} >[0m  [33m(False in c.d)[0m
+
+2.  [32m|(A \boxright C)| = < {a.d, c.d}, {a.b} >[0m  [32m(True in c.d)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d}, {a.b.c.d, c} >[0m  [33m(False in c.d)[0m
+      [36m|A|-alternatives to c.d = {a.d}[0m
+        [37m|C| = < {a.c.d, a.d, d}, {a.b, a.b.c.d} >[0m  [33m(True in a.d)[0m
+
+3.  [32m|\Diamond (A \wedge B)| = < {□}, {} >[0m  [32m(True in c.d)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d}, {a.b.c.d, a.c.d, a.d, c} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d}, {a.b.c.d, c} >[0m  [33m(True in a.b)[0m
+        [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, c.d}, {a.d} >[0m  [33m(True in a.b)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d}, {a.b.c.d, a.c.d, a.d, c} >[0m  [33m(False in a.d)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d}, {a.b.c.d, c} >[0m  [33m(True in a.d)[0m
+        [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, c.d}, {a.d} >[0m  [33m(False in a.d)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d}, {a.b.c.d, a.c.d, a.d, c} >[0m  [33m(False in c.d)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d}, {a.b.c.d, c} >[0m  [33m(False in c.d)[0m
+        [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, c.d}, {a.d} >[0m  [33m(True in c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+4.  [31m|((A \wedge B) \boxright C)| = < {}, {a.b, a.d, c.d} >[0m  [31m(False in c.d)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d}, {a.b.c.d, a.c.d, a.d, c} >[0m  [33m(False in c.d)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d}, {a.b.c.d, c} >[0m  [33m(False in c.d)[0m
+        [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, c.d}, {a.d} >[0m  [33m(True in c.d)[0m
+      [36m|(A \wedge B)|-alternatives to c.d = {a.b}[0m
+        [37m|C| = < {a.c.d, a.d, d}, {a.b, a.b.c.d} >[0m  [33m(False in a.b)[0m
+
+Total Run Time: 0.3779 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_4: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. (A \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0236 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {c}, {a.b.c.d, a.b.d, a.c.d, b, b.c.d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c} >[0m  [33m(False in a.c)[0m
+
+2.  [32m|(A \boxright C)| = < {a.b, a.c}, {b.d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c} >[0m  [33m(False in a.c)[0m
+      [36m|A|-alternatives to a.c = {a.b}[0m
+        [37m|C| = < {a.b}, {a.b.c.d, a.c, b.d} >[0m  [33m(True in a.b)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \wedge B) \boxright C)| = < {}, {a.b, a.c, b.d} >[0m  [31m(False in a.c)[0m
+      [37m|(A \wedge B)| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, b.d}, {a, a.b.c, a.b.c.d, a.c, c} >[0m  [33m(False in a.c)[0m
+        [37m|A| = < {a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c} >[0m  [33m(False in a.c)[0m
+        [37m|B| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, d}, {a, a.b.c, a.b.c.d, a.c} >[0m  [33m(False in a.c)[0m
+      [36m|(A \wedge B)|-alternatives to a.c = {b.d}[0m
+        [37m|C| = < {a.b}, {a.b.c.d, a.c, b.d} >[0m  [33m(False in b.d)[0m
+
+Total Run Time: 0.4324 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_5: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \boxright C)
+2. (B \boxright C)
+
+Conclusion:
+3. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0178 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|(A \boxright C)| = < {b.c, b.d}, {a.b, a.d} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a.b, a.b.d, d}, {b.c} >[0m  [33m(False in b.c)[0m
+      [36m|A|-alternatives to b.c = {a.b, b.d}[0m
+        [37m|C| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, b.d, c}, {a.d} >[0m  [33m(True in a.b)[0m
+        [37m|C| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, b.d, c}, {a.d} >[0m  [33m(True in b.d)[0m
+
+2.  [32m|(B \boxright C)| = < {a.b, b.c}, {a.d, b.d} >[0m  [32m(True in b.c)[0m
+      [37m|B| = < {a}, {b.c, b.c.d, b.d} >[0m  [33m(False in b.c)[0m
+      [36m|B|-alternatives to b.c = {a.b}[0m
+        [37m|C| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, b.d, c}, {a.d} >[0m  [33m(True in a.b)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \wedge B) \boxright C)| = < {}, {a.b, a.d, b.c, b.d} >[0m  [31m(False in b.c)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.d, a.d}, {b.c, b.c.d, b.d} >[0m  [33m(False in b.c)[0m
+        [37m|A| = < {a.b, a.b.d, d}, {b.c} >[0m  [33m(False in b.c)[0m
+        [37m|B| = < {a}, {b.c, b.c.d, b.d} >[0m  [33m(False in b.c)[0m
+      [36m|(A \wedge B)|-alternatives to b.c = {a.b, a.d}[0m
+        [37m|C| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, b.d, c}, {a.d} >[0m  [33m(True in a.b)[0m
+        [37m|C| = < {a.b, a.b.c, a.b.c.d, a.b.d, b.c.d, b.d, c}, {a.d} >[0m  [33m(False in a.d)[0m
+
+Total Run Time: 0.5401 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_6: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. (A \boxright B)
+3. (A \boxright C)
+
+Conclusion:
+4. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.025 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {c}, {a.b.c.d, b, b.c.d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a.b.c.d, b, b.c.d}, {c} >[0m  [33m(False in a.c)[0m
+
+2.  [32m|(A \boxright B)| = < {a.b, a.c, b.d}, {} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a.b.c.d, b, b.c.d}, {c} >[0m  [33m(False in a.c)[0m
+      [36m|A|-alternatives to a.c = {a.b}[0m
+        [37m|B| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d, b.d}, {a.c} >[0m  [33m(True in a.b)[0m
+
+3.  [32m|(A \boxright C)| = < {a.b, a.c}, {b.d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a.b.c.d, b, b.c.d}, {c} >[0m  [33m(False in a.c)[0m
+      [36m|A|-alternatives to a.c = {a.b}[0m
+        [37m|C| = < {a.b, a.b.c, a.c}, {b.d} >[0m  [33m(True in a.b)[0m
+
+INTERPRETED CONCLUSION:
+
+4.  [31m|((A \wedge B) \boxright C)| = < {}, {a.b, a.c, b.d} >[0m  [31m(False in a.c)[0m
+      [37m|(A \wedge B)| = < {a.b.c, a.b.c.d, a.b.d, b, b.c.d, b.d}, {a.c, c} >[0m  [33m(False in a.c)[0m
+        [37m|A| = < {a.b.c.d, b, b.c.d}, {c} >[0m  [33m(False in a.c)[0m
+        [37m|B| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d, b.d}, {a.c} >[0m  [33m(False in a.c)[0m
+      [36m|(A \wedge B)|-alternatives to a.c = {a.b, b.d}[0m
+        [37m|C| = < {a.b, a.b.c, a.c}, {b.d} >[0m  [33m(True in a.b)[0m
+        [37m|C| = < {a.b, a.b.c, a.c}, {b.d} >[0m  [33m(False in b.d)[0m
+
+Total Run Time: 0.4649 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_7: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \boxright B)
+
+Conclusion:
+2. (\neg B \boxright \neg A)
+
+Z3 Run Time: 0.0097 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [36ma.b[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [36mb.d[0m
+  [37m#b1011 = [34ma.b.d (world)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b.d[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|(A \boxright B)| = < {a.b.d}, {a.c, b.c} >[0m  [32m(True in a.b.d)[0m
+      [37m|A| = < {a.b.d, b}, {a.c} >[0m  [33m(True in a.b.d)[0m
+      [36m|A|-alternatives to a.b.d = {a.b.d}[0m
+        [37m|B| = < {a.b, a.b.d, b.d}, {a.b.c, c} >[0m  [33m(True in a.b.d)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(\neg B \boxright \neg A)| = < {a.c}, {a.b.d, b.c} >[0m  [31m(False in a.b.d)[0m
+      [37m|\neg B| = < {a.b.c, c}, {a.b, a.b.d, b.d} >[0m  [33m(False in a.b.d)[0m
+        [37m|B| = < {a.b, a.b.d, b.d}, {a.b.c, c} >[0m  [33m(True in a.b.d)[0m
+      [36m|\neg B|-alternatives to a.b.d = {a.c, b.c}[0m
+        [37m|\neg A| = < {a.c}, {a.b.d, b} >[0m  [33m(False in b.c)[0m
+          [37m|A| = < {a.b.d, b}, {a.c} >[0m  [33m(True in b.c)[0m
+        [37m|\neg A| = < {a.c}, {a.b.d, b} >[0m  [33m(True in a.c)[0m
+          [37m|A| = < {a.b.d, b}, {a.c} >[0m  [33m(False in a.c)[0m
+
+Total Run Time: 0.2117 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_8: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg B
+2. (A \boxright B)
+
+Conclusion:
+3. (\neg B \boxright \neg A)
+
+Z3 Run Time: 0.0129 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg B| = < {a.b, a.b.c, a.b.c.d, c}, {b.d} >[0m  [32m(True in a.b)[0m
+      [37m|B| = < {b.d}, {a.b, a.b.c, a.b.c.d, c} >[0m  [33m(False in a.b)[0m
+
+2.  [32m|(A \boxright B)| = < {a.b, b.d}, {c.d} >[0m  [32m(True in a.b)[0m
+      [37m|A| = < {d}, {a} >[0m  [33m(False in a.b)[0m
+      [36m|A|-alternatives to a.b = {b.d}[0m
+        [37m|B| = < {b.d}, {a.b, a.b.c, a.b.c.d, c} >[0m  [33m(True in b.d)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(\neg B \boxright \neg A)| = < {}, {a.b, b.d, c.d} >[0m  [31m(False in a.b)[0m
+      [37m|\neg B| = < {a.b, a.b.c, a.b.c.d, c}, {b.d} >[0m  [33m(True in a.b)[0m
+        [37m|B| = < {b.d}, {a.b, a.b.c, a.b.c.d, c} >[0m  [33m(False in a.b)[0m
+      [36m|\neg B|-alternatives to a.b = {a.b, c.d}[0m
+        [37m|\neg A| = < {a}, {d} >[0m  [33m(True in a.b)[0m
+          [37m|A| = < {d}, {a} >[0m  [33m(False in a.b)[0m
+        [37m|\neg A| = < {a}, {d} >[0m  [33m(False in c.d)[0m
+          [37m|A| = < {d}, {a} >[0m  [33m(True in c.d)[0m
+
+Total Run Time: 0.2579 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_9: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. \neg B
+3. (A \boxright B)
+
+Conclusion:
+4. (\neg B \boxright \neg A)
+
+Z3 Run Time: 0.0198 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {a.b.c.d, a.c}, {d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {d}, {a.b.c.d, a.c} >[0m  [33m(False in a.c)[0m
+
+2.  [32m|\neg B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b}, {c.d} >[0m  [32m(True in a.c)[0m
+      [37m|B| = < {c.d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b} >[0m  [33m(False in a.c)[0m
+
+3.  [32m|(A \boxright B)| = < {a.c, c.d}, {b.d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {d}, {a.b.c.d, a.c} >[0m  [33m(False in a.c)[0m
+      [36m|A|-alternatives to a.c = {c.d}[0m
+        [37m|B| = < {c.d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b} >[0m  [33m(True in c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+4.  [31m|(\neg B \boxright \neg A)| = < {}, {a.c, b.d, c.d} >[0m  [31m(False in a.c)[0m
+      [37m|\neg B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b}, {c.d} >[0m  [33m(True in a.c)[0m
+        [37m|B| = < {c.d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b} >[0m  [33m(False in a.c)[0m
+      [36m|\neg B|-alternatives to a.c = {a.c, b.d}[0m
+        [37m|\neg A| = < {a.b.c.d, a.c}, {d} >[0m  [33m(False in b.d)[0m
+          [37m|A| = < {d}, {a.b.c.d, a.c} >[0m  [33m(True in b.d)[0m
+        [37m|\neg A| = < {a.b.c.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|A| = < {d}, {a.b.c.d, a.c} >[0m  [33m(False in a.c)[0m
+
+Total Run Time: 0.3121 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_10: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \boxright B)
+2. (B \boxright C)
+
+Conclusion:
+3. (A \boxright C)
+
+Z3 Run Time: 0.0162 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|(A \boxright B)| = < {a.b, a.c, b.c, b.d}, {} >[0m  [32m(True in a.b)[0m
+      [37m|A| = < {d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b.c.d, c} >[0m  [33m(False in a.b)[0m
+      [36m|A|-alternatives to a.b = {b.d}[0m
+        [37m|B| = < {b}, {a.c} >[0m  [33m(True in b.d)[0m
+
+2.  [32m|(B \boxright C)| = < {a.b}, {a.c, b.c, b.d} >[0m  [32m(True in a.b)[0m
+      [37m|B| = < {b}, {a.c} >[0m  [33m(True in a.b)[0m
+      [36m|B|-alternatives to a.b = {a.b}[0m
+        [37m|C| = < {a.b}, {a.b.c.d, b.c.d, b.d, c} >[0m  [33m(True in a.b)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(A \boxright C)| = < {}, {a.b, a.c, b.c, b.d} >[0m  [31m(False in a.b)[0m
+      [37m|A| = < {d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b.c.d, c} >[0m  [33m(False in a.b)[0m
+      [36m|A|-alternatives to a.b = {b.d}[0m
+        [37m|C| = < {a.b}, {a.b.c.d, b.c.d, b.d, c} >[0m  [33m(False in b.d)[0m
+
+Total Run Time: 0.3523 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_11: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. (A \boxright B)
+3. (B \boxright C)
+
+Conclusion:
+4. (A \boxright C)
+
+Z3 Run Time: 0.0162 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [36ma.c[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [34ma.c.d (world)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {a.b, a.b.d, b.d}, {a.c.d, c} >[0m  [32m(True in a.b)[0m
+      [37m|A| = < {a.c.d, c}, {a.b, a.b.d, b.d} >[0m  [33m(False in a.b)[0m
+
+2.  [32m|(A \boxright B)| = < {a.b, a.c.d, b.d}, {} >[0m  [32m(True in a.b)[0m
+      [37m|A| = < {a.c.d, c}, {a.b, a.b.d, b.d} >[0m  [33m(False in a.b)[0m
+      [36m|A|-alternatives to a.b = {a.c.d}[0m
+        [37m|B| = < {a}, {b.d} >[0m  [33m(True in a.c.d)[0m
+
+3.  [32m|(B \boxright C)| = < {a.b}, {a.c.d, b.d} >[0m  [32m(True in a.b)[0m
+      [37m|B| = < {a}, {b.d} >[0m  [33m(True in a.b)[0m
+      [36m|B|-alternatives to a.b = {a.b}[0m
+        [37m|C| = < {a.b}, {a.b.c.d, a.c, b.d} >[0m  [33m(True in a.b)[0m
+
+INTERPRETED CONCLUSION:
+
+4.  [31m|(A \boxright C)| = < {}, {a.b, a.c.d, b.d} >[0m  [31m(False in a.b)[0m
+      [37m|A| = < {a.c.d, c}, {a.b, a.b.d, b.d} >[0m  [33m(False in a.b)[0m
+      [36m|A|-alternatives to a.b = {a.c.d}[0m
+        [37m|C| = < {a.b}, {a.b.c.d, a.c, b.d} >[0m  [33m(False in a.c.d)[0m
+
+Total Run Time: 0.3327 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_12: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. \neg B
+3. (A \boxright B)
+4. (B \boxright C)
+
+Conclusion:
+5. (A \boxright C)
+
+Z3 Run Time: 0.0327 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {a.b.c, a.c, b}, {c.d} >[0m  [32m(True in a.b)[0m
+      [37m|A| = < {c.d}, {a.b.c, a.c, b} >[0m  [33m(False in a.b)[0m
+
+2.  [32m|\neg B| = < {a, a.b, a.b.c, b.c}, {d} >[0m  [32m(True in a.b)[0m
+      [37m|B| = < {d}, {a, a.b, a.b.c, b.c} >[0m  [33m(False in a.b)[0m
+
+3.  [32m|(A \boxright B)| = < {a.b, a.c, b.c, b.d, c.d}, {} >[0m  [32m(True in a.b)[0m
+      [37m|A| = < {c.d}, {a.b.c, a.c, b} >[0m  [33m(False in a.b)[0m
+      [36m|A|-alternatives to a.b = {c.d}[0m
+        [37m|B| = < {d}, {a, a.b, a.b.c, b.c} >[0m  [33m(True in c.d)[0m
+
+4.  [32m|(B \boxright C)| = < {a.b, b.d}, {a.c, b.c, c.d} >[0m  [32m(True in a.b)[0m
+      [37m|B| = < {d}, {a, a.b, a.b.c, b.c} >[0m  [33m(False in a.b)[0m
+      [36m|B|-alternatives to a.b = {b.d}[0m
+        [37m|C| = < {a.b, a.b.d, b.d}, {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d} >[0m  [33m(True in b.d)[0m
+
+INTERPRETED CONCLUSION:
+
+5.  [31m|(A \boxright C)| = < {}, {a.b, a.c, b.c, b.d, c.d} >[0m  [31m(False in a.b)[0m
+      [37m|A| = < {c.d}, {a.b.c, a.c, b} >[0m  [33m(False in a.b)[0m
+      [36m|A|-alternatives to a.b = {c.d}[0m
+        [37m|C| = < {a.b, a.b.d, b.d}, {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d} >[0m  [33m(False in c.d)[0m
+
+Total Run Time: 0.5125 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_13: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+
+Z3 Run Time: 0.1023 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [34mc (world)[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|(A \boxright X)| = < {a.b}, {b.d, c} >[0m  [32m(True in a.b)[0m
+      [37m|A| = < {b}, {c} >[0m  [33m(True in a.b)[0m
+      [36m|A|-alternatives to a.b = {a.b}[0m
+        [37m|X| = < {a.b, a.b.c, c}, {b.c.d, b.d} >[0m  [33m(True in a.b)[0m
+
+2.  [32m|\neg ((A \wedge B) \boxright X)| = < {a.b, b.d, c}, {} >[0m  [32m(True in a.b)[0m
+      [37m|((A \wedge B) \boxright X)| = < {}, {a.b, b.d, c} >[0m  [33m(False in a.b)[0m
+        [37m|(A \wedge B)| = < {b, b.d}, {c} >[0m  [33m(True in a.b)[0m
+          [37m|A| = < {b}, {c} >[0m  [33m(True in a.b)[0m
+          [37m|B| = < {b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+          [36m|(A \wedge B)|-alternatives to a.b = {a.b, b.d}[0m
+            [37m|X| = < {a.b, a.b.c, c}, {b.c.d, b.d} >[0m  [33m(True in a.b)[0m
+            [37m|X| = < {a.b, a.b.c, c}, {b.c.d, b.d} >[0m  [33m(False in b.d)[0m
+
+3.  [32m|(((A \wedge B) \wedge C) \boxright X)| = < {a.b, b.d, c}, {} >[0m  [32m(True in a.b)[0m
+      [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+        [37m|(A \wedge B)| = < {b, b.d}, {c} >[0m  [33m(True in a.b)[0m
+          [37m|A| = < {b}, {c} >[0m  [33m(True in a.b)[0m
+          [37m|B| = < {b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c.d, b.c.d, c}, {a, a.b, b} >[0m  [33m(False in a.b)[0m
+      [36m|((A \wedge B) \wedge C)|-alternatives to a.b = {}[0m
+
+4.  [31m|\neg ((((A \wedge B) \wedge C) \wedge D) \boxright X)| = < {}, {a.b, b.d, c} >[0m  [31m(False in a.b)[0m
+      [37m|((((A \wedge B) \wedge C) \wedge D) \boxright X)| = < {a.b, b.d, c}, {} >[0m  [33m(True in a.b)[0m
+        [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+          [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+            [37m|(A \wedge B)| = < {b, b.d}, {c} >[0m  [33m(True in a.b)[0m
+              [37m|A| = < {b}, {c} >[0m  [33m(True in a.b)[0m
+              [37m|B| = < {b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+            [37m|C| = < {a.b.c, a.b.c.d, a.c.d, b.c.d, c}, {a, a.b, b} >[0m  [33m(False in a.b)[0m
+          [37m|D| = < {a.b.d, b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+          [36m|(((A \wedge B) \wedge C) \wedge D)|-alternatives to a.b = {}[0m
+
+5.  [32m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \boxright X)| = < {a.b, b.d, c}, {} >[0m  [32m(True in a.b)[0m
+      [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, b.c.d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+          [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+            [37m|(A \wedge B)| = < {b, b.d}, {c} >[0m  [33m(True in a.b)[0m
+              [37m|A| = < {b}, {c} >[0m  [33m(True in a.b)[0m
+              [37m|B| = < {b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+            [37m|C| = < {a.b.c, a.b.c.d, a.c.d, b.c.d, c}, {a, a.b, b} >[0m  [33m(False in a.b)[0m
+          [37m|D| = < {a.b.d, b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+        [37m|E| = < {a, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c.d}, {c, c.d, d} >[0m  [33m(True in a.b)[0m
+      [36m|((((A \wedge B) \wedge C) \wedge D) \wedge E)|-alternatives to a.b = {}[0m
+
+6.  [31m|\neg ((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \boxright X)| = < {}, {a.b, b.d, c} >[0m  [31m(False in a.b)[0m
+      [37m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \boxright X)| = < {a.b, b.d, c}, {} >[0m  [33m(True in a.b)[0m
+        [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, b.c.d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, b.c.d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in a.b)[0m
+            [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+              [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+                [37m|(A \wedge B)| = < {b, b.d}, {c} >[0m  [33m(True in a.b)[0m
+                  [37m|A| = < {b}, {c} >[0m  [33m(True in a.b)[0m
+                  [37m|B| = < {b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+                [37m|C| = < {a.b.c, a.b.c.d, a.c.d, b.c.d, c}, {a, a.b, b} >[0m  [33m(False in a.b)[0m
+              [37m|D| = < {a.b.d, b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+            [37m|E| = < {a, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c.d}, {c, c.d, d} >[0m  [33m(True in a.b)[0m
+          [37m|F| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+          [36m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)|-alternatives to a.b = {}[0m
+
+7.  [32m|(((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G) \boxright X)| = < {a.b, b.d, c}, {} >[0m  [32m(True in a.b)[0m
+      [37m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)| = < {a.b.c, a.b.c.d, b.c.d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, b.c.d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, b.c.d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b, b.c, b.c.d, b.d, c, c.d, d} >[0m  [33m(False in a.b)[0m
+            [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+              [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, b.c, b.c.d}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a.b)[0m
+                [37m|(A \wedge B)| = < {b, b.d}, {c} >[0m  [33m(True in a.b)[0m
+                  [37m|A| = < {b}, {c} >[0m  [33m(True in a.b)[0m
+                  [37m|B| = < {b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+                [37m|C| = < {a.b.c, a.b.c.d, a.c.d, b.c.d, c}, {a, a.b, b} >[0m  [33m(False in a.b)[0m
+              [37m|D| = < {a.b.d, b, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+            [37m|E| = < {a, a.b.c, a.b.c.d, a.b.d, a.c.d, b.c.d}, {c, c.d, d} >[0m  [33m(True in a.b)[0m
+          [37m|F| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d, d}, {c} >[0m  [33m(True in a.b)[0m
+        [37m|G| = < {a, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b.c.d, c, c.d}, {b.d} >[0m  [33m(True in a.b)[0m
+      [36m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)|-alternatives to a.b = {}[0m
+
+Total Run Time: 1.8751 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_14: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+
+Z3 Run Time: 0.0578 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [34md (world)[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\Diamond A| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.b)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(False in d)[0m
+
+2.  [32m|(A \boxright X)| = < {a.c}, {a.b, d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+      [36m|A|-alternatives to a.c = {a.c}[0m
+        [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(True in a.c)[0m
+
+3.  [32m|\Diamond (A \wedge B)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.b)[0m
+        [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.b)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(False in d)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(False in d)[0m
+        [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(False in d)[0m
+
+4.  [32m|\neg ((A \wedge B) \boxright X)| = < {a.b, a.c, d}, {} >[0m  [32m(True in a.c)[0m
+      [37m|((A \wedge B) \boxright X)| = < {}, {a.b, a.c, d} >[0m  [33m(False in a.c)[0m
+        [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+          [36m|(A \wedge B)|-alternatives to a.c = {a.b, a.c}[0m
+            [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(False in a.b)[0m
+            [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(True in a.c)[0m
+
+5.  [32m|\Diamond ((A \wedge B) \wedge C)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.b)[0m
+          [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.b)[0m
+          [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.b)[0m
+        [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+      [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+      [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+        [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(False in d)[0m
+          [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(False in d)[0m
+          [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(False in d)[0m
+        [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+
+6.  [32m|(((A \wedge B) \wedge C) \boxright X)| = < {a.b, a.c, d}, {} >[0m  [32m(True in a.c)[0m
+      [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+      [36m|((A \wedge B) \wedge C)|-alternatives to a.c = {a.c}[0m
+        [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(True in a.c)[0m
+
+7.  [32m|\Diamond (((A \wedge B) \wedge C) \wedge D)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.b)[0m
+            [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.b)[0m
+            [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.b)[0m
+          [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.b)[0m
+      [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+      [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+        [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+          [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(False in d)[0m
+            [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(False in d)[0m
+            [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(False in d)[0m
+          [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+        [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(False in d)[0m
+
+8.  [31m|\neg ((((A \wedge B) \wedge C) \wedge D) \boxright X)| = < {}, {a.b, a.c, d} >[0m  [31m(False in a.c)[0m
+      [37m|((((A \wedge B) \wedge C) \wedge D) \boxright X)| = < {a.b, a.c, d}, {} >[0m  [33m(True in a.c)[0m
+        [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+              [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+              [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+          [36m|(((A \wedge B) \wedge C) \wedge D)|-alternatives to a.c = {a.c}[0m
+            [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(True in a.c)[0m
+
+9.  [32m|\Diamond ((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+            [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.b)[0m
+              [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.b)[0m
+              [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.b)[0m
+            [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.b)[0m
+        [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+      [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+              [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+              [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+      [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+        [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+          [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+            [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(False in d)[0m
+              [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(False in d)[0m
+              [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(False in d)[0m
+            [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+          [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(False in d)[0m
+        [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+
+10.  [32m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \boxright X)| = < {a.b, a.c, d}, {} >[0m  [32m(True in a.c)[0m
+      [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+              [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+              [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+      [36m|((((A \wedge B) \wedge C) \wedge D) \wedge E)|-alternatives to a.c = {a.c}[0m
+        [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(True in a.c)[0m
+
+11.  [32m|\Diamond (((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+            [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+              [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.b)[0m
+                [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.b)[0m
+                [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.b)[0m
+              [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+            [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.b)[0m
+          [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|F| = < {a}, {d} >[0m  [33m(True in a.b)[0m
+      [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+              [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+                [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+                [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+              [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+          [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|F| = < {a}, {d} >[0m  [33m(True in a.c)[0m
+      [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+        [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+          [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+            [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+              [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(False in d)[0m
+                [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(False in d)[0m
+                [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(False in d)[0m
+              [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+            [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(False in d)[0m
+          [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+        [37m|F| = < {a}, {d} >[0m  [33m(False in d)[0m
+
+12.  [31m|\neg ((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \boxright X)| = < {}, {a.b, a.c, d} >[0m  [31m(False in a.c)[0m
+      [37m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \boxright X)| = < {a.b, a.c, d}, {} >[0m  [33m(True in a.c)[0m
+        [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+              [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+                [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+                  [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+                  [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+                [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+              [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|F| = < {a}, {d} >[0m  [33m(True in a.c)[0m
+          [36m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)|-alternatives to a.c = {a.c}[0m
+            [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(True in a.c)[0m
+
+13.  [32m|\Diamond ((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+        [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+            [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+              [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+                [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.b)[0m
+                  [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.b)[0m
+                  [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.b)[0m
+                [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in a.b)[0m
+              [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.b)[0m
+            [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(False in a.b)[0m
+          [37m|F| = < {a}, {d} >[0m  [33m(True in a.b)[0m
+        [37m|G| = < {a.c}, {a.b, a.b.d, b.d, d} >[0m  [33m(False in a.b)[0m
+      [37m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+              [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+                [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+                  [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+                  [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+                [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+              [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|F| = < {a}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|G| = < {a.c}, {a.b, a.b.d, b.d, d} >[0m  [33m(True in a.c)[0m
+      [37m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+        [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+          [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+            [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+              [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+                [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(False in d)[0m
+                  [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(False in d)[0m
+                  [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(False in d)[0m
+                [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(False in d)[0m
+              [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(False in d)[0m
+            [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(False in d)[0m
+          [37m|F| = < {a}, {d} >[0m  [33m(False in d)[0m
+        [37m|G| = < {a.c}, {a.b, a.b.d, b.d, d} >[0m  [33m(False in d)[0m
+
+14.  [32m|(((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G) \boxright X)| = < {a.b, a.c, d}, {} >[0m  [32m(True in a.c)[0m
+      [37m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+        [37m|(((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|((((A \wedge B) \wedge C) \wedge D) \wedge E)| = < {a.b.c, a.b.c.d, a.c, a.c.d}, {a.b, a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+            [37m|(((A \wedge B) \wedge C) \wedge D)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+              [37m|((A \wedge B) \wedge C)| = < {a.b.c, a.b.c.d, a.b.d, a.c, a.c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+                [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c}, {d} >[0m  [33m(True in a.c)[0m
+                  [37m|A| = < {a, a.b.c, a.b.c.d, a.b.d}, {d} >[0m  [33m(True in a.c)[0m
+                  [37m|B| = < {a.b, a.b.c, a.c}, {d} >[0m  [33m(True in a.c)[0m
+                [37m|C| = < {a.b.c.d, a.b.d, a.c.d, b.c.d, c, c.d}, {a.b, a.b.d, d} >[0m  [33m(True in a.c)[0m
+              [37m|D| = < {a, a.b, a.b.c, a.c, b.c}, {d} >[0m  [33m(True in a.c)[0m
+            [37m|E| = < {a.c}, {a.b.d, b, b.d, d} >[0m  [33m(True in a.c)[0m
+          [37m|F| = < {a}, {d} >[0m  [33m(True in a.c)[0m
+        [37m|G| = < {a.c}, {a.b, a.b.d, b.d, d} >[0m  [33m(True in a.c)[0m
+      [36m|((((((A \wedge B) \wedge C) \wedge D) \wedge E) \wedge F) \wedge G)|-alternatives to a.c = {a.c}[0m
+        [37m|X| = < {a.c}, {b, b.d, d} >[0m  [33m(True in a.c)[0m
+
+Total Run Time: 2.9025 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_15: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \neg A
+
+Conclusions:
+2. (A \boxright B)
+3. (A \boxright \neg B)
+
+Z3 Run Time: 0.0156 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [35mc.d (impossible)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.d[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\neg A| = < {a.d}, {a.b.c, a.b.c.d, b, b.c, b.c.d, c} >[0m  [32m(True in a.d)[0m
+      [37m|A| = < {a.b.c, a.b.c.d, b, b.c, b.c.d, c}, {a.d} >[0m  [33m(False in a.d)[0m
+
+INTERPRETED CONCLUSIONS:
+
+2.  [31m|(A \boxright B)| = < {b.c}, {a.d, b.d} >[0m  [31m(False in a.d)[0m
+      [37m|A| = < {a.b.c, a.b.c.d, b, b.c, b.c.d, c}, {a.d} >[0m  [33m(False in a.d)[0m
+      [36m|A|-alternatives to a.d = {b.c, b.d}[0m
+        [37m|B| = < {b.c}, {b.c.d, b.d, d} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {b.c}, {b.c.d, b.d, d} >[0m  [33m(False in b.d)[0m
+
+3.  [31m|(A \boxright \neg B)| = < {}, {a.d, b.c, b.d} >[0m  [31m(False in a.d)[0m
+      [37m|A| = < {a.b.c, a.b.c.d, b, b.c, b.c.d, c}, {a.d} >[0m  [33m(False in a.d)[0m
+      [36m|A|-alternatives to a.d = {b.c, b.d}[0m
+        [37m|\neg B| = < {b.c.d, b.d, d}, {b.c} >[0m  [33m(False in b.c)[0m
+          [37m|B| = < {b.c}, {b.c.d, b.d, d} >[0m  [33m(True in b.c)[0m
+        [37m|\neg B| = < {b.c.d, b.d, d}, {b.c} >[0m  [33m(True in b.d)[0m
+          [37m|B| = < {b.c}, {b.c.d, b.d, d} >[0m  [33m(False in b.d)[0m
+
+Total Run Time: 0.3593 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_16: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. (A \boxright (B \vee C))
+
+Conclusions:
+3. (A \boxright B)
+4. (A \boxright C)
+
+Z3 Run Time: 0.0169 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [36ma.b[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [36ma.c[0m
+  [37m#b0110 = [36mb.c[0m
+  [37m#b0111 = [34ma.b.c (world)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [36mb.d[0m
+  [37m#b1011 = [34ma.b.d (world)[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [34ma.c.d (world)[0m
+  [37m#b1110 = [34mb.c.d (world)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb.c.d[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {b.c.d}, {a, a.b.c.d, a.b.d} >[0m  [32m(True in b.c.d)[0m
+      [37m|A| = < {a, a.b.c.d, a.b.d}, {b.c.d} >[0m  [33m(False in b.c.d)[0m
+
+2.  [32m|(A \boxright (B \vee C))| = < {a.b.c, a.b.d, a.c.d, b.c.d}, {} >[0m  [32m(True in b.c.d)[0m
+      [37m|A| = < {a, a.b.c.d, a.b.d}, {b.c.d} >[0m  [33m(False in b.c.d)[0m
+      [36m|A|-alternatives to b.c.d = {a.b.c, a.b.d, a.c.d}[0m
+        [37m|(B \vee C)| = < {a.b, a.b.c.d, a.b.d, b.c.d, b.d, c.d}, {a.b.c.d} >[0m  [33m(True in a.c.d)[0m
+          [37m|B| = < {b.c.d, b.d, c.d}, {a.b.c} >[0m  [33m(True in a.c.d)[0m
+          [37m|C| = < {a.b, a.b.c.d, b.c.d}, {a.c.d} >[0m  [33m(False in a.c.d)[0m
+        [37m|(B \vee C)| = < {a.b, a.b.c.d, a.b.d, b.c.d, b.d, c.d}, {a.b.c.d} >[0m  [33m(True in a.b.d)[0m
+          [37m|B| = < {b.c.d, b.d, c.d}, {a.b.c} >[0m  [33m(True in a.b.d)[0m
+          [37m|C| = < {a.b, a.b.c.d, b.c.d}, {a.c.d} >[0m  [33m(True in a.b.d)[0m
+        [37m|(B \vee C)| = < {a.b, a.b.c.d, a.b.d, b.c.d, b.d, c.d}, {a.b.c.d} >[0m  [33m(True in a.b.c)[0m
+          [37m|B| = < {b.c.d, b.d, c.d}, {a.b.c} >[0m  [33m(False in a.b.c)[0m
+          [37m|C| = < {a.b, a.b.c.d, b.c.d}, {a.c.d} >[0m  [33m(True in a.b.c)[0m
+
+INTERPRETED CONCLUSIONS:
+
+3.  [31m|(A \boxright B)| = < {a.b.d, a.c.d}, {a.b.c, b.c.d} >[0m  [31m(False in b.c.d)[0m
+      [37m|A| = < {a, a.b.c.d, a.b.d}, {b.c.d} >[0m  [33m(False in b.c.d)[0m
+      [36m|A|-alternatives to b.c.d = {a.b.c, a.b.d, a.c.d}[0m
+        [37m|B| = < {b.c.d, b.d, c.d}, {a.b.c} >[0m  [33m(True in a.c.d)[0m
+        [37m|B| = < {b.c.d, b.d, c.d}, {a.b.c} >[0m  [33m(True in a.b.d)[0m
+        [37m|B| = < {b.c.d, b.d, c.d}, {a.b.c} >[0m  [33m(False in a.b.c)[0m
+
+4.  [31m|(A \boxright C)| = < {a.b.c, a.b.d}, {a.c.d, b.c.d} >[0m  [31m(False in b.c.d)[0m
+      [37m|A| = < {a, a.b.c.d, a.b.d}, {b.c.d} >[0m  [33m(False in b.c.d)[0m
+      [36m|A|-alternatives to b.c.d = {a.b.c, a.b.d, a.c.d}[0m
+        [37m|C| = < {a.b, a.b.c.d, b.c.d}, {a.c.d} >[0m  [33m(False in a.c.d)[0m
+        [37m|C| = < {a.b, a.b.c.d, b.c.d}, {a.c.d} >[0m  [33m(True in a.b.d)[0m
+        [37m|C| = < {a.b, a.b.c.d, b.c.d}, {a.c.d} >[0m  [33m(True in a.b.c)[0m
+
+Total Run Time: 0.5957 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_17: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \boxright C)
+2. (B \boxright C)
+
+Conclusion:
+3. ((A \vee B) \boxright C)
+
+Z3 Run Time: 0.0292 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|(A \boxright C)| = < {a.c, b.c}, {a.d, c.d} >[0m  [32m(True in b.c)[0m
+      [37m|A| = < {a, a.b.c, a.b.c.d, b.c}, {c.d} >[0m  [33m(True in b.c)[0m
+      [36m|A|-alternatives to b.c = {a.c, b.c}[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.d} >[0m  [33m(True in b.c)[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.d} >[0m  [33m(True in a.c)[0m
+
+2.  [32m|(B \boxright C)| = < {b.c, c.d}, {a.c, a.d} >[0m  [32m(True in b.c)[0m
+      [37m|B| = < {a.b.c.d, a.b.d, d}, {a.b.c, a.c, b.c} >[0m  [33m(False in b.c)[0m
+      [36m|B|-alternatives to b.c = {c.d}[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.d} >[0m  [33m(True in c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|((A \vee B) \boxright C)| = < {}, {a.c, a.d, b.c, c.d} >[0m  [31m(False in b.c)[0m
+      [37m|(A \vee B)| = < {a, a.b.c, a.b.c.d, a.b.d, a.d, b.c, b.c.d, d}, {a.b.c.d, a.c.d, b.c.d} >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {a, a.b.c, a.b.c.d, b.c}, {c.d} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {a.b.c.d, a.b.d, d}, {a.b.c, a.c, b.c} >[0m  [33m(False in b.c)[0m
+      [36m|(A \vee B)|-alternatives to b.c = {a.c, a.d, b.c, c.d}[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.d} >[0m  [33m(True in b.c)[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.d} >[0m  [33m(True in c.d)[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.d} >[0m  [33m(False in a.d)[0m
+        [37m|C| = < {a.b.c, a.b.c.d, a.c, a.c.d, b.c, b.c.d, c.d}, {a.d} >[0m  [33m(True in a.c)[0m
+
+Total Run Time: 0.7309 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_18: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. A
+2. B
+
+Conclusion:
+3. (A \boxright B)
+
+Z3 Run Time: 0.0103 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [34ma (world)[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [34mb.c (world)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [34mb.d (world)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|A| = < {a, a.c.d, c.d}, {a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b.c, b.c.d, b.d} >[0m  [32m(True in a)[0m
+
+2.  [32m|B| = < {a, a.b.d}, {b, b.d, d} >[0m  [32m(True in a)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(A \boxright B)| = < {}, {a, b.c, b.d, c.d} >[0m  [31m(False in a)[0m
+      [37m|A| = < {a, a.c.d, c.d}, {a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b.c, b.c.d, b.d} >[0m  [33m(True in a)[0m
+      [36m|A|-alternatives to a = {a, c.d}[0m
+        [37m|B| = < {a, a.b.d}, {b, b.d, d} >[0m  [33m(True in a)[0m
+        [37m|B| = < {a, a.b.d}, {b, b.d, d} >[0m  [33m(False in c.d)[0m
+
+Total Run Time: 0.3178 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_19: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \wedge B) \boxright C)
+
+Conclusion:
+2. (A \boxright (B \boxright C))
+
+Z3 Run Time: 0.0152 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [34mb (world)[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [36ma.c[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [34ma.c.d (world)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mb[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|((A \wedge B) \boxright C)| = < {a.c.d, b}, {} >[0m  [32m(True in b)[0m
+      [37m|(A \wedge B)| = < {a.b.c, a.b.c.d, a.b.d, b.c.d}, {a.b.c.d, b, b.c.d, c.d} >[0m  [33m(False in b)[0m
+        [37m|A| = < {a.b.c, a.b.c.d, b}, {a.b.c.d, c.d} >[0m  [33m(True in b)[0m
+        [37m|B| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b.c.d}, {b} >[0m  [33m(False in b)[0m
+      [36m|(A \wedge B)|-alternatives to b = {}[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(A \boxright (B \boxright C))| = < {}, {a.c.d, b} >[0m  [31m(False in b)[0m
+      [37m|A| = < {a.b.c, a.b.c.d, b}, {a.b.c.d, c.d} >[0m  [33m(True in b)[0m
+      [36m|A|-alternatives to b = {b}[0m
+        [37m|(B \boxright C)| = < {}, {a.c.d, b} >[0m  [33m(False in b)[0m
+          [37m|B| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b.c.d}, {b} >[0m  [33m(False in b)[0m
+            [36m|B|-alternatives to b = {a.c.d}[0m
+              [37m|C| = < {b}, {d} >[0m  [33m(False in a.c.d)[0m
+
+Total Run Time: 0.9956 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_20: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. ((A \wedge B) \boxright C)
+2. \Diamond (A \wedge B)
+
+Conclusion:
+3. (A \boxright (B \boxright C))
+
+Z3 Run Time: 0.021 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [34ma (world)[0m
+  [37m#b0010 = [34mb (world)[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [35ma.c (impossible)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mc.d[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|((A \wedge B) \boxright C)| = < {a, b, c.d}, {} >[0m  [32m(True in c.d)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d}, {a, a.c.d, a.d, c.d, d} >[0m  [33m(False in c.d)[0m
+        [37m|A| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d, b.d, d}, {a} >[0m  [33m(True in c.d)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c.d, d} >[0m  [33m(False in c.d)[0m
+      [36m|(A \wedge B)|-alternatives to c.d = {b}[0m
+        [37m|C| = < {b}, {a, a.c, c} >[0m  [33m(True in b)[0m
+
+2.  [32m|\Diamond (A \wedge B)| = < {□}, {} >[0m  [32m(True in c.d)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d}, {a, a.c.d, a.d, c.d, d} >[0m  [33m(False in a)[0m
+        [37m|A| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d, b.d, d}, {a} >[0m  [33m(False in a)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c.d, d} >[0m  [33m(True in a)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d}, {a, a.c.d, a.d, c.d, d} >[0m  [33m(True in b)[0m
+        [37m|A| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d, b.d, d}, {a} >[0m  [33m(True in b)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c.d, d} >[0m  [33m(True in b)[0m
+      [37m|(A \wedge B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c.d, b.d}, {a, a.c.d, a.d, c.d, d} >[0m  [33m(False in c.d)[0m
+        [37m|A| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d, b.d, d}, {a} >[0m  [33m(True in c.d)[0m
+        [37m|B| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c.d, d} >[0m  [33m(False in c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(A \boxright (B \boxright C))| = < {}, {a, b, c.d} >[0m  [31m(False in c.d)[0m
+      [37m|A| = < {a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d, b.d, d}, {a} >[0m  [33m(True in c.d)[0m
+      [36m|A|-alternatives to c.d = {b, c.d}[0m
+        [37m|(B \boxright C)| = < {}, {a, b, c.d} >[0m  [33m(False in b)[0m
+          [37m|B| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c.d, d} >[0m  [33m(True in b)[0m
+            [36m|B|-alternatives to b = {a, b}[0m
+              [37m|C| = < {b}, {a, a.c, c} >[0m  [33m(True in b)[0m
+              [37m|C| = < {b}, {a, a.c, c} >[0m  [33m(False in a)[0m
+        [37m|(B \boxright C)| = < {}, {a, b, c.d} >[0m  [33m(False in c.d)[0m
+          [37m|B| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, b, b.c.d}, {c.d, d} >[0m  [33m(False in c.d)[0m
+            [36m|B|-alternatives to c.d = {a, b}[0m
+              [37m|C| = < {b}, {a, a.c, c} >[0m  [33m(True in b)[0m
+              [37m|C| = < {b}, {a, a.c, c} >[0m  [33m(False in a)[0m
+
+Total Run Time: 1.7575 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_21: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. \neg A
+2. \neg (A \boxright B)
+
+Conclusion:
+3. (A \boxright \neg B)
+
+Z3 Run Time: 0.0106 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [34ma.b (world)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [36mb.c[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [34ma.d (world)[0m
+  [37m#b1010 = [36mb.d[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [34mb.c.d (world)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\neg A| = < {a.c}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c, b.c.d, b.d, c.d, d} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c, b.c.d, b.d, c.d, d}, {a.c} >[0m  [33m(False in a.c)[0m
+
+2.  [32m|\neg (A \boxright B)| = < {a.b, a.c, a.d, b.c.d}, {} >[0m  [32m(True in a.c)[0m
+      [37m|(A \boxright B)| = < {}, {a.b, a.c, a.d, b.c.d} >[0m  [33m(False in a.c)[0m
+        [37m|A| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c, b.c.d, b.d, c.d, d}, {a.c} >[0m  [33m(False in a.c)[0m
+          [36m|A|-alternatives to a.c = {a.b, a.d, b.c.d}[0m
+            [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d}, {b.c.d} >[0m  [33m(True in a.b)[0m
+            [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d}, {b.c.d} >[0m  [33m(False in b.c.d)[0m
+            [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d}, {b.c.d} >[0m  [33m(True in a.d)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(A \boxright \neg B)| = < {}, {a.b, a.c, a.d, b.c.d} >[0m  [31m(False in a.c)[0m
+      [37m|A| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c.d, a.d, b, b.c, b.c.d, b.d, c.d, d}, {a.c} >[0m  [33m(False in a.c)[0m
+      [36m|A|-alternatives to a.c = {a.b, a.d, b.c.d}[0m
+        [37m|\neg B| = < {b.c.d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d} >[0m  [33m(False in a.b)[0m
+          [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d}, {b.c.d} >[0m  [33m(True in a.b)[0m
+        [37m|\neg B| = < {b.c.d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d} >[0m  [33m(True in b.c.d)[0m
+          [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d}, {b.c.d} >[0m  [33m(False in b.c.d)[0m
+        [37m|\neg B| = < {b.c.d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d} >[0m  [33m(False in a.d)[0m
+          [37m|B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d}, {b.c.d} >[0m  [33m(True in a.d)[0m
+
+Total Run Time: 0.748 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_24: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \boxright B)
+
+Conclusion:
+2. \Box (A \boxright B)
+
+Z3 Run Time: 0.0163 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [36mb[0m
+  [37m#b0011 = [36ma.b[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [36ma.c[0m
+  [37m#b0110 = [36mb.c[0m
+  [37m#b0111 = [34ma.b.c (world)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [36ma.d[0m
+  [37m#b1010 = [36mb.d[0m
+  [37m#b1011 = [34ma.b.d (world)[0m
+  [37m#b1100 = [36mc.d[0m
+  [37m#b1101 = [34ma.c.d (world)[0m
+  [37m#b1110 = [34mb.c.d (world)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34ma.b.d[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|(A \boxright B)| = < {a.b.d}, {a.b.c, a.c.d, b.c.d} >[0m  [32m(True in a.b.d)[0m
+      [37m|A| = < {a.b, a.b.d, a.d, b.d, □}, {} >[0m  [33m(True in a.b.d)[0m
+      [36m|A|-alternatives to a.b.d = {a.b.d}[0m
+        [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(True in a.b.d)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\Box (A \boxright B)| = < {}, {□} >[0m  [31m(False in a.b.d)[0m
+      [37m|(A \boxright B)| = < {a.b.d}, {a.b.c, a.c.d, b.c.d} >[0m  [33m(False in a.b.c)[0m
+        [37m|A| = < {a.b, a.b.d, a.d, b.d, □}, {} >[0m  [33m(True in a.b.c)[0m
+          [36m|A|-alternatives to a.b.c = {a.b.c, a.b.d, a.c.d, b.c.d}[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in b.c.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in a.c.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(True in a.b.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in a.b.c)[0m
+      [37m|(A \boxright B)| = < {a.b.d}, {a.b.c, a.c.d, b.c.d} >[0m  [33m(True in a.b.d)[0m
+        [37m|A| = < {a.b, a.b.d, a.d, b.d, □}, {} >[0m  [33m(True in a.b.d)[0m
+          [36m|A|-alternatives to a.b.d = {a.b.d}[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(True in a.b.d)[0m
+      [37m|(A \boxright B)| = < {a.b.d}, {a.b.c, a.c.d, b.c.d} >[0m  [33m(False in a.c.d)[0m
+        [37m|A| = < {a.b, a.b.d, a.d, b.d, □}, {} >[0m  [33m(True in a.c.d)[0m
+          [36m|A|-alternatives to a.c.d = {a.b.c, a.b.d, a.c.d, b.c.d}[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in b.c.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in a.c.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(True in a.b.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in a.b.c)[0m
+      [37m|(A \boxright B)| = < {a.b.d}, {a.b.c, a.c.d, b.c.d} >[0m  [33m(False in b.c.d)[0m
+        [37m|A| = < {a.b, a.b.d, a.d, b.d, □}, {} >[0m  [33m(True in b.c.d)[0m
+          [36m|A|-alternatives to b.c.d = {a.b.c, a.b.d, a.c.d, b.c.d}[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in b.c.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in a.c.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(True in a.b.d)[0m
+            [37m|B| = < {a.b.d}, {a.b.c, a.b.c.d, a.c.d, b.c.d} >[0m  [33m(False in a.b.c)[0m
+
+Total Run Time: 0.8295 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_CM_25: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. A
+2. \Diamond B
+3. \neg \Diamond (A \wedge B)
+
+Conclusion:
+4. (B \boxright C)
+
+Z3 Run Time: 0.0239 seconds
+
+========================================
+State Space:
+  [37m#b0000 = [33m□[0m
+  [37m#b0001 = [36ma[0m
+  [37m#b0010 = [35mb (impossible)[0m
+  [37m#b0011 = [35ma.b (impossible)[0m
+  [37m#b0100 = [36mc[0m
+  [37m#b0101 = [34ma.c (world)[0m
+  [37m#b0110 = [35mb.c (impossible)[0m
+  [37m#b0111 = [35ma.b.c (impossible)[0m
+  [37m#b1000 = [36md[0m
+  [37m#b1001 = [35ma.d (impossible)[0m
+  [37m#b1010 = [35mb.d (impossible)[0m
+  [37m#b1011 = [35ma.b.d (impossible)[0m
+  [37m#b1100 = [34mc.d (world)[0m
+  [37m#b1101 = [35ma.c.d (impossible)[0m
+  [37m#b1110 = [35mb.c.d (impossible)[0m
+  [37m#b1111 = [35ma.b.c.d (impossible)[0m
+
+The evaluation world is: [34mc.d[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|A| = < {a.b.c.d, a.c.d, b.c.d, d}, {a.c} >[0m  [32m(True in c.d)[0m
+
+2.  [32m|\Diamond B| = < {□}, {} >[0m  [32m(True in c.d)[0m
+      [37m|B| = < {a.c}, {c.d} >[0m  [33m(True in a.c)[0m
+      [37m|B| = < {a.c}, {c.d} >[0m  [33m(False in c.d)[0m
+
+3.  [32m|\neg \Diamond (A \wedge B)| = < {□}, {} >[0m  [32m(True in c.d)[0m
+      [37m|\Diamond (A \wedge B)| = < {}, {□} >[0m  [33m(False in c.d)[0m
+        [37m|(A \wedge B)| = < {a.b.c.d, a.c.d}, {a.c, a.c.d, c.d} >[0m  [33m(False in a.c)[0m
+          [37m|A| = < {a.b.c.d, a.c.d, b.c.d, d}, {a.c} >[0m  [33m(False in a.c)[0m
+          [37m|B| = < {a.c}, {c.d} >[0m  [33m(True in a.c)[0m
+        [37m|(A \wedge B)| = < {a.b.c.d, a.c.d}, {a.c, a.c.d, c.d} >[0m  [33m(False in c.d)[0m
+          [37m|A| = < {a.b.c.d, a.c.d, b.c.d, d}, {a.c} >[0m  [33m(True in c.d)[0m
+          [37m|B| = < {a.c}, {c.d} >[0m  [33m(False in c.d)[0m
+
+INTERPRETED CONCLUSION:
+
+4.  [31m|(B \boxright C)| = < {}, {a.c, c.d} >[0m  [31m(False in c.d)[0m
+      [37m|B| = < {a.c}, {c.d} >[0m  [33m(False in c.d)[0m
+      [36m|B|-alternatives to c.d = {a.c}[0m
+        [37m|C| = < {}, {c} >[0m  [33m(False in a.c)[0m
+
+Total Run Time: 0.1519 seconds
+
+
+========================================
+========================================
+
+EXAMPLE CF_TH_1: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \boxright A)
+
+Z3 Run Time: 0.009 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_2: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. A
+2. (A \boxright B)
+
+Conclusion:
+3. B
+
+Z3 Run Time: 0.0157 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_3: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \boxright B)
+2. ((A \wedge B) \boxright C)
+
+Conclusion:
+3. (A \boxright C)
+
+Z3 Run Time: 0.1363 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_4: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \vee B) \boxright C)
+
+Conclusion:
+2. ((A \wedge B) \boxright C)
+
+Z3 Run Time: 0.0483 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_5: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \vee B) \boxright C)
+
+Conclusion:
+2. (A \boxright C)
+
+Z3 Run Time: 0.0483 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_6: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \vee B) \boxright C)
+
+Conclusion:
+2. ((A \boxright C) \wedge (B \boxright C))
+
+Z3 Run Time: 0.0902 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_7: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \boxright C)
+2. (B \boxright C)
+3. ((A \wedge B) \boxright C)
+
+Conclusion:
+4. ((A \vee B) \boxright C)
+
+Z3 Run Time: 0.0501 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_8: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \boxright (B \wedge C))
+
+Conclusion:
+2. (A \boxright B)
+
+Z3 Run Time: 0.0325 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_9: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \boxright B)
+2. (A \boxright C)
+
+Conclusion:
+3. (A \boxright (B \wedge C))
+
+Z3 Run Time: 0.1995 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_10: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premises:
+1. A
+2. B
+
+Conclusion:
+3. (A \diamondright B)
+
+Z3 Run Time: 0.018 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_11: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box A
+
+Conclusion:
+2. (\top \boxright A)
+
+Z3 Run Time: 0.0127 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_12: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \boxright \bot)
+
+Conclusion:
+2. (\top \boxright \neg A)
+
+Z3 Run Time: 0.0159 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_13: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (\top \boxright A)
+
+Conclusion:
+2. \Box A
+
+Z3 Run Time: 0.0099 seconds
+
+========================================
+========================================
+
+EXAMPLE CF_TH_14: there is no countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \boxright \bot)
+
+Conclusion:
+2. (\top \boxright \neg A)
+
+Z3 Run Time: 0.0154 seconds
+
+========================================
+
+MODEL 1/2
+========================================
+
+EXAMPLE REL_CM_1: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \wedge B) \preceq A)
+
+Z3 Run Time: 0.004 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [35ma (impossible)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \wedge B) \preceq A)| = < {}, {□} >[0m  [31m(False in b)[0m
+      [37m|(A \wedge B)| = < {a.c, c}, {a.b, b} >[0m  [33m(False in b)[0m
+        [37m|A| = < {c}, {a.b, b} >[0m  [33m(False in b)[0m
+        [37m|B| = < {a.c, c}, {a.b, b} >[0m  [33m(False in b)[0m
+      [37m|A| = < {c}, {a.b, b} >[0m  [33m(False in b)[0m
+
+Total Run Time: 0.0414 seconds
+
+
+========================================
+Finding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 1) 0.0sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 2) 0.1sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 3) 0.1sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 4) 0.2sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 5) 0.2sFinding models: [███████████████░░░░░░░░░░░░░░░] 1/2 (checked 6) 0.3s
+[1m[0m
+MODEL 2/2
+========================================
+
+EXAMPLE REL_CM_1: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \wedge B) \preceq A)
+
+Z3 Run Time: 0.0041 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.b[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \wedge B) \preceq A)| = < {}, {□} >[0m  [31m(False in a.b)[0m
+      [37m|(A \wedge B)| = < {a.b.c}, {a, a.b.c, a.c, b.c} >[0m  [33m(False in a.b)[0m
+        [37m|A| = < {a.b, a.b.c, a.c}, {b.c} >[0m  [33m(True in a.b)[0m
+        [37m|B| = < {b.c}, {a, a.b.c, a.c} >[0m  [33m(False in a.b)[0m
+      [37m|A| = < {a.b, a.b.c, a.c}, {b.c} >[0m  [33m(True in a.b)[0m
+
+Total Run Time: 0.0666 seconds
+
+
+========================================
+
+Found 2/2 distinct models.
+========================================
+
+EXAMPLE REL_CM_2: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. ((A \vee B) \preceq A)
+
+Z3 Run Time: 0.0034 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [35mb (impossible)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|((A \vee B) \preceq A)| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|(A \vee B)| = < {a.b.c, a.c, b.c, c}, {a, a.b, a.b.c} >[0m  [33m(False in a)[0m
+        [37m|A| = < {b.c, c}, {a, a.b} >[0m  [33m(False in a)[0m
+        [37m|B| = < {a.b.c, a.c, b.c, c}, {a, a.b.c} >[0m  [33m(False in a)[0m
+      [37m|A| = < {b.c, c}, {a, a.b} >[0m  [33m(False in a)[0m
+
+Total Run Time: 0.0387 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_3: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. (A \preceq B)
+2. (B \preceq C)
+
+Conclusion:
+3. (A \preceq C)
+
+Z3 Run Time: 0.0052 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|(A \preceq B)| = < {□}, {} >[0m  [32m(True in b)[0m
+      [37m|A| = < {a}, {b, b.c, c} >[0m  [33m(False in b)[0m
+      [37m|B| = < {a, a.b.c, a.c, b.c, c}, {b, b.c} >[0m  [33m(False in b)[0m
+
+2.  [32m|(B \preceq C)| = < {□}, {} >[0m  [32m(True in b)[0m
+      [37m|B| = < {a, a.b.c, a.c, b.c, c}, {b, b.c} >[0m  [33m(False in b)[0m
+      [37m|C| = < {a.b.c, a.c, b.c, c}, {a, a.b, a.b.c, b, b.c} >[0m  [33m(False in b)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(A \preceq C)| = < {}, {□} >[0m  [31m(False in b)[0m
+      [37m|A| = < {a}, {b, b.c, c} >[0m  [33m(False in b)[0m
+      [37m|C| = < {a.b.c, a.c, b.c, c}, {a, a.b, a.b.c, b, b.c} >[0m  [33m(False in b)[0m
+
+Total Run Time: 0.0592 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_4: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. \Box (A \rightarrow B)
+2. (A \preceq B)
+
+Conclusion:
+3. (A \leq B)
+
+Z3 Run Time: 0.004 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\Box (A \rightarrow B)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|(A \rightarrow B)| = < {a.b.c, a.c, b.c}, {a.b, a.b.c} >[0m  [33m(True in a.c)[0m
+        [37m|A| = < {b}, {a.c} >[0m  [33m(False in a.c)[0m
+        [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+      [37m|(A \rightarrow B)| = < {a.b.c, a.c, b.c}, {a.b, a.b.c} >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {b}, {a.c} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(True in b.c)[0m
+
+2.  [32m|(A \preceq B)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {b}, {a.c} >[0m  [33m(False in a.c)[0m
+      [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(A \leq B)| = < {}, {□} >[0m  [31m(False in a.c)[0m
+      [37m|A| = < {b}, {a.c} >[0m  [33m(False in a.c)[0m
+      [37m|B| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+
+Total Run Time: 0.0479 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_5: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. \Box (B \rightarrow A)
+2. (A \preceq B)
+
+Conclusion:
+3. (A \sqsubseteq B)
+
+Z3 Run Time: 0.004 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\Box (B \rightarrow A)| = < {□}, {} >[0m  [32m(True in a)[0m
+      [37m|(B \rightarrow A)| = < {a, a.b.c, a.c, b.c, c}, {a.b, a.b.c} >[0m  [33m(True in a)[0m
+        [37m|B| = < {a}, {b.c, c} >[0m  [33m(True in a)[0m
+        [37m|A| = < {a}, {b, b.c} >[0m  [33m(True in a)[0m
+      [37m|(B \rightarrow A)| = < {a, a.b.c, a.c, b.c, c}, {a.b, a.b.c} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {a}, {b.c, c} >[0m  [33m(False in b.c)[0m
+        [37m|A| = < {a}, {b, b.c} >[0m  [33m(False in b.c)[0m
+
+2.  [32m|(A \preceq B)| = < {□}, {} >[0m  [32m(True in a)[0m
+      [37m|A| = < {a}, {b, b.c} >[0m  [33m(True in a)[0m
+      [37m|B| = < {a}, {b.c, c} >[0m  [33m(True in a)[0m
+
+INTERPRETED CONCLUSION:
+
+3.  [31m|(A \sqsubseteq B)| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|A| = < {a}, {b, b.c} >[0m  [33m(True in a)[0m
+      [37m|B| = < {a}, {b.c, c} >[0m  [33m(True in a)[0m
+
+Total Run Time: 0.0479 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_6: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premises:
+1. \Box (A \leftrightarrow B)
+2. (A \preceq B)
+3. (B \preceq A)
+
+Conclusion:
+4. (A \equiv B)
+
+Z3 Run Time: 0.0045 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [36mb[0m
+  [37m#b011 = [34ma.b (world)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [34mb.c (world)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma.c[0m
+
+INTERPRETED PREMISES:
+
+1.  [32m|\Box (A \leftrightarrow B)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|(A \leftrightarrow B)| = < {a.b, a.b.c, a.c, b.c}, {a.b.c} >[0m  [33m(True in a.b)[0m
+        [37m|A| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.b)[0m
+        [37m|B| = < {b.c}, {a, a.b, a.b.c, a.c} >[0m  [33m(False in a.b)[0m
+      [37m|(A \leftrightarrow B)| = < {a.b, a.b.c, a.c, b.c}, {a.b.c} >[0m  [33m(True in a.c)[0m
+        [37m|A| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+        [37m|B| = < {b.c}, {a, a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+      [37m|(A \leftrightarrow B)| = < {a.b, a.b.c, a.c, b.c}, {a.b.c} >[0m  [33m(True in b.c)[0m
+        [37m|A| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(True in b.c)[0m
+        [37m|B| = < {b.c}, {a, a.b, a.b.c, a.c} >[0m  [33m(True in b.c)[0m
+
+2.  [32m|(A \preceq B)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|A| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+      [37m|B| = < {b.c}, {a, a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+
+3.  [32m|(B \preceq A)| = < {□}, {} >[0m  [32m(True in a.c)[0m
+      [37m|B| = < {b.c}, {a, a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+      [37m|A| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+
+INTERPRETED CONCLUSION:
+
+4.  [31m|(A \equiv B)| = < {}, {□} >[0m  [31m(False in a.c)[0m
+      [37m|A| = < {b.c}, {a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+      [37m|B| = < {b.c}, {a, a.b, a.b.c, a.c} >[0m  [33m(False in a.c)[0m
+
+Total Run Time: 0.07 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_7: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. \Box (A \rightarrow B)
+
+Conclusion:
+2. (A \preceq B)
+
+Z3 Run Time: 0.0036 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [35mb (impossible)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mc[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Box (A \rightarrow B)| = < {□}, {} >[0m  [32m(True in c)[0m
+      [37m|(A \rightarrow B)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {a.c} >[0m  [33m(True in a)[0m
+        [37m|A| = < {a, a.c}, {b.c, c} >[0m  [33m(True in a)[0m
+        [37m|B| = < {a, a.b, b}, {c} >[0m  [33m(True in a)[0m
+      [37m|(A \rightarrow B)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {a.c} >[0m  [33m(True in c)[0m
+        [37m|A| = < {a, a.c}, {b.c, c} >[0m  [33m(False in c)[0m
+        [37m|B| = < {a, a.b, b}, {c} >[0m  [33m(False in c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(A \preceq B)| = < {}, {□} >[0m  [31m(False in c)[0m
+      [37m|A| = < {a, a.c}, {b.c, c} >[0m  [33m(False in c)[0m
+      [37m|B| = < {a, a.b, b}, {c} >[0m  [33m(False in c)[0m
+
+Total Run Time: 0.0411 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_8: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (((A \vee B) \wedge (A \vee C)) \preceq (A \vee (B \wedge C)))
+
+Z3 Run Time: 0.0109 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [35mc (impossible)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(((A \vee B) \wedge (A \vee C)) \preceq (A \vee (B \wedge C)))| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|((A \vee B) \wedge (A \vee C))| = < {a, a.b, a.b.c, a.c, b, b.c}, {a.b, a.b.c} >[0m  [33m(True in a)[0m
+        [37m|(A \vee B)| = < {a, a.b, a.b.c, b}, {a.b, a.b.c} >[0m  [33m(True in a)[0m
+          [37m|A| = < {b}, {a, a.b.c, a.c} >[0m  [33m(False in a)[0m
+          [37m|B| = < {a, a.b.c}, {a.b.c, b} >[0m  [33m(True in a)[0m
+        [37m|(A \vee C)| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {a.b, a.b.c} >[0m  [33m(True in a)[0m
+          [37m|A| = < {b}, {a, a.b.c, a.c} >[0m  [33m(False in a)[0m
+          [37m|C| = < {a, a.b.c, a.c, c}, {b} >[0m  [33m(True in a)[0m
+      [37m|(A \vee (B \wedge C))| = < {a, a.b, a.b.c, a.c, b}, {a.b, a.b.c} >[0m  [33m(True in a)[0m
+        [37m|A| = < {b}, {a, a.b.c, a.c} >[0m  [33m(False in a)[0m
+        [37m|(B \wedge C)| = < {a, a.b.c, a.c}, {a.b.c, b} >[0m  [33m(True in a)[0m
+          [37m|B| = < {a, a.b.c}, {a.b.c, b} >[0m  [33m(True in a)[0m
+          [37m|C| = < {a, a.b.c, a.c, c}, {b} >[0m  [33m(True in a)[0m
+
+Total Run Time: 0.1217 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_9: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (((A \wedge B) \vee (A \wedge C)) \preceq (A \wedge (B \vee C)))
+
+Z3 Run Time: 0.007 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [34ma (world)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [35mc (impossible)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34ma[0m
+
+INTERPRETED CONCLUSION:
+
+1.  [31m|(((A \wedge B) \vee (A \wedge C)) \preceq (A \wedge (B \vee C)))| = < {}, {□} >[0m  [31m(False in a)[0m
+      [37m|((A \wedge B) \vee (A \wedge C))| = < {a.b, a.b.c, a.c, b.c, c}, {a, a.b, a.b.c, a.c, b, b.c} >[0m  [33m(False in a)[0m
+        [37m|(A \wedge B)| = < {a.b, a.b.c, a.c, b.c, c}, {a, a.b, b} >[0m  [33m(False in a)[0m
+          [37m|A| = < {a, a.b, a.b.c, a.c, b.c, c}, {b} >[0m  [33m(True in a)[0m
+          [37m|B| = < {a.b, a.b.c, a.c, b, b.c, c}, {a} >[0m  [33m(False in a)[0m
+        [37m|(A \wedge C)| = < {a.b, a.b.c, a.c, b.c, c}, {a, a.b, a.b.c, a.c, b, b.c, c} >[0m  [33m(False in a)[0m
+          [37m|A| = < {a, a.b, a.b.c, a.c, b.c, c}, {b} >[0m  [33m(True in a)[0m
+          [37m|C| = < {a.b, a.b.c, a.c, b, b.c, c}, {a, a.c, c} >[0m  [33m(False in a)[0m
+      [37m|(A \wedge (B \vee C))| = < {a.b, a.b.c, a.c, b.c, c}, {a, a.b, a.b.c, a.c, b} >[0m  [33m(False in a)[0m
+        [37m|A| = < {a, a.b, a.b.c, a.c, b.c, c}, {b} >[0m  [33m(True in a)[0m
+        [37m|(B \vee C)| = < {a.b, a.b.c, a.c, b, b.c, c}, {a, a.c} >[0m  [33m(False in a)[0m
+          [37m|B| = < {a.b, a.b.c, a.c, b, b.c, c}, {a} >[0m  [33m(False in a)[0m
+          [37m|C| = < {a.b, a.b.c, a.c, b, b.c, c}, {a, a.c, c} >[0m  [33m(False in a)[0m
+
+Total Run Time: 0.1454 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_10: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \preceq B)
+
+Conclusion:
+2. (A \preceq (B \wedge C))
+
+Z3 Run Time: 0.0143 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [35ma (impossible)[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [34mc (world)[0m
+  [37m#b101 = [35ma.c (impossible)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mc[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|(A \preceq B)| = < {□}, {} >[0m  [32m(True in c)[0m
+      [37m|A| = < {b}, {a.b, a.b.c, c} >[0m  [33m(False in c)[0m
+      [37m|B| = < {a.b, b}, {a.b.c, c} >[0m  [33m(False in c)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(A \preceq (B \wedge C))| = < {}, {□} >[0m  [31m(False in c)[0m
+      [37m|A| = < {b}, {a.b, a.b.c, c} >[0m  [33m(False in c)[0m
+      [37m|(B \wedge C)| = < {a.b, b}, {a, a.b.c, a.c, c} >[0m  [33m(False in c)[0m
+        [37m|B| = < {a.b, b}, {a.b.c, c} >[0m  [33m(False in c)[0m
+        [37m|C| = < {a.b, b}, {a, a.c, c} >[0m  [33m(False in c)[0m
+
+Total Run Time: 0.1089 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_CM_11: there is a countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \preceq B)
+
+Conclusion:
+2. (A \preceq (B \vee C))
+
+Z3 Run Time: 0.0057 seconds
+
+========================================
+State Space:
+  [37m#b000 = [33m□[0m
+  [37m#b001 = [36ma[0m
+  [37m#b010 = [34mb (world)[0m
+  [37m#b011 = [35ma.b (impossible)[0m
+  [37m#b100 = [36mc[0m
+  [37m#b101 = [34ma.c (world)[0m
+  [37m#b110 = [35mb.c (impossible)[0m
+  [37m#b111 = [35ma.b.c (impossible)[0m
+
+The evaluation world is: [34mb[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|(A \preceq B)| = < {□}, {} >[0m  [32m(True in b)[0m
+      [37m|A| = < {a, a.b.c, a.c, b.c}, {b} >[0m  [33m(False in b)[0m
+      [37m|B| = < {a.b.c, a.c}, {a.b, b} >[0m  [33m(False in b)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|(A \preceq (B \vee C))| = < {}, {□} >[0m  [31m(False in b)[0m
+      [37m|A| = < {a, a.b.c, a.c, b.c}, {b} >[0m  [33m(False in b)[0m
+      [37m|(B \vee C)| = < {a.b.c, a.c, b}, {a.b, a.b.c, b.c} >[0m  [33m(True in b)[0m
+        [37m|B| = < {a.b.c, a.c}, {a.b, b} >[0m  [33m(False in b)[0m
+        [37m|C| = < {b}, {a, a.b.c, a.c, b.c} >[0m  [33m(True in b)[0m
+
+Total Run Time: 0.0641 seconds
+
+
+========================================
+========================================
+
+EXAMPLE REL_TH_1: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \preceq B)
+
+Conclusion:
+2. ((A \wedge B) \leq B)
+
+Z3 Run Time: 0.0049 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_2: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \preceq B)
+
+Conclusion:
+2. ((A \vee B) \sqsubseteq B)
+
+Z3 Run Time: 0.0056 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_3: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \wedge B) \leq B)
+
+Conclusion:
+2. (A \preceq B)
+
+Z3 Run Time: 0.0049 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_4: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. ((A \vee B) \sqsubseteq B)
+
+Conclusion:
+2. (A \preceq B)
+
+Z3 Run Time: 0.0051 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_5: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \preceq (A \wedge B))
+
+Z3 Run Time: 0.0054 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_6: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+
+Conclusion:
+1. (A \preceq (A \vee B))
+
+Z3 Run Time: 0.0056 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_7: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \leq B)
+
+Conclusion:
+2. (A \preceq B)
+
+Z3 Run Time: 0.0038 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_8: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \sqsubseteq B)
+
+Conclusion:
+2. (A \preceq B)
+
+Z3 Run Time: 0.0037 seconds
+
+========================================
+========================================
+
+EXAMPLE REL_TH_9: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Primary
+
+Premise:
+1. (A \equiv B)
+
+Conclusion:
+2. (A \preceq B)
+
+Z3 Run Time: 0.0037 seconds
+
+========================================
