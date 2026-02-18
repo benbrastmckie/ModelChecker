@@ -1,6 +1,14 @@
 {
-  "next_project_number": 3,
+  "next_project_number": 4,
   "active_projects": [
+    {
+      "project_number": 3,
+      "project_name": "port_paper_overview_to_latex",
+      "status": "not_started",
+      "language": "latex",
+      "created": "2026-02-18T20:06:09Z",
+      "last_updated": "2026-02-18T20:06:09Z"
+    },
     {
       "project_number": 2,
       "project_name": "review_improve_latex_context_files",

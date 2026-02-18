@@ -1,10 +1,18 @@
 ---
-next_project_number: 3
+next_project_number: 4
 ---
 
 # Task List
 
 ## Tasks
+
+### 3. Port paper overview content to LaTeX paper
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: latex
+- **Dependencies**: Task #1
+
+**Description**: Port the content given in /home/benjamin/Projects/ModelChecker/latex/markdown/paper_overview.md over to /home/benjamin/Projects/ModelChecker/latex/paper.tex in order to conform to journal standards.
 
 ### 2. Review and improve LaTeX context files for sn-article template
 - **Effort**: TBD
