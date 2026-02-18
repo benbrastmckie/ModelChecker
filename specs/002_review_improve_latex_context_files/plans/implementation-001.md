@@ -1,7 +1,7 @@
 # Implementation Plan: Task #2
 
 - **Task**: 2 - Review and improve LaTeX context files for sn-article template
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 3 hours
 - **Dependencies**: Task 1 (provides foundation for understanding project LaTeX setup)
 - **Research Inputs**: specs/002_review_improve_latex_context_files/reports/research-001.md
@@ -47,7 +47,7 @@ Key findings from research-001.md integrated:
 
 ## Implementation Phases
 
-### Phase 1: Remove/Archive Inapplicable Files [NOT STARTED]
+### Phase 1: Remove/Archive Inapplicable Files [COMPLETED]
 
 **Goal**: Clean up files that do not apply to the sn-article single-file project format
 
