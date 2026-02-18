@@ -55,7 +55,126 @@
 %%=======================================================%%
 %% Additional packages for ModelChecker paper            %%
 %%=======================================================%%
-%% Add project-specific packages here
+\usepackage{mathtools}  % For \coloneqq and enhanced math
+
+% Counterfactual operators (from txfonts symbolsC)
+\DeclareSymbolFont{symbolsC}{U}{txsyc}{m}{n}
+\SetSymbolFont{symbolsC}{bold}{U}{txsyc}{bx}{n}
+\DeclareFontSubstitution{U}{txsyc}{m}{n}
+\AtBeginDocument{
+  \DeclareMathSymbol{\boxright}{\mathrel}{symbolsC}{"80}       % Would-counterfactual
+  \DeclareMathSymbol{\circleright}{\mathrel}{symbolsC}{"91}    % Would-cause
+  \DeclareMathSymbol{\diamondright}{\mathrel}{symbolsC}{"84}   % Might-counterfactual
+}
+
+%%=======================================================%%
+%% Notation macros for ModelChecker paper                %%
+%%=======================================================%%
+
+% Modal operators
+\newcommand{\nec}{\Box}                     % Necessity
+\newcommand{\poss}{\Diamond}                % Possibility
+
+% Propositional connectives
+\newcommand{\imp}{\to}                      % Implication
+\newcommand{\lneg}{\neg}                    % Negation
+\newcommand{\falsum}{\bot}                  % Bottom
+
+% State space notation
+\newcommand{\statespace}{\mathcal{S}}       % State space
+\newcommand{\nullstate}{\square}            % Null state
+\newcommand{\fullstate}{\blacksquare}       % Full state (amssymb)
+\newcommand{\fuse}[2]{#1 \sqcup #2}         % Fusion
+\newcommand{\Fusion}{\bigsqcup}             % Big fusion
+\newcommand{\parthood}{\sqsubseteq}         % Part-of relation
+\newcommand{\strictpart}{\sqsubset}         % Strict part
+
+% Verification/falsification
+\newcommand{\verifies}{\Vdash}              % Verifies relation
+\newcommand{\falsifies}{\dashv}             % Falsifies relation
+\newcommand{\verifierset}[1]{\|{#1}\|^+}    % Verifier set
+\newcommand{\falsifierset}[1]{\|{#1}\|^-}   % Falsifier set
+\newcommand{\trueat}{\vDash}                % True at
+\newcommand{\falseat}{\Dashv}               % False at
+
+% Constitutive/grounding
+\newcommand{\ground}{\leq}                  % Ground relation
+\newcommand{\essence}{\sqsubseteq}          % Essence relation
+\newcommand{\propident}{\equiv}             % Propositional identity
+\newcommand{\relimpl}{\mathsf{R}}           % Relevance implication
+
+% Model notation
+\newcommand{\model}{\mathcal{M}}            % Model
+\newcommand{\mframe}{\mathcal{F}}           % Frame
+\newcommand{\tuple}[1]{\langle #1 \rangle}  % Tuple
+\newcommand{\interp}[1]{\|#1\|}             % Interpretation
+\newcommand{\define}{\coloneqq}             % Definition symbol
+
+% Bilateral propositions
+\newcommand{\prop}[1]{\mathsf{#1}}          % Proposition
+\newcommand{\props}{\mathbb{P}}             % Proposition space
+
+% Meta-variables
+\newcommand{\metaphi}{\varphi}              % Formula meta-variable
+\newcommand{\metapsi}{\psi}                 % Formula meta-variable
+\newcommand{\metachi}{\chi}                 % Formula meta-variable
+
+% Temporal operators
+\newcommand{\allpast}{\mathbf{H}}           % Always past
+\newcommand{\allfuture}{\mathbf{G}}         % Always future
+\newcommand{\somepast}{\mathbf{P}}          % Sometimes past
+\newcommand{\somefuture}{\mathbf{F}}        % Sometimes future
+\newcommand{\since}{\triangleleft}          % Since
+\newcommand{\until}{\triangleright}         % Until
+
+% Settings/parameters
+\newcommand{\stateN}{\mathsf{N}}            % State space size parameter
+\newcommand{\atomK}{\mathsf{K}}             % Atomic proposition count
+
+% Theory names (small caps)
+\newcommand{\theorylogos}{\textsc{Logos}}
+\newcommand{\theoryexclusion}{\textsc{Exclusion}}
+\newcommand{\theoryimposition}{\textsc{Imposition}}
+\newcommand{\theorybimodal}{\textsc{Bimodal}}
+\newcommand{\theorylib}{\textsc{TheoryLib}}
+\newcommand{\modelchecker}{\textsc{ModelChecker}}
+
+% Z3 function name macros (for inline code references)
+\newcommand{\zverify}{\texttt{verify}}
+\newcommand{\zfalsify}{\texttt{falsify}}
+\newcommand{\zaccessible}{\texttt{accessible}}
+\newcommand{\zpossible}{\texttt{possible}}
+\newcommand{\zfusion}{\texttt{fusion}}
+\newcommand{\zisworld}{\texttt{is\_world}}
+\newcommand{\zcloser}{\texttt{closer}}
+\newcommand{\zexcludes}{\texttt{excludes}}
+\newcommand{\zwitness}{\texttt{witness}}
+\newcommand{\zimposes}{\texttt{imposes}}
+\newcommand{\ztrueat}{\texttt{true\_at}}
+\newcommand{\zextverify}{\texttt{extended\_verify}}
+\newcommand{\zextfalsify}{\texttt{extended\_falsify}}
+
+%%=======================================================%%
+%% Listings configuration for Python code                %%
+%%=======================================================%%
+
+\lstset{
+  language=Python,
+  basicstyle=\ttfamily\small,
+  keywordstyle=\bfseries\color{blue!70!black},
+  commentstyle=\itshape\color{green!50!black},
+  stringstyle=\color{red!60!black},
+  showstringspaces=false,
+  breaklines=true,
+  breakatwhitespace=true,
+  numbers=left,
+  numberstyle=\tiny\color{gray},
+  numbersep=5pt,
+  frame=single,
+  framerule=0.5pt,
+  rulecolor=\color{gray!50},
+  captionpos=b
+}
 
 %%=======================================================%%
 %% Theorem environments                                  %%
@@ -84,7 +203,7 @@
 %% Title and Authors                                     %%
 %%=======================================================%%
 
-\title[ModelChecker]{ModelChecker: A Semantic Model Checker for Modal and Counterfactual Logics}
+\title[ModelChecker]{A Programmatic Framework for Modular Semantic Theory Development Using SMT Solvers}
 
 %%=============================================================%%
 %% Author format:                                              %%
@@ -103,16 +222,21 @@
 %%=======================================================%%
 
 \abstract{%
-Abstract text goes here.
-The abstract serves as a general introduction and brief summary of main results.
-For Journal of Automated Reasoning, check specific guidelines for length limits.
+The development and comparative analysis of semantic theories---particularly hyperintensional and non-classical logics---has been hindered by the lack of systematic computational tools.
+We present \modelchecker{}, a programmatic framework that treats semantic theories as executable programs, compiling truth conditions into SMT constraints for automated model discovery.
+The theory-agnostic architecture enables rapid implementation of diverse semantic frameworks (classical, modal, temporal, truthmaker semantics) with systematic comparative analysis.
+Constraint-based exploration of finite models provides evidence for validity by ruling out small countermodels, leveraging Z3 solver efficiency.
+Computational tractability (solver performance, timeout rates, maximum model size) provides a rigorous, quantifiable measure of theoretical complexity, replacing subjective aesthetic evaluations with empirical metrics.
+The extensible \theorylib{} library of semantic theories supports modular composition, sharing, and citation to advance semantic research.
+We demonstrate implementation of four major semantic frameworks (\theorylogos{} bilateral truthmaker semantics with 19 operators, \theoryexclusion{} unilateral semantics, \theoryimposition{} counterfactual theory, \theorybimodal{} temporal-modal logic) with over 177 validated examples.
+This represents the first systematic computational implementation of bilateral truthmaker semantics and demonstrates feasibility of programmatic semantic theory development at scale.
 }
 
 %%=======================================================%%
 %% Keywords                                              %%
 %%=======================================================%%
 
-\keywords{model checking, modal logic, counterfactual logic, SMT solver, Z3}
+\keywords{automated reasoning, semantic theory, SMT solvers, truthmaker semantics, hyperintensional logic, model theory, Z3, modal logic}
 
 %%=======================================================%%
 %% MSC Classification (optional but recommended)         %%
