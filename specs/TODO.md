@@ -9,7 +9,7 @@ next_project_number: 4
 ### 3. Port paper overview content to LaTeX paper
 - **Effort**: TBD
 - **Status**: [RESEARCHED]
-- **Research**: [research-001.md](003_port_paper_overview_to_latex/reports/research-001.md)
+- **Research**: [research-001.md](003_port_paper_overview_to_latex/reports/research-001.md), [research-002.md](003_port_paper_overview_to_latex/reports/research-002.md)
 - **Language**: latex
 - **Dependencies**: Task #1
 

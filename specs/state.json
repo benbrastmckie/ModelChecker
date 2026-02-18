@@ -7,14 +7,19 @@
       "status": "researched",
       "language": "latex",
       "created": "2026-02-18T20:06:09Z",
-      "last_updated": "2026-02-18T20:11:30Z",
-      "session_id": "sess_1771445224_5d2ee5",
-      "researched": "2026-02-18T20:11:30Z",
+      "last_updated": "2026-02-18T20:17:02Z",
+      "session_id": "sess_1771445604_70c8d3",
+      "researched": "2026-02-18T20:17:02Z",
       "artifacts": [
         {
           "path": "specs/003_port_paper_overview_to_latex/reports/research-001.md",
           "type": "research",
           "summary": "Research report covering notation conversion, code listing strategy, table formatting, bibliography setup, and phased implementation plan"
+        },
+        {
+          "path": "specs/003_port_paper_overview_to_latex/reports/research-002.md",
+          "type": "research",
+          "summary": "Supplementary research on notation macros: complete mapping table, compatibility analysis with sn-jnl, and recommended preamble section"
         }
       ]
     },
