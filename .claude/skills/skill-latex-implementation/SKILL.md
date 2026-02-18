@@ -4,14 +4,12 @@ description: Implement LaTeX documents following a plan. Invoke for LaTeX-langua
 allowed-tools: Task, Bash, Edit, Read, Write
 # Original context (now loaded by subagent):
 #   - .claude/context/project/latex/README.md
+#   - .claude/context/project/latex/standards/sn-article-requirements.md
 #   - .claude/context/project/latex/standards/latex-style-guide.md
-#   - .claude/context/project/latex/standards/notation-conventions.md
 #   - .claude/context/project/latex/standards/document-structure.md
 #   - .claude/context/project/latex/patterns/theorem-environments.md
 #   - .claude/context/project/latex/patterns/cross-references.md
-#   - .claude/context/project/latex/templates/subfile-template.md
 #   - .claude/context/project/latex/tools/compilation-guide.md
-#   - .claude/context/project/logic/standards/notation-standards.md
 # Original tools (now used by subagent):
 #   - Read, Write, Edit, Glob, Grep
 #   - Bash(pdflatex *, latexmk *, bibtex *, biber *)

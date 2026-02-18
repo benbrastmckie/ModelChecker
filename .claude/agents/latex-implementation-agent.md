@@ -65,16 +65,12 @@ Load these on-demand using @-references:
 - `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
 
 **Load for LaTeX Work**:
-- `@.claude/context/project/latex/style/latex-style-guide.md` - Formatting conventions (if exists)
-- `@.claude/context/project/latex/style/notation-conventions.md` - Symbol definitions (if exists)
-- `@.claude/context/project/latex/structure/document-structure.md` - Chapter/section patterns (if exists)
-- `@.claude/context/project/latex/structure/theorem-environments.md` - Theorem/lemma formatting (if exists)
-- `@.claude/context/project/latex/structure/cross-references.md` - Label/ref patterns (if exists)
-- `@.claude/context/project/latex/structure/subfile-template.md` - Modular document structure (if exists)
-- `@.claude/context/project/latex/build/compilation-guide.md` - Build process (if exists)
-
-**Load for Logic Content**:
-- `@.claude/context/project/logic/notation/notation-standards.md` - Logic notation conventions (if exists)
+- `@.claude/context/project/latex/standards/sn-article-requirements.md` - Springer Nature template requirements (CRITICAL)
+- `@.claude/context/project/latex/standards/latex-style-guide.md` - Formatting conventions
+- `@.claude/context/project/latex/standards/document-structure.md` - Single-file sn-jnl document organization
+- `@.claude/context/project/latex/patterns/theorem-environments.md` - sn-jnl theorem styles
+- `@.claude/context/project/latex/patterns/cross-references.md` - Label/ref patterns
+- `@.claude/context/project/latex/tools/compilation-guide.md` - latexmk build process
 
 ## Execution Flow
 
