@@ -8,7 +8,8 @@ next_project_number: 3
 
 ### 2. Review and improve LaTeX context files for sn-article template
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [research-001.md](002_review_improve_latex_context_files/reports/research-001.md)
 - **Language**: meta
 - **Dependencies**: Task #1
 
