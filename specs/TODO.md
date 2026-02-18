@@ -8,7 +8,8 @@ next_project_number: 2
 
 ### 1. Create ModelChecker LaTeX directory for Springer journal paper
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
+- **Plan**: [implementation-001.md](001_latex_springer_paper_setup/plans/implementation-001.md)
 - **Research**: [research-001.md](001_latex_springer_paper_setup/reports/research-001.md)
 - **Language**: latex
 - **Dependencies**: None

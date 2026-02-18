@@ -4,19 +4,25 @@
     {
       "project_number": 1,
       "project_name": "latex_springer_paper_setup",
-      "status": "researched",
+      "status": "planned",
       "language": "latex",
       "created": "2026-02-18T18:33:57Z",
-      "last_updated": "2026-02-18T18:39:18Z",
-      "session_id": "sess_1771439707_42a5b0",
+      "last_updated": "2026-02-18T18:52:05Z",
+      "session_id": "sess_1771440528_d4dc1b",
       "researched": "2026-02-18T18:39:18Z",
       "artifacts": [
         {
           "path": "specs/001_latex_springer_paper_setup/reports/research-001.md",
           "type": "research",
           "summary": "Comprehensive research report covering Springer template requirements, JAR submission guidelines, directory structure recommendations, and notation adaptation strategy"
+        },
+        {
+          "path": "specs/001_latex_springer_paper_setup/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for setting up ModelChecker/latex/ directory with Springer Nature JAR template"
         }
-      ]
+      ],
+      "planned": "2026-02-18T18:52:05Z"
     }
   ],
   "repository_health": {

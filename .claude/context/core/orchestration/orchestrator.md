@@ -1,8 +1,15 @@
 # Orchestrator Design
 
-**Version**: 5.0  
-**Created**: 2025-12-29  
+**Created**: 2025-12-29
 **Purpose**: Document the smart coordinator pattern and orchestrator architecture
+
+---
+
+> **DEPRECATED** (2026-01-19): This file has been consolidated into:
+> - `orchestration-core.md` - Session tracking, delegation safety, return format, routing
+> - `orchestration-reference.md` - Examples and troubleshooting
+>
+> This file is preserved for reference but should not be loaded for new development.
 
 ---
 
@@ -61,7 +68,7 @@ It does NOT handle:
    # Lookup task in state.json (8x faster than TODO.md)
    task_data=$(jq -r --arg num "$task_number" \
      '.active_projects[] | select(.project_number == ($num | tonumber))' \
-     .claude/specs/state.json)
+     specs/state.json)
    
    # Extract language
    language=$(echo "$task_data" | jq -r '.language // "general"')
@@ -70,8 +77,8 @@ It does NOT handle:
    **Performance**: ~12ms for state.json vs ~100ms for TODO.md (8x faster)
 
 2. Map language to agent:
-   - /research: lean → lean-research-agent, default → researcher
-   - /implement: lean → lean-implementation-agent, default → implementer
+   - /research: neovim → neovim-research-agent, default → researcher
+   - /implement: neovim → neovim-implementation-agent, default → implementer
 
 **For Direct Routing** (routing.language_based: false):
 - Use routing.target_agent from command frontmatter
@@ -79,7 +86,7 @@ It does NOT handle:
 
 **Output**: Target agent name
 
-**Note**: Command files now use state.json for all task lookups. See `.claude/context/core/system/state-lookup.md` for patterns.
+**Note**: Command files now use state.json for all task lookups. See `state-management.md` for patterns.
 
 ---
 
@@ -98,7 +105,7 @@ It does NOT handle:
     "task_context": {
       "task_number": 244,
       "description": "...",
-      "language": "lean"
+      "language": "neovim"
     }
   }
   ```
@@ -179,7 +186,7 @@ Without loading:
 ## Language Extraction Logic
 
 ### Priority 1: Project state.json
-**Path**: `.claude/specs/{task_number}_{slug}/state.json`
+**Path**: `specs/{task_number}_{slug}/state.json`
 
 **Field**: `language`
 
@@ -187,7 +194,7 @@ Without loading:
 ```json
 {
   "task_number": 244,
-  "language": "lean",
+  "language": "neovim",
   ...
 }
 ```
@@ -197,14 +204,14 @@ Without loading:
 ---
 
 ### Priority 2: TODO.md
-**Path**: `.claude/specs/TODO.md`
+**Path**: `specs/TODO.md`
 
 **Field**: `**Language**:` in task entry
 
 **Example**:
 ```markdown
 ### 244. Implement feature X
-- **Language**: lean
+- **Language**: neovim
 ```
 
 **When to use**: Task exists in TODO.md (always)
@@ -237,7 +244,7 @@ routing:
 ```yaml
 routing:
   language_based: true
-  lean: lean-research-agent
+  neovim: neovim-research-agent
   default: researcher
 ```
 
@@ -378,7 +385,6 @@ Agents own workflows, orchestrator just coordinates
 - `.claude/agent/orchestrator.md` - Orchestrator implementation
 # Orchestrator Guide - Examples and Troubleshooting
 
-**Version**: 1.0  
 **Created**: 2025-12-29 (Task 245 Phase 5)  
 **Purpose**: Examples, troubleshooting, and detailed guidance for orchestrator usage
 
@@ -812,11 +818,11 @@ User: /research 197
 
 Orchestrator:
 1. Load command file: .claude/command/research.md
-2. Extract language from TODO.md: "lean"
-3. Route to: lean-research-agent
+2. Extract language from TODO.md: "neovim"
+3. Route to: neovim-research-agent
 4. Generate session_id: sess_1703606400_a1b2c3
 5. Register delegation in registry
-6. Invoke lean-research-agent with context
+6. Invoke neovim-research-agent with context
 7. Monitor timeout (3600s)
 8. Receive return, validate format
 9. Complete delegation, remove from registry

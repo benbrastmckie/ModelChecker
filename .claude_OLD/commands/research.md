@@ -1,0 +1,159 @@
+---
+description: Research a task and create reports
+allowed-tools: Read, Write, Edit, Glob, Grep, WebSearch, WebFetch, Bash(git:*), TodoWrite, mcp__lean-lsp__lean_leansearch, mcp__lean-lsp__lean_loogle, mcp__lean-lsp__lean_leanfinder, mcp__lean-lsp__lean_local_search
+argument-hint: TASK_NUMBER [FOCUS]
+model: claude-opus-4-5-20251101
+---
+
+# /research Command
+
+Conduct research for a task and create a research report.
+
+## Arguments
+
+- `$1` - Task number (required)
+- Remaining args - Optional focus/prompt for research direction
+
+## Execution
+
+### 1. Parse and Validate
+
+```
+task_number = first token from $ARGUMENTS
+focus_prompt = remaining tokens (optional)
+```
+
+Read .claude/specs/state.json:
+- Find task by project_number
+- Extract: language, status, project_name, description
+- If not found: Error "Task {N} not found"
+
+### 2. Validate Status
+
+Allowed statuses: not_started, planned, partial, blocked
+- If completed/abandoned: Error with recommendation
+- If researching: Warn about stale status
+- If already researched: Note existing report, offer --force
+
+### 3. Update Status to RESEARCHING
+
+Update both files atomically:
+1. state.json: status = "researching", set `started` if null
+2. TODO.md: Status: [RESEARCHING], add Started: {date} if not present
+
+**Timestamp**: If this is the first work on the task (status was not_started), set `started` to today's date.
+
+### 4. Route by Language
+
+**If language == "lean":**
+Use Lean-specific search tools:
+- `lean_leansearch` - Natural language queries about Mathlib
+- `lean_loogle` - Type signature pattern matching
+- `lean_leanfinder` - Semantic concept search
+- `lean_local_search` - Check local declarations
+
+Search strategy:
+1. Search for relevant theorems/lemmas
+2. Find similar proofs in Mathlib
+3. Identify required imports
+4. Note proof patterns and tactics
+
+**If language == "general" or other:**
+Use web and codebase search:
+- `WebSearch` - External documentation/tutorials
+- `WebFetch` - Retrieve specific pages
+- `Read`, `Grep`, `Glob` - Codebase exploration
+
+Search strategy:
+1. Search for relevant documentation
+2. Find similar implementations
+3. Identify patterns and best practices
+4. Note dependencies and considerations
+
+### 5. Create Research Report
+
+Get directory name from state.json `directory` field, or construct it:
+```bash
+# If directory field exists in state.json, use it
+DIR=$(jq -r ".active_projects[] | select(.project_number == {N}) | .directory" .claude/specs/state.json)
+# Otherwise construct: PADDED=$(printf "%03d" {N}); DIR="${PADDED}_{SLUG}"
+mkdir -p .claude/specs/${DIR}/reports/
+```
+
+Find next report number (research-001.md, research-002.md, etc.)
+
+Write report to `.claude/specs/${DIR}/reports/research-{NNN}.md`:
+
+```markdown
+# Research Report: Task #{N}
+
+**Task**: {title}
+**Date**: {ISO_DATE}
+**Focus**: {focus_prompt or "General research"}
+
+## Summary
+
+{2-3 sentence overview of findings}
+
+## Findings
+
+### {Topic 1}
+
+{Detailed findings}
+
+### {Topic 2}
+
+{Detailed findings}
+
+## Recommendations
+
+1. {Approach recommendation}
+2. {Key considerations}
+3. {Potential challenges}
+
+## References
+
+- {Source 1}
+- {Source 2}
+
+## Next Steps
+
+{Suggested next actions for planning/implementation}
+```
+
+### 6. Update Status to RESEARCHED
+
+Update both files atomically:
+1. state.json:
+   - status = "researched"
+   - researched = today's date (YYYY-MM-DD)
+   - artifacts += [artifact_path]
+   - last_updated = now
+2. TODO.md:
+   - Status: [RESEARCHED]
+   - Researched: {date}
+   - Add Research link
+
+**Timestamp**: Set `researched` to today's date to record when research completed.
+
+### 7. Git Commit
+
+```bash
+git add .claude/specs/
+git commit -m "task {N}: complete research"
+```
+
+### 8. Output
+
+```
+Research completed for Task #{N}
+
+Report: .claude/specs/${DIR}/reports/research-{NNN}.md
+
+Key findings:
+- {finding 1}
+- {finding 2}
+
+Status: [RESEARCHED]
+Next: /plan {N}
+```

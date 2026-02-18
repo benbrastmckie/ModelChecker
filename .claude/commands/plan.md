@@ -1,13 +1,13 @@
 ---
 description: Create implementation plan for a task
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), TodoWrite
+allowed-tools: Skill, Bash(jq:*), Bash(git:*), Read, Edit
 argument-hint: TASK_NUMBER
 model: claude-opus-4-5-20251101
 ---
 
 # /plan Command
 
-Create a phased implementation plan for a task.
+Create a phased implementation plan for a task by delegating to the planner skill/subagent.
 
 ## Arguments
 
@@ -15,165 +15,105 @@ Create a phased implementation plan for a task.
 
 ## Execution
 
-### 1. Parse and Validate
+### CHECKPOINT 1: GATE IN
 
+1. **Generate Session ID**
+   ```
+   session_id = sess_{timestamp}_{random}
+   ```
+
+2. **Lookup Task**
+   ```bash
+   task_data=$(jq -r --arg num "$task_number" \
+     '.active_projects[] | select(.project_number == ($num | tonumber))' \
+     specs/state.json)
+   ```
+
+3. **Validate**
+   - Task exists (ABORT if not)
+   - Status allows planning: not_started, researched, partial
+   - If planned: Note existing plan, offer --force for revision
+   - If completed: ABORT "Task already completed"
+   - If implementing: ABORT "Task in progress, use /revise instead"
+
+4. **Load Context**
+   - Task description from state.json
+   - Research reports from `specs/{NNN}_{SLUG}/reports/` (if any)
+
+**ABORT** if any validation fails.
+
+**On GATE IN success**: Task validated. **IMMEDIATELY CONTINUE** to STAGE 2 below.
+
+### STAGE 2: DELEGATE
+
+**EXECUTE NOW**: After CHECKPOINT 1 passes, immediately invoke the Skill tool.
+
+**Invoke the Skill tool NOW** with:
 ```
-task_number = $ARGUMENTS
-```
-
-Read .claude/specs/state.json:
-- Find task by project_number
-- Extract: language, status, project_name, description
-- If not found: Error "Task {N} not found"
-
-### 2. Validate Status
-
-Allowed: not_started, researched, partial
-- If planned: Note existing plan, offer --force for revision
-- If completed: Error "Task already completed"
-- If implementing: Error "Task in progress, use /revise instead"
-
-### 3. Load Context
-
-Get directory name from state.json `directory` field, or construct it:
-```bash
-DIR=$(jq -r ".active_projects[] | select(.project_number == {N}) | .directory" .claude/specs/state.json)
-# Fallback: PADDED=$(printf "%03d" {N}); DIR="${PADDED}_{SLUG}"
-```
-
-1. **Task description** from TODO.md
-2. **Research reports** from .claude/specs/${DIR}/reports/
-3. **Relevant codebase context**:
-   - For lean: Related .lean files
-   - For general: Related source files
-
-### 4. Update Status to PLANNING
-
-Update both files atomically:
-1. state.json: status = "planning"
-2. TODO.md: Status: [PLANNING]
-
-### 5. Create Implementation Plan
-
-Create directory if needed (use DIR from step 3):
-```bash
-mkdir -p .claude/specs/${DIR}/plans/
+skill: "skill-planner"
+args: "task_number={N} research_path={path to research report if exists} session_id={session_id}"
 ```
 
-Find next plan version (implementation-001.md, implementation-002.md, etc.)
+The skill spawns `planner-agent` which analyzes task requirements and research findings, decomposes into logical phases, identifies risks and mitigations, and creates a plan in `specs/{NNN}_{SLUG}/plans/`.
 
-Write to `.claude/specs/${DIR}/plans/implementation-{NNN}.md`:
+**On DELEGATE success**: Plan created. **IMMEDIATELY CONTINUE** to CHECKPOINT 2 below.
 
-```markdown
-# Implementation Plan: Task #{N}
+### CHECKPOINT 2: GATE OUT
 
-**Task**: {title}
-**Version**: {NNN}
-**Created**: {ISO_DATE}
-**Language**: {language}
+1. **Validate Return**
+   Required fields: status, summary, artifacts, metadata (phase_count, estimated_hours)
 
-## Overview
+2. **Verify Artifacts**
+   Check plan file exists on disk
 
-{Summary of implementation approach based on research findings}
+3. **Verify Status Updated**
+   The skill handles status updates internally (preflight and postflight).
+   Confirm status is now "planned" in state.json.
 
-## Phases
+**RETRY** skill if validation fails.
 
-### Phase 1: {Name}
+**On GATE OUT success**: Plan verified. **IMMEDIATELY CONTINUE** to CHECKPOINT 3 below.
 
-**Estimated effort**: {X hours}
-**Status**: [NOT STARTED]
-
-**Objectives**:
-1. {Objective}
-2. {Objective}
-
-**Files to modify**:
-- `path/to/file1.ext` - {what changes}
-- `path/to/file2.ext` - {what changes}
-
-**Steps**:
-1. {Detailed step}
-2. {Detailed step}
-3. {Detailed step}
-
-**Verification**:
-- {How to verify this phase is complete}
-
----
-
-### Phase 2: {Name}
-
-**Estimated effort**: {X hours}
-**Status**: [NOT STARTED]
-
-{Same structure as Phase 1}
-
----
-
-### Phase 3: {Name}
-
-{Continue as needed, typically 2-5 phases}
-
-## Dependencies
-
-- {External dependency or prerequisite}
-- {Related task that must complete first}
-
-## Risks and Mitigations
-
-| Risk | Impact | Likelihood | Mitigation |
-|------|--------|------------|------------|
-| {Risk} | {High/Med/Low} | {High/Med/Low} | {Strategy} |
-
-## Success Criteria
-
-- [ ] {Measurable criterion 1}
-- [ ] {Measurable criterion 2}
-- [ ] {Tests pass / builds succeed}
-
-## Rollback Plan
-
-{How to revert if implementation fails}
-```
-
-### 6. Update Status to PLANNED
-
-Update both files atomically:
-1. state.json:
-   - status = "planned"
-   - planned = today's date (YYYY-MM-DD)
-   - artifacts += [plan_path]
-   - plan_path = path to plan
-   - plan_metadata = {plan_version: NNN}
-   - last_updated = now
-2. TODO.md:
-   - Status: [PLANNED]
-   - Planned: {date}
-   - Add Plan link
-
-**Timestamp**: Set `planned` to today's date to record when planning completed.
-
-### 7. Git Commit
+### CHECKPOINT 3: COMMIT
 
 ```bash
-git add .claude/specs/
-git commit -m "task {N}: create implementation plan"
+git add -A
+git commit -m "$(cat <<'EOF'
+task {N}: create implementation plan
+
+Session: {session_id}
+
+Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+EOF
+)"
 ```
 
-### 8. Output
+Commit failure is non-blocking (log and continue).
+
+## Output
 
 ```
 Plan created for Task #{N}
 
-Plan: .claude/specs/${DIR}/plans/implementation-{NNN}.md
+Plan: {artifact_path from skill result}
 
-Phases:
-1. {Phase 1 name} - {effort}
-2. {Phase 2 name} - {effort}
-...
-
-Total estimated effort: {sum}
+Phases: {phase_count from metadata}
+Total estimated effort: {estimated_hours from metadata}
 
 Status: [PLANNED]
 Next: /implement {N}
 ```
+
+## Error Handling
+
+### GATE IN Failure
+- Task not found: Return error with guidance
+- Invalid status: Return error with current status
+
+### DELEGATE Failure
+- Skill fails: Keep [PLANNING], log error
+- Timeout: Partial plan preserved, user can re-run
+
+### GATE OUT Failure
+- Missing artifacts: Log warning, continue with available
+- Link failure: Non-blocking warning

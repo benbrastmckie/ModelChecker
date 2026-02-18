@@ -2,12 +2,19 @@
 name: skill-orchestrator
 description: Route commands to appropriate workflows based on task language and status. Invoke when executing /task, /research, /plan, /implement commands.
 allowed-tools: Read, Glob, Grep, Task
-context: fork
+# Context loaded on-demand via @-references (see Context Loading section)
 ---
 
 # Orchestrator Skill
 
 Central routing intelligence for the task management system.
+
+## Context Loading
+
+Load context on-demand when needed:
+- `@.claude/context/core/orchestration/orchestration-core.md` - Routing, delegation, session tracking
+- `@.claude/context/core/orchestration/state-management.md` - Task lookup and status validation
+- `@.claude/context/index.md` - Full context discovery index
 
 ## Trigger Conditions
 
@@ -22,7 +29,7 @@ This skill activates when:
 
 Given a task number, retrieve full context:
 ```
-1. Read .claude/specs/state.json
+1. Read specs/state.json
 2. Find task by project_number
 3. Extract: language, status, project_name, description, priority
 4. Read TODO.md for additional context if needed
@@ -34,7 +41,9 @@ Route to appropriate skill based on task language:
 
 | Language | Research Skill | Implementation Skill |
 |----------|---------------|---------------------|
-| python | skill-python-research | skill-theory-implementation |
+| neovim | skill-neovim-research | skill-neovim-implementation |
+| latex | skill-researcher | skill-latex-implementation |
+| typst | skill-researcher | skill-typst-implementation |
 | general | skill-researcher | skill-implementer |
 | meta | skill-researcher | skill-implementer |
 | markdown | skill-researcher | skill-implementer |
@@ -57,7 +66,7 @@ Prepare context package for delegated skill:
 {
   "task_number": 259,
   "task_name": "task_slug",
-  "language": "python",
+  "language": "neovim",
   "status": "planned",
   "description": "Full task description",
   "artifacts": {
@@ -80,28 +89,6 @@ Prepare context package for delegated skill:
 7. Receive and validate result
 8. Return result to caller
 ```
-
-## ModelChecker-Specific Routing
-
-### Python Tasks
-- **Research**: skill-python-research
-  - Z3 API exploration
-  - Codebase pattern discovery
-  - Theory implementation patterns
-
-- **Implementation**: skill-theory-implementation
-  - TDD workflow enforcement
-  - pytest integration
-  - Theory component creation
-
-### General Tasks
-- **Research**: skill-researcher
-  - Web search
-  - Documentation exploration
-
-- **Implementation**: skill-implementer
-  - Direct code changes
-  - Non-theory modifications
 
 ## Return Format
 
