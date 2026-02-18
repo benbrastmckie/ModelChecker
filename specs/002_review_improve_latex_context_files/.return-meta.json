@@ -1,27 +1,19 @@
 {
-  "status": "researched",
-  "summary": "Reviewed all 8 LaTeX context files and identified critical mismatch: files describe Logos subfile project while this project uses sn-article single-file template. Agent path references also incorrect. Recommended: create sn-article-requirements.md, update 4 files for single-file format, remove 2 inapplicable files, fix agent paths.",
+  "status": "planned",
   "artifacts": [
     {
-      "type": "research",
-      "path": "specs/002_review_improve_latex_context_files/reports/research-001.md",
-      "summary": "Comprehensive analysis of LaTeX context files with gap analysis and recommendations for sn-article template alignment"
+      "type": "plan",
+      "path": "specs/002_review_improve_latex_context_files/plans/implementation-001.md",
+      "summary": "4-phase plan to update LaTeX context files for sn-article template"
     }
   ],
-  "next_steps": "Run /plan 2 to create implementation plan for context file updates",
+  "next_steps": "Run /implement 2 to execute the plan",
   "metadata": {
-    "session_id": "sess_1771443290_5f5e5f",
-    "agent_type": "general-research-agent",
-    "duration_seconds": 1800,
+    "session_id": "sess_1771443658_3b63a8",
+    "agent_type": "planner-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "general-research-agent"],
-    "findings_count": 5,
-    "files_examined": {
-      "latex_context": 8,
-      "neovim_context": 16,
-      "typst_context": 8,
-      "agent_skill_files": 3,
-      "project_latex_files": 3
-    }
+    "delegation_path": ["orchestrator", "plan", "skill-planner"],
+    "phase_count": 4,
+    "estimated_hours": 3
   }
 }
