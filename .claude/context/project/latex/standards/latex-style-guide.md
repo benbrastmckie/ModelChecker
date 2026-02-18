@@ -2,72 +2,74 @@
 
 ## Document Class
 
-### Main Documents
+### Main Document
+
 ```latex
-\documentclass[11pt]{article}
+\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
 ```
 
-### Subfiles
-```latex
-\documentclass[../LogosReference.tex]{subfiles}
-```
+The sn-jnl.cls document class is used for Springer Nature journal submissions. See `sn-article-requirements.md` for complete configuration options.
 
 ## Required Packages
 
-### Core Packages
+### Core Packages (included in paper.tex)
+
 ```latex
-\usepackage{amsmath}       % Mathematical typesetting
-\usepackage{amsthm}        % Theorem environments
-\usepackage{amssymb}       % Mathematical symbols
-\usepackage{stmaryrd}      % Semantic brackets \llbracket \rrbracket
-\usepackage{subfiles}      % Modular document structure
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{manyfoot}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
 ```
 
-### Formatting Packages
-```latex
-\usepackage{hyperref}      % Cross-references and links
-\usepackage{cleveref}      % Smart cross-references
-\usepackage{enumitem}      % List customization
-\usepackage{booktabs}      % Professional tables
-\usepackage{array}         % Table column formatting
-```
+### Packages Loaded by sn-jnl.cls
 
-### Custom Packages
-```latex
-\usepackage{assets/logos-notation}  % Logos-specific notation
-\usepackage{assets/formatting}      % Document formatting
-```
+These are automatically available:
+- `natbib` - Citation management
+- `hyperref` - Hyperlinks and PDF metadata
 
 ## Formatting Rules
 
 ### Line Length
+
 - Source lines: 100 characters maximum
 - Break long equations using `align` environment
 
 ### Indentation
+
 - Use 2 spaces for LaTeX source indentation
 - Align `&` in multi-line equations
 
 ### Spacing
+
 - One blank line between paragraphs
 - Two blank lines before `\section`
 - One blank line before `\subsection`
 
 ### Comments
+
 ```latex
 % Single-line comment for brief notes
 
-% -----------------------------------------------------
+% ============================================================
 % Section comments for major divisions
-% -----------------------------------------------------
+% ============================================================
 ```
 
 ## Source File Formatting
 
 ### Semantic Linefeeds
 
-Use **one sentence per line** in LaTeX source files.
-This convention, also called "semantic linefeeds," was documented by Brian Kernighan in 1974 and remains a best practice for technical writing.
+Use **one sentence per line** in LaTeX source files. This convention, also called "semantic linefeeds," was documented by Brian Kernighan in 1974 and remains a best practice for technical writing.
 
 **Rationale**:
 1. **Version control**: Git diffs show only changed sentences, not entire paragraphs
@@ -83,18 +85,20 @@ This convention, also called "semantic linefeeds," was documented by Brian Kerni
 5. Preserve protected spaces before citations: `text~\cite{foo}`
 
 ### Pass Example
+
 ```latex
 Modal logic extends classical logic with operators for necessity and possibility.
-The box operator $\nec$ expresses metaphysical necessity,
-while the diamond operator $\pos$ expresses possibility.
+The box operator $\Box$ expresses metaphysical necessity,
+while the diamond operator $\Diamond$ expresses possibility.
 
-These operators satisfy the duality $\pos \varphi \leftrightarrow \neg\nec\neg\varphi$.
+These operators satisfy the duality $\Diamond \varphi \leftrightarrow \neg\Box\neg\varphi$.
 ```
 
 ### Fail Example
+
 ```latex
 % Bad: Multiple sentences on one line, hard to diff
-Modal logic extends classical logic with operators for necessity and possibility. The box operator $\nec$ expresses metaphysical necessity, while the diamond operator $\pos$ expresses possibility. These operators satisfy the duality $\pos \varphi \leftrightarrow \neg\nec\neg\varphi$.
+Modal logic extends classical logic with operators for necessity and possibility. The box operator $\Box$ expresses metaphysical necessity, while the diamond operator $\Diamond$ expresses possibility. These operators satisfy the duality $\Diamond \varphi \leftrightarrow \neg\Box\neg\varphi$.
 ```
 
 ### Long Sentence Guidelines
@@ -116,28 +120,25 @@ and transitive if accessibility composes.
 
 ### Named Theorem Formatting
 
-When referencing theorems by name (e.g., Soundness Theorem, Lindenbaum's Lemma), use consistent formatting across prose, environments, and Lean cross-references.
+When referencing theorems by name, use consistent formatting:
 
 | Context | Format | Example |
 |---------|--------|---------|
 | Prose reference | *Italics* | the *Soundness Theorem* states... |
 | Environment name | Normal (in brackets) | `\begin{theorem}[Soundness]` |
-| Lean reference | `\texttt{}` | `\texttt{soundness\_theorem}` |
-
-**Note**: Lean names containing underscores must be escaped as `\_` in LaTeX.
 
 ### Pass Example
+
 ```latex
 The \emph{Soundness Theorem} establishes that provable formulas are valid.
 
 \begin{theorem}[Soundness]\label{thm:soundness}
 If $\Gamma \vdash \varphi$ then $\Gamma \models \varphi$.
 \end{theorem}
-
-See \texttt{Logos.Core.Soundness.soundness\_theorem} for the Lean proof.
 ```
 
 ### Fail Example
+
 ```latex
 % Bad: Inconsistent formatting
 The Soundness Theorem establishes that provable formulas are valid.
@@ -146,79 +147,78 @@ The Soundness Theorem establishes that provable formulas are valid.
 
 ### Definition Ordering
 
-Definitions must appear before their first use in prose.
-When introducing new concepts, place the formal definition environment before explanatory text that references the defined term.
+Definitions must appear before their first use in prose. When introducing new concepts, place the formal definition environment before explanatory text that references the defined term.
 
 **Rationale**: Readers should encounter the formal definition before informal explanations that assume familiarity with it.
 
 ### Pass Example
+
 ```latex
-\begin{definition}[Constitutive Frame]\label{def:constitutive-frame}
-A \emph{constitutive frame} is a structure $\mathbf{F} = \langle S, \sqsubseteq \rangle$...
+\begin{definition}[Model]\label{def:model}
+A \emph{model} is a structure $\mathcal{M} = \langle W, R, V \rangle$...
 \end{definition}
 
-A constitutive frame captures the mereological structure of states.
-The partial order $\sqsubseteq$ represents the parthood relation.
+A model captures the semantic structure needed for evaluation.
+The accessibility relation $R$ determines which worlds are reachable.
 ```
 
 ### Fail Example
+
 ```latex
 % Bad: Using term before defining it
-A constitutive frame captures the mereological structure of states.
-The partial order $\sqsubseteq$ represents the parthood relation.
+A model captures the semantic structure needed for evaluation.
+The accessibility relation $R$ determines which worlds are reachable.
 
-\begin{definition}[Constitutive Frame]  % Definition comes too late
+\begin{definition}[Model]  % Definition comes too late
 ```
 
 ## File Organization
 
-### Main Document Structure
-```
-LogosReference.tex          % Main document
-├── subfiles/               % Content subfiles
-│   ├── 00-Introduction.tex
-│   ├── 01-ConstitutiveFoundation.tex
-│   └── ...
-├── assets/                 % Style files
-│   ├── logos-notation.sty
-│   └── formatting.sty
-└── bibliography/           % Bibliography
-    └── LogosReferences.bib
-```
+### Single-File Structure
 
-### Subfile Naming Convention
+Springer Nature requires a single .tex file. All content must be inline:
+
 ```
-{NN}-{Section-Name}.tex
+latex/
+├── paper.tex              # Main document (all content inline)
+├── latexmkrc              # Build configuration
+├── sn-jnl.cls             # Document class
+├── sn-mathphys-num.bst    # Bibliography style
+├── bibliography/
+│   └── references.bib     # Reference database
+├── figures/               # Figure files
+└── assets/                # Template backup files
 ```
-- NN: Two-digit sequence number
-- Section-Name: CamelCase description
 
 ## Code Quality
 
 ### Pass Example
+
 ```latex
-\begin{definition}[Constitutive Frame]
-A \emph{constitutive frame} is a structure $\mathbf{F} = \langle S, \sqsubseteq \rangle$ where:
+\begin{definition}[Frame]
+A \emph{frame} is a structure $\mathcal{F} = \langle W, R \rangle$ where:
 \begin{itemize}
-  \item $S$ is a nonempty set of \emph{states}
-  \item $\sqsubseteq$ is a partial order on $S$
+  \item $W$ is a nonempty set of \emph{worlds}
+  \item $R \subseteq W \times W$ is an \emph{accessibility relation}
 \end{itemize}
 \end{definition}
 ```
 
 ### Fail Example
+
 ```latex
 % Bad: No environment, poor formatting
-A constitutive frame is F = <S, ⊑> where S is states and ⊑ is partial order.
+A frame is F = <W, R> where W is worlds and R is accessibility.
 ```
 
 ## Validation Checklist
 
 - [ ] One sentence per line (semantic linefeeds)
 - [ ] All packages imported in preamble
-- [ ] logos-notation.sty macros used consistently
+- [ ] Theorem environments use sn-jnl styles (thmstyleone, thmstyletwo, thmstylethree)
 - [ ] Environments properly opened and closed
 - [ ] Cross-references resolve without warnings
 - [ ] No overfull hboxes in compiled output
 - [ ] Named theorems use italics in prose, normal text in environment brackets
 - [ ] Definitions appear before first use in prose
+- [ ] Single .tex file (no `\input` or `\include` commands)

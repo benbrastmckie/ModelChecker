@@ -1,87 +1,121 @@
 # Document Structure Standards
 
-## Main Document Layout
+## Overview
 
-### LogosReference.tex Structure
+This document describes the structure of the ModelChecker paper using the Springer Nature sn-jnl.cls template. The key constraint is that Springer requires submission as a **single .tex file** with no external includes.
+
+## Single-File Structure
+
+### paper.tex Layout
+
 ```latex
-\documentclass[11pt]{article}
+%Version 3.1 December 2024
+% Springer Nature Journal Article Template
 
-% ============================================================
-% Packages
-% ============================================================
-\usepackage{amsmath}
+%%=======================================================%%
+%% Document class options                                %%
+%%=======================================================%%
+\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
+
+%%=======================================================%%
+%% Path configuration                                    %%
+%%=======================================================%%
+\graphicspath{{figures/}}
+
+%%=======================================================%%
+%% Packages                                              %%
+%%=======================================================%%
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
 \usepackage{amsthm}
-\usepackage{amssymb}
-\usepackage{stmaryrd}
-\usepackage{subfiles}
-\usepackage{hyperref}
-\usepackage{cleveref}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{manyfoot}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
 
-% Custom packages
-\usepackage{assets/logos-notation}
-\usepackage{assets/formatting}
+%%=======================================================%%
+%% Project-specific packages                             %%
+%%=======================================================%%
+%% Add any additional packages here
 
-% ============================================================
-% Document Info
-% ============================================================
-\title{Logos: A Reference Manual}
-\author{Benjamin Brast-McKie}
-\date{\today}
+%%=======================================================%%
+%% Theorem environments                                  %%
+%%=======================================================%%
+\theoremstyle{thmstyleone}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
 
-% ============================================================
-% Begin Document
-% ============================================================
+\theoremstyle{thmstyletwo}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+\theoremstyle{thmstylethree}
+\newtheorem{definition}{Definition}
+
+\raggedbottom
+
 \begin{document}
 
+%%=======================================================%%
+%% Title and Authors                                     %%
+%%=======================================================%%
+\title[Short Title]{Full Title}
+\author*[1]{\fnm{First} \sur{Last}}\email{email@example.com}
+\affil*[1]{\orgdiv{Department}, \orgname{University},
+  \orgaddress{\city{City}, \state{State}, \country{Country}}}
+
+%%=======================================================%%
+%% Abstract and Keywords                                 %%
+%%=======================================================%%
+\abstract{Abstract text here.}
+\keywords{keyword1, keyword2, keyword3}
 \maketitle
-\tableofcontents
-\newpage
 
-% ============================================================
-% Foundation Layer
-% ============================================================
-\subfile{subfiles/00-Introduction}
-\subfile{subfiles/01-ConstitutiveFoundation}
+%%=======================================================%%
+%% Main Content                                          %%
+%%=======================================================%%
+\section{Introduction}\label{sec:intro}
+\section{Background}\label{sec:background}
+\section{Main Content}\label{sec:main}
+\section{Implementation}\label{sec:implementation}
+\section{Evaluation}\label{sec:evaluation}
+\section{Conclusion}\label{sec:conclusion}
 
-% ============================================================
-% Core Extension
-% ============================================================
-\subfile{subfiles/02-CoreExtension-Syntax}
-\subfile{subfiles/03-CoreExtension-Semantics}
-\subfile{subfiles/04-CoreExtension-Axioms}
+%%=======================================================%%
+%% Back Matter                                           %%
+%%=======================================================%%
+\backmatter
 
-% ============================================================
-% Future Extensions (uncomment when developed)
-% ============================================================
-% \subfile{subfiles/05-Epistemic}
-% \subfile{subfiles/06-Normative}
-% \subfile{subfiles/07-Spatial}
-% \subfile{subfiles/08-Agential}
+\section*{Declarations}
+\subsection*{Funding}
+\subsection*{Conflict of interest}
+\subsection*{Ethics approval}
+\subsection*{Consent to participate}
+\subsection*{Consent for publication}
+\subsection*{Data availability}
+\subsection*{Code availability}
+\subsection*{Author contribution}
 
-% ============================================================
-% Back Matter
-% ============================================================
-\bibliographystyle{assets/bib_style}
-\bibliography{bibliography/LogosReferences}
+%%\begin{appendices}
+%%\section{Appendix Title}\label{sec:appendix}
+%%\end{appendices}
 
-\end{document}
-```
-
-## Subfile Structure
-
-### Standard Subfile Template
-```latex
-\documentclass[../LogosReference.tex]{subfiles}
-\begin{document}
-
-\section{Section Title}
-
-% Content here
+\bibliography{bibliography/references}
 
 \end{document}
 ```
 
-### Section Hierarchy
+## Section Hierarchy
+
 ```
 \section{Major Division}           % Level 1
   \subsection{Sub-topic}           % Level 2
@@ -89,95 +123,150 @@
       \paragraph{Fine point}       % Level 4 (rare)
 ```
 
-## Subfile Naming Convention
-
-### Numbering Scheme
-```
-00-Introduction.tex              % Overview
-01-ConstitutiveFoundation.tex    % Foundation layer
-02-CoreExtension-Syntax.tex      % Core syntax
-03-CoreExtension-Semantics.tex   % Core semantics
-04-CoreExtension-Axioms.tex      % Core axiom system
-05-Epistemic.tex                 % Epistemic extension
-06-Normative.tex                 % Normative extension
-07-Spatial.tex                   % Spatial extension
-08-Agential.tex                  % Agential extension
-```
-
-### Naming Rules
-- Two-digit prefix for ordering
-- CamelCase descriptive name
-- Hyphen to separate multi-part names
-- `.tex` extension
-
 ## Content Organization
 
 ### Section Content Flow
+
 1. **Introduction paragraph**: Brief overview of section purpose
 2. **Definitions**: Formal definitions using `definition` environment
-3. **Remarks**: Clarifying notes using `remark` environment
-4. **Examples**: Illustrative cases (when helpful)
-5. **Cross-references**: Links to related sections and Lean code
+3. **Theorems/Lemmas**: Formal results with proofs
+4. **Remarks**: Clarifying notes using `remark` environment
+5. **Examples**: Illustrative cases (when helpful)
 
 ### Subsection Guidelines
+
 - Each subsection should be self-contained
 - Start with context for the concept
-- Provide formal definition
-- Add remarks for intuition
-- Reference Lean implementation
+- Provide formal definitions before theorems that use them
+- Use semantic linefeeds (one sentence per line)
 
 ## Front Matter
 
-### Title Page
-- Document title
-- Author name
-- Date (using `\today` for updates)
+### Title Page Elements
 
-### Table of Contents
-- Generated automatically
-- Page break after TOC
+```latex
+\title[Short Title for Header]{Full Paper Title}
+
+\author*[1]{\fnm{First} \sur{Last}}\email{author@example.com}
+
+\affil*[1]{\orgdiv{Department}, \orgname{University},
+  \orgaddress{\city{City}, \state{State}, \country{Country}}}
+```
+
+**Note**: Use `*` for corresponding author. Use `\fnm{}` for first name and `\sur{}` for surname.
+
+### Abstract and Keywords
+
+```latex
+\abstract{
+Abstract text goes here.
+The abstract serves as a general introduction and brief summary of main results.
+Check JAR guidelines for length limits.
+}
+
+\keywords{model checking, modal logic, counterfactual logic, SMT solver, Z3}
+```
 
 ## Back Matter
 
-### Bibliography
-- BibTeX format in `bibliography/LogosReferences.bib`
-- Cite using `\cite{key}`
-- Style: custom bib_style.bst
+### Declarations Section
 
-### Index (Optional)
-- Add `\usepackage{makeidx}` if needed
-- Use `\index{term}` for entries
+Required subsections (include all, even if "Not applicable"):
+
+1. **Funding** - Grant numbers and funding sources
+2. **Conflict of interest** - Any competing interests
+3. **Ethics approval** - For human/animal research
+4. **Consent to participate** - For human subjects
+5. **Consent for publication** - For identifiable information
+6. **Data availability** - Where data can be accessed
+7. **Code availability** - Repository URL with DOI (REQUIRED)
+8. **Author contribution** - CRediT-style or prose description
+
+### Appendices
+
+```latex
+\begin{appendices}
+\section{Proofs}\label{app:proofs}
+Appendix content here.
+\end{appendices}
+```
+
+### Bibliography
+
+```latex
+\bibliography{bibliography/references}
+```
+
+- BibTeX format in `bibliography/references.bib`
+- Cite using `\cite{key}`
+- Style: sn-mathphys-num (numbered citations)
 
 ## Cross-References
 
 ### Internal References
+
 ```latex
-\label{def:constitutive-frame}     % Label definitions
-\label{thm:perpetuity-1}           % Label theorems
-\label{eq:verification}            % Label equations
+\label{def:model}              % Label definitions
+\label{thm:soundness}          % Label theorems
+\label{eq:semantics}           % Label equations
+\label{sec:intro}              % Label sections
 
-\cref{def:constitutive-frame}      % Reference with auto-naming
+\ref{def:model}                % Reference by number
+See Section~\ref{sec:intro}    % With name
+Equation~(\ref{eq:semantics})  % Parenthetical
 ```
 
-### External References
+### Label Conventions
+
+| Prefix | Element Type | Example |
+|--------|-------------|---------|
+| `def:` | Definition | `\label{def:model}` |
+| `thm:` | Theorem | `\label{thm:soundness}` |
+| `lem:` | Lemma | `\label{lem:auxiliary}` |
+| `prop:` | Proposition | `\label{prop:main}` |
+| `sec:` | Section | `\label{sec:intro}` |
+| `eq:` | Equation | `\label{eq:semantics}` |
+| `fig:` | Figure | `\label{fig:diagram}` |
+| `tab:` | Table | `\label{tab:results}` |
+
+## Prohibited Patterns
+
+### No External Includes
+
+Springer requires a single .tex file. Do NOT use:
+
 ```latex
-\leansrc{Logos.Foundation.Frame}{ConstitutiveFrame}  % Lean code
-\cite{fine2017truthmaker}                             % Bibliography
+% PROHIBITED:
+\input{section.tex}
+\include{chapter.tex}
+\subfile{content.tex}
+\usepackage{subfiles}
 ```
 
-## Compilation Order
+All content must be inline in paper.tex.
 
-### Standard Build
+## Compilation
+
+### Quick Build
+
 ```bash
-pdflatex LogosReference.tex
-bibtex LogosReference
-pdflatex LogosReference.tex
-pdflatex LogosReference.tex
+cd latex
+latexmk -pdf paper.tex
 ```
 
-### With Subfile Changes
-Individual subfiles can be compiled standalone for testing:
+### Manual Build (with bibliography)
+
 ```bash
-cd subfiles
-pdflatex 01-ConstitutiveFoundation.tex
+cd latex
+pdflatex paper.tex
+bibtex paper
+pdflatex paper.tex
+pdflatex paper.tex
+```
+
+### Clean Up
+
+```bash
+latexmk -c          # Clean auxiliary files, keep PDF
+latexmk -C          # Clean everything including PDF
 ```

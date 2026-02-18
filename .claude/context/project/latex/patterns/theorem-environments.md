@@ -1,191 +1,188 @@
 # Theorem Environment Patterns
 
-## Environment Definitions
+## Overview
 
-### Standard amsthm Setup
+The Springer Nature sn-jnl.cls document class provides three predefined theorem styles. This document describes their usage for the ModelChecker paper.
+
+## sn-jnl Theorem Styles
+
+### Style Overview
+
+| Style | Environments | Head Format | Body Format |
+|-------|--------------|-------------|-------------|
+| `thmstyleone` | theorem, proposition, lemma, corollary | Bold | Italic |
+| `thmstyletwo` | example, remark | Roman | Italic |
+| `thmstylethree` | definition | Bold | Roman |
+
+### Environment Definitions
+
 ```latex
-% In preamble or formatting.sty
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}[section]
-\newtheorem{example}[definition]{Example}
+% In preamble of paper.tex
 
-\theoremstyle{plain}
-\newtheorem{theorem}[definition]{Theorem}
-\newtheorem{lemma}[definition]{Lemma}
-\newtheorem{proposition}[definition]{Proposition}
-\newtheorem{corollary}[definition]{Corollary}
+\theoremstyle{thmstyleone}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
 
-\theoremstyle{remark}
-\newtheorem{remark}[definition]{Remark}
-\newtheorem{notation}[definition]{Notation}
+\theoremstyle{thmstyletwo}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
 
-% Custom environment for open questions
-\newenvironment{question}
-  {\begin{quote}\textsc{[Open Question]:}}
-  {\end{quote}}
+\theoremstyle{thmstylethree}
+\newtheorem{definition}{Definition}
 ```
+
+**Note**: Theorem, proposition, lemma, and corollary share a counter (`[theorem]`).
+Example, remark, and definition have separate counters.
 
 ## Definition Environment
 
 ### Basic Definition
+
 ```latex
-\begin{definition}[Constitutive Frame]
-A \emph{constitutive frame} is a structure $\frame = \langle \statespace, \parthood \rangle$ where:
+\begin{definition}[Model]\label{def:model}
+A \emph{model} is a tuple $\mathcal{M} = \langle W, R, V \rangle$ where:
 \begin{itemize}
-  \item $\statespace$ is a nonempty set of states
-  \item $\parthood$ is a partial order on $\statespace$ making $\langle \statespace, \parthood \rangle$ a complete lattice
+  \item $W$ is a nonempty set of worlds
+  \item $R \subseteq W \times W$ is an accessibility relation
+  \item $V : \mathrm{Prop} \to \mathcal{P}(W)$ is a valuation function
 \end{itemize}
 \end{definition}
 ```
 
-### Definition with Label
-```latex
-\begin{definition}[Core Frame]\label{def:core-frame}
-A \emph{core frame} is a structure $\frame = \langle \statespace, \parthood, \temporalorder, \taskrel \rangle$ where:
-\begin{itemize}
-  \item $\langle \statespace, \parthood \rangle$ is a constitutive frame
-  \item $\temporalorder = \langle D, +, \leq \rangle$ is a totally ordered abelian group
-  \item $\taskrel$ is a ternary relation on $\statespace \times \temporalorder \times \statespace$
-\end{itemize}
-\end{definition}
-```
+### Definition with Subsequent Remark
 
-### Definition with Multiple Parts
 ```latex
-\begin{definition}[State Modality]
-Let $\frame$ be a core frame. We define:
-\begin{enumerate}
-  \item A state $s$ is \emph{possible} ($s \in \possible$) iff $\task{s}{0}{s}$
-  \item States $s, t$ are \emph{compatible} ($s \compatible t$) iff $\fusion{s}{t} \in \possible$
-  \item A state $w$ is a \emph{world-state} ($w \in \worldstates$) iff $w$ is a maximal possible state
-\end{enumerate}
+\begin{definition}[Semantic Entailment]\label{def:entailment}
+We write $\Gamma \models \varphi$ if for every model $\mathcal{M}$ and world $w$,
+if $\mathcal{M}, w \models \psi$ for all $\psi \in \Gamma$,
+then $\mathcal{M}, w \models \varphi$.
 \end{definition}
+
+\begin{remark}
+This definition extends to sets of formulas on the right:
+$\Gamma \models \Delta$ means $\Gamma \models \varphi$ for all $\varphi \in \Delta$.
+\end{remark}
 ```
 
 ## Theorem Environment
 
 ### Theorem Statement
-```latex
-\begin{theorem}[Perpetuity Principles]\label{thm:perpetuity}
-The task semantics validates:
-\begin{align}
-  \textbf{P1}: & \quad \nec\metaphi \to \alwaystemporal\metaphi \\
-  \textbf{P2}: & \quad \sometimestemporal\metaphi \to \poss\metaphi \\
-  \textbf{P3}: & \quad \nec\alwaystemporal\metaphi \leftrightarrow \alwaystemporal\nec\metaphi
-\end{align}
-\end{theorem}
-```
 
-### Theorem with Proof Reference
-```latex
-\begin{theorem}[Soundness]
-If $\Gamma \vdash \metaphi$ then $\Gamma \satisfies \metaphi$.
-\end{theorem}
-
-See \leansrc{Logos.Core.Soundness}{soundness} for the Lean proof.
-```
-
-### Lean Cross-Reference in Theorem Environment
-
-When a theorem has a corresponding Lean proof, include the Lean identifier directly in the theorem environment bracket using `\texttt{}`.
-This pairs the LaTeX numbering with the Lean identifier inline, removing the need for footnote clutter.
-
-**Preferred Pattern**:
-```latex
-\begin{theorem}[\texttt{soundness\_theorem}]\label{thm:soundness}
-If $\Gamma \vdash \varphi$ then $\Gamma \models \varphi$.
-\end{theorem}
-```
-
-**Deprecated Pattern** (acceptable for backwards compatibility):
 ```latex
 \begin{theorem}[Soundness]\label{thm:soundness}
-If $\Gamma \vdash \varphi$ then $\Gamma \models \varphi$.\footnote{%
-  Lean: \texttt{Logos.Core.Soundness.soundness\_theorem}}
+If $\Gamma \vdash \varphi$ then $\Gamma \models \varphi$.
 \end{theorem}
+
+\begin{proof}
+By induction on the length of derivations.
+The base case holds by definition of the valuation.
+For the inductive step, we verify each inference rule preserves validity.
+\end{proof}
 ```
 
-**Benefits of inline pattern**:
-- Pairs LaTeX theorem number with Lean identifier visually
-- Reduces footnote clutter in documents with many cross-references
-- Makes the Lean name immediately visible in theorem statement
+### Theorem with Multiple Parts
 
-**Note**: Underscores in Lean names must be escaped as `\_` in LaTeX.
+```latex
+\begin{theorem}[Model Properties]\label{thm:model-properties}
+Let $\mathcal{M}$ be a model. Then:
+\begin{enumerate}
+  \item $\mathcal{M} \models \varphi \lor \neg\varphi$ for all $\varphi$
+  \item $\mathcal{M} \models \neg(\varphi \land \neg\varphi)$ for all $\varphi$
+  \item If $\mathcal{M} \models \varphi \to \psi$ and $\mathcal{M} \models \varphi$,
+        then $\mathcal{M} \models \psi$
+\end{enumerate}
+\end{theorem}
+```
 
 ## Lemma and Proposition
 
+### Lemma (Auxiliary Result)
+
 ```latex
-\begin{lemma}[World-History Constraint]\label{lem:history-constraint}
-For any world-history $\history : X \to \worldstates$, if $x, y \in X$ with $x \leq y$, then $\task{\history(x)}{y-x}{\history(y)}$.
+\begin{lemma}[Extension]\label{lem:extension}
+Every consistent set of formulas can be extended to a maximal consistent set.
 \end{lemma}
 
-\begin{proposition}[Bilateral Exclusivity]\label{prop:exclusive}
-For any bilateral proposition $\langle V, F \rangle$, states in $V$ are incompatible with states in $F$.
+\begin{proof}
+By Zorn's lemma applied to the set of consistent extensions ordered by inclusion.
+\end{proof}
+```
+
+### Proposition (Important but Non-Central)
+
+```latex
+\begin{proposition}[Monotonicity]\label{prop:monotonicity}
+If $\Gamma \subseteq \Delta$ and $\Gamma \vdash \varphi$, then $\Delta \vdash \varphi$.
 \end{proposition}
 ```
 
-## Remark Environment
+### Corollary (Direct Consequence)
 
-### Clarifying Remark
 ```latex
-\begin{remark}
-The lattice structure provides:
-\begin{itemize}
-  \item \textbf{Null state} $\nullstate$: The bottom element
-  \item \textbf{Full state} $\fullstate$: The top element
-  \item \textbf{Fusion} $\fusion{s}{t}$: The least upper bound
-\end{itemize}
-\end{remark}
+\begin{corollary}\label{cor:completeness}
+If $\Gamma \models \varphi$ then $\Gamma \vdash \varphi$.
+\end{corollary}
+
+\begin{proof}
+Immediate from Theorem~\ref{thm:completeness} and Lemma~\ref{lem:extension}.
+\end{proof}
 ```
 
-### Comparative Remark
-```latex
-\begin{remark}
-Note the distinction between:
-\begin{itemize}
-  \item \emph{Grounding} ($\ground$): Timeless constitutive relation
-  \item \emph{Causation}: Temporal productive relation (defined in future extension)
-\end{itemize}
-\end{remark}
-```
+## Example and Remark
 
-## Notation Environment
+### Example
 
 ```latex
-\begin{notation}
-We write $\task{s}{d}{t}$ (read: ``there is a task from $s$ to $t$ of duration $d$'').
-\end{notation}
-
-\begin{notation}
-The set of all world-histories over $\frame$ is denoted $\historyspace$.
-\end{notation}
-```
-
-## Example Environment
-
-```latex
-\begin{example}[Crimson and Red]
-Consider the propositions:
-\begin{itemize}
-  \item $\metaA$ = ``Sam is crimson''
-  \item $\metaB$ = ``Sam is red''
-\end{itemize}
-Then $\metaA \ground \metaB$ (being crimson grounds being red) because every verifier of $\metaA$ is a verifier of $\metaB$.
+\begin{example}[Modal Validity]
+The formula $\Box p \to p$ is valid in all reflexive frames.
+Consider $\mathcal{M} = \langle W, R, V \rangle$ where $R$ is reflexive.
+For any $w \in W$: if $\mathcal{M}, w \models \Box p$,
+then $\mathcal{M}, w \models p$ since $wRw$.
 \end{example}
 ```
 
-## Question Environment
-
-For preserving open research questions from RECURSIVE_SEMANTICS.md:
+### Remark
 
 ```latex
-\begin{question}
-What is the exact structure of the credence function? Does it assign probabilities to individual state transitions or to sets of transitions?
-\end{question}
+\begin{remark}
+The converse of Theorem~\ref{thm:soundness} requires additional axioms.
+See Section~\ref{sec:completeness} for the completeness proof.
+\end{remark}
+```
 
-\begin{question}
-How do indicative conditionals relate to counterfactual conditionals in the semantic framework?
-\end{question}
+## Proof Environment
+
+### Standard Proof
+
+```latex
+\begin{proof}
+Let $\varphi$ be arbitrary.
+We proceed by structural induction on $\varphi$.
+\textbf{Base case}: When $\varphi$ is atomic, the result holds by definition.
+\textbf{Inductive step}: Assume the result holds for subformulas.
+Case analysis on the main connective completes the proof.
+\end{proof}
+```
+
+### Proof with Named Steps
+
+```latex
+\begin{proof}
+We establish three claims.
+
+\textbf{Claim 1}: Every model satisfies the axiom K.
+\emph{Proof}: Direct verification using the semantics of $\Box$.
+
+\textbf{Claim 2}: Modus ponens preserves validity.
+\emph{Proof}: If $\models \varphi$ and $\models \varphi \to \psi$, then $\models \psi$.
+
+\textbf{Claim 3}: Necessitation preserves validity.
+\emph{Proof}: If $\models \varphi$, then $\models \Box\varphi$.
+
+The theorem follows from these three claims.
+\end{proof}
 ```
 
 ## Environment Usage Guidelines
@@ -193,23 +190,56 @@ How do indicative conditionals relate to counterfactual conditionals in the sema
 | Environment | Use When |
 |-------------|----------|
 | `definition` | Introducing formal concepts |
-| `theorem` | Stating proven results |
+| `theorem` | Stating main results |
 | `lemma` | Auxiliary results for proofs |
-| `proposition` | Important but not central results |
-| `corollary` | Immediate consequences |
-| `remark` | Clarifications and intuitions |
-| `notation` | Introducing new symbols |
+| `proposition` | Important but supporting results |
+| `corollary` | Immediate consequences of theorems |
+| `remark` | Clarifications and observations |
 | `example` | Concrete illustrations |
-| `question` | Open research questions |
 
 ## Cross-Reference Pattern
 
 ```latex
-\begin{definition}[World-History]\label{def:world-history}
-...
+\begin{definition}[Frame]\label{def:frame}
+A \emph{frame} is a pair $\mathcal{F} = \langle W, R \rangle$.
 \end{definition}
 
-Later: By \cref{def:world-history}, world-histories assign world-states to times...
+% Later in the document:
+By Definition~\ref{def:frame}, frames consist of...
 
-% Auto-generates: "By Definition 3.1, world-histories assign..."
+\begin{theorem}[Frame Correspondence]\label{thm:correspondence}
+A formula is valid in all reflexive frames iff...
+\end{theorem}
+
+% Later:
+Theorem~\ref{thm:correspondence} establishes the link between...
+```
+
+## Label Conventions
+
+| Prefix | Element Type | Example |
+|--------|-------------|---------|
+| `def:` | Definition | `\label{def:model}` |
+| `thm:` | Theorem | `\label{thm:soundness}` |
+| `lem:` | Lemma | `\label{lem:extension}` |
+| `prop:` | Proposition | `\label{prop:monotonicity}` |
+| `cor:` | Corollary | `\label{cor:completeness}` |
+
+## Formatting Notes
+
+### Mathematical Content
+
+- Use `$...$` for inline math: "the formula $\varphi$"
+- Use `\[...\]` or `equation` for displayed math
+- Use `align` environment for multi-line equations
+
+### Semantic Linefeeds
+
+Apply one sentence per line in theorem statements:
+
+```latex
+\begin{theorem}[Completeness]\label{thm:completeness}
+The system is complete with respect to the class of all frames.
+That is, if $\models \varphi$ then $\vdash \varphi$.
+\end{theorem}
 ```
