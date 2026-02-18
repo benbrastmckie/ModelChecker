@@ -1113,17 +1113,18 @@ This confirms Lewis's philosophical analysis computationally~\cite{lewis1973}.
 \centering
 \caption{Comparative Inference Results Across Theories}
 \label{tab:inference-comparison}
-\begin{tabular}{@{}lccccp{4cm}@{}}
+\small
+\begin{tabular}{@{}p{3.5cm}ccccp{2.5cm}@{}}
 \toprule
-\textbf{Inference} & \textbf{Classical} & \textbf{Modal S4} & \textbf{\theorylogos{}} & \textbf{\theoryexclusion{}} & \textbf{Notes} \\
+\textbf{Inference} & \textbf{Class.} & \textbf{S4} & \textbf{Logos} & \textbf{Excl.} & \textbf{Notes} \\
 \midrule
-$A \land B \leftrightarrow B \land A$ & Valid & Valid & Invalid & Invalid & Hyperintensional \\
-$A \imp A \lor B$ & Valid & Valid & Invalid & Invalid & Disj.\ intro fails \\
-$A \land (B \lor C) \imp (A \land B) \lor (A \land C)$ & Valid & Valid & Invalid & Invalid & Distribution fails \\
-$\nec(A \imp B), \nec A \vdash \nec B$ & N/A & Valid & Valid & N/A & K axiom \\
-$\nec A \imp A$ & N/A & Valid & Valid & N/A & T axiom (S4) \\
-$A \ground B, B \ground C \vdash A \ground C$ & N/A & N/A & Valid & N/A & Ground transitivity \\
-$A \boxright B, B \boxright C \vdash A \boxright C$ & Valid & N/A & Invalid & N/A & Counterfactual trans. \\
+$A \land B \leftrightarrow B \land A$ & V & V & Inv & Inv & Hyperintensional \\
+$A \imp A \lor B$ & V & V & Inv & Inv & Disj.\ intro fails \\
+$A \land (B \lor C) \imp \cdots$ & V & V & Inv & Inv & Distrib.\ fails \\
+$\nec(A \imp B), \nec A \vdash \nec B$ & -- & V & V & -- & K axiom \\
+$\nec A \imp A$ & -- & V & V & -- & T axiom \\
+$A \ground B, B \ground C \vdash A \ground C$ & -- & -- & V & -- & Ground trans. \\
+$A \boxright B, B \boxright C \vdash A \boxright C$ & V & -- & Inv & -- & CF trans. \\
 \bottomrule
 \end{tabular}
 \end{table}
@@ -1201,16 +1202,17 @@ Contribution: executable semantics enabling empirical validation.
 \centering
 \caption{\modelchecker{} vs.\ Existing Approaches}
 \label{tab:comparison-tools}
+\small
 \begin{tabular}{@{}lcccc@{}}
 \toprule
-\textbf{Feature} & \textbf{\modelchecker{}} & \textbf{Proof Assistants} & \textbf{Theorem Provers} & \textbf{Model Checkers} \\
+\textbf{Feature} & \textbf{Ours} & \textbf{Proof Asst.} & \textbf{Thm Provers} & \textbf{Model Chk.} \\
 \midrule
-Automation & Full (SMT) & Interactive & Full (resolution) & Full (state) \\
-Semantic Focus & Yes & Proof focus & Theorem focus & Temporal focus \\
+Automation & Full (SMT) & Interactive & Full & Full \\
+Semantic Focus & Yes & Proof & Theorem & Temporal \\
 Modularity & High & Medium & Low & Low \\
 Hyperintensional & Yes & Rare & No & No \\
-Barrier to Entry & Low (Python) & High & Medium & Medium \\
-Model Finding & Primary & Secondary & Via Mace4 & Counterexamples \\
+Barrier & Low & High & Medium & Medium \\
+Model Finding & Primary & Secondary & Via Mace4 & Counter. \\
 \bottomrule
 \end{tabular}
 \end{table}
