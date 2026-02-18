@@ -1,0 +1,224 @@
+%Version 3.1 December 2024
+% Springer Nature Journal Article Template
+% Configured for Journal of Automated Reasoning submission
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                                                                  %%
+%% Please do not use \input{...} to include other tex files.        %%
+%% Submit your LaTeX manuscript as one .tex document.               %%
+%%                                                                  %%
+%% All additional figures and files should be attached              %%
+%% separately and not embedded in the \TeX\ document itself.        %%
+%%                                                                  %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%=======================================================%%
+%% Document class options:                               %%
+%% - referee: double line spacing for review             %%
+%% - lineno: line numbers in margin                      %%
+%% - pdflatex: use pdflatex engine (default)             %%
+%%=======================================================%%
+
+%% Uncomment for referee/review copy with double spacing:
+%%\documentclass[referee,pdflatex,sn-mathphys-num]{sn-jnl}
+
+%% Uncomment for line numbers in margin:
+%%\documentclass[lineno,pdflatex,sn-mathphys-num]{sn-jnl}
+
+%% Standard submission (Math and Physical Sciences Numbered Reference Style):
+\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
+
+%%=======================================================%%
+%% Path configuration                                    %%
+%% Note: sn-jnl.cls and sn-mathphys-num.bst must be in   %%
+%% the same directory as paper.tex for compilation.      %%
+%% Copies are kept in assets/ as backup/reference.       %%
+%%=======================================================%%
+\graphicspath{{figures/}}
+
+%%%% Standard Packages
+\usepackage{graphicx}
+\usepackage{multirow}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{amsthm}
+\usepackage{mathrsfs}
+\usepackage[title]{appendix}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\usepackage{manyfoot}
+\usepackage{booktabs}
+\usepackage{algorithm}
+\usepackage{algorithmicx}
+\usepackage{algpseudocode}
+\usepackage{listings}
+
+%%=======================================================%%
+%% Additional packages for ModelChecker paper            %%
+%%=======================================================%%
+%% Add project-specific packages here
+
+%%=======================================================%%
+%% Theorem environments                                  %%
+%% Three predefined styles: thmstyleone, thmstyletwo,    %%
+%% thmstylethree                                         %%
+%%=======================================================%%
+
+\theoremstyle{thmstyleone}
+\newtheorem{theorem}{Theorem}
+\newtheorem{proposition}[theorem]{Proposition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+
+\theoremstyle{thmstyletwo}
+\newtheorem{example}{Example}
+\newtheorem{remark}{Remark}
+
+\theoremstyle{thmstylethree}
+\newtheorem{definition}{Definition}
+
+\raggedbottom
+
+\begin{document}
+
+%%=======================================================%%
+%% Title and Authors                                     %%
+%%=======================================================%%
+
+\title[ModelChecker]{ModelChecker: A Semantic Model Checker for Modal and Counterfactual Logics}
+
+%%=============================================================%%
+%% Author format:                                              %%
+%% \author*[affiliations]{\fnm{First} \sur{Last}}              %%
+%%   \email{email@example.com}                                 %%
+%% Use * for corresponding author                              %%
+%% Use \equalcont{...} for equal contribution statements       %%
+%%=============================================================%%
+
+\author*[1]{\fnm{Author} \sur{Name}}\email{author@example.com}
+
+\affil*[1]{\orgdiv{Department}, \orgname{University}, \orgaddress{\city{City}, \state{State}, \country{Country}}}
+
+%%=======================================================%%
+%% Abstract                                              %%
+%%=======================================================%%
+
+\abstract{%
+Abstract text goes here.
+The abstract serves as a general introduction and brief summary of main results.
+For Journal of Automated Reasoning, check specific guidelines for length limits.
+}
+
+%%=======================================================%%
+%% Keywords                                              %%
+%%=======================================================%%
+
+\keywords{model checking, modal logic, counterfactual logic, SMT solver, Z3}
+
+%%=======================================================%%
+%% MSC Classification (optional but recommended)         %%
+%%=======================================================%%
+
+%%\pacs[MSC Classification]{03B45, 68T15, 68Q60}
+
+\maketitle
+
+%%=======================================================%%
+%% Main Content                                          %%
+%%=======================================================%%
+
+\section{Introduction}\label{sec:intro}
+
+Introduction text goes here.
+
+\section{Background}\label{sec:background}
+
+Background and related work.
+
+\section{The ModelChecker Framework}\label{sec:framework}
+
+Main technical content.
+
+\section{Implementation}\label{sec:implementation}
+
+Implementation details.
+
+\section{Evaluation}\label{sec:evaluation}
+
+Experimental evaluation and results.
+
+\section{Conclusion}\label{sec:conclusion}
+
+Conclusions and future work.
+
+%%=======================================================%%
+%% Back Matter                                           %%
+%%=======================================================%%
+
+\backmatter
+
+%%=======================================================%%
+%% Supplementary Information (if applicable)             %%
+%%=======================================================%%
+
+%%\bmhead{Supplementary information}
+%%Description of supplementary files.
+
+%%=======================================================%%
+%% Acknowledgements (optional)                           %%
+%%=======================================================%%
+
+%%\bmhead{Acknowledgements}
+%%Acknowledgement text.
+
+%%=======================================================%%
+%% Declarations (REQUIRED for Springer Nature)           %%
+%% Include all applicable sections                       %%
+%%=======================================================%%
+
+\section*{Declarations}
+
+\subsection*{Funding}
+% Describe funding sources or state "Not applicable"
+Not applicable.
+
+\subsection*{Conflict of interest}
+% Disclose conflicts or state "The authors have no conflicts of interest"
+The authors have no conflicts of interest to declare.
+
+\subsection*{Ethics approval}
+Not applicable.
+
+\subsection*{Consent to participate}
+Not applicable.
+
+\subsection*{Consent for publication}
+Not applicable.
+
+\subsection*{Data availability}
+% Describe data availability or link to repository
+The datasets generated during the current study are available in the ModelChecker repository.
+
+\subsection*{Code availability}
+% REQUIRED: Link to code repository (Zenodo DOI recommended)
+The ModelChecker software is available at [repository URL] under [license].
+
+\subsection*{Author contribution}
+% Describe each author's contribution
+[Author contributions to be added]
+
+%%=======================================================%%
+%% Appendices (if needed)                                %%
+%%=======================================================%%
+
+%%\begin{appendices}
+%%\section{Appendix Title}\label{sec:appendix}
+%%Appendix content.
+%%\end{appendices}
+
+%%=======================================================%%
+%% Bibliography                                          %%
+%%=======================================================%%
+
+\bibliography{bibliography/references}
+
+\end{document}

@@ -1,0 +1,20 @@
+# latexmkrc - Build configuration for ModelChecker paper
+# Use with: latexmk -pdf paper.tex
+
+# Use pdflatex
+$pdf_mode = 1;
+$pdflatex = 'pdflatex -interaction=nonstopmode -synctex=1 %O %S';
+
+# Use bibtex for bibliography
+$bibtex_use = 2;
+$bibtex = 'bibtex %O %B';
+
+# Clean up extra files
+$clean_ext = 'synctex.gz synctex.gz(busy) run.xml tex.bak bbl bcf fdb_latexmk run tdo %R-blx.bib';
+
+# Additional output files to clean
+@generated_exts = (@generated_exts, 'synctex.gz', 'run.xml');
+
+# Preview settings (optional)
+# $preview_continuous_mode = 1;
+# $pdf_previewer = 'start evince';
