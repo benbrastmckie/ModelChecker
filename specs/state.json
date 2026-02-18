@@ -1,6 +1,14 @@
 {
-  "next_project_number": 2,
+  "next_project_number": 3,
   "active_projects": [
+    {
+      "project_number": 2,
+      "project_name": "review_improve_latex_context_files",
+      "status": "not_started",
+      "language": "meta",
+      "created": "2026-02-18T19:30:32Z",
+      "last_updated": "2026-02-18T19:30:32Z"
+    },
     {
       "project_number": 1,
       "project_name": "latex_springer_paper_setup",

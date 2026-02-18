@@ -1,10 +1,18 @@
 ---
-next_project_number: 2
+next_project_number: 3
 ---
 
 # Task List
 
 ## Tasks
+
+### 2. Review and improve LaTeX context files for sn-article template
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: meta
+- **Dependencies**: Task #1
+
+**Description**: Building on task 1, review all LaTeX-specific context files in .claude/context/ (if any) in order to revise/improve those files to fully specify all relevant LaTeX standards and details for this project which uses the sn-article template. The aim is for these context files to match the others in being clear, complete, and yet concise, while also being loaded in exactly the right places (e.g., by the various LaTeX subagents) in order to improve performance and consistency of implementation. See latex/README.md for relevant overview.
 
 ### 1. Create ModelChecker LaTeX directory for Springer journal paper
 - **Effort**: TBD
