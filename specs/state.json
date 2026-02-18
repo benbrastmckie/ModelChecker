@@ -4,11 +4,11 @@
     {
       "project_number": 3,
       "project_name": "port_paper_overview_to_latex",
-      "status": "researched",
+      "status": "planned",
       "language": "latex",
       "created": "2026-02-18T20:06:09Z",
-      "last_updated": "2026-02-18T20:17:02Z",
-      "session_id": "sess_1771445604_70c8d3",
+      "last_updated": "2026-02-18T20:24:41Z",
+      "session_id": "sess_1771446114_94cbf8",
       "researched": "2026-02-18T20:17:02Z",
       "artifacts": [
         {
@@ -20,8 +20,14 @@
           "path": "specs/003_port_paper_overview_to_latex/reports/research-002.md",
           "type": "research",
           "summary": "Supplementary research on notation macros: complete mapping table, compatibility analysis with sn-jnl, and recommended preamble section"
+        },
+        {
+          "path": "specs/003_port_paper_overview_to_latex/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for porting paper_overview.md to LaTeX paper.tex"
         }
-      ]
+      ],
+      "planned": "2026-02-18T20:24:41Z"
     },
     {
       "project_number": 2,
