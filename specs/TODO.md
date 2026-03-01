@@ -1,10 +1,18 @@
 ---
-next_project_number: 5
+next_project_number: 6
 ---
 
 # Task List
 
 ## Tasks
+
+### 5. Create spatial reasoning README for logos subtheory
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: None
+
+**Description**: Draw on /home/benjamin/Projects/Logos/Theory/typst/manual/chapters/06-spatial.typ in order to outline the scope and ambitions for adding a spatial reasoning module to the logos/ in this model-checker project, creating a detailed overview in /home/benjamin/Projects/ModelChecker/Code/src/model_checker/theory_lib/logos/subtheories/spatial/README.md that conforms to repo documentation standards.
 
 ### 4. Create first-order logic README for logos subtheory
 - **Effort**: 2.5 hours
