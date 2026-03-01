@@ -8,8 +8,9 @@ next_project_number: 6
 
 ### 5. Create spatial reasoning README for logos subtheory
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [research-001.md](005_logos_spatial_readme/reports/research-001.md)
+- **Plan**: [implementation-001.md](005_logos_spatial_readme/plans/implementation-001.md)
 - **Language**: general
 - **Dependencies**: None
 
