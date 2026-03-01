@@ -1,10 +1,18 @@
 ---
-next_project_number: 6
+next_project_number: 7
 ---
 
 # Task List
 
 ## Tasks
+
+### 6. Identify Python and Z3 MCP tools and integrate into .claude/ subagents
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: meta
+- **Dependencies**: None
+
+**Description**: Identify which Python and Z3 MCP servers or other tools might be helpful for implementing the first-order and spatial modules of the logos/ theory in the model-checker. Investigate context7 MCP for documentation lookup. Integrate these tools into Python and Z3 research and implementation subagents in the .claude/ agent system.
 
 ### 5. Create spatial reasoning README for logos subtheory
 - **Effort**: 2 hours

@@ -1,6 +1,14 @@
 {
-  "next_project_number": 6,
+  "next_project_number": 7,
   "active_projects": [
+    {
+      "project_number": 6,
+      "project_name": "identify_python_z3_mcp_integrate_subagents",
+      "status": "not_started",
+      "language": "meta",
+      "created": "2026-03-01T19:25:23Z",
+      "last_updated": "2026-03-01T19:25:23Z"
+    },
     {
       "project_number": 5,
       "project_name": "logos_spatial_readme",
