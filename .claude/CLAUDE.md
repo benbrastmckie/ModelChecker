@@ -53,6 +53,8 @@ specs/{NNN}_{SLUG}/
 | `neovim` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (nvim --headless) |
 | `latex` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (pdflatex) |
 | `typst` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (typst compile) |
+| `python` | WebSearch, WebFetch, Read, context7 | Read, Write, Edit, Bash (pytest, PYTHONPATH) |
+| `z3` | WebSearch, WebFetch, Read, context7 | Read, Write, Edit, Bash (pytest -k z3) |
 | `general` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash |
 | `meta` | Read, Grep, Glob | Write, Edit |
 
@@ -125,6 +127,10 @@ Standard actions: `create`, `complete research`, `create implementation plan`, `
 |-------|-------|---------|
 | skill-neovim-research | neovim-research-agent | Neovim/plugin research |
 | skill-neovim-implementation | neovim-implementation-agent | Neovim configuration implementation |
+| skill-python-research | python-research-agent | Python/ModelChecker research |
+| skill-python-implementation | python-implementation-agent | Python code implementation |
+| skill-z3-research | z3-research-agent | Z3/SMT constraint research |
+| skill-z3-implementation | z3-implementation-agent | Z3 constraint implementation |
 | skill-researcher | general-research-agent | General web/codebase research |
 | skill-planner | planner-agent | Implementation plan creation |
 | skill-implementer | general-implementation-agent | General file implementation |
@@ -151,6 +157,10 @@ Domain knowledge (load as needed):
 - @.claude/context/project/neovim/domain/neovim-api.md
 - @.claude/context/project/neovim/patterns/plugin-spec.md
 - @.claude/context/project/neovim/tools/lazy-nvim-guide.md
+- @.claude/context/project/python/domain/model-checker-api.md
+- @.claude/context/project/python/domain/theory-lib-patterns.md
+- @.claude/context/project/z3/domain/z3-api.md
+- @.claude/context/project/z3/patterns/constraint-generation.md
 - @.claude/context/project/repo/project-overview.md
 
 ## Multi-Task Creation Standards

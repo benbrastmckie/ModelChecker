@@ -348,6 +348,50 @@ Load for: Neovim implementation tasks (Language: neovim)
 - Load keymap-patterns.md when defining keybindings
 - Load autocommand-patterns.md when working with autocmds
 
+### Python Context (project/python/)
+
+Load for: Python/ModelChecker implementation tasks (Language: python)
+
+**Overview**:
+- **README.md** (~100 lines) - Directory overview and loading strategy
+
+**Domain**:
+- **model-checker-api.md** - Package structure, key classes, import patterns
+- **theory-lib-patterns.md** - Theory library conventions (semantic.py, operators.py)
+
+**Patterns**:
+- **semantic-evaluation.md** - Truthmaker semantic evaluation patterns
+
+**Standards**:
+- **code-style.md** - Python conventions from CLAUDE.md
+
+**When to Load**:
+- Load README.md for overview on any Python task
+- Load model-checker-api.md for package structure understanding
+- Load theory-lib-patterns.md when implementing new theories/operators
+- Load semantic-evaluation.md when working with Z3 constraints
+
+### Z3 Context (project/z3/)
+
+Load for: Z3/SMT constraint development tasks (Language: z3)
+
+**Overview**:
+- **README.md** (~80 lines) - Z3 overview and ModelChecker usage
+
+**Domain**:
+- **z3-api.md** - Core Z3 Python API (Bool, Int, BitVec, Solver)
+- **smt-patterns.md** - SMT-LIB patterns, tactics, debugging
+
+**Patterns**:
+- **constraint-generation.md** - ModelChecker Z3 constraint building
+- **bitvector-operations.md** - BitVec state representation patterns
+
+**When to Load**:
+- Load README.md for overview on any Z3 task
+- Load z3-api.md for Z3 Python API reference
+- Load constraint-generation.md when building constraints
+- Load bitvector-operations.md when working with state representation
+
 ### Typst Context (project/typst/)
 
 Load for: Typst implementation tasks (Language: typst)
