@@ -7,10 +7,11 @@ next_project_number: 7
 ## Tasks
 
 ### 6. Identify Python and Z3 MCP tools and integrate into .claude/ subagents
-- **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Effort**: 2-4 hours
+- **Status**: [RESEARCHED]
 - **Language**: meta
 - **Dependencies**: None
+- **Research**: [research-001.md](006_identify_python_z3_mcp_integrate_subagents/reports/research-001.md)
 
 **Description**: Identify which Python and Z3 MCP servers or other tools might be helpful for implementing the first-order and spatial modules of the logos/ theory in the model-checker. Investigate context7 MCP for documentation lookup. Integrate these tools into Python and Z3 research and implementation subagents in the .claude/ agent system.
 
