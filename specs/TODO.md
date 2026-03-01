@@ -7,9 +7,10 @@ next_project_number: 5
 ## Tasks
 
 ### 4. Create first-order logic README for logos subtheory
-- **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Effort**: 2.5 hours
+- **Status**: [PLANNED]
 - **Research**: [research-001.md](004_logos_first_order_readme/reports/research-001.md)
+- **Plan**: [implementation-001.md](004_logos_first_order_readme/plans/implementation-001.md)
 - **Language**: general
 - **Dependencies**: None
 

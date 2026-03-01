@@ -1,22 +1,36 @@
 {
-  "next_project_number": 5,
+  "next_project_number": 6,
   "active_projects": [
+    {
+      "project_number": 5,
+      "project_name": "logos_spatial_readme",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T01:08:26Z",
+      "last_updated": "2026-03-01T01:08:26Z"
+    },
     {
       "project_number": 4,
       "project_name": "logos_first_order_readme",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-01T00:49:56Z",
-      "last_updated": "2026-03-01T01:02:16Z",
-      "session_id": "sess_1772326760_6ee2d8",
+      "last_updated": "2026-03-01T01:08:14Z",
+      "session_id": "sess_1772327134_cc133a",
       "researched": "2026-03-01T01:02:16Z",
       "artifacts": [
         {
           "path": "specs/004_logos_first_order_readme/reports/research-001.md",
           "type": "research",
           "summary": "Research report analyzing constitutive.typ for first-order logic scope and ModelChecker documentation standards for subtheory READMEs"
+        },
+        {
+          "path": "specs/004_logos_first_order_readme/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase plan for creating first-order logic README documenting scope, operators, and theoretical foundations"
         }
-      ]
+      ],
+      "planned": "2026-03-01T01:08:14Z"
     },
     {
       "project_number": 3,
