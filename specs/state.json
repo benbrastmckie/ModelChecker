@@ -1,6 +1,14 @@
 {
-  "next_project_number": 4,
+  "next_project_number": 5,
   "active_projects": [
+    {
+      "project_number": 4,
+      "project_name": "logos_first_order_readme",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T00:49:56Z",
+      "last_updated": "2026-03-01T00:49:56Z"
+    },
     {
       "project_number": 3,
       "project_name": "port_paper_overview_to_latex",

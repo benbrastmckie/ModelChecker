@@ -1,10 +1,18 @@
 ---
-next_project_number: 4
+next_project_number: 5
 ---
 
 # Task List
 
 ## Tasks
+
+### 4. Create first-order logic README for logos subtheory
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: None
+
+**Description**: Draw on /home/benjamin/Projects/Logos/Theory/typst/manual/chapters/02-constitutive.typ to outline the scope and ambitions for adding first-order logic to logos/ in this model-checker project, creating a detailed overview in /home/benjamin/Projects/ModelChecker/Code/src/model_checker/theory_lib/logos/subtheories/first-order/README.md that conforms to repo documentation standards.
 
 ### 3. Port paper overview content to LaTeX paper
 - **Effort**: TBD
