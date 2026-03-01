@@ -4,19 +4,28 @@
     {
       "project_number": 5,
       "project_name": "logos_spatial_readme",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-01T01:08:26Z",
-      "last_updated": "2026-03-01T01:08:26Z"
+      "last_updated": "2026-03-01T01:18:31Z",
+      "session_id": "sess_1772327751_cfe466",
+      "researched": "2026-03-01T01:18:31Z",
+      "artifacts": [
+        {
+          "path": "specs/005_logos_spatial_readme/reports/research-001.md",
+          "type": "research",
+          "summary": "Research on spatial extension theory covering metric function primitive, five frame constraints, derived concepts (located states, spatial profiles), and README documentation patterns"
+        }
+      ]
     },
     {
       "project_number": 4,
       "project_name": "logos_first_order_readme",
-      "status": "planned",
+      "status": "implementing",
       "language": "general",
       "created": "2026-03-01T00:49:56Z",
-      "last_updated": "2026-03-01T01:08:14Z",
-      "session_id": "sess_1772327134_cc133a",
+      "last_updated": "2026-03-01T01:16:19Z",
+      "session_id": "sess_1772327752_8c1cd9",
       "researched": "2026-03-01T01:02:16Z",
       "artifacts": [
         {
@@ -30,7 +39,8 @@
           "summary": "5-phase plan for creating first-order logic README documenting scope, operators, and theoretical foundations"
         }
       ],
-      "planned": "2026-03-01T01:08:14Z"
+      "planned": "2026-03-01T01:08:14Z",
+      "started": "2026-03-01T01:16:19Z"
     },
     {
       "project_number": 3,
