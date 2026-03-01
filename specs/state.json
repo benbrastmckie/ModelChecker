@@ -4,10 +4,19 @@
     {
       "project_number": 4,
       "project_name": "logos_first_order_readme",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-01T00:49:56Z",
-      "last_updated": "2026-03-01T00:49:56Z"
+      "last_updated": "2026-03-01T01:02:16Z",
+      "session_id": "sess_1772326760_6ee2d8",
+      "researched": "2026-03-01T01:02:16Z",
+      "artifacts": [
+        {
+          "path": "specs/004_logos_first_order_readme/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report analyzing constitutive.typ for first-order logic scope and ModelChecker documentation standards for subtheory READMEs"
+        }
+      ]
     },
     {
       "project_number": 3,

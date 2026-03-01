@@ -8,7 +8,8 @@ next_project_number: 5
 
 ### 4. Create first-order logic README for logos subtheory
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [research-001.md](004_logos_first_order_readme/reports/research-001.md)
 - **Language**: general
 - **Dependencies**: None
 
