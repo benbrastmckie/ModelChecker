@@ -1,10 +1,58 @@
 ---
-next_project_number: 7
+next_project_number: 13
 ---
 
 # Task List
 
 ## Tasks
+
+### 12. Create first-order examples and integration tests
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #11
+
+**Description**: Populate `examples.py` with theorem examples (FO_TH_1 through FO_TH_8: universal distribution, existential distribution, quantifier duality, reflexivity/symmetry/transitivity of identity, Leibniz's Law, lambda beta reduction) and countermodel examples (FO_CM_1 through FO_CM_4: universal to particular, existential instantiation, quantifier scope ambiguity, hyperintensional collapse). Create comprehensive test suite in `tests/test_first_order_examples.py` covering all operators and their interaction with extensional/modal operators.
+
+### 11. Implement first-order operators (Lambda, ForAll, Exists, Identity)
+- **Effort**: Medium-Large
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #10
+
+**Description**: Implement all four first-order operators in `operators.py`. `LambdaOperator`: property formation via variable binding — lambda application `(lambda v.phi)(t)` updates assignment with term denotation and evaluates body; implement `true_at`, `false_at`, `extended_verify`, `extended_falsify`, `find_verifiers_and_falsifiers`. `ForAllOperator`: universal quantification with Z3 constraint generation for finite domain — verifies when all v-variant assignments yield verifiers that fuse into the current state. `ExistsOperator`: defined operator as `not forall v. not phi`. `FirstOrderIdentityOperator`: binary operator on terms, verified at null state when denotations coincide; implement reflexivity, symmetry, transitivity properties.
+
+### 10. Implement variable assignment semantics
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #9
+
+**Description**: Create infrastructure for variable assignments (`sigma: Var -> State`), v-variant assignments (`sigma[s/v]`), and recursive term denotation computation (`[[t]]^sigma_M`). Extend the semantic evaluation context to thread variable assignments through recursive evaluation. Implement predicate interpretation functions: `|F|+, |F|- : S^n -> P(S)` mapping argument tuples to verifier/falsifier sets. Add Z3 constraint support for finite domain quantification including domain enumeration and assignment-variant generation. Integrate with existing semantic evaluation machinery.
+
+### 9. Extend parser for first-order variable and term syntax
+- **Effort**: Large
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #8
+
+**Description**: Modify `syntactic/syntax.py` and `syntactic/sentence.py` (and related modules) to recognise first-order syntax. Add recognition for: variables (`v`, `v_1`, `v_2`, ...); individual constants (`a`, `b`, `c`); function applications (`f(t_1,...,t_n)`); n-ary predicates with term arguments (`F(x,y)`); lambda binding syntax (`(lambda v.phi)(t)`); quantifier syntax (`forall v.phi`, `exists v.phi`). Handle bound vs free variable scoping correctly and integrate with the existing `Sentence` / `OperatorCollection` pipeline. Write unit tests for each new syntactic form.
+
+### 8. Implement term algebra data structures
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #7
+
+**Description**: Implement Python classes for the first-order term algebra, either in a new `terms.py` inside the `first-order/` subtheory or within the syntactic module. Classes needed: `Variable` (with name, e.g. `v_1`); `Constant` (0-place function symbol); `FunctionApplication` (n-place function symbol applied to n terms). Implement `free_variables(t)` returning the set of free variables in a term, and `substitute(term, replacement, var)` implementing capture-avoiding substitution `t[s/v]`. Include full unit test coverage following TDD principles.
+
+### 7. Create first-order module scaffolding
+- **Effort**: Small
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: None
+
+**Description**: Create the basic module structure at `Code/src/model_checker/theory_lib/logos/subtheories/first-order/` following the pattern of the extensional and constitutive subtheories. Files to create: `__init__.py` (module init with public API stubs), `operators.py` (empty operator stubs with docstrings), `examples.py` (empty with planned example categories listed as comments), `tests/__init__.py`, `tests/test_first_order_examples.py` (failing placeholder test). Verify the module is importable and the package is discoverable by the theory loader.
 
 ### 6. Identify Python and Z3 MCP tools and integrate into .claude/ subagents
 - **Effort**: 2-4 hours

@@ -1,6 +1,70 @@
 {
-  "next_project_number": 7,
+  "next_project_number": 13,
   "active_projects": [
+    {
+      "project_number": 12,
+      "project_name": "first_order_examples_and_tests",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-01T22:22:15Z",
+      "dependencies": [
+        11
+      ]
+    },
+    {
+      "project_number": 11,
+      "project_name": "implement_first_order_operators",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-01T22:22:15Z",
+      "dependencies": [
+        10
+      ]
+    },
+    {
+      "project_number": 10,
+      "project_name": "implement_variable_assignment_semantics",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-01T22:22:15Z",
+      "dependencies": [
+        9
+      ]
+    },
+    {
+      "project_number": 9,
+      "project_name": "extend_parser_for_first_order_syntax",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-01T22:22:15Z",
+      "dependencies": [
+        8
+      ]
+    },
+    {
+      "project_number": 8,
+      "project_name": "implement_term_algebra_data_structures",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-01T22:22:15Z",
+      "dependencies": [
+        7
+      ]
+    },
+    {
+      "project_number": 7,
+      "project_name": "create_first_order_module_scaffolding",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-01T22:22:15Z",
+      "dependencies": []
+    },
     {
       "project_number": 6,
       "project_name": "identify_python_z3_mcp_integrate_subagents",
