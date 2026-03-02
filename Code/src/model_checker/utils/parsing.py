@@ -12,6 +12,18 @@ Extended with first-order syntax support:
 - Lambda abstraction: \\lambda v.phi
 - Lambda application: (\\lambda v.phi)(t)
 - Quantifiers: \\forall v.phi, \\exists v.phi
+
+Quantifier Desugaring
+---------------------
+
+The parser implements Church-style quantifier desugaring, transforming
+surface syntax to internal lambda form:
+
+    \\forall v. phi  ->  [\\forall, [\\lambda, v, phi]]
+    \\exists v. phi  ->  [\\exists, [\\lambda, v, phi]]
+
+This makes quantifiers arity-1 operators taking a property (lambda term)
+as their sole argument, matching the Logos manual specification.
 """
 
 from typing import List, Tuple, Any, Union, TYPE_CHECKING
@@ -481,7 +493,15 @@ def _parse_lambda_abstraction(tokens: List[str]) -> Tuple[List[Any], int]:
 
 
 def _parse_quantifier(tokens: List[str]) -> Tuple[List[Any], int]:
-    """Parse quantifier: \\forall v.body or \\exists v.body"""
+    """Parse quantifier: \\forall v.body or \\exists v.body
+
+    Desugars to Church-style lambda form:
+    - \\forall v. phi  ->  [\\forall, [\\lambda, v, phi]]
+    - \\exists v. phi  ->  [\\exists, [\\lambda, v, phi]]
+
+    This transformation makes quantifiers arity-1 operators that take
+    a property (lambda abstraction) as their sole argument.
+    """
     from model_checker.syntactic.terms import Variable
 
     quantifier = tokens.pop(0)  # '\forall' or '\exists'
@@ -503,8 +523,10 @@ def _parse_quantifier(tokens: List[str]) -> Tuple[List[Any], int]:
     # Parse the body
     body, body_comp = parse_first_order_expression(tokens)
 
-    # Return surface representation (evaluator handles lambda equivalence)
-    return [quantifier, bound_var, body], body_comp + 1
+    # Desugar to Church-style: quantifier(lambda v. body)
+    # The lambda term wraps the body with the bound variable
+    lambda_term = ["\\lambda", bound_var, body]
+    return [quantifier, lambda_term], body_comp + 1
 
 
 # =============================================================================
