@@ -1,6 +1,14 @@
 {
-  "next_project_number": 13,
+  "next_project_number": 14,
   "active_projects": [
+    {
+      "project_number": 13,
+      "project_name": "strengthen_first_order_parser_test_coverage",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-02T06:06:06Z",
+      "last_updated": "2026-03-02T06:06:06Z"
+    },
     {
       "project_number": 12,
       "project_name": "first_order_examples_and_tests",

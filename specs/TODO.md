@@ -1,10 +1,18 @@
 ---
-next_project_number: 13
+next_project_number: 14
 ---
 
 # Task List
 
 ## Tasks
+
+### 13. Strengthen first-order parser test coverage
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #9
+
+**Description**: Strengthen test coverage for first-order parser tasks 7-9: add integration tests connecting term algebra to parser (free_variables on parsed formulas), expand lambdaApp tests to cover substitute(), add parser error handling tests (malformed input: missing body after quantifier, unclosed brackets, invalid variable names), and add TDD-conformant placeholder tests for task 7 operator stubs ready to activate in task 11.
 
 ### 12. Create first-order examples and integration tests
 - **Effort**: Medium
