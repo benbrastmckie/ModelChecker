@@ -8,8 +8,9 @@ next_project_number: 17
 
 ### 16. Update all references to renamed lowercase directories
 - **Effort**: Medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: general
+- **Research**: [research-001.md](016_update_references_to_renamed_lowercase_directories/reports/research-001.md)
 
 **Description**: Review recent git commits to identify which directory names were changed to lowercase. Systematically update all references in documentation and source code to match the new paths and prevent breakage.
 
@@ -51,7 +52,7 @@ next_project_number: 17
 
 ### 12. Create first-order examples and integration tests
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Language**: general
 - **Dependencies**: Task #11
 - **Research**: [research-001.md](012_first_order_examples_and_tests/reports/research-001.md), [research-002.md](012_first_order_examples_and_tests/reports/research-002.md)

@@ -4,10 +4,19 @@
     {
       "project_number": 16,
       "project_name": "update_references_to_renamed_lowercase_directories",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-02T22:28:24Z",
-      "last_updated": "2026-03-02T22:28:24Z"
+      "last_updated": "2026-03-02T22:33:00Z",
+      "session_id": "sess_1772490587_b2784b",
+      "researched": "2026-03-02T22:33:00Z",
+      "artifacts": [
+        {
+          "path": "specs/016_update_references_to_renamed_lowercase_directories/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of 83+ files with outdated Code/, Docs/, Images/ path references requiring updates"
+        }
+      ]
     },
     {
       "project_number": 15,
@@ -129,14 +138,14 @@
     {
       "project_number": 12,
       "project_name": "first_order_examples_and_tests",
-      "status": "planned",
+      "status": "implementing",
       "language": "general",
       "created": "2026-03-01T22:22:15Z",
-      "last_updated": "2026-03-02T22:28:36Z",
+      "last_updated": "2026-03-02T22:29:48Z",
       "dependencies": [
         11
       ],
-      "session_id": "sess_1772490358_edf784",
+      "session_id": "sess_1772490564_a42ab5",
       "researched": "2026-03-02T22:25:15Z",
       "artifacts": [
         {
@@ -155,7 +164,8 @@
           "summary": "5-phase implementation plan for first-order examples covering 8 theorems and 4 countermodels with Church-style quantifier syntax"
         }
       ],
-      "planned": "2026-03-02T22:28:36Z"
+      "planned": "2026-03-02T22:28:36Z",
+      "started": "2026-03-02T22:29:48Z"
     },
     {
       "project_number": 11,
