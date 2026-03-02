@@ -23,6 +23,9 @@ from .syntax import Syntax
 # First-order term algebra
 from .terms import Term, Variable, Constant, FunctionApplication
 
+# First-order variable assignments
+from .assignments import VariableAssignment
+
 __all__ = [
     # Atoms
     'AtomSort',
@@ -38,4 +41,6 @@ __all__ = [
     'Variable',
     'Constant',
     'FunctionApplication',
+    # First-order assignments
+    'VariableAssignment',
 ]

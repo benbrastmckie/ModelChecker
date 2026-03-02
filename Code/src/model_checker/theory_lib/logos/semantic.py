@@ -16,6 +16,7 @@ from model_checker import syntactic
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
 from model_checker.models.structure import ModelDefaults
+from model_checker.syntactic.assignments import VariableAssignment
 from model_checker.utils import (
     ForAll,
     Exists,
@@ -114,6 +115,12 @@ class LogosSemantics(SemanticDefaults):
         # Define invalidity conditions
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
+
+        # First-order infrastructure
+        self._predicate_verifiers: Dict[str, z3.FuncDeclRef] = {}
+        self._predicate_falsifiers: Dict[str, z3.FuncDeclRef] = {}
+        self._constant_interpretations: Dict[str, z3.BitVecRef] = {}
+        self._function_interpretations: Dict[str, z3.FuncDeclRef] = {}
     
     def load_subtheories(self, subtheories: Optional[List[str]] = None) -> List[Any]:
         """Load specified subtheories."""
@@ -463,6 +470,191 @@ class LogosSemantics(SemanticDefaults):
                     model_constraints.all_constraints.append(self.falsify(state, atom))
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.falsify(state, atom)))
+
+    # =========================================================================
+    # First-Order Semantics Infrastructure
+    # =========================================================================
+
+    def get_assignment(self, eval_point: 'EvaluationPoint') -> VariableAssignment:
+        """Extract variable assignment from evaluation point.
+
+        If no assignment is present in the evaluation point, returns an empty
+        assignment. This allows operators to access variable bindings during
+        first-order evaluation.
+
+        Args:
+            eval_point: The evaluation point dictionary
+
+        Returns:
+            VariableAssignment: The current variable assignment, or empty if none
+        """
+        return eval_point.get("assignment", VariableAssignment.empty())
+
+    def with_assignment(
+        self,
+        eval_point: 'EvaluationPoint',
+        assignment: VariableAssignment
+    ) -> 'EvaluationPoint':
+        """Create a new evaluation point with the given assignment.
+
+        Creates a copy of the evaluation point with the assignment field set
+        to the provided value. Used by first-order operators to thread
+        variable bindings through recursive evaluation.
+
+        Args:
+            eval_point: The base evaluation point to extend
+            assignment: The variable assignment to include
+
+        Returns:
+            A new evaluation point dictionary with the assignment
+        """
+        return {**eval_point, "assignment": assignment}
+
+    def register_constant(self, name: str, value: z3.BitVecRef) -> None:
+        """Register a constant with its interpretation.
+
+        Associates a constant name with a specific domain element (bit vector).
+        This interpretation is used when computing term denotations.
+
+        Args:
+            name: The constant name (e.g., 'a', 'zero')
+            value: The domain element this constant denotes
+        """
+        self._constant_interpretations[name] = value
+
+    def constant_interpretation(self, name: str) -> z3.BitVecRef:
+        """Get the interpretation of a constant.
+
+        Args:
+            name: The constant name
+
+        Returns:
+            The domain element denoted by this constant
+
+        Raises:
+            KeyError: If the constant has not been registered
+        """
+        if name not in self._constant_interpretations:
+            raise KeyError(f"Constant '{name}' not registered. "
+                          f"Call register_constant('{name}', value) first.")
+        return self._constant_interpretations[name]
+
+    def register_function(self, name: str, arity: int) -> None:
+        """Register a function symbol with its interpretation.
+
+        Creates a Z3 function declaration for the function symbol.
+        The function maps n domain elements to a domain element.
+
+        Args:
+            name: The function symbol name (e.g., 'succ', 'plus')
+            arity: The number of arguments the function takes
+        """
+        # Function maps arity bit vectors to a bit vector
+        arg_sorts = [z3.BitVecSort(self.N)] * arity
+        self._function_interpretations[name] = z3.Function(
+            f"func_{name}",
+            *arg_sorts,
+            z3.BitVecSort(self.N)
+        )
+
+    def function_interpretation(
+        self,
+        name: str,
+        args: tuple[z3.BitVecRef, ...]
+    ) -> z3.BitVecRef:
+        """Apply a function interpretation to arguments.
+
+        Args:
+            name: The function symbol name
+            args: The argument values (already evaluated)
+
+        Returns:
+            The result of applying the function to the arguments
+
+        Raises:
+            KeyError: If the function has not been registered
+        """
+        if name not in self._function_interpretations:
+            raise KeyError(f"Function '{name}' not registered. "
+                          f"Call register_function('{name}', arity) first.")
+        return self._function_interpretations[name](*args)
+
+    def register_predicate(self, name: str, arity: int) -> None:
+        """Register a predicate with verifier/falsifier functions.
+
+        Creates Z3 functions for |F|+ and |F|- interpretation.
+        These functions map n domain elements plus a state to a boolean,
+        representing whether the state is in the verifier/falsifier set
+        for the predicate applied to those arguments.
+
+        Args:
+            name: The predicate name (e.g., 'P', 'Loves')
+            arity: The number of arguments the predicate takes
+        """
+        # Verifier function: maps n args + verifier state to bool
+        # Represents: s in |F|+(d1, ..., dn)
+        verifier_args = [z3.BitVecSort(self.N)] * arity + [z3.BitVecSort(self.N)]
+        self._predicate_verifiers[name] = z3.Function(
+            f"pred_verify_{name}",
+            *verifier_args,
+            z3.BoolSort()
+        )
+
+        # Falsifier function: maps n args + falsifier state to bool
+        # Represents: s in |F|-(d1, ..., dn)
+        self._predicate_falsifiers[name] = z3.Function(
+            f"pred_falsify_{name}",
+            *verifier_args,
+            z3.BoolSort()
+        )
+
+    def predicate_verify(
+        self,
+        name: str,
+        args: tuple[z3.BitVecRef, ...],
+        state: z3.BitVecRef
+    ) -> z3.BoolRef:
+        """Check if state verifies predicate F(args).
+
+        Args:
+            name: The predicate name
+            args: The argument values (domain elements)
+            state: The state being tested as a verifier
+
+        Returns:
+            Z3 constraint expressing whether state is in |F|+(args)
+
+        Raises:
+            KeyError: If the predicate has not been registered
+        """
+        if name not in self._predicate_verifiers:
+            raise KeyError(f"Predicate '{name}' not registered. "
+                          f"Call register_predicate('{name}', arity) first.")
+        return self._predicate_verifiers[name](*args, state)
+
+    def predicate_falsify(
+        self,
+        name: str,
+        args: tuple[z3.BitVecRef, ...],
+        state: z3.BitVecRef
+    ) -> z3.BoolRef:
+        """Check if state falsifies predicate F(args).
+
+        Args:
+            name: The predicate name
+            args: The argument values (domain elements)
+            state: The state being tested as a falsifier
+
+        Returns:
+            Z3 constraint expressing whether state is in |F|-(args)
+
+        Raises:
+            KeyError: If the predicate has not been registered
+        """
+        if name not in self._predicate_falsifiers:
+            raise KeyError(f"Predicate '{name}' not registered. "
+                          f"Call register_predicate('{name}', arity) first.")
+        return self._predicate_falsifiers[name](*args, state)
 
 
 class LogosProposition(PropositionDefaults):

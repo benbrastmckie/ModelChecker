@@ -32,7 +32,7 @@ next_project_number: 14
 
 ### 10. Implement variable assignment semantics
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Language**: general
 - **Dependencies**: Task #9
 - **Research**: [research-001.md](010_implement_variable_assignment_semantics/reports/research-001.md)
