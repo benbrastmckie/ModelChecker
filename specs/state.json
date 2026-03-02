@@ -4,10 +4,19 @@
     {
       "project_number": 18,
       "project_name": "fix_first_order_subtheory_bugs",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-02T23:47:55Z",
-      "last_updated": "2026-03-02T23:47:55Z"
+      "last_updated": "2026-03-02T23:56:50Z",
+      "session_id": "sess_1772495488_b764af",
+      "researched": "2026-03-02T23:56:50Z",
+      "artifacts": [
+        {
+          "path": "specs/018_fix_first_order_subtheory_bugs/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report on 6 interconnected first-order subtheory bugs with root cause analysis and fix recommendations"
+        }
+      ]
     },
     {
       "project_number": 17,
