@@ -18,10 +18,11 @@ import importlib
 
 AVAILABLE_SUBTHEORIES = [
     'extensional',
-    'modal', 
+    'modal',
     'constitutive',
     'counterfactual',
-    'relevance'
+    'relevance',
+    'first-order'
 ]
 
 SUBTHEORY_DESCRIPTIONS = {
@@ -29,7 +30,8 @@ SUBTHEORY_DESCRIPTIONS = {
     'modal': 'Necessity and possibility operators (□,◇)',
     'constitutive': 'Ground, essence, and identity operators (≡,≤,⊑,≼)',
     'counterfactual': 'Counterfactual conditional operators (□→,◇→)',
-    'relevance': 'Content-sensitive relevance operators'
+    'relevance': 'Content-sensitive relevance operators',
+    'first-order': 'First-order quantification and lambda abstraction (∀,∃,λ,=)'
 }
 
 def get_subtheory_module(name):
