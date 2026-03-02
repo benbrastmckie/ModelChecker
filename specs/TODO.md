@@ -32,7 +32,9 @@ next_project_number: 13
 
 ### 9. Extend parser for first-order variable and term syntax
 - **Effort**: Large
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-01
+- **Summary**: [implementation-summary-20260301.md](009_extend_parser_for_first_order_syntax/summaries/implementation-summary-20260301.md)
 - **Language**: general
 - **Dependencies**: Task #8
 - **Research**: [research-001.md](009_extend_parser_for_first_order_syntax/reports/research-001.md), [research-002.md](009_extend_parser_for_first_order_syntax/reports/research-002.md)

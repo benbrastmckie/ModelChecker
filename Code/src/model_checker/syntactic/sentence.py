@@ -10,10 +10,11 @@ bindings, and proposition values.
 from typing import List, Optional, Dict, Any, Union, Tuple, TYPE_CHECKING
 from z3 import ExprRef
 
-from model_checker.utils import parse_expression
+from model_checker.utils import parse_expression, tokenize_first_order, parse_first_order_expression
 from .atoms import AtomSort
 from .types import FormulaString, PrefixList
 from .errors import InvalidFormulaError, ParseError
+from .terms import Term, Variable
 
 if TYPE_CHECKING:
     from .collection import OperatorCollection
@@ -68,16 +69,35 @@ class Sentence:
         # recursive clause: initially stores infix_arguments and infix_operator
         # updated by initialize_sentences in Syntax with operator_collection
         # updated by instantiate in ModelConstraints with semantics
-        if self.complexity > 0: 
-            self.original_arguments = [ # store infix_arguments
-                self.infix(arg)
-                for arg in self.prefix_sentence[1:]
-            ]
+        if self.complexity > 0:
+            # Handle first-order operators differently
+            first_op = self.prefix_sentence[0]
+            if first_op in {"\\lambda", "\\forall", "\\exists", "\\lambdaApp"}:
+                # For binders, arguments after the variable are the body
+                # Store in a way that's compatible with the original system
+                self.original_arguments = [
+                    self.infix(arg)
+                    for arg in self.prefix_sentence[1:]
+                    if not isinstance(arg, Variable)  # Skip the bound variable
+                ]
+            else:
+                self.original_arguments = [  # store infix_arguments
+                    self.infix(arg)
+                    for arg in self.prefix_sentence[1:]
+                ]
             # updated by update_types:
-            self.original_operator = self.prefix_sentence[0]
+            self.original_operator = first_op
         else:
             self.original_arguments = None
-            self.original_operator = self.prefix_sentence[0] if self.name in {'\\top', '\\bot'} else None
+            # Handle atomic cases: \top, \bot, variables, and atomic predicates
+            first_elem = self.prefix_sentence[0]
+            if isinstance(first_elem, str) and first_elem in {'\\top', '\\bot'}:
+                self.original_operator = first_elem
+            elif isinstance(first_elem, Variable):
+                # Variable as atomic sentence
+                self.original_operator = None
+            else:
+                self.original_operator = None
         self.arguments = None # updated by initialize_types
         self.operator = None # updated by update_types
 
@@ -95,46 +115,68 @@ class Sentence:
 
     def prefix(self, infix_sentence: FormulaString) -> Tuple[PrefixList, int]:
         """Converts infix notation to prefix notation.
-        
+
         Transforms a logical expression from infix format (e.g., "(p ∧ q)") to prefix format
         (e.g., ["∧", "p", "q"]) for easier processing by the model checker. This conversion
         works without prior knowledge of specific operators in the language.
-        
+
+        Supports both propositional and first-order syntax:
+        - Variables: v_x, v_1, v_foo_bar
+        - Predicates: F[t1, t2, ...]
+        - Functions: f<t1, t2, ...>
+        - Lambda: \\lambda v.phi
+        - Quantifiers: \\forall v.phi, \\exists v.phi
+
         Args:
             infix_sentence (str): A logical expression in infix notation
-            
+
         Returns:
             tuple: A pair containing:
                 - list: The expression in prefix notation
                 - int: The complexity (nesting depth) of the expression
         """
+        # Check if the sentence contains first-order syntax markers
+        # Use first-order parser if we detect: v_ prefix, [ ], < >, or binding operators
+        first_order_markers = ['v_', '[', '<', '\\lambda', '\\forall', '\\exists']
+        uses_first_order = any(marker in infix_sentence for marker in first_order_markers)
 
-        tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-        derived_object, complexity = parse_expression(tokens)
-        return derived_object, complexity
+        if uses_first_order:
+            # Use first-order tokenizer and parser
+            tokens = tokenize_first_order(infix_sentence)
+            derived_object, complexity = parse_first_order_expression(tokens)
+            return derived_object, complexity
+        else:
+            # Use original propositional parser for backward compatibility
+            tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
+            derived_object, complexity = parse_expression(tokens)
+            return derived_object, complexity
 
     def infix(self, prefix: PrefixList) -> FormulaString:
         """Converts prefix notation to infix notation.
-        
-        Transforms a logical expression from prefix format (e.g., ["∧", "p", "q"]) to infix 
-        format (e.g., "(p ∧ q)"), handling various input types including sentence objects, 
-        Z3 expressions, strings, and nested lists.
-        
+
+        Transforms a logical expression from prefix format (e.g., ["∧", "p", "q"]) to infix
+        format (e.g., "(p ∧ q)"), handling various input types including sentence objects,
+        Z3 expressions, strings, Term objects, and nested lists.
+
         Args:
             prefix: The expression in prefix notation, which can be:
                 - A Sentence object (with a 'name' attribute)
                 - A Z3 ExprRef object
                 - A string (already in infix form)
+                - A Term object (Variable, Constant, FunctionApplication)
                 - A list/tuple (in prefix order: [operator, arg1, arg2, ...])
-            
+
         Returns:
             str: The expression converted to infix notation
-            
+
         Raises:
             TypeError: If the input has an unsupported type
         """
+        # Handle Term objects (Variable, Constant, FunctionApplication)
+        if isinstance(prefix, Term):
+            return str(prefix)
 
-        if hasattr(prefix, 'name'):
+        if hasattr(prefix, 'name') and not isinstance(prefix, Term):
             return prefix.name
         if isinstance(prefix, ExprRef):
             return str(prefix)
@@ -145,6 +187,25 @@ class Sentence:
                 return self.infix(prefix[0])
             operator = prefix[0]
             op_str = self.infix(operator)
+
+            # Handle lambda and quantifier operators
+            if op_str in {"\\lambda", "\\forall", "\\exists"}:
+                var = self.infix(prefix[1])
+                body = self.infix(prefix[2])
+                return f"{op_str} {var}. {body}"
+
+            # Handle lambda application
+            if op_str == "\\lambdaApp":
+                var = self.infix(prefix[1])
+                body = self.infix(prefix[2])
+                arg = self.infix(prefix[3])
+                return f"(\\lambda {var}. {body})({arg})"
+
+            # Handle predicates with term arguments
+            if len(prefix) > 1 and isinstance(prefix[1], Term):
+                args = ", ".join(self.infix(arg) for arg in prefix[1:])
+                return f"{op_str}[{args}]"
+
             if len(prefix) == 2:
                 return f"{op_str} {self.infix(prefix[1])}"
             left_expr, right_expr = prefix[1], prefix[2]
