@@ -40,9 +40,10 @@ next_project_number: 13
 
 ### 8. Implement term algebra data structures
 - **Effort**: Medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: general
 - **Dependencies**: Task #7
+- **Research**: [research-001.md](008_implement_term_algebra_data_structures/reports/research-001.md)
 
 **Description**: Implement Python classes for the first-order term algebra, either in a new `terms.py` inside the `first-order/` subtheory or within the syntactic module. Classes needed: `Variable` (with name, e.g. `v_1`); `Constant` (0-place function symbol); `FunctionApplication` (n-place function symbol applied to n terms). Implement `free_variables(t)` returning the set of free variables in a term, and `substitute(term, replacement, var)` implementing capture-avoiding substitution `t[s/v]`. Include full unit test coverage following TDD principles.
 

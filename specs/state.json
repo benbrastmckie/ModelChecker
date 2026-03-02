@@ -48,12 +48,21 @@
     {
       "project_number": 8,
       "project_name": "implement_term_algebra_data_structures",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-01T22:22:15Z",
-      "last_updated": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T00:52:12Z",
       "dependencies": [
         7
+      ],
+      "session_id": "sess_1772412506_570a04",
+      "researched": "2026-03-02T00:52:12Z",
+      "artifacts": [
+        {
+          "path": "specs/008_implement_term_algebra_data_structures/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report analyzing parsing infrastructure and recommending term algebra implementation in syntactic/terms.py"
+        }
       ]
     },
     {
