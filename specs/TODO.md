@@ -32,10 +32,10 @@ next_project_number: 13
 
 ### 9. Extend parser for first-order variable and term syntax
 - **Effort**: Large
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: general
 - **Dependencies**: Task #8
-- **Research**: [research-001.md](009_extend_parser_for_first_order_syntax/reports/research-001.md)
+- **Research**: [research-001.md](009_extend_parser_for_first_order_syntax/reports/research-001.md), [research-002.md](009_extend_parser_for_first_order_syntax/reports/research-002.md)
 - **Plan**: [implementation-001.md](009_extend_parser_for_first_order_syntax/plans/implementation-001.md)
 
 **Description**: Modify `syntactic/syntax.py` and `syntactic/sentence.py` (and related modules) to recognise first-order syntax. Add recognition for: variables (`v`, `v_1`, `v_2`, ...); individual constants (`a`, `b`, `c`); function applications (`f(t_1,...,t_n)`); n-ary predicates with term arguments (`F(x,y)`); lambda binding syntax (`(lambda v.phi)(t)`); quantifier syntax (`forall v.phi`, `exists v.phi`). Handle bound vs free variable scoping correctly and integrate with the existing `Sentence` / `OperatorCollection` pipeline. Write unit tests for each new syntactic form.

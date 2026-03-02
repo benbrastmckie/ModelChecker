@@ -37,15 +37,15 @@
     {
       "project_number": 9,
       "project_name": "extend_parser_for_first_order_syntax",
-      "status": "planned",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-01T22:22:15Z",
-      "last_updated": "2026-03-02T01:24:15Z",
+      "last_updated": "2026-03-02T01:33:31Z",
       "dependencies": [
         8
       ],
-      "session_id": "sess_1772414499_42edd7",
-      "researched": "2026-03-02T01:12:31Z",
+      "session_id": "sess_1772415012_8a14de",
+      "researched": "2026-03-02T01:33:31Z",
       "artifacts": [
         {
           "path": "specs/009_extend_parser_for_first_order_syntax/reports/research-001.md",
@@ -56,6 +56,11 @@
           "path": "specs/009_extend_parser_for_first_order_syntax/plans/implementation-001.md",
           "type": "plan",
           "summary": "6-phase implementation plan for first-order parser extension"
+        },
+        {
+          "path": "specs/009_extend_parser_for_first_order_syntax/reports/research-002.md",
+          "type": "research",
+          "summary": "Supplementary research analyzing Logos Theory source code (Typst and Lean) for first-order syntax conventions, revealing that forall/exists do not bind variables - lambdas handle all variable binding"
         }
       ],
       "planned": "2026-03-02T01:24:15Z"
