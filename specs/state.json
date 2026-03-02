@@ -1,6 +1,14 @@
 {
-  "next_project_number": 16,
+  "next_project_number": 17,
   "active_projects": [
+    {
+      "project_number": 16,
+      "project_name": "update_references_to_renamed_lowercase_directories",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-02T22:28:24Z",
+      "last_updated": "2026-03-02T22:28:24Z"
+    },
     {
       "project_number": 15,
       "project_name": "verify_quantifier_semantics_match_logos_manual",
@@ -121,14 +129,14 @@
     {
       "project_number": 12,
       "project_name": "first_order_examples_and_tests",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-01T22:22:15Z",
-      "last_updated": "2026-03-02T22:25:15Z",
+      "last_updated": "2026-03-02T22:28:36Z",
       "dependencies": [
         11
       ],
-      "session_id": "sess_1772490009_d567c6",
+      "session_id": "sess_1772490358_edf784",
       "researched": "2026-03-02T22:25:15Z",
       "artifacts": [
         {
@@ -141,7 +149,8 @@
           "type": "research",
           "summary": "Supplementary research documenting syntax changes from tasks 13-15 (Church-style quantifiers, bracket predicates) and revised example specifications for FO_TH_1-8 and FO_CM_1-4"
         }
-      ]
+      ],
+      "planned": "2026-03-02T22:28:36Z"
     },
     {
       "project_number": 11,
