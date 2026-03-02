@@ -7,7 +7,7 @@
       "status": "planned",
       "language": "general",
       "created": "2026-03-02T17:50:53Z",
-      "last_updated": "2026-03-02T18:37:33Z",
+      "last_updated": "2026-03-02T18:50:59Z",
       "dependencies": [
         10
       ],
@@ -25,12 +25,12 @@
           "summary": "Clean-break analysis identifying plan restructuring to unify sentence letters as zero-arity predicates"
         },
         {
-          "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-002.md",
+          "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-003.md",
           "type": "plan",
-          "summary": "Clean-break 5-phase plan unifying sentence letters as zero-arity predicates"
+          "summary": "6-phase plan with explicit predicate syntax: bare identifiers as constants, brackets required for predicates"
         }
       ],
-      "planned": "2026-03-02T18:37:33Z"
+      "planned": "2026-03-02T18:50:59Z"
     },
     {
       "project_number": 13,
