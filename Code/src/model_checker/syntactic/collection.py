@@ -89,33 +89,67 @@ class OperatorCollection:
         corresponding operator classes from the collection and handling atomic sentences and
         extremal operators (\\top, \\bot). It recursively processes all subexpressions.
 
+        Task 14 Convention:
+        - String atoms (from P[] syntax) -> sentence letters (Z3 Const)
+        - Constant objects (from bare or explicit <> syntax) -> constants (pass through)
+        - Term objects (Variables, FunctionApplications) -> pass through for semantic handling
+
         Args:
-            prefix_sentence (list): A sentence in prefix notation where operators and atoms
-                                  are represented as strings
+            prefix_sentence (list or Term): A sentence in prefix notation where operators and atoms
+                                           are represented as strings, or a Term object directly
 
         Returns:
             list: A nested list structure where:
                 - String operators are replaced with their operator classes
-                - Atomic sentences are converted to Z3 Const objects
+                - String atomic sentences are converted to Z3 Const objects
+                - Constant/Term objects are passed through (wrapped in list)
                 - Extremal operators (\\top, \\bot) are converted to their operator classes
 
         Raises:
-            ValueError: If an atomic term is neither a valid sentence letter nor an extremal operator
+            ValueError: If an atomic term is neither a valid sentence letter nor a constant/term
             TypeError: If an operator is not provided as a string
 
         Examples:
-            ["∧", "p", "q"] -> [AndOperator, Const("p", AtomSort), Const("q", AtomSort)]
+            ["∧", ["p"], ["q"]] -> [AndOperator, Const("p", AtomSort), Const("q", AtomSort)]
             ["\\top"] -> [TopOperator]
             ["p"] -> [Const("p", AtomSort)]
+            [Constant("c")] -> [Constant("c")]  # Task 14: constants pass through
+            Variable("v_x") -> [Variable("v_x")]  # Task 14: direct Term objects
         """
+        from .terms import Term, Constant as TermConstant
+
+        # Task 14: Handle Term objects passed directly (not wrapped in list)
+        # This happens when predicates have term arguments like F[v_x]
+        if isinstance(prefix_sentence, Term):
+            return [prefix_sentence]
+
         if len(prefix_sentence) == 1:
             atom = prefix_sentence[0]
-            if atom in {"\\top", "\\bot"}:  # Handle extremal operators
+
+            # Handle extremal operators
+            if isinstance(atom, str) and atom in {"\\top", "\\bot"}:
                 return [self[atom]]
-            if atom.isalnum():  # Handle atomic sentences
+
+            # Task 14: Handle Constant and other Term objects (pass through)
+            if isinstance(atom, Term):
+                return [atom]
+
+            # Handle string atoms as sentence letters (from P[] syntax)
+            if isinstance(atom, str) and atom.isalnum():
                 return [Const(atom, AtomSort)]
+
             raise ValueError(f"The atom {atom} is invalid in apply_operator.")
+
         op, arguments = prefix_sentence[0], prefix_sentence[1:]
+
+        # Task 14: Check if this is a predicate with term arguments (not an operator)
+        # A predicate has a string name and all arguments are Term objects
+        if isinstance(op, str) and arguments and all(isinstance(arg, Term) for arg in arguments):
+            # This is a predicate application: F[t1, t2, ...]
+            # Return [predicate_name, term1, term2, ...] for semantic handling
+            activated = [op] + list(arguments)
+            return activated
+
         activated = [self.apply_operator(arg) for arg in arguments]
         if isinstance(op, str):
             activated.insert(0, self[op])

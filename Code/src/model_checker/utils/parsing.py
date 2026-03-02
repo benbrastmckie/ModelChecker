@@ -404,7 +404,13 @@ def _parse_binary_expression(tokens: List[str]) -> Tuple[List[Any], int]:
 
 
 def _parse_identifier_expression(tokens: List[str]) -> Tuple[List[Any], int]:
-    """Parse an identifier expression (predicate, term, or atom)."""
+    """Parse an identifier expression (predicate, constant, or function).
+
+    Convention (Task 14):
+    - Bare identifier (e.g., 'P', 'sam') -> Constant (equivalent to P<>)
+    - Brackets required for predicates: P[] for zero-arity, F[x] for unary
+    - Angle brackets for functions: f<x> for application, a<> explicit constant
+    """
     from model_checker.syntactic.terms import Variable, Constant, FunctionApplication, Term
 
     name = tokens.pop(0)
@@ -413,7 +419,7 @@ def _parse_identifier_expression(tokens: List[str]) -> Tuple[List[Any], int]:
     if tokens and tokens[0] == "[":
         tokens.pop(0)  # consume '['
 
-        # Check for empty predicate (nullary - equivalent to atom)
+        # Check for empty predicate (nullary - equivalent to atom/sentence letter)
         if tokens and tokens[0] == "]":
             tokens.pop(0)  # consume ']'
             return [name], 0
@@ -437,14 +443,15 @@ def _parse_identifier_expression(tokens: List[str]) -> Tuple[List[Any], int]:
         result = [name] + args
         return result, 0
 
-    # Check for function application: f<args>
+    # Check for function application or explicit constant: f<args> or a<>
     if tokens and tokens[0] == "<":
         tokens.insert(0, name)  # put name back
         term, tokens[:] = parse_term(tokens)
         return [term], 0
 
-    # Plain atom
-    return [name], 0
+    # Bare identifier -> Constant (Task 14 convention)
+    # Previously returned [name] as atom; now returns Constant object
+    return [Constant(name)], 0
 
 
 def _parse_lambda_abstraction(tokens: List[str]) -> Tuple[List[Any], int]:

@@ -61,8 +61,20 @@ class Syntax:
         self.all_sentences = {} # updated in build_sentence
         # self.operators_used = []
         self.sentence_letters = [] # updated in build_sentence
+
+        # Task 14: Vocabulary collection with arity validation
+        # predicates: {name: arity} - includes zero-arity sentence letters
+        # functions: {name: arity} - function applications
+        # constants: set of constant names
+        self.predicates: Dict[str, int] = {}
+        self.functions: Dict[str, int] = {}
+        self.constants: Set[str] = set()
+
         self.premises = self.initialize_sentences(self.infix_premises)
         self.conclusions = self.initialize_sentences(self.infix_conclusions)
+
+        # Task 14: Validate arity consistency after all sentences are parsed
+        self._validate_arity_consistency()
 
         # check for interdefined operators
         self.circularity_check(operator_collection)
@@ -96,9 +108,21 @@ class Syntax:
                 return self.all_sentences[infix_sentence]
             sentence = Sentence(infix_sentence)
             self.all_sentences[sentence.name] = sentence
+
+            # Task 14: Collect vocabulary from prefix sentence
+            self._collect_vocabulary(sentence.prefix_sentence)
+
             if sentence.original_arguments is None:
-                if sentence.name.isalnum():
-                    self.sentence_letters.append(sentence)
+                # Task 14: Sentence letters are now detected by [] syntax, not isalnum()
+                # - Predicates with [] (including zero-arity like P[]) return strings in prefix
+                # - Constants (bare or explicit <>) return Constant objects in prefix
+                # - Check if prefix_sentence[0] is a string (not a Term object)
+                from .terms import Term
+                if len(sentence.prefix_sentence) == 1:
+                    atom = sentence.prefix_sentence[0]
+                    if isinstance(atom, str) and atom not in {'\\top', '\\bot'}:
+                        # String atom = sentence letter (from P[] syntax)
+                        self.sentence_letters.append(sentence)
                 return sentence
             sentence_arguments = []
             for infix_arg in sentence.original_arguments:
@@ -140,6 +164,130 @@ class Syntax:
             initialize_types(sentence)
             sentence_objects.append(sentence)
         return sentence_objects
+
+    def _collect_vocabulary(self, prefix_sentence: List) -> None:
+        """Collect vocabulary (predicates, functions, constants) from a prefix sentence.
+
+        Task 14: This method extracts vocabulary from parsed prefix sentences and
+        tracks arities for consistency validation.
+
+        Args:
+            prefix_sentence: A sentence in prefix notation
+
+        Raises:
+            ValueError: If arity conflict is detected during collection
+        """
+        from .terms import Term, Variable, Constant, FunctionApplication
+
+        if not prefix_sentence:
+            return
+
+        first_elem = prefix_sentence[0]
+
+        # Handle Term objects (constants, variables, function applications)
+        if isinstance(first_elem, Term):
+            self._collect_term_vocabulary(first_elem)
+            return
+
+        # Handle string elements
+        if isinstance(first_elem, str):
+            # Skip operators
+            if first_elem.startswith("\\"):
+                # Process arguments of operators
+                for arg in prefix_sentence[1:]:
+                    if isinstance(arg, list):
+                        self._collect_vocabulary(arg)
+                    elif isinstance(arg, Term):
+                        self._collect_term_vocabulary(arg)
+                return
+
+            # Predicate with arguments: [name, arg1, arg2, ...]
+            if len(prefix_sentence) > 1:
+                args = prefix_sentence[1:]
+                # Check if arguments are Terms (predicate with term arguments)
+                if all(isinstance(arg, Term) for arg in args):
+                    arity = len(args)
+                    self._register_predicate(first_elem, arity)
+                    # Collect vocabulary from term arguments
+                    for arg in args:
+                        self._collect_term_vocabulary(arg)
+                else:
+                    # Nested structure - recurse on arguments
+                    for arg in args:
+                        if isinstance(arg, list):
+                            self._collect_vocabulary(arg)
+                        elif isinstance(arg, Term):
+                            self._collect_term_vocabulary(arg)
+            else:
+                # Single element: zero-arity predicate (sentence letter)
+                self._register_predicate(first_elem, 0)
+
+    def _collect_term_vocabulary(self, term: 'Term') -> None:
+        """Collect vocabulary from a Term object.
+
+        Args:
+            term: A Term (Variable, Constant, or FunctionApplication)
+        """
+        from .terms import Variable, Constant, FunctionApplication
+
+        if isinstance(term, Variable):
+            # Variables are not collected - they're bound
+            return
+        elif isinstance(term, Constant):
+            self.constants.add(term.name)
+        elif isinstance(term, FunctionApplication):
+            arity = len(term.arguments)
+            self._register_function(term.name, arity)
+            # Recursively collect from arguments
+            for arg in term.arguments:
+                self._collect_term_vocabulary(arg)
+
+    def _register_predicate(self, name: str, arity: int) -> None:
+        """Register a predicate with arity validation.
+
+        Args:
+            name: Predicate name
+            arity: Predicate arity
+
+        Raises:
+            ValueError: If predicate already registered with different arity
+        """
+        if name in self.predicates:
+            if self.predicates[name] != arity:
+                raise ValueError(
+                    f"Arity conflict: predicate '{name}' used with arity {self.predicates[name]} and {arity}"
+                )
+        else:
+            self.predicates[name] = arity
+
+    def _register_function(self, name: str, arity: int) -> None:
+        """Register a function with arity validation.
+
+        Args:
+            name: Function name
+            arity: Function arity
+
+        Raises:
+            ValueError: If function already registered with different arity
+        """
+        if name in self.functions:
+            if self.functions[name] != arity:
+                raise ValueError(
+                    f"Arity conflict: function '{name}' used with arity {self.functions[name]} and {arity}"
+                )
+        else:
+            self.functions[name] = arity
+
+    def _validate_arity_consistency(self) -> None:
+        """Final validation of vocabulary consistency.
+
+        This is called after all sentences are parsed to ensure no conflicts.
+        Most conflicts are caught during _register_predicate/_register_function,
+        but this provides a final check.
+        """
+        # Additional validation could be added here if needed
+        # For now, the eager validation in _register_* methods is sufficient
+        pass
 
     def circularity_check(
         self,

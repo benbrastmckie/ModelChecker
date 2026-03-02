@@ -252,14 +252,37 @@ class Sentence:
             return derive_type(derivation)
 
         def store_types(derived_type):
-            if self.name.isalnum(): # sentence letter
-                return None, None, derived_type[0]
-            if self.name in {'\\top', '\\bot'}: # extremal operator
-                return derived_type[0], None, None
-            if len(derived_type) > 1: # complex sentence
-                operator_type, argument_types = derived_type[0], derived_type[1:]
+            # Task 14: Detection logic updated for new convention
+            # - Sentence letters: Z3 Const objects (from P[] syntax)
+            # - Constants: Term objects (from bare or explicit <> syntax)
+            # - Extremal operators: \top, \bot
+            # - Complex sentences: operator + arguments
+
+            from z3 import is_const
+            from .terms import Term
+
+            first_elem = derived_type[0]
+
+            # Check for sentence letter (Z3 Const from apply_operator)
+            if len(derived_type) == 1 and is_const(first_elem):
+                return None, None, first_elem
+
+            # Check for constant (Term object from parser)
+            if len(derived_type) == 1 and isinstance(first_elem, Term):
+                # Constants don't have sentence_letter representation
+                # They'll be handled in semantic evaluation
+                return None, None, None
+
+            # Check for extremal operator
+            if self.name in {'\\top', '\\bot'}:
+                return first_elem, None, None
+
+            # Complex sentence with operator and arguments
+            if len(derived_type) > 1:
+                operator_type, argument_types = first_elem, derived_type[1:]
                 infix_arguments = [self.infix(arg_type) for arg_type in argument_types]
                 return operator_type, infix_arguments, None
+
             raise ValueError(f"the derived_type for {self} is invalid in store_types().")
 
         original_type = operator_collection.apply_operator(self.prefix_sentence)

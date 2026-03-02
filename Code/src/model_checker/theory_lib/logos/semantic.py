@@ -154,115 +154,165 @@ class LogosSemantics(SemanticDefaults):
 
     def true_at(self, sentence: 'Sentence', eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a sentence is true at a given evaluation point.
-        
-        For atomic sentences (sentence_letters), it checks if there exists some state x 
+
+        For atomic sentences (sentence_letters), it checks if there exists some state x
         that is part of the evaluation world such that x verifies the sentence letter.
-        
-        For complex sentences, it delegates to the operator's true_at method with the 
+
+        For complex sentences, it delegates to the operator's true_at method with the
         sentence's arguments and evaluation point.
-        
+
+        Task 14: Constants (bare identifiers or explicit <>) are domain elements,
+        not propositions, and cannot be evaluated for truth. This raises TypeError.
+
         Args:
             sentence (Sentence): The sentence to evaluate
             eval_point (dict): The evaluation point containing a "world" key
-            
+
         Returns:
             BoolRef: Z3 constraint expressing whether the sentence is true at eval_point
+
+        Raises:
+            TypeError: If sentence is a constant (domain element, not proposition)
         """
         # Extract world from evaluation point
         eval_world = eval_point["world"]
-        
+
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
         operator = sentence.operator
+        if operator is None:
+            # Task 14: No operator and no sentence_letter means this is a constant
+            # Constants are domain elements, not propositions
+            raise TypeError(
+                f"Cannot evaluate truth of '{sentence.name}': "
+                f"constants are domain elements, not propositions. "
+                f"Use predicate syntax P[] for sentence letters."
+            )
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_point)
 
     def false_at(self, sentence: 'Sentence', eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a sentence is false at a given evaluation point.
-        
-        For atomic sentences (sentence_letters), it checks if there exists some state x 
+
+        For atomic sentences (sentence_letters), it checks if there exists some state x
         that is part of the evaluation world such that x falsifies the sentence letter.
-        
-        For complex sentences, it delegates to the operator's false_at method with the 
+
+        For complex sentences, it delegates to the operator's false_at method with the
         sentence's arguments and evaluation point.
-        
+
+        Task 14: Constants (bare identifiers or explicit <>) are domain elements,
+        not propositions, and cannot be evaluated for falsity. This raises TypeError.
+
         Args:
             sentence (Sentence): The sentence to evaluate
             eval_point (dict): The evaluation point containing a "world" key
-            
+
         Returns:
             BoolRef: Z3 constraint expressing whether the sentence is false at eval_point
+
+        Raises:
+            TypeError: If sentence is a constant (domain element, not proposition)
         """
         # Extract world from evaluation point
         eval_world = eval_point["world"]
-        
+
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
         operator = sentence.operator
+        if operator is None:
+            # Task 14: No operator and no sentence_letter means this is a constant
+            # Constants are domain elements, not propositions
+            raise TypeError(
+                f"Cannot evaluate falsity of '{sentence.name}': "
+                f"constants are domain elements, not propositions. "
+                f"Use predicate syntax P[] for sentence letters."
+            )
         arguments = sentence.arguments or ()
         return operator.false_at(*arguments, eval_point)
 
     def extended_verify(self, state: 'StateType', sentence: 'Sentence',
                        eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a state verifies a sentence at an evaluation point.
-        
+
         This method extends the hyperintensional verification relation to all
         sentences of the language in order to determine whether a specific state
         is a verifier for a given sentence at a particular evaluation point.
-        
+
         For atomic sentences (those with a sentence_letter), it directly uses the verify
         relation to determine if the state verifies the atomic sentence.
-        
+
         For complex sentences (those with an operator), it delegates to the operator's
         extended_verify method which handles the verification conditions specific to
         that operator.
-        
+
+        Task 14: Constants cannot be verified - they are domain elements, not propositions.
+
         Args:
             state (BitVecRef): The state being tested as a verifier
             sentence (Sentence): The sentence to check
             eval_point (dict): The evaluation point context
-            
+
         Returns:
             BoolRef: Z3 constraint expressing the verification condition
+
+        Raises:
+            TypeError: If sentence is a constant (domain element, not proposition)
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
+        if operator is None:
+            raise TypeError(
+                f"Cannot verify '{sentence.name}': "
+                f"constants are domain elements, not propositions. "
+                f"Use predicate syntax P[] for sentence letters."
+            )
         arguments = sentence.arguments or ()
         return operator.extended_verify(state, *arguments, eval_point)
     
     def extended_falsify(self, state: 'StateType', sentence: 'Sentence',
                         eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a state falsifies a sentence at an evaluation point.
-        
+
         This method extends the hyperintensional falsification relation to all
         sentences of the language in order to determine whether a specific state
         is a falsifier for a given sentence at a particular evaluation point.
-        
+
         For atomic sentences (those with a sentence_letter), it directly uses the falsify
         relation to determine if the state falsifies the atomic sentence.
-        
+
         For complex sentences (those with an operator), it delegates to the operator's
         extended_falsify method which handles the falsification conditions specific to
         that operator.
-        
+
+        Task 14: Constants cannot be falsified - they are domain elements, not propositions.
+
         Args:
             state (BitVecRef): The state being tested as a falsifier
             sentence (Sentence): The sentence to check
             eval_point (dict): The evaluation point context
-            
+
         Returns:
             BoolRef: Z3 constraint expressing the falsification condition
+
+        Raises:
+            TypeError: If sentence is a constant (domain element, not proposition)
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.falsify(state, sentence_letter)
         operator = sentence.operator
+        if operator is None:
+            raise TypeError(
+                f"Cannot falsify '{sentence.name}': "
+                f"constants are domain elements, not propositions. "
+                f"Use predicate syntax P[] for sentence letters."
+            )
         arguments = sentence.arguments or ()
         return operator.extended_falsify(state, *arguments, eval_point)
 

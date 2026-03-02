@@ -8,7 +8,9 @@ next_project_number: 15
 
 ### 14. Auto-discover predicates, functions, and constants from formulas
 - **Effort**: Medium-Large
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](014_auto_discover_predicates_functions_constants/summaries/implementation-summary-20260302.md)
 - **Language**: general
 - **Dependencies**: Task #10
 - **Research**: [research-001.md](014_auto_discover_predicates_functions_constants/reports/research-001.md), [research-002.md](014_auto_discover_predicates_functions_constants/reports/research-002.md), [research-003.md](014_auto_discover_predicates_functions_constants/reports/research-003.md)

@@ -291,10 +291,14 @@ class TestConstantString:
     """Tests for Constant string representation."""
 
     def test_constant_str_returns_name(self):
-        """str(Constant) should return the name."""
+        """str(Constant) should return the name with explicit <> syntax.
+
+        Task 14: Constants now include <> in string representation for
+        parseability when re-parsing term strings.
+        """
         from model_checker.syntactic.terms import Constant
         c = Constant("zero")
-        assert str(c) == "zero"
+        assert str(c) == "zero<>"
 
 
 # =============================================================================
@@ -489,13 +493,16 @@ class TestFunctionApplicationString:
         assert result == "plus<v_x, v_y>"
 
     def test_function_application_str_nested(self):
-        """Nested applications should show nested format."""
+        """Nested applications should show nested format.
+
+        Task 14: Constants now include <> in string representation.
+        """
         from model_checker.syntactic.terms import FunctionApplication, Constant
         zero = Constant("zero")
         inner = FunctionApplication("succ", (zero,))
         outer = FunctionApplication("succ", (inner,))
         result = str(outer)
-        assert result == "succ<succ<zero>>"
+        assert result == "succ<succ<zero<>>>"
 
 
 # =============================================================================
@@ -519,7 +526,10 @@ class TestComplexTermCompositions:
         assert len(plus_expr.free_variables()) == 1
 
     def test_deeply_nested_term(self):
-        """Test deeply nested term: succ<succ<succ<zero>>>."""
+        """Test deeply nested term: succ<succ<succ<zero<>>>>.
+
+        Task 14: Constants now include <> in string representation.
+        """
         from model_checker.syntactic.terms import FunctionApplication, Constant
         zero = Constant("zero")
         succ1 = FunctionApplication("succ", (zero,))
@@ -527,7 +537,7 @@ class TestComplexTermCompositions:
         succ3 = FunctionApplication("succ", (succ2,))
 
         assert len(succ3.free_variables()) == 0
-        assert str(succ3) == "succ<succ<succ<zero>>>"
+        assert str(succ3) == "succ<succ<succ<zero<>>>>"
 
     def test_term_with_many_variables(self):
         """Test term with multiple distinct variables."""
