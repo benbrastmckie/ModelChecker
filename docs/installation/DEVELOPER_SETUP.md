@@ -1,6 +1,6 @@
 # Developer Setup Guide
 
-[← Back to Installation](README.md) | [Jupyter Setup →](JUPYTER_SETUP.md) | [Development Guide →](../../Code/docs/development/README.md)
+[← Back to Installation](README.md) | [Jupyter Setup →](JUPYTER_SETUP.md) | [Development Guide →](../../code/docs/development/README.md)
 
 ## Overview
 
@@ -176,7 +176,7 @@ The `dev_cli.py` script provides development utilities:
 
 ```
 ModelChecker/
-├── Code/
+├── code/
 │   ├── src/model_checker/      # Source code
 │   │   ├── __init__.py
 │   │   ├── builder/           # Project builder
@@ -189,7 +189,7 @@ ModelChecker/
 │   ├── run_tests.py          # Test runner
 │   ├── setup.py              # Package configuration
 │   └── shell.nix             # NixOS configuration
-└── Docs/                      # User documentation
+└── docs/                      # User documentation
 ```
 
 ## Testing
@@ -220,7 +220,7 @@ theory_lib/my_theory/
 │   └── test_operators.py     # Operator tests
 ```
 
-See [Testing Guide](../../Code/docs/core/TESTING_GUIDE.md) for comprehensive testing documentation.
+See [Testing Guide](../../code/docs/core/TESTING_GUIDE.md) for comprehensive testing documentation.
 
 ## Code Standards
 
@@ -254,7 +254,7 @@ flake8 src/
 flake8 --max-line-length=88 src/
 ```
 
-See [Style Guide](../../Code/docs/core/CODE_STANDARDS.md) for coding standards.
+See [Style Guide](../../code/docs/core/CODE_STANDARDS.md) for coding standards.
 
 ## Working Without Installation
 
@@ -349,7 +349,7 @@ git commit -m "Add new operator implementation"
 git push origin feature/new-operator
 ```
 
-See [Development Guide](../../Code/docs/development/README.md) for contribution guidelines.
+See [Development Guide](../../code/docs/development/README.md) for contribution guidelines.
 
 ## Debugging
 
@@ -364,7 +364,7 @@ See [Development Guide](../../Code/docs/development/README.md) for contribution 
             "name": "Debug Example",
             "type": "python",
             "request": "launch",
-            "program": "${workspaceFolder}/Code/dev_cli.py",
+            "program": "${workspaceFolder}/code/dev_cli.py",
             "args": ["examples/debug.py", "-p", "-z"],
             "cwd": "${workspaceFolder}/Code"
         }
@@ -442,11 +442,11 @@ pip install -e .
 
 ## Next Steps
 
-- **Read guidelines**: [Development Guide](../../Code/docs/development/README.md)
-- **Understand architecture**: [Architecture Docs](../../Code/docs/README.md)
-- **Explore theories**: [Theory Library](../../Code/src/model_checker/theory_lib/README.md)
+- **Read guidelines**: [Development Guide](../../code/docs/development/README.md)
+- **Understand architecture**: [Architecture Docs](../../code/docs/README.md)
+- **Explore theories**: [Theory Library](../../code/src/model_checker/theory_lib/README.md)
 - **Start contributing**: [GitHub Issues](https://github.com/benbrastmckie/ModelChecker/issues)
 
 ---
 
-[← Back to Installation](README.md) | [Jupyter Setup →](JUPYTER_SETUP.md) | [Development Guide →](../../Code/docs/development/README.md)
+[← Back to Installation](README.md) | [Jupyter Setup →](JUPYTER_SETUP.md) | [Development Guide →](../../code/docs/development/README.md)

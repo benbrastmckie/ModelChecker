@@ -1,6 +1,6 @@
 # Implementing Semantic Theories: A Practical Guide
 
-[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Theory Library →](../../Code/src/model_checker/theory_lib/README.md)
+[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Theory Library →](../../code/src/model_checker/theory_lib/README.md)
 
 ## Introduction
 
@@ -366,4 +366,4 @@ Remember: seemingly intractable problems often have elegant solutions when the r
 
 ---
 
-[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Theory Library →](../../Code/src/model_checker/theory_lib/README.md)
+[← Back to Docs](../README.md) | [Architecture →](../architecture/README.md) | [Theory Library →](../../code/src/model_checker/theory_lib/README.md)

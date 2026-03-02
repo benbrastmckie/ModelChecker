@@ -453,7 +453,7 @@ model-checker file.py --save notebook
 - [Workflow Guide](WORKFLOW.md) - Complete ModelChecker workflows
 - [Examples Guide](EXAMPLES.md) - Writing example files
 - [Architecture Documentation](../architecture/OUTPUT.md) - Output system design
-- [API Reference](../../Code/src/model_checker/output/README.md) - Output module API
+- [API Reference](../../code/src/model_checker/output/README.md) - Output module API
 
 ---
 

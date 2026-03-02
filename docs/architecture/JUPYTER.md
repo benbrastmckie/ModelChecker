@@ -511,9 +511,9 @@ sequenceDiagram
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Jupyter Package Documentation](../../Code/src/model_checker/jupyter/README.md)
-- [UI Components](../../Code/src/model_checker/jupyter/ui_components.py)
-- [Theory Adapters](../../Code/src/model_checker/jupyter/adapters.py)
+- [Jupyter Package Documentation](../../code/src/model_checker/jupyter/README.md)
+- [UI Components](../../code/src/model_checker/jupyter/ui_components.py)
+- [Theory Adapters](../../code/src/model_checker/jupyter/adapters.py)
 
 ## See Also
 

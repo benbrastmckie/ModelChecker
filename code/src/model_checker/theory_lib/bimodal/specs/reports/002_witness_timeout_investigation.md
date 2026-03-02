@@ -3,7 +3,7 @@
 ## Metadata
 - **Date**: 2025-10-01
 - **Scope**: Investigation of BM_CM example timeouts after witness predicate implementation
-- **Primary Directory**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal`
+- **Primary Directory**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal`
 - **Related Reports**: `001_debug_missing_countermodels.md`
 - **Status**: IN PROGRESS
 
@@ -36,7 +36,7 @@ Successfully implemented witness predicate architecture following Plan 003:
 
 ### Test Results
 
-Running `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/examples.py`:
+Running `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/dev_cli.py /home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/examples.py`:
 
 | Example | Premise | Conclusion | Result | Time | Constraints |
 |---------|---------|------------|--------|------|-------------|
@@ -131,7 +131,7 @@ from model_checker.theory_lib.bimodal import BimodalSemantics
 
 Examine how exclusion handles witness registration:
 
-**File**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/semantic/`
+**File**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/semantic/`
 
 **Key differences to investigate**:
 1. When/how witnesses are registered
@@ -162,7 +162,7 @@ Add debug logging to:
 
 ### Exclusion Witness Architecture
 
-**Location**: `Code/src/model_checker/theory_lib/exclusion/semantic/`
+**Location**: `code/src/model_checker/theory_lib/exclusion/semantic/`
 
 **Key components**:
 1. **WitnessRegistry** (`registry.py`): Tracks h/y predicates
@@ -260,16 +260,16 @@ ModelConstraints.__init__():
 
 ```bash
 # Run with debug output
-PYTHONPATH=Code/src python -c "
+PYTHONPATH=code/src python -c "
 from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
 # Add debugging here
 "
 
 # Run single example with timeout
-PYTHONPATH=Code/src timeout 10 Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src timeout 10 code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 
 # Compare with exclusion
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/exclusion/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion/tests/ -v
 ```
 
 ### Long-term Fixes
@@ -300,24 +300,24 @@ If root cause is identified:
 ### Files Analyzed
 
 #### Bimodal Theory
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py:277-364` - Witness registration methods
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py:976-1016` - define_invalidity() and register_witnesses_for_formulas()
-- `Code/src/model_checker/theory_lib/bimodal/operators.py:408-463` - NecessityOperator.false_at()
-- `Code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py` - WitnessRegistry implementation
-- `Code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py` - WitnessConstraintGenerator implementation
-- `Code/src/model_checker/theory_lib/bimodal/examples.py:440-465` - BM_CM_1/2/3/4 definitions
+- `code/src/model_checker/theory_lib/bimodal/semantic.py:277-364` - Witness registration methods
+- `code/src/model_checker/theory_lib/bimodal/semantic.py:976-1016` - define_invalidity() and register_witnesses_for_formulas()
+- `code/src/model_checker/theory_lib/bimodal/operators.py:408-463` - NecessityOperator.false_at()
+- `code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py` - WitnessRegistry implementation
+- `code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py` - WitnessConstraintGenerator implementation
+- `code/src/model_checker/theory_lib/bimodal/examples.py:440-465` - BM_CM_1/2/3/4 definitions
 
 #### Framework
-- `Code/src/model_checker/models/constraints.py:82-105` - Witness hook integration
+- `code/src/model_checker/models/constraints.py:82-105` - Witness hook integration
 
 #### Exclusion Theory (Reference)
-- `Code/src/model_checker/theory_lib/exclusion/semantic/registry.py` - Working witness registry
-- `Code/src/model_checker/theory_lib/exclusion/semantic/constraints.py` - Working constraint generation
+- `code/src/model_checker/theory_lib/exclusion/semantic/registry.py` - Working witness registry
+- `code/src/model_checker/theory_lib/exclusion/semantic/constraints.py` - Working constraint generation
 
 ### Related Documentation
-- Plan 003: `Code/src/model_checker/theory_lib/bimodal/specs/plans/003_complete_witness_predicates_no_fallbacks.md`
-- Report 001: `Code/src/model_checker/theory_lib/bimodal/specs/reports/001_debug_missing_countermodels.md`
-- CODE_STANDARDS.md: `Code/docs/core/CODE_STANDARDS.md:57-72` - Fail-fast philosophy
+- Plan 003: `code/src/model_checker/theory_lib/bimodal/specs/plans/003_complete_witness_predicates_no_fallbacks.md`
+- Report 001: `code/src/model_checker/theory_lib/bimodal/specs/reports/001_debug_missing_countermodels.md`
+- CODE_STANDARDS.md: `code/docs/core/CODE_STANDARDS.md:57-72` - Fail-fast philosophy
 
 ## Findings
 

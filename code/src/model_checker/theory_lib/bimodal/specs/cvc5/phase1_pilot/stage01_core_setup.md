@@ -22,7 +22,7 @@ Initialize the BimodalSemantics class foundation with CVC5, including:
 
 ## Current State (Z3)
 
-**File**: `Code/src/model_checker/theory_lib/bimodal/semantic/semantic.py`
+**File**: `code/src/model_checker/theory_lib/bimodal/semantic/semantic.py`
 **Lines**: 30-223
 
 ```python
@@ -48,7 +48,7 @@ class BimodalSemantics:
 
 ## Target State (CVC5)
 
-**File**: `Code/src/model_checker/theory_lib/bimodal/semantic/semantic.py`
+**File**: `code/src/model_checker/theory_lib/bimodal/semantic/semantic.py`
 **Lines**: 30-223
 
 ```python
@@ -252,7 +252,7 @@ self.V = self.solver.mkConst(v_sort, 'V')
 
 **Test Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage01.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage01.py -v
 ```
 
 ### Task 8: Refactor and Code Quality
@@ -274,7 +274,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 
 **Coverage Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage01.py \
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage01.py \
     --cov=model_checker.theory_lib.bimodal.semantic.semantic \
     --cov-report=term-missing
 ```

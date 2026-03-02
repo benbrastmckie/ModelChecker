@@ -328,8 +328,8 @@ from project_name import examples
 ## See Also
 
 ### Conceptual Documentation
-- **[Builder Architecture](../../../../Docs/architecture/BUILDER.md)** - High-level pipeline concepts
-- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design principles
+- **[Builder Architecture](../../../../docs/architecture/BUILDER.md)** - High-level pipeline concepts
+- **[Architecture Overview](../../../../docs/architecture/ARCHITECTURE.md)** - System design principles
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Detailed component relationships

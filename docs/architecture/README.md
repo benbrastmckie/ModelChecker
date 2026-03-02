@@ -27,39 +27,39 @@ architecture/
 ## System Pipeline
 
 - **[Data Flow Pipeline](PIPELINE.md)** - Complete flow from user inputs to outputs
-- **[Technical Implementation](../../Code/docs/core/ARCHITECTURE.md)** - Code-level architecture details
+- **[Technical Implementation](../../code/docs/core/ARCHITECTURE.md)** - Code-level architecture details
 
 ## Core Components
 
 ### Pipeline Orchestration
 - **[Builder Architecture](BUILDER.md)** - Model checking workflow orchestration
-  - Links to: [Technical Docs](../../Code/src/model_checker/builder/README.md)
+  - Links to: [Technical Docs](../../code/src/model_checker/builder/README.md)
 - **[Settings Management](SETTINGS.md)** - Configuration hierarchy and precedence
-  - Links to: [Technical Docs](../../Code/src/model_checker/settings/README.md)
+  - Links to: [Technical Docs](../../code/src/model_checker/settings/README.md)
 
 ### Model Framework
 - **[Model Structure](MODELS.md)** - Semantic models and constraints
-  - Links to: [Technical Docs](../../Code/src/model_checker/models/README.md)
+  - Links to: [Technical Docs](../../code/src/model_checker/models/README.md)
 - **[Model Iteration](ITERATE.md)** - Discovery of distinct models
-  - Links to: [Technical Docs](../../Code/src/model_checker/iterate/README.md)
+  - Links to: [Technical Docs](../../code/src/model_checker/iterate/README.md)
 
 ### Input/Output
 - **[Syntax Processing](SYNTACTIC.md)** - Formula parsing and AST construction
-  - Links to: [Technical Docs](../../Code/src/model_checker/syntactic/README.md)
+  - Links to: [Technical Docs](../../code/src/model_checker/syntactic/README.md)
 - **[Output Generation](OUTPUT.md)** - Multi-format result production
-  - Links to: [Technical Docs](../../Code/src/model_checker/output/README.md)
+  - Links to: [Technical Docs](../../code/src/model_checker/output/README.md)
 
 ### Semantic Processing
 - **[Semantic Framework](SEMANTICS.md)** - Constraint generation from syntax trees
-  - Links to: [Technical Docs](../../Code/src/model_checker/README.md)
+  - Links to: [Technical Docs](../../code/src/model_checker/README.md)
 
 ### Extensions
 - **[Theory Framework](THEORY_LIB.md)** - Semantic theory architecture
-  - Links to: [Theory Library](../../Code/src/model_checker/theory_lib/README.md)
+  - Links to: [Theory Library](../../code/src/model_checker/theory_lib/README.md)
 - **[Interactive Tools](JUPYTER.md)** - Notebook and exploration tools
-  - Links to: [Jupyter Docs](../../Code/src/model_checker/jupyter/README.md)
+  - Links to: [Jupyter Docs](../../code/src/model_checker/jupyter/README.md)
 - **[Shared Utilities](UTILS.md)** - Common patterns and helpers
-  - Links to: [Utils Docs](../../Code/src/model_checker/utils/README.md)
+  - Links to: [Utils Docs](../../code/src/model_checker/utils/README.md)
 
 ## Key Concepts
 
@@ -197,7 +197,7 @@ The ModelChecker treats semantic theories as executable programs:
 ### For Developers
 - Read [Builder Architecture](BUILDER.md) for orchestration patterns
 - Study [Settings Management](SETTINGS.md) for configuration
-- See [Technical Docs](../../Code/docs/README.md) for implementation
+- See [Technical Docs](../../code/docs/README.md) for implementation
 
 ### For Users
 - Begin with [Getting Started](../installation/GETTING_STARTED.md)
@@ -220,15 +220,15 @@ All architecture documentation follows these principles:
 - **[Installation Documentation](../installation/README.md)** - Setup instructions
 
 ### Technical Resources
-- **[Code Documentation](../../Code/docs/README.md)** - Developer guides
-- **[API Reference](../../Code/src/model_checker/README.md)** - Framework APIs
-- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Implementations
+- **[Code Documentation](../../code/docs/README.md)** - Developer guides
+- **[API Reference](../../code/src/model_checker/README.md)** - Framework APIs
+- **[Theory Library](../../code/src/model_checker/theory_lib/README.md)** - Implementations
 
 ### Maintenance
 - **[Documentation Standards](../maintenance/README.md)** - Documentation guidelines
 - **[Quality Standards](../maintenance/quality/README.md)** - Documentation quality control
 - **[Documentation Templates](../maintenance/templates/README.md)** - Standardized README structures
-- **[Development Docs](../../Code/docs/README.md)** - Design rationale
+- **[Development Docs](../../code/docs/README.md)** - Design rationale
 
 ---
 

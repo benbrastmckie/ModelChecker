@@ -75,13 +75,13 @@ All templates are Python files (.py) that can be directly used or adapted. They 
 **Step 1: Copy template**
 ```bash
 # For new theory
-cp Code/docs/templates/THEORY_TEMPLATE.py Code/src/model_checker/theory_lib/my_theory/semantic.py
+cp code/docs/templates/THEORY_TEMPLATE.py code/src/model_checker/theory_lib/my_theory/semantic.py
 
 # For examples
-cp Code/docs/templates/EXAMPLES_TEMPLATE.py Code/src/model_checker/theory_lib/my_theory/examples.py
+cp code/docs/templates/EXAMPLES_TEMPLATE.py code/src/model_checker/theory_lib/my_theory/examples.py
 
 # For tests
-cp Code/docs/templates/TEST_TEMPLATE.py Code/src/model_checker/theory_lib/my_theory/tests/test_semantic.py
+cp code/docs/templates/TEST_TEMPLATE.py code/src/model_checker/theory_lib/my_theory/tests/test_semantic.py
 ```
 
 **Step 2: Customize**
@@ -122,9 +122,9 @@ All templates follow these conventions:
 - [Error Handling](../implementation/ERROR_HANDLING.md) - Validation patterns
 
 ### Example Theories
-- Logos: `Code/src/model_checker/theory_lib/logos/`
-- Exclusion: `Code/src/model_checker/theory_lib/exclusion/`
-- Imposition: `Code/src/model_checker/theory_lib/imposition/`
-- Bimodal: `Code/src/model_checker/theory_lib/bimodal/`
+- Logos: `code/src/model_checker/theory_lib/logos/`
+- Exclusion: `code/src/model_checker/theory_lib/exclusion/`
+- Imposition: `code/src/model_checker/theory_lib/imposition/`
+- Bimodal: `code/src/model_checker/theory_lib/bimodal/`
 
 [← Back to Docs](../README.md) | [THEORY_TEMPLATE →](THEORY_TEMPLATE.py)

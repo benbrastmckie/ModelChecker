@@ -26,7 +26,7 @@ After implementing witness predicates for bimodal modal operators (commits 89a6e
 
 Ran examples with:
 ```bash
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 ```
 
 ### 2. UNSAT Core Analysis
@@ -189,10 +189,10 @@ Why does BM_CM_4 succeed while BM_CM_1/2/3 fail?
 
 ## References
 
-- **Implementation Plan**: Code/src/model_checker/theory_lib/bimodal/specs/plans/002_witness_predicates_corrected.md
-- **Examples File**: Code/src/model_checker/theory_lib/bimodal/examples.py (lines 309-379)
-- **NecessityOperator**: Code/src/model_checker/theory_lib/bimodal/operators.py (lines 374-449)
-- **BimodalSemantics**: Code/src/model_checker/theory_lib/bimodal/semantic.py (line 65)
+- **Implementation Plan**: code/src/model_checker/theory_lib/bimodal/specs/plans/002_witness_predicates_corrected.md
+- **Examples File**: code/src/model_checker/theory_lib/bimodal/examples.py (lines 309-379)
+- **NecessityOperator**: code/src/model_checker/theory_lib/bimodal/operators.py (lines 374-449)
+- **BimodalSemantics**: code/src/model_checker/theory_lib/bimodal/semantic.py (line 65)
 - **Commits**:
   - 27b2c9d2: "feat: integrate witness predicates into NecessityOperator.false_at() (Phase 4 Part 2)"
   - 89a6eabe: "feat: integrate witness components into BimodalSemantics (Phase 4 Part 1)"

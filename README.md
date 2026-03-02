@@ -1,6 +1,6 @@
 # ModelChecker: Unified Programmatic Semantics Framework
 
-[Code →](Code/README.md) | [Documentation →](Docs/README.md) | [Theory Library →](Code/src/model_checker/theory_lib/README.md)
+[Code →](code/README.md) | [Documentation →](docs/README.md) | [Theory Library →](code/src/model_checker/theory_lib/README.md)
 
 ## Overview
 
@@ -22,28 +22,28 @@ pip install model-checker
 pip install model-checker[jupyter]
 ```
 
-For Jupyter notebook features and interactive exploration, see the [Jupyter Integration Guide](Code/src/model_checker/jupyter/README.md).
+For Jupyter notebook features and interactive exploration, see the [Jupyter Integration Guide](code/src/model_checker/jupyter/README.md).
 
 ### Development Installation
 
 ```bash
 git clone https://github.com/benbrastmckie/ModelChecker
-cd ModelChecker/Code
+cd ModelChecker/code
 # Use the development CLI to run locally without installation:
 ./dev_cli.py examples/my_example.py
 ```
 
-For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](Code/docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
+For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](code/docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
 
 ### Installation Guides
 
-For comprehensive installation instructions including platform-specific guides, virtual environments, and troubleshooting, see the [Installation Documentation](Docs/installation/README.md).
+For comprehensive installation instructions including platform-specific guides, virtual environments, and troubleshooting, see the [Installation Documentation](docs/installation/README.md).
 
 **Quick Links:**
-- [Basic Installation](Docs/installation/BASIC_INSTALLATION.md) - Further details
-- [NixOS Installation](Docs/installation/BASIC_INSTALLATION.md#nixos-installation) - NixOS-specific setup
-- [Developer Setup](Docs/installation/DEVELOPER_SETUP.md) - Development environment
-- [Troubleshooting](Docs/installation/TROUBLESHOOTING.md) - Common issues
+- [Basic Installation](docs/installation/BASIC_INSTALLATION.md) - Further details
+- [NixOS Installation](docs/installation/BASIC_INSTALLATION.md#nixos-installation) - NixOS-specific setup
+- [Developer Setup](docs/installation/DEVELOPER_SETUP.md) - Development environment
+- [Troubleshooting](docs/installation/TROUBLESHOOTING.md) - Common issues
 
 ## Quick Start
 
@@ -81,13 +81,13 @@ model-checker examples.py --save json      # JSON only
 
 ### 3. Next Steps
 
-- **New to ModelChecker?** Follow the [Getting Started Guide](Docs/installation/GETTING_STARTED.md)
+- **New to ModelChecker?** Follow the [Getting Started Guide](docs/installation/GETTING_STARTED.md)
 - **Ready to develop?** See [The ModelChecker Methodology](#the-modelchecker-methodology) below
-- **Need examples?** Check the [Examples Guide](Docs/usage/EXAMPLES.md) and [example structure](Docs/installation/GETTING_STARTED.md#example-structure)
+- **Need examples?** Check the [Examples Guide](docs/usage/EXAMPLES.md) and [example structure](docs/installation/GETTING_STARTED.md#example-structure)
 
 ## The ModelChecker Methodology
 
-The ModelChecker provides a systematic methodology for developing and studying semantic theories. This section provides an overview of the workflow. For the complete methodology guide, see [Docs/usage/WORKFLOW.md](Docs/usage/WORKFLOW.md).
+The ModelChecker provides a systematic methodology for developing and studying semantic theories. This section provides an overview of the workflow. For the complete methodology guide, see [docs/usage/WORKFLOW.md](docs/usage/WORKFLOW.md).
 
 ### 1. Create Your Theory Project
 
@@ -104,7 +104,7 @@ model-checker -l imposition                          # Fine's counterfactual sem
 model-checker -l bimodal                             # Bimodal logic for tense and circumstantial modalities
 ```
 
-This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. See [Project Creation Guide](Docs/usage/PROJECT.md) for detailed instructions.
+This creates a complete project directory with `examples.py`, `semantic.py`, `operators.py`, and supporting files. See [Project Creation Guide](docs/usage/PROJECT.md) for detailed instructions.
 
 ### 2. Develop Examples
 
@@ -115,11 +115,11 @@ Edit the `examples.py` file to test logical inferences relevant to your theory:
 model-checker examples.py
 ```
 
-Define a range of examples in order to evaluate their behavior in your theory. See the [Examples Guide](Docs/usage/EXAMPLES.md) and [Settings Guide](Docs/usage/SETTINGS.md) for details.
+Define a range of examples in order to evaluate their behavior in your theory. See the [Examples Guide](docs/usage/EXAMPLES.md) and [Settings Guide](docs/usage/SETTINGS.md) for details.
 
 ### 3. Adapt Semantic Framework
 
-Modify `semantic.py` to implement your specific semantic theory. Add new constraints, modify existing ones, or create entirely new semantic frameworks to capture the logical principles that distinguish your theory. See the [Semantics Guide](Docs/usage/SEMANTICS.md).
+Modify `semantic.py` to implement your specific semantic theory. Add new constraints, modify existing ones, or create entirely new semantic frameworks to capture the logical principles that distinguish your theory. See the [Semantics Guide](docs/usage/SEMANTICS.md).
 
 ### 4. Define Custom Operators
 
@@ -128,7 +128,7 @@ Extend your theory's expressive power with new operators:
 - **Defined operators** in `operators.py` - shortcuts for combinations of existing operators
 - **Primitive operators** requiring semantic interpretation in `semantic.py`
 
-See the [Operators Guide](Docs/usage/OPERATORS.md) for implementation patterns.
+See the [Operators Guide](docs/usage/OPERATORS.md) for implementation patterns.
 
 ### 5. Iterate Models and Compare Theories
 
@@ -142,7 +142,7 @@ model-checker examples.py
 model-checker examples.py --maximize
 ```
 
-See the [Tools Guide](Docs/usage/TOOLS.md) for model iteration and theory comparison.
+See the [Tools Guide](docs/usage/TOOLS.md) for model iteration and theory comparison.
 
 ### 6. Save and Export Results
 
@@ -154,7 +154,7 @@ model-checker examples.py --save json      # Machine-readable JSON
 model-checker examples.py --save markdown  # Human-readable markdown
 ```
 
-See the [Output Guide](Docs/usage/OUTPUT.md) for format options.
+See the [Output Guide](docs/usage/OUTPUT.md) for format options.
 
 ### Complete Methodology
 
@@ -167,18 +167,18 @@ This systematic approach enables you to:
 6. **Compare** different theoretical approaches
 7. **Document** and share your findings
 
-For the complete step-by-step methodology with detailed examples and advanced techniques, see the [full Methodology Guide](Docs/usage/WORKFLOW.md).
+For the complete step-by-step methodology with detailed examples and advanced techniques, see the [full Methodology Guide](docs/usage/WORKFLOW.md).
 
 ## Project Structure
 
 ```
 ModelChecker/
-├── Code/                           # Main implementation directory
+├── code/                           # Main implementation directory
 │   ├── src/                        # Source code
 │   ├── docs/                       # Technical documentation
 │   ├── scripts/                    # Development and maintenance scripts
 │   └── tests/                      # Test suites
-├── Docs/                           # General project documentation
+├── docs/                           # General project documentation
 │   ├── installation/               # Installation guides
 │   ├── usage/                      # Practical usage guides
 │   │   ├── PROJECT.md              # Project creation
@@ -192,38 +192,38 @@ ModelChecker/
 │   ├── architecture/               # System architecture
 │   ├── maintenance/                # Development standards
 │   └── theory/                     # Theoretical background
-├── Images/                         # Screenshots and diagrams
+├── images/                         # Screenshots and diagrams
 └── README.md                       # This file
 ```
 
 ### Main Directories
 
-**[Code/](Code/)** - Main implementation directory containing the ModelChecker package source code, development tools, and technical documentation. Includes the core framework, theory library implementations, builder system, iteration engine, and comprehensive test suites. This is where developers work on extending the framework and contributing new theories. See [Code/README.md](Code/README.md) for package documentation.
+**[code/](code/)** - Main implementation directory containing the ModelChecker package source code, development tools, and technical documentation. Includes the core framework, theory library implementations, builder system, iteration engine, and comprehensive test suites. This is where developers work on extending the framework and contributing new theories. See [code/README.md](code/README.md) for package documentation.
 
-**[Docs/](Docs/)** - Project-level documentation for understanding the ModelChecker's theoretical foundations, development architecture, and advanced usage. Contains guides for installation, development workflows, research architecture, and detailed explanations of the Z3-based implementation approach. Essential reading for researchers and contributors. See [Docs/README.md](Docs/README.md) for documentation navigation.
+**[docs/](docs/)** - Project-level documentation for understanding the ModelChecker's theoretical foundations, development architecture, and advanced usage. Contains guides for installation, development workflows, research architecture, and detailed explanations of the Z3-based implementation approach. Essential reading for researchers and contributors. See [docs/README.md](docs/README.md) for documentation navigation.
 
-**[Images/](Images/)** - Visual documentation including architecture diagrams, countermodel visualizations, and screenshots demonstrating the framework in action. Helps illustrate complex semantic concepts and usage patterns that are difficult to convey through text alone.
+**[images/](images/)** - Visual documentation including architecture diagrams, countermodel visualizations, and screenshots demonstrating the framework in action. Helps illustrate complex semantic concepts and usage patterns that are difficult to convey through text alone.
 
 ## Documentation
 
 ### For New Users
 
-- **[Installation Guide](Docs/installation/README.md)** - Setup instructions for all platforms
-- **[Getting Started Guide](Docs/installation/GETTING_STARTED.md)** - Create your first project
-- **[User Guide](Code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)** - Basic usage patterns
-- **[Interactive Notebooks](Code/src/model_checker/theory_lib/logos/notebooks/README.md)** - Hands-on tutorials
+- **[Installation Guide](docs/installation/README.md)** - Setup instructions for all platforms
+- **[Getting Started Guide](docs/installation/GETTING_STARTED.md)** - Create your first project
+- **[User Guide](code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)** - Basic usage patterns
+- **[Interactive Notebooks](code/src/model_checker/theory_lib/logos/notebooks/README.md)** - Hands-on tutorials
 
 ### For Researchers
 
-- **[Architecture](Docs/architecture/README.md)** - Programmatic semantics approach
-- **[Theory Library](Code/src/model_checker/theory_lib/README.md)** - Available semantic theories
-- **[Hyperintensional Logic](Docs/theory/HYPERINTENSIONAL.md)** - Theoretical background
+- **[Architecture](docs/architecture/README.md)** - Programmatic semantics approach
+- **[Theory Library](code/src/model_checker/theory_lib/README.md)** - Available semantic theories
+- **[Hyperintensional Logic](docs/theory/HYPERINTENSIONAL.md)** - Theoretical background
 
 ### For Developers
 
-- **[Development Guide](Docs/DEVELOPMENT.md)** - Comprehensive development workflow
-- **[Architecture Documentation](Docs/architecture/ARCHITECTURE.md)** - System design patterns
-- **[Contributing Guidelines](Code/MAINTENANCE.md)** - Coding and documentation standards
+- **[Development Guide](docs/DEVELOPMENT.md)** - Comprehensive development workflow
+- **[Architecture Documentation](docs/architecture/ARCHITECTURE.md)** - System design patterns
+- **[Contributing Guidelines](code/MAINTENANCE.md)** - Coding and documentation standards
 
 ## Key Features
 
@@ -278,11 +278,11 @@ ModelChecker/
 
 We welcome contributions! Please:
 
-1. Follow the [Development Guide](Docs/DEVELOPMENT.md) for workflow
+1. Follow the [Development Guide](docs/DEVELOPMENT.md) for workflow
 2. Use the standard `examples.py` structure for examples
 3. Ensure all tests pass before submitting PRs
 4. Include documentation for new features
-5. Read [Code/MAINTENANCE.md](Code/MAINTENANCE.md) for standards
+5. Read [code/MAINTENANCE.md](code/MAINTENANCE.md) for standards
 
 ## Academic References
 
@@ -298,7 +298,7 @@ We welcome contributions! Please:
 
 ## License
 
-This project is licensed under GPL-3.0. See [Code/LICENSE](Code/LICENSE) for details.
+This project is licensed under GPL-3.0. See [code/LICENSE](code/LICENSE) for details.
 
 ## Support
 
@@ -311,11 +311,11 @@ We encourage users to report bugs and suggest features by [creating issues](http
 
 - Check existing issues to avoid duplicates
 - Provide minimal reproducible examples for bugs
-- See [troubleshooting guide](Docs/installation/TROUBLESHOOTING.md) for common problems
+- See [troubleshooting guide](docs/installation/TROUBLESHOOTING.md) for common problems
 
 - **Issues**: [GitHub Issues](https://github.com/benbrastmckie/ModelChecker/issues)
 - **Contact**: See repository for contact information
 
 ---
 
-[Code →](Code/README.md) | [Documentation →](Docs/README.md) | [Getting Started →](Docs/installation/GETTING_STARTED.md)
+[Code →](code/README.md) | [Documentation →](docs/README.md) | [Getting Started →](docs/installation/GETTING_STARTED.md)

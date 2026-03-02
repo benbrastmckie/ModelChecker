@@ -70,7 +70,7 @@ constraints = And(
 )
 ```
 
-For complete implementation examples, see the [Theory Library](../../Code/src/model_checker/theory_lib/README.md).
+For complete implementation examples, see the [Theory Library](../../code/src/model_checker/theory_lib/README.md).
 
 ## Subdirectories
 
@@ -95,7 +95,7 @@ This directory contains only documentation files (no subdirectories). Each docum
 
 - **[Z3 Background](Z3_BACKGROUND.md)** - SMT solving techniques and patterns
 - **[Implementation Patterns](IMPLEMENTATION.md)** - Common patterns across theories
-- **[Theory Library Guide](../../Code/src/model_checker/theory_lib/README.md)** - Practical implementation
+- **[Theory Library Guide](../../code/src/model_checker/theory_lib/README.md)** - Practical implementation
 
 ### For Framework Users
 
@@ -143,8 +143,8 @@ Key papers include:
 
 ### Implementation Resources
 
-- **[Theory Library](../../Code/src/model_checker/theory_lib/)** - Concrete implementations
-- **[Logos Theory](../../Code/src/model_checker/theory_lib/logos/)** - Hyperintensional framework
+- **[Theory Library](../../code/src/model_checker/theory_lib/)** - Concrete implementations
+- **[Logos Theory](../../code/src/model_checker/theory_lib/logos/)** - Hyperintensional framework
 - **[Architecture Guide](../architecture/)** - System architecture
 
 ---

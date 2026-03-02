@@ -150,7 +150,7 @@ raise ValueError("Invalid solver")
 raise ValueError(
     f"Unknown solver: '{solver_name}'. "
     f"Available solvers: z3, cvc5\n"
-    f"To add a solver, see Code/docs/architecture/SOLVER_ABSTRACTION.md"
+    f"To add a solver, see code/docs/architecture/SOLVER_ABSTRACTION.md"
 )
 ```
 
@@ -202,7 +202,7 @@ raise ValueError(
 
 ### SolverInterface Design
 
-**File**: `Code/src/model_checker/solver/interface.py`
+**File**: `code/src/model_checker/solver/interface.py`
 
 **Key Methods** (from Phase 1 learnings):
 
@@ -435,7 +435,7 @@ class SolverInterface(ABC):
 
 ### CapabilityMatrix Design
 
-**File**: `Code/src/model_checker/solver/capabilities.py`
+**File**: `code/src/model_checker/solver/capabilities.py`
 
 **Purpose**: Explicit feature declarations per solver
 
@@ -538,7 +538,7 @@ def cvc5_capabilities() -> CapabilityMatrix:
 
 ### Z3SolverAdapter Implementation
 
-**File**: `Code/src/model_checker/solver/z3_adapter.py`
+**File**: `code/src/model_checker/solver/z3_adapter.py`
 
 **Strategy**: Thin wrapper around existing Z3 API (backward compatible)
 
@@ -678,7 +678,7 @@ class Z3SolverAdapter(SolverInterface):
 
 ### CVC5SolverAdapter Implementation
 
-**File**: `Code/src/model_checker/solver/cvc5_adapter.py`
+**File**: `code/src/model_checker/solver/cvc5_adapter.py`
 
 **Strategy**: Apply Phase 1 translation patterns
 
@@ -714,7 +714,7 @@ class CVC5SolverAdapter(SolverInterface):
             raise RuntimeError(
                 "CVC5 solver library not available. "
                 "Install with: pip install cvc5\n"
-                "For NixOS, see Code/docs/development/CVC5_CONFIGURATION.md"
+                "For NixOS, see code/docs/development/CVC5_CONFIGURATION.md"
             )
         self._capabilities = cvc5_capabilities()
 
@@ -823,7 +823,7 @@ class CVC5SolverAdapter(SolverInterface):
 
 ### SolverFactory Implementation
 
-**File**: `Code/src/model_checker/solver/factory.py`
+**File**: `code/src/model_checker/solver/factory.py`
 
 ```python
 """Solver factory for creating adapter instances."""
@@ -874,7 +874,7 @@ class SolverFactory:
             raise ValueError(
                 f"Unknown solver: '{solver_name}'. "
                 f"Available solvers: {available}\n"
-                f"To add a solver, see Code/docs/architecture/SOLVER_ABSTRACTION.md"
+                f"To add a solver, see code/docs/architecture/SOLVER_ABSTRACTION.md"
             )
 
         adapter_class = self._ADAPTERS[solver_name]
@@ -889,7 +889,7 @@ class SolverFactory:
 
 ### Settings Integration
 
-**File**: `Code/src/model_checker/settings/settings.py`
+**File**: `code/src/model_checker/settings/settings.py`
 
 **Add solver configuration** (no decorators!):
 
@@ -970,13 +970,13 @@ class Settings:
 #### Testing
 ```bash
 # TDD cycle for interface
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_interface.py -v
 
 # TDD cycle for capabilities
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_capabilities.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_capabilities.py -v
 
 # Coverage check
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/ --cov=model_checker.solver --cov-report=term-missing
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/ --cov=model_checker.solver --cov-report=term-missing
 ```
 
 **Success Criteria**:
@@ -1033,7 +1033,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/ --cov=model
 #### Testing
 ```bash
 # TDD cycle for Z3 adapter
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v --cov=model_checker.solver.z3_adapter --cov-report=term-missing --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v --cov=model_checker.solver.z3_adapter --cov-report=term-missing --cov-fail-under=90
 ```
 
 **Success Criteria**:
@@ -1098,10 +1098,10 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adap
 #### Testing
 ```bash
 # TDD cycle for CVC5 adapter
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v --cov=model_checker.solver.cvc5_adapter --cov-report=term-missing --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v --cov=model_checker.solver.cvc5_adapter --cov-report=term-missing --cov-fail-under=90
 
 # Validate MBQI+enum-inst configuration
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::test_create_solver_configures_mbqi -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::test_create_solver_configures_mbqi -v
 ```
 
 **Success Criteria**:
@@ -1159,16 +1159,16 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_ad
 #### Testing
 ```bash
 # Factory tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_factory.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_factory.py -v
 
 # Settings integration
-PYTHONPATH=Code/src pytest Code/src/model_checker/settings/tests/test_settings_solver.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/settings/tests/test_settings_solver.py -v
 
 # Equivalence testing
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/integration/test_adapter_equivalence.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/integration/test_adapter_equivalence.py -v
 
 # Full package coverage (must be >90%)
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ --cov=model_checker.solver --cov-report=term-missing --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ --cov=model_checker.solver --cov-report=term-missing --cov-fail-under=90
 ```
 
 **Success Criteria**:
@@ -1189,7 +1189,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ --cov=model_chec
   - Standards: No historical references
 
 - [ ] **Update architecture documentation**
-  - File: `Code/docs/architecture/SOLVER_ABSTRACTION.md` (new)
+  - File: `code/docs/architecture/SOLVER_ABSTRACTION.md` (new)
   - Content: Abstraction design, adding new solvers, performance notes
   - No historical references
 

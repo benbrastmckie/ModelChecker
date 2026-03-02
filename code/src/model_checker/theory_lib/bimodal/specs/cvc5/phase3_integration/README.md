@@ -95,17 +95,17 @@ Phase 3 migrates the bimodal theory from direct CVC5 usage to the SolverInterfac
 ### 1. Verify Prerequisites
 ```bash
 # Check Phase 2 abstraction layer
-PYTHONPATH=Code/src python -c "from model_checker.solver import SolverFactory; print('✅ Abstraction layer ready')"
+PYTHONPATH=code/src python -c "from model_checker.solver import SolverFactory; print('✅ Abstraction layer ready')"
 
 # Check adapters available
-PYTHONPATH=Code/src python -c "from model_checker.solver import SolverFactory; f = SolverFactory(); print(f._ADAPTERS.keys())"
+PYTHONPATH=code/src python -c "from model_checker.solver import SolverFactory; f = SolverFactory(); print(f._ADAPTERS.keys())"
 # Expected: dict_keys(['z3', 'cvc5'])
 ```
 
 ### 2. Start with Stage 1 (TDD-RED)
 ```bash
 # Begin implementation
-cd Code/src/model_checker/theory_lib/bimodal/specs/cvc5/phase3_integration
+cd code/src/model_checker/theory_lib/bimodal/specs/cvc5/phase3_integration
 # Read stage01_integration_test_setup.md
 # Write integration tests (they will FAIL - this is expected!)
 ```
@@ -122,11 +122,11 @@ cd Code/src/model_checker/theory_lib/bimodal/specs/cvc5/phase3_integration
 ### 4. Verify Completion
 ```bash
 # All integration tests should PASS
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
 
 # Run examples with both solvers
-PYTHONPATH=Code/src SMT_SOLVER=z3 ./dev_cli.py bimodal/examples.py
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 ./dev_cli.py bimodal/examples.py
+PYTHONPATH=code/src SMT_SOLVER=z3 ./dev_cli.py bimodal/examples.py
+PYTHONPATH=code/src SMT_SOLVER=cvc5 ./dev_cli.py bimodal/examples.py
 ```
 
 ## Key Success Criteria

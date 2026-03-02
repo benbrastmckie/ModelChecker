@@ -162,7 +162,7 @@ import sys
 print(sys.path)
 ```
 
-Ensure that both the `ModelChecker/Code` and `ModelChecker/Code/src` directories are in the path.
+Ensure that both the `ModelChecker/Code` and `ModelChecker/code/src` directories are in the path.
 
 You can manually add them in your notebook if needed:
 

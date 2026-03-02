@@ -143,7 +143,7 @@ mode: subagent
 **Values**:
 - `research`: Research and information gathering
 - `planning`: Implementation planning and phase breakdown
-- `implementation`: Code/proof implementation
+- `implementation`: code/proof implementation
 - `execution`: Task execution and orchestration
 - `validation`: Validation and verification
 - `orchestration`: High-level workflow coordination

@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide demonstrates how to use Claude Code's subagent capabilities to refactor multiple theory modules in parallel. We'll orchestrate multiple specialized agents to refactor the theories in `Code/src/model_checker/theory_lib/`, excluding the `bimodal/` directory which is under construction.
+This guide demonstrates how to use Claude Code's subagent capabilities to refactor multiple theory modules in parallel. We'll orchestrate multiple specialized agents to refactor the theories in `code/src/model_checker/theory_lib/`, excluding the `bimodal/` directory which is under construction.
 
 ## Target Theories for Refactoring
 
@@ -81,17 +81,17 @@ subagents = [
     {
         "type": "general-purpose",
         "theory": "exclusion",
-        "path": "Code/src/model_checker/theory_lib/exclusion/"
+        "path": "code/src/model_checker/theory_lib/exclusion/"
     },
     {
         "type": "general-purpose",
         "theory": "imposition",
-        "path": "Code/src/model_checker/theory_lib/imposition/"
+        "path": "code/src/model_checker/theory_lib/imposition/"
     },
     {
         "type": "general-purpose",
         "theory": "logos",
-        "path": "Code/src/model_checker/theory_lib/logos/"
+        "path": "code/src/model_checker/theory_lib/logos/"
     }
 ]
 ```

@@ -233,7 +233,7 @@ assert len(models) == 3
 **Final Validation**:
 ```bash
 # Run full test suite
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 
 # Run all examples
 cd Code && ./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py

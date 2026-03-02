@@ -1,18 +1,18 @@
 """
 1. To run all tests in the file run from your PROJECT_DIRECTORY:
-pytest PROJECT_DIRECTORY/Code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py
+pytest PROJECT_DIRECTORY/code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py
 
 2. To run a specific example test by name:
-pytest PROJECT_DIRECTORY/Code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py -k "example_name"
+pytest PROJECT_DIRECTORY/code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py -k "example_name"
 
 3. To see more detailed output including print statements:
-pytest -v PROJECT_DIRECTORY/Code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py
+pytest -v PROJECT_DIRECTORY/code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py
 
 4. To see the most detailed output with full traceback:
-pytest -vv PROJECT_DIRECTORY/Code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py
+pytest -vv PROJECT_DIRECTORY/code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py
 
 5. To see test progress in real-time:
-pytest -v PROJECT_DIRECTORY/Code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py --capture=no
+pytest -v PROJECT_DIRECTORY/code/src/model_checker/theory_lib/bimodal/test/test_bimodal.py --capture=no
 """
 
 import pytest

@@ -248,9 +248,9 @@ See existing templates in logos/, exclusion/, and imposition/ for complete examp
 ## See Also
 
 ### Conceptual Documentation
-- **[Hyperintensional Semantics](../../../../Docs/theory/HYPERINTENSIONAL.md)** - Truthmaker semantics concepts
-- **[Theory References](../../../../Docs/theory/REFERENCES.md)** - Academic sources and background
-- **[Z3 Background](../../../../Docs/theory/Z3_BACKGROUND.md)** - SMT solver foundations
+- **[Hyperintensional Semantics](../../../../docs/theory/HYPERINTENSIONAL.md)** - Truthmaker semantics concepts
+- **[Theory References](../../../../docs/theory/REFERENCES.md)** - Academic sources and background
+- **[Z3 Background](../../../../docs/theory/Z3_BACKGROUND.md)** - SMT solver foundations
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Theory integration architecture

@@ -10,7 +10,7 @@ import sys
 import os
 
 # Add the source path
-sys.path.insert(0, 'Code/src')
+sys.path.insert(0, 'code/src')
 
 def test_type_hints():
     """Test that type hints are working correctly."""
@@ -35,7 +35,7 @@ def test_type_hints():
         import importlib.util
         spec = importlib.util.spec_from_file_location(
             "types",
-            "Code/src/model_checker/theory_lib/types.py"
+            "code/src/model_checker/theory_lib/types.py"
         )
         types_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(types_module)
@@ -50,7 +50,7 @@ def test_type_hints():
 
     # Test individual function signatures (without full import)
     try:
-        with open('Code/src/model_checker/theory_lib/__init__.py', 'r') as f:
+        with open('code/src/model_checker/theory_lib/__init__.py', 'r') as f:
             content = f.read()
 
         # Check for type hints in function signatures

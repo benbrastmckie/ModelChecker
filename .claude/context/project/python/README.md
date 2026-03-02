@@ -41,7 +41,7 @@ The ModelChecker is a Python framework for developing and exploring modular sema
 **Running commands**:
 ```bash
 # Tests require PYTHONPATH set
-PYTHONPATH=Code/src pytest Code/tests/ -v
+PYTHONPATH=code/src pytest code/tests/ -v
 
 # Development CLI
 cd Code && ./dev_cli.py examples/my_example.py
@@ -53,7 +53,7 @@ model-checker examples.py
 ## Package Structure Overview
 
 ```
-Code/src/model_checker/
+code/src/model_checker/
 ├── theory_lib/          # Semantic theories
 │   ├── logos/           # Logos theory (truthmaker semantics)
 │   ├── exclusion/       # Exclusion theory

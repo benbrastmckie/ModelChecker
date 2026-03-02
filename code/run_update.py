@@ -380,7 +380,7 @@ def main():
         try:
             # Add the changed files
             print("\n📝 Committing changes...")
-            subprocess.run(['git', 'add', 'Code/pyproject.toml'], check=True)
+            subprocess.run(['git', 'add', 'code/pyproject.toml'], check=True)
             subprocess.run(['git', 'commit', '-m', f'Release version {new_version}'], check=True)
 
             # Create the tag
@@ -420,7 +420,7 @@ def main():
         except subprocess.CalledProcessError as e:
             print(f"\n❌ Git operation failed: {e}")
             print("\nManual git commands needed:")
-            print(f"  git add Code/pyproject.toml")
+            print(f"  git add code/pyproject.toml")
             print(f"  git commit -m 'Release version {new_version}'")
             print(f"  git tag v{new_version}")
             print(f"  git push origin master")
@@ -428,7 +428,7 @@ def main():
     else:
         # User chose manual - provide instructions
         print("\n📝 Manual git commands to finalize release:")
-        print(f"\n  git add Code/pyproject.toml")
+        print(f"\n  git add code/pyproject.toml")
         print(f"  git commit -m 'Release version {new_version}'")
         print(f"  git tag v{new_version}")
         print(f"  git push origin master")

@@ -63,7 +63,7 @@ Repeat steps 1-3 for [Test PyPI](https://test.pypi.org/):
 
 #### For Major/Minor Versions Only
 
-1. **Update version** in `Code/pyproject.toml`:
+1. **Update version** in `code/pyproject.toml`:
    ```toml
    [project]
    version = "1.1.0"  # Minor version bump
@@ -71,7 +71,7 @@ Repeat steps 1-3 for [Test PyPI](https://test.pypi.org/):
 
 2. **Commit and tag**:
    ```bash
-   git add Code/pyproject.toml
+   git add code/pyproject.toml
    git commit -m "Release version 1.1.0"
    git tag v1.1.0
    git push origin main --tags
@@ -85,7 +85,7 @@ Repeat steps 1-3 for [Test PyPI](https://test.pypi.org/):
 
 #### For Patch Versions
 
-1. **Update version** in `Code/pyproject.toml`:
+1. **Update version** in `code/pyproject.toml`:
    ```toml
    [project]
    version = "1.0.1"  # Patch version
@@ -93,7 +93,7 @@ Repeat steps 1-3 for [Test PyPI](https://test.pypi.org/):
 
 2. **Commit WITHOUT tag** (or with patch tag):
    ```bash
-   git add Code/pyproject.toml
+   git add code/pyproject.toml
    git commit -m "Fix: correct import issue"
    git push origin main
    # No tag, or use v1.0.1 - won't trigger PyPI
@@ -116,9 +116,9 @@ Use for critical patches or testing:
 
 ### Before Release Checklist
 
-- [ ] Update `Code/pyproject.toml` version
+- [ ] Update `code/pyproject.toml` version
 - [ ] Update `CHANGELOG.md` with changes
-- [ ] Run local tests: `pytest Code/src/model_checker/theory_lib`
+- [ ] Run local tests: `pytest code/src/model_checker/theory_lib`
 - [ ] Ensure all CI checks pass on main branch
 
 ### Version Numbering Guidelines

@@ -372,7 +372,7 @@ strategy:
 ### Version Management
 
 ```toml
-# Code/pyproject.toml
+# code/pyproject.toml
 [project]
 version = "1.0.4"  # Follow semantic versioning
 ```
@@ -533,7 +533,7 @@ dependencies = [
     echo "Pip: $(pip --version)"
     echo "Platform: ${{ runner.os }}"
     pip list
-    ls -la Code/dist/
+    ls -la code/dist/
 ```
 
 #### Accessing Failed Workflow Logs

@@ -95,7 +95,7 @@ def setup_environment() -> Dict[str, Any]:
             print(f"  {p}")
         print("\nTroubleshooting tips:")
         print("1. Make sure you're running from the ModelChecker/Code directory")
-        print("2. Try manually adding paths: import sys; sys.path.insert(0, '/path/to/ModelChecker/Code/src')")
+        print("2. Try manually adding paths: import sys; sys.path.insert(0, '/path/to/ModelChecker/code/src')")
         print("3. Check that the model_checker package is properly installed")
         
         return {

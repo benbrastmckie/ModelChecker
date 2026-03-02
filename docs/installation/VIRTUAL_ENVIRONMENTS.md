@@ -270,11 +270,11 @@ For multiple ModelChecker projects with different requirements:
 ```bash
 # Project 1: Research work
 cd ~/research/logic-project
-nix-shell ~/ModelChecker/Code/shell.nix
+nix-shell ~/ModelChecker/code/shell.nix
 
 # Project 2: Teaching materials  
 cd ~/teaching/modal-logic
-nix-shell ~/ModelChecker/Code/shell.nix --arg pythonVersion "3.9"
+nix-shell ~/ModelChecker/code/shell.nix --arg pythonVersion "3.9"
 ```
 
 ### Custom Nix Environments
@@ -293,7 +293,7 @@ pkgs.mkShell {
   ];
   
   shellHook = ''
-    export PYTHONPATH="${../ModelChecker/Code/src}:$PYTHONPATH"
+    export PYTHONPATH="${../ModelChecker/code/src}:$PYTHONPATH"
     echo "Entered ModelChecker environment for my-project"
   '';
 }

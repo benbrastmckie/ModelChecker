@@ -1,6 +1,6 @@
 # ModelChecker
 
-[← GitHub Repository](https://github.com/benbrastmckie/ModelChecker) | [General Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/README.md) | [Technical Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/docs/README.md)
+[← GitHub Repository](https://github.com/benbrastmckie/ModelChecker) | [General Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/docs/README.md) | [Technical Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/code/docs/README.md)
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
 [![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
@@ -30,9 +30,9 @@ cd ModelChecker/Code
 pip install -e .
 ```
 
-**NixOS users**: Use `nix-shell` instead. See [NixOS Development](../Docs/installation/DEVELOPER_SETUP.md#nixos-development).
+**NixOS users**: Use `nix-shell` instead. See [NixOS Development](../docs/installation/DEVELOPER_SETUP.md#nixos-development).
 
-For complete installation guides, see [Installation Documentation](../Docs/installation/README.md).
+For complete installation guides, see [Installation Documentation](../docs/installation/README.md).
 
 Create a new logic project:
 
@@ -45,18 +45,18 @@ model-checker -l bimodal   # Temporal-modal logic
 
 ## Programmatic Semantics
 
-The ModelChecker is a theory-agnostic framework that allows researchers to implement, test, and share semantic theories for logical reasoning. The **[TheoryLib](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** provides a collection of pre-built theories that can be used directly, modified for specific needs, or serve as templates for developing new theories. Users can upload their own theories to share with the community, fostering collaborative development of computational semantics.
+The ModelChecker is a theory-agnostic framework that allows researchers to implement, test, and share semantic theories for logical reasoning. The **[TheoryLib](https://github.com/benbrastmckie/ModelChecker/tree/master/code/src/model_checker/theory_lib)** provides a collection of pre-built theories that can be used directly, modified for specific needs, or serve as templates for developing new theories. Users can upload their own theories to share with the community, fostering collaborative development of computational semantics.
 
 ### Logos: A Formal Language of Thought
 
-The semantics for the **[Logos](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions with verifier and falsifier sets of states. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
+The semantics for the **[Logos](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions with verifier and falsifier sets of states. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
 
 The Logos currently includes operators organized into modular subtheories:
-- **[Extensional operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md)**: Classical logical connectives (`∧`, `∨`, `¬`, `→`, `↔`, `⊤`, `⊥`)
-- **[Modal operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/modal/README.md)**: Necessity and possibility (`□`, `◇`)
-- **[Counterfactual operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md)**: Would and might counterfactuals (`□→`, `◇→`)
-- **[Constitutive operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md)**: Grounding, essence, and identity (`≤`, `⊑`, `≡`)
-- **[Relevance operators](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/relevance/README.md)**: Content connection and relevance (`≼`)
+- **[Extensional operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md)**: Classical logical connectives (`∧`, `∨`, `¬`, `→`, `↔`, `⊤`, `⊥`)
+- **[Modal operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/modal/README.md)**: Necessity and possibility (`□`, `◇`)
+- **[Counterfactual operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md)**: Would and might counterfactuals (`□→`, `◇→`)
+- **[Constitutive operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md)**: Grounding, essence, and identity (`≤`, `⊑`, `≡`)
+- **[Relevance operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/relevance/README.md)**: Content connection and relevance (`≼`)
 
 The modular architecture allows users to load only the operators needed for their analysis, with automatic dependency resolution ensuring semantic coherence. Additional operators are actively being developed, expanding the theory's expressiveness for new applications in philosophy, logic, linguistics, and AI reasoning.
 
@@ -338,13 +338,13 @@ To run specific examples from a theory:
 - **Model Saving**: Set `'save_output': True` to save results to file
 - **Theory Maximization**: Set `'maximize': True` to compare theories systematically
 
-For comprehensive guidance on theory comparison, avoiding circular imports, and advanced multi-theory setups, see **[Theory Comparison Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/usage/COMPARE_THEORIES.md)**.
+For comprehensive guidance on theory comparison, avoiding circular imports, and advanced multi-theory setups, see **[Theory Comparison Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/docs/usage/COMPARE_THEORIES.md)**.
 
 ## Documentation
 
 - **[GitHub Repository](https://github.com/benbrastmckie/ModelChecker)** - Full documentation and source code
-- **[Development Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/DEVELOPMENT.md)** - Contributing and development workflow
-- **[Theory Documentation](https://github.com/benbrastmckie/ModelChecker/tree/master/Code/src/model_checker/theory_lib)** - Detailed theory specifications
+- **[Development Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/docs/DEVELOPMENT.md)** - Contributing and development workflow
+- **[Theory Documentation](https://github.com/benbrastmckie/ModelChecker/tree/master/code/src/model_checker/theory_lib)** - Detailed theory specifications
 - **[Academic Background](http://www.benbrastmckie.com/research#access)** - Personal website
 
 ## Contributing
@@ -370,7 +370,7 @@ The theories implemented with the ModelChecker are developed in:
 
 ## License
 
-GPL-3.0 - see [LICENSE](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/LICENSE) for details.
+GPL-3.0 - see [LICENSE](https://github.com/benbrastmckie/ModelChecker/blob/master/code/LICENSE) for details.
 
 ## Support
 
@@ -412,4 +412,4 @@ The framework serves as a research tool for computational semantics and a testin
 
 ---
 
-[← Back to Project](https://github.com/benbrastmckie/ModelChecker) | [General Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/README.md) | [Technical Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/docs/README.md)
+[← Back to Project](https://github.com/benbrastmckie/ModelChecker) | [General Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/docs/README.md) | [Technical Docs →](https://github.com/benbrastmckie/ModelChecker/blob/master/code/docs/README.md)

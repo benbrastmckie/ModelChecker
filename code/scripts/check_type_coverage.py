@@ -30,7 +30,7 @@ def analyze_file_type_coverage(filepath):
 
 def main():
     """Check type coverage across theory_lib."""
-    theory_lib_path = Path('Code/src/model_checker/theory_lib')
+    theory_lib_path = Path('code/src/model_checker/theory_lib')
 
     if not theory_lib_path.exists():
         print(f"Error: {theory_lib_path} not found")

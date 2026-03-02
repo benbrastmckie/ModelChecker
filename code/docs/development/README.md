@@ -150,19 +150,19 @@ Important configuration files:
 # Set up development environment
 python -m venv venv
 source venv/bin/activate  # or venv\Scripts\activate on Windows
-pip install -e Code/
+pip install -e code/
 
 # Run tests
-python Code/run_tests.py
+python code/run_tests.py
 
 # Test release to Test PyPI
-python Code/test_update.py
+python code/test_update.py
 
 # Production release
-python Code/run_update.py
+python code/run_update.py
 
 # Debug specific example
-python Code/dev_cli.py path/to/example.py
+python code/dev_cli.py path/to/example.py
 ```
 
 ### Release Workflow

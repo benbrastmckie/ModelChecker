@@ -122,27 +122,27 @@ Phase 3 migrates the bimodal theory from direct CVC5 usage to the SolverInterfac
 ### Stage 1: Integration Tests (TDD-RED)
 ```bash
 # Verify tests FAIL before migration
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
 # Expected: FAIL
 
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 # Expected: FAIL
 ```
 
 ### Stage 2: Semantic Migration
 ```bash
 # Test semantic.py migration
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic*.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic*.py -v
 
 # Verify no direct CVC5 imports
-grep -r "import cvc5" Code/src/model_checker/theory_lib/bimodal/semantic/
+grep -r "import cvc5" code/src/model_checker/theory_lib/bimodal/semantic/
 # Expected: No matches (should use SolverInterface)
 ```
 
 ### Stage 3: Operators & Witness
 ```bash
 # Test witness system (>90% coverage required)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness*.py \
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness*.py \
     --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints \
     --cov=model_checker.theory_lib.bimodal.semantic.witness_registry \
     --cov-fail-under=90 -v
@@ -151,29 +151,29 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 ### Stage 4: Examples & Iteration
 ```bash
 # Run with CVC5
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 ./Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src SMT_SOLVER=cvc5 ./code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 
 # Run with Z3 (regression)
-PYTHONPATH=Code/src SMT_SOLVER=z3 ./Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src SMT_SOLVER=z3 ./code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 ```
 
 ### Stage 5: Dual-Solver Validation
 ```bash
 # Z3 regression (all tests with Z3)
-PYTHONPATH=Code/src SMT_SOLVER=z3 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src SMT_SOLVER=z3 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 
 # CVC5 validation (all tests with CVC5)
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src SMT_SOLVER=cvc5 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 
 # Equivalence testing
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 ```
 
 ### Stage 6: Documentation
 ```bash
 # Verify all docs created
-test -f Code/src/model_checker/theory_lib/bimodal/README.md && echo "Bimodal README updated"
-test -f Code/docs/development/THEORY_SOLVER_MIGRATION.md && echo "Migration guide created"
+test -f code/src/model_checker/theory_lib/bimodal/README.md && echo "Bimodal README updated"
+test -f code/docs/development/THEORY_SOLVER_MIGRATION.md && echo "Migration guide created"
 test -f specs/reports/016_bimodal_abstraction_integration_results.md && echo "Phase 3 report created"
 ```
 
@@ -256,7 +256,7 @@ test -f specs/reports/016_bimodal_abstraction_integration_results.md && echo "Ph
 ### File Structure
 
 ```
-Code/src/model_checker/theory_lib/bimodal/
+code/src/model_checker/theory_lib/bimodal/
 ├── semantic/
 │   ├── semantic.py                    # Stage 2: Migrate to SolverInterface
 │   ├── operators.py                   # Stage 3: Migrate operators

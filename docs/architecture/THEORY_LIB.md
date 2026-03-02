@@ -513,9 +513,9 @@ graph TD
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Theory Library Documentation](../../Code/src/model_checker/theory_lib/README.md)
-- [Theory Architecture Guide](../../Code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md)
-- [Contributing Guide](../../Code/src/model_checker/theory_lib/docs/CONTRIBUTING.md)
+- [Theory Library Documentation](../../code/src/model_checker/theory_lib/README.md)
+- [Theory Architecture Guide](../../code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md)
+- [Contributing Guide](../../code/src/model_checker/theory_lib/docs/CONTRIBUTING.md)
 
 ## See Also
 

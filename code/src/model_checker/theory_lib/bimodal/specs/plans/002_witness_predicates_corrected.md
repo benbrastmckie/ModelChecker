@@ -251,7 +251,7 @@ bimodal/
 **Testing**:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py -v
 ```
 
 **Test Requirements** (`test_foralltime.py`):
@@ -269,7 +269,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Regression Tests**:
 ```bash
 # Ensure temporal operators still work
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v -k "future or past or temporal"
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v -k "future or past or temporal"
 ```
 
 **Validation**:
@@ -290,9 +290,9 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Context**: Unlike exclusion's dual h/y predicates, bimodal needs single `accessible_world` predicate per formula. Registry manages lifecycle: registration, retrieval, cleanup.
 
 **Tasks**:
-- [ ] Create `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/` subdirectory:
+- [ ] Create `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/` subdirectory:
   ```bash
-  mkdir -p Code/src/model_checker/theory_lib/bimodal/semantic
+  mkdir -p code/src/model_checker/theory_lib/bimodal/semantic
   ```
 - [ ] Create `__init__.py` in semantic/ subdirectory:
   ```python
@@ -318,7 +318,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
   - [ ] `has_witness_predicate(formula_str: str) -> bool` - Check existence without error
   - [ ] `get_all_predicates() -> Dict[str, z3.FuncDeclRef]` - Return copy
   - [ ] `clear() -> None` - Clear all registries and caches
-- [ ] Add error classes to `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/errors.py`:
+- [ ] Add error classes to `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/errors.py`:
   ```python
   class BimodalWitnessRegistryError(Exception):
       """Raised when witness registry operations fail."""
@@ -332,7 +332,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Testing**:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
 ```
 
 **Test Requirements** (`test_witness_registry.py`):
@@ -390,7 +390,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Testing**:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v
 ```
 
 **Test Requirements** (`test_witness_constraints.py`):
@@ -469,7 +469,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Testing**:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py -v
 ```
 
 **Test Requirements** (`test_modal_witnesses.py`):
@@ -490,7 +490,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Regression Tests**:
 ```bash
 # Run all existing bimodal tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 ```
 
 **Validation**:
@@ -537,7 +537,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
 **Testing**:
 ```bash
 # Compare approaches with benchmarks
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_approach_comparison.py -v --benchmark
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_approach_comparison.py -v --benchmark
 ```
 
 **Test Requirements**:
@@ -580,7 +580,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
   - [ ] `test_empty_world_interval` - Graceful handling
 - [ ] Run full bimodal test suite with coverage:
   ```bash
-  PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
+  PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
   ```
 - [ ] Verify coverage targets:
   - [ ] witness_registry.py: >90%
@@ -650,22 +650,22 @@ Every phase must:
 
 ```bash
 # Phase 1: ForAllTime/ExistsTime tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py -v
 
 # Phase 2: Witness registry tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
 
 # Phase 3: Witness constraints tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v
 
 # Phase 4 & 5: Modal witnesses tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py -v
 
 # Full bimodal suite with coverage
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
 
 # Regression check (all existing tests)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 ```
 
 ---
@@ -680,7 +680,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
 - [ ] Inline comments explaining modal witness semantics
 
 ### Architecture Documentation
-- [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/README.md` with:
+- [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/README.md` with:
   - ForAllTime/ExistsTime utility section
   - Witness predicate section (modal operators only)
   - Accessible_world function signature
@@ -840,7 +840,7 @@ Each phase should have 1-2 commits maximum (test + implementation).
 ## Appendix A: Research Reports
 
 ### Box Operator true_at() Approaches Analysis
-- **Location**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/specs/reports/001_box_true_at_approaches.md`
+- **Location**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/specs/reports/001_box_true_at_approaches.md`
 - **Content**: Comprehensive analysis of 5 different approaches for implementing Box operator `true_at()` with witnesses
 - **Recommendations**:
   - Phase 1: Approach 1 (Keep ForAll) - Simplest, lowest risk baseline
@@ -851,36 +851,36 @@ Each phase should have 1-2 commits maximum (test + implementation).
 ## Appendix B: Reference Files
 
 ### Bimodal Theory Files to Modify
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic.py` - Lines 1-2370
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic.py` - Lines 1-2370
   - Add ForAllTime/ExistsTime utilities (after line 192)
   - Initialize witness components in __init__ (after line 56)
   - Add _get_formula_string helper
   - Update build_frame_constraints to include witness constraints
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/operators.py`
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/operators.py`
   - Update FutureOperator (lines 503-653) to use ForAllTime/ExistsTime
   - Update PastOperator (lines 655-820) to use ForAllTime/ExistsTime
   - Modify NecessityOperator.false_at() (lines 408-428) to use witnesses
   - Do NOT modify NegationOperator (lines 42-105)
 
 ### Bimodal Theory Files to Create
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/` - NEW subdirectory
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/__init__.py` - NEW
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py` - NEW
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py` - NEW
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/` - NEW subdirectory
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/__init__.py` - NEW
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py` - NEW
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py` - NEW
 
 ### Testing Files to Create
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py` - NEW
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py` - NEW
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py` - NEW
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py` - NEW
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py` - NEW
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py` - NEW
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py` - NEW
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py` - NEW
 
 ### Exclusion Theory Reference (Pattern Source - DO NOT IMPORT)
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/semantic/registry.py` - Witness registry pattern (NOTE: dual predicates, different signatures)
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/semantic/constraints.py` - Constraint generation pattern
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/semantic/registry.py` - Witness registry pattern (NOTE: dual predicates, different signatures)
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/semantic/constraints.py` - Constraint generation pattern
 
 ### Project Standards
 - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/CLAUDE.md` - Project standards
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/core/TESTING.md` - TDD requirements
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/docs/core/TESTING.md` - TDD requirements
 
 ---
 

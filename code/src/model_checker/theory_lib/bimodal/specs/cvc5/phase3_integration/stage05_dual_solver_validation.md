@@ -7,7 +7,7 @@
 - **Dependencies**: Stage 4 complete (examples & iteration migrated)
 - **Files**:
   - All bimodal tests (unit + integration) - VALIDATE
-  - `Code/tests/integration/test_solver_equivalence.py` - VALIDATE
+  - `code/tests/integration/test_solver_equivalence.py` - VALIDATE
   - `tests/integration/test_performance_validation.py` - VALIDATE
   - `benchmark_abstraction_overhead.py` - CREATE & RUN
 - **Coverage Target**: Maintain all coverage targets (>85% overall, >90% witness)
@@ -39,10 +39,10 @@ Validate that both Z3 and CVC5 backends work correctly through the abstraction l
 **Testing Commands**:
 ```bash
 # Run all bimodal unit tests with Z3
-PYTHONPATH=Code/src SMT_SOLVER=z3 pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/ -v
+PYTHONPATH=code/src SMT_SOLVER=z3 pytest code/src/model_checker/theory_lib/bimodal/tests/unit/ -v
 
 # Run all bimodal integration tests with Z3
-PYTHONPATH=Code/src SMT_SOLVER=z3 pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
+PYTHONPATH=code/src SMT_SOLVER=z3 pytest code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
 
 # Run all examples with Z3
 cd Code
@@ -72,7 +72,7 @@ PYTHONPATH=src SMT_SOLVER=z3 ./dev_cli.py src/model_checker/theory_lib/bimodal/e
 **Testing Commands**:
 ```bash
 # Run performance tests
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_performance_validation.py -v
+PYTHONPATH=code/src SMT_SOLVER=cvc5 pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_performance_validation.py -v
 
 # Expected: All critical examples solve in <10ms
 ```
@@ -90,7 +90,7 @@ PYTHONPATH=Code/src SMT_SOLVER=cvc5 pytest Code/src/model_checker/theory_lib/bim
 **Testing Commands**:
 ```bash
 # Run equivalence tests
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 
 # Expected: sat/unsat agreement on all solvable examples
 # Note: Z3 timeouts don't count as disagreements
@@ -229,20 +229,20 @@ def test_no_memory_leaks():
 **Comprehensive Test Matrix**:
 ```bash
 # 1. Z3 full regression
-PYTHONPATH=Code/src SMT_SOLVER=z3 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src SMT_SOLVER=z3 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 
 # 2. CVC5 full validation
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src SMT_SOLVER=cvc5 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 
 # 3. Equivalence testing
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 
 # 4. Performance validation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_performance_validation.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_performance_validation.py -v
 
 # 5. Coverage check (both solvers)
-PYTHONPATH=Code/src SMT_SOLVER=z3 pytest Code/src/model_checker/theory_lib/bimodal/tests/ --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 pytest Code/src/model_checker/theory_lib/bimodal/tests/ --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
+PYTHONPATH=code/src SMT_SOLVER=z3 pytest code/src/model_checker/theory_lib/bimodal/tests/ --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
+PYTHONPATH=code/src SMT_SOLVER=cvc5 pytest code/src/model_checker/theory_lib/bimodal/tests/ --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
 ```
 
 **Performance Benchmarking**:
@@ -259,7 +259,7 @@ cat performance_results.txt | grep "overhead"
 **Memory Profiling**:
 ```bash
 # Profile memory usage
-PYTHONPATH=Code/src python3 -m memory_profiler test_memory_usage.py
+PYTHONPATH=code/src python3 -m memory_profiler test_memory_usage.py
 ```
 
 ## Success Criteria Checklist

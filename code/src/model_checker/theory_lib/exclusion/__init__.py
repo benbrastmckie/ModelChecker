@@ -125,5 +125,5 @@ def print_example_report():
     
     print("\nFor more information, see:")
     print("  - Theory documentation: src/model_checker/theory_lib/exclusion/README.md")
-    print("  - General usage guide: Docs/usage/README.md")
+    print("  - General usage guide: docs/usage/README.md")
     print("=" * 80)

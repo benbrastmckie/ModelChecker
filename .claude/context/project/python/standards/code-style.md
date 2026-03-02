@@ -173,10 +173,10 @@ class TestLogosSemantics:
 
 ```bash
 # All tests
-PYTHONPATH=Code/src pytest Code/tests/ -v
+PYTHONPATH=code/src pytest code/tests/ -v
 
 # Specific theory
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/logos/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/ -v
 
 # With coverage
 pytest --cov=model_checker --cov-report=term-missing

@@ -1,7 +1,7 @@
 """
 Test template for ModelChecker theory tests.
 
-Follow TESTING_STANDARDS.md from Code/maintenance/.
+Follow TESTING_STANDARDS.md from code/maintenance/.
 Replace 'Template' with your theory name throughout.
 """
 

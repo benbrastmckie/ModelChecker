@@ -32,8 +32,8 @@ This agent has access to:
 ### Build/Verification Tools
 - Bash - Run Z3 verification commands:
   - `python -c "import z3; print(z3.get_version())"` - Check Z3 version
-  - `PYTHONPATH=Code/src pytest Code/tests/ -v` - Full test suite
-  - `PYTHONPATH=Code/src pytest {test_file} -k z3 -v` - Z3-specific tests
+  - `PYTHONPATH=code/src pytest code/tests/ -v` - Full test suite
+  - `PYTHONPATH=code/src pytest {test_file} -k z3 -v` - Z3-specific tests
   - `python -m py_compile {file}` - Syntax check
 
 ### MCP Tools (User Scope Required)
@@ -138,7 +138,7 @@ For Z3 constraint code:
 
 1. **Read existing files** (if modifying)
    ```bash
-   Read: Code/src/model_checker/utils/z3_helpers.py
+   Read: code/src/model_checker/utils/z3_helpers.py
    ```
 
 2. **Create or modify constraint code**
@@ -157,7 +157,7 @@ For Z3 constraint code:
 Run Z3-specific verification:
 ```bash
 # Run Z3-related tests
-PYTHONPATH=Code/src pytest Code/tests/ -k z3 -v
+PYTHONPATH=code/src pytest code/tests/ -k z3 -v
 
 # Test specific constraint
 python -c "
@@ -178,10 +178,10 @@ After all phases complete:
 python -c "import z3; print(z3.get_version())"
 
 # Run full test suite
-PYTHONPATH=Code/src pytest Code/tests/ -v
+PYTHONPATH=code/src pytest code/tests/ -v
 
 # Run Z3-specific tests
-PYTHONPATH=Code/src pytest Code/tests/ -k z3 -v
+PYTHONPATH=code/src pytest code/tests/ -k z3 -v
 ```
 
 ### Stage 6: Create Implementation Summary
@@ -200,8 +200,8 @@ Write to `specs/{NNN}_{SLUG}/summaries/implementation-summary-{DATE}.md`:
 
 ## Files Modified
 
-- `Code/src/model_checker/utils/z3_helpers.py` - New constraint functions
-- `Code/src/model_checker/theory_lib/logos/semantic.py` - Z3 integration
+- `code/src/model_checker/utils/z3_helpers.py` - New constraint functions
+- `code/src/model_checker/theory_lib/logos/semantic.py` - Z3 integration
 
 ## Z3 Patterns Used
 
@@ -244,7 +244,7 @@ Write to `specs/{NNN}_{SLUG}/.return-meta.json`:
   "artifacts": [
     {
       "type": "implementation",
-      "path": "Code/src/model_checker/utils/z3_helpers.py",
+      "path": "code/src/model_checker/utils/z3_helpers.py",
       "summary": "Z3 constraint implementation"
     },
     {

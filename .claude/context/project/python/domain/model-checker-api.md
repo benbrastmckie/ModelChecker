@@ -5,7 +5,7 @@ Package structure and key classes for the ModelChecker framework.
 ## Package Structure
 
 ```
-Code/src/model_checker/
+code/src/model_checker/
 ├── __init__.py             # Main package entry point
 ├── theory_lib/             # Semantic theories (see theory-lib-patterns.md)
 │   ├── logos/              # Core truthmaker semantics
@@ -146,7 +146,7 @@ theory_lib/logos/
 
 Run tests:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/logos/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/ -v
 ```
 
 ## Type Hints

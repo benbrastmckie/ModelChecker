@@ -49,25 +49,25 @@ my_project/
 Links to ModelChecker documentation that can be copied to your `docs/` directory:
 
 **Working with Examples:**
-- [Examples Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/EXAMPLES.md) - How to write and structure examples
-- [Settings Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/SETTINGS.md) - Configuration options
-- [Tools Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/TOOLS.md) - Command-line tools and debugging
+- [Examples Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/EXAMPLES.md) - How to write and structure examples
+- [Settings Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/SETTINGS.md) - Configuration options
+- [Tools Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/TOOLS.md) - Command-line tools and debugging
 
 **Understanding Results:**
-- [Output Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/OUTPUT.md) - Interpreting model output
-- [Semantics Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/SEMANTICS.md) - Understanding semantic theories
+- [Output Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/OUTPUT.md) - Interpreting model output
+- [Semantics Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/SEMANTICS.md) - Understanding semantic theories
 
 **Operators and Formulas:**
-- [Operators Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/OPERATORS.md) - Available logical operators
-- [Workflow Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/WORKFLOW.md) - Development workflow
+- [Operators Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/OPERATORS.md) - Available logical operators
+- [Workflow Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/WORKFLOW.md) - Development workflow
 
 **Project Setup:**
-- [Project Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/usage/PROJECT.md) - Project structure and organization
+- [Project Guide](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/usage/PROJECT.md) - Project structure and organization
 
 **Theory Background:**
-- [Z3 Background](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/theory/Z3_BACKGROUND.md) - Understanding Z3 solver
-- [Hyperintensional Semantics](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/theory/HYPERINTENSIONAL.md) - Theoretical foundations
-- [Theory Implementation](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/Docs/theory/IMPLEMENTATION.md) - How theories are implemented
+- [Z3 Background](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/theory/Z3_BACKGROUND.md) - Understanding Z3 solver
+- [Hyperintensional Semantics](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/theory/HYPERINTENSIONAL.md) - Theoretical foundations
+- [Theory Implementation](https://raw.githubusercontent.com/benbrastmckie/ModelChecker/master/docs/theory/IMPLEMENTATION.md) - How theories are implemented
 
 ## Example File Structure
 

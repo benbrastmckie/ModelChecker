@@ -167,7 +167,7 @@ def create_witness_constraints(adapter: SolverInterface, witness_predicates, sor
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v
 # Expected: All tests PASS
 ```
 
@@ -181,7 +181,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-fail-under=90
 
 # Expected: All tests PASS, coverage >90%
 ```
@@ -191,19 +191,19 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Unit Tests - Operators**:
 ```bash
 # Test modal operators
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py::TestBoxOperator -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py::TestBoxOperator -v
 
 # Test temporal operators
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py::TestTemporalOperators -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py::TestTemporalOperators -v
 
 # All operator tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v
 ```
 
 **Unit Tests - Witness System (CRITICAL)**:
 ```bash
 # Test witness constraints with coverage
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-report=term-missing --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-report=term-missing --cov-fail-under=90
 
 # Expected: >90% coverage REQUIRED
 ```
@@ -211,7 +211,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **MBQI Validation**:
 ```bash
 # Verify MBQI+enum-inst properly configured
-PYTHONPATH=Code/src python3 -c "
+PYTHONPATH=code/src python3 -c "
 from model_checker.solver import SolverFactory
 factory = SolverFactory()
 adapter = factory.create('cvc5')
@@ -223,8 +223,8 @@ print('MBQI configured:', adapter.mbqi_enabled)
 **Import Verification**:
 ```bash
 # Ensure no direct CVC5 imports
-grep -n "import cvc5" Code/src/model_checker/theory_lib/bimodal/operators.py
-grep -n "from cvc5" Code/src/model_checker/theory_lib/bimodal/semantic/witness*.py
+grep -n "import cvc5" code/src/model_checker/theory_lib/bimodal/operators.py
+grep -n "from cvc5" code/src/model_checker/theory_lib/bimodal/semantic/witness*.py
 # Expected: No matches
 ```
 

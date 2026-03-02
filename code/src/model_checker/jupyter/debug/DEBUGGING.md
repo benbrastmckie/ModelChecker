@@ -700,7 +700,7 @@ def run_debug_tests():
     print("\nDebug Test Complete")
     print("=================")
     print("If you're seeing errors, check the troubleshooting guide:")
-    print("- /path/to/ModelChecker/Code/src/model_checker/jupyter/TROUBLESHOOTING.md")
+    print("- /path/to/ModelChecker/code/src/model_checker/jupyter/TROUBLESHOOTING.md")
 
 # Run the debug tests
 run_debug_tests()
@@ -848,7 +848,7 @@ For further assistance, refer to the [TROUBLESHOOTING.md](TROUBLESHOOTING.md) gu
 
 ## Included Debugging Tools
 
-The ModelChecker repository includes several debugging tools in the `Code/debug/` directory:
+The ModelChecker repository includes several debugging tools in the `code/debug/` directory:
 
 1. **jupyter_test.py**: A diagnostic script that checks your environment and ModelChecker installation
    ```bash

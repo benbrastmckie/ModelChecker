@@ -100,12 +100,12 @@ This directory contains only installation guide files (no subdirectories). Each 
 ### For Jupyter Users
 - **[Jupyter Setup](JUPYTER_SETUP.md)** - Complete notebook configuration
 - **[Virtual Environments](VIRTUAL_ENVIRONMENTS.md)** - Recommended for Jupyter
-- **[Interactive Notebooks](../../Code/src/model_checker/theory_lib/logos/notebooks/)** - Example notebooks
+- **[Interactive Notebooks](../../code/src/model_checker/theory_lib/logos/notebooks/)** - Example notebooks
 
 ### For Developers
 - **[Developer Setup](DEVELOPER_SETUP.md)** - Full development environment
-- **[Development Guide](../../Code/docs/development/README.md)** - Contribution workflow
-- **[Testing Guide](../../Code/docs/core/TESTING_GUIDE.md)** - Running the test suite
+- **[Development Guide](../../code/docs/development/README.md)** - Contribution workflow
+- **[Testing Guide](../../code/docs/core/TESTING_GUIDE.md)** - Running the test suite
 
 ## Key Features
 
@@ -137,7 +137,7 @@ This directory contains only installation guide files (no subdirectories). Each 
 
 ### Related Documentation
 - **[Usage Guide](../usage/README.md)** - Using ModelChecker after installation
-- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
+- **[Theory Library](../../code/src/model_checker/theory_lib/README.md)** - Available theories
 - **[Architecture](../architecture/README.md)** - How ModelChecker works
 
 ---

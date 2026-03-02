@@ -104,7 +104,7 @@ Paste this prompt into Claude Code:
 
 ```
 Please follow the installation instructions at
-https://github.com/benbrastmckie/ModelChecker/blob/master/Docs/installation/BASIC_INSTALLATION.md
+https://github.com/benbrastmckie/ModelChecker/blob/master/docs/installation/BASIC_INSTALLATION.md
 to install ModelChecker and all dependencies. After installation, create a test project
 to verify everything works.
 ```
@@ -271,7 +271,7 @@ that checks whether the law of excluded middle is valid.
 
 **Reference documentation:**
 ```
-Following the instructions in Docs/installation/BASIC_INSTALLATION.md,
+Following the instructions in docs/installation/BASIC_INSTALLATION.md,
 install ModelChecker and verify it works.
 ```
 

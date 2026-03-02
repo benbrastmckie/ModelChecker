@@ -622,16 +622,16 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 
 ```bash
 # Phase 1: Bimodal CVC5 Migration
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
 cd Code && nix-shell ../shell.nix --run "./dev_cli.py src/model_checker/theory_lib/bimodal/examples.py"
 
 # Phase 2: Abstraction Layer
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ --cov=model_checker.solver --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ --cov=model_checker.solver --cov-fail-under=90
 
 # Phase 3: Abstraction Integration
-PYTHONPATH=Code/src SMT_SOLVER=z3 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src SMT_SOLVER=z3 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src SMT_SOLVER=cvc5 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 ```
 
 ---

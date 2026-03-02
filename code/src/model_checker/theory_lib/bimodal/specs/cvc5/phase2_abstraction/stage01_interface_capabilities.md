@@ -24,7 +24,7 @@ Design and implement SolverInterface abstract base class and CapabilityMatrix ba
 ### Task 1: [TDD-RED] Write test_interface.py First (30 min)
 **Duration**: 30 minutes
 
-- [ ] Create test directory: `Code/src/model_checker/solver/tests/unit/`
+- [ ] Create test directory: `code/src/model_checker/solver/tests/unit/`
 - [ ] Create test file: `solver/tests/unit/test_interface.py`
 - [ ] Test interface contract: verify NotImplementedError raised for all methods
 - [ ] Test method signatures: verify correct parameter types
@@ -77,7 +77,7 @@ class TestSolverInterface(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_interface.py -v
 ```
 
 **Expected**: FAIL (interface.py does not exist)
@@ -85,7 +85,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_interfa
 ### Task 2: [TDD-GREEN] Implement SolverInterface (4 hours)
 **Duration**: 4 hours
 
-- [ ] Create `Code/src/model_checker/solver/` directory
+- [ ] Create `code/src/model_checker/solver/` directory
 - [ ] Create `solver/interface.py` with SolverInterface class
 - [ ] Implement ~35 core methods from Phase 2 design doc (lines 203-433)
 - [ ] **CRITICAL**: NO decorators (per CODE_STANDARDS.md §2)
@@ -122,7 +122,7 @@ class SolverInterface(ABC):
         """
         raise NotImplementedError(
             "Subclasses must implement create_solver(). "
-            "See Code/docs/architecture/SOLVER_ABSTRACTION.md"
+            "See code/docs/architecture/SOLVER_ABSTRACTION.md"
         )
 
     # ... repeat for all 35 methods
@@ -130,7 +130,7 @@ class SolverInterface(ABC):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_interface.py -v
 ```
 
 **Expected**: PASS (GREEN state achieved)
@@ -197,7 +197,7 @@ class TestCapabilityMatrix(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_capabilities.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_capabilities.py -v
 ```
 
 **Expected**: FAIL (capabilities.py does not exist)
@@ -273,7 +273,7 @@ def cvc5_capabilities() -> CapabilityMatrix:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_capabilities.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_capabilities.py -v
 ```
 
 **Expected**: PASS (GREEN state achieved)
@@ -314,7 +314,7 @@ class SolverInterface(ABC):
 
 **Coverage Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/ \
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/ \
     --cov=model_checker.solver.interface \
     --cov=model_checker.solver.capabilities \
     --cov-report=term-missing \
@@ -450,7 +450,7 @@ class SolverInterface(ABC):
 **Solution**: Always include:
 - What should be implemented
 - Where to find documentation
-- Example: "Subclasses must implement create_solver(). See Code/docs/architecture/SOLVER_ABSTRACTION.md"
+- Example: "Subclasses must implement create_solver(). See code/docs/architecture/SOLVER_ABSTRACTION.md"
 
 ### Issue 3: Feature flag naming inconsistency
 

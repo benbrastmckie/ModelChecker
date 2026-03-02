@@ -410,7 +410,7 @@ def iterate_models(adapter: SolverInterface, solver):
   - Coverage: All 6 critical examples with both solvers
 
 - [ ] **[TDD] Write test_solver_equivalence.py** (RED first)
-  - File: `Code/tests/integration/test_solver_equivalence.py`
+  - File: `code/tests/integration/test_solver_equivalence.py`
   - Test: Z3 vs CVC5 equivalence on bimodal examples
   - Expected: FAIL (bimodal not using abstraction yet)
   - Coverage: All 22 examples, sat/unsat agreement
@@ -428,10 +428,10 @@ def iterate_models(adapter: SolverInterface, solver):
 #### Testing
 ```bash
 # TDD - verify tests FAIL before migration
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
 # Expected: FAIL (bimodal doesn't use SolverInterface yet)
 
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 # Expected: FAIL (bimodal not migrated)
 ```
 
@@ -480,10 +480,10 @@ PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
 #### Testing
 ```bash
 # Test semantic core migration
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
 
 # Test with integration suite (should start passing)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
 ```
 
 **Success Criteria**:
@@ -526,10 +526,10 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integ
 #### Testing
 ```bash
 # Operator tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v
 
 # Witness tests (critical path - >90% coverage)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-fail-under=90
 ```
 
 **Success Criteria**:
@@ -618,13 +618,13 @@ PYTHONPATH=src SMT_SOLVER=z3 ./dev_cli.py src/model_checker/theory_lib/bimodal/e
 #### Testing
 ```bash
 # Z3 regression (all tests with Z3)
-PYTHONPATH=Code/src SMT_SOLVER=z3 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src SMT_SOLVER=z3 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 
 # CVC5 validation (all tests with CVC5)
-PYTHONPATH=Code/src SMT_SOLVER=cvc5 pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src SMT_SOLVER=cvc5 pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 
 # Equivalence testing
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 
 # Performance benchmarking
 cd Code
@@ -644,14 +644,14 @@ nix-shell ../shell.nix --run "PYTHONPATH=src python3 benchmark_abstraction_overh
 
 #### Tasks
 - [ ] **Update bimodal README**
-  - File: `Code/src/model_checker/theory_lib/bimodal/README.md`
+  - File: `code/src/model_checker/theory_lib/bimodal/README.md`
   - Add: Solver selection instructions
   - Document: How to configure `settings.smt_solver`
   - Note: CVC5 recommended for witness predicates
   - Standards: No historical references
 
 - [ ] **Create migration guide for theory developers**
-  - File: `Code/docs/development/THEORY_SOLVER_MIGRATION.md`
+  - File: `code/docs/development/THEORY_SOLVER_MIGRATION.md`
   - Content:
     - Step-by-step migration from direct solver to abstraction
     - API translation patterns
@@ -669,13 +669,13 @@ nix-shell ../shell.nix --run "PYTHONPATH=src python3 benchmark_abstraction_overh
     - Lessons learned for rollout to other theories
 
 - [ ] **Update abstraction architecture docs**
-  - File: `Code/docs/architecture/SOLVER_ABSTRACTION.md`
+  - File: `code/docs/architecture/SOLVER_ABSTRACTION.md`
   - Add: Real-world usage example (bimodal)
   - Document: Performance characteristics
   - Show: Migration patterns
 
 - [ ] **Create final implementation summary**
-  - File: `Code/src/model_checker/theory_lib/bimodal/specs/cvc5/implementation_summary.md`
+  - File: `code/src/model_checker/theory_lib/bimodal/specs/cvc5/implementation_summary.md`
   - Content:
     - Complete Phase 1-3 journey
     - What was learned at each phase

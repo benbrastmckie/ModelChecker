@@ -590,21 +590,21 @@ semantic_theories = {
 - [Constraints Testing](SEMANTICS.md) - Testing semantic properties
 
 ### Theory-Specific Guides
-- [Exclusion Theory](../Code/src/model_checker/theory_lib/exclusion/README.md) - Unilateral semantics implementation
-- [Imposition Theory](../Code/src/model_checker/theory_lib/imposition/README.md) - Fine's imposition semantics
-- [Logos Theory](../Code/src/model_checker/theory_lib/logos/README.md) - Hyperintensional framework
+- [Exclusion Theory](../code/src/model_checker/theory_lib/exclusion/README.md) - Unilateral semantics implementation
+- [Imposition Theory](../code/src/model_checker/theory_lib/imposition/README.md) - Fine's imposition semantics
+- [Logos Theory](../code/src/model_checker/theory_lib/logos/README.md) - Hyperintensional framework
 
 ### Framework Documentation
-- [Theory Library Overview](../Code/src/model_checker/theory_lib/README.md) - Available theories and architecture
-- [Contributing New Theories](../Code/src/model_checker/theory_lib/docs/CONTRIBUTING.md) - How to add new theories
-- [Development Guide](../Code/docs/DEVELOPMENT.md) - General development workflow
+- [Theory Library Overview](../code/src/model_checker/theory_lib/README.md) - Available theories and architecture
+- [Contributing New Theories](../code/src/model_checker/theory_lib/docs/CONTRIBUTING.md) - How to add new theories
+- [Development Guide](../code/docs/DEVELOPMENT.md) - General development workflow
 
 ### Technical References
 - [Iterate Architecture](../architecture/ITERATE.md) - Complete iteration system design
 - [Output Architecture](../architecture/OUTPUT.md) - How comparison results are generated
 - [Builder Architecture](../architecture/BUILDER.md) - Pipeline coordination for comparisons
 - [Theory Library Architecture](../architecture/THEORY_LIB.md) - Theory organization and management
-- [Implementation Details](../../Code/src/model_checker/builder/README.md) - Code-level documentation
+- [Implementation Details](../../code/src/model_checker/builder/README.md) - Code-level documentation
 
 ---
 

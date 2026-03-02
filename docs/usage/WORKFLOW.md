@@ -451,7 +451,7 @@ Now that you understand the methodology, dive into the specific guides:
 - **[Pipeline Architecture](../architecture/PIPELINE.md)** - Data flow from inputs to outputs
 - **[Builder Architecture](../architecture/BUILDER.md)** - Workflow orchestration details
 - **[Theory Library Architecture](../architecture/THEORY_LIB.md)** - Theory framework design
-- **[Theory Library Implementation](../../Code/src/model_checker/theory_lib/README.md)** - Existing theories for reference
+- **[Theory Library Implementation](../../code/src/model_checker/theory_lib/README.md)** - Existing theories for reference
 
 ---
 

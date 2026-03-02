@@ -87,7 +87,7 @@ Per Report 003, the Future/Past asymmetry is a Z3 solver heuristic issue, not a 
 **Complexity**: Low
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py`
+- `code/src/model_checker/theory_lib/bimodal/semantic.py`
 
 **Tasks**:
 - [ ] Read current semantic.false_at() implementation (line 1030-1043)
@@ -120,7 +120,7 @@ Per Report 003, the Future/Past asymmetry is a Z3 solver heuristic issue, not a 
 **Testing**:
 ```bash
 # Test that false_at delegation works for simple operators
-PYTHONPATH=Code/src python3 -c "
+PYTHONPATH=code/src python3 -c "
 from model_checker.syntactic import Syntax
 from model_checker.theory_lib.bimodal import BimodalSemantics, bimodal_operators
 semantics = BimodalSemantics({'N': 2, 'M': 1})
@@ -144,7 +144,7 @@ print('Delegation test passed if no error')
 **Complexity**: Low
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/operators.py`
+- `code/src/model_checker/theory_lib/bimodal/operators.py`
 
 **Tasks**:
 - [ ] Read current NecessityOperator.false_at() implementation (line 408-463)
@@ -166,7 +166,7 @@ print('Delegation test passed if no error')
 **Testing**:
 ```bash
 # Test that witness lookup finds correct predicate
-PYTHONPATH=Code/src python3 -c "
+PYTHONPATH=code/src python3 -c "
 from model_checker.syntactic import Syntax
 from model_checker.theory_lib.bimodal import BimodalSemantics, BimodalProposition, bimodal_operators
 from model_checker.models.constraints import ModelConstraints
@@ -196,8 +196,8 @@ print('Witness lookup test passed')
 **Complexity**: Medium
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/operators.py` (new NecessityDualityOperator)
-- `Code/src/model_checker/theory_lib/bimodal/examples.py` (new experimental examples)
+- `code/src/model_checker/theory_lib/bimodal/operators.py` (new NecessityDualityOperator)
+- `code/src/model_checker/theory_lib/bimodal/examples.py` (new experimental examples)
 
 **Background**:
 
@@ -436,7 +436,7 @@ Tasks:
 
 - [ ] Run benchmark and analyze:
   ```bash
-  PYTHONPATH=Code/src python3 /tmp/modal_duality_benchmark.py > /tmp/modal_duality_results.txt
+  PYTHONPATH=code/src python3 /tmp/modal_duality_benchmark.py > /tmp/modal_duality_results.txt
   cat /tmp/modal_duality_results.txt
   ```
 
@@ -445,7 +445,7 @@ Tasks:
 Tasks:
 - [ ] Test simple `\Box` example works after bug fixes:
   ```bash
-  PYTHONPATH=Code/src python3 <<'EOF'
+  PYTHONPATH=code/src python3 <<'EOF'
   from model_checker.syntactic import Syntax
   from model_checker.theory_lib.bimodal import BimodalSemantics, BimodalProposition, bimodal_operators
   from model_checker.models.constraints import ModelConstraints
@@ -470,7 +470,7 @@ Tasks:
 
 - [ ] Test simple `\Necessity` example works:
   ```bash
-  PYTHONPATH=Code/src python3 <<'EOF'
+  PYTHONPATH=code/src python3 <<'EOF'
   from model_checker.syntactic import Syntax
   from model_checker.theory_lib.bimodal import BimodalSemantics, BimodalProposition, bimodal_operators
   from model_checker.models.constraints import ModelConstraints
@@ -496,8 +496,8 @@ Tasks:
 **Testing**:
 ```bash
 # Run experimental examples
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter MD_
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_NEC_
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter MD_
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_NEC_
 ```
 
 **Validation**:
@@ -519,8 +519,8 @@ PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/ex
 **Complexity**: Medium
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py` (add Z3 configuration if beneficial)
-- `Code/src/model_checker/theory_lib/bimodal/operators.py` (document Z3 limitations)
+- `code/src/model_checker/theory_lib/bimodal/semantic.py` (add Z3 configuration if beneficial)
+- `code/src/model_checker/theory_lib/bimodal/operators.py` (document Z3 limitations)
 
 **Part A: Z3 Tactic Experiments**
 
@@ -589,7 +589,7 @@ Tasks:
 
 - [ ] Run benchmark and record results:
   ```bash
-  PYTHONPATH=Code/src python3 /tmp/z3_tactic_benchmark.py > /tmp/z3_benchmark_results.txt
+  PYTHONPATH=code/src python3 /tmp/z3_tactic_benchmark.py > /tmp/z3_benchmark_results.txt
   cat /tmp/z3_benchmark_results.txt
   ```
 
@@ -640,7 +640,7 @@ Tasks:
 **Testing**:
 ```bash
 # Run full example suite
-PYTHONPATH=Code/src timeout 60 Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src timeout 60 code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 ```
 
 **Validation**:
@@ -770,7 +770,7 @@ This plan only fixes bugs in existing code and tunes Z3 configuration.
 
 ### Phase 1 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/semantic.py
+git add code/src/model_checker/theory_lib/bimodal/semantic.py
 git commit -m "$(cat <<'EOF'
 fix(bimodal): make semantic.false_at() delegate to operators
 
@@ -805,7 +805,7 @@ EOF
 
 ### Phase 2 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/operators.py
+git add code/src/model_checker/theory_lib/bimodal/operators.py
 git commit -m "$(cat <<'EOF'
 fix(bimodal): construct correct formula string in NecessityOperator.false_at()
 
@@ -839,9 +839,9 @@ EOF
 
 ### Phase 3 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/operators.py
-git add Code/src/model_checker/theory_lib/bimodal/semantic/witness_constraint_generator.py
-git add Code/src/model_checker/theory_lib/bimodal/examples.py
+git add code/src/model_checker/theory_lib/bimodal/operators.py
+git add code/src/model_checker/theory_lib/bimodal/semantic/witness_constraint_generator.py
+git add code/src/model_checker/theory_lib/bimodal/examples.py
 git commit -m "$(cat <<'EOF'
 feat(bimodal): implement NecessityDualityOperator using modal duality (Approach 3)
 
@@ -885,8 +885,8 @@ EOF
 
 ### Phase 4 Commit (if Z3 config added)
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/semantic.py
-git add Code/src/model_checker/theory_lib/bimodal/operators.py
+git add code/src/model_checker/theory_lib/bimodal/semantic.py
+git add code/src/model_checker/theory_lib/bimodal/operators.py
 git commit -m "$(cat <<'EOF'
 perf(bimodal): add Z3 configuration and document limitations
 

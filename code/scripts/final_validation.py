@@ -18,7 +18,7 @@ def test_error_framework():
     print("=== Testing Error Framework ===")
     try:
         # Add theory_lib to path
-        sys.path.insert(0, 'Code/src/model_checker/theory_lib')
+        sys.path.insert(0, 'code/src/model_checker/theory_lib')
 
         from errors import (
             TheoryError, ErrorSeverity, TheoryNotFoundError,
@@ -53,7 +53,7 @@ def test_type_system():
     print("\n=== Testing Type System ===")
     try:
         # Test types.py content directly
-        types_path = Path('Code/src/model_checker/theory_lib/types.py')
+        types_path = Path('code/src/model_checker/theory_lib/types.py')
         if not types_path.exists():
             print("❌ types.py not found")
             return False
@@ -108,9 +108,9 @@ def test_import_organization():
     try:
         # Check a few key files for proper import organization
         test_files = [
-            'Code/src/model_checker/theory_lib/__init__.py',
-            'Code/src/model_checker/theory_lib/errors.py',
-            'Code/src/model_checker/theory_lib/types.py'
+            'code/src/model_checker/theory_lib/__init__.py',
+            'code/src/model_checker/theory_lib/errors.py',
+            'code/src/model_checker/theory_lib/types.py'
         ]
 
         for filepath in test_files:

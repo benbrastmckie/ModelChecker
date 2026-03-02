@@ -31,8 +31,8 @@ This agent has access to:
 
 ### Build/Verification Tools
 - Bash - Run Python development commands:
-  - `PYTHONPATH=Code/src pytest Code/tests/ -v` - Full test suite
-  - `PYTHONPATH=Code/src pytest {test_file} -v` - Specific tests
+  - `PYTHONPATH=code/src pytest code/tests/ -v` - Full test suite
+  - `PYTHONPATH=code/src pytest {test_file} -v` - Specific tests
   - `python -m py_compile {file}` - Syntax check
   - `./dev_cli.py examples.py` - Run examples
 
@@ -138,7 +138,7 @@ For Python files:
 
 1. **Read existing files** (if modifying)
    ```bash
-   Read: Code/src/model_checker/theory_lib/logos/operators.py
+   Read: code/src/model_checker/theory_lib/logos/operators.py
    ```
 
 2. **Create or modify files**
@@ -157,10 +157,10 @@ For Python files:
 Run phase verification:
 ```bash
 # Run relevant tests
-PYTHONPATH=Code/src pytest {test_file} -v
+PYTHONPATH=code/src pytest {test_file} -v
 
 # Or run full test suite
-PYTHONPATH=Code/src pytest Code/tests/ -v
+PYTHONPATH=code/src pytest code/tests/ -v
 ```
 
 **D. Mark Phase Complete**
@@ -171,7 +171,7 @@ Edit plan file: Change phase status to `[COMPLETED]`
 After all phases complete:
 ```bash
 # Run full test suite
-PYTHONPATH=Code/src pytest Code/tests/ -v
+PYTHONPATH=code/src pytest code/tests/ -v
 
 # Syntax check all modified files
 python -m py_compile {files}
@@ -196,8 +196,8 @@ Write to `specs/{NNN}_{SLUG}/summaries/implementation-summary-{DATE}.md`:
 
 ## Files Modified
 
-- `Code/src/model_checker/theory_lib/logos/operators.py` - Added new operator
-- `Code/src/model_checker/theory_lib/logos/tests/unit/test_operators.py` - Added tests
+- `code/src/model_checker/theory_lib/logos/operators.py` - Added new operator
+- `code/src/model_checker/theory_lib/logos/tests/unit/test_operators.py` - Added tests
 
 ## Verification
 
@@ -232,7 +232,7 @@ Write to `specs/{NNN}_{SLUG}/.return-meta.json`:
   "artifacts": [
     {
       "type": "implementation",
-      "path": "Code/src/model_checker/theory_lib/logos/operators.py",
+      "path": "code/src/model_checker/theory_lib/logos/operators.py",
       "summary": "New operator implementation"
     },
     {
@@ -356,7 +356,7 @@ When import fails:
 3. Always return brief text summary
 4. Always run syntax check before commit
 5. Always run tests for verification
-6. Use PYTHONPATH=Code/src for all Python commands
+6. Use PYTHONPATH=code/src for all Python commands
 7. Follow project import patterns
 8. Include docstrings and type hints
 9. **Update partial_progress** after each phase

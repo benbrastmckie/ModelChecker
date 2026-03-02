@@ -141,7 +141,7 @@ A sentence is:
 - Conjunction and disjunction are dual (De Morgan laws hold)
 - Idempotence laws hold
 
-See the [extensional/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md) for further discussion.
+See the [extensional/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md) for further discussion.
 
 ### Modal Operators
 
@@ -153,7 +153,7 @@ See the [extensional/README.md](https://github.com/benbrastmckie/ModelChecker/bl
 
 - `w ⊨ ◇A iff ∃u : u ⊨ A` (A is true at some world)
 
-See the [modal/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/modal/README.md) for further discussion.
+See the [modal/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/modal/README.md) for further discussion.
 
 ### Counterfactual Operators
 
@@ -172,7 +172,7 @@ Given world `w` and state `s`, an **s-alternative** to `w` is any world `u` that
 
 - `w ⊨ (A ◇→ B) iff ∃s ∃u : (s ⊩ A ∧ alt(u,s,w)) ∧ u ⊨ B` (B is true at some A-alternative)
 
-See the [counterfactual/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md) for further discussion.
+See the [counterfactual/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md) for further discussion.
 
 ### Constitutive Operators
 
@@ -209,7 +209,7 @@ A ≡ B   :=  (A ≤ B) ∧ (B ≤ A)
 A ≼ B   :=  (A ∧ B) ≤ B
 ```
 
-See the [constitutive/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md) for further discussion.
+See the [constitutive/README.md](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md) for further discussion.
 
 ## Implementation in ModelChecker
 
@@ -296,14 +296,14 @@ The hyperintensional framework in ModelChecker builds on several key theoretical
 ## See Also
 
 ### Theory Implementation
-- **[Logos Theory Implementation](../../Code/src/model_checker/theory_lib/logos/README.md)** - Hyperintensional truthmaker semantics implementation
-- **[Exclusion Theory Implementation](../../Code/src/model_checker/theory_lib/exclusion/README.md)** - Unilateral semantics with witness-based negation
-- **[Theory Library Overview](../../Code/src/model_checker/theory_lib/README.md)** - All semantic theory implementations
+- **[Logos Theory Implementation](../../code/src/model_checker/theory_lib/logos/README.md)** - Hyperintensional truthmaker semantics implementation
+- **[Exclusion Theory Implementation](../../code/src/model_checker/theory_lib/exclusion/README.md)** - Unilateral semantics with witness-based negation
+- **[Theory Library Overview](../../code/src/model_checker/theory_lib/README.md)** - All semantic theory implementations
 
 ### Technical Documentation
-- **[Implementation Guide](../../Code/docs/implementation/README.md)** - How theories are implemented in the framework
-- **[Architecture Documentation](../../Code/docs/README.md)** - System design and component relationships
-- **[Development Guide](../../Code/docs/development/README.md)** - Setting up and contributing to the framework
+- **[Implementation Guide](../../code/docs/implementation/README.md)** - How theories are implemented in the framework
+- **[Architecture Documentation](../../code/docs/README.md)** - System design and component relationships
+- **[Development Guide](../../code/docs/development/README.md)** - Setting up and contributing to the framework
 
 ### Related Concepts
 - **[Z3 Background](Z3_BACKGROUND.md)** - SMT solver foundations

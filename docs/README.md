@@ -5,7 +5,7 @@
 ## Directory Structure
 
 ```
-Docs/
+docs/
 ├── README.md                       # This file - documentation hub and navigation
 ├── installation/                   # Setup and configuration guides
 │   ├── README.md                   # Installation documentation hub
@@ -69,7 +69,7 @@ This directory serves as the **comprehensive documentation hub** for the ModelCh
 
 The documentation follows an **interdisciplinary approach**, making computational logic accessible to researchers from diverse backgrounds including logic, linguistics, computer science, and AI. Each section is designed to be self-contained while providing clear navigation to related topics, enabling readers to find exactly what they need without navigating through unrelated content.
 
-For **technical implementation details**, including API documentation, development workflows, and architecture specifics, see the [Developer Documentation](../Code/docs/README.md). This separation ensures that users focused on applying ModelChecker can find practical guides here, while developers working on the framework itself have dedicated technical resources.
+For **technical implementation details**, including API documentation, development workflows, and architecture specifics, see the [Developer Documentation](../code/docs/README.md). This separation ensures that users focused on applying ModelChecker can find practical guides here, while developers working on the framework itself have dedicated technical resources.
 
 ## Theory Examples
 
@@ -183,7 +183,7 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 ### For Developers
 
 - **[Developer Setup](installation/DEVELOPER_SETUP.md)** - Contributing environment
-- **[Technical Docs](../Code/docs/README.md)** - Implementation details
+- **[Technical Docs](../code/docs/README.md)** - Implementation details
 - **[Maintenance Standards](maintenance/README.md)** - Code quality guides
 - **[Quality Standards](maintenance/quality/README.md)** - Documentation quality control
 - **[Documentation Templates](maintenance/templates/README.md)** - Standardized README structures
@@ -216,9 +216,9 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 
 ### Primary Documentation
 
-- **[Technical Documentation](../Code/docs/README.md)** - Development and API docs
-- **[Theory Library](../Code/src/model_checker/theory_lib/README.md)** - Implementations
-- **[Main Package](../Code/README.md)** - ModelChecker overview
+- **[Technical Documentation](../code/docs/README.md)** - Development and API docs
+- **[Theory Library](../code/src/model_checker/theory_lib/README.md)** - Implementations
+- **[Main Package](../code/README.md)** - ModelChecker overview
 
 ### External Resources
 
@@ -228,4 +228,4 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 
 ---
 
-[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Technical Docs →](../Code/docs/README.md)
+[← Back to Project](../README.md) | [Installation →](installation/README.md) | [Technical Docs →](../code/docs/README.md)

@@ -547,8 +547,8 @@ python test_package.py --components settings.validation
 ## See Also
 
 ### Conceptual Documentation
-- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
-- **[Builder Architecture](../../../../Docs/architecture/BUILDER.md)** - Pipeline orchestration concepts
+- **[Architecture Overview](../../../../docs/architecture/ARCHITECTURE.md)** - System design philosophy
+- **[Builder Architecture](../../../../docs/architecture/BUILDER.md)** - Pipeline orchestration concepts
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Settings architecture details

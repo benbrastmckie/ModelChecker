@@ -3,7 +3,7 @@
 ## Metadata
 - **Date**: 2025-09-29
 - **Scope**: Complete assessment of theory_lib refactoring (excluding bimodal/) against repository standards
-- **Primary Directory**: /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib
+- **Primary Directory**: /home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib
 - **Files Analyzed**: 150+ files including semantic modules, tests, documentation, and examples
 - **Assessment Type**: Compliance verification against architectural standards
 
@@ -346,12 +346,12 @@ The refactoring is **COMPLETE** and **APPROVED** for repository standards compli
 ## References
 
 ### Files Analyzed
-- `/Code/src/model_checker/theory_lib/types.py`
-- `/Code/src/model_checker/theory_lib/errors.py`
-- `/Code/src/model_checker/theory_lib/exclusion/semantic/*.py`
-- `/Code/src/model_checker/theory_lib/imposition/semantic/*.py`
-- `/Code/src/model_checker/theory_lib/tests/**/*.py`
-- `/Code/src/model_checker/theory_lib/docs/*.md`
+- `/code/src/model_checker/theory_lib/types.py`
+- `/code/src/model_checker/theory_lib/errors.py`
+- `/code/src/model_checker/theory_lib/exclusion/semantic/*.py`
+- `/code/src/model_checker/theory_lib/imposition/semantic/*.py`
+- `/code/src/model_checker/theory_lib/tests/**/*.py`
+- `/code/src/model_checker/theory_lib/docs/*.md`
 
 ### Related Documentation
 - `docs/THEORY_ARCHITECTURE.md` - Architecture patterns

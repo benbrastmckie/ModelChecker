@@ -169,7 +169,7 @@ class SemanticDefaults:
         return self.fusion(bit_s, bit_t) == bit_t  # s ≤ t iff s|t = t
 ```
 
-*Full implementation: [`model_checker/model.py`](../../Code/src/model_checker/model.py)*
+*Full implementation: [`model_checker/model.py`](../../code/src/model_checker/model.py)*
 
 The bit vector representation enables efficient state operations: fusion combines states (union of properties), parthood checks containment (subset of properties), and the fixed size N limits the state space for tractable solving. This mereological approach treats states as parts that can be combined, enabling fine-grained semantic distinctions.
 
@@ -196,7 +196,7 @@ class PropositionDefaults:
         # Implemented by subclasses - returns list of Z3 constraints
 ```
 
-*Full implementation: [`model_checker/model.py`](../../Code/src/model_checker/model.py)*
+*Full implementation: [`model_checker/model.py`](../../code/src/model_checker/model.py)*
 
 PropositionDefaults acts as the bridge between syntactic sentence objects and their semantic interpretation. Each proposition tracks which states make it true (verifiers) and false (falsifiers), enabling hyperintensional distinctions where logically equivalent sentences can have different truthmakers.
 
@@ -223,7 +223,7 @@ class ModelDefaults:
         self.z3_model = self.evaluate_constraints()  # None if unsat
 ```
 
-*Full implementation: [`model_checker/model.py`](../../Code/src/model_checker/model.py)*
+*Full implementation: [`model_checker/model.py`](../../code/src/model_checker/model.py)*
 
 ModelDefaults manages the complete constraint solving process. It categorizes constraints by type (frame, model, premise, conclusion) for debugging and tracking purposes, then passes them to Z3's SMT solver. The `evaluate_constraints()` method aggregates all constraints and either returns a satisfying model (proving the argument invalid) or None (suggesting validity). This separation of concerns allows theories to focus on constraint generation while the base class handles the solving mechanics.
 
@@ -249,7 +249,7 @@ class ModelConstraints:
             sentence.update_objects(self)  # Link operators to semantics
 ```
 
-*Full implementation: [`model_checker/model.py`](../../Code/src/model_checker/model.py)*
+*Full implementation: [`model_checker/model.py`](../../code/src/model_checker/model.py)*
 
 ModelConstraints orchestrates the semantic interpretation process. It instantiates operator classes with the chosen semantic theory, then updates all parsed sentences to use these semantic-aware operators. This separation allows the same syntactic structure to be interpreted by different semantic theories.
 
@@ -273,7 +273,7 @@ class LogosSemantics(SemanticDefaults):
     }
 ```
 
-*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../Code/src/model_checker/theory_lib/logos/semantic.py)*
+*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../code/src/model_checker/theory_lib/logos/semantic.py)*
 
 These default settings embody key semantic commitments: contingency prevents trivial models, non-emptiness ensures every proposition has genuine truthmakers/falsemakers, non-null excludes the null state from verification (making it semantically inert), and disjointness enforces classical two-valued logic at the propositional level.
 
@@ -408,7 +408,7 @@ class LogosProposition(PropositionDefaults):
         self.verifiers, self.falsifiers = self.find_proposition()  # Compute truth-makers
 ```
 
-*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../Code/src/model_checker/theory_lib/logos/semantic.py)*
+*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../code/src/model_checker/theory_lib/logos/semantic.py)*
 
 LogosProposition initialization demonstrates the evaluation context mechanism. The `eval_world` parameter allows propositions to be evaluated at different worlds - defaulting to the main world for premises/conclusions, but supporting evaluation at alternative worlds for modal operators. The immediate computation of verifier/falsifier sets during initialization enables efficient caching - each proposition's truthmakers are calculated once and reused throughout the semantic evaluation.
 
@@ -501,7 +501,7 @@ Each constraint type serves a specific purpose:
 └──────────────────┴──────────────────────────────────┴─────────────────────────┘
 ```
 
-*Implementation of constraint generators: [`model_checker/theory_lib/logos/semantic.py#proposition_constraints`](../../Code/src/model_checker/theory_lib/logos/semantic.py)*
+*Implementation of constraint generators: [`model_checker/theory_lib/logos/semantic.py#proposition_constraints`](../../code/src/model_checker/theory_lib/logos/semantic.py)*
 
 ## Operator Implementation Pattern
 
@@ -627,9 +627,9 @@ The `eval_point` parameter is a dictionary that can contain different evaluation
 - **Context-dependent**: `{"world": w, "context": c}` - world and context parameter
 
 *For complete operator implementations, see:*
-- *Modal operators: [`model_checker/theory_lib/logos/modal/operators.py`](../../Code/src/model_checker/theory_lib/logos/modal/operators.py)*
-- *Temporal operators: [`model_checker/theory_lib/bimodal/operators.py`](../../Code/src/model_checker/theory_lib/bimodal/operators.py)*
-- *Extensional operators: [`model_checker/theory_lib/logos/extensional/operators.py`](../../Code/src/model_checker/theory_lib/logos/extensional/operators.py)*
+- *Modal operators: [`model_checker/theory_lib/logos/modal/operators.py`](../../code/src/model_checker/theory_lib/logos/modal/operators.py)*
+- *Temporal operators: [`model_checker/theory_lib/bimodal/operators.py`](../../code/src/model_checker/theory_lib/bimodal/operators.py)*
+- *Extensional operators: [`model_checker/theory_lib/logos/extensional/operators.py`](../../code/src/model_checker/theory_lib/logos/extensional/operators.py)*
 
 ### Bilateral Hyperintensional Pattern (Logos)
 
@@ -794,7 +794,7 @@ class LogosOperatorRegistry:
                 self.loaded_subtheories.add(name)
 ```
 
-*Full implementation: [`model_checker/theory_lib/logos/operators.py`](../../Code/src/model_checker/theory_lib/logos/operators.py)*
+*Full implementation: [`model_checker/theory_lib/logos/operators.py`](../../code/src/model_checker/theory_lib/logos/operators.py)*
 
 The operator registry provides centralized management of logical operators across subtheories. It maintains a single `OperatorCollection` that maps operator names to their implementations, tracks which subtheories have been loaded to prevent duplication, and handles the dynamic import of operator modules. This design allows theories to be composed from modular pieces - you can load just the operators you need (e.g., only modal operators for a modal logic example) rather than loading the entire theory library.
 
@@ -1015,7 +1015,7 @@ class ModelDefaults:
         return solver.model() if result == z3.sat else None
 ```
 
-*Full implementation: [`model_checker/model.py#ModelDefaults.solve`](../../Code/src/model_checker/model.py)*
+*Full implementation: [`model_checker/model.py#ModelDefaults.solve`](../../code/src/model_checker/model.py)*
 
 The `solve` method is the culmination of the semantic pipeline. It creates a fresh Z3 solver, adds all constraint types with tracking labels (useful for debugging unsat cores), sets the timeout based on user settings, and attempts to find a satisfying model. The use of `assert_and_track` allows identification of which constraint types cause unsatisfiability. If Z3 finds a model (returns `sat`), it represents a countermodel to the logical argument; if no model exists (`unsat`), the argument is valid. The timeout prevents infinite searching on complex problems.
 
@@ -1258,7 +1258,7 @@ class NegationOperator(Operator):
         return arg_falsifiers, arg_verifiers  # Swapped
 ```
 
-*See also: [`model_checker/theory_lib/logos/subtheories/extensional/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) for complete operator implementations*
+*See also: [`model_checker/theory_lib/logos/subtheories/extensional/operators.py`](../../code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) for complete operator implementations*
 
 Negation demonstrates the elegance of the operator pattern: it simply swaps verification and falsification. This captures the intuition that evidence against A is evidence for ¬A, and vice versa. The `find_verifiers_and_falsifiers` method efficiently computes exact verifier sets by reusing the argument's computation and swapping - no need to query Z3 again. This pattern extends to other operators: conjunction fuses verifiers, disjunction fuses falsifiers, and modal operators check across possible worlds.
 
@@ -1323,27 +1323,27 @@ This example shows the complete constraint generation pipeline. ModelConstraints
 ### Implementation Files
 
 **Core Framework:**
-- [`model_checker/model.py`](../../Code/src/model_checker/model.py) - Base semantic classes (SemanticDefaults, PropositionDefaults, ModelDefaults) and ModelConstraints orchestration
-- [`model_checker/syntactic.py`](../../Code/src/model_checker/syntactic.py) - Operator base class and interfaces
+- [`model_checker/model.py`](../../code/src/model_checker/model.py) - Base semantic classes (SemanticDefaults, PropositionDefaults, ModelDefaults) and ModelConstraints orchestration
+- [`model_checker/syntactic.py`](../../code/src/model_checker/syntactic.py) - Operator base class and interfaces
 
 **Logos Theory Implementation:**
-- [`model_checker/theory_lib/logos/semantic.py`](../../Code/src/model_checker/theory_lib/logos/semantic.py) - LogosSemantics class
-- [`model_checker/theory_lib/logos/proposition.py`](../../Code/src/model_checker/theory_lib/logos/proposition.py) - LogosProposition class
-- [`model_checker/theory_lib/logos/registry.py`](../../Code/src/model_checker/theory_lib/logos/registry.py) - Operator registry system
+- [`model_checker/theory_lib/logos/semantic.py`](../../code/src/model_checker/theory_lib/logos/semantic.py) - LogosSemantics class
+- [`model_checker/theory_lib/logos/proposition.py`](../../code/src/model_checker/theory_lib/logos/proposition.py) - LogosProposition class
+- [`model_checker/theory_lib/logos/registry.py`](../../code/src/model_checker/theory_lib/logos/registry.py) - Operator registry system
 
 **Operator Implementations:**
-- [`logos/subtheories/extensional/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) - Basic logical operators (∧, ∨, ¬, →)
-- [`logos/subtheories/modal/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) - Modal operators (□, ◇)
-- [`logos/subtheories/counterfactual/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py) - Counterfactual operators (□→)
-- [`logos/subtheories/constitutive/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/constitutive/operators.py) - Constitutive operators (≤_C)
+- [`logos/subtheories/extensional/operators.py`](../../code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) - Basic logical operators (∧, ∨, ¬, →)
+- [`logos/subtheories/modal/operators.py`](../../code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) - Modal operators (□, ◇)
+- [`logos/subtheories/counterfactual/operators.py`](../../code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py) - Counterfactual operators (□→)
+- [`logos/subtheories/constitutive/operators.py`](../../code/src/model_checker/theory_lib/logos/subtheories/constitutive/operators.py) - Constitutive operators (≤_C)
 
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [ModelChecker Core Documentation](../../Code/src/model_checker/README.md) - Framework core with semantic engine
-- [Theory Library Documentation](../../Code/src/model_checker/theory_lib/README.md) - Theory implementations
-- [Logos Theory](../../Code/src/model_checker/theory_lib/logos/README.md) - Hyperintensional semantics
-- [Exclusion Theory](../../Code/src/model_checker/theory_lib/exclusion/README.md) - Unilateral semantics
+- [ModelChecker Core Documentation](../../code/src/model_checker/README.md) - Framework core with semantic engine
+- [Theory Library Documentation](../../code/src/model_checker/theory_lib/README.md) - Theory implementations
+- [Logos Theory](../../code/src/model_checker/theory_lib/logos/README.md) - Hyperintensional semantics
+- [Exclusion Theory](../../code/src/model_checker/theory_lib/exclusion/README.md) - Unilateral semantics
 
 ## See Also
 
@@ -1354,8 +1354,8 @@ For detailed implementation information, see:
 - [Builder Pipeline](BUILDER.md) - Semantic orchestration
 
 ### Technical Documentation
-- [Theory Development](../../Code/docs/DEVELOPMENT.md) - Creating new theories
-- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
+- [Theory Development](../../code/docs/DEVELOPMENT.md) - Creating new theories
+- [API Reference](../../code/src/model_checker/README.md) - Framework APIs
 
 ---
 

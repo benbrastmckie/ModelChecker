@@ -1,6 +1,6 @@
 # Settings Management Architecture
 
-[← Back to Architecture](README.md) | [Pipeline →](PIPELINE.md) | [Builder →](BUILDER.md) | [Technical Implementation →](../../Code/src/model_checker/settings/README.md)
+[← Back to Architecture](README.md) | [Pipeline →](PIPELINE.md) | [Builder →](BUILDER.md) | [Technical Implementation →](../../code/src/model_checker/settings/README.md)
 
 ## Overview
 
@@ -1314,9 +1314,9 @@ settings = {
 - **[Output System](OUTPUT.md)** - Output-related settings
 
 ### Technical Documentation
-- **[Settings Implementation](../../Code/src/model_checker/settings/README.md)** - Code details
-- **[Configuration API](../../Code/src/model_checker/settings/config.py)** - Settings API
-- **[Validation System](../../Code/src/model_checker/settings/validator.py)** - Validation logic
+- **[Settings Implementation](../../code/src/model_checker/settings/README.md)** - Code details
+- **[Configuration API](../../code/src/model_checker/settings/config.py)** - Settings API
+- **[Validation System](../../code/src/model_checker/settings/validator.py)** - Validation logic
 
 ### Usage Guides
 - **[Settings Reference](../usage/SETTINGS_REFERENCE.md)** - Complete settings list

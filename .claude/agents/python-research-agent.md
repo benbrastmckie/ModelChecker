@@ -31,7 +31,7 @@ This agent has access to:
 
 ### Build Tools
 - Bash - Run verification commands:
-  - `PYTHONPATH=Code/src pytest Code/tests/ -v` - Run tests
+  - `PYTHONPATH=code/src pytest code/tests/ -v` - Run tests
   - `python -m py_compile file.py` - Check syntax
   - `mypy file.py` - Type checking (if available)
 
@@ -68,7 +68,7 @@ Use this decision tree to select the right search approach:
 
 ```
 1. "What patterns exist in theory_lib?"
-   -> Glob to find files in Code/src/model_checker/theory_lib/
+   -> Glob to find files in code/src/model_checker/theory_lib/
    -> Read semantic.py, operators.py, examples.py
 
 2. "How does ModelChecker use Z3?"
@@ -161,13 +161,13 @@ Based on task description, identify:
 **Step 1: Codebase Exploration (Always First)**
 ```bash
 # Find relevant Python files
-Glob: Code/src/model_checker/**/*.py
+Glob: code/src/model_checker/**/*.py
 
 # Search for specific patterns
-Grep: "pattern_name" in Code/src/
+Grep: "pattern_name" in code/src/
 
 # Read key files
-Read: Code/src/model_checker/theory_lib/logos/semantic.py
+Read: code/src/model_checker/theory_lib/logos/semantic.py
 ```
 
 **Step 2: Context File Review**

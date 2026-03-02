@@ -230,7 +230,7 @@ def print_example_report():
     print("For more information, see:")
     print("  - Logos documentation: src/model_checker/theory_lib/logos/README.md")
     print("  - Subtheories documentation: src/model_checker/theory_lib/logos/subtheories/README.md")
-    print("  - General usage guide: Docs/usage/README.md")
+    print("  - General usage guide: docs/usage/README.md")
     print("=" * 80)
 
 

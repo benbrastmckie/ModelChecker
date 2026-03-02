@@ -173,7 +173,7 @@ class TestCVC5SolverAdapter(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v
 ```
 
 **Expected**: FAIL (cvc5_adapter.py does not exist)
@@ -225,7 +225,7 @@ class CVC5SolverAdapter(SolverInterface):
             raise RuntimeError(
                 "CVC5 solver library not available. "
                 "Install with: pip install cvc5\n"
-                "For NixOS, see Code/docs/development/CVC5_CONFIGURATION.md"
+                "For NixOS, see code/docs/development/CVC5_CONFIGURATION.md"
             )
         self._capabilities = cvc5_capabilities()
 
@@ -318,8 +318,8 @@ class CVC5SolverAdapter(SolverInterface):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_create_solver_configures_mbqi -v
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_lifecycle_operations -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_create_solver_configures_mbqi -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_lifecycle_operations -v
 ```
 
 ### Task 3: [TDD-GREEN] Implement Type Constructors with Solver Storage (3 hours)
@@ -374,7 +374,7 @@ def mk_function(self, name: str, domain: List[cvc5.Sort], range: cvc5.Sort) -> c
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_type_constructors_require_solver -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_type_constructors_require_solver -v
 ```
 
 ### Task 4: [TDD-GREEN] Implement Value Constructors with BitVec Normalization (2 hours)
@@ -430,8 +430,8 @@ def mk_var(self, sort: cvc5.Sort, name: str) -> cvc5.Term:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_bitvec_val_argument_normalization -v
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_mk_const_vs_mk_var_distinction -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_bitvec_val_argument_normalization -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_mk_const_vs_mk_var_distinction -v
 ```
 
 ### Task 5: [TDD-GREEN] Implement Logical Operators with mkTerm (3 hours)
@@ -477,7 +477,7 @@ def mk_equal(self, lhs: cvc5.Term, rhs: cvc5.Term) -> cvc5.Term:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -k "logical" -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -k "logical" -v
 ```
 
 ### Task 6: [TDD-GREEN] Implement Quantifiers with VARIABLE_LIST Pattern (4 hours)
@@ -533,8 +533,8 @@ def mk_exists(self, vars: List[cvc5.Term], body: cvc5.Term,
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_forall_ignores_pattern_hints -v
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_forall_uses_variable_list -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_forall_ignores_pattern_hints -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py::TestCVC5SolverAdapter::test_forall_uses_variable_list -v
 ```
 
 ### Task 7: [TDD-GREEN] Implement Array Operations and Configuration (2 hours)
@@ -574,7 +574,7 @@ def get_capabilities(self) -> CapabilityMatrix:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v
 ```
 
 **Expected**: ALL tests pass (GREEN state for entire adapter)
@@ -630,7 +630,7 @@ Example:
 
 **Coverage Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py \
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py \
     --cov=model_checker.solver.cvc5_adapter \
     --cov-report=term-missing \
     --cov-fail-under=90

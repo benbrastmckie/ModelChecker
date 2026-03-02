@@ -6,7 +6,7 @@
 
 This document defines version control standards for **documentation changes** in the ModelChecker repository, including commit messages, branch naming, and workflow guidelines specific to documentation tasks.
 
-For code-specific version control standards, see [Code/maintenance/VERSION_CONTROL.md](../../Code/maintenance/VERSION_CONTROL.md).
+For code-specific version control standards, see [code/maintenance/VERSION_CONTROL.md](../../code/maintenance/VERSION_CONTROL.md).
 
 ## Documentation Commit Standards
 

@@ -21,13 +21,13 @@ maintenance/
     └── SUBTHEORY_README.md         # Subtheory documentation template
 ```
 
-**Note**: For code-specific standards (code organization, error handling, testing, performance), see [Code/docs/](../../Code/docs/README.md).
+**Note**: For code-specific standards (code organization, error handling, testing, performance), see [code/docs/](../../code/docs/README.md).
 
 ## Overview
 
 This directory contains **comprehensive documentation maintenance standards** for the ModelChecker project, ensuring consistency, clarity, and accessibility across all educational materials, methodological documentation, and general documentation practices. These standards guide contributors in creating high-quality documentation that serves our interdisciplinary audience.
 
-The documentation maintenance standards focus on **content creation and organization** rather than code implementation details. For code-specific standards including formula formatting, testing requirements, and code organization, see [Code/maintenance/](../../Code/maintenance/README.md).
+The documentation maintenance standards focus on **content creation and organization** rather than code implementation details. For code-specific standards including formula formatting, testing requirements, and code organization, see [code/maintenance/](../../code/maintenance/README.md).
 
 Following these standards is **essential for all documentation contributors**, whether creating tutorials, writing methodology guides, documenting research findings, or improving existing documentation. The standards reflect our commitment to making computational logic accessible to researchers from diverse backgrounds.
 
@@ -59,10 +59,10 @@ Proper linking between related documents:
 ## Related Resources
 
 - **[Installation Guide](../installation/README.md)** - Setting up ModelChecker
-- **[Modal Theory Implementation](../../Code/src/model_checker/theory_lib/modal/README.md)** - Technical details
+- **[Modal Theory Implementation](../../code/src/model_checker/theory_lib/modal/README.md)** - Technical details
 - **[Computational Methods](../architecture/computational_logic.md)** - Research approach
 
-For code implementation details, see [Code Maintenance Standards](../../Code/maintenance/README.md).
+For code implementation details, see [Code Maintenance Standards](../../code/maintenance/README.md).
 ```
 
 ### Educational Content Structure
@@ -113,7 +113,7 @@ By the end of this tutorial, you will:
 
 ### For Code Quality Standards
 
-See [Code/docs/](../../Code/docs/README.md) for code-specific standards including:
+See [code/docs/](../../code/docs/README.md) for code-specific standards including:
 - Code organization and structure
 - Testing requirements and quality assurance
 - Performance optimization guidelines
@@ -180,8 +180,8 @@ in all states reachable from the current state.
 ## References
 
 ### Related Standards
-- **[Code Maintenance](../../Code/maintenance/README.md)** - Code-specific standards
-- **[Technical Documentation](../../Code/docs/README.md)** - Development guides
+- **[Code Maintenance](../../code/maintenance/README.md)** - Code-specific standards
+- **[Technical Documentation](../../code/docs/README.md)** - Development guides
 - **[Main Documentation Hub](../README.md)** - Project documentation overview
 
 ### Documentation Resources

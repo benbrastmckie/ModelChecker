@@ -259,13 +259,13 @@ Each theory provides:
 ### For Researchers
 
 - **[Theory Library](theory_lib/README.md)** - Comprehensive theory documentation and references
-- **[Advanced Features](../../../Docs/TOOLS.md)** - Model iteration, theory comparison, debugging
+- **[Advanced Features](../../../docs/TOOLS.md)** - Model iteration, theory comparison, debugging
 - **[Academic References](theory_lib/README.md#references)** - Theoretical foundations and citations
 
 ### For Developers
 
 - **[Development Guide](../../docs/DEVELOPMENT.md)** - Framework development and testing
-- **[Architecture Documentation](../../../Docs/architecture/ARCHITECTURE.md)** - System design and implementation
+- **[Architecture Documentation](../../../docs/architecture/ARCHITECTURE.md)** - System design and implementation
 - **[Contributing Guidelines](theory_lib/README.md#contributing)** - Adding new theories and features
 
 ### Jupyter Integration
@@ -316,8 +316,8 @@ python test_package.py --components utils --verbose
 
 ## Related Resources
 
-- **[Hyperintensional Semantics Guide](../../../Docs/theory/HYPERINTENSIONAL.md)** - Comprehensive introduction to truthmaker frameworks
-- **[Development Tools Documentation](../../../Docs/TOOLS.md)** - Advanced features and debugging
+- **[Hyperintensional Semantics Guide](../../../docs/theory/HYPERINTENSIONAL.md)** - Comprehensive introduction to truthmaker frameworks
+- **[Development Tools Documentation](../../../docs/TOOLS.md)** - Advanced features and debugging
 - **[Main Package Documentation](../README.md)** - Installation and package-level information
 
 ## License

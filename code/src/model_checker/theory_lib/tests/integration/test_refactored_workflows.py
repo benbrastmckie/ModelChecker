@@ -10,7 +10,7 @@ import sys
 from typing import Dict, Any
 
 # Add source path for imports
-sys.path.insert(0, 'Code/src')
+sys.path.insert(0, 'code/src')
 
 
 class TestExclusionRefactoredWorkflow:

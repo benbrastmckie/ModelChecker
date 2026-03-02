@@ -183,7 +183,7 @@ For development convenience, set these environment variables:
 ```bash
 # In your shell profile (.bashrc, .zshrc, etc.)
 export MODELCHECKER_DEV=1
-export PYTHONPATH="${PYTHONPATH}:/path/to/ModelChecker/Code/src"
+export PYTHONPATH="${PYTHONPATH}:/path/to/ModelChecker/code/src"
 
 # For debug output
 export DEBUG_MODELCHECKER=1

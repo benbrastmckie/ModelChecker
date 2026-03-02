@@ -233,7 +233,7 @@ ModelChecker comes with pre-built example notebooks:
 cd /path/to/model-checker/site-packages/model_checker/jupyter/notebooks
 
 # Or if you've cloned the repository
-cd ModelChecker/Code/src/model_checker/jupyter/notebooks
+cd ModelChecker/code/src/model_checker/jupyter/notebooks
 
 # Start Jupyter in that directory
 jupyter notebook
@@ -251,7 +251,7 @@ from model_checker.jupyter import check_formula
 # Check a simple formula
 # TODO: there should not be unicode in formulas that get run (only comments)
 # TODO: there should be outermost parentheses
-# TODO: no convenience methods from /home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md should be used
+# TODO: no convenience methods from /home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/specs/CONV_METHODS.md should be used
 result = check_formula("p → (q → p)")
 ```
 
@@ -522,15 +522,15 @@ For comprehensive documentation on additional ModelChecker features including:
 - Using the maximize flag for performance comparison
 - Debugging flags (-i, -p, -z, -s) for detailed output
 
-See [Docs/TOOLS.md](../../../../Docs/TOOLS.md)
+See [docs/TOOLS.md](../../../../docs/TOOLS.md)
 
 For further development guidance, see the implementation strategy in `notes/jupyter.md`.
 
 ## See Also
 
 ### Conceptual Documentation
-- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
-- **[Interactive Development](../../../../Docs/architecture/JUPYTER.md)** - Jupyter integration concepts
+- **[Architecture Overview](../../../../docs/architecture/ARCHITECTURE.md)** - System design philosophy
+- **[Interactive Development](../../../../docs/architecture/JUPYTER.md)** - Jupyter integration concepts
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Jupyter subsystem architecture

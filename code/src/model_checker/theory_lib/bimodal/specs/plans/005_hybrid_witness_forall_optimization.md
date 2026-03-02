@@ -95,7 +95,7 @@ def true_at(self, argument, eval_point):
 **Complexity**: Low
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/operators.py`
+- `code/src/model_checker/theory_lib/bimodal/operators.py`
 
 **Tasks**:
 - [ ] Read current NecessityOperator.true_at() implementation (lines 384-406)
@@ -128,12 +128,12 @@ def true_at(self, argument, eval_point):
 **Testing**:
 ```bash
 # Measure baseline performance
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
 
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
 
 # Run full suite to check for regressions
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 ```
 
 **Validation**:
@@ -153,7 +153,7 @@ PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/ex
 **Complexity**: Low
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/operators.py`
+- `code/src/model_checker/theory_lib/bimodal/operators.py`
 
 **Tasks**:
 - [ ] Add explicit pattern annotation to ForAll from Phase 1:
@@ -186,12 +186,12 @@ PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/ex
 **Testing**:
 ```bash
 # Compare performance with Phase 1
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
 
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
 
 # Check for any pattern-related issues
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 ```
 
 **Validation**:
@@ -211,8 +211,8 @@ PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/ex
 **Complexity**: Medium
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py`
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py` (integration)
+- `code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py`
+- `code/src/model_checker/theory_lib/bimodal/semantic.py` (integration)
 
 **Tasks**:
 - [ ] Add new method to WitnessConstraintGenerator:
@@ -286,15 +286,15 @@ PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/ex
 **Testing**:
 ```bash
 # Test with witness hints enabled
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
 
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
 
 # Test nested modals (should benefit from hints)
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter MD_V
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter MD_V
 
 # Full suite
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 ```
 
 **Validation**:
@@ -315,7 +315,7 @@ PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/ex
 **Complexity**: Low
 
 **Files Modified**:
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py`
+- `code/src/model_checker/theory_lib/bimodal/semantic.py`
 
 **Tasks**:
 - [ ] Add Z3 configuration in BimodalSemantics.__init__():
@@ -358,13 +358,13 @@ PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/ex
 **Testing**:
 ```bash
 # Test with Z3 configuration
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_1
 
-PYTHONPATH=Code/src time Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
+PYTHONPATH=code/src time code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py --filter BM_CM_2
 
 # Test on larger M values (stress test)
 # Create temporary test with M=3 or M=4
-PYTHONPATH=Code/src python3 <<'EOF'
+PYTHONPATH=code/src python3 <<'EOF'
 from model_checker.syntactic import Syntax
 from model_checker.theory_lib.bimodal import BimodalSemantics, BimodalProposition, bimodal_operators
 from model_checker.models.constraints import ModelConstraints
@@ -403,7 +403,7 @@ EOF
 **Complexity**: Low
 
 **Files Created**:
-- `Code/src/model_checker/theory_lib/bimodal/specs/reports/006_hybrid_optimization_results.md`
+- `code/src/model_checker/theory_lib/bimodal/specs/reports/006_hybrid_optimization_results.md`
 
 **Tasks**:
 - [ ] Create performance comparison report:
@@ -439,7 +439,7 @@ EOF
 **Testing**:
 ```bash
 # Final validation
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
 
 # Compare with baseline (if baseline measurements saved)
 # Document timing differences
@@ -541,7 +541,7 @@ This plan optimizes existing infrastructure without adding new external dependen
 
 ### Phase 1 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/operators.py
+git add code/src/model_checker/theory_lib/bimodal/operators.py
 git commit -m "$(cat <<'EOF'
 refactor(bimodal): simplify NecessityOperator.true_at() ForAll structure
 
@@ -570,7 +570,7 @@ EOF
 
 ### Phase 2 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/operators.py
+git add code/src/model_checker/theory_lib/bimodal/operators.py
 git commit -m "$(cat <<'EOF'
 perf(bimodal): add explicit pattern annotation to NecessityOperator.true_at()
 
@@ -604,8 +604,8 @@ EOF
 
 ### Phase 3 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py
-git add Code/src/model_checker/theory_lib/bimodal/semantic.py
+git add code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py
+git add code/src/model_checker/theory_lib/bimodal/semantic.py
 git commit -m "$(cat <<'EOF'
 perf(bimodal): add witness instantiation hints for ForAll optimization
 
@@ -647,7 +647,7 @@ EOF
 
 ### Phase 4 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/semantic.py
+git add code/src/model_checker/theory_lib/bimodal/semantic.py
 git commit -m "$(cat <<'EOF'
 perf(bimodal): configure Z3 solver for witness-ForAll hybrid strategy
 
@@ -690,7 +690,7 @@ EOF
 
 ### Phase 5 Commit
 ```bash
-git add Code/src/model_checker/theory_lib/bimodal/specs/reports/006_hybrid_optimization_results.md
+git add code/src/model_checker/theory_lib/bimodal/specs/reports/006_hybrid_optimization_results.md
 git commit -m "$(cat <<'EOF'
 docs(bimodal): document hybrid witness-ForAll optimization results
 

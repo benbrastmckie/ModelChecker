@@ -139,7 +139,7 @@ class TestZ3SolverAdapter(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v
 ```
 
 **Expected**: FAIL (z3_adapter.py does not exist)
@@ -239,8 +239,8 @@ class Z3SolverAdapter(SolverInterface):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_create_solver -v
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_lifecycle_operations -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_create_solver -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_lifecycle_operations -v
 ```
 
 **Expected**: Tests pass for lifecycle methods
@@ -284,7 +284,7 @@ def mk_function(self, name: str, domain: List[Any], range: Any) -> z3.FuncDeclRe
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_type_constructors -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_type_constructors -v
 ```
 
 ### Task 4: [TDD-GREEN] Implement Value Constructors (1 hour)
@@ -324,7 +324,7 @@ def mk_var(self, sort: Any, name: str) -> Any:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_bitvec_val_argument_order -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_bitvec_val_argument_order -v
 ```
 
 ### Task 5: [TDD-GREEN] Implement Logical Operators (1.5 hours)
@@ -381,7 +381,7 @@ def mk_exists(self, vars: List[Any], body: Any,
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_forall_with_pattern_hints -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py::TestZ3SolverAdapter::test_forall_with_pattern_hints -v
 ```
 
 ### Task 6: [TDD-GREEN] Implement Array Operations and Configuration (1 hour)
@@ -419,7 +419,7 @@ def get_capabilities(self) -> CapabilityMatrix:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v
 ```
 
 **Expected**: ALL tests pass (GREEN state for entire adapter)
@@ -469,7 +469,7 @@ Example:
 
 **Coverage Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py \
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py \
     --cov=model_checker.solver.z3_adapter \
     --cov-report=term-missing \
     --cov-fail-under=90

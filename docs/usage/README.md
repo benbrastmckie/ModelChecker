@@ -127,7 +127,7 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 - **[Creating Projects](PROJECT.md)** - New theory development
 - **[Development Workflows](WORKFLOW.md#theory-development-workflow)** - Building theories
 - **[Integration Patterns](WORKFLOW.md#integration-patterns)** - CI/CD and automation
-- **[Technical Docs](../../Code/docs/README.md)** - Implementation details
+- **[Technical Docs](../../code/docs/README.md)** - Implementation details
 
 ## Key Features
 
@@ -160,12 +160,12 @@ This directory contains only usage guide files (no subdirectories). Each guide a
 ### Framework Documentation
 - **[Installation Guide](../installation/README.md)** - Setup instructions
 - **[Architecture Guide](../architecture/README.md)** - How ModelChecker works
-- **[Theory Library](../../Code/src/model_checker/theory_lib/README.md)** - Available theories
+- **[Theory Library](../../code/src/model_checker/theory_lib/README.md)** - Available theories
 
 ### Related Resources
-- **[Development Guide](../../Code/docs/DEVELOPMENT.md)** - Contributing new theories
-- **[API Reference](../../Code/src/model_checker/README.md)** - Programming interface
-- **[Examples](../../Code/docs/EXAMPLES.md)** - Example file structure
+- **[Development Guide](../../code/docs/DEVELOPMENT.md)** - Contributing new theories
+- **[API Reference](../../code/src/model_checker/README.md)** - Programming interface
+- **[Examples](../../code/docs/EXAMPLES.md)** - Example file structure
 
 ---
 

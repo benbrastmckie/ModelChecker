@@ -1,7 +1,7 @@
 """
 Examples template for ModelChecker theories.
 
-Follow EXAMPLES_STRUCTURE.md standards from Code/maintenance/.
+Follow EXAMPLES_STRUCTURE.md standards from code/maintenance/.
 Replace 'TEMPLATE' prefix with your theory's abbreviation.
 """
 

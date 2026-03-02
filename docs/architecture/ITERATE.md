@@ -471,7 +471,7 @@ class LogosModelIterator(BaseModelIterator):
         return differences
 ```
 
-*See also: [`model_checker/theory_lib/logos/iterate.py`](../../Code/src/model_checker/theory_lib/logos/iterate.py)*
+*See also: [`model_checker/theory_lib/logos/iterate.py`](../../code/src/model_checker/theory_lib/logos/iterate.py)*
 
 **Example output**:
 ```
@@ -518,7 +518,7 @@ class ExclusionModelIterator(LogosModelIterator):
         return differences
 ```
 
-*See also: [`model_checker/theory_lib/exclusion/iterate.py`](../../Code/src/model_checker/theory_lib/exclusion/iterate.py)*
+*See also: [`model_checker/theory_lib/exclusion/iterate.py`](../../code/src/model_checker/theory_lib/exclusion/iterate.py)*
 
 **Example output**:
 ```
@@ -590,7 +590,7 @@ class BimodalModelIterator(BaseModelIterator):
         return differences
 ```
 
-*See also: [`model_checker/theory_lib/bimodal/iterate.py`](../../Code/src/model_checker/theory_lib/bimodal/iterate.py)*
+*See also: [`model_checker/theory_lib/bimodal/iterate.py`](../../code/src/model_checker/theory_lib/bimodal/iterate.py)*
 
 Bimodal iteration explores different temporal-modal structures: how time flows (linear vs branching), how worlds relate across time, and which world-states exist at which times. This reveals different ways necessity and temporality can interact.
 
@@ -618,7 +618,7 @@ class ImpositionModelIterator(BaseModelIterator):
         return And(constraints)
 ```
 
-*See also: [`model_checker/theory_lib/imposition/iterate.py`](../../Code/src/model_checker/theory_lib/imposition/iterate.py)*
+*See also: [`model_checker/theory_lib/imposition/iterate.py`](../../code/src/model_checker/theory_lib/imposition/iterate.py)*
 
 Imposition iteration varies how states combine under counterfactual supposition. Different imposition structures yield different counterfactual dependencies - revealing multiple ways the same counterfactual can be true or false.
 
@@ -685,7 +685,7 @@ class BaseModelIterator:
         raise NotImplementedError("This method must be implemented by a theory-specific subclass")
 ```
 
-*Full implementation: [`model_checker/iterate/core.py`](../../Code/src/model_checker/iterate/core.py)*
+*Full implementation: [`model_checker/iterate/core.py`](../../code/src/model_checker/iterate/core.py)*
 
 To implement iteration for a new theory, extend this base class and define what constitutes meaningful semantic differences in your theory. The framework handles the iteration mechanics - you specify what varies.
 
@@ -775,7 +775,7 @@ class ModelGraph:
         return hash(json.dumps(invariants))  # Same hash = likely isomorphic
 ```
 
-*See also: [`model_checker/iterate/graph_utils.py`](../../Code/src/model_checker/iterate/graph_utils.py)*
+*See also: [`model_checker/iterate/graph_utils.py`](../../code/src/model_checker/iterate/graph_utils.py)*
 
 Graph representation enables efficient isomorphism detection using NetworkX's algorithms. Models with the same graph structure (after relabeling) represent the same semantic situation and should be filtered out.
 
@@ -820,7 +820,7 @@ class IterationStatistics:
         }
 ```
 
-*See also: [`model_checker/iterate/progress.py`](../../Code/src/model_checker/iterate/progress.py) and [`model_checker/iterate/stats.py`](../../Code/src/model_checker/iterate/stats.py)*
+*See also: [`model_checker/iterate/progress.py`](../../code/src/model_checker/iterate/progress.py) and [`model_checker/iterate/stats.py`](../../code/src/model_checker/iterate/stats.py)*
 
 Progress tracking provides real-time feedback during potentially long iteration searches, while statistics help analyze the quality and diversity of the found model set.
 
@@ -1114,10 +1114,10 @@ Iteration produces various debug messages:
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Iterator Package Documentation](../../Code/src/model_checker/iterate/README.md) - Complete API reference
-- [Iterator Implementation](../../Code/src/model_checker/iterate/iterator.py) - Core iteration logic
-- [Difference Detection](../../Code/src/model_checker/iterate/differences.py) - Model comparison algorithms
-- [Isomorphism Prevention](../../Code/src/model_checker/iterate/isomorphism.py) - Structural equivalence detection
+- [Iterator Package Documentation](../../code/src/model_checker/iterate/README.md) - Complete API reference
+- [Iterator Implementation](../../code/src/model_checker/iterate/iterator.py) - Core iteration logic
+- [Difference Detection](../../code/src/model_checker/iterate/differences.py) - Model comparison algorithms
+- [Isomorphism Prevention](../../code/src/model_checker/iterate/isomorphism.py) - Structural equivalence detection
 
 ## See Also
 
@@ -1128,8 +1128,8 @@ For detailed implementation information, see:
 - [Theory Framework](THEORY_LIB.md) - Theory-specific iteration
 
 ### Technical Documentation
-- [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Theory implementations
-- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
+- [Theory Library](../../code/src/model_checker/theory_lib/README.md) - Theory implementations
+- [API Reference](../../code/src/model_checker/README.md) - Framework APIs
 
 ### Academic References
 - Graph Isomorphism Problem - Complexity and algorithms

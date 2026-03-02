@@ -60,4 +60,4 @@ For documentation on advanced ModelChecker features beyond debugging, including:
 - Performance testing with the maximize flag (-m)
 - Additional debugging flags (-i, -p, -z, -s)
 
-See [Docs/TOOLS.md](../../../../../Docs/TOOLS.md)
+See [docs/TOOLS.md](../../../../../docs/TOOLS.md)

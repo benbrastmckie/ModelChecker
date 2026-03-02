@@ -7,7 +7,7 @@
 - **Dependencies**: Phase 2 complete (abstraction layer ready)
 - **Files**: 
   - `tests/integration/test_bimodal_solver_interface.py` (new)
-  - `Code/tests/integration/test_solver_equivalence.py` (new)
+  - `code/tests/integration/test_solver_equivalence.py` (new)
   - `tests/integration/test_performance_validation.py` (new)
 - **Coverage Target**: Integration tests for all 22 examples
 - **Risk**: Medium - Setting up comprehensive test infrastructure
@@ -52,7 +52,7 @@ class TestBimodalSolverInterface(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
 # Expected: FAIL (ImportError or usage errors - bimodal doesn't use abstraction yet)
 ```
 
@@ -61,7 +61,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integ
 ### Task 2: [TDD-RED] Write test_solver_equivalence.py
 **Duration**: 3 hours
 
-- [ ] Create test file: `Code/tests/integration/test_solver_equivalence.py`
+- [ ] Create test file: `code/tests/integration/test_solver_equivalence.py`
 - [ ] Write Z3 vs CVC5 equivalence tests
 - [ ] Cover all 22 bimodal examples
 - [ ] Compare sat/unsat results between solvers
@@ -87,7 +87,7 @@ def test_example_equivalence(self):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/tests/integration/test_solver_equivalence.py -v
+PYTHONPATH=code/src pytest code/tests/integration/test_solver_equivalence.py -v
 # Expected: FAIL (bimodal not migrated to abstraction)
 ```
 
@@ -135,11 +135,11 @@ def test_cvc5_performance_BM_CM_1(self):
 **Commands**:
 ```bash
 # Verify TDD RED state
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
 # Expected: All FAIL (bimodal not using abstraction yet)
 
 # Verify test structure
-grep -r "SolverInterface" Code/src/model_checker/theory_lib/bimodal/tests/integration/
+grep -r "SolverInterface" code/src/model_checker/theory_lib/bimodal/tests/integration/
 # Should find test references to abstraction layer
 ```
 
@@ -198,19 +198,19 @@ Stage 2 (Semantic Core Migration) requires:
 ### Completed Deliverables
 
 1. **test_bimodal_solver_interface.py** ✅
-   - Location: `Code/src/model_checker/theory_lib/bimodal/tests/integration/`
+   - Location: `code/src/model_checker/theory_lib/bimodal/tests/integration/`
    - Lines: 351
    - Test cases: 11 (6 CVC5, 3 Z3, 2 fixtures)
    - Coverage: All 6 critical examples
 
 2. **test_solver_equivalence.py** ✅
-   - Location: `Code/tests/integration/`
+   - Location: `code/tests/integration/`
    - Lines: 380
    - Test cases: 22 (all bimodal examples)
    - Coverage: Z3/CVC5 equivalence validation
 
 3. **test_performance_validation.py** ✅
-   - Location: `Code/src/model_checker/theory_lib/bimodal/tests/integration/`
+   - Location: `code/src/model_checker/theory_lib/bimodal/tests/integration/`
    - Lines: 356
    - Test cases: 7 performance tests
    - Coverage: 6 critical examples + baseline

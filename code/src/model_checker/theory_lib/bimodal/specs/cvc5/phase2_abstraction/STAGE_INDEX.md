@@ -184,7 +184,7 @@ raise ValueError("Invalid solver")
 raise ValueError(
     f"Unknown solver: '{solver_name}'. "
     f"Available solvers: z3, cvc5\n"
-    f"To add a solver, see Code/docs/architecture/SOLVER_ABSTRACTION.md"
+    f"To add a solver, see code/docs/architecture/SOLVER_ABSTRACTION.md"
 )
 ```
 
@@ -270,27 +270,27 @@ raise ValueError(
 
 ```bash
 # Run all Phase 2 tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ -v
 
 # Run specific stage tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_interface.py -v
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_z3_adapter.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_cvc5_adapter.py -v
 
 # Coverage check (must be >90%)
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ \
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ \
     --cov=model_checker.solver \
     --cov-report=term-missing \
     --cov-fail-under=90
 
 # Equivalence testing (Stage 4)
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/integration/test_adapter_equivalence.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/integration/test_adapter_equivalence.py -v
 ```
 
 ### File Structure
 
 ```
-Code/src/model_checker/solver/
+code/src/model_checker/solver/
 ├── __init__.py                          # Package exports
 ├── interface.py                         # SolverInterface ABC
 ├── capabilities.py                      # CapabilityMatrix
@@ -313,8 +313,8 @@ Code/src/model_checker/solver/
 - **Parent Plan**: [phase2_abstraction_layer_design.md](phase2_abstraction_layer_design.md)
 - **Master Plan**: [../MASTER_PLAN.md](../MASTER_PLAN.md)
 - **Phase 1 Index**: [../phase1_pilot/STAGE_INDEX.md](../phase1_pilot/STAGE_INDEX.md)
-- **Standards**: [../../../../../../Code/docs/core/CODE_STANDARDS.md](../../../../../../Code/docs/core/CODE_STANDARDS.md)
-- **Testing**: [../../../../../../Code/docs/core/TESTING.md](../../../../../../Code/docs/core/TESTING.md)
+- **Standards**: [../../../../../../code/docs/core/CODE_STANDARDS.md](../../../../../../code/docs/core/CODE_STANDARDS.md)
+- **Testing**: [../../../../../../code/docs/core/TESTING.md](../../../../../../code/docs/core/TESTING.md)
 
 ---
 

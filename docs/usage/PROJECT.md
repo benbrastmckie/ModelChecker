@@ -307,7 +307,7 @@ The `OperatorCollection` class manages operator registration and provides method
 - Apply operators to prefix notation sentences
 - Look up operators by name
 
-See [syntactic/collection.py](../../Code/src/model_checker/syntactic/collection.py) for the full API.
+See [syntactic/collection.py](../../code/src/model_checker/syntactic/collection.py) for the full API.
 
 ### Creating Examples
 
@@ -676,11 +676,11 @@ print(self.settings)  # Debug settings in semantic.py
 - [Models Architecture](../architecture/MODELS.md) - Semantic model generation
 
 ### Technical Documentation
-- [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Existing theories
-- [Syntactic Package](../../Code/src/model_checker/syntactic/README.md) - Operator and syntax handling
-- [OperatorCollection API](../../Code/src/model_checker/syntactic/collection.py) - Operator registry class
-- [Operator Base Classes](../../Code/src/model_checker/syntactic/operators.py) - Operator implementation
-- [Contributing Guide](../../Code/src/model_checker/theory_lib/docs/CONTRIBUTING.md) - Contributing theories
+- [Theory Library](../../code/src/model_checker/theory_lib/README.md) - Existing theories
+- [Syntactic Package](../../code/src/model_checker/syntactic/README.md) - Operator and syntax handling
+- [OperatorCollection API](../../code/src/model_checker/syntactic/collection.py) - Operator registry class
+- [Operator Base Classes](../../code/src/model_checker/syntactic/operators.py) - Operator implementation
+- [Contributing Guide](../../code/src/model_checker/theory_lib/docs/CONTRIBUTING.md) - Contributing theories
 
 ---
 

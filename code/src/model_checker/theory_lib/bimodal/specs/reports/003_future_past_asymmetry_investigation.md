@@ -3,7 +3,7 @@
 ## Metadata
 - **Date**: 2025-10-01
 - **Scope**: Investigation of Future vs Past temporal operator asymmetry in Z3 solver behavior
-- **Primary Directory**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal`
+- **Primary Directory**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal`
 - **Related Reports**: `002_witness_timeout_investigation.md`
 - **Status**: COMPLETE
 
@@ -370,7 +370,7 @@ These bugs meant witness predicates were NEVER being used correctly for Box form
 
 Add comments to Future/PastOperator explaining that Z3 has performance differences despite logical equivalence.
 
-**Location**: `Code/src/model_checker/theory_lib/bimodal/operators.py`
+**Location**: `code/src/model_checker/theory_lib/bimodal/operators.py`
 
 ```python
 class FutureOperator(syntactic.Operator):
@@ -389,7 +389,7 @@ class FutureOperator(syntactic.Operator):
 
 The fixes discovered during investigation should be applied:
 
-**File**: `Code/src/model_checker/theory_lib/bimodal/semantic.py:1030-1059`
+**File**: `code/src/model_checker/theory_lib/bimodal/semantic.py:1030-1059`
 ```python
 def false_at(self, sentence, eval_point):
     """Returns a Z3 formula that is satisfied when the sentence is false."""
@@ -410,7 +410,7 @@ def false_at(self, sentence, eval_point):
     return operator.false_at(*arguments, eval_point)
 ```
 
-**File**: `Code/src/model_checker/theory_lib/bimodal/operators.py:431-434`
+**File**: `code/src/model_checker/theory_lib/bimodal/operators.py:431-434`
 ```python
 # Get formula string for witness lookup
 # Need to construct the full Box formula string from the argument
@@ -422,7 +422,7 @@ formula_str = f"Box_{argument_str}"  # Constructs "Box_A" from "A"
 
 Update BM_CM_1 expectations to account for Z3 limitations:
 
-**File**: `Code/src/model_checker/theory_lib/bimodal/examples.py:316-323`
+**File**: `code/src/model_checker/theory_lib/bimodal/examples.py:316-323`
 ```python
 BM_CM_1_settings = {
     'N' : 2,
@@ -595,7 +595,7 @@ if solver.check() == z3.sat:
 
 Add tests documenting the asymmetry:
 
-**File**: `Code/src/model_checker/theory_lib/bimodal/tests/integration/test_temporal_asymmetry.py`
+**File**: `code/src/model_checker/theory_lib/bimodal/tests/integration/test_temporal_asymmetry.py`
 ```python
 def test_past_operator_simple():
     """Past operator should find countermodel for simple case."""
@@ -708,20 +708,20 @@ The Future/Past temporal operator asymmetry is **not a bug in the bimodal implem
 ### Files Analyzed
 
 #### Operators
-- `Code/src/model_checker/theory_lib/bimodal/operators.py:540-683` - FutureOperator implementation
-- `Code/src/model_checker/theory_lib/bimodal/operators.py:686-846` - PastOperator implementation
-- `Code/src/model_checker/theory_lib/bimodal/operators.py:358-531` - NecessityOperator implementation
+- `code/src/model_checker/theory_lib/bimodal/operators.py:540-683` - FutureOperator implementation
+- `code/src/model_checker/theory_lib/bimodal/operators.py:686-846` - PastOperator implementation
+- `code/src/model_checker/theory_lib/bimodal/operators.py:358-531` - NecessityOperator implementation
 
 #### Semantics
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py:366-535` - Frame constraints
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py:579-655` - Temporal shifting functions
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py:833-880` - Skolem abundance constraints
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py:208-244` - ForAllTime/ExistsTime helpers
-- `Code/src/model_checker/theory_lib/bimodal/semantic.py:999-1059` - true_at/false_at methods
+- `code/src/model_checker/theory_lib/bimodal/semantic.py:366-535` - Frame constraints
+- `code/src/model_checker/theory_lib/bimodal/semantic.py:579-655` - Temporal shifting functions
+- `code/src/model_checker/theory_lib/bimodal/semantic.py:833-880` - Skolem abundance constraints
+- `code/src/model_checker/theory_lib/bimodal/semantic.py:208-244` - ForAllTime/ExistsTime helpers
+- `code/src/model_checker/theory_lib/bimodal/semantic.py:999-1059` - true_at/false_at methods
 
 #### Examples
-- `Code/src/model_checker/theory_lib/bimodal/examples.py:313-328` - BM_CM_1 definition
-- `Code/src/model_checker/theory_lib/bimodal/examples.py:330-345` - BM_CM_2 definition
+- `code/src/model_checker/theory_lib/bimodal/examples.py:313-328` - BM_CM_1 definition
+- `code/src/model_checker/theory_lib/bimodal/examples.py:330-345` - BM_CM_2 definition
 
 ### Test Files Created
 
@@ -739,10 +739,10 @@ The Future/Past temporal operator asymmetry is **not a bug in the bimodal implem
 
 ### Related Documentation
 
-- `Code/src/model_checker/theory_lib/bimodal/specs/reports/002_witness_timeout_investigation.md` - Previous timeout investigation
-- `Code/src/model_checker/theory_lib/bimodal/specs/plans/003_complete_witness_predicates_no_fallbacks.md` - Witness predicate implementation plan
-- `Code/docs/core/TESTING.md` - Testing standards
-- `Code/docs/core/CODE_STANDARDS.md` - Fail-fast philosophy
+- `code/src/model_checker/theory_lib/bimodal/specs/reports/002_witness_timeout_investigation.md` - Previous timeout investigation
+- `code/src/model_checker/theory_lib/bimodal/specs/plans/003_complete_witness_predicates_no_fallbacks.md` - Witness predicate implementation plan
+- `code/docs/core/TESTING.md` - Testing standards
+- `code/docs/core/CODE_STANDARDS.md` - Fail-fast philosophy
 
 ### External References
 

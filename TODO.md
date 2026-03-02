@@ -66,12 +66,12 @@
       - [x] Issue: Generated notebooks didn't match reference notebook style/structure
       - [x] Problem Analysis: Data lost through intermediate formats, wrong cell structure
       - [x] Solution Design: Direct generation from examples.py using theory templates
-      - [x] Plan: [071_notebook_generation_fix.md](Code/docs/specs/plans/071_notebook_generation_fix.md) - COMPLETED ✅
+      - [x] Plan: [071_notebook_generation_fix.md](code/docs/specs/plans/071_notebook_generation_fix.md) - COMPLETED ✅
       - [x] Implementation completed but revealed architectural coupling issues
     - [x] **Plan 072: Complete Separation of Notebook Generation** - COMPLETE ✅
       - [x] Problem: Notebook generation coupled with JSON/markdown pipeline
       - [x] Solution: Independent notebook package working directly with module variables
-      - [x] Plan: [072_notebook_generation_separation.md](Code/docs/specs/plans/072_notebook_generation_separation.md)
+      - [x] Plan: [072_notebook_generation_separation.md](code/docs/specs/plans/072_notebook_generation_separation.md)
       - [x] Implementation Tasks:
         - [x] Phase 1: Create independent notebook generation path
         - [x] Phase 2: Create new notebook package structure
@@ -142,7 +142,7 @@
 ### 2.2 Code Quality & Testing
 
 - [ ] **linting and cleanup**
-  - [ ] Remove unused imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/builder/example.py`
+  - [ ] Remove unused imports in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/builder/example.py`
   - [ ] Run pylint systematically across entire codebase
   - [ ] Fix all critical and major issues
 
@@ -323,8 +323,8 @@
     - [ ] Ensure consistency across all packages
     - [ ] Verify cross-references between components
   - [ ] **Level 4: Top-Level Documentation**
-    - [ ] Main `Code/README.md` for v1.0
-    - [ ] Project-wide `Docs/README.md`
+    - [ ] Main `code/README.md` for v1.0
+    - [ ] Project-wide `docs/README.md`
     - [ ] Installation and setup guides
     - [ ] Consolidate information, remove redundancy
     - [ ] Ensure all downward links are valid
@@ -340,9 +340,9 @@
 
 - [ ] **Legacy Documentation Tasks**
   - [ ] Complete methodology documentation
-  - [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/WORKFLOW.md`
-  - [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/usage/COMPARE_THEORIES.md`
-  - [ ] Revise `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/theory/README.md`
+  - [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/docs/usage/WORKFLOW.md`
+  - [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/docs/usage/COMPARE_THEORIES.md`
+  - [ ] Revise `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/docs/theory/README.md`
 
 ### 4.3 Development Tools
 
@@ -362,7 +362,7 @@
     - [x] Professional formatting with clear result interpretation sections
     - [x] Comprehensive README documentation for each notebook directory
   - [x] All existing examples verified working
-  - [ ] Implement convenience methods (see `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/specs/CONV_METHODS.md`) - Future enhancement
+  - [ ] Implement convenience methods (see `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/specs/CONV_METHODS.md`) - Future enhancement
 
 ## Priority 5: Future Enhancements
 

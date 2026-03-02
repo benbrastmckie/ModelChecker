@@ -252,13 +252,13 @@ When extending ModelChecker:
 
 - Add new papers to this central references file
 - Include complete BibTeX entries with DOIs and URLs  
-- Update relevant [CITATION.md files](../Code/src/model_checker/theory_lib/) in theory directories
+- Update relevant [CITATION.md files](../code/src/model_checker/theory_lib/) in theory directories
 - Maintain consistent citation format across all documentation
 
 ## Related Documentation
 
-- **[Theory Library Overview](../Code/src/model_checker/theory_lib/README.md)** - Available theories and their papers
-- **[Individual CITATION.md files](../Code/src/model_checker/theory_lib/)** - Theory-specific citations
+- **[Theory Library Overview](../code/src/model_checker/theory_lib/README.md)** - Available theories and their papers
+- **[Individual CITATION.md files](../code/src/model_checker/theory_lib/)** - Theory-specific citations
 - **[Hyperintensional Semantics Guide](HYPERINTENSIONAL.md)** - Theoretical background
 - **[Main Project README](../README.md)** - Project overview with key references
 

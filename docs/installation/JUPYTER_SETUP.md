@@ -118,7 +118,7 @@ explorer.show()
 The repository includes example notebooks:
 
 ```
-Code/src/model_checker/theory_lib/
+code/src/model_checker/theory_lib/
 ├── logos/notebooks/      # Hyperintensional logic tutorials
 ├── exclusion/notebooks/  # Unilateral semantics examples
 ├── imposition/notebooks/ # Counterfactual reasoning
@@ -220,7 +220,7 @@ jupyter lab build
 ```python
 # Add to notebook
 import sys
-sys.path.append('/path/to/ModelChecker/Code/src')
+sys.path.append('/path/to/ModelChecker/code/src')
 ```
 
 ### Performance issues

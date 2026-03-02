@@ -32,7 +32,7 @@ This agent has access to:
 ### Build Tools
 - Bash - Run Z3 verification commands:
   - `python -c "import z3; print(z3.get_version())"` - Check Z3 version
-  - `PYTHONPATH=Code/src pytest Code/tests/ -k "z3" -v` - Run Z3-related tests
+  - `PYTHONPATH=code/src pytest code/tests/ -k "z3" -v` - Run Z3-related tests
   - `python -c "import z3; solver = z3.Solver(); print(solver)"` - Test Z3 import
 
 ### Web Tools
@@ -69,7 +69,7 @@ Use this decision tree to select the right search approach:
 
 ```
 1. "How does ModelChecker use Z3 for X?"
-   -> Grep for z3 usage in Code/src/model_checker/
+   -> Grep for z3 usage in code/src/model_checker/
    -> Read semantic.py and utils/ files
 
 2. "What Z3 API does X?"
@@ -163,13 +163,13 @@ Based on task description, identify:
 **Step 1: Z3 Usage in Codebase**
 ```bash
 # Find Z3 imports
-Grep: "import z3" in Code/src/
+Grep: "import z3" in code/src/
 
 # Find specific Z3 patterns
-Grep: "BitVec|ForAll|Exists|Solver" in Code/src/
+Grep: "BitVec|ForAll|Exists|Solver" in code/src/
 
 # Read key Z3 utility files
-Read: Code/src/model_checker/utils/
+Read: code/src/model_checker/utils/
 ```
 
 **Step 2: Context File Review**
@@ -295,13 +295,13 @@ python -c "import z3; print(z3.get_version())"
 
 ```bash
 # All Z3 imports
-grep -r "import z3" Code/src/
+grep -r "import z3" code/src/
 
 # BitVec usage
-grep -r "BitVec" Code/src/
+grep -r "BitVec" code/src/
 
 # Quantifier usage
-grep -r "ForAll\|Exists" Code/src/
+grep -r "ForAll\|Exists" code/src/
 ```
 
 ### Test Z3 Functionality

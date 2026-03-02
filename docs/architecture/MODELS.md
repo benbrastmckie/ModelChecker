@@ -154,7 +154,7 @@ class Z3ContextManager:
         z3.set_param(verbose=0)  # Silence Z3's internal debug output
 ```
 
-_Full implementation: [`model_checker/utils.py`](../../Code/src/model_checker/utils.py)_
+_Full implementation: [`model_checker/utils.py`](../../code/src/model_checker/utils.py)_
 
 Z3 maintains a global context (`_main_ctx`) that persists across solver instances. Without explicit clearing, this context accumulates state - variable declarations, function definitions, and internal optimizations from previous solving sessions. The garbage collection step ensures Python releases all references to old solver objects, preventing memory leaks during batch processing of many examples.
 
@@ -680,7 +680,7 @@ class ModelDefaults:
 
 The ModelDefaults constructor sets up the solving infrastructure. It stores the constraint collection and settings, extracts key semantic elements like the number of atomic propositions (N) and all possible states, then immediately calls the solver. The `_process_solver_results` method interprets the solver's output, storing either the satisfying model or information about why no model was found. This design makes ModelDefaults a complete, self-contained solving engine.
 
-_Full implementation: [`model_checker/model.py`](../../Code/src/model_checker/model.py)_
+_Full implementation: [`model_checker/model.py`](../../code/src/model_checker/model.py)_
 
 ### Model Differences Tracking
 
@@ -923,7 +923,7 @@ State Encoding (N=3):
 
 Fusion becomes bitwise OR: `fusion(a, b) = 001 | 010 = 011 = a.b`. Parthood becomes bitwise AND equality: `is_part_of(a, a.b) ≡ (001 & 011 == 001) = True`.
 
-_See also: [`model_checker/utils.py`](../../Code/src/model_checker/utils.py) for state conversion utilities_
+_See also: [`model_checker/utils.py`](../../code/src/model_checker/utils.py) for state conversion utilities_
 
 ## Sentence Interpretation
 
@@ -1349,14 +1349,14 @@ The output customization options allow tailoring the display to different use ca
 
 **Core Model Classes:**
 
-- [`model_checker/model.py`](../../Code/src/model_checker/model.py) - ModelDefaults base class and ModelConstraints
+- [`model_checker/model.py`](../../code/src/model_checker/model.py) - ModelDefaults base class and ModelConstraints
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Models Package Documentation](../../Code/src/model_checker/models/README.md) - Complete API reference
-- [Model Base Classes](../../Code/src/model_checker/models/model.py) - Core model infrastructure
-- [Model Defaults](../../Code/src/model_checker/models/defaults.py) - Default model implementation
-- [Model Utilities](../../Code/src/model_checker/models/utilities.py) - Helper functions
+- [Models Package Documentation](../../code/src/model_checker/models/README.md) - Complete API reference
+- [Model Base Classes](../../code/src/model_checker/models/model.py) - Core model infrastructure
+- [Model Defaults](../../code/src/model_checker/models/defaults.py) - Default model implementation
+- [Model Utilities](../../code/src/model_checker/models/utilities.py) - Helper functions
 
 ## See Also
 
@@ -1368,7 +1368,7 @@ For detailed implementation information, see:
 
 ### Technical Documentation
 - [Z3 Python API](https://z3prover.github.io/api/html/namespacez3py.html) - Official Z3 documentation
-- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
+- [API Reference](../../code/src/model_checker/README.md) - Framework APIs
 
 ---
 

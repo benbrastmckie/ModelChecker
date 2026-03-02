@@ -150,7 +150,7 @@ forall = adapter.mk_forall([x_var], body)
 **Unit Tests** (Should PASS after migration):
 ```bash
 # Run semantic unit tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
 
 # Expected: All tests PASS (functionality preserved through abstraction)
 ```
@@ -158,7 +158,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Integration Tests** (Should start PASSING):
 ```bash
 # Run integration tests written in Stage 1
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
 
 # Expected: Semantic-related tests start passing
 ```
@@ -166,8 +166,8 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integ
 **Import Verification**:
 ```bash
 # Verify no direct CVC5 imports remain
-grep -n "import cvc5" Code/src/model_checker/theory_lib/bimodal/semantic.py
-grep -n "from cvc5" Code/src/model_checker/theory_lib/bimodal/semantic.py
+grep -n "import cvc5" code/src/model_checker/theory_lib/bimodal/semantic.py
+grep -n "from cvc5" code/src/model_checker/theory_lib/bimodal/semantic.py
 
 # Expected: No matches (all removed)
 ```
@@ -175,7 +175,7 @@ grep -n "from cvc5" Code/src/model_checker/theory_lib/bimodal/semantic.py
 **Coverage Check**:
 ```bash
 # Verify coverage maintained
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py --cov=model_checker.theory_lib.bimodal.semantic --cov-report=term-missing
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py --cov=model_checker.theory_lib.bimodal.semantic --cov-report=term-missing
 
 # Expected: >85% coverage maintained
 ```
@@ -208,7 +208,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 
 ### Issue 4: Import Errors During Migration
 **Problem**: Missing SolverInterface import
-**Solution**: Verify Phase 2 abstraction layer is installed: `pip install -e Code/`
+**Solution**: Verify Phase 2 abstraction layer is installed: `pip install -e code/`
 
 ## Risk Mitigation
 

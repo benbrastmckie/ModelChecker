@@ -294,7 +294,7 @@ All notebooks use LaTeX notation for formulas (e.g., `\Box` for □) as required
 ### Related Resources
 
 - **[Theory Library Overview](../README.md)** - Comparison of ModelChecker's four semantic theories
-- **[Hyperintensional Semantics Guide](../../../../../Docs/theory/HYPERINTENSIONAL.md)** - Introduction to truthmaker semantics
+- **[Hyperintensional Semantics Guide](../../../../../docs/theory/HYPERINTENSIONAL.md)** - Introduction to truthmaker semantics
 - **[ModelChecker Architecture](../../../README.md)** - Core framework design and capabilities
 
 ---

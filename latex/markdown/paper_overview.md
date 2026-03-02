@@ -1766,7 +1766,7 @@ Logos provides **single semantic framework** for:
 
 2. **Automated Testing**:
    ```python
-   pytest Code/src/model_checker/theory_lib/logos/tests/unit/
+   pytest code/src/model_checker/theory_lib/logos/tests/unit/
    ```
    - Each example runs in &lt; 5 seconds (N=3 or N=4)
    - Assertion checks expected result (valid/invalid)

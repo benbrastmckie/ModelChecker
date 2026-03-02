@@ -811,7 +811,7 @@ comment_column = len(longest_line) + padding  # = 37
 
 ### README Template
 
-See [README_TEMPLATE.md](../../Docs/maintenance/templates/README_TEMPLATE.md) for the standard README structure.
+See [README_TEMPLATE.md](../../docs/maintenance/templates/README_TEMPLATE.md) for the standard README structure.
 
 ### Docstring Templates
 

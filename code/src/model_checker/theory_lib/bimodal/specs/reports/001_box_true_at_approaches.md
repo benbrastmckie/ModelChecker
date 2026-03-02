@@ -354,7 +354,7 @@ def true_at(self, argument, eval_point):
 **Test Suite**:
 ```bash
 # Create benchmark comparing approaches
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_approaches.py -v --benchmark-compare
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_approaches.py -v --benchmark-compare
 ```
 
 **Example Benchmark Tests**:

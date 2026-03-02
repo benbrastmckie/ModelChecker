@@ -224,7 +224,7 @@ def ExistsTime(self, vars: List, body):
 
 **Test Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage02.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage02.py -v
 ```
 
 ### Task 5: Refactor and Code Quality
@@ -245,7 +245,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 
 **Coverage Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage02.py \
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5_stage02.py \
     --cov=model_checker.theory_lib.bimodal.semantic.semantic \
     --cov-report=term-missing
 ```

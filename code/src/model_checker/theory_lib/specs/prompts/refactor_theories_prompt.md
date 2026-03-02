@@ -1,13 +1,13 @@
 # Theory Refactoring Prompt for Parallel Subagents
 
 ## Objective
-Launch three parallel general-purpose subagents to refactor the theory modules in `Code/src/model_checker/theory_lib/` (excluding `bimodal/`) based on their analysis reports, while preserving their unique characteristics and ensuring all tests continue to pass.
+Launch three parallel general-purpose subagents to refactor the theory modules in `code/src/model_checker/theory_lib/` (excluding `bimodal/`) based on their analysis reports, while preserving their unique characteristics and ensuring all tests continue to pass.
 
 ## Critical Requirements for All Theories
 
-### Testing Compliance (Per Code/docs/core/TESTING.md)
+### Testing Compliance (Per code/docs/core/TESTING.md)
 - **MANDATORY**: All existing tests must pass after refactoring
-- **MANDATORY**: Run `python Code/dev_cli.py Code/src/model_checker/theory_lib/{theory}/examples.py` to verify examples work
+- **MANDATORY**: Run `python code/dev_cli.py code/src/model_checker/theory_lib/{theory}/examples.py` to verify examples work
 - **MANDATORY**: Follow TDD approach - write failing tests for new functionality first
 - **Test Organization**: Maintain proper separation of unit/integration/e2e tests
 - **Test Isolation**: Ensure tests run independently without environment contamination
@@ -18,9 +18,9 @@ Launch three parallel general-purpose subagents to refactor the theory modules i
 - Avoid duplicating functionality that already exists in the framework
 
 ### Standards Compliance
-- Follow Code/docs/core/CODE_STANDARDS.md for code quality
-- Follow Code/docs/core/ARCHITECTURE.md for structural patterns
-- Follow Code/docs/contracts/ITERATOR_CONTRACTS.md for iterator implementation
+- Follow code/docs/core/CODE_STANDARDS.md for code quality
+- Follow code/docs/core/ARCHITECTURE.md for structural patterns
+- Follow code/docs/contracts/ITERATOR_CONTRACTS.md for iterator implementation
 - Maintain backward compatibility for all public APIs
 
 ## Theory-Specific Refactoring Prompts
@@ -28,7 +28,7 @@ Launch three parallel general-purpose subagents to refactor the theory modules i
 ### PROMPT 1: Exclusion Theory Refactoring
 
 ```
-You are refactoring the EXCLUSION theory module located at Code/src/model_checker/theory_lib/exclusion/.
+You are refactoring the EXCLUSION theory module located at code/src/model_checker/theory_lib/exclusion/.
 
 IMPORTANT CONTEXT:
 - This theory uses WITNESS-BASED SEMANTICS which is fundamentally different from the other theories
@@ -38,8 +38,8 @@ IMPORTANT CONTEXT:
 
 CRITICAL REQUIREMENTS:
 1. ALL tests must continue to pass after refactoring
-2. Run tests with: pytest Code/src/model_checker/theory_lib/exclusion/tests/
-3. Verify examples work: python Code/dev_cli.py Code/src/model_checker/theory_lib/exclusion/examples.py
+2. Run tests with: pytest code/src/model_checker/theory_lib/exclusion/tests/
+3. Verify examples work: python code/dev_cli.py code/src/model_checker/theory_lib/exclusion/examples.py
 4. Preserve the witness-based implementation paradigm
 
 PHASE 1: CRITICAL FIXES (Priority 1)
@@ -98,17 +98,17 @@ PHASE 3: TESTING & VALIDATION
 
 1. Run Existing Tests:
    ```bash
-   pytest Code/src/model_checker/theory_lib/exclusion/tests/ -v
+   pytest code/src/model_checker/theory_lib/exclusion/tests/ -v
    ```
 
 2. Verify Examples:
    ```bash
-   python Code/dev_cli.py Code/src/model_checker/theory_lib/exclusion/examples.py
+   python code/dev_cli.py code/src/model_checker/theory_lib/exclusion/examples.py
    ```
 
 3. Check Type Hints:
    ```bash
-   mypy Code/src/model_checker/theory_lib/exclusion/
+   mypy code/src/model_checker/theory_lib/exclusion/
    ```
 
 EXPECTED DELIVERABLES:
@@ -130,7 +130,7 @@ Report all changes made and any issues encountered.
 ### PROMPT 2: Imposition Theory Refactoring
 
 ```
-You are refactoring the IMPOSITION theory module located at Code/src/model_checker/theory_lib/imposition/.
+You are refactoring the IMPOSITION theory module located at code/src/model_checker/theory_lib/imposition/.
 
 IMPORTANT CONTEXT:
 - This theory is based on Kit Fine's truthmaker semantics
@@ -140,8 +140,8 @@ IMPORTANT CONTEXT:
 
 CRITICAL REQUIREMENTS:
 1. ALL tests must continue to pass after refactoring
-2. Run tests with: pytest Code/src/model_checker/theory_lib/imposition/tests/
-3. Verify examples work: python Code/dev_cli.py Code/src/model_checker/theory_lib/imposition/examples.py
+2. Run tests with: pytest code/src/model_checker/theory_lib/imposition/tests/
+3. Verify examples work: python code/dev_cli.py code/src/model_checker/theory_lib/imposition/examples.py
 4. Maintain inheritance from logos base classes
 
 PHASE 1: FILE SIZE MANAGEMENT (Priority 1)
@@ -196,17 +196,17 @@ PHASE 3: TESTING & VALIDATION
 
 1. Run Existing Tests:
    ```bash
-   pytest Code/src/model_checker/theory_lib/imposition/tests/ -v
+   pytest code/src/model_checker/theory_lib/imposition/tests/ -v
    ```
 
 2. Verify Examples:
    ```bash
-   python Code/dev_cli.py Code/src/model_checker/theory_lib/imposition/examples.py
+   python code/dev_cli.py code/src/model_checker/theory_lib/imposition/examples.py
    ```
 
 3. Check Coverage:
    ```bash
-   pytest Code/src/model_checker/theory_lib/imposition/tests/ --cov=imposition --cov-report=term-missing
+   pytest code/src/model_checker/theory_lib/imposition/tests/ --cov=imposition --cov-report=term-missing
    ```
 
 EXPECTED DELIVERABLES:
@@ -229,7 +229,7 @@ Report all changes made and test coverage improvements.
 ### PROMPT 3: Logos Theory Refactoring
 
 ```
-You are refactoring the LOGOS theory module located at Code/src/model_checker/theory_lib/logos/.
+You are refactoring the LOGOS theory module located at code/src/model_checker/theory_lib/logos/.
 
 IMPORTANT CONTEXT:
 - This is the most sophisticated theory with SUBTHEORY ARCHITECTURE
@@ -239,8 +239,8 @@ IMPORTANT CONTEXT:
 
 CRITICAL REQUIREMENTS:
 1. ALL tests must continue to pass after refactoring
-2. Run tests with: pytest Code/src/model_checker/theory_lib/logos/tests/
-3. Verify examples work: python Code/dev_cli.py Code/src/model_checker/theory_lib/logos/examples.py
+2. Run tests with: pytest code/src/model_checker/theory_lib/logos/tests/
+3. Verify examples work: python code/dev_cli.py code/src/model_checker/theory_lib/logos/examples.py
 4. PRESERVE the subtheory plugin architecture
 
 PHASE 1: STANDARDS COMPLIANCE (Priority 1)
@@ -255,7 +255,7 @@ PHASE 1: STANDARDS COMPLIANCE (Priority 1)
      * iterate.py - Add iterator type hints
 
 2. Iterator Contract Compliance:
-   Based on Code/docs/contracts/ITERATOR_CONTRACTS.md:
+   Based on code/docs/contracts/ITERATOR_CONTRACTS.md:
    - Add missing iterator methods if any
    - Ensure proper state management
    - Add type hints for iterator protocol
@@ -294,20 +294,20 @@ PHASE 3: DOCUMENTATION & TESTING
 
 1. Run All Tests Including Subtheories:
    ```bash
-   pytest Code/src/model_checker/theory_lib/logos/tests/ -v
-   pytest Code/src/model_checker/theory_lib/logos/subtheories/*/tests/ -v
+   pytest code/src/model_checker/theory_lib/logos/tests/ -v
+   pytest code/src/model_checker/theory_lib/logos/subtheories/*/tests/ -v
    ```
 
 2. Verify Examples:
    ```bash
-   python Code/dev_cli.py Code/src/model_checker/theory_lib/logos/examples.py
+   python code/dev_cli.py code/src/model_checker/theory_lib/logos/examples.py
    ```
 
 3. Verify Each Subtheory:
    ```bash
    for subtheory in extensional modal constitutive counterfactual relevance; do
      echo "Testing $subtheory..."
-     python Code/dev_cli.py -l logos -c $subtheory <test_file>
+     python code/dev_cli.py -l logos -c $subtheory <test_file>
    done
    ```
 
@@ -350,7 +350,7 @@ Each subagent should:
 CRITICAL: All three subagents must work simultaneously. Use parallel Task tool invocations.
 
 After all complete, create a summary report at:
-Code/src/model_checker/theory_lib/specs/reports/refactoring_results.md
+code/src/model_checker/theory_lib/specs/reports/refactoring_results.md
 
 The summary should include:
 - Changes made to each theory
@@ -373,13 +373,13 @@ IMPORTANT REMINDERS:
 ## Success Criteria
 
 ✅ All existing tests pass for all theories
-✅ Examples run successfully via `python Code/dev_cli.py {theory}/examples.py`
+✅ Examples run successfully via `python code/dev_cli.py {theory}/examples.py`
 ✅ No breaking changes to public APIs
 ✅ File sizes under 500 lines (except where justified)
 ✅ Type hint coverage improved (target >90%)
 ✅ Import organization fixed (no duplicates)
 ✅ Each theory's unique characteristics preserved
-✅ Code follows ModelChecker standards from Code/docs/
+✅ Code follows ModelChecker standards from code/docs/
 
 ## Risk Mitigation
 

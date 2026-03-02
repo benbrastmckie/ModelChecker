@@ -66,7 +66,7 @@ The release pipeline has two workflows:
 
 ### Automated Release (Recommended)
 
-1. Update version in `Code/pyproject.toml`
+1. Update version in `code/pyproject.toml`
 2. Run the release script:
    ```bash
    python run_update.py
@@ -80,10 +80,10 @@ The release pipeline has two workflows:
 
 ### Manual Release
 
-1. Update version in `Code/pyproject.toml`
+1. Update version in `code/pyproject.toml`
 2. Commit and tag:
    ```bash
-   git add Code/pyproject.toml
+   git add code/pyproject.toml
    git commit -m "Release version X.Y.Z"
    git tag vX.Y.Z
    git push origin master

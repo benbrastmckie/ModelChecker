@@ -69,7 +69,7 @@ class PossibilityOperator(syntactic.DefinedOperator):
         return [NegationOperator, [NecessityOperator, [NegationOperator, argument]]]
 ```
 
-For more examples, see the [modal operators](../../../Code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) in the logos theory.
+For more examples, see the [modal operators](../../../code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) in the logos theory.
 
 All operators must be registered with the framework through the operator registration system - see [Operator Registration System](#operator-registration-system) for details on how this works.
 
@@ -228,9 +228,9 @@ def get_operators():
 
 For concrete examples of primitive operators, see:
 
-- [NecessityOperator](../../../Code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) - Modal necessity (□)
-- [AndOperator](../../../Code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) - Conjunction (∧)
-- [CounterfactualOperator](../../../Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py) - Counterfactual conditional (□→)
+- [NecessityOperator](../../../code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) - Modal necessity (□)
+- [AndOperator](../../../code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) - Conjunction (∧)
+- [CounterfactualOperator](../../../code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py) - Counterfactual conditional (□→)
 
 These show the complete implementation pattern including Z3 constraint generation, hyperintensional semantics, and verifier/falsifier computation.
 
@@ -363,9 +363,9 @@ def get_operators():
 
 See how the logos theory implements registration:
 
-- [Modal operators registry](../../../Code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) (lines 155-167)
-- [Extensional operators registry](../../../Code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) (lines 313-325)
-- [Main logos registry](../../../Code/src/model_checker/theory_lib/logos/operators.py) that coordinates subtheories
+- [Modal operators registry](../../../code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) (lines 155-167)
+- [Extensional operators registry](../../../code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) (lines 313-325)
+- [Main logos registry](../../../code/src/model_checker/theory_lib/logos/operators.py) that coordinates subtheories
 
 ### Registration Best Practices
 

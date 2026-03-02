@@ -23,7 +23,7 @@
 
 This document provides a **comprehensive development process** for implementing new ModelChecker features following test-driven development (TDD) protocols and systematic design principles. The process ensures thorough research, careful planning, and high-quality implementation while maintaining full integration with existing codebase standards.
 
-**Process Philosophy**: Following the design principles outlined in [CLAUDE.md](../../Code/CLAUDE.md), this implementation process emphasizes architectural clarity, test-driven development, and systematic refactoring to ensure maintainable, high-quality code.
+**Process Philosophy**: Following the design principles outlined in [CLAUDE.md](../../code/CLAUDE.md), this implementation process emphasizes architectural clarity, test-driven development, and systematic refactoring to ensure maintainable, high-quality code.
 
 **CRITICAL: NO BACKWARDS COMPATIBILITY**
 - **Never add optional parameters** to maintain old behavior

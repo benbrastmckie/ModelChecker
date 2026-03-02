@@ -578,9 +578,9 @@ graph TD
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Utils Package Documentation](../../Code/src/model_checker/utils/README.md)
-- [Type Definitions](../../Code/src/model_checker/utils/types.py)
-- [API Reference](../../Code/src/model_checker/utils/api.py)
+- [Utils Package Documentation](../../code/src/model_checker/utils/README.md)
+- [Type Definitions](../../code/src/model_checker/utils/types.py)
+- [API Reference](../../code/src/model_checker/utils/api.py)
 
 ## See Also
 

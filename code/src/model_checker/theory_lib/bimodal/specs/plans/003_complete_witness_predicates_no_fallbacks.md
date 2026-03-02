@@ -5,7 +5,7 @@
 - **Feature**: Complete witness predicate implementation following fail-fast standards (no fallbacks)
 - **Scope**: Fix incomplete witness registration, remove fallback code, implement proper error handling
 - **Estimated Phases**: 4
-- **Standards File**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/core/CODE_STANDARDS.md`
+- **Standards File**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/docs/core/CODE_STANDARDS.md`
 - **Research Reports**: `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/specs/reports/bimodal/001_debug_missing_countermodels.md`
 - **Related Plan**: `002_witness_predicates_corrected.md` (Phases 1-4 completed with fallback code)
 - **Status**: REVISED with explicit implementation details from exclusion architecture analysis
@@ -74,7 +74,7 @@ The framework calls semantic methods but bimodal never registers witnesses or ad
 
 **Exclusion Theory** (PROVEN WORKING):
 ```
-Location: Code/src/model_checker/theory_lib/exclusion/semantic/
+Location: code/src/model_checker/theory_lib/exclusion/semantic/
 
 WitnessRegistry:
 - register_witness_predicates(formula_str) → (h_pred, y_pred)
@@ -95,7 +95,7 @@ ExclusionSemantics:
 
 **Bimodal Adaptation**:
 ```
-Location: Code/src/model_checker/theory_lib/bimodal/semantic.py
+Location: code/src/model_checker/theory_lib/bimodal/semantic.py
 
 WitnessRegistry:
 - register_witness_predicate(formula_str) → accessible_world_pred
@@ -161,7 +161,7 @@ raise WitnessPredicateError(
 **Objective**: Implement formula tracking and witness registration infrastructure
 **Complexity**: Medium
 **Priority**: CRITICAL
-**File**: `Code/src/model_checker/theory_lib/bimodal/semantic.py`
+**File**: `code/src/model_checker/theory_lib/bimodal/semantic.py`
 
 #### Tasks
 
@@ -296,10 +296,10 @@ raise WitnessPredicateError(
 
 ```bash
 # Test state tracking (new tests needed)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/ -k "witness" -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/ -k "witness" -v
 
 # Test that _get_formula_string doesn't raise Z3Exception
-PYTHONPATH=Code/src python -c "
+PYTHONPATH=code/src python -c "
 from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
 sem = BimodalSemantics({'N': 2, 'M': 2, 'contingent': False, 'disjoint': False, 'max_time': 5, 'expectation': True, 'iterate': 1})
 # Should not raise exception
@@ -329,13 +329,13 @@ sem = BimodalSemantics({'N': 2, 'M': 2, 'contingent': False, 'disjoint': False, 
 **Objective**: Add two-phase model building following exclusion pattern
 **Complexity**: High
 **Priority**: CRITICAL
-**File**: `Code/src/model_checker/theory_lib/bimodal/semantic.py`
+**File**: `code/src/model_checker/theory_lib/bimodal/semantic.py`
 
 #### Context
 
 **Critical Decision**: Where should `build_model()` be called from?
 
-**Investigation needed**: Check `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/iterate/build_example.py` to see how framework integrates with semantic classes.
+**Investigation needed**: Check `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/iterate/build_example.py` to see how framework integrates with semantic classes.
 
 **Likely patterns**:
 1. Framework calls `semantics.build_model(eval_point)` directly
@@ -429,7 +429,7 @@ sem = BimodalSemantics({'N': 2, 'M': 2, 'contingent': False, 'disjoint': False, 
 
 ```bash
 # Test build_model() creates model with witnesses
-PYTHONPATH=Code/src python -c "
+PYTHONPATH=code/src python -c "
 from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
 from model_checker.syntactic.sentence import Sentence
 
@@ -472,7 +472,7 @@ print('build_model() executed successfully')
 **Objective**: Remove conditional fallback logic, enforce witnesses are required
 **Complexity**: Low
 **Priority**: CRITICAL
-**File**: `Code/src/model_checker/theory_lib/bimodal/operators.py`
+**File**: `code/src/model_checker/theory_lib/bimodal/operators.py`
 
 #### Tasks
 
@@ -551,10 +551,10 @@ print('build_model() executed successfully')
 
 ```bash
 # Test fail-fast behavior
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py -v
 
 # Test that unregistered witness raises error
-PYTHONPATH=Code/src python -c "
+PYTHONPATH=code/src python -c "
 from model_checker.theory_lib.bimodal.operators import NecessityOperator
 from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
 from model_checker.syntactic.sentence import Sentence
@@ -598,14 +598,14 @@ except Exception as e:
 **Task 4.1: Run unit tests**
 - [ ] Run full bimodal test suite:
   ```bash
-  PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/ -v --tb=short
+  PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/ -v --tb=short
   ```
 - [ ] Expected: 60+ passing, 21 skipped, 0 failures
 
 **Task 4.2: Run BM_CM examples**
 - [ ] Execute all bimodal examples:
   ```bash
-  PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py
+  PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py
   ```
 - [ ] Verify each BM_CM example finds countermodel:
   - BM_CM_1 (∀Future A ⊬ □A): Should find countermodel
@@ -633,10 +633,10 @@ except Exception as e:
 
 ```bash
 # Comprehensive test suite
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov-report=term-missing
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov-report=term-missing
 
 # Specific BM_CM countermodel tests
-PYTHONPATH=Code/src Code/dev_cli.py Code/src/model_checker/theory_lib/bimodal/examples.py | grep -A 20 "BM_CM"
+PYTHONPATH=code/src code/dev_cli.py code/src/model_checker/theory_lib/bimodal/examples.py | grep -A 20 "BM_CM"
 ```
 
 #### Expected Outcomes

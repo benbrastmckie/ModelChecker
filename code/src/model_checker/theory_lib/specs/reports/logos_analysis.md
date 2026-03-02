@@ -2,7 +2,7 @@
 
 **Analysis Date**: 2025-09-25
 **Analyzer**: Claude Code
-**Target**: `/Code/src/model_checker/theory_lib/logos/`
+**Target**: `/code/src/model_checker/theory_lib/logos/`
 **Framework Version**: 1.2.10
 
 ---

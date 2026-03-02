@@ -94,7 +94,7 @@ Tasks:
 
 Testing:
 ```bash
-python -m mypy Code/src/model_checker/theory_lib/ --strict
+python -m mypy code/src/model_checker/theory_lib/ --strict
 # Target: 0 errors, >95% coverage
 ```
 
@@ -125,7 +125,7 @@ Tasks:
 
 Testing:
 ```bash
-pytest Code/src/model_checker/theory_lib/tests/ --cov=model_checker.theory_lib --cov-report=term-missing
+pytest code/src/model_checker/theory_lib/tests/ --cov=model_checker.theory_lib --cov-report=term-missing
 # Target: >90% coverage
 ```
 
@@ -160,7 +160,7 @@ Tasks:
 Testing:
 ```bash
 # Test error conditions and messages
-pytest Code/src/model_checker/theory_lib/tests/ -k "test_error"
+pytest code/src/model_checker/theory_lib/tests/ -k "test_error"
 # Verify helpful error messages in failure scenarios
 ```
 
@@ -195,9 +195,9 @@ Tasks:
 Testing:
 ```bash
 # Performance benchmarks
-python Code/benchmarks/theory_performance.py
+python code/benchmarks/theory_performance.py
 # Integration testing
-pytest Code/src/model_checker/theory_lib/tests/integration/
+pytest code/src/model_checker/theory_lib/tests/integration/
 ```
 
 **Expected Outcome**: Production-ready theory library with excellent developer experience

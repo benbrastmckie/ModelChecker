@@ -144,7 +144,7 @@ Adapt exclusion's three-condition semantics to intensional context:
 **Context**: Adapt exclusion's `WitnessRegistry` (lines 18-126 in exclusion/semantic/registry.py) to bimodal's intensional function signatures. Registry must manage lifecycle of witness predicates with correct Z3 function types.
 
 Tasks:
-- [ ] Create `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/` subdirectory
+- [ ] Create `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/` subdirectory
 - [ ] Create `witness_registry.py` with `WitnessRegistry` class
   - [ ] `__init__(self, N: int, M: int)` - Store BitVec size and time bound
   - [ ] `register_witness_predicates(formula_str: str) -> Tuple[z3.FuncDeclRef, z3.FuncDeclRef]`
@@ -160,14 +160,14 @@ Tasks:
     - Raise `WitnessPredicateError` if not registered
   - [ ] `get_all_predicates() -> Dict[str, z3.FuncDeclRef]` - Return copy of predicates
   - [ ] `clear() -> None` - Clear all registries and caches
-- [ ] Create error classes in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/errors.py` if not exist:
+- [ ] Create error classes in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/errors.py` if not exist:
   - [ ] `BimodalWitnessRegistryError`
   - [ ] `BimodalWitnessPredicateError`
 
 Testing:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
 ```
 
 **Test Requirements**:
@@ -219,7 +219,7 @@ Tasks:
 Testing:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py -v
 ```
 
 **Test Requirements**:
@@ -270,7 +270,7 @@ Tasks:
 Testing:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_model.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_model.py -v
 ```
 
 **Test Requirements**:
@@ -297,7 +297,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Objective**: Replace direct quantification with witness predicates in negation operator
 **Complexity**: High
 
-**Context**: Modify `NegationOperator.false_at()` in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/operators.py` (lines 72-81) and `NecessityOperator.false_at()` (lines 408-428) which use existential quantification.
+**Context**: Modify `NegationOperator.false_at()` in `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/operators.py` (lines 72-81) and `NecessityOperator.false_at()` (lines 408-428) which use existential quantification.
 
 Tasks:
 - [ ] Update `BimodalSemantics.__init__()` in semantic.py to initialize witness components:
@@ -324,7 +324,7 @@ Tasks:
 Testing:
 ```bash
 # TDD: Write tests BEFORE implementation
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_negation_witnesses.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_negation_witnesses.py -v
 ```
 
 **Test Requirements**:
@@ -342,7 +342,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Regression Tests**:
 ```bash
 # Run all existing bimodal tests to ensure no breakage
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 ```
 
 **Validation**:
@@ -384,7 +384,7 @@ Tasks:
 Testing (if witnesses integrated):
 ```bash
 # Performance benchmarks
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py -v --benchmark
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witnesses.py -v --benchmark
 ```
 
 **Test Requirements** (if integrated):
@@ -424,7 +424,7 @@ Tasks:
   - [ ] `test_empty_world_interval` - Graceful handling of edge case
 - [ ] Run full bimodal test suite:
   ```bash
-  PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
+  PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
   ```
 - [ ] Verify coverage targets:
   - [ ] witness_registry.py: >90%
@@ -496,19 +496,19 @@ Every phase must:
 
 ```bash
 # Phase-specific unit tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py -v
 
 # All witness tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness*.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness*.py -v
 
 # Full bimodal suite with coverage
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v --cov=model_checker.theory_lib.bimodal --cov-report=term-missing
 
 # Integration tests only
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
 
 # Regression check (all existing tests)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
 ```
 
 ---
@@ -522,13 +522,13 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ -v
 - [ ] Inline comments explaining witness semantics adaptation
 
 ### Architecture Documentation
-- [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/README.md` with witness section
+- [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/README.md` with witness section
 - [ ] Document witness function signatures (h and y)
 - [ ] Explain intensional vs. hyperintensional differences
 - [ ] Add examples of witness-based negation
 
 ### User-Facing Documentation
-- [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Docs/architecture/README.md` if architecture changes
+- [ ] Update `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/docs/architecture/README.md` if architecture changes
 - [ ] Note: Do NOT create new .md files unless explicitly requested
 
 ---
@@ -661,18 +661,18 @@ Each phase should have 1-2 commits maximum (test + implementation).
 ## Appendix: Reference Files
 
 ### Exclusion Theory Reference (Pattern Source)
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/semantic/registry.py` - Witness registry pattern
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/semantic/constraints.py` - Constraint generation pattern
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/semantic/model.py` - Model wrapper pattern
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/semantic/core.py` - Integration pattern
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/semantic/registry.py` - Witness registry pattern
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/semantic/constraints.py` - Constraint generation pattern
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/semantic/model.py` - Model wrapper pattern
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/semantic/core.py` - Integration pattern
 
 ### Bimodal Theory Files to Modify
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic.py` - Lines 1-2370, focus on `__init__` and `build_frame_constraints`
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/operators.py` - Lines 42-105 (NegationOperator), 358-428 (NecessityOperator)
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic.py` - Lines 1-2370, focus on `__init__` and `build_frame_constraints`
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/operators.py` - Lines 42-105 (NegationOperator), 358-428 (NecessityOperator)
 
 ### Testing Reference
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/exclusion/tests/unit/test_witness_registry.py` - Test pattern for registry
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/docs/core/TESTING.md` - TDD requirements and standards
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/exclusion/tests/unit/test_witness_registry.py` - Test pattern for registry
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/docs/core/TESTING.md` - TDD requirements and standards
 - `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/CLAUDE.md` - Project standards
 
 ---

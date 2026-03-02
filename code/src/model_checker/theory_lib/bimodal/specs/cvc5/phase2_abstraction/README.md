@@ -84,7 +84,7 @@ Stage 1: Interface & Capabilities (2 days)
 ### New Files Created
 
 ```
-Code/src/model_checker/solver/
+code/src/model_checker/solver/
 ├── interface.py              (~250 LOC)  # SolverInterface ABC
 ├── capabilities.py           (~140 LOC)  # CapabilityMatrix
 ├── z3_adapter.py            (~350 LOC)  # Z3 implementation
@@ -106,7 +106,7 @@ Code/src/model_checker/solver/
 
 ### Modified Files
 
-- `Code/src/model_checker/settings/settings.py` - Add smt_solver configuration
+- `code/src/model_checker/settings/settings.py` - Add smt_solver configuration
 
 ## Critical Standards
 
@@ -136,7 +136,7 @@ from .capabilities import CapabilityMatrix
 raise ValueError(
     f"Unknown solver: '{solver_name}'. "
     f"Available solvers: z3, cvc5\n"
-    f"To add a solver, see Code/docs/architecture/SOLVER_ABSTRACTION.md"
+    f"To add a solver, see code/docs/architecture/SOLVER_ABSTRACTION.md"
 )
 ```
 
@@ -150,10 +150,10 @@ raise ValueError(
 
 ```bash
 # Run all Phase 2 tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ -v
 
 # Coverage check (required >90%)
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ \
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ \
     --cov=model_checker.solver \
     --cov-report=term-missing \
     --cov-fail-under=90
@@ -187,9 +187,9 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ \
 ## Resources
 
 ### Documentation
-- [CODE_STANDARDS.md](../../../../../../Code/docs/core/CODE_STANDARDS.md)
-- [TESTING.md](../../../../../../Code/docs/core/TESTING.md)
-- [ARCHITECTURE.md](../../../../../../Code/docs/core/ARCHITECTURE.md)
+- [CODE_STANDARDS.md](../../../../../../code/docs/core/CODE_STANDARDS.md)
+- [TESTING.md](../../../../../../code/docs/core/TESTING.md)
+- [ARCHITECTURE.md](../../../../../../code/docs/core/ARCHITECTURE.md)
 
 ### Reports
 - Report 011: Z3→CVC5 API Translation Patterns

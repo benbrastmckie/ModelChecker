@@ -176,7 +176,7 @@ PYTHONPATH=src SMT_SOLVER=z3 ./dev_cli.py src/model_checker/theory_lib/bimodal/e
 **Integration Tests - Should All Pass Now (GREEN)**:
 ```bash
 # Integration tests written in Stage 1 should now pass
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/test_bimodal_solver_interface.py -v
 
 # Expected: All tests PASS (GREEN state achieved)
 ```
@@ -204,7 +204,7 @@ PYTHONPATH=src SMT_SOLVER=z3 ./dev_cli.py src/model_checker/theory_lib/bimodal/e
 **Unit Tests - Iteration**:
 ```bash
 # Test iterate.py functionality
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_iterate.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_iterate.py -v
 
 # Expected: All tests pass with adapter
 ```
@@ -212,8 +212,8 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Import Verification**:
 ```bash
 # Ensure no direct CVC5 imports
-grep -n "import cvc5" Code/src/model_checker/theory_lib/bimodal/examples.py
-grep -n "import cvc5" Code/src/model_checker/theory_lib/bimodal/iterate.py
+grep -n "import cvc5" code/src/model_checker/theory_lib/bimodal/examples.py
+grep -n "import cvc5" code/src/model_checker/theory_lib/bimodal/iterate.py
 
 # Expected: No matches
 ```
@@ -221,7 +221,7 @@ grep -n "import cvc5" Code/src/model_checker/theory_lib/bimodal/iterate.py
 **Settings Verification**:
 ```bash
 # Test solver selection
-PYTHONPATH=Code/src python3 -c "
+PYTHONPATH=code/src python3 -c "
 from model_checker.settings import settings
 from model_checker.solver import SolverFactory
 import os

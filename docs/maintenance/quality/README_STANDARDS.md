@@ -6,9 +6,9 @@
 
 This document defines the standards for README.md files in the ModelChecker repository. The goal is to ensure **comprehensive, relevant documentation** that serves users effectively without unnecessary rigidity. Each README should cover all essential topics for its component while avoiding extraneous content.
 
-## Special Exception: Code/README.md
+## Special Exception: code/README.md
 
-The `/Code/README.md` file is **exempt** from these standards because it serves as the package description on PyPI. This file:
+The `/code/README.md` file is **exempt** from these standards because it serves as the package description on PyPI. This file:
 
 - Does not require navigation links
 - Does not require a file tree

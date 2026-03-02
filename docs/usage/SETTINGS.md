@@ -328,8 +328,8 @@ settings = {
 ### Technical Documentation
 - [Settings Architecture](../architecture/SETTINGS.md) - Complete system design and precedence rules
 - [Pipeline Architecture](../architecture/PIPELINE.md) - How settings affect the processing pipeline
-- [Settings Implementation](../../Code/src/model_checker/settings/README.md) - API reference
-- [Theory Defaults](../../Code/src/model_checker/theory_lib/README.md) - Theory-specific settings
+- [Settings Implementation](../../code/src/model_checker/settings/README.md) - API reference
+- [Theory Defaults](../../code/src/model_checker/theory_lib/README.md) - Theory-specific settings
 
 ---
 

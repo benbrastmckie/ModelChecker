@@ -1,7 +1,7 @@
 '''
 file specifies premises, conclusions, and settings.
 running the file finds a model and prints the result.
-to test from the Code/ directory, run: python -m src.model_checker 
+to test from the code/ directory, run: python -m src.model_checker 
 '''
 
 import sys

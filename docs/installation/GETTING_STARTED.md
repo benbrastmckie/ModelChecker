@@ -1,6 +1,6 @@
 # Getting Started with ModelChecker
 
-[← Back to Installation](README.md) | [Basic Installation →](BASIC_INSTALLATION.md) | [Technical Docs →](../../Code/docs/README.md)
+[← Back to Installation](README.md) | [Basic Installation →](BASIC_INSTALLATION.md) | [Technical Docs →](../../code/docs/README.md)
 
 This guide walks you through the basics of using ModelChecker to explore logical theories and test formulas.
 
@@ -358,7 +358,7 @@ unit_tests = {**ext_cm_examples, **ext_th_examples}
 # Used by: ./run_tests.py --examples logos
 ```
 
-For more detailed information, see the [Unit Tests Documentation](Code/UNIT_TESTS.md).
+For more detailed information, see the [Unit Tests Documentation](code/UNIT_TESTS.md).
 
 #### 4. `general_settings` (Optional)
 
@@ -493,33 +493,33 @@ Each theory has unique operators and capabilities:
 - Full hyperintensional semantics
 - Counterfactual operators: `\boxright`, `\diamondright`
 - Constitutive operators: `\equiv`, `\sqsubseteq`
-- See: [Logos Documentation](../Code/src/model_checker/theory_lib/logos/README.md)
+- See: [Logos Documentation](../code/src/model_checker/theory_lib/logos/README.md)
 
 #### Exclusion Theory
 
 - Unilateral negation semantics
 - Exclusion operator: `\exclude`
 - Solves the False Premise Problem
-- See: [Exclusion Documentation](../Code/src/model_checker/theory_lib/exclusion/README.md)
+- See: [Exclusion Documentation](../code/src/model_checker/theory_lib/exclusion/README.md)
 
 #### Imposition Theory
 
 - Fine's counterfactual semantics
 - Specialized for counterfactual reasoning
-- See: [Imposition Documentation](../Code/src/model_checker/theory_lib/imposition/README.md)
+- See: [Imposition Documentation](../code/src/model_checker/theory_lib/imposition/README.md)
 
 #### Bimodal Theory
 
 - Combines temporal and modal operators
 - Past/Future: `P`, `F`
 - Necessity/Possibility: `\Box`, `\Diamond`
-- See: [Bimodal Documentation](../Code/src/model_checker/theory_lib/bimodal/README.md)
+- See: [Bimodal Documentation](../code/src/model_checker/theory_lib/bimodal/README.md)
 
 ## Next Steps
 
 ### Essential Documentation
 
-**In this directory (Docs/):**
+**In this directory (docs/):**
 
 - [Installation Guide](INSTALLATION.md) - Platform-specific setup
 - [Claude Code Guide](CLAUDE_CODE.md) - AI-assisted development and installation
@@ -530,14 +530,14 @@ Each theory has unique operators and capabilities:
 
 **Theory Documentation:**
 
-- [Theory Library Overview](../Code/src/model_checker/theory_lib/README.md)
-- [Usage Guide](../Code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)
-- [Examples Guide](../Code/src/model_checker/theory_lib/docs/EXAMPLES.md)
+- [Theory Library Overview](../code/src/model_checker/theory_lib/README.md)
+- [Usage Guide](../code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)
+- [Examples Guide](../code/src/model_checker/theory_lib/docs/EXAMPLES.md)
 
 **Framework Documentation:**
 
-- [Core Framework](../Code/src/model_checker/README.md) - Architecture and design
-- [API Reference](../Code/src/model_checker/README.md) - Framework API documentation
+- [Core Framework](../code/src/model_checker/README.md) - Architecture and design
+- [API Reference](../code/src/model_checker/README.md) - Framework API documentation
 
 ### Advanced Topics
 
@@ -554,4 +554,4 @@ Each theory has unique operators and capabilities:
 - Create an issue on [GitHub](https://github.com/benbrastmckie/ModelChecker/issues)
 ---
 
-[← Back to Docs](README.md) | [Installation →](INSTALLATION.md) | [Technical Docs →](../Code/docs/README.md)
+[← Back to Docs](README.md) | [Installation →](INSTALLATION.md) | [Technical Docs →](../code/docs/README.md)

@@ -410,8 +410,8 @@ All original functionality has been preserved with improved organization and mai
 ## See Also
 
 ### Conceptual Documentation
-- **[Architecture Overview](../../../../Docs/architecture/ARCHITECTURE.md)** - System design philosophy
-- **[Z3 Background](../../../../Docs/theory/Z3_BACKGROUND.md)** - SMT solver concepts
+- **[Architecture Overview](../../../../docs/architecture/ARCHITECTURE.md)** - System design philosophy
+- **[Z3 Background](../../../../docs/theory/Z3_BACKGROUND.md)** - SMT solver concepts
 
 ### Technical Documentation
 - **[Technical Architecture](../../../docs/ARCHITECTURE.md)** - Utility subsystem architecture

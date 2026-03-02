@@ -16,7 +16,7 @@ This project uses a **single workflow** (`release.yml`) that handles ALL release
 ### Using run_update.py (Recommended)
 
 ```bash
-python Code/run_update.py
+python code/run_update.py
 ```
 
 This script will:
@@ -28,9 +28,9 @@ This script will:
 ### Manual Release
 
 ```bash
-# 1. Update version in Code/pyproject.toml
+# 1. Update version in code/pyproject.toml
 # 2. Commit and tag
-git add Code/pyproject.toml
+git add code/pyproject.toml
 git commit -m "Release version X.Y.Z"
 git tag vX.Y.Z
 git push origin main

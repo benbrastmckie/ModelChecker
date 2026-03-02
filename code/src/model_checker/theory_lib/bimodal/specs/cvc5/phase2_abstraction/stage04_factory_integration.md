@@ -107,7 +107,7 @@ class TestSolverFactory(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_factory.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_factory.py -v
 ```
 
 **Expected**: FAIL (factory.py does not exist)
@@ -187,7 +187,7 @@ class SolverFactory:
             raise ValueError(
                 f"Unknown solver: '{solver_name}'. "
                 f"Available solvers: {available}\n"
-                f"To add a solver, see Code/docs/architecture/SOLVER_ABSTRACTION.md"
+                f"To add a solver, see code/docs/architecture/SOLVER_ABSTRACTION.md"
             )
 
         # Get adapter class
@@ -207,7 +207,7 @@ class SolverFactory:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/unit/test_factory.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/unit/test_factory.py -v
 ```
 
 **Expected**: ALL tests pass (GREEN state)
@@ -304,7 +304,7 @@ class TestSettingsSolverIntegration(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/settings/tests/test_settings_solver.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/settings/tests/test_settings_solver.py -v
 ```
 
 **Expected**: FAIL (settings not updated yet)
@@ -367,7 +367,7 @@ class Settings:
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/settings/tests/test_settings_solver.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/settings/tests/test_settings_solver.py -v
 ```
 
 **Expected**: ALL tests pass (GREEN state)
@@ -526,7 +526,7 @@ class TestAdapterEquivalence(unittest.TestCase):
 
 **Testing Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/integration/test_adapter_equivalence.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/integration/test_adapter_equivalence.py -v
 ```
 
 **Expected**: Tests pass (validates both adapters work correctly)
@@ -551,7 +551,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/integration/test_
 
 **Coverage Command**:
 ```bash
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ \
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ \
     --cov=model_checker.solver \
     --cov-report=term-missing \
     --cov-fail-under=90

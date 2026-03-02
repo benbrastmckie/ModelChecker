@@ -2,7 +2,7 @@
 Theory template for ModelChecker semantic theories.
 
 Replace 'template' with your theory name throughout this file.
-Follow Code/maintenance/ standards for all implementation details.
+Follow code/maintenance/ standards for all implementation details.
 """
 
 from typing import Dict, Any, List, Optional

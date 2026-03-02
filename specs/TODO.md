@@ -8,7 +8,9 @@ next_project_number: 17
 
 ### 16. Update all references to renamed lowercase directories
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](016_update_references_to_renamed_lowercase_directories/summaries/implementation-summary-20260302.md)
 - **Language**: general
 - **Research**: [research-001.md](016_update_references_to_renamed_lowercase_directories/reports/research-001.md)
 - **Plan**: [implementation-001.md](016_update_references_to_renamed_lowercase_directories/plans/implementation-001.md)

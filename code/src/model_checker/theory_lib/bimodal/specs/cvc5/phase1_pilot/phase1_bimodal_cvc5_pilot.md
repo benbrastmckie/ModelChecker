@@ -267,21 +267,21 @@ solver.setOption("enum-inst", "true")   # Enumerative instantiation
 ```bash
 # Phase 1: Semantic Core Migration
 # Step 1: Write test FIRST (RED state)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
 # Expected: FAIL (semantic.py still uses Z3)
 
 # Step 2: Migrate semantic.py to CVC5
 # ... make changes ...
 
 # Step 3: Run test - verify GREEN
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v
 # Expected: PASS
 
 # Step 4: Refactor while maintaining GREEN
 # ... improve code quality ...
 
 # Step 5: Verify all tests still pass
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/ -v
 
 # Repeat for each phase: operators, witness, integration, documentation
 ```
@@ -289,13 +289,13 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 **Test Coverage Requirements** (per TESTING.md §3.1):
 ```bash
 # Overall coverage >85%
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/ \
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ \
     --cov=model_checker.theory_lib.bimodal \
     --cov-report=term-missing \
     --cov-fail-under=85
 
 # Witness system coverage >90% (critical path)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py \
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py \
     --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints \
     --cov=model_checker.theory_lib.bimodal.semantic.witness_registry \
     --cov-report=term-missing \
@@ -351,7 +351,7 @@ nix-shell ../shell.nix --run "python3 benchmark_cvc5_simple.py"
 #### Testing
 ```bash
 # TDD cycle for semantic core
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.semantic --cov-report=term-missing
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.semantic --cov-report=term-missing
 ```
 
 **Success Criteria**:
@@ -398,7 +398,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 #### Testing
 ```bash
 # TDD cycle for operators
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.operators --cov-report=term-missing
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_operators_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.operators --cov-report=term-missing
 ```
 
 **Success Criteria**:
@@ -447,7 +447,7 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 #### Testing
 ```bash
 # TDD cycle for witness system (>90% coverage required)
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-report=term-missing --cov-fail-under=90
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_cvc5.py -v --cov=model_checker.theory_lib.bimodal.semantic.witness_constraints --cov=model_checker.theory_lib.bimodal.semantic.witness_registry --cov-report=term-missing --cov-fail-under=90
 ```
 
 **Success Criteria**:
@@ -494,10 +494,10 @@ PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/unit/
 #### Testing
 ```bash
 # Integration testing
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/integration/ -v
 
 # End-to-end testing
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/bimodal/tests/e2e/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/e2e/ -v
 
 # Performance validation
 cd Code
@@ -532,13 +532,13 @@ nix-shell ../shell.nix --run "python3 benchmark_cvc5_simple.py"
   - No historical references
 
 - [ ] **Update bimodal README**
-  - File: `Code/src/model_checker/theory_lib/bimodal/README.md`
+  - File: `code/src/model_checker/theory_lib/bimodal/README.md`
   - Add: CVC5 usage instructions
   - Document: MBQI+enum-inst requirement
   - No historical references
 
 - [ ] **Document abstraction design insights**
-  - File: `Code/src/model_checker/theory_lib/bimodal/specs/cvc5/phase1_learnings.md`
+  - File: `code/src/model_checker/theory_lib/bimodal/specs/cvc5/phase1_learnings.md`
   - Content:
     - Key abstraction points identified
     - Solver-agnostic patterns needed

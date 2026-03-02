@@ -440,10 +440,10 @@ DEFAULT_GENERAL_SETTINGS = {
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Output Package Documentation](../../Code/src/model_checker/output/README.md) - Complete API reference
-- [Output Manager](../../Code/src/model_checker/output/manager.py) - Output orchestration
-- [Formatters](../../Code/src/model_checker/output/formatters/) - Format implementations
-- [Save Strategies](../../Code/src/model_checker/output/strategies/) - Save strategy implementations
+- [Output Package Documentation](../../code/src/model_checker/output/README.md) - Complete API reference
+- [Output Manager](../../code/src/model_checker/output/manager.py) - Output orchestration
+- [Formatters](../../code/src/model_checker/output/formatters/) - Format implementations
+- [Save Strategies](../../code/src/model_checker/output/strategies/) - Save strategy implementations
 
 ## See Also
 
@@ -454,7 +454,7 @@ For detailed implementation information, see:
 - [Models Structure](MODELS.md) - Model data formatting
 
 ### Technical Documentation
-- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
+- [API Reference](../../code/src/model_checker/README.md) - Framework APIs
 - [Usage Guide](../usage/OUTPUT.md) - Using output features
 
 ---

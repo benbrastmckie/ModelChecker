@@ -47,7 +47,7 @@ Key insights this pattern provides:
 - **Comparative Analysis**: Run multiple theories on the same examples side-by-side
 - **Extensibility**: Add new theories without modifying core infrastructure
 
-For detailed architectural patterns, see [Technical Architecture](../../Code/docs/README.md). For the theoretical foundations of model checking, see [Hyperintensional Semantics](../theory/HYPERINTENSIONAL.md).
+For detailed architectural patterns, see [Technical Architecture](../../code/docs/README.md). For the theoretical foundations of model checking, see [Hyperintensional Semantics](../theory/HYPERINTENSIONAL.md).
 
 ## BuildModule Architecture
 
@@ -286,7 +286,7 @@ Once generated, this project structure serves as your foundation for semantic th
 - **Test incrementally**: Use the provided test suite to validate your changes
 - **Share your work**: The complete structure ensures others can understand and use your theory
 
-For guidance on theory development, see the [Theory Development Guide](../../Code/docs/development/README.md).
+For guidance on theory development, see the [Theory Development Guide](../../code/docs/development/README.md).
 
 ### Module Initialization
 
@@ -617,10 +617,10 @@ Each stage transforms the logical problem: strings are parsed into ASTs (with at
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Builder Package Documentation](../../Code/src/model_checker/builder/README.md) - Complete API reference
-- [BuildModule Implementation](../../Code/src/model_checker/builder/module.py) - Module loading and validation
-- [BuildExample Implementation](../../Code/src/model_checker/builder/example.py) - Example processing logic
-- [BuildProject Implementation](../../Code/src/model_checker/builder/project.py) - Project-level orchestration
+- [Builder Package Documentation](../../code/src/model_checker/builder/README.md) - Complete API reference
+- [BuildModule Implementation](../../code/src/model_checker/builder/module.py) - Module loading and validation
+- [BuildExample Implementation](../../code/src/model_checker/builder/example.py) - Example processing logic
+- [BuildProject Implementation](../../code/src/model_checker/builder/project.py) - Project-level orchestration
 
 ## See Also
 
@@ -632,8 +632,8 @@ For detailed implementation information, see:
 - [Model Structure](MODELS.md) - Model representation
 
 ### Technical Documentation
-- [Development Guide](../../Code/docs/development/README.md) - Creating new theories
-- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
+- [Development Guide](../../code/docs/development/README.md) - Creating new theories
+- [API Reference](../../code/src/model_checker/README.md) - Framework APIs
 
 ---
 

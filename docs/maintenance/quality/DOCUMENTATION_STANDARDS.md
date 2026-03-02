@@ -32,7 +32,7 @@ When showing directory structures in documentation, ensure proper comment alignm
 
 ```markdown
 # CORRECT - Comments properly aligned
-Docs/
+docs/
 ├── README.md                       # This file - documentation hub
 ├── installation/                   # Modular installation guides
 │   ├── BASIC_INSTALLATION.md       # Standard pip installation guide
@@ -40,7 +40,7 @@ Docs/
 └── GETTING_STARTED.md              # Quick start tutorial for new users
 
 # INCORRECT - Comments too close to file names
-Docs/
+docs/
 ├── README.md # This file
 ├── installation/ # Guides
 └── GETTING_STARTED.md # Tutorial
@@ -266,9 +266,9 @@ All non-README documentation must have a table of contents with links:
 - [Audience Guidelines](AUDIENCE.md) - Writing for interdisciplinary audiences
 
 ### Example Documents Following These Standards
-- [BUILDER.md](../../Docs/architecture/BUILDER.md) - Demonstrates professional flowcharts
-- [PIPELINE.md](../../Docs/PIPELINE.md) - Shows component relationships
-- [ITERATE.md](../../Docs/architecture/ITERATE.md) - Complex technical documentation
+- [BUILDER.md](../../docs/architecture/BUILDER.md) - Demonstrates professional flowcharts
+- [PIPELINE.md](../../docs/PIPELINE.md) - Shows component relationships
+- [ITERATE.md](../../docs/architecture/ITERATE.md) - Complex technical documentation
 
 ---
 

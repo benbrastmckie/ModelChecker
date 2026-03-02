@@ -321,17 +321,17 @@ The library includes comprehensive unit tests:
 
 ```bash
 # Run all theory tests
-pytest Code/src/model_checker/theory_lib/tests/ -v
+pytest code/src/model_checker/theory_lib/tests/ -v
 
 # Run specific theory tests
-pytest Code/src/model_checker/theory_lib/tests/unit/exclusion/ -v
-pytest Code/src/model_checker/theory_lib/tests/unit/imposition/ -v
+pytest code/src/model_checker/theory_lib/tests/unit/exclusion/ -v
+pytest code/src/model_checker/theory_lib/tests/unit/imposition/ -v
 
 # Run error handling tests
-pytest Code/src/model_checker/theory_lib/tests/unit/test_error_handling.py -v
+pytest code/src/model_checker/theory_lib/tests/unit/test_error_handling.py -v
 
 # Run integration tests
-pytest Code/src/model_checker/theory_lib/tests/integration/ -v
+pytest code/src/model_checker/theory_lib/tests/integration/ -v
 ```
 
 ### Validation Examples

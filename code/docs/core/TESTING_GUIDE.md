@@ -114,7 +114,7 @@ def test_bug_fix_loader_handles_malformed_syntax_gracefully():
 ### 2.1 Test Directory Structure
 
 ```
-Code/
+code/
 ├── tests/                         # Top-level test discovery
 │   ├── unit/                      # Unit tests for packages
 │   └── integration/               # Cross-package integration tests
@@ -151,13 +151,13 @@ The ModelChecker project uses two complementary test approaches:
 **Method 1: pytest (Primary)**
 ```bash
 # From project root, run all tests
-PYTHONPATH=Code/src pytest Code/tests/ -v
+PYTHONPATH=code/src pytest code/tests/ -v
 
 # Run specific theory tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/logos/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/ -v
 
 # Run with coverage
-PYTHONPATH=Code/src pytest --cov=model_checker --cov-report=term-missing
+PYTHONPATH=code/src pytest --cov=model_checker --cov-report=term-missing
 ```
 
 **Method 2: dev_cli.py (Development)**
@@ -258,7 +258,7 @@ The ModelChecker uses a **dual testing methodology** to ensure comprehensive val
 **Method 1: pytest (Primary Test Runner)**
 - **When**: Before every commit, during development
 - **Coverage**: All unit tests, integration tests, and theory tests
-- **Command**: `PYTHONPATH=Code/src pytest Code/tests/ -v`
+- **Command**: `PYTHONPATH=code/src pytest code/tests/ -v`
 
 **Method 2: dev_cli.py (Development Workflow)**
 - **When**: During feature development, interactive testing
@@ -269,28 +269,28 @@ The ModelChecker uses a **dual testing methodology** to ensure comprehensive val
 
 ```bash
 # Run all tests with verbose output
-PYTHONPATH=Code/src pytest Code/tests/ -v
+PYTHONPATH=code/src pytest code/tests/ -v
 
 # Run specific theory tests
-PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/logos/tests/unit/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/unit/ -v
 
 # Run with coverage report
-PYTHONPATH=Code/src pytest --cov=model_checker --cov-report=term-missing --cov-report=html
+PYTHONPATH=code/src pytest --cov=model_checker --cov-report=term-missing --cov-report=html
 
 # Run specific test file
-PYTHONPATH=Code/src pytest Code/tests/unit/test_semantic.py -v
+PYTHONPATH=code/src pytest code/tests/unit/test_semantic.py -v
 
 # Run specific test function
-PYTHONPATH=Code/src pytest Code/tests/unit/test_semantic.py::test_conjunction_evaluates_correctly -v
+PYTHONPATH=code/src pytest code/tests/unit/test_semantic.py::test_conjunction_evaluates_correctly -v
 
 # Run tests matching pattern
-PYTHONPATH=Code/src pytest -k "test_logos" -v
+PYTHONPATH=code/src pytest -k "test_logos" -v
 
 # Stop on first failure
-PYTHONPATH=Code/src pytest -x -v
+PYTHONPATH=code/src pytest -x -v
 
 # Show local variables on failure
-PYTHONPATH=Code/src pytest -l -v
+PYTHONPATH=code/src pytest -l -v
 ```
 
 ### 4.3 Continuous Integration
@@ -466,7 +466,7 @@ def test_theory_selection_loads_correct_semantics():
 **Coverage Measurement**:
 ```bash
 # Generate coverage report
-PYTHONPATH=Code/src pytest --cov=model_checker --cov-report=term-missing --cov-report=html
+PYTHONPATH=code/src pytest --cov=model_checker --cov-report=term-missing --cov-report=html
 
 # View HTML report
 # Open htmlcov/index.html in browser
@@ -614,12 +614,12 @@ def test_regression_issue_73_package_loading():
 
 | Task | Command |
 |------|---------|
-| Run all tests | `PYTHONPATH=Code/src pytest Code/tests/ -v` |
-| Run specific theory | `PYTHONPATH=Code/src pytest Code/src/model_checker/theory_lib/logos/tests/ -v` |
-| Check coverage | `PYTHONPATH=Code/src pytest --cov=model_checker --cov-report=term-missing` |
-| Run one test | `PYTHONPATH=Code/src pytest path/to/test.py::test_function_name -v` |
-| Stop on first failure | `PYTHONPATH=Code/src pytest -x` |
-| Show local vars | `PYTHONPATH=Code/src pytest -l` |
+| Run all tests | `PYTHONPATH=code/src pytest code/tests/ -v` |
+| Run specific theory | `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/ -v` |
+| Check coverage | `PYTHONPATH=code/src pytest --cov=model_checker --cov-report=term-missing` |
+| Run one test | `PYTHONPATH=code/src pytest path/to/test.py::test_function_name -v` |
+| Stop on first failure | `PYTHONPATH=code/src pytest -x` |
+| Show local vars | `PYTHONPATH=code/src pytest -l` |
 
 ### TDD Workflow Quick Reference
 

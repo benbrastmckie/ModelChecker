@@ -214,8 +214,8 @@ debug_info = model_structure.debug_witnesses("\\\\exclude A")
 
 ### Research Documentation
 - **[Evolution Guide](../docs/EVOLUTION.md)**: Complete development history
-- **[Implementation Summary](../../../../../Docs/theory/IMPLEMENTATION.md)**: Key outcomes and lessons
-- **[Architecture Analysis](../../../../Docs/architecture/README.md)**: Three-level framework explanation
+- **[Implementation Summary](../../../../../docs/theory/IMPLEMENTATION.md)**: Key outcomes and lessons
+- **[Architecture Analysis](../../../../docs/architecture/README.md)**: Three-level framework explanation
 
 ## Future Extensions
 

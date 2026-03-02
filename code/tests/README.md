@@ -127,16 +127,16 @@ The `dev_cli.py` tool can directly test theory examples without creating project
 
 ```bash
 # Test main theory examples (use full paths)
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/examples.py
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/exclusion/examples.py
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/imposition/examples.py
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/bimodal/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/logos/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/exclusion/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/imposition/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/bimodal/examples.py
 
 # Test subtheory examples (e.g., Logos subtheories)
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/modal/examples.py
-./dev_cli.py /path/to/Code/src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+./dev_cli.py /path/to/code/src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
 
 # Run with additional options
 ./dev_cli.py -p path/to/examples.py       # Show constraints

@@ -793,9 +793,9 @@ After extensive research into Z3 quantification techniques and deep analysis of 
 - [Stack Overflow: Constraining Uninterpreted Functions](https://stackoverflow.com/questions/39776834/constraining-the-choice-of-models-for-uninterpreted-functions-in-z3)
 
 ### Codebase Files
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/operators.py` (lines 384-463)
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py` (lines 96-111)
-- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py`
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/operators.py` (lines 384-463)
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py` (lines 96-111)
+- `/home/benjamin/Documents/Philosophy/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py`
 
 ### Related Reports
 - `001_box_true_at_approaches.md` - Original analysis of 5 approaches

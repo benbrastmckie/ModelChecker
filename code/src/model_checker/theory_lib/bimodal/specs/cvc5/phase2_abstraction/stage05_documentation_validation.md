@@ -7,7 +7,7 @@
 - **Dependencies**: Stage 1-4 complete (entire abstraction layer implemented)
 - **Files**:
   - `solver/README.md` (~300 LOC expected)
-  - `Code/docs/architecture/SOLVER_ABSTRACTION.md` (~400 LOC expected)
+  - `code/docs/architecture/SOLVER_ABSTRACTION.md` (~400 LOC expected)
   - `specs/reports/015_abstraction_layer_results.md` (~500 LOC expected)
 - **Achievement**: **PHASE 2 COMPLETE**
 - **Risk**: Low (documentation and validation)
@@ -133,7 +133,7 @@ Install CVC5:
 pip install cvc5
 ```
 
-For NixOS, see `Code/docs/development/CVC5_CONFIGURATION.md`.
+For NixOS, see `code/docs/development/CVC5_CONFIGURATION.md`.
 
 ### "Unknown solver: 'xyz'"
 
@@ -152,7 +152,7 @@ solver.setOption("enum-inst", "true")
 
 ## Adding New Solvers
 
-See `Code/docs/architecture/SOLVER_ABSTRACTION.md` for guide on
+See `code/docs/architecture/SOLVER_ABSTRACTION.md` for guide on
 implementing new solver adapters.
 
 ## Standards Compliance
@@ -166,7 +166,7 @@ implementing new solver adapters.
 ### Task 2: Create Architecture Documentation (1.5 hours)
 **Duration**: 1.5 hours
 
-- [ ] Create `Code/docs/architecture/SOLVER_ABSTRACTION.md`
+- [ ] Create `code/docs/architecture/SOLVER_ABSTRACTION.md`
 - [ ] Document abstraction design rationale
 - [ ] Explain adapter pattern
 - [ ] Document Phase 1 patterns applied
@@ -385,8 +385,8 @@ If new solvers require capabilities not in current interface:
 
 - Phase 1 Plan: `bimodal/specs/cvc5/phase1_pilot/`
 - Phase 2 Plan: `bimodal/specs/cvc5/phase2_abstraction/phase2_abstraction_layer_design.md`
-- CODE_STANDARDS: `Code/docs/core/CODE_STANDARDS.md`
-- TESTING: `Code/docs/core/TESTING.md`
+- CODE_STANDARDS: `code/docs/core/CODE_STANDARDS.md`
+- TESTING: `code/docs/core/TESTING.md`
 ```
 
 ### Task 3: Create Phase 2 Results Report (1 hour)
@@ -560,7 +560,7 @@ Not required for current use cases:
 
 Verified throughout:
 ```bash
-$ grep -r "@" Code/src/model_checker/solver/*.py
+$ grep -r "@" code/src/model_checker/solver/*.py
 # No decorator matches (only docstrings)
 ```
 
@@ -583,7 +583,7 @@ Sample error message:
 ```
 ValueError: Unknown solver: 'invalid'.
 Available solvers: cvc5, z3
-To add a solver, see Code/docs/architecture/SOLVER_ABSTRACTION.md
+To add a solver, see code/docs/architecture/SOLVER_ABSTRACTION.md
 ```
 
 ## Recommendations for Phase 3
@@ -694,19 +694,19 @@ Create guide:
 **Test Commands**:
 ```bash
 # Full test suite
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ -v
 
 # Coverage check
-PYTHONPATH=Code/src pytest Code/src/model_checker/solver/tests/ \
+PYTHONPATH=code/src pytest code/src/model_checker/solver/tests/ \
     --cov=model_checker.solver \
     --cov-report=term-missing \
     --cov-fail-under=90
 
 # NO decorators verification
-grep -r "@" Code/src/model_checker/solver/*.py | grep -v "docstring"
+grep -r "@" code/src/model_checker/solver/*.py | grep -v "docstring"
 
 # Relative imports check
-grep -r "from model_checker.solver" Code/src/model_checker/solver/*.py
+grep -r "from model_checker.solver" code/src/model_checker/solver/*.py
 # Should return ZERO matches (all should be relative)
 ```
 
@@ -732,7 +732,7 @@ design against Phase 1 learnings. Phase 2 COMPLETE!
 
 Changes:
 - Created solver/README.md with usage guide
-- Created Code/docs/architecture/SOLVER_ABSTRACTION.md
+- Created code/docs/architecture/SOLVER_ABSTRACTION.md
 - Created specs/reports/015_abstraction_layer_results.md
 - Validated all Phase 1 patterns applied correctly
 - Verified >90% test coverage across abstraction layer
@@ -788,7 +788,7 @@ Co-Authored-By: Claude <noreply@anthropic.com>
 - [ ] solver/README.md created
 - [ ] Usage examples provided (Z3 and CVC5)
 - [ ] Troubleshooting guide included
-- [ ] Code/docs/architecture/SOLVER_ABSTRACTION.md created
+- [ ] code/docs/architecture/SOLVER_ABSTRACTION.md created
 - [ ] Design rationale documented
 - [ ] Phase 1 patterns explained
 - [ ] Guide for adding solvers provided

@@ -6,11 +6,11 @@
 - **Complexity**: Low
 - **Dependencies**: Stage 5 complete (dual-solver validation done)
 - **Files**:
-  - `Code/src/model_checker/theory_lib/bimodal/README.md` - UPDATE
-  - `Code/docs/development/THEORY_SOLVER_MIGRATION.md` - CREATE
+  - `code/src/model_checker/theory_lib/bimodal/README.md` - UPDATE
+  - `code/docs/development/THEORY_SOLVER_MIGRATION.md` - CREATE
   - `specs/reports/016_bimodal_abstraction_integration_results.md` - CREATE
-  - `Code/docs/architecture/SOLVER_ABSTRACTION.md` - UPDATE
-  - `Code/src/model_checker/theory_lib/bimodal/specs/cvc5/implementation_summary.md` - CREATE
+  - `code/docs/architecture/SOLVER_ABSTRACTION.md` - UPDATE
+  - `code/src/model_checker/theory_lib/bimodal/specs/cvc5/implementation_summary.md` - CREATE
 - **Coverage Target**: N/A (documentation only)
 - **Risk**: Low - No code changes
 
@@ -30,7 +30,7 @@ Document the Phase 3 integration, create migration guide for other theories, and
 ### Task 1: Update Bimodal README
 **Duration**: 1 hour
 
-- [ ] Open: `Code/src/model_checker/theory_lib/bimodal/README.md`
+- [ ] Open: `code/src/model_checker/theory_lib/bimodal/README.md`
 - [ ] Add section: "Solver Selection"
 - [ ] Document how to configure `settings.smt_solver`
 - [ ] Explain CVC5 vs Z3 performance characteristics
@@ -74,7 +74,7 @@ settings.smt_solver = "cvc5"  # or "z3"
 ### Task 2: Create Theory Migration Guide
 **Duration**: 2 hours
 
-- [ ] Create: `Code/docs/development/THEORY_SOLVER_MIGRATION.md`
+- [ ] Create: `code/docs/development/THEORY_SOLVER_MIGRATION.md`
 - [ ] Section 1: Overview of abstraction layer
 - [ ] Section 2: Step-by-step migration process
 - [ ] Section 3: API translation patterns (CVC5/Z3 → SolverInterface)
@@ -228,7 +228,7 @@ How to migrate a theory from direct solver usage (Z3/CVC5) to SolverInterface ab
 ### Task 4: Update Architecture Documentation
 **Duration**: 30 minutes
 
-- [ ] Open: `Code/docs/architecture/SOLVER_ABSTRACTION.md`
+- [ ] Open: `code/docs/architecture/SOLVER_ABSTRACTION.md`
 - [ ] Add section: "Real-World Usage: Bimodal Theory"
 - [ ] Document performance characteristics from validation
 - [ ] Show migration patterns used in bimodal
@@ -259,7 +259,7 @@ See [THEORY_SOLVER_MIGRATION.md](../development/THEORY_SOLVER_MIGRATION.md) for 
 ### Task 5: Create Implementation Summary
 **Duration**: 1 hour
 
-- [ ] Create: `Code/src/model_checker/theory_lib/bimodal/specs/cvc5/implementation_summary.md`
+- [ ] Create: `code/src/model_checker/theory_lib/bimodal/specs/cvc5/implementation_summary.md`
 - [ ] Document complete Phase 1-3 journey
 - [ ] What was learned at each phase
 - [ ] Final architecture state

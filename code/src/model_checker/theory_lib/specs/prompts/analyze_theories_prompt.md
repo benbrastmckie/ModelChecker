@@ -1,12 +1,12 @@
 # Theory Analysis Prompt for Parallel Subagents
 
 ## Objective
-Launch three parallel general-purpose subagents to analyze the theory modules in `Code/src/model_checker/theory_lib/` (excluding `bimodal/`) and generate comprehensive refactoring reports without making any code changes.
+Launch three parallel general-purpose subagents to analyze the theory modules in `code/src/model_checker/theory_lib/` (excluding `bimodal/`) and generate comprehensive refactoring reports without making any code changes.
 
 ## Theories to Analyze
-1. **Exclusion Theory** - `Code/src/model_checker/theory_lib/exclusion/`
-2. **Imposition Theory** - `Code/src/model_checker/theory_lib/imposition/`
-3. **Logos Theory** - `Code/src/model_checker/theory_lib/logos/`
+1. **Exclusion Theory** - `code/src/model_checker/theory_lib/exclusion/`
+2. **Imposition Theory** - `code/src/model_checker/theory_lib/imposition/`
+3. **Logos Theory** - `code/src/model_checker/theory_lib/logos/`
 
 ## Prompt for Main Agent
 
@@ -14,9 +14,9 @@ Launch three parallel general-purpose subagents to analyze the theory modules in
 I need to analyze three theory modules for potential refactoring improvements using parallel subagents.
 
 Launch three general-purpose subagents SIMULTANEOUSLY to analyze:
-1. Code/src/model_checker/theory_lib/exclusion/
-2. Code/src/model_checker/theory_lib/imposition/
-3. Code/src/model_checker/theory_lib/logos/
+1. code/src/model_checker/theory_lib/exclusion/
+2. code/src/model_checker/theory_lib/imposition/
+3. code/src/model_checker/theory_lib/logos/
 
 IMPORTANT: DO NOT MAKE ANY CODE CHANGES. Only analyze and report.
 
@@ -32,10 +32,10 @@ Read and analyze ALL Python files in the assigned theory directory:
 - Any additional Python files
 
 Also review:
-- Code/docs/core/CODE_STANDARDS.md
-- Code/docs/core/ARCHITECTURE.md
-- Code/docs/specific/ITERATOR.md
-- Code/docs/templates/theory_template.py
+- code/docs/core/CODE_STANDARDS.md
+- code/docs/core/ARCHITECTURE.md
+- code/docs/specific/ITERATOR.md
+- code/docs/templates/theory_template.py
 
 ## 2. STRUCTURAL ANALYSIS
 Evaluate against ModelChecker standards:
@@ -43,21 +43,21 @@ Evaluate against ModelChecker standards:
 ### Module Organization
 - Are concerns properly separated into distinct modules?
 - Is there an appropriate balance (not too few, not too many modules)?
-- Does the structure follow Code/docs/core/ARCHITECTURE.md patterns?
+- Does the structure follow code/docs/core/ARCHITECTURE.md patterns?
 - Are there clear boundaries between semantic logic, operators, and iteration?
 
 ### Standardization Assessment
 - How well does this theory conform to the standard theory structure?
-- What deviations exist from the template in Code/docs/templates/theory_template.py?
+- What deviations exist from the template in code/docs/templates/theory_template.py?
 - Are naming conventions consistent with other theories?
-- Does it follow the iterator contracts in Code/docs/contracts/ITERATOR_CONTRACTS.md?
+- Does it follow the iterator contracts in code/docs/contracts/ITERATOR_CONTRACTS.md?
 
 ### Code Quality Review
 - Type hints coverage and quality
-- Error handling patterns (per Code/docs/implementation/ERROR_HANDLING.md)
-- Documentation completeness (per Code/docs/core/DOCUMENTATION.md)
-- Testing coverage and approach (per Code/docs/core/TESTING.md)
-- Performance considerations (per Code/docs/implementation/PERFORMANCE.md)
+- Error handling patterns (per code/docs/implementation/ERROR_HANDLING.md)
+- Documentation completeness (per code/docs/core/DOCUMENTATION.md)
+- Testing coverage and approach (per code/docs/core/TESTING.md)
+- Performance considerations (per code/docs/implementation/PERFORMANCE.md)
 
 ## 3. IMPROVEMENT OPPORTUNITIES
 Identify specific refactoring opportunities:
@@ -172,11 +172,11 @@ Return this report as a complete markdown document.
 ## FINAL INSTRUCTIONS
 1. Run all three subagents IN PARALLEL (single message, multiple Task tool calls)
 2. Each subagent saves its report to:
-   - Exclusion: Code/src/model_checker/theory_lib/specs/reports/exclusion_analysis.md
-   - Imposition: Code/src/model_checker/theory_lib/specs/reports/imposition_analysis.md
-   - Logos: Code/src/model_checker/theory_lib/specs/reports/logos_analysis.md
+   - Exclusion: code/src/model_checker/theory_lib/specs/reports/exclusion_analysis.md
+   - Imposition: code/src/model_checker/theory_lib/specs/reports/imposition_analysis.md
+   - Logos: code/src/model_checker/theory_lib/specs/reports/logos_analysis.md
 3. After all complete, create a summary report at:
-   Code/src/model_checker/theory_lib/specs/reports/summary_analysis.md
+   code/src/model_checker/theory_lib/specs/reports/summary_analysis.md
 
 The summary should include:
 - Comparative analysis across all theories
@@ -213,5 +213,5 @@ After the reports are generated:
 - Subagents work autonomously and in parallel
 - No code changes are made during analysis
 - Reports follow a standardized structure for easy comparison
-- All recommendations reference the documentation standards in Code/docs/
+- All recommendations reference the documentation standards in code/docs/
 - Focus is on balance: improving quality while maintaining simplicity

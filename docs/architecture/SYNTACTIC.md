@@ -153,7 +153,7 @@ def parse_expression(tokens):
         return [token, arg], comp + 1
 ```
 
-*Full implementation: [`model_checker/utils.py`](../../Code/src/model_checker/utils.py)*
+*Full implementation: [`model_checker/utils.py`](../../code/src/model_checker/utils.py)*
 
 This recursive algorithm elegantly handles arbitrary formula nesting. The key insight is that parentheses indicate binary operators (which consume the entire contents between them), while LaTeX operators are either unary (consuming the next expression) or nullary (consuming nothing). The complexity tracking happens naturally during recursion - each operator adds 1 to its arguments' maximum complexity, giving us a measure of formula depth for performance estimation.
 
@@ -240,7 +240,7 @@ def calculate_complexity(prefix_sentence):
 
 The calculated complexity value is stored in `sentence.complexity` during initialization and used by the framework to estimate solving difficulty. Formulas with complexity > 5 typically require reduced state space (smaller N) or increased timeout settings. The recursive calculation mirrors the formula structure - each operator adds exactly 1 to its deepest argument's complexity, making the metric predictable and meaningful for performance tuning.
 
-*See also: [`model_checker/syntactic.py#Sentence.__init__`](../../Code/src/model_checker/syntactic.py) for complexity calculation during parsing*
+*See also: [`model_checker/syntactic.py#Sentence.__init__`](../../code/src/model_checker/syntactic.py) for complexity calculation during parsing*
 
 ### Error Handling
 
@@ -291,7 +291,7 @@ class Sentence:
         self.proposition = ...                  # LogosProposition instance
 ```
 
-*Full implementation: [`model_checker/syntactic.py`](../../Code/src/model_checker/syntactic.py)*
+*Full implementation: [`model_checker/syntactic.py`](../../code/src/model_checker/syntactic.py)*
 
 The Sentence class serves as a bridge between syntactic representation and semantic evaluation. Each phase adds the information needed by subsequent stages, maintaining clean separation between parsing, type resolution, and semantic interpretation.
 
@@ -362,7 +362,7 @@ class OperatorCollection:
         self.operator_dictionary[operator.name] = operator
 ```
 
-*Full implementation: [`model_checker/syntactic.py`](../../Code/src/model_checker/syntactic.py)*
+*Full implementation: [`model_checker/syntactic.py`](../../code/src/model_checker/syntactic.py)*
 
 OperatorCollection acts as a registry mapping LaTeX operator names to their implementation classes. The duplicate checking ensures consistent behavior - if multiple theories define the same operator, the first definition wins. This design allows theories to share common operators (like `\\wedge`) while defining their own specialized operators (like `\\boxright` for counterfactuals).
 
@@ -444,7 +444,7 @@ class DiamondOperator(DefinedOperator):
         return ["\\neg", ["\\Box", ["\\neg", arg]]]
 ```
 
-*See also: [`model_checker/syntactic.py`](../../Code/src/model_checker/syntactic.py) for base Operator classes*
+*See also: [`model_checker/syntactic.py`](../../code/src/model_checker/syntactic.py) for base Operator classes*
 
 The distinction matters for extensibility: new theories can add defined operators without modifying the core constraint generation engine. During type resolution, defined operators are expanded to their primitive constituents, ensuring all constraints ultimately reduce to primitive semantic operations.
 
@@ -480,7 +480,7 @@ class Syntax:
                 sentence_arguments.append(sentence_arg)
 ```
 
-*Full implementation: [`model_checker/syntactic.py`](../../Code/src/model_checker/syntactic.py)*
+*Full implementation: [`model_checker/syntactic.py`](../../code/src/model_checker/syntactic.py)*
 
 The `build_sentence` function implements a memoized recursive descent through the formula structure. By checking the cache first (`all_sentences` dictionary), it ensures each unique subformula is processed exactly once. This optimization is crucial for formulas with repeated patterns - without memoization, a formula like `(P \\wedge Q) \\vee (P \\wedge Q) \\vee (P \\wedge Q)` would create multiple identical sentence objects, wasting memory and computation.
 
@@ -596,7 +596,7 @@ def update_types(self, operator_collection):
 
 These optimizations compound: caching reduces memory usage, which speeds up Z3's internal operations, while early validation prevents the framework from building elaborate constraint systems for malformed inputs. The result is a system that handles complex formulas efficiently while failing fast on errors.
 
-*Full implementation: [`model_checker/syntactic.py#Syntax`](../../Code/src/model_checker/syntactic.py)*
+*Full implementation: [`model_checker/syntactic.py#Syntax`](../../code/src/model_checker/syntactic.py)*
 
 ## Code Examples
 
@@ -744,21 +744,21 @@ This pipeline demonstrates the complete syntax processing flow. The resulting `s
 ### Implementation Files
 
 **Core Parsing and Syntax:**
-- [`model_checker/utils.py`](../../Code/src/model_checker/utils.py) - Contains `parse_expression()` function and tokenization utilities
-- [`model_checker/syntactic.py`](../../Code/src/model_checker/syntactic.py) - Sentence, Operator, OperatorCollection, and Syntax classes
+- [`model_checker/utils.py`](../../code/src/model_checker/utils.py) - Contains `parse_expression()` function and tokenization utilities
+- [`model_checker/syntactic.py`](../../code/src/model_checker/syntactic.py) - Sentence, Operator, OperatorCollection, and Syntax classes
 
 **Theory-Specific Operators:**
-- [`logos/subtheories/extensional/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) - Basic logical operators (∧, ∨, ¬, →)
-- [`logos/subtheories/modal/operators.py`](../../Code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) - Modal operators (□, ◇)
-- [`logos/registry.py`](../../Code/src/model_checker/theory_lib/logos/registry.py) - LogosOperatorRegistry for dynamic loading
+- [`logos/subtheories/extensional/operators.py`](../../code/src/model_checker/theory_lib/logos/subtheories/extensional/operators.py) - Basic logical operators (∧, ∨, ¬, →)
+- [`logos/subtheories/modal/operators.py`](../../code/src/model_checker/theory_lib/logos/subtheories/modal/operators.py) - Modal operators (□, ◇)
+- [`logos/registry.py`](../../code/src/model_checker/theory_lib/logos/registry.py) - LogosOperatorRegistry for dynamic loading
 
 ## Technical Implementation
 
 For detailed implementation information, see:
-- [Syntactic Package Documentation](../../Code/src/model_checker/syntactic/README.md) - Complete API reference
-- [Parser Implementation](../../Code/src/model_checker/syntactic/parser.py) - Core parsing logic
-- [AST Module](../../Code/src/model_checker/syntactic/ast.py) - Abstract syntax tree structures
-- [Operator Registry](../../Code/src/model_checker/syntactic/operators.py) - Operator management
+- [Syntactic Package Documentation](../../code/src/model_checker/syntactic/README.md) - Complete API reference
+- [Parser Implementation](../../code/src/model_checker/syntactic/parser.py) - Core parsing logic
+- [AST Module](../../code/src/model_checker/syntactic/ast.py) - Abstract syntax tree structures
+- [Operator Registry](../../code/src/model_checker/syntactic/operators.py) - Operator management
 
 ## See Also
 
@@ -768,8 +768,8 @@ For detailed implementation information, see:
 - [Theory Framework](THEORY_LIB.md) - Theory-specific operators
 
 ### Technical Documentation
-- [API Reference](../../Code/src/model_checker/README.md) - Framework APIs
-- [Theory Library](../../Code/src/model_checker/theory_lib/README.md) - Operator implementations
+- [API Reference](../../code/src/model_checker/README.md) - Framework APIs
+- [Theory Library](../../code/src/model_checker/theory_lib/README.md) - Operator implementations
 
 ---
 

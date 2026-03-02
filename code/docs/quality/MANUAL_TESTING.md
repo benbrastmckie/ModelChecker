@@ -32,17 +32,17 @@ Test each main theory and all subtheories:
 
 ```bash
 # Main theories
-./Code/dev_cli.py src/model_checker/theory_lib/logos/examples.py
-./Code/dev_cli.py src/model_checker/theory_lib/exclusion/examples.py
-./Code/dev_cli.py src/model_checker/theory_lib/imposition/examples.py
-./Code/dev_cli.py src/model_checker/theory_lib/bimodal/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/logos/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/exclusion/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/imposition/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/bimodal/examples.py
 
 # Logos subtheories (CRITICAL - these revealed the discover_theory_module bug)
-./Code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py
-./Code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
-./Code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
-./Code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
-./Code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
+./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
 ```
 
 **Expected**: All examples run without Python errors. Model output displayed.
@@ -51,13 +51,13 @@ Test each main theory and all subtheories:
 
 ```bash
 # Step 1: Generate a project
-./Code/model-checker
+./code/model-checker
 # Choose theory (e.g., logos)
 # Enter project name (e.g., test_manual)
 # Answer 'n' to run examples
 
 # Step 2: Test the generated project
-./Code/dev_cli.py project_test_manual/examples.py
+./code/dev_cli.py project_test_manual/examples.py
 ```
 
 **Expected**: Examples run successfully (note: relative imports mean BuildModule can't load these directly).
@@ -68,7 +68,7 @@ Test model iteration with each theory:
 
 ```bash
 # Start iteration mode
-./Code/dev_cli.py -i src/model_checker/theory_lib/logos/examples.py
+./code/dev_cli.py -i src/model_checker/theory_lib/logos/examples.py
 
 # When prompted "Enter a number to iterate or hit return to continue:"
 # Enter: 5
@@ -84,7 +84,7 @@ Test model iteration with each theory:
 
 ```bash
 # Test interactive save functionality
-./Code/dev_cli.py -s src/model_checker/theory_lib/logos/examples.py
+./code/dev_cli.py -s src/model_checker/theory_lib/logos/examples.py
 
 # When prompted for save mode:
 # Choose 'i' for interactive
@@ -100,7 +100,7 @@ Test model iteration with each theory:
 
 ```bash
 # Test theory comparison
-./Code/dev_cli.py -c src/model_checker/theory_lib/logos/examples.py
+./code/dev_cli.py -c src/model_checker/theory_lib/logos/examples.py
 ```
 
 **Expected**:
@@ -113,14 +113,14 @@ Test model iteration with each theory:
 ```bash
 # Empty module
 echo "semantic_theories = {}; example_range = {}" > /tmp/empty.py
-./Code/dev_cli.py /tmp/empty.py
+./code/dev_cli.py /tmp/empty.py
 
 # Module with syntax error
 echo "this is not valid python" > /tmp/bad.py
-./Code/dev_cli.py /tmp/bad.py
+./code/dev_cli.py /tmp/bad.py
 
 # Non-existent file
-./Code/dev_cli.py /tmp/does_not_exist.py
+./code/dev_cli.py /tmp/does_not_exist.py
 ```
 
 **Expected**: Appropriate error messages, no uncaught exceptions.

@@ -348,7 +348,7 @@ def extract_model_elements(self, z3_model):
 
 ```bash
 # Search for safe_select usage
-grep -r "safe_select" Code/src/model_checker/theory_lib/bimodal/
+grep -r "safe_select" code/src/model_checker/theory_lib/bimodal/
 ```
 
 If ONLY used in `_extract_world_histories()`, and we've replaced it with SELECT:

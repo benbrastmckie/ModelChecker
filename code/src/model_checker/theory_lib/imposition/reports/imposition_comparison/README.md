@@ -130,10 +130,10 @@ The reports establish patterns for systematic theory comparison:
 
 ### Documentation Guides
 
-- [ModelChecker Workflow Guide](../../../../../Docs/usage/WORKFLOW.md) - Introduction to using the framework
-- [Theory Comparison Guide](../../../../../Docs/usage/COMPARE_THEORIES.md) - Methodology for comparing semantic theories
-- [Constraint Testing Guide](../../../../../Docs/usage/CONSTRAINTS.md) - Testing semantic constraints through countermodel search
-- [Architecture Documentation](../../../../../Docs/architecture/README.md) - Philosophical foundations of programmatic semantics
+- [ModelChecker Workflow Guide](../../../../../docs/usage/WORKFLOW.md) - Introduction to using the framework
+- [Theory Comparison Guide](../../../../../docs/usage/COMPARE_THEORIES.md) - Methodology for comparing semantic theories
+- [Constraint Testing Guide](../../../../../docs/usage/CONSTRAINTS.md) - Testing semantic constraints through countermodel search
+- [Architecture Documentation](../../../../../docs/architecture/README.md) - Philosophical foundations of programmatic semantics
 
 ### Theory Implementation
 

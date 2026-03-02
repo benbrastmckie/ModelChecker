@@ -508,8 +508,8 @@ model-checker test.py --print-constraints --print-z3
 ## References
 
 ### Implementation Examples
-- **[Imposition Semantics](../../Code/src/model_checker/theory_lib/imposition/semantic.py)** - Complete `derive_imposition` implementation
-- **[Imposition Comparison Reports](../../Code/src/model_checker/theory_lib/imposition/reports/imposition_comparison/README.md)** - Comprehensive analysis of constraint testing methodology and theory comparison
+- **[Imposition Semantics](../../code/src/model_checker/theory_lib/imposition/semantic.py)** - Complete `derive_imposition` implementation
+- **[Imposition Comparison Reports](../../code/src/model_checker/theory_lib/imposition/reports/imposition_comparison/README.md)** - Comprehensive analysis of constraint testing methodology and theory comparison
 
 ### Related Documentation
 - **[Theory Development](WORKFLOW.md#theory-development-workflow)** - Creating new theories
@@ -525,4 +525,4 @@ model-checker test.py --print-constraints --print-z3
 
 ---
 
-[← Back to Usage](README.md) | [Workflow →](WORKFLOW.md) | [Theory Library →](../../Code/src/model_checker/theory_lib/README.md)
+[← Back to Usage](README.md) | [Workflow →](WORKFLOW.md) | [Theory Library →](../../code/src/model_checker/theory_lib/README.md)

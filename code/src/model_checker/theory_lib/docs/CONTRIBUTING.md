@@ -138,15 +138,15 @@ Once your theory is working locally, integrate it into the main library:
 
 ```bash
 # Create a directory for your theory in the library
-mkdir -p Code/src/model_checker/theory_lib/my_theory
+mkdir -p code/src/model_checker/theory_lib/my_theory
 
 # Move your project directory to the theory library
-mv project_theory_name/* Code/src/model_checker/theory_lib/my_theory/
+mv project_theory_name/* code/src/model_checker/theory_lib/my_theory/
 ```
 
 ### 7. Register Your Theory
 
-Add your theory to the `__all__` list in `Code/src/model_checker/theory_lib/__init__.py`:
+Add your theory to the `__all__` list in `code/src/model_checker/theory_lib/__init__.py`:
 
 ```python
 __all__ = [
@@ -171,8 +171,8 @@ git checkout theory/my-new-theory
 git rebase main
 
 # Stage and commit your changes
-git add Code/src/model_checker/theory_lib/my_theory
-git add Code/src/model_checker/theory_lib/__init__.py
+git add code/src/model_checker/theory_lib/my_theory
+git add code/src/model_checker/theory_lib/__init__.py
 git commit -m "Add MyTheory implementation"
 
 # Push to your fork
