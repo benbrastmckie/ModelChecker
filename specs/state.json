@@ -1,6 +1,15 @@
 {
-  "next_project_number": 15,
+  "next_project_number": 16,
   "active_projects": [
+    {
+      "project_number": 15,
+      "project_name": "verify_quantifier_semantics_match_logos_manual",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-02T20:56:34Z",
+      "last_updated": "2026-03-02T20:56:34Z",
+      "description": "Check that ForAllOperator and ExistsOperator semantics in first-order operators.py follow the Logos manual (02-constitutive.typ and 03-dynamics.typ) where lambda handles all variable binding. Ensure ExistsOperator is defined in terms of ForAllOperator. Add \\\\all and \\\\some abbreviations that combine lambda binding with quantification. Add arity validation checks with meaningful error messages for formation problems."
+    },
     {
       "project_number": 14,
       "project_name": "auto_discover_predicates_functions_constants",

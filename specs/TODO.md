@@ -1,10 +1,18 @@
 ---
-next_project_number: 15
+next_project_number: 16
 ---
 
 # Task List
 
 ## Tasks
+
+### 15. Verify quantifier semantics match Logos manual
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+- **Dependencies**: Task #11
+
+**Description**: Check that ForAllOperator and ExistsOperator semantics in first-order operators.py follow the Logos manual (02-constitutive.typ and 03-dynamics.typ) where lambda handles all variable binding. Ensure ExistsOperator is defined in terms of ForAllOperator. Add `\all` and `\some` abbreviations that combine lambda binding with quantification. Add arity validation checks with meaningful error messages for formation problems.
 
 ### 14. Auto-discover predicates, functions, and constants from formulas
 - **Effort**: Medium-Large
