@@ -24,9 +24,10 @@ next_project_number: 14
 
 ### 11. Implement first-order operators (Lambda, ForAll, Exists, Identity)
 - **Effort**: Medium-Large
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: general
 - **Dependencies**: Task #10
+- **Research**: [research-001.md](011_implement_first_order_operators/reports/research-001.md)
 
 **Description**: Implement all four first-order operators in `operators.py`. `LambdaOperator`: property formation via variable binding — lambda application `(lambda v.phi)(t)` updates assignment with term denotation and evaluates body; implement `true_at`, `false_at`, `extended_verify`, `extended_falsify`, `find_verifiers_and_falsifiers`. `ForAllOperator`: universal quantification with Z3 constraint generation for finite domain — verifies when all v-variant assignments yield verifiers that fuse into the current state. `ExistsOperator`: defined operator as `not forall v. not phi`. `FirstOrderIdentityOperator`: binary operator on terms, verified at null state when denotations coincide; implement reflexivity, symmetry, transitivity properties.
 
