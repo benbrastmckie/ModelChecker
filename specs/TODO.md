@@ -20,9 +20,10 @@ next_project_number: 15
 
 ### 13. Strengthen first-order parser test coverage
 - **Effort**: Medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: general
 - **Dependencies**: Task #9, Task #14
+- **Research**: [research-001.md](013_strengthen_first_order_parser_test_coverage/reports/research-001.md)
 
 **Description**: Strengthen test coverage for first-order parser and vocabulary discovery. Original scope (tasks 7-9): add integration tests connecting term algebra to parser (free_variables on parsed formulas), expand lambdaApp tests to cover substitute(), add parser error handling tests (malformed input: missing body after quantifier, unclosed brackets, invalid variable names), and add TDD-conformant placeholder tests for task 7 operator stubs. Extended scope (task 14): add comprehensive tests for the new syntax convention (bare identifiers as constants, `[]` required for predicates), vocabulary auto-discovery edge cases, arity validation error paths, and semantic TypeError for constant truth evaluation.
 
