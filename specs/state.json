@@ -4,12 +4,21 @@
     {
       "project_number": 14,
       "project_name": "auto_discover_predicates_functions_constants",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-02T17:50:53Z",
-      "last_updated": "2026-03-02T17:50:53Z",
+      "last_updated": "2026-03-02T17:55:26Z",
       "dependencies": [
         10
+      ],
+      "session_id": "sess_1772473889_626112",
+      "researched": "2026-03-02T17:55:26Z",
+      "artifacts": [
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report with 6 major findings on vocabulary auto-discovery architecture"
+        }
       ]
     },
     {
