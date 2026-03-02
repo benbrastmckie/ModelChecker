@@ -37,10 +37,10 @@
     {
       "project_number": 9,
       "project_name": "extend_parser_for_first_order_syntax",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-01T22:22:15Z",
-      "last_updated": "2026-03-02T01:33:31Z",
+      "last_updated": "2026-03-02T01:41:12Z",
       "dependencies": [
         8
       ],
@@ -53,17 +53,17 @@
           "summary": "Research report analyzing parser extension requirements for first-order syntax including variables, functions, predicates, and quantifier binding"
         },
         {
-          "path": "specs/009_extend_parser_for_first_order_syntax/plans/implementation-001.md",
-          "type": "plan",
-          "summary": "6-phase implementation plan for first-order parser extension"
-        },
-        {
           "path": "specs/009_extend_parser_for_first_order_syntax/reports/research-002.md",
           "type": "research",
           "summary": "Supplementary research analyzing Logos Theory source code (Typst and Lean) for first-order syntax conventions, revealing that forall/exists do not bind variables - lambdas handle all variable binding"
+        },
+        {
+          "path": "specs/009_extend_parser_for_first_order_syntax/plans/implementation-002.md",
+          "type": "plan",
+          "summary": "Revised 7-phase implementation plan for first-order parser extension, incorporating lambda-binding architecture where lambdas bind variables and quantifiers operate on lambdas"
         }
       ],
-      "planned": "2026-03-02T01:24:15Z"
+      "planned": "2026-03-02T01:41:12Z"
     },
     {
       "project_number": 8,
