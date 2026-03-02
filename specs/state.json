@@ -4,10 +4,19 @@
     {
       "project_number": 17,
       "project_name": "fix_remaining_uppercase_directory_references",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-02T23:01:52Z",
-      "last_updated": "2026-03-02T23:01:52Z"
+      "last_updated": "2026-03-02T23:07:02Z",
+      "session_id": "sess_1772492594_196c9d",
+      "researched": "2026-03-02T23:07:02Z",
+      "artifacts": [
+        {
+          "path": "specs/017_fix_remaining_uppercase_directory_references/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis identifying neovim config as primary error source plus 5 other categories of remaining uppercase references"
+        }
+      ]
     },
     {
       "project_number": 16,
