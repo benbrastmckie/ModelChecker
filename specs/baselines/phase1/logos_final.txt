@@ -1,4 +1,0 @@
-Traceback (most recent call last):
-  File "/home/benjamin/Documents/Philosophy/Projects/ModelChecker/Code/temp_test_logos.py", line 4, in <module>
-    from model_checker.builder.module import BuildModule
-ModuleNotFoundError: No module named 'model_checker'

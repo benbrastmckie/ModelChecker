@@ -1,5 +1,0 @@
-usage: run_tests.py [-h] [--examples] [--unit] [--package]
-                    [--components COMPONENTS [COMPONENTS ...]] [--verbose]
-                    [--failfast]
-                    [targets ...]
-run_tests.py: error: unrecognized arguments: --all

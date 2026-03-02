@@ -48,10 +48,11 @@ next_project_number: 13
 
 ### 7. Create first-order module scaffolding
 - **Effort**: Small
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: general
 - **Dependencies**: None
 - **Research**: [research-001.md](007_create_first_order_module_scaffolding/reports/research-001.md)
+- **Plan**: [implementation-001.md](007_create_first_order_module_scaffolding/plans/implementation-001.md)
 
 **Description**: Create the basic module structure at `Code/src/model_checker/theory_lib/logos/subtheories/first-order/` following the pattern of the extensional and constitutive subtheories. Files to create: `__init__.py` (module init with public API stubs), `operators.py` (empty operator stubs with docstrings), `examples.py` (empty with planned example categories listed as comments), `tests/__init__.py`, `tests/test_first_order_examples.py` (failing placeholder test). Verify the module is importable and the package is discoverable by the theory loader.
 
