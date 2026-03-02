@@ -20,6 +20,9 @@ from .collection import OperatorCollection
 # Phase 3.6 - Import Syntax from the new module
 from .syntax import Syntax
 
+# First-order term algebra
+from .terms import Term, Variable, Constant, FunctionApplication
+
 __all__ = [
     # Atoms
     'AtomSort',
@@ -30,4 +33,9 @@ __all__ = [
     'DefinedOperator',
     'OperatorCollection',
     'Syntax',
+    # First-order terms
+    'Term',
+    'Variable',
+    'Constant',
+    'FunctionApplication',
 ]
