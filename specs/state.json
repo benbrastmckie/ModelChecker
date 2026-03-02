@@ -84,12 +84,21 @@
     {
       "project_number": 12,
       "project_name": "first_order_examples_and_tests",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-01T22:22:15Z",
-      "last_updated": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T20:44:52Z",
       "dependencies": [
         11
+      ],
+      "session_id": "sess_1772483948_ab9e72",
+      "researched": "2026-03-02T20:44:52Z",
+      "artifacts": [
+        {
+          "path": "specs/012_first_order_examples_and_tests/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of first-order operator API, parser syntax conventions, example format patterns, and implementation recommendations for 8 theorems and 4 countermodels"
+        }
       ]
     },
     {
