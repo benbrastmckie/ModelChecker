@@ -4,10 +4,10 @@
     {
       "project_number": 15,
       "project_name": "verify_quantifier_semantics_match_logos_manual",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-02T20:56:34Z",
-      "last_updated": "2026-03-02T21:51:41Z",
+      "last_updated": "2026-03-02T21:57:23Z",
       "description": "Check that ForAllOperator and ExistsOperator semantics in first-order operators.py follow the Logos manual (02-constitutive.typ and 03-dynamics.typ) where lambda handles all variable binding. Ensure ExistsOperator is defined in terms of ForAllOperator. Add \\\\all and \\\\some abbreviations that combine lambda binding with quantification. Add arity validation checks with meaningful error messages for formation problems.",
       "session_id": "sess_1772488057_d8638d",
       "researched": "2026-03-02T21:51:41Z",
@@ -18,17 +18,17 @@
           "summary": "Analysis of quantifier semantics showing ExistsOperator needs redefinition via ForAllOperator, missing \\all/\\some abbreviations, and missing formation validation"
         },
         {
-          "path": "specs/015_verify_quantifier_semantics_match_logos_manual/plans/implementation-001.md",
-          "type": "plan",
-          "summary": "4-phase plan covering validation infrastructure, ExistsOperator duality refactor, \\all/\\some abbreviations, and documentation"
-        },
-        {
           "path": "specs/015_verify_quantifier_semantics_match_logos_manual/reports/research-002.md",
           "type": "research",
           "summary": "Supplementary research analyzing bracket notation, Church-style vs direct binding quantification, and four design options for aligning ModelChecker with Logos manual"
+        },
+        {
+          "path": "specs/015_verify_quantifier_semantics_match_logos_manual/plans/implementation-002.md",
+          "type": "plan",
+          "summary": "5-phase plan implementing Option B (True Church-Style): parser desugaring, ForAllOperator arity-1, ExistsOperator duality, validation, documentation"
         }
       ],
-      "planned": "2026-03-02T21:17:29Z"
+      "planned": "2026-03-02T21:57:23Z"
     },
     {
       "project_number": 14,
