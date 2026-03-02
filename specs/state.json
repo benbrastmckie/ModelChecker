@@ -4,10 +4,10 @@
     {
       "project_number": 14,
       "project_name": "auto_discover_predicates_functions_constants",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-02T17:50:53Z",
-      "last_updated": "2026-03-02T18:22:04Z",
+      "last_updated": "2026-03-02T18:37:33Z",
       "dependencies": [
         10
       ],
@@ -20,17 +20,17 @@
           "summary": "Research report with 6 major findings on vocabulary auto-discovery architecture"
         },
         {
-          "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-001.md",
-          "type": "plan",
-          "summary": "5-phase implementation plan for auto-discovering predicates, functions, and constants from parsed formulas"
-        },
-        {
           "path": "specs/014_auto_discover_predicates_functions_constants/reports/research-002.md",
           "type": "research",
           "summary": "Clean-break analysis identifying plan restructuring to unify sentence letters as zero-arity predicates"
+        },
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-002.md",
+          "type": "plan",
+          "summary": "Clean-break 5-phase plan unifying sentence letters as zero-arity predicates"
         }
       ],
-      "planned": "2026-03-02T18:02:13Z"
+      "planned": "2026-03-02T18:37:33Z"
     },
     {
       "project_number": 13,
