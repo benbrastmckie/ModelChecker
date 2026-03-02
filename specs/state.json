@@ -37,22 +37,28 @@
     {
       "project_number": 9,
       "project_name": "extend_parser_for_first_order_syntax",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-01T22:22:15Z",
-      "last_updated": "2026-03-02T01:12:31Z",
+      "last_updated": "2026-03-02T01:24:15Z",
       "dependencies": [
         8
       ],
-      "session_id": "sess_1772413751_40911f",
+      "session_id": "sess_1772414499_42edd7",
       "researched": "2026-03-02T01:12:31Z",
       "artifacts": [
         {
           "path": "specs/009_extend_parser_for_first_order_syntax/reports/research-001.md",
           "type": "research",
           "summary": "Research report analyzing parser extension requirements for first-order syntax including variables, functions, predicates, and quantifier binding"
+        },
+        {
+          "path": "specs/009_extend_parser_for_first_order_syntax/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for first-order parser extension"
         }
-      ]
+      ],
+      "planned": "2026-03-02T01:24:15Z"
     },
     {
       "project_number": 8,
