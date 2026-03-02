@@ -51,7 +51,12 @@
       "status": "not_started",
       "language": "general",
       "created": "2026-03-02T06:06:06Z",
-      "last_updated": "2026-03-02T06:06:06Z"
+      "last_updated": "2026-03-02T19:52:36Z",
+      "description": "Strengthen test coverage for first-order parser and vocabulary discovery. Original scope (tasks 7-9): add integration tests connecting term algebra to parser (free_variables on parsed formulas), expand lambdaApp tests to cover substitute(), add parser error handling tests (malformed input: missing body after quantifier, unclosed brackets, invalid variable names), and add TDD-conformant placeholder tests for task 7 operator stubs. Extended scope (task 14): add comprehensive tests for the new syntax convention (bare identifiers as constants, [] required for predicates), vocabulary auto-discovery edge cases, arity validation error paths, and semantic TypeError for constant truth evaluation.",
+      "dependencies": [
+        9,
+        14
+      ]
     },
     {
       "project_number": 12,

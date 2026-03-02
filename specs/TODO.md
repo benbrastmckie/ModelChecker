@@ -22,9 +22,9 @@ next_project_number: 15
 - **Effort**: Medium
 - **Status**: [NOT STARTED]
 - **Language**: general
-- **Dependencies**: Task #9
+- **Dependencies**: Task #9, Task #14
 
-**Description**: Strengthen test coverage for first-order parser tasks 7-9: add integration tests connecting term algebra to parser (free_variables on parsed formulas), expand lambdaApp tests to cover substitute(), add parser error handling tests (malformed input: missing body after quantifier, unclosed brackets, invalid variable names), and add TDD-conformant placeholder tests for task 7 operator stubs ready to activate in task 11.
+**Description**: Strengthen test coverage for first-order parser and vocabulary discovery. Original scope (tasks 7-9): add integration tests connecting term algebra to parser (free_variables on parsed formulas), expand lambdaApp tests to cover substitute(), add parser error handling tests (malformed input: missing body after quantifier, unclosed brackets, invalid variable names), and add TDD-conformant placeholder tests for task 7 operator stubs. Extended scope (task 14): add comprehensive tests for the new syntax convention (bare identifiers as constants, `[]` required for predicates), vocabulary auto-discovery edge cases, arity validation error paths, and semantic TypeError for constant truth evaluation.
 
 ### 12. Create first-order examples and integration tests
 - **Effort**: Medium
