@@ -4,14 +4,14 @@
     {
       "project_number": 14,
       "project_name": "auto_discover_predicates_functions_constants",
-      "status": "planned",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-02T17:50:53Z",
-      "last_updated": "2026-03-02T18:50:59Z",
+      "last_updated": "2026-03-02T19:27:43Z",
       "dependencies": [
         10
       ],
-      "session_id": "sess_1772475479_7e8a7c",
+      "session_id": "sess_1772479502_394193",
       "researched": "2026-03-02T18:22:04Z",
       "artifacts": [
         {
@@ -28,6 +28,11 @@
           "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-003.md",
           "type": "plan",
           "summary": "6-phase plan with explicit predicate syntax: bare identifiers as constants, brackets required for predicates"
+        },
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/reports/research-003.md",
+          "type": "research",
+          "summary": "Comparison of plans 001/002/003 identifying arity validation and equivalence testing as items to restore in plan 003"
         }
       ],
       "planned": "2026-03-02T18:50:59Z"
