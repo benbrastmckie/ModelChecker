@@ -188,11 +188,34 @@ class Sentence:
             operator = prefix[0]
             op_str = self.infix(operator)
 
-            # Handle lambda and quantifier operators
-            if op_str in {"\\lambda", "\\forall", "\\exists"}:
+            # Handle lambda abstraction: ["\\lambda", variable, body]
+            if op_str == "\\lambda":
                 var = self.infix(prefix[1])
                 body = self.infix(prefix[2])
                 return f"{op_str} {var}. {body}"
+
+            # Handle Church-style quantifiers: ["\\forall", lambda_term]
+            # where lambda_term = ["\\lambda", variable, body]
+            # After apply_operator, lambda_term may be [LambdaOperator, [variable], body]
+            if op_str in {"\\forall", "\\exists"}:
+                lambda_term = prefix[1]
+                if isinstance(lambda_term, list) and len(lambda_term) >= 3:
+                    # Check if it's a lambda term (either string "\\lambda" or LambdaOperator class)
+                    lambda_head = lambda_term[0]
+                    is_lambda = (
+                        lambda_head == "\\lambda" or
+                        (hasattr(lambda_head, 'name') and lambda_head.name == "\\lambda")
+                    )
+                    if is_lambda:
+                        # Get variable - may be in list after apply_operator
+                        var_elem = lambda_term[1]
+                        if isinstance(var_elem, list) and len(var_elem) == 1:
+                            var_elem = var_elem[0]
+                        var = self.infix(var_elem)
+                        body = self.infix(lambda_term[2])
+                        return f"{op_str} {var}. {body}"
+                # Fallback: print as is
+                return f"{op_str}({self.infix(lambda_term)})"
 
             # Handle lambda application
             if op_str == "\\lambdaApp":
@@ -276,6 +299,16 @@ class Sentence:
             # Check for extremal operator
             if self.name in {'\\top', '\\bot'}:
                 return first_elem, None, None
+
+            # Check for predicate with term arguments: [name, Term1, Term2, ...]
+            # Predicates have a string name and all arguments are Term objects
+            # They should NOT have an operator - semantic evaluation handles them
+            if (len(derived_type) > 1 and
+                isinstance(first_elem, str) and
+                all(isinstance(arg, Term) for arg in derived_type[1:])):
+                # Predicate application: store as None operator with no sentence_letter
+                # The predicate info is in prefix_sentence for semantic evaluation
+                return None, None, None
 
             # Complex sentence with operator and arguments
             if len(derived_type) > 1:

@@ -8,9 +8,10 @@ next_project_number: 17
 
 ### 16. Update all references to renamed lowercase directories
 - **Effort**: Medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: general
 - **Research**: [research-001.md](016_update_references_to_renamed_lowercase_directories/reports/research-001.md)
+- **Plan**: [implementation-001.md](016_update_references_to_renamed_lowercase_directories/plans/implementation-001.md)
 
 **Description**: Review recent git commits to identify which directory names were changed to lowercase. Systematically update all references in documentation and source code to match the new paths and prevent breakage.
 

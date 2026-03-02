@@ -4,19 +4,25 @@
     {
       "project_number": 16,
       "project_name": "update_references_to_renamed_lowercase_directories",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-02T22:28:24Z",
-      "last_updated": "2026-03-02T22:33:00Z",
-      "session_id": "sess_1772490587_b2784b",
+      "last_updated": "2026-03-02T22:37:25Z",
+      "session_id": "sess_1772490880_f6db38",
       "researched": "2026-03-02T22:33:00Z",
       "artifacts": [
         {
           "path": "specs/016_update_references_to_renamed_lowercase_directories/reports/research-001.md",
           "type": "research",
           "summary": "Comprehensive analysis of 83+ files with outdated Code/, Docs/, Images/ path references requiring updates"
+        },
+        {
+          "path": "specs/016_update_references_to_renamed_lowercase_directories/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "6-phase plan to update 83+ files with outdated Code/, Docs/, Images/ references to lowercase paths"
         }
-      ]
+      ],
+      "planned": "2026-03-02T22:37:25Z"
     },
     {
       "project_number": 15,
