@@ -20,7 +20,9 @@ next_project_number: 15
 
 ### 13. Strengthen first-order parser test coverage
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](013_strengthen_first_order_parser_test_coverage/summaries/implementation-summary-20260302.md)
 - **Language**: general
 - **Dependencies**: Task #9, Task #14
 - **Research**: [research-001.md](013_strengthen_first_order_parser_test_coverage/reports/research-001.md)
