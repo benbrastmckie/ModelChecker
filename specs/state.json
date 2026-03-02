@@ -4,10 +4,10 @@
     {
       "project_number": 14,
       "project_name": "auto_discover_predicates_functions_constants",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-02T17:50:53Z",
-      "last_updated": "2026-03-02T19:27:43Z",
+      "last_updated": "2026-03-02T19:34:56Z",
       "dependencies": [
         10
       ],
@@ -25,17 +25,17 @@
           "summary": "Clean-break analysis identifying plan restructuring to unify sentence letters as zero-arity predicates"
         },
         {
-          "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-003.md",
-          "type": "plan",
-          "summary": "6-phase plan with explicit predicate syntax: bare identifiers as constants, brackets required for predicates"
-        },
-        {
           "path": "specs/014_auto_discover_predicates_functions_constants/reports/research-003.md",
           "type": "research",
           "summary": "Comparison of plans 001/002/003 identifying arity validation and equivalence testing as items to restore in plan 003"
+        },
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-004.md",
+          "type": "plan",
+          "summary": "v004: v003 + arity consistency validation in Phase 3"
         }
       ],
-      "planned": "2026-03-02T18:50:59Z"
+      "planned": "2026-03-02T19:34:56Z"
     },
     {
       "project_number": 13,
