@@ -1,10 +1,17 @@
 ---
-next_project_number: 18
+next_project_number: 19
 ---
 
 # Task List
 
 ## Tasks
+
+### 18. Fix first-order subtheory: 6 interconnected bugs causing crashes and wrong semantic results
+- **Effort**: Large
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix first-order subtheory: 6 interconnected bugs causing crashes and wrong semantic results
 
 ### 17. Fix remaining uppercase directory references missed by task 16
 - **Effort**: Medium

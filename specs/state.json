@@ -1,6 +1,14 @@
 {
-  "next_project_number": 18,
+  "next_project_number": 19,
   "active_projects": [
+    {
+      "project_number": 18,
+      "project_name": "fix_first_order_subtheory_bugs",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-02T23:47:55Z",
+      "last_updated": "2026-03-02T23:47:55Z"
+    },
     {
       "project_number": 17,
       "project_name": "fix_remaining_uppercase_directory_references",
