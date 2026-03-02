@@ -48,24 +48,30 @@
     {
       "project_number": 13,
       "project_name": "strengthen_first_order_parser_test_coverage",
-      "status": "researched",
+      "status": "planned",
       "language": "general",
       "created": "2026-03-02T06:06:06Z",
-      "last_updated": "2026-03-02T20:07:27Z",
+      "last_updated": "2026-03-02T20:12:49Z",
       "description": "Strengthen test coverage for first-order parser and vocabulary discovery. Original scope (tasks 7-9): add integration tests connecting term algebra to parser (free_variables on parsed formulas), expand lambdaApp tests to cover substitute(), add parser error handling tests (malformed input: missing body after quantifier, unclosed brackets, invalid variable names), and add TDD-conformant placeholder tests for task 7 operator stubs. Extended scope (task 14): add comprehensive tests for the new syntax convention (bare identifiers as constants, [] required for predicates), vocabulary auto-discovery edge cases, arity validation error paths, and semantic TypeError for constant truth evaluation.",
       "dependencies": [
         9,
         14
       ],
-      "session_id": "sess_1772481821_035586",
+      "session_id": "sess_1772482191_44b1d3",
       "researched": "2026-03-02T20:07:27Z",
       "artifacts": [
         {
           "path": "specs/013_strengthen_first_order_parser_test_coverage/reports/research-001.md",
           "type": "research",
           "summary": "Identified 30 missing tests across 5 categories: 14 parser error handling tests, 5 parser-term integration tests, 3 lambdaApp tests, 6 vocabulary edge case tests, and 2 semantic handling tests"
+        },
+        {
+          "path": "specs/013_strengthen_first_order_parser_test_coverage/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan adding 30 tests for parser error handling, integration, lambdaApp, vocabulary edge cases, and semantic handling"
         }
-      ]
+      ],
+      "planned": "2026-03-02T20:12:49Z"
     },
     {
       "project_number": 12,
