@@ -1,6 +1,14 @@
 {
-  "next_project_number": 17,
+  "next_project_number": 18,
   "active_projects": [
+    {
+      "project_number": 17,
+      "project_name": "fix_remaining_uppercase_directory_references",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-02T23:01:52Z",
+      "last_updated": "2026-03-02T23:01:52Z"
+    },
     {
       "project_number": 16,
       "project_name": "update_references_to_renamed_lowercase_directories",

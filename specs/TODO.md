@@ -1,10 +1,18 @@
 ---
-next_project_number: 17
+next_project_number: 18
 ---
 
 # Task List
 
 ## Tasks
+
+### 17. Fix remaining uppercase directory references missed by task 16
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #16
+
+**Description**: Follow-up to task 16. Neovim keybinding `<leader>rm` fails with "Could not find Code/dev_cli.py in project" indicating some uppercase directory references were not updated. Carefully research all remaining references throughout the repository that still need to be fixed.
 
 ### 16. Update all references to renamed lowercase directories
 - **Effort**: Medium
