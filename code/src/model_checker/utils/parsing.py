@@ -65,7 +65,7 @@ def tokenize_first_order(expression: str) -> List[str]:
     n = len(expression)
 
     # Special single-character delimiters
-    delimiters = {'(', ')', '<', '>', '[', ']', ',', '.'}
+    delimiters = {'(', ')', '<', '>', '[', ']', ',', '.', '='}
 
     while i < n:
         char = expression[i]
@@ -397,7 +397,8 @@ def _parse_binary_expression(tokens: List[str]) -> Tuple[List[Any], int]:
             depth_angle -= 1
         elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
             # Check if this is a binary operator
-            if t.startswith("\\") and t not in {"\\top", "\\bot", "\\neg", "\\lambda", "\\forall", "\\exists"}:
+            # Include = for identity, and LaTeX binary operators
+            if t == "=" or (t.startswith("\\") and t not in {"\\top", "\\bot", "\\neg", "\\lambda", "\\forall", "\\exists"}):
                 operator_idx = i
                 break
 

@@ -181,8 +181,20 @@ class LogosSemantics(SemanticDefaults):
         if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
+
         operator = sentence.operator
         if operator is None:
+            # Check if this is a predicate application: [pred_name, term1, term2, ...]
+            from model_checker.syntactic.terms import Term
+            prefix = sentence.prefix_sentence
+            if (isinstance(prefix, list) and len(prefix) >= 2 and
+                isinstance(prefix[0], str) and
+                all(isinstance(arg, Term) for arg in prefix[1:])):
+                # Predicate application: evaluate using predicate_verify
+                pred_name = prefix[0]
+                term_args = prefix[1:]
+                return self._predicate_true_at(pred_name, term_args, eval_point)
+
             # Task 14: No operator and no sentence_letter means this is a constant
             # Constants are domain elements, not propositions
             raise TypeError(
@@ -222,8 +234,20 @@ class LogosSemantics(SemanticDefaults):
         if sentence_letter is not None:
             x = z3.BitVec("f_atom_x", self.N)
             return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
+
         operator = sentence.operator
         if operator is None:
+            # Check if this is a predicate application: [pred_name, term1, term2, ...]
+            from model_checker.syntactic.terms import Term
+            prefix = sentence.prefix_sentence
+            if (isinstance(prefix, list) and len(prefix) >= 2 and
+                isinstance(prefix[0], str) and
+                all(isinstance(arg, Term) for arg in prefix[1:])):
+                # Predicate application: evaluate using predicate_falsify
+                pred_name = prefix[0]
+                term_args = prefix[1:]
+                return self._predicate_false_at(pred_name, term_args, eval_point)
+
             # Task 14: No operator and no sentence_letter means this is a constant
             # Constants are domain elements, not propositions
             raise TypeError(
@@ -705,6 +729,90 @@ class LogosSemantics(SemanticDefaults):
             raise KeyError(f"Predicate '{name}' not registered. "
                           f"Call register_predicate('{name}', arity) first.")
         return self._predicate_falsifiers[name](*args, state)
+
+    def _predicate_true_at(self, pred_name, term_args, eval_point):
+        """Evaluate truth of a predicate application at an evaluation point.
+
+        P(t1, ..., tn) is true at w iff there exists a state x that is part of w
+        and x verifies P(d1, ..., dn) where di = [[ti]].
+
+        Args:
+            pred_name: Name of the predicate
+            term_args: List of Term objects as arguments
+            eval_point: Evaluation point with world and assignment
+
+        Returns:
+            Z3 constraint for predicate truth
+        """
+        import importlib
+        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
+        term_denotation = first_order.term_denotation
+
+        eval_world = eval_point["world"]
+        assignment = self.get_assignment(eval_point)
+
+        # Compute denotations of all term arguments
+        arg_denotations = tuple(
+            term_denotation(arg, assignment, self)
+            for arg in term_args
+        )
+
+        # Register predicate if not already registered
+        arity = len(term_args)
+        if pred_name not in self._predicate_verifiers:
+            self.register_predicate(pred_name, arity)
+
+        # P(args) is true iff exists x. x <= w and x verifies P(args)
+        x = z3.BitVec(f"pred_t_{pred_name}_x", self.N)
+        return Exists(
+            x,
+            z3.And(
+                self.is_part_of(x, eval_world),
+                self.predicate_verify(pred_name, arg_denotations, x)
+            )
+        )
+
+    def _predicate_false_at(self, pred_name, term_args, eval_point):
+        """Evaluate falsity of a predicate application at an evaluation point.
+
+        P(t1, ..., tn) is false at w iff there exists a state x that is part of w
+        and x falsifies P(d1, ..., dn) where di = [[ti]].
+
+        Args:
+            pred_name: Name of the predicate
+            term_args: List of Term objects as arguments
+            eval_point: Evaluation point with world and assignment
+
+        Returns:
+            Z3 constraint for predicate falsity
+        """
+        import importlib
+        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
+        term_denotation = first_order.term_denotation
+
+        eval_world = eval_point["world"]
+        assignment = self.get_assignment(eval_point)
+
+        # Compute denotations of all term arguments
+        arg_denotations = tuple(
+            term_denotation(arg, assignment, self)
+            for arg in term_args
+        )
+
+        # Register predicate if not already registered
+        arity = len(term_args)
+        if pred_name not in self._predicate_falsifiers:
+            self.register_predicate(pred_name, arity)
+
+        # P(args) is false iff exists x. x <= w and x falsifies P(args)
+        x = z3.BitVec(f"pred_f_{pred_name}_x", self.N)
+        return Exists(
+            x,
+            z3.And(
+                self.is_part_of(x, eval_world),
+                self.predicate_falsify(pred_name, arg_denotations, x)
+            )
+        )
 
 
 class LogosProposition(PropositionDefaults):

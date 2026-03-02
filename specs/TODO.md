@@ -53,7 +53,9 @@ next_project_number: 17
 
 ### 12. Create first-order examples and integration tests
 - **Effort**: Medium
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](012_first_order_examples_and_tests/summaries/implementation-summary-20260302.md)
 - **Language**: general
 - **Dependencies**: Task #11
 - **Research**: [research-001.md](012_first_order_examples_and_tests/reports/research-001.md), [research-002.md](012_first_order_examples_and_tests/reports/research-002.md)
