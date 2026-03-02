@@ -47,7 +47,7 @@ next_project_number: 16
 - **Status**: [RESEARCHED]
 - **Language**: general
 - **Dependencies**: Task #11
-- **Research**: [research-001.md](012_first_order_examples_and_tests/reports/research-001.md)
+- **Research**: [research-001.md](012_first_order_examples_and_tests/reports/research-001.md), [research-002.md](012_first_order_examples_and_tests/reports/research-002.md)
 
 **Description**: Populate `examples.py` with theorem examples (FO_TH_1 through FO_TH_8: universal distribution, existential distribution, quantifier duality, reflexivity/symmetry/transitivity of identity, Leibniz's Law, lambda beta reduction) and countermodel examples (FO_CM_1 through FO_CM_4: universal to particular, existential instantiation, quantifier scope ambiguity, hyperintensional collapse). Create comprehensive test suite in `tests/test_first_order_examples.py` covering all operators and their interaction with extensional/modal operators.
 
