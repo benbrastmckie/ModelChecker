@@ -1,6 +1,17 @@
 {
-  "next_project_number": 14,
+  "next_project_number": 15,
   "active_projects": [
+    {
+      "project_number": 14,
+      "project_name": "auto_discover_predicates_functions_constants",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-02T17:50:53Z",
+      "last_updated": "2026-03-02T17:50:53Z",
+      "dependencies": [
+        10
+      ]
+    },
     {
       "project_number": 13,
       "project_name": "strengthen_first_order_parser_test_coverage",

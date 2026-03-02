@@ -1,10 +1,18 @@
 ---
-next_project_number: 14
+next_project_number: 15
 ---
 
 # Task List
 
 ## Tasks
+
+### 14. Auto-discover predicates, functions, and constants from formulas
+- **Effort**: Medium-Large
+- **Status**: [NOT STARTED]
+- **Language**: general
+- **Dependencies**: Task #10
+
+**Description**: Replace manual registration of predicates, functions, and constants with automatic discovery from parsed formulas. Unify sentence letters as zero-arity predicates (`P[]` notation). When parsing a formula, collect all predicate applications (with their arities), function symbols (with their arities), and constants. Auto-register these with the semantics before evaluation. This extends the existing sentence letter auto-discovery pattern to the full first-order vocabulary, eliminating the need for explicit `register_predicate()`, `register_function()`, and `register_constant()` calls.
 
 ### 13. Strengthen first-order parser test coverage
 - **Effort**: Medium
