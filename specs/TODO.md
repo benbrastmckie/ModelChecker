@@ -8,7 +8,9 @@ next_project_number: 18
 
 ### 17. Fix remaining uppercase directory references missed by task 16
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](017_fix_remaining_uppercase_directory_references/summaries/implementation-summary-20260302.md)
 - **Language**: general
 - **Dependencies**: Task #16
 - **Research**: [research-001.md](017_fix_remaining_uppercase_directory_references/reports/research-001.md)

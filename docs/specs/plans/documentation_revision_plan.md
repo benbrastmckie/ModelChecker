@@ -25,14 +25,14 @@ This plan outlines the comprehensive revision of ModelChecker documentation to e
 - All existing READMEs need compliance verification against current standards
 - Main documentation hub requires structural updates
 
-**Scope:** Complete documentation audit and revision across all Docs/ subdirectories, ensuring comprehensive coverage, accurate cross-references, and adherence to quality standards.
+**Scope:** Complete documentation audit and revision across all docs/ subdirectories, ensuring comprehensive coverage, accurate cross-references, and adherence to quality standards.
 
 ## Current State Analysis
 
 ### Directory Structure Assessment
 
 ```
-Docs/
+docs/
 ├── README.md                       ✓ Present (needs revision)
 ├── installation/
 │   └── README.md                   ✓ Present (needs compliance check)
@@ -65,12 +65,12 @@ Docs/
 
 ### Critical Missing Files
 
-1. **`Docs/maintenance/quality/README.md`**
+1. **`docs/maintenance/quality/README.md`**
    - Purpose: Documentation quality standards hub
    - Content: Overview of quality control processes, file descriptions, usage guidelines
    - Navigation: Links to parent maintenance directory and individual standards
 
-2. **`Docs/maintenance/templates/README.md`**
+2. **`docs/maintenance/templates/README.md`**
    - Purpose: Documentation template usage guide
    - Content: Template descriptions, usage instructions, customization guidelines
    - Navigation: Links to parent maintenance directory and individual templates
@@ -90,7 +90,7 @@ Following the user's requirement, implementation proceeded from deepest director
 
 1. ✅ **Level 3 (Deepest):** `maintenance/quality/`, `maintenance/templates/` - Created missing READMEs
 2. ✅ **Level 2:** `maintenance/`, `installation/`, `architecture/`, `usage/`, `theory/` - Updated links and verified compliance
-3. ✅ **Level 1 (Root):** `Docs/` - Comprehensively revised main documentation hub
+3. ✅ **Level 1 (Root):** `docs/` - Comprehensively revised main documentation hub
 
 ### Quality Control Process
 
@@ -154,10 +154,10 @@ Following the user's requirement, implementation proceeded from deepest director
 
 ### Phase 3: Integration - Root Directory
 
-**Directory:** `Docs/`
+**Directory:** `docs/`
 
 **Tasks:**
-1. Comprehensive revision of main `Docs/README.md`
+1. Comprehensive revision of main `docs/README.md`
    - Update directory structure to reflect new READMEs
    - Correct all cross-reference links
    - Verify file counts and descriptions
@@ -193,16 +193,16 @@ For each README.md file:
 ## Timeline and Deliverables
 
 ### Phase 1 Deliverables (Foundation) ✅ COMPLETED
-- ✅ `Docs/maintenance/quality/README.md` - Quality standards hub
-- ✅ `Docs/maintenance/templates/README.md` - Template usage guide
+- ✅ `docs/maintenance/quality/README.md` - Quality standards hub
+- ✅ `docs/maintenance/templates/README.md` - Template usage guide
 
 ### Phase 2 Deliverables (Integration) ✅ COMPLETED
-- ✅ Updated `Docs/maintenance/README.md` with corrected links to new directory structure
+- ✅ Updated `docs/maintenance/README.md` with corrected links to new directory structure
 - ✅ Verified compliance for 4 intermediate directory READMEs (installation, architecture, usage, theory)
 - ✅ Corrected cross-references throughout maintenance documentation
 
 ### Phase 3 Deliverables (Completion) ✅ COMPLETED
-- ✅ Comprehensively revised `Docs/README.md` - Main documentation hub updated with new structure
+- ✅ Comprehensively revised `docs/README.md` - Main documentation hub updated with new structure
 - ✅ Updated directory tree to reflect new quality/ and templates/ subdirectories
 - ✅ Enhanced developer documentation section with quality control resources
 

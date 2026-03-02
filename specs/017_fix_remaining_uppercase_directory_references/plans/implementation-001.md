@@ -1,7 +1,7 @@
 # Implementation Plan: Task #17
 
 - **Task**: 17 - Fix remaining uppercase directory references missed by task 16
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 1.5 hours
 - **Dependencies**: Task #16 (completed)
 - **Research Inputs**: specs/017_fix_remaining_uppercase_directory_references/reports/research-001.md
@@ -47,7 +47,7 @@ Research identified 6 categories of remaining references:
 
 ## Implementation Phases
 
-### Phase 1: Fix .gitignore Entries [NOT STARTED]
+### Phase 1: Fix .gitignore Entries [COMPLETED]
 
 **Goal**: Update .gitignore to reference the correct lowercase `code/` directory paths
 
@@ -65,7 +65,7 @@ Research identified 6 categories of remaining references:
 
 ---
 
-### Phase 2: Clean Generated Files [NOT STARTED]
+### Phase 2: Clean Generated Files [COMPLETED]
 
 **Goal**: Remove or regenerate files containing stale path references
 
@@ -89,7 +89,7 @@ Research identified 6 categories of remaining references:
 
 ---
 
-### Phase 3: Update Documentation Plan (Optional) [NOT STARTED]
+### Phase 3: Update Documentation Plan (Optional) [COMPLETED]
 
 **Goal**: Update historical documentation plan for consistency if desired
 
@@ -107,7 +107,7 @@ Research identified 6 categories of remaining references:
 
 ---
 
-### Phase 4: Document External Neovim Fix [NOT STARTED]
+### Phase 4: Document External Neovim Fix [COMPLETED]
 
 **Goal**: Create clear documentation for user to fix external neovim configuration
 
@@ -141,7 +141,7 @@ After editing, the keybinding <leader>rm should work correctly.
 
 ---
 
-### Phase 5: Final Verification [NOT STARTED]
+### Phase 5: Final Verification [COMPLETED]
 
 **Goal**: Confirm all in-repository uppercase references are resolved
 
