@@ -1,6 +1,35 @@
 {
-  "next_project_number": 33,
+  "next_project_number": 35,
   "active_projects": [
+    {
+      "project_number": 34,
+      "project_name": "display_predicate_extensions_in_countermodels",
+      "status": "researching",
+      "language": "python",
+      "created": "2026-03-03T21:30:00Z",
+      "last_updated": "2026-03-03T21:22:48Z",
+      "dependencies": [],
+      "artifacts": [],
+      "session_id": "sess_1772572954_c32e92"
+    },
+    {
+      "project_number": 33,
+      "project_name": "fix_premature_progress_bar_display",
+      "status": "researched",
+      "language": "python",
+      "created": "2026-03-03T21:30:00Z",
+      "last_updated": "2026-03-03T21:26:58Z",
+      "dependencies": [],
+      "artifacts": [
+        {
+          "path": "specs/033_fix_premature_progress_bar_display/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report documenting the progress bar timing issue with three fix options and implementation recommendation"
+        }
+      ],
+      "session_id": "sess_1772572941_054562",
+      "researched": "2026-03-03T21:26:58Z"
+    },
     {
       "project_number": 32,
       "project_name": "consolidate_first_order_subtheory_structure",
