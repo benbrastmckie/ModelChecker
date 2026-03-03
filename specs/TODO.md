@@ -1,10 +1,18 @@
 ---
-next_project_number: 20
+next_project_number: 21
 ---
 
 # Task List
 
 ## Tasks
+
+### 20. Add parser well-formedness checking with fail-fast rejection of term-only sentences
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+- **Dependencies**: Task #19
+
+**Description**: Add well-formedness checking to the parser so that term-only sentences and other syntactically ill-formed inputs are rejected at parse time with clear user-facing error messages. Define what a well-formed sentence is (a sentence must have a propositional operator or sentence letter at its root — bare variables, constants, or function applications are terms, not sentences). Implement the check inside the syntactic layer (syntax.py / sentence.py) so that parsing fails immediately with a descriptive TypeError or ValueError when a non-propositional construct appears where a sentence is expected. Remove the skip-silently workaround added in task 19 (structure.py _is_nonpropositional_sentence / interpret() guard) in favour of this earlier, fail-fast rejection. This improves upon task 19 which silently skipped term-only sentences in interpret().
 
 ### 19. Investigate remaining first-order theorem failures: spurious countermodels in FO_TH_1-4 and FO_TH_6-8, and bare variable TypeError in FO_TH_7
 - **Effort**: Medium

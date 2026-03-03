@@ -1,6 +1,17 @@
 {
-  "next_project_number": 20,
+  "next_project_number": 21,
   "active_projects": [
+    {
+      "project_number": 20,
+      "project_name": "add_parser_well_formedness_checking",
+      "status": "not_started",
+      "language": "python",
+      "dependencies": [
+        19
+      ],
+      "created": "2026-03-03T00:53:14Z",
+      "last_updated": "2026-03-03T00:53:14Z"
+    },
     {
       "project_number": 19,
       "project_name": "investigate_first_order_theorem_failures",
