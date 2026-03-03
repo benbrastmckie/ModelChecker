@@ -1,12 +1,12 @@
 # Version Control Standards for Documentation
 
-[← Back to Maintenance](README.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)
+[← Back to Standards](README.md) | [Documentation Standards →](documentation/DOCUMENTATION_STANDARDS.md)
 
 ## Overview
 
 This document defines version control standards for **documentation changes** in the ModelChecker repository, including commit messages, branch naming, and workflow guidelines specific to documentation tasks.
 
-For code-specific version control standards, see [code/maintenance/VERSION_CONTROL.md](../../code/maintenance/VERSION_CONTROL.md).
+For code-specific version control and development workflow, see [code/docs/development/](../development/).
 
 ## Documentation Commit Standards
 
@@ -317,4 +317,4 @@ grep -r "[∧∨¬□◇]" docs/
 
 ---
 
-[← Back to Maintenance](README.md) | [Documentation Standards →](quality/DOCUMENTATION_STANDARDS.md)
+[← Back to Standards](README.md) | [Documentation Standards →](documentation/DOCUMENTATION_STANDARDS.md)

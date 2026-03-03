@@ -1,11 +1,11 @@
 # Quality Standards: Documentation and Code Quality Control
 
-[← Back to Maintenance](../README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md) | [README Standards →](README_STANDARDS.md)
+[← Back to Standards](../README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md) | [README Standards →](README_STANDARDS.md)
 
 ## Directory Structure
 
 ```
-quality/
+documentation/
 ├── README.md                       # This file - quality standards hub
 ├── DOCUMENTATION_STANDARDS.md      # General documentation principles and standards
 ├── README_STANDARDS.md             # README-specific formatting and content requirements
@@ -119,16 +119,16 @@ Documentation quality is maintained through:
 
 ### Template Resources
 
-- **[README Template](../templates/README_TEMPLATE.md)** - Basic README structure template
-- **[Theory README Template](../templates/THEORY_README.md)** - Theory documentation template
-- **[Subtheory README Template](../templates/SUBTHEORY_README.md)** - Subtheory documentation template
+- **[README Template](../../templates/documentation/README_TEMPLATE.md)** - Basic README structure template
+- **[Theory README Template](../../templates/documentation/THEORY_README.md)** - Theory documentation template
+- **[Subtheory README Template](../../templates/documentation/SUBTHEORY_README.md)** - Subtheory documentation template
 
 ### Related Documentation
 
-- **[Maintenance Standards](../README.md)** - Complete development standards overview
-- **[Code Organization](../CODE_ORGANIZATION.md)** - Code structure and quality guidelines
-- **[Testing Standards](../TESTING_STANDARDS.md)** - Quality assurance through testing
+- **[Documentation Standards](../README.md)** - Complete documentation standards overview
+- **[Code Standards](../../core/CODE_STANDARDS.md)** - Code structure and quality guidelines
+- **[Testing Guide](../../core/TESTING_GUIDE.md)** - Quality assurance through testing
 
 ---
 
-[← Back to Maintenance](../README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md) | [Continuous Improvement →](CONTINUOUS_IMPROVEMENT.md)
+[← Back to Standards](../README.md) | [Documentation Standards →](DOCUMENTATION_STANDARDS.md) | [Continuous Improvement →](CONTINUOUS_IMPROVEMENT.md)

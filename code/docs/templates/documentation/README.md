@@ -1,11 +1,11 @@
 # Documentation Templates: Standardized README Structures
 
-[← Back to Maintenance](../README.md) | [Quality Standards →](../quality/README.md) | [README Standards →](../quality/README_STANDARDS.md)
+[← Back to Templates](../README.md) | [Quality Standards →](../../standards/documentation/README.md) | [README Standards →](../../standards/documentation/README_STANDARDS.md)
 
 ## Directory Structure
 
 ```
-templates/
+templates/documentation/
 ├── README.md                       # This file - template usage guide
 ├── README_TEMPLATE.md              # Basic README structure for components
 ├── THEORY_README.md                # Theory documentation template
@@ -16,7 +16,7 @@ templates/
 
 This directory provides **standardized documentation templates** for creating consistent, comprehensive README.md files throughout the ModelChecker project. The templates ensure uniform structure, complete coverage of essential topics, and adherence to established quality standards while providing flexibility for component-specific content.
 
-The template system consists of **3 specialized templates**: a general component template for framework modules, a theory template for semantic implementations, and a subtheory template for modular logical extensions. Each template follows the principles established in [README_STANDARDS.md](../quality/README_STANDARDS.md) and [DOCUMENTATION_STANDARDS.md](../quality/DOCUMENTATION_STANDARDS.md).
+The template system consists of **3 specialized templates**: a general component template for framework modules, a theory template for semantic implementations, and a subtheory template for modular logical extensions. Each template follows the principles established in [README_STANDARDS.md](../../standards/documentation/README_STANDARDS.md) and [DOCUMENTATION_STANDARDS.md](../../standards/documentation/DOCUMENTATION_STANDARDS.md).
 
 ## Template System
 
@@ -171,9 +171,9 @@ When using templates:
 
 ### Quality Standards
 
-- **[README Standards](../quality/README_STANDARDS.md)** - Comprehensive README requirements
-- **[Documentation Standards](../quality/DOCUMENTATION_STANDARDS.md)** - General documentation principles
-- **[Continuous Improvement](../quality/CONTINUOUS_IMPROVEMENT.md)** - Quality enhancement processes
+- **[README Standards](../../standards/documentation/README_STANDARDS.md)** - Comprehensive README requirements
+- **[Documentation Standards](../../standards/documentation/DOCUMENTATION_STANDARDS.md)** - General documentation principles
+- **[Continuous Improvement](../../standards/documentation/CONTINUOUS_IMPROVEMENT.md)** - Quality enhancement processes
 
 ### Template Files
 
@@ -183,10 +183,9 @@ When using templates:
 
 ### Related Resources
 
-- **[Maintenance Standards](../README.md)** - Complete development standards overview
-- **[Examples Structure](../EXAMPLES_STRUCTURE.md)** - Example file formatting standards
-- **[Formula Formatting](../FORMULA_FORMATTING.md)** - Mathematical notation conventions
+- **[Standards Overview](../../standards/README.md)** - Complete documentation standards overview
+- **[Code Templates](../README.md)** - Code templates (EXAMPLES_TEMPLATE.py, etc.)
 
 ---
 
-[← Back to Maintenance](../README.md) | [Quality Standards →](../quality/README.md) | [Template Files →](README_TEMPLATE.md)
+[← Back to Templates](../README.md) | [Quality Standards →](../../standards/documentation/README.md) | [Template Files →](README_TEMPLATE.md)

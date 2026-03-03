@@ -1,6 +1,6 @@
 # Documentation Standards
 
-[← Unicode Guidelines](../UNICODE_GUIDELINES.md) | [Back to Maintenance](../README.md) | [README Standards →](README_STANDARDS.md)
+[← Standards](../README.md) | [README Standards →](README_STANDARDS.md)
 
 ## Table of Contents
 
@@ -262,14 +262,12 @@ All non-README documentation must have a table of contents with links:
 
 ### Related Standards
 - [README Standards](README_STANDARDS.md) - Specific standards for README.md files
-- [Unicode Guidelines](UNICODE_GUIDELINES.md) - Character encoding and symbol usage
-- [Audience Guidelines](AUDIENCE.md) - Writing for interdisciplinary audiences
+- [Audience Guidelines](../AUDIENCE.md) - Writing for interdisciplinary audiences
 
 ### Example Documents Following These Standards
-- [BUILDER.md](../../docs/architecture/BUILDER.md) - Demonstrates professional flowcharts
-- [PIPELINE.md](../../docs/PIPELINE.md) - Shows component relationships
-- [ITERATE.md](../../docs/architecture/ITERATE.md) - Complex technical documentation
+- [BUILDER.md](../../../../docs/architecture/BUILDER.md) - Demonstrates professional flowcharts
+- [ITERATE.md](../../../../docs/architecture/ITERATE.md) - Complex technical documentation
 
 ---
 
-[← Unicode Guidelines](../UNICODE_GUIDELINES.md) | [Back to Maintenance](../README.md) | [README Standards →](README_STANDARDS.md)
+[← Standards](../README.md) | [README Standards →](README_STANDARDS.md)

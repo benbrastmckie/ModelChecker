@@ -40,11 +40,26 @@ docs/
 │   ├── MANUAL_TESTING_GUIDE.md          # Manual test protocols
 │   └── CONTINUOUS_IMPROVEMENT.md  # Improvement process
 │
+├── standards/                     # Documentation standards (from docs/maintenance)
+│   ├── README.md                  # Documentation standards hub
+│   ├── AUDIENCE.md                # Audience guidelines
+│   ├── VERSION_CONTROL.md         # Git best practices for docs
+│   └── documentation/             # Documentation quality control
+│       ├── README.md              # Quality standards hub
+│       ├── DOCUMENTATION_STANDARDS.md  # Documentation principles
+│       ├── README_STANDARDS.md    # README requirements
+│       └── CONTINUOUS_IMPROVEMENT.md   # Quality improvement
+│
 └── templates/                     # Reusable templates
     ├── theory_template.py         # Theory implementation template
     ├── examples_template.py       # Examples file template
     ├── test_template.py           # Test file template
-    └── spec_template.md           # Specification template
+    ├── spec_template.md           # Specification template
+    └── documentation/             # Documentation templates
+        ├── README.md              # Template usage guide
+        ├── README_TEMPLATE.md     # Basic README template
+        ├── THEORY_README.md       # Theory README template
+        └── SUBTHEORY_README.md    # Subtheory README template
 ```
 
 ## Learning Path
@@ -202,6 +217,13 @@ Ensuring and measuring quality:
 - **REVIEW_CHECKLIST** - Code review process
 - **MANUAL_TESTING** - Exploratory testing
 - **CONTINUOUS_IMPROVEMENT** - Feedback and evolution
+
+### Documentation Standards
+Standards for writing documentation:
+- **[standards/README.md](standards/README.md)** - Documentation standards hub
+- **[standards/AUDIENCE.md](standards/AUDIENCE.md)** - Audience guidelines
+- **[standards/documentation/](standards/documentation/)** - Quality control for documentation
+- **[templates/documentation/](templates/documentation/)** - Documentation templates
 
 ## Success Metrics
 

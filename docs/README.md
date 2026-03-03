@@ -41,31 +41,17 @@ docs/
 │   ├── SEMANTICS.md                # Testing semantic constraints
 │   ├── OUTPUT.md                   # Output formats
 │   └── TOOLS.md                    # Advanced tools and comparison
-├── theory/                         # Theoretical foundations
-│   ├── README.md                   # Theory documentation hub
-│   ├── HYPERINTENSIONAL.md         # Hyperintensional logic
-│   ├── Z3_BACKGROUND.md            # SMT solver background
-│   ├── REFERENCES.md               # Academic bibliography
-│   └── IMPLEMENTATION.md           # Implementation insights
-└── maintenance/                    # Standards and best practices
-    ├── README.md                   # Maintenance documentation hub
-    ├── AUDIENCE.md                 # Audience guidelines
-    ├── VERSION_CONTROL.md          # Git best practices
-    ├── quality/                    # Documentation quality control
-    │   ├── README.md               # Quality standards hub
-    │   ├── DOCUMENTATION_STANDARDS.md # Documentation principles
-    │   ├── README_STANDARDS.md     # README requirements
-    │   └── CONTINUOUS_IMPROVEMENT.md # Quality improvement processes
-    └── templates/                  # Documentation templates
-        ├── README.md               # Template usage guide
-        ├── README_TEMPLATE.md      # Basic README template
-        ├── THEORY_README.md        # Theory README template
-        └── SUBTHEORY_README.md     # Subtheory README template
+└── theory/                         # Theoretical foundations
+    ├── README.md                   # Theory documentation hub
+    ├── HYPERINTENSIONAL.md         # Hyperintensional logic
+    ├── Z3_BACKGROUND.md            # SMT solver background
+    ├── REFERENCES.md               # Academic bibliography
+    └── IMPLEMENTATION.md           # Implementation insights
 ```
 
 ## Overview
 
-This directory serves as the **comprehensive documentation hub** for the ModelChecker framework, providing user guides, research documentation, and theoretical background. The documentation is organized into **5 major categories**: installation and setup, programmatic semantics architecture, practical usage workflows, theoretical foundations, and maintenance standards.
+This directory serves as the **comprehensive documentation hub** for the ModelChecker framework, providing user guides, research documentation, and theoretical background. The documentation is organized into **4 major categories**: installation and setup, programmatic semantics architecture, practical usage workflows, and theoretical foundations.
 
 The documentation follows an **interdisciplinary approach**, making computational logic accessible to researchers from diverse backgrounds including logic, linguistics, computer science, and AI. Each section is designed to be self-contained while providing clear navigation to related topics, enabling readers to find exactly what they need without navigating through unrelated content.
 
@@ -161,10 +147,6 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 
 **Theoretical foundations and research context** including hyperintensional logic, truthmaker semantics, SMT solving background, and implementation insights. Provides the academic grounding for ModelChecker's approach. See [theory/README.md](theory/README.md) for theoretical documentation.
 
-### [maintenance/](maintenance/)
-
-**Standards and best practices** ensuring consistency across the codebase. Covers comprehensive development standards, documentation quality control, and template resources. Includes specialized quality standards directory and documentation templates for consistent structure. See [maintenance/README.md](maintenance/README.md) for all standards.
-
 ## Documentation
 
 ### For New Users
@@ -184,16 +166,15 @@ For hands-on examples, see [Getting Started](installation/GETTING_STARTED.md).
 
 - **[Developer Setup](installation/DEVELOPER_SETUP.md)** - Contributing environment
 - **[Technical Docs](../code/docs/README.md)** - Implementation details
-- **[Maintenance Standards](maintenance/README.md)** - Code quality guides
-- **[Quality Standards](maintenance/quality/README.md)** - Documentation quality control
-- **[Documentation Templates](maintenance/templates/README.md)** - Standardized README structures
+- **[Documentation Standards](../code/docs/standards/README.md)** - Documentation quality guides
+- **[Code Standards](../code/docs/core/CODE_STANDARDS.md)** - Code quality guides
 
 ## Key Features
 
 ### Comprehensive Coverage
 
-- **5 major documentation categories** with dedicated README hubs
-- **30+ detailed guides** covering all aspects of ModelChecker
+- **4 major documentation categories** with dedicated README hubs
+- **25+ detailed guides** covering all aspects of ModelChecker
 - **Quality-controlled documentation** with comprehensive standards and templates
 - **Interdisciplinary approach** serving diverse academic backgrounds
 - **Clear navigation** with consistent structure and cross-references
