@@ -8,22 +8,11 @@ next_project_number: 32
 
 <!-- New tasks are prepended below this line -->
 
-### 27. Flatten code/src/ directory structure
-- **Effort**: 4-6 hours
-- **Status**: [RESEARCHED]
-- **Research**: [research-027.md](027_flatten_code_src_directory/reports/research-027.md), [research-002.md](027_flatten_code_src_directory/reports/research-002.md)
-- **Language**: python
-- **Dependencies**: None
-
-**Description**: Move contents of `code/src/model_checker/` into `code/src/` to eliminate unnecessary directory depth. Update all import references (relative and absolute), pyproject.toml, setup.py if present, and any other configuration files. Run tests before and after to confirm no regression. Track all path changes systematically.
-
----
-
 ### 28. Archive unused theory libraries
 - **Effort**: 1-2 hours
 - **Status**: [NOT STARTED]
 - **Language**: python
-- **Dependencies**: Task #27
+- **Dependencies**: None
 
 **Description**: Archive `theory_lib/exclusion/` and `theory_lib/imposition/` directories to `code/boneyard/`. Update any references to these theories in the codebase. Ensure the boneyard directory structure preserves the original organization. Run tests to confirm no regression from removing these theories from active code paths.
 

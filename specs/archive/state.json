@@ -2,6 +2,29 @@
   "archived_projects": [],
   "completed_projects": [
     {
+      "project_number": 27,
+      "project_name": "flatten_code_src_directory",
+      "status": "abandoned",
+      "language": "python",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:18:49Z",
+      "session_id": "sess_1772565275_1c6b8f",
+      "researched": "2026-03-03T19:18:49Z",
+      "artifacts": [
+        {
+          "path": "specs/027_flatten_code_src_directory/reports/research-027.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of directory flattening impact: 382 Python files, 300+ relative imports, 162 absolute imports, 811 path references. Risk assessment and alternative recommendations included."
+        },
+        {
+          "path": "specs/027_flatten_code_src_directory/reports/research-002.md",
+          "type": "research",
+          "summary": "Analysis of alternative directory flattening opportunities beyond code/src/model_checker - identifies low-risk cleanup and consolidation options"
+        }
+      ],
+      "abandoned": "2026-03-03T19:20:53Z"
+    },
+    {
       "project_number": 21,
       "project_name": "fix_first_order_proposition_display",
       "status": "completed",
