@@ -15,22 +15,23 @@ next_project_number: 22
 
 ### 25. Fix CLI interactive mode tests
 - **Effort**: Large
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: python
 
 **Description**: Fix 21 test failures in `test_cli_interactive.py` (15 tests) and `test_build_module_interactive.py` (6 tests) that require: (1) A `--interactive/-I` flag in `ParseFileFlags` (`__main__.py`) — tests expect `flags.interactive` attribute and `parser._short_to_long['I'] == 'interactive'`; (2) `model_checker.output.interactive` module — `test_build_module_interactive.py` tries `import model_checker.output.interactive`; (3) `BuildModule.semantic_theories` attribute. Research whether these are planned features to implement or aspirational tests to delete/update. If implementing, add the `--interactive` flag to argparse, create the output.interactive module stub, and expose `semantic_theories` on `BuildModule`. If deleting, remove only after confirming these features are not in scope.
 
 ### 24. Resolve aspirational architecture tests
 - **Effort**: Medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: python
 - **Research**: [research-001.md](024_resolve_aspirational_architecture_tests/reports/research-001.md)
+- **Plan**: [implementation-001.md](024_resolve_aspirational_architecture_tests/plans/implementation-001.md)
 
 **Description**: Fix 12 test failures in `test_architecture_validation.py` (9 tests) and `test_batch_output_integration.py` (3 tests) that test APIs which do not exist: `model_checker.core.interfaces` (TheoryInterface, ExampleInterface), `model_checker.theory_lib.registry` (TheoryRegistry, get_theory), `model_checker.builder.Example` class, `model_checker.check_example` function, and `BuildProject.from_example` method. These tests define a planned clean architecture that was never implemented. Research whether these architectural APIs should be implemented (as the tests were written as specs) or whether the tests should be deleted/replaced with tests for the existing architecture. Whichever approach is chosen, achieve zero failures in these two test files.
 
 ### 23. Fix tests using outdated API signatures
 - **Effort**: Medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Language**: python
 - **Research**: [research-001.md](023_fix_outdated_api_signatures_in_tests/reports/research-001.md)
 

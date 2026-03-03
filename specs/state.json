@@ -755,11 +755,11 @@
     {
       "project_number": 23,
       "project_name": "fix_outdated_api_signatures_in_tests",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T04:40:43Z",
+      "last_updated": "2026-03-03T04:45:09Z",
       "artifacts": [
         {
           "path": "specs/023_fix_outdated_api_signatures_in_tests/reports/research-001.md",
@@ -767,36 +767,44 @@
           "summary": "Research report identifying 5 API signature mismatches across 8 test files with fix patterns"
         }
       ],
-      "session_id": "sess_1772512595_a047e8",
-      "researched": "2026-03-03T04:40:43Z"
+      "session_id": "sess_1772512935_cdd4c3",
+      "researched": "2026-03-03T04:40:43Z",
+      "planned": "2026-03-03T04:45:09Z"
     },
     {
       "project_number": 24,
       "project_name": "resolve_aspirational_architecture_tests",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T04:41:50Z",
+      "last_updated": "2026-03-03T04:45:12Z",
       "artifacts": [
         {
           "path": "specs/024_resolve_aspirational_architecture_tests/reports/research-001.md",
           "type": "research",
           "summary": "Research report recommending deletion of aspirational architecture tests that define non-existent APIs"
+        },
+        {
+          "path": "specs/024_resolve_aspirational_architecture_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan to delete aspirational test files and verify test suite"
         }
       ],
-      "session_id": "sess_1772512646_c4b7a8",
-      "researched": "2026-03-03T04:41:50Z"
+      "session_id": "sess_1772512995_2fa9be",
+      "researched": "2026-03-03T04:41:50Z",
+      "planned": "2026-03-03T04:45:12Z"
     },
     {
       "project_number": 25,
       "project_name": "fix_cli_interactive_mode_tests",
-      "status": "not_started",
+      "status": "researching",
       "language": "python",
       "effort": "Large",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T02:38:05Z",
-      "artifacts": []
+      "last_updated": "2026-03-03T04:42:29Z",
+      "artifacts": [],
+      "session_id": "sess_1772512929_901c18"
     },
     {
       "project_number": 26,
