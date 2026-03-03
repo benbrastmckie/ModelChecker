@@ -10,7 +10,8 @@ next_project_number: 32
 
 ### 27. Flatten code/src/ directory structure
 - **Effort**: 4-6 hours
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [research-027.md](027_flatten_code_src_directory/reports/research-027.md)
 - **Language**: python
 - **Dependencies**: None
 
@@ -30,7 +31,7 @@ next_project_number: 32
 
 ### 29. Clean up specs directories
 - **Effort**: 1 hour
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: general
 - **Dependencies**: None
 
