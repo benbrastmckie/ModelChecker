@@ -47,7 +47,7 @@ Key findings from research-001.md integrated into this plan:
 
 ## Implementation Phases
 
-### Phase 1: Fix argparse argv order tests [NOT STARTED]
+### Phase 1: Fix argparse argv order tests [COMPLETED]
 
 **Goal**: Fix 4 failing tests in `test_cli_subtheory.py` by reordering argv to place positional file argument before `--subtheory` flag.
 
@@ -69,7 +69,7 @@ Key findings from research-001.md integrated into this plan:
 
 ---
 
-### Phase 2: Fix performance scaling tests [NOT STARTED]
+### Phase 2: Fix performance scaling tests [COMPLETED]
 
 **Goal**: Fix 3 failing tests in `test_performance.py` by removing N=16 case that hangs and fixing fallback assertion threshold.
 
@@ -93,7 +93,7 @@ Key findings from research-001.md integrated into this plan:
 
 ---
 
-### Phase 3: Fix timeout and resource tests [NOT STARTED]
+### Phase 3: Fix timeout and resource tests [COMPLETED]
 
 **Goal**: Fix 2 failing tests in `test_timeout_resources.py` by using small N values and realistic timing thresholds.
 
@@ -119,7 +119,7 @@ Key findings from research-001.md integrated into this plan:
 
 ---
 
-### Phase 4: Fix project creation tests [NOT STARTED]
+### Phase 4: Fix project creation tests [COMPLETED]
 
 **Goal**: Fix 3 failing tests in `test_project_creation.py` by updating `create_temp_project` helper and rewriting `test_project_directory_creation`.
 
@@ -147,7 +147,7 @@ Key findings from research-001.md integrated into this plan:
 
 ---
 
-### Phase 5: Fix batch output test [NOT STARTED]
+### Phase 5: Fix batch output test [COMPLETED]
 
 **Goal**: Fix 1 failing test in `test_batch_output_real.py` by using correct CLI flags and realistic assertions.
 

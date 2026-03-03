@@ -27,26 +27,23 @@ class TestProjectCreation:
         }
     
     def test_project_directory_creation(self, project_setup, tmp_path):
-        """Test project directory is created correctly."""
-        # Create project using dev_cli
-        original_dir = os.getcwd()
-        try:
-            os.chdir(tmp_path)
-            
-            # Run project creation command
-            cmd = f'echo -e "y\n{project_setup["project_name"]}\nn\n" | ./dev_cli.py -l {project_setup["theory"]}'
-            result = run_cli_command(
-                ["bash", "-c", cmd],
-                capture_output=True
-            )
-            
-            # Check project directory exists
-            project_path = tmp_path / f"project_{project_setup['project_name']}"
-            assert project_path.exists(), f"Project directory not created at {project_path}"
-            assert project_path.is_dir(), "Project path is not a directory"
-            
-        finally:
-            os.chdir(original_dir)
+        """Test project directory is created correctly using BuildProject API."""
+        from model_checker.builder.project import BuildProject
+
+        # Create project using BuildProject API directly
+        builder = BuildProject(theory=project_setup['theory'])
+        project_path = builder.generate(
+            name=project_setup['project_name'],
+            destination_dir=str(tmp_path)
+        )
+
+        # Check project directory exists
+        project_path = Path(project_path)
+        assert project_path.exists(), f"Project directory not created at {project_path}"
+        assert project_path.is_dir(), "Project path is not a directory"
+
+        # Verify expected project name prefix
+        assert project_path.name == f"project_{project_setup['project_name']}"
     
     def test_project_file_structure(self, project_setup, tmp_path):
         """Test all expected files are created."""

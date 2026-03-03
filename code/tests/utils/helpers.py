@@ -300,26 +300,29 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
 def create_temp_project(tmp_path: Path, project_name: str = 'test_project',
                        theory_name: str = 'logos') -> Path:
     """Create a temporary ModelChecker project for testing.
-    
+
     Args:
         tmp_path: Temporary directory path
         project_name: Name of the project
         theory_name: Theory to use for the project
-        
+
     Returns:
         Path: Path to the created project directory
     """
     project_dir = tmp_path / project_name
     project_dir.mkdir()
-    
+
     # Create basic project structure
-    (project_dir / '__init__.py').write_text('')
-    (project_dir / 'examples.py').write_text(f'''
+    # __init__.py must have content and export examples for tests to pass
+    (project_dir / '__init__.py').write_text(f'''"""Package for {project_name}."""
+from . import examples
+''')
+    (project_dir / 'examples.py').write_text(f'''"""Example definitions for {project_name}."""
 from model_checker.theory_lib import {theory_name}
 
 theory = {theory_name}.get_theory()
 semantic_theories = {{"{project_name}": theory}}
 example_range = {{"TEST": [[], ["A"], {{"N": 2}}]}}
 ''')
-    
+
     return project_dir

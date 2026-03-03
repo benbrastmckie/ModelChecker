@@ -8,8 +8,10 @@ next_project_number: 22
 
 ### 26. Fix remaining CLI, E2E, and performance test failures
 - **Effort**: Medium
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Language**: python
+- **Completed**: 2026-03-03
+- **Summary**: Fixed 13 failing tests across 5 test files. All fixes targeted test-side mismatches rather than production code: argparse argv ordering, N=16 hang prevention, realistic timing thresholds, proper helper functions, and correct CLI flags.
 - **Research**: [research-001.md](026_fix_remaining_cli_e2e_performance_tests/reports/research-001.md)
 - **Plan**: [implementation-001.md](026_fix_remaining_cli_e2e_performance_tests/plans/implementation-001.md)
 
