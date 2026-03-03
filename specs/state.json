@@ -1,6 +1,14 @@
 {
-  "next_project_number": 21,
+  "next_project_number": 22,
   "active_projects": [
+    {
+      "project_number": 21,
+      "project_name": "fix_first_order_proposition_display",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-03T01:40:59Z",
+      "last_updated": "2026-03-03T01:40:59Z"
+    },
     {
       "project_number": 20,
       "project_name": "add_parser_well_formedness_checking",
