@@ -22,7 +22,7 @@ next_project_number: 32
 - **Effort**: 1 hour
 - **Status**: [PLANNED]
 - **Research**: [research-001.md](029_cleanup_specs_directories/reports/research-001.md)
-- **Plan**: [implementation-001.md](029_cleanup_specs_directories/plans/implementation-001.md)
+- **Plan**: [implementation-002.md](029_cleanup_specs_directories/plans/implementation-002.md)
 - **Language**: general
 - **Dependencies**: None
 
