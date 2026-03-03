@@ -8,7 +8,9 @@ next_project_number: 19
 
 ### 18. Fix first-order subtheory: 6 interconnected bugs causing crashes and wrong semantic results
 - **Effort**: Large
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](018_fix_first_order_subtheory_bugs/summaries/implementation-summary-20260302.md)
 - **Language**: python
 - **Research**: [research-001.md](018_fix_first_order_subtheory_bugs/reports/research-001.md)
 - **Plan**: [implementation-001.md](018_fix_first_order_subtheory_bugs/plans/implementation-001.md)

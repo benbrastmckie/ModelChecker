@@ -4,11 +4,11 @@
     {
       "project_number": 18,
       "project_name": "fix_first_order_subtheory_bugs",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-02T23:47:55Z",
-      "last_updated": "2026-03-03T00:00:42Z",
-      "session_id": "sess_1772495905_1f4671",
+      "last_updated": "2026-03-03T00:12:04Z",
+      "session_id": "sess_1772496283_cca267",
       "researched": "2026-03-02T23:56:50Z",
       "artifacts": [
         {
@@ -20,9 +20,16 @@
           "path": "specs/018_fix_first_order_subtheory_bugs/plans/implementation-001.md",
           "type": "plan",
           "summary": "5-phase implementation plan for fixing 6 interconnected first-order subtheory bugs"
+        },
+        {
+          "path": "specs/018_fix_first_order_subtheory_bugs/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all bug fixes and verification results"
         }
       ],
-      "planned": "2026-03-03T00:00:42Z"
+      "planned": "2026-03-03T00:00:42Z",
+      "completed": "2026-03-03T00:12:04Z",
+      "completion_summary": "Fixed 6 first-order subtheory bugs causing crashes and wrong semantics. Added predicate handling to extended_verify, extended_falsify, and find_proposition. Enabled constant auto-registration and free variable handling. Test results improved from 5/12 to 7/12 passing."
     },
     {
       "project_number": 17,

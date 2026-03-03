@@ -291,6 +291,17 @@ class LogosSemantics(SemanticDefaults):
             return self.verify(state, sentence_letter)
         operator = sentence.operator
         if operator is None:
+            # Check if this is a predicate application: [pred_name, term1, term2, ...]
+            from model_checker.syntactic.terms import Term
+            prefix = sentence.prefix_sentence
+            if (isinstance(prefix, list) and len(prefix) >= 2 and
+                isinstance(prefix[0], str) and
+                all(isinstance(arg, Term) for arg in prefix[1:])):
+                # Predicate application: evaluate using predicate extended verify
+                pred_name = prefix[0]
+                term_args = prefix[1:]
+                return self._predicate_extended_verify(state, pred_name, term_args, eval_point)
+
             raise TypeError(
                 f"Cannot verify '{sentence.name}': "
                 f"constants are domain elements, not propositions. "
@@ -332,6 +343,17 @@ class LogosSemantics(SemanticDefaults):
             return self.falsify(state, sentence_letter)
         operator = sentence.operator
         if operator is None:
+            # Check if this is a predicate application: [pred_name, term1, term2, ...]
+            from model_checker.syntactic.terms import Term
+            prefix = sentence.prefix_sentence
+            if (isinstance(prefix, list) and len(prefix) >= 2 and
+                isinstance(prefix[0], str) and
+                all(isinstance(arg, Term) for arg in prefix[1:])):
+                # Predicate application: evaluate using predicate extended falsify
+                pred_name = prefix[0]
+                term_args = prefix[1:]
+                return self._predicate_extended_falsify(state, pred_name, term_args, eval_point)
+
             raise TypeError(
                 f"Cannot falsify '{sentence.name}': "
                 f"constants are domain elements, not propositions. "
@@ -599,18 +621,21 @@ class LogosSemantics(SemanticDefaults):
     def constant_interpretation(self, name: str) -> z3.BitVecRef:
         """Get the interpretation of a constant.
 
+        Auto-registers unknown constants with a fresh Z3 BitVec variable.
+        This allows constants to be used without explicit registration,
+        supporting first-order examples that reference constants like 'a<>'.
+
         Args:
             name: The constant name
 
         Returns:
             The domain element denoted by this constant
-
-        Raises:
-            KeyError: If the constant has not been registered
         """
         if name not in self._constant_interpretations:
-            raise KeyError(f"Constant '{name}' not registered. "
-                          f"Call register_constant('{name}', value) first.")
+            # Auto-register with a fresh Z3 BitVec variable
+            # Use const_{name} naming convention for consistency
+            fresh_const = z3.BitVec(f"const_{name}", self.N)
+            self._constant_interpretations[name] = fresh_const
         return self._constant_interpretations[name]
 
     def register_function(self, name: str, arity: int) -> None:
@@ -813,6 +838,76 @@ class LogosSemantics(SemanticDefaults):
                 self.predicate_falsify(pred_name, arg_denotations, x)
             )
         )
+
+    def _predicate_extended_verify(self, state, pred_name, term_args, eval_point):
+        """Determine if a state verifies a predicate application.
+
+        A state x verifies P(t1, ..., tn) iff x is a verifier for P(d1, ..., dn)
+        where di = [[ti]] (term denotation).
+
+        Args:
+            state: The state being tested as verifier
+            pred_name: Name of the predicate
+            term_args: List of Term objects as arguments
+            eval_point: Evaluation point with world and assignment
+
+        Returns:
+            Z3 constraint for predicate verification
+        """
+        import importlib
+        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
+        term_denotation = first_order.term_denotation
+
+        assignment = self.get_assignment(eval_point)
+
+        # Compute denotations of all term arguments
+        arg_denotations = tuple(
+            term_denotation(arg, assignment, self)
+            for arg in term_args
+        )
+
+        # Register predicate if not already registered
+        arity = len(term_args)
+        if pred_name not in self._predicate_verifiers:
+            self.register_predicate(pred_name, arity)
+
+        # State verifies P(args) iff it's in the predicate's verifier function
+        return self.predicate_verify(pred_name, arg_denotations, state)
+
+    def _predicate_extended_falsify(self, state, pred_name, term_args, eval_point):
+        """Determine if a state falsifies a predicate application.
+
+        A state x falsifies P(t1, ..., tn) iff x is a falsifier for P(d1, ..., dn)
+        where di = [[ti]] (term denotation).
+
+        Args:
+            state: The state being tested as falsifier
+            pred_name: Name of the predicate
+            term_args: List of Term objects as arguments
+            eval_point: Evaluation point with world and assignment
+
+        Returns:
+            Z3 constraint for predicate falsification
+        """
+        import importlib
+        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
+        term_denotation = first_order.term_denotation
+
+        assignment = self.get_assignment(eval_point)
+
+        # Compute denotations of all term arguments
+        arg_denotations = tuple(
+            term_denotation(arg, assignment, self)
+            for arg in term_args
+        )
+
+        # Register predicate if not already registered
+        arity = len(term_args)
+        if pred_name not in self._predicate_falsifiers:
+            self.register_predicate(pred_name, arity)
+
+        # State falsifies P(args) iff it's in the predicate's falsifier function
+        return self.predicate_falsify(pred_name, arg_denotations, state)
 
 
 class LogosProposition(PropositionDefaults):
@@ -1024,8 +1119,62 @@ class LogosProposition(PropositionDefaults):
         if operator is not None:
             eval_point = {"world": eval_world}
             return operator.find_verifiers_and_falsifiers(*arguments, eval_point)
-        raise ValueError(f"Their is no proposition for {self}.")
-    
+
+        # Check if this is a predicate application: [pred_name, term1, term2, ...]
+        from model_checker.syntactic.terms import Term
+        prefix = self.sentence.prefix_sentence
+        if (isinstance(prefix, list) and len(prefix) >= 2 and
+            isinstance(prefix[0], str) and
+            all(isinstance(arg, Term) for arg in prefix[1:])):
+            # Predicate application: find verifiers/falsifiers
+            pred_name = prefix[0]
+            term_args = prefix[1:]
+            return self._predicate_find_proposition(pred_name, term_args, eval_world)
+
+        raise ValueError(f"There is no proposition for {self}.")
+
+    def _predicate_find_proposition(self, pred_name, term_args, eval_world):
+        """Find verifiers and falsifiers for a predicate application.
+
+        Args:
+            pred_name: Name of the predicate
+            term_args: List of Term objects as arguments
+            eval_world: The evaluation world
+
+        Returns:
+            tuple: A pair (verifiers, falsifiers) containing the sets of states
+        """
+        import importlib
+        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
+        term_denotation = first_order.term_denotation
+
+        model = self.model_structure.z3_model
+        semantics = self.semantics
+        eval_point = {"world": eval_world}
+        assignment = semantics.get_assignment(eval_point)
+
+        # Compute denotations of all term arguments
+        arg_denotations = tuple(
+            term_denotation(arg, assignment, semantics)
+            for arg in term_args
+        )
+
+        # Register predicate if not already registered
+        arity = len(term_args)
+        if pred_name not in semantics._predicate_verifiers:
+            semantics.register_predicate(pred_name, arity)
+
+        # Find all states that verify/falsify the predicate
+        V = {
+            state for state in self.model_structure.all_states
+            if self._evaluate_z3_boolean(model, semantics.predicate_verify(pred_name, arg_denotations, state))
+        }
+        F = {
+            state for state in self.model_structure.all_states
+            if self._evaluate_z3_boolean(model, semantics.predicate_falsify(pred_name, arg_denotations, state))
+        }
+        return V, F
+
     def _evaluate_z3_boolean(self, z3_model: z3.ModelRef, expression: z3.BoolRef) -> bool:
         """Safely evaluate a Z3 boolean expression to a Python boolean.
         
@@ -1139,15 +1288,22 @@ class LogosProposition(PropositionDefaults):
 
     def __repr__(self) -> str:
         """Return a string representation of the proposition.
-        
+
         Returns a string showing the verifiers and falsifiers of the proposition
         in set notation. Only includes possible states unless print_impossible
         setting is enabled.
-        
+
         Returns:
             str: A string of the form "< {verifiers}, {falsifiers} >" where each
                 set contains the binary representations of the states
         """
+        # Guard against missing verifiers/falsifiers attribute (e.g., during error handling)
+        if not hasattr(self, 'verifiers') or not hasattr(self, 'falsifiers'):
+            sentence_name = getattr(self, 'sentence', None)
+            if sentence_name is not None:
+                sentence_name = getattr(sentence_name, 'name', str(sentence_name))
+            return f"<LogosProposition: {sentence_name} (uninitialized)>"
+
         N = self.model_structure.model_constraints.semantics.N
         possible = self.model_structure.model_constraints.semantics.possible
         z3_model = self.model_structure.z3_model
