@@ -10,8 +10,8 @@ next_project_number: 32
 
 ### 27. Flatten code/src/ directory structure
 - **Effort**: 4-6 hours
-- **Status**: [RESEARCHING]
-- **Research**: [research-027.md](027_flatten_code_src_directory/reports/research-027.md)
+- **Status**: [RESEARCHED]
+- **Research**: [research-027.md](027_flatten_code_src_directory/reports/research-027.md), [research-002.md](027_flatten_code_src_directory/reports/research-002.md)
 - **Language**: python
 - **Dependencies**: None
 
