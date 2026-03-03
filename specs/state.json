@@ -759,7 +759,7 @@
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T18:30:01Z",
+      "last_updated": "2026-03-03T18:36:05Z",
       "artifacts": [
         {
           "path": "specs/023_fix_outdated_api_signatures_in_tests/reports/research-001.md",
@@ -780,8 +780,8 @@
       "session_id": "sess_1772518099_937581",
       "researched": "2026-03-03T04:40:43Z",
       "planned": "2026-03-03T04:45:09Z",
-      "completed": "2026-03-03T18:30:01Z",
-      "completion_summary": "Fixed 22+ test failures from outdated API signatures across 8 test files. Added STANDARD_SETTINGS export, updated OutputManager to use OutputConfig, fixed Syntax and ModelDefaults call signatures, created create_test_model() helper, and fixed builder path reference."
+      "completed": "2026-03-03T18:36:05Z",
+      "completion_summary": "Fixed 22+ test failures caused by outdated API signatures across 8 test files. Created create_test_model() helper function, updated Syntax/ModelDefaults/OutputManager instantiations to use current API signatures. All implementation phases completed and verified."
     },
     {
       "project_number": 24,
@@ -848,11 +848,11 @@
     {
       "project_number": 26,
       "project_name": "fix_remaining_cli_e2e_performance_tests",
-      "status": "planned",
+      "status": "implementing",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T18:33:25Z",
+      "last_updated": "2026-03-03T18:35:53Z",
       "artifacts": [
         {
           "type": "research",
@@ -865,7 +865,7 @@
           "summary": "Implementation plan for fixing 13 test failures across 5 test files"
         }
       ],
-      "session_id": "sess_1772562667_50f9df",
+      "session_id": "sess_1772562933_6acfb6",
       "researched": "2026-03-03T18:26:23Z",
       "planned": "2026-03-03T18:33:25Z"
     }

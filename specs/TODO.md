@@ -8,7 +8,7 @@ next_project_number: 22
 
 ### 26. Fix remaining CLI, E2E, and performance test failures
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Language**: python
 - **Research**: [research-001.md](026_fix_remaining_cli_e2e_performance_tests/reports/research-001.md)
 - **Plan**: [implementation-001.md](026_fix_remaining_cli_e2e_performance_tests/plans/implementation-001.md)

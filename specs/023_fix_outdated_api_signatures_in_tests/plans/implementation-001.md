@@ -1,7 +1,7 @@
 # Implementation Plan: Task #23
 
 - **Task**: 23 - fix_outdated_api_signatures_in_tests
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/023_fix_outdated_api_signatures_in_tests/reports/research-001.md
@@ -152,7 +152,7 @@ From research-001.md:
 
 ---
 
-### Phase 6: Final Verification [IN PROGRESS]
+### Phase 6: Final Verification [COMPLETED]
 
 **Goal**: Verify all affected tests pass and no regressions
 
