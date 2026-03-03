@@ -26,6 +26,9 @@ from .terms import Term, Variable, Constant, FunctionApplication
 # First-order variable assignments
 from .assignments import VariableAssignment
 
+# Formula-level operations
+from .formulas import compute_formula_free_variables, is_syntactically_wff
+
 __all__ = [
     # Atoms
     'AtomSort',
@@ -43,4 +46,7 @@ __all__ = [
     'FunctionApplication',
     # First-order assignments
     'VariableAssignment',
+    # Formula operations
+    'compute_formula_free_variables',
+    'is_syntactically_wff',
 ]

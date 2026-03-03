@@ -4,14 +4,14 @@
     {
       "project_number": 20,
       "project_name": "add_parser_well_formedness_checking",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "dependencies": [
         19
       ],
       "created": "2026-03-03T00:53:14Z",
-      "last_updated": "2026-03-03T01:08:17Z",
-      "session_id": "sess_1772499938_be8c89",
+      "last_updated": "2026-03-03T01:24:10Z",
+      "session_id": "sess_1772500192_e45e35",
       "researched": "2026-03-03T01:04:05Z",
       "artifacts": [
         {
@@ -28,9 +28,31 @@
           "path": "specs/020_add_parser_well_formedness_checking/plans/implementation-001.md",
           "type": "plan",
           "summary": "5-phase implementation plan for parser well-formedness checking with two-level validation"
+        },
+        {
+          "path": "code/src/model_checker/syntactic/formulas.py",
+          "type": "implementation",
+          "summary": "New module with compute_formula_free_variables() and is_syntactically_wff() functions"
+        },
+        {
+          "path": "code/tests/unit/syntactic/test_formulas.py",
+          "type": "test",
+          "summary": "Unit tests for formula operations (44 tests)"
+        },
+        {
+          "path": "code/tests/unit/syntactic/test_well_formedness.py",
+          "type": "test",
+          "summary": "Comprehensive well-formedness integration tests (36 tests)"
+        },
+        {
+          "path": "specs/020_add_parser_well_formedness_checking/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary for task 20"
         }
       ],
-      "planned": "2026-03-03T01:08:17Z"
+      "planned": "2026-03-03T01:08:17Z",
+      "completed": "2026-03-03T01:24:10Z",
+      "completion_summary": "Implemented well-formedness checking in the parser with two-level validation: syntactic category check rejects bare terms and lambda abstractions, closedness check rejects open formulas with free variables. Removed Task 19 workaround from structure.py. Added 80 new tests covering all validation scenarios."
     },
     {
       "project_number": 19,

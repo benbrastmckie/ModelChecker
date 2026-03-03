@@ -15,6 +15,7 @@ from .atoms import AtomSort
 from .types import FormulaString, PrefixList
 from .errors import InvalidFormulaError, ParseError
 from .terms import Term, Variable
+from .formulas import compute_formula_free_variables, is_syntactically_wff
 
 if TYPE_CHECKING:
     from .collection import OperatorCollection
@@ -45,15 +46,16 @@ class Sentence:
         proposition (obj): The proposition representing this sentence (after proposition update)
     """
 
-    def __init__(self, infix_sentence: FormulaString) -> None:
+    def __init__(self, infix_sentence: FormulaString, _internal: bool = False) -> None:
         """Initialize sentence from infix notation.
-        
+
         Args:
             infix_sentence: Formula in infix notation
-            
+            _internal: If True, skip WFF validation (for internal subformula construction)
+
         Raises:
             InvalidFormulaError: If formula is empty or invalid
-            ParseError: If formula cannot be parsed
+            ParseError: If formula cannot be parsed (unless _internal=True)
         """
         if not infix_sentence:
             raise InvalidFormulaError(
@@ -61,10 +63,18 @@ class Sentence:
                 formula="",
                 context={'suggestion': 'Provide a non-empty formula'}
             )
-        
+
+        # Store internal flag for subformula creation
+        self._internal = _internal
+
         # store input, prefix string, complexity, and sentences for arguments
         self.name = infix_sentence
         self.prefix_sentence, self.complexity = self.prefix(infix_sentence)
+
+        # Validate well-formedness: check WFF grammar and closedness
+        # Skip validation for internal subformula construction (e.g., lambda bodies)
+        if not _internal:
+            self._validate_well_formedness()
 
         # recursive clause: initially stores infix_arguments and infix_operator
         # updated by initialize_sentences in Syntax with operator_collection
@@ -112,6 +122,42 @@ class Sentence:
     
     def __repr__(self) -> str:
         return self.name
+
+    def _validate_well_formedness(self) -> None:
+        """Validate that the parsed formula is well-formed.
+
+        Performs two-level validation per the Logos Theory manual:
+        1. Syntactic category check: Is this a formula (not a bare term or lambda)?
+        2. Closedness check: Does the formula have free variables?
+
+        A sentence is a closed well-formed formula (WFF). Open formulas with
+        free variables are valid WFFs but not valid sentences.
+
+        Raises:
+            ParseError: If the input is not a WFF (e.g., bare term or lambda)
+            ParseError: If the formula has free variables (open formula)
+        """
+        # Level 1: Check syntactic well-formedness
+        is_wff, error_msg = is_syntactically_wff(self.prefix_sentence)
+        if not is_wff:
+            raise ParseError(
+                f"Invalid sentence '{self.name}': {error_msg}",
+                formula=self.name,
+                position=0
+            )
+
+        # Level 2: Check closedness (no free variables)
+        free_vars = compute_formula_free_variables(self.prefix_sentence)
+        if free_vars:
+            var_names = sorted(str(v) for v in free_vars)
+            var_list = ", ".join(var_names)
+            raise ParseError(
+                f"Invalid sentence '{self.name}': formula has free variable(s): {var_list}. "
+                f"Sentences must be closed formulas. Consider quantifying: "
+                f"'\\forall {var_names[0]}. {self.name}'",
+                formula=self.name,
+                position=0
+            )
 
     def prefix(self, infix_sentence: FormulaString) -> Tuple[PrefixList, int]:
         """Converts infix notation to prefix notation.

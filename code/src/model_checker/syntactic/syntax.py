@@ -103,10 +103,11 @@ class Syntax:
             - Updates self.sentence_letters with atomic sentence letters found
         """
 
-        def build_sentence(infix_sentence):
+        def build_sentence(infix_sentence, is_subformula=False):
             if infix_sentence in self.all_sentences.keys():
                 return self.all_sentences[infix_sentence]
-            sentence = Sentence(infix_sentence)
+            # For subformulas (e.g., lambda bodies), skip WFF validation
+            sentence = Sentence(infix_sentence, _internal=is_subformula)
             self.all_sentences[sentence.name] = sentence
 
             # Task 14: Collect vocabulary from prefix sentence
@@ -126,7 +127,8 @@ class Syntax:
                 return sentence
             sentence_arguments = []
             for infix_arg in sentence.original_arguments:
-                sentence_arg = build_sentence(infix_arg)
+                # Recursively build subformulas with internal flag
+                sentence_arg = build_sentence(infix_arg, is_subformula=True)
                 sentence_arguments.append(sentence_arg)
             sentence.original_arguments = sentence_arguments
             return sentence
@@ -153,7 +155,8 @@ class Syntax:
             if sentence.arguments: # NOTE: must happen after arguments are stored
                 sentence_arguments = []
                 for infix_arg in sentence.arguments:
-                    argument = build_sentence(infix_arg)
+                    # Derived arguments are always subformulas
+                    argument = build_sentence(infix_arg, is_subformula=True)
                     initialize_types(argument)
                     sentence_arguments.append(argument)
                 sentence.arguments = sentence_arguments 

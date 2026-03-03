@@ -8,7 +8,9 @@ next_project_number: 21
 
 ### 20. Add parser well-formedness checking with fail-fast rejection of term-only sentences
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](020_add_parser_well_formedness_checking/summaries/implementation-summary-20260302.md)
 - **Research**: [research-001.md](020_add_parser_well_formedness_checking/reports/research-001.md), [research-002.md](020_add_parser_well_formedness_checking/reports/research-002.md)
 - **Plan**: [implementation-001.md](020_add_parser_well_formedness_checking/plans/implementation-001.md)
 - **Language**: python

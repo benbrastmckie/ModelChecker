@@ -312,42 +312,6 @@ class ModelDefaults:
             return None
         return self.z3_model_status == self.settings["expectation"]
 
-    def _is_nonpropositional_sentence(self, sent_obj: 'Sentence') -> bool:
-        """Check if sentence cannot have a proposition.
-
-        Non-propositional sentences include:
-        1. Term-only sentences (variables, constants) which denote individuals
-        2. Lambda abstractions which denote functions, not propositions
-
-        These sentences should be skipped during interpret() because they have
-        no meaningful verifier/falsifier sets.
-
-        Args:
-            sent_obj: The sentence to check
-
-        Returns:
-            True if the sentence cannot have a proposition, False otherwise
-        """
-        # Lambda expressions are function abstractions, not propositions
-        # They are used inside ForAll/Exists and should not be interpreted as propositions
-        if (sent_obj.operator is not None and
-            hasattr(sent_obj.operator, 'name') and
-            sent_obj.operator.name == '\\lambda'):
-            return True
-
-        # Term sentences have no operator and no sentence letter
-        if sent_obj.operator is not None or sent_obj.sentence_letter is not None:
-            return False
-
-        # Check if prefix_sentence is a single Term
-        prefix = sent_obj.prefix_sentence
-        if isinstance(prefix, list) and len(prefix) == 1:
-            from model_checker.syntactic.terms import Term
-            if isinstance(prefix[0], Term):
-                return True
-
-        return False
-
     def interpret(self, sentences: List['Sentence']) -> None:
         """Recursively updates sentences with their semantic interpretations in the model.
 
@@ -362,20 +326,22 @@ class ModelDefaults:
             - This method should only be called after a valid Z3 model has been found
             - Modifies the sentence objects in-place by calling their update_objects method
             - Skips processing if no valid model exists
-            - Skips non-propositional sentences (terms, lambda abstractions)
+            - Skips lambda abstraction subformulas (they're function bodies, not propositions)
         """
         if not self.z3_model:
             return
 
         for sent_obj in sentences:
-            # Always recurse into arguments first (even for non-propositional sentences)
+            # Always recurse into arguments first
             # This ensures inner formulas get their propositions set
             if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
 
-            # Skip non-propositional sentences (terms, lambda abstractions)
-            # They don't have verifiers/falsifiers themselves
-            if self._is_nonpropositional_sentence(sent_obj):
+            # Skip lambda abstractions - they're function bodies, not propositions
+            # They appear as subformulas inside quantifiers (\forall, \exists)
+            if (sent_obj.operator is not None and
+                hasattr(sent_obj.operator, 'name') and
+                sent_obj.operator.name == '\\lambda'):
                 continue
 
             sent_obj.update_proposition(self)
