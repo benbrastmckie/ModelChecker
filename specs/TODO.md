@@ -10,8 +10,9 @@ next_project_number: 33
 
 ### 32. Consolidate first-order subtheory to standard structure
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [research-001.md](032_consolidate_first_order_subtheory_structure/reports/research-001.md)
+- **Plan**: [implementation-001.md](032_consolidate_first_order_subtheory_structure/plans/implementation-001.md)
 - **Language**: python
 - **Dependencies**: None
 

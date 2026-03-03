@@ -4,19 +4,25 @@
     {
       "project_number": 32,
       "project_name": "consolidate_first_order_subtheory_structure",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-03T20:24:45Z",
-      "last_updated": "2026-03-03T20:31:40Z",
-      "session_id": "sess_1772569735_2ffc74",
+      "last_updated": "2026-03-03T20:42:55Z",
+      "session_id": "sess_1772570395_6c522e",
       "researched": "2026-03-03T20:31:40Z",
       "artifacts": [
         {
           "path": "specs/032_consolidate_first_order_subtheory_structure/reports/research-001.md",
           "type": "research",
           "summary": "Research report on first-order subtheory consolidation with analysis of denotation.py and constraints.py integration points"
+        },
+        {
+          "path": "specs/032_consolidate_first_order_subtheory_structure/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan for consolidating first-order subtheory structure"
         }
-      ]
+      ],
+      "planned": "2026-03-03T20:42:55Z"
     },
     {
       "project_number": 28,
