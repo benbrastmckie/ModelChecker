@@ -23,7 +23,7 @@ def serialize_operators(operators: Union[OperatorCollection, dict]) -> Dict[str,
         {
             "\\boxright": {
                 "class_name": "BoxRightOperator",
-                "module_name": "model_checker.theory_lib.imposition.operators"
+                "module_name": "model_checker.theory_lib.logos.operators"
             },
             ...
         }

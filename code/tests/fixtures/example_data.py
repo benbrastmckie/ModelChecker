@@ -127,9 +127,7 @@ def get_test_example(name='basic'):
 # Theory names for testing
 THEORY_NAMES = [
     'logos',
-    'exclusion',
     'bimodal',
-    'imposition'
 ]
 
 # CLI argument combinations for testing

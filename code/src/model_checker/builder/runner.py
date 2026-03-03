@@ -771,8 +771,8 @@ class ModelRunner:
         if report_func is None:
             try:
                 # Get the parent package name from the module path
-                # e.g., from "model_checker.theory_lib.exclusion.examples" 
-                # extract "model_checker.theory_lib.exclusion"
+                # e.g., from "model_checker.theory_lib.logos.examples"
+                # extract "model_checker.theory_lib.logos"
                 module_name = self.build_module.module.__name__
                 if '.' in module_name:
                     package_name = '.'.join(module_name.split('.')[:-1])

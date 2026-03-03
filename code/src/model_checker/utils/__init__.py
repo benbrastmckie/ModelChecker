@@ -30,7 +30,7 @@ from .version import (
 )
 from .api import get_example, get_theory
 from .testing import (
-    run_test, run_enhanced_test, run_strategy_test, TestResultData
+    run_test, run_enhanced_test, TestResultData
 )
 
 __all__ = [
@@ -67,6 +67,5 @@ __all__ = [
     # Testing Functions
     'run_test',
     'run_enhanced_test',
-    'run_strategy_test',
     'TestResultData',
 ]

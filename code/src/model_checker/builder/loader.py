@@ -184,9 +184,7 @@ def discover_theory_module(theory_name: str, semantic_theory: Dict[str, Any]) ->
         prop_name = prop_class.__name__
         prop_to_theory = {
             'LogosProposition': 'logos',
-            'ExclusionProposition': 'exclusion', 
             'BimodalProposition': 'bimodal',
-            'ImpositionProposition': 'imposition'
         }
         for prop_pattern, theory_module in prop_to_theory.items():
             if prop_pattern in prop_name:
@@ -198,9 +196,7 @@ def discover_theory_module(theory_name: str, semantic_theory: Dict[str, Any]) ->
         model_name = model_class.__name__
         theory_patterns = {
             'Logos': 'logos',
-            'Exclusion': 'exclusion',
             'Bimodal': 'bimodal',
-            'Imposition': 'imposition'
         }
         for pattern, module in theory_patterns.items():
             if pattern in model_name:

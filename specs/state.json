@@ -4,11 +4,11 @@
     {
       "project_number": 28,
       "project_name": "archive_unused_theories",
-      "status": "planned",
+      "status": "implementing",
       "language": "python",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:26:32Z",
-      "session_id": "sess_1772565802_7b4315",
+      "last_updated": "2026-03-03T19:30:05Z",
+      "session_id": "sess_1772566182_34aa6d",
       "planned": "2026-03-03T19:26:32Z",
       "artifacts": [
         {
@@ -52,10 +52,19 @@
     {
       "project_number": 30,
       "project_name": "consolidate_documentation",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:02:58Z"
+      "last_updated": "2026-03-03T19:33:51Z",
+      "session_id": "sess_1772566242_730779",
+      "researched": "2026-03-03T19:33:51Z",
+      "artifacts": [
+        {
+          "path": "specs/030_consolidate_documentation/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report documenting 5 docs directories, identifying docs/maintenance/ as misplaced content, and providing 4-phase implementation plan"
+        }
+      ]
     },
     {
       "project_number": 31,

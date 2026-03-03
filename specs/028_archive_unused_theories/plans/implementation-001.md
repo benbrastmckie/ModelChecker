@@ -40,7 +40,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ## Implementation Phases
 
-### Phase 1: Create Boneyard and Archive Directories [NOT STARTED]
+### Phase 1: Create Boneyard and Archive Directories [COMPLETED]
 
 **Goal**: Move exclusion and imposition theory directories to boneyard while preserving structure
 
@@ -68,7 +68,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ---
 
-### Phase 2: Update Theory Library Registry [NOT STARTED]
+### Phase 2: Update Theory Library Registry [COMPLETED]
 
 **Goal**: Remove exclusion and imposition from AVAILABLE_THEORIES and update related code
 
@@ -89,7 +89,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ---
 
-### Phase 3: Update Notebook Templates [NOT STARTED]
+### Phase 3: Update Notebook Templates [COMPLETED]
 
 **Goal**: Remove exclusion and imposition notebook template support
 
@@ -112,7 +112,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ---
 
-### Phase 4: Update Utils and Builder References [NOT STARTED]
+### Phase 4: Update Utils and Builder References [COMPLETED]
 
 **Goal**: Remove or update references in utils/testing.py and builder modules
 
@@ -137,7 +137,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ---
 
-### Phase 5: Update Test Files [NOT STARTED]
+### Phase 5: Update Test Files [IN PROGRESS]
 
 **Goal**: Update test files to remove or skip exclusion/imposition theory tests
 

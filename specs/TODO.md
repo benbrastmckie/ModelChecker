@@ -10,7 +10,7 @@ next_project_number: 32
 
 ### 28. Archive unused theory libraries
 - **Effort**: 1-2 hours
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Plan**: [implementation-001.md](028_archive_unused_theories/plans/implementation-001.md)
 - **Language**: python
 - **Dependencies**: None
@@ -34,7 +34,8 @@ next_project_number: 32
 
 ### 30. Consolidate documentation directories
 - **Effort**: 4-6 hours
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [research-001.md](030_consolidate_documentation/reports/research-001.md)
 - **Language**: general
 - **Dependencies**: Task #27
 

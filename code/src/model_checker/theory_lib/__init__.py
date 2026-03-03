@@ -12,9 +12,7 @@ Each theory implements:
 
 Available Theories:
 - logos: Standard bilateral truthmaker semantics with modular subtheories
-- exclusion: Unilateral semantics with exclusion relations 
-- imposition: Semantics with imposition relations
-- bimodal: Bimodal semantics for counterfactuals and imposition (experimental)
+- bimodal: Bimodal semantics for counterfactuals (experimental)
 
 The module supports theory extension through a central registry. To add a new theory:
 1. Create a new directory under theory_lib/
@@ -64,9 +62,7 @@ from ..utils import get_license_template
 # Registry of available theories - add new theories here
 AVAILABLE_THEORIES = [
     'logos',        # Standard bilateral truthmaker semantics with modular subtheories
-    'exclusion',    # Unilateral semantics with exclusion relations
-    'imposition',   # Semantics with imposition relations
-    'bimodal',      # Bimodal semantics
+    'bimodal',      # Bimodal semantics for counterfactuals (experimental)
 ]
 
 # Dictionary to cache loaded theory modules

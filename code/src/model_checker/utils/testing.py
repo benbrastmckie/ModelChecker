@@ -6,7 +6,7 @@ configurations and collecting detailed results.
 """
 
 import time
-from typing import List, Any, Dict, Optional, Type, Union
+from typing import List, Any, Type
 
 
 def run_test(
@@ -201,68 +201,3 @@ def run_enhanced_test(
     return result_data
 
 
-def run_strategy_test(
-    example_case: List[Any],
-    strategy_name: str,
-    semantic_class: Optional[Type[Any]] = None,
-    proposition_class: Optional[Type[Any]] = None,
-    syntax_class: Optional[Type[Any]] = None,
-    model_constraints: Optional[Type[Any]] = None,
-    model_structure: Optional[Type[Any]] = None
-) -> TestResultData:
-    """Run a model checking test with a specific exclusion strategy.
-    
-    This is a convenience function that automatically creates the operator collection
-    for the specified strategy and runs the enhanced test.
-    
-    Args:
-        example_case (list): A list containing [premises, conclusions, settings]
-        strategy_name (str): Name of exclusion strategy ("QA", "QI", "QI2", "BQI", "NF", "NA")
-        semantic_class: The semantic theory class to use (defaults to ExclusionSemantics)
-        proposition_class: The proposition class to use (defaults to UnilateralProposition)
-        syntax_class: The syntax class to use (defaults to Syntax)
-        model_constraints: The model constraints class to use (defaults to ModelConstraints)
-        model_structure: The model structure class to use (defaults to ExclusionStructure)
-        
-    Returns:
-        TestResultData: Detailed test results and analysis
-        
-    Raises:
-        ValueError: If strategy_name is not recognized
-    """
-    # Import default classes if not provided
-    if semantic_class is None:
-        from model_checker.theory_lib.exclusion import ExclusionSemantics
-        semantic_class = ExclusionSemantics
-    
-    if proposition_class is None:
-        from model_checker.theory_lib.exclusion import UnilateralProposition
-        proposition_class = UnilateralProposition
-    
-    if syntax_class is None:
-        from model_checker import Syntax
-        syntax_class = Syntax
-    
-    if model_constraints is None:
-        from model_checker import ModelConstraints
-        model_constraints = ModelConstraints
-    
-    if model_structure is None:
-        from model_checker.theory_lib.exclusion import ExclusionStructure
-        model_structure = ExclusionStructure
-    
-    # Create operator collection for the specified strategy
-    from model_checker.theory_lib.exclusion.operators import create_operator_collection
-    operator_collection = create_operator_collection(strategy_name)
-    
-    # Run the enhanced test with the strategy-specific operator collection
-    return run_enhanced_test(
-        example_case=example_case,
-        semantic_class=semantic_class,
-        proposition_class=proposition_class,
-        operator_collection=operator_collection,
-        syntax_class=syntax_class,
-        model_constraints=model_constraints,
-        model_structure=model_structure,
-        strategy_name=strategy_name
-    )
