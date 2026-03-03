@@ -6,6 +6,41 @@ next_project_number: 22
 
 ## Tasks
 
+### 26. Fix remaining CLI, E2E, and performance test failures
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix 13 remaining test failures across four files: (1) `test_cli_subtheory.py` (4 tests) — the `--subtheory/-st` nargs='+' greedily consumes the file argument 'test.py' as a subtheory value, causing `argparse.ArgumentError: invalid choice: 'test.py'`; fix the argparse definition or the test argv setup. (2) `test_project_creation.py` (3 e2e tests) — project directory not being created, `__init__.py` is empty, and 'examples' submodule missing; fix `BuildProject` or the test's path/structure expectations. (3) `test_batch_output_real.py` (1 e2e test) — subprocess CLI command fails; likely same `Code` vs `code` directory issue or missing setup. (4) `test_performance.py` scaling tests (3 tests) — assertions like `assert 2 >= 16` are logically wrong (comparing N to expected minimum state space); fix the assertions to match actual state space sizes. (5) `test_timeout_resources.py` timing assertions (2 tests) — `assert 0.01 < 0.01` is impossible and `test_graceful_shutdown` always fails; fix timing thresholds and shutdown test logic.
+
+### 25. Fix CLI interactive mode tests
+- **Effort**: Large
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix 21 test failures in `test_cli_interactive.py` (15 tests) and `test_build_module_interactive.py` (6 tests) that require: (1) A `--interactive/-I` flag in `ParseFileFlags` (`__main__.py`) — tests expect `flags.interactive` attribute and `parser._short_to_long['I'] == 'interactive'`; (2) `model_checker.output.interactive` module — `test_build_module_interactive.py` tries `import model_checker.output.interactive`; (3) `BuildModule.semantic_theories` attribute. Research whether these are planned features to implement or aspirational tests to delete/update. If implementing, add the `--interactive` flag to argparse, create the output.interactive module stub, and expose `semantic_theories` on `BuildModule`. If deleting, remove only after confirming these features are not in scope.
+
+### 24. Resolve aspirational architecture tests
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix 12 test failures in `test_architecture_validation.py` (9 tests) and `test_batch_output_integration.py` (3 tests) that test APIs which do not exist: `model_checker.core.interfaces` (TheoryInterface, ExampleInterface), `model_checker.theory_lib.registry` (TheoryRegistry, get_theory), `model_checker.builder.Example` class, `model_checker.check_example` function, and `BuildProject.from_example` method. These tests define a planned clean architecture that was never implemented. Research whether these architectural APIs should be implemented (as the tests were written as specs) or whether the tests should be deleted/replaced with tests for the existing architecture. Whichever approach is chosen, achieve zero failures in these two test files.
+
+### 23. Fix tests using outdated API signatures
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix approximately 22 test failures caused by API signature changes that tests have not been updated to match. Specifically: (1) `Syntax.__init__()` — tests call `Syntax(formula)` or `Syntax()` with wrong args; the current signature requires `(infix_premises, infix_conclusions, operator_collection)`; update all test usages in `test_performance.py`, `test_error_handling.py`, and `tests/fixtures/`. (2) `ModelDefaults.__init__()` — tests call `ModelDefaults({'N': 3})` but now requires a `settings` keyword arg; update `test_performance.py`, `test_timeout_resources.py`, `test_error_handling.py`. (3) `OutputManager.__init__()` — test passes `save_output=` keyword that no longer exists; update `test_simple_output_verify.py`. (4) `STANDARD_SETTINGS` — not exported from `tests/fixtures/example_data.py`; add the export or update the import. (5) `builder/example.py` — `test_model_building_sync.py` checks for this file which no longer exists at that path; update the path reference.
+
+### 22. Fix test helper run_cli_command code directory lookup
+- **Effort**: Small
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix 5 test failures in `test_error_handling.py::TestCLIErrorHandling` caused by `run_cli_command()` in `code/tests/utils/helpers.py` looking for a directory named `Code` (capital C) as the project root, but task 16 renamed all directories to lowercase. The function walks up from the test file looking for `current_dir.name != 'Code'`, so it never finds the root, fails to set PYTHONPATH correctly, and the subprocess gets `no module named model_checker`. Fix: change the lookup condition to match `code` (lowercase) or use a more robust approach (e.g., look for `pyproject.toml` or a sentinel file).
+
 ### 21. Fix first-order logic proposition display: bound variable crash and quantifier evaluation
 - **Effort**: Large
 - **Status**: [COMPLETED]

@@ -1,5 +1,5 @@
 {
-  "next_project_number": 22,
+  "next_project_number": 27,
   "active_projects": [
     {
       "project_number": 21,
@@ -720,6 +720,56 @@
       "started": "2026-02-18T19:13:42Z",
       "completed": "2026-02-18T19:26:30Z",
       "completion_summary": "Created LaTeX paper directory with Springer Nature template v3.1 configured for Journal of Automated Reasoning. Includes paper.tex skeleton, comprehensive README.md with journal requirements and submission checklist, and latexmkrc build configuration. Document compiles cleanly to 2-page PDF."
+    },
+    {
+      "project_number": 22,
+      "project_name": "fix_test_helper_code_directory_lookup",
+      "status": "not_started",
+      "language": "python",
+      "effort": "Small",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T02:38:05Z",
+      "artifacts": []
+    },
+    {
+      "project_number": 23,
+      "project_name": "fix_outdated_api_signatures_in_tests",
+      "status": "not_started",
+      "language": "python",
+      "effort": "Medium",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T02:38:05Z",
+      "artifacts": []
+    },
+    {
+      "project_number": 24,
+      "project_name": "resolve_aspirational_architecture_tests",
+      "status": "not_started",
+      "language": "python",
+      "effort": "Medium",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T02:38:05Z",
+      "artifacts": []
+    },
+    {
+      "project_number": 25,
+      "project_name": "fix_cli_interactive_mode_tests",
+      "status": "not_started",
+      "language": "python",
+      "effort": "Large",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T02:38:05Z",
+      "artifacts": []
+    },
+    {
+      "project_number": 26,
+      "project_name": "fix_remaining_cli_e2e_performance_tests",
+      "status": "not_started",
+      "language": "python",
+      "effort": "Medium",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T02:38:05Z",
+      "artifacts": []
     }
   ],
   "repository_health": {
