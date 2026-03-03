@@ -2,7 +2,7 @@
 
 - **Task**: 29 - cleanup_specs_directories
 - **Version**: 002
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 45 minutes
 - **Dependencies**: None
 - **Research Inputs**: specs/029_cleanup_specs_directories/reports/research-001.md
@@ -68,7 +68,7 @@ Research report identified:
 
 ---
 
-### Phase 2: Update Documentation References [IN PROGRESS]
+### Phase 2: Update Documentation References [COMPLETED]
 
 **Goal**: Remove or update stale references to deleted directories
 

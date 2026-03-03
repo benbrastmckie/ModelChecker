@@ -318,7 +318,7 @@
     - [ ] Remove redundant information covered at higher levels
   - [ ] **Level 3: Framework Component Documentation**
     - [ ] Main component READMEs (`src/model_checker/README.md`)
-    - [ ] Cross-package documentation (`docs/specs/README.md`)
+    - [ ] Cross-package documentation (`specs/README.md`)
     - [ ] Maintenance standards (`maintenance/README.md`)
     - [ ] Ensure consistency across all packages
     - [ ] Verify cross-references between components

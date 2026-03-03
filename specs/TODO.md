@@ -21,9 +21,10 @@ next_project_number: 32
 
 ### 29. Clean up specs directories
 - **Effort**: 1 hour
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Research**: [research-001.md](029_cleanup_specs_directories/reports/research-001.md)
 - **Plan**: [implementation-002.md](029_cleanup_specs_directories/plans/implementation-002.md)
+- **Summary**: [implementation-summary-20260303.md](029_cleanup_specs_directories/summaries/implementation-summary-20260303.md)
 - **Language**: general
 - **Dependencies**: None
 
