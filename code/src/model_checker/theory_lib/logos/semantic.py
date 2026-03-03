@@ -707,6 +707,29 @@ class LogosSemantics(SemanticDefaults):
             z3.BoolSort()
         )
 
+        # Add no_glut constraint for predicates: verifiers incompatible with falsifiers
+        # This mirrors the no_glut constraint for sentence letters:
+        # ForAll args, x, y. (verify(args, x) AND falsify(args, y)) => Not(compatible(x, y))
+        arg_vars = [z3.BitVec(f"pred_ng_{name}_arg{i}", self.N) for i in range(arity)]
+        x = z3.BitVec(f"pred_ng_{name}_x", self.N)
+        y = z3.BitVec(f"pred_ng_{name}_y", self.N)
+        all_vars = arg_vars + [x, y]
+
+        verify_func = self._predicate_verifiers[name]
+        falsify_func = self._predicate_falsifiers[name]
+
+        no_glut_constraint = ForAll(
+            all_vars,
+            z3.Implies(
+                z3.And(
+                    verify_func(*arg_vars, x),
+                    falsify_func(*arg_vars, y)
+                ),
+                z3.Not(self.compatible(x, y))
+            )
+        )
+        self.frame_constraints.append(no_glut_constraint)
+
     def predicate_verify(
         self,
         name: str,
