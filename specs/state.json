@@ -724,11 +724,11 @@
     {
       "project_number": 22,
       "project_name": "fix_test_helper_code_directory_lookup",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "effort": "Small",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T02:46:50Z",
+      "last_updated": "2026-03-03T04:38:49Z",
       "artifacts": [
         {
           "path": "specs/022_fix_test_helper_code_directory_lookup/reports/research-001.md",
@@ -739,31 +739,40 @@
           "path": "specs/022_fix_test_helper_code_directory_lookup/plans/implementation-001.md",
           "type": "plan",
           "summary": "3-phase implementation plan to fix pyproject.toml-based project root detection"
+        },
+        {
+          "path": "specs/022_fix_test_helper_code_directory_lookup/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with test results"
         }
       ],
-      "session_id": "sess_1772505893_84e5d4",
+      "session_id": "sess_1772512487_a1f0e7",
       "researched": "2026-03-03T02:43:51Z",
-      "planned": "2026-03-03T02:46:50Z"
+      "planned": "2026-03-03T02:46:50Z",
+      "completed": "2026-03-03T04:38:49Z",
+      "completion_summary": "Fixed project root detection logic in helpers.py and test_full_pipeline.py by using pyproject.toml as a marker instead of hardcoded Code directory name. This resolved 5 failing tests and 3 skipped tests."
     },
     {
       "project_number": 23,
       "project_name": "fix_outdated_api_signatures_in_tests",
-      "status": "not_started",
+      "status": "researching",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T02:38:05Z",
-      "artifacts": []
+      "last_updated": "2026-03-03T04:37:09Z",
+      "artifacts": [],
+      "session_id": "sess_1772512595_a047e8"
     },
     {
       "project_number": 24,
       "project_name": "resolve_aspirational_architecture_tests",
-      "status": "not_started",
+      "status": "researching",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T02:38:05Z",
-      "artifacts": []
+      "last_updated": "2026-03-03T04:38:15Z",
+      "artifacts": [],
+      "session_id": "sess_1772512646_c4b7a8"
     },
     {
       "project_number": 25,

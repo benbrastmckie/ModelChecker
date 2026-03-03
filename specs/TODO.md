@@ -22,21 +22,23 @@ next_project_number: 22
 
 ### 24. Resolve aspirational architecture tests
 - **Effort**: Medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: python
 
 **Description**: Fix 12 test failures in `test_architecture_validation.py` (9 tests) and `test_batch_output_integration.py` (3 tests) that test APIs which do not exist: `model_checker.core.interfaces` (TheoryInterface, ExampleInterface), `model_checker.theory_lib.registry` (TheoryRegistry, get_theory), `model_checker.builder.Example` class, `model_checker.check_example` function, and `BuildProject.from_example` method. These tests define a planned clean architecture that was never implemented. Research whether these architectural APIs should be implemented (as the tests were written as specs) or whether the tests should be deleted/replaced with tests for the existing architecture. Whichever approach is chosen, achieve zero failures in these two test files.
 
 ### 23. Fix tests using outdated API signatures
 - **Effort**: Medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: python
 
 **Description**: Fix approximately 22 test failures caused by API signature changes that tests have not been updated to match. Specifically: (1) `Syntax.__init__()` — tests call `Syntax(formula)` or `Syntax()` with wrong args; the current signature requires `(infix_premises, infix_conclusions, operator_collection)`; update all test usages in `test_performance.py`, `test_error_handling.py`, and `tests/fixtures/`. (2) `ModelDefaults.__init__()` — tests call `ModelDefaults({'N': 3})` but now requires a `settings` keyword arg; update `test_performance.py`, `test_timeout_resources.py`, `test_error_handling.py`. (3) `OutputManager.__init__()` — test passes `save_output=` keyword that no longer exists; update `test_simple_output_verify.py`. (4) `STANDARD_SETTINGS` — not exported from `tests/fixtures/example_data.py`; add the export or update the import. (5) `builder/example.py` — `test_model_building_sync.py` checks for this file which no longer exists at that path; update the path reference.
 
 ### 22. Fix test helper run_cli_command code directory lookup
 - **Effort**: Small
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](022_fix_test_helper_code_directory_lookup/summaries/implementation-summary-20260302.md)
 - **Language**: python
 - **Research**: [research-001.md](022_fix_test_helper_code_directory_lookup/reports/research-001.md)
 - **Plan**: [implementation-001.md](022_fix_test_helper_code_directory_lookup/plans/implementation-001.md)

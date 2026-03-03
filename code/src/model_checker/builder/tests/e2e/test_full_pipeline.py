@@ -17,9 +17,9 @@ class TestFullPipeline(unittest.TestCase):
     
     def setUp(self):
         """Find the dev_cli.py script."""
-        # Navigate to the Code directory
+        # Navigate to the project root (directory containing pyproject.toml)
         current = Path(__file__)
-        while current.name != 'Code' and current.parent != current:
+        while not (current / 'pyproject.toml').exists() and current.parent != current:
             current = current.parent
         
         self.dev_cli = current / 'dev_cli.py'

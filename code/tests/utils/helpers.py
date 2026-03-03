@@ -24,9 +24,9 @@ def run_cli_command(args: List[str], capture_output: bool = True,
     Returns:
         subprocess.CompletedProcess: Result of command execution
     """
-    # Find the Code directory (project root)
+    # Find the project root (directory containing pyproject.toml)
     current_dir = Path(__file__).parent
-    while current_dir.name != 'Code' and current_dir.parent != current_dir:
+    while not (current_dir / 'pyproject.toml').exists() and current_dir.parent != current_dir:
         current_dir = current_dir.parent
     
     # Add src to Python path

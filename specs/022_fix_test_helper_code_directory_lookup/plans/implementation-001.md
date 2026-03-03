@@ -1,7 +1,7 @@
 # Implementation Plan: Task #22
 
 - **Task**: 22 - Fix test helper run_cli_command code directory lookup
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 0.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/022_fix_test_helper_code_directory_lookup/reports/research-001.md
@@ -45,7 +45,7 @@ Research identified:
 
 ## Implementation Phases
 
-### Phase 1: Fix helpers.py [NOT STARTED]
+### Phase 1: Fix helpers.py [COMPLETED]
 
 **Goal**: Update `run_cli_command()` in helpers.py to use pyproject.toml marker instead of 'Code' directory name.
 
@@ -65,7 +65,7 @@ Research identified:
 
 ---
 
-### Phase 2: Fix test_full_pipeline.py [NOT STARTED]
+### Phase 2: Fix test_full_pipeline.py [COMPLETED]
 
 **Goal**: Update `setUp()` in test_full_pipeline.py to use pyproject.toml marker instead of 'Code' directory name.
 
@@ -85,7 +85,7 @@ Research identified:
 
 ---
 
-### Phase 3: Verification [NOT STARTED]
+### Phase 3: Verification [COMPLETED]
 
 **Goal**: Confirm all affected tests are fixed and no regressions introduced.
 
