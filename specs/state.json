@@ -4,11 +4,11 @@
     {
       "project_number": 21,
       "project_name": "fix_first_order_proposition_display",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-03T01:40:59Z",
-      "last_updated": "2026-03-03T02:04:04Z",
-      "session_id": "sess_1772503085_01f418",
+      "last_updated": "2026-03-03T02:10:34Z",
+      "session_id": "sess_1772503660_32ae7e",
       "researched": "2026-03-03T02:04:04Z",
       "artifacts": [
         {
@@ -20,8 +20,14 @@
           "path": "specs/021_fix_first_order_proposition_display/reports/research-002.md",
           "type": "research",
           "summary": "Deep analysis of interpret() patterns and consistent fix approach"
+        },
+        {
+          "path": "specs/021_fix_first_order_proposition_display/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan fixing first-order proposition display bugs"
         }
-      ]
+      ],
+      "planned": "2026-03-03T02:10:34Z"
     },
     {
       "project_number": 20,
