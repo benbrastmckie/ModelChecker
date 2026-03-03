@@ -90,10 +90,19 @@
     {
       "project_number": 31,
       "project_name": "clean_scripts_and_artifacts",
-      "status": "not_started",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:02:58Z"
+      "last_updated": "2026-03-03T20:19:18Z",
+      "session_id": "sess_1772568992_3b6f90",
+      "researched": "2026-03-03T20:19:18Z",
+      "artifacts": [
+        {
+          "path": "specs/031_clean_scripts_and_artifacts/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of scripts and artifacts in code/ directory with cleanup recommendations"
+        }
+      ]
     }
   ],
   "repository_health": {
