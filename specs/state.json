@@ -4,10 +4,10 @@
     {
       "project_number": 28,
       "project_name": "archive_unused_theories",
-      "status": "implementing",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:30:05Z",
+      "last_updated": "2026-03-03T19:49:54Z",
       "session_id": "sess_1772566182_34aa6d",
       "planned": "2026-03-03T19:26:32Z",
       "artifacts": [
@@ -15,8 +15,15 @@
           "path": "specs/028_archive_unused_theories/plans/implementation-001.md",
           "type": "plan",
           "summary": "7-phase implementation plan to archive exclusion and imposition theories to boneyard"
+        },
+        {
+          "path": "specs/028_archive_unused_theories/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with full list of modified files"
         }
-      ]
+      ],
+      "completed": "2026-03-03T19:49:54Z",
+      "completion_summary": "Archived exclusion and imposition theories to boneyard, updated 25+ files across the codebase to remove references, rewrote theory documentation, and verified all critical tests pass."
     },
     {
       "project_number": 29,
@@ -52,11 +59,11 @@
     {
       "project_number": 30,
       "project_name": "consolidate_documentation",
-      "status": "planned",
+      "status": "implementing",
       "language": "general",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:41:05Z",
-      "session_id": "sess_1772566741_c74067",
+      "last_updated": "2026-03-03T19:48:37Z",
+      "session_id": "sess_1772567298_9ce934",
       "researched": "2026-03-03T19:33:51Z",
       "artifacts": [
         {
@@ -70,7 +77,8 @@
           "summary": "5-phase implementation plan for consolidating documentation from docs/maintenance/ to code/docs/standards/"
         }
       ],
-      "planned": "2026-03-03T19:41:05Z"
+      "planned": "2026-03-03T19:41:05Z",
+      "started": "2026-03-03T19:48:37Z"
     },
     {
       "project_number": 31,
