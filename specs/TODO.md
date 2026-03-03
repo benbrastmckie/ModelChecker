@@ -31,9 +31,10 @@ next_project_number: 22
 
 ### 23. Fix tests using outdated API signatures
 - **Effort**: Medium
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Language**: python
 - **Research**: [research-001.md](023_fix_outdated_api_signatures_in_tests/reports/research-001.md)
+- **Plan**: [implementation-001.md](023_fix_outdated_api_signatures_in_tests/plans/implementation-001.md)
 
 **Description**: Fix approximately 22 test failures caused by API signature changes that tests have not been updated to match. Specifically: (1) `Syntax.__init__()` — tests call `Syntax(formula)` or `Syntax()` with wrong args; the current signature requires `(infix_premises, infix_conclusions, operator_collection)`; update all test usages in `test_performance.py`, `test_error_handling.py`, and `tests/fixtures/`. (2) `ModelDefaults.__init__()` — tests call `ModelDefaults({'N': 3})` but now requires a `settings` keyword arg; update `test_performance.py`, `test_timeout_resources.py`, `test_error_handling.py`. (3) `OutputManager.__init__()` — test passes `save_output=` keyword that no longer exists; update `test_simple_output_verify.py`. (4) `STANDARD_SETTINGS` — not exported from `tests/fixtures/example_data.py`; add the export or update the import. (5) `builder/example.py` — `test_model_building_sync.py` checks for this file which no longer exists at that path; update the path reference.
 

@@ -765,6 +765,11 @@
           "path": "specs/023_fix_outdated_api_signatures_in_tests/reports/research-001.md",
           "type": "research",
           "summary": "Research report identifying 5 API signature mismatches across 8 test files with fix patterns"
+        },
+        {
+          "path": "specs/023_fix_outdated_api_signatures_in_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for fixing 22+ test failures from outdated API signatures"
         }
       ],
       "session_id": "sess_1772512935_cdd4c3",
