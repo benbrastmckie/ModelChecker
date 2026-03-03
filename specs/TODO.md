@@ -8,15 +8,17 @@ next_project_number: 22
 
 ### 26. Fix remaining CLI, E2E, and performance test failures
 - **Effort**: Medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: python
 
 **Description**: Fix 13 remaining test failures across four files: (1) `test_cli_subtheory.py` (4 tests) — the `--subtheory/-st` nargs='+' greedily consumes the file argument 'test.py' as a subtheory value, causing `argparse.ArgumentError: invalid choice: 'test.py'`; fix the argparse definition or the test argv setup. (2) `test_project_creation.py` (3 e2e tests) — project directory not being created, `__init__.py` is empty, and 'examples' submodule missing; fix `BuildProject` or the test's path/structure expectations. (3) `test_batch_output_real.py` (1 e2e test) — subprocess CLI command fails; likely same `Code` vs `code` directory issue or missing setup. (4) `test_performance.py` scaling tests (3 tests) — assertions like `assert 2 >= 16` are logically wrong (comparing N to expected minimum state space); fix the assertions to match actual state space sizes. (5) `test_timeout_resources.py` timing assertions (2 tests) — `assert 0.01 < 0.01` is impossible and `test_graceful_shutdown` always fails; fix timing thresholds and shutdown test logic.
 
 ### 25. Fix CLI interactive mode tests
 - **Effort**: Large
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Language**: python
+- **Completed**: 2026-03-03
+- **Summary**: Removed 2 orphaned test files causing 21 failures from September 2025 interactive-to-sequential refactor. Verified 16 existing sequential mode tests provide adequate coverage for prompting behavior.
 - **Research**: [research-001.md](025_fix_cli_interactive_mode_tests/reports/research-001.md)
 - **Plan**: [implementation-001.md](025_fix_cli_interactive_mode_tests/plans/implementation-001.md)
 

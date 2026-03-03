@@ -135,19 +135,19 @@ class BaseModelTest:
     
     def create_model(self, settings: Optional[Dict[str, Any]] = None):
         """Create a model with given settings.
-        
+
         Args:
             settings: Optional settings dictionary
-            
+
         Returns:
             ModelDefaults: Created model instance
         """
-        from model_checker.models import ModelDefaults
-        
+        from tests.utils.helpers import create_test_model
+
         if settings is None:
             settings = {'N': 3}
-        
-        return ModelDefaults(settings)
+
+        return create_test_model(settings)
     
     def assert_model_valid(self, model):
         """Assert model is valid and satisfiable.

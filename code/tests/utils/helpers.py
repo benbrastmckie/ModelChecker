@@ -240,6 +240,63 @@ def compare_outputs(output1: str, output2: str,
     return output1 == output2
 
 
+def create_test_model(settings: Optional[Dict[str, Any]] = None,
+                     premises: Optional[List[str]] = None,
+                     conclusions: Optional[List[str]] = None,
+                     theory_name: str = 'logos'):
+    """Create a test model with proper API usage.
+
+    This helper function creates a ModelDefaults instance using the correct
+    API: ModelDefaults(model_constraints, settings) where model_constraints
+    is properly constructed from Syntax, Semantics, and proposition classes.
+
+    Args:
+        settings: Optional settings dictionary (merged with defaults)
+        premises: Optional list of premise formulas (defaults to [])
+        conclusions: Optional list of conclusion formulas (defaults to ['A[]'])
+        theory_name: Name of the theory to use (defaults to 'logos')
+
+    Returns:
+        ModelDefaults instance
+    """
+    from model_checker.syntactic import Syntax
+    from model_checker.models import ModelDefaults
+    from model_checker.models.constraints import ModelConstraints
+    from model_checker.theory_lib import logos
+
+    # Get theory components
+    theory = logos.get_theory()
+    semantics_class = theory['semantics']
+    proposition_class = theory['proposition']
+    operators = theory['operators']
+
+    # Start with theory default settings
+    full_settings = dict(semantics_class.DEFAULT_EXAMPLE_SETTINGS)
+    full_settings.update(semantics_class.DEFAULT_GENERAL_SETTINGS)
+
+    # Override with user-provided settings
+    if settings is not None:
+        full_settings.update(settings)
+
+    # Default values for formulas
+    if premises is None:
+        premises = []
+    if conclusions is None:
+        conclusions = ['A[]']  # Simple valid formula
+
+    # Create Syntax
+    syntax = Syntax(premises, conclusions, operators)
+
+    # Create Semantics instance
+    semantics = semantics_class(full_settings, syntax)
+
+    # Create ModelConstraints
+    model_constraints = ModelConstraints(full_settings, syntax, semantics, proposition_class)
+
+    # Create and return ModelDefaults
+    return ModelDefaults(model_constraints, full_settings)
+
+
 def create_temp_project(tmp_path: Path, project_name: str = 'test_project',
                        theory_name: str = 'logos') -> Path:
     """Create a temporary ModelChecker project for testing.

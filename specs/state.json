@@ -759,7 +759,7 @@
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T05:22:10Z",
+      "last_updated": "2026-03-03T06:08:49Z",
       "artifacts": [
         {
           "path": "specs/023_fix_outdated_api_signatures_in_tests/reports/research-001.md",
@@ -772,7 +772,7 @@
           "summary": "6-phase implementation plan for fixing 22+ test failures from outdated API signatures"
         }
       ],
-      "session_id": "sess_1772515305_ad412b",
+      "session_id": "sess_1772518099_937581",
       "researched": "2026-03-03T04:40:43Z",
       "planned": "2026-03-03T04:45:09Z"
     },
@@ -810,11 +810,11 @@
     {
       "project_number": 25,
       "project_name": "fix_cli_interactive_mode_tests",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "effort": "Large",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T05:23:20Z",
+      "last_updated": "2026-03-03T17:04:29Z",
       "artifacts": [
         {
           "path": "specs/025_fix_cli_interactive_mode_tests/reports/research-001.md",
@@ -825,21 +825,29 @@
           "path": "specs/025_fix_cli_interactive_mode_tests/plans/implementation-001.md",
           "type": "plan",
           "summary": "2-phase plan to delete orphaned interactive mode tests and verify sequential mode coverage"
+        },
+        {
+          "path": "specs/025_fix_cli_interactive_mode_tests/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting deleted files and coverage verification"
         }
       ],
-      "session_id": "sess_1772515272_684353",
+      "session_id": "sess_1772518153_8fede2",
       "researched": "2026-03-03T04:45:46Z",
-      "planned": "2026-03-03T05:23:20Z"
+      "planned": "2026-03-03T05:23:20Z",
+      "completed": "2026-03-03T17:04:29Z",
+      "completion_summary": "Removed 2 orphaned test files causing 21 failures from September 2025 interactive-to-sequential refactor. Verified 16 existing sequential mode tests provide adequate coverage for prompting behavior."
     },
     {
       "project_number": 26,
       "project_name": "fix_remaining_cli_e2e_performance_tests",
-      "status": "not_started",
+      "status": "researching",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T02:38:05Z",
-      "artifacts": []
+      "last_updated": "2026-03-03T06:14:47Z",
+      "artifacts": [],
+      "session_id": "sess_1772518449_7b81b1"
     }
   ],
   "repository_health": {

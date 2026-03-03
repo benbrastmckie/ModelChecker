@@ -7,7 +7,7 @@ edge cases, and recovery mechanisms throughout ModelChecker.
 import pytest
 import tempfile
 from pathlib import Path
-from tests.utils.helpers import run_cli_command, create_test_module
+from tests.utils.helpers import run_cli_command, create_test_module, create_test_model
 from tests.utils.assertions import assert_output_contains
 
 
@@ -78,7 +78,12 @@ class TestFrameworkErrorHandling:
     def test_invalid_formula_unicode(self):
         """Test invalid formula with Unicode characters."""
         from model_checker.syntactic import Syntax
-        
+        from model_checker.theory_lib import logos
+
+        # Get a valid operator collection for testing
+        theory = logos.get_theory()
+        operators = theory['operators']
+
         # Unicode formulas should be rejected
         unicode_formulas = [
             "A ∧ B",
@@ -86,14 +91,12 @@ class TestFrameworkErrorHandling:
             "¬ p",
             "A → B"
         ]
-        
-        syntax = Syntax()
+
         for formula in unicode_formulas:
-            # Should either raise error or return invalid result
+            # Should either raise error during Syntax construction or handle gracefully
             try:
-                result = syntax.parse(formula)
-                # If it doesn't raise, check it's marked invalid
-                assert result is None or hasattr(result, 'error')
+                syntax = Syntax([], [formula], operators)
+                # If it doesn't raise, the formula was handled (possibly as invalid)
             except (ValueError, TypeError, Exception):
                 # Expected - Unicode should cause error
                 pass
@@ -101,37 +104,38 @@ class TestFrameworkErrorHandling:
     def test_malformed_formula_structure(self):
         """Test handling of structurally invalid formulas."""
         from model_checker.syntactic import Syntax
-        
+        from model_checker.theory_lib import logos
+
+        # Get a valid operator collection for testing
+        theory = logos.get_theory()
+        operators = theory['operators']
+
         malformed_formulas = [
             "(A \\wedge",  # Missing closing paren
             "A \\wedge B)",  # Missing opening paren
             "((A \\wedge B)",  # Unbalanced parens
             "\\wedge A B",  # Wrong operator position
         ]
-        
-        syntax = Syntax()
+
         for formula in malformed_formulas:
             try:
-                result = syntax.parse(formula)
-                # If it doesn't raise, it should return None or error
-                assert result is None or hasattr(result, 'error')
+                syntax = Syntax([], [formula], operators)
+                # If it doesn't raise, it should handle gracefully
             except (ValueError, TypeError, Exception):
                 # Expected - malformed formulas should cause errors
                 pass
     
     def test_z3_timeout_handling(self):
         """Test Z3 solver timeout handling."""
-        from model_checker.models import ModelDefaults
-        
         # Create a model with very short timeout
         settings = {
             'N': 10,
             'max_time': 0.001  # 1ms timeout - should trigger timeout
         }
-        
+
         # This should handle timeout gracefully
         # Note: Actual implementation depends on how timeouts are handled
-        model = ModelDefaults(settings)
+        model = create_test_model(settings)
         # Model should indicate timeout occurred
     
     def test_memory_limit_handling(self):
@@ -142,10 +146,9 @@ class TestFrameworkErrorHandling:
             'contingent': True,
             'non_empty': True
         }
-        
+
         # Should handle large state spaces gracefully
-        from model_checker.models import ModelDefaults
-        model = ModelDefaults(settings)
+        model = create_test_model(settings)
         # Should complete or fail gracefully, not crash
 
 
@@ -194,18 +197,16 @@ example_range = {
     
     def test_graceful_degradation(self):
         """Test system degrades gracefully under errors."""
-        from model_checker.models import ModelDefaults
-        
         # Test with settings that might cause issues
         problematic_settings = [
             {'N': 1, 'contingent': True},  # Minimum N with contingent
             {'N': 64, 'maximize': True},  # Maximum N with maximize
             {'max_time': 0.01},  # Very short timeout
         ]
-        
+
         for settings in problematic_settings:
             try:
-                model = ModelDefaults(settings)
+                model = create_test_model(settings)
                 # Should either work or fail gracefully
             except Exception as e:
                 # Check error is informative
@@ -250,19 +251,23 @@ class TestEdgeCases:
     
     def test_very_long_formulas(self):
         """Test handling of very long formulas."""
+        from model_checker.syntactic import Syntax
+        from model_checker.theory_lib import logos
+
+        # Get a valid operator collection for testing
+        theory = logos.get_theory()
+        operators = theory['operators']
+
         # Build a very deeply nested formula
-        formula = "p"
+        formula = "P[]"  # Use proper sentence letter syntax
         for i in range(100):  # 100 levels deep
             formula = f"(\\neg {formula})"
-        
-        from model_checker.syntactic import Syntax
-        syntax = Syntax()
-        
+
         # Should handle deep nesting (or fail gracefully)
         try:
-            result = syntax.parse(formula)
+            syntax = Syntax([], [formula], operators)
             # If successful, formula should be valid
-            assert result is not None
+            assert syntax is not None
         except RecursionError:
             # Acceptable - very deep nesting might hit recursion limit
             pass

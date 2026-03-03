@@ -1,7 +1,7 @@
 # Implementation Plan: Task #25
 
 - **Task**: 25 - Fix CLI interactive mode tests
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 0.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/025_fix_cli_interactive_mode_tests/reports/research-001.md
@@ -45,7 +45,7 @@ Key findings from research-001.md:
 
 ## Implementation Phases
 
-### Phase 1: Delete Orphaned Test Files [NOT STARTED]
+### Phase 1: Delete Orphaned Test Files [COMPLETED]
 
 **Goal**: Remove the two test files causing 21 failures
 
@@ -67,7 +67,7 @@ Key findings from research-001.md:
 
 ---
 
-### Phase 2: Verify Sequential Mode Coverage [NOT STARTED]
+### Phase 2: Verify Sequential Mode Coverage [COMPLETED]
 
 **Goal**: Confirm sequential mode has adequate test coverage for the scenarios these tests described
 

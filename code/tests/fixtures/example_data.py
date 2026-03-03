@@ -70,6 +70,9 @@ TEST_SETTINGS = {
     }
 }
 
+# Standard settings for test convenience - alias to standard entry
+STANDARD_SETTINGS = TEST_SETTINGS['standard']
+
 # Standard example configurations
 def get_test_example(name='basic'):
     """Get standardized test example by name.

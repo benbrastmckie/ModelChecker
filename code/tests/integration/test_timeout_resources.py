@@ -8,7 +8,7 @@ import pytest
 import time
 import threading
 from unittest.mock import patch, Mock
-from tests.utils.helpers import create_test_module
+from tests.utils.helpers import create_test_module, create_test_model
 
 
 class TestTimeoutHandling:
@@ -16,8 +16,6 @@ class TestTimeoutHandling:
     
     def test_z3_solver_timeout(self):
         """Test Z3 solver respects timeout settings."""
-        from model_checker.models import ModelDefaults
-        
         # Very short timeout
         settings = {
             'N': 10,
@@ -25,16 +23,16 @@ class TestTimeoutHandling:
             'contingent': True,
             'non_empty': True
         }
-        
+
         start_time = time.time()
-        
+
         try:
-            model = ModelDefaults(settings)
+            model = create_test_model(settings)
             # If model completes, check it didn't take too long
             elapsed = time.time() - start_time
             # Should complete quickly or timeout
             assert elapsed < 1.0  # Should not hang
-            
+
             # Check model indicates timeout if it occurred
             if hasattr(model, 'timeout_occurred'):
                 if model.timeout_occurred:
@@ -75,15 +73,13 @@ example_range = {
     @pytest.mark.parametrize("timeout_value", [0.001, 0.01, 0.1])
     def test_various_timeout_values(self, timeout_value):
         """Test handling of various timeout values."""
-        from model_checker.models import ModelDefaults
-        
         settings = {
             'N': 5,
             'max_time': timeout_value
         }
-        
+
         try:
-            model = ModelDefaults(settings)
+            model = create_test_model(settings)
             # Should handle all positive timeout values
             assert settings['max_time'] == timeout_value
         except Exception:
@@ -96,14 +92,12 @@ class TestResourceLimits:
     
     def test_large_state_space(self):
         """Test handling of large state spaces."""
-        from model_checker.models import ModelDefaults
-        
         # Test increasing N values
         for n in [32, 48, 64]:
             settings = {'N': n}
-            
+
             try:
-                model = ModelDefaults(settings)
+                model = create_test_model(settings)
                 # Should handle or fail gracefully
                 assert model is not None
             except MemoryError:
@@ -115,17 +109,15 @@ class TestResourceLimits:
     
     def test_many_propositions(self):
         """Test handling of many propositions."""
-        from model_checker.models import ModelDefaults
-        
         # Create many propositions
         num_props = 50
-        assumptions = [f"p{i}" for i in range(num_props)]
-        
+        assumptions = [f"p{i}[]" for i in range(num_props)]
+
         settings = {'N': 4}
-        
+
         try:
             # This might stress memory with many propositions
-            model = ModelDefaults(settings)
+            model = create_test_model(settings, premises=assumptions)
             # Should handle many propositions
         except MemoryError:
             # Acceptable for extreme cases
@@ -133,29 +125,27 @@ class TestResourceLimits:
     
     def test_concurrent_model_building(self):
         """Test concurrent model building doesn't exhaust resources."""
-        from model_checker.models import ModelDefaults
-        
         def build_model():
             settings = {'N': 3}
             try:
-                model = ModelDefaults(settings)
+                model = create_test_model(settings)
                 return True
             except Exception:
                 return False
-        
+
         # Create multiple threads
         threads = []
         num_threads = 5
-        
+
         for _ in range(num_threads):
             thread = threading.Thread(target=build_model)
             threads.append(thread)
             thread.start()
-        
+
         # Wait for all threads
         for thread in threads:
             thread.join(timeout=5)
-        
+
         # All threads should complete
         for thread in threads:
             assert not thread.is_alive()
@@ -180,8 +170,6 @@ time.sleep(10)  # Long sleep to allow interrupt
     
     def test_graceful_shutdown(self):
         """Test graceful shutdown on resource exhaustion."""
-        from model_checker.models import ModelDefaults
-        
         # Try to exhaust resources
         settings = {
             'N': 64,
@@ -190,9 +178,9 @@ time.sleep(10)  # Long sleep to allow interrupt
             'non_empty': True,
             'max_time': 0.1  # Short timeout to prevent hanging
         }
-        
+
         try:
-            model = ModelDefaults(settings)
+            model = create_test_model(settings)
             # If successful, model should be valid
             assert model is not None
         except Exception as e:
@@ -207,8 +195,6 @@ class TestPerformanceDegradation:
     
     def test_performance_with_many_constraints(self):
         """Test performance with many constraints."""
-        from model_checker.models import ModelDefaults
-        
         # Settings that create many constraints
         settings = {
             'N': 10,
@@ -218,13 +204,13 @@ class TestPerformanceDegradation:
             'disjoint': True,
             'max_time': 1.0
         }
-        
+
         start_time = time.time()
-        
+
         try:
-            model = ModelDefaults(settings)
+            model = create_test_model(settings)
             elapsed = time.time() - start_time
-            
+
             # Should complete in reasonable time
             assert elapsed < settings['max_time'] + 0.5  # Allow overhead
         except Exception:
@@ -239,19 +225,17 @@ class TestPerformanceDegradation:
     ])
     def test_scaling_behavior(self, n, expected_time):
         """Test that processing time scales reasonably with N."""
-        from model_checker.models import ModelDefaults
-        
         settings = {
             'N': n,
             'max_time': expected_time * 2  # Allow 2x expected
         }
-        
+
         start_time = time.time()
-        
+
         try:
-            model = ModelDefaults(settings)
+            model = create_test_model(settings)
             elapsed = time.time() - start_time
-            
+
             # Should not take much longer than expected
             assert elapsed < expected_time * 3
         except Exception:
@@ -266,34 +250,27 @@ class TestResourceRecovery:
     def test_memory_released_after_error(self):
         """Test memory is released after errors."""
         import gc
-        import sys
-        
+
         initial_objects = len(gc.get_objects())
-        
-        try:
-            from model_checker.models import ModelDefaults
-            
-            # Create and destroy multiple models
-            for _ in range(10):
-                try:
-                    settings = {'N': 10}
-                    model = ModelDefaults(settings)
-                    del model
-                except Exception:
-                    pass
-            
-            # Force garbage collection
-            gc.collect()
-            
-            # Check object count hasn't grown too much
-            final_objects = len(gc.get_objects())
-            growth = final_objects - initial_objects
-            
-            # Some growth is normal, but should be bounded
-            assert growth < 1000  # Reasonable threshold
-        except ImportError:
-            # Can't test without imports
-            pass
+
+        # Create and destroy multiple models
+        for _ in range(10):
+            try:
+                settings = {'N': 10}
+                model = create_test_model(settings)
+                del model
+            except Exception:
+                pass
+
+        # Force garbage collection
+        gc.collect()
+
+        # Check object count hasn't grown too much
+        final_objects = len(gc.get_objects())
+        growth = final_objects - initial_objects
+
+        # Some growth is normal, but should be bounded
+        assert growth < 1000  # Reasonable threshold
     
     def test_file_handles_closed(self, tmp_path):
         """Test file handles are properly closed."""

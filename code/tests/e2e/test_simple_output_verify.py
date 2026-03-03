@@ -5,8 +5,9 @@ from unittest.mock import Mock, patch
 import json
 
 from model_checker.output.manager import OutputManager
+from model_checker.output.config import OutputConfig
 from model_checker.output.collectors import ModelDataCollector
-from model_checker.output.formatters import MarkdownFormatter
+from model_checker.output.formatters import MarkdownFormatter, JSONFormatter
 
 
 class TestSimpleOutputVerify(unittest.TestCase):
@@ -38,8 +39,9 @@ class TestSimpleOutputVerify(unittest.TestCase):
             "p": {"s3": True, "s5": False}
         })
         
-        # Create output manager
-        output_manager = OutputManager(save_output=True)
+        # Create output manager with OutputConfig
+        config = OutputConfig(formats=['markdown', 'json'], save_output=True)
+        output_manager = OutputManager(config)
         
         # Mock stdout capture
         output_manager.captured_outputs = {
@@ -59,28 +61,31 @@ class TestSimpleOutputVerify(unittest.TestCase):
         self.assertIn("time_shift", model_data["relations"])
         self.assertEqual(model_data["propositions"]["p"]["s3"], True)
         
-        # Test JSON formatting
-        json_content = output_manager._format_json({
-            "examples": [model_data]
-        })
-        
+        # Test JSON formatting using JSONFormatter directly
+        json_formatter = JSONFormatter()
+        json_content = json_formatter.format_example(model_data, "Model output")
+
         # Should be valid JSON
         parsed = json.loads(json_content)
-        self.assertEqual(len(parsed["examples"]), 1)
-        self.assertEqual(parsed["examples"][0]["theory"], "bimodal")
+        self.assertEqual(parsed["example"], "test_example")
+        self.assertEqual(parsed["theory"], "bimodal")
         
         # Test markdown formatting
         formatter = MarkdownFormatter(use_colors=False)
+
+        # When model_output is provided, formatter returns it as-is
         markdown = formatter.format_example(model_data, "Model output")
-        
-        # Check markdown contains key elements
-        self.assertIn("## Example: test_example", markdown)
-        self.assertIn("Theory: bimodal", markdown)
-        self.assertIn("### States", markdown)
-        self.assertIn("s3 [WORLD]", markdown)
-        self.assertIn("### Relations", markdown)
-        self.assertIn("time_shift", markdown)
-        self.assertIn("s3 →_{0} s3", markdown)
+        self.assertEqual(markdown, "Model output")
+
+        # When no model_output, formatter creates summary from data
+        markdown_no_output = formatter.format_example(model_data, "")
+        self.assertIn("test_example", markdown_no_output)
+        self.assertIn("model found", markdown_no_output)
+
+        # Test state type formatting
+        state_formatted = formatter.format_state_type("s3", "world")
+        self.assertIn("s3", state_formatted)
+        self.assertIn("WORLD", state_formatted)
 
 
 if __name__ == '__main__':

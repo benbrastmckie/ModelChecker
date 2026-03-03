@@ -1,25 +1,50 @@
 ---
 name: skill-lean-research
-description: Research skill for Lean 4 theorem prover and Mathlib
-allowed_tools: Read, Write, Edit, Bash, WebSearch, WebFetch, Grep, Glob, mcp__lean-lsp__*
-context: project/lean4
+description: Research Lean 4 and Mathlib for theorem proving tasks. Invoke for Lean-language research.
+allowed-tools: Task, Bash, Edit, Read, Write
+context: fork
+agent: lean-research-agent
 ---
 
 # Lean Research Skill
 
-Routes Lean 4 research tasks to lean-research-agent.
+Thin wrapper that delegates Lean research to `lean-research-agent`.
 
-## Usage
+<context>
+  <system_context>OpenCode Lean research skill wrapper.</system_context>
+  <task_context>Delegate Lean research and coordinate postflight updates.</task_context>
+</context>
 
-Invoked by orchestrator when task language is `lean4` and operation is research.
+<role>Delegation skill for Lean research workflows.</role>
 
-## Agent
+<task>Validate inputs, delegate Lean research, and update status/artifacts.</task>
 
-- **Agent**: lean-research-agent
-- **Model**: opus
+<execution>See Execution Flow for preflight/delegation/postflight steps.</execution>
 
-## Context
+<validation>Validate metadata file, report artifact, and state updates.</validation>
 
-- Lean 4 syntax and semantics
-- Mathlib library overview
-- MCP tools for proof assistance
+<return_format>Brief text summary; metadata file in `specs/{N}_{SLUG}/.return-meta.json`.</return_format>
+
+## Context References
+
+Reference (do not load eagerly):
+- Path: `.opencode/context/core/formats/return-metadata-file.md` - Metadata file schema
+- Path: `.opencode/context/core/patterns/postflight-control.md` - Marker file protocol
+- Path: `.opencode/context/core/patterns/file-metadata-exchange.md` - Metadata handling
+- Path: `.opencode/context/core/patterns/jq-escaping-workarounds.md` - jq workaround patterns
+- Path: `.opencode/context/index.md` - Context discovery index
+
+## Trigger Conditions
+
+- Task language is lean
+- /research command invoked
+
+## Execution Flow
+
+1. Validate task and status.
+2. Update status to researching.
+3. Create postflight marker file.
+4. Delegate to `lean-research-agent` via Task tool.
+5. Read metadata file and update state + TODO.
+6. Link research artifact and commit.
+7. Clean up marker and metadata files.

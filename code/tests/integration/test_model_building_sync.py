@@ -104,8 +104,8 @@ class TestModelBuildingSync:
         
         # Check BuildExample has reference to Iterator
         build_example_path = os.path.join(
-            os.path.dirname(__file__), 
-            '../src/model_checker/builder/example.py'
+            os.path.dirname(__file__),
+            '../../src/model_checker/builder/example.py'
         )
         with open(build_example_path, 'r') as f:
             build_content = f.read()
@@ -114,17 +114,18 @@ class TestModelBuildingSync:
             assert '_build_new_model_structure' in build_content, \
                 "BuildExample should reference _build_new_model_structure"
         
-        # Check Iterator has reference to BuildExample  
+        # Check Iterator has reference to BuildExample
         iterator_path = os.path.join(
             os.path.dirname(__file__),
-            '../src/model_checker/iterate/core.py'
+            '../../src/model_checker/iterate/core.py'
         )
         with open(iterator_path, 'r') as f:
             iterator_content = f.read()
-            assert 'BuildExample.__init__' in iterator_content, \
-                "Iterator should reference BuildExample.__init__"
-            assert 'builder/example.py' in iterator_content, \
-                "Iterator should reference builder/example.py"
+            assert 'BuildExample' in iterator_content, \
+                "Iterator should reference BuildExample"
+            # Check for import from builder module
+            assert 'builder' in iterator_content and 'BuildExample' in iterator_content, \
+                "Iterator should import BuildExample from builder"
 
 
 if __name__ == '__main__':

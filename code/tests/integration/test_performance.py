@@ -8,6 +8,7 @@ import pytest
 import time
 import gc
 from tests.utils.base import BaseModelTest, BaseExampleTest
+from tests.utils.helpers import create_test_model
 
 
 class TestExecutionPerformance(BaseModelTest):
@@ -93,35 +94,33 @@ class TestMemoryPerformance:
     def test_memory_usage_simple(self):
         """Test memory usage for simple models."""
         import tracemalloc
-        
+
         # Start memory tracking
         tracemalloc.start()
-        
+
         # Create simple model
-        from model_checker.models import ModelDefaults
-        model = ModelDefaults({'N': 3})
-        
+        model = create_test_model({'N': 3})
+
         # Get memory usage
         current, peak = tracemalloc.get_traced_memory()
         tracemalloc.stop()
-        
+
         # Convert to MB
         peak_mb = peak / (1024 * 1024)
-        
+
         # Simple model should use < 10MB
         assert peak_mb < 10, f"Simple model used {peak_mb:.1f}MB, expected < 10MB"
     
     def test_memory_usage_complex(self):
         """Test memory usage for complex models."""
         import tracemalloc
-        
+
         # Start memory tracking
         tracemalloc.start()
-        
+
         try:
             # Create complex model
-            from model_checker.models import ModelDefaults
-            model = ModelDefaults({
+            model = create_test_model({
                 'N': 10,
                 'contingent': True,
                 'non_empty': True
@@ -144,27 +143,25 @@ class TestMemoryPerformance:
     def test_memory_cleanup(self):
         """Test memory is properly released after model deletion."""
         import gc
-        import sys
-        
+
         # Force garbage collection
         gc.collect()
-        
+
         # Get baseline object count
         baseline_objects = len(gc.get_objects())
-        
+
         # Create and destroy multiple models
         for i in range(5):
-            from model_checker.models import ModelDefaults
-            model = ModelDefaults({'N': 3})
+            model = create_test_model({'N': 3})
             del model
-        
+
         # Force garbage collection
         gc.collect()
-        
+
         # Check object count hasn't grown significantly
         final_objects = len(gc.get_objects())
         growth = final_objects - baseline_objects
-        
+
         # Allow some growth but should be bounded
         assert growth < 500, f"Object count grew by {growth}, possible memory leak"
 
@@ -240,34 +237,33 @@ class TestConcurrentPerformance:
     def test_sequential_vs_concurrent(self):
         """Test that operations don't degrade under concurrency."""
         import threading
-        
-        def create_model():
-            from model_checker.models import ModelDefaults
+
+        def make_model():
             try:
-                model = ModelDefaults({'N': 3})
+                model = create_test_model({'N': 3})
                 return True
             except Exception:
                 return False
-        
+
         # Sequential timing
         start = time.time()
         for _ in range(3):
-            create_model()
+            make_model()
         sequential_time = time.time() - start
-        
+
         # Concurrent timing
         start = time.time()
         threads = []
         for _ in range(3):
-            thread = threading.Thread(target=create_model)
+            thread = threading.Thread(target=make_model)
             threads.append(thread)
             thread.start()
-        
+
         for thread in threads:
             thread.join(timeout=10)
-        
+
         concurrent_time = time.time() - start
-        
+
         # Concurrent should not be much slower than sequential
         # Allow 2x overhead for thread management
         assert concurrent_time < sequential_time * 2, \
@@ -280,20 +276,23 @@ class TestCachingPerformance:
     def test_repeated_operations(self):
         """Test repeated operations benefit from caching."""
         from model_checker.syntactic import Syntax
-        
-        syntax = Syntax()
-        formula = "(A \\wedge B) \\vee (C \\wedge D)"
-        
+        from model_checker.theory_lib import logos
+
+        # Get a valid operator collection for testing
+        theory = logos.get_theory()
+        operators = theory['operators']
+        formula = "(A[] \\wedge B[]) \\vee (C[] \\wedge D[])"
+
         # First parse (cold)
         start = time.time()
-        result1 = syntax.parse(formula)
+        syntax1 = Syntax([], [formula], operators)
         first_time = time.time() - start
-        
+
         # Second parse (potentially cached)
         start = time.time()
-        result2 = syntax.parse(formula)
+        syntax2 = Syntax([], [formula], operators)
         second_time = time.time() - start
-        
+
         # Second should not be slower than first
         # (May not be faster if no caching, but shouldn't degrade)
         assert second_time <= first_time * 1.5, \
@@ -325,20 +324,19 @@ class TestWorstCasePerformance:
     def test_maximum_n_performance(self):
         """Test performance at maximum N value."""
         start = time.time()
-        
+
         settings = {
             'N': 64,
             'max_time': 30  # Give it reasonable timeout
         }
-        
+
         try:
-            from model_checker.models import ModelDefaults
-            model = ModelDefaults(settings)
-            
+            model = create_test_model(settings)
+
             elapsed = time.time() - start
             # Should complete or timeout within max_time
             assert elapsed < settings['max_time'] + 5
-            
+
         except Exception:
             # Timeout or resource limit expected
             elapsed = time.time() - start
@@ -347,19 +345,22 @@ class TestWorstCasePerformance:
     def test_many_propositions_performance(self):
         """Test performance with many propositions."""
         from model_checker.syntactic import Syntax
-        
-        # Create formula with many propositions
-        props = [f"p{i}" for i in range(30)]
+        from model_checker.theory_lib import logos
+
+        # Get a valid operator collection for testing
+        theory = logos.get_theory()
+        operators = theory['operators']
+
+        # Create formula with many propositions (using proper syntax)
+        props = [f"p{i}[]" for i in range(30)]
         formula = " \\wedge ".join(props)
         formula = f"({formula})"
-        
-        syntax = Syntax()
-        
+
         start = time.time()
         try:
-            result = syntax.parse(formula)
+            syntax = Syntax([], [formula], operators)
             elapsed = time.time() - start
-            
+
             # Should parse reasonably quickly
             assert elapsed < 2.0, f"Parsing 30 propositions took {elapsed:.2f}s"
         except Exception:
