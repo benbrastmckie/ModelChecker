@@ -8,8 +8,9 @@ next_project_number: 20
 
 ### 19. Investigate remaining first-order theorem failures: spurious countermodels in FO_TH_1-4 and FO_TH_6-8, and bare variable TypeError in FO_TH_7
 - **Effort**: Medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [research-001.md](019_investigate_first_order_theorem_failures/reports/research-001.md)
+- **Plan**: [implementation-001.md](019_investigate_first_order_theorem_failures/plans/implementation-001.md)
 - **Language**: python
 - **Dependencies**: Task #18
 
