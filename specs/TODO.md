@@ -15,8 +15,9 @@ next_project_number: 22
 
 ### 25. Fix CLI interactive mode tests
 - **Effort**: Large
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Language**: python
+- **Research**: [research-001.md](025_fix_cli_interactive_mode_tests/reports/research-001.md)
 
 **Description**: Fix 21 test failures in `test_cli_interactive.py` (15 tests) and `test_build_module_interactive.py` (6 tests) that require: (1) A `--interactive/-I` flag in `ParseFileFlags` (`__main__.py`) — tests expect `flags.interactive` attribute and `parser._short_to_long['I'] == 'interactive'`; (2) `model_checker.output.interactive` module — `test_build_module_interactive.py` tries `import model_checker.output.interactive`; (3) `BuildModule.semantic_theories` attribute. Research whether these are planned features to implement or aspirational tests to delete/update. If implementing, add the `--interactive` flag to argparse, create the output.interactive module stub, and expose `semantic_theories` on `BuildModule`. If deleting, remove only after confirming these features are not in scope.
 
