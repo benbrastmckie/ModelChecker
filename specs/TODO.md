@@ -36,9 +36,10 @@ next_project_number: 22
 
 ### 22. Fix test helper run_cli_command code directory lookup
 - **Effort**: Small
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: python
 - **Research**: [research-001.md](022_fix_test_helper_code_directory_lookup/reports/research-001.md)
+- **Plan**: [implementation-001.md](022_fix_test_helper_code_directory_lookup/plans/implementation-001.md)
 
 **Description**: Fix 5 test failures in `test_error_handling.py::TestCLIErrorHandling` caused by `run_cli_command()` in `code/tests/utils/helpers.py` looking for a directory named `Code` (capital C) as the project root, but task 16 renamed all directories to lowercase. The function walks up from the test file looking for `current_dir.name != 'Code'`, so it never finds the root, fails to set PYTHONPATH correctly, and the subprocess gets `no module named model_checker`. Fix: change the lookup condition to match `code` (lowercase) or use a more robust approach (e.g., look for `pyproject.toml` or a sentinel file).
 
