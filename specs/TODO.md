@@ -1,5 +1,5 @@
 ---
-next_project_number: 32
+next_project_number: 33
 ---
 
 # Task List
@@ -7,6 +7,16 @@ next_project_number: 32
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 32. Consolidate first-order subtheory to standard structure
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+- **Dependencies**: None
+
+**Description**: Refactor first-order subtheory (`code/src/model_checker/theory_lib/logos/subtheories/first-order/`) to contain only the standard files (`__init__.py`, `examples.py`, `operators.py`, `README.md`) matching other subtheories. Review contents of `constraints.py` and `denotation.py` to identify correct integration points. Ensure the logos theory structure remains systematic and extensible for future subtheories.
+
+---
 
 ### 28. Archive unused theory libraries
 - **Effort**: 1-2 hours

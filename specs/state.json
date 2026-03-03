@@ -1,6 +1,14 @@
 {
-  "next_project_number": 32,
+  "next_project_number": 33,
   "active_projects": [
+    {
+      "project_number": 32,
+      "project_name": "consolidate_first_order_subtheory_structure",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-03T20:24:45Z",
+      "last_updated": "2026-03-03T20:24:45Z"
+    },
     {
       "project_number": 28,
       "project_name": "archive_unused_theories",
