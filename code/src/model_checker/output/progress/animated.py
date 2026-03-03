@@ -187,20 +187,27 @@ class TimeBasedProgress(AnimatedProgressBar):
         self.skipped_count = count
         
     def complete(self, success: bool = True) -> None:
-        """Complete the progress bar."""
+        """Complete the progress bar.
+
+        This method can be called after manually stopping the animation thread.
+        It handles the case where active=False and thread is already joined.
+        """
         # Set flags first to stop animation
         self.found = success
         self.active = False
-        
-        # Wait for thread to finish
+
+        # Wait for thread to finish (handles already-stopped case gracefully)
         if self.thread and self.thread.is_alive():
             self.thread.join(timeout=0.5)
-            
+
         # Clear any partial line from animation
         self.display.clear()
-            
-        # Show final state
-        elapsed = time.time() - self.start_time
+
+        # Show final state - handle case where start() was never called
+        if self.start_time is None:
+            elapsed = 0.0
+        else:
+            elapsed = time.time() - self.start_time
         
         # Only show final state if model was found
         # For timeouts, we just clear the line and don't show anything

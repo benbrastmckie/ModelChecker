@@ -394,14 +394,22 @@ class ModelRunner:
         iterate_count: int
     ) -> 'BuildExample':
         """Process example with iteration support and progress tracking.
-        
+
+        Uses deferred completion pattern to ensure correct output ordering:
+        1. Start animated progress bar during Z3 model search
+        2. After model found, stop animation WITHOUT printing final bar
+        3. Print example header via _capture_and_save_output()
+        4. THEN print final progress bar via complete_model_search()
+
+        This ensures the header appears before the progress bar in output.
+
         Args:
             example_name: Name of the example
             example_case: Example case data
             theory_name: Name of the theory
             semantic_theory: Theory configuration
             iterate_count: Number of models to find
-            
+
         Returns:
             BuildExample: The processed example
         """
@@ -423,21 +431,27 @@ class ModelRunner:
         
         # Check if model was found
         if not example.model_structure.z3_model_status:
+            # No model found - stop animation, print header, then finish
+            self._stop_progress_animation(progress)
+            self.build_module._capture_and_save_output(example, example_name, theory_name)
             progress.complete_model_search(found=False)
             progress.finish()
-            self.build_module._capture_and_save_output(example, example_name, theory_name)
             return example
-        
-        progress.complete_model_search(found=True)
-        print()  # Add vertical space after first progress bar
-        
+
+        # Model found - stop animation without printing final bar yet
+        self._stop_progress_animation(progress)
+
         # Set up for iteration
         if iterate_count > 1:
             example._unified_progress = progress
-        
-        # Handle interactive vs batch mode
-        iterate_count = self._handle_iteration_mode(example, example_name, theory_name, 
+
+        # Handle interactive vs batch mode (this prints the header)
+        iterate_count = self._handle_iteration_mode(example, example_name, theory_name,
                                                     iterate_count, progress)
+
+        # NOW print the progress bar after header
+        progress.complete_model_search(found=True)
+        print()  # Add vertical space after progress bar
         
         # Process remaining iterations
         try:
@@ -471,13 +485,32 @@ class ModelRunner:
         start_time: float
     ) -> None:
         """Store timing information in the example for reporting.
-        
+
         Args:
             example: The BuildExample instance
             start_time: When model search started
         """
         store_timing_information(example.model_structure, start_time)
-    
+
+    def _stop_progress_animation(self, progress: UnifiedProgress) -> None:
+        """Stop the progress animation without printing the final bar.
+
+        This allows us to print the example header BEFORE the progress bar,
+        ensuring correct output ordering.
+
+        Args:
+            progress: The UnifiedProgress tracker with an active animation
+        """
+        if progress.model_progress_bars:
+            bar = progress.model_progress_bars[-1]
+            # Stop animation thread
+            bar.active = False
+            # Wait for thread to stop
+            if bar.thread and bar.thread.is_alive():
+                bar.thread.join(timeout=0.5)
+            # Clear the animated line from the terminal
+            progress.display.clear()
+
     def _handle_iteration_mode(
         self,
         example: 'BuildExample',
