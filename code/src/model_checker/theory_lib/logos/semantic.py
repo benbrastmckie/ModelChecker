@@ -1104,14 +1104,27 @@ class LogosProposition(PropositionDefaults):
             constraints.extend(get_non_null_constraints())
         return constraints
 
-    def find_proposition(self) -> Tuple[Set['StateType'], Set['StateType']]:
+    def find_proposition(
+        self,
+        assignment: Optional['VariableAssignment'] = None
+    ) -> Tuple[Set['StateType'], Set['StateType']]:
         """Computes the verifier and falsifier sets for this proposition.
-        
+
         This method determines the sets of states that verify and falsify
         the proposition in the model. For atomic propositions, it uses the
         verify and falsify relations; for complex propositions, it delegates
-        to the appropriate operator"s implementation.
-        
+        to the appropriate operator's implementation.
+
+        Task 21: Added optional assignment parameter for first-order logic.
+        When evaluating open formulas (those with free variables bound by an
+        outer quantifier), the assignment parameter provides the variable
+        bindings needed to compute the correct verifiers and falsifiers.
+
+        Args:
+            assignment: Optional variable assignment for first-order evaluation.
+                When provided, the assignment is included in the eval_point
+                passed to operators. Defaults to None (empty assignment).
+
         Returns:
             tuple: A pair (verifiers, falsifiers) containing the sets of
                  states that verify and falsify the proposition respectively
@@ -1121,9 +1134,9 @@ class LogosProposition(PropositionDefaults):
             # If no model is available, return empty sets
             # This can happen during iteration when models are being created
             return set(), set()
-        
+
         # Clean proposition computation without debug output
-            
+
         semantics = self.semantics
         eval_world = self.eval_world
         operator = self.operator
@@ -1140,7 +1153,10 @@ class LogosProposition(PropositionDefaults):
             }
             return V, F
         if operator is not None:
+            # Task 21: Build eval_point with assignment if provided
             eval_point = {"world": eval_world}
+            if assignment is not None:
+                eval_point = semantics.with_assignment(eval_point, assignment)
             return operator.find_verifiers_and_falsifiers(*arguments, eval_point)
 
         # Check if this is a predicate application: [pred_name, term1, term2, ...]
@@ -1152,17 +1168,19 @@ class LogosProposition(PropositionDefaults):
             # Predicate application: find verifiers/falsifiers
             pred_name = prefix[0]
             term_args = prefix[1:]
-            return self._predicate_find_proposition(pred_name, term_args, eval_world)
+            # Task 21: Pass assignment to predicate finder
+            return self._predicate_find_proposition(pred_name, term_args, eval_world, assignment)
 
         raise ValueError(f"There is no proposition for {self}.")
 
-    def _predicate_find_proposition(self, pred_name, term_args, eval_world):
+    def _predicate_find_proposition(self, pred_name, term_args, eval_world, assignment=None):
         """Find verifiers and falsifiers for a predicate application.
 
         Args:
             pred_name: Name of the predicate
             term_args: List of Term objects as arguments
             eval_world: The evaluation world
+            assignment: Optional variable assignment for first-order evaluation
 
         Returns:
             tuple: A pair (verifiers, falsifiers) containing the sets of states
@@ -1174,7 +1192,12 @@ class LogosProposition(PropositionDefaults):
         model = self.model_structure.z3_model
         semantics = self.semantics
         eval_point = {"world": eval_world}
-        assignment = semantics.get_assignment(eval_point)
+
+        # Task 21: Use provided assignment or get from empty eval_point
+        if assignment is None:
+            assignment = semantics.get_assignment(eval_point)
+        else:
+            eval_point = semantics.with_assignment(eval_point, assignment)
 
         # Compute denotations of all term arguments
         arg_denotations = tuple(

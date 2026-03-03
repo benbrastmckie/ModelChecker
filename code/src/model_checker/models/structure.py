@@ -331,7 +331,15 @@ class ModelDefaults:
         if not self.z3_model:
             return
 
+        # Task 21: Import Term for type checking
+        from model_checker.syntactic.terms import Term
+
         for sent_obj in sentences:
+            # Task 21: Skip Term objects (Variable, Constant)
+            # These are not formulas and don't have propositions
+            if isinstance(sent_obj, Term):
+                continue
+
             # Always recurse into arguments first
             # This ensures inner formulas get their propositions set
             if sent_obj.arguments:

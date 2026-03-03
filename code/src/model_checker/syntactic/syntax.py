@@ -154,11 +154,18 @@ class Syntax:
             sentence.update_types(self.operator_collection)
             if sentence.arguments: # NOTE: must happen after arguments are stored
                 sentence_arguments = []
-                for infix_arg in sentence.arguments:
-                    # Derived arguments are always subformulas
-                    argument = build_sentence(infix_arg, is_subformula=True)
-                    initialize_types(argument)
-                    sentence_arguments.append(argument)
+                for arg in sentence.arguments:
+                    # Task 21: Skip Term objects (Variable, Constant)
+                    # These are not formulas and should not become Sentences
+                    from .terms import Term
+                    if isinstance(arg, Term):
+                        # Keep Term as-is (e.g., lambda bound variable)
+                        sentence_arguments.append(arg)
+                    else:
+                        # Convert formula string to Sentence object
+                        argument = build_sentence(arg, is_subformula=True)
+                        initialize_types(argument)
+                        sentence_arguments.append(argument)
                 sentence.arguments = sentence_arguments 
 
         sentence_objects = []

@@ -8,7 +8,9 @@ next_project_number: 22
 
 ### 21. Fix first-order logic proposition display: bound variable crash and quantifier evaluation
 - **Effort**: Large
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](021_fix_first_order_proposition_display/summaries/implementation-summary-20260302.md)
 - **Language**: python
 - **Research**: [research-001.md](021_fix_first_order_proposition_display/reports/research-001.md), [research-002.md](021_fix_first_order_proposition_display/reports/research-002.md)
 - **Plan**: [implementation-001.md](021_fix_first_order_proposition_display/plans/implementation-001.md)

@@ -4,11 +4,11 @@
     {
       "project_number": 21,
       "project_name": "fix_first_order_proposition_display",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-03T01:40:59Z",
-      "last_updated": "2026-03-03T02:10:34Z",
-      "session_id": "sess_1772503660_32ae7e",
+      "last_updated": "2026-03-03T02:25:03Z",
+      "session_id": "sess_1772503917_cd5905",
       "researched": "2026-03-03T02:04:04Z",
       "artifacts": [
         {
@@ -25,9 +25,16 @@
           "path": "specs/021_fix_first_order_proposition_display/plans/implementation-001.md",
           "type": "plan",
           "summary": "5-phase implementation plan fixing first-order proposition display bugs"
+        },
+        {
+          "path": "specs/021_fix_first_order_proposition_display/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with technical details"
         }
       ],
-      "planned": "2026-03-03T02:10:34Z"
+      "planned": "2026-03-03T02:10:34Z",
+      "completed": "2026-03-03T02:25:03Z",
+      "completion_summary": "Fixed first-order logic proposition display by preserving Variable objects as Terms in lambda arguments and adding assignment parameter to find_proposition(). Quantifier operators (ForAll, Exists, Lambda) now pass variable assignments to body propositions for correct semantic evaluation."
     },
     {
       "project_number": 20,

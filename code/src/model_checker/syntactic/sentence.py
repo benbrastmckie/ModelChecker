@@ -359,6 +359,26 @@ class Sentence:
             # Complex sentence with operator and arguments
             if len(derived_type) > 1:
                 operator_type, argument_types = first_elem, derived_type[1:]
+
+                # Task 21: For lambda operators, preserve Variable as Term
+                # Lambda structure after apply_operator: [LambdaOperator, [Variable], [body]]
+                # The variable may be wrapped in a singleton list, unwrap it
+                if hasattr(operator_type, 'name') and operator_type.name == "\\lambda":
+                    processed_args = []
+                    for arg_type in argument_types:
+                        # Check for singleton list containing a Term
+                        if (isinstance(arg_type, list) and len(arg_type) == 1 and
+                            isinstance(arg_type[0], Term)):
+                            # Unwrap and keep the Term object
+                            processed_args.append(arg_type[0])
+                        elif isinstance(arg_type, Term):
+                            # Keep Term objects (Variable, Constant) as-is
+                            processed_args.append(arg_type)
+                        else:
+                            # Convert formula to infix string
+                            processed_args.append(self.infix(arg_type))
+                    return operator_type, processed_args, None
+
                 infix_arguments = [self.infix(arg_type) for arg_type in argument_types]
                 return operator_type, infix_arguments, None
 
