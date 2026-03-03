@@ -48,8 +48,9 @@ next_project_number: 32
 
 ### 31. Clean scripts and artifacts
 - **Effort**: 2-3 hours
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [research-001.md](031_clean_scripts_and_artifacts/reports/research-001.md)
+- **Plan**: [implementation-001.md](031_clean_scripts_and_artifacts/plans/implementation-001.md)
 - **Language**: general
 - **Dependencies**: Task #27
 
