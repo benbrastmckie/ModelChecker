@@ -15,7 +15,7 @@ next_project_number: 22
 
 ### 25. Fix CLI interactive mode tests
 - **Effort**: Large
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Language**: python
 - **Research**: [research-001.md](025_fix_cli_interactive_mode_tests/reports/research-001.md)
 
@@ -23,7 +23,9 @@ next_project_number: 22
 
 ### 24. Resolve aspirational architecture tests
 - **Effort**: Medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-02
+- **Summary**: [implementation-summary-20260302.md](024_resolve_aspirational_architecture_tests/summaries/implementation-summary-20260302.md)
 - **Language**: python
 - **Research**: [research-001.md](024_resolve_aspirational_architecture_tests/reports/research-001.md)
 - **Plan**: [implementation-001.md](024_resolve_aspirational_architecture_tests/plans/implementation-001.md)
