@@ -4,14 +4,14 @@
     {
       "project_number": 20,
       "project_name": "add_parser_well_formedness_checking",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "dependencies": [
         19
       ],
       "created": "2026-03-03T00:53:14Z",
-      "last_updated": "2026-03-03T01:04:05Z",
-      "session_id": "sess_1772499638_8bddd1",
+      "last_updated": "2026-03-03T01:08:17Z",
+      "session_id": "sess_1772499938_be8c89",
       "researched": "2026-03-03T01:04:05Z",
       "artifacts": [
         {
@@ -23,8 +23,14 @@
           "path": "specs/020_add_parser_well_formedness_checking/reports/research-002.md",
           "type": "research",
           "summary": "Corrected research report with precise well-formedness definition from Logos Theory manual"
+        },
+        {
+          "path": "specs/020_add_parser_well_formedness_checking/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for parser well-formedness checking with two-level validation"
         }
-      ]
+      ],
+      "planned": "2026-03-03T01:08:17Z"
     },
     {
       "project_number": 19,
