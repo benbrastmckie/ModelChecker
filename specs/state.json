@@ -22,25 +22,30 @@
     {
       "project_number": 33,
       "project_name": "fix_premature_progress_bar_display",
-      "status": "planned",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-03T21:30:00Z",
-      "last_updated": "2026-03-03T21:31:53Z",
+      "last_updated": "2026-03-03T21:40:52Z",
       "dependencies": [],
       "artifacts": [
-        {
-          "path": "specs/033_fix_premature_progress_bar_display/reports/research-001.md",
-          "type": "research",
-          "summary": "Research report documenting the progress bar timing issue with three fix options and implementation recommendation"
-        },
         {
           "path": "specs/033_fix_premature_progress_bar_display/plans/implementation-001.md",
           "type": "plan",
           "summary": "4-phase implementation plan to fix premature progress bar display by using Spinner for model 1 instead of TimeBasedProgress"
+        },
+        {
+          "path": "specs/033_fix_premature_progress_bar_display/reports/research-001.md",
+          "type": "research",
+          "summary": "Initial research report (superseded - proposed wrong approach)"
+        },
+        {
+          "path": "specs/033_fix_premature_progress_bar_display/reports/research-002.md",
+          "type": "research",
+          "summary": "Revised research: keep progress bar, fix print sequence by deferring completion"
         }
       ],
-      "session_id": "sess_1772573338_99256d",
-      "researched": "2026-03-03T21:26:58Z",
+      "session_id": "sess_1772573783_fa8f9c",
+      "researched": "2026-03-03T21:40:52Z",
       "planned": "2026-03-03T21:31:53Z"
     },
     {
