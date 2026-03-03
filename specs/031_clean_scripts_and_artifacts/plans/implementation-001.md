@@ -1,7 +1,7 @@
 # Implementation Plan: Task #31
 
 - **Task**: 31 - clean_scripts_and_artifacts
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/031_clean_scripts_and_artifacts/reports/research-001.md
@@ -47,7 +47,7 @@ Key findings from research-001.md:
 
 ## Implementation Phases
 
-### Phase 1: Remove Outdated Scripts [NOT STARTED]
+### Phase 1: Remove Outdated Scripts [COMPLETED]
 
 **Goal**: Remove the `code/scripts/` directory and `code/fix_output_tests.py`
 
@@ -77,7 +77,7 @@ Key findings from research-001.md:
 
 ---
 
-### Phase 2: Clean Build Artifacts [NOT STARTED]
+### Phase 2: Clean Build Artifacts [COMPLETED]
 
 **Goal**: Remove transient build artifacts from boneyard and verify `.gitignore` coverage
 
@@ -104,7 +104,7 @@ Key findings from research-001.md:
 
 ---
 
-### Phase 3: Document Development Scripts [NOT STARTED]
+### Phase 3: Document Development Scripts [COMPLETED]
 
 **Goal**: Add Development Scripts section to `code/README.md` documenting the 6 root-level utilities
 

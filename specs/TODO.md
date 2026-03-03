@@ -10,7 +10,8 @@ next_project_number: 33
 
 ### 32. Consolidate first-order subtheory to standard structure
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [research-001.md](032_consolidate_first_order_subtheory_structure/reports/research-001.md)
 - **Language**: python
 - **Dependencies**: None
 
@@ -58,7 +59,7 @@ next_project_number: 33
 
 ### 31. Clean scripts and artifacts
 - **Effort**: 2-3 hours
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Research**: [research-001.md](031_clean_scripts_and_artifacts/reports/research-001.md)
 - **Plan**: [implementation-001.md](031_clean_scripts_and_artifacts/plans/implementation-001.md)
 - **Language**: general

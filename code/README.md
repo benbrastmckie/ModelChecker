@@ -34,6 +34,35 @@ pip install -e .
 
 For complete installation guides, see [Installation Documentation](../docs/installation/README.md).
 
+## Development Scripts
+
+The `code/` directory includes several utility scripts for development workflows:
+
+| Script | Purpose | Usage |
+|--------|---------|-------|
+| `dev_cli.py` | Development CLI entry point that prioritizes local source code over installed packages | `./dev_cli.py examples.py` |
+| `run_tests.py` | Unified test runner for theory examples, unit tests, and package tests | `./run_tests.py logos modal` |
+| `run_jupyter.sh` | Wrapper to start Jupyter with ModelChecker support in nix-shell | `./run_jupyter.sh` |
+| `jupyter_link.py` | Creates symlinks from development code to user site-packages for Jupyter | `./jupyter_link.py --no-launch` |
+| `run_update.py` | Package release script for PyPI with version management | `python run_update.py` |
+| `test_update.py` | Test release script for Test PyPI | `python test_update.py` |
+
+### Script Details
+
+**dev_cli.py**: Ensures the local `src/` directory is prioritized in `sys.path`, allowing development and testing without installing the package. Supports `--iso-debug` for isomorphism debugging.
+
+**run_tests.py**: Smart test runner with auto-detection of theories vs components:
+```bash
+./run_tests.py                        # Run all tests
+./run_tests.py --examples             # Run only example tests
+./run_tests.py --unit logos           # Run unit tests for logos theory
+./run_tests.py iterate builder        # Run tests for multiple components
+```
+
+**jupyter_link.py**: Sets up ModelChecker for Jupyter notebooks by creating symlinks to user site-packages. Useful in NixOS and other environments where pip installation is restricted.
+
+**run_update.py / test_update.py**: Manage semantic versioning and PyPI releases. The scripts run tests before version changes, prompt for version increment type (patch/minor/major), and handle the build and upload process.
+
 Create a new logic project:
 
 ```bash

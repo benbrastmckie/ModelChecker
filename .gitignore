@@ -7,7 +7,8 @@
 *.log
 *.synctex.gz
 *.pyc
-*.ipynb_checkpoints
+**/.ipynb_checkpoints/
+**/.pytest_cache/
 
 **/dist
 **/model_checker.egg-info

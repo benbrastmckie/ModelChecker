@@ -4,10 +4,19 @@
     {
       "project_number": 32,
       "project_name": "consolidate_first_order_subtheory_structure",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-03T20:24:45Z",
-      "last_updated": "2026-03-03T20:24:45Z"
+      "last_updated": "2026-03-03T20:31:40Z",
+      "session_id": "sess_1772569735_2ffc74",
+      "researched": "2026-03-03T20:31:40Z",
+      "artifacts": [
+        {
+          "path": "specs/032_consolidate_first_order_subtheory_structure/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report on first-order subtheory consolidation with analysis of denotation.py and constraints.py integration points"
+        }
+      ]
     },
     {
       "project_number": 28,
@@ -98,11 +107,11 @@
     {
       "project_number": 31,
       "project_name": "clean_scripts_and_artifacts",
-      "status": "planned",
+      "status": "implementing",
       "language": "general",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T20:22:41Z",
-      "session_id": "sess_1772569230_a09d06",
+      "last_updated": "2026-03-03T20:28:34Z",
+      "session_id": "sess_1772569693_0c891b",
       "researched": "2026-03-03T20:19:18Z",
       "artifacts": [
         {
@@ -116,7 +125,8 @@
           "summary": "4-phase implementation plan covering script removal, artifact cleanup, gitignore updates, and documentation"
         }
       ],
-      "planned": "2026-03-03T20:22:41Z"
+      "planned": "2026-03-03T20:22:41Z",
+      "started": "2026-03-03T20:28:34Z"
     }
   ],
   "repository_health": {
