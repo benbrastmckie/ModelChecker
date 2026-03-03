@@ -135,10 +135,10 @@ Brief description of what this feature does and why it's needed.
 **Approval Command:**
 ```bash
 # Create spec file
-docs/specs/plans/00X_feature_name.md
+specs/{NNN}_feature_name/plans/implementation-001.md
 
 # Review and approve
-git add docs/specs/plans/00X_feature_name.md
+git add specs/{NNN}_feature_name/
 git commit -m "Add approved spec: Feature Name
 
 - Research phase complete

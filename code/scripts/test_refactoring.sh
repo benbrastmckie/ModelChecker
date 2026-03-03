@@ -3,7 +3,7 @@
 
 set -e  # Exit on error
 
-BASELINE_DIR="docs/specs/baselines/phase1"
+BASELINE_DIR="specs/baselines/phase1"
 
 # Function to run theory examples with iteration
 run_theory_test() {

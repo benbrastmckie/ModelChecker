@@ -55,7 +55,7 @@ If you already have an **approved implementation plan**, you can jump directly t
 git checkout feature/your-feature-name
 
 # Verify implementation plan exists
-ls docs/specs/plans/your-feature-plan.md
+ls specs/{NNN}_your_feature/plans/implementation-001.md
 
 # Start implementation process
 # Jump to: Implementation Phase (Section 6)
@@ -233,7 +233,7 @@ I recommend Option C because it addresses all issues while maintaining stability
 
 #### 1. Create Implementation Plan Document
 
-Create `docs/specs/plans/00X_feature.md`:
+Create `specs/{NNN}_feature/plans/implementation-001.md`:
 
 ```markdown
 # Implementation Plan: [Your Feature Name]
@@ -528,13 +528,13 @@ For major refactoring efforts, establish comprehensive baselines:
 
 ```bash
 # Capture test output baseline
-./run_tests.py --all > docs/specs/baselines/all_tests_baseline.txt 2>&1
+./run_tests.py --all > specs/baselines/all_tests_baseline.txt 2>&1
 
 # Capture theory-specific baselines
 # Note: examples.py files have iterate=2 settings built-in for uncommented examples
 for theory in logos bimodal exclusion imposition; do
     ./dev_cli.py src/model_checker/theory_lib/$theory/examples.py \
-        > docs/specs/baselines/${theory}_baseline.txt 2>&1
+        > specs/baselines/${theory}_baseline.txt 2>&1
 done
 ```
 
@@ -550,7 +550,7 @@ cat > scripts/test_refactoring.sh << 'EOF'
 ./run_tests.py --all > current_tests.txt 2>&1
 
 # Compare with baseline
-diff docs/specs/baselines/all_tests_baseline.txt current_tests.txt
+diff specs/baselines/all_tests_baseline.txt current_tests.txt
 
 # Check for new warnings or errors
 grep -E "WARNING|Error|AttributeError" current_tests.txt

@@ -87,10 +87,10 @@ def capture_baseline(theory_name, iterations=3, subtheory=None):
     # Create test file
     if subtheory:
         test_file = f"test_{theory_name}_{subtheory}_baseline.py"
-        output_file = f"docs/specs/baselines/phase1/{theory_name}_{subtheory}_examples.txt"
+        output_file = f"specs/baselines/phase1/{theory_name}_{subtheory}_examples.txt"
     else:
         test_file = f"test_{theory_name}_baseline.py"
-        output_file = f"docs/specs/baselines/phase1/{theory_name}_examples.txt"
+        output_file = f"specs/baselines/phase1/{theory_name}_examples.txt"
     
     # Write test content
     content = create_test_file(theory_name, iterations, subtheory)
@@ -121,7 +121,7 @@ def main():
     """Main function to capture all baselines."""
     
     # Ensure baseline directory exists
-    os.makedirs("docs/specs/baselines/phase1", exist_ok=True)
+    os.makedirs("specs/baselines/phase1", exist_ok=True)
     
     # Main theories
     theories = ["logos", "bimodal", "exclusion", "imposition"]
@@ -151,12 +151,12 @@ Based on baseline capture:
 - Critical: Monitor for iterator warnings during Phase 1.6
 """
     
-    with open("docs/specs/baselines/phase1/known_issues.md", "w") as f:
+    with open("specs/baselines/phase1/known_issues.md", "w") as f:
         f.write(known_issues_content)
     
     print("\nBaseline capture complete!")
     print("Created known_issues.md")
-    print(f"Results saved in: docs/specs/baselines/phase1/")
+    print(f"Results saved in: specs/baselines/phase1/")
 
 if __name__ == "__main__":
     main()

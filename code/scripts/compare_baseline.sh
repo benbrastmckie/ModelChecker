@@ -8,8 +8,8 @@ echo ""
 # Function to run comparison
 compare_outputs() {
     local theory=$1
-    local baseline_file="docs/specs/baselines/phase1/${theory}_iterations.txt"
-    local current_file="docs/specs/baselines/phase1/${theory}_current.txt"
+    local baseline_file="specs/baselines/phase1/${theory}_iterations.txt"
+    local current_file="specs/baselines/phase1/${theory}_current.txt"
     
     echo "Comparing $theory..."
     

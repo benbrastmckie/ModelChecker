@@ -53,7 +53,7 @@ The iteration framework integrates with:
 
 ### Design Philosophy
 
-The iteration framework follows a **hybrid architecture** balancing modularity with technical requirements. After extensive refactoring attempts and successful theory integrations (documented in `docs/specs/plans/048-051`), the framework has reached a stable state where:
+The iteration framework follows a **hybrid architecture** balancing modularity with technical requirements. After extensive refactoring attempts and successful theory integrations, the framework has reached a stable state where:
 
 1. **Theory-specific differences are fully integrated** - All theories (logos, exclusion, imposition) properly calculate and display their unique semantic differences
 2. **Core orchestration remains centralized** - The 729-line core.py maintains necessary coupling for reliable constraint propagation and model building
@@ -435,7 +435,6 @@ for msg in iterator.get_debug_messages():
 
 ### Implementation Notes
 
-- Phase 6 modularization attempt documented in `docs/specs/plans/`
 - Constraint timing issues prevent full modularization
 - Future improvements tracked in GitHub issues
 

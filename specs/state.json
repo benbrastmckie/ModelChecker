@@ -4,19 +4,28 @@
     {
       "project_number": 28,
       "project_name": "archive_unused_theories",
-      "status": "not_started",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:02:58Z"
+      "last_updated": "2026-03-03T19:26:32Z",
+      "session_id": "sess_1772565802_7b4315",
+      "planned": "2026-03-03T19:26:32Z",
+      "artifacts": [
+        {
+          "path": "specs/028_archive_unused_theories/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "7-phase implementation plan to archive exclusion and imposition theories to boneyard"
+        }
+      ]
     },
     {
       "project_number": 29,
       "project_name": "cleanup_specs_directories",
-      "status": "planned",
+      "status": "implementing",
       "language": "general",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:22:51Z",
-      "session_id": "sess_1772565360_354608",
+      "last_updated": "2026-03-03T19:24:02Z",
+      "session_id": "sess_1772565824_d480e0",
       "researched": "2026-03-03T19:11:21Z",
       "artifacts": [
         {
@@ -30,7 +39,8 @@
           "summary": "2-phase simplified plan to delete obsolete specs directories and update documentation"
         }
       ],
-      "planned": "2026-03-03T19:22:51Z"
+      "planned": "2026-03-03T19:22:51Z",
+      "started": "2026-03-03T19:24:02Z"
     },
     {
       "project_number": 30,

@@ -2,7 +2,7 @@
 
 - **Task**: 29 - cleanup_specs_directories
 - **Version**: 002
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 45 minutes
 - **Dependencies**: None
 - **Research Inputs**: specs/029_cleanup_specs_directories/reports/research-001.md
@@ -47,7 +47,7 @@ Research report identified:
 
 ## Implementation Phases
 
-### Phase 1: Delete Specs Directories [NOT STARTED]
+### Phase 1: Delete Specs Directories [COMPLETED]
 
 **Goal**: Remove the three identified specs/ directories
 
@@ -68,7 +68,7 @@ Research report identified:
 
 ---
 
-### Phase 2: Update Documentation References [NOT STARTED]
+### Phase 2: Update Documentation References [IN PROGRESS]
 
 **Goal**: Remove or update stale references to deleted directories
 

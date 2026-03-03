@@ -10,7 +10,8 @@ next_project_number: 32
 
 ### 28. Archive unused theory libraries
 - **Effort**: 1-2 hours
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
+- **Plan**: [implementation-001.md](028_archive_unused_theories/plans/implementation-001.md)
 - **Language**: python
 - **Dependencies**: None
 
@@ -20,7 +21,7 @@ next_project_number: 32
 
 ### 29. Clean up specs directories
 - **Effort**: 1 hour
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Research**: [research-001.md](029_cleanup_specs_directories/reports/research-001.md)
 - **Plan**: [implementation-002.md](029_cleanup_specs_directories/plans/implementation-002.md)
 - **Language**: general

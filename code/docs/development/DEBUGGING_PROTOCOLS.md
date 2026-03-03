@@ -25,8 +25,8 @@ This document provides a systematic debugging protocol for investigating and res
 
 ```bash
 # Create debug analysis document
-mkdir -p docs/specs/debug
-touch docs/specs/debug/XXX_issue_description.md
+mkdir -p specs/debug
+touch specs/debug/XXX_issue_description.md
 ```
 
 Document template:
@@ -134,8 +134,8 @@ from model_checker import relevant_modules
 3. **Review related issues**:
    ```bash
    # Check existing findings
-   ls docs/specs/findings/
-   grep -r "similar_issue" docs/specs/
+   ls specs/findings/
+   grep -r "similar_issue" specs/
    ```
 
 ## Phase 2: Targeted Code Instrumentation
@@ -243,12 +243,12 @@ If initial instrumentation doesn't reveal the issue:
 
 ### 3.1 Document Findings
 
-1. **Update debug analysis** (`docs/specs/debug/XXX_*.md`):
+1. **Update debug analysis** (`specs/debug/XXX_*.md`):
    - Complete all sections
    - Include code snippets
    - Document failed hypotheses
 
-2. **Create findings document** (`docs/specs/findings/XXX_*.md`):
+2. **Create findings document** (`specs/findings/XXX_*.md`):
    ```markdown
    # Finding XXX: [Issue Title]
    
@@ -337,7 +337,7 @@ If initial instrumentation doesn't reveal the issue:
    - Verified with: [test cases]
    
    Fixes: [issue reference]
-   See: docs/specs/findings/XXX_[issue].md"
+   See: specs/findings/XXX_[issue].md"
    ```
 
 3. **Merge or cherry-pick**:
