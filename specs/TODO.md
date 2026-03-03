@@ -22,8 +22,9 @@ next_project_number: 22
 
 ### 24. Resolve aspirational architecture tests
 - **Effort**: Medium
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Language**: python
+- **Research**: [research-001.md](024_resolve_aspirational_architecture_tests/reports/research-001.md)
 
 **Description**: Fix 12 test failures in `test_architecture_validation.py` (9 tests) and `test_batch_output_integration.py` (3 tests) that test APIs which do not exist: `model_checker.core.interfaces` (TheoryInterface, ExampleInterface), `model_checker.theory_lib.registry` (TheoryRegistry, get_theory), `model_checker.builder.Example` class, `model_checker.check_example` function, and `BuildProject.from_example` method. These tests define a planned clean architecture that was never implemented. Research whether these architectural APIs should be implemented (as the tests were written as specs) or whether the tests should be deleted/replaced with tests for the existing architecture. Whichever approach is chosen, achieve zero failures in these two test files.
 
