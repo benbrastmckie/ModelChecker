@@ -724,12 +724,20 @@
     {
       "project_number": 22,
       "project_name": "fix_test_helper_code_directory_lookup",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "effort": "Small",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T02:38:05Z",
-      "artifacts": []
+      "last_updated": "2026-03-03T02:43:51Z",
+      "artifacts": [
+        {
+          "path": "specs/022_fix_test_helper_code_directory_lookup/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report for test helper directory lookup fix - identifies 2 files with Code references, recommends pyproject.toml marker approach"
+        }
+      ],
+      "session_id": "sess_1772505677_3aa20c",
+      "researched": "2026-03-03T02:43:51Z"
     },
     {
       "project_number": 23,

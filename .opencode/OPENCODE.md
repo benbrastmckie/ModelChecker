@@ -186,3 +186,53 @@ Full documentation: @.opencode/context/core/patterns/jq-escaping-workarounds.md
 - state.json = machine truth, TODO.md = user visibility
 - All skills use lazy context loading via @-references
 - Session ID format: `sess_{timestamp}_{random}` - generated at GATE IN, included in commits
+
+<!-- SECTION: extension_oc_formal -->
+## Formal Methods Extension
+
+This project includes formal methods and logic support via the formal extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `formal` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash |
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-formal-research | formal-research-agent | Logic and verification research |
+
+### Use Cases
+
+- Modal logic verification
+- Temporal logic analysis
+- Abstract interpretation
+- Verification condition generation
+
+<!-- END_SECTION: extension_oc_formal -->
+
+<!-- SECTION: extension_oc_lean -->
+## Lean 4 Extension
+
+This project includes Lean 4 theorem prover support via the lean extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `lean4` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (lake) |
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-lean-research | lean-research-agent | Lean/Mathlib research |
+| skill-lean-implementation | lean-implementation-agent | Lean proof implementation |
+
+### Commands
+
+- `/lean` - Lean-specific proof assistance (if available)
+
+<!-- END_SECTION: extension_oc_lean -->
