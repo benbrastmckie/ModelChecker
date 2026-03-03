@@ -848,20 +848,26 @@
     {
       "project_number": 26,
       "project_name": "fix_remaining_cli_e2e_performance_tests",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T18:26:23Z",
+      "last_updated": "2026-03-03T18:33:25Z",
       "artifacts": [
         {
           "type": "research",
           "path": "specs/026_fix_remaining_cli_e2e_performance_tests/reports/research-001.md",
           "summary": "Research report covering root causes and proposed fixes for 13 test failures across 5 test files"
+        },
+        {
+          "path": "specs/026_fix_remaining_cli_e2e_performance_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "Implementation plan for fixing 13 test failures across 5 test files"
         }
       ],
-      "session_id": "sess_1772558067_372bfa",
-      "researched": "2026-03-03T18:26:23Z"
+      "session_id": "sess_1772562667_50f9df",
+      "researched": "2026-03-03T18:26:23Z",
+      "planned": "2026-03-03T18:33:25Z"
     }
   ],
   "repository_health": {
