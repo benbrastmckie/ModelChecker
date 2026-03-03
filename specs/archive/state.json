@@ -1,0 +1,880 @@
+{
+  "archived_projects": [],
+  "completed_projects": [
+    {
+      "project_number": 21,
+      "project_name": "fix_first_order_proposition_display",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-03T01:40:59Z",
+      "last_updated": "2026-03-03T02:25:03Z",
+      "session_id": "sess_1772503917_cd5905",
+      "researched": "2026-03-03T02:04:04Z",
+      "artifacts": [
+        {
+          "path": "specs/021_fix_first_order_proposition_display/reports/research-001.md",
+          "type": "research",
+          "summary": "Initial research identifying root causes"
+        },
+        {
+          "path": "specs/021_fix_first_order_proposition_display/reports/research-002.md",
+          "type": "research",
+          "summary": "Deep analysis of interpret() patterns and consistent fix approach"
+        },
+        {
+          "path": "specs/021_fix_first_order_proposition_display/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan fixing first-order proposition display bugs"
+        },
+        {
+          "path": "specs/021_fix_first_order_proposition_display/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with technical details"
+        }
+      ],
+      "planned": "2026-03-03T02:10:34Z",
+      "completed": "2026-03-03T02:25:03Z",
+      "completion_summary": "Fixed first-order logic proposition display by preserving Variable objects as Terms in lambda arguments and adding assignment parameter to find_proposition(). Quantifier operators (ForAll, Exists, Lambda) now pass variable assignments to body propositions for correct semantic evaluation."
+    },
+    {
+      "project_number": 20,
+      "project_name": "add_parser_well_formedness_checking",
+      "status": "completed",
+      "language": "python",
+      "dependencies": [
+        19
+      ],
+      "created": "2026-03-03T00:53:14Z",
+      "last_updated": "2026-03-03T01:24:10Z",
+      "session_id": "sess_1772500192_e45e35",
+      "researched": "2026-03-03T01:04:05Z",
+      "artifacts": [
+        {
+          "path": "specs/020_add_parser_well_formedness_checking/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report identifying well-formedness criteria, optimal insertion point in Sentence.__init__(), and task 19 workaround removal strategy"
+        },
+        {
+          "path": "specs/020_add_parser_well_formedness_checking/reports/research-002.md",
+          "type": "research",
+          "summary": "Corrected research report with precise well-formedness definition from Logos Theory manual"
+        },
+        {
+          "path": "specs/020_add_parser_well_formedness_checking/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for parser well-formedness checking with two-level validation"
+        },
+        {
+          "path": "code/src/model_checker/syntactic/formulas.py",
+          "type": "implementation",
+          "summary": "New module with compute_formula_free_variables() and is_syntactically_wff() functions"
+        },
+        {
+          "path": "code/tests/unit/syntactic/test_formulas.py",
+          "type": "test",
+          "summary": "Unit tests for formula operations (44 tests)"
+        },
+        {
+          "path": "code/tests/unit/syntactic/test_well_formedness.py",
+          "type": "test",
+          "summary": "Comprehensive well-formedness integration tests (36 tests)"
+        },
+        {
+          "path": "specs/020_add_parser_well_formedness_checking/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary for task 20"
+        }
+      ],
+      "planned": "2026-03-03T01:08:17Z",
+      "completed": "2026-03-03T01:24:10Z",
+      "completion_summary": "Implemented well-formedness checking in the parser with two-level validation: syntactic category check rejects bare terms and lambda abstractions, closedness check rejects open formulas with free variables. Removed Task 19 workaround from structure.py. Added 80 new tests covering all validation scenarios."
+    },
+    {
+      "project_number": 19,
+      "project_name": "investigate_first_order_theorem_failures",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-03T00:15:00Z",
+      "last_updated": "2026-03-03T00:49:16Z",
+      "session_id": "sess_1772498201_a2e893",
+      "researched": "2026-03-03T00:22:48Z",
+      "artifacts": [
+        {
+          "path": "specs/019_investigate_first_order_theorem_failures/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report identifying root causes of spurious countermodels (missing predicate exclusivity constraints) and interpret crash (term sentences lack propositions), with implementation recommendations"
+        },
+        {
+          "path": "specs/019_investigate_first_order_theorem_failures/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan to fix predicate exclusivity constraints and interpret() variable crash"
+        },
+        {
+          "path": "specs/019_investigate_first_order_theorem_failures/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary: fixed predicate exclusivity constraints and interpret() variable crash"
+        }
+      ],
+      "planned": "2026-03-03T00:30:45Z",
+      "completed": "2026-03-03T00:49:16Z",
+      "completion_summary": "Fixed predicate exclusivity constraints and interpret() variable crash, all 12 first-order tests now pass"
+    },
+    {
+      "project_number": 18,
+      "project_name": "fix_first_order_subtheory_bugs",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-02T23:47:55Z",
+      "last_updated": "2026-03-03T00:12:04Z",
+      "session_id": "sess_1772496283_cca267",
+      "researched": "2026-03-02T23:56:50Z",
+      "artifacts": [
+        {
+          "path": "specs/018_fix_first_order_subtheory_bugs/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report on 6 interconnected first-order subtheory bugs with root cause analysis and fix recommendations"
+        },
+        {
+          "path": "specs/018_fix_first_order_subtheory_bugs/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for fixing 6 interconnected first-order subtheory bugs"
+        },
+        {
+          "path": "specs/018_fix_first_order_subtheory_bugs/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all bug fixes and verification results"
+        }
+      ],
+      "planned": "2026-03-03T00:00:42Z",
+      "completed": "2026-03-03T00:12:04Z",
+      "completion_summary": "Fixed 6 first-order subtheory bugs causing crashes and wrong semantics. Added predicate handling to extended_verify, extended_falsify, and find_proposition. Enabled constant auto-registration and free variable handling. Test results improved from 5/12 to 7/12 passing."
+    },
+    {
+      "project_number": 17,
+      "project_name": "fix_remaining_uppercase_directory_references",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-02T23:01:52Z",
+      "last_updated": "2026-03-02T23:19:54Z",
+      "session_id": "sess_1772493202_fdc001",
+      "researched": "2026-03-02T23:07:02Z",
+      "artifacts": [
+        {
+          "path": "specs/017_fix_remaining_uppercase_directory_references/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis identifying neovim config as primary error source plus 5 other categories of remaining uppercase references"
+        },
+        {
+          "path": "specs/017_fix_remaining_uppercase_directory_references/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan addressing .gitignore entries, generated files, and documenting external neovim configuration fix"
+        },
+        {
+          "path": "specs/017_fix_remaining_uppercase_directory_references/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with external neovim configuration fix documentation"
+        }
+      ],
+      "planned": "2026-03-02T23:11:51Z",
+      "started": "2026-03-02T23:13:53Z",
+      "completed": "2026-03-02T23:19:54Z",
+      "completion_summary": "Fixed all remaining uppercase directory references (Code/, Docs/) in the ModelChecker repository. Updated .gitignore entries, documentation plan file, and cleaned generated files. Documented required external neovim configuration fix for the user."
+    },
+    {
+      "project_number": 16,
+      "project_name": "update_references_to_renamed_lowercase_directories",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-02T22:28:24Z",
+      "last_updated": "2026-03-02T22:58:31Z",
+      "session_id": "sess_1772491915_9d623e",
+      "researched": "2026-03-02T22:33:00Z",
+      "artifacts": [
+        {
+          "path": "specs/016_update_references_to_renamed_lowercase_directories/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of 83+ files with outdated Code/, Docs/, Images/ path references requiring updates"
+        },
+        {
+          "path": "specs/016_update_references_to_renamed_lowercase_directories/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "6-phase plan to update 83+ files with outdated Code/, Docs/, Images/ references to lowercase paths"
+        },
+        {
+          "path": "specs/016_update_references_to_renamed_lowercase_directories/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all 130+ files modified across 6 phases"
+        }
+      ],
+      "planned": "2026-03-02T22:37:25Z",
+      "started": "2026-03-02T22:52:13Z",
+      "completed": "2026-03-02T22:58:31Z",
+      "completion_summary": "Systematically updated all path references from uppercase (Code/, Docs/, Images/) to lowercase (code/, docs/, images/) across 130+ files in documentation, source code, Claude configuration, and miscellaneous locations. Test collection verified working with no regressions."
+    },
+    {
+      "project_number": 15,
+      "project_name": "verify_quantifier_semantics_match_logos_manual",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-02T20:56:34Z",
+      "last_updated": "2026-03-02T22:13:25Z",
+      "description": "Check that ForAllOperator and ExistsOperator semantics in first-order operators.py follow the Logos manual (02-constitutive.typ and 03-dynamics.typ) where lambda handles all variable binding. Ensure ExistsOperator is defined in terms of ForAllOperator. Add \\\\all and \\\\some abbreviations that combine lambda binding with quantification. Add arity validation checks with meaningful error messages for formation problems.",
+      "session_id": "sess_1772489104_c4d2d8",
+      "researched": "2026-03-02T21:51:41Z",
+      "artifacts": [
+        {
+          "path": "specs/015_verify_quantifier_semantics_match_logos_manual/reports/research-001.md",
+          "type": "research",
+          "summary": "Analysis of quantifier semantics showing ExistsOperator needs redefinition via ForAllOperator, missing \\all/\\some abbreviations, and missing formation validation"
+        },
+        {
+          "path": "specs/015_verify_quantifier_semantics_match_logos_manual/reports/research-002.md",
+          "type": "research",
+          "summary": "Supplementary research analyzing bracket notation, Church-style vs direct binding quantification, and four design options for aligning ModelChecker with Logos manual"
+        },
+        {
+          "path": "specs/015_verify_quantifier_semantics_match_logos_manual/plans/implementation-002.md",
+          "type": "plan",
+          "summary": "5-phase plan implementing Option B (True Church-Style): parser desugaring, ForAllOperator arity-1, ExistsOperator duality, validation, documentation"
+        },
+        {
+          "path": "specs/015_verify_quantifier_semantics_match_logos_manual/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary for Church-style quantifier refactoring with 39 new tests"
+        }
+      ],
+      "planned": "2026-03-02T21:57:23Z",
+      "started": "2026-03-02T22:05:26Z",
+      "completed": "2026-03-02T22:13:25Z",
+      "completion_summary": "Implemented True Church-Style quantifiers (Option B) - parser desugars \\forall v.phi to \\forall(\\lambda v.phi), both quantifier operators refactored to arity-1 with lambda validation and clear error messages."
+    },
+    {
+      "project_number": 14,
+      "project_name": "auto_discover_predicates_functions_constants",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-02T17:50:53Z",
+      "last_updated": "2026-03-02T19:50:08Z",
+      "dependencies": [
+        10
+      ],
+      "session_id": "sess_1772480158_a5eda5",
+      "researched": "2026-03-02T18:22:04Z",
+      "artifacts": [
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report with 6 major findings on vocabulary auto-discovery architecture"
+        },
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/reports/research-002.md",
+          "type": "research",
+          "summary": "Clean-break analysis identifying plan restructuring to unify sentence letters as zero-arity predicates"
+        },
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/reports/research-003.md",
+          "type": "research",
+          "summary": "Comparison of plans 001/002/003 identifying arity validation and equivalence testing as items to restore in plan 003"
+        },
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/plans/implementation-004.md",
+          "type": "plan",
+          "summary": "v004: v003 + arity consistency validation in Phase 3"
+        },
+        {
+          "path": "specs/014_auto_discover_predicates_functions_constants/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with syntax reference and verification results"
+        }
+      ],
+      "planned": "2026-03-02T19:34:56Z",
+      "started": "2026-03-02T19:36:16Z",
+      "completed": "2026-03-02T19:50:08Z",
+      "completion_summary": "Implemented Task 14 auto-discovery of predicates/functions/constants. Modified parser to treat bare identifiers as constants (equivalent to P<>), requiring [] syntax for predicates (P[] for zero-arity). Added vocabulary collection with arity validation that raises ValueError on conflicts. Updated semantic evaluation to reject truth evaluation of constants. All 173 unit tests pass."
+    },
+    {
+      "project_number": 13,
+      "project_name": "strengthen_first_order_parser_test_coverage",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-02T06:06:06Z",
+      "last_updated": "2026-03-02T21:00:00Z",
+      "description": "Strengthen test coverage for first-order parser and vocabulary discovery. Original scope (tasks 7-9): add integration tests connecting term algebra to parser (free_variables on parsed formulas), expand lambdaApp tests to cover substitute(), add parser error handling tests (malformed input: missing body after quantifier, unclosed brackets, invalid variable names), and add TDD-conformant placeholder tests for task 7 operator stubs. Extended scope (task 14): add comprehensive tests for the new syntax convention (bare identifiers as constants, [] required for predicates), vocabulary auto-discovery edge cases, arity validation error paths, and semantic TypeError for constant truth evaluation.",
+      "dependencies": [
+        9,
+        14
+      ],
+      "session_id": "sess_1772482880_1e6d2f",
+      "researched": "2026-03-02T20:07:27Z",
+      "artifacts": [
+        {
+          "path": "specs/013_strengthen_first_order_parser_test_coverage/reports/research-001.md",
+          "type": "research",
+          "summary": "Identified 30 missing tests across 5 categories: 14 parser error handling tests, 5 parser-term integration tests, 3 lambdaApp tests, 6 vocabulary edge case tests, and 2 semantic handling tests"
+        },
+        {
+          "path": "specs/013_strengthen_first_order_parser_test_coverage/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan adding 30 tests for parser error handling, integration, lambdaApp, vocabulary edge cases, and semantic handling"
+        },
+        {
+          "path": "specs/013_strengthen_first_order_parser_test_coverage/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all 5 phases and 37 new tests"
+        }
+      ],
+      "planned": "2026-03-02T20:12:49Z",
+      "started": "2026-03-02T20:21:53Z",
+      "completed": "2026-03-02T21:00:00Z",
+      "completion_summary": "Added 37 new tests across 5 test classes covering parser error handling (21 tests), parser-term algebra integration (5 tests), lambdaApp substitute behavior (3 tests), vocabulary auto-discovery edge cases (6 tests), and semantic constant handling (2 tests). All tests pass with no regressions."
+    },
+    {
+      "project_number": 12,
+      "project_name": "first_order_examples_and_tests",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T22:46:06Z",
+      "dependencies": [
+        11
+      ],
+      "session_id": "sess_1772490564_a42ab5",
+      "researched": "2026-03-02T22:25:15Z",
+      "artifacts": [
+        {
+          "path": "specs/012_first_order_examples_and_tests/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of first-order operator API, parser syntax conventions, example format patterns, and implementation recommendations for 8 theorems and 4 countermodels"
+        },
+        {
+          "path": "specs/012_first_order_examples_and_tests/reports/research-002.md",
+          "type": "research",
+          "summary": "Supplementary research documenting syntax changes from tasks 13-15 (Church-style quantifiers, bracket predicates) and revised example specifications for FO_TH_1-8 and FO_CM_1-4"
+        },
+        {
+          "path": "specs/012_first_order_examples_and_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for first-order examples covering 8 theorems and 4 countermodels with Church-style quantifier syntax"
+        },
+        {
+          "path": "specs/012_first_order_examples_and_tests/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary for first-order examples and tests with partial test pass rate"
+        }
+      ],
+      "planned": "2026-03-02T22:28:36Z",
+      "started": "2026-03-02T22:29:48Z",
+      "completed": "2026-03-02T22:46:06Z",
+      "completion_summary": "Implemented 8 theorem examples (FO_TH_1-8) and 4 countermodel examples (FO_CM_1-4) in examples.py. Made multiple infrastructure fixes to parser, sentence framework, operators, and semantics to support first-order logic. Test suite activated with 5/14 tests passing; remaining failures require follow-up work on predicate constraints and constant registration."
+    },
+    {
+      "project_number": 11,
+      "project_name": "implement_first_order_operators",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T17:41:00Z",
+      "dependencies": [
+        10
+      ],
+      "session_id": "sess_1772473036_5bd619",
+      "researched": "2026-03-02T17:39:45Z",
+      "artifacts": [
+        {
+          "path": "specs/011_implement_first_order_operators/reports/research-001.md",
+          "type": "research",
+          "summary": "Research confirming task 11 was fully implemented as part of task 10; all four operators complete with tests"
+        }
+      ],
+      "completed": "2026-03-02T17:41:00Z",
+      "completion_summary": "All four first-order operators (Lambda, ForAll, Exists, Identity) were fully implemented as part of task 10's expanded scope, with complete true_at, false_at, extended_verify, extended_falsify, and find_verifiers_and_falsifiers methods. No additional implementation required."
+    },
+    {
+      "project_number": 10,
+      "project_name": "implement_variable_assignment_semantics",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T17:24:39Z",
+      "dependencies": [
+        9
+      ],
+      "session_id": "sess_1772471436_880e46",
+      "researched": "2026-03-02T06:16:25Z",
+      "artifacts": [
+        {
+          "path": "specs/010_implement_variable_assignment_semantics/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report with detailed analysis of semantic evaluation patterns, Z3 constraint generation, and 5-phase implementation architecture for variable assignments and first-order operators"
+        },
+        {
+          "path": "specs/010_implement_variable_assignment_semantics/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan covering assignment infrastructure, term denotation, predicate interpretation, operator implementations, and integration testing"
+        },
+        {
+          "path": "specs/010_implement_variable_assignment_semantics/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-02T06:21:20Z",
+      "started": "2026-03-02T17:11:04Z",
+      "completed": "2026-03-02T17:24:39Z",
+      "completion_summary": "Implemented first-order variable assignment semantics including VariableAssignment class, term denotation evaluator, predicate constraint generation, and full implementations of ForAll, Exists, Lambda, and Identity operators with 49 unit tests passing."
+    },
+    {
+      "project_number": 9,
+      "project_name": "extend_parser_for_first_order_syntax",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T01:52:13Z",
+      "dependencies": [
+        8
+      ],
+      "session_id": "sess_1772415825_720bfa",
+      "researched": "2026-03-02T01:33:31Z",
+      "artifacts": [
+        {
+          "path": "specs/009_extend_parser_for_first_order_syntax/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report analyzing parser extension requirements for first-order syntax including variables, functions, predicates, and quantifier binding"
+        },
+        {
+          "path": "specs/009_extend_parser_for_first_order_syntax/reports/research-002.md",
+          "type": "research",
+          "summary": "Supplementary research analyzing Logos Theory source code (Typst and Lean) for first-order syntax conventions, revealing that forall/exists do not bind variables - lambdas handle all variable binding"
+        },
+        {
+          "path": "specs/009_extend_parser_for_first_order_syntax/plans/implementation-002.md",
+          "type": "plan",
+          "summary": "Revised 7-phase implementation plan for first-order parser extension, incorporating lambda-binding architecture where lambdas bind variables and quantifiers operate on lambdas"
+        },
+        {
+          "path": "specs/009_extend_parser_for_first_order_syntax/summaries/implementation-summary-20260301.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all changes, verification results, and architecture notes"
+        }
+      ],
+      "planned": "2026-03-02T01:41:12Z",
+      "started": "2026-03-02T01:44:06Z",
+      "completed": "2026-03-02T01:52:13Z",
+      "completion_summary": "Extended ModelChecker parser for first-order syntax with lambda-binding architecture. Implemented tokenize_first_order(), parse_term(), parse_first_order_expression() supporting variables, constants, functions, predicates, lambda abstractions/applications, and quantifiers. Integrated with Sentence class while maintaining full backward compatibility. Created 45 unit tests covering all syntactic forms."
+    },
+    {
+      "project_number": 8,
+      "project_name": "implement_term_algebra_data_structures",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T01:04:43Z",
+      "dependencies": [
+        7
+      ],
+      "session_id": "sess_1772413125_d42058",
+      "researched": "2026-03-02T00:52:12Z",
+      "artifacts": [
+        {
+          "path": "specs/008_implement_term_algebra_data_structures/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report analyzing parsing infrastructure and recommending term algebra implementation in syntactic/terms.py"
+        },
+        {
+          "path": "specs/008_implement_term_algebra_data_structures/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for term algebra data structures"
+        },
+        {
+          "path": "specs/008_implement_term_algebra_data_structures/summaries/implementation-summary-20260301.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-02T00:56:14Z",
+      "started": "2026-03-02T00:59:08Z",
+      "completed": "2026-03-02T01:04:43Z",
+      "completion_summary": "Implemented first-order term algebra (Term ABC, Variable, Constant, FunctionApplication) in syntactic module with 62 unit tests, supporting free_variables() extraction and capture-avoiding substitution."
+    },
+    {
+      "project_number": 7,
+      "project_name": "create_first_order_module_scaffolding",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T22:22:15Z",
+      "last_updated": "2026-03-02T00:32:19Z",
+      "dependencies": [],
+      "session_id": "sess_1772411197_46382b",
+      "researched": "2026-03-01T22:29:52Z",
+      "artifacts": [
+        {
+          "path": "specs/007_create_first_order_module_scaffolding/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report documenting module structure patterns, required files, operator stubs, example format, test structure, and theory loader registration requirements"
+        },
+        {
+          "path": "specs/007_create_first_order_module_scaffolding/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "4-phase plan covering core module files, examples, test infrastructure, and subtheory registration"
+        },
+        {
+          "path": "specs/007_create_first_order_module_scaffolding/summaries/implementation-summary-20260301.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-02T00:24:46Z",
+      "started": "2026-03-02T00:27:02Z",
+      "completed": "2026-03-02T00:32:19Z",
+      "completion_summary": "Created first-order subtheory scaffolding with 4 operator stubs (LambdaOperator, ForAllOperator, IdentityOperator, ExistsOperator), examples placeholder, test infrastructure, and registered in discovery system with extensional/constitutive dependencies."
+    },
+    {
+      "project_number": 6,
+      "project_name": "identify_python_z3_mcp_integrate_subagents",
+      "status": "completed",
+      "language": "meta",
+      "created": "2026-03-01T19:25:23Z",
+      "last_updated": "2026-03-01T22:49:00Z",
+      "session_id": "sess_1772404374_d96293",
+      "researched": "2026-03-01T19:48:18Z",
+      "artifacts": [
+        {
+          "path": "specs/006_identify_python_z3_mcp_integrate_subagents/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive research on Python and Z3 MCP servers with installation instructions, agent integration patterns, and implementation recommendations for Logos theory subtheories"
+        },
+        {
+          "path": "specs/006_identify_python_z3_mcp_integrate_subagents/reports/research-002.md",
+          "type": "research",
+          "summary": "Round 2 research analyzing agent architecture patterns, context index system, and recommendations for Python/Z3 subagent integration"
+        },
+        {
+          "path": "specs/006_identify_python_z3_mcp_integrate_subagents/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase plan covering Python context (1.5h), Z3 context (1.5h), Python agents (1h), Z3 agents (1h), skills and configuration (1h)"
+        }
+      ],
+      "planned": "2026-03-01T19:53:21Z",
+      "started": "2026-03-01T22:33:28Z",
+      "completed": "2026-03-01T22:49:00Z",
+      "completion_summary": "Created Python and Z3 subagent infrastructure with 16 new files: 9 context files documenting ModelChecker/Z3 patterns, 4 agents following 8-stage execution flow, and 4 thin wrapper skills. Updated CLAUDE.md routing tables and index.md context references.",
+      "claudemd_suggestions": "Added python/z3 to Language-Based Routing table, added 4 entries to Skill-to-Agent Mapping, added Python/Z3 context references to Context Imports section"
+    },
+    {
+      "project_number": 5,
+      "project_name": "logos_spatial_readme",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T01:08:26Z",
+      "last_updated": "2026-03-01T04:59:30Z",
+      "session_id": "sess_1772340885_257314",
+      "researched": "2026-03-01T01:18:31Z",
+      "artifacts": [
+        {
+          "path": "specs/005_logos_spatial_readme/reports/research-001.md",
+          "type": "research",
+          "summary": "Research on spatial extension theory covering metric function primitive, five frame constraints, derived concepts (located states, spatial profiles), and README documentation patterns"
+        },
+        {
+          "path": "specs/005_logos_spatial_readme/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "Implementation plan for spatial reasoning README documentation"
+        },
+        {
+          "path": "specs/005_logos_spatial_readme/summaries/implementation-summary-20260228.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results and content overview"
+        }
+      ],
+      "planned": "2026-03-01T04:53:51Z",
+      "started": "2026-03-01T04:55:25Z",
+      "completed": "2026-03-01T04:59:30Z",
+      "completion_summary": "Created comprehensive README.md for the spatial reasoning subtheory. Documents the state-valued metric function primitive with type S -> Q -> S -> S, five essential frame constraints (A1-A5), and derived concepts including located states, located parts, n-balls, internal geometry, and spatial profiles. Follows constitutive README pattern with navigation, semantic theory, implementation status, dependencies, and references sections."
+    },
+    {
+      "project_number": 4,
+      "project_name": "logos_first_order_readme",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-01T00:49:56Z",
+      "last_updated": "2026-03-01T01:21:16Z",
+      "session_id": "sess_1772327752_8c1cd9",
+      "researched": "2026-03-01T01:02:16Z",
+      "artifacts": [
+        {
+          "path": "specs/004_logos_first_order_readme/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report analyzing constitutive.typ for first-order logic scope and ModelChecker documentation standards for subtheory READMEs"
+        },
+        {
+          "path": "specs/004_logos_first_order_readme/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase plan for creating first-order logic README documenting scope, operators, and theoretical foundations"
+        },
+        {
+          "path": "specs/004_logos_first_order_readme/summaries/implementation-summary-20260228.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-01T01:08:14Z",
+      "started": "2026-03-01T01:16:19Z",
+      "completed": "2026-03-01T01:21:16Z",
+      "completion_summary": "Created comprehensive README.md for the first-order subtheory documenting planned operators (lambda abstraction, quantification, first-order identity), term algebra, bilateral exact truthmaker semantics, and integration roadmap with existing Logos operators."
+    },
+    {
+      "project_number": 3,
+      "project_name": "port_paper_overview_to_latex",
+      "status": "completed",
+      "language": "latex",
+      "created": "2026-02-18T20:06:09Z",
+      "last_updated": "2026-02-18T20:40:34Z",
+      "session_id": "sess_1771446469_3e4ec0",
+      "researched": "2026-02-18T20:17:02Z",
+      "artifacts": [
+        {
+          "path": "specs/003_port_paper_overview_to_latex/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report covering notation conversion, code listing strategy, table formatting, bibliography setup, and phased implementation plan"
+        },
+        {
+          "path": "specs/003_port_paper_overview_to_latex/reports/research-002.md",
+          "type": "research",
+          "summary": "Supplementary research on notation macros: complete mapping table, compatibility analysis with sn-jnl, and recommended preamble section"
+        },
+        {
+          "path": "specs/003_port_paper_overview_to_latex/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for porting paper_overview.md to LaTeX paper.tex"
+        },
+        {
+          "path": "specs/003_port_paper_overview_to_latex/summaries/implementation-summary-20260218.md",
+          "type": "summary",
+          "summary": "Implementation summary for LaTeX paper porting"
+        }
+      ],
+      "planned": "2026-02-18T20:24:41Z",
+      "started": "2026-02-18T20:28:11Z",
+      "completed": "2026-02-18T20:40:34Z",
+      "completion_summary": "Successfully ported comprehensive research paper content from paper_overview.md to Springer sn-jnl LaTeX template. Created 26-page PDF document with 9 sections covering programmatic methodology, modularity, finite model exploration, TheoryLib vision, Logos case study, implementation results, related work, and discussion. Includes 16 BibTeX references, ~40 custom notation macros, and Python code listings with syntax highlighting."
+    },
+    {
+      "project_number": 2,
+      "project_name": "review_improve_latex_context_files",
+      "status": "completed",
+      "language": "meta",
+      "created": "2026-02-18T19:30:32Z",
+      "last_updated": "2026-02-18T20:03:49Z",
+      "session_id": "sess_1771444448_d51032",
+      "researched": "2026-02-18T19:39:29Z",
+      "artifacts": [
+        {
+          "path": "specs/002_review_improve_latex_context_files/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of LaTeX context files with gap analysis and recommendations for sn-article template alignment"
+        },
+        {
+          "path": "specs/002_review_improve_latex_context_files/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "4-phase plan to update LaTeX context files for sn-article template"
+        },
+        {
+          "path": "specs/002_review_improve_latex_context_files/summaries/implementation-summary-20260218.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-02-18T19:43:51Z",
+      "started": "2026-02-18T19:54:28Z",
+      "completed": "2026-02-18T20:03:49Z",
+      "completion_summary": "Revised all LaTeX context files for sn-article template. Created sn-article-requirements.md documenting Springer JAR submission requirements. Updated document-structure, theorem-environments, compilation-guide for single-file sn-jnl format. Fixed agent/skill path references.",
+      "claudemd_suggestions": "Updated 8 files in .claude/context/project/latex/ (1 created, 6 revised, 2 deleted), updated .claude/agents/latex-implementation-agent.md path references, updated .claude/skills/skill-latex-implementation/SKILL.md context list"
+    },
+    {
+      "project_number": 1,
+      "project_name": "latex_springer_paper_setup",
+      "status": "completed",
+      "language": "latex",
+      "created": "2026-02-18T18:33:57Z",
+      "last_updated": "2026-02-18T19:26:30Z",
+      "session_id": "sess_1771441743_ee8ebb",
+      "researched": "2026-02-18T18:39:18Z",
+      "artifacts": [
+        {
+          "path": "specs/001_latex_springer_paper_setup/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive research report covering Springer template requirements, JAR submission guidelines, directory structure recommendations, and notation adaptation strategy"
+        },
+        {
+          "path": "specs/001_latex_springer_paper_setup/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for setting up ModelChecker/latex/ directory with Springer Nature JAR template"
+        },
+        {
+          "path": "specs/001_latex_springer_paper_setup/summaries/implementation-summary-20260218.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-02-18T18:52:05Z",
+      "started": "2026-02-18T19:13:42Z",
+      "completed": "2026-02-18T19:26:30Z",
+      "completion_summary": "Created LaTeX paper directory with Springer Nature template v3.1 configured for Journal of Automated Reasoning. Includes paper.tex skeleton, comprehensive README.md with journal requirements and submission checklist, and latexmkrc build configuration. Document compiles cleanly to 2-page PDF."
+    },
+    {
+      "project_number": 22,
+      "project_name": "fix_test_helper_code_directory_lookup",
+      "status": "completed",
+      "language": "python",
+      "effort": "Small",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T04:38:49Z",
+      "artifacts": [
+        {
+          "path": "specs/022_fix_test_helper_code_directory_lookup/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report for test helper directory lookup fix - identifies 2 files with Code references, recommends pyproject.toml marker approach"
+        },
+        {
+          "path": "specs/022_fix_test_helper_code_directory_lookup/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan to fix pyproject.toml-based project root detection"
+        },
+        {
+          "path": "specs/022_fix_test_helper_code_directory_lookup/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with test results"
+        }
+      ],
+      "session_id": "sess_1772512487_a1f0e7",
+      "researched": "2026-03-03T02:43:51Z",
+      "planned": "2026-03-03T02:46:50Z",
+      "completed": "2026-03-03T04:38:49Z",
+      "completion_summary": "Fixed project root detection logic in helpers.py and test_full_pipeline.py by using pyproject.toml as a marker instead of hardcoded Code directory name. This resolved 5 failing tests and 3 skipped tests."
+    },
+    {
+      "project_number": 23,
+      "project_name": "fix_outdated_api_signatures_in_tests",
+      "status": "completed",
+      "language": "python",
+      "effort": "Medium",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T18:36:05Z",
+      "artifacts": [
+        {
+          "path": "specs/023_fix_outdated_api_signatures_in_tests/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report identifying 5 API signature mismatches across 8 test files with fix patterns"
+        },
+        {
+          "path": "specs/023_fix_outdated_api_signatures_in_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for fixing 22+ test failures from outdated API signatures"
+        },
+        {
+          "type": "summary",
+          "path": "specs/023_fix_outdated_api_signatures_in_tests/summaries/implementation-summary-20260303.md",
+          "summary": "Implementation summary for task 23 API signature fixes"
+        }
+      ],
+      "session_id": "sess_1772518099_937581",
+      "researched": "2026-03-03T04:40:43Z",
+      "planned": "2026-03-03T04:45:09Z",
+      "completed": "2026-03-03T18:36:05Z",
+      "completion_summary": "Fixed 22+ test failures caused by outdated API signatures across 8 test files. Created create_test_model() helper function, updated Syntax/ModelDefaults/OutputManager instantiations to use current API signatures. All implementation phases completed and verified."
+    },
+    {
+      "project_number": 24,
+      "project_name": "resolve_aspirational_architecture_tests",
+      "status": "completed",
+      "language": "python",
+      "effort": "Medium",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T05:21:40Z",
+      "artifacts": [
+        {
+          "path": "specs/024_resolve_aspirational_architecture_tests/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report recommending deletion of aspirational architecture tests that define non-existent APIs"
+        },
+        {
+          "path": "specs/024_resolve_aspirational_architecture_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan to delete aspirational test files and verify test suite"
+        },
+        {
+          "path": "specs/024_resolve_aspirational_architecture_tests/summaries/implementation-summary-20260302.md",
+          "type": "summary",
+          "summary": "Implementation summary with test count verification"
+        }
+      ],
+      "session_id": "sess_1772515107_056992",
+      "researched": "2026-03-03T04:41:50Z",
+      "planned": "2026-03-03T04:45:12Z",
+      "completed": "2026-03-03T05:21:40Z",
+      "completion_summary": "Deleted test_architecture_validation.py and test_batch_output_integration.py, removing 14 aspirational tests that tested non-existent APIs. Test count reduced from 613 to 599 with no regressions."
+    },
+    {
+      "project_number": 25,
+      "project_name": "fix_cli_interactive_mode_tests",
+      "status": "completed",
+      "language": "python",
+      "effort": "Large",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T17:04:29Z",
+      "artifacts": [
+        {
+          "path": "specs/025_fix_cli_interactive_mode_tests/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report on CLI interactive mode tests - recommends deletion as tests are orphaned from refactor"
+        },
+        {
+          "path": "specs/025_fix_cli_interactive_mode_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "2-phase plan to delete orphaned interactive mode tests and verify sequential mode coverage"
+        },
+        {
+          "path": "specs/025_fix_cli_interactive_mode_tests/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting deleted files and coverage verification"
+        }
+      ],
+      "session_id": "sess_1772518153_8fede2",
+      "researched": "2026-03-03T04:45:46Z",
+      "planned": "2026-03-03T05:23:20Z",
+      "completed": "2026-03-03T17:04:29Z",
+      "completion_summary": "Removed 2 orphaned test files causing 21 failures from September 2025 interactive-to-sequential refactor. Verified 16 existing sequential mode tests provide adequate coverage for prompting behavior."
+    },
+    {
+      "project_number": 26,
+      "project_name": "fix_remaining_cli_e2e_performance_tests",
+      "status": "completed",
+      "language": "python",
+      "effort": "Medium",
+      "created": "2026-03-03T02:38:05Z",
+      "last_updated": "2026-03-03T18:49:20Z",
+      "artifacts": [
+        {
+          "type": "research",
+          "path": "specs/026_fix_remaining_cli_e2e_performance_tests/reports/research-001.md",
+          "summary": "Research report covering root causes and proposed fixes for 13 test failures across 5 test files"
+        },
+        {
+          "path": "specs/026_fix_remaining_cli_e2e_performance_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "Implementation plan for fixing 13 test failures across 5 test files"
+        },
+        {
+          "path": "specs/026_fix_remaining_cli_e2e_performance_tests/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with test results and detailed changes"
+        }
+      ],
+      "session_id": "sess_1772562933_6acfb6",
+      "researched": "2026-03-03T18:26:23Z",
+      "planned": "2026-03-03T18:33:25Z",
+      "completed": "2026-03-03T18:49:20Z",
+      "completion_summary": "Fixed 13 failing tests across 5 test files. All fixes targeted test-side mismatches rather than production code: argparse argv ordering, N=16 hang prevention, realistic timing thresholds, proper helper functions, and correct CLI flags."
+    }
+  ]
+}
