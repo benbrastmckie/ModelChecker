@@ -49,9 +49,9 @@ F (arity 1):
 
 ### 33. Fix premature progress bar display between examples
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [research-002.md](033_fix_premature_progress_bar_display/reports/research-002.md)
-- **Plan**: [implementation-001.md](033_fix_premature_progress_bar_display/plans/implementation-001.md)
+- **Plan**: [implementation-002.md](033_fix_premature_progress_bar_display/plans/implementation-002.md)
 - **Language**: python
 - **Dependencies**: None
 
