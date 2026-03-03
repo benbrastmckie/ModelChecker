@@ -4,11 +4,11 @@
     {
       "project_number": 27,
       "project_name": "flatten_code_src_directory",
-      "status": "researched",
+      "status": "planning",
       "language": "python",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:09:54Z",
-      "session_id": "sess_1772564786_7ed70d",
+      "last_updated": "2026-03-03T19:10:56Z",
+      "session_id": "sess_1772565045_79f4fa",
       "researched": "2026-03-03T19:09:54Z",
       "artifacts": [
         {
@@ -29,11 +29,19 @@
     {
       "project_number": 29,
       "project_name": "cleanup_specs_directories",
-      "status": "researching",
+      "status": "researched",
       "language": "general",
       "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:09:02Z",
-      "session_id": "sess_1772564930_859704"
+      "last_updated": "2026-03-03T19:11:21Z",
+      "session_id": "sess_1772564930_859704",
+      "researched": "2026-03-03T19:11:21Z",
+      "artifacts": [
+        {
+          "path": "specs/029_cleanup_specs_directories/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report identifying 3 specs/ directories (57 files, 1.1MB) to delete with no migration needed"
+        }
+      ]
     },
     {
       "project_number": 30,

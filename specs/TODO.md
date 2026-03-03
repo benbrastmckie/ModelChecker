@@ -31,7 +31,8 @@ next_project_number: 32
 
 ### 29. Clean up specs directories
 - **Effort**: 1 hour
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
+- **Research**: [research-001.md](029_cleanup_specs_directories/reports/research-001.md)
 - **Language**: general
 - **Dependencies**: None
 
