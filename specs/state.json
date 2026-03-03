@@ -755,13 +755,20 @@
     {
       "project_number": 23,
       "project_name": "fix_outdated_api_signatures_in_tests",
-      "status": "researching",
+      "status": "researched",
       "language": "python",
       "effort": "Medium",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T04:37:09Z",
-      "artifacts": [],
-      "session_id": "sess_1772512595_a047e8"
+      "last_updated": "2026-03-03T04:40:43Z",
+      "artifacts": [
+        {
+          "path": "specs/023_fix_outdated_api_signatures_in_tests/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report identifying 5 API signature mismatches across 8 test files with fix patterns"
+        }
+      ],
+      "session_id": "sess_1772512595_a047e8",
+      "researched": "2026-03-03T04:40:43Z"
     },
     {
       "project_number": 24,
