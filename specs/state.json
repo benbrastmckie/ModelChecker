@@ -4,10 +4,19 @@
     {
       "project_number": 19,
       "project_name": "investigate_first_order_theorem_failures",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-03T00:15:00Z",
-      "last_updated": "2026-03-03T00:15:00Z"
+      "last_updated": "2026-03-03T00:22:48Z",
+      "session_id": "sess_1772496986_c90654",
+      "researched": "2026-03-03T00:22:48Z",
+      "artifacts": [
+        {
+          "path": "specs/019_investigate_first_order_theorem_failures/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report identifying root causes of spurious countermodels (missing predicate exclusivity constraints) and interpret crash (term sentences lack propositions), with implementation recommendations"
+        }
+      ]
     },
     {
       "project_number": 18,
