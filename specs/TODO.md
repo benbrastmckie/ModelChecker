@@ -1,10 +1,18 @@
 ---
-next_project_number: 19
+next_project_number: 20
 ---
 
 # Task List
 
 ## Tasks
+
+### 19. Investigate remaining first-order theorem failures: spurious countermodels in FO_TH_1-4 and FO_TH_6-8, and bare variable TypeError in FO_TH_7
+- **Effort**: Medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+- **Dependencies**: Task #18
+
+**Description**: Investigate remaining first-order theorem failures: spurious countermodels in FO_TH_1-4 and FO_TH_6-8, and bare variable TypeError in FO_TH_7
 
 ### 18. Fix first-order subtheory: 6 interconnected bugs causing crashes and wrong semantic results
 - **Effort**: Large
