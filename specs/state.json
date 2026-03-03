@@ -7,14 +7,19 @@
       "status": "researched",
       "language": "python",
       "created": "2026-03-03T01:40:59Z",
-      "last_updated": "2026-03-03T01:51:37Z",
-      "session_id": "sess_1772502388_6a3a91",
-      "researched": "2026-03-03T01:51:37Z",
+      "last_updated": "2026-03-03T02:04:04Z",
+      "session_id": "sess_1772503085_01f418",
+      "researched": "2026-03-03T02:04:04Z",
       "artifacts": [
         {
           "path": "specs/021_fix_first_order_proposition_display/reports/research-001.md",
           "type": "research",
-          "summary": "Research report identifying two root causes: (1) interpret() recursing into lambda variable arguments, (2) quantifier find_verifiers_and_falsifiers ignoring variable assignments"
+          "summary": "Initial research identifying root causes"
+        },
+        {
+          "path": "specs/021_fix_first_order_proposition_display/reports/research-002.md",
+          "type": "research",
+          "summary": "Deep analysis of interpret() patterns and consistent fix approach"
         }
       ]
     },
