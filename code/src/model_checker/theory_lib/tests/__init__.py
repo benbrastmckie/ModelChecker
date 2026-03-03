@@ -11,9 +11,6 @@ across multiple theories, including:
 
 For theory-specific tests, see individual theory directories:
 - logos/tests/ - Tests for the Logos semantic theory and its subtheories
-- default/tests/ - Tests for the default semantic theory
-- exclusion/tests/ - Tests for the exclusion semantic theory
-- imposition/tests/ - Tests for the imposition semantic theory
 - bimodal/tests/ - Tests for the bimodal semantic theory
 
 API:

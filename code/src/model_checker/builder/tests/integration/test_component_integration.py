@@ -123,20 +123,20 @@ class TestModuleTheoryIntegration(unittest.TestCase):
         """Test module loading integrates correctly with multiple theories."""
         # Create module with multiple theories
         multi_theory_content = '''
-from model_checker.theory_lib import logos, exclusion
+from model_checker.theory_lib import logos, bimodal
 
 theory_logos = logos.get_theory(['extensional'])
-theory_exclusion = exclusion.get_theory()
+theory_bimodal = bimodal.get_theory()
 
 semantic_theories = {
     "Logos": theory_logos,
-    "Exclusion": theory_exclusion
+    "Bimodal": theory_bimodal
 }
 
 example_range = {
     "TEST_MULTI": [
         ["p ∧ q"],
-        ["p", "q"], 
+        ["p", "q"],
         {"N": 2}
     ]
 }
@@ -145,32 +145,32 @@ general_settings = {
     "print_constraints": False
 }
 '''
-        
+
         module_path = self.cleanup.create_temp_file(
             multi_theory_content,
             suffix=".py"
         )
-        
+
         flags = MockObjectFactory.create_flags({
             'file_path': module_path
         })
-        
+
         build_module = assert_no_exceptions_during_execution(
             self,
             lambda: BuildModule(flags),
             operation_name="Multi-theory module loading"
         )
-        
+
         # Verify multiple theories loaded
         self.assertTrue(hasattr(build_module, 'semantic_theories'),
                        "BuildModule should load semantic_theories")
-        
+
         if hasattr(build_module, 'semantic_theories'):
             theories = build_module.semantic_theories
             self.assertIsInstance(theories, dict,
                                 "semantic_theories should be dictionary")
-            
-            expected_theories = ["Logos", "Exclusion"]
+
+            expected_theories = ["Logos", "Bimodal"]
             for theory_name in expected_theories:
                 if theory_name in theories:
                     self.assertIsNotNone(theories[theory_name],

@@ -1,0 +1,259 @@
+{
+  "version": "1.0.0",
+  "generated": "2026-03-02T00:00:00Z",
+  "entries": [
+    {
+      "path": "README.md",
+      "domain": "core",
+      "subdomain": "overview",
+      "topics": ["context-system", "lazy-loading", "discovery"],
+      "keywords": ["index", "context", "loading"],
+      "summary": "Overview of context system structure and usage patterns",
+      "line_count": 100,
+      "load_when": {
+        "always": true
+      }
+    },
+    {
+      "path": "core/routing.md",
+      "domain": "core",
+      "subdomain": "orchestration",
+      "topics": ["language-routing", "agent-selection", "tool-mapping"],
+      "keywords": ["routing", "language", "agent"],
+      "summary": "Language-based routing for research and implementation",
+      "line_count": 150,
+      "load_when": {
+        "agents": ["orchestrator"],
+        "commands": ["/research", "/implement", "/plan"]
+      }
+    },
+    {
+      "path": "core/checkpoints/checkpoint-gate-in.md",
+      "domain": "core",
+      "subdomain": "checkpoints",
+      "topics": ["preflight", "validation", "session-id"],
+      "keywords": ["GATE IN", "preflight", "status update"],
+      "summary": "GATE IN preflight validation pattern",
+      "line_count": 84,
+      "load_when": {
+        "commands": ["/research", "/plan", "/implement"]
+      }
+    },
+    {
+      "path": "core/checkpoints/checkpoint-gate-out.md",
+      "domain": "core",
+      "subdomain": "checkpoints",
+      "topics": ["postflight", "validation", "artifacts"],
+      "keywords": ["GATE OUT", "postflight", "artifact linking"],
+      "summary": "GATE OUT postflight validation and artifact verification",
+      "line_count": 101,
+      "load_when": {
+        "commands": ["/research", "/plan", "/implement"]
+      }
+    },
+    {
+      "path": "core/formats/return-metadata-file.md",
+      "domain": "core",
+      "subdomain": "formats",
+      "topics": ["metadata", "return-format", "agent-output"],
+      "keywords": ["metadata", "return", "status", "artifacts"],
+      "summary": "Metadata file schema for agent return values",
+      "line_count": 150,
+      "load_when": {
+        "agents": ["general-implementation-agent", "neovim-implementation-agent", "lean-implementation-agent"]
+      }
+    },
+    {
+      "path": "core/formats/plan-format.md",
+      "domain": "core",
+      "subdomain": "formats",
+      "topics": ["plan-structure", "phases", "metadata"],
+      "keywords": ["plan", "phases", "implementation"],
+      "summary": "Implementation plan file format and structure",
+      "line_count": 200,
+      "load_when": {
+        "agents": ["planner-agent"],
+        "commands": ["/plan", "/implement"]
+      }
+    },
+    {
+      "path": "core/orchestration/routing.md",
+      "domain": "core",
+      "subdomain": "orchestration",
+      "topics": ["skill-routing", "agent-dispatch", "language-detection"],
+      "keywords": ["routing", "skill", "dispatch"],
+      "summary": "Skill and agent routing decisions",
+      "line_count": 120,
+      "load_when": {
+        "agents": ["orchestrator"]
+      }
+    },
+    {
+      "path": "core/patterns/anti-stop-patterns.md",
+      "domain": "core",
+      "subdomain": "patterns",
+      "topics": ["agent-lifecycle", "completion-signals", "stop-prevention"],
+      "keywords": ["stop", "completion", "lifecycle"],
+      "summary": "Patterns to prevent premature agent termination",
+      "line_count": 80,
+      "load_when": {
+        "agents": ["general-implementation-agent", "neovim-implementation-agent", "lean-implementation-agent"]
+      }
+    },
+    {
+      "path": "core/patterns/metadata-file-return.md",
+      "domain": "core",
+      "subdomain": "patterns",
+      "topics": ["metadata-exchange", "file-based-return", "agent-communication"],
+      "keywords": ["metadata", "file", "return"],
+      "summary": "File-based metadata exchange pattern for agents",
+      "line_count": 100,
+      "load_when": {
+        "agents": ["general-implementation-agent", "general-research-agent", "planner-agent"]
+      }
+    },
+    {
+      "path": "project/lean4/README.md",
+      "domain": "project",
+      "subdomain": "lean4",
+      "topics": ["lean4", "theorem-prover", "mathlib"],
+      "keywords": ["lean", "proof", "mathlib"],
+      "summary": "Lean 4 theorem prover domain overview",
+      "line_count": 100,
+      "load_when": {
+        "languages": ["lean4"],
+        "agents": ["lean-research-agent", "lean-implementation-agent"]
+      }
+    },
+    {
+      "path": "project/lean4/patterns/tactic-patterns.md",
+      "domain": "project",
+      "subdomain": "lean4",
+      "topics": ["tactics", "proof-automation", "simp"],
+      "keywords": ["simp", "rfl", "exact", "apply"],
+      "summary": "Common Lean 4 tactic patterns and usage",
+      "line_count": 200,
+      "load_when": {
+        "languages": ["lean4"],
+        "agents": ["lean-implementation-agent"]
+      }
+    },
+    {
+      "path": "project/lean4/tools/mcp-tools-guide.md",
+      "domain": "project",
+      "subdomain": "lean4",
+      "topics": ["mcp", "lsp", "lean-lsp-mcp"],
+      "keywords": ["mcp", "lean_goal", "lean_hover"],
+      "summary": "Guide to Lean MCP tools for proof assistance",
+      "line_count": 150,
+      "load_when": {
+        "languages": ["lean4"],
+        "agents": ["lean-research-agent", "lean-implementation-agent"]
+      }
+    },
+    {
+      "path": "project/neovim/README.md",
+      "domain": "project",
+      "subdomain": "neovim",
+      "topics": ["neovim", "lua", "configuration"],
+      "keywords": ["neovim", "lua", "plugin"],
+      "summary": "Neovim configuration domain overview",
+      "line_count": 80,
+      "load_when": {
+        "languages": ["neovim"],
+        "agents": ["neovim-research-agent", "neovim-implementation-agent"]
+      }
+    },
+    {
+      "path": "project/neovim/patterns/plugin-spec.md",
+      "domain": "project",
+      "subdomain": "neovim",
+      "topics": ["lazy-nvim", "plugin-spec", "dependencies"],
+      "keywords": ["lazy", "plugin", "dependencies"],
+      "summary": "lazy.nvim plugin specification patterns",
+      "line_count": 150,
+      "load_when": {
+        "languages": ["neovim"],
+        "agents": ["neovim-implementation-agent"]
+      }
+    },
+    {
+      "path": "project/logic/README.md",
+      "domain": "project",
+      "subdomain": "logic",
+      "topics": ["modal-logic", "kripke-semantics", "proof-theory"],
+      "keywords": ["logic", "modal", "kripke"],
+      "summary": "Modal and temporal logic domain overview",
+      "line_count": 100,
+      "load_when": {
+        "languages": ["lean4"],
+        "agents": ["logic-research-agent"]
+      }
+    },
+    {
+      "path": "project/latex/README.md",
+      "domain": "project",
+      "subdomain": "latex",
+      "topics": ["latex", "documents", "typesetting"],
+      "keywords": ["latex", "document", "compile"],
+      "summary": "LaTeX document preparation overview",
+      "line_count": 80,
+      "load_when": {
+        "languages": ["latex"],
+        "agents": ["latex-research-agent", "latex-implementation-agent"]
+      }
+    },
+    {
+      "path": "project/typst/README.md",
+      "domain": "project",
+      "subdomain": "typst",
+      "topics": ["typst", "documents", "modern-typesetting"],
+      "keywords": ["typst", "document", "compile"],
+      "summary": "Typst document preparation overview",
+      "line_count": 80,
+      "load_when": {
+        "languages": ["typst"],
+        "agents": ["typst-research-agent", "typst-implementation-agent"]
+      }
+    },
+    {
+      "path": "project/math/category-theory/category-basics.md",
+      "domain": "project",
+      "subdomain": "math",
+      "topics": ["category-theory", "objects", "morphisms"],
+      "keywords": ["category", "functor", "morphism"],
+      "summary": "Category theory fundamentals",
+      "line_count": 150,
+      "load_when": {
+        "languages": ["lean4"],
+        "agents": ["math-research-agent"]
+      }
+    },
+    {
+      "path": "project/meta/meta-guide.md",
+      "domain": "project",
+      "subdomain": "meta",
+      "topics": ["meta-tasks", "system-building", "agent-creation"],
+      "keywords": ["meta", "agent", "skill", "command"],
+      "summary": "Guide for building system components",
+      "line_count": 100,
+      "load_when": {
+        "languages": ["meta"],
+        "agents": ["meta-builder-agent"]
+      }
+    },
+    {
+      "path": "project/web/README.md",
+      "domain": "project",
+      "subdomain": "web",
+      "topics": ["astro", "tailwind", "web-development"],
+      "keywords": ["astro", "tailwind", "web"],
+      "summary": "Web development domain overview",
+      "line_count": 80,
+      "load_when": {
+        "languages": ["general"],
+        "agents": ["general-research-agent"]
+      }
+    }
+  ]
+}

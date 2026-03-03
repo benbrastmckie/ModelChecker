@@ -137,7 +137,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ---
 
-### Phase 5: Update Test Files [IN PROGRESS]
+### Phase 5: Update Test Files [COMPLETED]
 
 **Goal**: Update test files to remove or skip exclusion/imposition theory tests
 
@@ -177,7 +177,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ---
 
-### Phase 6: Update Documentation References [NOT STARTED]
+### Phase 6: Update Documentation References [COMPLETED]
 
 **Goal**: Update documentation files that reference exclusion/imposition theories
 
@@ -198,7 +198,7 @@ Archive the `theory_lib/exclusion/` and `theory_lib/imposition/` directories to 
 
 ---
 
-### Phase 7: Run Tests and Validate [NOT STARTED]
+### Phase 7: Run Tests and Validate [IN PROGRESS]
 
 **Goal**: Verify all tests pass and no regressions exist
 

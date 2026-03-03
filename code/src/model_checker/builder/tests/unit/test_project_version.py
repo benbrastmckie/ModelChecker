@@ -94,7 +94,7 @@ class TestVersionDetectionEdgeCases(unittest.TestCase):
     
     def test_version_detection_handles_different_theory_names_consistently(self):
         """Test version detection produces consistent results across different theory names."""
-        theory_names = ['logos', 'exclusion', 'imposition']
+        theory_names = ['logos', 'bimodal']
         detected_versions = []
         
         for theory_name in theory_names:

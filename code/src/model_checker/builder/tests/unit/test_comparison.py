@@ -42,7 +42,7 @@ class TestModelComparisonCore(unittest.TestCase):
             'general_settings': TestConstants.DEFAULT_SETTINGS,
             'semantic_theories': {
                 'Theory1': TestTheories.LOGOS_THEORY,
-                'Theory2': TestTheories.EXCLUSION_THEORY
+                'Theory2': TestTheories.BIMODAL_THEORY
             }
         })
     
@@ -82,7 +82,7 @@ class TestModelComparisonExecution(unittest.TestCase):
             'general_settings': TestConstants.DEFAULT_SETTINGS,
             'semantic_theories': {
                 'Logos': TestTheories.LOGOS_THEORY,
-                'Exclusion': TestTheories.EXCLUSION_THEORY
+                'Bimodal': TestTheories.BIMODAL_THEORY
             },
             'example_range': {
                 'TEST_COMPARISON': TestExamples.BASIC_VALID
@@ -96,12 +96,12 @@ class TestModelComparisonExecution(unittest.TestCase):
         
         example_theory_tuples = [
             ("Logos", TestTheories.LOGOS_THEORY, TestExamples.BASIC_VALID),
-            ("Exclusion", TestTheories.EXCLUSION_THEORY, TestExamples.BASIC_VALID)
+            ("Bimodal", TestTheories.BIMODAL_THEORY, TestExamples.BASIC_VALID)
         ]
         
         # Mock the comparison result
         with patch.object(comparison, 'compare_semantics') as mock_compare:
-            mock_compare.return_value = [("Logos", 3), ("Exclusion", 2)]
+            mock_compare.return_value = [("Logos", 3), ("Bimodal", 2)]
             
             result = assert_no_exceptions_during_execution(
                 self,

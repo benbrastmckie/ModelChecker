@@ -1,4 +1,4 @@
-"""Tests for the BuildModule class with focus on logos and exclusion theories."""
+"""Tests for the BuildModule class with focus on logos and bimodal theories."""
 
 import unittest
 import tempfile
@@ -12,7 +12,7 @@ from model_checker.builder.runner import ModelRunner
 
 
 class TestBuildModule(unittest.TestCase):
-    """Test the BuildModule class focusing on logos and exclusion theory integration."""
+    """Test the BuildModule class focusing on logos and bimodal theory integration."""
     
     def setUp(self):
         """Set up test fixtures."""
@@ -62,21 +62,18 @@ general_settings = {
     "save_output": False,
 }
 '''
-        elif theory_type == "exclusion":
+        elif theory_type == "bimodal":
             module_content = '''
-from model_checker.theory_lib import exclusion
+from model_checker.theory_lib import bimodal
+
+theory = bimodal.get_theory()
 
 semantic_theories = {
-    "Exclusion": {
-        "semantics": exclusion.WitnessSemantics,
-        "proposition": exclusion.WitnessProposition,
-        "model": exclusion.WitnessStructure,
-        "operators": exclusion.witness_operators
-    }
+    "Bimodal": theory
 }
 
 example_range = {
-    "EXCLUSION_TEST_1": [
+    "BIMODAL_TEST_1": [
         [],  # premises
         ["p"],  # conclusions
         {"N": 2, "max_time": 1, "expectation": False}  # settings
@@ -116,28 +113,28 @@ general_settings = {
         self.assertIn("model", logos_theory)
         self.assertIn("proposition", logos_theory)
     
-    def test_module_initialization_exclusion(self):
-        """Test that BuildModule initializes properly with exclusion theory."""
-        self.create_test_module_file("exclusion")
-        
+    def test_module_initialization_bimodal(self):
+        """Test that BuildModule initializes properly with bimodal theory."""
+        self.create_test_module_file("bimodal")
+
         build_module = BuildModule(self.mock_flags)
-        
+
         # Test basic initialization
         self.assertIsNotNone(build_module.module)
         self.assertIsNotNone(build_module.semantic_theories)
         self.assertIsNotNone(build_module.example_range)
         self.assertIsNotNone(build_module.general_settings)
-        
-        # Test exclusion-specific attributes
-        self.assertIn("Exclusion", build_module.semantic_theories)
-        self.assertIn("EXCLUSION_TEST_1", build_module.example_range)
-        
-        # Test that exclusion theory components are loaded
-        exclusion_theory = build_module.semantic_theories["Exclusion"]
-        self.assertIn("semantics", exclusion_theory)
-        self.assertIn("operators", exclusion_theory)
-        self.assertIn("model", exclusion_theory)
-        self.assertIn("proposition", exclusion_theory)
+
+        # Test bimodal-specific attributes
+        self.assertIn("Bimodal", build_module.semantic_theories)
+        self.assertIn("BIMODAL_TEST_1", build_module.example_range)
+
+        # Test that bimodal theory components are loaded
+        bimodal_theory = build_module.semantic_theories["Bimodal"]
+        self.assertIn("semantics", bimodal_theory)
+        self.assertIn("operators", bimodal_theory)
+        self.assertIn("model", bimodal_theory)
+        self.assertIn("proposition", bimodal_theory)
     
     def test_module_missing_attributes(self):
         """Test error handling when module is missing required attributes."""
@@ -155,7 +152,7 @@ general_settings = {}
         self.assertIn("semantic_theories", str(context.exception))
     
     def test_translate_example_method(self):
-        """Test the translate_example method works with logos/exclusion."""
+        """Test the translate_example method works with logos/bimodal."""
         self.create_test_module_file("logos")
         build_module = BuildModule(self.mock_flags)
         
@@ -227,22 +224,22 @@ general_settings = {}
         self.assertEqual(result, mock_example)
     
     @patch('model_checker.builder.example.BuildExample')
-    def test_run_model_check_exclusion(self, mock_build_example):
-        """Test run_model_check method with exclusion theory."""
-        self.create_test_module_file("exclusion")
+    def test_run_model_check_bimodal(self, mock_build_example):
+        """Test run_model_check method with bimodal theory."""
+        self.create_test_module_file("bimodal")
         build_module = BuildModule(self.mock_flags)
-        
+
         # Mock BuildExample
         mock_example = Mock()
         mock_build_example.return_value = mock_example
-        
+
         example_case = [[], ["p"], {"N": 2, "max_time": 1}]
         example_name = "test_example"
-        theory_name = "Exclusion"
+        theory_name = "Bimodal"
         semantic_theory = build_module.semantic_theories[theory_name]
-        
+
         result = build_module.runner.run_model_check(example_case, example_name, theory_name, semantic_theory)
-        
+
         # Verify BuildExample was called
         mock_build_example.assert_called_once()
         self.assertEqual(result, mock_example)
@@ -338,7 +335,7 @@ theory = logos.get_theory(['extensional'])
 
 
 class TestBuildModuleIntegration(unittest.TestCase):
-    """Integration tests for BuildModule with real logos and exclusion theories."""
+    """Integration tests for BuildModule with real logos and bimodal theories."""
     
     def setUp(self):
         """Set up integration test fixtures."""
@@ -408,46 +405,43 @@ except ImportError:
             # Skip test if logos theory is not available in test environment
             self.skipTest("Logos theory not available in test environment")
     
-    def test_exclusion_theory_integration(self):
-        """Test integration with real exclusion theory."""
-        # Create a minimal exclusion example module
+    def test_bimodal_theory_integration(self):
+        """Test integration with real bimodal theory."""
+        # Create a minimal bimodal example module
         module_content = '''
 try:
-    from model_checker.theory_lib import exclusion
-    
+    from model_checker.theory_lib import bimodal
+
+    theory = bimodal.get_theory()
+
     semantic_theories = {
-        "Exclusion": {
-            "semantics": exclusion.WitnessSemantics,
-            "proposition": exclusion.WitnessProposition,
-            "model": exclusion.WitnessStructure,
-            "operators": exclusion.witness_operators
-        }
+        "Bimodal": theory
     }
-    
+
     example_range = {
-        "EXCLUSION_INTEGRATION_TEST": [
+        "BIMODAL_INTEGRATION_TEST": [
             [],  # premises
             ["p"],  # conclusions
             {"N": 2, "max_time": 1, "expectation": False}  # settings
         ]
     }
-    
+
     general_settings = {
         "print_constraints": False,
         "print_z3": False,
         "save_output": False,
     }
 except ImportError:
-    # Fallback for test environments where exclusion might not be available
+    # Fallback for test environments where bimodal might not be available
     semantic_theories = {}
     example_range = {}
     general_settings = {}
 '''
-        
-        module_path = os.path.join(self.temp_dir, "exclusion_test.py")
+
+        module_path = os.path.join(self.temp_dir, "bimodal_test.py")
         with open(module_path, 'w') as f:
             f.write(module_content)
-        
+
         # Create mock flags
         mock_flags = Mock()
         mock_flags.file_path = module_path
@@ -457,21 +451,21 @@ except ImportError:
         mock_flags.output = None
         mock_flags._parsed_args = []
         mock_flags.save = None  # No saving requested
-        
+
         try:
             build_module = BuildModule(mock_flags)
-            
-            if build_module.semantic_theories:  # Only test if exclusion is available
-                self.assertIn("Exclusion", build_module.semantic_theories)
-                self.assertIn("EXCLUSION_INTEGRATION_TEST", build_module.example_range)
-                
+
+            if build_module.semantic_theories:  # Only test if bimodal is available
+                self.assertIn("Bimodal", build_module.semantic_theories)
+                self.assertIn("BIMODAL_INTEGRATION_TEST", build_module.example_range)
+
                 # Test that we can access theory components
-                exclusion_theory = build_module.semantic_theories["Exclusion"]
-                self.assertIn("semantics", exclusion_theory)
-                self.assertIn("operators", exclusion_theory)
+                bimodal_theory = build_module.semantic_theories["Bimodal"]
+                self.assertIn("semantics", bimodal_theory)
+                self.assertIn("operators", bimodal_theory)
         except (ImportError, AttributeError):
-            # Skip test if exclusion theory is not available in test environment
-            self.skipTest("Exclusion theory not available in test environment")
+            # Skip test if bimodal theory is not available in test environment
+            self.skipTest("Bimodal theory not available in test environment")
 
 
 if __name__ == "__main__":

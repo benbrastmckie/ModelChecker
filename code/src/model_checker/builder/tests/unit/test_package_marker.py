@@ -77,13 +77,13 @@ class TestPackageMarker(unittest.TestCase):
         self.assertTrue(hasattr(project, '_create_package_marker'))
         
         # Test different theory
-        exclusion_project = BuildProject('exclusion')
-        exclusion_project._create_package_marker(self.temp_dir)
-        
+        bimodal_project = BuildProject('bimodal')
+        bimodal_project._create_package_marker(self.temp_dir)
+
         marker_path = os.path.join(self.temp_dir, '.modelchecker')
         with open(marker_path, 'r') as f:
             content = f.read()
-            self.assertIn('theory=exclusion', content)
+            self.assertIn('theory=bimodal', content)
             self.assertIn('package=true', content)
 
 

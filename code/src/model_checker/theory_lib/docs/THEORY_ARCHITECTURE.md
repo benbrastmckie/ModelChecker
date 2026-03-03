@@ -6,7 +6,7 @@ This document provides detailed implementation guidance for the two architectura
 
 ModelChecker supports two distinct architectural patterns, each optimized for different theory complexities:
 
-- **Simple Pattern**: Single-file operator organization (e.g., Exclusion Theory)
+- **Simple Pattern**: Single-file operator organization (e.g., Bimodal Theory)
 - **Modular Pattern**: Subtheory-based operator organization (e.g., Logos Theory)
 
 Both patterns share [common interface elements](README.md#common-interface-elements) while adapting their internal structure to semantic complexity.

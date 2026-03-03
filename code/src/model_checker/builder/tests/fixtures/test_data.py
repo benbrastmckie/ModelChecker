@@ -119,7 +119,7 @@ class TestTheories:
     
     # Theory-specific aliases for test compatibility
     LOGOS_THEORY = COMPLEX
-    EXCLUSION_THEORY = WITH_OPERATORS
+    BIMODAL_THEORY = WITH_OPERATORS
 
 
 class TestExamples:
@@ -247,18 +247,18 @@ general_settings = {
 }
 '''
 
-    EXCLUSION_CONTENT = '''
-from model_checker.theory_lib.exclusion import get_theory
+    BIMODAL_CONTENT = '''
+from model_checker.theory_lib.bimodal import get_theory
 
-theory = get_theory(['unilateral'])
+theory = get_theory()
 semantic_theories = {
-    "ExclusionTest": theory
+    "BimodalTest": theory
 }
 
 example_range = {
-    "EXCLUSION_EXAMPLE": [
+    "BIMODAL_EXAMPLE": [
         ["p ∧ q"],
-        ["p"], 
+        ["p"],
         {"N": 2, "expectation": True}
     ]
 }
@@ -270,20 +270,20 @@ general_settings = {
 
     MULTI_THEORY_CONTENT = '''
 from model_checker.theory_lib.logos import get_theory as get_logos_theory
-from model_checker.theory_lib.exclusion import get_theory as get_exclusion_theory
+from model_checker.theory_lib.bimodal import get_theory as get_bimodal_theory
 
 logos_theory = get_logos_theory(['extensional'])
-exclusion_theory = get_exclusion_theory(['unilateral'])
+bimodal_theory = get_bimodal_theory()
 
 semantic_theories = {
     "Logos": logos_theory,
-    "Exclusion": exclusion_theory
+    "Bimodal": bimodal_theory
 }
 
 example_range = {
     "MULTI_TEST": [
         ["p ∧ q"],
-        ["p"], 
+        ["p"],
         {"N": 2, "expectation": True}
     ]
 }

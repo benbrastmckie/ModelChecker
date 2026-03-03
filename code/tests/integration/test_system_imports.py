@@ -25,13 +25,11 @@ class TestImportStructure:
         
     def test_theory_imports(self):
         """Test theory library imports."""
-        from model_checker.theory_lib import logos, exclusion, bimodal, imposition
-        
+        from model_checker.theory_lib import logos, bimodal
+
         # All theories should be importable
         assert logos is not None
-        assert exclusion is not None
         assert bimodal is not None
-        assert imposition is not None
         
     def test_utils_api_imports(self):
         """Test utils API imports."""
@@ -71,7 +69,7 @@ class TestTheoryStructure:
     """Test that theories have required structure."""
     
     @pytest.mark.parametrize("theory_name", [
-        'logos', 'exclusion', 'bimodal', 'imposition'
+        'logos', 'bimodal'
     ])
     def test_theory_has_get_theory(self, theory_name):
         """Test each theory has get_theory function."""
@@ -80,7 +78,7 @@ class TestTheoryStructure:
         assert hasattr(theory_module, 'get_theory')
         
     @pytest.mark.parametrize("theory_name", [
-        'logos', 'exclusion', 'bimodal', 'imposition'
+        'logos', 'bimodal'
     ])
     def test_theory_components(self, theory_name):
         """Test theory has all required components."""

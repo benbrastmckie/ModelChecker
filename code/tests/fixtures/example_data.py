@@ -136,7 +136,7 @@ CLI_TEST_ARGS = {
     'with_theory': ['-l', 'logos', 'test.py'],
     'with_output': ['--save-output', 'test.py'],
     'debug': ['--print-z3', '--print-constraints', 'test.py'],
-    'complex': ['-N', '5', '--max-time', '30', '-l', 'exclusion', 'test.py'],
+    'complex': ['-N', '5', '--max-time', '30', '-l', 'logos', 'test.py'],
     'interactive': ['--interactive', 'test.py'],
     'comparison': ['--comparison', 'test.py'],
 }
@@ -167,14 +167,12 @@ example_range = {"TEST": [[], ["A"], {"N": 2}]}
 general_settings = {}
 ''',
     'complex': '''
-from model_checker.theory_lib import logos, exclusion
+from model_checker.theory_lib import logos
 
 logos_theory = logos.get_theory(['extensional'])
-exclusion_theory = exclusion.get_theory()
 
 semantic_theories = {
     "Logos": logos_theory,
-    "Exclusion": exclusion_theory
 }
 
 example_range = {
