@@ -8,8 +8,9 @@ next_project_number: 22
 
 ### 21. Fix first-order logic proposition display: bound variable crash and quantifier evaluation
 - **Effort**: Large
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: python
+- **Research**: [research-001.md](021_fix_first_order_proposition_display/reports/research-001.md)
 
 **Description**: Fix first-order logic proposition display: bound variable crash and quantifier evaluation. Running first-order examples crashes with "ValueError: There is no proposition for v_x (uninitialized)" when the interpret() method tries to create propositions for bound variables inside lambda abstractions. Additionally, ForAllOperator, ExistsOperator, and LambdaOperator's find_verifiers_and_falsifiers methods ignore variable assignments, causing incorrect semantic evaluation.
 
