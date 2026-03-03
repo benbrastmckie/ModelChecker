@@ -1,6 +1,47 @@
 {
-  "next_project_number": 27,
-  "active_projects": [],
+  "next_project_number": 32,
+  "active_projects": [
+    {
+      "project_number": 27,
+      "project_name": "flatten_code_src_directory",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:02:58Z"
+    },
+    {
+      "project_number": 28,
+      "project_name": "archive_unused_theories",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:02:58Z"
+    },
+    {
+      "project_number": 29,
+      "project_name": "cleanup_specs_directories",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:02:58Z"
+    },
+    {
+      "project_number": 30,
+      "project_name": "consolidate_documentation",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:02:58Z"
+    },
+    {
+      "project_number": 31,
+      "project_name": "clean_scripts_and_artifacts",
+      "status": "not_started",
+      "language": "general",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:02:58Z"
+    }
+  ],
   "repository_health": {
     "last_assessed": null,
     "status": "unknown"
