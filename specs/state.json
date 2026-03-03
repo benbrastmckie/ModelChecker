@@ -810,20 +810,26 @@
     {
       "project_number": 25,
       "project_name": "fix_cli_interactive_mode_tests",
-      "status": "planning",
+      "status": "planned",
       "language": "python",
       "effort": "Large",
       "created": "2026-03-03T02:38:05Z",
-      "last_updated": "2026-03-03T05:21:25Z",
+      "last_updated": "2026-03-03T05:23:20Z",
       "artifacts": [
         {
           "path": "specs/025_fix_cli_interactive_mode_tests/reports/research-001.md",
           "type": "research",
           "summary": "Research report on CLI interactive mode tests - recommends deletion as tests are orphaned from refactor"
+        },
+        {
+          "path": "specs/025_fix_cli_interactive_mode_tests/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "2-phase plan to delete orphaned interactive mode tests and verify sequential mode coverage"
         }
       ],
       "session_id": "sess_1772515272_684353",
-      "researched": "2026-03-03T04:45:46Z"
+      "researched": "2026-03-03T04:45:46Z",
+      "planned": "2026-03-03T05:23:20Z"
     },
     {
       "project_number": 26,
