@@ -4,11 +4,11 @@
     {
       "project_number": 32,
       "project_name": "consolidate_first_order_subtheory_structure",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-03T20:24:45Z",
-      "last_updated": "2026-03-03T20:42:55Z",
-      "session_id": "sess_1772570395_6c522e",
+      "last_updated": "2026-03-03T21:10:22Z",
+      "session_id": "sess_1772570724_5d7c1b",
       "researched": "2026-03-03T20:31:40Z",
       "artifacts": [
         {
@@ -20,9 +20,16 @@
           "path": "specs/032_consolidate_first_order_subtheory_structure/plans/implementation-001.md",
           "type": "plan",
           "summary": "4-phase implementation plan for consolidating first-order subtheory structure"
+        },
+        {
+          "path": "specs/032_consolidate_first_order_subtheory_structure/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with test results and change details"
         }
       ],
-      "planned": "2026-03-03T20:42:55Z"
+      "planned": "2026-03-03T20:42:55Z",
+      "completed": "2026-03-03T21:10:22Z",
+      "completion_summary": "Refactored first-order subtheory to standard structure by moving term_denotation() into semantic.py, removing unused constraints.py and denotation.py, and updating all imports. Structure now matches other subtheories."
     },
     {
       "project_number": 28,

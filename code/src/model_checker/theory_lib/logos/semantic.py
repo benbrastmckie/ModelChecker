@@ -17,6 +17,7 @@ from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
 from model_checker.models.structure import ModelDefaults
 from model_checker.syntactic.assignments import VariableAssignment
+from model_checker.syntactic.terms import Term, Variable, Constant, FunctionApplication
 from model_checker.utils import (
     ForAll,
     Exists,
@@ -37,6 +38,70 @@ if TYPE_CHECKING:
     )
     from model_checker.syntactic import Sentence
     from model_checker.models.model_constraints import ModelConstraints
+
+
+def term_denotation(
+    term: Term,
+    assignment: VariableAssignment,
+    semantics: 'LogosSemantics'
+) -> z3.BitVecRef:
+    """Compute [[t]]^sigma_M - the denotation of term t.
+
+    This function recursively evaluates a term to produce a Z3 bit vector
+    representing a domain element (state/haecceity). The denotation depends
+    on the current variable assignment and the model's interpretation of
+    constants and functions.
+
+    Args:
+        term: The term to evaluate
+        assignment: Current variable assignment sigma
+        semantics: Model semantics providing interpretation functions
+
+    Returns:
+        Z3 bit vector representing the denoted state/haecceity
+
+    Raises:
+        KeyError: If a variable is not bound in the assignment, or
+                 if a constant/function is not registered in semantics
+        TypeError: If term is of unknown type
+
+    Examples:
+        >>> v_x = Variable("v_x")
+        >>> sigma = assignment.variant(v_x, BitVecVal(3, N))
+        >>> term_denotation(v_x, sigma, sem)  # Returns 3
+
+        >>> semantics.register_constant('zero', BitVecVal(0, N))
+        >>> term_denotation(Constant('zero'), sigma, sem)  # Returns 0
+    """
+    if isinstance(term, Variable):
+        # [[v]]^sigma = sigma(v)
+        # If variable is bound, return its value
+        # If unbound (free variable), return a fresh Z3 variable
+        # This handles open formulas by treating free variables as arbitrary domain elements
+        try:
+            return assignment[term]
+        except KeyError:
+            # Free variable - create a fresh Z3 variable for it
+            # This is semantically correct: an open formula is satisfied iff
+            # for all assignments to free variables, the formula holds
+            return z3.BitVec(f"free_{term.name}", semantics.N)
+
+    if isinstance(term, Constant):
+        # [[c]]^sigma = |c| (interpretation of constant)
+        # The semantics must have this constant registered
+        return semantics.constant_interpretation(term.name)
+
+    if isinstance(term, FunctionApplication):
+        # [[f(t1, ..., tn)]]^sigma = |f|([[t1]]^sigma, ..., [[tn]]^sigma)
+        # First evaluate all arguments recursively
+        arg_denotations = tuple(
+            term_denotation(arg, assignment, semantics)
+            for arg in term.arguments
+        )
+        # Then apply the function interpretation
+        return semantics.function_interpretation(term.name, arg_denotations)
+
+    raise TypeError(f"Unknown term type: {type(term).__name__}")
 
 
 class LogosSemantics(SemanticDefaults):
@@ -792,10 +857,6 @@ class LogosSemantics(SemanticDefaults):
         Returns:
             Z3 constraint for predicate truth
         """
-        import importlib
-        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
-        term_denotation = first_order.term_denotation
-
         eval_world = eval_point["world"]
         assignment = self.get_assignment(eval_point)
 
@@ -834,10 +895,6 @@ class LogosSemantics(SemanticDefaults):
         Returns:
             Z3 constraint for predicate falsity
         """
-        import importlib
-        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
-        term_denotation = first_order.term_denotation
-
         eval_world = eval_point["world"]
         assignment = self.get_assignment(eval_point)
 
@@ -877,10 +934,6 @@ class LogosSemantics(SemanticDefaults):
         Returns:
             Z3 constraint for predicate verification
         """
-        import importlib
-        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
-        term_denotation = first_order.term_denotation
-
         assignment = self.get_assignment(eval_point)
 
         # Compute denotations of all term arguments
@@ -912,10 +965,6 @@ class LogosSemantics(SemanticDefaults):
         Returns:
             Z3 constraint for predicate falsification
         """
-        import importlib
-        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
-        term_denotation = first_order.term_denotation
-
         assignment = self.get_assignment(eval_point)
 
         # Compute denotations of all term arguments
@@ -1185,10 +1234,6 @@ class LogosProposition(PropositionDefaults):
         Returns:
             tuple: A pair (verifiers, falsifiers) containing the sets of states
         """
-        import importlib
-        first_order = importlib.import_module('model_checker.theory_lib.logos.subtheories.first-order.denotation')
-        term_denotation = first_order.term_denotation
-
         model = self.model_structure.z3_model
         semantics = self.semantics
         eval_point = {"world": eval_world}
