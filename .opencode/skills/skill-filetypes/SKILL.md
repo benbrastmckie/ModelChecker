@@ -1,12 +1,12 @@
 ---
-name: skill-document-converter
-description: Document conversion routing with dual invocation support
+name: skill-filetypes
+description: File format conversion routing with specialized sub-agent dispatch
 allowed-tools: Task
 ---
 
-# Document Converter Skill
+# Filetypes Skill
 
-Thin wrapper that delegates document conversion to `document-converter-agent` subagent.
+Thin wrapper that routes file format operations to the `filetypes-router-agent`, which then delegates to specialized sub-agents based on file type.
 
 ## Context Pointers
 
@@ -15,7 +15,7 @@ Reference (do not load eagerly):
 - Purpose: Return validation
 - Load at: Subagent execution only
 
-Note: This skill is a thin wrapper. Context is loaded by the delegated agent, not this skill.
+Note: This skill is a thin wrapper. Context is loaded by the delegated agents, not this skill.
 
 ## Trigger Conditions
 
@@ -57,6 +57,8 @@ Do not invoke for:
 - Viewing images without extraction
 - Operations that don't involve format conversion
 - Files already in the target format
+- Spreadsheet-specific operations (use skill-spreadsheet)
+- Presentation-specific operations (use skill-presentation)
 
 ---
 
@@ -100,35 +102,32 @@ Prepare delegation context:
   "metadata": {
     "session_id": "sess_{timestamp}_{random}",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "convert", "skill-document-converter"]
+    "delegation_path": ["orchestrator", "convert", "skill-filetypes"]
   }
 }
 ```
 
-### 3. Invoke Subagent
+### 3. Invoke Router Agent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
-
-The `agent` field in this skill's frontmatter specifies the target: `document-converter-agent`
+**CRITICAL**: You MUST use the **Task** tool to spawn the router agent.
 
 **Required Tool Invocation**:
 ```
 Tool: Task (NOT Skill)
 Parameters:
-  - subagent_type: "document-converter-agent"
+  - subagent_type: "filetypes-router-agent"
   - prompt: [Include source_path, output_path, metadata]
   - description: "Convert {source_path} to {output_path}"
 ```
 
-**DO NOT** use `Skill(document-converter-agent)` - this will FAIL.
-Agents live in `.opencode/agents/`, not `.opencode/skills/`.
+**DO NOT** use `Skill(filetypes-router-agent)` - this will FAIL.
+Agents live in `.opencode/agents/` or extension agent directories, not `.opencode/skills/`.
 The Skill tool can only invoke skills from `.opencode/skills/`.
 
-The subagent will:
-- Detect available conversion tools
-- Determine conversion direction from file extensions
-- Execute conversion with appropriate tool
-- Validate output exists and is non-empty
+The router will:
+- Detect source and target formats
+- Select appropriate sub-agent (document, spreadsheet, presentation)
+- Delegate to sub-agent for actual conversion
 - Return standardized JSON result
 
 ### 4. Return Validation
@@ -163,9 +162,9 @@ Expected successful return:
   ],
   "metadata": {
     "session_id": "sess_...",
-    "agent_type": "document-converter-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "convert", "skill-document-converter", "document-converter-agent"],
+    "agent_type": "document-agent",
+    "delegation_depth": 2,
+    "delegation_path": ["orchestrator", "convert", "skill-filetypes", "filetypes-router-agent", "document-agent"],
     "tool_used": "markitdown"
   },
   "next_steps": "Review converted document"
@@ -182,8 +181,8 @@ Return immediately with failed status if source file not found.
 ### Unsupported Format
 Return failed status with clear message about supported formats.
 
-### Subagent Errors
-Pass through the subagent's error return verbatim.
+### Router/Subagent Errors
+Pass through the router/subagent's error return verbatim.
 
 ### Tool Not Available
 Return failed status with installation instructions.

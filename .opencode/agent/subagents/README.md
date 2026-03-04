@@ -35,7 +35,7 @@ Layer 3: Subagents (this directory)
 
 ### Utility Agents
 - `meta-builder-agent.md` - System builder for .opencode/ changes
-- `document-converter-agent.md` - Document format conversion
+- `filetypes-router-agent.md` - File format conversion routing
 
 ## Usage
 

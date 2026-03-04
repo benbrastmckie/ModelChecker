@@ -7,7 +7,7 @@
       "status": "researched",
       "language": "python",
       "created": "2026-03-03T21:30:00Z",
-      "last_updated": "2026-03-04T00:15:34Z",
+      "last_updated": "2026-03-04T00:23:09Z",
       "dependencies": [],
       "artifacts": [
         {
@@ -19,10 +19,15 @@
           "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-002.md",
           "type": "research",
           "summary": "Comprehensive research report documenting recursive printing patterns, modal operator print_over_worlds() approach, and recommended print_over_domain() design for first-order quantifiers"
+        },
+        {
+          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-003.md",
+          "type": "research",
+          "summary": "Deep analysis of lambda semantics, proposition generation for complex formulas, and complete print_over_domain() architecture design"
         }
       ],
-      "session_id": "sess_1772583102_9c122a",
-      "researched": "2026-03-04T00:15:34Z"
+      "session_id": "sess_1772583528_1663b9",
+      "researched": "2026-03-04T00:23:09Z"
     },
     {
       "project_number": 33,

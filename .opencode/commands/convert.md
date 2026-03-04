@@ -6,7 +6,7 @@ argument-hint: SOURCE_PATH [OUTPUT_PATH]
 
 # /convert Command
 
-Convert documents between formats by delegating to the document converter skill/agent chain.
+Convert documents between formats by delegating to the filetypes skill/agent chain.
 
 ## Arguments
 
@@ -43,6 +43,8 @@ Convert documents between formats by delegating to the document converter skill/
 | HTML | Markdown | Uses markitdown or pandoc |
 | Images | Markdown | Uses markitdown (OCR if available) |
 | Markdown | PDF | Uses pandoc or typst |
+
+**Note**: For spreadsheet-to-table conversions, use `/table`. For presentation conversions, use `/slides`.
 
 ## Execution
 
@@ -117,11 +119,11 @@ Convert documents between formats by delegating to the document converter skill/
 
 **Invoke the Skill tool NOW** with:
 ```
-skill: "skill-document-converter"
+skill: "skill-filetypes"
 args: "source_path={source_path} output_path={output_path} session_id={session_id}"
 ```
 
-The skill will spawn the document-converter-agent to perform the conversion.
+The skill will spawn the filetypes-router-agent, which routes to the appropriate sub-agent.
 
 **On DELEGATE success**: Conversion attempted. **IMMEDIATELY CONTINUE** to CHECKPOINT 2 below.
 
@@ -203,54 +205,4 @@ Source: {source_path}
 Error: {error_message}
 
 Recommendation: {recommendation from error}
-```
-
-## Error Handling
-
-### GATE IN Failure
-
-**Source not found**:
-```
-Error: Source file not found: {path}
-
-Please verify the file path and try again.
-```
-
-**Unsupported format**:
-```
-Error: Cannot infer output format for .{ext}
-
-Supported source formats: pdf, docx, xlsx, pptx, html, md
-Please specify output path explicitly: /convert source.{ext} output.md
-```
-
-### DELEGATE Failure
-
-**Tool not available**:
-```
-Error: No conversion tools available.
-
-Required tools (install one):
-  - markitdown: pip install markitdown
-  - pandoc: apt install pandoc (or brew install pandoc)
-
-Then retry: /convert {source_path}
-```
-
-**Conversion error**:
-```
-Error: Conversion failed.
-
-Details: {error_message from agent}
-Recommendation: {recommendation from agent}
-```
-
-### GATE OUT Failure
-
-**Output not created**:
-```
-Warning: Output file was not created.
-
-The conversion tool may have failed silently.
-Check the source file for issues (encrypted, corrupted, etc.)
 ```

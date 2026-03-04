@@ -262,7 +262,7 @@ Creates: Agent only (skill routes to it)
 
 | Command | Skill(s) Used |
 |---------|---------------|
-| /convert | skill-document-converter |
+| /convert | skill-filetypes |
 | /errors | (direct execution) |
 | /implement | skill-implementer, skill-lean-implementation, skill-latex-implementation, skill-typst-implementation |
 | /lake | skill-lake-repair |
@@ -281,7 +281,7 @@ Creates: Agent only (skill routes to it)
 
 | Skill | Agent |
 |-------|-------|
-| skill-document-converter | document-converter-agent |
+| skill-filetypes | filetypes-router-agent |
 | skill-git-workflow | (direct execution) |
 | skill-implementer | general-implementation-agent |
 | skill-lake-repair | (direct execution) |
@@ -306,7 +306,7 @@ Creates: Agent only (skill routes to it)
 
 | Agent | Purpose |
 |-------|---------|
-| `document-converter-agent` | Document format conversion |
+| `filetypes-router-agent` | File format conversion routing |
 | `general-implementation-agent` | General file implementation |
 | `general-research-agent` | General web/codebase research |
 | `latex-implementation-agent` | LaTeX document implementation |

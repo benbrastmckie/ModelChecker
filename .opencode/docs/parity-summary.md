@@ -20,7 +20,7 @@ This document summarizes the feature parity achieved between `.opencode/` and `.
 | planner-agent | 236 lines | 413 lines | Parity |
 | meta-builder-agent | 338 lines | 339 lines | Parity |
 | latex-implementation-agent | 311 lines | 511 lines | Parity |
-| document-converter-agent | 180 lines | 337 lines | Parity |
+| filetypes-router-agent | 180 lines | 180 lines | Parity |
 | logic-research-agent | 485 lines | 485 lines | Parity |
 | math-research-agent | 463 lines | 463 lines | Parity |
 | latex-research-agent | 480 lines | 480 lines | Parity |
@@ -44,7 +44,7 @@ This document summarizes the feature parity achieved between `.opencode/` and `.
 | skill-planner | Yes | Yes | Parity |
 | skill-implementer | Yes | Yes | Parity |
 | skill-latex-implementation | Yes | Yes | Parity |
-| skill-document-converter | Yes | Yes | Parity |
+| skill-filetypes | Yes | Yes | Parity |
 | skill-meta | Yes | Yes | Parity |
 | skill-status-sync | Yes | Yes | Parity |
 | skill-refresh | Yes | Yes | Parity |
