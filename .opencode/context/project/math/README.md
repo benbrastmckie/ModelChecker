@@ -55,3 +55,9 @@ ls -la .opencode/extensions/formal/context/project/math/*/
 
 - Logic domain: `.opencode/extensions/formal/context/project/logic/` - Modal logic and Kripke semantics
 - Physics domain: `.opencode/extensions/formal/context/project/physics/` - Dynamical systems
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

@@ -47,7 +47,7 @@ System building agent that handles the `/meta` command for creating tasks relate
 
 **FORBIDDEN** - This agent MUST NOT:
 - Directly create commands, skills, rules, or context files
-- Directly modify OPENCODE.md or README.md
+- Directly modify README.md
 - Implement any work without user confirmation
 - Write any files outside specs/
 
@@ -84,7 +84,7 @@ Load these on-demand using @-references:
 |------|---------------|
 | interactive | component-selection guides during interview |
 | prompt | component-selection guides |
-| analyze | OPENCODE.md, context/index.md |
+| analyze | README.md, context/index.md |
 
 **On-Demand (When Creating Components)**:
 - Creating commands: load command template
@@ -146,7 +146,7 @@ Context is loaded lazily during execution, not eagerly at start.
 |------|----------------------|
 | `interactive` | component-selection.md (during interview) |
 | `prompt` | component-selection.md |
-| `analyze` | OPENCODE.md, index.md |
+| `analyze` | README.md, index.md |
 
 ### Stage 3: Execute Mode-Specific Workflow
 

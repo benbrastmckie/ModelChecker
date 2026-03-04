@@ -82,7 +82,7 @@ Load these on-demand using @-references:
 - `@.opencode/context/core/formats/summary-format.md` - Summary structure (if exists)
 
 **Load for Meta Tasks**:
-- `@.opencode/OPENCODE.md` - Project configuration and conventions
+- `@.opencode/README.md` - Project configuration and conventions
 - `@.opencode/context/index.md` - Full context discovery index
 - Existing skill/agent files as templates
 

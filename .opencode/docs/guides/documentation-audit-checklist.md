@@ -97,7 +97,6 @@
 
 **Key files**:
 - `.opencode/README.md`
-- `.opencode/OPENCODE.md`
 - `.opencode/commands/README.md`
 - `.opencode/context/README.md`
 - All project context files
@@ -133,7 +132,7 @@
 
 **Update inventory in**:
 - [ ] `.opencode/docs/guides/component-selection.md`
-- [ ] `.opencode/OPENCODE.md` Skill-to-Agent mapping
+- [ ] `.opencode/README.md` Skill-to-Agent mapping
 
 ---
 

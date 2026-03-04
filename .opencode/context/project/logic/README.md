@@ -58,3 +58,9 @@ In all logic documentation, use **"sentence letter"** instead of "propositional 
 - Load specific domain files based on research topic
 - Load process files for proof strategy guidance
 - Load standards files for convention compliance
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

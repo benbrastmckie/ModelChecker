@@ -37,3 +37,9 @@ Potential expansion areas:
 - `project/math/topology/` - Topological foundations for continuous systems
 - `project/math/order-theory/` - Well-foundedness for termination analysis
 - `project/logic/domain/` - Temporal logic with potential physics applications
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

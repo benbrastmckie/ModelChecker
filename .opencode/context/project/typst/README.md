@@ -33,3 +33,9 @@ Load: `standards/typst-style-guide.md`, `patterns/theorem-environments.md`
 ## For Implementation
 
 Load: `tools/compilation-guide.md`, `patterns/cross-references.md`
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

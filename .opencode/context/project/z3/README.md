@@ -47,3 +47,9 @@ Load: `domain/z3-api.md`, `domain/smt-patterns.md`
 ## For Implementation
 
 Load: `patterns/constraint-generation.md`, `patterns/bitvector-operations.md`
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

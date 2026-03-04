@@ -23,3 +23,9 @@ Load: `tools/mcp-tools-guide.md`, `domain/mathlib-overview.md`
 ## For Implementation
 
 Load: `tools/mcp-tools-guide.md`, `patterns/tactic-patterns.md`
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

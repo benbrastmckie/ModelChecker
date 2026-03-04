@@ -39,4 +39,10 @@ Layer 3: Subagents (this directory)
 
 ## Usage
 
-Subagents are not invoked directly. They are delegated to by command files based on task language and operation type. See `.opencode/OPENCODE.md` for the Skill-to-Agent mapping table.
+Subagents are not invoked directly. They are delegated to by command files based on task language and operation type. See `.opencode/README.md` for the Skill-to-Agent mapping table.
+
+---
+
+## Navigation
+
+[← Parent Directory](../README.md)

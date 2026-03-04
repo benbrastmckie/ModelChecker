@@ -1,14 +1,10 @@
 {
+  "generated": "2026-03-02T00:00:00Z",
   "version": "1.0.0",
   "entries": [
     {
-      "load_when": {
-        "always": true
-      },
+      "summary": "Overview of context system structure and usage patterns",
       "domain": "core",
-      "line_count": 100,
-      "path": "README.md",
-      "subdomain": "overview",
       "topics": [
         "context-system",
         "lazy-loading",
@@ -19,23 +15,16 @@
         "context",
         "loading"
       ],
-      "summary": "Overview of context system structure and usage patterns"
+      "load_when": {
+        "always": true
+      },
+      "path": "README.md",
+      "line_count": 100,
+      "subdomain": "overview"
     },
     {
-      "load_when": {
-        "agents": [
-          "orchestrator"
-        ],
-        "commands": [
-          "/research",
-          "/implement",
-          "/plan"
-        ]
-      },
+      "summary": "Language-based routing for research and implementation",
       "domain": "core",
-      "line_count": 150,
-      "path": "core/routing.md",
-      "subdomain": "orchestration",
       "topics": [
         "language-routing",
         "agent-selection",
@@ -46,20 +35,23 @@
         "language",
         "agent"
       ],
-      "summary": "Language-based routing for research and implementation"
-    },
-    {
       "load_when": {
         "commands": [
           "/research",
-          "/plan",
-          "/implement"
+          "/implement",
+          "/plan"
+        ],
+        "agents": [
+          "orchestrator"
         ]
       },
+      "path": "core/routing.md",
+      "line_count": 150,
+      "subdomain": "orchestration"
+    },
+    {
+      "summary": "GATE IN preflight validation pattern",
       "domain": "core",
-      "line_count": 84,
-      "path": "core/checkpoints/checkpoint-gate-in.md",
-      "subdomain": "checkpoints",
       "topics": [
         "preflight",
         "validation",
@@ -70,9 +62,6 @@
         "preflight",
         "status update"
       ],
-      "summary": "GATE IN preflight validation pattern"
-    },
-    {
       "load_when": {
         "commands": [
           "/research",
@@ -80,10 +69,13 @@
           "/implement"
         ]
       },
+      "path": "core/checkpoints/checkpoint-gate-in.md",
+      "line_count": 84,
+      "subdomain": "checkpoints"
+    },
+    {
+      "summary": "GATE OUT postflight validation and artifact verification",
       "domain": "core",
-      "line_count": 101,
-      "path": "core/checkpoints/checkpoint-gate-out.md",
-      "subdomain": "checkpoints",
       "topics": [
         "postflight",
         "validation",
@@ -94,20 +86,20 @@
         "postflight",
         "artifact linking"
       ],
-      "summary": "GATE OUT postflight validation and artifact verification"
-    },
-    {
       "load_when": {
-        "agents": [
-          "general-implementation-agent",
-          "neovim-implementation-agent",
-          "lean-implementation-agent"
+        "commands": [
+          "/research",
+          "/plan",
+          "/implement"
         ]
       },
+      "path": "core/checkpoints/checkpoint-gate-out.md",
+      "line_count": 101,
+      "subdomain": "checkpoints"
+    },
+    {
+      "summary": "Metadata file schema for agent return values",
       "domain": "core",
-      "line_count": 150,
-      "path": "core/formats/return-metadata-file.md",
-      "subdomain": "formats",
       "topics": [
         "metadata",
         "return-format",
@@ -119,22 +111,20 @@
         "status",
         "artifacts"
       ],
-      "summary": "Metadata file schema for agent return values"
-    },
-    {
       "load_when": {
         "agents": [
-          "planner-agent"
-        ],
-        "commands": [
-          "/plan",
-          "/implement"
+          "general-implementation-agent",
+          "neovim-implementation-agent",
+          "lean-implementation-agent"
         ]
       },
+      "path": "core/formats/return-metadata-file.md",
+      "line_count": 150,
+      "subdomain": "formats"
+    },
+    {
+      "summary": "Implementation plan file format and structure",
       "domain": "core",
-      "line_count": 200,
-      "path": "core/formats/plan-format.md",
-      "subdomain": "formats",
       "topics": [
         "plan-structure",
         "phases",
@@ -145,18 +135,22 @@
         "phases",
         "implementation"
       ],
-      "summary": "Implementation plan file format and structure"
-    },
-    {
       "load_when": {
+        "commands": [
+          "/plan",
+          "/implement"
+        ],
         "agents": [
-          "orchestrator"
+          "planner-agent"
         ]
       },
+      "path": "core/formats/plan-format.md",
+      "line_count": 200,
+      "subdomain": "formats"
+    },
+    {
+      "summary": "Skill and agent routing decisions",
       "domain": "core",
-      "line_count": 120,
-      "path": "core/orchestration/routing.md",
-      "subdomain": "orchestration",
       "topics": [
         "skill-routing",
         "agent-dispatch",
@@ -167,20 +161,18 @@
         "skill",
         "dispatch"
       ],
-      "summary": "Skill and agent routing decisions"
-    },
-    {
       "load_when": {
         "agents": [
-          "general-implementation-agent",
-          "neovim-implementation-agent",
-          "lean-implementation-agent"
+          "orchestrator"
         ]
       },
+      "path": "core/orchestration/routing.md",
+      "line_count": 120,
+      "subdomain": "orchestration"
+    },
+    {
+      "summary": "Patterns to prevent premature agent termination",
       "domain": "core",
-      "line_count": 80,
-      "path": "core/patterns/anti-stop-patterns.md",
-      "subdomain": "patterns",
       "topics": [
         "agent-lifecycle",
         "completion-signals",
@@ -191,20 +183,20 @@
         "completion",
         "lifecycle"
       ],
-      "summary": "Patterns to prevent premature agent termination"
-    },
-    {
       "load_when": {
         "agents": [
           "general-implementation-agent",
-          "general-research-agent",
-          "planner-agent"
+          "neovim-implementation-agent",
+          "lean-implementation-agent"
         ]
       },
+      "path": "core/patterns/anti-stop-patterns.md",
+      "line_count": 80,
+      "subdomain": "patterns"
+    },
+    {
+      "summary": "File-based metadata exchange pattern for agents",
       "domain": "core",
-      "line_count": 100,
-      "path": "core/patterns/metadata-file-return.md",
-      "subdomain": "patterns",
       "topics": [
         "metadata-exchange",
         "file-based-return",
@@ -215,22 +207,20 @@
         "file",
         "return"
       ],
-      "summary": "File-based metadata exchange pattern for agents"
-    },
-    {
       "load_when": {
         "agents": [
-          "lean-research-agent",
-          "lean-implementation-agent"
-        ],
-        "languages": [
-          "lean4"
+          "general-implementation-agent",
+          "general-research-agent",
+          "planner-agent"
         ]
       },
-      "domain": "project",
+      "path": "core/patterns/metadata-file-return.md",
       "line_count": 100,
-      "path": "project/lean4/README.md",
-      "subdomain": "lean4",
+      "subdomain": "patterns"
+    },
+    {
+      "summary": "Lean 4 theorem prover domain overview",
+      "domain": "project",
       "topics": [
         "lean4",
         "theorem-prover",
@@ -241,21 +231,22 @@
         "proof",
         "mathlib"
       ],
-      "summary": "Lean 4 theorem prover domain overview"
-    },
-    {
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
         ]
       },
+      "path": "project/lean4/README.md",
+      "line_count": 100,
+      "subdomain": "lean4"
+    },
+    {
+      "summary": "Common Lean 4 tactic patterns and usage",
       "domain": "project",
-      "line_count": 200,
-      "path": "project/lean4/patterns/tactic-patterns.md",
-      "subdomain": "lean4",
       "topics": [
         "tactics",
         "proof-automation",
@@ -267,22 +258,21 @@
         "exact",
         "apply"
       ],
-      "summary": "Common Lean 4 tactic patterns and usage"
-    },
-    {
       "load_when": {
-        "agents": [
-          "lean-research-agent",
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
       },
+      "path": "project/lean4/patterns/tactic-patterns.md",
+      "line_count": 200,
+      "subdomain": "lean4"
+    },
+    {
+      "summary": "Guide to Lean MCP tools for proof assistance",
       "domain": "project",
-      "line_count": 150,
-      "path": "project/lean4/tools/mcp-tools-guide.md",
-      "subdomain": "lean4",
       "topics": [
         "mcp",
         "lsp",
@@ -293,22 +283,22 @@
         "lean_goal",
         "lean_hover"
       ],
-      "summary": "Guide to Lean MCP tools for proof assistance"
-    },
-    {
       "load_when": {
-        "agents": [
-          "neovim-research-agent",
-          "neovim-implementation-agent"
-        ],
         "languages": [
-          "neovim"
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
         ]
       },
+      "path": "project/lean4/tools/mcp-tools-guide.md",
+      "line_count": 150,
+      "subdomain": "lean4"
+    },
+    {
+      "summary": "Neovim configuration domain overview",
       "domain": "project",
-      "line_count": 80,
-      "path": "project/neovim/README.md",
-      "subdomain": "neovim",
       "topics": [
         "neovim",
         "lua",
@@ -319,21 +309,22 @@
         "lua",
         "plugin"
       ],
-      "summary": "Neovim configuration domain overview"
-    },
-    {
       "load_when": {
-        "agents": [
-          "neovim-implementation-agent"
-        ],
         "languages": [
           "neovim"
+        ],
+        "agents": [
+          "neovim-research-agent",
+          "neovim-implementation-agent"
         ]
       },
+      "path": "project/neovim/README.md",
+      "line_count": 80,
+      "subdomain": "neovim"
+    },
+    {
+      "summary": "lazy.nvim plugin specification patterns",
       "domain": "project",
-      "line_count": 150,
-      "path": "project/neovim/patterns/plugin-spec.md",
-      "subdomain": "neovim",
       "topics": [
         "lazy-nvim",
         "plugin-spec",
@@ -344,21 +335,21 @@
         "plugin",
         "dependencies"
       ],
-      "summary": "lazy.nvim plugin specification patterns"
-    },
-    {
       "load_when": {
-        "agents": [
-          "logic-research-agent"
-        ],
         "languages": [
-          "lean4"
+          "neovim"
+        ],
+        "agents": [
+          "neovim-implementation-agent"
         ]
       },
+      "path": "project/neovim/patterns/plugin-spec.md",
+      "line_count": 150,
+      "subdomain": "neovim"
+    },
+    {
+      "summary": "Modal and temporal logic domain overview",
       "domain": "project",
-      "line_count": 100,
-      "path": "project/logic/README.md",
-      "subdomain": "logic",
       "topics": [
         "modal-logic",
         "kripke-semantics",
@@ -369,22 +360,21 @@
         "modal",
         "kripke"
       ],
-      "summary": "Modal and temporal logic domain overview"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-research-agent",
-          "latex-implementation-agent"
-        ],
         "languages": [
-          "latex"
+          "lean4"
+        ],
+        "agents": [
+          "logic-research-agent"
         ]
       },
+      "path": "project/logic/README.md",
+      "line_count": 100,
+      "subdomain": "logic"
+    },
+    {
+      "summary": "LaTeX document preparation overview",
       "domain": "project",
-      "line_count": 80,
-      "path": "project/latex/README.md",
-      "subdomain": "latex",
       "topics": [
         "latex",
         "documents",
@@ -395,22 +385,22 @@
         "document",
         "compile"
       ],
-      "summary": "LaTeX document preparation overview"
-    },
-    {
       "load_when": {
-        "agents": [
-          "typst-research-agent",
-          "typst-implementation-agent"
-        ],
         "languages": [
-          "typst"
+          "latex"
+        ],
+        "agents": [
+          "latex-research-agent",
+          "latex-implementation-agent"
         ]
       },
-      "domain": "project",
+      "path": "project/latex/README.md",
       "line_count": 80,
-      "path": "project/typst/README.md",
-      "subdomain": "typst",
+      "subdomain": "latex"
+    },
+    {
+      "summary": "Typst document preparation overview",
+      "domain": "project",
       "topics": [
         "typst",
         "documents",
@@ -421,21 +411,22 @@
         "document",
         "compile"
       ],
-      "summary": "Typst document preparation overview"
-    },
-    {
       "load_when": {
-        "agents": [
-          "math-research-agent"
-        ],
         "languages": [
-          "lean4"
+          "typst"
+        ],
+        "agents": [
+          "typst-research-agent",
+          "typst-implementation-agent"
         ]
       },
+      "path": "project/typst/README.md",
+      "line_count": 80,
+      "subdomain": "typst"
+    },
+    {
+      "summary": "Category theory fundamentals",
       "domain": "project",
-      "line_count": 150,
-      "path": "project/math/category-theory/category-basics.md",
-      "subdomain": "math",
       "topics": [
         "category-theory",
         "objects",
@@ -446,21 +437,21 @@
         "functor",
         "morphism"
       ],
-      "summary": "Category theory fundamentals"
-    },
-    {
       "load_when": {
-        "agents": [
-          "meta-builder-agent"
-        ],
         "languages": [
-          "meta"
+          "lean4"
+        ],
+        "agents": [
+          "math-research-agent"
         ]
       },
+      "path": "project/math/category-theory/category-basics.md",
+      "line_count": 150,
+      "subdomain": "math"
+    },
+    {
+      "summary": "Guide for building system components",
       "domain": "project",
-      "line_count": 100,
-      "path": "project/meta/meta-guide.md",
-      "subdomain": "meta",
       "topics": [
         "meta-tasks",
         "system-building",
@@ -472,21 +463,21 @@
         "skill",
         "command"
       ],
-      "summary": "Guide for building system components"
-    },
-    {
       "load_when": {
-        "agents": [
-          "general-research-agent"
-        ],
         "languages": [
-          "general"
+          "meta"
+        ],
+        "agents": [
+          "meta-builder-agent"
         ]
       },
+      "path": "project/meta/meta-guide.md",
+      "line_count": 100,
+      "subdomain": "meta"
+    },
+    {
+      "summary": "Web development domain overview",
       "domain": "project",
-      "line_count": 80,
-      "path": "project/web/README.md",
-      "subdomain": "web",
       "topics": [
         "astro",
         "tailwind",
@@ -497,889 +488,898 @@
         "tailwind",
         "web"
       ],
-      "summary": "Web development domain overview"
-    },
-    {
       "load_when": {
-        "agents": [
-          "z3-research-agent",
-          "z3-implementation-agent"
-        ],
         "languages": [
-          "z3"
+          "general"
+        ],
+        "agents": [
+          "general-research-agent"
         ]
       },
+      "path": "project/web/README.md",
+      "line_count": 80,
+      "subdomain": "web"
+    },
+    {
+      "description": "Z3 Python API reference and examples",
+      "path": "context/project/z3/domain/z3-api.md",
       "tags": [
         "z3",
         "api",
         "python"
       ],
-      "path": "context/project/z3/domain/z3-api.md",
-      "description": "Z3 Python API reference and examples"
-    },
-    {
       "load_when": {
+        "languages": [
+          "z3"
+        ],
         "agents": [
           "z3-research-agent",
           "z3-implementation-agent"
-        ],
-        "languages": [
-          "z3"
         ]
-      },
+      }
+    },
+    {
+      "description": "SMT-LIB patterns and Z3 tactics",
+      "path": "context/project/z3/domain/smt-patterns.md",
       "tags": [
         "z3",
         "smt",
         "tactics"
       ],
-      "path": "context/project/z3/domain/smt-patterns.md",
-      "description": "SMT-LIB patterns and Z3 tactics"
-    },
-    {
       "load_when": {
-        "agents": [
-          "z3-implementation-agent"
-        ],
         "languages": [
           "z3"
+        ],
+        "agents": [
+          "z3-research-agent",
+          "z3-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Constraint building patterns for Z3",
+      "path": "context/project/z3/patterns/constraint-generation.md",
       "tags": [
         "z3",
         "constraints",
         "patterns"
       ],
-      "path": "context/project/z3/patterns/constraint-generation.md",
-      "description": "Constraint building patterns for Z3"
-    },
-    {
       "load_when": {
-        "agents": [
-          "z3-implementation-agent"
-        ],
         "languages": [
           "z3"
+        ],
+        "agents": [
+          "z3-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "BitVec state manipulation patterns",
+      "path": "context/project/z3/patterns/bitvector-operations.md",
       "tags": [
         "z3",
         "bitvector",
         "state"
       ],
-      "path": "context/project/z3/patterns/bitvector-operations.md",
-      "description": "BitVec state manipulation patterns"
+      "load_when": {
+        "languages": [
+          "z3"
+        ],
+        "agents": [
+          "z3-implementation-agent"
+        ]
+      }
     },
     {
-      "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
-        "languages": [
-          "typst"
-        ]
-      },
       "description": "Theorem, definition, and proof environments",
       "path": "context/project/typst/patterns/theorem-environments.md",
       "tags": [
         "typst",
         "theorems",
         "environments"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent",
-          "typst-research-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Cross-reference patterns in Typst",
       "path": "context/project/typst/patterns/cross-references.md",
       "tags": [
         "typst",
         "references",
         "labels"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent",
+          "typst-research-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Fletcher package for flowcharts and diagrams",
       "path": "context/project/typst/patterns/fletcher-diagrams.md",
       "tags": [
         "typst",
         "diagrams",
         "fletcher"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Inference rule and typing rule environments",
       "path": "context/project/typst/patterns/rule-environments.md",
       "tags": [
         "typst",
         "rules",
         "inference"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Document structure and organization standards",
       "path": "context/project/typst/standards/document-structure.md",
       "tags": [
         "typst",
         "structure",
         "organization"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Mathematical notation conventions in Typst",
       "path": "context/project/typst/standards/notation-conventions.md",
       "tags": [
         "typst",
         "math",
         "notation"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent",
-          "typst-research-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Textbook authoring standards and conventions",
       "path": "context/project/typst/standards/textbook-standards.md",
       "tags": [
         "typst",
         "textbook",
         "standards"
-      ]
-    },
-    {
+      ],
       "load_when": {
+        "languages": [
+          "typst"
+        ],
         "agents": [
           "typst-implementation-agent",
           "typst-research-agent"
-        ],
-        "languages": [
-          "typst"
         ]
-      },
+      }
+    },
+    {
       "description": "Typst coding style and conventions",
       "path": "context/project/typst/standards/typst-style-guide.md",
       "tags": [
         "typst",
         "style",
         "conventions"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent",
+          "typst-research-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Type theory foundations and DTT conventions",
       "path": "context/project/typst/standards/type-theory-foundations.md",
       "tags": [
         "typst",
         "type-theory",
         "foundations"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Chapter template for Typst documents",
       "path": "context/project/typst/templates/chapter-template.md",
       "tags": [
         "typst",
         "templates",
         "chapters"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "typst-implementation-agent"
-        ],
         "languages": [
           "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Typst compilation and tooling",
       "path": "context/project/typst/tools/compilation-guide.md",
       "tags": [
         "typst",
         "compile",
         "tools"
-      ]
+      ],
+      "load_when": {
+        "languages": [
+          "typst"
+        ],
+        "agents": [
+          "typst-implementation-agent"
+        ]
+      }
     },
     {
-      "load_when": {
-        "agents": [
-          "python-implementation-agent"
-        ],
-        "languages": [
-          "python"
-        ]
-      },
+      "description": "Python coding style and conventions",
+      "path": "context/project/python/standards/code-style.md",
       "tags": [
         "python",
         "style",
         "conventions"
       ],
-      "path": "context/project/python/standards/code-style.md",
-      "description": "Python coding style and conventions"
-    },
-    {
       "load_when": {
-        "agents": [
-          "python-implementation-agent"
-        ],
         "languages": [
           "python"
+        ],
+        "agents": [
+          "python-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Pytest patterns and fixtures",
+      "path": "context/project/python/patterns/testing-patterns.md",
       "tags": [
         "python",
         "pytest",
         "testing"
       ],
-      "path": "context/project/python/patterns/testing-patterns.md",
-      "description": "Pytest patterns and fixtures"
-    },
-    {
       "load_when": {
-        "agents": [
-          "python-implementation-agent",
-          "python-research-agent"
-        ],
         "languages": [
           "python"
+        ],
+        "agents": [
+          "python-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Application API structure and patterns",
+      "path": "context/project/python/domain/application-api-patterns.md",
       "tags": [
         "python",
         "api",
         "architecture"
       ],
-      "path": "context/project/python/domain/application-api-patterns.md",
-      "description": "Application API structure and patterns"
-    },
-    {
       "load_when": {
+        "languages": [
+          "python"
+        ],
         "agents": [
           "python-implementation-agent",
           "python-research-agent"
-        ],
-        "languages": [
-          "python"
         ]
-      },
+      }
+    },
+    {
+      "description": "Domain-specific library patterns",
+      "path": "context/project/python/domain/library-patterns.md",
       "tags": [
         "python",
         "library",
         "patterns"
       ],
-      "path": "context/project/python/domain/library-patterns.md",
-      "description": "Domain-specific library patterns"
-    },
-    {
       "load_when": {
-        "agents": [
-          "python-implementation-agent"
-        ],
         "languages": [
           "python"
+        ],
+        "agents": [
+          "python-implementation-agent",
+          "python-research-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Tree-walking evaluation patterns",
+      "path": "context/project/python/patterns/semantic-evaluation.md",
       "tags": [
         "python",
         "evaluation",
         "interpreter"
       ],
-      "path": "context/project/python/patterns/semantic-evaluation.md",
-      "description": "Tree-walking evaluation patterns"
+      "load_when": {
+        "languages": [
+          "python"
+        ],
+        "agents": [
+          "python-implementation-agent"
+        ]
+      }
     },
     {
-      "load_when": {
-        "agents": [
-          "lean-research-agent",
-          "lean-implementation-agent"
-        ],
-        "languages": [
-          "lean4"
-        ]
-      },
       "description": "Mathlib library organization and key modules",
       "path": "context/project/lean4/domain/mathlib-overview.md",
       "tags": [
         "lean4",
         "mathlib",
         "library"
-      ]
-    },
-    {
+      ],
       "load_when": {
+        "languages": [
+          "lean4"
+        ],
         "agents": [
           "lean-research-agent",
           "lean-implementation-agent"
-        ],
-        "languages": [
-          "lean4"
         ]
-      },
+      }
+    },
+    {
       "description": "Dependent type theory foundations in Lean 4",
       "path": "context/project/lean4/domain/dependent-types.md",
       "tags": [
         "lean4",
         "types",
         "theory"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-research-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Key mathematical concepts in Lean 4 type theory",
       "path": "context/project/lean4/domain/key-mathematical-concepts.md",
       "tags": [
         "lean4",
         "math",
         "concepts"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-research-agent",
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Advanced Lean 4 syntax and metaprogramming",
       "path": "context/project/lean4/domain/lean4-syntax.md",
       "tags": [
         "lean4",
         "syntax",
         "metaprogramming"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Common proof patterns and tactics in Lean 4",
       "path": "context/project/lean4/patterns/tactic-patterns.md",
       "tags": [
         "lean4",
         "proofs",
         "tactics"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Lean 4 coding style and conventions",
       "path": "context/project/lean4/standards/lean4-style-guide.md",
       "tags": [
         "lean4",
         "style",
         "conventions"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Lean-specific proof conventions and docstrings",
       "path": "context/project/lean4/standards/proof-conventions-lean.md",
       "tags": [
         "lean4",
         "proofs",
         "conventions"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Sorry and axiom policy for Lean proofs",
       "path": "context/project/lean4/standards/proof-debt-policy.md",
       "tags": [
         "lean4",
         "sorry",
         "debt"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Guidelines for writing readable Lean proofs",
       "path": "context/project/lean4/standards/proof-readability-criteria.md",
       "tags": [
         "lean4",
         "readability",
         "quality"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-research-agent",
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Lean LSP MCP server tools reference",
       "path": "context/project/lean4/tools/mcp-tools-guide.md",
       "tags": [
         "lean4",
         "mcp",
         "lsp"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Aesop automated theorem prover integration",
       "path": "context/project/lean4/tools/aesop-integration.md",
       "tags": [
         "lean4",
         "aesop",
         "automation"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-research-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "LeanSearch semantic search API integration",
       "path": "context/project/lean4/tools/leansearch-api.md",
       "tags": [
         "lean4",
         "search",
         "api"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-research-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Loogle type pattern search API",
       "path": "context/project/lean4/tools/loogle-api.md",
       "tags": [
         "lean4",
         "search",
         "types"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Lean 4 LSP server integration guide",
       "path": "context/project/lean4/tools/lsp-integration.md",
       "tags": [
         "lean4",
         "lsp",
         "integration"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Lean implementation agent execution flow",
       "path": "context/project/lean4/agents/lean-implementation-flow.md",
       "tags": [
         "lean4",
         "agent",
         "implementation"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-research-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Lean research agent execution flow",
       "path": "context/project/lean4/agents/lean-research-flow.md",
       "tags": [
         "lean4",
         "agent",
         "research"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Optimizing multiple Lean-LSP instances",
       "path": "context/project/lean4/operations/multi-instance-optimization.md",
       "tags": [
         "lean4",
         "optimization",
         "mcp"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Complete proof development workflow",
       "path": "context/project/lean4/processes/end-to-end-proof-workflow.md",
       "tags": [
         "lean4",
         "workflow",
         "proofs"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Lean 4 project organization best practices",
       "path": "context/project/lean4/processes/project-structure-best-practices.md",
       "tags": [
         "lean4",
         "project",
         "structure"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Template for Lean 4 definitions",
       "path": "context/project/lean4/templates/definition-template.md",
       "tags": [
         "lean4",
         "template",
         "definition"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Template for new Lean 4 files",
       "path": "context/project/lean4/templates/new-file-template.md",
       "tags": [
         "lean4",
         "template",
         "file"
-      ]
-    },
-    {
+      ],
       "load_when": {
-        "agents": [
-          "lean-implementation-agent"
-        ],
         "languages": [
           "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
         ]
-      },
+      }
+    },
+    {
       "description": "Templates for common proof structures",
       "path": "context/project/lean4/templates/proof-structure-templates.md",
       "tags": [
         "lean4",
         "template",
         "proofs"
-      ]
+      ],
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      }
     },
     {
-      "load_when": {
-        "agents": [
-          "latex-implementation-agent"
-        ],
-        "languages": [
-          "latex"
-        ]
-      },
+      "description": "LaTeX document organization patterns",
+      "path": "context/project/latex/patterns/document-structure.md",
       "tags": [
         "latex",
         "structure",
         "organization"
       ],
-      "path": "context/project/latex/patterns/document-structure.md",
-      "description": "LaTeX document organization patterns"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "LaTeX theorem environment patterns",
+      "path": "context/project/latex/patterns/theorem-environments.md",
       "tags": [
         "latex",
         "theorems",
         "environments"
       ],
-      "path": "context/project/latex/patterns/theorem-environments.md",
-      "description": "LaTeX theorem environment patterns"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent",
-          "latex-research-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Cross-reference patterns for LaTeX documents",
+      "path": "context/project/latex/patterns/cross-references.md",
       "tags": [
         "latex",
         "references",
         "labels"
       ],
-      "path": "context/project/latex/patterns/cross-references.md",
-      "description": "Cross-reference patterns for LaTeX documents"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent",
+          "latex-research-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Document structure standards for LaTeX projects",
+      "path": "context/project/latex/standards/document-structure.md",
       "tags": [
         "latex",
         "structure",
         "standards"
       ],
-      "path": "context/project/latex/standards/document-structure.md",
-      "description": "Document structure standards for LaTeX projects"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent",
-          "latex-research-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "LaTeX style guide and formatting conventions",
+      "path": "context/project/latex/standards/latex-style-guide.md",
       "tags": [
         "latex",
         "style",
         "formatting"
       ],
-      "path": "context/project/latex/standards/latex-style-guide.md",
-      "description": "LaTeX style guide and formatting conventions"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent",
+          "latex-research-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Mathematical notation conventions for LaTeX",
+      "path": "context/project/latex/standards/notation-conventions.md",
       "tags": [
         "latex",
         "notation",
         "math"
       ],
-      "path": "context/project/latex/standards/notation-conventions.md",
-      "description": "Mathematical notation conventions for LaTeX"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Custom macro patterns and conventions",
+      "path": "context/project/latex/standards/custom-macros.md",
       "tags": [
         "latex",
         "macros",
         "notation"
       ],
-      "path": "context/project/latex/standards/custom-macros.md",
-      "description": "Custom macro patterns and conventions"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "Subfile template for modular LaTeX documents",
+      "path": "context/project/latex/templates/subfile-template.md",
       "tags": [
         "latex",
         "templates",
         "subfiles"
       ],
-      "path": "context/project/latex/templates/subfile-template.md",
-      "description": "Subfile template for modular LaTeX documents"
-    },
-    {
       "load_when": {
-        "agents": [
-          "latex-implementation-agent",
-          "latex-research-agent"
-        ],
         "languages": [
           "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
         ]
-      },
+      }
+    },
+    {
+      "description": "LaTeX compilation workflow and troubleshooting",
+      "path": "context/project/latex/tools/compilation-guide.md",
       "tags": [
         "latex",
         "compilation",
         "build"
       ],
-      "path": "context/project/latex/tools/compilation-guide.md",
-      "description": "LaTeX compilation workflow and troubleshooting"
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent",
+          "latex-research-agent"
+        ]
+      }
     }
-  ],
-  "generated": "2026-03-02T00:00:00Z"
+  ]
 }
