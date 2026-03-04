@@ -10,8 +10,8 @@ next_project_number: 35
 
 ### 34. Display predicate extensions in first-order countermodels
 - **Effort**: TBD
-- **Status**: [PLANNED]
-- **Research**: [research-001.md](034_display_predicate_extensions_in_countermodels/reports/research-001.md), [research-002.md](034_display_predicate_extensions_in_countermodels/reports/research-002.md), [research-003.md](034_display_predicate_extensions_in_countermodels/reports/research-003.md)
+- **Status**: [IMPLEMENTING]
+- **Research**: [research-001.md](034_display_predicate_extensions_in_countermodels/reports/research-001.md), [research-002.md](034_display_predicate_extensions_in_countermodels/reports/research-002.md), [research-003.md](034_display_predicate_extensions_in_countermodels/reports/research-003.md), [research-004.md](034_display_predicate_extensions_in_countermodels/reports/research-004.md)
 - **Plan**: [implementation-001.md](034_display_predicate_extensions_in_countermodels/plans/implementation-001.md)
 - **Language**: python
 - **Dependencies**: None

@@ -5,6 +5,7 @@ This module implements the core semantic foundation for all logos subtheories,
 providing unified classes for semantics, propositions, and model structures.
 """
 
+import itertools
 import sys
 import time
 from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING
@@ -1474,7 +1475,146 @@ class LogosModelStructure(ModelDefaults):
                 print(f"  - {name}: {op.__class__.__name__}")
         else:
             print("No operators loaded")
-    
+
+    def _evaluate_z3_boolean_for_model(self, expression: z3.BoolRef) -> bool:
+        """Safely evaluate a Z3 boolean expression using the model.
+
+        This method handles the case where Z3 returns symbolic expressions
+        instead of concrete boolean values.
+
+        Args:
+            expression: The Z3 boolean expression to evaluate
+
+        Returns:
+            bool: True if the expression evaluates to true, False otherwise
+        """
+        try:
+            result = self.z3_model.evaluate(expression, model_completion=True)
+            if z3.is_true(result):
+                return True
+            elif z3.is_false(result):
+                return False
+
+            # Try to simplify
+            simplified = z3.simplify(result)
+            if z3.is_true(simplified):
+                return True
+            elif z3.is_false(simplified):
+                return False
+
+            # Conservative default
+            return False
+        except Exception:
+            return False
+
+    def _get_predicate_extension(
+        self,
+        pred_name: str,
+        arg_tuple: Tuple[z3.BitVecRef, ...]
+    ) -> Tuple[Set[str], Set[str]]:
+        """Get the verifier and falsifier states for a predicate application.
+
+        Evaluates the predicate at the given argument tuple and returns the
+        sets of states that verify and falsify the predicate application.
+
+        Args:
+            pred_name: The name of the predicate (e.g., 'F', 'R')
+            arg_tuple: Tuple of Z3 bitvector values for the arguments
+
+        Returns:
+            Tuple of (verifier_states, falsifier_states) where each is a set
+            of state strings formatted via bitvec_to_substates.
+        """
+        verifier_states: Set[str] = set()
+        falsifier_states: Set[str] = set()
+
+        for state in self.all_states:
+            # Check if state is possible (unless print_impossible is True)
+            is_possible = self._evaluate_z3_boolean_for_model(
+                self.semantics.possible(state)
+            )
+            if not is_possible and not self.settings.get('print_impossible', False):
+                continue
+
+            # Check if state verifies the predicate application
+            verify_expr = self.semantics.predicate_verify(pred_name, arg_tuple, state)
+            if self._evaluate_z3_boolean_for_model(verify_expr):
+                verifier_states.add(bitvec_to_substates(state, self.N))
+
+            # Check if state falsifies the predicate application
+            falsify_expr = self.semantics.predicate_falsify(pred_name, arg_tuple, state)
+            if self._evaluate_z3_boolean_for_model(falsify_expr):
+                falsifier_states.add(bitvec_to_substates(state, self.N))
+
+        return verifier_states, falsifier_states
+
+    def print_predicate_extensions(self, output=sys.__stdout__) -> None:
+        """Print predicate extensions showing what each predicate maps to for each domain element.
+
+        For each registered predicate, displays the verifier and falsifier states
+        for every combination of domain element arguments. This helps users
+        understand how predicates are interpreted in the countermodel.
+
+        The output format is:
+            PREDICATE EXTENSIONS:
+
+            F (arity 1):
+              F() = < {verifiers}, {falsifiers} >
+              F(a) = < {verifiers}, {falsifiers} >
+              ...
+
+            R (arity 2):
+              R(, ) = < {verifiers}, {falsifiers} >
+              R(, a) = < {verifiers}, {falsifiers} >
+              ...
+
+        Args:
+            output (file, optional): Output stream to write to. Defaults to sys.stdout.
+        """
+        # Skip if no predicates are registered
+        if not self.semantics._predicate_verifiers:
+            return
+
+        # Set up colors
+        BLUE = ""
+        RESET = ""
+        if output is sys.__stdout__:
+            BLUE = "\033[34m"
+            RESET = "\033[0m"
+
+        print(f"\n{BLUE}PREDICATE EXTENSIONS:{RESET}\n", file=output)
+
+        # Iterate over predicates in sorted order for consistent output
+        for pred_name in sorted(self.semantics._predicate_verifiers.keys()):
+            verify_func = self.semantics._predicate_verifiers[pred_name]
+            # Arity is function arity minus 1 (the state argument)
+            arity = verify_func.arity() - 1
+
+            print(f"{pred_name} (arity {arity}):", file=output)
+
+            # Enumerate all domain element combinations
+            # Domain elements are 0 to 2^N - 1
+            domain_range = range(2 ** self.N)
+
+            for args in itertools.product(domain_range, repeat=arity):
+                # Convert integer args to Z3 bitvector values
+                arg_bitvecs = tuple(z3.BitVecVal(a, self.N) for a in args)
+
+                # Get verifier and falsifier states
+                ver_states, fal_states = self._get_predicate_extension(pred_name, arg_bitvecs)
+
+                # Format domain element arguments for display
+                arg_strs = [bitvec_to_substates(z3.BitVecVal(a, self.N), self.N) for a in args]
+                args_display = ", ".join(arg_strs)
+
+                # Format output like propositions: < verifiers, falsifiers >
+                print(
+                    f"  {pred_name}({args_display}) = < {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >",
+                    file=output
+                )
+
+            print(file=output)
+
     def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
         """Print a complete overview of the model structure and evaluation results.
         
@@ -1495,6 +1635,7 @@ class LogosModelStructure(ModelDefaults):
         if model_status:
             self.print_states(output)
             self.print_evaluation(output)
+            self.print_predicate_extensions(output)
             self.print_input_sentences(output)
             self.print_model(output)
             if output is sys.__stdout__:
