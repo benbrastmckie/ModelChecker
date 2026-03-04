@@ -1,0 +1,78 @@
+{
+  "version": "1.0.0",
+  "extensions": {
+    "z3": {
+      "status": "active",
+      "installed_files": [
+        "/home/benjamin/Projects/ModelChecker/.opencode/agents/z3-research-agent.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/agents/z3-implementation-agent.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/skills/skill-z3-research/SKILL.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/skills/skill-z3-implementation/SKILL.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/context/project/z3/README.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/context/project/z3/domain/smt-patterns.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/context/project/z3/domain/z3-api.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/context/project/z3/patterns/bitvector-operations.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/context/project/z3/patterns/constraint-generation.md"
+      ],
+      "loaded_at": "2026-03-03T23:37:33Z",
+      "version": "1.0.0",
+      "merged_sections": {
+        "opencode_md": {
+          "section_id": "extension_oc_z3"
+        },
+        "index": {
+          "paths": [
+            "context/project/z3/domain/z3-api.md",
+            "context/project/z3/domain/smt-patterns.md",
+            "context/project/z3/patterns/constraint-generation.md",
+            "context/project/z3/patterns/bitvector-operations.md"
+          ]
+        }
+      },
+      "installed_dirs": [
+        "/home/benjamin/Projects/ModelChecker/.opencode/agents",
+        "/home/benjamin/Projects/ModelChecker/.opencode/skills/skill-z3-research",
+        "/home/benjamin/Projects/ModelChecker/.opencode/skills/skill-z3-implementation",
+        "/home/benjamin/Projects/ModelChecker/.opencode/context/project/z3"
+      ],
+      "source_dir": "/home/benjamin/.config/nvim/.opencode/extensions/z3"
+    },
+    "document-converter": {
+      "status": "active",
+      "source_dir": "/home/benjamin/.config/nvim/.opencode/extensions/document-converter",
+      "loaded_at": "2026-03-03T23:37:36Z",
+      "installed_dirs": [
+        "/home/benjamin/Projects/ModelChecker/.opencode/skills/skill-document-converter"
+      ],
+      "merged_sections": {
+        "opencode_md": {
+          "section_id": "extension_oc_document_converter"
+        }
+      },
+      "version": "1.0.0",
+      "installed_files": [
+        "/home/benjamin/Projects/ModelChecker/.opencode/agents/document-converter-agent.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/commands/convert.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/skills/skill-document-converter/SKILL.md"
+      ]
+    },
+    "filetypes": {
+      "status": "active",
+      "version": "2.0.0",
+      "loaded_at": "2026-03-03T23:37:50Z",
+      "installed_files": [
+        "/home/benjamin/Projects/ModelChecker/.opencode/agents/filetypes-router-agent.md",
+        "/home/benjamin/Projects/ModelChecker/.opencode/agents/document-agent.md"
+      ],
+      "merged_sections": {
+        "opencode_md": {
+          "section_id": "extension_oc_filetypes"
+        }
+      },
+      "installed_dirs": [
+        "/home/benjamin/Projects/ModelChecker/.opencode/skills/skill-filetypes"
+      ],
+      "source_dir": "/home/benjamin/.config/nvim/.opencode/extensions/filetypes"
+    }
+  }
+}
