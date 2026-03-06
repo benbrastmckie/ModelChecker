@@ -1,5 +1,5 @@
 ---
-next_project_number: 35
+next_project_number: 36
 ---
 
 # Task List
@@ -7,6 +7,16 @@ next_project_number: 35
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 35. Fix first-order semantics and predicate extension display
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+- **Dependencies**: None
+
+**Description**: Upon running the first-order theory in the model-checker, the output shows the model-checker is running but does not find or produce a reasonable looking model. Each n-place predicate should get mapped to a set of verifiers and falsifiers (functions from n states to a state) where the positive extension of a predicate in a world is the set of state n-tuples which get mapped to a state that is part of that world by SOME verifier for the predicate. Review the semantics in `/home/benjamin/Projects/Logos/Theory/typst/manual/chapters/02-constitutive.typ` and `/home/benjamin/Projects/Logos/Theory/typst/manual/chapters/03-dynamics.typ` to verify the first-order semantics in the model-checker is correct. Then evaluate and redesign the elements needed to extract predicate extensions at each world and display these when printing a model.
+
+---
 
 ### 34. Display predicate extensions in first-order countermodels
 - **Effort**: TBD

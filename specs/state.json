@@ -1,6 +1,14 @@
 {
-  "next_project_number": 35,
+  "next_project_number": 36,
   "active_projects": [
+    {
+      "project_number": 35,
+      "project_name": "fix_first_order_semantics_and_extension_display",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-06T20:55:38Z",
+      "last_updated": "2026-03-06T20:55:38Z"
+    },
     {
       "project_number": 34,
       "project_name": "display_predicate_extensions_in_countermodels",
