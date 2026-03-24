@@ -1,121 +1,78 @@
 # Document Structure Standards
 
-## Overview
+## Main Document Layout
 
-This document describes the structure of the ModelChecker paper using the Springer Nature sn-jnl.cls template. The key constraint is that Springer requires submission as a **single .tex file** with no external includes.
-
-## Single-File Structure
-
-### paper.tex Layout
-
+### Standard Main Document Structure
 ```latex
-%Version 3.1 December 2024
-% Springer Nature Journal Article Template
+\documentclass[11pt]{article}
 
-%%=======================================================%%
-%% Document class options                                %%
-%%=======================================================%%
-\documentclass[pdflatex,sn-mathphys-num]{sn-jnl}
-
-%%=======================================================%%
-%% Path configuration                                    %%
-%%=======================================================%%
-\graphicspath{{figures/}}
-
-%%=======================================================%%
-%% Packages                                              %%
-%%=======================================================%%
-\usepackage{graphicx}
-\usepackage{multirow}
-\usepackage{amsmath,amssymb,amsfonts}
+% ============================================================
+% Packages
+% ============================================================
+\usepackage{amsmath}
 \usepackage{amsthm}
-\usepackage{mathrsfs}
-\usepackage[title]{appendix}
-\usepackage{xcolor}
-\usepackage{textcomp}
-\usepackage{manyfoot}
-\usepackage{booktabs}
-\usepackage{algorithm}
-\usepackage{algorithmicx}
-\usepackage{algpseudocode}
-\usepackage{listings}
+\usepackage{amssymb}
+\usepackage{stmaryrd}
+\usepackage{subfiles}
+\usepackage{hyperref}
+\usepackage{cleveref}
 
-%%=======================================================%%
-%% Project-specific packages                             %%
-%%=======================================================%%
-%% Add any additional packages here
+% Custom packages
+\usepackage{assets/notation}
+\usepackage{assets/formatting}
 
-%%=======================================================%%
-%% Theorem environments                                  %%
-%%=======================================================%%
-\theoremstyle{thmstyleone}
-\newtheorem{theorem}{Theorem}
-\newtheorem{proposition}[theorem]{Proposition}
-\newtheorem{lemma}[theorem]{Lemma}
-\newtheorem{corollary}[theorem]{Corollary}
+% ============================================================
+% Document Info
+% ============================================================
+\title{Document Title}
+\author{Author Name}
+\date{\today}
 
-\theoremstyle{thmstyletwo}
-\newtheorem{example}{Example}
-\newtheorem{remark}{Remark}
-
-\theoremstyle{thmstylethree}
-\newtheorem{definition}{Definition}
-
-\raggedbottom
-
+% ============================================================
+% Begin Document
+% ============================================================
 \begin{document}
 
-%%=======================================================%%
-%% Title and Authors                                     %%
-%%=======================================================%%
-\title[Short Title]{Full Title}
-\author*[1]{\fnm{First} \sur{Last}}\email{email@example.com}
-\affil*[1]{\orgdiv{Department}, \orgname{University},
-  \orgaddress{\city{City}, \state{State}, \country{Country}}}
-
-%%=======================================================%%
-%% Abstract and Keywords                                 %%
-%%=======================================================%%
-\abstract{Abstract text here.}
-\keywords{keyword1, keyword2, keyword3}
 \maketitle
+\tableofcontents
+\newpage
 
-%%=======================================================%%
-%% Main Content                                          %%
-%%=======================================================%%
-\section{Introduction}\label{sec:intro}
-\section{Background}\label{sec:background}
-\section{Main Content}\label{sec:main}
-\section{Implementation}\label{sec:implementation}
-\section{Evaluation}\label{sec:evaluation}
-\section{Conclusion}\label{sec:conclusion}
+% ============================================================
+% Main Content
+% ============================================================
+\subfile{subfiles/00-Introduction}
+\subfile{subfiles/01-Foundations}
 
-%%=======================================================%%
-%% Back Matter                                           %%
-%%=======================================================%%
-\backmatter
+% ============================================================
+% Additional Sections
+% ============================================================
+\subfile{subfiles/02-Section-One}
+\subfile{subfiles/03-Section-Two}
 
-\section*{Declarations}
-\subsection*{Funding}
-\subsection*{Conflict of interest}
-\subsection*{Ethics approval}
-\subsection*{Consent to participate}
-\subsection*{Consent for publication}
-\subsection*{Data availability}
-\subsection*{Code availability}
-\subsection*{Author contribution}
-
-%%\begin{appendices}
-%%\section{Appendix Title}\label{sec:appendix}
-%%\end{appendices}
-
+% ============================================================
+% Back Matter
+% ============================================================
+\bibliographystyle{assets/bib_style}
 \bibliography{bibliography/references}
 
 \end{document}
 ```
 
-## Section Hierarchy
+## Subfile Structure
 
+### Standard Subfile Template
+```latex
+\documentclass[../MainDocument.tex]{subfiles}
+\begin{document}
+
+\section{Section Title}
+
+% Content here
+
+\end{document}
+```
+
+### Section Hierarchy
 ```
 \section{Major Division}           % Level 1
   \subsection{Sub-topic}           % Level 2
@@ -123,150 +80,110 @@ This document describes the structure of the ModelChecker paper using the Spring
       \paragraph{Fine point}       % Level 4 (rare)
 ```
 
+## Subfile Naming Convention
+
+### Numbering Scheme
+```
+00-Introduction.tex              % Overview
+01-Foundations.tex               % Foundational concepts
+02-MainTopic-Part1.tex           % Main content part 1
+03-MainTopic-Part2.tex           % Main content part 2
+04-Extensions.tex                % Additional material
+05-Appendices.tex                % Appendices
+```
+
+### Naming Rules
+- Two-digit prefix for ordering
+- CamelCase descriptive name
+- Hyphen to separate multi-part names
+- `.tex` extension
+
 ## Content Organization
 
 ### Section Content Flow
-
 1. **Introduction paragraph**: Brief overview of section purpose
 2. **Definitions**: Formal definitions using `definition` environment
-3. **Theorems/Lemmas**: Formal results with proofs
-4. **Remarks**: Clarifying notes using `remark` environment
-5. **Examples**: Illustrative cases (when helpful)
+3. **Remarks**: Clarifying notes using `remark` environment
+4. **Examples**: Illustrative cases (when helpful)
+5. **Cross-references**: Links to related sections and implementation code
 
 ### Subsection Guidelines
-
 - Each subsection should be self-contained
 - Start with context for the concept
-- Provide formal definitions before theorems that use them
-- Use semantic linefeeds (one sentence per line)
+- Provide formal definition
+- Add remarks for intuition
+- Reference implementation when available
 
 ## Front Matter
 
-### Title Page Elements
+### Title Page
+- Document title
+- Author name
+- Date (using `\today` for updates)
 
-```latex
-\title[Short Title for Header]{Full Paper Title}
-
-\author*[1]{\fnm{First} \sur{Last}}\email{author@example.com}
-
-\affil*[1]{\orgdiv{Department}, \orgname{University},
-  \orgaddress{\city{City}, \state{State}, \country{Country}}}
-```
-
-**Note**: Use `*` for corresponding author. Use `\fnm{}` for first name and `\sur{}` for surname.
-
-### Abstract and Keywords
-
-```latex
-\abstract{
-Abstract text goes here.
-The abstract serves as a general introduction and brief summary of main results.
-Check JAR guidelines for length limits.
-}
-
-\keywords{model checking, modal logic, counterfactual logic, SMT solver, Z3}
-```
+### Table of Contents
+- Generated automatically
+- Page break after TOC
 
 ## Back Matter
 
-### Declarations Section
-
-Required subsections (include all, even if "Not applicable"):
-
-1. **Funding** - Grant numbers and funding sources
-2. **Conflict of interest** - Any competing interests
-3. **Ethics approval** - For human/animal research
-4. **Consent to participate** - For human subjects
-5. **Consent for publication** - For identifiable information
-6. **Data availability** - Where data can be accessed
-7. **Code availability** - Repository URL with DOI (REQUIRED)
-8. **Author contribution** - CRediT-style or prose description
-
-### Appendices
-
-```latex
-\begin{appendices}
-\section{Proofs}\label{app:proofs}
-Appendix content here.
-\end{appendices}
-```
-
 ### Bibliography
-
-```latex
-\bibliography{bibliography/references}
-```
-
 - BibTeX format in `bibliography/references.bib`
 - Cite using `\cite{key}`
-- Style: sn-mathphys-num (numbered citations)
+- Custom style file if needed
+
+### Index (Optional)
+- Add `\usepackage{makeidx}` if needed
+- Use `\index{term}` for entries
 
 ## Cross-References
 
 ### Internal References
-
 ```latex
-\label{def:model}              % Label definitions
-\label{thm:soundness}          % Label theorems
-\label{eq:semantics}           % Label equations
-\label{sec:intro}              % Label sections
+\label{def:concept-name}           % Label definitions
+\label{thm:theorem-name}           % Label theorems
+\label{eq:equation-name}           % Label equations
 
-\ref{def:model}                % Reference by number
-See Section~\ref{sec:intro}    % With name
-Equation~(\ref{eq:semantics})  % Parenthetical
+\cref{def:concept-name}            % Reference with auto-naming
 ```
 
-### Label Conventions
-
-| Prefix | Element Type | Example |
-|--------|-------------|---------|
-| `def:` | Definition | `\label{def:model}` |
-| `thm:` | Theorem | `\label{thm:soundness}` |
-| `lem:` | Lemma | `\label{lem:auxiliary}` |
-| `prop:` | Proposition | `\label{prop:main}` |
-| `sec:` | Section | `\label{sec:intro}` |
-| `eq:` | Equation | `\label{eq:semantics}` |
-| `fig:` | Figure | `\label{fig:diagram}` |
-| `tab:` | Table | `\label{tab:results}` |
-
-## Prohibited Patterns
-
-### No External Includes
-
-Springer requires a single .tex file. Do NOT use:
-
+### External References
 ```latex
-% PROHIBITED:
-\input{section.tex}
-\include{chapter.tex}
-\subfile{content.tex}
-\usepackage{subfiles}
+\srcref{Module.Namespace}{Definition}    % Source code reference
+\cite{author2020paper}                   % Bibliography reference
 ```
 
-All content must be inline in paper.tex.
+## Compilation Order
 
-## Compilation
-
-### Quick Build
-
+### Standard Build
 ```bash
-cd latex
-latexmk -pdf paper.tex
+cd project/latex
+pdflatex MainDocument.tex
+bibtex MainDocument
+pdflatex MainDocument.tex
+pdflatex MainDocument.tex
 ```
 
-### Manual Build (with bibliography)
-
+### With Subfile Changes
+Individual subfiles can be compiled standalone for testing:
 ```bash
-cd latex
-pdflatex paper.tex
-bibtex paper
-pdflatex paper.tex
-pdflatex paper.tex
+cd subfiles
+pdflatex 01-Foundations.tex
 ```
 
-### Clean Up
+## Directory Structure
 
-```bash
-latexmk -c          # Clean auxiliary files, keep PDF
-latexmk -C          # Clean everything including PDF
+```
+project/latex/
+├── MainDocument.tex          # Main document
+├── MainDocument.pdf          # Output (generated)
+├── subfiles/
+│   ├── 00-Introduction.tex
+│   ├── 01-Foundations.tex
+│   └── ...
+├── assets/
+│   ├── notation.sty
+│   └── formatting.sty
+└── bibliography/
+    └── references.bib
 ```

@@ -82,7 +82,7 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     status: $status,
     last_updated: $ts,
     session_id: $sid
-  }' specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
 
 **Update TODO.md**: Use Edit tool to change status marker from `[RESEARCHED]` or `[NOT STARTED]` to `[PLANNING]`.
@@ -194,7 +194,7 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     status: $status,
     last_updated: $ts,
     planned: $ts
-  }' specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
 
 **Update TODO.md**: Use Edit tool to change status marker from `[PLANNING]` to `[PLANNED]`.
@@ -214,21 +214,41 @@ if [ -n "$artifact_path" ]; then
     # Step 1: Filter out existing plan artifacts (use "| not" pattern to avoid != escaping - Issue #1132)
     jq '(.active_projects[] | select(.project_number == '$task_number')).artifacts =
         [(.active_projects[] | select(.project_number == '$task_number')).artifacts // [] | .[] | select(.type == "plan" | not)]' \
-      specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 
     # Step 2: Add new plan artifact
     jq --arg path "$artifact_path" \
        --arg type "$artifact_type" \
        --arg summary "$artifact_summary" \
       '(.active_projects[] | select(.project_number == '$task_number')).artifacts += [{"path": $path, "type": $type, "summary": $summary}]' \
-      specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
 ```
 
-**Update TODO.md**: Add plan artifact link:
-```markdown
-- **Plan**: [implementation-{NNN}.md]({artifact_path})
-```
+**Update TODO.md**: Add plan artifact link using count-aware format.
+
+See `.claude/rules/state-management.md` "Artifact Linking Format" for canonical rules. Use Edit tool:
+
+1. **Read existing task entry** to detect current plan links
+2. **If no `- **Plan**:` line exists**: Insert inline format:
+   ```markdown
+   - **Plan**: [MM_{short-slug}.md]({artifact_path})
+   ```
+3. **If existing inline (single link)**: Convert to multi-line:
+   ```markdown
+   old_string: - **Plan**: [existing.md](existing/path)
+   new_string: - **Plan**:
+     - [existing.md](existing/path)
+     - [MM_{short-slug}.md]({artifact_path})
+   ```
+4. **If existing multi-line**: Append new item before next field:
+   ```markdown
+   old_string:   - [last-item.md](last/path)
+   **Description**:
+   new_string:   - [last-item.md](last/path)
+     - [MM_{short-slug}.md]({artifact_path})
+   **Description**:
+   ```
 
 ---
 
@@ -267,7 +287,7 @@ Return a brief text summary (NOT JSON). Example:
 Plan created for task {N}:
 - {phase_count} phases defined, {estimated_hours} hours estimated
 - Key phases: {phase names}
-- Created plan at specs/{NNN}_{SLUG}/plans/implementation-{NNN}.md
+- Created plan at specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md
 - Status updated to [PLANNED]
 - Changes committed
 ```
@@ -305,13 +325,35 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     "context": {"session_id": $sid, "command": "/plan", "task": $task, "checkpoint": "GATE_OUT"},
     "recovery": {"suggested_action": "Use two-step jq pattern from jq-escaping-workarounds.md", "auto_recoverable": true},
     "fix_status": "unfixed"
-  }]' specs/errors.json > /tmp/errors.json && mv /tmp/errors.json specs/errors.json
+  }]' specs/errors.json > specs/tmp/errors.json && mv specs/tmp/errors.json specs/errors.json
 ```
 2. Retry with two-step pattern (already implemented in Stage 8)
 
 ### Subagent Timeout
 Return partial status if subagent times out (default 1800s).
 Keep status as "planning" for resume.
+
+---
+
+## MUST NOT (Postflight Boundary)
+
+After the agent returns, this skill MUST NOT:
+
+1. **Edit source files** - All planning work is done by agent
+2. **Run build/test commands** - Verification is done by agent
+3. **Use research tools** - Web/codebase search is for agent use only
+4. **Analyze task requirements** - Analysis is agent work
+5. **Write plan files** - Artifact creation is agent work
+
+The postflight phase is LIMITED TO:
+- Reading agent metadata file
+- Updating state.json via jq
+- Updating TODO.md status marker via Edit
+- Linking artifacts in state.json
+- Git commit
+- Cleanup of temp/marker files
+
+Reference: @.claude/context/core/standards/postflight-tool-restrictions.md
 
 ---
 
@@ -324,7 +366,7 @@ Example successful return:
 Plan created for task 414:
 - 5 phases defined, 2.5 hours estimated
 - Covers: agent structure, execution flow, error handling, examples, verification
-- Created plan at specs/414_create_planner_agent/plans/implementation-001.md
+- Created plan at specs/414_create_planner_agent/plans/MM_{short-slug}.md
 - Status updated to [PLANNED]
 - Changes committed with session sess_1736700000_abc123
 ```
@@ -333,6 +375,6 @@ Example partial return:
 ```
 Plan partially created for task 414:
 - 3 of 5 phases defined before timeout
-- Partial plan saved at specs/414_create_planner_agent/plans/implementation-001.md
+- Partial plan saved at specs/414_create_planner_agent/plans/MM_{short-slug}.md
 - Status remains [PLANNING] - run /plan 414 to complete
 ```

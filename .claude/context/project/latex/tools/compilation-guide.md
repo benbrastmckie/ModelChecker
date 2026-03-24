@@ -2,255 +2,250 @@
 
 ## Quick Reference
 
-### Full Build (Recommended)
-
+### Full Build
 ```bash
-cd latex
-latexmk -pdf paper.tex
+cd project/latex
+pdflatex MainDocument.tex
+bibtex MainDocument
+pdflatex MainDocument.tex
+pdflatex MainDocument.tex
 ```
 
-### Manual Build (with bibliography)
-
+### Subfile Only
 ```bash
-cd latex
-pdflatex paper.tex
-bibtex paper
-pdflatex paper.tex
-pdflatex paper.tex
+cd project/latex/subfiles
+pdflatex 01-Foundations.tex
 ```
-
-### Clean Up
-
-```bash
-latexmk -c          # Clean auxiliary files, keep PDF
-latexmk -C          # Clean everything including PDF
-```
-
-## Project Configuration
-
-### latexmkrc File
-
-The project includes a `latexmkrc` configuration file:
-
-```perl
-# latexmkrc - Build configuration for ModelChecker paper
-# Use with: latexmk -pdf paper.tex
-
-# Use pdflatex
-$pdf_mode = 1;
-$pdflatex = 'pdflatex -interaction=nonstopmode -synctex=1 %O %S';
-
-# Use bibtex for bibliography
-$bibtex_use = 2;
-$bibtex = 'bibtex %O %B';
-
-# Clean up extra files
-$clean_ext = 'synctex.gz synctex.gz(busy) run.xml tex.bak bbl bcf fdb_latexmk run tdo %R-blx.bib';
-
-# Additional output files to clean
-@generated_exts = (@generated_exts, 'synctex.gz', 'run.xml');
-```
-
-### Configuration Options
-
-| Option | Value | Description |
-|--------|-------|-------------|
-| `$pdf_mode` | 1 | Use pdflatex |
-| `-interaction=nonstopmode` | - | Don't stop on errors |
-| `-synctex=1` | - | Enable SyncTeX for editor integration |
-| `$bibtex_use` | 2 | Run bibtex when needed |
 
 ## Build Process
 
 ### Step 1: Initial Compilation
-
 ```bash
-pdflatex paper.tex
+pdflatex MainDocument.tex
 ```
-
 - Generates auxiliary files (.aux, .toc, .out)
 - Cross-references will show as "??"
 
 ### Step 2: Bibliography
-
 ```bash
-bibtex paper
+bibtex MainDocument
 ```
-
 - Processes references.bib
 - Generates .bbl file
 - Must run after first pdflatex
 
 ### Step 3: Resolve References
-
 ```bash
-pdflatex paper.tex
-pdflatex paper.tex
+pdflatex MainDocument.tex
+pdflatex MainDocument.tex
 ```
-
 - Two runs to resolve all cross-references
 - First run incorporates bibliography
 - Second run finalizes TOC and references
 
+## Automated Build
+
+### Using latexmk
+```bash
+latexmk -pdf MainDocument.tex
+```
+
+### latexmk Configuration (.latexmkrc)
+```perl
+$pdf_mode = 1;
+$pdflatex = 'pdflatex -interaction=nonstopmode -synctex=1 %O %S';
+$bibtex_use = 2;
+```
+
+### Clean Build
+```bash
+latexmk -C MainDocument.tex   # Full clean
+latexmk -c MainDocument.tex   # Keep PDF
+```
+
 ## Directory Structure
 
 ```
-latex/
-├── paper.tex              # Main document
-├── paper.pdf              # Output (generated)
-├── paper.aux              # Auxiliary (generated)
-├── paper.log              # Log file (generated)
-├── paper.bbl              # Bibliography (generated)
-├── paper.blg              # BibTeX log (generated)
-├── latexmkrc              # Build configuration
-├── sn-jnl.cls             # Document class
-├── sn-mathphys-num.bst    # Bibliography style
-├── bibliography/
-│   └── references.bib     # Reference database
-├── figures/               # Figure files
-└── assets/                # Template backup files
+project/latex/
+├── MainDocument.tex          # Main document
+├── MainDocument.pdf          # Output (generated)
+├── MainDocument.aux          # Auxiliary (generated)
+├── MainDocument.log          # Log file (generated)
+├── MainDocument.toc          # TOC (generated)
+├── MainDocument.bbl          # Bibliography (generated)
+├── subfiles/
+│   ├── 00-Introduction.tex
+│   ├── 01-Foundations.tex
+│   └── ...
+├── assets/
+│   ├── notation.sty
+│   ├── formatting.sty
+│   └── bib_style.bst
+└── bibliography/
+    └── references.bib
 ```
 
 ## Common Errors
 
 ### Undefined Control Sequence
-
 ```
 ! Undefined control sequence.
-l.42 \somecommand
+l.42 \customcommand
 ```
-
-**Cause**: Missing package or undefined command
-**Fix**: Add `\usepackage{...}` or check spelling
+**Cause**: Custom macro not loaded
+**Fix**: Add `\usepackage{assets/notation}` to preamble
 
 ### Missing $ Inserted
-
 ```
 ! Missing $ inserted.
-l.55 The formula A → B
+l.55 The frame F = <W, R>
 ```
-
 **Cause**: Math mode not entered for formulas
-**Fix**: Wrap in `$...$` or use `\to` instead of →
+**Fix**: Wrap in `$...$` or use `\tuple{W, R}`
 
 ### Undefined Citation
-
 ```
-LaTeX Warning: Citation 'author2024' on page 3 undefined
+LaTeX Warning: Citation 'author2020' on page 3 undefined
 ```
-
 **Cause**: BibTeX not run, or key missing from .bib
-**Fix**: Run `bibtex paper` and check key exists in references.bib
-
-### Undefined Reference
-
-```
-LaTeX Warning: Reference 'thm:soundness' on page 5 undefined
-```
-
-**Cause**: Missing label or need to run pdflatex again
-**Fix**: Add `\label{thm:soundness}` or run pdflatex twice
+**Fix**: Run `bibtex MainDocument` and check key exists
 
 ### Overfull Hbox
-
 ```
 Overfull \hbox (15.2pt too wide) in paragraph at lines 42--45
 ```
-
 **Cause**: Line too long
 **Fix**: Break equation with `align` environment or reword text
 
 ### Package Not Found
-
 ```
-! LaTeX Error: File 'somepackage.sty' not found.
+! LaTeX Error: File 'stmaryrd.sty' not found.
 ```
-
 **Cause**: Package not installed
-**Fix**: Install via TeX distribution: `tlmgr install somepackage`
+**Fix**: Install via TeX distribution (e.g., `tlmgr install stmaryrd`)
+
+## Subfile Compilation
+
+### Standalone Testing
+Each subfile can compile independently:
+```bash
+cd subfiles
+pdflatex 01-Foundations.tex
+```
+
+### How It Works
+```latex
+\documentclass[../MainDocument.tex]{subfiles}
+```
+- Inherits preamble from main document
+- Uses same packages and macros
+- Standalone output for quick testing
+
+### Subfile Limitations
+- Bibliography references may not resolve standalone
+- Cross-references to other subfiles won't work
+- Use main document for final output
 
 ## Output Verification
 
 ### Check PDF
-
 1. Open generated PDF
-2. Verify cross-references resolved (no "??")
-3. Check bibliography appears
-4. Verify mathematical formatting
-5. Check figure placement
+2. Verify TOC links work
+3. Check cross-references resolved (no "??")
+4. Verify bibliography appears
+5. Check mathematical formatting
 
 ### Log File Review
-
 ```bash
-grep -i "warning\|error" paper.log
+grep -i "warning\|error" MainDocument.log
 ```
 
 ### Common Warnings to Address
-
 - `Label ... multiply defined` - duplicate labels
 - `Reference ... undefined` - missing label
-- `Citation ... undefined` - missing bibliography entry
 - `Overfull \hbox` - line breaking issues
 
 ### Acceptable Warnings
-
 - `Underfull \hbox` - minor, usually ignorable
 - Font substitution warnings - if output looks correct
 
 ## Required Packages
 
-### Included in sn-jnl.cls
+### Core (usually pre-installed)
+- amsmath
+- amsthm
+- amssymb
 
-The document class automatically loads:
-- `natbib` - Citation management
-- `hyperref` - Hyperlinks
+### Additional (may need installation)
+- stmaryrd (semantic brackets)
+- subfiles (modular documents)
+- hyperref (links)
+- cleveref (smart references)
+- booktabs (tables)
 
-### Standard Packages (usually pre-installed)
-
-- `amsmath`, `amssymb`, `amsfonts` - Mathematical typesetting
-- `amsthm` - Theorem environments
-- `graphicx` - Figure inclusion
-- `booktabs` - Professional tables
-
-### May Need Installation
-
+### Install via tlmgr
 ```bash
-tlmgr install algorithm algorithmicx listings manyfoot appendix
+tlmgr install stmaryrd subfiles cleveref booktabs
 ```
 
 ## Troubleshooting
 
 ### Fresh Start
-
 ```bash
-latexmk -C paper.tex
-latexmk -pdf paper.tex
+rm -f *.aux *.log *.toc *.out *.bbl *.blg
+pdflatex MainDocument.tex
+bibtex MainDocument
+pdflatex MainDocument.tex
+pdflatex MainDocument.tex
 ```
 
 ### Debug Mode
-
 ```bash
-pdflatex -interaction=errorstopmode paper.tex
+pdflatex -interaction=errorstopmode MainDocument.tex
 ```
-
 Stops at first error for detailed inspection.
 
 ### Verbose Output
-
-Check `paper.log` for detailed error messages and line numbers.
-
-### SyncTeX Issues
-
-If editor integration fails:
-1. Delete `paper.synctex.gz`
-2. Recompile with `latexmk -pdf paper.tex`
+Check `MainDocument.log` for detailed error messages and line numbers.
 
 ## Continuous Compilation
 
-For development with auto-rebuild on save:
-
+### Using latexmk with Preview
 ```bash
-latexmk -pdf -pvc paper.tex
+latexmk -pdf -pvc MainDocument.tex
+```
+- `-pvc`: Preview continuously, recompile on changes
+- Works well with PDF viewers that auto-refresh
+
+### Editor Integration
+
+Most LaTeX editors (TeXstudio, VS Code with LaTeX Workshop, Neovim with VimTeX) provide:
+- Build on save
+- Forward/inverse search between source and PDF
+- Error highlighting in source
+
+## Build Scripts
+
+### Makefile Example
+```makefile
+MAIN = MainDocument
+
+.PHONY: all clean
+
+all: $(MAIN).pdf
+
+$(MAIN).pdf: $(MAIN).tex subfiles/*.tex
+	pdflatex $(MAIN).tex
+	bibtex $(MAIN)
+	pdflatex $(MAIN).tex
+	pdflatex $(MAIN).tex
+
+clean:
+	rm -f *.aux *.log *.toc *.out *.bbl *.blg *.pdf
 ```
 
-**Note**: Requires a PDF viewer that supports auto-reload.
+### Usage
+```bash
+make        # Build PDF
+make clean  # Remove generated files
+```

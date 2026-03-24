@@ -6,9 +6,16 @@ Token budget: ~200 tokens
 
 | Language | Research Skill | Implementation Skill |
 |----------|---------------|---------------------|
+| lean4 | skill-lean-research | skill-lean-implementation |
+| latex | skill-latex-research | skill-latex-implementation |
+| typst | skill-typst-research | skill-typst-implementation |
+| python | skill-python-research | skill-python-implementation |
+| nix | skill-nix-research | skill-nix-implementation |
+| web | skill-web-research | skill-web-implementation |
+| epidemiology | skill-epidemiology-research | skill-epidemiology-implementation |
+| z3 | skill-z3-research | skill-z3-implementation |
 | neovim | skill-neovim-research | skill-neovim-implementation |
-| latex | skill-researcher | skill-latex-implementation |
-| typst | skill-researcher | skill-typst-implementation |
+| formal, logic, math, physics | skill-formal-research | skill-implementer |
 | general | skill-researcher | skill-implementer |
 | meta | skill-researcher | skill-implementer |
 | markdown | skill-researcher | skill-implementer |

@@ -6,7 +6,7 @@ argument-hint: SOURCE_PATH [OUTPUT_PATH]
 
 # /convert Command
 
-Convert documents between formats by delegating to the document converter skill/agent chain.
+Convert documents between formats by delegating to the filetypes skill/agent chain.
 
 ## Arguments
 
@@ -43,6 +43,8 @@ Convert documents between formats by delegating to the document converter skill/
 | HTML | Markdown | Uses markitdown or pandoc |
 | Images | Markdown | Uses markitdown (OCR if available) |
 | Markdown | PDF | Uses pandoc or typst |
+
+**Note**: For spreadsheet-to-table conversions, use `/table`. For presentation conversions, use `/slides`.
 
 ## Execution
 
@@ -117,11 +119,11 @@ Convert documents between formats by delegating to the document converter skill/
 
 **Invoke the Skill tool NOW** with:
 ```
-skill: "skill-document-converter"
+skill: "skill-filetypes"
 args: "source_path={source_path} output_path={output_path} session_id={session_id}"
 ```
 
-The skill will spawn the document-converter-agent to perform the conversion.
+The skill will spawn the filetypes-router-agent, which routes to the appropriate sub-agent.
 
 **On DELEGATE success**: Conversion attempted. **IMMEDIATELY CONTINUE** to CHECKPOINT 2 below.
 

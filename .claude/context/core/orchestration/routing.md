@@ -72,11 +72,11 @@ fi
 | Language | Research Agent | Implementation Agent | Notes |
 |----------|---------------|---------------------|-------|
 | `neovim` | `neovim-research-agent` | `neovim-implementation-agent` | Neovim plugin and configuration development |
-| `latex` | `researcher` | `latex-implementation-agent` | LaTeX document development |
-| `typst` | `researcher` | `typst-implementation-agent` | Typst document development |
 | `markdown` | `researcher` | `implementer` | Documentation and markdown files |
 | `meta` | `researcher` | `implementer` | System/meta configuration tasks |
 | `general` | `researcher` | `implementer` | Default for unspecified language |
+
+**Note**: Additional languages (latex, typst) are available via extensions in `.claude/extensions/`.
 
 **Critical**: Always extract language explicitly. DO NOT assume language without extraction.
 
@@ -328,7 +328,7 @@ Commands update task status using text-based markers:
   "new_status": "researched",
   "timestamp": "2025-12-29T08:13:37Z",
   "artifacts": [
-    "specs/244_phase_1_context_index_and_research_frontmatter_prototype/reports/research-001.md"
+    "specs/244_phase_1_context_index_and_research_frontmatter_prototype/reports/01_context-index-research.md"
   ]
 }
 ```
@@ -391,7 +391,7 @@ Commands update task status using text-based markers:
 
 **Load**: Context files needed for specific workflow
 
-See `.claude/context/index.md` for execution context loading patterns.
+See `.claude/context/index.json` for execution context loading patterns.
 
 ---
 

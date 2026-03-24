@@ -50,7 +50,7 @@ Load these on-demand using @-references:
 
 **Load for Meta Tasks**:
 - `@.claude/CLAUDE.md` - Project configuration and conventions
-- `@.claude/context/index.md` - Full context discovery index
+- `@.claude/context/index.json` - Full context discovery index
 - Existing skill/agent files as templates
 
 **Load for Code Tasks**:
@@ -105,7 +105,7 @@ Extract from input:
     "delegation_depth": 1,
     "delegation_path": ["orchestrator", "implement", "general-implementation-agent"]
   },
-  "plan_path": "specs/412_general_research/plans/implementation-001.md",
+  "plan_path": "specs/412_general_research/plans/MM_{short-slug}.md",
   "metadata_file_path": "specs/412_general_research/.return-meta.json"
 }
 ```
@@ -133,7 +133,12 @@ If all phases are `[COMPLETED]`: Task already done, return completed status.
 For each phase starting from resume point:
 
 **A. Mark Phase In Progress**
-Edit plan file: Change phase status to `[IN PROGRESS]`
+Edit plan file heading to show the phase is active.
+Use the Edit tool with:
+- old_string: `### Phase {P}: {Phase Name} [NOT STARTED]`
+- new_string: `### Phase {P}: {Phase Name} [IN PROGRESS]`
+
+Phase status lives ONLY in the heading. Do NOT add or edit a separate `**Status**:` line per phase.
 
 **B. Execute Steps**
 
@@ -161,7 +166,12 @@ Run phase verification criteria:
 - Content validation
 
 **D. Mark Phase Complete**
-Edit plan file: Change phase status to `[COMPLETED]`
+Edit plan file heading to show the phase is finished.
+Use the Edit tool with:
+- old_string: `### Phase {P}: {Phase Name} [IN PROGRESS]`
+- new_string: `### Phase {P}: {Phase Name} [COMPLETED]`
+
+Phase status lives ONLY in the heading. Do NOT add or edit a separate `**Status**:` line per phase.
 
 ### Stage 5: Run Final Verification
 
@@ -172,7 +182,7 @@ After all phases complete:
 
 ### Stage 6: Create Implementation Summary
 
-Write to `specs/{NNN}_{SLUG}/summaries/implementation-summary-{DATE}.md`:
+Write to `specs/{NNN}_{SLUG}/summaries/MM_{short-slug}-summary.md`:
 
 ```markdown
 # Implementation Summary: Task #{N}
@@ -264,7 +274,7 @@ Write to `specs/{NNN}_{SLUG}/.return-meta.json`:
     },
     {
       "type": "summary",
-      "path": "specs/{NNN}_{SLUG}/summaries/implementation-summary-{DATE}.md",
+      "path": "specs/{NNN}_{SLUG}/summaries/MM_{short-slug}-summary.md",
       "summary": "Implementation summary with verification results"
     }
   ],
@@ -298,11 +308,9 @@ Example return:
 General implementation completed for task 412:
 - All 3 phases executed, agent definition created with full specification
 - Files created: .claude/agents/general-research-agent.md
-- Created summary at specs/412_general_research/summaries/implementation-summary-20260118.md
+- Created summary at specs/412_general_research/summaries/MM_{short-slug}-summary.md
 - Metadata written for skill postflight
 ```
-
-**DO NOT return JSON to the console**. The skill reads metadata from the file.
 
 ## Phase Checkpoint Protocol
 
@@ -437,7 +445,7 @@ If task or plan is invalid:
 General implementation completed for task 412:
 - All 3 phases executed, agent definition created with full specification
 - Created .claude/agents/general-research-agent.md with metadata, tools, execution flow, and error handling
-- Created summary at specs/412_general_research/summaries/implementation-summary-20260118.md
+- Created summary at specs/412_general_research/summaries/MM_{short-slug}-summary.md
 - Metadata written for skill postflight
 ```
 
@@ -448,7 +456,7 @@ General implementation partially completed for task 350:
 - Phases 1-2 of 3 executed successfully
 - Phase 3 failed: npm build error (Type 'string' is not assignable to type 'number')
 - Files created but build does not pass
-- Partial summary at specs/350_feature/summaries/implementation-summary-20260118.md
+- Partial summary at specs/350_feature/summaries/MM_{short-slug}-summary.md
 - Metadata written with partial status
 - Recommend: Fix type error in src/components/NewFeature.tsx:42, then resume
 ```
@@ -457,7 +465,7 @@ General implementation partially completed for task 350:
 
 ```
 General implementation failed for task 999:
-- Plan file not found: specs/999_missing/plans/implementation-001.md
+- Plan file not found: specs/999_missing/plans/MM_{short-slug}.md
 - Cannot proceed without valid implementation plan
 - No artifacts created
 - Metadata written with failed status

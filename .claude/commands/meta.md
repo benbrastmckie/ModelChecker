@@ -107,17 +107,17 @@ Example: `/meta --analyze`
 ### Tasks Created
 
 ```
-## Tasks Created
+Tasks Created
 
 Created {N} task(s) for {domain}:
 
-**High Priority**:
+High Priority:
 - Task #{N}: {title}
   Path: specs/{NNN}_{slug}/
 
-**Next Steps**:
+Next Steps:
 1. Review tasks in TODO.md
-2. Run `/research {N}` to begin research on first task
+2. Run /research {N} to begin research on first task
 3. Progress through /research -> /plan -> /implement cycle
 ```
 

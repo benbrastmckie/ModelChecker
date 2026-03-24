@@ -1,6 +1,6 @@
 ---
 description: Create, recover, divide, sync, or abandon tasks
-allowed-tools: Read(specs/*), Edit(specs/TODO.md), Bash(jq:*), Bash(git:*), Bash(mv:*), Bash(date:*), Bash(sed:*)
+allowed-tools: Read(specs/*), Edit(specs/TODO.md), Bash(jq:*), Bash(git:*), Bash(mv:*), Bash(date:*), Bash(sed:*), AskUserQuestion
 argument-hint: "description" | --recover N | --expand N | --sync | --abandon N | --review N
 model: claude-opus-4-5-20251101
 ---
@@ -111,6 +111,15 @@ When $ARGUMENTS contains a description (no flags).
 4. **Detect language** from keywords:
    - "neovim", "plugin", "nvim", "lua" → neovim
    - "meta", "agent", "command", "skill" → meta
+   - "lean", "lean4", "mathlib", "theorem", "proof" → lean4
+   - "latex", "tex", "document", "typeset" → latex
+   - "typst" → typst
+   - "python", "pytest", "pip" → python
+   - "z3", "smt", "solver", "constraint" → z3
+   - "nix", "nixos", "home-manager", "flake" → nix
+   - "web", "astro", "tailwind", "cloudflare" → web
+   - "epidemiology", "epimodel", "stan", "infectious" → epidemiology
+   - "formal", "logic", "math", "physics", "modal", "kripke" → formal
    - Otherwise → general
 
 5. **Create slug** from description:
@@ -130,9 +139,9 @@ When $ARGUMENTS contains a description (no flags).
         "created": $ts,
         "last_updated": $ts
       }] + .active_projects' \
-     specs/state.json > /tmp/state.json && \
-     mv /tmp/state.json specs/state.json
-   ```
+     specs/state.json > specs/tmp/state.json && \
+     mv specs/tmp/state.json specs/state.json
+    ```
 
 7. **Update TODO.md** (TWO parts - frontmatter AND entry):
 
@@ -156,6 +165,14 @@ When $ARGUMENTS contains a description (no flags).
    **Insertion**: Use sed or Edit to insert the new task entry immediately after the `## Tasks` line, so new tasks appear at the top of the list.
 
    **CRITICAL**: Both state.json AND TODO.md frontmatter MUST have matching next_project_number values.
+
+   **Part C - Update Recommended Order section** (non-blocking):
+   ```bash
+   # Update Recommended Order section (non-blocking)
+   if source "$PROJECT_ROOT/.claude/scripts/update-recommended-order.sh" 2>/dev/null; then
+       add_to_recommended_order "$next_num" || echo "Note: Failed to update Recommended Order"
+   fi
+   ```
 
 8. **Git commit**:
    ```
@@ -197,14 +214,14 @@ Parse task ranges after --recover (e.g., "343-345", "337, 343"):
    # Step 1: Remove from archive using del() instead of map(select(!=))
    jq --arg num "$task_number" \
      'del(.completed_projects[] | select(.project_number == ($num | tonumber)))' \
-     specs/archive/state.json > /tmp/archive.json && \
-     mv /tmp/archive.json specs/archive/state.json
+    specs/archive/state.json > specs/tmp/archive.json && \
+    mv specs/tmp/archive.json specs/archive/state.json
 
    # Step 2: Add to active with status reset
-   jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson task "$task_data" \
-     '.active_projects = [$task | .status = "not_started" | .last_updated = $ts] + .active_projects' \
-     specs/state.json > /tmp/state.json && \
-     mv /tmp/state.json specs/state.json
+    jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson task "$task_data" \
+      '.active_projects = [$task | .status = "not_started" | .last_updated = $ts] + .active_projects' \
+      specs/state.json > specs/tmp/state.json && \
+      mv specs/tmp/state.json specs/state.json
    ```
 
    **Move project directory from archive** (handle both legacy unpadded and new padded formats):
@@ -252,11 +269,10 @@ Parse task number and optional prompt:
        status: "expanded",
        subtasks: [list_of_subtask_numbers],
        last_updated: $ts
-     }' specs/state.json > /tmp/state.json && \
-     mv /tmp/state.json specs/state.json
-   ```
+      }' specs/state.json > specs/tmp/state.json && \
+      mv specs/tmp/state.json specs/state.json
 
-   **Also update TODO.md**: Change task status to `[EXPANDED]`
+    **Also update TODO.md**: Change task status to `[EXPANDED]`
 
 5. Git commit: "task {N}: expand into subtasks"
 
@@ -332,7 +348,7 @@ fi
 plan_file=""
 if [ -n "$task_dir" ]; then
   plan_dir="${task_dir}/plans"
-  plan_file=$(ls -t "$plan_dir"/implementation-*.md 2>/dev/null | head -1)
+  plan_file=$(ls -t "$plan_dir"/*.md 2>/dev/null | head -1)
 fi
 
 if [ -z "$plan_file" ]; then
@@ -347,7 +363,7 @@ fi
 summary_file=""
 if [ -n "$task_dir" ]; then
   summary_dir="${task_dir}/summaries"
-  summary_file=$(ls -t "$summary_dir"/implementation-summary-*.md 2>/dev/null | head -1)
+  summary_file=$(ls -t "$summary_dir"/*-summary.md 2>/dev/null | head -1)
 fi
 ```
 
@@ -356,7 +372,7 @@ fi
 research_files=""
 if [ -n "$task_dir" ]; then
   reports_dir="${task_dir}/reports"
-  research_files=$(ls "$reports_dir"/research-*.md 2>/dev/null)
+  research_files=$(ls "$reports_dir"/*.md 2>/dev/null | grep -v README)
 fi
 ```
 
@@ -435,26 +451,37 @@ For each incomplete phase, extract:
 
 ### Step 7: Interactive User Selection
 
-**Present options to user**:
+**Use AskUserQuestion with multiSelect**:
+```json
+{
+  "question": "Select follow-up tasks to create:",
+  "header": "Follow-up Tasks",
+  "multiSelect": true,
+  "options": [
+    {
+      "label": "Phase 2: implement_validation_rules",
+      "description": "Goal: {phase_goal} | Effort: {effort}"
+    },
+    {
+      "label": "Phase 3: add_error_reporting",
+      "description": "Goal: {phase_goal} | Effort: {effort}"
+    }
+  ]
+}
 ```
-Found {N} incomplete phase(s) in task #{task_number}.
 
-Suggested follow-up tasks:
-  [1] Complete phase 2 of task 597: implement_validation_rules
-  [2] Complete phase 3 of task 597: add_error_reporting
-
-Options:
-  - Enter numbers to create (e.g., "1,2" or "1")
-  - "all" to create all suggested tasks
-  - "none" to skip task creation
-
-Your selection:
+**For >20 incomplete phases**, add "Select all" option:
+```json
+{
+  "label": "Select all",
+  "description": "Create tasks for all {N} incomplete phases"
+}
 ```
 
-**Parse user selection**:
-- Numbers → Create those specific tasks
-- "all" → Create all suggested tasks
-- "none" → Exit without creating tasks
+**Selection handling**:
+- Selected options → Create those specific tasks
+- Empty selection → Exit without creating tasks (no separate "none" option needed)
+- "Select all" selected → Create all suggested tasks
 
 ### Step 8: Create Selected Follow-up Tasks
 
@@ -481,8 +508,8 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
      "created": $ts,
      "last_updated": $ts
    }] + .active_projects' \
-  specs/state.json > /tmp/state.json && \
-  mv /tmp/state.json specs/state.json
+     specs/state.json > specs/tmp/state.json && \
+     mv specs/tmp/state.json specs/state.json
 
 # Update TODO.md (add entry and update frontmatter)
 ```
@@ -553,20 +580,20 @@ Parse task ranges:
 
    **Move to archive via jq** (two-step to avoid jq escaping bug - see `jq-escaping-workarounds.md`):
    ```bash
-   # Step 1: Add to archive with abandoned status
-   jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson task "$task_data" \
-     '.completed_projects = [$task | .status = "abandoned" | .abandoned = $ts] + .completed_projects' \
-     specs/archive/state.json > /tmp/archive.json && \
-     mv /tmp/archive.json specs/archive/state.json
+    # Step 1: Add to archive with abandoned status
+    jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --argjson task "$task_data" \
+      '.completed_projects = [$task | .status = "abandoned" | .abandoned = $ts] + .completed_projects' \
+      specs/archive/state.json > specs/tmp/archive.json && \
+      mv specs/tmp/archive.json specs/archive/state.json
 
-   # Step 2: Remove from active using del() instead of map(select(!=))
-   jq --arg num "$task_number" \
-     'del(.active_projects[] | select(.project_number == ($num | tonumber)))' \
-     specs/state.json > /tmp/state.json && \
-     mv /tmp/state.json specs/state.json
-   ```
+    # Step 2: Remove from active using del() instead of map(select(!=))
+    jq --arg num "$task_number" \
+      'del(.active_projects[] | select(.project_number == ($num | tonumber)))' \
+      specs/state.json > specs/tmp/state.json && \
+      mv specs/tmp/state.json specs/state.json
+    ```
 
-   **Update TODO.md**: Remove the task entry (abandoned tasks should not appear in TODO.md)
+    **Update TODO.md**: Remove the task entry (abandoned tasks should not appear in TODO.md)
 
    **Move task directory to archive** (handle both legacy unpadded and new padded formats):
    ```bash

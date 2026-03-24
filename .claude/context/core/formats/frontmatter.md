@@ -143,7 +143,7 @@ mode: subagent
 **Values**:
 - `research`: Research and information gathering
 - `planning`: Implementation planning and phase breakdown
-- `implementation`: code/proof implementation
+- `implementation`: Code/proof implementation
 - `execution`: Task execution and orchestration
 - `validation`: Validation and verification
 - `orchestration`: High-level workflow coordination
@@ -349,7 +349,7 @@ deny:
 ```yaml
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/workflows/command-lifecycle.md"
     - "core/standards/subagent-return-format.md"
@@ -506,7 +506,7 @@ permissions:
     - read: [".env", "**/*.key", "**/*.pem"]
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/workflows/command-lifecycle.md"
     - "core/standards/subagent-return-format.md"
@@ -553,7 +553,7 @@ permissions:
     - write: [".git/config", ".git/HEAD"]
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/workflows/command-lifecycle.md"
     - "core/standards/subagent-return-format.md"
@@ -610,7 +610,7 @@ Prefer lazy loading with index-based discovery for efficiency.
 ```yaml
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
 ```
 
 **Bad**:
@@ -701,6 +701,6 @@ temperature: 0.7  # Too high for implementation
 
 ## Related Documentation
 
-See `.claude/context/index.md` for navigation to all context files.
+See `.claude/context/index.json` for navigation to all context files.
 
 ---

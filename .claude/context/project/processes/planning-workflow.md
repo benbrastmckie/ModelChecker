@@ -17,7 +17,7 @@ This document describes the complete planning workflow executed by the planner s
 
 **When**: Task has no existing plan  
 **Characteristics**:
-- Creates first plan version (implementation-001.md)
+- Creates first plan version (e.g., 02_implementation-plan.md)
 - Integrates research findings if available
 - Breaks work into phases
 - Estimates effort
@@ -27,7 +27,7 @@ This document describes the complete planning workflow executed by the planner s
 
 **When**: Task has existing plan that needs updating  
 **Characteristics**:
-- Creates new plan version (implementation-002.md, etc.)
+- Creates new plan version (sequential numbering)
 - Preserves previous plan versions
 - Incorporates new information
 - Adjusts approach based on learnings
@@ -44,7 +44,7 @@ This document describes the complete planning workflow executed by the planner s
 **Process**:
 1. Read task from TODO.md using grep (selective loading):
    ```bash
-   grep -A 50 "^### ${task_number}\." specs/TODO.md > /tmp/task-${task_number}.md
+   grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}.md
    ```
 2. Extract task metadata:
    - Task number
@@ -141,7 +141,7 @@ This document describes the complete planning workflow executed by the planner s
 
 **Process**:
 1. Create plan file:
-   - Path: `specs/{number}_{slug}/plans/implementation-{version:03d}.md`
+   - Path: `specs/{number}_{slug}/plans/MM_{short-slug}.md`
    - Version: 001 for initial plan, incremented for revisions
    - Directory created lazily when writing
 2. Write plan metadata (frontmatter):
@@ -204,7 +204,7 @@ All plans must follow `.claude/context/core/standards/plan.md` template exactly.
 2. status-sync-manager performs atomic update:
    - Update TODO.md:
      - Status: [NOT STARTED] or [RESEARCHED] → [PLANNED]
-     - Add **Plan**: {plan_path} (stripped of specs/ prefix for TODO-relative link)
+     - Add **Plan**: {plan_path} using count-aware format (see state-management.md "Artifact Linking Format")
      - Add **Completed**: {date}
    - Update state.json:
      - Update status and timestamps
@@ -338,9 +338,9 @@ Revise plans when:
    - Preserve previous plan link in history
 
 **Version Numbering**:
-- First plan: `implementation-001.md`
-- First revision: `implementation-002.md`
-- Second revision: `implementation-003.md`
+- First plan: `02_implementation-plan.md`
+- First revision: `03_revised-plan.md`
+- Second revision: `04_second-revision.md`
 - etc.
 
 ---
@@ -374,7 +374,7 @@ Load minimal context for routing decisions:
 
 ### Execution Stage (Planner)
 
-Planner loads context on-demand per `.claude/context/index.md`:
+Planner loads context on-demand per `.claude/context/index.json`:
 - `core/standards/subagent-return-format.md` (return format)
 - `core/standards/status-markers.md` (status transitions)
 - `core/system/artifact-management.md` (lazy directory creation)
@@ -485,7 +485,7 @@ Two-phase commit ensures consistency across all files.
 
 Directories created only when writing artifacts:
 - `specs/{task_number}_{slug}/` created when writing plan
-- `plans/` subdirectory created when writing implementation-001.md
+- `plans/` subdirectory created when writing first plan artifact
 
 No directories created during routing or validation stages.
 
@@ -509,7 +509,7 @@ If no research available, planner proceeds without research context.
 Extract only specific task entry from TODO.md to reduce context load:
 
 ```bash
-grep -A 50 "^### ${task_number}\." specs/TODO.md > /tmp/task-${task_number}.md
+grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}.md
 ```
 
 **Impact**: Reduces context from 109KB (full TODO.md) to ~2KB (task entry only), 98% reduction.

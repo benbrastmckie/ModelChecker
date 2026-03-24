@@ -755,42 +755,34 @@ This command implements the multi-task creation pattern. See `.claude/docs/refer
 
 ### 8. Output
 
+Use condensed format with issue counts and task summaries:
+
 ```
 Review complete for: {scope}
 
 Report: specs/reviews/review-{DATE}.md
 
-Summary:
-- Critical: {N} issues
-- High: {N} issues
-- Medium: {N} issues
-- Low: {N} issues
+Issues found: {total}
+- Critical: {N}, High: {N}, Medium: {N}, Low: {N}
 
-Issue Groups Identified:
-- {N} groups formed from {M} total issues
-- Groups: {group_labels}
-
-Roadmap Progress:
-- Annotations made: {N} items marked complete
-- Current focus: {phase_name} ({priority})
-
-{If tasks created via interactive selection}
-Tasks Created: {N} total
-- Grouped tasks: {grouped_count}
-  - Task #{N1}: {group_label} ({item_count} issues)
-- Individual tasks: {individual_count}
-  - Task #{N2}: {title}
-  - Task #{N3}: {title}
-
-{If tasks created via --create-tasks flag}
-Auto-created {N} tasks for critical/high issues:
-- Task #{N1}: {title}
+{If tasks created:}
+Tasks created: {N}
+- Task #{N1}: {title} ({count} issues)
 - Task #{N2}: {title}
 
-{If no tasks created}
-No tasks created (user selected "none" or empty selection).
+{If no tasks created:}
+No tasks created.
 
-Top recommendations for next review:
-1. {recommendation}
-2. {recommendation}
+Next Steps:
+1. Review report for details
+2. Run /implement {N} to address issues
 ```
+
+**Section Inclusion Rules:**
+
+| Section | Show When |
+|---------|-----------|
+| Issues found | Always |
+| Tasks created | tasks_created > 0 |
+| No tasks created | tasks_created == 0 |
+| Next Steps | Always |

@@ -123,7 +123,7 @@ Not all skills need inline status updates. Skills that match these patterns are 
 
 | Pattern | Description | Example Skills |
 |---------|-------------|----------------|
-| **Utility** | Provides utility function, no task state management | skill-git-workflow, skill-document-converter |
+| **Utility** | Provides utility function, no task state management | skill-git-workflow |
 | **Task Creation** | Creates new tasks, does not transition existing tasks | skill-meta |
 | **Routing** | Routes only, delegates state management to invoked skill | skill-orchestrator |
 | **Terminal State** | Operates only on completed/abandoned tasks | (archive operations) |
@@ -134,11 +134,12 @@ Not all skills need inline status updates. Skills that match these patterns are 
 
 These skills manage task lifecycle transitions:
 - skill-researcher (not_started/researched -> researching -> researched)
+- skill-neovim-research (same as researcher, neovim-specific)
 - skill-planner (researched -> planning -> planned)
 - skill-implementer (planned -> implementing -> completed)
-- skill-lean-research (same as researcher)
-- skill-lean-implementation (same as implementer)
-- skill-latex-implementation (same as implementer)
+- skill-neovim-implementation (same as implementer, neovim-specific)
+
+**Note**: Additional workflow skills (latex, typst) available via extensions.
 
 ### Non-Workflow Skills (Excluded from Pattern)
 
@@ -147,10 +148,18 @@ These skills are intentionally excluded:
 - skill-git-workflow: Creates commits, no task state
 - skill-orchestrator: Routes to workflow skills which handle state
 - skill-meta: Creates tasks via interview, no transitions
-- skill-document-converter: Standalone file conversion utility
+
+## Postflight Boundary Restrictions
+
+After agent delegation completes, skills must respect postflight boundary restrictions:
+- **Allowed**: Read metadata, jq state updates, Edit TODO.md/state.json, git commit
+- **Prohibited**: Edit source files, build/test commands, MCP tools, analysis
+
+All agent-delegating skills must include a MUST NOT section. See @.claude/context/core/standards/postflight-tool-restrictions.md for complete rules.
 
 ## References
 
 - Inline patterns: `@.claude/context/core/patterns/inline-status-update.md`
 - Anti-stop patterns: `@.claude/context/core/patterns/anti-stop-patterns.md`
 - Subagent return format: `@.claude/context/core/formats/subagent-return.md`
+- Postflight restrictions: `@.claude/context/core/standards/postflight-tool-restrictions.md`

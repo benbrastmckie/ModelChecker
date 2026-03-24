@@ -72,7 +72,9 @@ If the hook is missing or fails:
 
 ### Overview
 
-The `tts-notify.sh` hook announces when Claude completes work using Piper TTS.
+The `tts-notify.sh` hook announces Claude Code events using Piper TTS. It triggers on both Stop events (Claude finished) and Notification events (Claude needs input).
+
+For comprehensive TTS/STT documentation including software dependencies, model setup, and workflow examples, see the [TTS/STT Integration Guide](tts-stt-integration.md).
 
 **Hook Configuration** (`.claude/settings.json`):
 ```json
@@ -82,8 +84,15 @@ The `tts-notify.sh` hook announces when Claude completes work using Piper TTS.
     "hooks": [
       {
         "type": "command",
-        "command": "bash .claude/hooks/post-command.sh 2>/dev/null || echo '{}'"
-      },
+        "command": "bash .claude/hooks/tts-notify.sh 2>/dev/null || echo '{}'"
+      }
+    ]
+  }
+],
+"Notification": [
+  {
+    "matcher": "permission_prompt|idle_prompt|elicitation_dialog",
+    "hooks": [
       {
         "type": "command",
         "command": "bash .claude/hooks/tts-notify.sh 2>/dev/null || echo '{}'"
@@ -95,8 +104,9 @@ The `tts-notify.sh` hook announces when Claude completes work using Piper TTS.
 
 ### Features
 
-- **WezTerm tab detection**: Announces "Tab 5: Claude has finished"
-- **Cooldown**: 60-second minimum between notifications
+- **WezTerm tab detection**: Announces "Tab 5" (completion) or "Tab 5 needs permission" (input-needed)
+- **Event-specific messages**: Different messages for Stop, permission prompts, idle prompts, and questions
+- **Cooldown**: 10-second minimum between notifications
 - **Background execution**: Non-blocking with 10s timeout
 - **Graceful fallback**: Silently skips if Piper/audio not available
 
@@ -105,7 +115,7 @@ The `tts-notify.sh` hook announces when Claude completes work using Piper TTS.
 Environment variables (set in shell or `.bashrc`):
 ```bash
 export PIPER_MODEL="$HOME/.local/share/piper/en_US-lessac-medium.onnx"
-export TTS_COOLDOWN=60           # seconds between notifications
+export TTS_COOLDOWN=10           # seconds between notifications
 export TTS_ENABLED=1             # set to 0 to disable
 ```
 
@@ -234,7 +244,7 @@ ls -la ~/.local/share/piper/en_US-lessac-medium.onnx
 
 **Check logs**:
 ```bash
-tail -20 /tmp/claude-tts-notify.log
+tail -20 specs/tmp/claude-tts-notify.log
 ```
 
 ## Architecture
@@ -280,9 +290,26 @@ Stop hook fires
     │
     └─→ tts-notify.sh (audio notification)
          │
-         ├─→ Check cooldown (60s)
+         ├─→ Check cooldown (10s)
          ├─→ Get WezTerm tab number
-         ├─→ Generate message: "Tab 5: Claude has finished"
+         ├─→ Generate message: "Tab 5"
+         └─→ Speak with Piper (background, 10s timeout)
+```
+
+### Notification Hook Flow
+
+```
+Claude needs user input
+    │
+    ▼
+Notification hook fires (permission_prompt, idle_prompt, elicitation_dialog)
+    │
+    └─→ tts-notify.sh (audio notification)
+         │
+         ├─→ Read event type from stdin JSON
+         ├─→ Check cooldown (10s)
+         ├─→ Get WezTerm tab number
+         ├─→ Generate message: "Tab 5 needs permission" / "Tab 5 needs input" / "Tab 5 has a question"
          └─→ Speak with Piper (background, 10s timeout)
 ```
 
@@ -302,6 +329,7 @@ Stop hook fires
 
 ## See Also
 
+- [TTS/STT Integration Guide](tts-stt-integration.md) - Complete TTS/STT documentation with software dependencies
 - [Permission Configuration](permission-configuration.md) - Hook permissions
 - [User Guide](user-guide.md) - General Claude Code usage
 - Neovim STT README: `~/.config/nvim/lua/neotex/plugins/tools/README.md`

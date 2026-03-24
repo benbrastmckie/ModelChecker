@@ -1,278 +1,286 @@
 ---
-description: Scan files for FIX:, NOTE:, TODO: tags and create structured tasks interactively
-allowed-tools: Skill
-argument-hint: [PATH...]
-model: claude-opus-4-5-20251101
+description: Add memories from text, files, directories, or task artifacts with content mapping and deduplication
 ---
 
-# /learn Command
+# Command: /learn
 
-Scans codebase files for embedded tags (`FIX:`, `NOTE:`, `TODO:`) and creates structured tasks based on user selection. This command helps capture work items embedded in source code comments.
+**Purpose**: Takes text, file paths, directory paths, or task references and creates memories through content mapping, MCP-based deduplication, and three memory operations (UPDATE, EXTEND, CREATE).
+**Layer**: 2 (Command File - Argument Parsing Agent)
+**Delegates To**: skill-memory (direct execution)
 
-## Arguments
-
-- No args: Scan entire project for tags
-- `PATH...` - Scan specific files or directories
-
-## Interactive Flow
-
-The command always runs interactively:
-1. Scan files for tags
-2. Display tag summary to user
-3. Prompt for task type selection
-4. Optionally prompt for individual TODO selection
-5. **Optionally prompt for TODO topic grouping** (if 2+ TODOs selected)
-6. Create selected tasks
-
-This design ensures users always see what was found before any tasks are created.
-
-## Tag Types and Task Generation
-
-| Tag | Task Type | Description |
-|-----|-----------|-------------|
-| `FIX:` | fix-it-task | Grouped into single task for small changes |
-| `NOTE:` | fix-it-task + learn-it-task | Creates both task types (with dependency) |
-| `TODO:` | todo-task | Individual task per selected tag |
-
-### Task Type Details
-
-**fix-it-task**: Combines all FIX: and NOTE: tags into a single task describing fixes needed. Includes file paths and line references. Only offered if FIX: or NOTE: tags exist.
-
-**learn-it-task**: Groups NOTE: tags by target context directory. Creates tasks to update `.claude/context/` files based on the learnings. Only offered if NOTE: tags exist.
-
-**todo-task**: One task per selected TODO: tag (or grouped by topic). Preserves original text as task description. Language detected from source file type.
-
-### TODO Topic Grouping
-
-When multiple TODO items are selected, the command analyzes them for semantic topics and offers grouping options:
-
-1. **Accept suggested topic groups** - Creates grouped tasks based on shared terms, file sections, and action types
-2. **Keep as separate tasks** - Traditional behavior (one task per TODO item)
-3. **Create single combined task** - All TODO items in one task
-
-**Topic detection uses**:
-- Shared key terms (2+ significant terms in common)
-- File section proximity (same directory)
-- Action type similarity (implement, fix, document, test, refactor)
-
-**Example topic groups**:
-```
-Group: "S5 Theorems" (2 items)
-  - Add LSP configuration for S5
-  - Add soundness theorem for S5
-
-Group: "Utility Optimization" (1 item)
-  - Optimize helper function
-```
-
-**Effort scaling for grouped tasks**:
-- Base: 1 hour
-- +30 minutes per additional item
-- Example: 3 items = 2 hours
-
-### Dependency Workflow for NOTE: Tags
-
-When NOTE: tags exist and you select **both** fix-it and learn-it task types:
-
-1. **Learn-it task is created first** - Updates context files based on learnings (NOTE: tags remain in source files)
-2. **Fix-it task is created second with dependency** - Has `dependencies: [learn_it_task_num]` pointing to the learn-it task
-
-This ensures proper workflow ordering:
-- Learn-it task handles knowledge extraction to context files only
-- Fix-it task handles file-local code changes and removes both NOTE: and FIX: tags (TODO: tags are left for separate tasks)
-
-This dependency is only added when both task types are selected for NOTE: tags. If you select only one task type, no dependency is created.
-
-## Supported Comment Styles
-
-| File Type | Comment Prefix | Example |
-|-----------|----------------|---------|
-| Lua (`.lua`) | `--` | `-- FIX: Handle edge case` |
-| LaTeX (`.tex`) | `%` | `% NOTE: Document this pattern` |
-| Markdown (`.md`) | `<!--` | `<!-- TODO: Add section -->` |
-| Python/Shell/YAML | `#` | `# FIX: Optimize loop` |
-
-## Execution
-
-### 1. Scan and Display
-
-The skill scans specified paths and displays findings:
-
-```
-## Tag Scan Results
-
-**Files Scanned**: nvim/lua/, docs/
-**Tags Found**: 15
-
-### FIX: Tags (5)
-- `src/module.lua:23` - Handle edge case in parser
-- `src/module.lua:45` - Fix off-by-one error
-...
-
-### NOTE: Tags (3)
-- `docs/guide.tex:89` - Document this pattern
-...
-
-### TODO: Tags (7)
-- `nvim/lua/Layer1/Modal.lua:67` - Add LSP configuration
-...
-```
-
-### 2. Task Type Selection
-
-User selects which task types to create:
-
-```
-[Task Types]
-Which task types should be created?
-
-[ ] fix-it task (Combine 8 FIX:/NOTE: tags into single task)
-[ ] learn-it task (Update context from 3 NOTE: tags)
-[ ] TODO tasks (Create tasks for 7 TODO: items)
-```
-
-### 3. TODO Item Selection
-
-If "TODO tasks" is selected, user picks individual items:
-
-```
-[TODO Selection]
-Select TODO items to create as tasks:
-
-[ ] Add LSP configuration (nvim/lua/Layer1/Modal.lua:67)
-[ ] Implement helper function (utils/helpers.lua:23)
-...
-```
-
-For >20 TODO items, a "Select all" option is added.
-
-### 4. Topic Grouping (if 2+ TODOs)
-
-When multiple TODOs are selected, the command analyzes them for topics:
-
-```
-[TODO Topic Grouping]
-How should TODO items be grouped into tasks?
-
-( ) Accept suggested topic groups (Creates 2 grouped tasks: S5 Theorems (2 items), Utility Optimization (1 item))
-( ) Keep as separate tasks (Creates 3 individual tasks)
-( ) Create single combined task (Creates 1 task containing all 3 items)
-```
-
-### 5. Task Creation
-
-Selected tasks are created in TODO.md and state.json.
-
-## Output Examples
-
-### Tags Found - Interactive Selection
-
-```
-## Tag Scan Results
-
-**Files Scanned**: .
-**Tags Found**: 15
-
-### FIX: Tags (5)
-- `src/module.lua:23` - Handle edge case in parser
-- `src/module.lua:45` - Fix off-by-one error
-- `docs/guide.tex:56` - Update outdated reference
-
-### NOTE: Tags (3)
-- `docs/guide.tex:89` - Document this pattern
-- `.claude/agents/foo.md:12` - Update context routing
-
-### TODO: Tags (7)
-- `nvim/lua/Layer1/Modal.lua:67` - Add LSP configuration
-- `nvim/lua/utils/helpers.lua:23` - Implement helper function
-...
+**Input**: $ARGUMENTS
 
 ---
 
-[User selects task types and TODO items]
+## Argument Parsing
+
+<argument_parsing>
+  <step_1>
+    Parse arguments with four-mode priority:
+
+    **Mode Priority Chain** (first match wins):
+    1. `--task N` -> Task mode
+    2. Directory path (ends with `/`, starts with `-d `, or filesystem check passes) -> Directory mode
+    3. File path (starts with `-f `, has file extension, or filesystem check passes) -> File mode
+    4. Quoted text or remaining args -> Text mode
+
+    **CRITICAL**: Check string patterns FIRST before any filesystem checks. A trailing `/`
+    unambiguously signals directory mode regardless of whether you can verify the path exists.
+
+    ```
+    task_mode = "--task" in $ARGUMENTS
+    task_number = extract_value("--task") if task_mode
+
+    If not task_mode:
+      input = remaining args joined with spaces
+
+      # Priority 2: Directory - string check first, no bash needed
+      if input ends with "/" OR input starts with "-d " OR [ -d "$input" ]; then
+        mode = "directory"
+        directory_path = strip leading "-d " flag from input if present
+
+      # Priority 3: File - string check first
+      elif input starts with "-f " OR [ -f "$input" ]; then
+        mode = "file"
+        file_path = strip leading "-f " flag from input if present
+
+      # Priority 4: Text
+      else
+        mode = "text"
+        text_content = "$input"
+      fi
+    ```
+  </step_1>
+</argument_parsing>
 
 ---
 
-## Tasks Created from Tags
+## Workflow Execution
 
-**Tags Processed**: 15
+<workflow_execution>
+  <step_1>
+    <action>Delegate to Memory Skill</action>
+    <input>
+      Task mode:
+        - skill: "skill-memory"
+        - args: "mode=task, task_number={task_number}"
 
-### Created Tasks
+      Directory mode:
+        - skill: "skill-memory"
+        - args: "mode=directory, directory_path={directory_path}"
 
-| # | Type | Title | Priority | Language |
-|---|------|-------|----------|----------|
-| 650 | fix-it | Fix issues from FIX:/NOTE: tags | High | neovim |
-| 651 | learn-it | Update context files from NOTE: tags | Medium | meta |
-| 652 | todo | Add LSP configuration | Medium | neovim |
-| 653 | todo | Implement helper function | Medium | neovim |
+      File mode:
+        - skill: "skill-memory"
+        - args: "mode=file, file_path={file_path}"
+
+      Text mode:
+        - skill: "skill-memory"
+        - args: "mode=text, text_content={text_content}"
+    </input>
+    <expected_return>
+      {
+        "status": "completed",
+        "mode": "task|directory|file|text",
+        "content_map": { ... },  // Intermediate representation
+        "operations": [
+          {
+            "type": "UPDATE|EXTEND|CREATE",
+            "segment_id": "...",
+            "memory_id": "MEM-...",
+            "memory_path": "..."
+          }
+        ],
+        "memories_affected": 3,
+        "artifacts_reviewed": [...]  // task mode only
+      }
+    </expected_return>
+  </step_1>
+
+  <step_2>
+    <action>Present Results</action>
+    <process>
+      Task mode:
+        - Number of artifacts reviewed
+        - Artifacts processed by classification
+        - Memories created per category
+
+      Directory mode:
+        - Files scanned and selected
+        - Content segments identified
+        - Memory operations by type (UPDATE/EXTEND/CREATE)
+
+      File mode:
+        - Content segments extracted
+        - Memory operations performed
+        - Related memories found/updated
+
+      Text mode:
+        - Memory operations performed
+        - Related memories found/updated
+
+      All modes:
+        - Display operation summary (N updates, N extensions, N creates)
+        - Display Git commit info
+        - Display next steps guidance
+    </process>
+  </step_2>
+</workflow_execution>
 
 ---
 
-**Next Steps**:
-1. Review tasks in TODO.md
-2. Run `/research 650` to begin
-3. Progress through /research -> /plan -> /implement cycle
-```
+## Task Mode
 
-### No Tags Found
+When invoked with `--task N`, /learn enters task mode for reviewing task artifacts:
 
-```
-## No Tags Found
+### Workflow
 
-Scanned files in: nvim/lua/
-No FIX:, NOTE:, or TODO: tags detected.
+1. **Parse Task Directory**: Locate specs/{NNN}_{SLUG}/ directory
+2. **Scan Artifacts**: Find all files in subdirectories:
+   - reports/ - Research reports
+   - plans/ - Implementation plans
+   - summaries/ - Completion summaries
+   - code/ - Code artifacts
+   - Any other artifact directories
+3. **Present Artifact List**: Show numbered list of all found files
+4. **Interactive Selection**: Let user select which artifacts to review
+5. **Content Mapping**: For large artifacts (>500 tokens), segment into topic chunks
+6. **Memory Search**: Find related memories via MCP search or grep fallback
+7. **Classification**: Present 5-category taxonomy for each segment:
+   - [TECHNIQUE] - Reusable method or approach
+   - [PATTERN] - Design or implementation pattern
+   - [CONFIG] - Configuration or setup knowledge
+   - [WORKFLOW] - Process or procedure
+   - [INSIGHT] - Key learning or understanding
+   - [SKIP] - Not valuable for memory
+8. **Memory Operations**: Execute UPDATE/EXTEND/CREATE based on overlap
+9. **Update Index**: Link new memories in vault index (both category and topic)
 
-Nothing to create.
-```
-
-### No Selection Made
-
-```
-## Tag Scan Results
-...
-
----
-
-No task types selected. No tasks created.
-```
-
-## Examples
+### Example Usage
 
 ```bash
-# Scan entire project interactively
-/learn
-
-# Scan specific directory
-/learn nvim/lua/Layer1/
-
-# Scan specific file
-/learn docs/04-Metalogic.tex
-
-# Scan multiple paths
-/learn nvim/lua/ .claude/agents/
+/learn --task 142                    # Review all artifacts from task 142
+/learn --task 142 --category PATTERN # Focus on pattern extraction only
 ```
 
-## Standards Reference
+---
 
-This command implements the multi-task creation pattern. See `.claude/docs/reference/standards/multi-task-creation-standard.md` for the complete standard.
+## Directory Mode
 
-**Compliance Level**: Full (all required components)
+When invoked with a directory path, /learn enters directory mode:
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Discovery | Yes | Tag scanning (FIX:, NOTE:, TODO:) |
-| Selection | Yes | AskUserQuestion with multiSelect |
-| Grouping | Yes | Topic clustering by shared terms/file section |
-| Dependencies | Partial | Internal only (learn-it -> fix-it) |
-| Ordering | No | Sequential creation |
-| Visualization | No | Not implemented |
-| Confirmation | Yes | Implicit via selection |
-| State Updates | Yes | Atomic state.json + TODO.md |
+### Workflow
 
-**Limitation**: External dependency support (TODO tasks depending on existing tasks) is not implemented. The only dependency relationship is internal: when both fix-it and learn-it tasks are selected for NOTE: tags, learn-it is created first and fix-it depends on it.
+1. **Recursive Scan**: Find all text files in directory tree
+2. **Exclusion Patterns**: Skip .git/, node_modules/, __pycache__, .obsidian/, binary files
+3. **Two-Tier Detection**: Extension whitelist first, then `file --mime-type` fallback
+4. **Size Limits**: 100KB per file, warning at 50 files, hard limit at 200 files
+5. **File Selection**: Present multiSelect with file sizes for user to choose
+6. **Content Mapping**: Segment selected files into topic chunks
+7. **Memory Search**: Find related memories for each segment
+8. **Memory Operations**: Present UPDATE/EXTEND/CREATE recommendations
+9. **Execute Operations**: Apply confirmed memory operations
+10. **Update Index**: Add entries to both category and topic sections
 
-## Notes
+### Example Usage
 
-- The `--dry-run` flag is no longer supported. The interactive flow is inherently "preview first" - users always see findings before any tasks are created.
-- Git commit is performed automatically after tasks are created.
-- Task numbers are assigned sequentially from state.json.
+```bash
+/learn ./src/utils/              # Scan utils directory for learnable content
+/learn ~/notes/neovim/           # Import notes directory to memory vault
+```
+
+---
+
+## File Mode
+
+When invoked with a single file path, /learn enters file mode:
+
+### Workflow
+
+1. **Read File**: Load file content
+2. **Content Mapping**: Segment into topic chunks at heading/paragraph boundaries
+3. **Small-Input Bypass**: Files under 500 tokens become single segment
+4. **Memory Search**: Find related memories via MCP or grep
+5. **Present Options**: Show segments with overlap scores and recommendations
+6. **Memory Operations**: Execute confirmed UPDATE/EXTEND/CREATE operations
+7. **Update Index**: Link new/updated memories
+
+### Example Usage
+
+```bash
+/learn /path/to/notes.md         # Add file content as memory
+/learn ~/docs/patterns.txt       # Import from external file
+```
+
+---
+
+## Text Mode
+
+When invoked with text content, /learn enters text mode:
+
+### Workflow
+
+1. **Parse Input**: Extract text content from arguments
+2. **Content Mapping**: For text >500 tokens, segment at paragraph boundaries
+3. **Memory Search**: Find related memories via MCP or grep
+4. **Present Options**: Show preview with overlap scores
+5. **Memory Operations**: Execute confirmed UPDATE/EXTEND/CREATE
+6. **Update Index**: Link new/updated memories
+
+### Example Usage
+
+```bash
+/learn "Use pcall() in Lua for safe function calls"  # Add text as memory
+/learn "Pattern: always use explicit returns in modules"
+```
+
+---
+
+## Error Handling
+
+<error_handling>
+  <argument_errors>
+    - No arguments provided -> "Usage: /learn <text|file|directory> OR /learn --task N"
+    - Invalid file path (file mode) -> "File not found: {path}"
+    - Invalid directory path (directory mode) -> "Directory not found: {path}"
+    - Invalid task number (task mode) -> "Task not found: {N}"
+    - Non-existent task directory -> "Task directory not found: specs/{NNN}_*"
+  </argument_errors>
+
+  <directory_errors>
+    - Empty directory -> "No text files found in: {path}"
+    - No text files after filtering -> "No supported text files found in: {path}"
+    - Too many files (>200) -> "Too many files ({N}). Narrow your path or use file mode."
+    - Warning at 50 files -> "Large directory ({N} files). Consider narrowing scope."
+  </directory_errors>
+
+  <execution_errors>
+    - Skill failure -> Return error details
+    - MCP unavailable -> Continue with grep-based search (graceful degradation)
+    - No artifacts found in task -> "No artifacts found for task {N}"
+  </execution_errors>
+
+  <interactive_errors>
+    - User cancels -> Exit gracefully, no files created
+    - All artifacts/segments skipped -> "No memories created (all content skipped)"
+  </interactive_errors>
+</error_handling>
+
+---
+
+## State Management
+
+<state_management>
+  <reads>
+    - specs/{NNN}_*/ (task mode - artifact directories)
+    - {directory_path}/**/* (directory mode - recursive scan)
+    - {file_path} (file mode - single file)
+    - .memory/30-Templates/memory-template.md
+    - .memory/10-Memories/ (for ID generation, similarity search)
+    - .memory/20-Indices/index.md (for topic hierarchy)
+  </reads>
+
+  <writes>
+    - .memory/10-Memories/*.md (new/updated memory files)
+    - .memory/20-Indices/index.md (updated links in category and topic sections)
+  </writes>
+</state_management>

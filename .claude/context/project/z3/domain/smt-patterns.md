@@ -10,7 +10,7 @@ Z3 can read/write SMT-LIB2 format for constraint exchange.
 
 ```smt2
 ; Declare sorts
-(declare-sort State 0)
+(declare-sort MySort 0)
 
 ; Declare constants/functions
 (declare-const x Int)

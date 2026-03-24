@@ -160,8 +160,8 @@ fi
 
 ### Internal Documentation
 
-- Research report: `specs/480_investigate_workflow_delegation_early_stop/reports/research-001.md`
-- Implementation plan: `specs/480_investigate_workflow_delegation_early_stop/plans/implementation-002.md`
+- Research report: `specs/480_investigate_workflow_delegation_early_stop/reports/01_workflow-delegation-research.md`
+- Implementation plan: `specs/480_investigate_workflow_delegation_early_stop/plans/01_anti-stop-plan.md`
 
 ## Creating New Agents/Skills
 

@@ -1,13 +1,13 @@
 # BitVector Operations
 
-BitVec patterns for state representation in the ModelChecker framework.
+BitVec patterns for state representation and manipulation in Z3.
 
 ## Overview
 
-ModelChecker represents states as Z3 BitVectors where:
-- N bits = N atomic states
-- Bit i set = atomic state i is part of the state
-- Part-whole relations map to bitwise operations
+BitVectors can represent sets where:
+- N bits = N elements
+- Bit i set = element i is in the set
+- Set operations map to bitwise operations
 
 ## Core Concepts
 
@@ -16,10 +16,10 @@ ModelChecker represents states as Z3 BitVectors where:
 ```python
 N = 16  # Configurable, typically 8, 16, or 32
 
-# Full state (all atomic states)
+# Full state (all elements)
 FULL = (1 << N) - 1  # 0xFFFF for N=16
 
-# Null state (no atomic states)
+# Empty state
 NULL = 0
 
 # Number of possible states
@@ -37,53 +37,63 @@ state = z3.BitVec('state', N)
 # From integer
 concrete = z3.BitVecVal(5, N)  # Binary: ...0101
 
-# Named states
-verifier = z3.BitVec('verifier_A', N)
-falsifier = z3.BitVec('falsifier_A', N)
+# Named variables
+x = z3.BitVec('x', N)
+y = z3.BitVec('y', N)
 ```
 
-## Part-Whole Operations
+## Set Operations
 
-### Containment (Part-of)
+### Containment (Subset)
 
 ```python
-def is_part(s1, s2):
-    """s1 is part of s2."""
+def is_subset(s1, s2):
+    """s1 is a subset of s2."""
     # s1 is contained in s2 if their AND equals s1
     return (s1 & s2) == s1
 
 # Examples:
-# 0101 is part of 0111 (true: 0101 & 0111 = 0101)
-# 0101 is part of 0100 (false: 0101 & 0100 = 0100)
+# 0101 is subset of 0111 (true: 0101 & 0111 = 0101)
+# 0101 is subset of 0100 (false: 0101 & 0100 = 0100)
 ```
 
-### Proper Part
+### Proper Subset
 
 ```python
-def proper_part(s1, s2):
-    """s1 is a proper part of s2 (contained but smaller)."""
-    return z3.And(is_part(s1, s2), s1 != s2)
+def proper_subset(s1, s2):
+    """s1 is a proper subset of s2 (contained but smaller)."""
+    return z3.And(is_subset(s1, s2), s1 != s2)
 ```
 
-### Fusion (Sum)
+### Union
 
 ```python
-def fusion(s1, s2):
-    """Mereological sum of s1 and s2."""
+def union(s1, s2):
+    """Union of s1 and s2."""
     return s1 | s2
 
-# Example: fusion(0101, 0011) = 0111
+# Example: union(0101, 0011) = 0111
+```
+
+### Intersection
+
+```python
+def intersection(s1, s2):
+    """Intersection of s1 and s2."""
+    return s1 & s2
+
+# Example: intersection(0111, 0011) = 0011
 ```
 
 ### Overlap
 
 ```python
 def overlap(s1, s2):
-    """s1 and s2 share at least one common part."""
+    """s1 and s2 share at least one element."""
     return (s1 & s2) != 0
 
 def disjoint(s1, s2):
-    """s1 and s2 share no common part."""
+    """s1 and s2 share no element."""
     return (s1 & s2) == 0
 ```
 
@@ -91,50 +101,56 @@ def disjoint(s1, s2):
 
 ```python
 def difference(s1, s2):
-    """Parts of s1 that are not parts of s2."""
+    """Elements of s1 that are not in s2."""
     return s1 & ~s2
 
 # Example: difference(0111, 0011) = 0100
 ```
 
-### Intersection
+### Complement
 
 ```python
-def intersection(s1, s2):
-    """Common parts of s1 and s2."""
-    return s1 & s2
-
-# Example: intersection(0111, 0011) = 0011
+def complement(s, N):
+    """All elements except those in s."""
+    FULL = (1 << N) - 1
+    return ~s & FULL
 ```
 
 ## Utility Functions
 
-### bitvec_to_substates
-
-From `model_checker.utils`:
+### bitvec_to_set
 
 ```python
-from model_checker.utils import bitvec_to_substates
-
-def bitvec_to_substates(bitvec_val, N):
-    """Convert integer/BitVec to set of atomic state indices."""
+def bitvec_to_set(bitvec_val, N):
+    """Convert integer/BitVec to set of element indices."""
     if hasattr(bitvec_val, 'as_long'):
         bitvec_val = bitvec_val.as_long()
 
-    substates = set()
+    elements = set()
     for i in range(N):
         if bitvec_val & (1 << i):
-            substates.add(i)
-    return substates
+            elements.add(i)
+    return elements
 
-# Example: bitvec_to_substates(5, 4) -> {0, 2}  (binary 0101)
+# Example: bitvec_to_set(5, 4) -> {0, 2}  (binary 0101)
+```
+
+### set_to_bitvec
+
+```python
+def set_to_bitvec(element_set, N):
+    """Convert set of indices to bitvector value."""
+    value = 0
+    for i in element_set:
+        value |= (1 << i)
+    return value
+
+# Example: set_to_bitvec({0, 2}, 4) -> 5  (binary 0101)
 ```
 
 ### int_to_binary
 
 ```python
-from model_checker.utils import int_to_binary
-
 def int_to_binary(n, width):
     """Convert integer to binary string with fixed width."""
     return format(n, f'0{width}b')
@@ -145,42 +161,32 @@ def int_to_binary(n, width):
 ### pretty_set_print
 
 ```python
-from model_checker.utils import pretty_set_print
-
-def pretty_set_print(state_set):
-    """Format set of states for display."""
-    if not state_set:
+def pretty_set_print(element_set):
+    """Format set of elements for display."""
+    if not element_set:
         return "{}"
-    return "{" + ", ".join(str(s) for s in sorted(state_set)) + "}"
+    return "{" + ", ".join(str(s) for s in sorted(element_set)) + "}"
 
 # Example: pretty_set_print({0, 2, 5}) -> "{0, 2, 5}"
 ```
 
 ## Constraint Patterns
 
-### Non-Empty States
+### Non-Empty Sets
 
 ```python
-# State must have at least one atomic part
+# Set must have at least one element
 non_empty = state != 0
 
-# State must have at least k parts
-# (popcount >= k, approximated with constraints)
+# Set must have at least k elements (using popcount)
+# See cardinality constraints below
 ```
 
-### Covering
+### Cardinality Constraints
 
 ```python
-def covers(s1, s2):
-    """s1 completely covers s2 (s2 is part of s1)."""
-    return is_part(s2, s1)
-```
-
-### Exact Size
-
-```python
-def has_exactly_n_parts(state, n, N):
-    """State has exactly n atomic parts."""
+def has_exactly_n_elements(state, n, N):
+    """State has exactly n elements."""
     # Create boolean for each bit
     bits = [z3.Extract(i, i, state) == 1 for i in range(N)]
     # Use PbEq for pseudo-boolean equality
@@ -190,13 +196,13 @@ def has_exactly_n_parts(state, n, N):
 ### At Least / At Most
 
 ```python
-def has_at_least_n_parts(state, n, N):
-    """State has at least n atomic parts."""
+def has_at_least_n_elements(state, n, N):
+    """State has at least n elements."""
     bits = [z3.Extract(i, i, state) == 1 for i in range(N)]
     return z3.PbGe([(b, 1) for b in bits], n)
 
-def has_at_most_n_parts(state, n, N):
-    """State has at most n atomic parts."""
+def has_at_most_n_elements(state, n, N):
+    """State has at most n elements."""
     bits = [z3.Extract(i, i, state) == 1 for i in range(N)]
     return z3.PbLe([(b, 1) for b in bits], n)
 ```
@@ -221,13 +227,13 @@ def enumerate_nonempty_states(N):
         yield i
 ```
 
-### Enumerate Parts
+### Enumerate Subsets
 
 ```python
-def enumerate_parts(state_val, N):
-    """Generator for all parts of a given state."""
+def enumerate_subsets(state_val, N):
+    """Generator for all subsets of a given state."""
     for i in range(1 << N):
-        if (i & state_val) == i and i != 0:
+        if (i & state_val) == i:
             yield i
 ```
 
@@ -243,24 +249,24 @@ def extract_state_value(model, bitvec_var):
 
 def format_state(state_val, N):
     """Format state value for display."""
-    substates = bitvec_to_substates(state_val, N)
+    elements = bitvec_to_set(state_val, N)
     binary = int_to_binary(state_val, N)
-    return f"{substates} (binary: {binary})"
+    return f"{elements} (binary: {binary})"
 ```
 
 ## Common Operations Matrix
 
 | Operation | Python | Z3 | Description |
 |-----------|--------|-----|-------------|
-| Union | `\|` | `\|` | Mereological sum |
-| Intersection | `&` | `&` | Common parts |
-| Difference | `& ~` | `& ~` | Parts not in other |
-| Part-of | `(a & b) == a` | Same | Containment check |
-| Overlap | `(a & b) != 0` | Same | Share parts? |
-| Disjoint | `(a & b) == 0` | Same | No shared parts? |
+| Union | `\|` | `\|` | Set union |
+| Intersection | `&` | `&` | Set intersection |
+| Difference | `& ~` | `& ~` | Set difference |
+| Subset | `(a & b) == a` | Same | Containment check |
+| Overlap | `(a & b) != 0` | Same | Shared elements? |
+| Disjoint | `(a & b) == 0` | Same | No shared elements? |
 | Complement | `~a & FULL` | Same | All except a |
-| Empty check | `a == 0` | Same | Null state? |
-| Full check | `a == FULL` | Same | Full state? |
+| Empty check | `a == 0` | Same | Empty set? |
+| Full check | `a == FULL` | Same | Full set? |
 
 ## Performance Considerations
 
@@ -289,9 +295,9 @@ PROD_N = 16
 # For repeated conversions, cache results
 _state_cache = {}
 
-def cached_substates(val, N):
+def cached_to_set(val, N):
     key = (val, N)
     if key not in _state_cache:
-        _state_cache[key] = bitvec_to_substates(val, N)
+        _state_cache[key] = bitvec_to_set(val, N)
     return _state_cache[key]
 ```

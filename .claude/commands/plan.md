@@ -1,7 +1,7 @@
 ---
 description: Create implementation plan for a task
 allowed-tools: Skill, Bash(jq:*), Bash(git:*), Read, Edit
-argument-hint: TASK_NUMBER
+argument-hint: TASK_NUMBER [--team [--team-size N]]
 model: claude-opus-4-5-20251101
 ---
 
@@ -13,9 +13,25 @@ Create a phased implementation plan for a task by delegating to the planner skil
 
 - `$1` - Task number (required)
 
+## Options
+
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--team` | Enable multi-agent parallel planning with multiple teammates | false |
+| `--team-size N` | Number of planning teammates to spawn (2-3) | 2 |
+
+When `--team` is specified, planning is delegated to `skill-team-plan` which spawns multiple planning agents generating alternative plans in parallel. Each teammate produces a plan candidate, and the lead synthesizes findings into a final plan with trade-off analysis.
+
+**Note**: Team mode requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable. If unavailable, gracefully degrades to single-agent planning.
+
 ## Execution
 
 ### CHECKPOINT 1: GATE IN
+
+**Display header**:
+```
+[Planning] Task {N}: {project_name}
+```
 
 1. **Generate Session ID**
    ```
@@ -42,19 +58,95 @@ Create a phased implementation plan for a task by delegating to the planner skil
 
 **ABORT** if any validation fails.
 
-**On GATE IN success**: Task validated. **IMMEDIATELY CONTINUE** to STAGE 2 below.
+**On GATE IN success**: Task validated. **IMMEDIATELY CONTINUE** to STAGE 1.5 below.
+
+### STAGE 1.5: PARSE FLAGS
+
+**Parse arguments to determine team mode.**
+
+1. **Extract Team Options**
+   Check args for team flags:
+   - `--team` -> `team_mode = true`
+   - `--team-size N` -> `team_size = N` (clamp 2-3)
+
+   If no team flag found: `team_mode = false`, `team_size = 2`
+
+2. **Validate Team Size**
+   ```bash
+   # Clamp team_size to valid range (2-3 for planning)
+   team_size=${team_size:-2}
+   [ "$team_size" -lt 2 ] && team_size=2
+   [ "$team_size" -gt 3 ] && team_size=3
+   ```
+
+**On STAGE 1.5 success**: Flags parsed. **IMMEDIATELY CONTINUE** to STAGE 2 below.
 
 ### STAGE 2: DELEGATE
 
-**EXECUTE NOW**: After CHECKPOINT 1 passes, immediately invoke the Skill tool.
+**EXECUTE NOW**: After STAGE 1.5 completes, immediately invoke the Skill tool.
+
+**Team Mode Routing** (when `--team` flag present):
+
+If `team_mode == true`:
+- Route to `skill-team-plan`
+- Pass `team_size` parameter
+
+**Extension Routing** (when `--team` flag NOT present):
+
+Check extension manifests for language-specific plan routing:
+
+```bash
+# Get task language
+language=$(echo "$task_data" | jq -r '.language // "general"')
+
+# Check extension routing for plan (skill_name starts empty)
+skill_name=""
+for manifest in .claude/extensions/*/manifest.json; do
+  if [ -f "$manifest" ]; then
+    ext_skill=$(jq -r --arg lang "$language" \
+      '.routing.plan[$lang] // empty' "$manifest")
+    if [ -n "$ext_skill" ]; then
+      skill_name="$ext_skill"
+      break
+    fi
+  fi
+done
+
+# Fallback to default planner if no extension routing found
+skill_name=${skill_name:-"skill-planner"}
+```
+
+**Extension-Based Routing Table**:
+
+| Language | Skill to Invoke |
+|----------|-----------------|
+| `founder` | `skill-founder-plan` (from founder extension) |
+| Other | `skill-planner` (default) |
+
+**Skill Selection Logic**:
+```
+if team_mode:
+  skill_name = "skill-team-plan"
+else:
+  skill_name = {extension routing lookup} OR "skill-planner"
+```
 
 **Invoke the Skill tool NOW** with:
 ```
+# For team mode:
+skill: "skill-team-plan"
+args: "task_number={N} research_path={path to research report if exists} team_size={team_size} session_id={session_id}"
+
+# For extension-routed skill (e.g., skill-founder-plan):
+skill: "{skill_name from extension routing}"
+args: "task_number={N} research_path={path to research report if exists} session_id={session_id}"
+
+# For default single-agent mode:
 skill: "skill-planner"
 args: "task_number={N} research_path={path to research report if exists} session_id={session_id}"
 ```
 
-The skill spawns `planner-agent` which analyzes task requirements and research findings, decomposes into logical phases, identifies risks and mitigations, and creates a plan in `specs/{NNN}_{SLUG}/plans/`.
+The skill spawns agent(s) which analyze task requirements and research findings, decompose into logical phases, identify risks and mitigations, and create a plan in `specs/{NNN}_{SLUG}/plans/`.
 
 **On DELEGATE success**: Plan created. **IMMEDIATELY CONTINUE** to CHECKPOINT 2 below.
 
@@ -95,10 +187,10 @@ Commit failure is non-blocking (log and continue).
 ```
 Plan created for Task #{N}
 
-Plan: {artifact_path from skill result}
+Plan: specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md
 
-Phases: {phase_count from metadata}
-Total estimated effort: {estimated_hours from metadata}
+Phases: {phase_count}
+Estimated effort: {estimated_hours}
 
 Status: [PLANNED]
 Next: /implement {N}

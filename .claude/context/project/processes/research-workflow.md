@@ -71,7 +71,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 **Process**:
 1. Read task from TODO.md using grep (selective loading):
    ```bash
-   grep -A 50 "^### ${task_number}\." specs/TODO.md > /tmp/task-${task_number}.md
+   grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}.md
    ```
 2. Extract task metadata:
    - Task number
@@ -158,7 +158,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 
 **Process**:
 1. Create research report file:
-   - Path: `specs/{number}_{slug}/reports/research-001.md`
+   - Path: `specs/{NNN}_{slug}/reports/MM_{short-slug}.md`
    - Directory created lazily when writing
 2. Write report sections:
    - **Overview**: Research objective and scope
@@ -235,7 +235,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 2. status-sync-manager performs atomic update:
    - Update TODO.md:
      - Status: [NOT STARTED] → [RESEARCHED]
-     - Add **Research**: {report_path} (stripped of specs/ prefix for TODO-relative link)
+     - Add **Research**: {report_path} using count-aware format (see state-management.md "Artifact Linking Format")
      - Add **Completed**: {date}
    - Update state.json:
      - Update status and timestamps
@@ -401,7 +401,7 @@ Load minimal context for routing decisions:
 
 ### Execution Stage (Researcher)
 
-Researcher loads context on-demand per `.claude/context/index.md`:
+Researcher loads context on-demand per `.claude/context/index.json`:
 - `core/standards/subagent-return-format.md` (return format)
 - `core/standards/status-markers.md` (status transitions)
 - `core/system/artifact-management.md` (lazy directory creation)
@@ -528,7 +528,7 @@ Error: {git_error}
 
 Directories created only when writing artifacts:
 - `specs/{task_number}_{slug}/` created when writing first artifact
-- `reports/` subdirectory created when writing research-001.md
+- `reports/` subdirectory created when writing first research artifact
 - `summaries/` NOT created (summary is metadata, not artifact)
 
 ### Task Extraction Optimization
@@ -536,7 +536,7 @@ Directories created only when writing artifacts:
 Extract only specific task entry from TODO.md to reduce context load:
 
 ```bash
-grep -A 50 "^### ${task_number}\." specs/TODO.md > /tmp/task-${task_number}.md
+grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}.md
 ```
 
 **Impact**: Reduces context from 109KB (full TODO.md) to ~2KB (task entry only), 98% reduction.
@@ -591,7 +591,7 @@ Results: Full README with configuration examples
 Extract only specific task entry from TODO.md to reduce context load:
 
 ```bash
-grep -A 50 "^### ${task_number}\." specs/TODO.md > /tmp/task-${task_number}.md
+grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}.md
 ```
 
 **Impact**: Reduces context from 109KB (full TODO.md) to ~2KB (task entry only), 98% reduction.

@@ -71,7 +71,7 @@ routing:  # Optional
   default: {default_agent}
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/standards/subagent-return-format.md"
     - "{command_specific_context}"
@@ -214,7 +214,7 @@ permissions:
     - write: ["{protected_paths}"]
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "{required_context_1}"
     - "{required_context_2}"
@@ -350,7 +350,7 @@ max_tokens: 2000
 timeout: 60
 context_loading:
   strategy: minimal
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/standards/command-structure.md"
     - "system/routing-guide.md"

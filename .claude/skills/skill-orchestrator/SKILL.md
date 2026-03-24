@@ -14,7 +14,7 @@ Central routing intelligence for the task management system.
 Load context on-demand when needed:
 - `@.claude/context/core/orchestration/orchestration-core.md` - Routing, delegation, session tracking
 - `@.claude/context/core/orchestration/state-management.md` - Task lookup and status validation
-- `@.claude/context/index.md` - Full context discovery index
+- `@.claude/context/index.json` - Full context discovery index
 
 ## Trigger Conditions
 
@@ -42,11 +42,11 @@ Route to appropriate skill based on task language:
 | Language | Research Skill | Implementation Skill |
 |----------|---------------|---------------------|
 | neovim | skill-neovim-research | skill-neovim-implementation |
-| latex | skill-researcher | skill-latex-implementation |
-| typst | skill-researcher | skill-typst-implementation |
 | general | skill-researcher | skill-implementer |
 | meta | skill-researcher | skill-implementer |
 | markdown | skill-researcher | skill-implementer |
+
+**Note**: Additional languages (latex, typst) are available via extensions in `.claude/extensions/`.
 
 ### 3. Status Validation
 
@@ -109,3 +109,21 @@ Prepare context package for delegated skill:
 - Task not found: Return clear error with suggestions
 - Invalid status: Return error with current status and allowed operations
 - Skill invocation failure: Return partial result with error details
+
+---
+
+## MUST NOT (Postflight Boundary)
+
+After routing to a skill, this skill MUST NOT:
+
+1. **Edit source files** - All work is done by routed skills/agents
+2. **Run build/test commands** - Verification is done by routed skills/agents
+3. **Update task status** - Status updates are done by routed skills
+4. **Create artifacts** - Artifact creation is done by routed skills/agents
+
+The orchestrator is a **routing-only** skill. It:
+- Looks up task context
+- Routes to appropriate skill based on language
+- Passes through the routed skill's return
+
+Reference: @.claude/context/core/standards/postflight-tool-restrictions.md

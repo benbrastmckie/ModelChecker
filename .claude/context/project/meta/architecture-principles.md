@@ -88,7 +88,7 @@ Optimize context loading to minimize token usage during routing.
 
 ```
 .claude/context/
-├── index.md              # Entry point (always loaded)
+├── index.json              # Entry point (always loaded)
 ├── core/                 # General standards (load on-demand)
 │   ├── standards/
 │   └── workflows/
@@ -194,7 +194,7 @@ routing:
 timeout: 3600
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required: [...]
   optional: [...]
 ---

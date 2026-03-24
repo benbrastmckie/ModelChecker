@@ -32,9 +32,9 @@ Token budget: ~300 tokens
 1. Path must be relative to repo root
 2. File must exist on disk
 3. Type must match artifact category:
-   - research: `specs/{NNN}_*/reports/research-*.md`
-   - plan: `specs/{NNN}_*/plans/implementation-*.md`
-   - summary: `specs/{NNN}_*/summaries/implementation-summary-*.md`
+   - research: `specs/{NNN}_*/reports/*.md`
+   - plan: `specs/{NNN}_*/plans/*.md`
+   - summary: `specs/{NNN}_*/summaries/*-summary.md`
 
 ## Idempotency Check
 

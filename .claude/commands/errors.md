@@ -135,20 +135,15 @@ Error Analysis Complete
 
 Report: specs/errors/analysis-{DATE}.md
 
-Summary:
-- Total errors: {N}
+Errors: {N} total
 - Critical unfixed: {N}
 - High unfixed: {N}
 
-Top patterns:
-1. {Pattern}: {N} errors
-2. {Pattern}: {N} errors
-
-Created {N} fix tasks:
+Tasks created: {N}
 - Task #{N1}: {title}
 - Task #{N2}: {title}
 
-Next: /implement {N} to fix errors
+Next: /implement {N}
 ```
 
 ## Execution (Fix Mode - --fix N)

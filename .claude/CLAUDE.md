@@ -1,6 +1,6 @@
-# Neovim Configuration Management System
+# Agent System
 
-Task management and agent orchestration for Neovim configuration maintenance. For comprehensive documentation, see @.claude/README.md.
+Task management and agent orchestration for project development. For comprehensive documentation, see @.claude/README.md.
 
 ## Quick Reference
 
@@ -12,19 +12,22 @@ Task management and agent orchestration for Neovim configuration maintenance. Fo
 ## Project Structure
 
 ```
-.                         # Repository root (Neovim configuration)
-├── init.lua             # Entry point
-├── lua/                 # Lua modules
-│   ├── plugins/         # Plugin specifications
-│   ├── config/          # Core configuration
-│   └── utils/           # Utility functions
-├── after/               # Filetype-specific overrides
-│   └── ftplugin/        # Filetype plugins
-├── plugin/              # Auto-loaded plugins
-├── docs/                # Project documentation
+.                         # Repository root
 ├── specs/               # Task management artifacts
+│   ├── TODO.md         # Task list
+│   ├── state.json      # Task state
+│   └── {NNN}_{SLUG}/   # Task directories
 └── .claude/             # Claude Code configuration
+    ├── commands/       # Slash commands
+    ├── skills/         # Skill definitions
+    ├── agents/         # Agent definitions
+    ├── rules/          # Auto-applied rules
+    └── context/        # Domain knowledge
 ```
+
+**Project-specific structure**: See `.claude/context/project/repo/project-overview.md` for details about this repository's layout.
+
+**New repository setup**: If project-overview.md doesn't exist, see `.claude/context/project/repo/update-project.md` for guidance on generating project-appropriate documentation.
 
 ## Task Management
 
@@ -38,25 +41,40 @@ Task management and agent orchestration for Neovim configuration maintenance. Fo
 ### Artifact Paths
 ```
 specs/{NNN}_{SLUG}/
-├── reports/research-{NNN}.md
-├── plans/implementation-{NNN}.md
-└── summaries/implementation-summary-{DATE}.md
+├── reports/MM_{short-slug}.md
+├── plans/MM_{short-slug}.md
+└── summaries/MM_{short-slug}-summary.md
 ```
-`{NNN}` = 3-digit zero-padded (directories and artifact versions), `{DATE}` = YYYYMMDD.
+`{NNN}` = 3-digit zero-padded task directory numbers, `{DATE}` = YYYYMMDD.
 
-**Note**: Task numbers remain unpadded (`{N}`) in TODO.md entries, state.json values, and commit messages. Only directory names and artifact version numbers use zero-padding for lexicographic sorting.
+**Naming Convention**: Artifacts use `MM_{short-slug}.md` format:
+- `MM` = Zero-padded sequence number within task (01, 02, 03...)
+- `{short-slug}` = 3-5 word kebab-case description extracted from task title
+- Examples: `01_configure-lsp-python.md`, `02_implementation-plan.md`, `03_execution-summary.md`
+
+**Note**: Task numbers remain unpadded (`{N}`) in TODO.md entries, state.json values, and commit messages. Only directory names and artifact sequence numbers use zero-padding for lexicographic sorting.
+
+**System-Specific Naming**: Task directories use different prefixes by system:
+- **Claude Code** (.claude/): `specs/{NNN}_{SLUG}/` (no prefix)
+- **OpenCode** (.opencode/): `specs/OC_{NNN}_{SLUG}/` (OC_ prefix)
+
+This distinction enables identification of which system created each task.
 
 ### Language-Based Routing
 
-| Language | Research Tools | Implementation Tools |
-|----------|----------------|---------------------|
-| `neovim` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (nvim --headless) |
-| `latex` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (pdflatex) |
-| `typst` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (typst compile) |
-| `python` | WebSearch, WebFetch, Read, context7 | Read, Write, Edit, Bash (pytest, PYTHONPATH) |
-| `z3` | WebSearch, WebFetch, Read, context7 | Read, Write, Edit, Bash (pytest -k z3) |
-| `general` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash |
-| `meta` | Read, Grep, Glob | Write, Edit |
+**Core Languages** (always available):
+
+| Language | Research Skill | Implementation Skill | Tools |
+|----------|----------------|---------------------|-------|
+| `general` | `skill-researcher` | `skill-implementer` | WebSearch, WebFetch, Read, Write, Edit, Bash |
+| `meta` | `skill-researcher` | `skill-implementer` | Read, Grep, Glob, Write, Edit |
+| `markdown` | `skill-researcher` | `skill-implementer` | Read, Write, Edit |
+
+**Extension Languages** (available when extensions are loaded via `<leader>ac`):
+
+Extensions provide additional language support (neovim, lean4, latex, typst, python, nix, web, z3, epidemiology, formal, etc.). See `.claude/extensions/*/manifest.json` for available extensions and their capabilities.
+
+When an extension is loaded, its routing entries are merged into the command tables and context index.
 
 ## Command Reference
 
@@ -66,16 +84,18 @@ All commands use checkpoint-based execution: GATE IN (preflight) -> DELEGATE (sk
 |---------|-------|-------------|
 | `/task` | `/task "Description"` | Create task |
 | `/task` | `/task --recover N`, `--expand N`, `--sync`, `--abandon N` | Manage tasks |
-| `/research` | `/research N [focus]` | Research task, route by language |
-| `/plan` | `/plan N` | Create implementation plan |
-| `/implement` | `/implement N` | Execute plan, resume from incomplete phase |
+| `/research` | `/research N [focus] [--team]` | Research task, route by language |
+| `/plan` | `/plan N [--team]` | Create implementation plan |
+| `/implement` | `/implement N [--team]` | Execute plan, resume from incomplete phase |
 | `/revise` | `/revise N` | Create new plan version |
 | `/review` | `/review` | Analyze codebase |
 | `/todo` | `/todo` | Archive completed/abandoned tasks, sync repository metrics |
 | `/errors` | `/errors` | Analyze error patterns, create fix plans |
 | `/meta` | `/meta` | System builder for .claude/ changes |
-| `/learn` | `/learn [PATH...]` | Scan for FIX:/NOTE:/TODO: tags |
+| `/fix-it` | `/fix-it [PATH...]` | Scan for FIX:/NOTE:/TODO: tags |
 | `/refresh` | `/refresh [--dry-run] [--force]` | Clean orphaned processes and old files |
+| `/tag` | `/tag [--patch|--minor|--major]` | Create semantic version tag (user-only) |
+| `/spawn` | `/spawn N [blocker description]` | Spawn new tasks to unblock a blocked task |
 
 ### Utility Scripts
 
@@ -108,6 +128,22 @@ TODO.md and state.json must stay synchronized. Update state.json first (machine 
 - Non-meta tasks: `completion_summary` + optional `roadmap_items` -> /todo annotates ROAD_MAP.md
 - Meta tasks: `completion_summary` + `claudemd_suggestions` -> /todo displays for user review
 
+### Vault Operation (Task Number Reset)
+
+When `next_project_number` exceeds 1000, the `/todo` command initiates vault archival:
+
+1. **Trigger**: `next_project_number > 1000` detected during /todo execution
+2. **User Confirmation**: AskUserQuestion with renumbering preview
+3. **Vault Creation**: Move `specs/archive/` to `specs/vault/{NN-vault}/`
+4. **Renumbering**: Tasks > 1000 renumbered by subtracting 1000 (e.g., 1003 -> 3)
+5. **State Reset**: `next_project_number` set to max(renumbered) + 1
+
+**Vault Fields** in state.json:
+- `vault_count`: Number of completed vault operations
+- `vault_history`: Array of vault metadata entries
+
+See `.claude/rules/state-management.md` for complete vault schema documentation.
+
 ## Git Commit Conventions
 
 Format: `task {N}: {action}` with session ID in body.
@@ -123,45 +159,85 @@ Standard actions: `create`, `complete research`, `create implementation plan`, `
 
 ## Skill-to-Agent Mapping
 
-| Skill | Agent | Purpose |
-|-------|-------|---------|
-| skill-neovim-research | neovim-research-agent | Neovim/plugin research |
-| skill-neovim-implementation | neovim-implementation-agent | Neovim configuration implementation |
-| skill-python-research | python-research-agent | Python/ModelChecker research |
-| skill-python-implementation | python-implementation-agent | Python code implementation |
-| skill-z3-research | z3-research-agent | Z3/SMT constraint research |
-| skill-z3-implementation | z3-implementation-agent | Z3 constraint implementation |
-| skill-researcher | general-research-agent | General web/codebase research |
-| skill-planner | planner-agent | Implementation plan creation |
-| skill-implementer | general-implementation-agent | General file implementation |
-| skill-latex-implementation | latex-implementation-agent | LaTeX document implementation |
-| skill-typst-implementation | typst-implementation-agent | Typst document implementation |
-| skill-meta | meta-builder-agent | System building and task creation |
-| skill-document-converter | document-converter-agent | Document format conversion |
-| skill-status-sync | (direct execution) | Atomic status updates |
-| skill-refresh | (direct execution) | Process and file cleanup |
+| Skill | Agent | Model | Purpose |
+|-------|-------|-------|---------|
+| skill-researcher | general-research-agent | opus | General web/codebase research |
+| skill-planner | planner-agent | opus | Implementation plan creation |
+| skill-implementer | general-implementation-agent | - | General file implementation |
+| skill-meta | meta-builder-agent | - | System building and task creation |
+| skill-status-sync | (direct execution) | - | Atomic status updates |
+| skill-refresh | (direct execution) | - | Process and file cleanup |
+| skill-todo | (direct execution) | - | Archive completed tasks with CHANGE_LOG updates |
+| skill-tag | (user-only) | - | Semantic version tagging for deployment |
+| skill-team-research | (team orchestration) | sonnet | Multi-agent parallel research (--team flag) |
+| skill-team-plan | (team orchestration) | sonnet | Multi-agent parallel planning (--team flag) |
+| skill-team-implement | (team orchestration) | sonnet | Multi-agent parallel implementation (--team flag) |
+| skill-spawn | spawn-agent | opus | Analyze blockers and spawn new tasks |
+
+### Agents
+
+| Agent | Purpose |
+|-------|---------|
+| general-research-agent | General web/codebase research |
+| general-implementation-agent | General file implementation |
+| planner-agent | Implementation plan creation |
+| meta-builder-agent | System building and meta tasks |
+| code-reviewer-agent | Code quality assessment and review |
+| spawn-agent | Blocker analysis and task decomposition |
+
+**Model Enforcement**: Agents declare preferred models via `model:` frontmatter field. Research and planning agents use `opus` for superior reasoning. Implementation agents use default model. See `.claude/docs/reference/standards/agent-frontmatter-standard.md` for details.
+
+**User-Only Skills**: Skills marked as "user-only" cannot be invoked by agents. These are for human-controlled operations like deployment (`skill-tag`).
+
+**Extension Skills**: When extensions are loaded, additional skill-to-agent mappings are added (e.g., skill-neovim-research -> neovim-research-agent).
+
+**Team Mode Skills**: When `--team` flag is passed to `/research`, `/plan`, or `/implement`, routing overrides to team skills which spawn multiple parallel teammates. Requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable. Gracefully degrades to single-agent if unavailable.
+
+| Flag | Team Skill | Teammates | Purpose |
+|------|------------|-----------|---------|
+| `--team` | skill-team-research | 2-4 | Parallel investigation with synthesis |
+| `--team` | skill-team-plan | 2-3 | Parallel plan generation with trade-offs |
+| `--team` | skill-team-implement | 2-4 | Parallel phase execution with debugger |
+
+**Note**: Team mode uses ~5x tokens compared to single-agent. Default team_size=2 minimizes cost.
 
 ## Rules References
 
 Core rules (auto-applied by file path):
 - @.claude/rules/state-management.md - Task state patterns (specs/**)
 - @.claude/rules/git-workflow.md - Commit conventions
-- @.claude/rules/neovim-lua.md - Neovim Lua development (lua/**/*.lua, after/**/*.lua)
 - @.claude/rules/error-handling.md - Error recovery (.claude/**)
 - @.claude/rules/artifact-formats.md - Report/plan formats (specs/**)
 - @.claude/rules/workflows.md - Command lifecycle (.claude/**)
 
+**Extension Rules**: When extensions are loaded, additional rules are added (e.g., neovim-lua.md for Lua development).
+
+## Context Discovery
+
+Agents use `index.json` for automated context discovery instead of hardcoded file lists:
+
+```bash
+# Find context files for an agent
+jq -r '.entries[] | select(.load_when.agents[]? == "planner-agent") | .path' .claude/context/index.json
+
+# Find context by task language
+jq -r '.entries[] | select(.load_when.languages[]? == "lean4") | .path' .claude/context/index.json
+
+# Get line counts for budget calculation
+jq -r '.entries[] | select(.load_when.agents[]? == "planner-agent") | "\(.line_count)\t\(.path)"' .claude/context/index.json
+```
+
+See `.claude/context/core/patterns/context-discovery.md` for query patterns.
+
+**Extension Context**: When extensions are loaded, their index entries are merged into `index.json`, enabling dynamic context discovery for extension-specific agents and languages.
+
 ## Context Imports
 
-Domain knowledge (load as needed):
-- @.claude/context/project/neovim/domain/neovim-api.md
-- @.claude/context/project/neovim/patterns/plugin-spec.md
-- @.claude/context/project/neovim/tools/lazy-nvim-guide.md
-- @.claude/context/project/python/domain/model-checker-api.md
-- @.claude/context/project/python/domain/theory-lib-patterns.md
-- @.claude/context/project/z3/domain/z3-api.md
-- @.claude/context/project/z3/patterns/constraint-generation.md
+Core context (always available):
 - @.claude/context/project/repo/project-overview.md
+- @.claude/context/project/meta/meta-guide.md
+
+**Extension Context**: Available when extensions are loaded via `<leader>ac`. Query `index.json` for extension-specific context files.
 
 ## Multi-Task Creation Standards
 
@@ -171,7 +247,7 @@ Commands that create multiple tasks follow a standardized 8-component pattern. S
 | Command | Compliance | Notes |
 |---------|------------|-------|
 | `/meta` | Full (Reference) | All 8 components, Kahn's algorithm, DAG visualization |
-| `/learn` | Full | Interactive selection, topic grouping, internal dependencies |
+| `/fix-it` | Full | Interactive selection, topic grouping, internal dependencies |
 | `/review` | Partial | Tier-based selection, grouping; no dependencies |
 | `/errors` | Partial | Automatic mode (intentional); no interactive selection |
 | `/task --review` | Partial | Numbered selection, parent_task linking |
@@ -216,3 +292,384 @@ Full documentation: @.claude/context/core/patterns/jq-escaping-workarounds.md
 - state.json = machine truth, TODO.md = user visibility
 - All skills use lazy context loading via @-references
 - Session ID format: `sess_{timestamp}_{random}` - generated at GATE IN, included in commits
+
+<!-- SECTION: extension_formal -->
+## Formal Reasoning Extension
+
+Language routing and context for formal mathematical reasoning including logic, mathematics, and physics.
+
+### Language Routing
+
+| Language | Description | Use Cases |
+|----------|-------------|-----------|
+| `formal` | General formal reasoning | Multi-domain formal tasks |
+| `logic` | Mathematical logic | Modal logic, Kripke semantics, proof theory |
+| `math` | Mathematics | Algebra, lattice theory, category theory, topology |
+| `physics` | Physics | Dynamical systems, formalization |
+
+### Skill-to-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-formal-research | formal-research-agent | Multi-domain formal research coordination |
+| skill-logic-research | logic-research-agent | Modal logic and Kripke semantics research |
+| skill-math-research | math-research-agent | Mathematics research (algebra, lattices, categories) |
+| skill-physics-research | physics-research-agent | Physics formalization research |
+
+### Domain Routing
+
+Automatic routing based on task keywords:
+
+**Logic Domain** (triggers logic-research-agent):
+- Modal logic, Kripke, accessibility, possible worlds
+- Proof theory, sequent calculus, natural deduction
+- Completeness, soundness, decidability
+- Temporal logic, epistemic logic
+
+**Math Domain** (triggers math-research-agent):
+- Lattice, partial order, complete lattice
+- Group, ring, field, monoid
+- Category, functor, natural transformation
+- Topology, metric space, topological space
+
+**Physics Domain** (triggers physics-research-agent):
+- Dynamical systems, fixed points, orbits
+- Flow, trajectory, ergodic
+- Chaos, Lyapunov, bifurcation
+
+### Context Import References
+
+Load context files on-demand:
+
+```
+Logic domain:
+@.claude/context/project/logic/README.md
+@.claude/context/project/logic/domain/kripke-semantics-overview.md
+
+Math domain:
+@.claude/context/project/math/README.md
+@.claude/context/project/math/lattice-theory/lattices.md
+
+Physics domain:
+@.claude/context/project/physics/README.md
+@.claude/context/project/physics/dynamical-systems/dynamical-systems.md
+```
+
+<!-- END_SECTION: extension_formal -->
+
+<!-- SECTION: extension_latex -->
+## LaTeX Extension
+
+This project includes LaTeX document development support via the latex extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `latex` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (pdflatex, latexmk) |
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-latex-implementation | latex-implementation-agent | LaTeX document implementation |
+
+### VimTeX Integration
+
+- Compile: `:VimtexCompile` (`<leader>lc`)
+- View PDF: `:VimtexView` (`<leader>lv`)
+- Clean: `:VimtexClean` (`<leader>lk`)
+- TOC: `:VimtexTocOpen` (`<leader>li`)
+
+### Document Structure
+
+- Use `\documentclass` appropriate for document type
+- Organize with `\input{}` for modular documents
+- Use `build/` directory for output files
+- Keep `.bib` files organized by project
+
+<!-- END_SECTION: extension_latex -->
+
+<!-- SECTION: extension_memory -->
+## Memory Extension
+
+This project includes the memory vault extension for knowledge capture and retrieval.
+
+### Commands
+
+| Command | Usage | Description |
+|---------|-------|-------------|
+| `/learn` | `/learn "text"` | Add text as memory (with content mapping and deduplication) |
+| `/learn` | `/learn /path/to/file` | Add file content as memory |
+| `/learn` | `/learn /path/to/dir/` | Scan directory for learnable content |
+| `/learn` | `/learn --task N` | Review task artifacts and create memories |
+
+All input modes flow through content mapping, MCP-based memory search (or grep fallback), and three memory operations (UPDATE, EXTEND, CREATE).
+
+### Memory-Augmented Research
+
+The `--remember` flag on `/research` enables memory-augmented research:
+
+```bash
+/research N --remember
+```
+
+When the memory extension is loaded, this flag:
+1. Searches the memory vault for relevant prior knowledge
+2. Includes top matching memories in research context
+3. Adds "Prior Knowledge from Memory Vault" section to the report
+
+**Note**: The `--remember` flag requires this extension to be loaded. If the extension is not loaded, the flag is ignored gracefully.
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-memory | (direct execution) | Memory creation and management |
+
+### MCP Integration
+
+The `obsidian-memory` MCP server provides memory search via the two-tool pattern:
+
+| Tool | Usage | Description |
+|------|-------|-------------|
+| `execute("search", {...})` | `execute("search", {query: "...", vault: ".memory", limit: 5})` | Search memories by keywords |
+| `execute("read", {...})` | `execute("read", {path: "..."})` | Retrieve full memory content |
+| `execute("write", {...})` | `execute("write", {path: "...", content: "..."})` | Create new memory |
+| `execute("list", {...})` | `execute("list", {vault: ".memory"})` | Enumerate all memories |
+
+**Setup**: See memory-setup.md context file for MCP server configuration.
+
+**Graceful Degradation**: If MCP is unavailable, grep-based search on .memory/10-Memories/*.md still works.
+
+### Memory Vault Structure
+
+```
+.memory/
++-- .obsidian/           # Obsidian configuration
++-- 00-Inbox/            # Quick capture for new memories
++-- 10-Memories/         # Stored memory entries
++-- 20-Indices/          # Navigation and organization
++-- 30-Templates/        # Memory entry templates
+```
+
+### Memory Classification
+
+When using `/learn --task N`, memories are classified into categories:
+
+- **[TECHNIQUE]** - Reusable method or approach
+- **[PATTERN]** - Design or implementation pattern
+- **[CONFIG]** - Configuration or setup knowledge
+- **[WORKFLOW]** - Process or procedure
+- **[INSIGHT]** - Key learning or understanding
+
+### Memory Operations
+
+The `/learn` command uses three memory operations based on overlap scoring:
+
+| Operation | Overlap | Description |
+|-----------|---------|-------------|
+| **UPDATE** | >60% | Replace existing memory content (old content preserved in History section) |
+| **EXTEND** | 30-60% | Append dated section to existing memory |
+| **CREATE** | <30% | Create new memory file |
+
+### Topic Organization
+
+Memories now include a `topic` field in frontmatter with slash-separated hierarchical paths:
+
+```yaml
+topic: "neovim/plugins/telescope"
+```
+
+The index.md includes both "By Category" and "By Topic" sections for navigation.
+
+<!-- END_SECTION: extension_memory -->
+
+<!-- SECTION: extension_python -->
+## Python Extension
+
+This project includes Python development support via the python extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `python` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (python, pytest) |
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-python-research | python-research-agent | Python/library research |
+| skill-python-implementation | python-implementation-agent | Python implementation |
+
+### Testing
+
+- Run tests: `pytest`
+- Run specific test: `pytest path/to/test.py::test_function`
+- Coverage: `pytest --cov=src`
+- Watch mode: `pytest-watch`
+
+### Code Quality
+
+- Type checking: `mypy src/`
+- Linting: `ruff check src/`
+- Formatting: `ruff format src/`
+- All checks: `make lint` or `nox -s lint`
+
+<!-- END_SECTION: extension_python -->
+
+<!-- SECTION: extension_z3 -->
+## Z3 Extension
+
+This project includes Z3 SMT solver development support via the z3 extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `z3` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (python, z3) |
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-z3-research | z3-research-agent | Z3/SMT research |
+| skill-z3-implementation | z3-implementation-agent | Z3 constraint implementation |
+
+### Z3 Patterns
+
+- Use `z3.Solver()` for constraint solving
+- BitVec for finite-domain state representation
+- Incremental solving with `push()`/`pop()` for efficiency
+- Use `simplify()` on expressions before adding to solver
+
+### Common Operations
+
+- Model checking: Define constraints, check `sat`, extract model
+- Theory exploration: Use quantifiers sparingly, prefer ground terms
+- Optimization: Use `z3.Optimize()` for objective functions
+
+<!-- END_SECTION: extension_z3 -->
+
+<!-- SECTION: extension_filetypes -->
+## Filetypes Extension
+
+This project includes comprehensive file format conversion and manipulation via the filetypes extension.
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-filetypes | filetypes-router-agent | Format detection and routing to specialized agents |
+| skill-filetypes | document-agent | Document format conversion (PDF/DOCX/Markdown) |
+| skill-spreadsheet | spreadsheet-agent | Spreadsheet to LaTeX/Typst table conversion |
+| skill-presentation | presentation-agent | Presentation extraction and slide generation |
+
+### Supported Conversions
+
+#### Document Conversions (via /convert)
+
+| Source | Target | Primary Tool | Fallback |
+|--------|--------|--------------|----------|
+| PDF | Markdown | markitdown | pandoc |
+| DOCX | Markdown | markitdown | pandoc |
+| HTML | Markdown | markitdown | pandoc |
+| Images | Markdown | markitdown | - |
+| Markdown | PDF | pandoc | typst |
+
+#### Spreadsheet Conversions (via /table)
+
+| Source | Target | Primary Tool | Fallback |
+|--------|--------|--------------|----------|
+| XLSX | LaTeX table | pandas + openpyxl | xlsx2csv |
+| XLSX | Typst table | pandas -> CSV -> Typst csv() | xlsx2csv |
+| CSV | LaTeX table | pandas | manual |
+| CSV | Typst table | Typst csv() | manual |
+| ODS | LaTeX/Typst table | pandas | - |
+
+#### Presentation Conversions (via /slides)
+
+| Source | Target | Primary Tool | Fallback |
+|--------|--------|--------------|----------|
+| PPTX | Beamer | python-pptx + pandoc | markitdown |
+| PPTX | Polylux (Typst) | python-pptx | markitdown |
+| PPTX | Touying (Typst) | python-pptx | markitdown |
+| Markdown | PPTX | pandoc | - |
+
+### Command Usage
+
+```bash
+# Document conversion (format inferred)
+/convert document.pdf                    # -> document.md
+/convert report.docx notes.md            # -> notes.md
+/convert README.md README.pdf            # -> README.pdf
+
+# Spreadsheet to table
+/table data.xlsx                         # -> data.tex (LaTeX)
+/table data.xlsx output.typ --format typst
+/table budget.csv budget.tex --format latex
+
+# Presentation conversion
+/slides presentation.pptx                # -> presentation.tex (Beamer)
+/slides deck.pptx slides.typ --format polylux
+/slides talk.pptx talk.typ --format touying
+```
+
+### Prerequisites
+
+Install conversion tools based on your needs:
+
+**Document Conversion**:
+- `markitdown`: `pip install markitdown`
+- `pandoc`: Install from package manager
+- `typst`: Install for Typst output
+
+**Spreadsheet Conversion**:
+- `pandas`: `pip install pandas`
+- `openpyxl`: `pip install openpyxl` (for XLSX support)
+- `xlsx2csv`: `pip install xlsx2csv` (fallback)
+
+**Presentation Conversion**:
+- `python-pptx`: `pip install python-pptx`
+- `pandoc`: For Beamer output
+
+See `context/project/filetypes/tools/dependency-guide.md` for platform-specific installation instructions.
+
+### NixOS Quick Install
+
+```nix
+# home.nix
+home.packages = with pkgs; [
+  pandoc typst
+  (python3.withPackages (ps: with ps; [
+    markitdown openpyxl pandas python-pptx xlsx2csv
+  ]))
+];
+```
+
+### Dependency Summary
+
+| Tool | Purpose | Required For |
+|------|---------|--------------|
+| markitdown | Office to Markdown | /convert |
+| pandoc | Universal converter | /convert, /slides |
+| typst | Typst compiler | /convert (typst output) |
+| pandas | DataFrame handling | /table |
+| openpyxl | XLSX support | /table (xlsx) |
+| python-pptx | PPTX extraction | /slides |
+| xlsx2csv | XLSX fallback | /table (fallback) |
+| pdflatex | LaTeX compilation | Beamer PDF output |
+
+### Context Documentation
+
+| File | Description |
+|------|-------------|
+| `tools/tool-detection.md` | Shared tool availability patterns |
+| `tools/dependency-guide.md` | Platform-specific installation |
+| `tools/mcp-integration.md` | MCP server configuration |
+| `patterns/spreadsheet-tables.md` | Table conversion patterns |
+| `patterns/presentation-slides.md` | Slide generation patterns |
+
+<!-- END_SECTION: extension_filetypes -->
+

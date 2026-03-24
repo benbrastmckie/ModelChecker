@@ -68,10 +68,10 @@ This task-scoped location enables safe concurrent agent execution on different t
 
 ```bash
 # Ensure task directory exists
-mkdir -p "specs/${task_number}_${project_name}"
+mkdir -p "specs/${padded_num}_${project_name}"
 
 # Create postflight marker in task directory
-cat > "specs/${task_number}_${project_name}/.postflight-pending" << 'EOF'
+cat > "specs/${padded_num}_${project_name}/.postflight-pending" << 'EOF'
 {
   "session_id": "$session_id",
   "skill": "skill-lean-research",
@@ -88,8 +88,8 @@ EOF
 
 ```bash
 # Remove marker after postflight is complete
-rm -f "specs/${task_number}_${project_name}/.postflight-pending"
-rm -f "specs/${task_number}_${project_name}/.postflight-loop-guard"
+rm -f "specs/${padded_num}_${project_name}/.postflight-pending"
+rm -f "specs/${padded_num}_${project_name}/.postflight-loop-guard"
 ```
 
 ### Emergency Bypass (If Stuck in Loop)
@@ -98,8 +98,8 @@ rm -f "specs/${task_number}_${project_name}/.postflight-loop-guard"
 # Set stop_hook_active to force stop on next iteration
 marker_file=$(find specs -maxdepth 3 -name ".postflight-pending" -type f | head -1)
 if [ -n "$marker_file" ]; then
-    jq '.stop_hook_active = true' "$marker_file" > /tmp/marker.json && \
-      mv /tmp/marker.json "$marker_file"
+    jq '.stop_hook_active = true' "$marker_file" > specs/tmp/marker.json && \
+      mv specs/tmp/marker.json "$marker_file"
 fi
 ```
 
@@ -134,9 +134,9 @@ Before invoking the subagent, create the marker file:
 
 \`\`\`bash
 # Ensure task directory exists
-mkdir -p "specs/${task_number}_${project_name}"
+mkdir -p "specs/${padded_num}_${project_name}"
 
-cat > "specs/${task_number}_${project_name}/.postflight-pending" << EOF
+cat > "specs/${padded_num}_${project_name}/.postflight-pending" << EOF
 {
   "session_id": "${session_id}",
   "skill": "skill-lean-research",
@@ -168,9 +168,9 @@ Subagent writes metadata to `.return-meta.json` and returns brief summary.
 ### Stage 5: Cleanup
 
 \`\`\`bash
-rm -f "specs/${task_number}_${project_name}/.postflight-pending"
-rm -f "specs/${task_number}_${project_name}/.postflight-loop-guard"
-rm -f "specs/${task_number}_${project_name}/.return-meta.json"
+rm -f "specs/${padded_num}_${project_name}/.postflight-pending"
+rm -f "specs/${padded_num}_${project_name}/.postflight-loop-guard"
+rm -f "specs/${padded_num}_${project_name}/.return-meta.json"
 \`\`\`
 
 ### Stage 6: Return Brief Summary
@@ -216,8 +216,8 @@ fi
 
 ```bash
 # Clean specific task
-rm -f "specs/${task_number}_${project_name}/.postflight-pending"
-rm -f "specs/${task_number}_${project_name}/.postflight-loop-guard"
+rm -f "specs/${padded_num}_${project_name}/.postflight-pending"
+rm -f "specs/${padded_num}_${project_name}/.postflight-loop-guard"
 
 # Clean all orphaned markers (across all tasks)
 find specs -maxdepth 3 -name ".postflight-pending" -delete

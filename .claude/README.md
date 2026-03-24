@@ -353,7 +353,7 @@ All returns validated against subagent-return-format.md:
 
 **Purpose**: User-facing task list with status markers
 
-**Format**:
+**Format** (single artifact per type - inline):
 ```markdown
 ### 191. Fix subagent delegation hang
 - **Effort**: 14 hours
@@ -362,9 +362,23 @@ All returns validated against subagent-return-format.md:
 - **Language**: markdown
 - **Started**: 2025-12-20T10:00:00Z
 - **Completed**: 2025-12-26T18:00:00Z
-- **Plan**: [implementation-001.md](191_fix_subagent_delegation_hang/plans/implementation-001.md)
-- **Research**: [research-001.md](191_fix_subagent_delegation_hang/reports/research-001.md)
+- **Plan**: [02_implementation-plan.md](191_fix_subagent_delegation_hang/plans/02_implementation-plan.md)
+- **Research**: [01_research-findings.md](191_fix_subagent_delegation_hang/reports/01_research-findings.md)
 ```
+
+**Format** (multiple artifacts per type - multi-line list):
+```markdown
+### 226. Implement multi-line artifact linking
+- **Effort**: 3-4 hours
+- **Status**: [COMPLETED]
+- **Language**: meta
+- **Research**:
+  - [01_artifact-linking-audit.md](226_multiline_artifact_linking/reports/01_artifact-linking-audit.md)
+  - [02_supplemental-findings.md](226_multiline_artifact_linking/reports/02_supplemental-findings.md)
+- **Plan**: [02_multiline-linking-plan.md](226_multiline_artifact_linking/plans/02_multiline-linking-plan.md)
+```
+
+**Note**: Use inline format for 1 artifact, multi-line list for 2+. See `.claude/rules/state-management.md` "Artifact Linking Format".
 
 **Status Markers**:
 - `[NOT STARTED]`: Task created but not started
@@ -419,7 +433,7 @@ All returns validated against subagent-return-format.md:
       },
       "message": "Command hung waiting for subagent return",
       "fix_status": "resolved",
-      "fix_plan_ref": "191_fix_subagent_delegation_hang/plans/implementation-001.md",
+      "fix_plan_ref": "191_fix_subagent_delegation_hang/plans/02_fix-delegation-hang.md",
       "fix_task_ref": 191,
       "recurrence_count": 1,
       "first_seen": "2025-12-20T10:00:00Z",
@@ -431,7 +445,7 @@ All returns validated against subagent-return-format.md:
 
 ### Plan Files
 
-**Location**: `specs/{task_number}_{topic_slug}/plans/implementation-{version:03d}.md`
+**Location**: `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md`
 
 **Purpose**: Phased implementation plans with status tracking
 
@@ -909,7 +923,9 @@ agent: {subagent-name}        # Target subagent to spawn
 | skill-planner | planner-agent | Implementation planning |
 | skill-implementer | general-implementation-agent | General implementation |
 | skill-neovim-implementation | neovim-implementation-agent | Neovim configuration implementation |
-| skill-latex-implementation | latex-implementation-agent | LaTeX document implementation |
+| skill-meta | meta-builder-agent | System building and task creation |
+
+**Note**: Additional skills (latex, typst, filetypes) available via extensions in `.claude/extensions/`.
 
 ### Thin Wrapper Execution Flow
 
@@ -1049,5 +1065,5 @@ After any MCP configuration changes, restart Claude Code for changes to take eff
 - Documentation Hub: `.claude/docs/README.md`
 - Orchestration Core: `.claude/context/core/orchestration/orchestration-core.md`
 - Return Format Standard: `.claude/context/core/formats/subagent-return.md`
-- Task 191 Research: `specs/191_fix_subagent_delegation_hang/reports/research-001.md`
-- Task 191 Plan: `specs/191_fix_subagent_delegation_hang/plans/implementation-001.md`
+- Task 191 Research: `specs/191_fix_subagent_delegation_hang/reports/01_fix-delegation-hang.md`
+- Task 191 Plan: `specs/191_fix_subagent_delegation_hang/plans/02_fix-delegation-hang.md`

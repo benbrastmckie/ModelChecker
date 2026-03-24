@@ -83,18 +83,14 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     last_updated: $ts,
     session_id: $sid,
     started: $ts
-  }' specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
 
 **Update TODO.md**: Use Edit tool to change status marker from `[PLANNED]` to `[IMPLEMENTING]`.
 
 **Update plan file** (if exists): Update the Status field in plan metadata:
 ```bash
-# Find latest plan file
-plan_file=$(ls -1 "specs/${padded_num}_${project_name}/plans/implementation-"*.md 2>/dev/null | sort -V | tail -1)
-if [ -n "$plan_file" ] && [ -f "$plan_file" ]; then
-    sed -i "s/^\- \*\*Status\*\*: \[.*\]$/- **Status**: [IMPLEMENTING]/" "$plan_file"
-fi
+.claude/scripts/update-plan-status.sh "$task_number" "$project_name" "IMPLEMENTING"
 ```
 
 ---
@@ -139,7 +135,7 @@ Prepare delegation context for the subagent:
     "description": "{description}",
     "language": "{language}"
   },
-  "plan_path": "specs/{NNN}_{SLUG}/plans/implementation-{NNN}.md",
+  "plan_path": "specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md",
   "metadata_file_path": "specs/{NNN}_{SLUG}/.return-meta.json"
 }
 ```
@@ -236,13 +232,13 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     status: $status,
     last_updated: $ts,
     completed: $ts
-  }' specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 
 # Step 2: Add completion_summary (always required for completed tasks)
 if [ -n "$completion_summary" ]; then
     jq --arg summary "$completion_summary" \
       '(.active_projects[] | select(.project_number == '$task_number')).completion_summary = $summary' \
-      specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
 
 # Step 3: Add language-specific completion fields
@@ -250,34 +246,29 @@ fi
 if [ "$language" = "meta" ] && [ -n "$claudemd_suggestions" ]; then
     jq --arg suggestions "$claudemd_suggestions" \
       '(.active_projects[] | select(.project_number == '$task_number')).claudemd_suggestions = $suggestions' \
-      specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
 
 # For non-meta tasks: add roadmap_items (if present and non-empty)
 if [ "$language" != "meta" ] && [ "$roadmap_items" != "[]" ] && [ -n "$roadmap_items" ]; then
     jq --argjson items "$roadmap_items" \
       '(.active_projects[] | select(.project_number == '$task_number')).roadmap_items = $items' \
-      specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
 ```
 
 Update TODO.md: Change status marker from `[IMPLEMENTING]` to `[COMPLETED]`.
 
-**Update plan file** (if exists): Update the Status field to `[COMPLETED]` with verification:
+**Update plan file** (if exists): Update the Status field to `[COMPLETED]`:
 ```bash
-plan_file=$(ls -1 "specs/${padded_num}_${project_name}/plans/implementation-"*.md 2>/dev/null | sort -V | tail -1)
-if [ -n "$plan_file" ] && [ -f "$plan_file" ]; then
-    # Try bullet pattern first, then non-bullet pattern
-    sed -i 's/^\- \*\*Status\*\*: \[.*\]$/- **Status**: [COMPLETED]/' "$plan_file"
-    sed -i 's/^\*\*Status\*\*: \[.*\]$/**Status**: [COMPLETED]/' "$plan_file"
-    # Verify update
-    if grep -qE '^\*\*Status\*\*: \[COMPLETED\]|^\- \*\*Status\*\*: \[COMPLETED\]' "$plan_file"; then
-        echo "Plan file status updated to [COMPLETED]"
-    else
-        echo "WARNING: Could not verify plan file status update"
-    fi
-else
-    echo "INFO: No plan file found to update (directory: specs/${padded_num}_${project_name}/plans/)"
+.claude/scripts/update-plan-status.sh "$task_number" "$project_name" "COMPLETED"
+```
+
+**Remove from Recommended Order section** (non-blocking):
+```bash
+# Remove completed task from Recommended Order section (non-blocking)
+if source "$PROJECT_ROOT/.claude/scripts/update-recommended-order.sh" 2>/dev/null; then
+    remove_from_recommended_order "$task_number" || echo "Note: Failed to update Recommended Order"
 fi
 ```
 
@@ -290,27 +281,14 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
   '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
     last_updated: $ts,
     resume_phase: ($phase + 1)
-  }' specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
 
 TODO.md stays as `[IMPLEMENTING]`.
 
-**Update plan file** (if exists): Update the Status field to `[PARTIAL]` with verification:
+**Update plan file** (if exists): Update the Status field to `[PARTIAL]`:
 ```bash
-plan_file=$(ls -1 "specs/${padded_num}_${project_name}/plans/implementation-"*.md 2>/dev/null | sort -V | tail -1)
-if [ -n "$plan_file" ] && [ -f "$plan_file" ]; then
-    # Try bullet pattern first, then non-bullet pattern
-    sed -i 's/^\- \*\*Status\*\*: \[.*\]$/- **Status**: [PARTIAL]/' "$plan_file"
-    sed -i 's/^\*\*Status\*\*: \[.*\]$/**Status**: [PARTIAL]/' "$plan_file"
-    # Verify update
-    if grep -qE '^\*\*Status\*\*: \[PARTIAL\]|^\- \*\*Status\*\*: \[PARTIAL\]' "$plan_file"; then
-        echo "Plan file status updated to [PARTIAL]"
-    else
-        echo "WARNING: Could not verify plan file status update"
-    fi
-else
-    echo "INFO: No plan file found to update (directory: specs/${padded_num}_${project_name}/plans/)"
-fi
+.claude/scripts/update-plan-status.sh "$task_number" "$project_name" "PARTIAL"
 ```
 
 **On failed**: Keep status as "implementing" for retry. Do not update plan file (leave as `[IMPLEMENTING]` for retry).
@@ -328,21 +306,41 @@ if [ -n "$artifact_path" ]; then
     # Step 1: Filter out existing summary artifacts (use "| not" pattern to avoid != escaping - Issue #1132)
     jq '(.active_projects[] | select(.project_number == '$task_number')).artifacts =
         [(.active_projects[] | select(.project_number == '$task_number')).artifacts // [] | .[] | select(.type == "summary" | not)]' \
-      specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 
     # Step 2: Add new summary artifact
     jq --arg path "$artifact_path" \
        --arg type "$artifact_type" \
        --arg summary "$artifact_summary" \
       '(.active_projects[] | select(.project_number == '$task_number')).artifacts += [{"path": $path, "type": $type, "summary": $summary}]' \
-      specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
 ```
 
-**Update TODO.md** (if implemented): Add summary artifact link:
-```markdown
-- **Summary**: [implementation-summary-{DATE}.md]({artifact_path})
-```
+**Update TODO.md** (if implemented): Add summary artifact link using count-aware format.
+
+See `.claude/rules/state-management.md` "Artifact Linking Format" for canonical rules. Use Edit tool:
+
+1. **Read existing task entry** to detect current summary links
+2. **If no `- **Summary**:` line exists**: Insert inline format:
+   ```markdown
+   - **Summary**: [MM_{short-slug}-summary.md]({artifact_path})
+   ```
+3. **If existing inline (single link)**: Convert to multi-line:
+   ```markdown
+   old_string: - **Summary**: [existing.md](existing/path)
+   new_string: - **Summary**:
+     - [existing.md](existing/path)
+     - [MM_{short-slug}-summary.md]({artifact_path})
+   ```
+4. **If existing multi-line**: Append new item before next field:
+   ```markdown
+   old_string:   - [last-item.md](last/path)
+   **Description**:
+   new_string:   - [last-item.md](last/path)
+     - [MM_{short-slug}-summary.md]({artifact_path})
+   **Description**:
+   ```
 
 ---
 
@@ -381,7 +379,7 @@ Return a brief text summary (NOT JSON). Example:
 Implementation completed for task {N}:
 - All {phases_total} phases executed successfully
 - Key changes: {summary of changes}
-- Created summary at specs/{NNN}_{SLUG}/summaries/implementation-summary-{DATE}.md
+- Created summary at specs/{NNN}_{SLUG}/summaries/MM_{short-slug}-summary.md
 - Status updated to [COMPLETED]
 - Changes committed
 ```
@@ -408,6 +406,28 @@ Keep status as "implementing" for resume.
 
 ---
 
+## MUST NOT (Postflight Boundary)
+
+After the agent returns, this skill MUST NOT:
+
+1. **Edit source files** - All implementation work is done by agent
+2. **Run build/test commands** - Verification is done by agent
+3. **Use MCP tools** - Domain tools are for agent use only
+4. **Analyze or grep source** - Analysis is agent work
+5. **Write summary/reports** - Artifact creation is agent work
+
+The postflight phase is LIMITED TO:
+- Reading agent metadata file
+- Updating state.json via jq
+- Updating TODO.md status marker via Edit
+- Linking artifacts in state.json
+- Git commit
+- Cleanup of temp/marker files
+
+Reference: @.claude/context/core/standards/postflight-tool-restrictions.md
+
+---
+
 ## Return Format
 
 This skill returns a **brief text summary** (NOT JSON). The JSON metadata is written to the file and processed internally.
@@ -417,7 +437,7 @@ Example successful return:
 Implementation completed for task 350:
 - All 5 phases executed successfully
 - Created new feature component with tests
-- Created summary at specs/350_feature/summaries/implementation-summary-20260118.md
+- Created summary at specs/350_feature/summaries/MM_{short-slug}-summary.md
 - Status updated to [COMPLETED]
 - Changes committed with session sess_1736700000_abc123
 ```
@@ -427,6 +447,6 @@ Example partial return:
 Implementation partially completed for task 350:
 - Phases 1-3 of 5 executed
 - Phase 4 failed: TypeScript compilation error
-- Partial summary at specs/350_feature/summaries/implementation-summary-20260118.md
+- Partial summary at specs/350_feature/summaries/MM_{short-slug}-summary.md
 - Status remains [IMPLEMENTING] - run /implement 350 to resume
 ```

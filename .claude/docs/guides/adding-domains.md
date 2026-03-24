@@ -1,23 +1,187 @@
 # Adding New Domains Guide
 
-[Back to Docs](../README.md) | [Copy .claude/ Guide](copy-claude-directory.md)
+[Back to Docs](../README.md) | [Extension System](../architecture/extension-system.md) | [Creating Extensions](creating-extensions.md)
 
 Step-by-step guide for adding new domain contexts, agents, and skills to the .claude/ system.
 
 ---
 
-## Overview
+## Choosing Your Approach
 
-The .claude/ system is designed to be extended with new domains. A "domain" is a specialized area of knowledge (like Neovim, React, Rust, etc.) that benefits from:
+The .claude/ system supports two approaches for adding domain support:
 
-1. **Domain Context Files**: Background knowledge and patterns
-2. **Domain Agents**: Specialized research and implementation agents
-3. **Domain Skills**: Thin wrappers that route to domain agents
-4. **Domain Rules**: Auto-applied coding standards
+| Approach | Use When | Portability | Complexity |
+|----------|----------|-------------|------------|
+| **Extension** (Recommended) | Adding any new domain | High - portable across projects | Moderate - self-contained package |
+| **Core** | Primary project domain only | Low - embedded in repository | Simple - direct integration |
+
+### Decision Tree
+
+```
+Is this the repository's PRIMARY domain?
+├── YES (e.g., neovim in a neovim config repo)
+│   └── Use Core Approach
+└── NO (e.g., latex, lean, python, react)
+    └── Use Extension Approach (Recommended)
+```
+
+**Why Extensions?**
+- Extensions are self-contained packages that can be loaded/unloaded
+- Extensions are portable across projects without modification
+- Extensions keep the core system clean and focused
+- Extensions can be versioned and shared independently
 
 ---
 
-## Architecture
+## Extension Approach (Recommended)
+
+For most new domains, create an extension. Extensions live in `.claude/extensions/{domain}/` and are loaded via the Neovim picker (`<leader>ac`).
+
+### Directory Structure
+
+```
+.claude/extensions/your-domain/
+├── manifest.json              # Extension metadata (required)
+├── EXTENSION.md               # CLAUDE.md merge content (required)
+├── index-entries.json         # Context index entries (optional)
+├── settings-fragment.json     # MCP server configs (optional)
+├── agents/                    # Domain agents
+│   ├── your-domain-research-agent.md
+│   └── your-domain-implementation-agent.md
+├── skills/                    # Domain skills
+│   ├── skill-your-domain-research/SKILL.md
+│   └── skill-your-domain-implementation/SKILL.md
+├── rules/                     # Auto-applied rules
+│   └── your-domain.md
+├── commands/                  # Domain commands (optional)
+│   └── your-command.md
+├── context/                   # Domain knowledge
+│   └── project/your-domain/
+│       ├── README.md
+│       ├── domain/
+│       ├── patterns/
+│       ├── standards/
+│       └── tools/
+└── scripts/                   # Helper scripts (optional)
+```
+
+### manifest.json Format
+
+The manifest declares what the extension provides:
+
+```json
+{
+  "name": "your-domain",
+  "version": "1.0.0",
+  "description": "Domain description for picker display",
+  "language": "your-domain",
+  "dependencies": [],
+  "provides": {
+    "agents": ["your-domain-research-agent.md", "your-domain-implementation-agent.md"],
+    "skills": ["skill-your-domain-research", "skill-your-domain-implementation"],
+    "commands": [],
+    "rules": ["your-domain.md"],
+    "context": ["project/your-domain"],
+    "scripts": [],
+    "hooks": []
+  },
+  "merge_targets": {
+    "claudemd": {
+      "source": "EXTENSION.md",
+      "target": ".claude/CLAUDE.md",
+      "section_id": "extension_your_domain"
+    },
+    "index": {
+      "source": "index-entries.json",
+      "target": ".claude/context/index.json"
+    }
+  },
+  "mcp_servers": {}
+}
+```
+
+### EXTENSION.md Format
+
+Content injected into CLAUDE.md when extension is loaded:
+
+```markdown
+## Your Domain Extension
+
+This project includes [Your Domain] support via the your-domain extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `your-domain` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (your-tool) |
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-your-domain-research | your-domain-research-agent | [Your Domain] research |
+| skill-your-domain-implementation | your-domain-implementation-agent | [Your Domain] implementation |
+
+### Quick Reference
+
+- [Key feature 1]
+- [Key feature 2]
+```
+
+### index-entries.json Format
+
+Entries appended to the main context index:
+
+```json
+{
+  "entries": [
+    {
+      "path": "context/project/your-domain/patterns/common-pattern.md",
+      "description": "Common patterns for your domain",
+      "tags": ["your-domain", "patterns"],
+      "load_when": {
+        "languages": ["your-domain"],
+        "agents": ["your-domain-implementation-agent"]
+      }
+    }
+  ]
+}
+```
+
+### Load/Unload Mechanism
+
+Extensions are managed via Neovim picker:
+
+1. **Loading**: `<leader>ac` → Select extension → Neovim copies files into core
+2. **Unloading**: `<leader>ac` → Select loaded extension → Neovim removes copied files
+
+When loaded:
+- Agents copied to `.claude/agents/`
+- Skills copied to `.claude/skills/`
+- Rules copied to `.claude/rules/`
+- Commands copied to `.claude/commands/`
+- Context copied to `.claude/context/`
+- EXTENSION.md section injected into CLAUDE.md
+- Index entries appended to index.json
+- Settings merged into settings.json
+
+When unloaded:
+- All copied files removed
+- CLAUDE.md section removed
+- Index entries removed
+- Settings unmerged
+
+### Creating Your Extension
+
+See [Creating Extensions](creating-extensions.md) for a complete step-by-step guide.
+
+---
+
+## Core Approach (Primary Domain Only)
+
+Use this approach only for the repository's primary domain (e.g., neovim for a Neovim config repo). Core domains are always available without loading.
+
+### Architecture
 
 ```
 Command (/research, /implement)
@@ -25,16 +189,14 @@ Command (/research, /implement)
     ▼
 Orchestrator (skill-orchestrator)
     │
-    ├── language: neovim → skill-neovim-research / skill-neovim-implementation
-    ├── language: react  → skill-react-research  / skill-react-implementation
-    └── language: rust   → skill-rust-research   / skill-rust-implementation
+    ├── language: your-domain → skill-your-domain-research / skill-your-domain-implementation
+    ├── language: general    → skill-researcher / skill-implementer
+    └── language: meta       → skill-researcher / skill-implementer
 ```
 
 Each language type routes to specialized skills, which delegate to specialized agents.
 
----
-
-## Step 1: Create Domain Context Directory
+### Step 1: Create Domain Context Directory
 
 Create the context directory structure:
 
@@ -42,7 +204,7 @@ Create the context directory structure:
 mkdir -p .claude/context/project/your-domain/{domain,patterns,standards,tools,templates}
 ```
 
-### Required Files
+#### Required Files
 
 **README.md** - Overview and loading strategy:
 ```markdown
@@ -69,59 +231,9 @@ Domain knowledge for [Your Domain] development.
 | Feature | patterns/feature-pattern.md |
 ```
 
-### Example Domain Files
-
-**domain/overview.md** - Core concepts:
-```markdown
-# Your Domain Overview
-
-## Key Concepts
-- Concept 1: Description
-- Concept 2: Description
-
-## Architecture
-[Describe the domain's typical architecture]
-
-## Common Patterns
-[List common patterns used in this domain]
-```
-
-**patterns/common-pattern.md** - Implementation patterns:
-```markdown
-# Common Pattern Name
-
-## When to Use
-[Describe when this pattern applies]
-
-## Implementation
-[Code examples and explanations]
-
-## Variations
-[Common variations of the pattern]
-```
-
-**standards/style-guide.md** - Coding conventions:
-```markdown
-# Style Guide
-
-## Naming Conventions
-- [Convention 1]
-- [Convention 2]
-
-## Code Organization
-[How to organize code]
-
-## Documentation
-[Documentation requirements]
-```
-
----
-
-## Step 2: Create Domain Agents
+### Step 2: Create Domain Agents
 
 Create research and implementation agents in `.claude/agents/`:
-
-### Research Agent Template
 
 **your-domain-research-agent.md**:
 ```markdown
@@ -133,50 +245,16 @@ description: Research [Your Domain] tasks
 # Your Domain Research Agent
 
 ## Overview
-
 Research agent for [Your Domain] tasks. Invoked by `skill-your-domain-research`.
 
 ## Context References
-
 Load these on-demand:
 - `@.claude/context/project/your-domain/README.md`
 - `@.claude/context/project/your-domain/domain/overview.md`
 
-## Research Strategy
-
-1. Check local codebase for existing patterns
-2. Search for documentation and best practices
-3. Identify implementation approach
-4. Create research report
-
 ## Execution Flow
-
-### Stage 0: Initialize Early Metadata
-[Create metadata file before substantive work]
-
-### Stage 1: Parse Delegation Context
-[Extract task information]
-
-### Stage 2: Determine Search Strategy
-[Plan research approach]
-
-### Stage 3: Execute Searches
-[Perform codebase and web searches]
-
-### Stage 4: Synthesize Findings
-[Compile discoveries]
-
-### Stage 5: Create Research Report
-[Write report to specs/{NNN}_{SLUG}/reports/]
-
-### Stage 6: Write Metadata File
-[Write to .return-meta.json]
-
-### Stage 7: Return Brief Summary
-[Return 3-6 bullet point summary]
+[Standard research agent stages]
 ```
-
-### Implementation Agent Template
 
 **your-domain-implementation-agent.md**:
 ```markdown
@@ -188,60 +266,25 @@ description: Implement [Your Domain] tasks from plans
 # Your Domain Implementation Agent
 
 ## Overview
-
 Implementation agent for [Your Domain] tasks. Invoked by `skill-your-domain-implementation`.
 
 ## Context References
-
 Load these on-demand:
 - `@.claude/context/project/your-domain/standards/style-guide.md`
 - `@.claude/context/project/your-domain/patterns/common-pattern.md`
 
 ## Verification Commands
-
-[Domain-specific verification commands, e.g.:]
 ```bash
-# Test command
 your-tool --check
 ```
 
 ## Execution Flow
-
-### Stage 0: Initialize Early Metadata
-[Create metadata file]
-
-### Stage 1: Parse Delegation Context
-[Extract task and plan path]
-
-### Stage 2: Load Implementation Plan
-[Read and parse plan file]
-
-### Stage 3: Find Resume Point
-[Identify first incomplete phase]
-
-### Stage 4: Execute Implementation Loop
-[Execute each phase]
-
-### Stage 5: Run Final Verification
-[Verify all changes work]
-
-### Stage 6: Create Implementation Summary
-[Write summary to specs/{NNN}_{SLUG}/summaries/]
-
-### Stage 7: Write Metadata File
-[Write to .return-meta.json]
-
-### Stage 8: Return Brief Summary
-[Return 3-6 bullet point summary]
+[Standard implementation agent stages]
 ```
 
----
-
-## Step 3: Create Domain Skills
+### Step 3: Create Domain Skills
 
 Create skill wrappers in `.claude/skills/`:
-
-### Research Skill
 
 **skill-your-domain-research/SKILL.md**:
 ```markdown
@@ -256,19 +299,12 @@ allowed-tools: Task, Bash, Edit, Read, Write
 Thin wrapper that delegates to `your-domain-research-agent`.
 
 ## Execution Flow
-
 1. Validate task exists and language matches
 2. Update status to "researching"
-3. Create postflight marker
-4. Invoke your-domain-research-agent via Task tool
-5. Read metadata file
-6. Update status to "researched"
-7. Link artifacts
-8. Git commit
-9. Cleanup and return summary
+3. Invoke your-domain-research-agent via Task tool
+4. Update status to "researched"
+5. Git commit
 ```
-
-### Implementation Skill
 
 **skill-your-domain-implementation/SKILL.md**:
 ```markdown
@@ -283,21 +319,14 @@ allowed-tools: Task, Bash, Edit, Read, Write
 Thin wrapper that delegates to `your-domain-implementation-agent`.
 
 ## Execution Flow
-
 1. Validate task exists and plan exists
 2. Update status to "implementing"
-3. Create postflight marker
-4. Invoke your-domain-implementation-agent via Task tool
-5. Read metadata file
-6. Update status to "completed"
-7. Link artifacts
-8. Git commit
-9. Cleanup and return summary
+3. Invoke your-domain-implementation-agent via Task tool
+4. Update status to "completed"
+5. Git commit
 ```
 
----
-
-## Step 4: Create Domain Rule
+### Step 4: Create Domain Rule
 
 Create a rule file in `.claude/rules/`:
 
@@ -306,37 +335,28 @@ Create a rule file in `.claude/rules/`:
 # Your Domain Development Rules
 
 ## Path Pattern
-
 Applies to: `your-path/**/*.ext`
 
 ## Coding Standards
-
 ### Naming Conventions
 - [Convention 1]
-- [Convention 2]
 
 ### Code Organization
 [Organization rules]
 
-### Error Handling
-[Error handling patterns]
-
 ## Related Context
-
 Load for detailed patterns:
 - `@.claude/context/project/your-domain/standards/style-guide.md`
 ```
 
----
+### Step 5: Update Routing
 
-## Step 5: Update Routing
-
-### Update skill-orchestrator
+#### Update skill-orchestrator
 
 Edit `.claude/skills/skill-orchestrator/SKILL.md`:
 
 ```markdown
-### 2. Language-Based Routing
+### Language-Based Routing
 
 | Language | Research Skill | Implementation Skill |
 |----------|---------------|---------------------|
@@ -345,7 +365,7 @@ Edit `.claude/skills/skill-orchestrator/SKILL.md`:
 | general | skill-researcher | skill-implementer |
 ```
 
-### Update CLAUDE.md
+#### Update CLAUDE.md
 
 Add to Language-Based Routing table:
 ```markdown
@@ -363,48 +383,40 @@ Add to Rules References:
 - @.claude/rules/your-domain.md - [Your Domain] development (your-path/**)
 ```
 
-Add to Context Imports:
-```markdown
-- @.claude/context/project/your-domain/domain/overview.md
-```
+### Step 6: Update Context Index
 
----
+Add entries to `.claude/context/index.json`:
 
-## Step 6: Update Context Index
-
-Edit `.claude/context/index.md` to add your domain section:
-
-```markdown
-### Your Domain Context (project/your-domain/)
-
-Load for: [Your Domain] implementation tasks (Language: your-domain)
-
-**Overview**:
-- **README.md** - Directory overview and loading strategy
-
-**Domain**:
-- **overview.md** - Core concepts
-
-**Patterns**:
-- **common-pattern.md** - Common implementation patterns
-
-**Standards**:
-- **style-guide.md** - Coding conventions
-
-**Tools**:
-- **tool-guide.md** - Tool usage
-
-**When to Load**:
-- Load README.md for overview
-- Load style-guide.md for implementation
-- Load patterns/*.md for specific patterns
+```json
+{
+  "path": "context/project/your-domain/domain/overview.md",
+  "description": "Core concepts",
+  "tags": ["your-domain", "domain"],
+  "load_when": {
+    "languages": ["your-domain"],
+    "agents": ["your-domain-research-agent", "your-domain-implementation-agent"]
+  }
+}
 ```
 
 ---
 
 ## Verification Checklist
 
-After adding a new domain:
+### Extension Approach
+
+- [ ] manifest.json created with correct structure
+- [ ] EXTENSION.md created with routing/mapping tables
+- [ ] index-entries.json created (if context files exist)
+- [ ] Agents created in extension agents/ directory
+- [ ] Skills created in extension skills/ directory
+- [ ] Rules created in extension rules/ directory
+- [ ] Context files created in extension context/ directory
+- [ ] Extension loads successfully via picker
+- [ ] Routing works after loading
+- [ ] Extension unloads cleanly
+
+### Core Approach
 
 - [ ] Context directory created with README.md
 - [ ] Domain context files populated
@@ -417,34 +429,17 @@ After adding a new domain:
 - [ ] CLAUDE.md updated
 - [ ] Context index updated
 - [ ] Test with `/task "Test" --language your-domain`
-- [ ] Test `/research N`
-- [ ] Test `/plan N`
-- [ ] Test `/implement N`
 
 ---
 
-## Example: Adding React Domain
+## Related Documentation
 
-```bash
-# Create context structure
-mkdir -p .claude/context/project/react/{domain,patterns,standards,tools,templates}
-
-# Create agents
-touch .claude/agents/react-research-agent.md
-touch .claude/agents/react-implementation-agent.md
-
-# Create skills
-mkdir -p .claude/skills/skill-react-research
-mkdir -p .claude/skills/skill-react-implementation
-touch .claude/skills/skill-react-research/SKILL.md
-touch .claude/skills/skill-react-implementation/SKILL.md
-
-# Create rule
-touch .claude/rules/react.md
-```
-
-Then populate each file following the templates above.
+- [Extension System Architecture](../architecture/extension-system.md) - How the extension system works
+- [Creating Extensions](creating-extensions.md) - Step-by-step extension creation guide
+- [Creating Agents](creating-agents.md) - Agent creation patterns
+- [Creating Skills](creating-skills.md) - Skill creation patterns
+- [Component Selection](component-selection.md) - Choosing commands vs skills vs agents
 
 ---
 
-[Back to Docs](../README.md) | [Copy .claude/ Guide](copy-claude-directory.md)
+[Back to Docs](../README.md) | [Extension System](../architecture/extension-system.md) | [Creating Extensions](creating-extensions.md)

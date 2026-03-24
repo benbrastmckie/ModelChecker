@@ -67,11 +67,11 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 | Language | Agent | Tools Available |
 |----------|-------|----------------|
 | `neovim` | `neovim-implementation-agent` | nvim --headless, File operations, git |
-| `latex` | `latex-implementation-agent` | pdflatex, File operations, git |
-| `typst` | `typst-implementation-agent` | typst compile, File operations, git |
 | `markdown` | `implementer` | File operations, git |
 | `meta` | `implementer` | File operations, git |
 | `general` | `implementer` | File operations, git |
+
+**Note**: Additional languages (latex, typst) available via extensions in `.claude/extensions/`.
 
 **Critical**: Language extraction MUST occur before routing. Incorrect routing bypasses language-specific tooling.
 
@@ -86,7 +86,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 **Process**:
 1. Read task from TODO.md using grep (selective loading):
    ```bash
-   grep -A 50 "^### ${task_number}\." specs/TODO.md > /tmp/task-${task_number}.md
+   grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}.md
    ```
 2. Extract task metadata:
    - Task number
@@ -179,7 +179,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
    - Config: `**/*.json`, `**/*.yaml`, etc.
 2. If multi-file output (>1 file modified/created):
    - Create implementation summary artifact
-   - Path: `specs/{number}_{slug}/summaries/implementation-summary-{YYYYMMDD}.md`
+   - Path: `specs/{number}_{slug}/summaries/MM_{short-slug}-summary.md`
    - Content:
      - What was implemented
      - Files modified/created
@@ -193,7 +193,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 
 **Artifact Naming**:
 - Implementation files: Follow project conventions
-- Summary: `implementation-summary-{YYYYMMDD}.md`
+- Summary: `MM_{short-slug}-summary.md`
 - Directories created lazily (only when writing first artifact)
 
 **Token Limit Rationale**:
@@ -410,7 +410,7 @@ Load minimal context for routing decisions:
 
 ### Execution Stage (Implementer)
 
-Implementer loads context on-demand per `.claude/context/index.md`:
+Implementer loads context on-demand per `.claude/context/index.json`:
 - `core/standards/subagent-return-format.md` (return format)
 - `core/standards/status-markers.md` (status transitions)
 - `core/system/artifact-management.md` (lazy directory creation)
@@ -545,7 +545,7 @@ Git commits delegated to `git-workflow-manager` for standardized commits:
 Extract only specific task entry from TODO.md to reduce context load:
 
 ```bash
-grep -A 50 "^### ${task_number}\." specs/TODO.md > /tmp/task-${task_number}.md
+grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}.md
 ```
 
 **Impact**: Reduces context from 109KB (full TODO.md) to ~2KB (task entry only), 98% reduction.

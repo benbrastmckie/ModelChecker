@@ -130,7 +130,7 @@ All agents must implement the complete 8-stage workflow:
 
 All agents must use lazy-loading pattern:
 
-1. Load `.claude/context/index.md` first
+1. Load `.claude/context/index.json` first
 2. Discover available context files from index
 3. Load only required context files on-demand
 4. Load context after routing (not during)
@@ -139,7 +139,7 @@ All agents must use lazy-loading pattern:
 ```markdown
 ## Stage 2: Context Loading
 
-1. Read `.claude/context/index.md`
+1. Read `.claude/context/index.json`
 2. Load required context:
    - `.claude/context/core/standards/agent-workflow.md`
    - `.claude/context/agents/research-context.md`

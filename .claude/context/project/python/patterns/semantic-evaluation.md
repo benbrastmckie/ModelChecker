@@ -1,231 +1,355 @@
 # Semantic Evaluation Patterns
 
-Truthmaker semantic evaluation patterns used in the ModelChecker framework.
+Tree-walking evaluation patterns for Python interpreters and evaluators.
 
-## Core Concept: Truthmaker Semantics
+## Core Concept: Tree-Walking Evaluation
 
-Truthmaker semantics evaluates sentences not just as true/false, but with explicit **verifiers** and **falsifiers** - states that make sentences true or false.
+Tree-walking evaluators traverse an abstract syntax tree (AST) and compute results at each node. This pattern is common in interpreters, compilers, and semantic analyzers.
 
 ```
-Traditional: sentence S is true in world w
-Truthmaker:  state s VERIFIES sentence S
-             state s FALSIFIES sentence S
+Traditional: evaluate(node) -> value
+Recursive:   evaluate(node) -> evaluate(children) -> combine
+```
+
+## Basic Evaluator Structure
+
+```python
+from abc import ABC, abstractmethod
+from typing import Any, Dict, Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .ast import ASTNode
+
+
+class Evaluator(ABC):
+    """Base class for tree-walking evaluators."""
+
+    def __init__(self, context: Optional[Dict[str, Any]] = None):
+        self.context = context or {}
+
+    def evaluate(self, node: "ASTNode") -> Any:
+        """Evaluate an AST node."""
+        method_name = f'eval_{node.type}'
+        method = getattr(self, method_name, self.eval_default)
+        return method(node)
+
+    def eval_default(self, node: "ASTNode") -> Any:
+        """Default handler for unknown node types."""
+        raise NotImplementedError(f"Unknown node type: {node.type}")
+```
+
+## Node-Specific Handlers
+
+```python
+class ExpressionEvaluator(Evaluator):
+    """Evaluator for expression AST."""
+
+    def eval_number(self, node):
+        """Evaluate number literal."""
+        return node.value
+
+    def eval_string(self, node):
+        """Evaluate string literal."""
+        return node.value
+
+    def eval_identifier(self, node):
+        """Evaluate identifier (variable lookup)."""
+        name = node.name
+        if name not in self.context:
+            raise NameError(f"Undefined variable: {name}")
+        return self.context[name]
+
+    def eval_binary_op(self, node):
+        """Evaluate binary operation."""
+        left = self.evaluate(node.left)
+        right = self.evaluate(node.right)
+
+        ops = {
+            '+': lambda a, b: a + b,
+            '-': lambda a, b: a - b,
+            '*': lambda a, b: a * b,
+            '/': lambda a, b: a / b,
+        }
+
+        if node.operator not in ops:
+            raise ValueError(f"Unknown operator: {node.operator}")
+
+        return ops[node.operator](left, right)
+
+    def eval_unary_op(self, node):
+        """Evaluate unary operation."""
+        operand = self.evaluate(node.operand)
+
+        if node.operator == '-':
+            return -operand
+        elif node.operator == 'not':
+            return not operand
+        else:
+            raise ValueError(f"Unknown unary operator: {node.operator}")
 ```
 
 ## Bilateral Evaluation
 
-The framework uses bilateral semantics with both verification and falsification:
+Bilateral evaluation computes both positive and negative aspects:
 
 ```python
-def verify(self, state, sentence):
-    """Check if state verifies sentence."""
-    # Returns Z3 boolean constraint
-    pass
+class BilateralEvaluator(Evaluator):
+    """Evaluator with both verify and falsify methods."""
 
-def falsify(self, state, sentence):
-    """Check if state falsifies sentence."""
-    # Returns Z3 boolean constraint
-    pass
+    def verify(self, node: "ASTNode") -> Any:
+        """Check if node evaluates to true."""
+        method_name = f'verify_{node.type}'
+        method = getattr(self, method_name, self.verify_default)
+        return method(node)
+
+    def falsify(self, node: "ASTNode") -> Any:
+        """Check if node evaluates to false."""
+        method_name = f'falsify_{node.type}'
+        method = getattr(self, method_name, self.falsify_default)
+        return method(node)
+
+    def verify_default(self, node):
+        raise NotImplementedError(f"No verify handler for: {node.type}")
+
+    def falsify_default(self, node):
+        raise NotImplementedError(f"No falsify handler for: {node.type}")
 ```
 
-## State Representation
+### Bilateral Negation
 
-States are represented as Z3 BitVectors:
+```python
+def verify_negation(self, node):
+    """Node verifies NOT(arg) iff it falsifies arg."""
+    return self.falsify(node.argument)
+
+def falsify_negation(self, node):
+    """Node falsifies NOT(arg) iff it verifies arg."""
+    return self.verify(node.argument)
+```
+
+### Bilateral Conjunction
+
+```python
+def verify_conjunction(self, node):
+    """Verify A AND B: both must verify."""
+    left_result = self.verify(node.left)
+    right_result = self.verify(node.right)
+    return self.combine_verify(left_result, right_result)
+
+def falsify_conjunction(self, node):
+    """Falsify A AND B: either must falsify."""
+    return self.any_falsifies([node.left, node.right])
+```
+
+### Bilateral Disjunction
+
+```python
+def verify_disjunction(self, node):
+    """Verify A OR B: either must verify."""
+    return self.any_verifies([node.left, node.right])
+
+def falsify_disjunction(self, node):
+    """Falsify A OR B: both must falsify."""
+    left_result = self.falsify(node.left)
+    right_result = self.falsify(node.right)
+    return self.combine_falsify(left_result, right_result)
+```
+
+## Evaluation Context
+
+### Environment Pattern
+
+```python
+class Environment:
+    """Evaluation environment with scoping."""
+
+    def __init__(self, parent: Optional["Environment"] = None):
+        self.bindings: Dict[str, Any] = {}
+        self.parent = parent
+
+    def lookup(self, name: str) -> Any:
+        """Look up a binding in this environment or parents."""
+        if name in self.bindings:
+            return self.bindings[name]
+        if self.parent is not None:
+            return self.parent.lookup(name)
+        raise NameError(f"Undefined: {name}")
+
+    def define(self, name: str, value: Any) -> None:
+        """Define a new binding."""
+        self.bindings[name] = value
+
+    def extend(self) -> "Environment":
+        """Create a new environment with this as parent."""
+        return Environment(parent=self)
+```
+
+### Using Environment in Evaluator
+
+```python
+class ScopedEvaluator(Evaluator):
+    """Evaluator with scoped environments."""
+
+    def __init__(self):
+        self.env = Environment()
+
+    def eval_let(self, node):
+        """Evaluate let binding."""
+        # Create new scope
+        self.env = self.env.extend()
+
+        # Bind variables
+        for binding in node.bindings:
+            value = self.evaluate(binding.value)
+            self.env.define(binding.name, value)
+
+        # Evaluate body in new scope
+        result = self.evaluate(node.body)
+
+        # Restore previous scope
+        self.env = self.env.parent
+
+        return result
+```
+
+## Constraint Generation
+
+For symbolic evaluation (e.g., with Z3):
 
 ```python
 import z3
-from model_checker.utils import bitvec_to_substates
 
-# N is the number of atomic states
-N = 16
-state = z3.BitVec('s', N)
 
-# Convert to set of atomic states
-substates = bitvec_to_substates(state, N)
-# e.g., BitVec 5 (binary 0101) -> {0, 2}
+class ConstraintEvaluator(Evaluator):
+    """Generate constraints from AST."""
+
+    def __init__(self):
+        self.constraints = []
+        self.variables: Dict[str, z3.ExprRef] = {}
+
+    def get_var(self, name: str, sort=z3.IntSort()) -> z3.ExprRef:
+        """Get or create a Z3 variable."""
+        if name not in self.variables:
+            self.variables[name] = z3.Const(name, sort)
+        return self.variables[name]
+
+    def eval_comparison(self, node):
+        """Generate comparison constraint."""
+        left = self.evaluate(node.left)
+        right = self.evaluate(node.right)
+
+        ops = {
+            '==': lambda a, b: a == b,
+            '!=': lambda a, b: a != b,
+            '<':  lambda a, b: a < b,
+            '<=': lambda a, b: a <= b,
+            '>':  lambda a, b: a > b,
+            '>=': lambda a, b: a >= b,
+        }
+
+        return ops[node.operator](left, right)
+
+    def add_constraint(self, constraint: z3.BoolRef) -> None:
+        """Add a constraint to the system."""
+        self.constraints.append(constraint)
+
+    def solve(self) -> Optional[z3.ModelRef]:
+        """Solve the constraint system."""
+        solver = z3.Solver()
+        solver.add(self.constraints)
+        if solver.check() == z3.sat:
+            return solver.model()
+        return None
 ```
 
-## Part-Whole Structure
-
-States have mereological (part-whole) structure:
+## Evaluation Pipeline
 
 ```python
-def is_part_of(s1, s2):
-    """Check if s1 is a part of s2."""
-    return s1 & s2 == s1  # Bitwise containment
-
-def fusion(s1, s2):
-    """Compute fusion (mereological sum) of states."""
-    return s1 | s2  # Bitwise union
-```
-
-## Verification Patterns
-
-### Atomic Propositions
-
-```python
-def verify_atom(self, state, letter):
-    """State verifies atomic proposition."""
-    # Each atom has a designated verifier set
-    verifiers = self.get_verifiers(letter)
-    return state in verifiers
-```
-
-### Negation (Bilateral)
-
-```python
-def verify_negation(self, state, sentence):
-    """State verifies NOT(sentence) iff it falsifies sentence."""
-    return self.falsify(state, sentence.argument)
-
-def falsify_negation(self, state, sentence):
-    """State falsifies NOT(sentence) iff it verifies sentence."""
-    return self.verify(state, sentence.argument)
-```
-
-### Conjunction (Exact)
-
-```python
-def verify_conjunction(self, state, sentence):
-    """State verifies A AND B iff state is fusion of verifiers."""
-    # state = s1 fusion s2 where s1 verifies A and s2 verifies B
-    s1 = z3.BitVec('s1', N)
-    s2 = z3.BitVec('s2', N)
-    return z3.Exists([s1, s2],
-        z3.And(
-            state == (s1 | s2),
-            self.verify(s1, sentence.left),
-            self.verify(s2, sentence.right)
-        )
-    )
-```
-
-### Disjunction (Either Verifier)
-
-```python
-def verify_disjunction(self, state, sentence):
-    """State verifies A OR B iff state verifies A or state verifies B."""
-    return z3.Or(
-        self.verify(state, sentence.left),
-        self.verify(state, sentence.right)
-    )
-```
-
-## Z3 Constraint Patterns
-
-### ForAll with Implication
-
-```python
-from model_checker.utils import ForAll
-
-# "All verifiers of A are parts of state s"
-ForAll([x], z3.Implies(
-    self.verify(x, sentence),
-    is_part_of(x, s)
-))
-```
-
-### Exists with Conjunction
-
-```python
-from model_checker.utils import Exists
-
-# "There exists a verifier of A that is part of state s"
-Exists([x], z3.And(
-    self.verify(x, sentence),
-    is_part_of(x, s)
-))
-```
-
-## Modal Evaluation
-
-Modal operators evaluate across possible worlds:
-
-```python
-def verify_necessity(self, state, world, sentence):
-    """State verifies NECESSARILY(sentence) at world."""
-    # Verify at all accessible worlds
-    return ForAll([w], z3.Implies(
-        self.accessible(world, w),
-        Exists([s], z3.And(
-            is_part_of(s, state),
-            self.verify(s, w, sentence)
-        ))
-    ))
-```
-
-## Counterfactual Evaluation
-
-Counterfactuals use closest-world semantics:
-
-```python
-def verify_counterfactual(self, state, world, antecedent, consequent):
-    """State verifies 'if A were the case, B would be'."""
-    # In closest A-worlds, B holds
-    return ForAll([w], z3.Implies(
-        self.closest_where_true(w, world, antecedent),
-        self.verify(state, w, consequent)
-    ))
-```
-
-## Constraint Generation Flow
-
-1. Parse sentence into AST
-2. Recursively generate Z3 constraints
-3. Combine constraints with model constraints
-4. Send to solver
-
-```python
-def evaluate(self, sentence, settings):
+def evaluate_program(source: str, context: Dict[str, Any] = None) -> Any:
     """Full evaluation pipeline."""
-    # 1. Build model constraints
-    model = self.build_model(settings)
+    # 1. Parse source into AST
+    ast = parse(source)
 
-    # 2. Generate sentence constraints
-    constraints = self.generate_constraints(sentence, model)
+    # 2. Create evaluator with context
+    evaluator = ExpressionEvaluator(context or {})
 
-    # 3. Create solver and add constraints
-    solver = z3.Solver()
-    solver.add(model.constraints)
-    solver.add(constraints)
+    # 3. Evaluate AST
+    result = evaluator.evaluate(ast)
 
-    # 4. Check satisfiability
-    result = solver.check()
-    if result == z3.sat:
-        return solver.model()
-    return None
+    return result
 ```
 
 ## Performance Patterns
 
-### Simplification
+### Memoization
 
 ```python
-from z3 import simplify
+from functools import lru_cache
 
-# Simplify complex constraints before solving
-constraint = simplify(complex_constraint)
+
+class MemoizedEvaluator(Evaluator):
+    """Evaluator with memoization for repeated subexpressions."""
+
+    @lru_cache(maxsize=1000)
+    def evaluate_cached(self, node_id: int) -> Any:
+        """Cached evaluation by node ID."""
+        node = self.node_registry[node_id]
+        return self._evaluate_impl(node)
+
+    def evaluate(self, node):
+        """Evaluate with caching."""
+        if hasattr(node, 'id'):
+            return self.evaluate_cached(node.id)
+        return self._evaluate_impl(node)
 ```
 
 ### Timeout Handling
 
 ```python
-solver = z3.Solver()
-solver.set('timeout', settings['max_time'] * 1000)  # milliseconds
-result = solver.check()
-if result == z3.unknown:
-    # Timeout occurred
+import signal
+
+
+class TimeoutError(Exception):
     pass
+
+
+def with_timeout(timeout_seconds: int):
+    """Decorator for timeout-protected evaluation."""
+    def decorator(func):
+        def handler(signum, frame):
+            raise TimeoutError("Evaluation timed out")
+
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, handler)
+            signal.alarm(timeout_seconds)
+            try:
+                result = func(*args, **kwargs)
+            finally:
+                signal.alarm(0)
+            return result
+
+        return wrapper
+    return decorator
 ```
 
-### Incremental Solving
+### Incremental Evaluation
 
 ```python
-solver = z3.Solver()
-solver.push()  # Save state
-solver.add(constraint1)
-result1 = solver.check()
-solver.pop()   # Restore state
-solver.add(constraint2)
-result2 = solver.check()
+class IncrementalEvaluator(Evaluator):
+    """Evaluator that can be paused and resumed."""
+
+    def __init__(self):
+        self.state_stack = []
+
+    def checkpoint(self) -> Dict[str, Any]:
+        """Save current evaluation state."""
+        return {
+            'stack': self.state_stack.copy(),
+            'context': self.context.copy(),
+        }
+
+    def restore(self, checkpoint: Dict[str, Any]) -> None:
+        """Restore from checkpoint."""
+        self.state_stack = checkpoint['stack']
+        self.context = checkpoint['context']
 ```

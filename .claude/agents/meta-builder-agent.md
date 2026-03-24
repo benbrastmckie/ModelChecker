@@ -67,7 +67,7 @@ Load these on-demand using @-references:
 |------|---------------|
 | interactive | `@.claude/docs/guides/component-selection.md` (after Stage 0 inventory) |
 | prompt | `@.claude/docs/guides/component-selection.md` |
-| analyze | `@.claude/CLAUDE.md`, `@.claude/context/index.md` |
+| analyze | `@.claude/CLAUDE.md`, `@.claude/context/index.json` |
 
 **Stages 3-5 (Interview/Analysis - On-Demand)**:
 - When user selects commands: `@.claude/docs/guides/creating-commands.md`
@@ -95,7 +95,7 @@ Quick reference for context loading by mode:
 | thin-wrapper-skill.md | On-demand* | On-demand* | No |
 | agent-template.md | On-demand* | On-demand* | No |
 | CLAUDE.md | No | No | Stage 2 |
-| index.md | No | No | Stage 2 |
+| index.json | No | No | Stage 2 |
 | TODO.md | Stage 5 | Stage 5 | Stage 1** |
 | state.json | Stage 5 | Stage 5 | Stage 1** |
 
@@ -127,7 +127,7 @@ Validate mode is one of: interactive, prompt, analyze.
 |------|----------------------|
 | `interactive` | component-selection.md (during relevant interview stages) |
 | `prompt` | component-selection.md |
-| `analyze` | CLAUDE.md, index.md |
+| `analyze` | CLAUDE.md, index.json |
 
 Context is loaded lazily during execution, not eagerly at start.
 
@@ -377,6 +377,159 @@ for task_idx, ext_deps in external_dependencies:
 - `dependency_map{}`: Map of task index -> [dependency indices] (internal)
 - `external_dependencies{}`: Map of task index -> [existing task numbers] (external)
 
+### Interview Stage 3.5: AnalyzeTopics (Topic Clustering)
+
+**Skip Condition**: Execute ONLY when:
+- User provided task_list with 2+ items (single task needs no consolidation)
+- At least 2 items share topic indicators (otherwise no groupings to suggest)
+
+**Purpose**: Proactively analyze user-provided task breakdown for opportunities to consolidate related items into fewer, more coherent tasks. This follows the "minimize tasks" principle - fewer, well-scoped tasks are better than many fragmented ones.
+
+**3.5.1: Extract Topic Indicators**
+
+For each task in task_list, extract:
+- **Key Terms**: Significant words (nouns, verbs) from title/description, ignoring stop words (a, the, in, on, for, to, and, or)
+- **Component Type**: Identify component (command, skill, agent, rule, context, documentation)
+- **Affected Area**: Parse for directory mentions (.claude/commands/, .claude/skills/, .claude/agents/, etc.)
+- **Action Type**: Categorize by action (create, modify, fix, document, refactor, test)
+
+**Example Extraction**:
+```
+Task: "Create a new /export command for documentation"
+  -> key_terms: ["export", "command", "documentation"]
+  -> component_type: "command"
+  -> affected_area: ".claude/commands/"
+  -> action_type: "create"
+
+Task: "Add export skill to handle PDF generation"
+  -> key_terms: ["export", "skill", "PDF", "generation"]
+  -> component_type: "skill"
+  -> affected_area: ".claude/skills/"
+  -> action_type: "create"
+```
+
+**3.5.2: Cluster Tasks by Shared Indicators**
+
+Apply clustering algorithm (matches /fix-it pattern):
+
+```python
+groups = []
+
+for task in task_list:
+  matched = False
+
+  # Primary match: same component_type AND same affected_area
+  for group in groups:
+    if task.component_type == group.component_type and task.affected_area == group.affected_area:
+      group.items.append(task)
+      group.key_terms = union(group.key_terms, task.key_terms)
+      matched = True
+      break
+
+  # Secondary match: 2+ shared key_terms
+  if not matched:
+    for group in groups:
+      shared = intersection(task.key_terms, group.key_terms)
+      if len(shared) >= 2:
+        group.items.append(task)
+        group.key_terms = union(group.key_terms, task.key_terms)
+        matched = True
+        break
+
+  # No match: create new group
+  if not matched:
+    groups.append(Group(items=[task], key_terms=task.key_terms,
+                        component_type=task.component_type,
+                        affected_area=task.affected_area))
+```
+
+**3.5.3: Generate Topic Labels**
+
+For each group with 2+ items, generate label from:
+- Most common key terms (up to 3)
+- Component type (e.g., "Command Changes", "Skill Updates")
+- Example: "Export Functionality (command + skill)" for two export-related tasks
+
+**3.5.4: Check Skip Condition**
+
+If no groups have 2+ items (all tasks are independent):
+- Skip to Stage 4 (no consolidation benefit)
+- Set: `topic_consolidation_skipped = true`
+
+**3.5.5: Present Topic Consolidation Picker**
+
+**Question** (via AskUserQuestion):
+```json
+{
+  "question": "I found related tasks that could be consolidated. How should they be grouped?",
+  "header": "Topic Consolidation",
+  "multiSelect": false,
+  "options": [
+    {
+      "label": "Accept suggested groups",
+      "description": "Creates {N} consolidated tasks: {group_summaries}"
+    },
+    {
+      "label": "Keep as separate tasks",
+      "description": "Creates {M} individual tasks (as you provided)"
+    },
+    {
+      "label": "Customize groupings",
+      "description": "I'll specify which items to combine"
+    }
+  ]
+}
+```
+
+**Where**:
+- `{N}` = Number of groups after consolidation
+- `{M}` = Original number of individual tasks
+- `{group_summaries}` = Brief list like "Export (2 items), Testing (2 items)"
+
+**3.5.6: Handle User Response**
+
+**If "Accept suggested groups"**:
+- Replace task_list with consolidated groups
+- Each group becomes one task with combined description
+- Apply effort scaling: `base_effort + (30 min * (item_count - 1))`
+
+**If "Keep as separate tasks"**:
+- Proceed with original task_list unchanged
+
+**If "Customize groupings"**:
+- Present Tier 2 multiSelect picker:
+```json
+{
+  "question": "Select items to combine into a single task:",
+  "header": "Custom Grouping",
+  "multiSelect": true,
+  "options": [
+    {"label": "{task_1_title}", "description": "Item 1"},
+    {"label": "{task_2_title}", "description": "Item 2"},
+    ...
+  ]
+}
+```
+- Selected items become one consolidated task
+- Remaining items stay as individual tasks
+- Repeat until user confirms groupings are complete
+
+**Effort Scaling Formula** (for consolidated tasks):
+```
+base_effort = original task effort (or 1 hour default)
+scaled_effort = base_effort + (30 min * (item_count - 1))
+
+Examples:
+  1 item  -> 1 hour
+  2 items -> 1.5 hours
+  3 items -> 2 hours
+  4 items -> 2.5 hours
+```
+
+**Capture**: Updated task_list (may be consolidated), consolidation_mode
+
+---
+
 ### Interview Stage 4: AssessComplexity
 
 **Question 6** (via AskUserQuestion):
@@ -434,7 +587,107 @@ Options per task:
 
 **If user selects "Cancel"**: Return completed status with cancelled flag.
 **If user selects "Revise"**: Go back to Stage 3.
-**If user selects "Yes"**: Proceed to Stage 6.
+**If user selects "Yes"**: Proceed to Stage 5.5 (Research Artifact Generation).
+
+### Interview Stage 5.5: GenerateResearchArtifacts
+
+**Trigger**: User confirmed task creation in Stage 5 ("Yes, create tasks")
+
+**Purpose**: Generate lightweight research reports from interview context so tasks start in RESEARCHED status. This enables users to immediately run `/plan N` without requiring separate `/research N` calls for well-understood tasks.
+
+**5.5.1: For Each Task to Be Created**
+
+Create task directory and research report:
+
+```bash
+# Get next task number from state.json
+next_num=$(jq '.next_project_number' specs/state.json)
+padded_num=$(printf "%03d" "$next_num")
+slug={generated_slug_from_title}
+
+# Create task directory with reports subdirectory
+mkdir -p "specs/${padded_num}_${slug}/reports"
+```
+
+**5.5.2: Generate Research Report Template**
+
+Write to `specs/{NNN}_{slug}/reports/01_meta-research.md`:
+
+```markdown
+# Research Report: Task #{N}
+
+**Task**: {N} - {title}
+**Generated**: {ISO_DATE}
+**Source**: /meta interview (auto-generated)
+**Status**: Pre-populated from interview context
+
+---
+
+## Context Summary
+
+**Purpose**: {purpose from Stage 2}
+**Scope**: {scope from Stage 2}
+**Affected Components**: {affected_components}
+**Domain**: {detected_domain from Stage 2.5}
+**Language**: {language}
+
+## Task Requirements
+
+{task_description - either user-provided or consolidated from multiple items}
+
+{If consolidated task, list original items:}
+### Original Items (Consolidated)
+1. {original_item_1}
+2. {original_item_2}
+...
+
+## Integration Points
+
+- **Component Type**: {component_type from Stage 3.5 extraction}
+- **Affected Area**: {affected_area}
+- **Action Type**: {action_type}
+- **Related Files**: {file_list if identified during interview}
+
+## Dependencies
+
+{If dependencies exist:}
+- Task #{dep_num}: {dep_title}
+{If no dependencies:}
+None - this task can be started independently.
+
+## Interview Context
+
+### User-Provided Information
+{Any additional context captured during interview stages 2-4}
+
+### Effort Assessment
+- **Estimated Effort**: {effort from Stage 4}
+- **Complexity Notes**: {any notes about complexity}
+
+---
+
+*This research report was auto-generated during task creation via /meta command.*
+*For deeper investigation, run `/research {N} [focus]` with a specific focus prompt.*
+```
+
+**5.5.3: Artifact Tracking**
+
+For each generated report, track in interview state:
+```python
+research_artifacts.append({
+  "task_num": next_num,
+  "path": f"specs/{padded_num}_{slug}/reports/01_meta-research.md",
+  "summary": "Auto-generated research from /meta interview"
+})
+```
+
+**5.5.4: Proceed to Stage 6**
+
+After all research artifacts are generated, proceed to Stage 6 (CreateTasks) with:
+- `status = "researched"` for all tasks (instead of "not_started")
+- `artifacts` array populated with research report references
+
+---
 
 ### Interview Stage 6: CreateTasks
 
@@ -516,24 +769,34 @@ for position, task_idx in enumerate(sorted_indices):
   # 3. Update TODO.md
 ```
 
-**state.json Entry** (with dependencies):
+**state.json Entry** (with dependencies and research artifact):
 ```json
 {
   "project_number": 36,
   "project_name": "task_slug",
-  "status": "not_started",
+  "status": "researched",
   "language": "meta",
-  "dependencies": [35, 34]
+  "dependencies": [35, 34],
+  "artifacts": [
+    {
+      "type": "research",
+      "path": "specs/036_task_slug/reports/01_meta-research.md",
+      "summary": "Auto-generated research from /meta interview"
+    }
+  ]
 }
 ```
+
+**Note**: Tasks created via /meta start in `"researched"` status because Stage 5.5 generates research artifacts from interview context. This enables immediate `/plan N` without requiring separate `/research N`.
 
 **TODO.md Entry Format**:
 ```markdown
 ### {N}. {Title}
 - **Effort**: {estimate}
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: {language}
 - **Dependencies**: Task #35, Task #34  OR  None
+- **Research**: [01_meta-research.md]({NNN}_{slug}/reports/01_meta-research.md)
 
 **Description**: {description}
 
@@ -559,12 +822,16 @@ for position, task_idx in enumerate(sorted_indices):
     else:
         dep_str = "None"
 
-    # Build entry
+    # Build entry (with RESEARCHED status and research link)
+    padded_num = f"{task_num:03d}"
+    research_path = f"{padded_num}_{task['slug']}/reports/01_meta-research.md"
+
     entry = f"""### {task_num}. {task['title']}
 - **Effort**: {task['effort']}
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: {task['language']}
 - **Dependencies**: {dep_str}
+- **Research**: [01_meta-research.md]({research_path})
 
 **Description**: {task['description']}
 

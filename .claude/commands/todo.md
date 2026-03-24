@@ -157,7 +157,7 @@ done
 ```bash
 # Only process non-meta tasks for ROAD_MAP.md matching
 # Use file-based jq filter to avoid Issue #1132 with != operator
-cat > /tmp/todo_nonmeta_$$.jq << 'EOF'
+cat > specs/tmp/todo_nonmeta_$$.jq << 'EOF'
 .active_projects[] |
 select(.status == "completed") |
 select(.language != "meta") |
@@ -169,8 +169,8 @@ select(.completion_summary != null) |
   roadmap_items: (.roadmap_items // [])
 }
 EOF
-completed_with_summaries=$(jq -rf /tmp/todo_nonmeta_$$.jq specs/state.json)
-rm -f /tmp/todo_nonmeta_$$.jq
+completed_with_summaries=$(jq -rf specs/tmp/todo_nonmeta_$$.jq specs/state.json)
+rm -f specs/tmp/todo_nonmeta_$$.jq
 ```
 
 **Step 3.5.3: Match non-meta tasks against ROAD_MAP.md**:
@@ -423,41 +423,30 @@ Exit here if dry run.
 If orphaned directories were detected in Step 2.5:
 
 **Use AskUserQuestion**:
-```
-AskUserQuestion:
-  question: "Found {N} orphaned project directories not tracked in state files. What would you like to do?"
-  header: "Orphans"
-  options:
-    - label: "Track all orphans"
-      description: "Move specs/ orphans to archive/ and add state entries for all orphans"
-    - label: "Skip orphans"
-      description: "Only archive tracked completed/abandoned tasks"
-    - label: "Review list first"
-      description: "Show the full list of orphaned directories"
-  multiSelect: false
-```
-
-**If "Review list first" selected**:
-Display the full list of orphaned directories with their contents summary:
-```
-Orphaned directories:
-- 170_maintenance_report_improvements/ (contains: reports/, plans/)
-- 190_meta_system_optimization/ (contains: reports/)
-...
-
+```json
+{
+  "question": "Found {N} orphaned directories not tracked in state files. What would you like to do?",
+  "header": "Orphans",
+  "multiSelect": false,
+  "options": [
+    {"label": "Track all orphans", "description": "Move to archive/ and add state entries"},
+    {"label": "Skip orphans", "description": "Only archive tracked tasks"},
+    {"label": "Review list first", "description": "Show full list before deciding"}
+  ]
+}
 ```
 
-Then re-ask with only two options:
-```
-AskUserQuestion:
-  question: "Track these {N} orphaned directories in state files?"
-  header: "Confirm"
-  options:
-    - label: "Yes, track all"
-      description: "Move specs/ orphans to archive/ and add state entries for all"
-    - label: "No, skip orphans"
-      description: "Only archive tracked completed/abandoned tasks"
-  multiSelect: false
+**If "Review list first" selected**, display directory list then re-ask:
+```json
+{
+  "question": "Track these {N} orphaned directories?",
+  "header": "Confirm",
+  "multiSelect": false,
+  "options": [
+    {"label": "Yes, track all", "description": "Move to archive/ and add state entries"},
+    {"label": "No, skip", "description": "Only archive tracked tasks"}
+  ]
+}
 ```
 
 **Store the user's decision** (track_orphans = true/false) for use in Step 5.
@@ -469,16 +458,16 @@ If no orphaned directories were found, skip this step and proceed.
 If misplaced directories were detected in Step 2.6:
 
 **Use AskUserQuestion**:
-```
-AskUserQuestion:
-  question: "Found {N} misplaced directories in specs/ that should be in archive/ (already tracked in archive/state.json). Move them?"
-  header: "Misplaced"
-  options:
-    - label: "Move all"
-      description: "Move directories to archive/ (state already correct, no updates needed)"
-    - label: "Skip"
-      description: "Leave directories in current location"
-  multiSelect: false
+```json
+{
+  "question": "Found {N} misplaced directories in specs/ (tracked in archive/state.json). Move them?",
+  "header": "Misplaced",
+  "multiSelect": false,
+  "options": [
+    {"label": "Move all", "description": "Move to archive/ (state already correct)"},
+    {"label": "Skip", "description": "Leave in current location"}
+  ]
+}
 ```
 
 **Store the user's decision** (move_misplaced = true/false) for use in Step 5F.
@@ -737,19 +726,17 @@ If no actionable suggestions exist, skip to Step 5.6.5 (handle "none" actions on
 
 If `actionable_suggestions[]` has any entries:
 
-```
-AskUserQuestion:
-  question: "Found {N} CLAUDE.md suggestions from meta tasks. Which should be applied?"
-  header: "CLAUDE.md Updates"
-  multiSelect: true
-  options:
-    - label: "Task #{N1}: {ACTION} to {section}"
-      description: "{rationale}"
-    - label: "Task #{N2}: {ACTION} to {section}"
-      description: "{rationale}"
-    ...
-    - label: "Skip all"
-      description: "Don't apply any suggestions (display only for manual review)"
+```json
+{
+  "question": "Found {N} CLAUDE.md suggestions from meta tasks. Which should be applied?",
+  "header": "CLAUDE.md Updates",
+  "multiSelect": true,
+  "options": [
+    {"label": "Task #{N1}: {ACTION} to {section}", "description": "{rationale}"},
+    {"label": "Task #{N2}: {ACTION} to {section}", "description": "{rationale}"},
+    {"label": "Skip all", "description": "Don't apply any (display for manual review)"}
+  ]
+}
 ```
 
 Build options dynamically from `actionable_suggestions[]`:
@@ -923,6 +910,130 @@ Track for output:
 - `metrics_build_errors`: Current build errors
 - `metrics_synced`: true/false indicating if sync was performed
 
+### 5.8. Vault Operation (when next_project_number > 1000)
+
+When `next_project_number` exceeds 1000, initiate vault archival operation to reset task numbering.
+
+**Step 5.8.1: Detect vault threshold**:
+```bash
+next_num=$(jq -r '.next_project_number' specs/state.json)
+if [ "$next_num" -gt 1000 ]; then
+  vault_needed=true
+fi
+```
+
+**Step 5.8.2: Identify tasks to renumber**:
+```bash
+# Find active tasks with project_number > 1000
+tasks_to_renumber=$(jq -r '
+  .active_projects[] |
+  select(.project_number > 1000) |
+  {
+    old_number: .project_number,
+    new_number: (.project_number - 1000),
+    project_name: .project_name
+  }
+' specs/state.json)
+
+renumber_count=$(echo "$tasks_to_renumber" | jq -s 'length')
+```
+
+**Step 5.8.3: User confirmation**:
+
+Use AskUserQuestion with vault operation details:
+```json
+{
+  "question": "Task numbering has exceeded 1000. Initiate vault archival?",
+  "header": "Vault Operation",
+  "description": "Current next_project_number: {next_num}\nActive tasks to renumber: {renumber_count}\n\nThis will:\n1. Move specs/archive/ to specs/vault/{NN-vault}/\n2. Renumber tasks > 1000 by subtracting 1000\n3. Reset next_project_number",
+  "options": [
+    {"label": "Yes, proceed with vault operation", "value": "proceed"},
+    {"label": "No, skip vault this time", "value": "skip"}
+  ]
+}
+```
+
+If user selects "skip", proceed to Step 6 (Git Commit).
+
+**Step 5.8.4: Create vault directory**:
+```bash
+vault_count=$(jq -r '.vault_count // 0' specs/state.json)
+new_vault_num=$((vault_count + 1))
+vault_dir_name=$(printf "%02d-vault" "$new_vault_num")
+vault_path="specs/vault/${vault_dir_name}"
+
+mkdir -p "$vault_path"
+mv "specs/archive" "${vault_path}/archive"
+mv "${vault_path}/archive/state.json" "${vault_path}/state.json"
+```
+
+**Step 5.8.5: Create vault meta.json**:
+```bash
+current_timestamp=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+archived_count=$(jq -r '.completed_projects | length' "${vault_path}/state.json" 2>/dev/null || echo "0")
+
+jq -n \
+  --arg vault_num "$new_vault_num" \
+  --arg created_at "$current_timestamp" \
+  --argjson archived_count "$archived_count" \
+  --argjson final_task_num "$next_num" \
+  '{
+    vault_number: ($vault_num | tonumber),
+    created_at: $created_at,
+    archived_count: $archived_count,
+    final_task_number: $final_task_num
+  }' > "${vault_path}/meta.json"
+```
+
+**Step 5.8.6: Reinitialize archive**:
+```bash
+mkdir -p "specs/archive"
+jq -n '{ "completed_projects": [] }' > "specs/archive/state.json"
+```
+
+**Step 5.8.7: Renumber tasks > 1000**:
+
+For each task with project_number > 1000:
+1. Update state.json project_number (subtract 1000)
+2. Update artifact paths (4-digit dir -> 3-digit dir)
+3. Update dependencies arrays
+4. Rename task directories
+5. Update TODO.md entries
+
+**Step 5.8.8: Reset state**:
+```bash
+# Calculate new next_project_number
+max_active=$(jq -r '[.active_projects[].project_number] | max // 0' specs/state.json)
+new_next_num=$((max_active + 1))
+
+# Update state.json
+jq --argjson new_next "$new_next_num" \
+   --argjson vault_num "$new_vault_num" \
+   --arg vault_path "$vault_path/" \
+   --arg created "$current_timestamp" \
+   '.next_project_number = $new_next |
+    .vault_count = (.vault_count // 0) + 1 |
+    .vault_history = (.vault_history // []) + [{
+      vault_number: $vault_num,
+      vault_dir: $vault_path,
+      created_at: $created
+    }]' specs/state.json > specs/state.json.tmp
+mv specs/state.json.tmp specs/state.json
+```
+
+**Step 5.8.9: Add transition comment to TODO.md**:
+```bash
+current_date=$(date +"%Y-%m-%d")
+comment="<!-- Vault transition: ${current_date} - Archived to ${vault_path}/ -->"
+# Insert after frontmatter
+```
+
+Track vault operations for output:
+- `vault_created`: true/false
+- `vault_path`: path to new vault
+- `tasks_renumbered`: count of tasks renumbered
+- `new_next_project_number`: reset value
+
 ### 6. Git Commit
 
 ```bash
@@ -955,66 +1066,39 @@ Where `{R}` = roadmap_completed_annotated + roadmap_abandoned_annotated (total r
 
 ### 7. Output
 
+Use grouped counts instead of listing individual items:
+
 ```
-Archived {N} tasks:
+Archived {N} tasks
 
-Completed ({N}):
-- #{N1}: {title}
-- #{N2}: {title}
+Tasks: {C} completed, {A} abandoned
+Directories: {D} moved
 
-Abandoned ({N}):
-- #{N3}: {title}
+{If orphans or misplaced processed:}
+Cleanup: {O} orphans tracked, {P} misplaced moved
 
-Directories moved to archive: {N}
-- {N1}_{SLUG1}/ -> archive/
-- {N2}_{SLUG2}/ -> archive/
+{If roadmap updated:}
+Roadmap: {R} items updated
 
-Orphaned directories tracked: {N}
-- {N4}_{SLUG4}/ (moved to archive/, state entry added)
-- {N5}_{SLUG5}/ (already in archive/, state entry added)
-
-Misplaced directories moved: {N}
-- {N8}_{SLUG8}/ (already tracked in archive/state.json)
-- {N9}_{SLUG9}/ (already tracked in archive/state.json)
-
-Roadmap updated: {N} items
-- Marked complete: {N}
-  - {item text} (line {N})
-- Marked abandoned: {N}
-  - {item text} (line {N})
-- Skipped (already annotated): {N}
-
-CLAUDE.md suggestions applied: {N}
-- Task #{N1}: Added {section}
-- Task #{N2}: Updated {section}
-
-CLAUDE.md suggestions failed: {N}
-- Task #{N3}: Section not found
-
-CLAUDE.md suggestions skipped: {N}
-- Task #{N4}: Skipped by user
-
-Meta tasks with no changes: {N}
-
-Skipped (no directory): {N}
-- Task #{N6}
+{If CLAUDE.md suggestions:}
+CLAUDE.md: {applied}/{total} suggestions applied
 
 Active tasks remaining: {N}
 
-Repository metrics updated:
-- todo_count: {N}
-- fixme_count: {N}
-- build_errors: {N}
-- last_assessed: {timestamp}
-
-Archives: specs/archive/
+Next Steps:
+1. Review archive at specs/archive/
+2. Run /review for codebase analysis
 ```
 
-If no orphans were tracked (either none found or user skipped):
-- Omit the "Orphaned directories tracked" section
+**Section Inclusion Rules:**
 
-If no misplaced directories were moved (either none found or user skipped):
-- Omit the "Misplaced directories moved" section
+| Section | Show When |
+|---------|-----------|
+| Tasks | Always (with counts) |
+| Directories | directories_moved > 0 |
+| Cleanup | orphans_tracked > 0 OR misplaced_moved > 0 |
+| Roadmap | roadmap items updated |
+| CLAUDE.md | claudemd_suggestions processed |
 
 If no roadmap items were updated (no matches found in Step 3.5):
 - Omit the "Roadmap updated" section
@@ -1178,10 +1262,10 @@ If an Edit operation fails (section not found, text mismatch), the failure is lo
 1. **File-based filters** for `!=` operators:
    ```bash
    # Instead of: jq 'select(.language != "meta")' file
-   cat > /tmp/filter_$$.jq << 'EOF'
+   cat > specs/tmp/filter_$$.jq << 'EOF'
    select(.language != "meta")
    EOF
-   jq -f /tmp/filter_$$.jq file && rm -f /tmp/filter_$$.jq
+   jq -f specs/tmp/filter_$$.jq file && rm -f specs/tmp/filter_$$.jq
    ```
 
 2. **`has()` for null checks**:

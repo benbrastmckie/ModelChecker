@@ -42,9 +42,9 @@ cat .claude/logs/subagent-postflight.log
 1. Ensure skill creates marker before subagent invocation:
 ```bash
 # Ensure task directory exists
-mkdir -p "specs/${task_number}_${project_name}"
+mkdir -p "specs/${padded_num}_${project_name}"
 
-cat > "specs/${task_number}_${project_name}/.postflight-pending" << EOF
+cat > "specs/${padded_num}_${project_name}/.postflight-pending" << EOF
 {
   "session_id": "${session_id}",
   "skill": "skill-name",
@@ -109,8 +109,8 @@ find specs -maxdepth 3 -name ".postflight-loop-guard" -delete
 **Permanent Fix**:
 1. Verify skill removes marker after postflight:
 ```bash
-rm -f "specs/${task_number}_${project_name}/.postflight-pending"
-rm -f "specs/${task_number}_${project_name}/.postflight-loop-guard"
+rm -f "specs/${padded_num}_${project_name}/.postflight-pending"
+rm -f "specs/${padded_num}_${project_name}/.postflight-loop-guard"
 ```
 
 2. Verify loop guard is working (max 3 continuations)
@@ -282,7 +282,7 @@ jq '.active_projects[] | select(.status == "researching" or .status == "planning
 5. **Manually fix stuck tasks** if needed:
 ```bash
 # Reset stuck task to previous valid state
-jq '(.active_projects[] | select(.project_number == 259)) |= . + {status: "not_started"}' specs/state.json > /tmp/state.json && mv /tmp/state.json specs/state.json
+jq '(.active_projects[] | select(.project_number == 259)) |= . + {status: "not_started"}' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
 
 ### Partial Rollback

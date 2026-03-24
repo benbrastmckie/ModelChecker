@@ -50,20 +50,20 @@ jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
     status: $status,
     last_updated: $ts,
     researched: $ts
-  }' "$state_file" > /tmp/state.json && mv /tmp/state.json "$state_file"
+  }' "$state_file" > specs/tmp/state.json && mv specs/tmp/state.json "$state_file"
 
 echo "  Status updated to 'researched'"
 
 # Step 2: Filter out existing research artifacts (two-step pattern for Issue #1132)
 jq '(.active_projects[] | select(.project_number == '$task_number')).artifacts =
     [(.active_projects[] | select(.project_number == '$task_number')).artifacts // [] | .[] | select(.type != "research")]' \
-  "$state_file" > /tmp/state.json && mv /tmp/state.json "$state_file"
+  "$state_file" > specs/tmp/state.json && mv specs/tmp/state.json "$state_file"
 
 # Step 3: Add new research artifact
 jq --arg path "$artifact_path" \
    --arg summary "$artifact_summary" \
   '(.active_projects[] | select(.project_number == '$task_number')).artifacts += [{"path": $path, "type": "research", "summary": $summary}]' \
-  "$state_file" > /tmp/state.json && mv /tmp/state.json "$state_file"
+  "$state_file" > specs/tmp/state.json && mv specs/tmp/state.json "$state_file"
 
 echo "  Artifact linked: $artifact_path"
 echo "Done."

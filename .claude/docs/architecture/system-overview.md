@@ -55,9 +55,9 @@ The agent system uses a three-layer architecture that separates user interaction
     |                     ARTIFACTS                        |
     |                                                      |
     |   specs/{NNN}_{SLUG}/                                  |
-    |   ├── reports/research-001.md                       |
-    |   ├── plans/implementation-001.md                   |
-    |   └── summaries/implementation-summary-{DATE}.md    |
+    |   ├── reports/01_{short-slug}.md                    |
+    |   ├── plans/02_{short-slug}.md                      |
+    |   └── summaries/03_{short-slug}-summary.md          |
     +-----------------------------------------------------+
 ```
 
@@ -105,7 +105,8 @@ Skills are thin wrappers that validate inputs and delegate to agents. They:
 | skill-planner | planner-agent | Create implementation plans |
 | skill-implementer | general-implementation-agent | General file implementation |
 | skill-neovim-implementation | neovim-implementation-agent | Neovim configuration implementation |
-| skill-latex-implementation | latex-implementation-agent | LaTeX document implementation |
+
+**Note**: Additional skills (latex, typst, filetypes) are available via extensions in `.claude/extensions/`.
 
 ### Agents (Layer 3)
 
@@ -138,7 +139,7 @@ When you run `/research 1`:
 3. Agent: neovim-research-agent
    - Load: Neovim context files
    - Execute: Search documentation, analyze plugins
-   - Create: specs/1_{slug}/reports/research-001.md
+   - Create: specs/001_{slug}/reports/01_{short-slug}.md
    - Return: {"status": "researched", "artifacts": [...]}
 
 4. Postflight:
@@ -183,9 +184,10 @@ Tasks route to specialized skills based on their `language` field:
 | `neovim` | skill-neovim-research | skill-neovim-implementation |
 | `general` | skill-researcher | skill-implementer |
 | `meta` | skill-researcher | skill-implementer |
-| `latex` | skill-researcher | skill-latex-implementation |
 
 The language is automatically detected from task description or can be set explicitly.
+
+**Note**: Additional languages (latex, typst) are available via extensions in `.claude/extensions/`.
 
 ---
 

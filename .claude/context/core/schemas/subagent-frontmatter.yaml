@@ -129,7 +129,7 @@ context_loading:
   strategy: lazy
   
   # Index file for lazy loading discovery
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   
   # Required context files (relative to .claude/context/)
   required:

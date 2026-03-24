@@ -300,7 +300,7 @@ Commands update task status to "completed" and link artifacts AFTER subagent com
   "artifacts": [
     {
       "type": "research_report",
-      "path": "specs/123_topic/reports/research-001.md",
+      "path": "specs/123_topic/reports/01_research-findings.md",
       "summary": "Research findings",
       "validated": true
     }
@@ -484,7 +484,7 @@ Delegate → Proceed (without verification) ← WRONG
 # DO NOT DO THIS in command files
 jq --arg num "$task_number" \
   '.active_projects[] |= if .project_number == ($num | tonumber) then .status = "researched" else . end' \
-  specs/state.json > /tmp/state.json.tmp
+  specs/state.json > specs/tmp/state.json.tmp
 ```
 
 **Problem**: Bypasses status-sync-manager, doesn't link artifacts, not atomic.

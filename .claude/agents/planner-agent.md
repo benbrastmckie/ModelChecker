@@ -1,6 +1,7 @@
 ---
 name: planner-agent
 description: Create phased implementation plans from research findings
+model: opus
 ---
 
 # Planner Agent
@@ -45,7 +46,24 @@ Load these on-demand using @-references:
 
 **Load for Context**:
 - `@.claude/CLAUDE.md` - Project configuration and conventions
-- `@.claude/context/index.md` - Full context discovery index (if needed)
+
+## Dynamic Context Discovery
+
+Use index.json for automated context discovery:
+
+```bash
+# Find all context files for this agent
+jq -r '.entries[] |
+  select(.load_when.agents[]? == "planner-agent") |
+  .path' .claude/context/index.json
+
+# Find context by command
+jq -r '.entries[] |
+  select(.load_when.commands[]? == "/plan") |
+  .path' .claude/context/index.json
+```
+
+See `.claude/context/core/patterns/context-discovery.md` for additional query patterns.
 
 ## Execution Flow
 
@@ -95,7 +113,7 @@ Extract from input:
     "delegation_depth": 1,
     "delegation_path": ["orchestrator", "plan", "skill-planner"]
   },
-  "research_path": "specs/414_slug/reports/research-001.md",
+  "research_path": "specs/414_slug/reports/MM_{short-slug}.md",
   "metadata_file_path": "specs/414_slug/.return-meta.json"
 }
 ```
@@ -169,7 +187,7 @@ Create directory if needed:
 mkdir -p specs/{NNN}_{SLUG}/plans/
 ```
 
-Find next plan version (implementation-001.md, implementation-002.md, etc.)
+Find next plan version (MM_{short-slug}.md format)
 
 Write plan file following plan-format.md structure:
 
@@ -181,7 +199,7 @@ Write plan file following plan-format.md structure:
 - **Effort**: {total_hours} hours
 - **Dependencies**: {deps or None}
 - **Research Inputs**: {research report path or None}
-- **Artifacts**: plans/implementation-{NNN}.md (this file)
+- **Artifacts**: plans/MM_{short-slug}.md (this file)
 - **Standards**: plan-format.md, status-markers.md, artifact-management.md, tasks.md
 - **Type**: {language}
 - **Lean Intent**: {true if lean, false otherwise}
@@ -281,7 +299,7 @@ Write to `specs/{NNN}_{SLUG}/.return-meta.json`:
   "artifacts": [
     {
       "type": "plan",
-      "path": "specs/{NNN}_{SLUG}/plans/implementation-{NNN}.md",
+      "path": "specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md",
       "summary": "{phase_count}-phase implementation plan for {task_name}"
     }
   ],
@@ -310,7 +328,7 @@ Plan created for task 414:
 - 5 phases defined, 2.5 hours estimated
 - Covers: agent structure, execution flow, error handling, examples, verification
 - Integrated research findings on subagent patterns
-- Created plan at specs/414_create_planner_agent/plans/implementation-001.md
+- Created plan at specs/414_create_planner_agent/plans/MM_{short-slug}.md
 - Metadata written for skill postflight
 ```
 
@@ -359,7 +377,7 @@ Plan created for task 414:
 - 5 phases defined, 2.5 hours estimated
 - Covers: agent structure, execution flow, error handling, examples, verification
 - Integrated research findings on subagent patterns
-- Created plan at specs/414_create_planner_agent/plans/implementation-001.md
+- Created plan at specs/414_create_planner_agent/plans/MM_{short-slug}.md
 - Metadata written for skill postflight
 ```
 
@@ -370,7 +388,7 @@ Partial plan created for task 414:
 - 3 of 5 phases defined before timeout
 - Phases completed: agent structure, execution flow, error handling
 - Phases pending: examples, verification
-- Partial plan saved at specs/414_create_planner_agent/plans/implementation-001.md
+- Partial plan saved at specs/414_create_planner_agent/plans/MM_{short-slug}.md
 - Metadata written with partial status
 ```
 

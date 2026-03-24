@@ -24,7 +24,7 @@ A comprehensive guide to using the `.claude/` task management system commands fo
    - [/errors](#errors-command)
 4. [Utility Commands](#utility-commands)
    - [/meta](#meta-command)
-   - [/learn](#learn-command)
+   - [/fix-it](#fix-it-command)
    - [/convert](#convert-command)
 5. [Quick Reference](#quick-reference)
 6. [Troubleshooting](#troubleshooting)
@@ -189,7 +189,7 @@ Conduct research on a task and create reports.
 - `neovim` tasks -> Uses Neovim-specific research agent
 - Other tasks -> Uses web search, documentation, codebase exploration
 
-**Output**: Creates `specs/{NNN}_{SLUG}/reports/research-{NNN}.md`
+**Output**: Creates `specs/{NNN}_{SLUG}/reports/MM_{short-slug}.md`
 
 **Repeatable**: Yes. Run multiple times to gather additional research. Each run creates a new numbered report (001, 002, etc.).
 
@@ -205,7 +205,7 @@ Create an implementation plan for a task.
 
 **Prerequisites**: Task should exist (ideally researched first, but not required).
 
-**Output**: Creates `specs/{NNN}_{SLUG}/plans/implementation-{NNN}.md`
+**Output**: Creates `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md`
 
 **Plan Structure**:
 - **Phases**: Logical groupings of related work
@@ -249,7 +249,7 @@ Create a new plan version or update task description.
 /revise 45   # Interactive revision
 ```
 
-**Output for Plan Revision**: Creates `specs/{NNN}_{SLUG}/plans/implementation-{NNN}.md` with incremented version number.
+**Output for Plan Revision**: Creates `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md` with incremented version number.
 
 ---
 
@@ -279,7 +279,7 @@ Execute an implementation plan.
 - `[COMPLETED]` -> Finished successfully
 - `[PARTIAL]` -> Partially complete (interrupted)
 
-**Output**: Creates `specs/{NNN}_{SLUG}/summaries/implementation-summary-{DATE}.md`
+**Output**: Creates `specs/{NNN}_{SLUG}/summaries/MM_{short-slug}-summary.md`
 
 ---
 
@@ -424,12 +424,12 @@ Creates tasks like:
 
 ---
 
-### /learn Command
+### /fix-it Command
 
 Scan for FIX:/NOTE:/TODO: tags and create tasks.
 
 ```
-/learn [PATH...]
+/fix-it [PATH...]
 ```
 
 **Arguments**:
@@ -453,8 +453,8 @@ Scan for FIX:/NOTE:/TODO: tags and create tasks.
 
 **Example**:
 ```
-/learn                           # Scan entire project
-/learn Theories/Modal/           # Scan specific directory
+/fix-it                          # Scan entire project
+/fix-it Theories/Modal/          # Scan specific directory
 ```
 
 ---
@@ -506,7 +506,8 @@ Convert documents between formats.
 | `/refresh` | `/refresh [--dry-run] [--force]` | Clean resources |
 | `/errors` | `/errors [--fix N]` | Analyze errors |
 | `/meta` | `/meta [PROMPT] \| --analyze` | System builder |
-| `/learn` | `/learn [PATH...]` | Extract tags to tasks |
+| `/fix-it` | `/fix-it [PATH...]` | Extract tags to tasks |
+| `/tag` | `/tag [--patch|--minor|--major]` | Create semantic version tag (user-only) |
 | `/convert` | `/convert SOURCE [OUTPUT]` | Convert documents |
 
 ### Status Transitions
@@ -561,7 +562,7 @@ Convert documents between formats.
 **Solutions**:
 1. Verify task is planned: Status should be `[PLANNED]`
 2. Check for missing plan: Run `/plan N` first
-3. Check plan file exists: `specs/{NNN}_{SLUG}/plans/implementation-001.md`
+3. Check plan file exists: `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md`
 
 #### Stuck in Implementing Status
 

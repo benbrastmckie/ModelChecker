@@ -1,148 +1,200 @@
 {
   "agent": {
-    "math-research": {
-      "mode": "subagent",
-      "description": "Research mathematics and abstract algebra topics",
+    "filetypes-router": {
+      "description": "Routes file conversion tasks to appropriate specialist agents",
+      "prompt": "{file:.opencode/agent/subagents/filetypes-router-agent.md}",
       "tools": {
-        "edit": true,
-        "glob": true,
-        "websearch": true,
-        "read": true,
-        "write": true,
         "grep": true,
-        "bash": true,
-        "webfetch": true
-      },
-      "prompt": "{file:.opencode/agent/subagents/math-research-agent.md}"
-    },
-    "z3-implementation": {
-      "mode": "subagent",
-      "tools": {
-        "edit": true,
+        "write": true,
         "glob": true,
         "read": true,
-        "write": true,
-        "grep": true,
+        "edit": true,
         "bash": true
       },
-      "description": "Implement Z3 constraints and SMT formulas",
-      "prompt": "{file:.opencode/agent/subagents/z3-implementation-agent.md}"
+      "mode": "subagent"
     },
-    "latex-implementation": {
-      "mode": "subagent",
+    "document": {
+      "description": "Convert and process document files (DOCX, PDF, etc.)",
+      "prompt": "{file:.opencode/agent/subagents/document-agent.md}",
       "tools": {
-        "edit": true,
+        "grep": true,
+        "write": true,
         "glob": true,
         "read": true,
-        "write": true,
-        "grep": true,
+        "edit": true,
         "bash": true
       },
-      "description": "Implement LaTeX documents and formatting",
-      "prompt": "{file:.opencode/agent/subagents/latex-implementation-agent.md}"
-    },
-    "latex-research": {
-      "mode": "subagent",
-      "tools": {
-        "edit": true,
-        "glob": true,
-        "websearch": true,
-        "read": true,
-        "write": true,
-        "grep": true,
-        "bash": true,
-        "webfetch": true
-      },
-      "description": "Research LaTeX documentation and formatting topics",
-      "prompt": "{file:.opencode/agent/subagents/latex-research-agent.md}"
-    },
-    "logic-research": {
-      "mode": "subagent",
-      "description": "Research mathematical logic and proof theory",
-      "tools": {
-        "edit": true,
-        "glob": true,
-        "websearch": true,
-        "read": true,
-        "write": true,
-        "grep": true,
-        "bash": true,
-        "webfetch": true
-      },
-      "prompt": "{file:.opencode/agent/subagents/logic-research-agent.md}"
-    },
-    "physics-research": {
-      "mode": "subagent",
-      "description": "Research physics and mathematical physics topics",
-      "tools": {
-        "edit": true,
-        "glob": true,
-        "websearch": true,
-        "read": true,
-        "write": true,
-        "grep": true,
-        "bash": true,
-        "webfetch": true
-      },
-      "prompt": "{file:.opencode/agent/subagents/physics-research-agent.md}"
-    },
-    "python-implementation": {
-      "mode": "subagent",
-      "description": "Implement Python code and applications",
-      "tools": {
-        "edit": true,
-        "glob": true,
-        "read": true,
-        "write": true,
-        "grep": true,
-        "bash": true
-      },
-      "prompt": "{file:.opencode/agent/subagents/python-implementation-agent.md}"
-    },
-    "z3-research": {
-      "mode": "subagent",
-      "tools": {
-        "edit": true,
-        "glob": true,
-        "websearch": true,
-        "read": true,
-        "write": true,
-        "grep": true,
-        "bash": true,
-        "webfetch": true
-      },
-      "description": "Research Z3 SMT solver and constraint programming",
-      "prompt": "{file:.opencode/agent/subagents/z3-research-agent.md}"
-    },
-    "formal-research": {
-      "mode": "subagent",
-      "description": "Research formal methods and verification topics",
-      "tools": {
-        "edit": true,
-        "glob": true,
-        "websearch": true,
-        "read": true,
-        "write": true,
-        "grep": true,
-        "bash": true,
-        "webfetch": true
-      },
-      "prompt": "{file:.opencode/agent/subagents/formal-research-agent.md}"
+      "mode": "subagent"
     },
     "python-research": {
       "mode": "subagent",
-      "description": "Research Python development topics and libraries",
+      "prompt": "{file:.opencode/agent/subagents/python-research-agent.md}",
       "tools": {
-        "edit": true,
-        "glob": true,
-        "websearch": true,
-        "read": true,
-        "write": true,
-        "grep": true,
         "bash": true,
-        "webfetch": true
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "webfetch": true,
+        "websearch": true,
+        "edit": true,
+        "read": true
       },
-      "prompt": "{file:.opencode/agent/subagents/python-research-agent.md}"
+      "description": "Research Python development topics and libraries"
+    },
+    "latex-research": {
+      "description": "Research LaTeX documentation and formatting topics",
+      "prompt": "{file:.opencode/agent/subagents/latex-research-agent.md}",
+      "tools": {
+        "bash": true,
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "webfetch": true,
+        "websearch": true,
+        "edit": true,
+        "read": true
+      },
+      "mode": "subagent"
+    },
+    "python-implementation": {
+      "mode": "subagent",
+      "prompt": "{file:.opencode/agent/subagents/python-implementation-agent.md}",
+      "tools": {
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "read": true,
+        "edit": true,
+        "bash": true
+      },
+      "description": "Implement Python code and applications"
+    },
+    "formal-research": {
+      "mode": "subagent",
+      "prompt": "{file:.opencode/agent/subagents/formal-research-agent.md}",
+      "tools": {
+        "bash": true,
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "webfetch": true,
+        "websearch": true,
+        "edit": true,
+        "read": true
+      },
+      "description": "Research formal methods and verification topics"
+    },
+    "spreadsheet": {
+      "description": "Convert and process spreadsheet files (XLSX, CSV, etc.)",
+      "prompt": "{file:.opencode/agent/subagents/spreadsheet-agent.md}",
+      "tools": {
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "read": true,
+        "edit": true,
+        "bash": true
+      },
+      "mode": "subagent"
+    },
+    "latex-implementation": {
+      "description": "Implement LaTeX documents and formatting",
+      "prompt": "{file:.opencode/agent/subagents/latex-implementation-agent.md}",
+      "tools": {
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "read": true,
+        "edit": true,
+        "bash": true
+      },
+      "mode": "subagent"
+    },
+    "z3-implementation": {
+      "description": "Implement Z3 constraints and SMT formulas",
+      "prompt": "{file:.opencode/agent/subagents/z3-implementation-agent.md}",
+      "tools": {
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "read": true,
+        "edit": true,
+        "bash": true
+      },
+      "mode": "subagent"
+    },
+    "z3-research": {
+      "description": "Research Z3 SMT solver and constraint programming",
+      "prompt": "{file:.opencode/agent/subagents/z3-research-agent.md}",
+      "tools": {
+        "bash": true,
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "webfetch": true,
+        "websearch": true,
+        "edit": true,
+        "read": true
+      },
+      "mode": "subagent"
+    },
+    "logic-research": {
+      "mode": "subagent",
+      "prompt": "{file:.opencode/agent/subagents/logic-research-agent.md}",
+      "tools": {
+        "bash": true,
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "webfetch": true,
+        "websearch": true,
+        "edit": true,
+        "read": true
+      },
+      "description": "Research mathematical logic and proof theory"
+    },
+    "math-research": {
+      "mode": "subagent",
+      "prompt": "{file:.opencode/agent/subagents/math-research-agent.md}",
+      "tools": {
+        "bash": true,
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "webfetch": true,
+        "websearch": true,
+        "edit": true,
+        "read": true
+      },
+      "description": "Research mathematics and abstract algebra topics"
+    },
+    "physics-research": {
+      "mode": "subagent",
+      "prompt": "{file:.opencode/agent/subagents/physics-research-agent.md}",
+      "tools": {
+        "bash": true,
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "webfetch": true,
+        "websearch": true,
+        "edit": true,
+        "read": true
+      },
+      "description": "Research physics and mathematical physics topics"
+    },
+    "presentation": {
+      "description": "Convert and process presentation files (PPTX, etc.)",
+      "prompt": "{file:.opencode/agent/subagents/presentation-agent.md}",
+      "tools": {
+        "grep": true,
+        "write": true,
+        "glob": true,
+        "read": true,
+        "edit": true,
+        "bash": true
+      },
+      "mode": "subagent"
     }
   }
 }

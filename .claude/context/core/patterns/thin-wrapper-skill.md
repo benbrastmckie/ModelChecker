@@ -166,9 +166,19 @@ The Neovim skills (`skill-neovim-research`, `skill-neovim-implementation`) follo
 
 ---
 
+## Postflight Boundary Restrictions
+
+After the subagent returns, thin wrapper skills MUST NOT perform implementation work. See @.claude/context/core/standards/postflight-tool-restrictions.md for:
+- Allowed tools (Read metadata, jq state updates, Edit TODO.md, git commit)
+- Prohibited tools (Edit source files, build commands, MCP tools)
+- MUST NOT section template to include in skills
+
+---
+
 ## Related Documentation
 
 - @.claude/context/core/templates/thin-wrapper-skill.md - Full template
 - @.claude/context/core/patterns/skill-lifecycle.md - Complete skill lifecycle
 - @.claude/context/core/formats/subagent-return.md - Return format
+- @.claude/context/core/standards/postflight-tool-restrictions.md - Postflight boundary rules
 - @.claude/docs/guides/creating-skills.md - Step-by-step guide

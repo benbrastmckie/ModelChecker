@@ -1,9 +1,13 @@
 #!/bin/bash
-# TTS notification hook for Claude Code completion
-# Announces WezTerm tab number via Piper TTS when Claude stops
+# TTS notification hook for Claude Code events
+# Announces WezTerm tab number via Piper TTS when Claude stops or needs input
 #
-# Integration: Called from Stop hook in .claude/settings.json
+# Integration: Called from Stop and Notification hooks in .claude/settings.json
 # Requirements: piper-tts, aplay (alsa-utils), jq, wezterm
+#
+# Supported Events:
+#   Stop - Claude finished responding: "Tab N"
+#   Notification (permission_prompt, idle_prompt, elicitation_dialog) - "Tab N"
 #
 # Configuration:
 #   PIPER_MODEL - Path to piper voice model (default: ~/.local/share/piper/en_US-lessac-medium.onnx)
@@ -17,9 +21,28 @@ PIPER_MODEL="${PIPER_MODEL:-$HOME/.local/share/piper/en_US-lessac-medium.onnx}"
 TTS_COOLDOWN="${TTS_COOLDOWN:-10}"
 TTS_ENABLED="${TTS_ENABLED:-1}"
 
+# Read stdin JSON (hooks provide context via stdin)
+# Use timeout to avoid hanging if no stdin is available
+STDIN_JSON=""
+if read -t 0.1 -r line; then
+    STDIN_JSON="$line"
+    # Read any remaining lines
+    while read -t 0.1 -r more; do
+        STDIN_JSON="${STDIN_JSON}${more}"
+    done
+fi
+
+# Parse event type and notification type from stdin JSON
+HOOK_EVENT_NAME=""
+NOTIFICATION_TYPE=""
+if [[ -n "$STDIN_JSON" ]] && command -v jq &>/dev/null; then
+    HOOK_EVENT_NAME=$(echo "$STDIN_JSON" | jq -r '.hook_event_name // empty' 2>/dev/null || echo "")
+    NOTIFICATION_TYPE=$(echo "$STDIN_JSON" | jq -r '.notification_type // empty' 2>/dev/null || echo "")
+fi
+
 # State files
-LAST_NOTIFY_FILE="/tmp/claude-tts-last-notify"
-LOG_FILE="/tmp/claude-tts-notify.log"
+LAST_NOTIFY_FILE="specs/tmp/claude-tts-last-notify"
+LOG_FILE="specs/tmp/claude-tts-notify.log"
 
 # Helper: log message
 log() {
@@ -92,16 +115,35 @@ if [[ -n "${WEZTERM_PANE:-}" ]] && command -v wezterm &>/dev/null; then
     fi
 fi
 
-# Simple message: just "Tab N"
-MESSAGE="${TAB_LABEL%: }"  # Strip ": " suffix if present
-if [[ -z "$MESSAGE" ]]; then
-    MESSAGE="Tab"  # Fallback if tab detection failed
+# Detect if running inside a git worktree (sub-agent session)
+IS_WORKTREE=false
+if command -v git &>/dev/null; then
+    GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
+    GIT_COMMON_DIR=$(git rev-parse --git-common-dir 2>/dev/null)
+    # In main worktree: both return same path (typically ".git")
+    # In linked worktree: git-dir returns ".git/worktrees/<name>", common-dir returns main ".git"
+    if [[ -n "$GIT_DIR" ]] && [[ -n "$GIT_COMMON_DIR" ]] && [[ "$GIT_DIR" != "$GIT_COMMON_DIR" ]]; then
+        IS_WORKTREE=true
+    fi
+fi
+
+# Build message based on event type
+TAB_PREFIX="${TAB_LABEL%: }"  # Strip ": " suffix if present
+if [[ -z "$TAB_PREFIX" ]]; then
+    TAB_PREFIX="Tab"  # Fallback if tab detection failed
+fi
+
+# Append "worker" suffix for worktree (sub-agent) sessions
+if [[ "$IS_WORKTREE" == "true" ]]; then
+    MESSAGE="$TAB_PREFIX worker"
+else
+    MESSAGE="$TAB_PREFIX"
 fi
 
 # Speak using piper with paplay (background, tolerant of errors)
 if command -v paplay &>/dev/null; then
     # paplay available (PulseAudio) - need to write to temp file first
-    TEMP_WAV="/tmp/claude-tts-$$.wav"
+    TEMP_WAV="specs/tmp/claude-tts-$$.wav"
     (timeout 10s bash -c "echo '$MESSAGE' | piper --model '$PIPER_MODEL' --output_file '$TEMP_WAV' 2>/dev/null && paplay '$TEMP_WAV' 2>/dev/null; rm -f '$TEMP_WAV'" &) || true
 elif command -v aplay &>/dev/null; then
     # aplay available (ALSA)
@@ -114,6 +156,6 @@ fi
 # Update cooldown timestamp
 date +%s > "$LAST_NOTIFY_FILE"
 
-log "Notification sent: $MESSAGE"
+log "Notification sent: $MESSAGE (worktree=$IS_WORKTREE)"
 
 exit_success

@@ -29,7 +29,7 @@ permissions:
   deny: []
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/standards/delegation.md"
     - "core/standards/delegation.md"
@@ -99,7 +99,7 @@ permissions:
   deny: []
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/standards/delegation.md"
     - "core/workflows/research-workflow.md"
@@ -165,7 +165,7 @@ permissions:
   deny: []
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/standards/validation-criteria.md"
   max_context_size: 30000
@@ -208,7 +208,7 @@ permissions:
   deny: []
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/standards/delegation.md"
   max_context_size: 40000
@@ -251,7 +251,7 @@ permissions:
   deny: []
 context_loading:
   strategy: lazy
-  index: ".claude/context/index.md"
+  index: ".claude/context/index.json"
   required:
     - "core/standards/delegation.md"
     - "domain/generation-templates.md"
