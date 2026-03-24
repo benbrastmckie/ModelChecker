@@ -512,6 +512,47 @@ When implementing a new semantic theory, prefer binary over ternary (factor comp
 
 The \theorylogos{} theory demonstrates this principle: fusion could be a ternary primitive \zfusion{}$(s_1, s_2, s_3)$, but instead uses bitvector OR ($s_1 \mathbin{|} s_2$), enabling $N=6$ whereas ternary fusion would limit to $N=4$.
 
+\subsection{Complexity Classification}\label{sec:complexity-classification}
+
+\subsubsection{Decision Problem Complexity}
+
+The satisfiability problem for the modal fragment of \theorylogos{} inherits classical complexity bounds.
+
+\begin{proposition}[Modal Fragment Complexity]
+For the modal operators $\nec$ and $\poss$ over S4 frames:
+\begin{enumerate}
+    \item The satisfiability problem is PSPACE-complete~\cite{ladner1977}.
+    \item The finite model property holds.
+\end{enumerate}
+\end{proposition}
+
+The hyperintensional operators (ground, essence, propositional identity) operate over a finite state lattice, preserving decidability.
+Recent work establishes that truthmaker logics on semilattices are decidable with the finite model property~\cite{knudstorp2023}.
+
+\subsubsection{Z3 Encoding Complexity}
+
+The constraint count and quantifier depth grow with parameters $N$ (state space bits) and $K$ (atomic proposition count):
+
+\begin{table}[htbp]
+\centering
+\caption{Constraint Scaling by Primitive Arity}
+\label{tab:constraint-scaling}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Primitive Type} & \textbf{Arity} & \textbf{Instantiation Count} \\
+\midrule
+State predicates (\zpossible{}) & 1 & $O(2^N)$ \\
+Evaluation (\zverify{}, \zfalsify{}) & 2 & $O(2^N \cdot K)$ \\
+Accessibility (\zaccessible{}) & 2 & $O(2^{2N})$ \\
+Fusion (\zfusion{}) & 3 & $O(2^{2N})$ \\
+Selection (counterfactuals) & 4 & $O(2^{3N})$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The exponential growth in instantiation count with arity explains the empirical performance degradation observed in Table~\ref{tab:performance}.
+Quantifier alternation depth increases with operator nesting: modal operators introduce $\forall w'[\zaccessible(w, w') \imp \ldots]$, while counterfactuals require triple alternation patterns.
+
 %%=======================================================%%
 %% Section 3: Modularity and Extensibility               %%
 %%=======================================================%%
