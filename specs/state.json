@@ -38,12 +38,21 @@
     {
       "project_number": 38,
       "project_name": "strengthen_proofs_and_limitations",
-      "status": "not_started",
+      "status": "researched",
       "language": "latex",
       "created": "2026-03-24T00:00:00Z",
-      "last_updated": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T14:30:00Z",
       "dependencies": [
         37
+      ],
+      "session_id": "sess_1774398156_c4d7e9",
+      "researched": "2026-03-24T14:30:00Z",
+      "artifacts": [
+        {
+          "path": "specs/038_strengthen_proofs_and_limitations/reports/01_proofs-limitations-research.md",
+          "type": "research",
+          "summary": "Research report with findings on proof expansion, limitations section template, and novelty claim qualification with survey of existing tools"
+        }
       ]
     },
     {

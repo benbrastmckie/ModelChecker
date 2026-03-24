@@ -66,7 +66,8 @@ Estimated savings: ~2-3 pages.
 
 ### 38. Strengthen proofs, add limitations, qualify novelty claims
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [01_proofs-limitations-research.md](038_strengthen_proofs_and_limitations/reports/01_proofs-limitations-research.md)
 - **Language**: latex
 - **Dependencies**: Task #37
 
