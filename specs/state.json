@@ -49,10 +49,10 @@
     {
       "project_number": 37,
       "project_name": "add_formal_definitions_and_complexity",
-      "status": "researched",
+      "status": "planned",
       "language": "latex",
       "created": "2026-03-24T00:00:00Z",
-      "last_updated": "2026-03-24T12:30:00Z",
+      "last_updated": "2026-03-24T13:00:00Z",
       "dependencies": [
         36
       ],
@@ -63,8 +63,14 @@
           "path": "specs/037_add_formal_definitions_and_complexity/reports/01_formal-definitions-research.md",
           "type": "research",
           "summary": "Research on hyperintensionality definition, complexity analysis, and experimental setup for JAR paper"
+        },
+        {
+          "path": "specs/037_add_formal_definitions_and_complexity/plans/01_formal-content-plan.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for adding formal hyperintensionality definition, complexity analysis, and experimental setup to paper.tex"
         }
-      ]
+      ],
+      "planned": "2026-03-24T13:00:00Z"
     },
     {
       "project_number": 36,

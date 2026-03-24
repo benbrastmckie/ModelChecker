@@ -82,8 +82,9 @@ Estimated savings: ~2-3 pages.
 
 ### 37. Add formal definitions, complexity analysis, and experimental setup
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [01_formal-definitions-research.md](037_add_formal_definitions_and_complexity/reports/01_formal-definitions-research.md)
+- **Plan**: [01_formal-content-plan.md](037_add_formal_definitions_and_complexity/plans/01_formal-content-plan.md)
 - **Language**: latex
 - **Dependencies**: Task #36
 
