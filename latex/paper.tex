@@ -283,14 +283,14 @@ We present \modelchecker{}, a programmatic framework that:
 \end{enumerate}
 
 \paragraph{Paper Roadmap.}
-Section~\ref{sec:methodology} presents the programmatic methodology, three-level architecture, and computational complexity of semantic primitives.
+Section~\ref{sec:methodology} presents the programmatic methodology, three-level architecture, computational complexity of semantic primitives, and encoding correctness.
 Section~\ref{sec:modularity} discusses modularity, extensibility, and systematic theory comparison.
 Section~\ref{sec:finite-model} covers finite model exploration and countermodel methodology.
 Section~\ref{sec:theorylib} describes the theory-agnostic framework and \theorylib{} vision.
 Section~\ref{sec:logos} presents the \theorylogos{} theory case study.
 Section~\ref{sec:results} provides implementation results and validation.
 Section~\ref{sec:related} surveys related work.
-Section~\ref{sec:discussion} discusses future directions and conclusions.
+Section~\ref{sec:discussion} discusses future directions, limitations, and conclusions.
 
 %%=======================================================%%
 %% Section 2: The Programmatic Methodology               %%
@@ -552,6 +552,67 @@ Selection (counterfactuals) & 4 & $O(2^{3N})$ \\
 
 The exponential growth in instantiation count with arity explains the empirical performance degradation observed in Table~\ref{tab:performance}.
 Quantifier alternation depth increases with operator nesting: modal operators introduce $\forall w'[\zaccessible(w, w') \imp \ldots]$, while counterfactuals require triple alternation patterns.
+
+\subsection{Encoding Correctness}\label{sec:encoding-correctness}
+
+We establish that the Z3 encoding faithfully represents truthmaker semantics.
+
+\begin{definition}[Encoding Function]\label{def:encoding}
+Let $\mathcal{E}: \mathcal{L}_{\theorylogos} \times \statespace \to \text{Z3Formula}$ be the encoding function mapping formulas and states to Z3 constraints:
+\begin{itemize}
+    \item $\mathcal{E}(p, s) = \zverify(s, p)$ for atomic $p$
+    \item $\mathcal{E}(\lneg A, s) = \zfalsify(s, A)$
+    \item $\mathcal{E}(A \land B, s) = \mathcal{E}(A, s) \land \mathcal{E}(B, s)$
+    \item $\mathcal{E}(A \lor B, s) = \exists s_1, s_2[s = \fuse{s_1}{s_2} \land \mathcal{E}(A, s_1) \land \mathcal{E}(B, s_2)]$
+    \item $\mathcal{E}(\nec A, w) = \forall w'[\zaccessible(w,w') \imp \mathcal{E}(A, w')]$
+    \item $\mathcal{E}(\poss A, w) = \exists w'[\zaccessible(w,w') \land \mathcal{E}(A, w')]$
+\end{itemize}
+The remaining operators (counterfactuals, constitutive operators) extend this mapping following their semantic clauses in Section~\ref{sec:logos}.
+\end{definition}
+
+\begin{theorem}[Encoding Soundness]\label{thm:soundness}
+For any $\theorylogos$ formula $\varphi$ and finite state space $\statespace$ with $|\statespace| = 2^N$:
+\[
+\text{If } \mathcal{E}(\varphi) \text{ is UNSAT in Z3, then } \varphi \text{ has no } \theorylogos\text{-model over } \statespace.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+By structural induction on $\varphi$.
+
+\textbf{Base case (atomic).}
+$\mathcal{E}(p, s) = \zverify(s, p)$ is satisfiable iff there exists a valuation assigning $\zverify(s, p) = \top$.
+Frame constraints ensure $s$ is possible and not null when $\zverify(s,p)$ holds.
+
+\textbf{Inductive case (conjunction).}
+By IH, $\mathcal{E}(A, s)$ is satisfiable iff $s \verifies A$ in some model.
+$\mathcal{E}(A \land B, s) = \mathcal{E}(A, s) \land \mathcal{E}(B, s)$ is satisfiable iff both conjuncts are, iff $s$ verifies both $A$ and $B$.
+By the truthmaker clause for conjunction (Definition~\ref{def:hyperintensional}), this holds iff $s \verifies A \land B$.
+
+\textbf{Inductive case (necessity).}
+$\mathcal{E}(\nec A, w) = \forall w'[\zaccessible(w,w') \imp \mathcal{E}(A, w')]$.
+By IH, each $\mathcal{E}(A, w')$ correctly encodes $w' \models A$.
+The universal quantification encodes ``for all accessible worlds,'' which is the standard Kripke semantics for necessity.
+
+The remaining cases (negation, disjunction, modalities, counterfactuals, constitutive operators) follow similarly, with each encoding clause mirroring the corresponding semantic clause.
+\end{proof}
+
+\begin{theorem}[Countermodel Extraction]\label{thm:countermodel}
+If $\mathcal{E}(\lneg \varphi)$ is SAT with model $M$, then $M$ can be extracted as a $\theorylogos$-countermodel to $\varphi$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Z3's model extraction provides truth values for all $\zverify(s, p)$ and $\zfalsify(s, p)$.
+These directly constitute the verification/falsification functions of the semantic model.
+Frame constraints ensure the extracted model satisfies $\theorylogos$ structural requirements (downward closure, fusion closure, world existence).
+\end{proof}
+
+\begin{remark}[Limitations of Proof Sketch]
+The encoding correctness argument above is a proof sketch, not a machine-checked proof.
+Mechanized verification in a proof assistant (Coq, Isabelle/HOL, or Lean 4) remains future work.
+The 177 validated examples provide extensive empirical evidence for correctness, and regression testing on every commit guards against encoding errors.
+See Section~\ref{sec:limitations} for further discussion.
+\end{remark}
 
 %%=======================================================%%
 %% Section 3: Modularity and Extensibility               %%
