@@ -1,6 +1,80 @@
 {
-  "next_project_number": 36,
+  "next_project_number": 42,
   "active_projects": [
+    {
+      "project_number": 41,
+      "project_name": "final_conciseness_pass",
+      "status": "not_started",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T00:00:00Z",
+      "dependencies": [
+        40
+      ]
+    },
+    {
+      "project_number": 40,
+      "project_name": "trim_code_and_overexplanation",
+      "status": "not_started",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T00:00:00Z",
+      "dependencies": [
+        39
+      ]
+    },
+    {
+      "project_number": 39,
+      "project_name": "eliminate_structural_redundancy",
+      "status": "not_started",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T00:00:00Z",
+      "dependencies": [
+        37,
+        38
+      ]
+    },
+    {
+      "project_number": 38,
+      "project_name": "strengthen_proofs_and_limitations",
+      "status": "not_started",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T00:00:00Z",
+      "dependencies": [
+        37
+      ]
+    },
+    {
+      "project_number": 37,
+      "project_name": "add_formal_definitions_and_complexity",
+      "status": "researched",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T12:30:00Z",
+      "dependencies": [
+        36
+      ],
+      "session_id": "sess_1774393135_22f4af",
+      "researched": "2026-03-24T12:30:00Z",
+      "artifacts": [
+        {
+          "path": "specs/037_add_formal_definitions_and_complexity/reports/01_formal-definitions-research.md",
+          "type": "research",
+          "summary": "Research on hyperintensionality definition, complexity analysis, and experimental setup for JAR paper"
+        }
+      ]
+    },
+    {
+      "project_number": 36,
+      "project_name": "fill_placeholders_and_metadata",
+      "status": "not_started",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T00:00:00Z",
+      "dependencies": []
+    },
     {
       "project_number": 35,
       "project_name": "fix_first_order_semantics_and_extension_display",

@@ -1,5 +1,5 @@
 ---
-next_project_number: 36
+next_project_number: 42
 ---
 
 # Task List
@@ -7,6 +7,117 @@ next_project_number: 36
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 41. Final conciseness pass: throat-clearing, roadmap, narrative flow
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: latex
+- **Dependencies**: Task #40
+
+**Description**: Final polish pass on `latex/paper.tex` for publication readiness. Three focus areas:
+
+1. **Global throat-clearing removal** (topic 7): Search-and-delete filler phrases throughout the paper: "it is worth noting that", "it should be observed that", "it bears mentioning that", "in the remainder of this section", "as one might expect", "it is perhaps unsurprising that". State claims directly without preamble. (~230 words savings with zero content loss.)
+
+2. **Trim paper roadmap** (topic 16): The section-by-section preview in the introduction (Sec 1.3, "Paper Roadmap" paragraph, lines ~285-293) is verbose. Cut to 2-3 sentences or remove entirely -- JAR reviewers find sections from the table of contents.
+
+3. **Narrative flow improvements** (topic 17): Add brief design-rationale paragraphs at key transition points: (a) at the start of Section 3 (Modularity) explaining why modularity matters for this framework; (b) at the start of the Logos case study (Sec 6) explaining what the case study is meant to demonstrate beyond what precedes it. Ensure each section opening motivates what follows rather than just stating what it covers.
+
+---
+
+### 40. Trim code listings, over-explanation, and aspirational content
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: latex
+- **Dependencies**: Task #39
+
+**Description**: Targeted verbosity reduction in `latex/paper.tex` across three categories:
+
+1. **Trim code listings** (topic 5): Show only semantically interesting methods in code listings. Use ellipsis (`...`) for boilerplate (`__init__`, `__repr__`, etc.). Where multiple operator classes follow the same pattern, show one representative example and note "analogous definitions for other operators." Cut repeated structural patterns. (~900-1100 words savings.)
+
+2. **Cut over-explanation for JAR audience** (topic 6): Remove elementary explanations that JAR readers don't need: basic Boolean/lattice definitions stated at textbook level, Python OOP concepts ("Python's class system allows us to define..."), and introductory Z3 descriptions. Replace with concise one-sentence reminders or citations. (~450 words savings.)
+
+3. **Condense TheoryLib vision and future work** (topics 8, 9): Section 5 (TheoryLib) includes community model, contribution pathways, incentives, quality standards, and BibTeX citation format that read like a project README rather than a journal paper. Keep the core architectural vision and the comparative research platform concept; cut aspirational community-building content. Similarly, cut generic future work items ("extend to other logics", "improve performance", "add a GUI") and keep only technically specific future directions.
+
+---
+
+### 39. Eliminate structural redundancy across sections
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: latex
+- **Dependencies**: Task #37, Task #38
+
+**Description**: Major structural revision of `latex/paper.tex` to eliminate redundant re-explanations. This task should be done AFTER tasks 37-38 (which add new content) so that all content is in place before consolidation.
+
+1. **De-duplicate core concept explanations** (topic 1): Each of these concepts is explained from scratch in multiple sections. Establish one definitive treatment and replace others with back-references:
+   - Bitvector representation (explained 3x: Sec 4.2 state space, Sec 2.2 constraints, Sec 6 case study)
+   - Bilateral semantics (explained 5x: abstract, intro, Sec 2, Sec 6, conclusion)
+   - Arity/exponential growth (discussed 4x: Sec 2.5, Sec 4.2, Sec 2.5.4, Sec 6 performance)
+   - "First implementation" novelty claim (asserted 5x -- limit to abstract + contributions list)
+
+2. **Consolidate overlapping comparison tables** (topic 2): Table 2 ("Comparative Predictions Across Theories", line ~604) and Table 7 ("Comparative Inference Results", line ~1112) share overlapping dimensions and data. Either merge into one comprehensive table, or clearly differentiate: one for theoretical predictions, one for empirical tool-level results with no shared rows.
+
+3. **Restructure Discussion to stop restating contributions** (topic 3): Contributions are listed in intro (Sec 1.3), re-discussed in Discussion (Sec 9.1), and summarized again in Conclusion (Sec 9.4). The Discussion section should analyze implications and tradeoffs, not re-enumerate achievements. Rewrite Sec 9.1 to focus on what the results mean rather than what was done.
+
+4. **Trim Logos case study re-explanations** (topic 4): Sec 6 re-derives bitvector encoding, bilateral evaluation, and counterfactual semantics rather than referencing Sections 2-4. Rewrite to assume the reader has read preceding sections; focus on the concrete example, results, and what the case study specifically demonstrates.
+
+Estimated savings: ~2-3 pages.
+
+---
+
+### 38. Strengthen proofs, add limitations, qualify novelty claims
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: latex
+- **Dependencies**: Task #37
+
+**Description**: Improve technical rigor in `latex/paper.tex` across three areas:
+
+1. **Expand proof sketches for Z3 encoding correctness** (topic 15): The correctness claim for the Z3 encoding (that constraints faithfully represent the formal semantics) is central to the paper's validity. Currently only a brief justification is provided. Expand with: (a) a clear statement of the correctness theorem, (b) a detailed proof sketch explaining the proof strategy and key lemma, (c) either a full proof in an appendix or a reference to a mechanized verification. For JAR, this is the bridge between formal semantics and implementation -- a brief sketch is insufficient.
+
+2. **Add Limitations section** (topic 18): Add a dedicated subsection (likely at the end of Discussion, Sec 9) covering: incompleteness of the BitVector encoding for infinite models, soundness guarantees beyond testing, scalability ceiling (what problem sizes become intractable and why), restrictions on the class of models considered, and threats to validity of the empirical results. Currently no limitations are discussed explicitly.
+
+3. **Qualify or substantiate novelty claims** (topic 13): The paper claims "first systematic computational implementation of bilateral truthmaker semantics" in multiple places. Either: (a) soften to "first dedicated implementation" with appropriate caveats, or (b) add a more thorough survey in Related Work (Sec 8) demonstrating that no prior tool handles this specific combination of features (bilateral evaluation + hyperintensional operators + counterfactual conditionals + SMT backend). Check tools like MLSOLVER, Tableaux Workbench, and Isabelle/HOL encodings of non-normal modal logics.
+
+---
+
+### 37. Add formal definitions, complexity analysis, and experimental setup
+- **Effort**: TBD
+- **Status**: [RESEARCHED]
+- **Research**: [01_formal-definitions-research.md](037_add_formal_definitions_and_complexity/reports/01_formal-definitions-research.md)
+- **Language**: latex
+- **Dependencies**: Task #36
+
+**Description**: Add missing technical content to `latex/paper.tex` that JAR reviewers will expect:
+
+1. **Formal definition of "hyperintensional"** (topic 12): The term "hyperintensional" is used throughout as a key property but never formally defined. Add a definition (either as a numbered Definition environment or a Remark) stating the criterion: an operator O is hyperintensional iff there exist formulas A, B that are logically equivalent (true in all the same worlds) but O(A) and O(B) differ in truth value. State precisely which operators in the framework are hyperintensional and provide an example or proof.
+
+2. **Complexity analysis of the model checking algorithm** (topic 14): The paper never provides formal complexity bounds. Add a subsection (likely in Sec 2.5 or Sec 4) analyzing: (a) the complexity class of the decision problem for the relevant logic fragments, (b) the complexity of the Z3 encoding (how constraint count and quantifier depth grow with N and K), (c) citation of known complexity results for modal/hyperintensional logics. At minimum, state whether the problem is PSPACE, EXPTIME, or undecidable for the relevant fragments.
+
+3. **Experimental setup for benchmark reproducibility** (topic 10): Tables 4, 6, and 7 present timing data with no information about the experimental setup. Add an "Experimental Setup" paragraph at the start of Section 7 (Results) specifying: hardware (CPU, RAM, OS), Z3 version, Python version, number of trials and whether results are averaged/median, whether times are wall-clock or CPU time, timeout configuration, and standard deviation or confidence intervals. This is the single most likely reason for desk rejection at JAR.
+
+---
+
+### 36. Fill placeholders and fix metadata
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: latex
+- **Dependencies**: None
+
+**Description**: Fix all placeholder and incomplete content in `latex/paper.tex`:
+
+1. **Author information** (line 216): Replace `\author*[1]{\fnm{Author} \sur{Name}}` and `\email{author@example.com}` with real author name and email.
+
+2. **Affiliation** (line 218): Replace `\orgdiv{Department}, \orgname{University}, \orgaddress{\city{City}, \state{State}, \country{Country}}` with real institutional affiliation.
+
+3. **Code availability** (line 1332): Replace `[repository URL]` and `[license]` with the actual GitHub/PyPI URL and license name (MIT).
+
+4. **Author contributions** (line 1336): Replace `[Author contributions to be added]` with appropriate contribution statement.
+
+5. **Verify URLs**: Confirm that `https://github.com/benbrastmckie/ModelChecker` (if referenced) and `https://pypi.org/project/model-checker/` are live and accessible. Consider adding a Zenodo DOI for the specific version used in benchmarks.
+
+6. **MSC Classification** (line 245): Uncomment and verify the MSC codes (`03B45, 68T15, 68Q60`) are appropriate for the paper's content, or update them.
+
+---
 
 ### 35. Fix first-order semantics and predicate extension display
 - **Effort**: TBD
