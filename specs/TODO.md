@@ -66,7 +66,9 @@ Estimated savings: ~2-3 pages.
 
 ### 38. Strengthen proofs, add limitations, qualify novelty claims
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-24
+- **Summary**: Added encoding correctness section with soundness/extraction theorems, expanded limitations with threats-to-validity format, added modal logic solvers and hyperintensional logic to related work, qualified 5 novelty claims.
 - **Research**: [01_proofs-limitations-research.md](038_strengthen_proofs_and_limitations/reports/01_proofs-limitations-research.md)
 - **Plan**: [01_proofs-limitations-plan.md](038_strengthen_proofs_and_limitations/plans/01_proofs-limitations-plan.md)
 - **Language**: latex
