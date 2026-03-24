@@ -1305,6 +1305,12 @@ Similarity: automated validation of modal inferences.
 Difference: proof search focus, not model construction.
 Our contribution: model-finding emphasis with Z3 enables countermodel inspection.
 
+\textbf{Modal Logic Solvers.}
+MLSolver~\cite{friedmann2010} addresses the satisfiability problem for modal fixpoint logics including the mu-calculus, CTL*, and PDL using parity game reduction.
+PRONOM~\cite{pronom2021} is the first theorem prover for the non-normal modal logic cube, extending coverage beyond normal modal logics.
+These tools focus on validity/satisfiability decision procedures using possible-worlds semantics rather than model construction with truthmaker semantics.
+Our contribution differs in: (1) model-finding emphasis (exploring actual countermodels rather than just deciding satisfiability), (2) bilateral evaluation structure (explicit verifiers and falsifiers), and (3) hyperintensional operators beyond modal logic.
+
 \subsection{SMT Solvers in Verification}\label{sec:smt-verification}
 
 De Moura \& Bjørner's Z3~\cite{demoura2008} provides efficient SMT solving with theories (arithmetic, bitvectors, arrays).
@@ -1324,10 +1330,17 @@ Similarity: formal verification of logical systems.
 Difference: interactive proof construction, high learning curve.
 Our contribution: automated model finding, lower barrier to entry, rapid prototyping.
 
-\textbf{Truthmaker Semantics Implementations.}
-Fine's informal presentation of bilateral truthmaker framework~\cite{fine2017tms,fine2017content} and Yablo's work on aboutness~\cite{yablo2014} provide philosophical foundations.
-Our work: first systematic computational implementation.
-Contribution: executable semantics enabling empirical validation.
+\textbf{Truthmaker Semantics.}
+Fine's bilateral truthmaker framework~\cite{fine2017tms,fine2017content} introduces exact verification and falsification as primitive notions, providing the philosophical foundation for hyperintensional semantics.
+Subsequent theoretical developments include Yablo's work on aboutness~\cite{yablo2014} and Jago's applications to grounding and content~\cite{jago2020}.
+Knudstorp~\cite{knudstorp2023} establishes decidability and finite model property results for truthmaker logics on semilattices.
+These remain primarily theoretical; \modelchecker{} provides the first systematic computational implementation, translating Fine's informal semantics into executable Z3 constraints and enabling automated model discovery and validation.
+
+\textbf{Hyperintensional Logic.}
+Transparent Intensional Logic (TIL)~\cite{til2010} provides a hyperintensional framework for natural language analysis, using procedural semantics based on typed lambda calculus.
+Recent work investigates hyperlogic with structured propositions and counterfactual conditionals.
+These frameworks focus on theoretical foundations and proof theory rather than automated model finding.
+Our contribution: executable implementation enabling empirical exploration of hyperintensional theories with automated countermodel discovery.
 
 \subsection{Comparison Summary}\label{sec:comparison-summary}
 
