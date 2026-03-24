@@ -1043,6 +1043,17 @@ The validation process involves manual construction (theory expert constructs ex
 
 \section{Implementation Results and Empirical Validation}\label{sec:results}
 
+\paragraph{Experimental Setup.}
+All experiments were conducted on the following configuration:
+\begin{itemize}
+    \item \textbf{Hardware}: [INSERT: CPU model, e.g., Intel Core i7-12700K @ 3.6GHz], [INSERT: RAM, e.g., 32GB DDR4-3200], [INSERT: OS, e.g., Ubuntu 22.04 LTS]
+    \item \textbf{Software}: Python [INSERT: version, e.g., 3.11.4], Z3 [INSERT: version, e.g., 4.12.2], \modelchecker{} version [INSERT: version or commit hash]
+    \item \textbf{Methodology}: Each example was executed [INSERT: number] times; reported times are [INSERT: mean/median] wall-clock time in seconds.
+    Standard deviation is reported where applicable.
+    \item \textbf{Timeout}: Default timeout of 60 seconds per example; examples exceeding this threshold are marked as timeouts.
+    \item \textbf{Reproducibility}: All experiments are reproducible via \texttt{make benchmark} in the repository; random seed fixed at [INSERT: seed value] for deterministic model iteration.
+\end{itemize}
+
 \subsection{Quantitative Metrics}\label{sec:metrics}
 
 \begin{table}[htbp]
