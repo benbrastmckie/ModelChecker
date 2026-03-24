@@ -910,6 +910,26 @@ The \theorylogos{} theory demonstrates the framework's capacity to implement sop
 
 The core idea of truthmaker semantics~\cite{fine2017tms} is that propositions are characterized by what makes them true or false.
 
+\begin{definition}[Hyperintensional Operator]\label{def:hyperintensional}
+An operator $\mathcal{O}$ is \emph{hyperintensional} if there exist formulas $A$ and $B$ such that:
+\begin{enumerate}
+    \item $A$ and $B$ are necessarily equivalent: $\nec(A \leftrightarrow B)$, yet
+    \item $\mathcal{O}(A)$ and $\mathcal{O}(B)$ may differ in truth-value.
+\end{enumerate}
+Equivalently, substitution of necessary equivalents within the scope of $\mathcal{O}$ does not preserve truth.
+\end{definition}
+
+\begin{remark}[Hyperintensional Operators in \theorylogos{}]\label{rem:hyperintensional-operators}
+The following \theorylogos{} operators are hyperintensional:
+\begin{itemize}
+    \item \textbf{Conjunction} ($\land$): $A \land B$ and $B \land A$ are necessarily equivalent but may have distinct verifiers, hence $\lneg((A \land B) \propident (B \land A))$ is satisfiable.
+    \item \textbf{Propositional identity} ($\propident$): $A \propident B$ requires identical verifiers \emph{and} falsifiers, not merely necessary equivalence.
+    \item \textbf{Ground} ($\ground$): $A \ground B$ requires every verifier of $B$ to contain a verifier of $A$ as a part.
+    \item \textbf{Relevant implication} ($\relimpl$): Requires subject-matter overlap beyond material truth.
+\end{itemize}
+These distinctions arise from bilateral evaluation: propositions are characterized by their exact verifiers and falsifiers, not merely their truth-values across possible worlds.
+\end{remark}
+
 \textbf{Bilateral Evaluation.}
 Verifiers are states that make a proposition true.
 Falsifiers are states that make a proposition false.

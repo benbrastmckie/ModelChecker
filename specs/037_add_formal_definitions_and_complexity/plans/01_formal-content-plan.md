@@ -83,7 +83,7 @@ All experiments were conducted on the following configuration:
 
 ---
 
-### Phase 2: Add Hyperintensionality Definition [NOT STARTED]
+### Phase 2: Add Hyperintensionality Definition [COMPLETED]
 
 **Goal**: Add formal Definition 1 and accompanying Remark in Section 6, after the philosophical background introduces "what makes them true or false" (line 911).
 
