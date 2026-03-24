@@ -1372,17 +1372,77 @@ Our niche: modular semantic theory development for hyperintensional and non-clas
 (3) Educational resources: interactive Jupyter notebooks with comprehensive documentation.
 (4) Open source infrastructure: MIT licensed, public repository with CI/CD.
 
-\subsection{Limitations and Challenges}\label{sec:limitations}
+\subsection{Limitations and Threats to Validity}\label{sec:limitations}
 
-\textbf{Computational Limitations.}
-Incompleteness: cannot prove validity in general (only find countermodels)---mitigated by supplementing with analytic proofs.
-State space ceiling ($N=6$ typically): exponential growth limits model size---mitigated by optimization strategies.
-Timeout sensitivity: complex formulas exceed solver capacity---mitigated by adjusting timeout and simplifying formulas.
+\subsubsection{Internal Validity: Encoding Correctness}
 
-\textbf{Theoretical Limitations.}
-Finite model property assumption: some logics require infinite models---current work limited to finite-model fragments.
-Frame constraint correctness: requires expert judgment---mitigated by extensive testing.
-Operator interaction complexity: 19 operators yield 361 pairwise interactions---mitigated by focusing on philosophically significant combinations.
+\textbf{Semantic encoding fidelity.}
+The Z3 encoding must faithfully represent truthmaker semantic clauses.
+We mitigate this threat through: (1) extensive test suite coverage (177 validated examples), (2) regression testing on every commit, and (3) comparison with hand-constructed examples from the truthmaker semantics literature~\cite{fine2017tms}.
+However, the encoding has not been mechanically verified in a proof assistant (see Section~\ref{sec:encoding-correctness}).
+
+\textbf{Frame constraint soundness.}
+Frame constraints require expert judgment to ensure they correctly capture semantic principles.
+Incorrect constraints could admit spurious models or exclude valid ones.
+Mitigation: constraints are derived directly from published definitions in~\cite{fine2017tms,fine2017content}.
+
+\textbf{BitVector representation limits.}
+States are represented as $N$-bit bitvectors.
+For $N > 64$, this exceeds native word size.
+Current implementation is limited to $N \leq 16$, corresponding to $\leq 65{,}536$ states.
+
+\subsubsection{External Validity: Generalizability}
+
+\textbf{Finite model restriction.}
+The framework can only explore finite models.
+Logics without the finite model property (e.g., certain second-order extensions) cannot be completely characterized.
+Mitigation: many philosophically significant modal and hyperintensional logics have the finite model property~\cite{knudstorp2023}.
+
+\textbf{Theory coverage.}
+Results generalize to theories expressible within our framework (bilateral semantics, mereological state spaces).
+Theories requiring different primitives (e.g., neighborhood semantics for non-normal modal logics) would require framework extension.
+
+\textbf{Example selection bias.}
+The 177 examples were constructed to test specific operator behaviors, not sampled randomly.
+They may not represent ``typical'' formulas users will test.
+
+\subsubsection{Construct Validity: Complexity Measurement}
+
+\textbf{Solver time as complexity proxy.}
+We use Z3 solving time as a measure of theory complexity.
+This conflates semantic complexity with encoding efficiency and solver heuristics.
+Mitigation: we also report constraint counts and timeout rates.
+
+\textbf{Feasible model size threshold.}
+Defining tractability as ``$N \leq 6$ before timeout'' is arbitrary.
+Different applications may have different size requirements.
+
+\subsubsection{Scalability Limitations}
+
+\textbf{Exponential state space.}
+The state space grows as $2^N$, limiting practical exploration.
+At $N=6$ (64 states), many formulas time out; $N=7$ (128 states) is often infeasible.
+See Section~\ref{sec:finite-limitations} for detailed discussion.
+
+\textbf{Constraint explosion.}
+Complex formulas with many atomic propositions generate thousands of constraints.
+The ternary/quaternary primitives required by some operators (e.g., \zcloser{} for counterfactuals) exacerbate this.
+
+\textbf{Quantifier alternation.}
+Nested modal operators introduce quantifier alternation, which is exponentially harder for SMT solvers.
+Formulas like $\nec\poss\nec p$ may time out even at $N=3$.
+
+\subsubsection{Limitations Not Addressed}
+
+\textbf{Infinite models.}
+No support for reasoning about infinite model classes.
+
+\textbf{Soundness proof automation.}
+The encoding correctness argument (Section~\ref{sec:encoding-correctness}) is a proof sketch, not a machine-checked proof.
+Mechanized verification in Coq, Isabelle/HOL, or Lean 4 remains future work.
+
+\textbf{Multi-theory comparison validity.}
+When comparing theories on the same example, differences may reflect encoding choices rather than deep semantic differences.
 
 \subsection{Broader Impact}\label{sec:impact}
 
