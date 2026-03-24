@@ -1,0 +1,120 @@
+{
+  "agent": {
+    "python-implementation": {
+      "mode": "subagent",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true
+      },
+      "description": "Implement Python code and applications",
+      "prompt": "{file:.opencode/agent/subagents/python-implementation-agent.md}"
+    },
+    "logic-research": {
+      "mode": "subagent",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "webfetch": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true,
+        "websearch": true
+      },
+      "description": "Research mathematical logic and proof theory",
+      "prompt": "{file:.opencode/agent/subagents/logic-research-agent.md}"
+    },
+    "math-research": {
+      "mode": "subagent",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "webfetch": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true,
+        "websearch": true
+      },
+      "description": "Research mathematics and abstract algebra topics",
+      "prompt": "{file:.opencode/agent/subagents/math-research-agent.md}"
+    },
+    "physics-research": {
+      "mode": "subagent",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "webfetch": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true,
+        "websearch": true
+      },
+      "description": "Research physics and mathematical physics topics",
+      "prompt": "{file:.opencode/agent/subagents/physics-research-agent.md}"
+    },
+    "formal-research": {
+      "mode": "subagent",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "webfetch": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true,
+        "websearch": true
+      },
+      "description": "Research formal methods and verification topics",
+      "prompt": "{file:.opencode/agent/subagents/formal-research-agent.md}"
+    },
+    "latex-implementation": {
+      "mode": "subagent",
+      "description": "Implement LaTeX documents and formatting",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true
+      },
+      "prompt": "{file:.opencode/agent/subagents/latex-implementation-agent.md}"
+    },
+    "latex-research": {
+      "mode": "subagent",
+      "description": "Research LaTeX documentation and formatting topics",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "webfetch": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true,
+        "websearch": true
+      },
+      "prompt": "{file:.opencode/agent/subagents/latex-research-agent.md}"
+    },
+    "python-research": {
+      "mode": "subagent",
+      "tools": {
+        "edit": true,
+        "glob": true,
+        "webfetch": true,
+        "read": true,
+        "write": true,
+        "grep": true,
+        "bash": true,
+        "websearch": true
+      },
+      "description": "Research Python development topics and libraries",
+      "prompt": "{file:.opencode/agent/subagents/python-research-agent.md}"
+    }
+  }
+}

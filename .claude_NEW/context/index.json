@@ -1,0 +1,3043 @@
+{
+  "generated": "2026-03-11T22:13:42Z",
+  "version": null,
+  "entries": [
+    {
+      "summary": "Overview of context system structure and usage patterns",
+      "load_when": {
+        "always": true
+      },
+      "keywords": [
+        "index",
+        "context",
+        "loading"
+      ],
+      "topics": [
+        "context-system",
+        "lazy-loading",
+        "discovery"
+      ],
+      "path": "README.md",
+      "subdomain": "overview",
+      "line_count": 100,
+      "domain": "core"
+    },
+    {
+      "summary": "Language-based routing for research and implementation",
+      "load_when": {
+        "commands": [
+          "/research",
+          "/implement",
+          "/plan"
+        ],
+        "agents": [
+          "orchestrator"
+        ]
+      },
+      "keywords": [
+        "routing",
+        "language",
+        "agent"
+      ],
+      "topics": [
+        "language-routing",
+        "agent-selection",
+        "tool-mapping"
+      ],
+      "path": "core/routing.md",
+      "subdomain": "orchestration",
+      "line_count": 150,
+      "domain": "core"
+    },
+    {
+      "summary": "GATE IN preflight validation pattern",
+      "load_when": {
+        "commands": [
+          "/research",
+          "/plan",
+          "/implement"
+        ]
+      },
+      "keywords": [
+        "GATE IN",
+        "preflight",
+        "status update"
+      ],
+      "topics": [
+        "preflight",
+        "validation",
+        "session-id"
+      ],
+      "path": "core/checkpoints/checkpoint-gate-in.md",
+      "subdomain": "checkpoints",
+      "line_count": 84,
+      "domain": "core"
+    },
+    {
+      "summary": "GATE OUT postflight validation and artifact verification",
+      "load_when": {
+        "commands": [
+          "/research",
+          "/plan",
+          "/implement"
+        ]
+      },
+      "keywords": [
+        "GATE OUT",
+        "postflight",
+        "artifact linking"
+      ],
+      "topics": [
+        "postflight",
+        "validation",
+        "artifacts"
+      ],
+      "path": "core/checkpoints/checkpoint-gate-out.md",
+      "subdomain": "checkpoints",
+      "line_count": 101,
+      "domain": "core"
+    },
+    {
+      "summary": "Metadata file schema for agent return values",
+      "load_when": {
+        "agents": [
+          "general-implementation-agent",
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "metadata",
+        "return",
+        "status",
+        "artifacts"
+      ],
+      "topics": [
+        "metadata",
+        "return-format",
+        "agent-output"
+      ],
+      "path": "core/formats/return-metadata-file.md",
+      "subdomain": "formats",
+      "line_count": 150,
+      "domain": "core"
+    },
+    {
+      "summary": "Implementation plan file format and structure",
+      "load_when": {
+        "commands": [
+          "/plan",
+          "/implement"
+        ],
+        "agents": [
+          "planner-agent"
+        ]
+      },
+      "keywords": [
+        "plan",
+        "phases",
+        "implementation"
+      ],
+      "topics": [
+        "plan-structure",
+        "phases",
+        "metadata"
+      ],
+      "path": "core/formats/plan-format.md",
+      "subdomain": "formats",
+      "line_count": 200,
+      "domain": "core"
+    },
+    {
+      "summary": "Standard for interactive user prompts and selection patterns",
+      "load_when": {
+        "commands": [
+          "/meta",
+          "/fix-it",
+          "/review",
+          "/todo",
+          "/task"
+        ]
+      },
+      "keywords": [
+        "interactive",
+        "selection",
+        "AskUserQuestion",
+        "multiSelect",
+        "prompts"
+      ],
+      "topics": [
+        "interactive-prompts",
+        "user-selection",
+        "askuserquestion"
+      ],
+      "path": "core/standards/interactive-selection.md",
+      "subdomain": "standards",
+      "line_count": 250,
+      "domain": "core"
+    },
+    {
+      "summary": "Defines allowed vs prohibited operations during skill postflight phase",
+      "load_when": {
+        "languages": [
+          "meta"
+        ],
+        "agents": [
+          "meta-builder-agent"
+        ]
+      },
+      "keywords": [
+        "postflight",
+        "boundary",
+        "allowed-tools",
+        "prohibited",
+        "delegation"
+      ],
+      "topics": [
+        "postflight",
+        "tool-restrictions",
+        "skill-boundary"
+      ],
+      "path": "core/standards/postflight-tool-restrictions.md",
+      "subdomain": "standards",
+      "line_count": 200,
+      "domain": "core"
+    },
+    {
+      "summary": "Skill and agent routing decisions",
+      "load_when": {
+        "agents": [
+          "orchestrator"
+        ]
+      },
+      "keywords": [
+        "routing",
+        "skill",
+        "dispatch"
+      ],
+      "topics": [
+        "skill-routing",
+        "agent-dispatch",
+        "language-detection"
+      ],
+      "path": "core/orchestration/routing.md",
+      "subdomain": "orchestration",
+      "line_count": 120,
+      "domain": "core"
+    },
+    {
+      "summary": "Patterns to prevent premature agent termination",
+      "load_when": {
+        "agents": [
+          "general-implementation-agent",
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "stop",
+        "completion",
+        "lifecycle"
+      ],
+      "topics": [
+        "agent-lifecycle",
+        "completion-signals",
+        "stop-prevention"
+      ],
+      "path": "core/patterns/anti-stop-patterns.md",
+      "subdomain": "patterns",
+      "line_count": 80,
+      "domain": "core"
+    },
+    {
+      "summary": "Wave-based coordination patterns for multi-agent team execution",
+      "load_when": {
+        "commands": [
+          "/research --team",
+          "/plan --team",
+          "/implement --team"
+        ],
+        "agents": [
+          "skill-team-research",
+          "skill-team-plan",
+          "skill-team-implement"
+        ]
+      },
+      "keywords": [
+        "team",
+        "wave",
+        "parallel",
+        "synthesis"
+      ],
+      "topics": [
+        "team-mode",
+        "wave-execution",
+        "parallel-agents"
+      ],
+      "path": "core/patterns/team-orchestration.md",
+      "subdomain": "patterns",
+      "line_count": 150,
+      "domain": "core"
+    },
+    {
+      "summary": "Schema for team execution metadata in return-meta.json files",
+      "load_when": {
+        "agents": [
+          "skill-team-research",
+          "skill-team-plan",
+          "skill-team-implement"
+        ]
+      },
+      "keywords": [
+        "team",
+        "metadata",
+        "execution"
+      ],
+      "topics": [
+        "team-mode",
+        "metadata",
+        "return-format"
+      ],
+      "path": "core/formats/team-metadata-extension.md",
+      "subdomain": "formats",
+      "line_count": 80,
+      "domain": "core"
+    },
+    {
+      "summary": "File-based metadata exchange pattern for agents",
+      "load_when": {
+        "agents": [
+          "general-implementation-agent",
+          "general-research-agent",
+          "planner-agent"
+        ]
+      },
+      "keywords": [
+        "metadata",
+        "file",
+        "return"
+      ],
+      "topics": [
+        "metadata-exchange",
+        "file-based-return",
+        "agent-communication"
+      ],
+      "path": "core/patterns/metadata-file-return.md",
+      "subdomain": "patterns",
+      "line_count": 100,
+      "domain": "core"
+    },
+    {
+      "summary": "Guide for building system components",
+      "load_when": {
+        "languages": [
+          "meta"
+        ],
+        "agents": [
+          "meta-builder-agent"
+        ]
+      },
+      "keywords": [
+        "meta",
+        "agent",
+        "skill",
+        "command"
+      ],
+      "topics": [
+        "meta-tasks",
+        "system-building",
+        "agent-creation"
+      ],
+      "path": "project/meta/meta-guide.md",
+      "subdomain": "meta",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Shared tool detection patterns for all filetypes agents",
+      "load_when": {
+        "languages": [],
+        "agents": [
+          "filetypes-router-agent",
+          "document-agent",
+          "spreadsheet-agent",
+          "presentation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/tools/tool-detection.md",
+      "subdomain": "filetypes",
+      "line_count": 180,
+      "domain": "project"
+    },
+    {
+      "summary": "Platform-specific installation instructions for conversion tools",
+      "load_when": {
+        "languages": [],
+        "agents": [
+          "filetypes-router-agent",
+          "document-agent",
+          "spreadsheet-agent",
+          "presentation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/tools/dependency-guide.md",
+      "subdomain": "filetypes",
+      "line_count": 120,
+      "domain": "project"
+    },
+    {
+      "summary": "MCP server integration patterns for format conversion",
+      "load_when": {
+        "languages": [],
+        "agents": [
+          "filetypes-router-agent",
+          "document-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/tools/mcp-integration.md",
+      "subdomain": "filetypes",
+      "line_count": 80,
+      "domain": "project"
+    },
+    {
+      "summary": "Spreadsheet to LaTeX/Typst table conversion patterns",
+      "load_when": {
+        "languages": [],
+        "agents": [
+          "spreadsheet-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/patterns/spreadsheet-tables.md",
+      "subdomain": "filetypes",
+      "line_count": 150,
+      "domain": "project"
+    },
+    {
+      "summary": "Presentation extraction and slide generation patterns",
+      "load_when": {
+        "languages": [],
+        "agents": [
+          "presentation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/patterns/presentation-slides.md",
+      "subdomain": "filetypes",
+      "line_count": 180,
+      "domain": "project"
+    },
+    {
+      "summary": "Filetypes extension overview and navigation",
+      "load_when": {
+        "languages": [],
+        "agents": []
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/README.md",
+      "subdomain": "filetypes",
+      "line_count": 60,
+      "domain": "project"
+    },
+    {
+      "summary": "YC pitch deck structure, slide content guidelines, and design principles",
+      "load_when": {
+        "languages": [],
+        "agents": [
+          "deck-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/patterns/pitch-deck-structure.md",
+      "subdomain": "filetypes",
+      "line_count": 253,
+      "domain": "project"
+    },
+    {
+      "summary": "Touying 0.6.3 template for investor pitch decks with customization patterns",
+      "load_when": {
+        "languages": [],
+        "agents": [
+          "deck-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/filetypes/patterns/touying-pitch-deck-template.md",
+      "subdomain": "filetypes",
+      "line_count": 396,
+      "domain": "project"
+    },
+    {
+      "summary": "Mathlib library organization and key modules",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "mathlib",
+        "library"
+      ],
+      "topics": [
+        "lean4",
+        "mathlib",
+        "library"
+      ],
+      "path": "project/lean4/domain/mathlib-overview.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Dependent type theory foundations in Lean 4",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "types",
+        "theory"
+      ],
+      "topics": [
+        "lean4",
+        "types",
+        "theory"
+      ],
+      "path": "project/lean4/domain/dependent-types.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Key mathematical concepts in Lean 4 type theory",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "math",
+        "concepts"
+      ],
+      "topics": [
+        "lean4",
+        "math",
+        "concepts"
+      ],
+      "path": "project/lean4/domain/key-mathematical-concepts.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Advanced Lean 4 syntax and metaprogramming",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "syntax",
+        "metaprogramming"
+      ],
+      "topics": [
+        "lean4",
+        "syntax",
+        "metaprogramming"
+      ],
+      "path": "project/lean4/domain/lean4-syntax.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Common proof patterns and tactics in Lean 4",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "proofs",
+        "tactics"
+      ],
+      "topics": [
+        "lean4",
+        "proofs",
+        "tactics"
+      ],
+      "path": "project/lean4/patterns/tactic-patterns.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean 4 coding style and conventions",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "style",
+        "conventions"
+      ],
+      "topics": [
+        "lean4",
+        "style",
+        "conventions"
+      ],
+      "path": "project/lean4/standards/lean4-style-guide.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean-specific proof conventions and docstrings",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "proofs",
+        "conventions"
+      ],
+      "topics": [
+        "lean4",
+        "proofs",
+        "conventions"
+      ],
+      "path": "project/lean4/standards/proof-conventions-lean.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Sorry and axiom policy for Lean proofs",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "sorry",
+        "debt"
+      ],
+      "topics": [
+        "lean4",
+        "sorry",
+        "debt"
+      ],
+      "path": "project/lean4/standards/proof-debt-policy.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Guidelines for writing readable Lean proofs",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "readability",
+        "quality"
+      ],
+      "topics": [
+        "lean4",
+        "readability",
+        "quality"
+      ],
+      "path": "project/lean4/standards/proof-readability-criteria.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean LSP MCP server tools reference",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "mcp",
+        "lsp"
+      ],
+      "topics": [
+        "lean4",
+        "mcp",
+        "lsp"
+      ],
+      "path": "project/lean4/tools/mcp-tools-guide.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Aesop automated theorem prover integration",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "aesop",
+        "automation"
+      ],
+      "topics": [
+        "lean4",
+        "aesop",
+        "automation"
+      ],
+      "path": "project/lean4/tools/aesop-integration.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "LeanSearch semantic search API integration",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "search",
+        "api"
+      ],
+      "topics": [
+        "lean4",
+        "search",
+        "api"
+      ],
+      "path": "project/lean4/tools/leansearch-api.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Loogle type pattern search API",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "search",
+        "types"
+      ],
+      "topics": [
+        "lean4",
+        "search",
+        "types"
+      ],
+      "path": "project/lean4/tools/loogle-api.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean 4 LSP server integration guide",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "lsp",
+        "integration"
+      ],
+      "topics": [
+        "lean4",
+        "lsp",
+        "integration"
+      ],
+      "path": "project/lean4/tools/lsp-integration.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean implementation agent execution flow",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "agent",
+        "implementation"
+      ],
+      "topics": [
+        "lean4",
+        "agent",
+        "implementation"
+      ],
+      "path": "project/lean4/agents/lean-implementation-flow.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean research agent execution flow",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "agent",
+        "research"
+      ],
+      "topics": [
+        "lean4",
+        "agent",
+        "research"
+      ],
+      "path": "project/lean4/agents/lean-research-flow.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Optimizing multiple Lean-LSP instances",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "optimization",
+        "mcp"
+      ],
+      "topics": [
+        "lean4",
+        "optimization",
+        "mcp"
+      ],
+      "path": "project/lean4/operations/multi-instance-optimization.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Complete proof development workflow",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "workflow",
+        "proofs"
+      ],
+      "topics": [
+        "lean4",
+        "workflow",
+        "proofs"
+      ],
+      "path": "project/lean4/processes/end-to-end-proof-workflow.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean 4 project organization best practices",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "project",
+        "structure"
+      ],
+      "topics": [
+        "lean4",
+        "project",
+        "structure"
+      ],
+      "path": "project/lean4/processes/project-structure-best-practices.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Template for Lean 4 definitions",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "template",
+        "definition"
+      ],
+      "topics": [
+        "lean4",
+        "template",
+        "definition"
+      ],
+      "path": "project/lean4/templates/definition-template.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Template for new Lean 4 files",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "template",
+        "file"
+      ],
+      "topics": [
+        "lean4",
+        "template",
+        "file"
+      ],
+      "path": "project/lean4/templates/new-file-template.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Templates for common proof structures",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "template",
+        "proofs"
+      ],
+      "topics": [
+        "lean4",
+        "template",
+        "proofs"
+      ],
+      "path": "project/lean4/templates/proof-structure-templates.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean 4 extension overview and navigation",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-research-agent",
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "overview",
+        "navigation"
+      ],
+      "topics": [
+        "lean4",
+        "overview",
+        "navigation"
+      ],
+      "path": "project/lean4/README.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Lean proof conventions and best practices",
+      "load_when": {
+        "languages": [
+          "lean4"
+        ],
+        "agents": [
+          "lean-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "lean4",
+        "proofs",
+        "conventions"
+      ],
+      "topics": [
+        "lean4",
+        "proofs",
+        "conventions"
+      ],
+      "path": "project/lean4/standards/proof-conventions.md",
+      "subdomain": "lean",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Web context overview with directory structure and loading strategy",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/README.md",
+      "subdomain": "web",
+      "line_count": 110,
+      "domain": "project"
+    },
+    {
+      "summary": "Astro 5/6 framework reference with .astro file format and islands architecture",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/domain/astro-framework.md",
+      "subdomain": "web",
+      "line_count": 287,
+      "domain": "project"
+    },
+    {
+      "summary": "Tailwind CSS v4 CSS-first configuration with @theme directive",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/domain/tailwind-v4.md",
+      "subdomain": "web",
+      "line_count": 225,
+      "domain": "project"
+    },
+    {
+      "summary": "Cloudflare Pages deployment platform and edge CDN reference",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/domain/cloudflare-pages.md",
+      "subdomain": "web",
+      "line_count": 203,
+      "domain": "project"
+    },
+    {
+      "summary": "TypeScript configuration and patterns for type-safe Astro development",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/domain/typescript-web.md",
+      "subdomain": "web",
+      "line_count": 304,
+      "domain": "project"
+    },
+    {
+      "summary": "Common patterns for building Astro components",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/patterns/astro-component.md",
+      "subdomain": "web",
+      "line_count": 315,
+      "domain": "project"
+    },
+    {
+      "summary": "Patterns for building layout components that wrap pages",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/patterns/astro-layout.md",
+      "subdomain": "web",
+      "line_count": 278,
+      "domain": "project"
+    },
+    {
+      "summary": "Patterns for defining, querying, and rendering type-safe content collections",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/patterns/astro-content-collections.md",
+      "subdomain": "web",
+      "line_count": 317,
+      "domain": "project"
+    },
+    {
+      "summary": "UI component patterns with Tailwind CSS v4",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/patterns/tailwind-patterns.md",
+      "subdomain": "web",
+      "line_count": 200,
+      "domain": "project"
+    },
+    {
+      "summary": "Semantic HTML, ARIA, and keyboard navigation patterns",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/patterns/accessibility-patterns.md",
+      "subdomain": "web",
+      "line_count": 200,
+      "domain": "project"
+    },
+    {
+      "summary": "Naming conventions, structure, and coding standards",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/standards/web-style-guide.md",
+      "subdomain": "web",
+      "line_count": 150,
+      "domain": "project"
+    },
+    {
+      "summary": "Core Web Vitals targets and performance optimization rules",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/standards/performance-standards.md",
+      "subdomain": "web",
+      "line_count": 150,
+      "domain": "project"
+    },
+    {
+      "summary": "WCAG 2.2 AA compliance requirements",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/standards/accessibility-standards.md",
+      "subdomain": "web",
+      "line_count": 150,
+      "domain": "project"
+    },
+    {
+      "summary": "Astro CLI commands and development workflow",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/tools/astro-cli-guide.md",
+      "subdomain": "web",
+      "line_count": 120,
+      "domain": "project"
+    },
+    {
+      "summary": "pnpm package manager commands and best practices",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/tools/pnpm-guide.md",
+      "subdomain": "web",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Wrangler deployment workflow for Cloudflare Pages",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/tools/cloudflare-deploy-guide.md",
+      "subdomain": "web",
+      "line_count": 120,
+      "domain": "project"
+    },
+    {
+      "summary": "CI/CD pipeline configuration and deployment debugging",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/tools/cicd-pipeline-guide.md",
+      "subdomain": "web",
+      "line_count": 150,
+      "domain": "project"
+    },
+    {
+      "summary": "CLI debugging and optimization tools (optipng, httpie, dig, etc.)",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/tools/debugging-utilities.md",
+      "subdomain": "web",
+      "line_count": 150,
+      "domain": "project"
+    },
+    {
+      "summary": "Page boilerplate variations",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/templates/astro-page-template.md",
+      "subdomain": "web",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Component boilerplate variations",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/templates/astro-component-template.md",
+      "subdomain": "web",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Astro framework quick reference",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/astro-framework.md",
+      "subdomain": "web",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Tailwind CSS v4 quick reference",
+      "load_when": {
+        "languages": [
+          "web"
+        ],
+        "agents": [
+          "web-research-agent",
+          "web-implementation-agent"
+        ]
+      },
+      "keywords": [],
+      "topics": [],
+      "path": "project/web/tailwind-v4.md",
+      "subdomain": "web",
+      "line_count": 100,
+      "domain": "project"
+    },
+    {
+      "summary": "Complete state management schema reference - state.json, TODO.md, artifact linking formats",
+      "load_when": {
+        "commands": [
+          "/task",
+          "/todo",
+          "/implement",
+          "/research",
+          "/plan"
+        ],
+        "agents": [
+          "meta-builder-agent",
+          "general-implementation-agent",
+          "planner-agent"
+        ]
+      },
+      "keywords": [
+        "state.json",
+        "TODO.md",
+        "schema",
+        "projects",
+        "status",
+        "artifacts"
+      ],
+      "topics": [
+        "state",
+        "schema",
+        "json",
+        "artifacts",
+        "linking"
+      ],
+      "path": "core/reference/state-management-schema.md",
+      "subdomain": "reference",
+      "line_count": 280,
+      "domain": "core"
+    },
+    {
+      "summary": "Skill-to-agent routing and delegation reference",
+      "load_when": {
+        "languages": [
+          "meta"
+        ],
+        "agents": [
+          "orchestrator",
+          "meta-builder-agent"
+        ]
+      },
+      "keywords": [
+        "skill",
+        "agent",
+        "mapping",
+        "delegation"
+      ],
+      "topics": [
+        "skills",
+        "agents",
+        "routing"
+      ],
+      "path": "core/reference/skill-agent-mapping.md",
+      "subdomain": "reference",
+      "line_count": 120,
+      "domain": "core"
+    },
+    {
+      "summary": "Template structures for research reports, implementation plans, and summaries",
+      "load_when": {
+        "agents": [
+          "general-research-agent",
+          "planner-agent",
+          "general-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "template",
+        "report",
+        "plan",
+        "summary",
+        "artifact",
+        "format"
+      ],
+      "topics": [
+        "artifacts",
+        "templates",
+        "reports",
+        "plans",
+        "summaries"
+      ],
+      "path": "core/reference/artifact-templates.md",
+      "subdomain": "reference",
+      "line_count": 160,
+      "domain": "core"
+    },
+    {
+      "summary": "Process diagrams for research, planning, and implementation workflows",
+      "load_when": {
+        "agents": [
+          "orchestrator",
+          "general-implementation-agent"
+        ]
+      },
+      "keywords": [
+        "workflow",
+        "diagram",
+        "research",
+        "planning",
+        "implementation",
+        "resume"
+      ],
+      "topics": [
+        "workflow",
+        "process",
+        "diagrams"
+      ],
+      "path": "core/reference/workflow-diagrams.md",
+      "subdomain": "reference",
+      "line_count": 170,
+      "domain": "core"
+    },
+    {
+      "summary": "MCP tool failure recovery strategies and fallback patterns",
+      "load_when": {
+        "agents": [
+          "general-implementation-agent",
+          "general-research-agent"
+        ]
+      },
+      "keywords": [
+        "mcp",
+        "abort",
+        "timeout",
+        "recovery"
+      ],
+      "topics": [
+        "mcp",
+        "recovery",
+        "error-handling"
+      ],
+      "path": "core/patterns/mcp-tool-recovery.md",
+      "subdomain": "patterns",
+      "line_count": 180,
+      "domain": "core"
+    },
+    {
+      "summary": "Handoff artifact schema for context exhaustion recovery",
+      "load_when": {
+        "agents": [
+          "skill-team-research",
+          "skill-team-plan",
+          "skill-team-implement"
+        ]
+      },
+      "keywords": [
+        "handoff",
+        "context",
+        "successor",
+        "team"
+      ],
+      "topics": [
+        "handoff",
+        "context-exhaustion",
+        "team-mode"
+      ],
+      "path": "core/formats/handoff-artifact.md",
+      "subdomain": "formats",
+      "line_count": 180,
+      "domain": "core"
+    },
+    {
+      "summary": "Progress file schema for phase tracking and resume",
+      "load_when": {
+        "agents": [
+          "skill-team-research",
+          "skill-team-plan",
+          "skill-team-implement"
+        ]
+      },
+      "keywords": [
+        "progress",
+        "phases",
+        "objectives",
+        "resume"
+      ],
+      "topics": [
+        "progress",
+        "phases",
+        "team-mode"
+      ],
+      "path": "core/formats/progress-file.md",
+      "subdomain": "formats",
+      "line_count": 200,
+      "domain": "core"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ]
+      },
+      "path": "project/logic/README.md",
+      "category": "index",
+      "line_count": 40,
+      "summary": "Logic context index and terminology conventions"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "modal",
+          "kripke",
+          "semantics",
+          "accessibility"
+        ]
+      },
+      "path": "project/logic/domain/kripke-semantics-overview.md",
+      "category": "domain",
+      "line_count": 80,
+      "summary": "Kripke frame semantics for modal logic"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "soundness",
+          "completeness",
+          "decidability",
+          "canonical"
+        ]
+      },
+      "path": "project/logic/domain/metalogic-concepts.md",
+      "category": "domain",
+      "line_count": 150,
+      "summary": "Soundness, completeness, and decidability for modal logic"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "proof",
+          "sequent",
+          "axiom",
+          "inference"
+        ]
+      },
+      "path": "project/logic/domain/proof-theory-concepts.md",
+      "category": "domain",
+      "line_count": 120,
+      "summary": "Proof-theoretic concepts: axioms, inference rules, sequent calculus"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "bilateral",
+          "verifier",
+          "truthmaker",
+          "hyperintensional"
+        ]
+      },
+      "path": "project/logic/domain/bilateral-propositions.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Bilateral propositions with exact verifiers and falsifiers"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "bilateral",
+          "semantics",
+          "verifier",
+          "falsifier"
+        ]
+      },
+      "path": "project/logic/domain/bilateral-semantics.md",
+      "category": "domain",
+      "line_count": 90,
+      "summary": "Bilateral semantics framework for verifiers and falsifiers"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "counterfactual",
+          "conditional",
+          "lewis",
+          "stalnaker"
+        ]
+      },
+      "path": "project/logic/domain/counterfactual-semantics.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Counterfactual conditional semantics with exact verification"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "lattice",
+          "boolean",
+          "heyting",
+          "bilattice"
+        ]
+      },
+      "path": "project/logic/domain/lattice-theory-concepts.md",
+      "category": "domain",
+      "line_count": 80,
+      "summary": "Lattice structures in logical semantics"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "mereology",
+          "part",
+          "fusion",
+          "state"
+        ]
+      },
+      "path": "project/logic/domain/mereology-foundations.md",
+      "category": "domain",
+      "line_count": 90,
+      "summary": "Part-whole relations for state spaces and truthmaker semantics"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "spatial",
+          "region",
+          "topology",
+          "rcc"
+        ]
+      },
+      "path": "project/logic/domain/spatial-domain.md",
+      "category": "domain",
+      "line_count": 80,
+      "summary": "Spatial logic with region connection calculus"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "task",
+          "model",
+          "temporal",
+          "history"
+        ]
+      },
+      "path": "project/logic/domain/task-semantics.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Task-based model-theoretic framework combining modal and temporal logic"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "topology",
+          "interior",
+          "closure",
+          "stone"
+        ]
+      },
+      "path": "project/logic/domain/topological-foundations-domain.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Topological semantics for modal and intuitionistic logic"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "proof",
+          "modal",
+          "strategy",
+          "axiom"
+        ]
+      },
+      "path": "project/logic/processes/modal-proof-strategies.md",
+      "category": "processes",
+      "line_count": 100,
+      "summary": "Strategies and patterns for modal logic proofs"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "proof",
+          "temporal",
+          "ltl",
+          "ctl"
+        ]
+      },
+      "path": "project/logic/processes/temporal-proof-strategies.md",
+      "category": "processes",
+      "line_count": 100,
+      "summary": "Strategies for temporal logic proofs"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "proof",
+          "construction",
+          "workflow"
+        ]
+      },
+      "path": "project/logic/processes/proof-construction.md",
+      "category": "processes",
+      "line_count": 80,
+      "summary": "General workflow for constructing formal proofs"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "verification",
+          "safety",
+          "liveness"
+        ]
+      },
+      "path": "project/logic/processes/verification-workflow.md",
+      "category": "processes",
+      "line_count": 80,
+      "summary": "Workflow for verifying logical properties"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ]
+      },
+      "path": "project/logic/standards/proof-conventions.md",
+      "category": "standards",
+      "line_count": 80,
+      "summary": "Canonical proof style conventions for modal and temporal logic"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ]
+      },
+      "path": "project/logic/standards/notation-standards.md",
+      "category": "standards",
+      "line_count": 80,
+      "summary": "Notation standards for modal and temporal logic formulas"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ]
+      },
+      "path": "project/logic/standards/naming-conventions.md",
+      "category": "standards",
+      "line_count": 60,
+      "summary": "Naming standards for identifiers in logic formalization"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ]
+      },
+      "path": "project/math/README.md",
+      "category": "index",
+      "line_count": 30,
+      "summary": "Math context index with subdirectory descriptions"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "group",
+          "monoid",
+          "algebra",
+          "homomorphism"
+        ]
+      },
+      "path": "project/math/algebra/groups-and-monoids.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Group and monoid structures with Lean 4 definitions"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "ring",
+          "field",
+          "algebra",
+          "ideal"
+        ]
+      },
+      "path": "project/math/algebra/rings-and-fields.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Ring and field structures with Lean 4 definitions"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "lattice",
+          "sup",
+          "inf",
+          "complete",
+          "boolean"
+        ]
+      },
+      "path": "project/math/lattice-theory/lattices.md",
+      "category": "domain",
+      "line_count": 150,
+      "summary": "Lattice definitions, theorems, and Mathlib patterns"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "bilattice",
+          "four-valued",
+          "paraconsistent"
+        ]
+      },
+      "path": "project/math/lattice-theory/bilattice-theory.md",
+      "category": "domain",
+      "line_count": 90,
+      "summary": "Bilattice structures for multi-valued logic"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "order",
+          "partial",
+          "well-founded",
+          "zorn"
+        ]
+      },
+      "path": "project/math/order-theory/partial-orders.md",
+      "category": "domain",
+      "line_count": 120,
+      "summary": "Partial orders, well-foundedness, and order-preserving maps"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "monoidal",
+          "poset",
+          "resource",
+          "linear"
+        ]
+      },
+      "path": "project/math/order-theory/monoidal-posets.md",
+      "category": "domain",
+      "line_count": 80,
+      "summary": "Monoidal posets for resource semantics"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "topology",
+          "continuous",
+          "compact",
+          "connected"
+        ]
+      },
+      "path": "project/math/topology/topological-spaces.md",
+      "category": "domain",
+      "line_count": 150,
+      "summary": "Topological space definitions and properties"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "scott",
+          "domain",
+          "cpo",
+          "continuous"
+        ]
+      },
+      "path": "project/math/topology/scott-topology.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Scott topology for domain theory"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "category",
+          "functor",
+          "natural",
+          "limit"
+        ]
+      },
+      "path": "project/math/category-theory/basics.md",
+      "category": "domain",
+      "line_count": 120,
+      "summary": "Category theory fundamentals: categories, functors, natural transformations"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "monoidal",
+          "tensor",
+          "symmetric",
+          "closed"
+        ]
+      },
+      "path": "project/math/category-theory/monoidal-categories.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Monoidal categories and tensor products"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "enriched",
+          "weighted",
+          "metric"
+        ]
+      },
+      "path": "project/math/category-theory/enriched-categories.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Categories enriched over monoidal categories"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "lawvere",
+          "metric",
+          "enriched",
+          "distance"
+        ]
+      },
+      "path": "project/math/category-theory/lawvere-metric-spaces.md",
+      "category": "domain",
+      "line_count": 90,
+      "summary": "Metric spaces as enriched categories"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "cauchy",
+          "completion",
+          "idempotent"
+        ]
+      },
+      "path": "project/math/category-theory/cauchy-completion.md",
+      "category": "domain",
+      "line_count": 80,
+      "summary": "Cauchy completion for enriched categories"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "profunctor",
+          "bimodule",
+          "weighted"
+        ]
+      },
+      "path": "project/math/category-theory/profunctors.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Profunctors as generalized relations between categories"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "type",
+          "dependent",
+          "pi",
+          "sigma",
+          "identity"
+        ]
+      },
+      "path": "project/math/foundations/dependent-type-theory.md",
+      "category": "domain",
+      "line_count": 150,
+      "summary": "Dependent type theory foundations for Lean 4"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "physics",
+          "formal"
+        ],
+        "agents": [
+          "physics-research-agent",
+          "formal-research-agent"
+        ]
+      },
+      "path": "project/physics/README.md",
+      "category": "index",
+      "line_count": 30,
+      "summary": "Physics context index for dynamical systems"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "physics",
+          "formal"
+        ],
+        "agents": [
+          "physics-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "dynamical",
+          "orbit",
+          "fixed",
+          "flow",
+          "ergodic",
+          "chaos"
+        ]
+      },
+      "path": "project/physics/dynamical-systems/dynamical-systems.md",
+      "category": "domain",
+      "line_count": 200,
+      "summary": "Dynamical systems: iteration, orbits, fixed points, flows"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "modal",
+          "hybrid",
+          "dynamic",
+          "multi-modal"
+        ]
+      },
+      "path": "project/logic/domain/modal-logic-extensions.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Extensions of modal logic: multi-modal, hybrid, and dynamic logics"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "proof",
+          "deduction",
+          "natural",
+          "sequent"
+        ]
+      },
+      "path": "project/logic/domain/proof-theory-basics.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Foundational proof theory concepts and techniques"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "logic",
+          "formal"
+        ],
+        "agents": [
+          "logic-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "temporal",
+          "ltl",
+          "ctl",
+          "until",
+          "eventually"
+        ]
+      },
+      "path": "project/logic/domain/temporal-logic-patterns.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Temporal logic patterns for specification and verification"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "adjunction",
+          "adjoint",
+          "universal",
+          "unit",
+          "counit"
+        ]
+      },
+      "path": "project/math/category-theory/adjunctions.md",
+      "category": "domain",
+      "line_count": 120,
+      "summary": "Adjoint functors and universal properties"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "category",
+          "morphism",
+          "composition",
+          "identity"
+        ]
+      },
+      "path": "project/math/category-theory/category-basics.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Basic category theory definitions and examples"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "functor",
+          "natural",
+          "transformation",
+          "yoneda"
+        ]
+      },
+      "path": "project/math/category-theory/functors-natural-transformations.md",
+      "category": "domain",
+      "line_count": 120,
+      "summary": "Functors and natural transformations between categories"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "limit",
+          "colimit",
+          "cone",
+          "product",
+          "coproduct"
+        ]
+      },
+      "path": "project/math/category-theory/limits-colimits.md",
+      "category": "domain",
+      "line_count": 120,
+      "summary": "Limits and colimits in category theory"
+    },
+    {
+      "load_when": {
+        "languages": [
+          "math",
+          "formal"
+        ],
+        "agents": [
+          "math-research-agent",
+          "formal-research-agent"
+        ],
+        "topics": [
+          "set",
+          "zfc",
+          "axiom",
+          "ordinal",
+          "cardinal"
+        ]
+      },
+      "path": "project/math/foundations/set-theory-foundations.md",
+      "category": "domain",
+      "line_count": 100,
+      "summary": "Set-theoretic foundations and ZFC axioms"
+    },
+    {
+      "path": "project/latex/patterns/document-structure.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
+        ]
+      },
+      "description": "LaTeX document organization patterns",
+      "tags": [
+        "latex",
+        "structure",
+        "organization"
+      ]
+    },
+    {
+      "path": "project/latex/patterns/theorem-environments.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
+        ]
+      },
+      "description": "LaTeX theorem environment patterns",
+      "tags": [
+        "latex",
+        "theorems",
+        "environments"
+      ]
+    },
+    {
+      "path": "project/latex/patterns/cross-references.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent",
+          "latex-research-agent"
+        ]
+      },
+      "description": "Cross-reference patterns for LaTeX documents",
+      "tags": [
+        "latex",
+        "references",
+        "labels"
+      ]
+    },
+    {
+      "path": "project/latex/standards/document-structure.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
+        ]
+      },
+      "description": "Document structure standards for LaTeX projects",
+      "tags": [
+        "latex",
+        "structure",
+        "standards"
+      ]
+    },
+    {
+      "path": "project/latex/standards/latex-style-guide.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent",
+          "latex-research-agent"
+        ]
+      },
+      "description": "LaTeX style guide and formatting conventions",
+      "tags": [
+        "latex",
+        "style",
+        "formatting"
+      ]
+    },
+    {
+      "path": "project/latex/standards/notation-conventions.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
+        ]
+      },
+      "description": "Mathematical notation conventions for LaTeX",
+      "tags": [
+        "latex",
+        "notation",
+        "math"
+      ]
+    },
+    {
+      "path": "project/latex/standards/custom-macros.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
+        ]
+      },
+      "description": "Custom macro patterns and conventions",
+      "tags": [
+        "latex",
+        "macros",
+        "notation"
+      ]
+    },
+    {
+      "path": "project/latex/templates/subfile-template.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent"
+        ]
+      },
+      "description": "Subfile template for modular LaTeX documents",
+      "tags": [
+        "latex",
+        "templates",
+        "subfiles"
+      ]
+    },
+    {
+      "path": "project/latex/tools/compilation-guide.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent",
+          "latex-research-agent"
+        ]
+      },
+      "description": "LaTeX compilation workflow and troubleshooting",
+      "tags": [
+        "latex",
+        "compilation",
+        "build"
+      ]
+    },
+    {
+      "path": "project/latex/README.md",
+      "load_when": {
+        "languages": [
+          "latex"
+        ],
+        "agents": [
+          "latex-implementation-agent",
+          "latex-research-agent"
+        ]
+      },
+      "description": "LaTeX extension overview and navigation",
+      "tags": [
+        "latex",
+        "overview",
+        "navigation"
+      ]
+    },
+    {
+      "path": "project/memory/learn-usage.md",
+      "load_when": {
+        "skills": [
+          "skill-memory"
+        ],
+        "commands": [
+          "/learn"
+        ]
+      },
+      "line_count": 150,
+      "description": "Usage guide for /learn command and memory management"
+    },
+    {
+      "path": "project/memory/memory-setup.md",
+      "load_when": {
+        "skills": [
+          "skill-memory"
+        ],
+        "commands": [
+          "/learn"
+        ]
+      },
+      "line_count": 120,
+      "description": "MCP server setup for Obsidian memory vault"
+    },
+    {
+      "path": "project/memory/memory-troubleshooting.md",
+      "load_when": {
+        "skills": [
+          "skill-memory"
+        ]
+      },
+      "line_count": 250,
+      "description": "Troubleshooting guide for memory system issues"
+    },
+    {
+      "path": "project/memory/knowledge-capture-usage.md",
+      "load_when": {
+        "skills": [
+          "skill-memory"
+        ],
+        "commands": [
+          "/learn"
+        ]
+      },
+      "line_count": 180,
+      "description": "Example workflows for knowledge capture system"
+    },
+    {
+      "path": "project/python/standards/code-style.md",
+      "load_when": {
+        "languages": [
+          "python"
+        ],
+        "agents": [
+          "python-implementation-agent"
+        ]
+      },
+      "tags": [
+        "python",
+        "style",
+        "conventions"
+      ],
+      "description": "Python coding style and conventions"
+    },
+    {
+      "path": "project/python/patterns/testing-patterns.md",
+      "load_when": {
+        "languages": [
+          "python"
+        ],
+        "agents": [
+          "python-implementation-agent"
+        ]
+      },
+      "tags": [
+        "python",
+        "pytest",
+        "testing"
+      ],
+      "description": "Pytest patterns and fixtures"
+    },
+    {
+      "path": "project/python/domain/application-api-patterns.md",
+      "load_when": {
+        "languages": [
+          "python"
+        ],
+        "agents": [
+          "python-implementation-agent",
+          "python-research-agent"
+        ]
+      },
+      "tags": [
+        "python",
+        "api",
+        "architecture"
+      ],
+      "description": "Application API structure and patterns"
+    },
+    {
+      "path": "project/python/domain/library-patterns.md",
+      "load_when": {
+        "languages": [
+          "python"
+        ],
+        "agents": [
+          "python-implementation-agent",
+          "python-research-agent"
+        ]
+      },
+      "tags": [
+        "python",
+        "library",
+        "patterns"
+      ],
+      "description": "Domain-specific library patterns"
+    },
+    {
+      "path": "project/python/patterns/semantic-evaluation.md",
+      "load_when": {
+        "languages": [
+          "python"
+        ],
+        "agents": [
+          "python-implementation-agent"
+        ]
+      },
+      "tags": [
+        "python",
+        "evaluation",
+        "interpreter"
+      ],
+      "description": "Tree-walking evaluation patterns"
+    },
+    {
+      "path": "project/python/README.md",
+      "load_when": {
+        "languages": [
+          "python"
+        ],
+        "agents": [
+          "python-implementation-agent",
+          "python-research-agent"
+        ]
+      },
+      "tags": [
+        "python",
+        "overview",
+        "navigation"
+      ],
+      "description": "Python extension overview and navigation"
+    },
+    {
+      "path": "project/z3/domain/z3-api.md",
+      "load_when": {
+        "languages": [
+          "z3"
+        ],
+        "agents": [
+          "z3-research-agent",
+          "z3-implementation-agent"
+        ]
+      },
+      "description": "Z3 Python API reference and examples",
+      "tags": [
+        "z3",
+        "api",
+        "python"
+      ]
+    },
+    {
+      "path": "project/z3/domain/smt-patterns.md",
+      "load_when": {
+        "languages": [
+          "z3"
+        ],
+        "agents": [
+          "z3-research-agent",
+          "z3-implementation-agent"
+        ]
+      },
+      "description": "SMT-LIB patterns and Z3 tactics",
+      "tags": [
+        "z3",
+        "smt",
+        "tactics"
+      ]
+    },
+    {
+      "path": "project/z3/patterns/constraint-generation.md",
+      "load_when": {
+        "languages": [
+          "z3"
+        ],
+        "agents": [
+          "z3-implementation-agent"
+        ]
+      },
+      "description": "Constraint building patterns for Z3",
+      "tags": [
+        "z3",
+        "constraints",
+        "patterns"
+      ]
+    },
+    {
+      "path": "project/z3/patterns/bitvector-operations.md",
+      "load_when": {
+        "languages": [
+          "z3"
+        ],
+        "agents": [
+          "z3-implementation-agent"
+        ]
+      },
+      "description": "BitVec state manipulation patterns",
+      "tags": [
+        "z3",
+        "bitvector",
+        "state"
+      ]
+    },
+    {
+      "path": "project/z3/README.md",
+      "load_when": {
+        "languages": [
+          "z3"
+        ],
+        "agents": [
+          "z3-implementation-agent",
+          "z3-research-agent"
+        ]
+      },
+      "description": "Z3 extension overview and navigation",
+      "tags": [
+        "z3",
+        "overview",
+        "navigation"
+      ]
+    }
+  ]
+}

@@ -4,7 +4,6 @@
       "Bash(echo:*)"
     ]
   },
-  "model": "sonnet",
   "enableAllProjectMcpServers": true,
   "enabledMcpjsonServers": [
     "lean-lsp"
