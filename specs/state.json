@@ -4,22 +4,28 @@
     {
       "project_number": 41,
       "project_name": "final_conciseness_pass",
-      "status": "researched",
+      "status": "planned",
       "language": "latex",
       "created": "2026-03-24T00:00:00Z",
-      "last_updated": "2026-03-25T00:57:53Z",
+      "last_updated": "2026-03-25T01:04:59Z",
       "dependencies": [
         40
       ],
-      "session_id": "sess_1774399864_a0eac3",
+      "session_id": "sess_1774400418_98d762",
       "researched": "2026-03-25T00:57:53Z",
       "artifacts": [
         {
           "path": "specs/041_final_conciseness_pass/reports/01_team-research.md",
           "type": "research",
           "summary": "Team research with 2 teammates: throat-clearing audit and narrative flow analysis"
+        },
+        {
+          "path": "specs/041_final_conciseness_pass/plans/01_conciseness-plan.md",
+          "type": "plan",
+          "summary": "2-phase plan: throat-clearing removal + narrative flow improvements"
         }
-      ]
+      ],
+      "planned": "2026-03-25T01:04:59Z"
     },
     {
       "project_number": 40,

@@ -10,8 +10,9 @@ next_project_number: 42
 
 ### 41. Final conciseness pass: throat-clearing, roadmap, narrative flow
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [01_team-research.md](041_final_conciseness_pass/reports/01_team-research.md)
+- **Plan**: [01_conciseness-plan.md](041_final_conciseness_pass/plans/01_conciseness-plan.md)
 - **Language**: latex
 - **Dependencies**: Task #40
 
