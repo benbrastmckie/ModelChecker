@@ -658,17 +658,8 @@ Different semantic applications need different operator subsets: classical logic
 The \texttt{LogosOperatorRegistry} provides dynamic loading:
 
 \begin{lstlisting}[caption={Dynamic operator loading}]
-# Load only extensional operators
-logos_classical = logos.get_theory(['extensional'])
-# Operators: not, or, and, implies, top, bottom
-
-# Load extensional + modal
 logos_modal = logos.get_theory(['extensional', 'modal'])
-# Adds: Box, Diamond
-
-# Load all operators
-logos_full = logos.get_theory(['extensional', 'modal', 'constitutive',
-                               'counterfactual', 'relevance'])
+# Analogous calls load constitutive, counterfactual, relevance subtheories
 \end{lstlisting}
 
 Operators are organized by semantic function in subtheory modules: extensional (conjunction, disjunction, negation, implication), modal (necessity, possibility), constitutive (ground, essence, subject-matter, propositional identity), counterfactual (counterfactual conditionals), and relevance (relevant implication).
@@ -684,21 +675,8 @@ Extensional-only loads approximately 15 constraints versus full \theorylogos{} a
 The framework enables running identical examples across theories for rigorous comparison:
 
 \begin{lstlisting}[caption={Multi-theory comparison}]
-example = {
-    'premises': ['A \\wedge B'],
-    'conclusions': ['B \\wedge A'],
-    'settings': {'N': 3}
-}
-
-theories = {
-    'Classical': classical_semantics,
-    'Logos': logos_semantics,
-    'Exclusion': exclusion_semantics
-}
-
-for name, theory in theories.items():
+for name, theory in [('Classical', classical), ('Logos', logos)]:
     result = BuildExample(module, theory, example, name)
-    display_result(result)
 \end{lstlisting}
 
 Sample output shows: \textbf{Classical}: Valid (conjunction commutes); \textbf{\theorylogos{}}: Invalid (different verifiers)---countermodel shows $A \land B$ verified by state $[a, b]$, but $B \land A$ not verified by $[a, b]$ (hyperintensional distinction); \textbf{\theoryexclusion{}}: Depends on topic assignments.
@@ -909,29 +887,14 @@ The framework enables systematic cross-theory comparison via benchmark suites, w
 All theories extend a common base class:
 \begin{lstlisting}[caption={The semantic interface}]
 class SemanticDefaults:
-    """Base class providing fundamental semantic operations."""
-
-    def __init__(self, combined_settings):
-        self.N = combined_settings.get('N')
-        self.frame_constraints = []
-
     def fusion(self, bit_s, bit_t):
-        """Bitwise OR for state fusion"""
-        return bit_s | bit_t
+        return bit_s | bit_t  # Bitwise OR for state fusion
 
     def is_part_of(self, bit_s, bit_t):
-        """Mereological part-of relation"""
-        return (bit_s & bit_t) == bit_s
-
-# Theories extend and override
-class LogosSemantics(SemanticDefaults):
-    def __init__(self, combined_settings):
-        super().__init__(combined_settings)
-        # Define theory-specific Z3 primitives
-        # Add theory-specific frame constraints
+        return (bit_s & bit_t) == bit_s  # Mereological parthood
 \end{lstlisting}
 
-Simple inheritance with no abstract methods means theories override what they need.
+Theories extend \texttt{SemanticDefaults}, overriding primitive declarations as needed.
 
 This separation enables independent theory development without framework modification.
 
@@ -990,17 +953,11 @@ Design goals include a comprehensive operator suite (covering extensional, modal
 \begin{lstlisting}[caption={\theorylogos{} Z3 primitives}]
 class LogosSemantics(SemanticDefaults):
     def declare_z3_primitives(self):
-        # Core evaluation functions
+        # Evaluation, mereology, modal accessibility, worlds
         self.verify = z3.Function('verify', BitVecSort(N), AtomSort, BoolSort)
         self.falsify = z3.Function('falsify', BitVecSort(N), AtomSort, BoolSort)
-
-        # Mereology
         self.possible = z3.Function('possible', BitVecSort(N), BoolSort)
-
-        # Modal accessibility
         self.accessible = z3.Function('accessible', BitVecSort(N), BitVecSort(N), BoolSort)
-
-        # Worlds (maximal consistent states)
         self.is_world = z3.Function('is_world', BitVecSort(N), BoolSort)
 \end{lstlisting}
 
@@ -1042,12 +999,9 @@ Other extensional operators: disjunction defined via De Morgan ($\lneg(\lneg A \
 class Necessity(OperatorDefaults):
     def true_at(self, world, sentence, eval_point):
         A = sentence.sentences[0]
-        accessible_worlds = [w for w in self.semantics.worlds
-                            if self.semantics.accessible(world, w)]
-        return z3.And([
-            self.semantics.true_at(w_prime, A, eval_point)
-            for w_prime in accessible_worlds
-        ])
+        return z3.And([self.semantics.true_at(w, A, eval_point)
+                       for w in self.semantics.worlds
+                       if self.semantics.accessible(world, w)])
 \end{lstlisting}
 
 Interpretation: $\nec A$ true at $w$ iff $A$ true at all accessible worlds from $w$.
