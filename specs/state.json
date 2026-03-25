@@ -15,16 +15,23 @@
     {
       "project_number": 40,
       "project_name": "trim_code_and_overexplanation",
-      "status": "researched",
+      "status": "planned",
       "language": "latex",
       "created": "2026-03-24T00:00:00Z",
-      "last_updated": "2026-03-25T00:36:41Z",
+      "last_updated": "2026-03-25T00:40:26Z",
       "dependencies": [
         39
       ],
       "artifacts": [
-        "specs/040_trim_code_and_overexplanation/reports/01_trim-overexplanation.md"
-      ]
+        "specs/040_trim_code_and_overexplanation/reports/01_trim-overexplanation.md",
+        {
+          "path": "specs/040_trim_code_and_overexplanation/plans/01_trim-overexplanation-plan.md",
+          "type": "plan",
+          "summary": "3-phase plan for targeted verbosity reduction"
+        }
+      ],
+      "session_id": "sess_1774399069_a177e7",
+      "planned": "2026-03-25T00:40:26Z"
     },
     {
       "project_number": 39,
