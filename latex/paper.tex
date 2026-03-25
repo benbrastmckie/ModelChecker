@@ -735,12 +735,7 @@ States are represented as $N$-bit vectors where each bit position corresponds to
 For $N=3$:
 \begin{align*}
 000_2 = 0 &\mapsto \nullstate \text{ (null state)} \\
-001_2 = 1 &\mapsto a \\
-010_2 = 2 &\mapsto b \\
-011_2 = 3 &\mapsto \fuse{a}{b} \text{ (fusion of $a$ and $b$)} \\
-100_2 = 4 &\mapsto c \\
-101_2 = 5 &\mapsto \fuse{a}{c} \\
-110_2 = 6 &\mapsto \fuse{b}{c} \\
+&\vdots \\
 111_2 = 7 &\mapsto \fuse{a}{\fuse{b}{c}} \text{ (full state)}
 \end{align*}
 
@@ -939,15 +934,11 @@ The following \theorylogos{} operators are hyperintensional:
 These distinctions arise from bilateral evaluation: propositions are characterized by their exact verifiers and falsifiers, not merely their truth-values across possible worlds.
 \end{remark}
 
-\textbf{Bilateral Evaluation.}
-Propositions are characterized by verifiers (states making them true) and falsifiers (states making them false); gaps are partial states doing neither.
-
-\textbf{Mereological Structure.}
-The state space representation (Section~\ref{sec:state-space}) provides the mereological structure for fusion and parthood operations.
+Bilateral evaluation uses exact verifiers and falsifiers (Section~\ref{sec:state-space}).
 
 \subsection{Logos Implementation Strategy}\label{sec:logos-implementation}
 
-Design goals include a comprehensive operator suite (covering extensional, modal, constitutive, counterfactual, and relevance operators), modular architecture (operators organized by semantic function, selectively loadable), empirical validation (extensive example suite testing operator interactions), and performance optimization (constraints optimized for tractability despite complexity).
+The implementation prioritizes modularity and tractability.
 
 \textbf{Z3 Primitive Declarations} (using the bitvector representation from Section~\ref{sec:state-space}):
 \begin{lstlisting}[caption={\theorylogos{} Z3 primitives}]
@@ -961,7 +952,7 @@ class LogosSemantics(SemanticDefaults):
         self.is_world = z3.Function('is_world', BitVecSort(N), BoolSort)
 \end{lstlisting}
 
-\textbf{Frame Constraints} (as categorized in Section~\ref{sec:constraints}): (1) null state exists: $\zpossible(\nullstate)$; (2) downward closure; (3) fusion closure; (4) world existence: $\exists w[\zisworld(w)]$; (5) world maximality; (6) modal reflexivity (for S4/S5); (7) modal transitivity; (8) no null verification; (9) exclusive verification (optional via settings).
+Frame constraints include null state existence, downward/fusion closure, world existence/maximality, and configurable modal axioms (reflexivity, transitivity for S4/S5).
 
 \subsection{Operator Semantics: Five Subtheories}\label{sec:operator-semantics}
 
@@ -987,10 +978,7 @@ class Conjunction(OperatorDefaults):
 
 Interpretation: $s$ verifies $A \land B$ iff $s$ verifies both $A$ and $B$; $s$ falsifies $A \land B$ iff $s$ falsifies $A$ or falsifies $B$.
 
-\textbf{Negation} ($\lneg$): Negation swaps verifiers and falsifiers.
-The verify method returns \texttt{extended\_falsify(state, A)}, and falsify returns \texttt{extended\_verify(state, A)}.
-
-Other extensional operators: disjunction defined via De Morgan ($\lneg(\lneg A \land \lneg B)$), implication as $\lneg A \lor B$, biconditional as $(A \imp B) \land (B \imp A)$, top ($\top$) verified by all states, bottom ($\bot$) falsified by all states.
+Negation swaps verifiers/falsifiers; remaining extensional operators follow standard definitions (De Morgan for disjunction, material implication).
 
 \subsubsection{Modal Operators}
 
@@ -1004,9 +992,7 @@ class Necessity(OperatorDefaults):
                        if self.semantics.accessible(world, w)])
 \end{lstlisting}
 
-Interpretation: $\nec A$ true at $w$ iff $A$ true at all accessible worlds from $w$.
-Possibility ($\poss$) is defined as $\lneg \nec \lneg A$.
-The accessibility relation is configurable (reflexive, transitive, symmetric), determining the modal logic (S4, S5, K, etc.).
+Standard Kripke semantics with configurable accessibility (K, S4, S5).
 
 \subsubsection{Constitutive Operators}
 
@@ -1047,7 +1033,7 @@ The 177 examples span multiple categories.
 
 \textbf{Counterfactual} (32 examples): modus ponens ($A, A \boxright B \vdash B$), contraposition failures, strengthening antecedent failures, transitivity failures (as expected theoretically).
 
-The validation process involves manual construction (theory expert constructs example and predicts validity/invalidity), automated testing (each example runs in $<5$ seconds at $N=3$ or $N=4$), regression testing (all 177 examples run on every commit), and cross-theory validation (some examples run across multiple theories to confirm divergent predictions are intentional).
+Each example is manually constructed with expected validity, then regression-tested on every commit.
 
 %%=======================================================%%
 %% Section 7: Implementation Results                     %%

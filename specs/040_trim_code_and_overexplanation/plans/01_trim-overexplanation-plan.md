@@ -128,7 +128,7 @@ The research report (01_trim-overexplanation.md) provides specific line numbers 
 
 ---
 
-### Phase 3: Trim Over-Explanations for JAR Audience [NOT STARTED]
+### Phase 3: Trim Over-Explanations for JAR Audience [COMPLETED]
 
 **Goal**: Condense explanations of standard concepts that JAR readers already know (Kripke semantics, De Morgan, bitvector encodings).
 
