@@ -610,7 +610,8 @@ See Section~\ref{sec:limitations} for further discussion.
 
 \section{Modularity, Extensibility, and Systematic Theory Comparison}\label{sec:modularity}
 
-Semantic theories should be modular components that can be composed, compared, and extended without reimplementing core infrastructure.
+The three-level architecture of Section~\ref{sec:methodology} enables any single theory to compile and validate examples---but a framework that requires rewriting core infrastructure for each new theory would limit rather than accelerate semantic research.
+Modularity addresses this: by separating theory-specific semantics from theory-agnostic infrastructure, new theories can be added, combined, and systematically compared without touching the core pipeline.
 
 \subsection{Theory-Agnostic Core Framework}\label{sec:theory-agnostic}
 
@@ -898,7 +899,8 @@ Cross-theory utilities provide shared infrastructure: solvers (Z3 backend used b
 
 \section{Case Study: Logos Theory and Unified Hyperintensional Semantics}\label{sec:logos}
 
-The \theorylogos{} theory demonstrates the framework's capacity to implement sophisticated semantic theories---a unified approach to hyperintensional reasoning needed for the language of thought.
+The four theories catalogued in Section~\ref{sec:theorylib} illustrate the framework's breadth, but breadth alone does not demonstrate depth: can the framework handle a semantically demanding theory that integrates multiple operator subtheories, bilateral evaluation, mereological state structure, and configurable modal axioms?
+The \theorylogos{} theory answers this question---a unified hyperintensional framework that extends truthmaker semantics to cover grounding, essence, counterfactuals, and relevance within a single coherent architecture.
 
 \subsection{Philosophical Background: The Language of Thought}\label{sec:philosophical-background}
 
@@ -1030,6 +1032,8 @@ Each example is manually constructed with expected validity, then regression-tes
 %%=======================================================%%
 
 \section{Implementation Results and Empirical Validation}\label{sec:results}
+
+The preceding sections establish the framework's design and theoretical properties; this section asks whether it works empirically---whether the encoding is tractable, the theories validate correctly, and the performance scales to practical use.
 
 \paragraph{Experimental Setup.}
 All experiments were conducted on the following configuration:

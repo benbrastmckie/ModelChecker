@@ -101,7 +101,7 @@ Net word change is modest (~22 word reduction), but quality improvement in paper
 
 ---
 
-### Phase 2: Narrative Flow Improvements [NOT STARTED]
+### Phase 2: Narrative Flow Improvements [COMPLETED]
 
 **Goal**: Replace weak section openings with motivated transitions (~80 words added)
 
