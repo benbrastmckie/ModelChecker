@@ -29,3 +29,4 @@ code/.venv
 **/__pycache__/
 **/.postflight-pending
 **/.return-meta.json
+/specs/tmp/claude-tts-last-notify
