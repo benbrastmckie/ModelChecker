@@ -93,7 +93,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 3: Add Back-References for Bitvector Representation [IN PROGRESS]
+### Phase 3: Add Back-References for Bitvector Representation [COMPLETED]
 
 **Goal**: Establish Section 4.2 (lines 767-789) as primary bitvector explanation; add back-references elsewhere
 
@@ -115,7 +115,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 4: Add Back-References for Bilateral Semantics [NOT STARTED]
+### Phase 4: Add Back-References for Bilateral Semantics [IN PROGRESS]
 
 **Goal**: Establish Section 6.1 (lines 1032-1038) as primary bilateral explanation; add back-references elsewhere
 

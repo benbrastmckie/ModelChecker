@@ -443,7 +443,7 @@ selection = z3.Function('selection', BitVecSort(N), BitVecSort(N), AtomSort, Boo
 # Constraint: ForAll w,w',A[selection(w,w',A) -> ...]  (3 quantifiers)
 \end{lstlisting}
 
-Each additional argument introduces another quantifier in constraints, increasing solver difficulty exponentially.
+Each additional argument introduces another quantifier in constraints, increasing solver difficulty exponentially (see Section~\ref{sec:state-space} for complete bitvector representation).
 Quantifier alternation is especially significant: $\forall s \forall A[\ldots]$ is relatively tractable, while $\forall A[\exists s[\ldots]]$ is much harder, and triple alternation $\forall w[\exists w'[\forall s[\ldots]]]$ is very difficult.
 
 \subsubsection{Theory Comparison by Primitive Arity}
@@ -510,7 +510,7 @@ The \emph{arity} of required primitives matters more than their count.
 
 When implementing a new semantic theory, prefer binary over ternary (factor complex relations when possible), implicit over explicit (encode relationships as constraints rather than primitives), and stratified quantifiers (avoid alternation when possible).
 
-The \theorylogos{} theory demonstrates this principle: fusion could be a ternary primitive \zfusion{}$(s_1, s_2, s_3)$, but instead uses bitvector OR ($s_1 \mathbin{|} s_2$), enabling $N=6$ whereas ternary fusion would limit to $N=4$.
+The \theorylogos{} theory demonstrates this principle: fusion could be a ternary primitive \zfusion{}$(s_1, s_2, s_3)$, but instead uses bitvector OR ($s_1 \mathbin{|} s_2$; see Section~\ref{sec:state-space}), enabling $N=6$ whereas ternary fusion would limit to $N=4$.
 
 \subsection{Complexity Classification}\label{sec:complexity-classification}
 
@@ -1037,7 +1037,7 @@ Closure properties (whether $s \verifies A$ and $s \parthood t$ implies $t \veri
 
 Design goals include a comprehensive operator suite (covering extensional, modal, constitutive, counterfactual, and relevance operators), modular architecture (operators organized by semantic function, selectively loadable), empirical validation (extensive example suite testing operator interactions), and performance optimization (constraints optimized for tractability despite complexity).
 
-\textbf{Z3 Primitive Declarations:}
+\textbf{Z3 Primitive Declarations} (using the bitvector representation from Section~\ref{sec:state-space}):
 \begin{lstlisting}[caption={\theorylogos{} Z3 primitives}]
 class LogosSemantics(SemanticDefaults):
     def declare_z3_primitives(self):
