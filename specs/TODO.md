@@ -26,7 +26,8 @@ next_project_number: 42
 
 ### 40. Trim code listings, over-explanation, and aspirational content
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [01_trim-overexplanation.md](040_trim_code_and_overexplanation/reports/01_trim-overexplanation.md)
 - **Language**: latex
 - **Dependencies**: Task #39
 

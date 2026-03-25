@@ -15,12 +15,15 @@
     {
       "project_number": 40,
       "project_name": "trim_code_and_overexplanation",
-      "status": "not_started",
+      "status": "researched",
       "language": "latex",
       "created": "2026-03-24T00:00:00Z",
-      "last_updated": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-25T00:36:41Z",
       "dependencies": [
         39
+      ],
+      "artifacts": [
+        "specs/040_trim_code_and_overexplanation/reports/01_trim-overexplanation.md"
       ]
     },
     {
