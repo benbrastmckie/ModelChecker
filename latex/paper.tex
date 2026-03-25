@@ -703,20 +703,7 @@ for name, theory in theories.items():
 
 Sample output shows: \textbf{Classical}: Valid (conjunction commutes); \textbf{\theorylogos{}}: Invalid (different verifiers)---countermodel shows $A \land B$ verified by state $[a, b]$, but $B \land A$ not verified by $[a, b]$ (hyperintensional distinction); \textbf{\theoryexclusion{}}: Depends on topic assignments.
 
-\begin{table}[htbp]
-\centering
-\caption{Comparative Predictions Across Theories}
-\label{tab:comparison}
-\begin{tabular}{@{}lccccl@{}}
-\toprule
-\textbf{Argument} & \textbf{Classical} & \textbf{Modal S4} & \textbf{\theorylogos{}} & \textbf{\theoryexclusion{}} & \textbf{Notes} \\
-\midrule
-$A \land B \imp B \land A$ & Valid & Valid & Invalid & Invalid & Hyperintensional \\
-$A \imp A \lor B$ & Valid & Valid & Invalid & Invalid & Disj.\ intro fails \\
-$\nec(A \imp B), \nec A \vdash \nec B$ & Valid & Valid & Valid & N/A & K axiom \\
-\bottomrule
-\end{tabular}
-\end{table}
+Table~\ref{tab:inference-comparison} in Section~\ref{sec:theory-comparison-results} provides a comprehensive comparison of inference validity across theories.
 
 \subsection{Extensibility Dimensions}\label{sec:extensibility}
 

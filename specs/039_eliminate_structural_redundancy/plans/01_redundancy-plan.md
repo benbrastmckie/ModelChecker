@@ -70,7 +70,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 2: Consolidate Tables 6 and 8 [IN PROGRESS]
+### Phase 2: Consolidate Tables 6 and 8 [COMPLETED]
 
 **Goal**: Eliminate duplication between Table 6 (line 709) and Table 8 (line 1247)
 
@@ -93,7 +93,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 3: Add Back-References for Bitvector Representation [NOT STARTED]
+### Phase 3: Add Back-References for Bitvector Representation [IN PROGRESS]
 
 **Goal**: Establish Section 4.2 (lines 767-789) as primary bitvector explanation; add back-references elsewhere
 
