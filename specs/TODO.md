@@ -26,9 +26,12 @@ next_project_number: 42
 
 ### 40. Trim code listings, over-explanation, and aspirational content
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-24
+- **Summary**: Reduced paper from 29 to 27 pages by trimming ~1,310 words: aspirational TheoryLib content (~500 words), code listings (~340 words), and over-explanations for JAR audience (~470 words).
 - **Research**: [01_trim-overexplanation.md](040_trim_code_and_overexplanation/reports/01_trim-overexplanation.md)
 - **Plan**: [01_trim-overexplanation-plan.md](040_trim_code_and_overexplanation/plans/01_trim-overexplanation-plan.md)
+- **Summary**: [01_trim-overexplanation-summary.md](040_trim_code_and_overexplanation/summaries/01_trim-overexplanation-summary.md)
 - **Language**: latex
 - **Dependencies**: Task #39
 
