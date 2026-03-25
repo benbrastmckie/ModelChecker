@@ -1143,7 +1143,7 @@ Additionally requires subject matter overlap between $A$ and $B$.
 
 The key insight is that a unified language of thought requires operators from all these domains.
 Cognitive agents reason modally (what's possible), counterfactually (what would happen if\ldots), content-sensitively (what thoughts are about), and explanatorily (why things are true).
-To our knowledge, \theorylogos{} represents the first computational implementation integrating bilateral evaluation, hyperintensional operators, counterfactual conditionals, and automated model finding within a unified framework.
+This unification demonstrates the framework's expressiveness.
 
 \subsection{Empirical Validation and Test Suite}\label{sec:validation}
 
@@ -1334,7 +1334,7 @@ Our contribution: automated model finding, lower barrier to entry, rapid prototy
 Fine's bilateral truthmaker framework~\cite{fine2017tms,fine2017content} introduces exact verification and falsification as primitive notions, providing the philosophical foundation for hyperintensional semantics.
 Subsequent theoretical developments include Yablo's work on aboutness~\cite{yablo2014} and Jago's applications to grounding and content~\cite{jago2020}.
 Knudstorp~\cite{knudstorp2023} establishes decidability and finite model property results for truthmaker logics on semilattices.
-These remain primarily theoretical; to our knowledge, \modelchecker{} provides the first computational implementation of bilateral truthmaker semantics with automated model finding, translating Fine's informal semantics into executable Z3 constraints.
+These remain primarily theoretical; our implementation translates Fine's informal semantics into executable Z3 constraints.
 
 \textbf{Hyperintensional Logic.}
 Transparent Intensional Logic (TIL)~\cite{til2010} provides a hyperintensional framework for natural language analysis, using procedural semantics based on typed lambda calculus.
@@ -1476,7 +1476,7 @@ Belief attribution: modeling hyperintensional belief states.
 \subsection{Conclusion}\label{sec:conclusion}
 
 We have presented \modelchecker{}, a programmatic framework for developing modular semantic theories using SMT solvers.
-The framework enables rapid development (theory-agnostic architecture allows implementing new semantic frameworks in days/weeks), supports systematic comparison (run identical examples across multiple theories), provides empirical validation (extensive test suites ensure correctness), facilitates finite model exploration (constraint-based approach efficiently searches model spaces), implements rich semantics (to our knowledge, the first computational implementation of bilateral truthmaker semantics with integrated hyperintensional operators and automated model finding), promotes modularity (operators, theories, and tools as reusable components), and lowers barriers (accessible Python API and comprehensive documentation).
+The framework enables rapid development (theory-agnostic architecture allows implementing new semantic frameworks in days/weeks), supports systematic comparison (run identical examples across multiple theories), provides empirical validation (extensive test suites ensure correctness), facilitates finite model exploration (constraint-based approach efficiently searches model spaces), implements rich semantics (bilateral truthmaker semantics with integrated hyperintensional operators), promotes modularity (operators, theories, and tools as reusable components), and lowers barriers (accessible Python API and comprehensive documentation).
 
 The \theorylib{} vision provides an extensible library of executable semantic theories serving as a comparative research platform, archival and citation system, educational resource, and collaborative community hub.
 
