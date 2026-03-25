@@ -42,7 +42,8 @@ next_project_number: 42
 
 ### 39. Eliminate structural redundancy across sections
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [01_redundancy-research.md](039_eliminate_structural_redundancy/reports/01_redundancy-research.md)
 - **Language**: latex
 - **Dependencies**: Task #37, Task #38
 
