@@ -902,39 +902,7 @@ Each theory is a self-contained package with \texttt{semantic.py} (core semantic
 
 \subsection{Vision: A Collaborative Platform for Semantic Research}\label{sec:vision}
 
-\paragraph{Comparative Research Platform.}
-Enable systematic comparison across semantic approaches:
-\begin{lstlisting}[caption={Running benchmark comparisons}]
-from model_checker.comparison import run_benchmark
-
-results = run_benchmark(
-    test_suite='standard_inferences',
-    theories=['logos', 'exclusion', 'classical', 'modal_s4'],
-    output='comparison_table.md'
-)
-\end{lstlisting}
-
-Applications include theory selection (choose theory matching desired inference patterns), theory refinement (identify divergent predictions for philosophical adjudication), and empirical adequacy (test theories against intuition databases).
-
-\paragraph{Archival and Citation System.}
-Theories function as citable, versioned components:
-\begin{lstlisting}[caption={BibTeX citation for theory}]
-@software{modelchecker_logos_v1,
-  title = {Logos Bilateral Truthmaker Semantics},
-  author = {ModelChecker Contributors},
-  version = {1.0.3},
-  year = {2024},
-  url = {https://github.com/benbrastmckie/.../logos},
-  note = {Semantic theory implementation in ModelChecker}
-}
-\end{lstlisting}
-
-Benefits include reproducibility (exact theory version used in research), credit attribution (theory developers receive citations), longevity (implementations preserved for future study), and incremental improvement (version history tracks theory evolution).
-
-\paragraph{Extensibility and Contribution.}
-The \modelchecker{} workflow lowers barriers to entry: implement semantic rules programmatically (days), validate against hundreds of examples automatically (hours), publish paper with executable theory as supplement, and enable community extension, testing, and citation.
-
-Contribution pathways include new theories, operator extensions, example databases, performance optimizations, and documentation.
+The framework enables systematic cross-theory comparison via benchmark suites, with theories as citable, versioned components supporting reproducible research.
 
 \subsection{Theory-Agnostic Framework Design}\label{sec:agnostic-design}
 
@@ -965,26 +933,16 @@ class LogosSemantics(SemanticDefaults):
 
 Simple inheritance with no abstract methods means theories override what they need.
 
-Benefits of theory-agnosticism include: innovation freedom (theories can experiment with novel approaches), maintenance isolation (bugs in one theory don't affect others), parallel development (multiple researchers can develop theories concurrently), and future-proofing (framework accommodates unforeseen theory types).
+This separation enables independent theory development without framework modification.
 
 \subsection{Sharing, Reuse, and Modularity}\label{sec:sharing}
 
-Common operators can be reused across theories.
-Classical conjunction behaves identically in \theorylogos{} and \theoryexclusion{}, while negation differs.
-Benefits include consistency (same operator behaves identically across theories), shared testing, and no code duplication.
+Common operators can be reused across theories with consistency (same operator behaves identically), shared testing, and no code duplication.
 
 Subtheory composition allows users to select which subtheories to load, with automatic dependency resolution.
 This supports focused research (test modal operators without counterfactual complexity), better performance (reduce constraints for faster solving), and pedagogical use (introduce operators incrementally).
 
 Cross-theory utilities provide shared infrastructure: solvers (Z3 backend used by all theories), parsers (\LaTeX{} formula parser is theory-independent), output formatters (JSON/Markdown/text formats uniform), testing frameworks (pytest infrastructure), and documentation generators.
-
-\subsection{Community and Contribution Model}\label{sec:community}
-
-Open source foundations include MIT license (permissive, encourages reuse), public GitHub with issue tracking, comprehensive contributor guides, and CI/CD ensuring contributed code passes tests.
-
-Quality standards require $>$85\% test coverage, documented operators with semantic rules, minimum 20 validated examples, and tutorial notebooks.
-
-Incentives for contribution include academic incentives (citation credit, co-authorship opportunities, showcase expertise), practical incentives (use contributed theory immediately, benefit from community testing), and educational incentives (create teaching resources, build reputation).
 
 %%=======================================================%%
 %% Section 6: Logos Case Study                           %%
@@ -1437,8 +1395,6 @@ When comparing theories on the same example, differences may reflect encoding ch
 
 \textbf{Philosophy and Logic.}
 Computational turn in semantics: shift from informal to executable semantic theories with empirical validation as standard practice.
-Cumulative knowledge building: theories as reusable, citable components.
-Lower barrier to entry: non-specialists can implement theories.
 
 \textbf{Computer Science and AI.}
 Formal reasoning systems: hyperintensional semantics for content-sensitive AI, planning systems with counterfactual reasoning.
@@ -1454,12 +1410,11 @@ Belief attribution: modeling hyperintensional belief states.
 We have presented \modelchecker{}, a programmatic framework for developing modular semantic theories using SMT solvers.
 The framework enables rapid development (theory-agnostic architecture allows implementing new semantic frameworks in days/weeks), supports systematic comparison (run identical examples across multiple theories), provides empirical validation (extensive test suites ensure correctness), facilitates finite model exploration (constraint-based approach efficiently searches model spaces), implements rich semantics (bilateral truthmaker semantics with integrated hyperintensional operators), promotes modularity (operators, theories, and tools as reusable components), and lowers barriers (accessible Python API and comprehensive documentation).
 
-The \theorylib{} vision provides an extensible library of executable semantic theories serving as a comparative research platform, archival and citation system, educational resource, and collaborative community hub.
+The \theorylib{} vision provides an extensible library of executable semantic theories serving as a comparative research platform with version-controlled archival.
 
 The \theorylogos{} case study demonstrates the framework's capacity to implement sophisticated theories with 19 operators across 5 semantic domains, unified hyperintensional semantics for language of thought, and 177 validated examples confirming correctness.
 
 By treating semantic theories as executable programs, we enable a more rigorous, empirical, and collaborative approach to developing the formal languages needed for philosophical inquiry, cognitive science, and AI.
-The future of semantic theory is computational, modular, and collaborative---and it starts with frameworks like \modelchecker{} making that future accessible to researchers today.
 
 %%=======================================================%%
 %% Back Matter                                           %%
