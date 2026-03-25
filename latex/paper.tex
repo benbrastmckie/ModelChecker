@@ -1351,17 +1351,15 @@ Our niche: modular semantic theory development for hyperintensional and non-clas
 
 \subsection{Contributions Summary}\label{sec:contributions}
 
-\textbf{Theoretical Contributions.}
-(1) Programmatic methodology for semantics: treating semantic theories as executable programs where truth conditions compile to SMT constraints.
-(2) Comprehensive bilateral truthmaker implementation: to our knowledge, the first computational realization of Fine's informal semantics, formalized with 19 operators across 5 semantic domains.
-(3) Theory-agnostic framework design: clean separation between core infrastructure and theory-specific logic with zero coupling between theories.
-(4) Finite model methodology: constraint-based approach to finite model exploration with progressive search strategy.
+Having demonstrated the methodology (Sections~\ref{sec:methodology}--\ref{sec:logos}), we examine what these results mean for the field (contributions enumerated in Section~\ref{sec:contribution}).
 
-\textbf{Practical Contributions.}
-(1) \theorylib{}: reusable semantic components with 4 implemented theories and modular operators with automatic dependency resolution.
-(2) Systematic comparative analysis: side-by-side theory comparison on identical examples with database of comparative predictions.
-(3) Educational resources: interactive Jupyter notebooks with comprehensive documentation.
-(4) Open source infrastructure: MIT licensed, public repository with CI/CD.
+\textbf{Implications for Semantic Theory Development.}
+The systematic comparison reveals that computational tractability diverges from theoretical parsimony: the ``simpler'' unilateral \theoryexclusion{} theory is 7$\times$ slower than bilateral \theorylogos{} due to higher primitive arity.
+This provides objective grounds for theory selection beyond aesthetic criteria.
+
+\textbf{Implications for Research Practice.}
+The finite model methodology enables rapid hypothesis testing---formulas can be validated against hundreds of examples in minutes rather than through manual proof construction.
+The \theorylib{} vision of citable, versioned theory implementations supports reproducible semantic research.
 
 \subsection{Limitations and Threats to Validity}\label{sec:limitations}
 
