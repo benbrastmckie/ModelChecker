@@ -261,7 +261,7 @@ To our knowledge, this represents the first computational implementation of bila
 Semantic theories have traditionally been developed through hand-constructed models and manual proofs.
 This approach carries significant limitations: difficulty verifying complex inference patterns across multiple operators, no systematic way to compare theories on identical test cases, barriers to entry for implementing emerging semantic frameworks, limited exploration of model space due to the burden of manual example construction, and validation bottlenecks where checking validity claims requires extensive manual computation prone to error.
 
-Perhaps most significantly, theories are typically assessed via subjective aesthetic criteria---``elegance,'' ``simplicity,'' ``naturalness''---rather than empirical measures.
+Theories are typically assessed via subjective aesthetic criteria---``elegance,'' ``simplicity,'' ``naturalness''---rather than empirical measures.
 Debates about theoretical complexity remain unresolved due to the lack of objective metrics.
 Different theorists may disagree profoundly about whether a theory is ``simple'' or ``elegant.''
 
@@ -281,16 +281,6 @@ We present \modelchecker{}, a programmatic framework that:
     \item \textbf{Implements \theorylib{}}: Extensible library of semantic theories as reusable, citable components.
     \item \textbf{Establishes objective complexity measures}: Computational tractability (solver performance, timeout rates, feasible model sizes) replaces subjective aesthetic evaluations with empirical, quantifiable metrics.
 \end{enumerate}
-
-\paragraph{Paper Roadmap.}
-Section~\ref{sec:methodology} presents the programmatic methodology, three-level architecture, computational complexity of semantic primitives, and encoding correctness.
-Section~\ref{sec:modularity} discusses modularity, extensibility, and systematic theory comparison.
-Section~\ref{sec:finite-model} covers finite model exploration and countermodel methodology.
-Section~\ref{sec:theorylib} describes the theory-agnostic framework and \theorylib{} vision.
-Section~\ref{sec:logos} presents the \theorylogos{} theory case study.
-Section~\ref{sec:results} provides implementation results and validation.
-Section~\ref{sec:related} surveys related work.
-Section~\ref{sec:discussion} discusses future directions, limitations, and conclusions.
 
 %%=======================================================%%
 %% Section 2: The Programmatic Methodology               %%
@@ -1031,7 +1021,7 @@ The 177 examples span multiple categories.
 
 \textbf{Constitutive} (35 examples): ground transitivity ($A \ground B, B \ground C \vdash A \ground C$), identity symmetry ($A \propident B \imp B \propident A$), distinguishing ($A \leftrightarrow B \not\Rightarrow A \propident B$).
 
-\textbf{Counterfactual} (32 examples): modus ponens ($A, A \boxright B \vdash B$), contraposition failures, strengthening antecedent failures, transitivity failures (as expected theoretically).
+\textbf{Counterfactual} (32 examples): modus ponens ($A, A \boxright B \vdash B$), contraposition failures, strengthening antecedent failures, transitivity failures.
 
 Each example is manually constructed with expected validity, then regression-tested on every commit.
 
@@ -1248,8 +1238,6 @@ Our niche: modular semantic theory development for hyperintensional and non-clas
 \section{Discussion and Future Directions}\label{sec:discussion}
 
 \subsection{Contributions Summary}\label{sec:contributions}
-
-Having demonstrated the methodology (Sections~\ref{sec:methodology}--\ref{sec:logos}), we examine what these results mean for the field (contributions enumerated in Section~\ref{sec:contribution}).
 
 \textbf{Implications for Semantic Theory Development.}
 The systematic comparison reveals that computational tractability diverges from theoretical parsimony: the ``simpler'' unilateral \theoryexclusion{} theory is 7$\times$ slower than bilateral \theorylogos{} due to higher primitive arity.

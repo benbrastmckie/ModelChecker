@@ -44,7 +44,7 @@ Net word change is modest (~22 word reduction), but quality improvement in paper
 
 ## Implementation Phases
 
-### Phase 1: Throat-Clearing Removal [NOT STARTED]
+### Phase 1: Throat-Clearing Removal [COMPLETED]
 
 **Goal**: Remove redundant phrases and the roadmap paragraph (~102 words saved)
 
