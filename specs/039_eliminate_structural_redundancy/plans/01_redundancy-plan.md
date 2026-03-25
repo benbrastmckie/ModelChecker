@@ -137,7 +137,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 5: Trim Section 6 Re-explanations [IN PROGRESS]
+### Phase 5: Trim Section 6 Re-explanations [COMPLETED]
 
 **Goal**: Reduce Section 6 (Logos Case Study) re-derivations by referencing earlier sections
 
@@ -159,7 +159,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 6: Restructure Section 9.1 (Contributions Summary) [NOT STARTED]
+### Phase 6: Restructure Section 9.1 (Contributions Summary) [IN PROGRESS]
 
 **Goal**: Rewrite Section 9.1 to focus on implications rather than re-listing contributions
 

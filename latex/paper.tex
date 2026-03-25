@@ -1019,18 +1019,10 @@ These distinctions arise from bilateral evaluation: propositions are characteriz
 \end{remark}
 
 \textbf{Bilateral Evaluation.}
-Verifiers are states that make a proposition true.
-Falsifiers are states that make a proposition false.
-Gaps are partial states that do neither.
-
-For proposition $A$: ``It is raining,'' verifiers include states where rain occurs ($r$, $\fuse{r}{w}$, $\fuse{r}{c}$, \ldots), falsifiers include states where no-rain obtains ($\lneg r$, $\fuse{\lneg r}{c}$, \ldots), and gaps are partial states indeterminate about rain.
+Propositions are characterized by verifiers (states making them true) and falsifiers (states making them false); gaps are partial states doing neither.
 
 \textbf{Mereological Structure.}
-States form a partial order under part-of ($\parthood$).
-The null state ($\nullstate$) is part of everything and verifies/falsifies nothing.
-Atomic states are minimal non-null states ($a, b, c, \ldots$).
-Fusions combine states via the $\sqcup$ operation.
-Closure properties (whether $s \verifies A$ and $s \parthood t$ implies $t \verifies A$) are theory-dependent.
+The state space representation (Section~\ref{sec:state-space}) provides the mereological structure for fusion and parthood operations.
 
 \subsection{Logos Implementation Strategy}\label{sec:logos-implementation}
 
@@ -1054,7 +1046,7 @@ class LogosSemantics(SemanticDefaults):
         self.is_world = z3.Function('is_world', BitVecSort(N), BoolSort)
 \end{lstlisting}
 
-\textbf{Frame Constraints} (9 constraints): (1) null state exists: $\zpossible(\nullstate)$; (2) downward closure: $\forall s[\zpossible(s) \imp \forall t[t \parthood s \imp \zpossible(t)]]$; (3) fusion closure: $\forall s,t[\zpossible(s) \land \zpossible(t) \imp \zpossible(\fuse{s}{t})]$; (4) world existence: $\exists w[\zisworld(w)]$; (5) world maximality: worlds contain all possible states as parts; (6) modal reflexivity: accessibility relation reflexive (for S4/S5); (7) modal transitivity: accessibility relation transitive; (8) no null verification: $\forall A[\lneg \zverify(\nullstate, A) \land \lneg \zfalsify(\nullstate, A)]$; (9) exclusive verification: $\forall A,s[\lneg(\zverify(s,A) \land \zfalsify(s,A))]$ (optional via settings).
+\textbf{Frame Constraints} (as categorized in Section~\ref{sec:constraints}): (1) null state exists: $\zpossible(\nullstate)$; (2) downward closure; (3) fusion closure; (4) world existence: $\exists w[\zisworld(w)]$; (5) world maximality; (6) modal reflexivity (for S4/S5); (7) modal transitivity; (8) no null verification; (9) exclusive verification (optional via settings).
 
 \subsection{Operator Semantics: Five Subtheories}\label{sec:operator-semantics}
 
