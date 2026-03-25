@@ -874,11 +874,10 @@ The guiding principle is that semantic theories are scientific hypotheses requir
 
 The current implementation includes four theories.
 
-\textbf{\theorylogos{} --- Bilateral Hyperintensional Truthmaker Semantics.}
+\textbf{\theorylogos{} --- Bilateral Hyperintensional Truthmaker Semantics} (Section~\ref{sec:logos}).
 Foundation: Kit Fine's truthmaker semantics with bilateral evaluation~\cite{fine2017tms,fine2017content}.
 Operators: 19 operators across 5 subtheories---extensional (7: $\lneg, \lor, \land, \imp, \leftrightarrow, \top, \bot$), modal (2: $\nec, \poss$), constitutive (4: $\propident$ identity, $\ground$ ground, $\essence$ essence, $\relimpl$ relevance), counterfactual (4: $\boxright, \diamondright$, and variants), and relevance (2: $\relimpl$ relevant implication).
 Examples: 177 validated test cases.
-Key features: bilateral (verifiers and falsifiers), hyperintensional (distinguishes logical equivalents), mereologically structured state space.
 Applications: philosophy of language, grounding theory, essence metaphysics.
 
 \textbf{\theoryexclusion{} --- Unilateral Witness Semantics.}
@@ -1321,7 +1320,7 @@ Our contribution: automated model finding, lower barrier to entry, rapid prototy
 Fine's bilateral truthmaker framework~\cite{fine2017tms,fine2017content} introduces exact verification and falsification as primitive notions, providing the philosophical foundation for hyperintensional semantics.
 Subsequent theoretical developments include Yablo's work on aboutness~\cite{yablo2014} and Jago's applications to grounding and content~\cite{jago2020}.
 Knudstorp~\cite{knudstorp2023} establishes decidability and finite model property results for truthmaker logics on semilattices.
-These remain primarily theoretical; our implementation translates Fine's informal semantics into executable Z3 constraints.
+These remain primarily theoretical; our implementation (Section~\ref{sec:logos}) translates Fine's informal semantics into executable Z3 constraints.
 
 \textbf{Hyperintensional Logic.}
 Transparent Intensional Logic (TIL)~\cite{til2010} provides a hyperintensional framework for natural language analysis, using procedural semantics based on typed lambda calculus.

@@ -115,7 +115,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 4: Add Back-References for Bilateral Semantics [IN PROGRESS]
+### Phase 4: Add Back-References for Bilateral Semantics [COMPLETED]
 
 **Goal**: Establish Section 6.1 (lines 1032-1038) as primary bilateral explanation; add back-references elsewhere
 
@@ -137,7 +137,7 @@ Key findings from 01_redundancy-research.md:
 
 ---
 
-### Phase 5: Trim Section 6 Re-explanations [NOT STARTED]
+### Phase 5: Trim Section 6 Re-explanations [IN PROGRESS]
 
 **Goal**: Reduce Section 6 (Logos Case Study) re-derivations by referencing earlier sections
 
