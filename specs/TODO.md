@@ -10,9 +10,12 @@ next_project_number: 42
 
 ### 41. Final conciseness pass: throat-clearing, roadmap, narrative flow
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-25
+- **Summary**: Removed ~102 words of throat-clearing (roadmap paragraph, transition sentence, minor hedges) and added ~80 words of motivated section transitions for Sections 3, 6, and 7. Net ~22 word reduction with improved narrative flow.
 - **Research**: [01_team-research.md](041_final_conciseness_pass/reports/01_team-research.md)
 - **Plan**: [01_conciseness-plan.md](041_final_conciseness_pass/plans/01_conciseness-plan.md)
+- **Summary**: [01_conciseness-summary.md](041_final_conciseness_pass/summaries/01_conciseness-summary.md)
 - **Language**: latex
 - **Dependencies**: Task #40
 

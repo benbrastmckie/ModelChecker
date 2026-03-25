@@ -4,14 +4,14 @@
     {
       "project_number": 41,
       "project_name": "final_conciseness_pass",
-      "status": "planned",
+      "status": "completed",
       "language": "latex",
       "created": "2026-03-24T00:00:00Z",
-      "last_updated": "2026-03-25T01:04:59Z",
+      "last_updated": "2026-03-25T01:20:00Z",
       "dependencies": [
         40
       ],
-      "session_id": "sess_1774400418_98d762",
+      "session_id": "sess_1774400812_4f99c3",
       "researched": "2026-03-25T00:57:53Z",
       "artifacts": [
         {
@@ -23,9 +23,16 @@
           "path": "specs/041_final_conciseness_pass/plans/01_conciseness-plan.md",
           "type": "plan",
           "summary": "2-phase plan: throat-clearing removal + narrative flow improvements"
+        },
+        {
+          "path": "specs/041_final_conciseness_pass/summaries/01_conciseness-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with detailed change log"
         }
       ],
-      "planned": "2026-03-25T01:04:59Z"
+      "planned": "2026-03-25T01:04:59Z",
+      "completed": "2026-03-25T01:20:00Z",
+      "completion_summary": "Removed ~102 words of throat-clearing (roadmap paragraph, transition sentence, minor hedges) and added ~80 words of motivated section transitions for Sections 3, 6, and 7. Net ~22 word reduction with improved narrative flow."
     },
     {
       "project_number": 40,
