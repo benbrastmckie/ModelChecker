@@ -1,5 +1,5 @@
 ---
-next_project_number: 45
+next_project_number: 46
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 45
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 45. Rename `first-order` subtheory directory to `first_order` for valid Python packaging
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Rename `code/src/model_checker/theory_lib/logos/subtheories/first-order/` to `first_order` (underscore). The hyphenated name is not a valid Python identifier, breaking Pyright LSP features (go-to-definition, autocompletion, type checking). Need to: (1) rename directory to `first_order`, (2) update all `importlib.import_module()` calls referencing `first-order`, (3) update subtheory registry strings in `__init__.py` files, (4) update `load_subtheories()`/`load_subtheory()` calls across examples and tests, (5) update any documentation or comments referencing the old path, (6) verify all tests still pass after rename.
+
+---
 
 ### 44. Remove vestigial ISemantics Protocol and use concrete SemanticDefaults type in Operator base class
 - **Effort**: TBD

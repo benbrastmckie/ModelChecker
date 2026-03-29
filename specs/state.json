@@ -1,6 +1,14 @@
 {
-  "next_project_number": 45,
+  "next_project_number": 46,
   "active_projects": [
+    {
+      "project_number": 45,
+      "project_name": "rename_first_order_directory",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-29T22:05:55Z",
+      "last_updated": "2026-03-29T22:05:55Z"
+    },
     {
       "project_number": 44,
       "project_name": "remove_vestigial_isemantics_protocol",
