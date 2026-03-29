@@ -8,7 +8,7 @@ providing unified classes for semantics, propositions, and model structures.
 import itertools
 import sys
 import time
-from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING
+from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING, cast
 
 from z3 import simplify
 import z3
@@ -213,10 +213,10 @@ class LogosSemantics(SemanticDefaults):
 
     def is_world(self, state_w: 'StateType') -> 'Z3Constraint':
         """Determines if a state represents a possible world in the model."""
-        return z3.And(
+        return cast(z3.BoolRef, z3.And(
             self.possible(state_w),
             self.maximal(state_w),
-        )
+        ))
 
     def true_at(self, sentence: 'Sentence', eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a sentence is true at a given evaluation point.
@@ -246,7 +246,7 @@ class LogosSemantics(SemanticDefaults):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
+            return Exists(x, cast(z3.BoolRef, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter))))
 
         operator = sentence.operator
         if operator is None:
@@ -299,7 +299,7 @@ class LogosSemantics(SemanticDefaults):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("f_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
+            return Exists(x, cast(z3.BoolRef, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter))))
 
         operator = sentence.operator
         if operator is None:
@@ -484,10 +484,10 @@ class LogosSemantics(SemanticDefaults):
             self.is_part_of(state_y, state_u),
             Exists(
                 [z],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     self.is_part_of(z, state_u),
                     self.max_compatible_part(z, state_w, state_y)
-                )
+                ))
             )
         )
 
@@ -897,10 +897,10 @@ class LogosSemantics(SemanticDefaults):
         x = z3.BitVec(f"pred_t_{pred_name}_x", self.N)
         return Exists(
             x,
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 self.is_part_of(x, eval_world),
                 self.predicate_verify(pred_name, arg_denotations, x)
-            )
+            ))
         )
 
     def _predicate_false_at(self, pred_name, term_args, eval_point):
@@ -935,10 +935,10 @@ class LogosSemantics(SemanticDefaults):
         x = z3.BitVec(f"pred_f_{pred_name}_x", self.N)
         return Exists(
             x,
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 self.is_part_of(x, eval_world),
                 self.predicate_falsify(pred_name, arg_denotations, x)
-            )
+            ))
         )
 
     def _predicate_extended_verify(self, state, pred_name, term_args, eval_point):
@@ -1088,13 +1088,13 @@ class LogosProposition(PropositionDefaults):
                     semantics.possible(x),
                     Exists(
                         y,
-                        z3.And(
+                        cast(z3.BoolRef, z3.And(
                             semantics.compatible(x, y),
-                            z3.Or(
+                            cast(z3.BoolRef, z3.Or(
                                 semantics.verify(y, sentence_letter),
                                 semantics.falsify(y, sentence_letter)
-                            ),
-                        ),
+                            )),
+                        )),
                     ),
                 ),
             )
@@ -1112,11 +1112,11 @@ class LogosProposition(PropositionDefaults):
             x, y = z3.BitVecs("ct_cont_x ct_cont_y", semantics.N)
             possible_verifier = Exists(
                 x,
-                z3.And(semantics.possible(x), semantics.verify(x, sentence_letter))
+                cast(z3.BoolRef, z3.And(semantics.possible(x), semantics.verify(x, sentence_letter)))
             )
             possible_falsifier = Exists(
                 y,
-                z3.And(semantics.possible(y), semantics.falsify(y, sentence_letter))
+                cast(z3.BoolRef, z3.And(semantics.possible(y), semantics.falsify(y, sentence_letter)))
             )
             return [
                 possible_verifier,
@@ -1129,8 +1129,8 @@ class LogosProposition(PropositionDefaults):
             the disjoint constraints, though they are already entailed by the contingent constraints
             when those are enabled."""
             return [
-                z3.Not(semantics.verify(0, sentence_letter)),
-                z3.Not(semantics.falsify(0, sentence_letter)),
+                cast(z3.BoolRef, z3.Not(semantics.verify(0, sentence_letter))),
+                cast(z3.BoolRef, z3.Not(semantics.falsify(0, sentence_letter))),
             ]
 
         def get_disjoint_constraints():
@@ -1139,10 +1139,10 @@ class LogosProposition(PropositionDefaults):
             return [
                 ForAll(
                     [x],
-                    z3.Not(z3.And(
+                    cast(z3.BoolRef, z3.Not(cast(z3.BoolRef, z3.And(
                         semantics.verify(x, sentence_letter),
                         semantics.falsify(x, sentence_letter)
-                    )),
+                    )))),
                 )
             ]
 

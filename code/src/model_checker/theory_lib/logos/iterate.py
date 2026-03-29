@@ -8,7 +8,7 @@ This module provides the LogosModelIterator implementation which handles:
 
 import logging
 import sys
-from typing import Dict, List, Set, Any, Optional, Union, Generator, TYPE_CHECKING
+from typing import Dict, List, Set, Any, Optional, Union, Generator, TYPE_CHECKING, cast
 
 import z3
 
@@ -254,8 +254,8 @@ class LogosModelIterator(BaseModelIterator):
                 constraints.append(z3.Or(*model_constraints))
         
         # All models must be different
-        return z3.And(*constraints) if constraints else z3.BoolVal(True)
-    
+        return cast(z3.BoolRef, z3.And(*constraints)) if constraints else z3.BoolVal(True)
+
     def _create_world_count_constraint(self, prev_model: z3.ModelRef, semantics: Any) -> Optional['Z3Constraint']:
         """Create constraint on different number of worlds."""
         # Count worlds in previous model
