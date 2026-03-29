@@ -21,7 +21,9 @@ next_project_number: 47
 
 ### 45. Rename `first-order` subtheory directory to `first_order` for valid Python packaging
 - **Effort**: TBD
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-29
+- **Summary**: Verified directory rename from first-order to first_order. All 53 subtheory tests pass, all 9 proposition tests pass, all 99 parsing tests pass, all 33 unit tests pass. No remaining 'first-order' string references in code.
 - **Plan**: [01_rename-first-order.md](045_rename_first_order_directory/plans/01_rename-first-order.md)
 - **Language**: python
 

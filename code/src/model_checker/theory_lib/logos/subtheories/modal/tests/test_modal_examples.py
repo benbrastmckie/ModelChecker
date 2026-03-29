@@ -33,7 +33,7 @@ def test_modal_examples(example_name, example_case):
     # Create operator registry for modal theory (includes counterfactual for \\boxright operator
     # and first-order for compositionality tests)
     registry = LogosOperatorRegistry()
-    registry.load_subtheories(['extensional', 'modal', 'counterfactual', 'first-order'])
+    registry.load_subtheories(['extensional', 'modal', 'counterfactual', 'first_order'])
     
     result = run_test(
         example_case,

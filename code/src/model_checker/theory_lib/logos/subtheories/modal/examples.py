@@ -644,7 +644,7 @@ general_settings = {
 
 # Create operator registry for modal theory (includes extensional, counterfactual, and first-order dependencies)
 modal_registry = LogosOperatorRegistry()
-modal_registry.load_subtheories(['extensional', 'modal', 'counterfactual', 'first-order'])
+modal_registry.load_subtheories(['extensional', 'modal', 'counterfactual', 'first_order'])
 
 # Define the semantic theory
 modal_theory = {
