@@ -4,10 +4,12 @@
     {
       "project_number": 44,
       "project_name": "remove_vestigial_isemantics_protocol",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-29T19:37:41Z",
-      "last_updated": "2026-03-29T19:45:32Z"
+      "last_updated": "2026-03-29T20:00:56Z",
+      "session_id": "sess_1774814282_021983",
+      "planned": "2026-03-29T20:00:56Z"
     },
     {
       "project_number": 43,
