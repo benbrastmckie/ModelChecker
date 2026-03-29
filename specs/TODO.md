@@ -1,5 +1,5 @@
 ---
-next_project_number: 42
+next_project_number: 43
 ---
 
 # Task List
@@ -7,6 +7,32 @@ next_project_number: 42
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 42. Uniform eval_point threading across all logos subtheory operators
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: The `eval_point` dictionary carries both `"world"` (current world state) and `"assignment"` (first-order variable bindings). Several operators construct new eval_point dicts from scratch when shifting the world, dropping the assignment key. This breaks compositionality: a formula like `Box(forall x. phi(x))` would lose variable bindings when the necessity operator shifts to a new world.
+
+**Dangerous locations** (6 sites that drop assignment):
+1. `counterfactual/operators.py:50` -- `CounterfactualOperator.true_at`: `semantics.true_at(rightarg, {"world": u})`
+2. `counterfactual/operators.py:65` -- `CounterfactualOperator.false_at`: `semantics.false_at(rightarg, {"world": u})`
+3. `modal/operators.py:46` -- `NecessityOperator.true_at`: `sem.true_at(argument, {"world": u})`
+4. `modal/operators.py:58` -- `NecessityOperator.false_at`: `sem.false_at(argument, {"world": u})`
+5. `modal/operators.py:118` -- `PossibilityOperator.true_at`: `sem.true_at(argument, {"world": u, "time": ...})`
+6. `modal/operators.py:131` -- `PossibilityOperator.false_at`: `sem.false_at(argument, {"world": u, "time": ...})`
+
+**Required changes**:
+- Phase 1: Add `with_world(eval_point, new_world)` helper to `semantic.py` (analogous to existing `with_assignment()`)
+- Phase 2: Fix counterfactual operators (2 sites) to use `sem.with_world(eval_point, u)`
+- Phase 3: Fix modal operators (4 sites) to use `sem.with_world(eval_point, u)`
+- Phase 4: Verify safe subtheories (extensional, constitutive, first-order, relevance) remain correct
+- Phase 5: Run tests to confirm no regressions
+
+**Design principle**: Every operator that shifts a dimension of eval_point should use a `sem.with_X()` helper that preserves all other dimensions via dict spread (`{**eval_point, "X": new_value}`). Operators that don't shift any dimension pass eval_point through unchanged.
+
+---
 
 ### 41. Final conciseness pass: throat-clearing, roadmap, narrative flow
 - **Effort**: TBD
