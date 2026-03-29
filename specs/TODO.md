@@ -12,7 +12,7 @@ next_project_number: 47
 - **Effort**: TBD
 - **Status**: [RESEARCHED]
 - **Language**: z3
-- **Research**: [01_teammate-a-findings.md](046_fix_z3_and_return_type_narrowing/reports/01_teammate-a-findings.md)
+- **Research**: [01_team-research.md](046_fix_z3_and_return_type_narrowing/reports/01_team-research.md)
 
 **Description**: Fix z3.And() return type narrowing for custom Exists() calls in first-order operators. z3.And() returns Union[Unknown, Probe, BoolRef] per z3 stubs, but custom Exists(bvs, formula: BoolRef) requires BoolRef. Affects lines 384 and 572 in code/src/model_checker/theory_lib/logos/subtheories/first-order/operators.py. Code is correct at runtime but fails static type checking. Research needed: survey all z3.And/z3.Or usage patterns across the codebase to find the most mathematically correct and uniform approach — whether via type narrowing, signature widening, or a wrapper utility — rather than ad-hoc casts.
 

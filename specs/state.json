@@ -7,15 +7,16 @@
       "status": "researched",
       "language": "z3",
       "created": "2026-03-29T22:10:06Z",
-      "last_updated": "2026-03-29T22:24:30Z",
+      "last_updated": "2026-03-29T22:27:06Z",
       "session_id": "sess_1774822506_379ed7",
-      "researched": "2026-03-29T22:24:30Z",
+      "researched": "2026-03-29T22:27:06Z",
       "artifacts": [
         {
           "path": "specs/046_fix_z3_and_return_type_narrowing/reports/01_teammate-a-findings.md",
           "type": "research"
         }
-      ]
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 45,
