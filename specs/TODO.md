@@ -1,5 +1,5 @@
 ---
-next_project_number: 47
+next_project_number: 48
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 47
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 47. Implement multi-solver abstraction layer for z3, cvc5, and future constraint solvers
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Review the 2026 state of the art in constraint solving and design/implement a multi-solver abstraction layer enabling the ModelChecker to use z3, cvc5, or other constraint solvers interchangeably. Perform a clean-break refactor to achieve a maximally maintainable and flexible architecture that accommodates multiple solvers going forward.
+
+---
 
 ### 46. Fix z3.And() return type narrowing for custom Exists() calls in first-order operators
 - **Effort**: TBD
