@@ -7,9 +7,15 @@
       "status": "planned",
       "language": "python",
       "created": "2026-03-29T19:37:41Z",
-      "last_updated": "2026-03-29T20:00:56Z",
+      "last_updated": "2026-03-29T21:49:43Z",
       "session_id": "sess_1774814282_021983",
-      "planned": "2026-03-29T20:00:56Z"
+      "planned": "2026-03-29T21:49:43Z",
+      "artifacts": [
+        {
+          "path": "specs/044_remove_vestigial_isemantics_protocol/plans/02_isemantics-refactor-revised.md",
+          "type": "plan"
+        }
+      ]
     },
     {
       "project_number": 43,

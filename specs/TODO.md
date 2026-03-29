@@ -12,7 +12,7 @@ next_project_number: 45
 - **Effort**: TBD
 - **Status**: [PLANNED]
 - **Research**: [01_isemantics-refactor.md](044_remove_vestigial_isemantics_protocol/reports/01_isemantics-refactor.md)
-- **Plan**: [01_isemantics-refactor.md](044_remove_vestigial_isemantics_protocol/plans/01_isemantics-refactor.md)
+- **Plan**: [02_isemantics-refactor-revised.md](044_remove_vestigial_isemantics_protocol/plans/02_isemantics-refactor-revised.md)
 - **Language**: python
 
 **Description**: Remove vestigial ISemantics Protocol and use concrete SemanticDefaults type in Operator base class. The codebase has 3 unused/underspecified ISemantics/Semantics Protocol definitions (syntactic/types.py, models/types.py, theory_lib/types.py) that cause pyright errors across all operator files. Replace with SemanticDefaults in Operator.__init__ and narrow to LogosSemantics in Logos-specific operators. Delete unused Protocol definitions.
