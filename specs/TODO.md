@@ -1,5 +1,5 @@
 ---
-next_project_number: 44
+next_project_number: 45
 ---
 
 # Task List
@@ -8,9 +8,18 @@ next_project_number: 44
 
 <!-- New tasks are prepended below this line -->
 
+### 44. Remove vestigial ISemantics Protocol and use concrete SemanticDefaults type in Operator base class
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Remove vestigial ISemantics Protocol and use concrete SemanticDefaults type in Operator base class. The codebase has 3 unused/underspecified ISemantics/Semantics Protocol definitions (syntactic/types.py, models/types.py, theory_lib/types.py) that cause pyright errors across all operator files. Replace with SemanticDefaults in Operator.__init__ and narrow to LogosSemantics in Logos-specific operators. Delete unused Protocol definitions.
+
+---
+
 ### 43. Fix 3 pre-existing test failures
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Research**: [01_test-failures-research.md](043_fix_preexisting_test_failures/reports/01_test-failures-research.md)
 - **Plan**: [01_test-failures-fix.md](043_fix_preexisting_test_failures/plans/01_test-failures-fix.md)
 - **Language**: python

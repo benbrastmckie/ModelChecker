@@ -1,13 +1,21 @@
 {
-  "next_project_number": 44,
+  "next_project_number": 45,
   "active_projects": [
+    {
+      "project_number": 44,
+      "project_name": "remove_vestigial_isemantics_protocol",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-29T19:37:41Z",
+      "last_updated": "2026-03-29T19:37:41Z"
+    },
     {
       "project_number": 43,
       "project_name": "fix_preexisting_test_failures",
-      "status": "planned",
+      "status": "implementing",
       "language": "python",
       "created": "2026-03-29T19:25:36Z",
-      "last_updated": "2026-03-29T19:32:30Z",
+      "last_updated": "2026-03-29T19:56:23Z",
       "session_id": "sess_1774812627_spssjn",
       "researched": "2026-03-29T19:29:12Z",
       "next_artifact_number": 2,
