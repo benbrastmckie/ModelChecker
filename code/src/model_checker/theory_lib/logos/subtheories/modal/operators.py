@@ -8,7 +8,7 @@ This module implements modal logical operators:
 - Counterfactual Possibility (\\CFDiamond)
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import z3
 
@@ -59,10 +59,10 @@ class NecessityOperator(syntactic.Operator):
         u = z3.BitVec("t_nec_u", sem.N)
         return Exists(
             u,
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 sem.is_world(u),
                 sem.false_at(argument, sem.with_world(eval_point, u)),
-            ),
+            )),
         )
     
     def extended_verify(self, state, argument, eval_point):

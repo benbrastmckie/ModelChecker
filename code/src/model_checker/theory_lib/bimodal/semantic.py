@@ -1,5 +1,6 @@
 import sys
 import time
+from typing import cast
 import z3
 
 # Standard imports
@@ -1420,7 +1421,7 @@ class BimodalProposition(PropositionDefaults):
             )
             possibly_false = Exists(
                 [false_contingent_state],
-                z3.Not(semantics.truth_condition(false_contingent_state, sentence_letter))
+                cast(z3.BoolRef, z3.Not(semantics.truth_condition(false_contingent_state, sentence_letter)))
             )
             return [possibly_true, possibly_false]
 
@@ -1433,10 +1434,10 @@ class BimodalProposition(PropositionDefaults):
                 if other_letter is not sentence_letter:
                     other_is_disjoint = ForAll(
                         disjoint_state,
-                        z3.Or(
+                        cast(z3.BoolRef, z3.Or(
                             z3.Not(semantics.truth_condition(disjoint_state, sentence_letter)),
                             z3.Not(semantics.truth_condition(disjoint_state, other_letter))
-                        )
+                        ))
                     )
                     disjoint_constraints.append(other_is_disjoint)
             return disjoint_constraints

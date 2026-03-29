@@ -9,7 +9,7 @@ This module implements constitutive logical operators:
 - Reduction (⇒)
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import z3
 
@@ -86,31 +86,31 @@ class IdentityOperator(syntactic.Operator):
         return z3.Or(
             Exists(
                 x,
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     semantics.extended_verify(x, leftarg, eval_point),
                     z3.Not(semantics.extended_verify(x, rightarg, eval_point))
-                ),
+                )),
             ),
             Exists(
                 x,
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     semantics.extended_falsify(x, leftarg, eval_point),
                     z3.Not(semantics.extended_falsify(x, rightarg, eval_point))
-                ),
+                )),
             ),
             Exists(
                 x,
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     semantics.extended_verify(x, rightarg, eval_point),
                     z3.Not(semantics.extended_verify(x, leftarg, eval_point))
-                ),
+                )),
             ),
             Exists(
                 x,
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     semantics.extended_falsify(x, rightarg, eval_point),
                     z3.Not(semantics.extended_falsify(x, leftarg, eval_point))
-                ),
+                )),
             )
         )
 
@@ -182,10 +182,10 @@ class GroundOperator(syntactic.Operator):
                     semantics.extended_falsify(x, rightarg, eval_point),
                     Exists(
                         y,
-                        z3.And(
+                        cast(z3.BoolRef, z3.And(
                             semantics.extended_falsify(y, leftarg, eval_point),
                             semantics.is_part_of(y, x),
-                        )
+                        ))
                     )
                 ),
             ),
@@ -200,22 +200,22 @@ class GroundOperator(syntactic.Operator):
         return z3.Or(
             Exists(
                 [x],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     semantics.extended_verify(x, leftarg, eval_point),
                     z3.Not(semantics.extended_verify(x, rightarg, eval_point))
-                )
+                ))
             ),
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     semantics.extended_falsify(x, leftarg, eval_point),
                     semantics.extended_falsify(y, rightarg, eval_point),
                     z3.Not(semantics.extended_falsify(semantics.fusion(x, y), rightarg, eval_point))
-                ),
+                )),
             ),
             Exists(
                 [x],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     semantics.extended_falsify(x, rightarg, eval_point),
                     ForAll(
                         y,
@@ -291,10 +291,10 @@ class EssenceOperator(syntactic.Operator):
                     sem.extended_verify(x, rightarg, eval_point),
                     Exists(
                         y,
-                        z3.And(
+                        cast(z3.BoolRef, z3.And(
                             sem.extended_verify(y, leftarg, eval_point),
                             sem.is_part_of(y, x),
-                        )
+                        ))
                     )
                 ),
             ),
@@ -316,15 +316,15 @@ class EssenceOperator(syntactic.Operator):
         return z3.Or(
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_verify(x, leftarg, eval_point),
                     sem.extended_verify(y, rightarg, eval_point),
                     z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_point))
-                ),
+                )),
             ),
             Exists(
                 x,
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_verify(x, rightarg, eval_point),
                     ForAll(
                         y,
@@ -333,14 +333,14 @@ class EssenceOperator(syntactic.Operator):
                             z3.Not(sem.is_part_of(y, x)),
                         )
                     )
-                ),
+                )),
             ),
             Exists(
                 x,
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_falsify(x, leftarg, eval_point),
                     z3.Not(sem.extended_falsify(x, rightarg, eval_point))
-                )
+                ))
             )
         )
 
@@ -422,19 +422,19 @@ class RelevanceOperator(syntactic.Operator):
         return z3.Or(
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_verify(x, leftarg, eval_point),
                     sem.extended_verify(y, rightarg, eval_point),
                     z3.Not(sem.extended_verify(sem.fusion(x, y), rightarg, eval_point))
-                ),
+                )),
             ),
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_falsify(x, leftarg, eval_point),
                     sem.extended_falsify(y, rightarg, eval_point),
                     z3.Not(sem.extended_falsify(sem.fusion(x, y), rightarg, eval_point))
-                ),
+                )),
             ),
         )
 

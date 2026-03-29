@@ -6,7 +6,7 @@ This module implements counterfactual logical operators:
 - Might Counterfactual
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import z3
 
@@ -65,10 +65,10 @@ class CounterfactualOperator(syntactic.Operator):
         u = z3.BitVec("f_cf_u", N)
         return Exists(
             [x, u],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 semantics.extended_verify(x, leftarg, eval_point),
                 semantics.is_alternative(u, x, eval_point["world"]),
-                semantics.false_at(rightarg, semantics.with_world(eval_point, u))),
+                semantics.false_at(rightarg, semantics.with_world(eval_point, u)))),
         )
 
     def extended_verify(self, state, leftarg, rightarg, eval_point):

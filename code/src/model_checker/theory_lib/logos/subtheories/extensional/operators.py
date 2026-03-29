@@ -11,7 +11,7 @@ This module implements the basic extensional logical operators:
 - Biconditional (↔)
 """
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 import z3
 
@@ -98,11 +98,11 @@ class AndOperator(syntactic.Operator):
         y = z3.BitVec("and_verify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 sem.extended_verify(x, leftarg, eval_point),
                 sem.extended_verify(y, rightarg, eval_point),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
@@ -116,11 +116,11 @@ class AndOperator(syntactic.Operator):
             sem.extended_falsify(state, rightarg, eval_point),
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_falsify(x, leftarg, eval_point),
                     sem.extended_falsify(y, rightarg, eval_point),
                     state == sem.fusion(x, y)
-                )
+                ))
             )
         )
 
@@ -174,11 +174,11 @@ class OrOperator(syntactic.Operator):
             sem.extended_verify(state, rightarg, eval_point),
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_verify(x, leftarg, eval_point),
                     sem.extended_verify(y, rightarg, eval_point),
                     state == sem.fusion(x, y)
-                )
+                ))
             )
         )
 
@@ -190,11 +190,11 @@ class OrOperator(syntactic.Operator):
         y = z3.BitVec("or_falsify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 sem.extended_falsify(x, leftarg, eval_point),
                 sem.extended_falsify(y, rightarg, eval_point),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
@@ -329,11 +329,11 @@ class ConditionalOperator(syntactic.DefinedOperator):
             # Fusion of verifiers for ¬A and B
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_falsify(x, leftarg, eval_point),
                     sem.extended_verify(y, rightarg, eval_point),
                     state == sem.fusion(x, y)
-                )
+                ))
             )
         )
 
@@ -346,11 +346,11 @@ class ConditionalOperator(syntactic.DefinedOperator):
         y = z3.BitVec("cond_falsify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 sem.extended_verify(x, leftarg, eval_point),
                 sem.extended_falsify(y, rightarg, eval_point),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
@@ -419,7 +419,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         y = z3.BitVec("bicond_verify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 z3.Or(
                     z3.And(
                         sem.extended_verify(x, leftarg, eval_point),
@@ -431,7 +431,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
                     )
                 ),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
@@ -443,7 +443,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         y = z3.BitVec("bicond_falsify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 z3.Or(
                     z3.And(
                         sem.extended_verify(x, leftarg, eval_point),
@@ -455,7 +455,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
                     )
                 ),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
