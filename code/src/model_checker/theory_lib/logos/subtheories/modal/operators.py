@@ -3,10 +3,12 @@ Modal operators for necessity and possibility.
 
 This module implements modal logical operators:
 - Necessity (□)
-- Possibility (◇)  
+- Possibility (◇)
 - Counterfactual Necessity (\\CFBox)
 - Counterfactual Possibility (\\CFDiamond)
 """
+
+from typing import TYPE_CHECKING
 
 import z3
 
@@ -14,6 +16,9 @@ from model_checker import syntactic
 from model_checker.utils import ForAll, Exists
 from ..counterfactual.operators import CounterfactualOperator, MightCounterfactualOperator
 from ..extensional.operators import NegationOperator, TopOperator
+
+if TYPE_CHECKING:
+    from model_checker.theory_lib.logos.semantic import LogosSemantics
 
 
 
@@ -27,11 +32,12 @@ from ..extensional.operators import NegationOperator, TopOperator
 
 class NecessityOperator(syntactic.Operator):
     """Implementation of the necessity/universal modality (□).
-    
+
     This operator represents the modal necessity 'it is necessarily the case that',
     often written as □A. The semantics involves quantifying over all possible worlds
     in the model without restriction, checking that A is true in all of them."""
 
+    semantics: "LogosSemantics"
     name = "\\Box"
     arity = 1
 
@@ -102,6 +108,7 @@ class PossibilityOperator(syntactic.DefinedOperator):
     derived_definition. No explicit true_at/false_at methods are needed.
     """
 
+    semantics: "LogosSemantics"
     name = "\\Diamond"
     arity = 1
 
@@ -117,11 +124,12 @@ class PossibilityOperator(syntactic.DefinedOperator):
 
 class CFNecessityOperator(syntactic.DefinedOperator):
     """Implementation of counterfactual necessity (\\CFBox).
-    
+
     This operator represents counterfactual necessity, which is defined
     using the modal necessity operator in the context of counterfactual logic.
     """
-    
+
+    semantics: "LogosSemantics"
     name = "\\CFBox"
     arity = 1
     
@@ -169,11 +177,12 @@ class CFNecessityOperator(syntactic.DefinedOperator):
 
 class CFPossibilityOperator(syntactic.DefinedOperator):
     """Implementation of counterfactual possibility (\\CFDiamond).
-    
+
     This operator represents counterfactual possibility, which is defined
     using the modal possibility operator in the context of counterfactual logic.
     """
-    
+
+    semantics: "LogosSemantics"
     name = "\\CFDiamond"
     arity = 1
     

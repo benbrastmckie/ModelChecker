@@ -17,7 +17,6 @@ import z3
 
 # Type variables with clear bounds
 T = TypeVar('T')
-S = TypeVar('S', bound='Semantics')
 P = TypeVar('P', bound='Proposition')
 M = TypeVar('M', bound='ModelStructure')
 
@@ -38,20 +37,6 @@ TheoryConfig = Dict[str, Any]
 OperatorRegistry = Dict[OperatorName, 'Operator']
 
 # Protocol interfaces following ARCHITECTURE.md patterns
-@runtime_checkable
-class Semantics(Protocol):
-    """
-    Protocol for semantic implementations.
-
-    Follows protocol-based interface pattern from ARCHITECTURE.md.
-    """
-    def evaluate(self, formula: str, model: Any) -> bool:
-        """Evaluate formula in model."""
-        ...
-
-    def generate_constraints(self) -> List[Z3Expr]:
-        """Generate Z3 constraints."""
-        ...
 
 
 @runtime_checkable

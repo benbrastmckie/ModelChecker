@@ -40,22 +40,6 @@ WorldState = Union[int, z3.BitVecRef, Any]
 StateSpace = List[WorldState]
 RelationSet = Set[Tuple[WorldState, WorldState]]
 
-# Protocol for semantics interface
-class ISemantics(Protocol):
-    """Protocol defining the interface for semantic implementations."""
-    
-    def generate_constraints(self) -> ConstraintList:
-        """Generate Z3 constraints for the semantics."""
-        ...
-    
-    def true_at(self, world: WorldState, sentence: Any) -> z3.BoolRef:
-        """Check if sentence is true at world."""
-        ...
-    
-    def false_at(self, world: WorldState, sentence: Any) -> z3.BoolRef:
-        """Check if sentence is false at world."""
-        ...
-
 # Protocol for proposition interface
 class IProposition(Protocol):
     """Protocol defining the interface for proposition implementations."""

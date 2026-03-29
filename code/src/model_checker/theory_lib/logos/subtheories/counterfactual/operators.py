@@ -2,15 +2,20 @@
 Counterfactual operators for counterfactual reasoning.
 
 This module implements counterfactual logical operators:
-- Counterfactual Conditional 
+- Counterfactual Conditional
 - Might Counterfactual
 """
+
+from typing import TYPE_CHECKING
 
 import z3
 
 from model_checker import syntactic
 from model_checker.utils import ForAll, Exists
 from ..extensional.operators import NegationOperator
+
+if TYPE_CHECKING:
+    from model_checker.theory_lib.logos.semantic import LogosSemantics
 
 
 
@@ -24,13 +29,14 @@ from ..extensional.operators import NegationOperator
 
 class CounterfactualOperator(syntactic.Operator):
     """Implementation of the counterfactual conditional.
-    
-    This operator represents the counterfactual conditional 'if A were the case, 
-    then B would be the case'. The semantics involves evaluating the consequent 
+
+    This operator represents the counterfactual conditional 'if A were the case,
+    then B would be the case'. The semantics involves evaluating the consequent
     in the alternative possible worlds that contain a verifier for the antecedent
     together with a maximal part of the world of evaluation that is compatible
     with that verifier for the antecedent."""
 
+    semantics: "LogosSemantics"
     name = "\\boxright"
     arity = 2
 
@@ -175,12 +181,13 @@ class CounterfactualOperator(syntactic.Operator):
 
 class MightCounterfactualOperator(syntactic.DefinedOperator):
     """Implementation of the might counterfactual.
-    
-    This operator represents the might counterfactual 'if A were the case, 
-    then B might be the case'. It is defined as the negation of the 
+
+    This operator represents the might counterfactual 'if A were the case,
+    then B might be the case'. It is defined as the negation of the
     counterfactual conditional with negated consequent.
     """
 
+    semantics: "LogosSemantics"
     name = "\\diamondright"
     arity = 2
 

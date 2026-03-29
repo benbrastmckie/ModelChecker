@@ -4,18 +4,24 @@
     {
       "project_number": 44,
       "project_name": "remove_vestigial_isemantics_protocol",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-29T19:37:41Z",
-      "last_updated": "2026-03-29T21:49:43Z",
+      "last_updated": "2026-03-29T22:21:00Z",
       "session_id": "sess_1774814282_021983",
       "planned": "2026-03-29T21:49:43Z",
       "artifacts": [
         {
           "path": "specs/044_remove_vestigial_isemantics_protocol/plans/02_isemantics-refactor-revised.md",
           "type": "plan"
+        },
+        {
+          "path": "specs/044_remove_vestigial_isemantics_protocol/summaries/02_isemantics-refactor-summary.md",
+          "type": "summary"
         }
-      ]
+      ],
+      "completed": "2026-03-29",
+      "completion_summary": "Removed 3 vestigial ISemantics/Semantics Protocol definitions, updated Operator base class to use SemanticDefaults, and added LogosSemantics class annotations to 22 Logos operator classes. All 334 tests pass."
     },
     {
       "project_number": 43,

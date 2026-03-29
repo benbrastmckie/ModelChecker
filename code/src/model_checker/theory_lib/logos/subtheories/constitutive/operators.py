@@ -9,11 +9,16 @@ This module implements constitutive logical operators:
 - Reduction (⇒)
 """
 
+from typing import TYPE_CHECKING
+
 import z3
 
 from model_checker import syntactic
 from model_checker.utils import ForAll, Exists
 from ..extensional.operators import AndOperator
+
+if TYPE_CHECKING:
+    from model_checker.theory_lib.logos.semantic import LogosSemantics
 
 
 
@@ -27,12 +32,13 @@ from ..extensional.operators import AndOperator
 
 class IdentityOperator(syntactic.Operator):
     """Implementation of the identity operator (a).
-    
+
     This operator represents the identity relation between propositions, where
     A a B means that A and B have exactly the same content. Two propositions
     are identical when they have the same verifiers and the same falsifiers.
     """
 
+    semantics: "LogosSemantics"
     name = "\\equiv"
     arity = 2
 
@@ -137,11 +143,12 @@ class IdentityOperator(syntactic.Operator):
 
 class GroundOperator(syntactic.Operator):
     """Implementation of the ground/disjunctive-part operator (d).
-    
+
     This operator represents the grounding relation between propositions, where
     A d B means that A grounds B or A is a disjunctive-part of B.
     """
 
+    semantics: "LogosSemantics"
     name = "\\leq"
     arity = 2
 
@@ -252,11 +259,12 @@ class GroundOperator(syntactic.Operator):
 
 class EssenceOperator(syntactic.Operator):
     """Implementation of the essence operator (�).
-    
+
     This operator represents the essence relation between propositions, where
     A � B means that A is the essence of B.
     """
 
+    semantics: "LogosSemantics"
     name = "\\sqsubseteq"
     arity = 2
 
@@ -367,11 +375,12 @@ class EssenceOperator(syntactic.Operator):
 
 class RelevanceOperator(syntactic.Operator):
     """Implementation of the relevance operator (|).
-    
+
     This operator represents the relevance relation between propositions, where
     A | B means that A is relevant to B.
     """
 
+    semantics: "LogosSemantics"
     name = "\\preceq"
     arity = 2
 
@@ -459,12 +468,13 @@ class RelevanceOperator(syntactic.Operator):
 
 class ReductionOperator(syntactic.DefinedOperator):
     """Implementation of the reduction operator (\\Rightarrow).
-    
+
     This operator represents the reduction relation between propositions, where
     A \\Rightarrow B means that A reduces to B. This is defined as the conjunction
     of ground and essence: (A ≤ B) ∧ (A ⊑ B).
     """
 
+    semantics: "LogosSemantics"
     name = "\\Rightarrow"
     arity = 2
 

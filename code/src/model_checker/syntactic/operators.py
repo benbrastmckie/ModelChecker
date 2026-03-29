@@ -15,7 +15,8 @@ from model_checker.utils import (
     not_implemented_string,
     pretty_set_print,
 )
-from .types import ISemantics, OperatorName
+from .types import OperatorName
+from model_checker.models.semantic import SemanticDefaults
 from .errors import ArityError
 
 if TYPE_CHECKING:
@@ -48,7 +49,7 @@ class Operator:
     arity: Optional[int] = None
     primitive: bool = True
 
-    def __init__(self, semantics: ISemantics) -> None:
+    def __init__(self, semantics: SemanticDefaults) -> None:
         op_class = self.__class__.__name__
         if self.__class__ == Operator:
             raise NotImplementedError(not_implemented_string(op_class))
@@ -300,7 +301,7 @@ class DefinedOperator(Operator):
             f"Derived operator class {self.__class__.__name__} must implement the derived_definition method."
         )
 
-    def __init__(self, semantics: ISemantics) -> None:
+    def __init__(self, semantics: SemanticDefaults) -> None:
         super().__init__(semantics)
         self._validate_arity()
 
