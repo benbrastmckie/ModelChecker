@@ -1,5 +1,5 @@
 ---
-next_project_number: 46
+next_project_number: 47
 ---
 
 # Task List
@@ -8,9 +8,18 @@ next_project_number: 46
 
 <!-- New tasks are prepended below this line -->
 
-### 45. Rename `first-order` subtheory directory to `first_order` for valid Python packaging
+### 46. Fix z3.And() return type narrowing for custom Exists() calls in first-order operators
 - **Effort**: TBD
 - **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Fix z3.And() return type narrowing for custom Exists() calls in first-order operators. z3.And() returns Union[Unknown, Probe, BoolRef] per z3 stubs, but custom Exists(bvs, formula: BoolRef) requires BoolRef. Affects lines 384 and 572 in code/src/model_checker/theory_lib/logos/subtheories/first-order/operators.py. Code is correct at runtime but fails static type checking. Research needed: survey all z3.And/z3.Or usage patterns across the codebase to find the most mathematically correct and uniform approach — whether via type narrowing, signature widening, or a wrapper utility — rather than ad-hoc casts.
+
+---
+
+### 45. Rename `first-order` subtheory directory to `first_order` for valid Python packaging
+- **Effort**: TBD
+- **Status**: [PLANNING]
 - **Language**: python
 
 **Description**: Rename `code/src/model_checker/theory_lib/logos/subtheories/first-order/` to `first_order` (underscore). The hyphenated name is not a valid Python identifier, breaking Pyright LSP features (go-to-definition, autocompletion, type checking). Need to: (1) rename directory to `first_order`, (2) update all `importlib.import_module()` calls referencing `first-order`, (3) update subtheory registry strings in `__init__.py` files, (4) update `load_subtheories()`/`load_subtheory()` calls across examples and tests, (5) update any documentation or comments referencing the old path, (6) verify all tests still pass after rename.
