@@ -70,7 +70,10 @@ class TestSubtheoryOrchestration:
             operators = module.get_operators()
 
             for op_name, op_class in operators.items():
-                # Check required methods exist
+                # DefinedOperators use derived_definition instead of direct semantic methods
+                if hasattr(op_class, 'derived_definition'):
+                    continue
+                # Check required methods exist for primitive operators
                 assert hasattr(op_class, 'true_at'), f"Operator {op_name} in {name} missing true_at"
                 assert hasattr(op_class, 'false_at'), f"Operator {op_name} in {name} missing false_at"
                 assert hasattr(op_class, 'extended_verify'), f"Operator {op_name} in {name} missing extended_verify"
