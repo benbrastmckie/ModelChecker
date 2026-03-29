@@ -10,7 +10,8 @@ next_project_number: 44
 
 ### 43. Fix 3 pre-existing test failures
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [01_test-failures-research.md](043_fix_preexisting_test_failures/reports/01_test-failures-research.md)
 - **Language**: python
 
 **Description**: Fix 3 pre-existing test failures: (1) FO_CM_4 - open formula with free variable v_x needs quantifier wrapping or test update, (2) test_exists_uses_validation - ExistsOperator.true_at no longer contains validate_lambda_argument in source, (3) test_semantic_method_calls_dont_crash - 'parser error' not in valid_errors whitelist for compatible/maximal/is_world method calls.
