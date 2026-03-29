@@ -43,7 +43,7 @@ class NecessityOperator(syntactic.Operator):
             u,
             z3.Implies(
                 sem.is_world(u),
-                sem.true_at(argument, {"world": u}),
+                sem.true_at(argument, sem.with_world(eval_point, u)),
             ),
         )
     
@@ -55,7 +55,7 @@ class NecessityOperator(syntactic.Operator):
             u,
             z3.And(
                 sem.is_world(u),
-                sem.false_at(argument, {"world": u}),
+                sem.false_at(argument, sem.with_world(eval_point, u)),
             ),
         )
     
@@ -93,74 +93,21 @@ class NecessityOperator(syntactic.Operator):
 
 class PossibilityOperator(syntactic.DefinedOperator):
     """Implementation of the possibility/existential modality (◇).
-    
+
     This operator represents the modal possibility 'it is possibly the case that',
     often written as ◇A. It is defined as the negation of necessity of negation:
     ◇A ≡ ¬□¬A.
+
+    As a DefinedOperator, semantic evaluation is handled by expanding via
+    derived_definition. No explicit true_at/false_at methods are needed.
     """
-    
+
     name = "\\Diamond"
     arity = 1
-    
+
     def derived_definition(self, argument):
         """Defines possibility as negation of necessity of negation."""
         return [NegationOperator, [NecessityOperator, [NegationOperator, argument]]]
-
-    def true_at(self, argument, eval_point):
-        """Defines truth conditions for possibility at an evaluation point."""
-        # ◇A is true when there exists a world where A is true
-        sem = self.semantics
-        u = z3.BitVec("t_poss_u", sem.N)
-        return z3.Exists(
-            u,
-            z3.And(
-                sem.accessibility_relation(eval_point["world"], u),
-                sem.true_at(argument, {"world": u, "time": eval_point["time"]})
-            )
-        )
-
-    def false_at(self, argument, eval_point):
-        """Defines falsity conditions for possibility at an evaluation point."""
-        # ◇A is false when □¬A is true (in all accessible worlds, A is false)
-        sem = self.semantics
-        u = z3.BitVec("f_poss_u", sem.N)
-        return z3.ForAll(
-            u,
-            z3.Implies(
-                sem.accessibility_relation(eval_point["world"], u),
-                sem.false_at(argument, {"world": u, "time": eval_point["time"]})
-            )
-        )
-
-    def extended_verify(self, state, argument, eval_point):
-        """Defines verification conditions for possibility in the extended semantics."""
-        # ◇A is verified when ¬□¬A is verified
-        sem = self.semantics
-        return z3.And(
-            state == sem.null_state,
-            self.true_at(argument, eval_point)
-        )
-
-    def extended_falsify(self, state, argument, eval_point):
-        """Defines falsification conditions for possibility in the extended semantics."""
-        # ◇A is falsified when □¬A is verified
-        sem = self.semantics
-        return z3.And(
-            state == sem.null_state,
-            self.false_at(argument, eval_point)
-        )
-
-    def find_verifiers_and_falsifiers(self, argument, eval_point):
-        """Finds the verifiers and falsifiers for a possibility statement."""
-        evaluate = argument.proposition.model_structure.z3_model.evaluate
-        if bool(evaluate(self.true_at(argument, eval_point))):
-            return {self.semantics.null_state}, set()
-        if bool(evaluate(self.false_at(argument, eval_point))):
-            return set(), {self.semantics.null_state}
-        raise ValueError(
-            f"{self.name} {argument} "
-            f"is neither true nor false in the world {eval_point}."
-        )
 
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Prints modal operators with evaluation over all worlds."""

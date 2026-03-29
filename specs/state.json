@@ -4,11 +4,11 @@
     {
       "project_number": 42,
       "project_name": "uniform_eval_point_threading",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-29T17:23:16Z",
-      "last_updated": "2026-03-29T17:43:00Z",
-      "session_id": "sess_1774805996_wiyazd",
+      "last_updated": "2026-03-29T18:15:00Z",
+      "session_id": "sess_1774806317_36vvaw",
       "researched": "2026-03-29T17:37:41Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -21,9 +21,17 @@
           "path": "specs/042_uniform_eval_point_threading/plans/01_eval-point-threading.md",
           "type": "plan",
           "summary": "6-phase implementation plan for uniform eval_point threading"
+        },
+        {
+          "path": "specs/042_uniform_eval_point_threading/summaries/01_eval-point-threading-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
         }
       ],
-      "planned": "2026-03-29T17:43:00Z"
+      "planned": "2026-03-29T17:43:00Z",
+      "started": "2026-03-29T17:45:38Z",
+      "completed": "2026-03-29T18:15:00Z",
+      "completion_summary": "Added with_world helper to preserve variable bindings across modal world shifts. Fixed NecessityOperator and CounterfactualOperator, removed vestigial PossibilityOperator code, added 3 compositionality tests."
     },
     {
       "project_number": 41,

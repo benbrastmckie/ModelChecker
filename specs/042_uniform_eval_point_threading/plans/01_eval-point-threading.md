@@ -46,7 +46,7 @@ The team research confirmed:
 
 ## Implementation Phases
 
-### Phase 1: Add with_world helper [NOT STARTED]
+### Phase 1: Add with_world helper [COMPLETED]
 
 **Goal**: Add the `with_world` helper method to LogosSemantics, following the established `with_assignment` pattern.
 
@@ -86,7 +86,7 @@ def with_world(self, eval_point: 'EvaluationPoint', world: 'StateType') -> 'Eval
 
 ---
 
-### Phase 2: Fix NecessityOperator [NOT STARTED]
+### Phase 2: Fix NecessityOperator [COMPLETED]
 
 **Goal**: Update NecessityOperator.true_at and NecessityOperator.false_at to use `with_world` instead of bare dict construction.
 
@@ -105,7 +105,7 @@ def with_world(self, eval_point: 'EvaluationPoint', world: 'StateType') -> 'Eval
 
 ---
 
-### Phase 3: Fix CounterfactualOperator [NOT STARTED]
+### Phase 3: Fix CounterfactualOperator [COMPLETED]
 
 **Goal**: Update CounterfactualOperator.true_at and CounterfactualOperator.false_at to use `with_world` instead of bare dict construction.
 
@@ -124,7 +124,7 @@ def with_world(self, eval_point: 'EvaluationPoint', world: 'StateType') -> 'Eval
 
 ---
 
-### Phase 4: Clean up PossibilityOperator vestigial code [NOT STARTED]
+### Phase 4: Clean up PossibilityOperator vestigial code [COMPLETED]
 
 **Goal**: Review and fix or remove the vestigial bimodal code in PossibilityOperator that references `eval_point["time"]` which doesn't exist.
 
@@ -146,7 +146,7 @@ def with_world(self, eval_point: 'EvaluationPoint', world: 'StateType') -> 'Eval
 
 ---
 
-### Phase 5: Verify unchanged subtheories [NOT STARTED]
+### Phase 5: Verify unchanged subtheories [COMPLETED]
 
 **Goal**: Confirm that extensional, constitutive, and first-order operators remain correct and don't need changes.
 
@@ -169,7 +169,7 @@ def with_world(self, eval_point: 'EvaluationPoint', world: 'StateType') -> 'Eval
 
 ---
 
-### Phase 6: Test compositionality [NOT STARTED]
+### Phase 6: Test compositionality [COMPLETED]
 
 **Goal**: Add tests that verify modal + first-order formula composition works correctly.
 

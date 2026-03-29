@@ -672,6 +672,27 @@ class LogosSemantics(SemanticDefaults):
         """
         return {**eval_point, "assignment": assignment}
 
+    def with_world(
+        self,
+        eval_point: 'EvaluationPoint',
+        world: 'StateType'
+    ) -> 'EvaluationPoint':
+        """Create a new evaluation point with the given world.
+
+        Creates a copy of the evaluation point with the world field set
+        to the provided value, preserving all other keys (including assignment).
+        Used by intensional operators to thread variable bindings through
+        world-shifting evaluation.
+
+        Args:
+            eval_point: The base evaluation point to extend
+            world: The world to evaluate in
+
+        Returns:
+            A new evaluation point dictionary with the world
+        """
+        return {**eval_point, "world": world}
+
     def register_constant(self, name: str, value: z3.BitVecRef) -> None:
         """Register a constant with its interpretation.
 

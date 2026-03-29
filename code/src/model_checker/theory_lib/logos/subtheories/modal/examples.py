@@ -522,6 +522,73 @@ MOD_DEF_6_example = [
     MOD_DEF_6_settings,
 ]
 
+#########################################
+###### COMPOSITIONALITY TESTS (Task 42)##
+#########################################
+
+# MOD_COMP_1: BARCAN FORMULA DIRECTION 1
+# forall x. Box F[x] |- Box forall x. F[x]
+# Tests that first-order operators compose correctly with modal operators
+# Uses with_world helper to preserve variable bindings across world shifts
+MOD_COMP_1_premises = ['\\forall v_x. \\Box F[v_x]']
+MOD_COMP_1_conclusions = ['\\Box \\forall v_x. F[v_x]']
+MOD_COMP_1_settings = {
+    'N': 2,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,  # Theorem: expect no countermodel
+}
+MOD_COMP_1_example = [
+    MOD_COMP_1_premises,
+    MOD_COMP_1_conclusions,
+    MOD_COMP_1_settings,
+]
+
+# MOD_COMP_2: MODAL+FIRST-ORDER IDENTITY
+# Box forall x. (F[x] -> F[x]) - trivially true, tests eval_point threading
+MOD_COMP_2_premises = []
+MOD_COMP_2_conclusions = ['\\Box \\forall v_x. (F[v_x] \\rightarrow F[v_x])']
+MOD_COMP_2_settings = {
+    'N': 2,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,  # Theorem: expect no countermodel
+}
+MOD_COMP_2_example = [
+    MOD_COMP_2_premises,
+    MOD_COMP_2_conclusions,
+    MOD_COMP_2_settings,
+]
+
+# MOD_COMP_3: NESTED MODAL+FORALL
+# Box Box forall x. F[x] |- Box forall x. F[x]
+# Tests that variable bindings survive multiple modal shifts
+MOD_COMP_3_premises = ['\\Box \\Box \\forall v_x. F[v_x]']
+MOD_COMP_3_conclusions = ['\\Box \\forall v_x. F[v_x]']
+MOD_COMP_3_settings = {
+    'N': 2,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,  # Theorem: expect no countermodel
+}
+MOD_COMP_3_example = [
+    MOD_COMP_3_premises,
+    MOD_COMP_3_conclusions,
+    MOD_COMP_3_settings,
+]
+
 # Create collections for different modal example types
 modal_cm_examples = {
     "MOD_CM_1": MOD_CM_1_example,  # POSSIBILITY DOES NOT ENTAIL NECESSITY
@@ -556,8 +623,15 @@ modal_def_examples = {
     "MOD_DEF_6": MOD_DEF_6_example,  # POSSIBILITY AND NEGATED NECESSITY
 }
 
+# Compositionality tests (Task 42): Modal + First-Order interaction
+modal_comp_examples = {
+    "MOD_COMP_1": MOD_COMP_1_example,  # BARCAN FORMULA DIRECTION 1
+    "MOD_COMP_2": MOD_COMP_2_example,  # MODAL+FIRST-ORDER IDENTITY
+    "MOD_COMP_3": MOD_COMP_3_example,  # NESTED MODAL+FORALL
+}
+
 # Combine for unit_tests (used by test framework)
-unit_tests = {**modal_cm_examples, **modal_th_examples}
+unit_tests = {**modal_cm_examples, **modal_th_examples, **modal_comp_examples}
 
 # Default settings
 general_settings = {
@@ -568,9 +642,9 @@ general_settings = {
     "maximize": False,
 }
 
-# Create operator registry for modal theory (includes extensional and counterfactual dependencies)
+# Create operator registry for modal theory (includes extensional, counterfactual, and first-order dependencies)
 modal_registry = LogosOperatorRegistry()
-modal_registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
+modal_registry.load_subtheories(['extensional', 'modal', 'counterfactual', 'first-order'])
 
 # Define the semantic theory
 modal_theory = {
