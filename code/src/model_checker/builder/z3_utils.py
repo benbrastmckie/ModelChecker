@@ -4,7 +4,7 @@ This module provides utilities for working with Z3 models, including model
 creation, difference constraints, and model inspection.
 """
 
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional, Tuple, cast
 import z3
 
 def create_difference_constraint(old_model: z3.ModelRef, variables: List[z3.ExprRef]) -> z3.BoolRef:
@@ -43,7 +43,7 @@ def create_difference_constraint(old_model: z3.ModelRef, variables: List[z3.Expr
     if not constraints:
         raise ValueError("No valid variables provided for difference constraint")
         
-    return z3.Or(*constraints)
+    return cast(z3.BoolRef, z3.Or(*constraints))
 
 def extract_model_values(model: z3.ModelRef, variables: List[z3.ExprRef]) -> Dict[str, Any]:
     """Extract values from a Z3 model for the given variables.

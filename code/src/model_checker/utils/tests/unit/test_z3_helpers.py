@@ -1,5 +1,6 @@
 """Tests for Z3 helper utilities."""
 
+from typing import cast
 import pytest
 import z3
 
@@ -14,7 +15,7 @@ class TestForAll:
         x = z3.BitVec('x', 2)
         # ForAll x: x == 0 or x == 1 or x == 2 or x == 3
         # This should be True since we're checking all possible values
-        formula = z3.Or(x == 0, x == 1, x == 2, x == 3)
+        formula = cast(z3.BoolRef, z3.Or(x == 0, x == 1, x == 2, x == 3))
         result = ForAll(x, formula)
         
         solver = z3.Solver()
@@ -93,7 +94,7 @@ class TestMixedQuantifiers:
         x = z3.BitVec('x', 2)
         
         # ForAll x: x == 0 or x == 1 or x == 2 or x == 3
-        forall_result = ForAll(x, z3.Or(x == 0, x == 1, x == 2, x == 3))
+        forall_result = ForAll(x, cast(z3.BoolRef, z3.Or(x == 0, x == 1, x == 2, x == 3)))
         
         # Exists x: x == 1
         exists_result = Exists(x, x == 1)
