@@ -19,7 +19,8 @@ next_project_number: 47
 
 ### 45. Rename `first-order` subtheory directory to `first_order` for valid Python packaging
 - **Effort**: TBD
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
+- **Plan**: [01_rename-first-order.md](045_rename_first_order_directory/plans/01_rename-first-order.md)
 - **Language**: python
 
 **Description**: Rename `code/src/model_checker/theory_lib/logos/subtheories/first-order/` to `first_order` (underscore). The hyphenated name is not a valid Python identifier, breaking Pyright LSP features (go-to-definition, autocompletion, type checking). Need to: (1) rename directory to `first_order`, (2) update all `importlib.import_module()` calls referencing `first-order`, (3) update subtheory registry strings in `__init__.py` files, (4) update `load_subtheories()`/`load_subtheory()` calls across examples and tests, (5) update any documentation or comments referencing the old path, (6) verify all tests still pass after rename.

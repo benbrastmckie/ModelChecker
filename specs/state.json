@@ -12,11 +12,19 @@
     {
       "project_number": 45,
       "project_name": "rename_first_order_directory",
-      "status": "planning",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-29T22:05:55Z",
-      "last_updated": "2026-03-29T22:08:48Z",
-      "session_id": "sess_1774822111_fb5cfa"
+      "last_updated": "2026-03-29T22:11:10Z",
+      "session_id": "sess_1774822111_fb5cfa",
+      "planned": "2026-03-29T22:11:10Z",
+      "artifacts": [
+        {
+          "path": "specs/045_rename_first_order_directory/plans/01_rename-first-order.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for renaming first-order directory to first_order"
+        }
+      ]
     },
     {
       "project_number": 44,
