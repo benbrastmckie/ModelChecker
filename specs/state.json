@@ -1,6 +1,14 @@
 {
-  "next_project_number": 43,
+  "next_project_number": 44,
   "active_projects": [
+    {
+      "project_number": 43,
+      "project_name": "fix_preexisting_test_failures",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-29T19:25:36Z",
+      "last_updated": "2026-03-29T19:25:36Z"
+    },
     {
       "project_number": 42,
       "project_name": "uniform_eval_point_threading",
