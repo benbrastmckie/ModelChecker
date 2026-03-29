@@ -4,11 +4,11 @@
     {
       "project_number": 43,
       "project_name": "fix_preexisting_test_failures",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-29T19:25:36Z",
-      "last_updated": "2026-03-29T19:29:12Z",
-      "session_id": "sess_1774812393_scz8zt",
+      "last_updated": "2026-03-29T19:32:30Z",
+      "session_id": "sess_1774812627_spssjn",
       "researched": "2026-03-29T19:29:12Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -16,8 +16,14 @@
           "path": "specs/043_fix_preexisting_test_failures/reports/01_test-failures-research.md",
           "type": "research",
           "summary": "Research on 3 pre-existing test failures with root causes and fixes"
+        },
+        {
+          "path": "specs/043_fix_preexisting_test_failures/plans/01_test-failures-fix.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan for fixing pre-existing test failures"
         }
-      ]
+      ],
+      "planned": "2026-03-29T19:32:30Z"
     },
     {
       "project_number": 42,
