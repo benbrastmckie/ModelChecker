@@ -7,7 +7,7 @@
       "status": "planned",
       "language": "z3",
       "created": "2026-03-29T22:10:06Z",
-      "last_updated": "2026-03-29T22:43:25Z",
+      "last_updated": "2026-03-29T22:49:12Z",
       "session_id": "sess_1774823313_c61cd3",
       "researched": "2026-03-29T22:27:06Z",
       "artifacts": [
@@ -16,13 +16,13 @@
           "type": "research"
         },
         {
-          "path": "specs/046_fix_z3_and_return_type_narrowing/plans/02_z3-typed-interface.md",
+          "path": "specs/046_fix_z3_and_return_type_narrowing/plans/03_boolean-operators-only.md",
           "type": "plan",
-          "summary": "7-phase plan: comprehensive z3_* typed interface layer"
+          "summary": "3-phase plan: boolean operators only (narrowed scope)"
         }
       ],
       "next_artifact_number": 2,
-      "planned": "2026-03-29T22:43:25Z"
+      "planned": "2026-03-29T22:49:12Z"
     },
     {
       "project_number": 45,
