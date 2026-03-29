@@ -4,10 +4,20 @@
     {
       "project_number": 42,
       "project_name": "uniform_eval_point_threading",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-29T17:23:16Z",
-      "last_updated": "2026-03-29T17:23:16Z"
+      "last_updated": "2026-03-29T17:37:41Z",
+      "session_id": "sess_1774805513_25gkqo",
+      "researched": "2026-03-29T17:37:41Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/042_uniform_eval_point_threading/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Team research with 2 teammates - eval_point threading patterns"
+        }
+      ]
     },
     {
       "project_number": 41,
