@@ -403,7 +403,7 @@ Return validated result to caller without modification.
 
 ## Return Format
 
-See `.claude/context/core/formats/subagent-return.md` for full specification.
+See `.claude/context/formats/subagent-return.md` for full specification.
 
 Expected successful return:
 ```json
@@ -477,7 +477,7 @@ Before finalizing a new skill, verify:
 ```yaml
 ---
 context:
-  - .claude/context/core/patterns/complex-patterns.md
+  - .claude/context/patterns/complex-patterns.md
   - .claude/context/project/domain/domain-knowledge.md
 ---
 ```
@@ -488,7 +488,7 @@ context:
 context: fork
 agent: my-agent
 # Original context (now loaded by subagent):
-#   - .claude/context/core/patterns/complex-patterns.md
+#   - .claude/context/patterns/complex-patterns.md
 ---
 ```
 
@@ -527,8 +527,8 @@ allowed-tools: Task
 - [Component Selection](component-selection.md) - When to create a skill
 - [Creating Agents](creating-agents.md) - Creating the agent that skill delegates to
 - [Creating Commands](creating-commands.md) - Creating commands that invoke skills
-- `.claude/context/core/templates/thin-wrapper-skill.md` - Skill template
-- `.claude/context/core/formats/subagent-return.md` - Return format schema
+- `.claude/context/templates/thin-wrapper-skill.md` - Skill template
+- `.claude/context/formats/subagent-return.md` - Return format schema
 
 ---
 

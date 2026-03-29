@@ -270,10 +270,28 @@ merge_index_entries() {
   log_info "Merged index entries. Total entries: $entry_count"
 }
 
+# Function to validate index after merge
+validate_index() {
+  local main_index="$CLAUDE_DIR/context/index.json"
+  local validation_script="$SCRIPT_DIR/validate-index.sh"
+
+  if [ -x "$validation_script" ]; then
+    log_info "Validating merged index..."
+    if "$validation_script" "$main_index" > /dev/null 2>&1; then
+      log_info "Index validation passed"
+    else
+      log_warn "Index validation completed with warnings (check output above)"
+    fi
+  else
+    log_info "Validation script not found, skipping validation"
+  fi
+}
+
 # Main installation
 install_commands
 install_skills
 install_agents
 merge_index_entries
+validate_index
 
 log_info "Extension '$EXT_NAME' installed successfully"

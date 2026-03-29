@@ -43,10 +43,10 @@ This agent has access to:
 Load these on-demand using @-references:
 
 **Always Load**:
-- `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
 
 **Load When Creating Summary**:
-- `@.claude/context/core/formats/summary-format.md` - Summary structure (if exists)
+- `@.claude/context/formats/summary-format.md` - Summary structure (if exists)
 
 **Load for Meta Tasks**:
 - `@.claude/CLAUDE.md` - Project configuration and conventions
@@ -56,6 +56,25 @@ Load these on-demand using @-references:
 **Load for Code Tasks**:
 - Project-specific style guides and patterns
 - Existing similar implementations as reference
+
+## Dynamic Context Discovery
+
+Use index.json for automated context discovery with the combined OR pattern:
+
+```bash
+# Combined adaptive query (recommended)
+# Loads: always + agent-match + language-match + command-match
+jq -r --arg lang "{task_language}" '.entries[] |
+  select(
+    (.load_when.always == true) or
+    (.load_when.agents[]? == "general-implementation-agent") or
+    (.load_when.languages[]? == $lang) or
+    (.load_when.commands[]? == "/implement")
+  ) |
+  .path' .claude/context/index.json
+```
+
+See `.claude/context/patterns/context-discovery.md` for additional query patterns.
 
 ## Execution Flow
 
@@ -105,10 +124,15 @@ Extract from input:
     "delegation_depth": 1,
     "delegation_path": ["orchestrator", "implement", "general-implementation-agent"]
   },
+  "artifact_number": "01",
   "plan_path": "specs/412_general_research/plans/MM_{short-slug}.md",
   "metadata_file_path": "specs/412_general_research/.return-meta.json"
 }
 ```
+
+**Artifact Naming**:
+- Use `artifact_number` for the `{NN}` prefix in summary artifact path
+- Summary path: `specs/{NNN}_{SLUG}/summaries/{NN}_{slug}-summary.md`
 
 ### Stage 2: Load and Parse Implementation Plan
 
@@ -182,7 +206,11 @@ After all phases complete:
 
 ### Stage 6: Create Implementation Summary
 
-Write to `specs/{NNN}_{SLUG}/summaries/MM_{short-slug}-summary.md`:
+**Path Construction**:
+- Use `artifact_number` from delegation context for `{NN}` prefix
+- Summary path: `specs/{NNN}_{SLUG}/summaries/{NN}_{slug}-summary.md`
+
+Write to `specs/{NNN}_{SLUG}/summaries/{NN}_{short-slug}-summary.md`:
 
 ```markdown
 # Implementation Summary: Task #{N}

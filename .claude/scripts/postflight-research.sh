@@ -6,7 +6,7 @@
 # This script updates state.json after research completion using the
 # two-step jq pattern to avoid Issue #1132 (Claude Code Bash tool escaping bug).
 #
-# See: .claude/context/core/patterns/jq-escaping-workarounds.md
+# See: .claude/context/patterns/jq-escaping-workarounds.md
 
 set -e
 

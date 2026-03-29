@@ -82,7 +82,7 @@ The following inputs must NOT be provided to this agent:
 4. Validate context loaded successfully
 
 **Context Files**:
-- `.claude/context/core/standards/<standard>.md`
+- `.claude/context/standards/<standard>.md`
 - `.claude/context/agents/<agent-context>.md`
 
 **Validation**:
@@ -379,13 +379,11 @@ Use this checklist when creating a new agent:
 
 ## See Also
 
-- **Workflow Standard**: `.claude/context/core/standards/agent-workflow.md`
-- **Return Format**: `.claude/context/core/standards/subagent-return-format.md`
+- **Return Format**: `.claude/context/formats/subagent-return.md`
 - **Context Index**: `.claude/context/index.json`
 - **Command Template**: `.claude/docs/templates/command-template.md`
 
 ---
 
-**Template Version**: 1.0  
-**Last Updated**: 2025-12-29  
-**Maintained By**: ProofChecker Development Team
+**Template Version**: 1.0
+**Last Updated**: 2025-12-29

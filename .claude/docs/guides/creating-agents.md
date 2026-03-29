@@ -124,11 +124,11 @@ This agent has access to:
 Load these on-demand using @-references:
 
 **Always Load**:
-- `@.claude/context/core/formats/subagent-return.md` - Return format schema
+- `@.claude/context/formats/subagent-return.md` - Return format schema
 
 **Load When Creating Artifacts**:
-- `@.claude/context/core/formats/report-format.md` (for research)
-- `@.claude/context/core/standards/plan.md` (for planning)
+- `@.claude/context/formats/report-format.md` (for research)
+- `@.claude/context/standards/plan.md` (for planning)
 ```
 
 ### 8-Stage Workflow Section
@@ -249,11 +249,11 @@ List context files to load on-demand:
 ## Context References
 
 **Always Load**:
-- `@.claude/context/core/formats/subagent-return.md`
+- `@.claude/context/formats/subagent-return.md`
 
 **Load When Needed**:
-- `@.claude/context/core/formats/report-format.md` (for research)
-- `@.claude/context/core/standards/plan.md` (for planning)
+- `@.claude/context/formats/report-format.md` (for research)
+- `@.claude/context/standards/plan.md` (for planning)
 - `@.claude/context/project/neovim/tools/lazy-nvim-guide.md` (for Lean)
 ```
 
@@ -683,7 +683,7 @@ Research completed successfully. Found 5 patterns. See report at ...
 - [Component Selection](component-selection.md) - When to create an agent
 - [Creating Skills](creating-skills.md) - Creating the skill that invokes agent
 - [Creating Commands](creating-commands.md) - Creating commands that invoke skills
-- `.claude/context/core/formats/subagent-return.md` - Return format schema
+- `.claude/context/formats/subagent-return.md` - Return format schema
 - `.claude/docs/templates/agent-template.md` - Agent template
 
 ---

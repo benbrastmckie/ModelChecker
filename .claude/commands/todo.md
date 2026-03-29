@@ -628,7 +628,7 @@ Track misplaced operations for output reporting:
 
 ### 5.5. Update Roadmap for Archived Tasks
 
-**Context**: Load @.claude/context/core/patterns/roadmap-update.md for matching strategy.
+**Context**: Load @.claude/context/patterns/roadmap-update.md for matching strategy.
 
 For each archived task with roadmap matches (from Step 3.5):
 
@@ -1280,4 +1280,4 @@ If an Edit operation fails (section not found, text mismatch), the failure is lo
    jq 'del(.array[] | select(.status == "completed"))'
    ```
 
-**Reference**: See `.claude/context/core/patterns/jq-escaping-workarounds.md` for comprehensive patterns.
+**Reference**: See `.claude/context/patterns/jq-escaping-workarounds.md` for comprehensive patterns.

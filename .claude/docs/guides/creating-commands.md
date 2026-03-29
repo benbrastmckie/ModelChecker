@@ -15,7 +15,7 @@ Before creating a new command, understand:
 
 **Required Reading**:
 - `.claude/skills/skill-orchestrator/SKILL.md` - Orchestrator skill
-- `.claude/context/core/formats/subagent-return.md` - Subagent return format
+- `.claude/context/formats/subagent-return.md` - Subagent return format
 - [Creating Skills](creating-skills.md) - For skill delegation patterns
 - [Creating Agents](creating-agents.md) - For agent implementation
 

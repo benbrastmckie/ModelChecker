@@ -77,7 +77,7 @@ Load these on-demand using @-references.
 ### Always Load
 
 - `@.claude/context/project/physics/README.md` - Physics context index (load FIRST)
-- `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
 
 ### Load By Topic
 

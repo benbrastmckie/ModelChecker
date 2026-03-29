@@ -244,5 +244,5 @@ ajv validate -s .claude/context/index.schema.json -d .claude/context/index.json
 
 ## Related Documentation
 
-- [Context Discovery Patterns](.claude/context/core/patterns/context-discovery.md)
+- [Context Discovery Patterns](.claude/context/patterns/context-discovery.md)
 - [Agent Frontmatter Standard](.claude/docs/reference/standards/agent-frontmatter-standard.md)

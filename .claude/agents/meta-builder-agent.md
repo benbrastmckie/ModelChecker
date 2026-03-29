@@ -55,8 +55,8 @@ This agent has access to:
 Load these on-demand using @-references:
 
 **Always Load (All Modes)**:
-- `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
-- `@.claude/context/core/patterns/anti-stop-patterns.md` - Anti-stop patterns (apply when creating new agents/skills)
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
+- `@.claude/context/patterns/anti-stop-patterns.md` - Anti-stop patterns (apply when creating new agents/skills)
 
 **Stage 1 (Parse Delegation Context)**:
 - No additional context needed
@@ -72,7 +72,7 @@ Load these on-demand using @-references:
 **Stages 3-5 (Interview/Analysis - On-Demand)**:
 - When user selects commands: `@.claude/docs/guides/creating-commands.md`
 - When user selects skills/agents: `@.claude/docs/guides/creating-skills.md`, `@.claude/docs/guides/creating-agents.md`
-- When discussing templates: `@.claude/context/core/templates/thin-wrapper-skill.md`, `@.claude/context/core/templates/agent-template.md`
+- When discussing templates: `@.claude/context/templates/thin-wrapper-skill.md`, `@.claude/context/templates/agent-template.md`
 
 **Stages 5-6 (Task Creation/Status Updates)**:
 - Direct file access: `specs/TODO.md`, `specs/state.json`

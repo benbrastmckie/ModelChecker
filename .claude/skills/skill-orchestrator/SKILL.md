@@ -12,8 +12,8 @@ Central routing intelligence for the task management system.
 ## Context Loading
 
 Load context on-demand when needed:
-- `@.claude/context/core/orchestration/orchestration-core.md` - Routing, delegation, session tracking
-- `@.claude/context/core/orchestration/state-management.md` - Task lookup and status validation
+- `@.claude/context/orchestration/orchestration-core.md` - Routing, delegation, session tracking
+- `@.claude/context/orchestration/state-management.md` - Task lookup and status validation
 - `@.claude/context/index.json` - Full context discovery index
 
 ## Trigger Conditions
@@ -126,4 +126,4 @@ The orchestrator is a **routing-only** skill. It:
 - Routes to appropriate skill based on language
 - Passes through the routed skill's return
 
-Reference: @.claude/context/core/standards/postflight-tool-restrictions.md
+Reference: @.claude/context/standards/postflight-tool-restrictions.md

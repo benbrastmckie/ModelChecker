@@ -515,7 +515,7 @@ Orchestrator → subagent delegation:
 **Example**:
 ```bash
 # Find files with 0 references
-for file in .claude/context/core/**/*.md; do
+for file in .claude/context/**/*.md; do
   ref_count=$(grep -r "$(basename $file)" .claude/command .claude/agent | wc -l)
   if [ $ref_count -eq 0 ]; then
     echo "UNUSED: $file"
@@ -568,7 +568,7 @@ echo "" >> specs/tmp/context-sizes.txt
 
 for dir in orchestration formats standards workflows templates; do
   echo "## $dir/" >> specs/tmp/context-sizes.txt
-  find .claude/context/core/$dir -name "*.md" -exec wc -l {} + | \
+  find .claude/context/$dir -name "*.md" -exec wc -l {} + | \
     sort -n >> specs/tmp/context-sizes.txt
   echo "" >> specs/tmp/context-sizes.txt
 done
@@ -769,7 +769,7 @@ grep -r "core/system/" .claude/command .claude/agent
 **Diagnosis**:
 ```bash
 # Check context file sizes
-find .claude/context/core -name "*.md" -exec wc -l {} + | sort -n
+find .claude/context -name "*.md" -exec wc -l {} + | sort -n
 
 # Check context loading configuration
 grep -A 20 "context_loading:" .claude/command/*.md
@@ -793,7 +793,7 @@ grep -A 20 "context_loading:" .claude/command/*.md
 **Diagnosis**:
 ```bash
 # Check file permissions
-ls -la .claude/context/core/**/*.md
+ls -la .claude/context/**/*.md
 
 # Check file existence
 for file in $(grep -rh '"core/[^"]*\.md"' .claude/command | sed 's/.*"\(core\/[^"]*\.md\)".*/\1/'); do
@@ -804,7 +804,7 @@ done
 ```
 
 **Solutions**:
-1. Fix file permissions: `chmod 644 .claude/context/core/**/*.md`
+1. Fix file permissions: `chmod 644 .claude/context/**/*.md`
 2. Restore missing files from git history
 3. Update references to correct paths
 
@@ -823,7 +823,7 @@ done
 time grep -r "core/orchestration/delegation.md" .claude/command
 
 # Check file sizes
-find .claude/context/core -name "*.md" -exec wc -l {} + | sort -n | tail -10
+find .claude/context -name "*.md" -exec wc -l {} + | sort -n | tail -10
 ```
 
 **Solutions**:
@@ -851,7 +851,7 @@ grep -r "core/system/" .claude/command .claude/agent | grep -v "status-markers.m
 
 **List large files**:
 ```bash
-find .claude/context/core -name "*.md" -exec wc -l {} + | sort -n | tail -10
+find .claude/context -name "*.md" -exec wc -l {} + | sort -n | tail -10
 ```
 
 **Check context loading configurations**:
@@ -862,8 +862,8 @@ grep -A 20 "context_loading:" .claude/command/*.md .claude/agent/subagents/*.md
 **Generate context inventory**:
 ```bash
 for dir in orchestration formats standards workflows templates; do
-  count=$(find .claude/context/core/$dir -name "*.md" | wc -l)
-  lines=$(find .claude/context/core/$dir -name "*.md" -exec wc -l {} + | tail -1 | awk '{print $1}')
+  count=$(find .claude/context/$dir -name "*.md" | wc -l)
+  lines=$(find .claude/context/$dir -name "*.md" -exec wc -l {} + | tail -1 | awk '{print $1}')
   echo "$dir/: $count files, $lines lines"
 done
 ```

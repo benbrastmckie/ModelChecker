@@ -13,7 +13,7 @@ Thin wrapper that delegates physics formalization research to `physics-research-
 ## Context References
 
 Reference (do not load eagerly):
-- Path: `.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
+- Path: `.claude/context/formats/return-metadata-file.md` - Metadata file schema
 
 Note: This skill is a thin wrapper with internal postflight. Context is loaded by the delegated agent.
 

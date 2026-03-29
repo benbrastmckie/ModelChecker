@@ -11,7 +11,7 @@ Direct execution skill for atomic status synchronization across TODO.md and stat
 ## Context References
 
 Reference (do not load eagerly):
-- Path: `.claude/context/core/patterns/jq-escaping-workarounds.md` - jq escaping patterns (Issue #1132)
+- Path: `.claude/context/patterns/jq-escaping-workarounds.md` - jq escaping patterns (Issue #1132)
 
 ## Standalone Use Only
 

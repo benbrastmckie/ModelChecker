@@ -22,9 +22,9 @@ This eliminates the "continue" prompt issue between skill return and orchestrato
 ## Context References
 
 Reference (do not load eagerly):
-- Path: `.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
-- Path: `.claude/context/core/patterns/postflight-control.md` - Marker file protocol
-- Path: `.claude/context/core/patterns/file-metadata-exchange.md` - File I/O helpers
+- Path: `.claude/context/formats/return-metadata-file.md` - Metadata file schema
+- Path: `.claude/context/patterns/postflight-control.md` - Marker file protocol
+- Path: `.claude/context/patterns/file-metadata-exchange.md` - File I/O helpers
 
 Note: This skill is a thin wrapper with internal postflight. Context is loaded by the delegated agent.
 
@@ -120,7 +120,7 @@ Return validated result to caller without modification.
 
 ## Return Format
 
-See `.claude/context/core/formats/subagent-return.md` for full specification.
+See `.claude/context/formats/subagent-return.md` for full specification.
 
 ### Expected Return: Interactive Mode (tasks created)
 
@@ -240,4 +240,4 @@ The postflight phase is LIMITED TO:
 - Reading agent return
 - Git commit (if tasks were created)
 
-Reference: @.claude/context/core/standards/postflight-tool-restrictions.md
+Reference: @.claude/context/standards/postflight-tool-restrictions.md

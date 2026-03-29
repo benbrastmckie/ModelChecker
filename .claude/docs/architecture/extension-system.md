@@ -169,8 +169,11 @@ The merger handles shared file modifications:
 **Functions**:
 - `inject_section()` - Insert section into CLAUDE.md with markers
 - `remove_section()` - Remove section from CLAUDE.md
-- `append_index_entries()` - Add entries to index.json
-- `remove_index_entries_tracked()` - Remove entries from index.json
+- `append_index_entries()` - Add entries to index.json (with deduplication and tracking)
+- `remove_index_entries_tracked()` - Remove tracked entries from index.json on unload
+- `remove_orphaned_index_entries()` - Pre-load cleanup: remove stale project/ entries
+  not matching loaded extensions, with optional file-existence verification
+- `remove_index_entries_by_prefix()` - Remove entries by path prefix (utility)
 - `merge_settings()` - Deep merge into settings.json
 - `unmerge_settings()` - Remove merged settings
 
@@ -229,12 +232,24 @@ Configuration presets for different agent systems:
    d. copy_skill_dirs()
    e. copy_context_dirs()
    f. copy_scripts()
-4. Merge shared files:
+   g. copy_data_dirs() (merge-copy semantics)
+4. Pre-load index cleanup:
+   a. Collect provides.context prefixes from already-loaded extensions
+   b. remove_orphaned_index_entries() - remove stale project/ entries
+      not matching any loaded extension's prefix (or whose files don't
+      exist on disk). The current extension is excluded from valid
+      prefixes so its stale entries are removed before fresh ones are
+      added, ensuring proper tracking.
+5. Load core index entries:
+   a. Read core-index-entries.json (always included, not extension-specific)
+   b. append_index_entries() with deduplication
+6. Merge shared files:
    a. inject_section() into CLAUDE.md
-   b. append_index_entries() to index.json
+   b. append_index_entries() to index.json (extension entries, tracked)
    c. merge_settings() if mcp_servers defined
-5. Update state (mark_loaded)
-6. Write extensions.json
+7. Update state (mark_loaded)
+8. Write extensions.json
+9. Post-load verification
 ```
 
 ### Unloading an Extension
@@ -250,6 +265,21 @@ Configuration presets for different agent systems:
 4. Update state (mark_unloaded)
 5. Write extensions.json
 ```
+
+### Index Lifecycle
+
+The extension loader maintains `index.json` with entries from three sources:
+
+1. **Core entries** (`core-index-entries.json`): ~95 entries for agent system context files
+   (orchestration, patterns, standards, etc.). Always loaded, not extension-specific.
+2. **Extension entries** (each extension's `index-entries.json`): Domain-specific context.
+   Tracked for clean removal on unload.
+3. **Stale entries**: Remnants from previous sessions or external modifications. Removed by
+   the pre-load cleanup before fresh entries are appended.
+
+The pre-load cleanup ensures that `append_index_entries()` always adds fresh entries
+(rather than deduplicating against stale ones), so all entries are properly tracked
+for future unload.
 
 ---
 

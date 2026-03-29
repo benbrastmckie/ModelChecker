@@ -3,8 +3,8 @@ name: skill-implementer
 description: Execute general implementation tasks following a plan. Invoke for general implementation work.
 allowed-tools: Task, Bash, Edit, Read, Write
 # Original context (now loaded by subagent):
-#   - .claude/context/core/formats/summary-format.md
-#   - .claude/context/core/standards/code-patterns.md
+#   - .claude/context/formats/summary-format.md
+#   - .claude/context/standards/code-patterns.md
 # Original tools (now used by subagent):
 #   - Read, Write, Edit, Glob, Grep, Bash
 ---
@@ -20,10 +20,10 @@ This eliminates the "continue" prompt issue between skill return and orchestrato
 ## Context References
 
 Reference (do not load eagerly):
-- Path: `.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
-- Path: `.claude/context/core/patterns/postflight-control.md` - Marker file protocol
-- Path: `.claude/context/core/patterns/file-metadata-exchange.md` - File I/O helpers
-- Path: `.claude/context/core/patterns/jq-escaping-workarounds.md` - jq escaping patterns (Issue #1132)
+- Path: `.claude/context/formats/return-metadata-file.md` - Metadata file schema
+- Path: `.claude/context/patterns/postflight-control.md` - Marker file protocol
+- Path: `.claude/context/patterns/file-metadata-exchange.md` - File I/O helpers
+- Path: `.claude/context/patterns/jq-escaping-workarounds.md` - jq escaping patterns (Issue #1132)
 
 Note: This skill is a thin wrapper with internal postflight. Context is loaded by the delegated agent.
 
@@ -119,6 +119,38 @@ EOF
 
 ---
 
+### Stage 3a: Calculate Artifact Number
+
+Read `next_artifact_number` from state.json and use (current-1) since summary stays in the same round as research/plan:
+
+```bash
+# Read next_artifact_number from state.json
+next_num=$(jq -r --argjson num "$task_number" \
+  '.active_projects[] | select(.project_number == $num) | .next_artifact_number // 1' \
+  specs/state.json)
+
+# Implement uses (current - 1) to stay in the same round as research/plan
+# If next_artifact_number is 1 (no research yet), use 1
+if [ "$next_num" -le 1 ]; then
+  artifact_number=1
+else
+  artifact_number=$((next_num - 1))
+fi
+
+# Fallback for legacy tasks: count existing summary artifacts
+if [ "$next_num" = "null" ] || [ -z "$next_num" ]; then
+  padded_num=$(printf "%03d" "$task_number")
+  count=$(ls "specs/${padded_num}_${project_name}/summaries/"*[0-9][0-9]*.md 2>/dev/null | wc -l)
+  artifact_number=$((count + 1))
+fi
+
+artifact_padded=$(printf "%02d" "$artifact_number")
+```
+
+**Note**: Implement does NOT increment `next_artifact_number`. Only research advances the sequence.
+
+---
+
 ### Stage 4: Prepare Delegation Context
 
 Prepare delegation context for the subagent:
@@ -135,10 +167,13 @@ Prepare delegation context for the subagent:
     "description": "{description}",
     "language": "{language}"
   },
+  "artifact_number": "{artifact_number from Stage 3a}",
   "plan_path": "specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md",
   "metadata_file_path": "specs/{NNN}_{SLUG}/.return-meta.json"
 }
 ```
+
+**Note**: The `artifact_number` field tells the agent which sequence number to use for artifact naming (e.g., `01`, `02`). Summary uses the same round number as the research and plan that preceded it.
 
 ---
 
@@ -424,7 +459,7 @@ The postflight phase is LIMITED TO:
 - Git commit
 - Cleanup of temp/marker files
 
-Reference: @.claude/context/core/standards/postflight-tool-restrictions.md
+Reference: @.claude/context/standards/postflight-tool-restrictions.md
 
 ---
 

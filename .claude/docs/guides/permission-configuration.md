@@ -751,10 +751,9 @@ git status
 
 ## Related Documentation
 
-- [Frontmatter Standard](.claude/context/core/standards/frontmatter-standard.md) - Agent frontmatter format
-- [Git Safety](.claude/docs/guides/git-safety.md) - Git-based safety mechanism
-- [Delegation](.claude/context/core/standards/delegation.md) - Agent delegation patterns
-- [State Management](.claude/context/core/system/state-management.md) - State file management
+- [Frontmatter Standard](.claude/context/formats/frontmatter.md) - Agent frontmatter format
+- [Delegation](.claude/context/orchestration/delegation.md) - Agent delegation patterns
+- [State Management](.claude/context/orchestration/state-management.md) - State file management
 
 ---
 

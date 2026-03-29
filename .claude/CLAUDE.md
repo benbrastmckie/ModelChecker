@@ -25,9 +25,9 @@ Task management and agent orchestration for project development. For comprehensi
     └── context/        # Domain knowledge
 ```
 
-**Project-specific structure**: See `.claude/context/project/repo/project-overview.md` for details about this repository's layout.
+**Project-specific structure**: See `.claude/context/repo/project-overview.md` for details about this repository's layout.
 
-**New repository setup**: If project-overview.md doesn't exist, see `.claude/context/project/repo/update-project.md` for guidance on generating project-appropriate documentation.
+**New repository setup**: If project-overview.md doesn't exist, see `.claude/context/repo/update-project.md` for guidance on generating project-appropriate documentation.
 
 ## Task Management
 
@@ -214,28 +214,72 @@ Core rules (auto-applied by file path):
 
 ## Context Discovery
 
-Agents use `index.json` for automated context discovery instead of hardcoded file lists:
+Context is discovered from three independent layers, loaded in parallel:
+
+| Layer | Source | Notes |
+|-------|--------|-------|
+| Agent context | `.claude/context/index.json` | Core + extensions (merged by loader) |
+| Project context | `.context/index.json` | User conventions (may be empty) |
+| Project memory | `.memory/` files | Loaded directly, no index needed |
 
 ```bash
-# Find context files for an agent
-jq -r '.entries[] | select(.load_when.agents[]? == "planner-agent") | .path' .claude/context/index.json
-
-# Find context by task language
-jq -r '.entries[] | select(.load_when.languages[]? == "lean4") | .path' .claude/context/index.json
+# Combined adaptive query (recommended) - loads matching context from all dimensions
+jq -r --arg agent "planner-agent" --arg lang "meta" --arg cmd "/plan" '
+  .entries[] | select(
+    (.load_when.always == true) or
+    (.load_when.agents[]? == $agent) or
+    (.load_when.languages[]? == $lang) or
+    (.load_when.commands[]? == $cmd)
+  ) | .path' .claude/context/index.json
 
 # Get line counts for budget calculation
 jq -r '.entries[] | select(.load_when.agents[]? == "planner-agent") | "\(.line_count)\t\(.path)"' .claude/context/index.json
 ```
 
-See `.claude/context/core/patterns/context-discovery.md` for query patterns.
+**Empty Array Semantics**: Empty `load_when` arrays mean "never match". Use `"always": true` for universal files.
 
-**Extension Context**: When extensions are loaded, their index entries are merged into `index.json`, enabling dynamic context discovery for extension-specific agents and languages.
+See `.claude/context/patterns/context-discovery.md` for full query patterns including multi-layer discovery.
+
+**Extension Context**: Extension index entries are merged into `.claude/context/index.json` by the loader -- no separate extension query needed.
+
+## Context Architecture
+
+Four layers provide context to agents. Each has a distinct owner and purpose.
+
+| Layer | Location | Owner | Contains |
+|-------|----------|-------|----------|
+| Agent context | `.claude/context/` | Extension loader | Core agent patterns + extension domain knowledge |
+| Extensions | `.claude/extensions/*/context/` | Extension loader | Language-specific standards, tools, patterns |
+| Project context | `.context/` | User (via index.json) | Project conventions not covered by extensions |
+| Project memory | `.memory/` | Agents over time | Learned facts, discoveries, decisions |
+| Auto-memory | `~/.claude/projects/` | Claude Code | User preferences, behavioral corrections |
+
+### Where to store new content
+
+```
+Language-specific standard, pattern, or tool reference?
+  YES --> extension context (.claude/extensions/*/context/)
+
+Agent system pattern (orchestration, format, workflow)?
+  YES --> .claude/context/
+
+Project convention (coding style, naming, domain knowledge)?
+  YES --> .context/
+
+Learned fact from development (discovery, decision, pattern)?
+  YES --> .memory/
+
+User preference or behavioral correction?
+  YES --> auto-memory (automatic, no action needed)
+```
+
+Full details: `.claude/context/architecture/context-layers.md`
 
 ## Context Imports
 
 Core context (always available):
-- @.claude/context/project/repo/project-overview.md
-- @.claude/context/project/meta/meta-guide.md
+- @.claude/context/repo/project-overview.md
+- @.claude/context/meta/meta-guide.md
 
 **Extension Context**: Available when extensions are loaded via `<leader>ac`. Query `index.json` for extension-specific context files.
 
@@ -284,7 +328,7 @@ select(.type == "plan" | not)
 select(.type != "plan")
 ```
 
-Full documentation: @.claude/context/core/patterns/jq-escaping-workarounds.md
+Full documentation: @.claude/context/patterns/jq-escaping-workarounds.md
 
 ## Important Notes
 
@@ -393,7 +437,13 @@ This project includes LaTeX document development support via the latex extension
 <!-- SECTION: extension_memory -->
 ## Memory Extension
 
-This project includes the memory vault extension for knowledge capture and retrieval.
+Knowledge capture and retrieval via the memory vault. Supports text, file, directory, and task-based memory creation with MCP-backed search and deduplication.
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-memory | (direct execution) | Memory creation and management |
 
 ### Commands
 
@@ -404,86 +454,56 @@ This project includes the memory vault extension for knowledge capture and retri
 | `/learn` | `/learn /path/to/dir/` | Scan directory for learnable content |
 | `/learn` | `/learn --task N` | Review task artifacts and create memories |
 
-All input modes flow through content mapping, MCP-based memory search (or grep fallback), and three memory operations (UPDATE, EXTEND, CREATE).
-
 ### Memory-Augmented Research
 
-The `--remember` flag on `/research` enables memory-augmented research:
+The `--remember` flag on `/research` searches the memory vault for relevant prior knowledge and includes matches in the research context. Requires this extension to be loaded; ignored gracefully if not.
 
 ```bash
 /research N --remember
 ```
 
-When the memory extension is loaded, this flag:
-1. Searches the memory vault for relevant prior knowledge
-2. Includes top matching memories in research context
-3. Adds "Prior Knowledge from Memory Vault" section to the report
+### Context
 
-**Note**: The `--remember` flag requires this extension to be loaded. If the extension is not loaded, the flag is ignored gracefully.
+- @context/project/memory/domain/memory-reference.md - MCP integration, vault structure, classification, operations
+- @context/project/memory/learn-usage.md - Usage guide for /learn command
+- @context/project/memory/memory-setup.md - MCP server setup for Obsidian vault
+
+<!-- END_SECTION: extension_memory -->
+
+<!-- SECTION: extension_lean -->
+## Lean 4 Extension
+
+This project includes Lean 4 theorem prover support via the lean extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `lean4` | WebSearch, WebFetch, Read, Lean MCP | Read, Write, Edit, Bash (lake), Lean MCP |
 
 ### Skill-Agent Mapping
 
 | Skill | Agent | Purpose |
 |-------|-------|---------|
-| skill-memory | (direct execution) | Memory creation and management |
+| skill-lean-research | lean-research-agent | Lean/Mathlib research |
+| skill-lean-implementation | lean-implementation-agent | Lean proof implementation |
+| skill-lake-repair | lean-implementation-agent | Lake build repair |
+| skill-lean-version | (direct execution) | Lean version management |
 
 ### MCP Integration
 
-The `obsidian-memory` MCP server provides memory search via the two-tool pattern:
+The `lean-lsp` MCP server provides:
+- Goal state inspection (`lean_goal`)
+- Proof search (`lean_state_search`, `lean_hammer_premise`)
+- Mathlib lookup (`lean_loogle`, `lean_leansearch`, `lean_leanfinder`)
+- Code actions and diagnostics
 
-| Tool | Usage | Description |
-|------|-------|-------------|
-| `execute("search", {...})` | `execute("search", {query: "...", vault: ".memory", limit: 5})` | Search memories by keywords |
-| `execute("read", {...})` | `execute("read", {path: "..."})` | Retrieve full memory content |
-| `execute("write", {...})` | `execute("write", {path: "...", content: "..."})` | Create new memory |
-| `execute("list", {...})` | `execute("list", {vault: ".memory"})` | Enumerate all memories |
+### Commands
 
-**Setup**: See memory-setup.md context file for MCP server configuration.
+- `/lake` - Build management and error handling
+- `/lean` - Lean-specific proof assistance
 
-**Graceful Degradation**: If MCP is unavailable, grep-based search on .memory/10-Memories/*.md still works.
-
-### Memory Vault Structure
-
-```
-.memory/
-+-- .obsidian/           # Obsidian configuration
-+-- 00-Inbox/            # Quick capture for new memories
-+-- 10-Memories/         # Stored memory entries
-+-- 20-Indices/          # Navigation and organization
-+-- 30-Templates/        # Memory entry templates
-```
-
-### Memory Classification
-
-When using `/learn --task N`, memories are classified into categories:
-
-- **[TECHNIQUE]** - Reusable method or approach
-- **[PATTERN]** - Design or implementation pattern
-- **[CONFIG]** - Configuration or setup knowledge
-- **[WORKFLOW]** - Process or procedure
-- **[INSIGHT]** - Key learning or understanding
-
-### Memory Operations
-
-The `/learn` command uses three memory operations based on overlap scoring:
-
-| Operation | Overlap | Description |
-|-----------|---------|-------------|
-| **UPDATE** | >60% | Replace existing memory content (old content preserved in History section) |
-| **EXTEND** | 30-60% | Append dated section to existing memory |
-| **CREATE** | <30% | Create new memory file |
-
-### Topic Organization
-
-Memories now include a `topic` field in frontmatter with slash-separated hierarchical paths:
-
-```yaml
-topic: "neovim/plugins/telescope"
-```
-
-The index.md includes both "By Category" and "By Topic" sections for navigation.
-
-<!-- END_SECTION: extension_memory -->
+<!-- END_SECTION: extension_lean -->
 
 <!-- SECTION: extension_python -->
 ## Python Extension
@@ -519,6 +539,40 @@ This project includes Python development support via the python extension.
 
 <!-- END_SECTION: extension_python -->
 
+<!-- SECTION: extension_typst -->
+## Typst Extension
+
+This project includes Typst document development support via the typst extension.
+
+### Language Routing
+
+| Language | Research Tools | Implementation Tools |
+|----------|----------------|---------------------|
+| `typst` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (typst compile) |
+
+### Skill-Agent Mapping
+
+| Skill | Agent | Purpose |
+|-------|-------|---------|
+| skill-typst-research | typst-research-agent | Typst documentation research |
+| skill-typst-implementation | typst-implementation-agent | Typst document implementation |
+
+### Typst vs LaTeX
+
+- Typst uses single-pass compilation (faster)
+- Modern scripting syntax with `#` prefix
+- Built-in bibliography management
+- Simpler package import with `#import`
+
+### Common Operations
+
+- Compile: `typst compile main.typ`
+- Watch: `typst watch main.typ`
+- Format: Use consistent indentation for readability
+- Diagrams: Use `fletcher` package for commutative diagrams
+
+<!-- END_SECTION: extension_typst -->
+
 <!-- SECTION: extension_z3 -->
 ## Z3 Extension
 
@@ -551,125 +605,3 @@ This project includes Z3 SMT solver development support via the z3 extension.
 - Optimization: Use `z3.Optimize()` for objective functions
 
 <!-- END_SECTION: extension_z3 -->
-
-<!-- SECTION: extension_filetypes -->
-## Filetypes Extension
-
-This project includes comprehensive file format conversion and manipulation via the filetypes extension.
-
-### Skill-Agent Mapping
-
-| Skill | Agent | Purpose |
-|-------|-------|---------|
-| skill-filetypes | filetypes-router-agent | Format detection and routing to specialized agents |
-| skill-filetypes | document-agent | Document format conversion (PDF/DOCX/Markdown) |
-| skill-spreadsheet | spreadsheet-agent | Spreadsheet to LaTeX/Typst table conversion |
-| skill-presentation | presentation-agent | Presentation extraction and slide generation |
-
-### Supported Conversions
-
-#### Document Conversions (via /convert)
-
-| Source | Target | Primary Tool | Fallback |
-|--------|--------|--------------|----------|
-| PDF | Markdown | markitdown | pandoc |
-| DOCX | Markdown | markitdown | pandoc |
-| HTML | Markdown | markitdown | pandoc |
-| Images | Markdown | markitdown | - |
-| Markdown | PDF | pandoc | typst |
-
-#### Spreadsheet Conversions (via /table)
-
-| Source | Target | Primary Tool | Fallback |
-|--------|--------|--------------|----------|
-| XLSX | LaTeX table | pandas + openpyxl | xlsx2csv |
-| XLSX | Typst table | pandas -> CSV -> Typst csv() | xlsx2csv |
-| CSV | LaTeX table | pandas | manual |
-| CSV | Typst table | Typst csv() | manual |
-| ODS | LaTeX/Typst table | pandas | - |
-
-#### Presentation Conversions (via /slides)
-
-| Source | Target | Primary Tool | Fallback |
-|--------|--------|--------------|----------|
-| PPTX | Beamer | python-pptx + pandoc | markitdown |
-| PPTX | Polylux (Typst) | python-pptx | markitdown |
-| PPTX | Touying (Typst) | python-pptx | markitdown |
-| Markdown | PPTX | pandoc | - |
-
-### Command Usage
-
-```bash
-# Document conversion (format inferred)
-/convert document.pdf                    # -> document.md
-/convert report.docx notes.md            # -> notes.md
-/convert README.md README.pdf            # -> README.pdf
-
-# Spreadsheet to table
-/table data.xlsx                         # -> data.tex (LaTeX)
-/table data.xlsx output.typ --format typst
-/table budget.csv budget.tex --format latex
-
-# Presentation conversion
-/slides presentation.pptx                # -> presentation.tex (Beamer)
-/slides deck.pptx slides.typ --format polylux
-/slides talk.pptx talk.typ --format touying
-```
-
-### Prerequisites
-
-Install conversion tools based on your needs:
-
-**Document Conversion**:
-- `markitdown`: `pip install markitdown`
-- `pandoc`: Install from package manager
-- `typst`: Install for Typst output
-
-**Spreadsheet Conversion**:
-- `pandas`: `pip install pandas`
-- `openpyxl`: `pip install openpyxl` (for XLSX support)
-- `xlsx2csv`: `pip install xlsx2csv` (fallback)
-
-**Presentation Conversion**:
-- `python-pptx`: `pip install python-pptx`
-- `pandoc`: For Beamer output
-
-See `context/project/filetypes/tools/dependency-guide.md` for platform-specific installation instructions.
-
-### NixOS Quick Install
-
-```nix
-# home.nix
-home.packages = with pkgs; [
-  pandoc typst
-  (python3.withPackages (ps: with ps; [
-    markitdown openpyxl pandas python-pptx xlsx2csv
-  ]))
-];
-```
-
-### Dependency Summary
-
-| Tool | Purpose | Required For |
-|------|---------|--------------|
-| markitdown | Office to Markdown | /convert |
-| pandoc | Universal converter | /convert, /slides |
-| typst | Typst compiler | /convert (typst output) |
-| pandas | DataFrame handling | /table |
-| openpyxl | XLSX support | /table (xlsx) |
-| python-pptx | PPTX extraction | /slides |
-| xlsx2csv | XLSX fallback | /table (fallback) |
-| pdflatex | LaTeX compilation | Beamer PDF output |
-
-### Context Documentation
-
-| File | Description |
-|------|-------------|
-| `tools/tool-detection.md` | Shared tool availability patterns |
-| `tools/dependency-guide.md` | Platform-specific installation |
-| `tools/mcp-integration.md` | MCP server configuration |
-| `patterns/spreadsheet-tables.md` | Table conversion patterns |
-| `patterns/presentation-slides.md` | Slide generation patterns |
-
-<!-- END_SECTION: extension_filetypes -->
-

@@ -140,7 +140,7 @@ Return structured error:
 - **`!=` escaping**: The `!=` operator gets escaped as `\!=`
 
 **Solution**: Use `select(.type == "X" | not)` instead of `select(.type != "X")`.
-See `.claude/context/core/patterns/jq-escaping-workarounds.md` for full documentation.
+See `.claude/context/patterns/jq-escaping-workarounds.md` for full documentation.
 
 ### MCP Abort Error Recovery
 ```

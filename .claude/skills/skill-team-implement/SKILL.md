@@ -4,8 +4,8 @@ description: Orchestrate multi-agent implementation with parallel phase executio
 allowed-tools: Task, Bash, Edit, Read, Write, Glob
 # This skill uses TeammateTool for team coordination (available when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)
 # Context loaded by lead during coordination:
-#   - .claude/context/core/patterns/team-orchestration.md
-#   - .claude/context/core/formats/team-metadata-extension.md
+#   - .claude/context/patterns/team-orchestration.md
+#   - .claude/context/formats/team-metadata-extension.md
 #   - .claude/utils/team-wave-helpers.md
 ---
 
@@ -18,9 +18,9 @@ Multi-agent implementation with wave-based phase parallelization. Analyzes phase
 ## Context References
 
 Reference (load as needed during coordination):
-- Path: `.claude/context/core/patterns/team-orchestration.md` - Wave coordination patterns
-- Path: `.claude/context/core/formats/team-metadata-extension.md` - Team result schema
-- Path: `.claude/context/core/formats/return-metadata-file.md` - Base metadata schema
+- Path: `.claude/context/patterns/team-orchestration.md` - Wave coordination patterns
+- Path: `.claude/context/formats/team-metadata-extension.md` - Team result schema
+- Path: `.claude/context/formats/return-metadata-file.md` - Base metadata schema
 - Path: `.claude/utils/team-wave-helpers.md` - Reusable wave patterns
 
 ## Trigger Conditions
@@ -144,6 +144,38 @@ If team mode is unavailable:
 3. Pass original parameters
 4. Add `degraded_to_single: true` to metadata
 5. Continue with postflight
+
+---
+
+### Stage 4b: Calculate Artifact Number
+
+Read `next_artifact_number` from state.json and use (current-1) since summary stays in the same round as research/plan:
+
+```bash
+# Read next_artifact_number from state.json
+next_num=$(jq -r --argjson num "$task_number" \
+  '.active_projects[] | select(.project_number == $num) | .next_artifact_number // 1' \
+  specs/state.json)
+
+# Implement uses (current - 1) to stay in the same round as research/plan
+# If next_artifact_number is 1 (no research yet), use 1
+if [ "$next_num" -le 1 ]; then
+  artifact_number=1
+else
+  artifact_number=$((next_num - 1))
+fi
+
+# Fallback for legacy tasks: count existing summary artifacts
+if [ "$next_num" = "null" ] || [ -z "$next_num" ]; then
+  padded_num=$(printf "%03d" "$task_number")
+  count=$(ls "specs/${padded_num}_${project_name}/summaries/"*[0-9][0-9]*.md 2>/dev/null | wc -l)
+  artifact_number=$((count + 1))
+fi
+
+run_padded=$(printf "%02d" "$artifact_number")
+```
+
+**Note**: Team implement does NOT increment `next_artifact_number`. Only research advances the sequence.
 
 ---
 
@@ -578,4 +610,4 @@ The postflight phase is LIMITED TO:
 - Git commit
 - Cleanup of temp/marker files
 
-Reference: @.claude/context/core/standards/postflight-tool-restrictions.md
+Reference: @.claude/context/standards/postflight-tool-restrictions.md

@@ -1,6 +1,6 @@
 # Context Organization
 
-**Updated**: 2026-02-02 (Task 22 - Neovim Focus)
+**Updated**: 2026-03-25 (Task 288 - Flatten context structure)
 **Purpose**: Organize context files for efficient loading and clear separation of concerns
 
 ---
@@ -9,127 +9,70 @@
 
 ```
 .claude/context/
-├── core/                           # General/reusable context (36 files)
-│   ├── orchestration/              # System orchestration (8 files)
-│   │   ├── architecture.md         # Three-layer delegation pattern
-│   │   ├── orchestrator.md         # Orchestrator design and guide
-│   │   ├── routing.md              # Routing logic and patterns
-│   │   ├── delegation.md           # Delegation patterns and safety
-│   │   ├── validation.md           # Validation strategies and rules
-│   │   ├── state-management.md     # State and artifact management
-│   │   └── sessions.md             # Session management
-│   │
-│   ├── formats/                    # Output formats and structures (7 files)
-│   │   ├── command-structure.md    # Command files as agents
-│   │   ├── subagent-return.md      # Subagent return format
-│   │   ├── command-output.md       # Command output format
-│   │   ├── plan-format.md          # Implementation plan format
-│   │   ├── report-format.md        # Research report format
-│   │   ├── summary-format.md       # Summary format
-│   │   └── frontmatter.md          # Frontmatter standard
-│   │
-│   ├── standards/                  # Quality standards (8 files)
-│   │   ├── code-patterns.md        # Code and pattern standards
-│   │   ├── error-handling.md       # Error handling patterns
-│   │   ├── git-safety.md           # Git safety patterns
-│   │   ├── documentation.md        # Documentation standards
-│   │   ├── testing.md              # Testing standards
-│   │   ├── xml-structure.md        # XML structure patterns
-│   │   ├── task-management.md      # Task management standards
-│   │   └── analysis-framework.md   # Analysis framework
-│   │
-│   ├── workflows/                  # Workflow patterns (5 files)
-│   │   ├── command-lifecycle.md    # Command lifecycle
-│   │   ├── status-transitions.md   # Status transition rules
-│   │   ├── task-breakdown.md       # Task breakdown patterns
-│   │   ├── review-process.md       # Review process workflow
-│   │   └── preflight-postflight.md # Workflow timing standards
-│   │
-│   ├── templates/                  # Reusable templates (6 files)
-│   │   ├── agent-template.md       # Agent template
-│   │   ├── subagent-template.md    # Subagent template
-│   │   ├── command-template.md     # Command template
-│   │   ├── orchestrator-template.md # Orchestrator template
-│   │   ├── delegation-context.md   # Delegation context template
-│   │   └── state-template.json     # State.json template
-│   │
-│   └── schemas/                    # JSON/YAML schemas (2 files)
-│       ├── frontmatter-schema.json # Frontmatter JSON schema
-│       └── subagent-frontmatter.yaml # Subagent frontmatter template
-│
-├── project/                        # Domain-specific context
-│   ├── meta/                       # Meta-builder context (4 files)
-│   │   ├── domain-patterns.md      # Domain pattern recognition
-│   │   ├── architecture-principles.md # Architecture principles
-│   │   ├── meta-guide.md           # Meta-builder guide
-│   │   └── interview-patterns.md   # Interview patterns
-│   │
-│   ├── neovim/                     # Neovim configuration knowledge
-│   │   ├── domain/                 # API and concepts
-│   │   ├── patterns/               # Configuration patterns
-│   │   ├── standards/              # Coding standards
-│   │   ├── templates/              # Template files
-│   │   └── tools/                  # Tool documentation (lazy.nvim, etc.)
-│   │
-│   ├── latex/                      # LaTeX document knowledge
-│   │   ├── patterns/               # Document patterns
-│   │   ├── standards/              # Style standards
-│   │   ├── templates/              # Document templates
-│   │   └── tools/                  # Tool documentation
-│   │
-│   ├── typst/                      # Typst document knowledge
-│   │   ├── patterns/               # Document patterns
-│   │   ├── standards/              # Style standards
-│   │   ├── templates/              # Document templates
-│   │   └── tools/                  # Tool documentation
-│   │
-│   ├── hooks/                      # Git hooks context
-│   │
-│   ├── processes/                  # Process documentation
-│   │
-│   └── repo/                       # Repository-specific
-│       ├── project-overview.md
-│       └── self-healing-implementation-details.md
-│
-└── README.md                       # This file
+├── orchestration/              # System orchestration
+├── formats/                    # Output formats and structures
+├── standards/                  # Quality standards
+├── workflows/                  # Workflow patterns
+├── templates/                  # Reusable templates
+├── schemas/                    # JSON/YAML schemas
+├── checkpoints/                # Checkpoint patterns (gate-in, gate-out)
+├── patterns/                   # Implementation patterns
+├── guides/                     # Usage guides
+├── reference/                  # Reference documentation
+├── architecture/               # Architecture documentation
+├── troubleshooting/            # Troubleshooting guides
+├── meta/                       # Meta-builder context
+├── processes/                  # Process documentation
+├── repo/                       # Repository-specific context
+├── routing.md                  # Language-based routing
+├── validation.md               # Return validation
+├── index.json                  # Automated context discovery index (rebuilt by loader)
+├── core-index-entries.json     # Core index entries (always loaded, survives reloads)
+├── index.schema.json           # Schema for index.json
+└── README.md                   # This file
 ```
 
 ---
 
-## Core vs Project
+## Role Boundaries
 
-### core/ (36 files across 6 directories)
-**Purpose**: General, reusable context applicable to any project
+This directory contains **core agent system patterns** plus **extension domain
+knowledge** merged by the extension loader. It is the primary context source
+for agent orchestration, command execution, and domain-specific work.
 
-**Contents**:
+What belongs here:
+- Orchestration patterns, formats, standards, templates for agents
+- Extension context (copied here automatically when extensions are loaded)
+
+What does NOT belong here:
+- Project-specific conventions -- use `.context/`
+- Learned facts from development -- use `.memory/`
+- User preferences -- handled by Claude auto-memory
+
+For the full multi-layer architecture, see `architecture/context-layers.md`.
+
+---
+
+## Directory Purposes
+
+### Agent System Context
 - **orchestration/** - System architecture, routing, delegation, state management
 - **formats/** - Output formats for plans, reports, summaries, returns
 - **standards/** - Quality standards for code, errors, git, documentation, testing
 - **workflows/** - Workflow patterns for commands, status transitions, reviews
 - **templates/** - Reusable templates for agents, commands, orchestrator
 - **schemas/** - JSON/YAML schemas for validation
+- **checkpoints/** - Gate-in/gate-out checkpoint patterns
+- **patterns/** - Implementation patterns (thin-wrapper, metadata, jq workarounds)
+- **guides/** - Usage guides for context loading and discovery
+- **reference/** - Reference documentation (artifact templates, workflow diagrams)
+- **architecture/** - System architecture overview and component checklists
+- **troubleshooting/** - Workflow interruption recovery guides
 
-**When to use**: Context that doesn't depend on project-specific domains
-
-**Key Files**:
-- `orchestration/architecture.md` - Three-layer delegation pattern (critical for meta-builder)
-- `formats/command-structure.md` - Commands as agents pattern
-- `workflows/preflight-postflight.md` - Workflow timing standards
-- `orchestration/state-management.md` - State management and fast lookup patterns (8x faster than TODO.md)
-
-### project/
-**Purpose**: Domain-specific knowledge for supported languages
-
-**Contents**:
+### Domain-Specific Context
 - **meta/** - Meta-builder context (domain patterns, architecture principles)
-- **neovim/** - Neovim configuration knowledge (API, patterns, plugins)
-- **latex/** - LaTeX document authoring knowledge
-- **typst/** - Typst document authoring knowledge
-- **hooks/** - Git hooks context
-- **processes/** - Process documentation
-- **repo/** - Repository-specific information
-
-**When to use**: Context specific to the language being worked on
+- **processes/** - Process documentation (research, planning, implementation workflows)
+- **repo/** - Repository-specific information (project overview, self-healing details)
 
 ---
 
@@ -149,7 +92,7 @@
 
 **Tier 3: Agents (Domain-Specific)**
 - Budget: 60-80% context window (~120-160KB)
-- Files: `project/neovim/*`, `project/latex/*`, etc.
+- Files: Domain-specific context, extension context
 - Purpose: Domain-specific work with full context
 
 **Performance Optimization**:
@@ -177,22 +120,16 @@
 
 ## Adding New Context Files
 
-### For General/Reusable Context
-Add to `core/`:
-- Orchestration → `core/orchestration/`
-- Formats → `core/formats/`
-- Standards → `core/standards/`
-- Workflows → `core/workflows/`
-- Templates → `core/templates/`
-- Schemas → `core/schemas/`
-
-### For Domain-Specific Context
-Add to `project/`:
-- Meta-builder → `project/meta/`
-- Neovim → `project/neovim/`
-- LaTeX → `project/latex/`
-- Typst → `project/typst/`
-- Repo-specific → `project/repo/`
+Place files in the appropriate top-level directory:
+- Orchestration -> `orchestration/`
+- Formats -> `formats/`
+- Standards -> `standards/`
+- Workflows -> `workflows/`
+- Templates -> `templates/`
+- Schemas -> `schemas/`
+- Patterns -> `patterns/`
+- Meta-builder -> `meta/`
+- Repo-specific -> `repo/`
 
 ---
 

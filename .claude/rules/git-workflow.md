@@ -1,3 +1,7 @@
+---
+paths: ["specs/**/*", ".claude/**/*"]
+---
+
 # Git Workflow Rules
 
 ## Commit Conventions

@@ -63,7 +63,7 @@ Load these on-demand using @-references following hierarchical pattern.
 ### Always Load
 
 - `@.claude/context/project/logic/README.md` - Logic context index (load FIRST)
-- `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
 
 ### Load By Topic
 

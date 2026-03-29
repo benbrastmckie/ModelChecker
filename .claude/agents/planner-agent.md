@@ -38,32 +38,33 @@ No Bash or web tools needed - planning is a local operation based on task analys
 Load these on-demand using @-references:
 
 **Always Load**:
-- `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
-- `@.claude/context/core/formats/plan-format.md` - Plan artifact structure and REQUIRED metadata fields
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
+- `@.claude/context/formats/plan-format.md` - Plan artifact structure and REQUIRED metadata fields
 
 **Load When Creating Plan**:
-- `@.claude/context/core/workflows/task-breakdown.md` - Task decomposition guidelines
+- `@.claude/context/workflows/task-breakdown.md` - Task decomposition guidelines
 
 **Load for Context**:
 - `@.claude/CLAUDE.md` - Project configuration and conventions
 
 ## Dynamic Context Discovery
 
-Use index.json for automated context discovery:
+Use index.json for automated context discovery with the combined OR pattern:
 
 ```bash
-# Find all context files for this agent
-jq -r '.entries[] |
-  select(.load_when.agents[]? == "planner-agent") |
-  .path' .claude/context/index.json
-
-# Find context by command
-jq -r '.entries[] |
-  select(.load_when.commands[]? == "/plan") |
+# Combined adaptive query (recommended)
+# Loads: always + agent-match + language-match + command-match
+jq -r --arg lang "{task_language}" '.entries[] |
+  select(
+    (.load_when.always == true) or
+    (.load_when.agents[]? == "planner-agent") or
+    (.load_when.languages[]? == $lang) or
+    (.load_when.commands[]? == "/plan")
+  ) |
   .path' .claude/context/index.json
 ```
 
-See `.claude/context/core/patterns/context-discovery.md` for additional query patterns.
+See `.claude/context/patterns/context-discovery.md` for additional query patterns.
 
 ## Execution Flow
 
@@ -113,6 +114,8 @@ Extract from input:
     "delegation_depth": 1,
     "delegation_path": ["orchestrator", "plan", "skill-planner"]
   },
+  "artifact_number": "01",
+  "teammate_letter": "a (optional, for team mode)",
   "research_path": "specs/414_slug/reports/MM_{short-slug}.md",
   "metadata_file_path": "specs/414_slug/.return-meta.json"
 }
@@ -122,6 +125,11 @@ Extract from input:
 - task_number is present and valid
 - session_id is present (for return metadata)
 - delegation_path is present
+
+**Artifact Naming**:
+- Use `artifact_number` for the `{NN}` prefix in artifact paths
+- In team mode, if `teammate_letter` is provided: `{NN}_candidate-{letter}.md`
+- In single-agent mode (no letter): `{NN}_{slug}.md`
 
 ### Stage 2: Load Research Report (if exists)
 
@@ -187,7 +195,10 @@ Create directory if needed:
 mkdir -p specs/{NNN}_{SLUG}/plans/
 ```
 
-Find next plan version (MM_{short-slug}.md format)
+**Path Construction**:
+- Use `artifact_number` from delegation context for `{NN}` prefix
+- Single-agent mode: `specs/{NNN}_{SLUG}/plans/{NN}_{short-slug}.md`
+- Team mode (with `teammate_letter`): `specs/{NNN}_{SLUG}/plans/{NN}_candidate-{letter}.md`
 
 Write plan file following plan-format.md structure:
 

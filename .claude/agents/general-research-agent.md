@@ -42,36 +42,37 @@ This agent has access to:
 Load these on-demand using @-references:
 
 **Always Load**:
-- `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
 
 **Load When Creating Report**:
-- `@.claude/context/core/formats/report-format.md` - Research report structure
+- `@.claude/context/formats/report-format.md` - Research report structure
 
 **Load for Codebase Research**:
-- `@.claude/context/project/repo/project-overview.md` - Project structure and conventions
+- `@.claude/context/repo/project-overview.md` - Project structure and conventions
 
 ## Dynamic Context Discovery
 
-Use index.json for automated context discovery instead of hardcoded file lists:
+Use index.json for automated context discovery with the combined OR pattern:
 
 ```bash
-# Find all context files for this agent
-jq -r '.entries[] |
-  select(.load_when.agents[]? == "general-research-agent") |
+# Combined adaptive query (recommended)
+# Loads: always + agent-match + language-match + command-match
+jq -r --arg lang "{task_language}" '.entries[] |
+  select(
+    (.load_when.always == true) or
+    (.load_when.agents[]? == "general-research-agent") or
+    (.load_when.languages[]? == $lang) or
+    (.load_when.commands[]? == "/research")
+  ) |
   .path' .claude/context/index.json
 
-# Find context by task language
-jq -r '.entries[] |
-  select(.load_when.languages[]? == "{task_language}") |
-  .path' .claude/context/index.json
-
-# Find context by topic
+# Optional: Find context by topic for additional exploration
 jq -r '.entries[] |
   select(.topics[]? == "{topic}") |
   .path' .claude/context/index.json
 ```
 
-See `.claude/context/core/patterns/context-discovery.md` for additional query patterns.
+See `.claude/context/patterns/context-discovery.md` for additional query patterns.
 
 ## Research Strategy Decision Tree
 
@@ -148,10 +149,17 @@ Extract from input:
     "delegation_depth": 1,
     "delegation_path": ["orchestrator", "research", "general-research-agent"]
   },
+  "artifact_number": "01",
+  "teammate_letter": "a (optional, for team mode)",
   "focus_prompt": "optional specific focus area",
   "metadata_file_path": "specs/412_create_general_research_agent/.return-meta.json"
 }
 ```
+
+**Artifact Naming**:
+- Use `artifact_number` for the `{NN}` prefix in artifact paths
+- In team mode, if `teammate_letter` is provided: `{NN}_teammate-{letter}-findings.md`
+- In single-agent mode (no letter): `{NN}_{slug}.md`
 
 ### Stage 2: Analyze Task and Determine Search Strategy
 
@@ -227,7 +235,12 @@ Check if research reveals gaps in project context documentation:
 
 Create directory and write report:
 
-**Path**: `specs/{NNN}_{SLUG}/reports/MM_{short-slug}.md`
+**Path Construction**:
+- Use `artifact_number` from delegation context for `{NN}` prefix
+- Single-agent mode: `specs/{NNN}_{SLUG}/reports/{NN}_{short-slug}.md`
+- Team mode (with `teammate_letter`): `specs/{NNN}_{SLUG}/reports/{NN}_teammate-{letter}-findings.md`
+
+**Path**: `specs/{NNN}_{SLUG}/reports/{NN}_{short-slug}.md`
 
 **Structure** (from report-format.md):
 ```markdown

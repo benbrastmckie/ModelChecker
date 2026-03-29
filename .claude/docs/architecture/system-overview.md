@@ -280,4 +280,4 @@ See the guides in `.claude/docs/guides/` for detailed instructions.
 
 ### Agent-Facing Documentation
 
-- [Agent System Overview](../../context/core/architecture/system-overview.md) - Detailed architecture for agents (includes skill patterns, command mapping matrix)
+- [Agent System Overview](../../context/architecture/system-overview.md) - Detailed architecture for agents (includes skill patterns, command mapping matrix)

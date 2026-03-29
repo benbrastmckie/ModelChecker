@@ -478,9 +478,9 @@ NOTE: tags are special because they can create both fix-it and learn-it tasks. T
 
 | Source File Pattern | Target Context Directory |
 |--------------------|-------------------------|
-| `.claude/agents/*.md` | `.claude/context/core/agents/` |
-| `.claude/skills/*/SKILL.md` | `.claude/context/core/skills/` |
-| `.claude/commands/*.md` | `.claude/context/core/commands/` |
+| `.claude/agents/*.md` | `.claude/context/agents/` |
+| `.claude/skills/*/SKILL.md` | `.claude/context/skills/` |
+| `.claude/commands/*.md` | `.claude/context/commands/` |
 | `nvim/lua/**/*.lua` | `.claude/context/project/neovim/` |
 | `docs/*.tex` | `.claude/context/project/logic/` |
 

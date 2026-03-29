@@ -134,4 +134,4 @@ No other changes are required - the Task tool will respect the model field when 
 
 - [Creating Agents Guide](.claude/docs/guides/creating-agents.md)
 - [Agent Template](.claude/docs/templates/agent-template.md)
-- [Context Discovery Patterns](.claude/context/core/patterns/context-discovery.md)
+- [Context Discovery Patterns](.claude/context/patterns/context-discovery.md)

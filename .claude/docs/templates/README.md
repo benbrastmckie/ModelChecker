@@ -1,6 +1,6 @@
 # Development Templates
 
-This directory contains templates for creating new commands and agents in the ProofChecker OpenCode system.
+This directory contains templates for creating new commands and agents in the Claude Code agent system.
 
 ---
 
@@ -30,7 +30,7 @@ This directory contains templates for creating new commands and agents in the Pr
 
 ### Skill Template (Thin Wrapper Pattern)
 
-**File**: `.claude/context/core/templates/thin-wrapper-skill.md`
+**File**: `.claude/context/templates/thin-wrapper-skill.md`
 **Purpose**: Template for creating new skill files
 **Use When**: Adding a new skill that delegates to an agent
 **Guide**: See [Creating Skills](../guides/creating-skills.md) for step-by-step instructions
@@ -141,7 +141,7 @@ All agents must use lazy-loading pattern:
 
 1. Read `.claude/context/index.json`
 2. Load required context:
-   - `.claude/context/core/standards/agent-workflow.md`
+   - `.claude/context/standards/agent-workflow.md`
    - `.claude/context/agents/research-context.md`
 3. Parse context for relevant information
 ```
@@ -333,8 +333,8 @@ Analyzes code for potential issues and suggests improvements.
 - [Creating Agents](../guides/creating-agents.md) - Step-by-step agent creation
 
 ### Standards
-- **Return Format**: `.claude/context/core/formats/subagent-return.md`
-- **Skill Template**: `.claude/context/core/templates/thin-wrapper-skill.md`
+- **Return Format**: `.claude/context/formats/subagent-return.md`
+- **Skill Template**: `.claude/context/templates/thin-wrapper-skill.md`
 
 ---
 
@@ -348,6 +348,5 @@ For questions or issues with templates:
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: 2025-12-29  
-**Maintained By**: ProofChecker Development Team
+**Document Version**: 1.0
+**Last Updated**: 2025-12-29

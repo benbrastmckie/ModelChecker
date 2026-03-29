@@ -12,7 +12,7 @@ Create properly scoped git commits for task operations.
 ## Context Loading
 
 Load context on-demand when needed:
-- `@.claude/context/core/standards/git-safety.md` - Git safety rules and best practices
+- `@.claude/context/standards/git-safety.md` - Git safety rules and best practices
 - `@.claude/context/index.json` - Full context discovery index
 
 ## Trigger Conditions

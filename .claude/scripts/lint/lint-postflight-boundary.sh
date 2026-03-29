@@ -165,6 +165,6 @@ if [[ $VIOLATIONS -eq 0 ]]; then
 else
     echo -e "${RED}Found $VIOLATIONS violation(s). See above for details.${NC}"
     echo ""
-    echo "Reference: .claude/context/core/standards/postflight-tool-restrictions.md"
+    echo "Reference: .claude/context/standards/postflight-tool-restrictions.md"
     exit 1
 fi

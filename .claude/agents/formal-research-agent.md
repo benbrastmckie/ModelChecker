@@ -70,7 +70,7 @@ Load these on-demand using @-references.
 
 ### Always Load
 
-- `@.claude/context/core/formats/return-metadata-file.md` - Metadata file schema
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
 
 ## Execution Flow
 
