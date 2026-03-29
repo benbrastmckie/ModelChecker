@@ -1,7 +1,7 @@
 # Implementation Plan: Task #46 (v4 - Cast Approach)
 
 - **Task**: 46 - Fix z3.And/Or return type narrowing across codebase
-- **Status**: [NOT STARTED]
+- **Status**: [IN PROGRESS]
 - **Effort**: 90 minutes
 - **Dependencies**: None
 - **Research Inputs**: reports/01_teammate-a-findings.md
@@ -41,7 +41,7 @@ v03 proposed typed wrapper functions (`z3_and`, `z3_or`, `z3_not`) requiring cal
 
 ## Implementation Phases
 
-### Phase 1: Foundation Layer [NOT STARTED]
+### Phase 1: Foundation Layer [COMPLETED]
 
 **Goal**: Fix `z3_helpers.py`, `z3_utils.py`, and tests
 
@@ -66,7 +66,7 @@ return cast(BoolRef, Or(constraints))    # Exists
 
 ---
 
-### Phase 2: Core Layer [NOT STARTED]
+### Phase 2: Core Layer [COMPLETED]
 
 **Goal**: Fix `models/semantic.py` and `iterate/constraints.py`
 
@@ -81,7 +81,7 @@ return cast(BoolRef, Or(constraints))    # Exists
 
 ---
 
-### Phase 3: Logos Infrastructure [NOT STARTED]
+### Phase 3: Logos Infrastructure [COMPLETED]
 
 **Goal**: Fix `logos/iterate.py` and `logos/semantic.py`
 
@@ -96,7 +96,7 @@ return cast(BoolRef, Or(constraints))    # Exists
 
 ---
 
-### Phase 4: Operator Files [NOT STARTED]
+### Phase 4: Operator Files [COMPLETED]
 
 **Goal**: Fix all subtheory operator files and bimodal semantic
 
@@ -115,7 +115,7 @@ return cast(BoolRef, Or(constraints))    # Exists
 
 ---
 
-### Phase 5: Verification [NOT STARTED]
+### Phase 5: Verification [IN PROGRESS]
 
 **Goal**: Confirm all Probe errors eliminated, no regressions
 

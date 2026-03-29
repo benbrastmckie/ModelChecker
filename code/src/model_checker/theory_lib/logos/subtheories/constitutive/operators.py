@@ -224,7 +224,7 @@ class GroundOperator(syntactic.Operator):
                             z3.Not(semantics.is_part_of(y, x)),
                         )
                     )
-                ),
+                )),
             ),
         )
 
