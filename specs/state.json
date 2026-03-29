@@ -4,18 +4,28 @@
     {
       "project_number": 47,
       "project_name": "multi_solver_abstraction_layer",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-29T23:25:18Z",
-      "last_updated": "2026-03-29T23:25:18Z"
+      "last_updated": "2026-03-29T23:35:00Z",
+      "session_id": "sess_1774826798_57e92f",
+      "researched": "2026-03-29T23:35:00Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/047_multi_solver_abstraction_layer/reports/01_teammate-a-findings.md",
+          "type": "research",
+          "summary": "SMT solver landscape 2026, cvc5 Pythonic API comparison, full Z3 coupling analysis across 422+ call sites with abstraction difficulty rankings"
+        }
+      ]
     },
     {
       "project_number": 46,
       "project_name": "fix_z3_and_return_type_narrowing",
-      "status": "planned",
+      "status": "implementing",
       "language": "z3",
       "created": "2026-03-29T22:10:06Z",
-      "last_updated": "2026-03-29T23:24:50Z",
+      "last_updated": "2026-03-29T23:26:07Z",
       "session_id": "sess_1774823313_c61cd3",
       "researched": "2026-03-29T22:27:06Z",
       "artifacts": [
@@ -30,7 +40,8 @@
         }
       ],
       "next_artifact_number": 2,
-      "planned": "2026-03-29T23:24:50Z"
+      "planned": "2026-03-29T23:24:50Z",
+      "started": "2026-03-29T23:26:07Z"
     },
     {
       "project_number": 45,

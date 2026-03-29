@@ -10,8 +10,9 @@ next_project_number: 48
 
 ### 47. Implement multi-solver abstraction layer for z3, cvc5, and future constraint solvers
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
+- **Research**: [01_teammate-a-findings.md](047_multi_solver_abstraction_layer/reports/01_teammate-a-findings.md)
 
 **Description**: Review the 2026 state of the art in constraint solving and design/implement a multi-solver abstraction layer enabling the ModelChecker to use z3, cvc5, or other constraint solvers interchangeably. Perform a clean-break refactor to achieve a maximally maintainable and flexible architecture that accommodates multiple solvers going forward.
 
