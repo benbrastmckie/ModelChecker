@@ -8,7 +8,7 @@ validation.
 import z3
 import itertools
 import logging
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from model_checker.builder.example import BuildExample
@@ -153,9 +153,9 @@ class ConstraintGenerator:
             if valid_constraints:
                 if len(valid_constraints) == 1:
                     return valid_constraints[0]
-                return z3.Or(valid_constraints)
+                return cast(z3.BoolRef, z3.Or(valid_constraints))
         return None
-    
+
     def _create_state_difference_constraints(self, prev_model: z3.ModelRef) -> List[z3.BoolRef]:
         """Create constraints based on state-level differences.
         
@@ -258,8 +258,8 @@ class ConstraintGenerator:
                 if valid_constraints:
                     if len(valid_constraints) == 1:
                         return valid_constraints[0]
-                    return z3.Or(valid_constraints)
-                
+                    return cast(z3.BoolRef, z3.Or(valid_constraints))
+
         except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error creating non-isomorphic constraint: {e}")
             

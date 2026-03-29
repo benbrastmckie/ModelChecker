@@ -5,7 +5,7 @@ semantic evaluation framework that all theory implementations extend.
 """
 
 from functools import reduce
-from typing import Dict, List, Any, Optional, Set, Union, Callable, Tuple, TYPE_CHECKING
+from typing import Dict, List, Any, Optional, Set, Union, Callable, Tuple, TYPE_CHECKING, cast
 from z3 import (
     And,
     ArrayRef,
@@ -214,7 +214,7 @@ class SemanticDefaults:
         Returns:
             BoolRef: A Z3 constraint that is True when bit_s is a proper part of bit_t
         """
-        return And(self.is_part_of(bit_s, bit_t), bit_s != bit_t)
+        return cast(BoolRef, And(self.is_part_of(bit_s, bit_t), bit_s != bit_t))
 
     def non_null_part_of(self, bit_s: BitVecRef, bit_t: BitVecRef) -> BoolRef:
         """Checks if a bit vector is a non-null part of another bit vector.
@@ -228,7 +228,7 @@ class SemanticDefaults:
                     1. Not the null state (not zero)
                     2. A part of bit_t
         """
-        return And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t))
+        return cast(BoolRef, And(Not(bit_s == 0), self.is_part_of(bit_s, bit_t)))
 
     def product(self, set_A: Set[BitVecRef], set_B: Set[BitVecRef]) -> Set[BitVecRef]:
         """Compute the set of all pairwise fusions between elements of two sets.
