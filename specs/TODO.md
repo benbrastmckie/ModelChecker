@@ -19,7 +19,9 @@ next_project_number: 45
 
 ### 43. Fix 3 pre-existing test failures
 - **Effort**: TBD
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-29
+- **Summary**: Fixed 3 pre-existing test failures: updated test_exists_duality.py to check for extract_lambda_term, added parser to valid_errors in test_semantic_coverage.py, and changed FO_CM_4 example to use closed formula. All 86 tests pass.
 - **Research**: [01_test-failures-research.md](043_fix_preexisting_test_failures/reports/01_test-failures-research.md)
 - **Plan**: [01_test-failures-fix.md](043_fix_preexisting_test_failures/plans/01_test-failures-fix.md)
 - **Language**: python

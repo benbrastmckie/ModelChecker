@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Pre-existing Test Failures
 
 - **Task**: 43 - fix_preexisting_test_failures
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 1 hour
 - **Dependencies**: None
 - **Research Inputs**: reports/01_test-failures-research.md
@@ -46,7 +46,7 @@ The research report (01_test-failures-research.md) provided:
 
 ## Implementation Phases
 
-### Phase 1: Fix Simple Test Assertions [NOT STARTED]
+### Phase 1: Fix Simple Test Assertions [COMPLETED]
 
 **Goal**: Fix the two test assertion issues that require only minor test file edits.
 
@@ -71,7 +71,7 @@ PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/integra
 
 ---
 
-### Phase 2: Fix FO_CM_4 Example [NOT STARTED]
+### Phase 2: Fix FO_CM_4 Example [COMPLETED]
 
 **Goal**: Update FO_CM_4 example to use a closed formula with constant instead of open formula with free variable.
 
@@ -92,7 +92,7 @@ PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/subtheories/f
 
 ---
 
-### Phase 3: Full Test Suite Verification [NOT STARTED]
+### Phase 3: Full Test Suite Verification [COMPLETED]
 
 **Goal**: Confirm all fixes work together and no regressions introduced.
 
