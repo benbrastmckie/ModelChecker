@@ -10,8 +10,9 @@ next_project_number: 47
 
 ### 46. Fix z3.And() return type narrowing for custom Exists() calls in first-order operators
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
+- **Research**: [01_teammate-a-findings.md](046_fix_z3_and_return_type_narrowing/reports/01_teammate-a-findings.md)
 
 **Description**: Fix z3.And() return type narrowing for custom Exists() calls in first-order operators. z3.And() returns Union[Unknown, Probe, BoolRef] per z3 stubs, but custom Exists(bvs, formula: BoolRef) requires BoolRef. Affects lines 384 and 572 in code/src/model_checker/theory_lib/logos/subtheories/first-order/operators.py. Code is correct at runtime but fails static type checking. Research needed: survey all z3.And/z3.Or usage patterns across the codebase to find the most mathematically correct and uniform approach — whether via type narrowing, signature widening, or a wrapper utility — rather than ad-hoc casts.
 
@@ -19,7 +20,7 @@ next_project_number: 47
 
 ### 45. Rename `first-order` subtheory directory to `first_order` for valid Python packaging
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Plan**: [01_rename-first-order.md](045_rename_first_order_directory/plans/01_rename-first-order.md)
 - **Language**: python
 
