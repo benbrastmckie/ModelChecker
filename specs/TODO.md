@@ -1,5 +1,5 @@
 ---
-next_project_number: 55
+next_project_number: 56
 ---
 
 # Task List
@@ -7,6 +7,13 @@ next_project_number: 55
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 55. Create comparison.py script for systematic z3 vs cvc5 solver benchmarking with JSON output
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Create a comparison.py script that imports examples from theory_lib/logos/examples.py and systematically runs each example against both z3 and cvc5 solvers, recording results and timing data to output.json for analysis.
 
 ### 54. Fix MOD_COMP_1/2/3 solver comparison test failures caused by lambda error
 - **Effort**: 0.25 hours

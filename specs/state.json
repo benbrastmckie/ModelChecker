@@ -1,6 +1,14 @@
 {
-  "next_project_number": 55,
+  "next_project_number": 56,
   "active_projects": [
+    {
+      "project_number": 55,
+      "project_name": "create_comparison_script_z3_cvc5_benchmarking",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-30T17:48:28Z",
+      "last_updated": "2026-03-30T17:48:28Z"
+    },
     {
       "project_number": 54,
       "project_name": "fix_mod_comp_solver_comparison_test_failures",
