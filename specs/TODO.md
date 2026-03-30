@@ -10,8 +10,9 @@ next_project_number: 66
 
 ### 65. Fix cvc5 Sort conversion errors in semantic modules
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [01_team-research.md](065_fix_cvc5_sort_conversion_errors/reports/01_team-research.md)
+- **Plan**: [01_fix-atomsort-binding.md](065_fix_cvc5_sort_conversion_errors/plans/01_fix-atomsort-binding.md)
 - **Language**: z3
 
 **Description**: Migrate remaining z3_shim imports in semantic modules (bimodal/semantic.py, bimodal/witness_registry.py, bimodal/witness_constraints.py, logos/semantic.py) to use solver.expressions abstraction layer. All 138 comparison examples fail with "Cannot convert Sort to cvc5.cvc5_python_base.Sort" because z3 Sort objects are hardcoded instead of using backend-agnostic IntSort/BitVecSort/BoolSort/Function from solver.expressions.
