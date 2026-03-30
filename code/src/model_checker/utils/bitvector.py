@@ -8,11 +8,16 @@ human-readable state representations, including:
 """
 
 import string
-from typing import Any, Union, Optional
-from z3 import BitVecVal, BitVecRef
+from typing import Any, Union, Optional, TYPE_CHECKING
+
+from model_checker.solver.expressions import BitVecVal
+
+if TYPE_CHECKING:
+    # Import BitVecRef only for type hints - actual type checking uses duck typing
+    from z3 import BitVecRef
 
 
-def binary_bitvector(bit: BitVecRef, N: int) -> str:
+def binary_bitvector(bit: "BitVecRef", N: int) -> str:
     """Converts a Z3 bit vector to a binary string representation.
     
     This function takes a Z3 bit vector and converts it to a binary string

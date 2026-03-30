@@ -5,11 +5,15 @@ This module provides helper functions for working with Z3, including:
 - Set operations (future)
 """
 
-from typing import List, Union, Any, cast
-from z3 import BitVecVal, And, Or, substitute, BitVecRef, BoolRef
+from typing import List, Union, Any, cast, TYPE_CHECKING
+
+from model_checker.solver.expressions import BitVecVal, And, Or, substitute
+
+if TYPE_CHECKING:
+    from z3 import BitVecRef, BoolRef
 
 
-def ForAll(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
+def ForAll(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "BoolRef":
     """Implements universal quantification over bit vectors for Z3.
     
     This function explicitly generates universal quantification by substituting
@@ -45,7 +49,7 @@ def ForAll(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
     return cast(BoolRef, And(constraints))
 
 
-def Exists(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
+def Exists(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "BoolRef":
     """Implements existential quantification over bit vectors for Z3.
     
     This function explicitly generates existential quantification by substituting

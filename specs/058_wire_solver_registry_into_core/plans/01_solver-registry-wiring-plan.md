@@ -118,7 +118,7 @@ def is_true(val: Any, backend: str = None) -> bool:
 
 ---
 
-### Phase 2: Migrate Utility Modules [IN PROGRESS]
+### Phase 2: Migrate Utility Modules [COMPLETED]
 
 **Goal**: Update low-level utilities that other modules depend on.
 
@@ -181,7 +181,7 @@ def reset_solver_context() -> None:
 
 ---
 
-### Phase 3: Migrate Syntactic Layer [NOT STARTED]
+### Phase 3: Migrate Syntactic Layer [IN PROGRESS]
 
 **Goal**: Handle AtomSort and syntactic atom creation with lazy initialization.
 
