@@ -145,6 +145,20 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
             help='Display temporal models vertically (top-to-bottom time flow)'
         )
 
+        # Solver selection group
+        solver_group = parser.add_argument_group('solver', 'SMT solver backend selection')
+        solver_mutex = solver_group.add_mutually_exclusive_group()
+        solver_mutex.add_argument(
+            '--z3',
+            action='store_true',
+            help='Use Z3 solver (default)'
+        )
+        solver_mutex.add_argument(
+            '--cvc5',
+            action='store_true',
+            help='Use cvc5 solver (requires pip install cvc5)'
+        )
+
         # Debugging group
         debug_group = parser.add_argument_group('debugging', 'Advanced analysis and troubleshooting')
         debug_group.add_argument(
@@ -272,6 +286,21 @@ def main():
         return
     parser = ParseFileFlags()
     module_flags, package_name = parser.parse()
+
+    # Handle solver backend selection
+    if hasattr(module_flags, 'z3') and module_flags.z3:
+        from model_checker.solver import set_cli_backend
+        set_cli_backend("z3")
+    elif hasattr(module_flags, 'cvc5') and module_flags.cvc5:
+        from model_checker.solver import set_cli_backend, validate_backend
+        try:
+            validate_backend("cvc5")
+            set_cli_backend("cvc5")
+        except ImportError as e:
+            print(f"Error: {e}")
+            print("To use cvc5, install it with: pip install cvc5")
+            return
+
     if module_flags.upgrade:
         print("Upgrading package")
         try:

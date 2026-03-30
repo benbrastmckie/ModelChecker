@@ -56,7 +56,8 @@ class SemanticDefaults:
         "print_z3": False,
         "save_output": False,
         "sequential": False,
-        "maximize": False
+        "maximize": False,
+        "solver": "z3",  # Solver backend: "z3" or "cvc5"
     }
 
     def __init__(self, combined_settings: 'Settings') -> None:
