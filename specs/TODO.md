@@ -1,5 +1,5 @@
 ---
-next_project_number: 64
+next_project_number: 65
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 64
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 64. Fix test_push_pop_sat_transitions signed/unsigned bitvector comparison bug
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: The test `solver/tests/unit/test_equivalence.py::TestPushPopEquivalence::test_push_pop_sat_transitions` fails because it expects `z3_x > 200` and `z3_x < 100` on an 8-bit BitVec to be contradictory (unsat), but z3's `>` and `<` on BitVec are signed comparisons. Signed 8-bit value 200 is -56, so `x > -56 AND x < 100` is satisfiable. Fix by using unsigned comparisons (`z3.UGT` / `z3.ULT` and cvc5 equivalents) or by choosing values that are contradictory under signed comparison (e.g., `x > 50 AND x < 10`). File: `code/src/model_checker/solver/tests/unit/test_equivalence.py` line 127.
+
+---
 
 ### 63. Migrate builder and iterate modules to solver abstraction
 - **Effort**: TBD
