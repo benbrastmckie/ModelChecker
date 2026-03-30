@@ -1,6 +1,14 @@
 {
-  "next_project_number": 52,
+  "next_project_number": 53,
   "active_projects": [
+    {
+      "project_number": 52,
+      "project_name": "redesign_progress_bar_model_iteration",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-30T15:54:15Z",
+      "last_updated": "2026-03-30T15:54:15Z"
+    },
     {
       "project_number": 51,
       "project_name": "fix_cvc5_cli_integration_issues",
