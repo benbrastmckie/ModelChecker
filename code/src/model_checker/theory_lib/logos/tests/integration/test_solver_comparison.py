@@ -96,7 +96,7 @@ def get_required_subtheories(subtheory: str) -> List[str]:
     """
     subtheory_deps = {
         'extensional': ['extensional'],
-        'modal': ['extensional', 'modal'],
+        'modal': ['extensional', 'modal', 'first_order'],
         'constitutive': ['extensional', 'modal', 'constitutive'],
         'counterfactual': ['extensional', 'modal', 'counterfactual'],
         'relevance': ['extensional', 'modal', 'constitutive', 'relevance'],

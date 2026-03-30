@@ -1,7 +1,7 @@
 # Implementation Plan: Task #54
 
 - **Task**: 54 - fix_mod_comp_solver_comparison_test_failures
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 0.25 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/054_fix_mod_comp_solver_comparison_test_failures/reports/01_lambda-error-research.md
@@ -41,7 +41,7 @@ Fix the MOD_COMP_1/2/3 solver comparison test failures by adding `first_order` t
 
 ## Implementation Phases
 
-### Phase 1: Update Subtheory Dependencies [NOT STARTED]
+### Phase 1: Update Subtheory Dependencies [COMPLETED]
 
 **Goal**: Add `first_order` to modal subtheory dependencies in test file
 
