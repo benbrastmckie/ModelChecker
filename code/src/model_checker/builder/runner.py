@@ -441,6 +441,11 @@ class ModelRunner:
         # Model found - stop animation without printing final bar yet
         self._stop_progress_animation(progress)
 
+        # Print the completed progress bar BEFORE model output
+        # This ensures bar -> output ordering so consecutive bars aren't adjacent
+        progress.complete_model_search(found=True)
+        print()  # Add vertical space after progress bar
+
         # Set up for iteration
         if iterate_count > 1:
             example._unified_progress = progress
@@ -448,10 +453,6 @@ class ModelRunner:
         # Handle interactive vs batch mode (this prints the header)
         iterate_count = self._handle_iteration_mode(example, example_name, theory_name,
                                                     iterate_count, progress)
-
-        # NOW print the progress bar after header
-        progress.complete_model_search(found=True)
-        print()  # Add vertical space after progress bar
         
         # Process remaining iterations
         try:
@@ -495,21 +496,14 @@ class ModelRunner:
     def _stop_progress_animation(self, progress: UnifiedProgress) -> None:
         """Stop the progress animation without printing the final bar.
 
-        This allows us to print the example header BEFORE the progress bar,
-        ensuring correct output ordering.
+        Uses stop_animation_only() to freeze the bar at its current fill level
+        and capture the elapsed time fraction, ensuring correct partial fill
+        display when complete() is called later.
 
         Args:
             progress: The UnifiedProgress tracker with an active animation
         """
-        if progress.model_progress_bars:
-            bar = progress.model_progress_bars[-1]
-            # Stop animation thread
-            bar.active = False
-            # Wait for thread to stop
-            if bar.thread and bar.thread.is_alive():
-                bar.thread.join(timeout=0.5)
-            # Clear the animated line from the terminal
-            progress.display.clear()
+        progress.stop_animation_only()
 
     def _handle_iteration_mode(
         self,
@@ -639,6 +633,12 @@ class ModelRunner:
 
                 distinct_count += 1
 
+                # Print completed progress bar BEFORE model output
+                # This ensures bar -> output -> bar ordering so consecutive bars aren't adjacent
+                if progress:
+                    progress.complete_model_search(found=True)
+                    print()  # Add vertical space after progress bar
+
                 # Always print differences from previous model (except for the first additional model)
                 if previous_model:
                     # Print differences using structure's method
@@ -663,12 +663,6 @@ class ModelRunner:
 
                 # Display model immediately
                 self.build_module._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
-
-                # NOW complete the progress bar (after model output is displayed)
-                # This achieves the bar -> output -> bar ordering
-                if progress:
-                    progress.complete_model_search(found=True)
-                    print()  # Add vertical space after progress bar
 
                 # Add extra vertical space after non-isomorphic models (except for the last one)
                 # Only add space if we're not at the last model we'll actually find
