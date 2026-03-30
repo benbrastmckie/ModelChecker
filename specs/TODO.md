@@ -1,5 +1,5 @@
 ---
-next_project_number: 56
+next_project_number: 57
 ---
 
 # Task List
@@ -7,6 +7,13 @@ next_project_number: 56
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 56. Fix comparison.py warnings: add 'M' to DEFAULT_EXAMPLE_SETTINGS and gitignore output.json
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix comparison.py warnings: add 'M' to DEFAULT_EXAMPLE_SETTINGS in LogosSemantics (semantic.py) to suppress 8 "Unknown example setting 'M'" warnings from constitutive examples CL_TH_16-19, and add output.json to .gitignore since it is a generated benchmark file.
 
 ### 55. Create comparison.py script for systematic z3 vs cvc5 solver benchmarking with JSON output
 - **Effort**: 2.5 hours
