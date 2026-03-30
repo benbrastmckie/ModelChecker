@@ -4,10 +4,12 @@
     {
       "project_number": 56,
       "project_name": "fix_comparison_warnings_default_settings",
-      "status": "not_started",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-30T18:42:30Z",
-      "last_updated": "2026-03-30T18:42:30Z"
+      "last_updated": "2026-03-30T18:44:29Z",
+      "session_id": "sess_1774896209_6d2df3",
+      "planned": "2026-03-30T18:44:29Z"
     },
     {
       "project_number": 55,
