@@ -1,6 +1,58 @@
 {
-  "next_project_number": 59,
+  "next_project_number": 64,
   "active_projects": [
+    {
+      "project_number": 63,
+      "project_name": "migrate_builder_iterate_to_solver_abstraction",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T21:59:49Z",
+      "dependencies": [
+        59
+      ]
+    },
+    {
+      "project_number": 62,
+      "project_name": "migrate_bimodal_theory_to_solver_abstraction",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T21:59:49Z",
+      "dependencies": [
+        59
+      ]
+    },
+    {
+      "project_number": 61,
+      "project_name": "migrate_logos_operators_to_solver_abstraction",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T21:59:49Z",
+      "dependencies": [
+        59
+      ]
+    },
+    {
+      "project_number": 60,
+      "project_name": "migrate_logos_semantic_to_solver_abstraction",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T21:59:49Z",
+      "dependencies": [
+        59
+      ]
+    },
+    {
+      "project_number": 59,
+      "project_name": "extend_solver_expressions_and_compat",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T21:59:49Z"
+    },
     {
       "project_number": 58,
       "project_name": "wire_solver_registry_into_core",
