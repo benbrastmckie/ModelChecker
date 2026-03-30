@@ -76,7 +76,7 @@ class SemanticDefaults:
             self.all_states = [BitVecVal(i, self.N) for i in range(1 << self.N)]
 
         # Define all times between 0 and M inclusive
-        if 'M' in combined_settings.keys():
+        if combined_settings.get('M') is not None:
             self.M = combined_settings['M']
             self.all_times = [IntVal(i) for i in range(self.M)]
 
