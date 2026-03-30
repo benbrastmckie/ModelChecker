@@ -5,7 +5,7 @@ creation, difference constraints, and model inspection.
 """
 
 from typing import List, Dict, Any, Optional, Tuple, cast
-import z3
+from model_checker import z3_shim as z3
 
 def create_difference_constraint(old_model: z3.ModelRef, variables: List[z3.ExprRef]) -> z3.BoolRef:
     """Create a constraint requiring the new model to differ from the old one.

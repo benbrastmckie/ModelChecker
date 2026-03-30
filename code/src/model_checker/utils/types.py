@@ -13,7 +13,7 @@ T = TypeVar('T')
 
 # Use solver layer type aliases when possible, with z3 fallback for TYPE_CHECKING
 if TYPE_CHECKING:
-    import z3
+    from model_checker import z3_shim as z3
     Z3Expr = Union[z3.BoolRef, z3.ArithRef, z3.SeqRef, z3.BitVecRef]
     Z3Sort = Union[z3.BoolSortRef, z3.ArithSortRef, z3.SeqSortRef, z3.BitVecSortRef]
 else:

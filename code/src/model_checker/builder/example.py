@@ -9,7 +9,7 @@ import os
 import sys
 from typing import Dict, List, Any, Optional, Tuple, TYPE_CHECKING
 
-import z3
+from model_checker import z3_shim as z3
 
 if TYPE_CHECKING:
     from .module import BuildModule
@@ -86,7 +86,7 @@ class BuildExample:
     
     def _initialize_z3_context(self) -> None:
         """Reset Z3 context to ensure a clean state for this example."""
-        import z3
+        from model_checker import z3_shim as z3
         # This helps ensure different examples don't interfere with each other
         try:
             z3.main_ctx().solver.reset()

@@ -13,7 +13,7 @@ where the argument formula has a different truth value.
 from typing import Any, List
 
 # Third-party imports
-import z3
+from model_checker import z3_shim as z3
 
 # Local imports
 from ...errors import WitnessConstraintError

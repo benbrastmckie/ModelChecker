@@ -22,7 +22,7 @@ from model_checker.solver.expressions import (
 
 if TYPE_CHECKING:
     from .types import Settings, ConstraintList
-    from z3 import ArrayRef, BitVecRef, BoolRef
+    from model_checker.z3_shim import ArrayRef, BitVecRef, BoolRef
 
 
 class SemanticDefaults:

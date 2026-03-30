@@ -6,7 +6,7 @@ This module provides the BimodalModelIterator implementation which handles:
 3. Checking model isomorphism for bimodal theory models
 """
 
-import z3
+from model_checker import z3_shim as z3
 import sys
 import logging
 

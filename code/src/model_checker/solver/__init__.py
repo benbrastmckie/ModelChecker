@@ -54,6 +54,10 @@ from .compat import (
     get_bitvec_value,
     substitute,
 )
+from .types_runtime import (
+    SolverException,
+    get_native_exception,
+)
 
 __all__ = [
     # Protocols
@@ -86,4 +90,7 @@ __all__ = [
     "eval_model",
     "get_bitvec_value",
     "substitute",
+    # Runtime types and exceptions
+    "SolverException",
+    "get_native_exception",
 ]

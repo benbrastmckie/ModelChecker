@@ -11,7 +11,7 @@ from typing import (
 )
 
 if TYPE_CHECKING:
-    import z3
+    from model_checker import z3_shim as z3
     from .proposition import PropositionDefaults
     from .semantic import Semantics
     from model_checker.syntactic import Syntax, Sentence

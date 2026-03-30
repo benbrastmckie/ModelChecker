@@ -5,7 +5,7 @@ from previously found models. It manages solver interaction and constraint
 validation.
 """
 
-import z3
+from model_checker import z3_shim as z3
 import itertools
 import logging
 

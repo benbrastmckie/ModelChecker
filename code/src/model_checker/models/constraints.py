@@ -9,7 +9,7 @@ import sys
 from typing import List, Dict, Any, Optional, Type, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from z3 import ExprRef
+    from model_checker.z3_shim import ExprRef
     from model_checker.syntactic import Syntax, Sentence
     from .semantic import Semantics
     from .proposition import PropositionDefaults

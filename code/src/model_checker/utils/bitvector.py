@@ -14,7 +14,7 @@ from model_checker.solver.expressions import BitVecVal
 
 if TYPE_CHECKING:
     # Import BitVecRef only for type hints - actual type checking uses duck typing
-    from z3 import BitVecRef
+    from model_checker.z3_shim import BitVecRef
 
 
 def binary_bitvector(bit: "BitVecRef", N: int) -> str:

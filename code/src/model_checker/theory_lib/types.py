@@ -11,7 +11,7 @@ from typing import (
 from abc import ABC, abstractmethod
 
 if TYPE_CHECKING:
-    import z3
+    from model_checker import z3_shim as z3
 
 # Local framework imports (commented out - not currently used)
 # from model_checker.defaults import SemanticDefaults

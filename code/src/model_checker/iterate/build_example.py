@@ -7,7 +7,7 @@ is delegated to the theory's semantics class.
 """
 
 from typing import TYPE_CHECKING, Any, Dict, Optional
-import z3
+from model_checker import z3_shim as z3
 
 from model_checker.builder.example import BuildExample
 from model_checker.syntactic import Syntax

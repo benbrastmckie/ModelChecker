@@ -29,7 +29,7 @@ All operators adhere to a fail-fast philosophy, raising explicit errors when
 required data is missing or invalid rather than attempting fallbacks.
 """
 
-import z3
+from model_checker import z3_shim as z3
 
 
 from model_checker import syntactic

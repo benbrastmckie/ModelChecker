@@ -10,7 +10,8 @@ next_project_number: 64
 
 ### 63. Migrate builder and iterate modules to solver abstraction
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
 - **Language**: z3
 - **Dependencies**: 59
 
@@ -20,7 +21,8 @@ next_project_number: 64
 
 ### 62. Migrate bimodal theory to solver abstraction
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
 - **Language**: z3
 - **Dependencies**: 59
 
@@ -30,7 +32,8 @@ next_project_number: 64
 
 ### 61. Migrate logos operator subtheories to solver abstraction
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
 - **Language**: z3
 - **Dependencies**: 59
 
@@ -40,7 +43,8 @@ next_project_number: 64
 
 ### 60. Migrate logos/semantic.py to solver abstraction
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
 - **Language**: z3
 - **Dependencies**: 59
 
@@ -50,7 +54,8 @@ next_project_number: 64
 
 ### 59. Extend solver expressions.py and compat.py for full API coverage
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
 - **Language**: z3
 
 **Description**: Extend `solver/expressions.py` and `solver/compat.py` with all z3 API functions needed by the core pipeline. Currently missing from expressions.py: `Bool` (66 uses), `Int` (56), `IntSort` (44), `BoolVal` (77), `Function` (25), `Select` (15), `Solver` (104) -- wait, Solver is via create_solver. Missing type predicates: `is_true` (1), `is_false` (1), `is_bool` (8), `is_int` (3), `is_int_value` (8), `is_real` (8), `is_bv` (1), `is_quantifier` (6). Missing type refs for runtime use: `BoolRef` (95), `BitVecRef` (21), `ExprRef` (16), `FuncDeclRef` (21), `ModelRef` (37), `Z3Exception` (37), `CheckSatResult` (3). Also need: `Sum` (1), `Var` (1), `set_param` (1), `reset_params` (1), `ArraySort` (1). Add backend-aware versions of all these to expressions.py or a new `solver/types_runtime.py`. For type refs, provide runtime-importable aliases that resolve to the correct backend's types. For `Z3Exception`, provide a `SolverException` wrapper. Verify: `from model_checker.solver.expressions import X` works for every function used in the codebase.

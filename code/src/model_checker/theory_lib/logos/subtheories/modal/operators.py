@@ -10,7 +10,7 @@ This module implements modal logical operators:
 
 from typing import TYPE_CHECKING, cast
 
-import z3
+from model_checker import z3_shim as z3
 
 from model_checker import syntactic
 from model_checker.utils import ForAll, Exists

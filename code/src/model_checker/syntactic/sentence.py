@@ -18,7 +18,7 @@ from .formulas import compute_formula_free_variables, is_syntactically_wff
 
 if TYPE_CHECKING:
     from .collection import OperatorCollection
-    from z3 import ExprRef
+    from model_checker.z3_shim import ExprRef
 
 
 class Sentence:

@@ -12,7 +12,7 @@ import sys
 import time
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
-import z3
+from model_checker import z3_shim as z3
 
 # Package imports
 from ..output.progress import Spinner, UnifiedProgress
@@ -309,8 +309,8 @@ class ModelRunner:
         """Initialize Z3 context and configure logging for clean output."""
         from model_checker.utils import Z3ContextManager
         import logging
-        import z3
-        
+        from model_checker import z3_shim as z3
+
         # Always reset Z3 context at the start of processing a new example
         from ..utils.context import reset_z3_context
         reset_z3_context()

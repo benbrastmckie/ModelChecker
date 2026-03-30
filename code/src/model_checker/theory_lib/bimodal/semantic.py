@@ -1,7 +1,7 @@
 import sys
 import time
 from typing import cast
-import z3
+from model_checker import z3_shim as z3
 
 from model_checker.solver import is_true, is_false
 

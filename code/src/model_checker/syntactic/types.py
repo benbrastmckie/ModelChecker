@@ -7,7 +7,7 @@ processing components, enabling better type safety and IDE support.
 from typing import Union, List, Any, TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import z3
+    from model_checker import z3_shim as z3
     # For type checking, use the z3 type
     AtomType = z3.DatatypeRef
 else:

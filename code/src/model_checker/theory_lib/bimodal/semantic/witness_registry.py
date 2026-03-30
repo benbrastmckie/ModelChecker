@@ -10,7 +10,7 @@ bimodal uses a single accessible_world predicate per formula.
 from typing import Dict, Set
 
 # Third-party imports
-import z3
+from model_checker import z3_shim as z3
 
 # Local imports
 from ...errors import WitnessRegistryError, WitnessPredicateError

@@ -4,54 +4,56 @@
     {
       "project_number": 63,
       "project_name": "migrate_builder_iterate_to_solver_abstraction",
-      "status": "not_started",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T21:59:49Z",
-      "last_updated": "2026-03-30T21:59:49Z",
-      "dependencies": [
-        59
-      ]
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [59],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 14 files in builder/, iterate/, and utils/ from direct z3 imports to z3_shim abstraction layer. All 262 builder tests, 207 iterate tests pass."
     },
     {
       "project_number": 62,
       "project_name": "migrate_bimodal_theory_to_solver_abstraction",
-      "status": "not_started",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T21:59:49Z",
-      "last_updated": "2026-03-30T21:59:49Z",
-      "dependencies": [
-        59
-      ]
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [59],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 5 bimodal theory files (semantic.py, operators.py, iterate.py, witness_constraints.py, witness_registry.py) from direct z3 imports to z3_shim. All 73 bimodal tests pass."
     },
     {
       "project_number": 61,
       "project_name": "migrate_logos_operators_to_solver_abstraction",
-      "status": "not_started",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T21:59:49Z",
-      "last_updated": "2026-03-30T21:59:49Z",
-      "dependencies": [
-        59
-      ]
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [59],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 8 files in logos subtheories (all 5 operator files, iterate.py, protocols.py, theory_lib/types.py) from direct z3 imports to z3_shim. All 221 logos tests pass."
     },
     {
       "project_number": 60,
       "project_name": "migrate_logos_semantic_to_solver_abstraction",
-      "status": "not_started",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T21:59:49Z",
-      "last_updated": "2026-03-30T21:59:49Z",
-      "dependencies": [
-        59
-      ]
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [59],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 8 files (logos/semantic.py, syntactic/assignments.py, syntactic/sentence.py, syntactic/types.py, models/semantic.py, models/constraints.py, models/types.py, models/structure.py) from direct z3 imports to z3_shim."
     },
     {
       "project_number": 59,
       "project_name": "extend_solver_expressions_and_compat",
-      "status": "not_started",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T21:59:49Z",
-      "last_updated": "2026-03-30T21:59:49Z"
+      "last_updated": "2026-03-30T23:30:00Z",
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Extended expressions.py with type predicates (is_bool, is_int, is_int_value, is_real, is_bv, is_quantifier, is_true, is_false), missing functions (Sum, Var, ArraySort, set_param, reset_params). Created types_runtime.py with runtime type refs (BoolRef, BitVecRef, ExprRef, FuncDeclRef, ModelRef, etc.) and SolverException wrapper."
     },
     {
       "project_number": 58,

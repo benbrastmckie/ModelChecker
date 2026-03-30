@@ -6,7 +6,7 @@ calculating differences between models.
 """
 
 import logging
-import z3
+from model_checker import z3_shim as z3
 
 from model_checker.solver import is_true, is_false
 
@@ -47,8 +47,8 @@ class ModelBuilder:
             # Import required modules
             from model_checker.syntactic import Syntax
             from model_checker.models.constraints import ModelConstraints
-            import z3
-            
+            from model_checker import z3_shim as z3
+
             # Get original build example components
             original_build = self.build_example
             settings = original_build.settings.copy()

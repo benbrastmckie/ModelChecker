@@ -10,8 +10,8 @@ import sys
 import time
 from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING, cast
 
-from z3 import simplify
-import z3
+from model_checker.z3_shim import simplify
+from model_checker import z3_shim as z3
 
 from model_checker.solver import is_true, is_false
 

@@ -10,7 +10,7 @@ from typing import List, Union, Any, TYPE_CHECKING
 from model_checker.solver.expressions import BitVecVal, And, Or, substitute
 
 if TYPE_CHECKING:
-    from z3 import BitVecRef, BoolRef
+    from model_checker.z3_shim import BitVecRef, BoolRef
 
 
 def ForAll(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "BoolRef":

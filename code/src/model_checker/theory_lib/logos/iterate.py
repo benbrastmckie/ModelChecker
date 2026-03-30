@@ -10,7 +10,7 @@ import logging
 import sys
 from typing import Dict, List, Set, Any, Optional, Union, Generator, TYPE_CHECKING, cast
 
-import z3
+from model_checker import z3_shim as z3
 
 from model_checker.solver import is_true, is_false
 from model_checker.iterate.core import BaseModelIterator

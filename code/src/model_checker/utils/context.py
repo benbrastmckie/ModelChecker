@@ -8,7 +8,7 @@ proper isolation between different solver instances.
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    import z3
+    from model_checker import z3_shim as z3
 
 
 class Z3ContextManager:
@@ -28,8 +28,8 @@ class Z3ContextManager:
         Note: Z3 stores its context in either '_main_ctx' or 'main_ctx' depending on
         the Z3 version. This method handles both cases for maximum compatibility.
         """
-        import z3
-        
+        from model_checker import z3_shim as z3
+
         # Handle both possible attribute names for Z3 context
         if hasattr(z3, '_main_ctx'):
             # Reset the context completely

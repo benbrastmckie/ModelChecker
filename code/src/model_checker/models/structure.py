@@ -16,7 +16,7 @@ from model_checker.solver import create_solver, SolverResult, is_true
 if TYPE_CHECKING:
     from model_checker.syntactic import Sentence
     from .constraints import ModelConstraints
-    import z3
+    from model_checker import z3_shim as z3
 
 
 class ModelDefaults:

@@ -291,3 +291,73 @@ def SetSort(elem_sort: Any) -> Any:
 def is_const(expr: Any) -> bool:
     """Check if an expression is a constant (nullary function application)."""
     return _get_backend_module().is_const(expr)
+
+
+# Type predicate functions
+def is_bool(expr: Any) -> bool:
+    """Check if an expression is a boolean."""
+    return _get_backend_module().is_bool(expr)
+
+
+def is_int(expr: Any) -> bool:
+    """Check if an expression is an integer."""
+    return _get_backend_module().is_int(expr)
+
+
+def is_int_value(expr: Any) -> bool:
+    """Check if an expression is a concrete integer value."""
+    return _get_backend_module().is_int_value(expr)
+
+
+def is_real(expr: Any) -> bool:
+    """Check if an expression is a real number."""
+    return _get_backend_module().is_real(expr)
+
+
+def is_bv(expr: Any) -> bool:
+    """Check if an expression is a bitvector."""
+    return _get_backend_module().is_bv(expr)
+
+
+def is_quantifier(expr: Any) -> bool:
+    """Check if an expression is a quantifier."""
+    return _get_backend_module().is_quantifier(expr)
+
+
+def is_true(expr: Any) -> bool:
+    """Check if an expression is the boolean constant true."""
+    return _get_backend_module().is_true(expr)
+
+
+def is_false(expr: Any) -> bool:
+    """Check if an expression is the boolean constant false."""
+    return _get_backend_module().is_false(expr)
+
+
+# Arithmetic
+def Sum(*args: Any) -> Any:
+    """Create a sum of expressions."""
+    return _get_backend_module().Sum(*args)
+
+
+# Quantifier variable references
+def Var(idx: int, sort: Any) -> Any:
+    """Create a de Bruijn indexed variable for use in quantifiers."""
+    return _get_backend_module().Var(idx, sort)
+
+
+# Array sort
+def ArraySort(idx_sort: Any, elem_sort: Any) -> Any:
+    """Create an array sort from index and element sorts."""
+    return _get_backend_module().ArraySort(idx_sort, elem_sort)
+
+
+# Global configuration
+def set_param(*args: Any, **kwargs: Any) -> None:
+    """Set a global solver parameter."""
+    _get_backend_module().set_param(*args, **kwargs)
+
+
+def reset_params() -> None:
+    """Reset all global solver parameters to defaults."""
+    _get_backend_module().reset_params()
