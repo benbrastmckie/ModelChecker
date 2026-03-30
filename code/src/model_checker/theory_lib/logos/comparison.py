@@ -125,17 +125,22 @@ def switch_solver(backend: str) -> None:
     1. Clear CLI backend first
     2. Reset registry caches
     3. Reset z3_shim cached module
-    4. Set new backend
+    4. Reset AtomSort (so it's recreated for new backend)
+    5. Set new backend
 
     Args:
         backend: Either 'z3' or 'cvc5'
     """
+    from model_checker.syntactic.atoms import reset_atom_sort
+
     # Clear CLI backend first
     clear_cli_backend()
     # Reset registry caches
     reset_registry()
     # Reset z3_shim cached module
     z3_shim._reset_backend()
+    # Reset AtomSort so it's recreated for the new backend
+    reset_atom_sort()
     # Set new backend
     set_cli_backend(backend)
 
@@ -423,18 +428,29 @@ def run_benchmarks(
             )
 
         # Progress output
+        z3_error = solver_results["z3"]["error"]
+        cvc5_error = solver_results["cvc5"]["error"]
         if verbose:
             z3_status = "PASS" if solver_results["z3"]["passed"] else "FAIL"
             cvc5_status = "PASS" if solver_results["cvc5"]["passed"] else "FAIL"
-            z3_err = " (error)" if solver_results["z3"]["error"] else ""
-            cvc5_err = " (error)" if solver_results["cvc5"]["error"] else ""
+            z3_err = f" (error: {z3_error})" if z3_error else ""
+            cvc5_err = f" (error: {cvc5_error})" if cvc5_error else ""
             disagree = " [DISAGREE]" if z3_result != cvc5_result else ""
             print(
                 f"  [{idx}/{total_examples}] {name}: "
                 f"z3={z3_status}{z3_err} cvc5={cvc5_status}{cvc5_err}{disagree}"
             )
-        elif idx % 20 == 0:
-            print(f"  Progress: {idx}/{total_examples}")
+        else:
+            # Print errors immediately even in non-verbose mode
+            if z3_error or cvc5_error:
+                errs = []
+                if z3_error:
+                    errs.append(f"z3: {z3_error}")
+                if cvc5_error:
+                    errs.append(f"cvc5: {cvc5_error}")
+                print(f"  ERROR [{idx}/{total_examples}] {name}: {'; '.join(errs)}")
+            elif idx % 20 == 0:
+                print(f"  Progress: {idx}/{total_examples}")
 
     total_runtime = time.perf_counter() - start_time
 
@@ -504,6 +520,27 @@ def run_benchmarks(
         f"avg {summary['cvc5']['avg_time_seconds']:.4f}s, "
         f"total {summary['cvc5']['total_time_seconds']:.2f}s"
     )
+
+    # Show unique errors (deduplicated by message)
+    z3_errors = {}
+    cvc5_errors = {}
+    for r in results:
+        if r["z3"].get("error"):
+            msg = r["z3"]["error"]
+            z3_errors.setdefault(msg, []).append(r["example_name"])
+        if r["cvc5"].get("error"):
+            msg = r["cvc5"]["error"]
+            cvc5_errors.setdefault(msg, []).append(r["example_name"])
+
+    if z3_errors or cvc5_errors:
+        print(f"\nErrors:")
+        for solver_name, error_map in [("z3", z3_errors), ("cvc5", cvc5_errors)]:
+            for msg, examples_list in error_map.items():
+                count = len(examples_list)
+                sample = ", ".join(examples_list[:3])
+                suffix = f", ... ({count} total)" if count > 3 else ""
+                print(f"  {solver_name}: {msg}")
+                print(f"    affected: {sample}{suffix}")
 
     if disagreements:
         print(f"\nDisagreements: {len(disagreements)}")

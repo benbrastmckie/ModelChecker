@@ -286,3 +286,8 @@ def IsMember(elem: Any, s: Any) -> Any:
 def SetSort(elem_sort: Any) -> Any:
     """Create a set sort with the given element sort."""
     return _get_backend_module().SetSort(elem_sort)
+
+
+def is_const(expr: Any) -> bool:
+    """Check if an expression is a constant (nullary function application)."""
+    return _get_backend_module().is_const(expr)

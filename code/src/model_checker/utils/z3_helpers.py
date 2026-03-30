@@ -5,7 +5,7 @@ This module provides helper functions for working with Z3, including:
 - Set operations (future)
 """
 
-from typing import List, Union, Any, cast, TYPE_CHECKING
+from typing import List, Union, Any, TYPE_CHECKING
 
 from model_checker.solver.expressions import BitVecVal, And, Or, substitute
 
@@ -46,7 +46,7 @@ def ForAll(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "B
         for i in range(num_bvs):
             substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, temp_N)))
             constraints.append(substituted_reduced_formula)
-    return cast(BoolRef, And(constraints))
+    return And(constraints)
 
 
 def Exists(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "BoolRef":
@@ -82,7 +82,7 @@ def Exists(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "B
         for i in range(num_bvs):
             substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, N)))
             constraints.append(substituted_reduced_formula)
-    return cast(BoolRef, Or(constraints))
+    return Or(constraints)
 
 
 def safe_getattr(obj: Any, attr_name: str, default: Any = None) -> Any:

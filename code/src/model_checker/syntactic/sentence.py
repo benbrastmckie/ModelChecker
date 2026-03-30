@@ -224,9 +224,6 @@ class Sentence:
 
         if hasattr(prefix, 'name') and not isinstance(prefix, Term):
             return prefix.name
-        if hasattr(prefix, 'sort') and callable(getattr(prefix, 'sort', None)):
-            # This handles both z3.ExprRef and cvc5 expressions
-            return str(prefix)
         if isinstance(prefix, str):
             return prefix
         if isinstance(prefix, (list, tuple)):
@@ -280,6 +277,10 @@ class Sentence:
                 return f"{op_str} {self.infix(prefix[1])}"
             left_expr, right_expr = prefix[1], prefix[2]
             return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
+        # Handle solver expressions (z3.ExprRef, cvc5 expressions)
+        # Check after list/tuple to avoid matching Python lists (which also have .sort())
+        if hasattr(prefix, 'sort') and callable(getattr(prefix, 'sort', None)):
+            return str(prefix)
         raise TypeError(f"The prefix {prefix} has a type error in infix().")
 
     def update_types(self, operator_collection: 'OperatorCollection') -> None:
@@ -328,7 +329,7 @@ class Sentence:
             # - Extremal operators: \top, \bot
             # - Complex sentences: operator + arguments
 
-            from z3 import is_const
+            from model_checker.solver.expressions import is_const
             from .terms import Term
 
             first_elem = derived_type[0]
