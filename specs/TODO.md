@@ -10,7 +10,9 @@ next_project_number: 66
 
 ### 65. Fix cvc5 Sort conversion errors in semantic modules
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
+- **Summary**: Fixed cvc5 Sort conversion errors by adding dynamic AtomSort resolution via __getattr__ and updating 4 crash sites to use get_atom_sort() directly, enabling backend switching without stale Sort references.
 - **Research**: [01_team-research.md](065_fix_cvc5_sort_conversion_errors/reports/01_team-research.md)
 - **Plan**: [01_fix-atomsort-binding.md](065_fix_cvc5_sort_conversion_errors/plans/01_fix-atomsort-binding.md)
 - **Language**: z3

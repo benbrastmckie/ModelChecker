@@ -16,6 +16,7 @@ from model_checker import z3_shim as z3
 from model_checker.solver import is_true, is_false
 
 from model_checker import syntactic
+from model_checker.syntactic.atoms import get_atom_sort
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
 from model_checker.models.structure import ModelDefaults
@@ -141,13 +142,13 @@ class LogosSemantics(SemanticDefaults):
         self.verify = z3.Function(
             "verify",                   # Names the function 'verify'
             z3.BitVecSort(self.N),      # which maps a bitvector
-            syntactic.AtomSort,         # and a sentence letter
+            get_atom_sort(),            # and a sentence letter
             z3.BoolSort()               # to a truth-value
         )
         self.falsify = z3.Function(
             "falsify",                  # Names the function 'falsify'
             z3.BitVecSort(self.N),      # which maps a bitvector
-            syntactic.AtomSort,         # and a sentence letter
+            get_atom_sort(),            # and a sentence letter
             z3.BoolSort()               # to a truth-value
         )
         self.possible = z3.Function(

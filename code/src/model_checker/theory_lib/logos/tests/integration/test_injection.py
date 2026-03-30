@@ -9,6 +9,7 @@ from unittest.mock import Mock, MagicMock, patch
 import z3
 from model_checker.theory_lib.logos.semantic import LogosSemantics
 from model_checker import syntactic
+from model_checker.syntactic.atoms import get_atom_sort
 
 
 class TestLogosInjection(unittest.TestCase):
@@ -107,7 +108,7 @@ class TestLogosInjection(unittest.TestCase):
         """Test injection of verify/falsify constraints."""
         # Create mock sentence letters
         letter_a = Mock()
-        letter_a.sentence_letter = z3.Const('A', syntactic.AtomSort)
+        letter_a.sentence_letter = z3.Const('A', get_atom_sort())
         self.mock_constraints.syntax.sentence_letters = [letter_a]
         
         # Create a Z3 model with verify/falsify values

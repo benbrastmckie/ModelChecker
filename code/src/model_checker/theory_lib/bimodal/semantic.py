@@ -16,6 +16,7 @@ from model_checker.utils import (
     pretty_set_print,
 )
 from model_checker import syntactic
+from model_checker.syntactic.atoms import get_atom_sort
 
 # Witness predicate components (Phase 4 integration)
 # Note: These imports use fully qualified paths because semantic.py is being
@@ -175,7 +176,7 @@ class BimodalSemantics(SemanticDefaults):
         self.truth_condition = z3.Function(
             "truth_condition",
             self.WorldStateSort,
-            syntactic.AtomSort,
+            get_atom_sort(),
             z3.BoolSort()
         )
 
@@ -301,7 +302,7 @@ class BimodalSemantics(SemanticDefaults):
         
         # 3. Each sentence letter is true or false (and not both which is unsat)
         world_state = z3.BitVec('world_state', self.N)
-        sentence_letter = z3.Const('atom_interpretation', syntactic.AtomSort)
+        sentence_letter = z3.Const('atom_interpretation', get_atom_sort())
         classical_truth = z3.ForAll(
             [world_state, sentence_letter],
             z3.Or(

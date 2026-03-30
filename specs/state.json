@@ -4,11 +4,11 @@
     {
       "project_number": 65,
       "project_name": "fix_cvc5_sort_conversion_errors",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T22:39:40Z",
-      "last_updated": "2026-03-30T23:16:52Z",
-      "session_id": "sess_1774912455_b7e99f",
+      "last_updated": "2026-03-30T23:35:05Z",
+      "session_id": "sess_1774913123_fe5fbc65",
       "researched": "2026-03-30T23:04:30Z",
       "next_artifact_number": 2,
       "planned": "2026-03-30T23:16:52Z",
@@ -17,8 +17,16 @@
           "path": "specs/065_fix_cvc5_sort_conversion_errors/plans/01_fix-atomsort-binding.md",
           "type": "plan",
           "summary": "4-phase implementation plan for fixing cvc5 Sort conversion errors"
+        },
+        {
+          "path": "specs/065_fix_cvc5_sort_conversion_errors/summaries/01_fix-atomsort-binding-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
         }
-      ]
+      ],
+      "started": "2026-03-30T23:26:05Z",
+      "completed": "2026-03-30T23:35:05Z",
+      "completion_summary": "Fixed cvc5 Sort conversion errors by adding dynamic AtomSort resolution via __getattr__ and updating 4 crash sites to use get_atom_sort() directly, enabling backend switching without stale Sort references."
     },
     {
       "project_number": 64,
