@@ -1,5 +1,5 @@
 ---
-next_project_number: 53
+next_project_number: 54
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 53
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 53. Refine progress bar timing architecture for consistent fill and display
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Refine and harden progress bar system for non-isomorphic model iteration. Current issues: (1) Fill fraction vs displayed time inconsistency -- freeze_at_current() captures fill at model-found time but complete() displays elapsed including post-search processing (difference calculation ~500ms between freeze and yield in iterate/core.py lines 377-399), creating bars that show 0% fill but 0.6s text. (2) Fill fraction should either be recalculated at complete() time to match displayed elapsed, or the displayed elapsed should use the frozen timestamp. (3) The overall progress bar timing architecture needs consolidation -- there are two code paths for stopping bars (_stop_progress_animation in runner.py and stop_animation_only in core.py) that were just unified but the underlying timing model is fragile. (4) Progress bar display ordering (bar->output->bar) was recently fixed by reordering complete_model_search calls but should have integration tests. Key files: output/progress/animated.py (TimeBasedProgress.freeze_at_current/complete), output/progress/core.py (UnifiedProgress coordination), iterate/core.py (calls stop_animation_only at line 375, difference calc at 378-383, yield at 400), builder/runner.py (_process_with_iterations, _run_generator_iteration).
+
+---
 
 ### 52. Redesign progress bar for non-isomorphic model iteration
 - **Effort**: 3.5 hours
