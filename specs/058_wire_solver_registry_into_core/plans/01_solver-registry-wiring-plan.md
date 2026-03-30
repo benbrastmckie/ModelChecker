@@ -469,7 +469,7 @@ simplified = simplify(result)
 
 ---
 
-### Phase 8: Update Type Modules and Constraints [IN PROGRESS]
+### Phase 8: Update Type Modules and Constraints [COMPLETED]
 
 **Goal**: Ensure all type hints and constraint references use abstraction.
 
@@ -506,7 +506,7 @@ Constraint = BoolExpr
 
 ---
 
-### Phase 9: Wire Context Reset to Backend [NOT STARTED]
+### Phase 9: Wire Context Reset to Backend [IN PROGRESS]
 
 **Goal**: Ensure context reset properly handles backend switching.
 

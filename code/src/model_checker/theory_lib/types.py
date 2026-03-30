@@ -6,11 +6,12 @@ CODE_STANDARDS.md type annotation requirements.
 """
 from typing import (
     TypeVar, Dict, List, Optional, Union, Any,
-    Protocol, Callable, Tuple, Set, runtime_checkable
+    Protocol, Callable, Tuple, Set, runtime_checkable, TYPE_CHECKING
 )
 from abc import ABC, abstractmethod
 
-import z3
+if TYPE_CHECKING:
+    import z3
 
 # Local framework imports (commented out - not currently used)
 # from model_checker.defaults import SemanticDefaults
@@ -27,10 +28,15 @@ PropositionName = str
 StateId = Union[int, str]
 WorldId = Union[int, str]
 
-# Z3 types for solver integration
-Z3Expr = Union[z3.BoolRef, z3.ArithRef]
-Z3Model = z3.ModelRef
-Z3Solver = z3.Solver
+# Solver types (backend-agnostic at runtime)
+if TYPE_CHECKING:
+    Z3Expr = Union[z3.BoolRef, z3.ArithRef]
+    Z3Model = z3.ModelRef
+    Z3Solver = z3.Solver
+else:
+    Z3Expr = Any
+    Z3Model = Any
+    Z3Solver = Any
 
 # Configuration types
 TheoryConfig = Dict[str, Any]
@@ -93,11 +99,11 @@ class WitnessSemantics(Protocol):
 @runtime_checkable
 class WitnessRegistry(Protocol):
     """Protocol for witness predicate management."""
-    def register_witness_predicates(self, formula_str: str) -> Tuple[z3.FuncDeclRef, z3.FuncDeclRef]:
+    def register_witness_predicates(self, formula_str: str) -> Tuple[Any, Any]:
         """Register witness predicates for formula."""
         ...
 
-    def get_all_predicates(self) -> Dict[str, z3.FuncDeclRef]:
+    def get_all_predicates(self) -> Dict[str, Any]:
         """Get all registered predicates."""
         ...
 

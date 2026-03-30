@@ -7,9 +7,9 @@ the model checking process.
 
 import sys
 from typing import List, Dict, Any, Optional, Type, TYPE_CHECKING
-from z3 import ExprRef
 
 if TYPE_CHECKING:
+    from z3 import ExprRef
     from model_checker.syntactic import Syntax, Sentence
     from .semantic import Semantics
     from .proposition import PropositionDefaults
@@ -107,7 +107,7 @@ class ModelConstraints:
         conclusions = list(self.syntax.conclusions)
         return f"ModelConstraints for premises {premises} and conclusions {conclusions}"
 
-    def _load_sentence_letters(self) -> List[ExprRef]:
+    def _load_sentence_letters(self) -> List["ExprRef"]:
         """Extracts and validates atomic sentence letters from the syntax object.
         
         Unpacks each sentence letter from the syntax object and verifies it is a valid
@@ -123,8 +123,9 @@ class ModelConstraints:
         sentence_letters = []
         for packed_letter in self.syntax.sentence_letters:
             unpacked_letter = packed_letter.sentence_letter
-            if not isinstance(unpacked_letter, ExprRef):
-                raise TypeError("The sentence letter {letter} is not of type z3.ExprRef")
+            # Duck-type check: sentence letters must have a sort() method (solver expressions)
+            if not hasattr(unpacked_letter, 'sort'):
+                raise TypeError("The sentence letter {letter} is not a valid solver expression")
             sentence_letters.append(unpacked_letter) 
         return sentence_letters
 
