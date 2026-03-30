@@ -8,10 +8,9 @@ bindings, and proposition values.
 """
 
 from typing import List, Optional, Dict, Any, Union, Tuple, TYPE_CHECKING
-from z3 import ExprRef
 
 from model_checker.utils import parse_expression, tokenize_first_order, parse_first_order_expression
-from .atoms import AtomSort
+from .atoms import get_atom_sort
 from .types import FormulaString, PrefixList
 from .errors import InvalidFormulaError, ParseError
 from .terms import Term, Variable
@@ -19,6 +18,7 @@ from .formulas import compute_formula_free_variables, is_syntactically_wff
 
 if TYPE_CHECKING:
     from .collection import OperatorCollection
+    from z3 import ExprRef
 
 
 class Sentence:
@@ -224,7 +224,8 @@ class Sentence:
 
         if hasattr(prefix, 'name') and not isinstance(prefix, Term):
             return prefix.name
-        if isinstance(prefix, ExprRef):
+        if hasattr(prefix, 'sort') and callable(getattr(prefix, 'sort', None)):
+            # This handles both z3.ExprRef and cvc5 expressions
             return str(prefix)
         if isinstance(prefix, str):
             return prefix

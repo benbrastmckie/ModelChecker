@@ -181,7 +181,7 @@ def reset_solver_context() -> None:
 
 ---
 
-### Phase 3: Migrate Syntactic Layer [IN PROGRESS]
+### Phase 3: Migrate Syntactic Layer [COMPLETED]
 
 **Goal**: Handle AtomSort and syntactic atom creation with lazy initialization.
 
@@ -250,7 +250,7 @@ def AtomVal(i: Union[int, str]) -> AtomType:
 
 ---
 
-### Phase 4: Migrate Core Semantic Module [NOT STARTED]
+### Phase 4: Migrate Core Semantic Module [IN PROGRESS]
 
 **Goal**: Update semantic.py to use abstraction layer.
 
