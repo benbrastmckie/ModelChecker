@@ -2,8 +2,10 @@
 
 import pytest
 from unittest.mock import MagicMock, Mock
+from z3 import Const
 
 from model_checker.syntactic.sentence import Sentence
+from model_checker.syntactic.atoms import AtomSort
 
 
 class TestSentenceBasics:
@@ -143,15 +145,16 @@ class TestUpdateMethods:
     def test_update_types_atomic(self):
         """Test update_types for atomic sentences."""
         sent = Sentence("p")
-        
-        # Mock operator collection
+
+        # Mock operator collection with real Z3 Const for sentence letter
+        # (MagicMock fails because z3.is_const() returns False for mocks)
         mock_collection = MagicMock()
-        mock_atom = MagicMock()
-        mock_collection.apply_operator.return_value = [mock_atom]
-        
+        real_atom = Const("p", AtomSort)
+        mock_collection.apply_operator.return_value = [real_atom]
+
         sent.update_types(mock_collection)
-        
-        assert sent.sentence_letter == mock_atom
+
+        assert sent.sentence_letter == real_atom
         assert sent.operator is None
         assert sent.arguments is None
         
