@@ -4,10 +4,30 @@
     {
       "project_number": 49,
       "project_name": "solver_comparison_first_order_examples",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-30T00:58:08Z",
-      "last_updated": "2026-03-30T00:58:08Z"
+      "last_updated": "2026-03-30T01:08:08Z",
+      "session_id": "sess_1774832553_d83c09",
+      "researched": "2026-03-30T01:08:08Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/reports/01_teammate-a-findings.md",
+          "type": "research",
+          "summary": "Primary approach: solver switching mechanics, timing, first_order integration pattern"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/reports/01_teammate-b-findings.md",
+          "type": "research",
+          "summary": "Alternative patterns: settings-injection, subtheory inventory, existing test patterns"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Synthesized team research: 5-step first_order integration, parametrized solver comparison test design"
+        }
+      ]
     },
     {
       "project_number": 48,

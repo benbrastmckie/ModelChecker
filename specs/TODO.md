@@ -10,8 +10,12 @@ next_project_number: 50
 
 ### 49. Expand examples.py with first_order subtheory examples and create solver comparison test suite
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
+- **Research**:
+  - [01_teammate-a-findings.md](049_solver_comparison_first_order_examples/reports/01_teammate-a-findings.md)
+  - [01_teammate-b-findings.md](049_solver_comparison_first_order_examples/reports/01_teammate-b-findings.md)
+  - [01_team-research.md](049_solver_comparison_first_order_examples/reports/01_team-research.md)
 
 **Description**: Expand /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/logos/examples.py to include examples from the first_order/ subtheory, then create a test file that imports examples from all subtheories and runs them first with z3 and then with cvc5, collecting results and timing data for systematic comparison between cvc5 and z3.
 
