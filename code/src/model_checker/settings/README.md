@@ -237,6 +237,15 @@ This setting must be configured in example files, not as CLI flags:
 - `--save-output` - Save output to file
 - `--maximize` - Compare theories by maximizing model size
 
+#### Solver Backend Selection
+
+Select which SMT solver backend to use for constraint solving:
+
+- `--z3` - Use Z3 solver backend (default)
+- `--cvc5` - Use cvc5 solver backend
+
+For detailed information about solver backends, capabilities, and configuration, see the [Solver Package documentation](../solver/README.md).
+
 #### Usage Examples
 
 ```bash

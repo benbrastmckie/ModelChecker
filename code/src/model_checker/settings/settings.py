@@ -230,8 +230,9 @@ class SettingsManager:
             is_mock: Whether this is a mock object
         """
         # Standard args that don't correspond to settings
-        standard_args = {'load_theory', 'upgrade', 'version', 'save', 
-                        'interactive', 'output_mode', 'sequential_files'}
+        standard_args = {'load_theory', 'upgrade', 'version', 'save',
+                        'interactive', 'output_mode', 'sequential_files',
+                        'z3', 'cvc5', 'subtheory'}
         
         for key, value in vars(module_flags).items():
             # Skip internal attributes and file_path

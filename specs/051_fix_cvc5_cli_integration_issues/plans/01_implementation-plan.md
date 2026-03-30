@@ -1,7 +1,7 @@
 # Implementation Plan: Task #51
 
 - **Task**: 51 - fix_cvc5_cli_integration_issues
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/051_fix_cvc5_cli_integration_issues/reports/01_team-research.md
@@ -48,7 +48,7 @@ Key findings from team research (01_team-research.md):
 
 ## Implementation Phases
 
-### Phase 1: Fix standard_args in settings.py [NOT STARTED]
+### Phase 1: Fix standard_args in settings.py [COMPLETED]
 
 **Goal**: Eliminate spurious warning for z3/cvc5/subtheory CLI flags
 
@@ -69,7 +69,7 @@ Key findings from team research (01_team-research.md):
 
 ---
 
-### Phase 2: Update runtime footer label [NOT STARTED]
+### Phase 2: Update runtime footer label [COMPLETED]
 
 **Goal**: Make runtime footer backend-neutral
 
@@ -92,7 +92,7 @@ Key findings from team research (01_team-research.md):
 
 ---
 
-### Phase 3: Update Settings README documentation [NOT STARTED]
+### Phase 3: Update Settings README documentation [COMPLETED]
 
 **Goal**: Document solver backend selection in settings README
 
@@ -114,7 +114,7 @@ Key findings from team research (01_team-research.md):
 
 ---
 
-### Phase 4: Update Solver README documentation [NOT STARTED]
+### Phase 4: Update Solver README documentation [COMPLETED]
 
 **Goal**: Ensure solver README has complete backend selection documentation
 
@@ -137,7 +137,7 @@ Key findings from team research (01_team-research.md):
 
 ---
 
-### Phase 5: Run tests and final verification [NOT STARTED]
+### Phase 5: Run tests and final verification [COMPLETED]
 
 **Goal**: Ensure all changes work correctly and no regressions
 

@@ -497,12 +497,12 @@ class ModelDefaults:
             - Model settings
             - Premise sentences
             - Conclusion sentences
-            - Z3 solver runtime
+            - Solver runtime
         """
         from string import Template
 
         inputs_template = Template(
-        '''Z3 run time: ${z3_model_runtime} seconds
+        '''Solver run time: ${z3_model_runtime} seconds
         """
 
         ################
@@ -836,8 +836,8 @@ class ModelDefaults:
             print()
 
     def _print_runtime_footer(self, output: TextIO) -> None:
-        """Print Z3 runtime and separator footer."""
-        print(f"\nZ3 Run Time: {self.z3_model_runtime} seconds", file=output)
+        """Print solver runtime and separator footer."""
+        print(f"\nSolver Run Time: {self.z3_model_runtime} seconds", file=output)
         print(f"\n{'='*40}", file=output)
     
     def print_all(self, output: TextIO = sys.stdout) -> None:
