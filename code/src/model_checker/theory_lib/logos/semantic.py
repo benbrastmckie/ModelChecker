@@ -13,6 +13,8 @@ from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING, 
 from z3 import simplify
 import z3
 
+from model_checker.solver import is_true, is_false
+
 from model_checker import syntactic
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
@@ -595,7 +597,7 @@ class LogosSemantics(SemanticDefaults):
             # Evaluate using original is_world function
             is_world_val = z3_model.eval(original_semantics.is_world(state), model_completion=True)
             # Add constraint using new is_world function
-            if z3.is_true(is_world_val):
+            if is_true(is_world_val):
                 model_constraints.all_constraints.append(self.is_world(state))
             else:
                 model_constraints.all_constraints.append(z3.Not(self.is_world(state)))
@@ -605,7 +607,7 @@ class LogosSemantics(SemanticDefaults):
             # Evaluate using original possible function
             is_possible_val = z3_model.eval(original_semantics.possible(state), model_completion=True)
             # Add constraint using new possible function
-            if z3.is_true(is_possible_val):
+            if is_true(is_possible_val):
                 model_constraints.all_constraints.append(self.possible(state))
             else:
                 model_constraints.all_constraints.append(z3.Not(self.possible(state)))
@@ -619,7 +621,7 @@ class LogosSemantics(SemanticDefaults):
                 # Evaluate using original verify function
                 verify_val = z3_model.eval(original_semantics.verify(state, atom), model_completion=True)
                 # Add constraint using new verify function
-                if z3.is_true(verify_val):
+                if is_true(verify_val):
                     model_constraints.all_constraints.append(self.verify(state, atom))
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.verify(state, atom)))
@@ -629,7 +631,7 @@ class LogosSemantics(SemanticDefaults):
                 # Evaluate using original falsify function
                 falsify_val = z3_model.eval(original_semantics.falsify(state, atom), model_completion=True)
                 # Add constraint using new falsify function
-                if z3.is_true(falsify_val):
+                if is_true(falsify_val):
                     model_constraints.all_constraints.append(self.falsify(state, atom))
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.falsify(state, atom)))
@@ -1308,16 +1310,16 @@ class LogosProposition(PropositionDefaults):
             result = z3_model.evaluate(expression, model_completion=True)
             
             # Check if result is a boolean constant
-            if z3.is_true(result):
+            if is_true(result):
                 return True
-            elif z3.is_false(result):
+            elif is_false(result):
                 return False
             
             # Try to simplify
             simplified = z3.simplify(result)
-            if z3.is_true(simplified):
+            if is_true(simplified):
                 return True
-            elif z3.is_false(simplified):
+            elif is_false(simplified):
                 return False
                 
             # Check string representation as last resort
@@ -1512,16 +1514,16 @@ class LogosModelStructure(ModelDefaults):
         """
         try:
             result = self.z3_model.evaluate(expression, model_completion=True)
-            if z3.is_true(result):
+            if is_true(result):
                 return True
-            elif z3.is_false(result):
+            elif is_false(result):
                 return False
 
             # Try to simplify
             simplified = z3.simplify(result)
-            if z3.is_true(simplified):
+            if is_true(simplified):
                 return True
-            elif z3.is_false(simplified):
+            elif is_false(simplified):
                 return False
 
             # Conservative default

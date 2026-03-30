@@ -370,7 +370,7 @@ state_map[(state, letter_str)] = (
 
 ---
 
-### Phase 6: Migrate Theory Libraries [IN PROGRESS]
+### Phase 6: Migrate Theory Libraries [COMPLETED]
 
 **Goal**: Update theory implementations to use abstraction layer.
 
@@ -429,7 +429,7 @@ simplified = simplify(result)
 
 ---
 
-### Phase 7: Migrate Iterator and Builder Modules [NOT STARTED]
+### Phase 7: Migrate Iterator and Builder Modules [IN PROGRESS]
 
 **Goal**: Update iteration and example building to use abstraction.
 

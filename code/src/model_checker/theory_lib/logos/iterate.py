@@ -12,6 +12,7 @@ from typing import Dict, List, Set, Any, Optional, Union, Generator, TYPE_CHECKI
 
 import z3
 
+from model_checker.solver import is_true, is_false
 from model_checker.iterate.core import BaseModelIterator
 from model_checker.utils import bitvec_to_substates, pretty_set_print
 
@@ -261,7 +262,7 @@ class LogosModelIterator(BaseModelIterator):
         # Count worlds in previous model
         prev_world_count = 0
         for state in range(2**semantics.N):
-            if z3.is_true(prev_model.eval(semantics.is_world(state), model_completion=True)):
+            if is_true(prev_model.eval(semantics.is_world(state), model_completion=True)):
                 prev_world_count += 1
         
         # Current model must have different number of worlds
