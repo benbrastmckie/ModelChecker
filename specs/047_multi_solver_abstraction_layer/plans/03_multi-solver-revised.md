@@ -2,7 +2,7 @@
 
 - **Task**: 47 - Implement multi-solver abstraction layer for z3, cvc5, and future constraint solvers
 - **Status**: [NOT STARTED]
-- **Effort**: 10 hours
+- **Effort**: 9.5 hours
 - **Dependencies**: None
 - **Research Inputs**:
   - specs/047_multi_solver_abstraction_layer/reports/01_team-research.md
@@ -14,9 +14,9 @@
 
 ## Overview
 
-This revised plan incorporates critical findings from the plan review:
+This revised plan incorporates findings from the plan review and subsequent cvc5 API research:
 
-1. **Critical fix**: cvc5.pythonic does NOT support unsat cores - solver control must use cvc5 base API
+1. **Correction**: cvc5.pythonic DOES support unsat cores via `check(*assumptions)` + `unsat_core()` -- the adapter can stay entirely in the pythonic API
 2. **Simplified migration**: Use `__getattr__` import shim to reduce 74-file changes to single regex
 3. **Type safety**: Protocol classes instead of `Any` types
 4. **No overengineering**: Skip plugin architecture, entry points, and dependency injection patterns
@@ -27,7 +27,7 @@ This revised plan incorporates critical findings from the plan review:
 |----------|--------|-----------|
 | Import migration | `__getattr__` shim | Single regex vs 74 manual edits |
 | Type system | Protocol classes | Duck typing with static checking |
-| cvc5 adapter | Split (pythonic + base API) | Pythonic lacks unsat cores |
+| cvc5 adapter | Pythonic API only | Pythonic supports all needed features including unsat cores |
 | Architecture | Simple module structure | Avoid overkill for 2 backends |
 
 ## Goals & Non-Goals
@@ -48,7 +48,7 @@ This revised plan incorporates critical findings from the plan review:
 
 | Risk | Impact | Likelihood | Mitigation |
 |------|--------|------------|------------|
-| cvc5 base API complexity | High | High | Split adapter; pythonic for formulas, base for solver |
+| cvc5 unsat core label mapping | Medium | Medium | Manual label-to-term dict; match core terms back to labels |
 | Import shim edge cases | Medium | Low | Comprehensive test coverage |
 | Protocol typing gaps | Medium | Low | Use TYPE_CHECKING guards |
 | Performance regression | Low | Low | Benchmark Z3 passthrough |
@@ -213,64 +213,86 @@ This revised plan incorporates critical findings from the plan review:
 
 ---
 
-### Phase 4: Implement cvc5 Adapter (Split Architecture) [NOT STARTED]
+### Phase 4: Implement cvc5 Adapter (Pythonic API) [NOT STARTED]
 
-**Goal**: cvc5 adapter with pythonic API for formulas, base API for solver control
+**Goal**: cvc5 adapter using the pythonic API for both formulas and solver control
 
-**Critical**: cvc5.pythonic does NOT support unsat cores. Must use base API for solver operations.
+**Key insight**: cvc5.pythonic DOES support unsat cores. The pythonic `Solver` provides:
+- `s.set('produce-unsat-cores', 'true')` to enable
+- `s.check(*assumptions)` where assumptions are passed to `checkSatAssuming()`
+- `s.unsat_core()` returns subset of assertions + assumptions as pythonic expressions
+
+The difference from Z3: Z3's `assert_and_track(constraint, label)` maps string labels to constraints.
+cvc5 returns actual formula terms in the core, so the adapter maps terms back to labels.
 
 **Tasks**:
 - [ ] Create `code/src/model_checker/solver/cvc5_adapter.py`:
   ```python
-  """cvc5 adapter - pythonic for formulas, base API for solver control."""
+  """cvc5 adapter - uses pythonic API throughout."""
+  from cvc5.pythonic import Solver as CVC5Solver, sat, unsat
 
   class CVC5SolverAdapter:
-      """cvc5 solver with manual unsat core tracking."""
+      """cvc5 solver using pythonic API with label-based unsat core tracking."""
 
       def __init__(self):
-          import cvc5
-          self._solver = cvc5.Solver()
-          self._solver.setOption("produce-unsat-cores", "true")
-          self._tracked: dict[str, Any] = {}
-          self._labels: dict[int, str] = {}  # expr_id -> label
+          self._solver = CVC5Solver()
+          self._solver.set('produce-unsat-cores', 'true')
+          self._tracked: dict[str, Any] = {}  # label -> constraint
+          self._reverse: dict[int, str] = {}  # id(constraint) -> label
 
       def add(self, constraint):
-          # Use base API for adding
-          self._solver.assertFormula(constraint)
+          self._solver.add(constraint)
 
       def assert_tracked(self, constraint, label: str):
-          """Manual tracking since pythonic lacks assert_and_track."""
+          """Add constraint with label tracking for unsat core."""
           self._tracked[label] = constraint
-          self._labels[id(constraint)] = label
-          self._solver.assertFormula(constraint)
+          self._reverse[id(constraint)] = label
+          self._solver.add(constraint)
 
       def check(self) -> str:
-          result = self._solver.checkSat()
-          if result.isSat():
+          result = self._solver.check()
+          if result == sat:
               return "sat"
-          elif result.isUnsat():
+          elif result == unsat:
               return "unsat"
           return "unknown"
 
       def model(self):
-          return CVC5ModelAdapter(self._solver)
+          return self._solver.model()
 
       def unsat_core(self) -> list:
-          """Return labels of core constraints."""
-          core_terms = self._solver.getUnsatCore()
-          return [self._labels.get(id(t), str(t)) for t in core_terms]
+          """Return labels of core constraints (matching Z3 behavior)."""
+          core_terms = self._solver.unsat_core()
+          labels = []
+          for term in core_terms:
+              label = self._reverse.get(id(term))
+              if label:
+                  labels.append(label)
+              else:
+                  # Fallback: match by structural equality
+                  for lbl, c in self._tracked.items():
+                      if str(c) == str(term):
+                          labels.append(lbl)
+                          break
+          return labels
 
       def set_timeout(self, ms: int):
-          self._solver.setOption("tlimit-per", str(ms))
-  ```
-- [ ] Create `CVC5ModelAdapter` for model evaluation:
-  ```python
-  class CVC5ModelAdapter:
-      def __init__(self, solver):
-          self._solver = solver
+          self._solver.set('tlimit-per', str(ms))
 
-      def eval(self, expr, model_completion: bool = False):
-          return self._solver.getValue(expr)
+      def push(self):
+          self._solver.push()
+
+      def pop(self, n: int = 1):
+          self._solver.pop(n)
+
+      def reason_unknown(self) -> str:
+          return str(self._solver.reason_unknown())
+  ```
+- [ ] Handle model evaluation differences:
+  ```python
+  # Z3: model.eval(expr, model_completion=True)
+  # cvc5 pythonic: model.evaluate(expr) or model[expr]
+  # Adapter wraps in compat.py
   ```
 - [ ] Add cvc5 to registry with detection:
   ```python
@@ -283,11 +305,11 @@ This revised plan incorporates critical findings from the plan review:
   ```
 - [ ] Update expressions.py to support cvc5 backend switching
 
-**Timing**: 2.5 hours
+**Timing**: 2 hours
 
 **Verification**:
 - CVC5SolverAdapter satisfies SolverProtocol
-- Manual unsat core tracking works correctly
+- Unsat core returns correct labels via term-to-label mapping
 - Simple solve operations produce equivalent results to Z3
 
 ---
@@ -455,7 +477,7 @@ code/src/model_checker/
     compat.py           # Cross-solver helpers
     expressions.py      # Formula construction re-exports
     z3_adapter.py       # Z3 backend
-    cvc5_adapter.py     # cvc5 backend (split architecture)
+    cvc5_adapter.py     # cvc5 backend (pythonic API)
     README.md
     tests/
       __init__.py
