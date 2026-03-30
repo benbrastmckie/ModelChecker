@@ -9,13 +9,17 @@ next_project_number: 50
 <!-- New tasks are prepended below this line -->
 
 ### 49. Expand examples.py with first_order subtheory examples and create solver comparison test suite
-- **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Effort**: 3.5 hours
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
+- **Summary**: Integrated 12 first_order examples into unified logos examples module and created parametrized solver comparison test suite covering 138 examples against z3 and cvc5 backends with timing collection and graceful degradation.
 - **Language**: z3
 - **Research**:
   - [01_teammate-a-findings.md](049_solver_comparison_first_order_examples/reports/01_teammate-a-findings.md)
   - [01_teammate-b-findings.md](049_solver_comparison_first_order_examples/reports/01_teammate-b-findings.md)
   - [01_team-research.md](049_solver_comparison_first_order_examples/reports/01_team-research.md)
+- **Plan**: [01_implementation-plan.md](049_solver_comparison_first_order_examples/plans/01_implementation-plan.md)
+- **Summary**: [01_solver-comparison-summary.md](049_solver_comparison_first_order_examples/summaries/01_solver-comparison-summary.md)
 
 **Description**: Expand /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/logos/examples.py to include examples from the first_order/ subtheory, then create a test file that imports examples from all subtheories and runs them first with z3 and then with cvc5, collecting results and timing data for systematic comparison between cvc5 and z3.
 

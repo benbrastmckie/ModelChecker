@@ -4,11 +4,11 @@
     {
       "project_number": 49,
       "project_name": "solver_comparison_first_order_examples",
-      "status": "researched",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T00:58:08Z",
-      "last_updated": "2026-03-30T01:08:08Z",
-      "session_id": "sess_1774832553_d83c09",
+      "last_updated": "2026-03-30T04:30:00Z",
+      "session_id": "sess_1774841566_caa020c7",
       "researched": "2026-03-30T01:08:08Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -26,8 +26,22 @@
           "path": "specs/049_solver_comparison_first_order_examples/reports/01_team-research.md",
           "type": "research",
           "summary": "Synthesized team research: 5-step first_order integration, parametrized solver comparison test design"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for first_order integration and solver comparison test suite"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/summaries/01_solver-comparison-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
         }
-      ]
+      ],
+      "planned": "2026-03-30T01:12:44Z",
+      "started": "2026-03-30T03:33:33Z",
+      "completed": "2026-03-30T04:30:00Z",
+      "completion_summary": "Integrated 12 first_order examples into unified logos examples module and created parametrized solver comparison test suite covering 138 examples against z3 and cvc5 backends with timing collection and graceful degradation."
     },
     {
       "project_number": 48,
