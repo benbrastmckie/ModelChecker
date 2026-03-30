@@ -7,11 +7,12 @@
       "status": "planned",
       "language": "python",
       "created": "2026-03-30T19:25:57Z",
-      "last_updated": "2026-03-30T19:42:13Z",
+      "last_updated": "2026-03-30T20:00:11Z",
       "artifacts": {
         "research": [
           "specs/057_v2_scaling_solver_comparison/reports/01_scaling-benchmark-design.md",
-          "specs/057_v2_scaling_solver_comparison/reports/02_max-model-discovery.md"
+          "specs/057_v2_scaling_solver_comparison/reports/02_max-model-discovery.md",
+          "specs/057_v2_scaling_solver_comparison/reports/03_existing-infrastructure.md"
         ],
         "plan": {
           "path": "specs/057_v2_scaling_solver_comparison/plans/02_implementation-plan.md",
