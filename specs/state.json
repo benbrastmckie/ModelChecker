@@ -4,15 +4,20 @@
     {
       "project_number": 48,
       "project_name": "fix_test_update_types_atomic_syntactic",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-30T00:16:00Z",
-      "last_updated": "2026-03-30T00:21:39Z",
+      "last_updated": "2026-03-30T00:30:06Z",
       "artifacts": {
         "research": [
           "reports/01_research-report.md"
+        ],
+        "plan": [
+          "plans/01_implementation-plan.md"
         ]
-      }
+      },
+      "session_id": "sess_1774830475_597e86",
+      "planned": "2026-03-30T00:30:06Z"
     },
     {
       "project_number": 47,

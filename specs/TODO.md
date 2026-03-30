@@ -9,10 +9,11 @@ next_project_number: 49
 <!-- New tasks are prepended below this line -->
 
 ### 48. Fix failing test_update_types_atomic in syntactic package
-- **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Effort**: 0.5 hours
+- **Status**: [PLANNED]
 - **Language**: python
 - **Research**: [01_research-report.md](048_fix_test_update_types_atomic_syntactic/reports/01_research-report.md)
+- **Plan**: [01_implementation-plan.md](048_fix_test_update_types_atomic_syntactic/plans/01_implementation-plan.md)
 
 **Description**: Fix failing test_update_types_atomic in syntactic package: test uses MagicMock for sentence letter but store_types() requires Z3 Const.
 
