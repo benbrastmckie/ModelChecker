@@ -10,9 +10,12 @@ next_project_number: 57
 
 ### 56. Fix comparison.py warnings: add 'M' to DEFAULT_EXAMPLE_SETTINGS and gitignore output.json
 - **Effort**: 0.25 hours
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
+- **Summary**: Added M to DEFAULT_EXAMPLE_SETTINGS to suppress 8 unknown setting warnings, and added output.json to gitignore.
 - **Language**: python
 - **Plan**: [01_implementation-plan.md](056_fix_comparison_warnings_default_settings/plans/01_implementation-plan.md)
+- **Summary**: [01_execution-summary.md](056_fix_comparison_warnings_default_settings/summaries/01_execution-summary.md)
 
 **Description**: Fix comparison.py warnings: add 'M' to DEFAULT_EXAMPLE_SETTINGS in LogosSemantics (semantic.py) to suppress 8 "Unknown example setting 'M'" warnings from constitutive examples CL_TH_16-19, and add output.json to .gitignore since it is a generated benchmark file.
 

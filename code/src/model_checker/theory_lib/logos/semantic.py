@@ -115,6 +115,7 @@ class LogosSemantics(SemanticDefaults):
     
     DEFAULT_EXAMPLE_SETTINGS = {
         'N': 16,
+        'M': None,  # Time steps for temporal models (used by constitutive subtheory)
         'contingent': True,
         'non_empty': True,
         'non_null': True,
