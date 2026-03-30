@@ -4,11 +4,11 @@
     {
       "project_number": 54,
       "project_name": "fix_mod_comp_solver_comparison_test_failures",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-30T17:28:35Z",
-      "last_updated": "2026-03-30T17:34:06Z",
-      "session_id": "sess_1774891856_3627c9",
+      "last_updated": "2026-03-30T17:36:27Z",
+      "session_id": "sess_1774892089_d3a5d5",
       "researched": "2026-03-30T17:34:06Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -16,8 +16,14 @@
           "path": "specs/054_fix_mod_comp_solver_comparison_test_failures/reports/01_lambda-error-research.md",
           "type": "research",
           "summary": "Research report identifying root cause: MOD_COMP examples require first_order subtheory but test only loads modal"
+        },
+        {
+          "path": "specs/054_fix_mod_comp_solver_comparison_test_failures/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "1-phase implementation plan for fix_mod_comp_solver_comparison_test_failures"
         }
-      ]
+      ],
+      "planned": "2026-03-30T17:36:27Z"
     },
     {
       "project_number": 53,
