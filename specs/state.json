@@ -4,11 +4,13 @@
     {
       "project_number": 55,
       "project_name": "create_comparison_script_z3_cvc5_benchmarking",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-30T17:48:28Z",
-      "last_updated": "2026-03-30T11:03:44-07:00",
-      "next_artifact_number": 2
+      "last_updated": "2026-03-30T18:12:40Z",
+      "next_artifact_number": 2,
+      "session_id": "sess_1774894164_1c8f8c",
+      "planned": "2026-03-30T18:12:40Z"
     },
     {
       "project_number": 54,

@@ -9,10 +9,11 @@ next_project_number: 56
 <!-- New tasks are prepended below this line -->
 
 ### 55. Create comparison.py script for systematic z3 vs cvc5 solver benchmarking with JSON output
-- **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Effort**: 2.5 hours
+- **Status**: [PLANNED]
 - **Language**: python
 - **Research**: [01_comparison-script-research.md](055_create_comparison_script_z3_cvc5_benchmarking/reports/01_comparison-script-research.md)
+- **Plan**: [01_implementation-plan.md](055_create_comparison_script_z3_cvc5_benchmarking/plans/01_implementation-plan.md)
 
 **Description**: Create a comparison.py script that imports examples from theory_lib/logos/examples.py and systematically runs each example against both z3 and cvc5 solvers, recording results and timing data to output.json for analysis.
 
