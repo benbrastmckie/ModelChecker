@@ -1,5 +1,5 @@
 ---
-next_project_number: 51
+next_project_number: 52
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 51
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 51. Fix cvc5 CLI integration issues
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Fix cvc5 CLI integration issues: add z3/cvc5 to standard_args in settings.py to suppress spurious "Flag 'cvc5' doesn't correspond to any known setting" warning, replace hardcoded "Z3 Run Time" label in structure.py with backend-aware label, and audit other hardcoded Z3 references in user-facing output.
+
+---
 
 ### 50. Create standalone solver comparison script using dev_cli.py
 - **Effort**: TBD

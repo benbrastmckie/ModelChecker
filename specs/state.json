@@ -1,6 +1,14 @@
 {
-  "next_project_number": 51,
+  "next_project_number": 52,
   "active_projects": [
+    {
+      "project_number": 51,
+      "project_name": "fix_cvc5_cli_integration_issues",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T15:22:02Z",
+      "last_updated": "2026-03-30T15:22:02Z"
+    },
     {
       "project_number": 50,
       "project_name": "standalone_solver_comparison_script",
