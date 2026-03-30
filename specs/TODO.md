@@ -10,9 +10,10 @@ next_project_number: 53
 
 ### 52. Redesign progress bar for non-isomorphic model iteration
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: python
 - **Research**: [01_progress-bar-redesign.md](052_redesign_progress_bar_model_iteration/reports/01_progress-bar-redesign.md)
+- **Plan**: [01_implementation-plan.md](052_redesign_progress_bar_model_iteration/plans/01_implementation-plan.md)
 
 **Description**: Redesign progress bar for non-isomorphic model iteration: (1) Progress bar should show actual search progress per-model, filling proportionally to elapsed time and completing at the actual fill level when found (not snapping to 100%), (2) Each model's output should appear immediately after its progress bar completes (bar -> model output -> bar -> model output), not stacked bars followed by stacked outputs, (3) For model 1: bar animates during search -> freezes at actual fill -> model header + output prints -> then model 2 bar starts, (4) The bar fill semantics should be time-based against timeout which is fine, but the completion should freeze at the actual elapsed fraction rather than filling to 100%. Key files: output/progress/animated.py (TimeBasedProgress.complete fills to 100%), output/progress/core.py (UnifiedProgress coordination), iterate/core.py (calls complete_model_search at line 374 inside iterator before yield), builder/runner.py (_run_generator_iteration doesn't manage per-model progress for models 2+). The core architectural issue is that iterate/core.py manages progress bars internally and calls complete_model_search before yielding, but runner.py manages the display ordering -- these need to be reconciled so progress completes -> model displays -> next progress starts, in sequence.
 
