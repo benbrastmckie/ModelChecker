@@ -606,7 +606,13 @@ class ModelRunner:
     
     def _run_generator_iteration(self, example, theory_iterate_example, example_name, theory_name, iterate_count):
         """Run iteration using generator interface for incremental display.
-        
+
+        Uses deferred completion pattern for correct bar -> output -> bar ordering:
+        1. Iterator finds model and calls stop_animation_only() (freezes bar, no print)
+        2. Runner displays model output (differences, header, model details)
+        3. Runner calls complete_model_search() to print frozen progress bar
+        4. Next iteration starts new progress bar
+
         Args:
             example: The BuildExample instance
             theory_iterate_example: Theory-specific iterate function with generator support
@@ -616,20 +622,23 @@ class ModelRunner:
         """
         # Get generator from theory
         model_generator = theory_iterate_example(example, max_iterations=iterate_count)
-        
+
+        # Get progress tracker for deferred completion
+        progress = getattr(example, '_unified_progress', None)
+
         # Track distinct models
         distinct_count = 0  # Will increment when we find the first additional model
         previous_model = example.model_structure
-        
+
         try:
             # Process models as they're yielded
             for i, structure in enumerate(model_generator, start=2):
                 # Skip isomorphic models in display
                 if hasattr(structure, '_is_isomorphic') and structure._is_isomorphic:
                     continue
-                    
+
                 distinct_count += 1
-                
+
                 # Always print differences from previous model (except for the first additional model)
                 if previous_model:
                     # Print differences using structure's method
@@ -645,26 +654,32 @@ class ModelRunner:
                             print(diff_report)
                         else:
                             print("(No differences calculated)")
-                
+
                 # Print model header - now showing correct numbering (2/4, 3/4, 4/4)
                 print(f"MODEL {distinct_count + 1}/{iterate_count}")
-                
+
                 # Update example with new model
                 example.model_structure = structure
-                
+
                 # Display model immediately
                 self.build_module._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
-                
+
+                # NOW complete the progress bar (after model output is displayed)
+                # This achieves the bar -> output -> bar ordering
+                if progress:
+                    progress.complete_model_search(found=True)
+                    print()  # Add vertical space after progress bar
+
                 # Add extra vertical space after non-isomorphic models (except for the last one)
                 # Only add space if we're not at the last model we'll actually find
                 # Note: We can't know if more models exist until we try to get the next one
                 # So we always add space unless we've reached the requested count
-                if distinct_count < iterate_count - 1:
+                if distinct_count < iterate_count - 1 and not progress:
                     print()
-                
+
                 # Update previous model for next iteration
                 previous_model = structure
-                
+
         except StopIteration:
             # Normal termination - no more models found
             pass
@@ -672,7 +687,7 @@ class ModelRunner:
             print(f"Error during iteration: {e}", file=sys.stderr)
             import traceback
             traceback.print_exc()
-        
+
         # Termination info is now handled by the iterator's detailed report
     
     def _get_termination_info(self, example, found_count, requested_count):

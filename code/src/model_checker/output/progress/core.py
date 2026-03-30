@@ -149,9 +149,29 @@ class UnifiedProgress:
         """Complete search for current model."""
         if found:
             self.models_found += 1
-            
+
         if self.model_progress_bars:
             self.model_progress_bars[-1].complete(found)
+
+    def stop_animation_only(self) -> float:
+        """Stop the current progress bar animation without printing final state.
+
+        This freezes the progress bar at its current fill level and stops the
+        animation thread, but does NOT print the final bar. Use this when you
+        need to print other output (like model headers) before showing the
+        completed progress bar.
+
+        Returns:
+            float: The frozen fill fraction (0.0 to 1.0), or 1.0 if no active bar
+        """
+        if self.model_progress_bars:
+            bar = self.model_progress_bars[-1]
+            if hasattr(bar, 'freeze_at_current'):
+                fill_fraction = bar.freeze_at_current()
+                # Clear the animated line from terminal
+                self.display.clear()
+                return fill_fraction
+        return 1.0
             
     def finish(self) -> None:
         """Complete all progress tracking."""

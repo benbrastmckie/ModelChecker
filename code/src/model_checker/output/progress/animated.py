@@ -101,6 +101,8 @@ class TimeBasedProgress(AnimatedProgressBar):
         self.checked_count = 0
         self.skipped_count = 0
         self.use_color = self._supports_color()
+        self.fill_fraction = 1.0  # Default to full fill, updated by freeze_at_current()
+        self._frozen = False  # True if freeze_at_current() was called
         
     def start(self, total: int = 100, message: str = "") -> None:
         """Start the animated progress bar."""
@@ -185,12 +187,46 @@ class TimeBasedProgress(AnimatedProgressBar):
     def update_skipped(self, count: int) -> None:
         """Update skipped model count."""
         self.skipped_count = count
-        
+
+    def freeze_at_current(self) -> float:
+        """Freeze the progress bar at its current fill level.
+
+        This method captures the current elapsed time fraction and stops
+        the animation thread without printing the final bar state. Use this
+        when a model is found and you want to preserve the actual fill level
+        rather than filling to 100%.
+
+        Returns:
+            float: The frozen fill fraction (0.0 to 1.0)
+        """
+        # Mark as explicitly frozen
+        self._frozen = True
+
+        # Calculate elapsed time fraction
+        if self.start_time is None:
+            self.fill_fraction = 0.0
+        else:
+            elapsed = time.time() - self.start_time
+            self.fill_fraction = min(1.0, elapsed / self.timeout)
+
+        # Stop the animation loop
+        self.active = False
+
+        # Wait for animation thread to finish with timeout
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=0.5)
+
+        return self.fill_fraction
+
     def complete(self, success: bool = True) -> None:
         """Complete the progress bar.
 
         This method can be called after manually stopping the animation thread.
         It handles the case where active=False and thread is already joined.
+
+        Uses the stored fill_fraction (set by freeze_at_current()) to display
+        the bar at its actual fill level when the model was found, rather than
+        always showing 100% fill.
         """
         # Set flags first to stop animation
         self.found = success
@@ -208,20 +244,23 @@ class TimeBasedProgress(AnimatedProgressBar):
             elapsed = 0.0
         else:
             elapsed = time.time() - self.start_time
-        
+
         # Only show final state if model was found
         # For timeouts, we just clear the line and don't show anything
         if success:
-            # Fill bar completely with color if supported
-            if self.use_color:
-                bar = f"[{PROGRESS_COLOR}{'█' * 20}{COLOR_RESET}]"
+            # Use frozen fill fraction if freeze_at_current() was called,
+            # otherwise default to 100% fill (legacy behavior)
+            if self._frozen:
+                # Use the frozen fill fraction for time-proportional display
+                bar = self._generate_bar(self.fill_fraction)
             else:
-                bar = "[" + "█" * 20 + "]"
-            
+                # Legacy behavior: fill to 100% when complete() called directly
+                bar = self._generate_bar(1.0)
+
             msg = f"Finding non-isomorphic models: {bar} {self.model_number}/{self.total_models}"
             if self.skipped_count > 0:
                 msg += f" ({self.skipped_count} skipped)"
             msg += f" {elapsed:.1f}s"
-            
+
             self.display.update(msg)
             self.display.complete()

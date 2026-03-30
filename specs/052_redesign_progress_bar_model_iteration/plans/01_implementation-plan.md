@@ -47,7 +47,7 @@ Key findings from `reports/01_progress-bar-redesign.md`:
 
 ## Implementation Phases
 
-### Phase 1: Add Freeze-at-Current Method [NOT STARTED]
+### Phase 1: Add Freeze-at-Current Method [COMPLETED]
 
 **Goal**: Enable TimeBasedProgress to capture current fill fraction and stop animation without completing.
 
@@ -76,7 +76,7 @@ Key findings from `reports/01_progress-bar-redesign.md`:
 
 ---
 
-### Phase 2: Modify Complete to Use Frozen Fill [NOT STARTED]
+### Phase 2: Modify Complete to Use Frozen Fill [COMPLETED]
 
 **Goal**: Make `complete()` use the stored fill fraction instead of always filling to 100%.
 
@@ -98,7 +98,7 @@ Key findings from `reports/01_progress-bar-redesign.md`:
 
 ---
 
-### Phase 3: Refactor Iterator Progress Control [NOT STARTED]
+### Phase 3: Refactor Iterator Progress Control [COMPLETED]
 
 **Goal**: Move progress completion from iterator to runner for correct output ordering.
 
@@ -125,7 +125,7 @@ Key findings from `reports/01_progress-bar-redesign.md`:
 
 ---
 
-### Phase 4: Edge Case Handling and Integration Testing [NOT STARTED]
+### Phase 4: Edge Case Handling and Integration Testing [COMPLETED]
 
 **Goal**: Ensure robust behavior for all edge cases identified in research.
 
