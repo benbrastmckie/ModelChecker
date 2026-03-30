@@ -1,13 +1,16 @@
 """Constraint generation and management for model iteration.
 
-This module handles creating constraints that ensure each new model differs 
-from previously found models. It manages Z3 solver interaction and constraint
+This module handles creating constraints that ensure each new model differs
+from previously found models. It manages solver interaction and constraint
 validation.
 """
 
 import z3
 import itertools
 import logging
+
+from model_checker.solver import is_true, is_false
+
 from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
@@ -185,7 +188,7 @@ class ConstraintGenerator:
                     try:
                         prev_value = prev_model.eval(is_world_expr, model_completion=True)
                         
-                        if z3.is_true(prev_value):
+                        if is_true(prev_value):
                             # Previous model had this as world, new model should not
                             not_world_expr = z3.Not(is_world_expr)
                             if not_world_expr is not None:
@@ -232,7 +235,7 @@ class ConstraintGenerator:
                     try:
                         iso_value = isomorphic_model.eval(is_world_expr, model_completion=True)
                         
-                        if z3.is_true(iso_value):
+                        if is_true(iso_value):
                             not_world_expr = z3.Not(is_world_expr)
                             if not_world_expr is not None:
                                 difference_constraints.append(not_world_expr)
