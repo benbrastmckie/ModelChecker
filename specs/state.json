@@ -4,10 +4,15 @@
     {
       "project_number": 57,
       "project_name": "v2_scaling_solver_comparison",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-30T19:25:57Z",
-      "last_updated": "2026-03-30T19:25:57Z"
+      "last_updated": "2026-03-30T19:31:14Z",
+      "artifacts": {
+        "research": [
+          "specs/057_v2_scaling_solver_comparison/reports/01_scaling-benchmark-design.md"
+        ]
+      }
     },
     {
       "project_number": 50,

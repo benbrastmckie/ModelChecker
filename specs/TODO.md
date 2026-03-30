@@ -10,8 +10,9 @@ next_project_number: 58
 
 ### 57. Design v2 scaling solver comparison benchmark
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: python
+- **Research**: [01_scaling-benchmark-design.md](057_v2_scaling_solver_comparison/reports/01_scaling-benchmark-design.md)
 
 **Description**: Research and design a v2 solver comparison benchmark that progressively scales model sizes (number of worlds, propositions, accessibility relations) to identify divergence points between z3 and cvc5. The current v1 (code/comparison.py) runs 138 examples with both solvers getting identical results. V2 should: (1) parameterize model size dimensions (world count, proposition count, relation density), (2) progressively increase scale until solvers diverge in result or timeout, (3) identify the specific model size thresholds where divergence occurs, (4) report per-subtheory scaling curves and divergence points.
 
