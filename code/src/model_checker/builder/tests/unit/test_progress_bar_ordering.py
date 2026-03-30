@@ -383,5 +383,218 @@ class TestUnifiedProgressDeferredCompletion(unittest.TestCase):
         self.assertIn("1/2", output, "Should show model count")
 
 
+class TestBarOutputBarOrdering(unittest.TestCase):
+    """Integration tests for bar->output->bar ordering with frozen state.
+
+    These tests verify the complete pattern:
+    1. Bar animates during search
+    2. freeze_at_current() captures fill and elapsed at model-found time
+    3. Output (header) is printed
+    4. complete() displays the bar with frozen values
+
+    The key property: elapsed time shown should match the fill fraction,
+    both captured at freeze time, not complete() time.
+    """
+
+    def test_freeze_complete_time_consistency(self):
+        """Test that complete() uses frozen elapsed time, not current time.
+
+        This tests the core fix: when freeze_at_current() is called at 0.3s,
+        complete() should display 0.3s, even if called 0.5s later.
+        """
+        buffer = io.StringIO()
+        display = TerminalDisplay(stream=buffer)
+
+        bar = TimeBasedProgress(
+            timeout=1.0,  # 1 second timeout
+            model_number=1,
+            total_models=2,
+            display=display
+        )
+
+        # Start and let it run for ~0.3s
+        bar.start()
+        time.sleep(0.3)
+
+        # Freeze at current position
+        fill_fraction = bar.freeze_at_current()
+        frozen_elapsed = bar._frozen_elapsed
+
+        # Verify freeze captured reasonable values
+        self.assertGreater(frozen_elapsed, 0.15, "Should have elapsed time")
+        self.assertLess(frozen_elapsed, 0.6, "Should not exceed sleep time by much")
+        self.assertAlmostEqual(
+            fill_fraction, frozen_elapsed / bar.timeout, places=2,
+            msg="Fill fraction should match elapsed/timeout ratio"
+        )
+
+        # Simulate post-search delay (header printing, etc.)
+        time.sleep(0.4)
+
+        # Clear any animation output
+        buffer.truncate(0)
+        buffer.seek(0)
+
+        # Complete the bar - should use frozen values
+        bar.complete(success=True)
+
+        output = buffer.getvalue()
+
+        # Extract displayed elapsed time
+        import re
+        match = re.search(r'(\d+\.\d+)s', output)
+        self.assertIsNotNone(match, f"Should find elapsed time in: {output}")
+        displayed_elapsed = float(match.group(1))
+
+        # Key assertion: displayed elapsed should match frozen elapsed
+        # NOT current elapsed (which would be ~0.7s)
+        self.assertAlmostEqual(
+            displayed_elapsed, frozen_elapsed, delta=0.15,
+            msg=f"Displayed ({displayed_elapsed}s) should match frozen ({frozen_elapsed}s)"
+        )
+
+        # Sanity check: should NOT be the complete() time
+        self.assertLess(
+            displayed_elapsed, 0.6,
+            msg=f"Displayed ({displayed_elapsed}s) should be frozen time, not complete() time"
+        )
+
+    def test_deferred_completion_preserves_frozen_state(self):
+        """Test the full bar->output->bar pattern preserves frozen state.
+
+        Simulates the real usage pattern:
+        1. Start animation
+        2. Model found - freeze_at_current()
+        3. Print header (simulated)
+        4. complete() displays frozen state
+        """
+        buffer = io.StringIO()
+        display = TerminalDisplay(stream=buffer)
+
+        bar = TimeBasedProgress(
+            timeout=2.0,  # 2 second timeout
+            model_number=2,
+            total_models=3,
+            display=display
+        )
+
+        # Phase 1: Animation running
+        bar.start()
+        time.sleep(0.2)
+
+        # Phase 2: Model found - freeze
+        bar.freeze_at_current()
+        frozen_fill = bar.fill_fraction
+        frozen_elapsed = bar._frozen_elapsed
+
+        # Thread should be stopped
+        self.assertFalse(bar.active)
+
+        # Clear animation output
+        display.clear()
+        buffer.truncate(0)
+        buffer.seek(0)
+
+        # Phase 3: Print header (simulated external operation)
+        buffer.write("EXAMPLE 1: some header content\n")
+
+        # Phase 4: Delay (simulating processing time)
+        time.sleep(0.3)
+
+        # Phase 5: Complete with frozen state
+        bar.complete(success=True)
+
+        output = buffer.getvalue()
+
+        # Verify header came first
+        header_pos = output.find("EXAMPLE 1:")
+        bar_pos = output.find("Finding non-isomorphic models:")
+        self.assertLess(
+            header_pos, bar_pos,
+            "Header should appear before progress bar"
+        )
+
+        # Verify frozen state was used
+        # Bar should NOT be full (frozen_fill was ~0.1, not 1.0)
+        self.assertLess(
+            frozen_fill, 0.3,
+            "Frozen fill should be partial, not full"
+        )
+
+        # Extract displayed time and verify it matches frozen
+        import re
+        match = re.search(r'(\d+\.\d+)s', output)
+        self.assertIsNotNone(match)
+        displayed = float(match.group(1))
+
+        self.assertAlmostEqual(
+            displayed, frozen_elapsed, delta=0.15,
+            msg=f"Displayed time ({displayed}s) should match frozen ({frozen_elapsed}s)"
+        )
+
+    def test_multiple_bars_maintain_independent_frozen_state(self):
+        """Test that multiple progress bars maintain independent frozen state.
+
+        When processing multiple models, each bar should preserve its own
+        frozen fill fraction and elapsed time.
+        """
+        buffer1 = io.StringIO()
+        buffer2 = io.StringIO()
+        display1 = TerminalDisplay(stream=buffer1)
+        display2 = TerminalDisplay(stream=buffer2)
+
+        # First bar - runs for 0.2s before freeze
+        bar1 = TimeBasedProgress(
+            timeout=1.0,
+            model_number=1,
+            total_models=2,
+            display=display1
+        )
+        bar1.start()
+        time.sleep(0.2)
+        bar1.freeze_at_current()
+        frozen1 = bar1._frozen_elapsed
+
+        # Second bar - runs for 0.4s before freeze
+        bar2 = TimeBasedProgress(
+            timeout=1.0,
+            model_number=2,
+            total_models=2,
+            display=display2
+        )
+        bar2.start()
+        time.sleep(0.4)
+        bar2.freeze_at_current()
+        frozen2 = bar2._frozen_elapsed
+
+        # Verify they have different frozen times
+        self.assertLess(frozen1, frozen2 - 0.1,
+            msg="Bar1 should have shorter frozen time than bar2")
+
+        # Complete both
+        buffer1.truncate(0)
+        buffer1.seek(0)
+        buffer2.truncate(0)
+        buffer2.seek(0)
+
+        bar1.complete(success=True)
+        bar2.complete(success=True)
+
+        # Extract displayed times
+        import re
+        match1 = re.search(r'(\d+\.\d+)s', buffer1.getvalue())
+        match2 = re.search(r'(\d+\.\d+)s', buffer2.getvalue())
+
+        self.assertIsNotNone(match1)
+        self.assertIsNotNone(match2)
+
+        displayed1 = float(match1.group(1))
+        displayed2 = float(match2.group(1))
+
+        # Each should show its own frozen time
+        self.assertAlmostEqual(displayed1, frozen1, delta=0.15)
+        self.assertAlmostEqual(displayed2, frozen2, delta=0.15)
+
+
 if __name__ == "__main__":
     unittest.main()
