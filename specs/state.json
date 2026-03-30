@@ -1,6 +1,14 @@
 {
-  "next_project_number": 57,
+  "next_project_number": 58,
   "active_projects": [
+    {
+      "project_number": 57,
+      "project_name": "v2_scaling_solver_comparison",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-30T19:25:57Z",
+      "last_updated": "2026-03-30T19:25:57Z"
+    },
     {
       "project_number": 50,
       "project_name": "standalone_solver_comparison_script",
