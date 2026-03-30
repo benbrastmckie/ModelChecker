@@ -1,6 +1,14 @@
 {
-  "next_project_number": 65,
+  "next_project_number": 66,
   "active_projects": [
+    {
+      "project_number": 65,
+      "project_name": "fix_cvc5_sort_conversion_errors",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T22:39:40Z",
+      "last_updated": "2026-03-30T22:39:40Z"
+    },
     {
       "project_number": 64,
       "project_name": "fix_test_push_pop_sat_transitions_signed_unsigned",
