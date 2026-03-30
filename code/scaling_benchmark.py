@@ -226,12 +226,12 @@ def get_curated_benchmark_examples() -> Dict[str, List[Any]]:
     # Select representative examples from each subtheory
     # Prefer theorem examples (_TH_) over countermodel (_CM_) for scaling
     subtheory_targets = {
-        "extensional": 3,
-        "modal": 4,
-        "constitutive": 3,
-        "counterfactual": 4,
-        "relevance": 3,
-        "first_order": 3,
+        "extensional": 1,
+        "modal": 1,
+        "constitutive": 1,
+        "counterfactual": 1,
+        "relevance": 1,
+        "first_order": 1,
     }
 
     for subtheory, count in subtheory_targets.items():
@@ -617,8 +617,8 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--output", "-o",
-        default="scaling_results.json",
-        help="Output JSON file (default: scaling_results.json)",
+        default=os.path.join(os.path.dirname(os.path.abspath(__file__)), "scaling_results.json"),
+        help="Output JSON file (default: code/scaling_results.json)",
     )
     parser.add_argument(
         "--min-n",
@@ -629,14 +629,14 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--max-n",
         type=int,
-        default=16,
-        help="Maximum N to try (default: 16)",
+        default=8,
+        help="Maximum N to try (default: 8)",
     )
     parser.add_argument(
         "--timeout", "-t",
         type=float,
-        default=60.0,
-        help="Per-N timeout in seconds (default: 60.0)",
+        default=10.0,
+        help="Per-N timeout in seconds (default: 10.0)",
     )
     parser.add_argument(
         "--subtheory", "-s",

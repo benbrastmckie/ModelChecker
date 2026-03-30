@@ -23,6 +23,7 @@ code/src/new_checker/__pycache__/exposed_things.cpython-312.pyc
 code/src/new_checker/__pycache__/hidden_helpers.cpython-312.pyc
 code/.venv
 code/output.json
+code/scaling_results.json
 /latex/build/paper.pdf
 
 **/CLAUDE.md

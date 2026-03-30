@@ -4,10 +4,20 @@
     {
       "project_number": 58,
       "project_name": "wire_solver_registry_into_core",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-30T21:00:19Z",
-      "last_updated": "2026-03-30T21:00:19Z"
+      "last_updated": "2026-03-30T21:04:26Z",
+      "session_id": "sess_1774904456_kc5b3",
+      "researched": "2026-03-30T21:04:26Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/058_wire_solver_registry_into_core/reports/01_solver-registry-wiring.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of z3 imports across 181 files, identified 15-20 core pipeline files requiring modification, documented two-phase migration strategy using existing expressions.py and adapter layer"
+        }
+      ]
     },
     {
       "project_number": 57,
