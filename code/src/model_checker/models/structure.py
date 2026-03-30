@@ -1,7 +1,8 @@
-"""Core model structure and Z3 solving.
+"""Core model structure and solver integration.
 
 This module contains the ModelDefaults class which provides the core
-model structure and Z3 solving functionality.
+model structure and solver functionality, with support for multiple
+SMT backends via the solver abstraction layer.
 """
 
 import sys
@@ -9,6 +10,8 @@ import time
 from contextlib import redirect_stdout
 from string import Template
 from typing import Dict, List, Tuple, Optional, Any, TextIO, Union, TYPE_CHECKING
+
+from model_checker.solver import create_solver, SolverResult, is_true
 
 if TYPE_CHECKING:
     from model_checker.syntactic import Sentence
@@ -135,43 +138,42 @@ class ModelDefaults:
         else:
             self.unsat_core = z3_model
 
-    def _setup_solver(self, model_constraints: 'ModelConstraints') -> 'z3.Solver':
-        """Initialize Z3 solver and add all model constraints with tracking labels.
-        
-        Sets up a new Z3 solver instance and adds all constraints from the model_constraints
-        object, organizing them into labeled groups (frame, model, premises, conclusions).
+    def _setup_solver(self, model_constraints: 'ModelConstraints') -> Any:
+        """Initialize solver and add all model constraints with tracking labels.
+
+        Sets up a new solver instance via the abstraction layer and adds all constraints
+        from the model_constraints object, organizing them into labeled groups.
         Each constraint is tracked with a unique identifier for unsat core extraction.
-        
+
         Args:
             model_constraints (ModelConstraints): Object containing all logical constraints
                                                 to be added to the solver
-                                                
+
         Returns:
-            z3.Solver: Initialized solver with all constraints added and tracked
-            
+            Solver instance (TrackedSolverProtocol) with all constraints added and tracked
+
         Note:
-            Constraints are added using assert_and_track() to enable unsat core generation
+            Constraints are added using assert_tracked() to enable unsat core generation
             when constraints are unsatisfiable.
         """
-        from z3 import Solver
-        solver = Solver()
-            
+        solver = create_solver()
+
         # Clear the constraint dict to prevent cross-example contamination
         self.constraint_dict = {}
-            
+
         constraint_groups = [
             (model_constraints.frame_constraints, "frame"),
-            (model_constraints.model_constraints, "model"), 
+            (model_constraints.model_constraints, "model"),
             (model_constraints.premise_constraints, "premises"),
             (model_constraints.conclusion_constraints, "conclusions")
         ]
-        
+
         for constraints, group_name in constraint_groups:
             for ix, constraint in enumerate(constraints):
                 c_id = f"{group_name}{ix+1}"
-                solver.assert_and_track(constraint, c_id)
+                solver.assert_tracked(constraint, c_id)
                 self.constraint_dict[c_id] = constraint
-                
+
         return solver
 
     def _create_result(self, is_timeout: bool, model_or_core: Any, is_satisfiable: bool, start_time: float) -> Tuple[bool, Any, bool, float]:
@@ -211,28 +213,25 @@ class ModelDefaults:
             self.example_context = None
     
     def solve(self, model_constraints: 'ModelConstraints', max_time: int) -> Tuple[bool, Any, bool, Optional[float]]:
-        """Uses the Z3 solver to find a model satisfying the given constraints.
-        
-        Creates a completely fresh Z3 context for each example to ensure
+        """Uses the solver to find a model satisfying the given constraints.
+
+        Creates a completely fresh solver context for each example to ensure
         proper isolation and deterministic behavior regardless of which
         examples were run previously.
-        
+
         Args:
             model_constraints (ModelConstraints): The logical constraints to solve
             max_time (int): Maximum solving time in milliseconds (0 for unlimited)
-            
+
         Returns:
             tuple: Contains result information (timeout flag, model/core, satisfiability)
-            
+
         Notes:
             - If the constraints are unsatisfiable, returns the unsatisfiable core
             - If solving times out, sets the timeout flag but still returns partial results
         """
-        # Import z3
-        import z3
-        
-        # Create a new solver
-        self.solver = z3.Solver()
+        # Create a new solver via abstraction layer
+        self.solver = create_solver()
         self.stored_solver = self.solver
 
         try:
@@ -240,59 +239,57 @@ class ModelDefaults:
             self.solver = self._setup_solver(model_constraints)
 
             # Set timeout and solve
-            self.solver.set("timeout", int(max_time * 1000))
+            self.solver.set_timeout(int(max_time * 1000))
             start_time = time.time()
             result = self.solver.check()
-            
-            # Handle different solver outcomes
-            if result == z3.sat:
+
+            # Handle different solver outcomes using SolverResult
+            if SolverResult.is_sat(result):
                 return self._create_result(False, self.solver.model(), True, start_time)
-            
+
             if self.solver.reason_unknown() == "timeout":
                 return self._create_result(True, None, False, start_time)
-            
+
             return self._create_result(False, self.solver.unsat_core(), False, start_time)
-            
+
         except RuntimeError as e:
             from .errors import ModelSolverError
-            raise ModelSolverError(f"Z3 solver encountered an error: {e}") from e
+            raise ModelSolverError(f"Solver encountered an error: {e}") from e
         finally:
             # Ensure proper cleanup to prevent any possible state leakage
             self._cleanup_solver_resources()
     
     def re_solve(self) -> Tuple[bool, Any, bool, float]:
         """Re-solve the existing model constraints with the current solver state.
-        
+
         Attempts to find a new solution using the existing solver instance and its
         constraints. This is useful when additional constraints have been added to
         the solver after initial solving.
-        
+
         Returns:
             tuple: Contains (is_timeout, model_or_core, is_satisfiable, runtime) where:
                 - is_timeout (bool): Whether solver timed out
-                - model_or_core: Either a Z3 model (if satisfiable) or unsat core (if unsatisfiable)
+                - model_or_core: Solver model (if satisfiable) or unsat core (if unsatisfiable)
                 - is_satisfiable (bool): Whether constraints were satisfiable
                 - runtime (float): Time taken by solver in seconds
         """
-        import z3
-
         try:
             assert self.solver is not None
             # Re-apply timeout setting
-            self.solver.set("timeout", int(self.max_time * 1000))
-            
+            self.solver.set_timeout(int(self.max_time * 1000))
+
             start_time = time.time()
             result = self.solver.check()
-            
-            # Handle different solver outcomes
-            if result == z3.sat:
+
+            # Handle different solver outcomes using SolverResult
+            if SolverResult.is_sat(result):
                 return self._create_result(False, self.solver.model(), True, start_time)
-            
+
             if self.solver.reason_unknown() == "timeout":
                 return self._create_result(True, None, False, start_time)
-            
+
             return self._create_result(False, self.solver.unsat_core(), False, start_time)
-            
+
         except RuntimeError as e:
             from .errors import ModelSolverError
             raise ModelSolverError(f"Re-solve operation failed: {e}") from e
@@ -863,32 +860,30 @@ class ModelDefaults:
         self.print_model(output)
     
     def extract_verify_falsify_state(self) -> Dict[Tuple[int, str], Tuple[bool, bool]]:
-        """Extract current verify/falsify function values from Z3 model.
-        
+        """Extract current verify/falsify function values from solver model.
+
         This method extracts the current values of verify and falsify functions
-        from the Z3 model. These values are used by the iterator to create
+        from the solver model. These values are used by the iterator to create
         fresh ModelConstraints that match the current model.
-        
+
         Returns:
             dict: Mapping of (state, letter) -> (verify_value, falsify_value)
-            
+
         Raises:
-            ModelStateError: If Z3 model not available
+            ModelStateError: If solver model not available
         """
         if not self.z3_model:
             from .errors import ModelStateError
             raise ModelStateError(
-                "Cannot extract verify/falsify state: No Z3 model available. "
+                "Cannot extract verify/falsify state: No solver model available. "
                 "Ensure the model has been solved and is satisfiable before extraction."
             )
-        
-        import z3
-        
+
         state_map = {}
         for letter in self.sentence_letters:
             letter_str = letter.sentence_letter
             for state in range(2**self.N):
-                # Get verify/falsify values from Z3 model
+                # Get verify/falsify values from solver model
                 verify_val = self.z3_model.eval(
                     self.semantics.verify(state, letter_str),
                     model_completion=True
@@ -897,11 +892,11 @@ class ModelDefaults:
                     self.semantics.falsify(state, letter_str),
                     model_completion=True
                 )
-                
-                # Convert to boolean values
+
+                # Convert to boolean values using solver abstraction
                 state_map[(state, letter_str)] = (
-                    z3.is_true(verify_val),
-                    z3.is_true(falsify_val)
+                    is_true(verify_val),
+                    is_true(falsify_val)
                 )
-        
+
         return state_map

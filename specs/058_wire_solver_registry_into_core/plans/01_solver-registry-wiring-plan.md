@@ -295,7 +295,7 @@ return BoolVal(value)
 
 ---
 
-### Phase 5: Migrate Core Structure Module [IN PROGRESS]
+### Phase 5: Migrate Core Structure Module [COMPLETED]
 
 **Goal**: The critical change - wire structure.py to use solver registry.
 
@@ -370,7 +370,7 @@ state_map[(state, letter_str)] = (
 
 ---
 
-### Phase 6: Migrate Theory Libraries [NOT STARTED]
+### Phase 6: Migrate Theory Libraries [IN PROGRESS]
 
 **Goal**: Update theory implementations to use abstraction layer.
 
