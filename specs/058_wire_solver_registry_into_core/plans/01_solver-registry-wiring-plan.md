@@ -1,7 +1,7 @@
 # Implementation Plan: Wire Solver Registry into Core
 
 - **Task**: 58 - Wire Solver Registry into Core
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6-8 hours
 - **Dependencies**: Task 47 (Multi-solver abstraction layer) - COMPLETED
 - **Research Inputs**: specs/058_wire_solver_registry_into_core/reports/01_solver-registry-wiring.md

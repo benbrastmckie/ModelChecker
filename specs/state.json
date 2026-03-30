@@ -4,10 +4,10 @@
     {
       "project_number": 58,
       "project_name": "wire_solver_registry_into_core",
-      "status": "implementing",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-30T21:00:19Z",
-      "last_updated": "2026-03-30T21:13:17Z",
+      "last_updated": "2026-03-30T21:30:34Z",
       "session_id": "sess_1774905172_393f12",
       "researched": "2026-03-30T21:04:26Z",
       "next_artifact_number": 2,
@@ -21,10 +21,17 @@
           "path": "specs/058_wire_solver_registry_into_core/plans/01_solver-registry-wiring-plan.md",
           "type": "plan",
           "summary": "10-phase comprehensive migration plan to wire solver registry into core solving pipeline"
+        },
+        {
+          "path": "specs/058_wire_solver_registry_into_core/summaries/01_solver-registry-wiring-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for solver registry wiring into core pipeline"
         }
       ],
       "planned": "2026-03-30T21:10:29Z",
-      "started": "2026-03-30T21:13:17Z"
+      "started": "2026-03-30T21:13:17Z",
+      "completed": "2026-03-30T21:30:34Z",
+      "completion_summary": "Migrated core solving pipeline from direct z3 imports to solver abstraction layer across 26 files, enabling MODEL_CHECKER_SOLVER=cvc5 to route through CVC5 backend with lazy AtomSort initialization and unified context reset"
     },
     {
       "project_number": 57,
