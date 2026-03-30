@@ -10,8 +10,9 @@ next_project_number: 55
 
 ### 54. Fix MOD_COMP_1/2/3 solver comparison test failures caused by lambda error
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: python
+- **Research**: [01_lambda-error-research.md](054_fix_mod_comp_solver_comparison_test_failures/reports/01_lambda-error-research.md)
 
 **Description**: Fix MOD_COMP_1/2/3 solver comparison test failures caused by '\\lambda' error. All 6 tests (z3 and cvc5 backends) fail with the same error, suggesting a LaTeX rendering or operator definition issue in the modal_comparison subtheory examples. Investigate the '\\lambda' KeyError/lookup failure in the operator or semantics pipeline, fix the root cause, and verify that test_solver_comparison.py passes 100% (all tests green). Key files: code/src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py, and the modal_comparison subtheory examples (MOD_COMP_1, MOD_COMP_2, MOD_COMP_3).
 
