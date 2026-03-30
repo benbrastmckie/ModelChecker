@@ -1,5 +1,5 @@
 ---
-next_project_number: 48
+next_project_number: 49
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 48
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 48. Fix failing test_update_types_atomic in syntactic package
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix failing test_update_types_atomic in syntactic package: test uses MagicMock for sentence letter but store_types() requires Z3 Const.
+
+---
 
 ### 47. Implement multi-solver abstraction layer for z3, cvc5, and future constraint solvers
 - **Effort**: TBD
