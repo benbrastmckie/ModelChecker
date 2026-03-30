@@ -265,3 +265,24 @@ def unsat() -> Any:
 def unknown() -> Any:
     """Get the unknown result constant."""
     return _get_backend_module().unknown
+
+
+# Set operations
+def EmptySet(sort: Any) -> Any:
+    """Create an empty set of the given element sort."""
+    return _get_backend_module().EmptySet(sort)
+
+
+def SetAdd(s: Any, elem: Any) -> Any:
+    """Add an element to a set."""
+    return _get_backend_module().SetAdd(s, elem)
+
+
+def IsMember(elem: Any, s: Any) -> Any:
+    """Check if element is member of set."""
+    return _get_backend_module().IsMember(elem, s)
+
+
+def SetSort(elem_sort: Any) -> Any:
+    """Create a set sort with the given element sort."""
+    return _get_backend_module().SetSort(elem_sort)

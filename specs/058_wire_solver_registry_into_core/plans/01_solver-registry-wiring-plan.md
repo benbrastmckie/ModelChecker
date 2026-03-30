@@ -1,7 +1,7 @@
 # Implementation Plan: Wire Solver Registry into Core
 
 - **Task**: 58 - Wire Solver Registry into Core
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 6-8 hours
 - **Dependencies**: Task 47 (Multi-solver abstraction layer) - COMPLETED
 - **Research Inputs**: specs/058_wire_solver_registry_into_core/reports/01_solver-registry-wiring.md
@@ -57,7 +57,7 @@ This plan provides a **single comprehensive migration** that:
 
 ## Implementation Phases
 
-### Phase 1: Extend Abstraction Layer [NOT STARTED]
+### Phase 1: Extend Abstraction Layer [COMPLETED]
 
 **Goal**: Ensure expressions.py and compat.py have all functions needed by core files.
 
@@ -118,7 +118,7 @@ def is_true(val: Any, backend: str = None) -> bool:
 
 ---
 
-### Phase 2: Migrate Utility Modules [NOT STARTED]
+### Phase 2: Migrate Utility Modules [IN PROGRESS]
 
 **Goal**: Update low-level utilities that other modules depend on.
 

@@ -10,7 +10,7 @@ next_project_number: 59
 
 ### 58. Wire solver registry into core solving loop
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Language**: z3
 - **Research**: [01_solver-registry-wiring.md](058_wire_solver_registry_into_core/reports/01_solver-registry-wiring.md)
 - **Plan**: [01_solver-registry-wiring-plan.md](058_wire_solver_registry_into_core/plans/01_solver-registry-wiring-plan.md)
