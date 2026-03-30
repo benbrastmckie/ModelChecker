@@ -250,7 +250,7 @@ def AtomVal(i: Union[int, str]) -> AtomType:
 
 ---
 
-### Phase 4: Migrate Core Semantic Module [IN PROGRESS]
+### Phase 4: Migrate Core Semantic Module [COMPLETED]
 
 **Goal**: Update semantic.py to use abstraction layer.
 
@@ -295,7 +295,7 @@ return BoolVal(value)
 
 ---
 
-### Phase 5: Migrate Core Structure Module [NOT STARTED]
+### Phase 5: Migrate Core Structure Module [IN PROGRESS]
 
 **Goal**: The critical change - wire structure.py to use solver registry.
 
