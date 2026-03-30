@@ -1,6 +1,14 @@
 {
-  "next_project_number": 49,
+  "next_project_number": 50,
   "active_projects": [
+    {
+      "project_number": 49,
+      "project_name": "solver_comparison_first_order_examples",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T00:58:08Z",
+      "last_updated": "2026-03-30T00:58:08Z"
+    },
     {
       "project_number": 48,
       "project_name": "fix_test_update_types_atomic_syntactic",

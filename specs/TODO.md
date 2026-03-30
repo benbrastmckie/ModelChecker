@@ -1,5 +1,5 @@
 ---
-next_project_number: 49
+next_project_number: 50
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 49
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 49. Expand examples.py with first_order subtheory examples and create solver comparison test suite
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Expand /home/benjamin/Projects/Logos/ModelChecker/code/src/model_checker/theory_lib/logos/examples.py to include examples from the first_order/ subtheory, then create a test file that imports examples from all subtheories and runs them first with z3 and then with cvc5, collecting results and timing data for systematic comparison between cvc5 and z3.
+
+---
 
 ### 48. Fix failing test_update_types_atomic in syntactic package
 - **Effort**: 0.5 hours
