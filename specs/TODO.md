@@ -1,5 +1,5 @@
 ---
-next_project_number: 58
+next_project_number: 59
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 58
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 58. Wire solver registry into core solving loop
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: structure.py hardcodes `import z3` and `z3.Solver()` throughout, bypassing the solver switching infrastructure (registry, adapters, z3_shim). This means `switch_solver('cvc5')` has no effect on actual SAT checking. Need to systematically replace all direct `import z3` / `from z3 import ...` in the solving pipeline with `from model_checker.z3_shim import ...` (or the adapter layer), so that the active backend from the registry is actually used. Key files: structure.py (lines 16, 156, 232-235, 248, 277, 288, 885), runner.py (lines 15, 312), and any other files in the solving pipeline that import z3 directly. Must preserve existing behavior when z3 is the default backend while enabling actual cvc5 usage when switched.
+
+---
 
 ### 57. Design v2 scaling solver comparison benchmark
 - **Effort**: TBD

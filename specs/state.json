@@ -1,6 +1,14 @@
 {
-  "next_project_number": 58,
+  "next_project_number": 59,
   "active_projects": [
+    {
+      "project_number": 58,
+      "project_name": "wire_solver_registry_into_core",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T21:00:19Z",
+      "last_updated": "2026-03-30T21:00:19Z"
+    },
     {
       "project_number": 57,
       "project_name": "v2_scaling_solver_comparison",
