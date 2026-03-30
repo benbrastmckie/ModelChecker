@@ -28,10 +28,10 @@
     {
       "project_number": 46,
       "project_name": "fix_z3_and_return_type_narrowing",
-      "status": "implementing",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-29T22:10:06Z",
-      "last_updated": "2026-03-29T23:26:07Z",
+      "last_updated": "2026-03-30T00:09:35Z",
       "session_id": "sess_1774823313_c61cd3",
       "researched": "2026-03-29T22:27:06Z",
       "artifacts": [
@@ -47,7 +47,9 @@
       ],
       "next_artifact_number": 2,
       "planned": "2026-03-29T23:24:50Z",
-      "started": "2026-03-29T23:26:07Z"
+      "started": "2026-03-29T23:26:07Z",
+      "completed": "2026-03-30T00:09:35Z",
+      "completion_summary": "Added cast(BoolRef, ...) to all 51 z3.And/z3.Or/z3.Not call sites across 13 files, eliminating all Probe-related Pyright errors. Zero runtime impact. All z3_helpers tests pass."
     },
     {
       "project_number": 45,

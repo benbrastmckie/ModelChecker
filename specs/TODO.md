@@ -21,7 +21,9 @@ next_project_number: 48
 
 ### 46. Fix z3.And() return type narrowing for custom Exists() calls in first-order operators
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-29
+- **Summary**: Added cast(BoolRef, ...) to all 51 z3.And/z3.Or/z3.Not call sites across 13 files, eliminating all Probe-related Pyright errors. Zero runtime impact. All z3_helpers tests pass.
 - **Language**: z3
 - **Research**: [01_team-research.md](046_fix_z3_and_return_type_narrowing/reports/01_team-research.md)
 - **Plan**: [04_cast-z3-returns.md](046_fix_z3_and_return_type_narrowing/plans/04_cast-z3-returns.md)

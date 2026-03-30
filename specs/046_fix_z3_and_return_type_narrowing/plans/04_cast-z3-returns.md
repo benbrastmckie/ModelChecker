@@ -1,7 +1,7 @@
 # Implementation Plan: Task #46 (v4 - Cast Approach)
 
 - **Task**: 46 - Fix z3.And/Or return type narrowing across codebase
-- **Status**: [IN PROGRESS]
+- **Status**: [COMPLETED]
 - **Effort**: 90 minutes
 - **Dependencies**: None
 - **Research Inputs**: reports/01_teammate-a-findings.md
@@ -115,7 +115,7 @@ return cast(BoolRef, Or(constraints))    # Exists
 
 ---
 
-### Phase 5: Verification [IN PROGRESS]
+### Phase 5: Verification [COMPLETED]
 
 **Goal**: Confirm all Probe errors eliminated, no regressions
 
