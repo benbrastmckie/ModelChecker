@@ -506,7 +506,7 @@ Constraint = BoolExpr
 
 ---
 
-### Phase 9: Wire Context Reset to Backend [IN PROGRESS]
+### Phase 9: Wire Context Reset to Backend [COMPLETED]
 
 **Goal**: Ensure context reset properly handles backend switching.
 
@@ -562,7 +562,7 @@ def reset_solver_context() -> None:
 
 ---
 
-### Phase 10: Verification and Testing [NOT STARTED]
+### Phase 10: Verification and Testing [IN PROGRESS]
 
 **Goal**: Prove the migration works and cvc5 is actually used when selected.
 
