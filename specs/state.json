@@ -4,11 +4,11 @@
     {
       "project_number": 51,
       "project_name": "fix_cvc5_cli_integration_issues",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-03-30T15:22:02Z",
-      "last_updated": "2026-03-30T15:30:42Z",
-      "session_id": "sess_1774884358_433f0a",
+      "last_updated": "2026-03-30T15:36:02Z",
+      "session_id": "sess_1774884803_cdca1d",
       "researched": "2026-03-30T15:30:42Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -26,8 +26,14 @@
           "path": "specs/051_fix_cvc5_cli_integration_issues/reports/01_team-research.md",
           "type": "research",
           "summary": "Synthesized team research: standard_args fix and backend-aware label"
+        },
+        {
+          "path": "specs/051_fix_cvc5_cli_integration_issues/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for fixing cvc5 CLI integration issues"
         }
-      ]
+      ],
+      "planned": "2026-03-30T15:36:02Z"
     },
     {
       "project_number": 50,

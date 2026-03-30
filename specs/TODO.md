@@ -9,12 +9,13 @@ next_project_number: 52
 <!-- New tasks are prepended below this line -->
 
 ### 51. Fix cvc5 CLI integration issues
-- **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Effort**: 2.5 hours
+- **Status**: [PLANNED]
 - **Research**:
   - [01_teammate-a-findings.md](051_fix_cvc5_cli_integration_issues/reports/01_teammate-a-findings.md)
   - [01_teammate-b-findings.md](051_fix_cvc5_cli_integration_issues/reports/01_teammate-b-findings.md)
   - [01_team-research.md](051_fix_cvc5_cli_integration_issues/reports/01_team-research.md)
+- **Plan**: [01_implementation-plan.md](051_fix_cvc5_cli_integration_issues/plans/01_implementation-plan.md)
 - **Language**: z3
 
 **Description**: Fix cvc5 CLI integration issues: add z3/cvc5 to standard_args in settings.py to suppress spurious "Flag 'cvc5' doesn't correspond to any known setting" warning, replace hardcoded "Z3 Run Time" label in structure.py with backend-aware label, and audit other hardcoded Z3 references in user-facing output.
