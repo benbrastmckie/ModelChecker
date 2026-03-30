@@ -1,5 +1,5 @@
 ---
-next_project_number: 50
+next_project_number: 51
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 50
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 50. Create standalone solver comparison script using dev_cli.py
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Create standalone solver comparison script that runs each logos example through dev_cli.py twice (once with z3, once with cvc5), displaying concrete model/countermodel output with timing data for side-by-side comparison.
+
+---
 
 ### 49. Expand examples.py with first_order subtheory examples and create solver comparison test suite
 - **Effort**: 3.5 hours

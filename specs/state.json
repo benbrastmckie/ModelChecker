@@ -1,6 +1,14 @@
 {
-  "next_project_number": 50,
+  "next_project_number": 51,
   "active_projects": [
+    {
+      "project_number": 50,
+      "project_name": "standalone_solver_comparison_script",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-30T14:53:50Z",
+      "last_updated": "2026-03-30T14:53:50Z"
+    },
     {
       "project_number": 49,
       "project_name": "solver_comparison_first_order_examples",
