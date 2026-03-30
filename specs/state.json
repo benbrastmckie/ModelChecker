@@ -7,10 +7,11 @@
       "status": "researched",
       "language": "python",
       "created": "2026-03-30T19:25:57Z",
-      "last_updated": "2026-03-30T19:31:14Z",
+      "last_updated": "2026-03-30T19:37:18Z",
       "artifacts": {
         "research": [
-          "specs/057_v2_scaling_solver_comparison/reports/01_scaling-benchmark-design.md"
+          "specs/057_v2_scaling_solver_comparison/reports/01_scaling-benchmark-design.md",
+          "specs/057_v2_scaling_solver_comparison/reports/02_max-model-discovery.md"
         ]
       }
     },
