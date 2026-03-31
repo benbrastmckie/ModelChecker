@@ -4,10 +4,20 @@
     {
       "project_number": 73,
       "project_name": "fix_per_example_solver_backend_leak",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-31T20:45:00Z",
-      "last_updated": "2026-03-31T20:45:00Z"
+      "last_updated": "2026-03-31T20:48:34Z",
+      "session_id": "sess_1774987186_5e7392",
+      "researched": "2026-03-31T20:48:34Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/073_fix_per_example_solver_backend_leak/reports/01_backend-leak-analysis.md",
+          "type": "research",
+          "summary": "Root cause: _cli_override persists across examples. Fix: clear_cli_backend() in runner.py finally block"
+        }
+      ]
     },
     {
       "project_number": 72,
