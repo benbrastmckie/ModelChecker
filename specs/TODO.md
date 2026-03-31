@@ -1,5 +1,5 @@
 ---
-next_project_number: 72
+next_project_number: 73
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 72
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 72. Fix CVC5 constraint compatibility with Z3 expression types
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: When running examples with CVC5 solver instead of Z3, the model checker crashes with `SMTException: True, False or SMT Boolean expression expected. Received And(...) of type <class 'z3.z3.BoolRef'>`. The CVC5 adapter receives Z3 BoolRef objects which it cannot cast. Research every component that touches the z3/cvc5 choice to design a graceful, systematic approach that refactors the codebase to cleanly support both solvers with identical countermodel output formatting.
+
+---
 
 ### 71. Add per-example solver setting with precedence chain
 - **Effort**: medium
