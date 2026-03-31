@@ -2,6 +2,7 @@
 
 import os
 import pytest
+from unittest.mock import patch
 
 from model_checker.solver import (
     get_active_backend,
@@ -93,11 +94,11 @@ class TestBackendValidation:
         with pytest.raises(ValueError, match="Unknown solver backend"):
             validate_backend("invalid")
 
-    @pytest.mark.skipif(detect_cvc5(), reason="cvc5 is installed")
     def test_validate_missing_cvc5_raises(self):
         """Validating cvc5 when not installed should raise ImportError."""
-        with pytest.raises(ImportError, match="cvc5 not installed"):
-            validate_backend("cvc5")
+        with patch("model_checker.solver.registry.detect_cvc5", return_value=False):
+            with pytest.raises(ImportError, match="cvc5 not installed"):
+                validate_backend("cvc5")
 
 
 class TestClearCliBackend:

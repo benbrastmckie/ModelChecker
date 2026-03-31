@@ -129,12 +129,13 @@ class TestPushPopEquivalence:
         import z3
         from cvc5.pythonic import BitVec as CVC5BitVec
 
+        # Use values contradictory under signed comparison (BitVec > and < are signed)
         # Z3
         z3_x = z3.BitVec("x", 8)
         z3_solver.add(z3_x > 0)
         z3_solver.push()
-        z3_solver.add(z3_x > 200)
-        z3_solver.add(z3_x < 100)
+        z3_solver.add(z3_x > 50)
+        z3_solver.add(z3_x < 10)
         z3_result_1 = z3_solver.check()
         z3_solver.pop()
         z3_result_2 = z3_solver.check()
@@ -143,8 +144,8 @@ class TestPushPopEquivalence:
         cvc5_x = CVC5BitVec("x", 8)
         cvc5_solver.add(cvc5_x > 0)
         cvc5_solver.push()
-        cvc5_solver.add(cvc5_x > 200)
-        cvc5_solver.add(cvc5_x < 100)
+        cvc5_solver.add(cvc5_x > 50)
+        cvc5_solver.add(cvc5_x < 10)
         cvc5_result_1 = cvc5_solver.check()
         cvc5_solver.pop()
         cvc5_result_2 = cvc5_solver.check()
