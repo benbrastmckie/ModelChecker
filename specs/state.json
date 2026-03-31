@@ -4,19 +4,25 @@
     {
       "project_number": 70,
       "project_name": "fix_cvc5_z3_expression_compatibility",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-03-31T02:15:11Z",
-      "last_updated": "2026-03-31T02:37:19Z",
-      "session_id": "sess_1774923439_c7e2a1",
+      "last_updated": "2026-03-31T03:07:03Z",
+      "session_id": "sess_1774924800_d3f4b2",
       "researched": "2026-03-31T02:37:19Z",
       "next_artifact_number": 2,
       "artifacts": [
         {
           "path": "specs/070_fix_cvc5_z3_expression_compatibility/reports/01_cvc5-expression-errors.md",
           "type": "research"
+        },
+        {
+          "path": "specs/070_fix_cvc5_z3_expression_compatibility/plans/01_cvc5-expression-fix.md",
+          "type": "plan",
+          "summary": "2-phase implementation plan for cvc5 compatibility fix"
         }
-      ]
+      ],
+      "planned": "2026-03-31T03:07:03Z"
     },
     {
       "project_number": 69,
