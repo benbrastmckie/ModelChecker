@@ -4,10 +4,10 @@
     {
       "project_number": 73,
       "project_name": "fix_per_example_solver_backend_leak",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-03-31T20:45:00Z",
-      "last_updated": "2026-03-31T20:28:10Z",
+      "last_updated": "2026-03-31T20:43:20Z",
       "session_id": "sess_1774987936_11cb222a",
       "researched": "2026-03-31T20:28:10Z",
       "next_artifact_number": 3,
@@ -18,17 +18,17 @@
           "summary": "Root cause: _cli_override persists across examples. Fix: clear_cli_backend() in runner.py finally block"
         },
         {
-          "path": "specs/073_fix_per_example_solver_backend_leak/plans/01_clear-cli-backend.md",
-          "type": "plan",
-          "summary": "2-phase implementation plan for fixing solver backend leak via clear_cli_backend()"
-        },
-        {
           "path": "specs/073_fix_per_example_solver_backend_leak/reports/02_iterator-context-analysis.md",
           "type": "research",
           "summary": "Confirmed plan correctness. Dual-loop example/theory processing. Minor improvements: module-level import, explanatory comment."
+        },
+        {
+          "path": "specs/073_fix_per_example_solver_backend_leak/plans/02_clear-cli-backend-revised.md",
+          "type": "plan",
+          "summary": "Revised plan with module-level import and detailed explanatory comment"
         }
       ],
-      "planned": "2026-03-31T20:10:29Z"
+      "planned": "2026-03-31T20:43:20Z"
     },
     {
       "project_number": 72,
