@@ -1,5 +1,5 @@
 ---
-next_project_number: 69
+next_project_number: 70
 ---
 
 # Task List
@@ -7,6 +7,27 @@ next_project_number: 69
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 69. Fix all skipped and failing tests (zero skip, zero fail)
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Achieve zero skipped and zero failing tests across the entire test suite. Issues to resolve:
+
+**1 failing test:**
+- `solver/tests/unit/test_equivalence.py::test_push_pop_sat_transitions` - Signed/unsigned bitvector comparison bug (see task 64). Use `z3.UGT`/`z3.ULT` for unsigned comparisons, or change test values to be contradictory under signed comparison.
+
+**Skipped tests to fix or delete:**
+- **Bimodal "under development"** (3 files: `test_iterate.py`, `test_bimodal.py`, `test_cli_execution.py`): Unconditional `pytest.mark.skip`. The bimodal example tests pass (22 examples), so these unit/integration/e2e tests should be unskipped and fixed if they fail.
+- **Builder legacy behavior** (`test_refactoring_current_behavior.py`): Skipped because "tests document legacy behavior that has been removed". Delete this file if the behavior is truly gone.
+- **Builder `ModelRunner` not implemented** (`test_runner.py`, 8 tests): `skipIf(not RUNNER_EXISTS)`. Either implement `ModelRunner` or delete these aspirational tests.
+- **Builder `OperatorTranslation` not implemented** (`test_translation.py`, 11 tests): `skipIf(not TRANSLATION_EXISTS)`. Either implement or delete.
+- **Builder `ModelComparison` not implemented** (`test_comparison.py`, 8 tests): `skipIf(not COMPARISON_EXISTS)`. Either implement or delete.
+- **Solver `test_validate_missing_cvc5_raises`** (`test_registry.py`): Skipped when cvc5 IS installed. Make test work regardless of cvc5 availability (mock detect_cvc5).
+- **Graph utils `NetworkX`** (`test_graph_utils.py`): `skipif(not HAS_DEPENDENCIES)`. Ensure NetworkX is installed or delete if unused.
+
+---
 
 ### 68. Fix flaky builder performance test threshold
 - **Effort**: trivial
