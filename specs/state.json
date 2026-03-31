@@ -4,11 +4,11 @@
     {
       "project_number": 75,
       "project_name": "optimize_cvc5_solver_best_practices",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-31T22:35:34Z",
-      "last_updated": "2026-03-31T22:35:34Z",
-      "next_artifact_number": 1
+      "last_updated": "2026-03-31T15:42:39-07:00",
+      "next_artifact_number": 2
     },
     {
       "project_number": 74,
