@@ -4,10 +4,19 @@
     {
       "project_number": 71,
       "project_name": "add_per_example_solver_setting",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-31T03:40:36Z",
-      "last_updated": "2026-03-31T03:40:36Z"
+      "last_updated": "2026-03-30T20:44:13-07:00",
+      "researched": "2026-03-30T20:44:13-07:00",
+      "session_id": "sess_1774928471_9iebt6",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/071_add_per_example_solver_setting/reports/01_per-example-solver.md",
+          "type": "research"
+        }
+      ]
     },
     {
       "project_number": 70,
