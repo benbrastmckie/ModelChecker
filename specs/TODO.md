@@ -10,7 +10,8 @@ next_project_number: 70
 
 ### 69. Fix all skipped and failing tests (zero skip, zero fail)
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
+- **Research**: [01_fix-skipped-failing.md](069_fix_all_skipped_and_failing_tests/reports/01_fix-skipped-failing.md)
 - **Language**: python
 
 **Description**: Achieve zero skipped and zero failing tests across the entire test suite. Issues to resolve:

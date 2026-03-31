@@ -4,10 +4,19 @@
     {
       "project_number": 69,
       "project_name": "fix_all_skipped_and_failing_tests",
-      "status": "not_started",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-31T00:10:00Z",
-      "last_updated": "2026-03-31T00:10:00Z"
+      "last_updated": "2026-03-31T00:50:00Z",
+      "session_id": "sess_1774919681_0ff75e",
+      "next_artifact_number": 2,
+      "researched": "2026-03-31T00:50:00Z",
+      "artifacts": [
+        {
+          "path": "specs/069_fix_all_skipped_and_failing_tests/reports/01_fix-skipped-failing.md",
+          "type": "research"
+        }
+      ]
     },
     {
       "project_number": 68,
