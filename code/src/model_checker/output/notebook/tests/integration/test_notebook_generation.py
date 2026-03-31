@@ -42,30 +42,43 @@ examples = [
         """Clean up test fixtures."""
         Path(self.temp_examples.name).unlink(missing_ok=True)
     
-    @patch('model_checker.output.notebook.streaming_generator.Path.exists')
-    @patch('model_checker.notebook.streaming_generator.json.load')
-    def test_generate_notebook_stream_creates_file(self, mock_json_load, mock_exists):
+    @patch.object(StreamingNotebookGenerator, '_load_template_sections')
+    def test_generate_notebook_stream_creates_file(self, mock_load_template):
         """Test that generate_notebook_stream creates a notebook file."""
-        # Mock template existence and loading
-        mock_exists.return_value = True
-        mock_json_load.return_value = {
+        # Mock template sections returned by _load_template_sections
+        mock_load_template.return_value = {
             'setup_cells': [
                 {
                     'cell_type': 'markdown',
                     'source': ['# Test Notebook']
                 }
-            ]
+            ],
+            'example_template': {
+                'header_cell': {
+                    'cell_type': 'markdown',
+                    'source': ['## {{EXAMPLE_NAME}}']
+                },
+                'code_cell': {
+                    'cell_type': 'code',
+                    'source': ['# {{EXAMPLE_NAME}}']
+                },
+                'interpretation_cell': {
+                    'cell_type': 'markdown',
+                    'source': ['### Result']
+                }
+            },
+            'conclusion_cells': []
         }
-        
-        # Add examples to module vars
+
+        # Add examples to module vars using correct key (example_range, not examples)
         module_vars_with_examples = dict(self.mock_module_vars)
-        module_vars_with_examples['examples'] = [
-            ("Test Example", ["p"], "p ∧ q")
-        ]
-        
+        module_vars_with_examples['example_range'] = {
+            "Test_Example": (["p"], ["p \\wedge q"])
+        }
+
         with tempfile.NamedTemporaryFile(mode='w', suffix='.ipynb', delete=False) as f:
             output_path = f.name
-        
+
         try:
             # Generate notebook
             self.generator.generate_notebook_stream(
@@ -73,36 +86,37 @@ examples = [
                 self.temp_examples.name,
                 output_path
             )
-            
+
             # Verify file was created
             self.assertTrue(Path(output_path).exists())
-            
+
             # Verify it's valid JSON
             with open(output_path, 'r') as f:
                 notebook_data = json.load(f)
-            
+
             # Check basic structure
             self.assertIn('cells', notebook_data)
             self.assertIn('metadata', notebook_data)
-            
+
         finally:
             Path(output_path).unlink(missing_ok=True)
     
-    @patch('model_checker.output.notebook.streaming_generator.Path.exists')
-    def test_generate_notebook_raises_on_missing_template(self, mock_exists):
+    @patch.object(StreamingNotebookGenerator, '_discover_template_path')
+    def test_generate_notebook_raises_on_missing_template(self, mock_discover):
         """Test that generation raises error when template is missing."""
-        # Mock template not existing
-        mock_exists.return_value = False
-        
+        # Mock _discover_template_path to return a non-existent path
+        # so the FileNotFoundError is raised from _load_template_sections
+        mock_discover.return_value = '/tmp/nonexistent/template.json'
+
         # Add examples to module vars
         module_vars_with_examples = dict(self.mock_module_vars)
         module_vars_with_examples['example_range'] = {
             "Test": (["p"], "p")
         }
-        
+
         with tempfile.NamedTemporaryFile(mode='w', suffix='.ipynb', delete=False) as f:
             output_path = f.name
-        
+
         try:
             # Should raise FileNotFoundError
             with self.assertRaises(FileNotFoundError) as context:
@@ -111,9 +125,9 @@ examples = [
                     self.temp_examples.name,
                     output_path
                 )
-            
+
             self.assertIn("No template found", str(context.exception))
-            
+
         finally:
             Path(output_path).unlink(missing_ok=True)
     
@@ -138,25 +152,38 @@ examples = [
         finally:
             Path(output_path).unlink(missing_ok=True)
     
-    @patch('model_checker.output.notebook.streaming_generator.Path.exists')
-    @patch('model_checker.notebook.streaming_generator.json.load')
-    def test_template_placeholder_substitution(self, mock_json_load, mock_exists):
+    @patch.object(StreamingNotebookGenerator, '_load_template_sections')
+    def test_template_placeholder_substitution(self, mock_load_template):
         """Test that template placeholders are properly substituted."""
-        # Mock template with placeholders
-        mock_exists.return_value = True
-        mock_json_load.return_value = {
+        # Mock template sections with placeholders
+        mock_load_template.return_value = {
             'setup_cells': [
                 {
                     'cell_type': 'markdown',
                     'source': ['# {{THEORY_NAME}} Examples\n', 'Date: {{DATE}}']
                 }
-            ]
+            ],
+            'example_template': {
+                'header_cell': {
+                    'cell_type': 'markdown',
+                    'source': ['## {{EXAMPLE_NAME}}']
+                },
+                'code_cell': {
+                    'cell_type': 'code',
+                    'source': ['# {{EXAMPLE_NAME}}']
+                },
+                'interpretation_cell': {
+                    'cell_type': 'markdown',
+                    'source': ['### Result']
+                }
+            },
+            'conclusion_cells': []
         }
-        
+
         # Add examples to module vars
         module_vars_with_examples = dict(self.mock_module_vars)
         module_vars_with_examples['example_range'] = {
-            "Test": (["p"], "p")
+            "Test": (["p"], ["p"])
         }
         
         with tempfile.NamedTemporaryFile(mode='w', suffix='.ipynb', delete=False) as f:
@@ -188,28 +215,23 @@ examples = [
     def test_template_loading_for_different_theories(self):
         """Test that different theories load different templates."""
         # Test with different theory configurations
+        # Maps (semantics_class_name, expected_template_class_name)
         theories = [
-            ('logos', 'LogosTemplate'),
-            ('exclusion', 'ExclusionTemplate'),
-            ('imposition', 'ImpositionTemplate')
+            ('LogosSemantics', 'LogosNotebookTemplate'),
+            ('WitnessSemantics', 'ExclusionNotebookTemplate'),
+            ('ImpositionSemantics', 'ImpositionNotebookTemplate')
         ]
-        
-        for theory_name, expected_template in theories:
-            # Mock module vars for this theory
-            module_vars = {
-                'semantic_theories': {
-                    theory_name: {
-                        'semantics': MagicMock(),
-                        'proposition': MagicMock()
-                    }
-                }
-            }
-            
+
+        for class_name, expected_template in theories:
+            # Create mock semantics class with __name__ attribute
+            mock_semantics_class = MagicMock()
+            mock_semantics_class.__name__ = class_name
+
             # Verify template loader gets correct template
             from model_checker.output.notebook.template_loader import TemplateLoader
             loader = TemplateLoader()
-            template_class = loader.get_template_class(theory_name)
-            self.assertEqual(template_class.__name__, expected_template)
+            template = loader.get_template_for_class(mock_semantics_class)
+            self.assertEqual(template.__class__.__name__, expected_template)
 
 
 if __name__ == '__main__':

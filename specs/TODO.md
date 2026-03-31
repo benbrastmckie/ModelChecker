@@ -31,8 +31,12 @@ next_project_number: 69
 ---
 
 ### 66. Fix output/notebook test failures (6 failing tests: missing templates, API changes)
-- **Effort**: TBD
-- **Status**: [RESEARCHING]
+- **Effort**: small
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
+- **Summary**: Fixed 6 failing notebook tests: created missing exclusion/imposition templates, fixed stale API name, corrected mock paths, fixed test design issue. All 14 tests pass.
+- **Research**: [01_notebook-test-failures.md](066_fix_output_notebook_test_failures/reports/01_notebook-test-failures.md)
+- **Plan**: [01_fix-notebook-tests.md](066_fix_output_notebook_test_failures/plans/01_fix-notebook-tests.md)
 - **Language**: python
 
 **Description**: Fix output/notebook test failures (6 failing tests: missing templates, API changes). Tests in `output/notebook/tests/` are failing due to missing template modules (`model_checker.output.notebook.templates.imposition`, `model_checker.output.notebook.templates.exclusion`) and API changes (`TemplateLoader.get_template_class` -> `get_template_for_class`).

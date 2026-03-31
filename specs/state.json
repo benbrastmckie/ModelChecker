@@ -43,12 +43,31 @@
     {
       "project_number": 66,
       "project_name": "fix_output_notebook_test_failures",
-      "status": "researching",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-31T00:11:43Z",
-      "last_updated": "2026-03-30T23:30:00Z",
+      "last_updated": "2026-03-30T23:50:00Z",
       "session_id": "sess_1774916194_ea117d",
-      "next_artifact_number": 1
+      "next_artifact_number": 2,
+      "completed": "2026-03-30T23:50:00Z",
+      "researched": "2026-03-30T23:35:00Z",
+      "planned": "2026-03-30T23:42:00Z",
+      "started": "2026-03-30T23:42:00Z",
+      "completion_summary": "Fixed 6 failing notebook tests across 4 root causes: created missing exclusion/imposition template modules, fixed stale API name, corrected mock paths, and fixed test design issue with /tmp path discovery. All 14 tests pass.",
+      "artifacts": [
+        {
+          "path": "specs/066_fix_output_notebook_test_failures/reports/01_notebook-test-failures.md",
+          "type": "research"
+        },
+        {
+          "path": "specs/066_fix_output_notebook_test_failures/plans/01_fix-notebook-tests.md",
+          "type": "plan"
+        },
+        {
+          "path": "specs/066_fix_output_notebook_test_failures/summaries/01_fix-notebook-tests-summary.md",
+          "type": "summary"
+        }
+      ]
     },
     {
       "project_number": 65,
