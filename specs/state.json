@@ -4,12 +4,12 @@
     {
       "project_number": 71,
       "project_name": "add_per_example_solver_setting",
-      "status": "researched",
+      "status": "planned",
       "language": "python",
       "created": "2026-03-31T03:40:36Z",
-      "last_updated": "2026-03-31T03:51:47Z",
+      "last_updated": "2026-03-31T03:59:38Z",
       "researched": "2026-03-31T03:51:47Z",
-      "session_id": "sess_1774928694_cbh1",
+      "session_id": "sess_1774929466_5t6",
       "next_artifact_number": 3,
       "artifacts": [
         {
@@ -24,9 +24,14 @@
         {
           "path": "specs/071_add_per_example_solver_setting/reports/02_settings-architecture.md",
           "type": "research"
+        },
+        {
+          "path": "specs/071_add_per_example_solver_setting/plans/02_settings-architecture.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for per-example solver setting with settings architecture integration"
         }
       ],
-      "planned": "2026-03-31T03:46:38Z"
+      "planned": "2026-03-31T03:59:38Z"
     },
     {
       "project_number": 70,
