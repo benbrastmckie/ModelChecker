@@ -63,6 +63,7 @@ CF_CM_1_settings = {
     'max_time': 10,
     'iterate': 2,
     'expectation': True,
+    'solver': 'z3',
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -177,6 +178,7 @@ CF_CM_7_settings = {
     'max_time': 10,
     'iterate': 1,
     'expectation': True,
+    'solver': 'z3',
 }
 CF_CM_7_example = [
     CF_CM_7_premises,

@@ -51,7 +51,12 @@ class CVC5SolverAdapter:
 
         Args:
             constraint: A cvc5 boolean expression.
+
+        Raises:
+            TypeError: If constraint is a Z3 expression (wrong backend).
         """
+        from .type_guards import assert_backend_types
+        assert_backend_types(constraint, "cvc5")
         self._solver.add(constraint)
 
     def assert_tracked(self, constraint: Any, label: str) -> None:
@@ -64,7 +69,12 @@ class CVC5SolverAdapter:
         Args:
             constraint: A cvc5 boolean expression.
             label: String label for identifying this constraint in unsat cores.
+
+        Raises:
+            TypeError: If constraint is a Z3 expression (wrong backend).
         """
+        from .type_guards import assert_backend_types
+        assert_backend_types(constraint, "cvc5")
         self._tracked[label] = constraint
         self._reverse[id(constraint)] = label
         self._str_to_label[str(constraint)] = label

@@ -72,3 +72,9 @@ def AtomVal(i: Union[int, str]) -> AtomType:
         >>> # These can be used in solver constraints and semantic definitions
     """
     return Const(f"AtomSort!val!{i}", get_atom_sort())
+
+
+# Register cache invalidation with lifecycle system
+# This ensures reset_atom_sort is called when backend is switched
+from model_checker.solver.lifecycle import register_cache_hook
+register_cache_hook(reset_atom_sort)

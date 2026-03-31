@@ -60,17 +60,21 @@ class BuildExample:
         theory_name: Optional[str] = None
     ) -> None:
         """Initialize a model checking example.
-        
+
         Args:
             build_module: Parent BuildModule instance
             semantic_theory: Dictionary containing the semantic theory implementation
             example_case: List containing [premises, conclusions, settings]
             theory_name: Name of the theory for warning context
-            
+
         Raises:
             TypeError: If parameters are invalid
             AttributeError: If required components are missing
         """
+        # Configure solver backend from settings BEFORE any expression construction
+        # This must happen before _initialize_z3_context() to ensure correct types
+        self._configure_solver_backend(example_case)
+
         # Initialize Z3 context and store module reference
         self._initialize_z3_context()
         self.build_module = build_module
@@ -84,6 +88,28 @@ class BuildExample:
         # Build model structure and interpret
         self._build_model_structure()
     
+    def _configure_solver_backend(self, example_case: List[Any]) -> None:
+        """Configure solver backend from example settings.
+
+        This method extracts the solver setting from example_case and
+        ensures the correct backend is active with proper cache invalidation.
+        It must be called BEFORE any expression construction.
+
+        Args:
+            example_case: List containing [premises, conclusions, settings]
+        """
+        from model_checker.solver.lifecycle import set_backend_with_invalidation
+        from model_checker.solver.registry import get_active_backend
+
+        # example_case is [premises, conclusions, settings]
+        if len(example_case) >= 3 and isinstance(example_case[2], dict):
+            settings = example_case[2]
+            requested_solver = settings.get("solver")
+            if requested_solver and requested_solver in ("z3", "cvc5"):
+                current = get_active_backend()
+                if current != requested_solver:
+                    set_backend_with_invalidation(requested_solver)
+
     def _initialize_z3_context(self) -> None:
         """Reset Z3 context to ensure a clean state for this example."""
         from model_checker import z3_shim as z3

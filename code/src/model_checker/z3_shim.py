@@ -64,7 +64,14 @@ def __dir__() -> list:
 def _reset_backend() -> None:
     """Reset the cached backend module.
 
-    This is useful for testing when switching backends.
+    This is called by the lifecycle system when backends are switched.
+    It can also be used directly in testing.
     """
     global _backend_module
     _backend_module = None
+
+
+# Register cache invalidation with lifecycle system
+# This ensures _reset_backend is called when backend is switched
+from model_checker.solver.lifecycle import register_cache_hook
+register_cache_hook(_reset_backend)

@@ -61,6 +61,11 @@ def set_cli_backend(backend: str) -> None:
 
     This has highest priority and overrides all other settings.
 
+    Note: For proper cache invalidation when switching backends, use
+    lifecycle.set_backend_with_invalidation() instead of calling this
+    function directly. This function only sets the backend variable
+    without clearing cached expressions.
+
     Args:
         backend: The backend name ("z3" or "cvc5").
 
