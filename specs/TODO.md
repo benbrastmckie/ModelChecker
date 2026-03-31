@@ -10,11 +10,12 @@ next_project_number: 73
 
 ### 72. Fix CVC5 constraint compatibility with Z3 expression types
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Research**:
   - [01_cvc5-z3-compatibility.md](072_fix_cvc5_constraint_compatibility/reports/01_cvc5-z3-compatibility.md)
   - [02_team-research.md](072_fix_cvc5_constraint_compatibility/reports/02_team-research.md)
+  - [03_unified-architecture.md](072_fix_cvc5_constraint_compatibility/reports/03_unified-architecture.md)
 - **Plan**:
   - [01_cvc5-expression-conversion.md](072_fix_cvc5_constraint_compatibility/plans/01_cvc5-expression-conversion.md) (superseded)
   - [02_cache-invalidation-fix.md](072_fix_cvc5_constraint_compatibility/plans/02_cache-invalidation-fix.md)

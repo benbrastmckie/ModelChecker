@@ -4,11 +4,11 @@
     {
       "project_number": 72,
       "project_name": "fix_cvc5_constraint_compatibility",
-      "status": "planned",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-31T17:37:03Z",
-      "last_updated": "2026-03-31T18:24:36Z",
-      "session_id": "sess_1743446500_jkl012",
+      "last_updated": "2026-03-31T20:01:45Z",
+      "session_id": "sess_1774984764_abc123",
       "planned": "2026-03-31T18:24:36Z",
       "artifacts": [
         {
@@ -20,10 +20,15 @@
           "path": "specs/072_fix_cvc5_constraint_compatibility/plans/02_cache-invalidation-fix.md",
           "type": "plan",
           "summary": "3-phase revised implementation plan for cache invalidation fix"
+        },
+        {
+          "path": "specs/072_fix_cvc5_constraint_compatibility/reports/03_unified-architecture.md",
+          "type": "research",
+          "summary": "Unified architecture analysis: hook-based lifecycle, centralized backend access, runtime type guards"
         }
       ],
-      "researched": "2026-03-31T18:19:02Z",
-      "next_artifact_number": 2
+      "researched": "2026-03-31T20:01:45Z",
+      "next_artifact_number": 3
     },
     {
       "project_number": 71,
