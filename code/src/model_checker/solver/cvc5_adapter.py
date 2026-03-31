@@ -161,6 +161,14 @@ class CVC5SolverAdapter:
 
         return labels
 
+    def assertions(self) -> Any:
+        """Return the list of assertions currently in the solver.
+
+        Returns:
+            The assertions from the underlying cvc5 solver.
+        """
+        return self._solver.assertions()
+
     def push(self) -> None:
         """Push a new scope onto the solver context stack."""
         self._solver.push()

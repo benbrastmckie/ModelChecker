@@ -1,5 +1,5 @@
 ---
-next_project_number: 74
+next_project_number: 75
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 74
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 74. Investigate CVC5 model evaluation and iteration performance bottleneck
+- **Effort**: medium
+- **Status**: [RESEARCHING]
+- **Language**: z3
+
+**Description**: CVC5 model structure building is ~100x slower than Z3 for counterfactual examples (18s vs 0.02s for initial model, timeout on 2nd model). The SMT `solver.check()` is fast (0.47s), but evaluating expressions against the CVC5 model (`model.eval()`) during `BuildExample` construction and iteration is extremely slow. Investigate: (a) profile exactly where time is spent during CVC5 model evaluation, (b) whether CVC5's `model.eval()` has known performance issues or alternative APIs, (c) whether the z3_shim expression evaluation path has unnecessary overhead with CVC5, (d) whether iteration can fall back to Z3 after initial CVC5 model finding, and (e) whether CVC5 solver options (e.g., `produce-models`, simplification level) can improve evaluation performance. Current workarounds in `constraints.py` (solver timeout, adapter reuse) mitigate hangs but don't address root cause.
+
+---
 
 ### 73. Fix per-example solver backend leaking across examples via _cli_override
 - **Effort**: small

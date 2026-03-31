@@ -41,7 +41,11 @@ class ConstraintGenerator:
     
     def _create_persistent_solver(self) -> z3.Solver:
         """Create a persistent solver with original constraints.
-        
+
+        For CVC5, reuses the original solver directly to avoid cross-solver
+        assertion-copying issues. For Z3, creates a new solver and copies
+        assertions (existing behavior).
+
         Returns:
             z3.Solver: Solver with original constraints loaded
         """
@@ -49,11 +53,32 @@ class ConstraintGenerator:
         original_solver = self.build_example.model_structure.solver
         if original_solver is None:
             original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
-            
+
         if original_solver is None:
             raise RuntimeError("No solver available - both solver and stored_solver are None")
-            
+
+        settings = getattr(self.build_example, 'settings', {})
+        max_time = settings.get('max_time', 300)
+        timeout_ms = int(max_time * 1000)
+
+        # For CVC5SolverAdapter, reuse the internal solver directly.
+        # CVC5 solvers don't reliably support assertion-copying between instances.
+        from model_checker.solver.cvc5_adapter import CVC5SolverAdapter
+        if isinstance(original_solver, CVC5SolverAdapter):
+            raw = original_solver._solver
+            try:
+                raw.set('tlimit-per', str(timeout_ms))
+            except Exception:
+                logger.warning("Could not set CVC5 solver timeout for iteration")
+            return raw
+
+        # Z3 path: create new solver and copy assertions
         persistent_solver = z3.Solver()
+        try:
+            persistent_solver.set('timeout', timeout_ms)
+        except Exception:
+            logger.warning("Could not set solver timeout for iteration")
+
         for assertion in original_solver.assertions():
             persistent_solver.add(assertion)
         return persistent_solver
