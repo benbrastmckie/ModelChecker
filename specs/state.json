@@ -1,6 +1,15 @@
 {
-  "next_project_number": 75,
+  "next_project_number": 76,
   "active_projects": [
+    {
+      "project_number": 75,
+      "project_name": "optimize_cvc5_solver_best_practices",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-31T22:35:34Z",
+      "last_updated": "2026-03-31T22:35:34Z",
+      "next_artifact_number": 1
+    },
     {
       "project_number": 74,
       "project_name": "investigate_cvc5_iteration_performance",

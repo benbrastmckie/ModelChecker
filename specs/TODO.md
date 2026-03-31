@@ -1,5 +1,5 @@
 ---
-next_project_number: 75
+next_project_number: 76
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 75
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 75. Optimize CVC5 solver integration following best practices
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Research CVC5 documentation and community best practices online, then apply optimizations to improve solver performance, model evaluation, and iteration. Build on task 74's findings (truthiness checks, lazy string conversion).
+
+---
 
 ### 74. Investigate CVC5 model evaluation and iteration performance bottleneck
 - **Effort**: medium
