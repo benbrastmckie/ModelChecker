@@ -1,7 +1,7 @@
 # Implementation Plan: Fix cvc5 "Z3 expression expected" Compatibility Errors
 
 - **Task**: 70 - Fix cvc5 "Z3 expression expected" compatibility errors
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 0.5 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/070_fix_cvc5_z3_expression_compatibility/reports/01_cvc5-expression-errors.md
@@ -41,7 +41,7 @@ Fix the static binding issue in `semantic.py` that causes cvc5 compatibility err
 
 ## Implementation Phases
 
-### Phase 1: Apply Fix [NOT STARTED]
+### Phase 1: Apply Fix [COMPLETED]
 
 **Goal**: Remove static import and update usage to dynamic lookup
 
@@ -60,7 +60,7 @@ Fix the static binding issue in `semantic.py` that causes cvc5 compatibility err
 
 ---
 
-### Phase 2: Verify Fix [NOT STARTED]
+### Phase 2: Verify Fix [COMPLETED]
 
 **Goal**: Confirm all affected examples now pass with cvc5 backend
 

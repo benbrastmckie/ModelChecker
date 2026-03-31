@@ -10,9 +10,12 @@ next_project_number: 71
 
 ### 70. Fix cvc5 "Z3 expression expected" compatibility errors
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-31
+- **Summary**: Fixed cvc5 'Z3 expression expected' errors by replacing static simplify import with dynamic z3.simplify() lookup in semantic.py; all 13 affected examples now pass.
 - **Research**: [01_cvc5-expression-errors.md](070_fix_cvc5_z3_expression_compatibility/reports/01_cvc5-expression-errors.md)
 - **Plan**: [01_cvc5-expression-fix.md](070_fix_cvc5_z3_expression_compatibility/plans/01_cvc5-expression-fix.md)
+- **Summary**: [01_cvc5-expression-fix-summary.md](070_fix_cvc5_z3_expression_compatibility/summaries/01_cvc5-expression-fix-summary.md)
 - **Language**: z3
 
 **Description**: Fix cvc5 compatibility errors in comparison.py. Multiple examples fail with "cvc5: Z3 expression expected" error when running against cvc5 solver. Affected examples include EXT_CM_2, MOD_CM_3, MOD_CM_4, CL_CM_4 through CL_CM_14. Investigate root cause and fix all issues systematically.

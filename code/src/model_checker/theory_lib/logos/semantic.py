@@ -10,7 +10,6 @@ import sys
 import time
 from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING, cast
 
-from model_checker.z3_shim import simplify
 from model_checker import z3_shim as z3
 
 from model_checker.solver import is_true, is_false
@@ -536,7 +535,7 @@ class LogosSemantics(SemanticDefaults):
         product_set = set()
         for bit_a in set_A:
             for bit_b in set_B:
-                bit_ab = simplify(bit_a | bit_b)
+                bit_ab = z3.simplify(bit_a | bit_b)
                 product_set.add(bit_ab)
         return product_set
 
