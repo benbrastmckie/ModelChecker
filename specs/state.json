@@ -4,16 +4,21 @@
     {
       "project_number": 74,
       "project_name": "investigate_cvc5_iteration_performance",
-      "status": "researching",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-31T22:50:00Z",
-      "last_updated": "2026-03-31T22:50:00Z",
-      "next_artifact_number": 2,
+      "last_updated": "2026-03-31T23:45:00Z",
+      "next_artifact_number": 3,
       "artifacts": [
         {
           "path": "specs/074_investigate_cvc5_iteration_performance/reports/01_cvc5-performance-findings.md",
           "type": "research",
           "summary": "CVC5 model.eval() is ~30x slower than Z3 during BuildExample construction. Solver timeout fixes prevent hangs but do not address root performance issue."
+        },
+        {
+          "path": "specs/074_investigate_cvc5_iteration_performance/reports/02_cvc5-deep-dive.md",
+          "type": "research",
+          "summary": "CVC5 bottleneck root cause: Python truthiness checks on models trigger expensive __len__() enumeration (~48s) plus slow str() conversion (~8s). Fix identified."
         }
       ]
     },
