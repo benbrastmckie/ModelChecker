@@ -4,13 +4,13 @@
     {
       "project_number": 71,
       "project_name": "add_per_example_solver_setting",
-      "status": "planned",
+      "status": "researched",
       "language": "python",
       "created": "2026-03-31T03:40:36Z",
-      "last_updated": "2026-03-31T03:46:38Z",
-      "researched": "2026-03-30T20:44:13-07:00",
+      "last_updated": "2026-03-31T03:51:47Z",
+      "researched": "2026-03-31T03:51:47Z",
       "session_id": "sess_1774928694_cbh1",
-      "next_artifact_number": 2,
+      "next_artifact_number": 3,
       "artifacts": [
         {
           "path": "specs/071_add_per_example_solver_setting/reports/01_per-example-solver.md",
@@ -20,6 +20,10 @@
           "path": "specs/071_add_per_example_solver_setting/plans/01_per-example-solver.md",
           "type": "plan",
           "summary": "6-phase implementation plan for per-example solver setting with 2.5 hours estimated effort"
+        },
+        {
+          "path": "specs/071_add_per_example_solver_setting/reports/02_settings-architecture.md",
+          "type": "research"
         }
       ],
       "planned": "2026-03-31T03:46:38Z"

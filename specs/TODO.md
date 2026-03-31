@@ -10,8 +10,10 @@ next_project_number: 72
 
 ### 71. Add per-example solver setting with precedence chain
 - **Effort**: medium
-- **Status**: [PLANNED]
-- **Research**: [01_per-example-solver.md](071_add_per_example_solver_setting/reports/01_per-example-solver.md)
+- **Status**: [RESEARCHED]
+- **Research**:
+  - [01_per-example-solver.md](071_add_per_example_solver_setting/reports/01_per-example-solver.md)
+  - [02_settings-architecture.md](071_add_per_example_solver_setting/reports/02_settings-architecture.md)
 - **Plan**: [01_per-example-solver.md](071_add_per_example_solver_setting/plans/01_per-example-solver.md)
 - **Language**: python
 
