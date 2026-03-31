@@ -1,5 +1,5 @@
 ---
-next_project_number: 67
+next_project_number: 69
 ---
 
 # Task List
@@ -7,6 +7,24 @@ next_project_number: 67
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 68. Fix flaky builder performance test threshold
+- **Effort**: trivial
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix flaky `test_multiple_examples_process_efficiently` in `builder/tests/integration/test_performance.py`. Current threshold is 0.25s but test occasionally fails at 0.251s (off by 1ms). Increase threshold to 0.3s or use a more robust timing comparison with tolerance.
+
+---
+
+### 67. Make run_tests.py exhaustive (add missing test coverage)
+- **Effort**: small
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Make `run_tests.py` exhaustive by adding coverage for: (1) bimodal theory tests (currently excluded at line 662), (2) first_order subtheory (missing from `_discover_subtheories()` at line 694), (3) `output/notebook/tests/` (not reachable from `output/tests/`). Currently 3 test suites (166 tests total) are not covered by the test runner.
+
+---
 
 ### 66. Fix output/notebook test failures (6 failing tests: missing templates, API changes)
 - **Effort**: TBD

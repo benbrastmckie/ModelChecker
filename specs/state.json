@@ -1,6 +1,22 @@
 {
-  "next_project_number": 67,
+  "next_project_number": 69,
   "active_projects": [
+    {
+      "project_number": 68,
+      "project_name": "fix_flaky_builder_performance_test",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-31T00:12:26Z",
+      "last_updated": "2026-03-31T00:12:26Z"
+    },
+    {
+      "project_number": 67,
+      "project_name": "make_run_tests_exhaustive",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-31T00:12:11Z",
+      "last_updated": "2026-03-31T00:12:11Z"
+    },
     {
       "project_number": 66,
       "project_name": "fix_output_notebook_test_failures",
