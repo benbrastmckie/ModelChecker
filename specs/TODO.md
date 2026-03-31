@@ -10,12 +10,14 @@ next_project_number: 73
 
 ### 72. Fix CVC5 constraint compatibility with Z3 expression types
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 - **Research**:
   - [01_cvc5-z3-compatibility.md](072_fix_cvc5_constraint_compatibility/reports/01_cvc5-z3-compatibility.md)
   - [02_team-research.md](072_fix_cvc5_constraint_compatibility/reports/02_team-research.md)
-- **Plan**: [01_cvc5-expression-conversion.md](072_fix_cvc5_constraint_compatibility/plans/01_cvc5-expression-conversion.md)
+- **Plan**:
+  - [01_cvc5-expression-conversion.md](072_fix_cvc5_constraint_compatibility/plans/01_cvc5-expression-conversion.md) (superseded)
+  - [02_cache-invalidation-fix.md](072_fix_cvc5_constraint_compatibility/plans/02_cache-invalidation-fix.md)
 
 **Description**: When running examples with CVC5 solver instead of Z3, the model checker crashes with `SMTException: True, False or SMT Boolean expression expected. Received And(...) of type <class 'z3.z3.BoolRef'>`. The CVC5 adapter receives Z3 BoolRef objects which it cannot cast. Research every component that touches the z3/cvc5 choice to design a graceful, systematic approach that refactors the codebase to cleanly support both solvers with identical countermodel output formatting.
 
