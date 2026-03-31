@@ -1,5 +1,5 @@
 ---
-next_project_number: 73
+next_project_number: 74
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 73
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 73. Fix per-example solver backend leaking across examples via _cli_override
+- **Effort**: small
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: The new `lifecycle.set_backend_with_invalidation()` calls `set_cli_backend()` which sets `_cli_override` in registry.py. This override persists across examples, so when one example sets `solver: cvc5`, all subsequent examples without an explicit solver field inherit cvc5 through the sticky `_cli_override`. The fix should separate CLI-level overrides from per-example settings. Either: (a) add a `clear_cli_backend()` call after each example, (b) use a separate `_settings_backend` variable with lower priority than `_cli_override`, or (c) refactor `_configure_solver_backend` to save/restore the previous backend.
+
+---
 
 ### 72. Fix CVC5 constraint compatibility with Z3 expression types
 - **Effort**: medium
