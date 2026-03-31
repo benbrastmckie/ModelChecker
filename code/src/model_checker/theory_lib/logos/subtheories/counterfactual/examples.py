@@ -63,7 +63,7 @@ CF_CM_1_settings = {
     'max_time': 10,
     'iterate': 2,
     'expectation': True,
-    'solver': 'z3',
+    'solver': 'cvc5',
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -178,7 +178,7 @@ CF_CM_7_settings = {
     'max_time': 10,
     'iterate': 1,
     'expectation': True,
-    'solver': 'z3',
+    'solver': 'cvc5',
 }
 CF_CM_7_example = [
     CF_CM_7_premises,
@@ -607,6 +607,7 @@ CF_TH_5_settings = {
     'max_time': 10,
     'iterate': 1,
     'expectation': False,
+    'solver': 'cvc5',
 }
 CF_TH_5_example = [
     CF_TH_5_premises,
@@ -706,6 +707,7 @@ CF_TH_10_settings = {
     'max_time': 10,
     'iterate': 1,
     'expectation': False,
+    'solver': 'cvc5',
 }
 CF_TH_10_example = [
     CF_TH_10_premises,
