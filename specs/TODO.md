@@ -10,7 +10,11 @@ next_project_number: 69
 
 ### 68. Fix flaky builder performance test threshold
 - **Effort**: trivial
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
+- **Summary**: Increased per-example performance threshold from 0.25s to 0.5s, matching sibling test for same N=2 complexity.
+- **Research**: [01_flaky-perf-threshold.md](068_fix_flaky_builder_performance_test/reports/01_flaky-perf-threshold.md)
+- **Plan**: [01_fix-perf-threshold.md](068_fix_flaky_builder_performance_test/plans/01_fix-perf-threshold.md)
 - **Language**: python
 
 **Description**: Fix flaky `test_multiple_examples_process_efficiently` in `builder/tests/integration/test_performance.py`. Current threshold is 0.25s but test occasionally fails at 0.251s (off by 1ms). Increase threshold to 0.3s or use a more robust timing comparison with tolerance.
@@ -19,7 +23,7 @@ next_project_number: 69
 
 ### 67. Make run_tests.py exhaustive (add missing test coverage)
 - **Effort**: small
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: python
 
 **Description**: Make `run_tests.py` exhaustive by adding coverage for: (1) bimodal theory tests (currently excluded at line 662), (2) first_order subtheory (missing from `_discover_subtheories()` at line 694), (3) `output/notebook/tests/` (not reachable from `output/tests/`). Currently 3 test suites (166 tests total) are not covered by the test runner.
@@ -28,7 +32,7 @@ next_project_number: 69
 
 ### 66. Fix output/notebook test failures (6 failing tests: missing templates, API changes)
 - **Effort**: TBD
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: python
 
 **Description**: Fix output/notebook test failures (6 failing tests: missing templates, API changes). Tests in `output/notebook/tests/` are failing due to missing template modules (`model_checker.output.notebook.templates.imposition`, `model_checker.output.notebook.templates.exclusion`) and API changes (`TemplateLoader.get_template_class` -> `get_template_for_class`).
