@@ -10,8 +10,9 @@ next_project_number: 72
 
 ### 71. Add per-example solver setting with precedence chain
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Research**: [01_per-example-solver.md](071_add_per_example_solver_setting/reports/01_per-example-solver.md)
+- **Plan**: [01_per-example-solver.md](071_add_per_example_solver_setting/plans/01_per-example-solver.md)
 - **Language**: python
 
 **Description**: Add a `solver` field to example settings that accepts `'z3'` or `'cvc5'` and overrides the semantic theory defaults. Precedence chain (highest to lowest): CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > semantic theory defaults. This allows individual examples to specify which solver backend they require while still respecting explicit CLI overrides.
