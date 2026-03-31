@@ -7,9 +7,9 @@
       "status": "planned",
       "language": "python",
       "created": "2026-03-31T03:40:36Z",
-      "last_updated": "2026-03-31T03:59:38Z",
+      "last_updated": "2026-03-31T04:22:48Z",
       "researched": "2026-03-31T03:51:47Z",
-      "session_id": "sess_1774929466_5t6",
+      "session_id": "sess_1774930918_yfyj",
       "next_artifact_number": 3,
       "artifacts": [
         {
@@ -29,9 +29,14 @@
           "path": "specs/071_add_per_example_solver_setting/plans/02_settings-architecture.md",
           "type": "plan",
           "summary": "5-phase implementation plan for per-example solver setting with settings architecture integration"
+        },
+        {
+          "path": "specs/071_add_per_example_solver_setting/plans/03_revised-with-examples.md",
+          "type": "plan",
+          "summary": "6-phase revised plan: z3 default, update all examples"
         }
       ],
-      "planned": "2026-03-31T03:59:38Z"
+      "planned": "2026-03-31T04:22:48Z"
     },
     {
       "project_number": 70,
