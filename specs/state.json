@@ -1,6 +1,14 @@
 {
-  "next_project_number": 71,
+  "next_project_number": 72,
   "active_projects": [
+    {
+      "project_number": 71,
+      "project_name": "add_per_example_solver_setting",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-31T03:40:36Z",
+      "last_updated": "2026-03-31T03:40:36Z"
+    },
     {
       "project_number": 70,
       "project_name": "fix_cvc5_z3_expression_compatibility",

@@ -1,5 +1,5 @@
 ---
-next_project_number: 71
+next_project_number: 72
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 71
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 71. Add per-example solver setting with precedence chain
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Add a `solver` field to example settings that accepts `'z3'` or `'cvc5'` and overrides the semantic theory defaults. Precedence chain (highest to lowest): CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > semantic theory defaults. This allows individual examples to specify which solver backend they require while still respecting explicit CLI overrides.
+
+---
 
 ### 70. Fix cvc5 "Z3 expression expected" compatibility errors
 - **Effort**: medium
