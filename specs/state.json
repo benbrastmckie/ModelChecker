@@ -4,19 +4,26 @@
     {
       "project_number": 72,
       "project_name": "fix_cvc5_constraint_compatibility",
-      "status": "planned",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-31T17:37:03Z",
-      "last_updated": "2026-03-31T17:51:52Z",
-      "session_id": "sess_1743445200_def456",
+      "last_updated": "2026-03-31T18:19:02Z",
+      "session_id": "sess_1743445800_ghi789",
       "planned": "2026-03-31T17:51:52Z",
       "artifacts": [
         {
           "path": "specs/072_fix_cvc5_constraint_compatibility/plans/01_cvc5-expression-conversion.md",
           "type": "plan",
           "summary": "4-phase implementation plan for CVC5 expression conversion"
+        },
+        {
+          "path": "specs/072_fix_cvc5_constraint_compatibility/reports/02_team-research.md",
+          "type": "research",
+          "summary": "Team research with 2 teammates: initialization fix + SMT-LIB bridge"
         }
-      ]
+      ],
+      "researched": "2026-03-31T18:19:02Z",
+      "next_artifact_number": 2
     },
     {
       "project_number": 71,
