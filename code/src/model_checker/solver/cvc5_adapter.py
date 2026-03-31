@@ -77,7 +77,8 @@ class CVC5SolverAdapter:
         assert_backend_types(constraint, "cvc5")
         self._tracked[label] = constraint
         self._reverse[id(constraint)] = label
-        self._str_to_label[str(constraint)] = label
+        # String conversion deferred until unsat_core() is called
+        # (CVC5's str() is expensive: ~15ms per term, ~8s total for 523 constraints)
         self._solver.add(constraint)
 
     def check(self, *assumptions: Any) -> str:
@@ -137,6 +138,11 @@ class CVC5SolverAdapter:
             core_terms = self._solver.unsat_core()
         except Exception:
             return []
+
+        # Lazy populate string-to-label mapping only when unsat core is requested
+        # (CVC5's str() is expensive: ~15ms per term, so we defer until needed)
+        if not self._str_to_label:
+            self._str_to_label = {str(c): lbl for lbl, c in self._tracked.items()}
 
         labels = []
         for term in core_terms:

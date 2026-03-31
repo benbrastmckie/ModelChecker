@@ -325,7 +325,8 @@ class ModelDefaults:
             - Skips processing if no valid model exists
             - Skips lambda abstraction subformulas (they're function bodies, not propositions)
         """
-        if not self.z3_model:
+        # Use explicit None check: CVC5 models trigger expensive __len__() on truthiness tests
+        if self.z3_model is None:
             return
 
         # Task 21: Import Term for type checking
@@ -386,7 +387,8 @@ class ModelDefaults:
         Returns:
             list: Constraints to display (all constraints if SAT, unsat core if UNSAT)
         """
-        if self.z3_model:
+        # Use explicit None check: CVC5 models trigger expensive __len__() on truthiness tests
+        if self.z3_model is not None:
             print("SATISFIABLE CONSTRAINTS:", file=output)
             return self.model_constraints.all_constraints
         elif self.unsat_core is not None:
@@ -589,7 +591,8 @@ class ModelDefaults:
             - Premises are numbered starting from 1
             - Conclusions continue the numbering after premises
         """
-        if not self.z3_model:
+        # Use explicit None check: CVC5 models trigger expensive __len__() on truthiness tests
+        if self.z3_model is None:
             print("No valid model available - cannot interpret sentences", file=output)
             return
             
@@ -872,7 +875,8 @@ class ModelDefaults:
         Raises:
             ModelStateError: If solver model not available
         """
-        if not self.z3_model:
+        # Use explicit None check: CVC5 models trigger expensive __len__() on truthiness tests
+        if self.z3_model is None:
             from .errors import ModelStateError
             raise ModelStateError(
                 "Cannot extract verify/falsify state: No solver model available. "
