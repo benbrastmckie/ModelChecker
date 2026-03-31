@@ -33,12 +33,31 @@
     {
       "project_number": 67,
       "project_name": "make_run_tests_exhaustive",
-      "status": "researching",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-31T00:12:11Z",
-      "last_updated": "2026-03-30T23:30:00Z",
+      "last_updated": "2026-03-30T23:55:00Z",
       "session_id": "sess_1774916194_468554",
-      "next_artifact_number": 1
+      "next_artifact_number": 2,
+      "completed": "2026-03-30T23:55:00Z",
+      "researched": "2026-03-30T23:35:00Z",
+      "planned": "2026-03-30T23:45:00Z",
+      "started": "2026-03-30T23:45:00Z",
+      "completion_summary": "Made run_tests.py exhaustive: removed bimodal exclusion (+98 tests), added dynamic subtheory discovery including first_order (+53 tests), extended nested component discovery for output.notebook (+14 tests), added --list flag.",
+      "artifacts": [
+        {
+          "path": "specs/067_make_run_tests_exhaustive/reports/01_run-tests-coverage.md",
+          "type": "research"
+        },
+        {
+          "path": "specs/067_make_run_tests_exhaustive/plans/01_exhaustive-coverage.md",
+          "type": "plan"
+        },
+        {
+          "path": "specs/067_make_run_tests_exhaustive/summaries/01_exhaustive-coverage-summary.md",
+          "type": "summary"
+        }
+      ]
     },
     {
       "project_number": 66,

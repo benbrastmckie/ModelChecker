@@ -23,7 +23,11 @@ next_project_number: 69
 
 ### 67. Make run_tests.py exhaustive (add missing test coverage)
 - **Effort**: small
-- **Status**: [RESEARCHING]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
+- **Summary**: Made run_tests.py exhaustive: removed bimodal exclusion (+98 tests), dynamic subtheory discovery including first_order (+53 tests), nested component discovery for output.notebook (+14 tests), added --list flag.
+- **Research**: [01_run-tests-coverage.md](067_make_run_tests_exhaustive/reports/01_run-tests-coverage.md)
+- **Plan**: [01_exhaustive-coverage.md](067_make_run_tests_exhaustive/plans/01_exhaustive-coverage.md)
 - **Language**: python
 
 **Description**: Make `run_tests.py` exhaustive by adding coverage for: (1) bimodal theory tests (currently excluded at line 662), (2) first_order subtheory (missing from `_discover_subtheories()` at line 694), (3) `output/notebook/tests/` (not reachable from `output/tests/`). Currently 3 test suites (166 tests total) are not covered by the test runner.
