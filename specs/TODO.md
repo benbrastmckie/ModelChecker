@@ -1,5 +1,5 @@
 ---
-next_project_number: 66
+next_project_number: 67
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 66
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 66. Fix output/notebook test failures (6 failing tests: missing templates, API changes)
+- **Effort**: TBD
+- **Status**: [NOT STARTED]
+- **Language**: python
+
+**Description**: Fix output/notebook test failures (6 failing tests: missing templates, API changes). Tests in `output/notebook/tests/` are failing due to missing template modules (`model_checker.output.notebook.templates.imposition`, `model_checker.output.notebook.templates.exclusion`) and API changes (`TemplateLoader.get_template_class` -> `get_template_for_class`).
+
+---
 
 ### 65. Fix cvc5 Sort conversion errors in semantic modules
 - **Effort**: medium

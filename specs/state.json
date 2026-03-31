@@ -1,6 +1,14 @@
 {
-  "next_project_number": 66,
+  "next_project_number": 67,
   "active_projects": [
+    {
+      "project_number": 66,
+      "project_name": "fix_output_notebook_test_failures",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-31T00:11:43Z",
+      "last_updated": "2026-03-31T00:11:43Z"
+    },
     {
       "project_number": 65,
       "project_name": "fix_cvc5_sort_conversion_errors",
