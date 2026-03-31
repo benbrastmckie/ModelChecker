@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Per-Example Solver Backend Leak (Revised)
 
 - **Task**: 73 - Fix per-example solver backend leaking across examples via _cli_override
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 0.5 hours
 - **Dependencies**: None
 - **Research Inputs**: reports/01_backend-leak-analysis.md, reports/02_iterator-context-analysis.md
@@ -51,7 +51,7 @@ The `_cli_override` variable in `solver/registry.py` persists across examples, c
 
 ## Implementation Phases
 
-### Phase 1: Add clear_cli_backend() Call [NOT STARTED]
+### Phase 1: Add clear_cli_backend() Call [COMPLETED]
 
 **Goal**: Clear the CLI backend override after each example processes to prevent leak
 
@@ -67,12 +67,13 @@ The `_cli_override` variable in `solver/registry.py` persists across examples, c
 
 **Changes**:
 
-1. **Add import at module level** (near other solver imports, ~line 30):
+1. **Add imports at module level** (near other solver imports, ~line 16):
 ```python
 from model_checker.solver.registry import clear_cli_backend
+from model_checker.solver.lifecycle import invalidate_all_caches
 ```
 
-2. **Modify finally block** (line ~765-767):
+2. **Modify finally block** (line ~766-768):
 ```python
 # Current:
 finally:
@@ -81,10 +82,12 @@ finally:
 
 # After:
 finally:
-    # Clear per-example solver override.
+    # Clear per-example solver override and invalidate caches.
     # Examples may set solver via settings['solver'], which calls set_backend_with_invalidation().
     # Without clearing, this "leaks" to subsequent examples that expect the default (z3).
+    # We must also invalidate caches so z3_shim reloads the correct backend module.
     clear_cli_backend()
+    invalidate_all_caches()
     # Force cleanup after each example to prevent state leaks
     gc.collect()
 ```
@@ -95,7 +98,7 @@ finally:
 
 ---
 
-### Phase 2: Verification [NOT STARTED]
+### Phase 2: Verification [COMPLETED]
 
 **Goal**: Verify the fix works with the counterfactual examples
 

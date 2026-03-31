@@ -10,7 +10,9 @@ next_project_number: 74
 
 ### 73. Fix per-example solver backend leaking across examples via _cli_override
 - **Effort**: small
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-31
+- **Summary**: Added clear_cli_backend() and invalidate_all_caches() calls to runner.py's example processing finally block, preventing solver backend settings from leaking between examples.
 - **Language**: z3
 - **Research**:
   - [01_backend-leak-analysis.md](073_fix_per_example_solver_backend_leak/reports/01_backend-leak-analysis.md)
@@ -18,6 +20,7 @@ next_project_number: 74
 - **Plan**:
   - [01_clear-cli-backend.md](073_fix_per_example_solver_backend_leak/plans/01_clear-cli-backend.md) (superseded)
   - [02_clear-cli-backend-revised.md](073_fix_per_example_solver_backend_leak/plans/02_clear-cli-backend-revised.md)
+- **Summary**: [02_clear-cli-backend-summary.md](073_fix_per_example_solver_backend_leak/summaries/02_clear-cli-backend-summary.md)
 
 **Description**: The new `lifecycle.set_backend_with_invalidation()` calls `set_cli_backend()` which sets `_cli_override` in registry.py. This override persists across examples, so when one example sets `solver: cvc5`, all subsequent examples without an explicit solver field inherit cvc5 through the sticky `_cli_override`. The fix should separate CLI-level overrides from per-example settings. Either: (a) add a `clear_cli_backend()` call after each example, (b) use a separate `_settings_backend` variable with lower priority than `_cli_override`, or (c) refactor `_configure_solver_backend` to save/restore the previous backend.
 

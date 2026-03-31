@@ -13,6 +13,8 @@ import time
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
 from model_checker import z3_shim as z3
+from model_checker.solver.registry import clear_cli_backend
+from model_checker.solver.lifecycle import invalidate_all_caches
 
 # Package imports
 from ..output.progress import Spinner, UnifiedProgress
@@ -763,6 +765,12 @@ class ModelRunner:
                     try:
                         self.process_example(example_name, example_copy, theory_name, semantic_theory)
                     finally:
+                        # Clear per-example solver override and invalidate caches.
+                        # Examples may set solver via settings['solver'], which calls set_backend_with_invalidation().
+                        # Without clearing, this "leaks" to subsequent examples that expect the default (z3).
+                        # We must also invalidate caches so z3_shim reloads the correct backend module.
+                        clear_cli_backend()
+                        invalidate_all_caches()
                         # Force cleanup after each example to prevent state leaks
                         gc.collect()
                         

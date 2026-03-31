@@ -4,11 +4,11 @@
     {
       "project_number": 73,
       "project_name": "fix_per_example_solver_backend_leak",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "created": "2026-03-31T20:45:00Z",
-      "last_updated": "2026-03-31T20:43:20Z",
-      "session_id": "sess_1774987936_11cb222a",
+      "last_updated": "2026-03-31T21:00:00Z",
+      "session_id": "sess_1774989913_05ss9o",
       "researched": "2026-03-31T20:28:10Z",
       "next_artifact_number": 3,
       "artifacts": [
@@ -26,9 +26,17 @@
           "path": "specs/073_fix_per_example_solver_backend_leak/plans/02_clear-cli-backend-revised.md",
           "type": "plan",
           "summary": "Revised plan with module-level import and detailed explanatory comment"
+        },
+        {
+          "path": "specs/073_fix_per_example_solver_backend_leak/summaries/02_clear-cli-backend-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: added clear_cli_backend() and invalidate_all_caches() to runner.py"
         }
       ],
-      "planned": "2026-03-31T20:43:20Z"
+      "planned": "2026-03-31T20:43:20Z",
+      "started": "2026-03-31T20:45:44Z",
+      "completed": "2026-03-31T21:00:00Z",
+      "completion_summary": "Added clear_cli_backend() and invalidate_all_caches() calls to runner.py's example processing finally block, preventing solver backend settings from leaking between examples."
     },
     {
       "project_number": 72,
