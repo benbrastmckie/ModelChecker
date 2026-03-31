@@ -4,10 +4,10 @@
     {
       "project_number": 72,
       "project_name": "fix_cvc5_constraint_compatibility",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-03-31T17:37:03Z",
-      "last_updated": "2026-03-31T17:37:03Z"
+      "last_updated": "2026-03-31T17:47:30Z"
     },
     {
       "project_number": 71,
