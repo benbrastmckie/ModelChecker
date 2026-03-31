@@ -30,16 +30,13 @@ from model_checker.theory_lib.bimodal import (
 )
 from model_checker.theory_lib.bimodal.examples import countermodel_examples, theorem_examples
 
-# Combine both example sets for testing
-test_examples = {**countermodel_examples, **theorem_examples}
-
-# These examples are known to fail due to solver timeout issues
-KNOWN_FAILING_EXAMPLES = {"TN_CM_1", "TN_CM_2", "BM_CM_1", "BM_CM_2", "BM_CM_3", "BM_CM_4", "MD_TH_2"}
+# Combine both example sets for testing, excluding known solver timeout cases
+KNOWN_TIMEOUT_EXAMPLES = {"TN_CM_1", "TN_CM_2", "BM_CM_1", "BM_CM_2", "BM_CM_3", "BM_CM_4", "MD_TH_2"}
+test_examples = {k: v for k, v in {**countermodel_examples, **theorem_examples}.items()
+                 if k not in KNOWN_TIMEOUT_EXAMPLES}
 
 @pytest.mark.parametrize("example_name, example_case", test_examples.items())
 def test_example_cases(example_name, example_case):
-    if example_name in KNOWN_FAILING_EXAMPLES:
-        pytest.xfail(f"Known solver timeout issue: {example_name}")
     """Test each example case from test_example_range."""
     result = run_test(
         example_case,
