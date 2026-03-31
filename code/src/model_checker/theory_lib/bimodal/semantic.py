@@ -50,6 +50,8 @@ class BimodalSemantics(SemanticDefaults):
         'expectation': True,
         # Number of model iterations to generate
         'iterate': 1,
+        # Solver backend: 'z3' or 'cvc5'
+        'solver': 'z3',
     }
     
     # Optional: Add bimodal-specific general settings

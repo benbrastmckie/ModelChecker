@@ -4,10 +4,10 @@
     {
       "project_number": 71,
       "project_name": "add_per_example_solver_setting",
-      "status": "planned",
+      "status": "completed",
       "language": "python",
       "created": "2026-03-31T03:40:36Z",
-      "last_updated": "2026-03-31T04:22:48Z",
+      "last_updated": "2026-03-31T04:30:07Z",
       "researched": "2026-03-31T03:51:47Z",
       "session_id": "sess_1774930918_yfyj",
       "next_artifact_number": 3,
@@ -34,9 +34,16 @@
           "path": "specs/071_add_per_example_solver_setting/plans/03_revised-with-examples.md",
           "type": "plan",
           "summary": "6-phase revised plan: z3 default, update all examples"
+        },
+        {
+          "path": "specs/071_add_per_example_solver_setting/summaries/03_execution-summary.md",
+          "type": "summary",
+          "summary": "Execution summary for per-example solver setting implementation"
         }
       ],
-      "planned": "2026-03-31T04:22:48Z"
+      "planned": "2026-03-31T04:22:48Z",
+      "completed": "2026-03-31T04:30:07Z",
+      "completion_summary": "Added per-example solver setting with 'z3' default, validation, tests, and documentation. Precedence: CLI > per-example > default."
     },
     {
       "project_number": 70,

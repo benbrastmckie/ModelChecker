@@ -156,7 +156,7 @@ class ModelDefaults:
             Constraints are added using assert_tracked() to enable unsat core generation
             when constraints are unsatisfiable.
         """
-        solver = create_solver()
+        solver = create_solver(self.settings)
 
         # Clear the constraint dict to prevent cross-example contamination
         self.constraint_dict = {}
@@ -231,7 +231,7 @@ class ModelDefaults:
             - If solving times out, sets the timeout flag but still returns partial results
         """
         # Create a new solver via abstraction layer
-        self.solver = create_solver()
+        self.solver = create_solver(self.settings)
         self.stored_solver = self.solver
 
         try:

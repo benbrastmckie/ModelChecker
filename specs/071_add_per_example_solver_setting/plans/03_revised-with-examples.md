@@ -1,7 +1,7 @@
 # Implementation Plan: Task #71 (Revised)
 
 - **Task**: 71 - Add per-example solver setting
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: None (builds on completed Task 70 cvc5 compatibility)
 - **Research Inputs**: reports/01_per-example-solver.md, reports/02_settings-architecture.md
@@ -48,7 +48,7 @@ Still maintains: CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > se
 
 ## Implementation Phases
 
-### Phase 1: Add solver to DEFAULT_EXAMPLE_SETTINGS [NOT STARTED]
+### Phase 1: Add solver to DEFAULT_EXAMPLE_SETTINGS [COMPLETED]
 
 **Goal**: Enable `solver` as a recognized example-level setting with 'z3' default
 
@@ -69,7 +69,7 @@ Still maintains: CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > se
 
 ---
 
-### Phase 2: Registry handles solver setting [NOT STARTED]
+### Phase 2: Registry handles solver setting [COMPLETED]
 
 **Goal**: Ensure `get_active_backend()` reads solver from settings
 
@@ -90,7 +90,7 @@ Still maintains: CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > se
 
 ---
 
-### Phase 3: Pass settings to create_solver [NOT STARTED]
+### Phase 3: Pass settings to create_solver [COMPLETED]
 
 **Goal**: Connect the merged settings to solver creation
 
@@ -110,7 +110,7 @@ Still maintains: CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > se
 
 ---
 
-### Phase 4: Update all examples with solver field [NOT STARTED]
+### Phase 4: Update all examples with solver field [COMPLETED]
 
 **Goal**: Add explicit `'solver': 'z3'` or `'solver': 'cvc5'` to all existing examples
 
@@ -149,7 +149,7 @@ example_settings = {
 
 ---
 
-### Phase 5: Add validation and tests [NOT STARTED]
+### Phase 5: Add validation and tests [COMPLETED]
 
 **Goal**: Ensure invalid solver values are caught and precedence chain is tested
 
@@ -172,7 +172,7 @@ example_settings = {
 
 ---
 
-### Phase 6: Documentation [NOT STARTED]
+### Phase 6: Documentation [COMPLETED]
 
 **Goal**: Document the new per-example solver setting
 

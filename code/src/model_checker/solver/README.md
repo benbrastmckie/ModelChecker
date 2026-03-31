@@ -47,8 +47,29 @@ The solver backend can be selected via (in priority order):
 
 1. **CLI flag**: `model-checker --z3 example.py` or `model-checker --cvc5 example.py`
 2. **Environment variable**: `MODEL_CHECKER_SOLVER=cvc5`
-3. **Settings**: `general_settings["solver"] = "cvc5"`
+3. **Per-example settings**: `example_settings["solver"] = "cvc5"`
 4. **Default**: `z3`
+
+#### Per-Example Solver Selection
+
+Each example can specify its preferred solver backend:
+
+```python
+EXT_CM_1_settings = {
+    'N': 3,
+    'contingent': True,
+    'max_time': 1,
+    'solver': 'z3',  # Use z3 for this example
+}
+
+# Or specify cvc5 for specific examples
+COMPLEX_EXAMPLE_settings = {
+    'N': 5,
+    'solver': 'cvc5',  # Use cvc5 for this example
+}
+```
+
+This allows mixing solvers within the same test suite based on each example's needs.
 
 ### Programmatic Selection
 

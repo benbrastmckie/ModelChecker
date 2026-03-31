@@ -21,11 +21,21 @@ The output JSON includes:
 import argparse
 import json
 import platform
+import signal
 import sys
 import time
 from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional
+
+
+class ExampleTimeout(Exception):
+    """Raised when an example exceeds its time limit."""
+    pass
+
+
+def _timeout_handler(signum, frame):
+    raise ExampleTimeout("Example timed out")
 
 from model_checker.solver import detect_cvc5, detect_z3
 from model_checker.solver.registry import (
@@ -237,23 +247,33 @@ def flatten_examples(
 def run_example_with_timing(
     example_case: List[Any],
     theory: Dict[str, Any],
-) -> tuple[Optional[bool], bool, float, Optional[str]]:
+    timeout: int = 30,
+) -> tuple[Optional[bool], bool, float, Optional[str], bool]:
     """Run a single example and return result with timing.
 
     Args:
         example_case: [premises, conclusions, settings] tuple
         theory: The semantic theory dict
+        timeout: Maximum seconds per example (0 = no timeout)
 
     Returns:
-        Tuple of (result, passed, time_seconds, error_message)
+        Tuple of (result, passed, time_seconds, error_message, timed_out)
         - result: True=SAT (countermodel found), False=UNSAT (theorem), None=error
         - passed: Whether result matches expectation
         - time_seconds: Elapsed time
         - error_message: Error string if exception occurred
+        - timed_out: Whether the example hit the timeout
     """
     start_time = time.perf_counter()
     error = None
     result = None
+    timed_out = False
+
+    # Set up alarm-based timeout (Linux/macOS only)
+    old_handler = None
+    if timeout > 0:
+        old_handler = signal.signal(signal.SIGALRM, _timeout_handler)
+        signal.alarm(timeout)
 
     try:
         mock_module = create_test_module(theory)
@@ -264,9 +284,21 @@ def run_example_with_timing(
         # z3_model_status is False/None when UNSAT (no countermodel - theorem)
         result = bool(example.model_structure.z3_model_status)
 
+    except ExampleTimeout:
+        error = f"timeout ({timeout}s)"
+        result = None
+        timed_out = True
+
     except Exception as e:
         error = str(e)
         result = None
+
+    finally:
+        # Cancel any pending alarm and restore old handler
+        if timeout > 0:
+            signal.alarm(0)
+            if old_handler is not None:
+                signal.signal(signal.SIGALRM, old_handler)
 
     elapsed = time.perf_counter() - start_time
 
@@ -281,7 +313,7 @@ def run_example_with_timing(
         # expectation=False means we expect no countermodel (UNSAT - theorem)
         passed = result == expectation
 
-    return result, passed, elapsed, error
+    return result, passed, elapsed, error, timed_out
 
 
 def get_z3_version() -> str:
@@ -320,12 +352,14 @@ def check_solver_availability() -> tuple[bool, bool]:
 def run_benchmarks(
     subtheory_filter: Optional[str] = None,
     verbose: bool = False,
+    timeout: int = 30,
 ) -> Dict[str, Any]:
     """Run all benchmarks and return structured results.
 
     Args:
         subtheory_filter: If provided, only run examples from this subtheory
         verbose: If True, print per-example output
+        timeout: Maximum seconds per example per solver (0 = no timeout)
 
     Returns:
         Dictionary with metadata, summary, by_subtheory, results, and disagreements
@@ -336,7 +370,8 @@ def run_benchmarks(
     examples = flatten_examples(subtheory_filter)
     total_examples = len(examples)
 
-    print(f"Running {total_examples} examples against z3 and cvc5...")
+    timeout_label = f" (timeout: {timeout}s)" if timeout > 0 else ""
+    print(f"Running {total_examples} examples against z3 and cvc5{timeout_label}...")
     print()
 
     # Results storage
@@ -349,12 +384,14 @@ def run_benchmarks(
             "passed": 0,
             "failed": 0,
             "errors": 0,
+            "timeouts": 0,
             "times": [],
         },
         "cvc5": {
             "passed": 0,
             "failed": 0,
             "errors": 0,
+            "timeouts": 0,
             "times": [],
         },
     }
@@ -385,8 +422,8 @@ def run_benchmarks(
         for solver in ["z3", "cvc5"]:
             switch_solver(solver)
             theory = get_theory(get_required_subtheories(subtheory))
-            result, passed, elapsed, error = run_example_with_timing(
-                example_case, theory
+            result, passed, elapsed, error, timed_out = run_example_with_timing(
+                example_case, theory, timeout=timeout
             )
 
             solver_result = {
@@ -394,13 +431,17 @@ def run_benchmarks(
                 "passed": passed,
                 "time_seconds": round(elapsed, 6),
                 "error": error,
+                "timed_out": timed_out,
             }
             solver_results[solver] = solver_result
             result_entry[solver] = solver_result
 
             # Update statistics
             solver_stats[solver]["times"].append(elapsed)
-            if error:
+            if timed_out:
+                solver_stats[solver]["timeouts"] += 1
+                subtheory_stats[subtheory][solver]["errors"] += 1
+            elif error:
                 solver_stats[solver]["errors"] += 1
                 subtheory_stats[subtheory][solver]["errors"] += 1
             elif passed:
@@ -430,6 +471,8 @@ def run_benchmarks(
         # Progress output
         z3_error = solver_results["z3"]["error"]
         cvc5_error = solver_results["cvc5"]["error"]
+        z3_timeout = solver_results["z3"]["timed_out"]
+        cvc5_timeout = solver_results["cvc5"]["timed_out"]
         if verbose:
             z3_status = "PASS" if solver_results["z3"]["passed"] else "FAIL"
             cvc5_status = "PASS" if solver_results["cvc5"]["passed"] else "FAIL"
@@ -441,8 +484,15 @@ def run_benchmarks(
                 f"z3={z3_status}{z3_err} cvc5={cvc5_status}{cvc5_err}{disagree}"
             )
         else:
-            # Print errors immediately even in non-verbose mode
-            if z3_error or cvc5_error:
+            # Print timeouts and errors immediately even in non-verbose mode
+            if z3_timeout or cvc5_timeout:
+                parts = []
+                if z3_timeout:
+                    parts.append(f"z3: {timeout}s")
+                if cvc5_timeout:
+                    parts.append(f"cvc5: {timeout}s")
+                print(f"  TIMEOUT [{idx}/{total_examples}] {name}: {'; '.join(parts)}")
+            elif z3_error or cvc5_error:
                 errs = []
                 if z3_error:
                     errs.append(f"z3: {z3_error}")
@@ -464,6 +514,7 @@ def run_benchmarks(
             "passed": stats["passed"],
             "failed": stats["failed"],
             "errors": stats["errors"],
+            "timeouts": stats["timeouts"],
             "total_time_seconds": round(sum(times), 4),
             "avg_time_seconds": round(sum(times) / len(times), 6) if times else 0.0,
         }
@@ -508,18 +559,15 @@ def run_benchmarks(
     print("=" * 60)
     print("BENCHMARK SUMMARY")
     print("=" * 60)
-    print(
-        f"Z3:   {summary['z3']['passed']}/{summary['z3']['total_examples']} passed, "
-        f"{summary['z3']['errors']} errors, "
-        f"avg {summary['z3']['avg_time_seconds']:.4f}s, "
-        f"total {summary['z3']['total_time_seconds']:.2f}s"
-    )
-    print(
-        f"CVC5: {summary['cvc5']['passed']}/{summary['cvc5']['total_examples']} passed, "
-        f"{summary['cvc5']['errors']} errors, "
-        f"avg {summary['cvc5']['avg_time_seconds']:.4f}s, "
-        f"total {summary['cvc5']['total_time_seconds']:.2f}s"
-    )
+    for solver_label, solver_key in [("Z3  ", "z3"), ("CVC5", "cvc5")]:
+        s = summary[solver_key]
+        timeout_part = f", {s['timeouts']} timeouts" if s['timeouts'] else ""
+        print(
+            f"{solver_label}: {s['passed']}/{s['total_examples']} passed, "
+            f"{s['errors']} errors{timeout_part}, "
+            f"avg {s['avg_time_seconds']:.4f}s, "
+            f"total {s['total_time_seconds']:.2f}s"
+        )
 
     # Show unique errors (deduplicated by message)
     z3_errors = {}
@@ -590,6 +638,13 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Show detailed per-example output",
     )
+    parser.add_argument(
+        "--timeout",
+        "-t",
+        type=int,
+        default=30,
+        help="Timeout per example per solver in seconds (default: 30, 0 = no timeout)",
+    )
     return parser.parse_args()
 
 
@@ -622,6 +677,7 @@ def main() -> int:
     results = run_benchmarks(
         subtheory_filter=args.subtheory,
         verbose=args.verbose,
+        timeout=args.timeout,
     )
 
     # Write output

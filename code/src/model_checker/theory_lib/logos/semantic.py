@@ -125,6 +125,7 @@ class LogosSemantics(SemanticDefaults):
         'max_time': 10,
         'iterate': False,
         'expectation': None,
+        'solver': 'z3',  # Solver backend: 'z3' or 'cvc5'
     }
     
     def __init__(self, combined_settings: Optional['SettingsDict'] = None,

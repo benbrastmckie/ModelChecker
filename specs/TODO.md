@@ -10,7 +10,9 @@ next_project_number: 72
 
 ### 71. Add per-example solver setting with precedence chain
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-30
+- **Summary**: Added per-example solver setting with 'z3' default, validation, tests, and documentation. Precedence: CLI > per-example > default.
 - **Research**:
   - [01_per-example-solver.md](071_add_per_example_solver_setting/reports/01_per-example-solver.md)
   - [02_settings-architecture.md](071_add_per_example_solver_setting/reports/02_settings-architecture.md)
@@ -18,6 +20,7 @@ next_project_number: 72
   - [01_per-example-solver.md](071_add_per_example_solver_setting/plans/01_per-example-solver.md)
   - [02_settings-architecture.md](071_add_per_example_solver_setting/plans/02_settings-architecture.md)
   - [03_revised-with-examples.md](071_add_per_example_solver_setting/plans/03_revised-with-examples.md)
+- **Execution**: [03_execution-summary.md](071_add_per_example_solver_setting/summaries/03_execution-summary.md)
 - **Language**: python
 
 **Description**: Add a `solver` field to example settings that accepts `'z3'` or `'cvc5'` and overrides the semantic theory defaults. Precedence chain (highest to lowest): CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > semantic theory defaults. This allows individual examples to specify which solver backend they require while still respecting explicit CLI overrides.
