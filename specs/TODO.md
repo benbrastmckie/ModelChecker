@@ -1,5 +1,5 @@
 ---
-next_project_number: 70
+next_project_number: 71
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 70
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 70. Fix cvc5 "Z3 expression expected" compatibility errors
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Fix cvc5 compatibility errors in comparison.py. Multiple examples fail with "cvc5: Z3 expression expected" error when running against cvc5 solver. Affected examples include EXT_CM_2, MOD_CM_3, MOD_CM_4, CL_CM_4 through CL_CM_14. Investigate root cause and fix all issues systematically.
+
+---
 
 ### 69. Fix all skipped and failing tests (zero skip, zero fail)
 - **Effort**: medium

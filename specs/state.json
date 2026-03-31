@@ -1,6 +1,14 @@
 {
-  "next_project_number": 70,
+  "next_project_number": 71,
   "active_projects": [
+    {
+      "project_number": 70,
+      "project_name": "fix_cvc5_z3_expression_compatibility",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-31T02:15:11Z",
+      "last_updated": "2026-03-31T02:15:11Z"
+    },
     {
       "project_number": 69,
       "project_name": "fix_all_skipped_and_failing_tests",
