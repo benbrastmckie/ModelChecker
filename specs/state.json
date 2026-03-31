@@ -4,13 +4,21 @@
     {
       "project_number": 75,
       "project_name": "optimize_cvc5_solver_best_practices",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-03-31T22:35:34Z",
-      "last_updated": "2026-03-31T22:56:27Z",
+      "last_updated": "2026-03-31T23:06:14Z",
       "next_artifact_number": 3,
-      "session_id": "sess_1774997480_uR4fvT",
-      "researched": "2026-03-31T22:56:27Z"
+      "session_id": "sess_1774998268_96Xv52",
+      "researched": "2026-03-31T22:56:27Z",
+      "planned": "2026-03-31T23:06:14Z",
+      "artifacts": [
+        {
+          "path": "specs/075_optimize_cvc5_solver_best_practices/plans/02_implementation-plan.md",
+          "type": "plan",
+          "summary": "3 phases, 1.5 hours - adds three-layer term ID fallback to CVC5SolverAdapter"
+        }
+      ]
     },
     {
       "project_number": 74,

@@ -10,7 +10,7 @@ next_project_number: 76
 
 ### 75. Optimize CVC5 solver integration following best practices
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 
 **Description**: Research CVC5 documentation and community best practices online, then apply optimizations to improve solver performance, model evaluation, and iteration. Build on task 74's findings (truthiness checks, lazy string conversion).
@@ -183,7 +183,7 @@ next_project_number: 76
 
 ### 64. Fix test_push_pop_sat_transitions signed/unsigned bitvector comparison bug
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 
 **Description**: The test `solver/tests/unit/test_equivalence.py::TestPushPopEquivalence::test_push_pop_sat_transitions` fails because it expects `z3_x > 200` and `z3_x < 100` on an 8-bit BitVec to be contradictory (unsat), but z3's `>` and `<` on BitVec are signed comparisons. Signed 8-bit value 200 is -56, so `x > -56 AND x < 100` is satisfiable. Fix by using unsigned comparisons (`z3.UGT` / `z3.ULT` and cvc5 equivalents) or by choosing values that are contradictory under signed comparison (e.g., `x > 50 AND x < 10`). File: `code/src/model_checker/solver/tests/unit/test_equivalence.py` line 127.
@@ -277,7 +277,7 @@ next_project_number: 76
 
 ### 50. Create standalone solver comparison script using dev_cli.py
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: python
 
 **Description**: Create standalone solver comparison script that runs each logos example through dev_cli.py twice (once with z3, once with cvc5), displaying concrete model/countermodel output with timing data for side-by-side comparison.
@@ -286,7 +286,7 @@ next_project_number: 76
 
 ### 36. Fill placeholders and fix metadata
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: latex
 - **Dependencies**: None
 
@@ -308,7 +308,7 @@ next_project_number: 76
 
 ### 35. Fix first-order semantics and predicate extension display
 - **Effort**: TBD
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: python
 - **Dependencies**: None
 
