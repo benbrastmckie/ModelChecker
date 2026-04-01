@@ -43,6 +43,8 @@ class CVC5SolverAdapter:
         self._tracked: Dict[str, Any] = {}
         # id(constraint) -> label for reverse lookup during unsat core
         self._reverse: Dict[int, str] = {}
+        # CVC5 term ID -> label for O(1) lookup without string conversion
+        self._term_id_to_label: Dict[int, str] = {}
         # String representation -> label fallback for structural matching
         self._str_to_label: Dict[str, str] = {}
 
@@ -77,6 +79,9 @@ class CVC5SolverAdapter:
         assert_backend_types(constraint, "cvc5")
         self._tracked[label] = constraint
         self._reverse[id(constraint)] = label
+        # Layer 2: CVC5 term ID lookup (avoids string conversion)
+        if hasattr(constraint, 'get_id'):
+            self._term_id_to_label[constraint.get_id()] = label
         # String conversion deferred until unsat_core() is called
         # (CVC5's str() is expensive: ~15ms per term, ~8s total for 523 constraints)
         self._solver.add(constraint)
@@ -146,13 +151,20 @@ class CVC5SolverAdapter:
 
         labels = []
         for term in core_terms:
-            # Try direct id lookup first
+            # Layer 1: Try direct Python id lookup first
             label = self._reverse.get(id(term))
             if label:
                 labels.append(label)
                 continue
 
-            # Fallback: match by string representation
+            # Layer 2: Try CVC5 term ID lookup (avoids string conversion)
+            if hasattr(term, 'get_id'):
+                label = self._term_id_to_label.get(term.get_id())
+                if label:
+                    labels.append(label)
+                    continue
+
+            # Layer 3: Fallback to string representation matching
             term_str = str(term)
             label = self._str_to_label.get(term_str)
             if label:
@@ -217,6 +229,7 @@ class CVC5SolverAdapter:
             self._solver.set('produce-unsat-cores', 'true')
         self._tracked.clear()
         self._reverse.clear()
+        self._term_id_to_label.clear()
         self._str_to_label.clear()
 
     def set(self, option: str, value: Any) -> None:

@@ -10,8 +10,15 @@ next_project_number: 76
 
 ### 75. Optimize CVC5 solver integration following best practices
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-03-31
+- **Summary**: Added three-layer term ID fallback to CVC5SolverAdapter.unsat_core()
 - **Language**: z3
+- **Research**:
+  - [01_cvc5-best-practices.md](075_optimize_cvc5_solver_best_practices/reports/01_cvc5-best-practices.md)
+  - [02_team-research.md](075_optimize_cvc5_solver_best_practices/reports/02_team-research.md)
+- **Plan**: [02_implementation-plan.md](075_optimize_cvc5_solver_best_practices/plans/02_implementation-plan.md)
+- **Summary**: [02_execution-summary.md](075_optimize_cvc5_solver_best_practices/summaries/02_execution-summary.md)
 
 **Description**: Research CVC5 documentation and community best practices online, then apply optimizations to improve solver performance, model evaluation, and iteration. Build on task 74's findings (truthiness checks, lazy string conversion).
 
