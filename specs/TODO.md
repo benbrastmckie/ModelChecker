@@ -10,9 +10,10 @@ next_project_number: 77
 
 ### 76. Refactor comparison.py for selective examples with dual-solver timing comparison
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 - **Research**: [01_comparison-refactor-research.md](076_refactor_comparison_dual_solver_timing/reports/01_comparison-refactor-research.md)
+- **Plan**: [01_implementation-plan.md](076_refactor_comparison_dual_solver_timing/plans/01_implementation-plan.md)
 
 **Description**: Refactor comparison.py to run a curated selection of examples (a couple theorems and a couple invalid claims for each operator) rather than all examples from examples.py. For each selected example, run both z3 and cvc5, compare results (model found, no model, timeout), and record the time each solver takes. Skip countermodel printing for this comparison test.
 

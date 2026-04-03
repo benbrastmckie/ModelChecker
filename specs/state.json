@@ -4,10 +4,12 @@
     {
       "project_number": 76,
       "project_name": "refactor_comparison_dual_solver_timing",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-04-03T17:42:01Z",
-      "last_updated": "2026-04-03T17:47:32Z"
+      "last_updated": "2026-04-03T17:52:46Z",
+      "session_id": "sess_1775238609_53ac25",
+      "planned": "2026-04-03T17:52:46Z"
     },
     {
       "project_number": 75,
