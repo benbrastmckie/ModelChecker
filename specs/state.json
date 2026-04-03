@@ -7,15 +7,20 @@
       "status": "researched",
       "language": "z3",
       "created": "2026-04-03T20:33:53Z",
-      "last_updated": "2026-04-03T20:38:32Z",
-      "session_id": "sess_1775248477_f9ff9f",
+      "last_updated": "2026-04-03T23:32:24Z",
+      "session_id": "sess_1775258929_5377fa",
       "researched": "2026-04-03",
-      "next_artifact_number": 2,
+      "next_artifact_number": 3,
       "artifacts": [
         {
           "path": "specs/082_test_z3_cvc5_primitive_quantifiers/reports/01_quantifier-comparison-design.md",
           "type": "research",
           "summary": "Designed standalone benchmark script for comparing Z3/CVC5 with native vs finitary quantifiers"
+        },
+        {
+          "path": "specs/082_test_z3_cvc5_primitive_quantifiers/reports/02_toggleable-quantifier-design.md",
+          "type": "research",
+          "summary": "Designed toggleable quantifier mechanism via z3_helpers.py mode flag; inventoried 37 CF examples; selected 20 for benchmark"
         }
       ]
     },
