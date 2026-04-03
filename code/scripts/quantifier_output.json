@@ -1,0 +1,623 @@
+{
+  "metadata": {
+    "timestamp": "2026-04-03T16:55:09.575773",
+    "z3_version": "4.15.8",
+    "cvc5_version": "1.3.3-modified",
+    "platform": "Linux-6.19.10-x86_64-with-glibc2.42",
+    "python_version": "3.12.13",
+    "total_tests": 20,
+    "total_runtime_seconds": 363.11,
+    "modes_tested": [
+      "finitary",
+      "z3-native",
+      "cvc5-native"
+    ],
+    "description": "Z3 vs CVC5 Primitive Quantifier Benchmark"
+  },
+  "summary": {
+    "finitary": {
+      "total": 20,
+      "sat": 10,
+      "unsat": 10,
+      "unknown": 0,
+      "errors": 0,
+      "timeouts": 0,
+      "total_time": 17.0633,
+      "avg_time": 0.853165
+    },
+    "z3-native": {
+      "total": 20,
+      "sat": 0,
+      "unsat": 20,
+      "unknown": 0,
+      "errors": 0,
+      "timeouts": 0,
+      "total_time": 189.7464,
+      "avg_time": 9.487319
+    },
+    "cvc5-native": {
+      "total": 20,
+      "sat": 0,
+      "unsat": 20,
+      "unknown": 0,
+      "errors": 0,
+      "timeouts": 0,
+      "total_time": 155.4061,
+      "avg_time": 7.770305
+    }
+  },
+  "timing_summary": {
+    "finitary": {
+      "total_time_seconds": 17.0633,
+      "avg_time_seconds": 0.853165,
+      "fastest_example": "CF_TH_2",
+      "fastest_time": 0.096912,
+      "slowest_example": "CF_CM_19",
+      "slowest_time": 5.2665
+    },
+    "z3-native": {
+      "total_time_seconds": 189.7464,
+      "avg_time_seconds": 9.487319,
+      "fastest_example": "CF_TH_1",
+      "fastest_time": 0.108684,
+      "slowest_example": "CF_CM_10",
+      "slowest_time": 14.470938
+    },
+    "cvc5-native": {
+      "total_time_seconds": 155.4061,
+      "avg_time_seconds": 7.770305,
+      "fastest_example": "CF_TH_1",
+      "fastest_time": 0.018453,
+      "slowest_example": "CF_TH_5",
+      "slowest_time": 14.092744
+    }
+  },
+  "comparison_stats": {
+    "native_vs_finitary_z3": {
+      "native_faster": 2,
+      "finitary_faster": 18,
+      "ratio": 0.22
+    },
+    "z3_vs_cvc5_native": {
+      "z3_faster": 2,
+      "cvc5_faster": 18,
+      "ratio": 0.78
+    },
+    "result_agreements": 10,
+    "result_disagreements": 10
+  },
+  "results": [
+    {
+      "example_name": "CF_TH_1",
+      "description": "Counterfactual Identity",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.115812,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 0.108684,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 0.018453,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_2",
+      "description": "Counterfactual Modus Ponens",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.096912,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 10.994141,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.112107,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_3",
+      "description": "Weakened Transitivity",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.318661,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.312007,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.274227,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_4",
+      "description": "Antecedent Disjunction to Conjunction",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.289496,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 13.844334,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.310648,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_5",
+      "description": "Simplification of Disjunctive Antecedent",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.338598,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.271325,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 14.092744,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_6",
+      "description": "Double Simplification",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.377186,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.426764,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.602673,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_8",
+      "description": "Consequent Weakening",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.304703,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.097361,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.20962,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_9",
+      "description": "Conjunction Introduction",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.51517,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.300603,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.845879,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_10",
+      "description": "Might Factivity",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.24504,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 11.38725,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 11.562204,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_TH_11",
+      "description": "Definition of Nec",
+      "expected": "unsat",
+      "finitary": {
+        "result": "unsat",
+        "time_seconds": 0.269847,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 10.108842,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.059093,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_1",
+      "description": "Antecedent Strengthening",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 1.738564,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.444254,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 14.001734,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_5",
+      "description": "Double Antecedent Strengthening",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 1.419452,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.038765,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 8.187021,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_7",
+      "description": "Contraposition",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 0.512569,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 10.606191,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.654157,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_10",
+      "description": "Transitivity",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 0.781658,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 14.470938,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 10.25698,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_15",
+      "description": "Excluded Middle",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 0.516743,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 2.796858,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 2.123324,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_16",
+      "description": "Simplification of Disjunctive Consequent",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 1.0564,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 2.837198,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 2.130529,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_17",
+      "description": "Introduction of Disjunctive Antecedent",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 1.900244,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 2.798518,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 2.436936,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_18",
+      "description": "Must Factivity",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 0.290072,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 2.635934,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 2.101781,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_19",
+      "description": "Exportation",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 5.2665,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 4.225929,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 3.26893,
+        "error": null,
+        "timed_out": false
+      }
+    },
+    {
+      "example_name": "CF_CM_21",
+      "description": "Negation Distribution",
+      "expected": "sat",
+      "finitary": {
+        "result": "sat",
+        "time_seconds": 0.709682,
+        "error": null,
+        "timed_out": false
+      },
+      "z3_native": {
+        "result": "unsat",
+        "time_seconds": 3.040494,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5_native": {
+        "result": "unsat",
+        "time_seconds": 2.157061,
+        "error": null,
+        "timed_out": false
+      }
+    }
+  ],
+  "disagreements": [
+    {
+      "example_name": "CF_CM_1",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_5",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_7",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_10",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_15",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_16",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_17",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_18",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_19",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    },
+    {
+      "example_name": "CF_CM_21",
+      "expected": "sat",
+      "finitary_result": "sat",
+      "z3_native_result": "unsat",
+      "cvc5_native_result": "unsat"
+    }
+  ]
+}
