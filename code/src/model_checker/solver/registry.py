@@ -156,7 +156,9 @@ def create_solver(settings: Optional[Dict[str, Any]] = None) -> "TrackedSolverPr
     """Create a solver instance using the active backend.
 
     Args:
-        settings: Optional settings dict for backend selection.
+        settings: Optional settings dict for backend selection and mode configuration.
+            For CVC5, unsat cores are enabled when print_constraints or print_z3
+            is True (diagnostic mode). Otherwise, performance mode is used.
 
     Returns:
         A solver instance conforming to TrackedSolverProtocol.
@@ -177,9 +179,32 @@ def create_solver(settings: Optional[Dict[str, Any]] = None) -> "TrackedSolverPr
         return Z3SolverAdapter()
     elif backend == "cvc5":
         from .cvc5_adapter import CVC5SolverAdapter
-        return CVC5SolverAdapter()
+        # Auto-detect if unsat cores are needed from print settings
+        # Cores are needed when user wants to see constraint details
+        need_unsat_cores = _detect_unsat_core_requirement(settings)
+        return CVC5SolverAdapter(need_unsat_cores=need_unsat_cores)
 
     raise RuntimeError(f"No factory registered for backend: {backend}")
+
+
+def _detect_unsat_core_requirement(settings: Optional[Dict[str, Any]]) -> bool:
+    """Detect if unsat cores are needed based on settings.
+
+    Unsat cores are required when:
+    - print_constraints is True (user wants to see constraint details)
+    - print_z3 is True (user wants to see Z3/solver output)
+
+    Args:
+        settings: Optional settings dict with print flags.
+
+    Returns:
+        True if unsat cores should be enabled (diagnostic mode),
+        False for performance mode.
+    """
+    if settings is None:
+        return False
+
+    return settings.get('print_constraints', False) or settings.get('print_z3', False)
 
 
 def list_available_backends() -> Dict[str, bool]:

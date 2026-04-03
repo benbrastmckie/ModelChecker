@@ -383,7 +383,7 @@ class ModelDefaults:
     
     def _get_relevant_constraints(self, output: TextIO) -> List[Any]:
         """Get the relevant constraints based on model satisfiability status.
-        
+
         Returns:
             list: Constraints to display (all constraints if SAT, unsat core if UNSAT)
         """
@@ -392,6 +392,11 @@ class ModelDefaults:
             print("SATISFIABLE CONSTRAINTS:", file=output)
             return self.model_constraints.all_constraints
         elif self.unsat_core is not None:
+            # Handle empty unsat core (performance mode or core unavailable)
+            if len(self.unsat_core) == 0:
+                print("UNSATISFIABLE (core not available - performance mode)", file=output)
+                # Return all constraints as fallback when core is unavailable
+                return self.model_constraints.all_constraints
             print("UNSATISFIABLE CORE CONSTRAINTS:", file=output)
             return [self.constraint_dict[str(c)] for c in self.unsat_core]
         else:
@@ -660,7 +665,11 @@ class ModelDefaults:
             if self.z3_model_status:
                 print(self.z3_model, file=output)
             else:
-                print(self.unsat_core, file=output)
+                # Handle empty unsat core (performance mode)
+                if self.unsat_core is not None and len(self.unsat_core) == 0:
+                    print("(unsat core not available - performance mode)", file=output)
+                else:
+                    print(self.unsat_core, file=output)
                 
     def calculate_model_differences(self, previous_structure: 'ModelDefaults') -> Optional[Dict[str, Any]]:
         """Calculate theory-specific differences between this model and a previous one.

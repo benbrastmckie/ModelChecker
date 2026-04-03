@@ -22,10 +22,15 @@ class CVC5SolverAdapter:
     - Full pythonic API usage (no mixed base/pythonic calls)
     - Tracked assertion support with label-to-term mapping
     - Unsat core extraction that returns string labels (matching Z3 behavior)
+    - Conditional unsat core tracking with diagnostic/performance modes
     """
 
-    def __init__(self) -> None:
+    def __init__(self, need_unsat_cores: bool = True) -> None:
         """Initialize a new cvc5 solver adapter.
+
+        Args:
+            need_unsat_cores: If True, enable unsat core tracking (diagnostic mode).
+                If False, disable cores and enable performance optimizations.
 
         Raises:
             ImportError: If cvc5 package is not installed.
@@ -33,11 +38,19 @@ class CVC5SolverAdapter:
         try:
             from cvc5.pythonic import Solver as CVC5Solver
             self._solver = CVC5Solver()
-            self._solver.set('produce-unsat-cores', 'true')
         except ImportError as e:
             raise ImportError(
                 "cvc5 not installed. Install with: pip install cvc5"
             ) from e
+
+        # Store mode for reset() preservation and unsat_core() behavior
+        self._need_unsat_cores = need_unsat_cores
+
+        # Configure solver based on mode
+        if need_unsat_cores:
+            self._configure_diagnostic_mode()
+        else:
+            self._configure_performance_mode()
 
         # Label -> constraint mapping for tracked assertions
         self._tracked: Dict[str, Any] = {}
@@ -47,6 +60,20 @@ class CVC5SolverAdapter:
         self._term_id_to_label: Dict[int, str] = {}
         # String representation -> label fallback for structural matching
         self._str_to_label: Dict[str, str] = {}
+
+    def _configure_diagnostic_mode(self) -> None:
+        """Configure solver for diagnostic mode with unsat core tracking enabled."""
+        self._solver.set('produce-unsat-cores', 'true')
+
+    def _configure_performance_mode(self) -> None:
+        """Configure solver for performance mode with optimizations enabled.
+
+        Disables unsat core tracking and enables CVC5-specific optimizations
+        that reduce the performance gap with Z3 on UNSAT problems.
+        """
+        # Task 79 optimizations bundled here for performance mode
+        self._solver.set('decision', 'stoponly')
+        self._solver.set('bv-eager-eval', 'true')
 
     def add(self, constraint: Any) -> None:
         """Add a constraint to the solver.
@@ -138,7 +165,12 @@ class CVC5SolverAdapter:
 
         Returns:
             List of string labels identifying core constraints.
+            Returns empty list if unsat cores are disabled (performance mode).
         """
+        # Return empty list if cores are disabled (performance mode)
+        if not self._need_unsat_cores:
+            return []
+
         try:
             core_terms = self._solver.unsat_core()
         except Exception:
@@ -219,14 +251,26 @@ class CVC5SolverAdapter:
             return "unknown"
 
     def reset(self) -> None:
-        """Reset the solver to its initial state."""
+        """Reset the solver to its initial state.
+
+        Preserves the diagnostic/performance mode configuration.
+        """
         try:
             self._solver.reset()
+            # Reapply mode configuration after reset
+            if self._need_unsat_cores:
+                self._configure_diagnostic_mode()
+            else:
+                self._configure_performance_mode()
         except AttributeError:
             # cvc5 may not have reset, recreate solver
             from cvc5.pythonic import Solver as CVC5Solver
             self._solver = CVC5Solver()
-            self._solver.set('produce-unsat-cores', 'true')
+            # Apply mode configuration for new solver
+            if self._need_unsat_cores:
+                self._configure_diagnostic_mode()
+            else:
+                self._configure_performance_mode()
         self._tracked.clear()
         self._reverse.clear()
         self._term_id_to_label.clear()

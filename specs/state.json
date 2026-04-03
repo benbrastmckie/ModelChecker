@@ -47,10 +47,10 @@
     {
       "project_number": 77,
       "project_name": "conditional_unsat_core_tracking",
-      "status": "implementing",
+      "status": "completed",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T19:29:05Z",
+      "last_updated": "2026-04-03T19:36:35Z",
       "session_id": "sess_1775263550_d2e8a1",
       "next_artifact_number": 3,
       "researched": "2026-04-03T20:15:00Z",
@@ -69,9 +69,16 @@
           "path": "specs/077_conditional_unsat_core_tracking/plans/02_conditional-core-tracking.md",
           "type": "plan",
           "summary": "4-phase implementation plan for conditional unsat core tracking with diagnostic/performance mode switching"
+        },
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/summaries/02_conditional-core-tracking-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all changes across 3 files"
         }
       ],
-      "planned": "2026-04-03T19:27:37Z"
+      "planned": "2026-04-03T19:27:37Z",
+      "completed": "2026-04-03T19:36:35Z",
+      "completion_summary": "Implemented conditional unsat core tracking for CVC5 solver with auto-detection from print settings. Added diagnostic mode (cores enabled) and performance mode (cores disabled with optimizations). All 299 existing tests pass."
     },
     {
       "project_number": 76,
