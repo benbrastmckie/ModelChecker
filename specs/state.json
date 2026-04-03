@@ -1,6 +1,14 @@
 {
-  "next_project_number": 76,
+  "next_project_number": 77,
   "active_projects": [
+    {
+      "project_number": 76,
+      "project_name": "refactor_comparison_dual_solver_timing",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-03T17:42:01Z",
+      "last_updated": "2026-04-03T17:42:01Z"
+    },
     {
       "project_number": 75,
       "project_name": "optimize_cvc5_solver_best_practices",

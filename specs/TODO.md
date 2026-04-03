@@ -1,5 +1,5 @@
 ---
-next_project_number: 76
+next_project_number: 77
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 76
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 76. Refactor comparison.py for selective examples with dual-solver timing comparison
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Refactor comparison.py to run a curated selection of examples (a couple theorems and a couple invalid claims for each operator) rather than all examples from examples.py. For each selected example, run both z3 and cvc5, compare results (model found, no model, timeout), and record the time each solver takes. Skip countermodel printing for this comparison test.
+
+---
 
 ### 75. Optimize CVC5 solver integration following best practices
 - **Effort**: medium
