@@ -4,10 +4,10 @@
     {
       "project_number": 80,
       "project_name": "cvc5_encoding_optimization",
-      "status": "researching",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:05:00Z",
+      "last_updated": "2026-04-03T20:30:00Z",
       "dependencies": [
         79
       ]
@@ -47,11 +47,11 @@
     {
       "project_number": 77,
       "project_name": "conditional_unsat_core_tracking",
-      "status": "planned",
+      "status": "implementing",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T19:27:37Z",
-      "session_id": "sess_1775263410_c8f291",
+      "last_updated": "2026-04-03T19:29:05Z",
+      "session_id": "sess_1775263550_d2e8a1",
       "next_artifact_number": 3,
       "researched": "2026-04-03T20:15:00Z",
       "artifacts": [
