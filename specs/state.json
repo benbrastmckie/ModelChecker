@@ -1,6 +1,14 @@
 {
-  "next_project_number": 81,
+  "next_project_number": 82,
   "active_projects": [
+    {
+      "project_number": 81,
+      "project_name": "fix_iterate_package_test_regression",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-03T19:43:19Z",
+      "last_updated": "2026-04-03T19:43:19Z"
+    },
     {
       "project_number": 80,
       "project_name": "cvc5_encoding_optimization",
@@ -15,10 +23,10 @@
     {
       "project_number": 79,
       "project_name": "cvc5_solver_options_tuning",
-      "status": "researched",
+      "status": "researching",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:32:00Z",
+      "last_updated": "2026-04-03T20:37:00Z",
       "dependencies": [
         77
       ],

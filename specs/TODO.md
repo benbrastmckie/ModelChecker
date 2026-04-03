@@ -1,5 +1,5 @@
 ---
-next_project_number: 81
+next_project_number: 82
 ---
 
 # Task List
@@ -7,6 +7,16 @@ next_project_number: 81
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 81. Fix iterate package test regression
+- **Effort**: small
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 77
+
+**Description**: Research and fix the iterate package test regression. After running `./code/run_tests.py`, the iterate package tests FAILED while all other tests passed. This regression appeared after the task 77 implementation (conditional unsat core tracking). Need to investigate root cause and fix all issues to restore passing tests.
+
+---
 
 ### 80. Optimize constraint encoding for CVC5 UNSAT performance
 - **Effort**: medium
