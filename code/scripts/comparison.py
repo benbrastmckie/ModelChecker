@@ -18,7 +18,7 @@ import os
 import sys
 
 # Ensure local src is prioritized
-src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'))
+src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 sys.path.insert(0, src_path)
 
 from model_checker.theory_lib.logos.comparison import main

@@ -261,6 +261,95 @@ def format_as_table(results: Dict[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def format_as_markdown(results: Dict[str, Any]) -> str:
+    """Format benchmark results as a Markdown report with tables.
+
+    Args:
+        results: Full benchmark results dictionary
+
+    Returns:
+        Markdown string suitable for writing to a .md file
+    """
+    lines = []
+    meta = results["metadata"]
+    ts = results["timing_summary"]
+    cs = results["comparison_stats"]
+
+    lines.append("# Dual-Solver Timing Comparison")
+    lines.append("")
+    curated_str = "Yes" if meta.get("curated", False) else "No"
+    lines.append(f"- **Timestamp**: {meta['timestamp'][:19]}")
+    lines.append(f"- **Z3 Version**: {meta['z3_version']}")
+    lines.append(f"- **CVC5 Version**: {meta['cvc5_version']}")
+    lines.append(f"- **Total Examples**: {meta['total_examples']}")
+    lines.append(f"- **Curated**: {curated_str}")
+    lines.append(f"- **Total Runtime**: {meta['total_runtime_seconds']:.2f}s")
+    lines.append("")
+
+    # Timing Summary
+    lines.append("## Timing Summary")
+    lines.append("")
+    lines.append("| Metric | Z3 | CVC5 |")
+    lines.append("|--------|---:|-----:|")
+    lines.append("| Total Time | {:.4f}s | {:.4f}s |".format(
+        ts["z3"]["total_time_seconds"], ts["cvc5"]["total_time_seconds"]))
+    lines.append("| Avg Time | {:.6f}s | {:.6f}s |".format(
+        ts["z3"]["avg_time_seconds"], ts["cvc5"]["avg_time_seconds"]))
+    lines.append("| Fastest | {} ({:.4f}s) | {} ({:.4f}s) |".format(
+        ts["z3"]["fastest_example"], ts["z3"]["fastest_time"],
+        ts["cvc5"]["fastest_example"], ts["cvc5"]["fastest_time"]))
+    lines.append("| Slowest | {} ({:.4f}s) | {} ({:.4f}s) |".format(
+        ts["z3"]["slowest_example"], ts["z3"]["slowest_time"],
+        ts["cvc5"]["slowest_example"], ts["cvc5"]["slowest_time"]))
+    lines.append("")
+
+    # Comparison Statistics
+    lines.append("## Comparison Statistics")
+    lines.append("")
+    lines.append("| Metric | Value |")
+    lines.append("|--------|------:|")
+    lines.append(f"| Agreements | {cs['agreements']} |")
+    lines.append(f"| Disagreements | {cs['disagreements']} |")
+    lines.append(f"| Z3 Faster | {cs['z3_faster_count']} |")
+    lines.append(f"| CVC5 Faster | {cs['cvc5_faster_count']} |")
+    lines.append(f"| Ties | {cs['ties']} |")
+    lines.append(f"| Avg Time Ratio | {cs['avg_time_ratio']:.2f}x |")
+    lines.append("")
+
+    # Example Results
+    lines.append("## Example Results")
+    lines.append("")
+    lines.append("| Example | Z3 (s) | CVC5 (s) | Agree | Faster | Ratio |")
+    lines.append("|---------|-------:|--------:|:-----:|:------:|------:|")
+    for r in results["results"]:
+        agree = "Yes" if r.get("agreement", False) else "**NO**"
+        faster = r.get("faster_solver", "")
+        ratio = r.get("time_ratio", 0)
+        lines.append("| {} | {:.6f} | {:.6f} | {} | {} | {:.2f}x |".format(
+            r["example_name"],
+            r["z3"]["time_seconds"],
+            r["cvc5"]["time_seconds"],
+            agree,
+            faster,
+            ratio,
+        ))
+    lines.append("")
+
+    # Disagreements section (if any)
+    if results.get("disagreements"):
+        lines.append("## Disagreements")
+        lines.append("")
+        lines.append("| Example | Subtheory | Z3 Result | CVC5 Result | Expected |")
+        lines.append("|---------|-----------|:---------:|:-----------:|:--------:|")
+        for d in results["disagreements"]:
+            lines.append("| {} | {} | {} | {} | {} |".format(
+                d["example_name"], d["subtheory"],
+                d["z3_result"], d["cvc5_result"], d["expectation"]))
+        lines.append("")
+
+    return "\n".join(lines)
+
+
 def compute_timing_comparison(
     results: List[Dict[str, Any]],
 ) -> tuple[Dict[str, Dict[str, Any]], Dict[str, Any]]:
@@ -1008,11 +1097,16 @@ def main() -> int:
         print()
         print(format_as_table(results))
 
-    # Write output
+    # Write JSON output
     with open(args.output, "w") as f:
         json.dump(output, f, indent=2)
 
-    print(f"\nResults written to {args.output}")
+    # Write Markdown output
+    md_output_path = args.output.rsplit(".", 1)[0] + ".md"
+    with open(md_output_path, "w") as f:
+        f.write(format_as_markdown(results))
+
+    print(f"\nResults written to {args.output} and {md_output_path}")
     return 0
 
 
