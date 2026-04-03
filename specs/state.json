@@ -24,12 +24,22 @@
     {
       "project_number": 80,
       "project_name": "cvc5_encoding_optimization",
-      "status": "researching",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T12:49:17-07:00",
+      "last_updated": "2026-04-03T12:59:33-07:00",
       "dependencies": [
         79
+      ],
+      "session_id": "sess_1775245739_6796e7",
+      "researched": "2026-04-03",
+      "next_artifact_number": 3,
+      "artifacts": [
+        {
+          "path": "specs/080_cvc5_encoding_optimization/reports/02_optimization-testing.md",
+          "type": "research",
+          "summary": "Empirical testing confirms Task 77 config is optimal. Push/pop batching degraded 15-46%. Simplification options degraded 0-45%. Final gap: 1.70x overall."
+        }
       ]
     },
     {

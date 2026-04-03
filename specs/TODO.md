@@ -22,10 +22,12 @@ next_project_number: 82
 
 ### 80. Optimize constraint encoding for CVC5 UNSAT performance
 - **Effort**: medium
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 79
-- **Research**: [01_cvc5-encoding-optimization.md](080_cvc5_encoding_optimization/reports/01_cvc5-encoding-optimization.md)
+- **Research**:
+  - [01_cvc5-encoding-optimization.md](080_cvc5_encoding_optimization/reports/01_cvc5-encoding-optimization.md)
+  - [02_optimization-testing.md](080_cvc5_encoding_optimization/reports/02_optimization-testing.md)
 
 **Description**: Research whether the constraint encoding style used by the logos theory can be restructured to improve CVC5's UNSAT proof search without degrading Z3 performance. The benchmark data (task 76) shows CVC5 is 8-34x slower than Z3 on UNSAT (theorem) examples, while SAT (countermodel) performance is nearly identical. This suggests the encoding itself may be poorly suited to CVC5's internal heuristics rather than CVC5 being inherently slower.
 
