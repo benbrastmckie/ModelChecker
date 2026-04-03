@@ -1,6 +1,14 @@
 {
-  "next_project_number": 82,
+  "next_project_number": 83,
   "active_projects": [
+    {
+      "project_number": 82,
+      "project_name": "test_z3_cvc5_primitive_quantifiers",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-03T20:33:53Z",
+      "last_updated": "2026-04-03T20:33:53Z"
+    },
     {
       "project_number": 81,
       "project_name": "fix_iterate_package_test_regression",
