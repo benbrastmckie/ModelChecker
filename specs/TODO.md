@@ -10,8 +10,9 @@ next_project_number: 83
 
 ### 82. Test Z3 vs CVC5 comparison with primitive quantifiers
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
+- **Research**: [01_quantifier-comparison-design.md](082_test_z3_cvc5_primitive_quantifiers/reports/01_quantifier-comparison-design.md)
 
 **Description**: State spaces are finite throughout the model-checker. Because of this, the quantifiers are defined in terms of boolean operations over the relevant substitution instances instead of using z3 quantifiers. Test how Z3 compares to CVC5 when primitive Z3 quantifiers are used instead of the finitary definitions currently used. Create a method for this comparison without disrupting the existing semantics and examples which use finite quantifier definitions. The test should create markdown and JSON output following `code/scripts/comparison.py` as an example of good output format.
 

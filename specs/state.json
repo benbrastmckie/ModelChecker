@@ -4,10 +4,20 @@
     {
       "project_number": 82,
       "project_name": "test_z3_cvc5_primitive_quantifiers",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-03T20:33:53Z",
-      "last_updated": "2026-04-03T20:33:53Z"
+      "last_updated": "2026-04-03T20:38:32Z",
+      "session_id": "sess_1775248477_f9ff9f",
+      "researched": "2026-04-03",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/082_test_z3_cvc5_primitive_quantifiers/reports/01_quantifier-comparison-design.md",
+          "type": "research",
+          "summary": "Designed standalone benchmark script for comparing Z3/CVC5 with native vs finitary quantifiers"
+        }
+      ]
     },
     {
       "project_number": 81,
