@@ -50,15 +50,20 @@
       "status": "researched",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:15:00Z",
-      "session_id": "sess_1775240861_7b2f37",
-      "next_artifact_number": 2,
+      "last_updated": "2026-04-03T20:36:30Z",
+      "session_id": "sess_1775242482_487b6b",
+      "next_artifact_number": 3,
       "researched": "2026-04-03T20:15:00Z",
       "artifacts": [
         {
           "path": "specs/077_conditional_unsat_core_tracking/reports/01_unsat-core-overhead.md",
           "type": "research",
           "summary": "Measured produce-unsat-cores overhead at 10-30% (~0.1ms), insufficient to explain 25-35x slowdown. Root cause is elsewhere."
+        },
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/reports/02_conditional-design.md",
+          "type": "research",
+          "summary": "Root cause: produce-unsat-cores + tracked assertions interaction. Designed settings-based auto-detection mechanism with diagnostic/performance modes."
         }
       ]
     },

@@ -83,7 +83,9 @@ next_project_number: 81
 - **Effort**: medium
 - **Status**: [RESEARCHED]
 - **Language**: z3
-- **Research**: [01_unsat-core-overhead.md](077_conditional_unsat_core_tracking/reports/01_unsat-core-overhead.md)
+- **Research**:
+  - [01_unsat-core-overhead.md](077_conditional_unsat_core_tracking/reports/01_unsat-core-overhead.md)
+  - [02_conditional-design.md](077_conditional_unsat_core_tracking/reports/02_conditional-design.md)
 
 **Description**: Research whether disabling CVC5's `produce-unsat-cores` option when unsat cores are not needed can improve performance. Currently `CVC5SolverAdapter.__init__()` unconditionally sets `solver.set('produce-unsat-cores', 'true')`, which forces CVC5 to maintain proof-tracking overhead on every query — including SAT queries where unsat cores are never extracted. The benchmark data (task 76) shows CVC5 is 3.9x slower overall and up to 34x slower on UNSAT examples.
 
