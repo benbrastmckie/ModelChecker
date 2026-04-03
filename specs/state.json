@@ -4,10 +4,12 @@
     {
       "project_number": 81,
       "project_name": "fix_iterate_package_test_regression",
-      "status": "not_started",
+      "status": "researching",
       "language": "z3",
       "created": "2026-04-03T19:43:19Z",
-      "last_updated": "2026-04-03T19:43:19Z"
+      "last_updated": "2026-04-03T19:44:13Z",
+      "session_id": "sess_1775264620_f3a9c2",
+      "next_artifact_number": 1
     },
     {
       "project_number": 80,
@@ -23,21 +25,26 @@
     {
       "project_number": 79,
       "project_name": "cvc5_solver_options_tuning",
-      "status": "researching",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:37:00Z",
+      "last_updated": "2026-04-03T20:50:00Z",
       "dependencies": [
         77
       ],
       "session_id": "sess_1775241738_c0ec3e",
-      "next_artifact_number": 2,
+      "next_artifact_number": 3,
       "researched": "2026-04-03T20:32:00Z",
       "artifacts": [
         {
           "path": "specs/079_cvc5_solver_options_tuning/reports/01_cvc5-options-research.md",
           "type": "research",
           "summary": "Identified produce-unsat-cores + tracked assertions as root cause. Optimized config: 5.4x faster, CVC5 now only 1.65x slower than Z3"
+        },
+        {
+          "path": "specs/079_cvc5_solver_options_tuning/reports/02_cvc5-options-post-task77.md",
+          "type": "research",
+          "summary": "Validated Task 77 config as optimal. CVC5 now only 1.61x slower than Z3 (was 8.9x)."
         }
       ]
     },

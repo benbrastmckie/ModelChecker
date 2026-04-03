@@ -10,7 +10,7 @@ next_project_number: 82
 
 ### 81. Fix iterate package test regression
 - **Effort**: small
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Language**: z3
 - **Dependencies**: 77
 
@@ -46,7 +46,9 @@ next_project_number: 82
 - **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 77
-- **Research**: [01_cvc5-options-research.md](079_cvc5_solver_options_tuning/reports/01_cvc5-options-research.md)
+- **Research**:
+  - [01_cvc5-options-research.md](079_cvc5_solver_options_tuning/reports/01_cvc5-options-research.md)
+  - [02_cvc5-options-post-task77.md](079_cvc5_solver_options_tuning/reports/02_cvc5-options-post-task77.md)
 
 **Description**: Research and test CVC5 solver configuration options to improve performance on the logos theory's constraint profile. The benchmark data (task 76) shows CVC5 is dramatically slower on UNSAT proofs (avg 9.37x) while competitive on SAT. CVC5 has extensive configuration options that may not be optimal for this workload: finite-domain bitvector reasoning over modal logic Kripke structures with tracked assertions.
 
