@@ -25,10 +25,10 @@
     {
       "project_number": 79,
       "project_name": "cvc5_solver_options_tuning",
-      "status": "researched",
+      "status": "completed",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:50:00Z",
+      "last_updated": "2026-04-03T21:00:00Z",
       "dependencies": [
         77
       ],
@@ -46,7 +46,9 @@
           "type": "research",
           "summary": "Validated Task 77 config as optimal. CVC5 now only 1.61x slower than Z3 (was 8.9x)."
         }
-      ]
+      ],
+      "completed": "2026-04-03",
+      "completion_summary": "Validated Task 77 performance mode config as optimal. CVC5 now 1.61x slower than Z3 (was 8.9x). decision=stoponly + bv-eager-eval=true provide 5.5x improvement with no further tuning needed."
     },
     {
       "project_number": 78,
