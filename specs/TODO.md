@@ -1,5 +1,5 @@
 ---
-next_project_number: 77
+next_project_number: 81
 ---
 
 # Task List
@@ -7,6 +7,100 @@ next_project_number: 77
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 80. Optimize constraint encoding for CVC5 UNSAT performance
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 79
+
+**Description**: Research whether the constraint encoding style used by the logos theory can be restructured to improve CVC5's UNSAT proof search without degrading Z3 performance. The benchmark data (task 76) shows CVC5 is 8-34x slower than Z3 on UNSAT (theorem) examples, while SAT (countermodel) performance is nearly identical. This suggests the encoding itself may be poorly suited to CVC5's internal heuristics rather than CVC5 being inherently slower.
+
+**Research approach** (successive rounds until approach is clear):
+
+1. **Round 1 - Encoding analysis**: Examine how the logos theory generates SMT constraints. Focus on `logos/semantic.py`, the operator files in `subtheories/*/operators.py`, and `models/structure.py`. Characterize the constraint patterns: how many variables, how deeply nested, what theories are combined (bitvectors, arrays, quantifiers, uninterpreted functions). Export representative SMT-LIB2 from both solvers for the worst-case examples (CL_TH_1 at 34x, CF_TH_2 at 30x, MOD_TH_5 at 28x) to understand what the solvers actually see.
+
+2. **Round 2 - CVC5 encoding guidelines**: Research CVC5 documentation, academic papers, and SMT-COMP submissions for encoding best practices. CVC5 may prefer: (a) different variable ordering strategies, (b) fewer intermediate let-bindings vs more, (c) different use of bitvector operations vs integer arithmetic, (d) assertion grouping/structuring differences, (e) different handling of quantifiers (instantiation patterns, triggers). Compare with how Z3-optimal encodings are structured.
+
+3. **Round 3 - Targeted experiments**: Based on findings, identify 2-3 specific encoding changes to test. For each, create a minimal experiment using `run_example_with_timing()` on the worst-case examples. Measure whether the change closes the gap. Candidates might include: (a) replacing BitVec with Int for small domains, (b) restructuring how world-accessibility constraints are encoded, (c) pre-simplifying constraints before adding to CVC5, (d) splitting large conjunctions into individual assertions.
+
+4. **Round 4 - Feasibility assessment**: For changes that show improvement, assess whether they can be implemented as a CVC5-specific encoding path without duplicating the entire constraint generation system. Determine if the change can be a post-processing step (transform constraints after generation) or requires deeper changes to the theory semantics layer.
+
+**Success criteria**: Identify at least one encoding change that reduces CVC5's UNSAT time ratio from 9.37x average to under 4x on the curated benchmark, or conclusively demonstrate that the encoding is already near-optimal for CVC5 and the gap is due to fundamental solver differences.
+
+---
+
+### 79. Tune CVC5 solver options for modal logic performance
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 77
+
+**Description**: Research and test CVC5 solver configuration options to improve performance on the logos theory's constraint profile. The benchmark data (task 76) shows CVC5 is dramatically slower on UNSAT proofs (avg 9.37x) while competitive on SAT. CVC5 has extensive configuration options that may not be optimal for this workload: finite-domain bitvector reasoning over modal logic Kripke structures with tracked assertions.
+
+**Research approach** (successive rounds until approach is clear):
+
+1. **Round 1 - CVC5 option inventory**: Research CVC5's command-line options and Python API configuration. Focus on categories relevant to the constraint profile: (a) `--bv-solver` modes (bitblast, layered, etc.), (b) decision heuristics (`--decision=justification` vs default), (c) SAT solver backend options (`--sat-solver`), (d) preprocessing/simplification levels, (e) proof production settings (currently `produce-unsat-cores=true` is forced on), (f) quantifier instantiation strategies (`--enum-inst`, `--cbqi`), (g) `--tlimit-per` vs `--rlimit` for resource limits. Document which options are accessible via `cvc5.pythonic.Solver.set()` vs only CLI.
+
+2. **Round 2 - Profile the bottleneck**: Determine where CVC5 spends time on UNSAT problems. Use `--stats` or `--stats-every-query` options if available through the Python API. Key questions: Is CVC5 spending time in (a) preprocessing/simplification, (b) the core DPLL(T) loop, (c) theory solver calls (BV, UF), (d) proof production for unsat cores, or (e) model construction attempts before concluding UNSAT? This determines which options to tune.
+
+3. **Round 3 - Systematic option testing**: Using the comparison benchmark infrastructure (`run_example_with_timing`), test promising option combinations on the 3 worst-case UNSAT examples (CL_TH_1, CF_TH_2, MOD_TH_5). Test one variable at a time first, then combinations of winners. Key experiments: (a) disable `produce-unsat-cores` to measure its overhead, (b) try each `--bv-solver` mode, (c) try `--decision=justification`, (d) try aggressive preprocessing. Record timing for each configuration.
+
+4. **Round 4 - Validate and integrate**: For the best configuration found, run the full curated benchmark to ensure no regressions on SAT examples. Determine how to apply solver options: (a) hardcoded in `CVC5SolverAdapter.__init__()`, (b) configurable via example settings, or (c) conditional based on whether unsat cores are needed (links to task 77).
+
+**Success criteria**: Identify a CVC5 option configuration that reduces average UNSAT time ratio from 9.37x to under 5x without degrading SAT performance, or conclusively demonstrate that CVC5's default options are already near-optimal for this workload and the gap is architectural.
+
+**Key files**: `code/src/model_checker/solver/cvc5_adapter.py` (current options in `__init__`), `code/src/model_checker/theory_lib/logos/comparison.py` (benchmark harness), `code/src/model_checker/models/structure.py` (solver creation and timeout).
+
+---
+
+### 78. Design hybrid solver strategy (Z3 for UNSAT, CVC5 for SAT)
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 77
+
+**Description**: Research and design a strategy that leverages each solver's strengths based on the benchmark data (task 76): Z3 excels at UNSAT proofs (theorems) while CVC5 is competitive or faster at SAT (countermodel finding). The data shows CVC5 wins on 5/24 examples, all SAT cases, and is within 2x on most other SAT cases. Z3 wins decisively on all UNSAT cases (8-34x faster).
+
+**Research approach** (successive rounds until approach is clear):
+
+1. **Round 1 - Architecture survey**: Study how the current solving pipeline works end-to-end. Map the flow from `BuildExample` through `structure.py:solve()` to result extraction. Key questions: (a) At what point does the solver commit to searching for SAT vs proving UNSAT? (b) Can two solvers run in parallel on the same problem? (c) What data structures would need to be shared or duplicated? (d) How does the iteration loop (finding multiple models) interact with solver choice? (e) What is the overhead of running both solvers vs one?
+
+2. **Round 2 - Strategy patterns**: Research established patterns for multi-solver strategies in SMT solving. Options to evaluate: (a) **Portfolio solving**: Run both solvers in parallel, take the first result (requires threading/multiprocessing, adds complexity). (b) **Sequential fallback**: Try CVC5 first with short timeout; if SAT, done; if timeout, switch to Z3 (simpler but adds latency on UNSAT). (c) **Heuristic routing**: Based on example characteristics (subtheory, expectation hint, constraint count), route to the better solver (requires training data). (d) **Race with early termination**: Start both, kill the slower one when the faster returns. Evaluate each against: implementation complexity, performance gain, reliability, and resource usage.
+
+3. **Round 3 - Feasibility deep-dive**: For the most promising 1-2 strategies, investigate implementation specifics. Key concerns: (a) Python's GIL limits true parallelism — would need `multiprocessing` not `threading`. (b) CVC5 and Z3 solver instances may not be fork-safe. (c) Unsat core extraction is only needed from one solver. (d) The current `switch_solver()` mechanism does full cache invalidation — parallel solvers would need independent constraint construction. (e) Memory impact of maintaining two sets of constraints.
+
+4. **Round 4 - Cost-benefit analysis**: Given the findings, determine whether a hybrid strategy is worth the complexity. The current total runtime is 18.7s for 24 examples (14.9s CVC5 + 3.8s Z3). If we could achieve best-of-both, total would be ~3.5s. But the real question is whether CVC5 adds value beyond what Z3 alone provides. Assess: Does CVC5 solve ANY problem that Z3 cannot (timeouts, different results)? If not, the hybrid adds complexity without correctness benefit — only a small SAT speedup on some examples.
+
+**Success criteria**: Produce a clear recommendation — either a concrete hybrid strategy design ready for planning, or a well-reasoned argument for why single-solver (Z3 with CVC5 as validation) is the better path. The recommendation should be grounded in empirical data from the benchmark and architectural analysis of the codebase.
+
+**Key files**: `code/src/model_checker/models/structure.py` (solve loop), `code/src/model_checker/solver/registry.py` (backend switching), `code/src/model_checker/solver/lifecycle.py` (cache invalidation), `code/src/model_checker/builder/example.py` (BuildExample), `code/src/model_checker/theory_lib/logos/comparison.py` (benchmark).
+
+---
+
+### 77. Conditional unsat core tracking for CVC5 solver
+- **Effort**: medium
+- **Status**: [RESEARCHED]
+- **Language**: z3
+- **Research**: [01_unsat-core-overhead.md](077_conditional_unsat_core_tracking/reports/01_unsat-core-overhead.md)
+
+**Description**: Research whether disabling CVC5's `produce-unsat-cores` option when unsat cores are not needed can improve performance. Currently `CVC5SolverAdapter.__init__()` unconditionally sets `solver.set('produce-unsat-cores', 'true')`, which forces CVC5 to maintain proof-tracking overhead on every query — including SAT queries where unsat cores are never extracted. The benchmark data (task 76) shows CVC5 is 3.9x slower overall and up to 34x slower on UNSAT examples.
+
+**Research approach** (successive rounds until approach is clear):
+
+1. **Round 1 - Measure the overhead**: Create a minimal experiment that runs the same examples with `produce-unsat-cores` enabled vs disabled. Use the comparison benchmark's `run_example_with_timing()` to measure both SAT and UNSAT examples. Focus on the worst-case examples: CL_TH_1 (34x ratio), CF_TH_2 (30x), MOD_TH_5 (28x). If disabling unsat cores shows <5% improvement, this task can be closed early — the overhead is not significant and the gap is elsewhere.
+
+2. **Round 2 - Trace unsat core usage**: Map every code path where `solver.unsat_core()` is called. Determine: (a) Is it called on every `check()` result, or only on UNSAT results? (b) Is it called during iteration (finding additional models)? (c) Which callers actually USE the returned core vs discard it? (d) Can the adapter detect at construction time whether cores will be needed? Key files to trace: `structure.py:solve()`, `iterate/constraints.py`, any code that calls `solver.unsat_core()`.
+
+3. **Round 3 - Design the conditional mechanism**: Based on findings, design how to make unsat core tracking conditional. Options: (a) Add a `need_unsat_cores: bool` parameter to `CVC5SolverAdapter.__init__()` and `create_solver()`. (b) Use lazy initialization — don't set `produce-unsat-cores` until `assert_tracked()` is first called. (c) Add a solver option in example settings (`unsat_cores: true/false`). (d) Always disable for SAT-expected examples (when `expectation=True`). Evaluate each for correctness safety — disabling cores when they're needed would cause silent failures.
+
+4. **Round 4 - Broader implications**: Consider how this interacts with the other optimization tasks. If task 79 (options tuning) reveals that `produce-unsat-cores` is a major bottleneck, this task becomes high-priority. If task 78 (hybrid strategy) concludes CVC5 should only handle SAT queries, then cores are never needed for CVC5 and this becomes trivial. Document these dependencies.
+
+**Success criteria**: Quantify the performance impact of `produce-unsat-cores` on CVC5 (with/without, on both SAT and UNSAT examples). If significant (>10% improvement when disabled), design a safe conditional mechanism. If insignificant, document the finding and close the task.
+
+**Key files**: `code/src/model_checker/solver/cvc5_adapter.py:27-34` (current unconditional setting), `code/src/model_checker/solver/protocols.py` (TrackedSolverProtocol), `code/src/model_checker/models/structure.py` (solver creation), `code/src/model_checker/iterate/constraints.py` (unsat core usage).
+
+---
 
 ### 76. Refactor comparison.py for selective examples with dual-solver timing comparison
 - **Effort**: medium

@@ -1,6 +1,57 @@
 {
-  "next_project_number": 77,
+  "next_project_number": 81,
   "active_projects": [
+    {
+      "project_number": 80,
+      "project_name": "cvc5_encoding_optimization",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T20:00:00Z",
+      "dependencies": [
+        79
+      ]
+    },
+    {
+      "project_number": 79,
+      "project_name": "cvc5_solver_options_tuning",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T20:00:00Z",
+      "dependencies": [
+        77
+      ]
+    },
+    {
+      "project_number": 78,
+      "project_name": "hybrid_solver_strategy",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T20:00:00Z",
+      "dependencies": [
+        77
+      ]
+    },
+    {
+      "project_number": 77,
+      "project_name": "conditional_unsat_core_tracking",
+      "status": "researched",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T20:15:00Z",
+      "session_id": "sess_1775240861_7b2f37",
+      "next_artifact_number": 2,
+      "researched": "2026-04-03T20:15:00Z",
+      "artifacts": [
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/reports/01_unsat-core-overhead.md",
+          "type": "research",
+          "summary": "Measured produce-unsat-cores overhead at 10-30% (~0.1ms), insufficient to explain 25-35x slowdown. Root cause is elsewhere."
+        }
+      ]
+    },
     {
       "project_number": 76,
       "project_name": "refactor_comparison_dual_solver_timing",
