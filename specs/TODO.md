@@ -10,9 +10,10 @@ next_project_number: 82
 
 ### 81. Fix iterate package test regression
 - **Effort**: small
-- **Status**: [RESEARCHING]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 77
+- **Research**: [01_iterate-regression-analysis.md](081_fix_iterate_package_test_regression/reports/01_iterate-regression-analysis.md)
 
 **Description**: Research and fix the iterate package test regression. After running `./code/run_tests.py`, the iterate package tests FAILED while all other tests passed. This regression appeared after the task 77 implementation (conditional unsat core tracking). Need to investigate root cause and fix all issues to restore passing tests.
 

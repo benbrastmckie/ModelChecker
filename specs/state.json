@@ -4,12 +4,20 @@
     {
       "project_number": 81,
       "project_name": "fix_iterate_package_test_regression",
-      "status": "researching",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-03T19:43:19Z",
-      "last_updated": "2026-04-03T19:44:13Z",
+      "last_updated": "2026-04-03T19:50:00Z",
       "session_id": "sess_1775264620_f3a9c2",
-      "next_artifact_number": 1
+      "next_artifact_number": 2,
+      "researched": "2026-04-03T19:50:00Z",
+      "artifacts": [
+        {
+          "path": "specs/081_fix_iterate_package_test_regression/reports/01_iterate-regression-analysis.md",
+          "type": "research",
+          "summary": "Root cause: Task 74 added settings.get('max_time') to constraints.py but 3 tests in test_coverage_improvements.py don't mock settings attribute. Fix: add mock_example.settings = {'max_time': 300} to each failing test."
+        }
+      ]
     },
     {
       "project_number": 80,
