@@ -1,20 +1,35 @@
 #!/usr/bin/env python3
 """comparison.py - Benchmark z3 vs cvc5 on logos theory examples.
 
-This script systematically runs all logos theory examples against both z3 and cvc5
+This script systematically runs logos theory examples against both z3 and cvc5
 solvers, recording results and timing data to output.json for analysis.
 
 Usage:
-    python comparison.py                    # Run all examples
-    python comparison.py --output results.json  # Custom output file
-    python comparison.py --subtheory modal  # Run only modal examples
-    python comparison.py --verbose          # Show per-example output
+    python comparison.py                         # Run all examples
+    python comparison.py --curated               # Run curated 24 examples
+    python comparison.py --curated --table       # ASCII table output
+    python comparison.py --curated --format timing  # Timing-focused JSON
+    python comparison.py --output results.json   # Custom output file
+    python comparison.py --subtheory modal       # Run only modal examples
+    python comparison.py --verbose               # Show per-example output
+    python comparison.py --timeout 60            # Custom timeout per example
+
+Flags:
+    --curated, -c    Run curated 24 examples (4 per subtheory) for quick comparison
+    --format, -f     Output format: 'full' (default) or 'timing' (simplified)
+    --table          Print ASCII table to console
+    --verbose, -v    Show detailed per-example output
+    --timeout, -t    Timeout per example per solver in seconds (default: 30)
+    --subtheory, -s  Filter to specific subtheory
+    --output, -o     Output JSON file (default: output.json)
 
 The output JSON includes:
-- metadata: timestamp, solver versions, platform info
+- metadata: timestamp, solver versions, platform info, curated flag
 - summary: pass/fail counts and timing by solver
+- timing_summary: per-solver timing statistics (fastest/slowest examples)
+- comparison_stats: agreement counts, faster solver counts, avg time ratio
 - by_subtheory: breakdown by logos subtheory
-- results: per-example results with timing
+- results: per-example results with timing and comparison fields
 - disagreements: examples where solvers disagree
 """
 
@@ -49,6 +64,18 @@ from model_checker.theory_lib.logos.examples import all_subtheory_examples
 from model_checker.builder.example import BuildExample
 from types import SimpleNamespace
 from unittest.mock import Mock
+
+
+# Curated example selection for focused comparison testing
+# 24 examples total: 4 per subtheory (2 theorems + 2 countermodels)
+COMPARISON_EXAMPLES = {
+    "extensional": ["EXT_TH_1", "EXT_TH_7", "EXT_CM_1", "EXT_CM_2"],
+    "modal": ["MOD_TH_5", "MOD_TH_3", "MOD_CM_1", "MOD_CM_3"],
+    "constitutive": ["CL_TH_1", "CL_TH_16", "CL_CM_1", "CL_CM_7"],
+    "counterfactual": ["CF_TH_1", "CF_TH_2", "CF_CM_1", "CF_CM_7"],
+    "relevance": ["REL_TH_1", "REL_TH_7", "REL_CM_1", "REL_CM_3"],
+    "first_order": ["FO_TH_1", "FO_TH_5", "FO_CM_1", "FO_CM_3"],
+}
 
 
 @dataclass
@@ -126,6 +153,204 @@ class BenchmarkOutput:
     by_subtheory: Dict[str, SubtheorySummary]
     results: List[Dict[str, Any]]
     disagreements: List[Dict[str, Any]]
+
+
+@dataclass
+class TimingSummary:
+    """Timing-focused summary for a single solver."""
+
+    total_time_seconds: float = 0.0
+    avg_time_seconds: float = 0.0
+    fastest_example: str = ""
+    fastest_time: float = 0.0
+    slowest_example: str = ""
+    slowest_time: float = 0.0
+
+
+@dataclass
+class ComparisonStats:
+    """Statistics comparing the two solvers."""
+
+    agreements: int = 0
+    disagreements: int = 0
+    z3_faster_count: int = 0
+    cvc5_faster_count: int = 0
+    ties: int = 0
+    avg_time_ratio: float = 0.0  # slower/faster ratio average
+
+
+def format_as_table(results: Dict[str, Any]) -> str:
+    """Format benchmark results as an ASCII table.
+
+    Args:
+        results: Full benchmark results dictionary
+
+    Returns:
+        ASCII table string for console output
+    """
+    lines = []
+
+    # Header
+    lines.append("+" + "-" * 78 + "+")
+    lines.append("| {:^76} |".format("DUAL-SOLVER TIMING COMPARISON"))
+    lines.append("+" + "-" * 78 + "+")
+
+    # Metadata
+    meta = results["metadata"]
+    lines.append("| {:20} {:55} |".format("Timestamp:", meta["timestamp"][:19]))
+    lines.append("| {:20} {:55} |".format("Z3 Version:", meta["z3_version"]))
+    lines.append("| {:20} {:55} |".format("CVC5 Version:", meta["cvc5_version"]))
+    lines.append("| {:20} {:55} |".format("Total Examples:", str(meta["total_examples"])))
+    curated_str = "Yes" if meta.get("curated", False) else "No"
+    lines.append("| {:20} {:55} |".format("Curated:", curated_str))
+    lines.append("+" + "-" * 78 + "+")
+
+    # Timing Summary
+    lines.append("| {:^76} |".format("TIMING SUMMARY"))
+    lines.append("+" + "-" * 39 + "+" + "-" * 38 + "+")
+    lines.append("| {:^37} | {:^36} |".format("Z3", "CVC5"))
+    lines.append("+" + "-" * 39 + "+" + "-" * 38 + "+")
+
+    ts = results["timing_summary"]
+    lines.append("| Total:   {:>27.4f}s | Total:   {:>25.4f}s |".format(
+        ts["z3"]["total_time_seconds"], ts["cvc5"]["total_time_seconds"]))
+    lines.append("| Avg:     {:>27.6f}s | Avg:     {:>25.6f}s |".format(
+        ts["z3"]["avg_time_seconds"], ts["cvc5"]["avg_time_seconds"]))
+    lines.append("| Fastest: {:>17} {:>8.4f}s | Fastest: {:>15} {:>6.4f}s |".format(
+        ts["z3"]["fastest_example"][:17], ts["z3"]["fastest_time"],
+        ts["cvc5"]["fastest_example"][:15], ts["cvc5"]["fastest_time"]))
+    lines.append("| Slowest: {:>17} {:>8.4f}s | Slowest: {:>15} {:>6.4f}s |".format(
+        ts["z3"]["slowest_example"][:17], ts["z3"]["slowest_time"],
+        ts["cvc5"]["slowest_example"][:15], ts["cvc5"]["slowest_time"]))
+    lines.append("+" + "-" * 78 + "+")
+
+    # Comparison Stats
+    cs = results["comparison_stats"]
+    lines.append("| {:^76} |".format("COMPARISON STATISTICS"))
+    lines.append("+" + "-" * 78 + "+")
+    lines.append("| Agreements: {:>5}   Disagreements: {:>5}   Avg Time Ratio: {:>6.2f}x {:>11} |".format(
+        cs["agreements"], cs["disagreements"], cs["avg_time_ratio"], ""))
+    lines.append("| Z3 Faster:  {:>5}   CVC5 Faster:   {:>5}   Ties: {:>5} {:>21} |".format(
+        cs["z3_faster_count"], cs["cvc5_faster_count"], cs["ties"], ""))
+    lines.append("+" + "-" * 78 + "+")
+
+    # Results table header
+    lines.append("| {:^76} |".format("EXAMPLE RESULTS"))
+    lines.append("+" + "-" * 20 + "+" + "-" * 12 + "+" + "-" * 12 + "+" + "-" * 10 + "+" + "-" * 10 + "+" + "-" * 10 + "+")
+    lines.append("| {:^18} | {:^10} | {:^10} | {:^8} | {:^8} | {:^8} |".format(
+        "Example", "Z3 (s)", "CVC5 (s)", "Agree", "Faster", "Ratio"))
+    lines.append("+" + "-" * 20 + "+" + "-" * 12 + "+" + "-" * 12 + "+" + "-" * 10 + "+" + "-" * 10 + "+" + "-" * 10 + "+")
+
+    # Results rows
+    for r in results["results"]:
+        agree = "Yes" if r.get("agreement", False) else "NO"
+        faster = r.get("faster_solver", "")[:8]
+        ratio = r.get("time_ratio", 0)
+        name = r["example_name"][:18]
+        lines.append("| {:18} | {:>10.6f} | {:>10.6f} | {:^8} | {:^8} | {:>7.2f}x |".format(
+            name,
+            r["z3"]["time_seconds"],
+            r["cvc5"]["time_seconds"],
+            agree,
+            faster,
+            ratio,
+        ))
+
+    lines.append("+" + "-" * 20 + "+" + "-" * 12 + "+" + "-" * 12 + "+" + "-" * 10 + "+" + "-" * 10 + "+" + "-" * 10 + "+")
+
+    return "\n".join(lines)
+
+
+def compute_timing_comparison(
+    results: List[Dict[str, Any]],
+) -> tuple[Dict[str, Dict[str, Any]], Dict[str, Any]]:
+    """Compute timing-focused summaries and comparison statistics.
+
+    Args:
+        results: List of result dictionaries with z3/cvc5 timing data
+
+    Returns:
+        Tuple of (timing_summary dict, comparison_stats dict)
+    """
+    # Initialize timing tracking
+    timing_data = {
+        "z3": {"times": [], "examples": []},
+        "cvc5": {"times": [], "examples": []},
+    }
+
+    # Initialize comparison tracking
+    agreements = 0
+    disagreements = 0
+    z3_faster = 0
+    cvc5_faster = 0
+    ties = 0
+    time_ratios = []
+
+    for r in results:
+        # Collect timing data
+        for solver in ["z3", "cvc5"]:
+            if r.get(solver) and not r[solver].get("error"):
+                timing_data[solver]["times"].append(r[solver]["time_seconds"])
+                timing_data[solver]["examples"].append(r["example_name"])
+
+        # Count agreements/disagreements
+        if r.get("agreement", False):
+            agreements += 1
+        else:
+            disagreements += 1
+
+        # Count faster solver
+        faster = r.get("faster_solver", "")
+        if faster == "z3":
+            z3_faster += 1
+        elif faster == "cvc5":
+            cvc5_faster += 1
+        else:
+            ties += 1
+
+        # Collect time ratios (only if meaningful)
+        ratio = r.get("time_ratio", 0)
+        if ratio > 0:
+            time_ratios.append(ratio)
+
+    # Build timing summary for each solver
+    timing_summary = {}
+    for solver in ["z3", "cvc5"]:
+        times = timing_data[solver]["times"]
+        examples = timing_data[solver]["examples"]
+
+        if times:
+            fastest_idx = times.index(min(times))
+            slowest_idx = times.index(max(times))
+            timing_summary[solver] = {
+                "total_time_seconds": round(sum(times), 4),
+                "avg_time_seconds": round(sum(times) / len(times), 6),
+                "fastest_example": examples[fastest_idx],
+                "fastest_time": round(times[fastest_idx], 6),
+                "slowest_example": examples[slowest_idx],
+                "slowest_time": round(times[slowest_idx], 6),
+            }
+        else:
+            timing_summary[solver] = {
+                "total_time_seconds": 0.0,
+                "avg_time_seconds": 0.0,
+                "fastest_example": "",
+                "fastest_time": 0.0,
+                "slowest_example": "",
+                "slowest_time": 0.0,
+            }
+
+    # Build comparison stats
+    comparison_stats = {
+        "agreements": agreements,
+        "disagreements": disagreements,
+        "z3_faster_count": z3_faster,
+        "cvc5_faster_count": cvc5_faster,
+        "ties": ties,
+        "avg_time_ratio": round(sum(time_ratios) / len(time_ratios), 2) if time_ratios else 0.0,
+    }
+
+    return timing_summary, comparison_stats
 
 
 def switch_solver(backend: str) -> None:
@@ -244,6 +469,33 @@ def flatten_examples(
     return examples
 
 
+def get_curated_examples(
+    subtheory_filter: Optional[str] = None,
+) -> List[tuple[str, str, List[Any]]]:
+    """Get curated examples for focused comparison testing.
+
+    Returns a subset of 24 examples (4 per subtheory: 2 theorems + 2 countermodels)
+    selected to provide coverage across all operators while keeping runtime low.
+
+    Args:
+        subtheory_filter: If provided, only return curated examples from this subtheory
+
+    Returns:
+        List of (subtheory, example_name, example_case) tuples
+    """
+    examples = []
+    for subtheory, example_names in COMPARISON_EXAMPLES.items():
+        if subtheory_filter and subtheory != subtheory_filter:
+            continue
+        subtheory_examples = all_subtheory_examples.get(subtheory, {})
+        for name in example_names:
+            if name in subtheory_examples:
+                examples.append((subtheory, name, subtheory_examples[name]))
+            else:
+                print(f"Warning: curated example {name} not found in {subtheory}")
+    return examples
+
+
 def run_example_with_timing(
     example_case: List[Any],
     theory: Dict[str, Any],
@@ -353,6 +605,7 @@ def run_benchmarks(
     subtheory_filter: Optional[str] = None,
     verbose: bool = False,
     timeout: int = 30,
+    curated: bool = False,
 ) -> Dict[str, Any]:
     """Run all benchmarks and return structured results.
 
@@ -360,18 +613,23 @@ def run_benchmarks(
         subtheory_filter: If provided, only run examples from this subtheory
         verbose: If True, print per-example output
         timeout: Maximum seconds per example per solver (0 = no timeout)
+        curated: If True, run only curated 24 examples instead of all examples
 
     Returns:
         Dictionary with metadata, summary, by_subtheory, results, and disagreements
     """
     start_time = time.perf_counter()
 
-    # Collect all examples
-    examples = flatten_examples(subtheory_filter)
+    # Collect examples (curated or all)
+    if curated:
+        examples = get_curated_examples(subtheory_filter)
+    else:
+        examples = flatten_examples(subtheory_filter)
     total_examples = len(examples)
 
     timeout_label = f" (timeout: {timeout}s)" if timeout > 0 else ""
-    print(f"Running {total_examples} examples against z3 and cvc5{timeout_label}...")
+    curated_label = " [curated]" if curated else ""
+    print(f"Running {total_examples}{curated_label} examples against z3 and cvc5{timeout_label}...")
     print()
 
     # Results storage
@@ -452,11 +710,28 @@ def run_benchmarks(
                 subtheory_stats[subtheory][solver]["failed"] += 1
             subtheory_stats[subtheory][solver]["time"] += elapsed
 
+        # Add timing comparison fields
+        z3_time = solver_results["z3"]["time_seconds"]
+        cvc5_time = solver_results["cvc5"]["time_seconds"]
+        if z3_time < cvc5_time:
+            faster_solver = "z3"
+            time_ratio = round(cvc5_time / z3_time, 2) if z3_time > 0 else 0.0
+        elif cvc5_time < z3_time:
+            faster_solver = "cvc5"
+            time_ratio = round(z3_time / cvc5_time, 2) if cvc5_time > 0 else 0.0
+        else:
+            faster_solver = "tie"
+            time_ratio = 1.0
+
+        z3_result = solver_results["z3"]["result"]
+        cvc5_result = solver_results["cvc5"]["result"]
+        result_entry["agreement"] = z3_result == cvc5_result
+        result_entry["faster_solver"] = faster_solver
+        result_entry["time_ratio"] = time_ratio
+
         results.append(result_entry)
 
         # Check for disagreement
-        z3_result = solver_results["z3"]["result"]
-        cvc5_result = solver_results["cvc5"]["result"]
         if z3_result != cvc5_result:
             disagreements.append(
                 {
@@ -537,6 +812,9 @@ def run_benchmarks(
             },
         }
 
+    # Compute timing comparison data
+    timing_summary, comparison_stats = compute_timing_comparison(results)
+
     # Build output structure
     output = {
         "metadata": {
@@ -547,8 +825,11 @@ def run_benchmarks(
             "python_version": platform.python_version(),
             "total_examples": total_examples,
             "total_runtime_seconds": round(total_runtime, 2),
+            "curated": curated,
         },
         "summary": summary,
+        "timing_summary": timing_summary,
+        "comparison_stats": comparison_stats,
         "by_subtheory": by_subtheory,
         "results": results,
         "disagreements": disagreements,
@@ -645,6 +926,24 @@ def parse_args() -> argparse.Namespace:
         default=30,
         help="Timeout per example per solver in seconds (default: 30, 0 = no timeout)",
     )
+    parser.add_argument(
+        "--curated",
+        "-c",
+        action="store_true",
+        help="Run only curated 24 examples (4 per subtheory) instead of all examples",
+    )
+    parser.add_argument(
+        "--format",
+        "-f",
+        choices=["full", "timing"],
+        default="full",
+        help="Output format: 'full' for all data, 'timing' for timing-focused output",
+    )
+    parser.add_argument(
+        "--table",
+        action="store_true",
+        help="Print ASCII table to console (in addition to JSON output)",
+    )
     return parser.parse_args()
 
 
@@ -678,11 +977,40 @@ def main() -> int:
         subtheory_filter=args.subtheory,
         verbose=args.verbose,
         timeout=args.timeout,
+        curated=args.curated,
     )
+
+    # Prepare output based on format
+    if args.format == "timing":
+        # Simplified timing-focused output
+        output = {
+            "metadata": results["metadata"],
+            "timing_summary": results["timing_summary"],
+            "comparison_stats": results["comparison_stats"],
+            "results": [
+                {
+                    "subtheory": r["subtheory"],
+                    "example": r["example_name"],
+                    "z3_time": r["z3"]["time_seconds"],
+                    "cvc5_time": r["cvc5"]["time_seconds"],
+                    "agreement": r["agreement"],
+                    "faster_solver": r["faster_solver"],
+                    "time_ratio": r["time_ratio"],
+                }
+                for r in results["results"]
+            ],
+        }
+    else:
+        output = results
+
+    # Print ASCII table if requested
+    if args.table:
+        print()
+        print(format_as_table(results))
 
     # Write output
     with open(args.output, "w") as f:
-        json.dump(results, f, indent=2)
+        json.dump(output, f, indent=2)
 
     print(f"\nResults written to {args.output}")
     return 0

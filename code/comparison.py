@@ -2,10 +2,16 @@
 """Wrapper to run the z3 vs cvc5 comparison benchmark.
 
 Usage:
-    ./comparison.py                         # Run all examples, output to output.json
-    ./comparison.py --output results.json   # Custom output file
-    ./comparison.py --subtheory modal       # Run only modal examples
-    ./comparison.py --verbose               # Show per-example output
+    ./comparison.py                          # Run all examples
+    ./comparison.py --curated                # Run curated 24 examples (4 per subtheory)
+    ./comparison.py --curated --table        # ASCII table output
+    ./comparison.py --curated --format timing  # Timing-focused JSON
+    ./comparison.py --output results.json    # Custom output file
+    ./comparison.py --subtheory modal        # Run only modal examples
+    ./comparison.py --verbose                # Show per-example output
+    ./comparison.py --timeout 60             # Custom timeout per example
+
+For full documentation, see: model_checker.theory_lib.logos.comparison
 """
 
 import os

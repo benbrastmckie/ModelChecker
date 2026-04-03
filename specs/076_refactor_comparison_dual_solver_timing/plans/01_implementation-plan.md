@@ -1,7 +1,7 @@
 # Implementation Plan: Refactor comparison.py for Curated Dual-Solver Timing
 
 - **Task**: 76 - refactor_comparison_dual_solver_timing
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: reports/01_comparison-refactor-research.md
@@ -49,7 +49,7 @@ Refactor comparison.py to run a curated selection of 24 examples (4 per subtheor
 
 ## Implementation Phases
 
-### Phase 1: Add Curated Example Selection [NOT STARTED]
+### Phase 1: Add Curated Example Selection [COMPLETED]
 
 **Goal**: Create `COMPARISON_EXAMPLES` constant and `get_curated_examples()` function
 
@@ -70,7 +70,7 @@ Refactor comparison.py to run a curated selection of 24 examples (4 per subtheor
 
 ---
 
-### Phase 2: Simplified Timing Output [NOT STARTED]
+### Phase 2: Simplified Timing Output [COMPLETED]
 
 **Goal**: Create focused timing comparison output format with per-solver metrics
 
@@ -93,7 +93,7 @@ Refactor comparison.py to run a curated selection of 24 examples (4 per subtheor
 
 ---
 
-### Phase 3: CLI Enhancements and Documentation [NOT STARTED]
+### Phase 3: CLI Enhancements and Documentation [COMPLETED]
 
 **Goal**: Polish CLI interface and update docstrings
 

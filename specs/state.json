@@ -4,12 +4,28 @@
     {
       "project_number": 76,
       "project_name": "refactor_comparison_dual_solver_timing",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "created": "2026-04-03T17:42:01Z",
-      "last_updated": "2026-04-03T17:52:46Z",
-      "session_id": "sess_1775238609_53ac25",
-      "planned": "2026-04-03T17:52:46Z"
+      "last_updated": "2026-04-03T18:01:00Z",
+      "session_id": "sess_1775238810_ec43e3",
+      "planned": "2026-04-03T17:52:46Z",
+      "started": "2026-04-03T17:53:48Z",
+      "completed": "2026-04-03",
+      "completion_summary": "Added --curated, --format, --table flags to comparison.py for focused dual-solver timing comparison",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/076_refactor_comparison_dual_solver_timing/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan for curated examples and timing output"
+        },
+        {
+          "path": "specs/076_refactor_comparison_dual_solver_timing/summaries/01_implementation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ]
     },
     {
       "project_number": 75,
