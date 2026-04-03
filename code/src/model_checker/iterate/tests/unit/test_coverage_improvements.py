@@ -25,9 +25,10 @@ class TestConstraintGeneratorCoverage(unittest.TestCase):
         mock_example.model_structure.solver.assertions = Mock(return_value=[])
         mock_example.model_constraints = Mock()
         mock_example.model_constraints.all_constraints = []
-        
+        mock_example.settings = {'max_time': 300}
+
         generator = ConstraintGenerator(mock_example)
-        
+
         # Make solver.model() raise Z3Exception
         generator.solver.model = Mock(side_effect=z3.Z3Exception("Test error"))
         
@@ -43,9 +44,10 @@ class TestConstraintGeneratorCoverage(unittest.TestCase):
         mock_example.model_structure.solver.assertions = Mock(return_value=[])
         mock_example.model_constraints = Mock()
         mock_example.model_constraints.all_constraints = []
-        
+        mock_example.settings = {'max_time': 300}
+
         generator = ConstraintGenerator(mock_example)
-        
+
         # Test with empty list
         result = generator.create_extended_constraints([])
         self.assertEqual(result, [])
@@ -59,9 +61,10 @@ class TestConstraintGeneratorCoverage(unittest.TestCase):
         mock_example.model_structure.solver.assertions = Mock(return_value=[])
         mock_example.model_constraints = Mock()
         mock_example.model_constraints.all_constraints = []
-        
+        mock_example.settings = {'max_time': 300}
+
         generator = ConstraintGenerator(mock_example)
-        
+
         # Test binary predicate
         result = generator._generate_input_combinations(2, 3)
         expected = [(0,0), (0,1), (0,2), (1,0), (1,1), (1,2), (2,0), (2,1), (2,2)]

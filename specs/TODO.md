@@ -10,7 +10,8 @@ next_project_number: 82
 
 ### 81. Fix iterate package test regression
 - **Effort**: small
-- **Status**: [RESEARCHED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-04-03
 - **Language**: z3
 - **Dependencies**: 77
 - **Research**: [01_iterate-regression-analysis.md](081_fix_iterate_package_test_regression/reports/01_iterate-regression-analysis.md)
@@ -21,7 +22,7 @@ next_project_number: 82
 
 ### 80. Optimize constraint encoding for CVC5 UNSAT performance
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [RESEARCHING]
 - **Language**: z3
 - **Dependencies**: 79
 - **Research**: [01_cvc5-encoding-optimization.md](080_cvc5_encoding_optimization/reports/01_cvc5-encoding-optimization.md)
