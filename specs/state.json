@@ -4,10 +4,10 @@
     {
       "project_number": 80,
       "project_name": "cvc5_encoding_optimization",
-      "status": "not_started",
+      "status": "researching",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T20:05:00Z",
       "dependencies": [
         79
       ]
@@ -47,11 +47,11 @@
     {
       "project_number": 77,
       "project_name": "conditional_unsat_core_tracking",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:36:30Z",
-      "session_id": "sess_1775242482_487b6b",
+      "last_updated": "2026-04-03T19:27:37Z",
+      "session_id": "sess_1775263410_c8f291",
       "next_artifact_number": 3,
       "researched": "2026-04-03T20:15:00Z",
       "artifacts": [
@@ -64,8 +64,14 @@
           "path": "specs/077_conditional_unsat_core_tracking/reports/02_conditional-design.md",
           "type": "research",
           "summary": "Root cause: produce-unsat-cores + tracked assertions interaction. Designed settings-based auto-detection mechanism with diagnostic/performance modes."
+        },
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/plans/02_conditional-core-tracking.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan for conditional unsat core tracking with diagnostic/performance mode switching"
         }
-      ]
+      ],
+      "planned": "2026-04-03T19:27:37Z"
     },
     {
       "project_number": 76,
