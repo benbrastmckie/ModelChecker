@@ -15,12 +15,22 @@
     {
       "project_number": 79,
       "project_name": "cvc5_solver_options_tuning",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-03T20:00:00Z",
-      "last_updated": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T20:32:00Z",
       "dependencies": [
         77
+      ],
+      "session_id": "sess_1775241738_c0ec3e",
+      "next_artifact_number": 2,
+      "researched": "2026-04-03T20:32:00Z",
+      "artifacts": [
+        {
+          "path": "specs/079_cvc5_solver_options_tuning/reports/01_cvc5-options-research.md",
+          "type": "research",
+          "summary": "Identified produce-unsat-cores + tracked assertions as root cause. Optimized config: 5.4x faster, CVC5 now only 1.65x slower than Z3"
+        }
       ]
     },
     {

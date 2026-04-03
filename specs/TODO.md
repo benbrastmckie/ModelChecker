@@ -32,9 +32,10 @@ next_project_number: 81
 
 ### 79. Tune CVC5 solver options for modal logic performance
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 77
+- **Research**: [01_cvc5-options-research.md](079_cvc5_solver_options_tuning/reports/01_cvc5-options-research.md)
 
 **Description**: Research and test CVC5 solver configuration options to improve performance on the logos theory's constraint profile. The benchmark data (task 76) shows CVC5 is dramatically slower on UNSAT proofs (avg 9.37x) while competitive on SAT. CVC5 has extensive configuration options that may not be optimal for this workload: finite-domain bitvector reasoning over modal logic Kripke structures with tracked assertions.
 
