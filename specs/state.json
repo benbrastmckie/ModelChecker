@@ -4,11 +4,11 @@
     {
       "project_number": 82,
       "project_name": "test_z3_cvc5_primitive_quantifiers",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-04-03T20:33:53Z",
-      "last_updated": "2026-04-03T23:32:24Z",
-      "session_id": "sess_1775258929_5377fa",
+      "last_updated": "2026-04-03T23:37:56Z",
+      "session_id": "sess_1775259302_526305",
       "researched": "2026-04-03",
       "next_artifact_number": 3,
       "artifacts": [
@@ -21,8 +21,14 @@
           "path": "specs/082_test_z3_cvc5_primitive_quantifiers/reports/02_toggleable-quantifier-design.md",
           "type": "research",
           "summary": "Designed toggleable quantifier mechanism via z3_helpers.py mode flag; inventoried 37 CF examples; selected 20 for benchmark"
+        },
+        {
+          "path": "specs/082_test_z3_cvc5_primitive_quantifiers/plans/02_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase plan: add mode toggle to z3_helpers.py, create benchmark script, run 20 CF examples across finitary+Z3/native+Z3/native+CVC5"
         }
-      ]
+      ],
+      "planned": "2026-04-03"
     },
     {
       "project_number": 81,
