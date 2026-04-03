@@ -22,7 +22,9 @@ next_project_number: 82
 
 ### 80. Optimize constraint encoding for CVC5 UNSAT performance
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-04-03
+- **Summary**: Encoding is near-optimal for CVC5. Push/pop batching and simplification both degraded performance. Final gap 1.70x overall is inherent to solver differences.
 - **Language**: z3
 - **Dependencies**: 79
 - **Research**:
