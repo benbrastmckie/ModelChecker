@@ -495,6 +495,9 @@ class UnitTestRunner:
         command = ["pytest", str(test_dir)]
         
         # Add subtheory filtering if specified
+        # Note: logos unit tests (logos/tests/) are in a separate directory from
+        # subtheory example tests (logos/subtheories/*/tests/), so NO example
+        # exclusion filter is needed here - there is zero overlap.
         if subtheories:
             # Build filter for specific subtheories
             subtheory_patterns = {
@@ -505,15 +508,11 @@ class UnitTestRunner:
                 'relevance': '(relevance or REL_)',
                 'first_order': '(first_order or FO_)',
             }
-            
+
             patterns = [subtheory_patterns[sub] for sub in subtheories if sub in subtheory_patterns]
             if patterns:
-                filter_expr = f"({' or '.join(patterns)}) and not example"
+                filter_expr = f"({' or '.join(patterns)})"
                 command.extend(["-k", filter_expr])
-            else:
-                command.extend(["-k", "not example"])  # Just exclude examples
-        else:
-            command.extend(["-k", "not example"])  # Exclude example tests
         
         if config.verbose:
             command.append("-v")

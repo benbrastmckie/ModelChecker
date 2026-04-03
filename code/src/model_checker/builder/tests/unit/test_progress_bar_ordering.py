@@ -115,39 +115,38 @@ class TestProgressBarOrdering(unittest.TestCase):
         )
 
     def test_current_runner_has_wrong_order(self):
-        """Test that demonstrates the CURRENT (buggy) order.
+        """Regression test: documents the CURRENT ordering behavior.
 
-        This test will PASS with the bug present and FAIL when fixed.
-        It documents the current behavior for comparison.
+        The current flow in _process_with_iterations prints the progress bar
+        before the header. This test asserts that known behavior so it will
+        fail when the ordering bug is fixed, prompting a test update.
 
-        CURRENT BUGGY FLOW in _process_with_iterations:
+        CURRENT FLOW in _process_with_iterations:
         1. BuildExample() - runs Z3
         2. progress.model_checked()
-        3. progress.complete_model_search(found=True)  <- Prints bar HERE (wrong!)
+        3. progress.complete_model_search(found=True)  <- Prints bar HERE
         4. print() - vertical space
-        5. _capture_and_save_output()  <- Prints header HERE (too late!)
+        5. _capture_and_save_output()  <- Prints header HERE
         """
         tracker = OrderTracker()
 
-        # Simulate CURRENT (buggy) sequence in runner.py lines 418-432:
+        # Simulate current sequence in runner.py lines 418-432:
         tracker.record('z3_model_search')       # BuildExample()
         tracker.record('model_checked')          # progress.model_checked()
-        tracker.record('print_progress_bar')     # progress.complete_model_search() - WRONG!
+        tracker.record('print_progress_bar')     # progress.complete_model_search()
         tracker.record('vertical_space')         # print()
-        tracker.record('print_header')           # _capture_and_save_output() - too late!
+        tracker.record('print_header')           # _capture_and_save_output()
 
-        # In buggy code, progress bar comes before header
+        # Assert the current known ordering: progress bar prints before header
         events = tracker.get_order()
         bar_idx = events.index('print_progress_bar')
         header_idx = events.index('print_header')
 
-        # This assertion PASSES with the bug, FAILS when fixed
-        # We mark it as expected to fail so the test suite stays green
-        if bar_idx < header_idx:
-            # Bug present - progress bar printed before header
-            self.skipTest(
-                "Bug present: progress bar before header (expected until fix)"
-            )
+        self.assertTrue(
+            bar_idx < header_idx,
+            "Ordering may have changed! If the bug is fixed, update this test "
+            f"to assert correct order. Got: {tracker.get_order()}"
+        )
 
     def test_progress_bar_animation_during_z3_search(self):
         """Test that animation starts and runs during search.
