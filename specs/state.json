@@ -4,10 +4,10 @@
     {
       "project_number": 83,
       "project_name": "investigate_native_quantifier_unsat_root_cause",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "created": "2026-04-04T00:01:15Z",
-      "last_updated": "2026-04-04T00:18:21Z",
+      "last_updated": "2026-04-04T00:42:30Z",
       "researched": "2026-04-04",
       "next_artifact_number": 2,
       "artifacts": [
@@ -20,10 +20,17 @@
           "path": "specs/083_investigate_native_quantifier_unsat_root_cause/plans/01_revert-task82-plan.md",
           "type": "plan",
           "summary": "4-phase plan to revert task 82 quantifier mode toggle, restoring finitary-only implementation"
+        },
+        {
+          "path": "specs/083_investigate_native_quantifier_unsat_root_cause/summaries/01_reversion-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting reversion of quantifier toggle and test validation"
         }
       ],
       "session_id": "sess_1775261724_9c666e",
-      "planned": "2026-04-04"
+      "planned": "2026-04-04",
+      "completion_summary": "Reverted Task 82 toggleable quantifier mode implementation. Restored z3_helpers.py to pre-Task-82 state with only finitary enumeration (ForAll/Exists/safe_getattr). Moved investigation scripts to task directory, preserved benchmark scripts in code/scripts/. All unit tests pass.",
+      "completed": "2026-04-04"
     },
     {
       "project_number": 82,
