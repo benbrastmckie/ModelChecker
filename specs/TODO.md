@@ -10,8 +10,9 @@ next_project_number: 86
 
 ### 85. Create systematic quantifier benchmark for first-order theory
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
+- **Research**: [01_benchmark-research.md](085_create_systematic_quantifier_benchmark_first_order/reports/01_benchmark-research.md)
 
 **Description**: Create a systematic benchmark to compare z3 native quantifiers, cvc5 native quantifiers, and finitary quantifiers in the first_order/ subtheory. Output style inspired by code/scripts/quantifier_benchmark.py with tabular comparison of correctness and timing.
 

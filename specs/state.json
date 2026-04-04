@@ -4,10 +4,12 @@
     {
       "project_number": 85,
       "project_name": "create_systematic_quantifier_benchmark_first_order",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-04T19:01:49Z",
-      "last_updated": "2026-04-04T19:01:49Z"
+      "last_updated": "2026-04-04T19:30:06Z",
+      "researching": "2026-04-04T19:26:24Z",
+      "researched": "2026-04-04T19:30:06Z"
     },
     {
       "project_number": 84,
