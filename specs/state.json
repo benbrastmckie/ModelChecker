@@ -1,6 +1,14 @@
 {
-  "next_project_number": 85,
+  "next_project_number": 86,
   "active_projects": [
+    {
+      "project_number": 85,
+      "project_name": "create_systematic_quantifier_benchmark_first_order",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-04T19:01:49Z",
+      "last_updated": "2026-04-04T19:01:49Z"
+    },
     {
       "project_number": 84,
       "project_name": "add_native_z3_quantifier_operators_first_order",

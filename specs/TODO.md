@@ -1,5 +1,5 @@
 ---
-next_project_number: 85
+next_project_number: 86
 ---
 
 # Task List
@@ -7,6 +7,13 @@ next_project_number: 85
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 85. Create systematic quantifier benchmark for first-order theory
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Create a systematic benchmark to compare z3 native quantifiers, cvc5 native quantifiers, and finitary quantifiers in the first_order/ subtheory. Output style inspired by code/scripts/quantifier_benchmark.py with tabular comparison of correctness and timing.
 
 ### 84. Add native Z3 quantifier operator classes for first-order subtheory
 - **Effort**: medium
