@@ -10,9 +10,10 @@ next_project_number: 84
 
 ### 83. Investigate root cause of native quantifier incorrect UNSAT results
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 82
+- **Research**: [01_root-cause-analysis.md](083_investigate_native_quantifier_unsat_root_cause/reports/01_root-cause-analysis.md)
 
 **Description**: The task 82 benchmark found that native quantifiers return incorrect results for countermodel examples. All 10 countermodel examples (expecting SAT) returned UNSAT with native quantifiers, while finitary enumeration correctly found countermodels (SAT). This is not a timeout issue - the solvers return definitive UNSAT results incorrectly. Investigate the root cause of this behavior in order to design an appropriate solution.
 
