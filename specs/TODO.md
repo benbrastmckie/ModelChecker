@@ -10,8 +10,9 @@ next_project_number: 85
 
 ### 84. Add native Z3 quantifier operator classes for first-order subtheory
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
+- **Research**: [01_native-quantifier-research.md](084_add_native_z3_quantifier_operators_first_order/reports/01_native-quantifier-research.md)
 
 **Description**: The finitary definition of quantifiers are used throughout the majority of the semantics and operators defined in the logos/ theory. For the first-order subtheory, add additional operator classes for quantifiers that use native Z3 quantifiers instead of the finitary quantifiers used elsewhere. This will facilitate comparison between finitary and native quantifiers for claims articulated with first-order quantifiers.
 
