@@ -4,10 +4,10 @@
     {
       "project_number": 83,
       "project_name": "investigate_native_quantifier_unsat_root_cause",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-04-04T00:01:15Z",
-      "last_updated": "2026-04-04T00:31:00Z",
+      "last_updated": "2026-04-04T00:18:21Z",
       "researched": "2026-04-04",
       "next_artifact_number": 2,
       "artifacts": [
@@ -15,8 +15,15 @@
           "path": "specs/083_investigate_native_quantifier_unsat_root_cause/reports/01_root-cause-analysis.md",
           "type": "research",
           "summary": "Root cause: nested quantifier structures in semantic functions create complex alternating patterns that SMT solvers cannot efficiently solve"
+        },
+        {
+          "path": "specs/083_investigate_native_quantifier_unsat_root_cause/plans/01_revert-task82-plan.md",
+          "type": "plan",
+          "summary": "4-phase plan to revert task 82 quantifier mode toggle, restoring finitary-only implementation"
         }
-      ]
+      ],
+      "session_id": "sess_1775261724_9c666e",
+      "planned": "2026-04-04"
     },
     {
       "project_number": 82,
