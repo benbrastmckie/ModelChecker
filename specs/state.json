@@ -1,6 +1,14 @@
 {
-  "next_project_number": 84,
+  "next_project_number": 85,
   "active_projects": [
+    {
+      "project_number": 84,
+      "project_name": "add_native_z3_quantifier_operators_first_order",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-04T01:01:40Z",
+      "last_updated": "2026-04-04T01:01:40Z"
+    },
     {
       "project_number": 83,
       "project_name": "investigate_native_quantifier_unsat_root_cause",

@@ -1,5 +1,5 @@
 ---
-next_project_number: 84
+next_project_number: 85
 ---
 
 # Task List
@@ -7,6 +7,15 @@ next_project_number: 84
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 84. Add native Z3 quantifier operator classes for first-order subtheory
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: The finitary definition of quantifiers are used throughout the majority of the semantics and operators defined in the logos/ theory. For the first-order subtheory, add additional operator classes for quantifiers that use native Z3 quantifiers instead of the finitary quantifiers used elsewhere. This will facilitate comparison between finitary and native quantifiers for claims articulated with first-order quantifiers.
+
+---
 
 ### 83. Investigate root cause of native quantifier incorrect UNSAT results
 - **Effort**: medium
