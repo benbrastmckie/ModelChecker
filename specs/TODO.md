@@ -1,5 +1,5 @@
 ---
-next_project_number: 83
+next_project_number: 84
 ---
 
 # Task List
@@ -7,6 +7,16 @@ next_project_number: 83
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 83. Investigate root cause of native quantifier incorrect UNSAT results
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 82
+
+**Description**: The task 82 benchmark found that native quantifiers return incorrect results for countermodel examples. All 10 countermodel examples (expecting SAT) returned UNSAT with native quantifiers, while finitary enumeration correctly found countermodels (SAT). This is not a timeout issue - the solvers return definitive UNSAT results incorrectly. Investigate the root cause of this behavior in order to design an appropriate solution.
+
+---
 
 ### 82. Test Z3 vs CVC5 comparison with primitive quantifiers
 - **Effort**: medium
