@@ -114,8 +114,8 @@ def compute_formula_free_variables(prefix) -> FrozenSet['Variable']:
             return body_fv | arg_fv
         return frozenset()
 
-    # Quantifiers: ['\forall', ['\lambda', var, body]] or ['\exists', ...]
-    if head in {'\\forall', '\\exists'}:
+    # Quantifiers: ['\forall', ['\lambda', var, body]] or ['\exists', ...] or native variants
+    if head in {'\\forall', '\\exists', '\\all', '\\some'}:
         if len(prefix) >= 2:
             lambda_term = prefix[1]
             if isinstance(lambda_term, list) and len(lambda_term) >= 3:
@@ -237,8 +237,8 @@ def is_syntactically_wff(prefix) -> Tuple[bool, str]:
     if head in {'\\wedge', '\\vee', '\\rightarrow', '\\leftrightarrow', '\\equiv'}:
         return True, ""
 
-    # ACCEPT: Quantifiers
-    if head in {'\\forall', '\\exists'}:
+    # ACCEPT: Quantifiers (including native variants \all, \some)
+    if head in {'\\forall', '\\exists', '\\all', '\\some'}:
         return True, ""
 
     # ACCEPT: Lambda application

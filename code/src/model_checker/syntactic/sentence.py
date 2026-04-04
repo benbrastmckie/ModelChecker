@@ -82,7 +82,7 @@ class Sentence:
         if self.complexity > 0:
             # Handle first-order operators differently
             first_op = self.prefix_sentence[0]
-            if first_op in {"\\lambda", "\\forall", "\\exists", "\\lambdaApp"}:
+            if first_op in {"\\lambda", "\\forall", "\\exists", "\\all", "\\some", "\\lambdaApp"}:
                 # For binders, arguments after the variable are the body
                 # Store in a way that's compatible with the original system
                 self.original_arguments = [
@@ -238,10 +238,10 @@ class Sentence:
                 body = self.infix(prefix[2])
                 return f"{op_str} {var}. {body}"
 
-            # Handle Church-style quantifiers: ["\\forall", lambda_term]
+            # Handle Church-style quantifiers: ["\\forall", lambda_term] or ["\\all", lambda_term]
             # where lambda_term = ["\\lambda", variable, body]
             # After apply_operator, lambda_term may be [LambdaOperator, [variable], body]
-            if op_str in {"\\forall", "\\exists"}:
+            if op_str in {"\\forall", "\\exists", "\\all", "\\some"}:
                 lambda_term = prefix[1]
                 if isinstance(lambda_term, list) and len(lambda_term) >= 3:
                     # Check if it's a lambda term (either string "\\lambda" or LambdaOperator class)
