@@ -12,7 +12,19 @@ The model checker operates over finite state spaces (bit vectors of width N, giv
 
 - **Native** (`\all`, `\some`): Creates a single symbolic bound variable and passes it with the formula body to the solver's built-in `z3.ForAll()` or `z3.Exists()`. The solver then handles quantifier instantiation internally using its own heuristics (e-matching, MBQI, model-based reasoning). The constraint sent to the solver contains an actual quantifier rather than an expanded boolean combination.
 
-Each approach can be paired with either Z3 or CVC5 as the solver backend, giving four configurations. Native quantifiers are generally faster (2-3x) since the solver can reason about the quantifier structure directly rather than processing 2^N separate constraints. However, native-cvc5 has a critical correctness bug where it returns incorrect UNSAT for all countermodel (sat) queries.
+Each approach can be paired with either Z3 or CVC5 as the solver backend, giving four configurations. Native quantifiers are generally faster (2-3x) since the solver can reason about the quantifier structure directly rather than processing 2^N separate constraints. However, native-cvc5 returns incorrect UNSAT for all countermodel (sat) queries in benchmarks.
+
+### Why Native Quantifiers Can Fail
+
+When a solver receives a native quantifier, it uses heuristic strategies to decide which values to instantiate:
+
+- **E-matching** (Z3, CVC5): Instantiates the quantifier only when ground terms matching a trigger pattern appear in the proof context. Fast but incomplete -- if no patterns fire, nothing happens.
+- **MBQI** (Z3 only): Builds a candidate model, checks if the quantifier is violated, and adds the violating instance as a new constraint. Complete for bit-vector (QBVF) fragments but can be slow.
+- **CEGQI** (CVC5 only): Uses algebraic inversion to compute exact instantiation terms. Precise for arithmetic and bitvectors, but requires invertible formulas.
+
+The critical behavioral difference: when strategies exhaust without a definitive answer, **Z3 may return `unsat` even for satisfiable formulas** (an incorrect result), while **CVC5 returns `unknown`** (conservative but honest). For countermodel search, both mean "no model found," but Z3's answer looks like a valid proof when it is not.
+
+For ModelChecker's small bit-vector domains (N=2 to N=6), finitary quantifiers are recommended because explicit enumeration is tractable and always correct. Native quantifiers are useful for exploring solver-level reasoning or domains too large to enumerate.
 
 ## first_order_benchmark.py
 
