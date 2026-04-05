@@ -4,12 +4,13 @@ Utility scripts for the ModelChecker project.
 
 ## Background: Finitary vs Native Quantifiers
 
-The model checker operates over finite state spaces, so quantifiers can be implemented two ways:
+The model checker operates over finite state spaces (bit vectors of width N, giving 2^N domain elements), so quantifiers can be implemented two ways:
 
-- **Finitary**: Explicitly enumerates all substitution instances over the finite domain and reduces to boolean combinations (e.g., `ForAll x. P(x)` becomes `P(a) AND P(b) AND ...`). This is the default throughout the model checker.
-- **Native**: Uses the solver's built-in `ForAll`/`Exists` quantifiers directly, letting the solver handle instantiation internally.
+- **Finitary** (`\forall`, `\exists`): Iterates the bound variable through every value in the finite domain (0 to 2^N - 1), evaluating the formula body at each value. `ForAll` takes the conjunction of all 2^N instances; `Exists` takes the disjunction. The result is a flat boolean constraint with no quantifiers -- the solver sees only propositional logic over bit vectors.
 
-Each approach can be paired with either Z3 or CVC5 as the solver backend, giving four configurations. Native quantifiers are generally faster (2-3x) but native-cvc5 has a critical correctness bug on countermodel queries.
+- **Native** (`\all`, `\some`): Creates a single symbolic bound variable and passes it with the formula body to the solver's built-in `z3.ForAll()` or `z3.Exists()`. The solver then handles quantifier instantiation internally using its own heuristics (e-matching, MBQI, model-based reasoning). The constraint sent to the solver contains an actual quantifier rather than an expanded boolean combination.
+
+Each approach can be paired with either Z3 or CVC5 as the solver backend, giving four configurations. Native quantifiers are generally faster (2-3x) since the solver can reason about the quantifier structure directly rather than processing 2^N separate constraints. However, native-cvc5 has a critical correctness bug where it returns incorrect UNSAT for all countermodel (sat) queries.
 
 ## first_order_benchmark.py
 
