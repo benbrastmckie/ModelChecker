@@ -1,6 +1,14 @@
 {
-  "next_project_number": 87,
+  "next_project_number": 88,
   "active_projects": [
+    {
+      "project_number": 87,
+      "project_name": "research_native_quantifiers_z3_cvc5",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-05T21:39:35Z",
+      "last_updated": "2026-04-05T21:39:35Z"
+    },
     {
       "project_number": 86,
       "project_name": "extend_first_order_examples_test_solver_limits",

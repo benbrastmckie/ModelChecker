@@ -1,5 +1,5 @@
 ---
-next_project_number: 87
+next_project_number: 88
 ---
 
 # Task List
@@ -7,6 +7,13 @@ next_project_number: 87
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 87. Research native quantifiers for Z3 and CVC5
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Research exactly how the native quantifiers for z3 and cvc5 work in detail, creating a detailed report in /home/benjamin/Projects/Logos/ModelChecker/docs/theory/ which can then be linked in /home/benjamin/Projects/Logos/ModelChecker/code/scripts/README.md for a deep dive on quantification.
 
 ### 86. Extend first-order examples to test limits and exploit solver differences
 - **Effort**: medium
