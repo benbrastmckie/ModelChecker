@@ -4,10 +4,12 @@
     {
       "project_number": 86,
       "project_name": "extend_first_order_examples_test_solver_limits",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-05T16:56:15Z",
-      "last_updated": "2026-04-05T16:56:15Z"
+      "last_updated": "2026-04-05T17:22:11Z",
+      "researching": "2026-04-05T17:18:24Z",
+      "researched": "2026-04-05T17:22:11Z"
     },
     {
       "project_number": 85,
