@@ -4,6 +4,8 @@ Utility scripts for the ModelChecker project.
 
 ## Background: Finitary vs Native Quantifiers
 
+For a deep dive on how quantifiers work internally in Z3 and CVC5, see [Quantifier Handling in SMT Solvers](../../docs/theory/QUANTIFIER_SOLVERS.md).
+
 The model checker operates over finite state spaces (bit vectors of width N, giving 2^N domain elements), so quantifiers can be implemented two ways:
 
 - **Finitary** (`\forall`, `\exists`): Iterates the bound variable through every value in the finite domain (0 to 2^N - 1), evaluating the formula body at each value. `ForAll` takes the conjunction of all 2^N instances; `Exists` takes the disjunction. The result is a flat boolean constraint with no quantifiers -- the solver sees only propositional logic over bit vectors.
