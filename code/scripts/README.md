@@ -2,6 +2,64 @@
 
 Utility scripts for the ModelChecker project.
 
+## first_order_benchmark.py
+
+Benchmark comparing four quantifier configurations for the first-order subtheory: finitary-z3, finitary-cvc5, native-z3, and native-cvc5. Includes 35 examples across six test suites designed to expose performance boundaries and correctness differences between solver/quantifier combinations.
+
+Known issue: native-cvc5 returns incorrect UNSAT for all countermodel (sat) examples.
+
+### Usage
+
+```bash
+# Recommended: all suites, all 4 modes, table output with progress
+cd code && python scripts/first_order_benchmark.py --suite all --format table -v
+
+# Quick 4-example smoke test
+cd code && python scripts/first_order_benchmark.py --quick --format table -v
+
+# Run a specific suite (baseline, scaling, nesting, alternation, complexity, stress)
+cd code && python scripts/first_order_benchmark.py --suite scaling --format table -v
+
+# Specific solver modes only
+cd code && python scripts/first_order_benchmark.py --suite all --modes finitary-z3,native-z3 --format table -v
+
+# Find the N value where an example times out
+cd code && python scripts/first_order_benchmark.py --find-choke-point N_SCALE_TH_1
+
+# Custom timeout and output path
+cd code && python scripts/first_order_benchmark.py --suite all --timeout 60 --output results.json
+```
+
+### Flags
+
+| Flag | Description |
+|------|-------------|
+| `--quick, -q` | Run quick test with 4 baseline examples |
+| `--suite, -s` | Test suite: `baseline`, `scaling`, `nesting`, `alternation`, `complexity`, `stress`, `all` |
+| `--modes, -m` | Comma-separated modes (default: all four) |
+| `--format, -f` | Output format: `json` (default), `table`, `markdown` |
+| `--output, -o` | Output file path (default: `first_order_output.json`) |
+| `--timeout, -t` | Timeout per example in seconds (default: 30) |
+| `--verbose, -v` | Print progress during benchmark |
+| `--find-choke-point` | Binary search for the N value where an example times out |
+
+### Test Suites
+
+| Suite | Examples | Description |
+|-------|----------|-------------|
+| `baseline` | 12 | Original FO_TH/FO_CM examples at N=2 |
+| `scaling` | 3 | Domain size scaling via N parameter |
+| `nesting` | 6 | Quantifier nesting depth (1-5 levels) |
+| `alternation` | 7 | Quantifier alternation patterns (AA, EE, AE, EA, AEA, EAE) |
+| `complexity` | 4 | Formula complexity (conjunctions, disjunctions, nested implications) |
+| `stress` | 3 | Extreme cases (N=10, depth 5, many predicates) |
+| `all` | 35 | All suites combined |
+
+### Output Files
+
+- **JSON** (`first_order_output.json`): Per-example results with timing and correctness data
+- **Markdown** (`first_order_output.md`): Human-readable comparison tables with timing summary, 2x2 comparison matrix, and disagreement details
+
 ## comparison.py
 
 Benchmark Z3 vs CVC5 on logos theory examples. Runs examples against both solvers, compares results (sat/unsat/timeout), and records timing data.
@@ -46,57 +104,6 @@ Each run produces two files:
 - **JSON** (`output.json`): Machine-readable results with metadata, timing summaries, per-example results, and disagreements
 - **Markdown** (`output.md`): Human-readable report with tables for timing summary, comparison statistics, and per-example results
 
-## first_order_benchmark.py
-
-Benchmark comparing four quantifier configurations for the first-order subtheory: finitary-z3, finitary-cvc5, native-z3, and native-cvc5. Includes 46 stress test examples across five test suites designed to expose performance boundaries and correctness differences.
-
-### Usage
-
-```bash
-# Quick test with 4 baseline examples
-cd code && python scripts/first_order_benchmark.py --quick --format table -v
-
-# Run all suites across all 4 modes
-cd code && python scripts/first_order_benchmark.py --suite all --format table -v
-
-# Run a specific suite (scaling, nesting, alternation, complexity, stress)
-cd code && python scripts/first_order_benchmark.py --suite scaling --format table -v
-
-# Specific solver modes only
-cd code && python scripts/first_order_benchmark.py --modes finitary-z3,native-z3 --format table -v
-
-# Find the N value where an example times out
-cd code && python scripts/first_order_benchmark.py --find-choke-point N_SCALE_TH_1
-```
-
-### Flags
-
-| Flag | Description |
-|------|-------------|
-| `--quick, -q` | Run quick test with 4 baseline examples |
-| `--suite, -s` | Test suite: `baseline`, `scaling`, `nesting`, `alternation`, `complexity`, `stress`, `all` |
-| `--modes, -m` | Comma-separated modes (default: all four) |
-| `--format, -f` | Output format: `json` (default), `table`, `markdown` |
-| `--output, -o` | Output file path (default: `first_order_output.json`) |
-| `--timeout, -t` | Timeout per example in seconds (default: 30) |
-| `--verbose, -v` | Print progress during benchmark |
-| `--find-choke-point` | Binary search for the N value where an example times out |
-
-### Test Suites
-
-| Suite | Description |
-|-------|-------------|
-| `baseline` | Original FO_TH/FO_CM examples at N=2 |
-| `scaling` | Domain size scaling (N=2 through N=10) |
-| `nesting` | Quantifier nesting depth (1-5 levels) |
-| `alternation` | Quantifier alternation patterns (AA, EE, AE, EA, AEA, EAE) |
-| `complexity` | Formula complexity (conjunctions, disjunctions, nested implications) |
-| `stress` | Extreme cases (N=10, depth 5, many predicates) |
-
-### Output Files
-
-- **JSON** (`first_order_output.json`): Per-example results with timing and correctness data
-- **Markdown** (`first_order_output.md`): Human-readable comparison tables
 
 ## quantifier_benchmark.py
 
