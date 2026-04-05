@@ -13,7 +13,7 @@ next_project_number: 86
 - **Status**: [PLANNED]
 - **Language**: z3
 - **Research**: [01_benchmark-research.md](085_create_systematic_quantifier_benchmark_first_order/reports/01_benchmark-research.md)
-- **Plan**: [01_implementation-plan.md](085_create_systematic_quantifier_benchmark_first_order/plans/01_implementation-plan.md)
+- **Plan**: [02_implementation-plan.md](085_create_systematic_quantifier_benchmark_first_order/plans/02_implementation-plan.md)
 
 **Description**: Create a systematic benchmark to compare z3 native quantifiers, cvc5 native quantifiers, and finitary quantifiers in the first_order/ subtheory. Output style inspired by code/scripts/quantifier_benchmark.py with tabular comparison of correctness and timing.
 
