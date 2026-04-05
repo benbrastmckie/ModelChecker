@@ -2,9 +2,18 @@
 
 Utility scripts for the ModelChecker project.
 
+## Background: Finitary vs Native Quantifiers
+
+The model checker operates over finite state spaces, so quantifiers can be implemented two ways:
+
+- **Finitary**: Explicitly enumerates all substitution instances over the finite domain and reduces to boolean combinations (e.g., `ForAll x. P(x)` becomes `P(a) AND P(b) AND ...`). This is the default throughout the model checker.
+- **Native**: Uses the solver's built-in `ForAll`/`Exists` quantifiers directly, letting the solver handle instantiation internally.
+
+Each approach can be paired with either Z3 or CVC5 as the solver backend, giving four configurations. Native quantifiers are generally faster (2-3x) but native-cvc5 has a critical correctness bug on countermodel queries.
+
 ## first_order_benchmark.py
 
-Benchmark comparing four quantifier configurations for the first-order subtheory: finitary-z3, finitary-cvc5, native-z3, and native-cvc5. Includes 35 examples across six test suites designed to expose performance boundaries and correctness differences between solver/quantifier combinations.
+Benchmark comparing the four quantifier configurations for the first-order subtheory: finitary-z3, finitary-cvc5, native-z3, and native-cvc5. Includes 35 examples across six test suites designed to expose performance boundaries and correctness differences between solver/quantifier combinations.
 
 Known issue: native-cvc5 returns incorrect UNSAT for all countermodel (sat) examples.
 
