@@ -4,10 +4,30 @@
     {
       "project_number": 87,
       "project_name": "research_native_quantifiers_z3_cvc5",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-04-05T21:39:35Z",
-      "last_updated": "2026-04-05T21:39:35Z"
+      "last_updated": "2026-04-05T22:30:00Z",
+      "researching": "2026-04-05T21:46:08Z",
+      "researched": "2026-04-05T22:30:00Z",
+      "session_id": "sess_1775425544_f76beaf1",
+      "artifacts": [
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/01_teammate-a-findings.md",
+          "type": "report",
+          "summary": "Teammate A: Z3 quantifier internals and ModelChecker failure analysis"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/01_teammate-b-findings.md",
+          "type": "report",
+          "summary": "Teammate B: CVC5 quantifier internals and comparison with Z3"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/01_team-research.md",
+          "type": "report",
+          "summary": "Team synthesis: unified root cause analysis and fix recommendations"
+        }
+      ]
     },
     {
       "project_number": 86,
