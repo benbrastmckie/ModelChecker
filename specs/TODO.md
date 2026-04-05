@@ -10,7 +10,7 @@ next_project_number: 88
 
 ### 87. Research native quantifiers for Z3 and CVC5
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 - **Research**:
   - [01_teammate-a-findings.md](087_research_native_quantifiers_z3_cvc5/reports/01_teammate-a-findings.md)
@@ -19,6 +19,7 @@ next_project_number: 88
   - [02_teammate-a-findings.md](087_research_native_quantifiers_z3_cvc5/reports/02_teammate-a-findings.md)
   - [02_teammate-b-findings.md](087_research_native_quantifiers_z3_cvc5/reports/02_teammate-b-findings.md)
   - [02_team-research.md](087_research_native_quantifiers_z3_cvc5/reports/02_team-research.md)
+- **Plan**: [02_implementation-plan.md](087_research_native_quantifiers_z3_cvc5/plans/02_implementation-plan.md)
 
 **Description**: Research exactly how the native quantifiers for z3 and cvc5 work in detail, creating a detailed report in /home/benjamin/Projects/Logos/ModelChecker/docs/theory/ which can then be linked in /home/benjamin/Projects/Logos/ModelChecker/code/scripts/README.md for a deep dive on quantification.
 
