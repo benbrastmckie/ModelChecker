@@ -10,7 +10,7 @@ next_project_number: 89
 
 ### 88. Optimize quantifier implementation for logos theory
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 - **Dependencies**: 87
 - **Research**:
@@ -20,6 +20,7 @@ next_project_number: 89
   - [02_teammate-a-findings.md](088_optimize_quantifier_implementation_logos_theory/reports/02_teammate-a-findings.md)
   - [02_teammate-b-findings.md](088_optimize_quantifier_implementation_logos_theory/reports/02_teammate-b-findings.md)
   - [02_team-research.md](088_optimize_quantifier_implementation_logos_theory/reports/02_team-research.md)
+- **Plan**: [02_implementation-plan.md](088_optimize_quantifier_implementation_logos_theory/plans/02_implementation-plan.md)
 
 **Description**: Research and implement optimizations for how quantifiers work throughout the model-checker for the logos/ theory. Build on the findings of task 87 and the documentation in docs/theory/QUANTIFIER_SOLVERS.md and code/scripts/README.md.
 
