@@ -10,7 +10,9 @@ next_project_number: 86
 
 ### 85. Create systematic quantifier benchmark for first-order theory
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-04-05
+- **Summary**: Created first-order quantifier benchmark comparing 4 modes (finitary-z3, finitary-cvc5, native-z3, native-cvc5). All 12 examples run successfully. Key finding: native-cvc5 returns incorrect UNSAT for countermodel examples.
 - **Language**: z3
 - **Research**: [01_benchmark-research.md](085_create_systematic_quantifier_benchmark_first_order/reports/01_benchmark-research.md)
 - **Plan**: [02_implementation-plan.md](085_create_systematic_quantifier_benchmark_first_order/plans/02_implementation-plan.md)
