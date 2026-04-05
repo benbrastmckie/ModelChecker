@@ -1,5 +1,5 @@
 ---
-next_project_number: 86
+next_project_number: 87
 ---
 
 # Task List
@@ -7,6 +7,14 @@ next_project_number: 86
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 86. Extend first-order examples to test limits and exploit solver differences
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 85
+
+**Description**: Extend the examples in first_order/examples.py to test the limits of the different solver configurations and exploit differences between finitary-z3, finitary-cvc5, native-z3, and native-cvc5 modes as benchmarked in Task 85.
 
 ### 85. Create systematic quantifier benchmark for first-order theory
 - **Effort**: medium
