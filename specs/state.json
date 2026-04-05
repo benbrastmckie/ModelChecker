@@ -4,14 +4,24 @@
     {
       "project_number": 86,
       "project_name": "extend_first_order_examples_test_solver_limits",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "created": "2026-04-05T16:56:15Z",
-      "last_updated": "2026-04-05T17:30:44Z",
+      "last_updated": "2026-04-05T20:38:10Z",
       "researching": "2026-04-05T17:18:24Z",
       "researched": "2026-04-05T17:22:11Z",
-      "session_id": "sess_1775414800_g9j3k6",
-      "planned": "2026-04-05T17:30:44Z"
+      "session_id": "sess_1775420823_55ad7f",
+      "planned": "2026-04-05T17:30:44Z",
+      "started": "2026-04-05T20:27:34Z",
+      "completed": "2026-04-05T20:38:10Z",
+      "completion_summary": "Added 46 stress test examples across 5 suites (N_SCALE, NEST, ALT, COMP, STRESS) to examples.py, plus --suite and --find-choke-point flags to benchmark script for solver limit testing.",
+      "artifacts": [
+        {
+          "path": "specs/086_extend_first_order_examples_test_solver_limits/summaries/01_execution-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ]
     },
     {
       "project_number": 85,

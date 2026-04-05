@@ -10,11 +10,14 @@ next_project_number: 87
 
 ### 86. Extend first-order examples to test limits and exploit solver differences
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-04-05
+- **Summary**: Added 46 stress test examples across 5 suites (N_SCALE, NEST, ALT, COMP, STRESS) to examples.py, plus --suite and --find-choke-point flags to benchmark script for solver limit testing.
 - **Language**: z3
 - **Dependencies**: 85
 - **Research**: [01_stress-test-research.md](086_extend_first_order_examples_test_solver_limits/reports/01_stress-test-research.md)
 - **Plan**: [01_implementation-plan.md](086_extend_first_order_examples_test_solver_limits/plans/01_implementation-plan.md)
+- **Summary**: [01_execution-summary.md](086_extend_first_order_examples_test_solver_limits/summaries/01_execution-summary.md)
 
 **Description**: Extend the examples in first_order/examples.py to test the limits of the different solver configurations and exploit differences between finitary-z3, finitary-cvc5, native-z3, and native-cvc5 modes as benchmarked in Task 85.
 
