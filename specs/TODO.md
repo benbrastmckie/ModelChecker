@@ -1,5 +1,5 @@
 ---
-next_project_number: 88
+next_project_number: 89
 ---
 
 # Task List
@@ -7,6 +7,14 @@ next_project_number: 88
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 88. Optimize quantifier implementation for logos theory
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 87
+
+**Description**: Research and implement optimizations for how quantifiers work throughout the model-checker for the logos/ theory. Build on the findings of task 87 and the documentation in docs/theory/QUANTIFIER_SOLVERS.md and code/scripts/README.md.
 
 ### 87. Research native quantifiers for Z3 and CVC5
 - **Effort**: medium

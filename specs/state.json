@@ -1,6 +1,17 @@
 {
-  "next_project_number": 88,
+  "next_project_number": 89,
   "active_projects": [
+    {
+      "project_number": 88,
+      "project_name": "optimize_quantifier_implementation_logos_theory",
+      "status": "not_started",
+      "language": "z3",
+      "dependencies": [
+        87
+      ],
+      "created": "2026-04-05T22:55:42Z",
+      "last_updated": "2026-04-05T22:55:42Z"
+    },
     {
       "project_number": 87,
       "project_name": "research_native_quantifiers_z3_cvc5",
