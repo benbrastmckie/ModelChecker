@@ -64,6 +64,10 @@ class CVC5SolverAdapter:
     def _configure_diagnostic_mode(self) -> None:
         """Configure solver for diagnostic mode with unsat core tracking enabled."""
         self._solver.set('produce-unsat-cores', 'true')
+        # CEGQI (counterexample-guided quantifier instantiation) for BV quantifiers
+        self._solver.set('cegqi', 'true')
+        self._solver.set('cegqi-bv', 'true')
+        self._solver.set('cegqi-full', 'true')
 
     def _configure_performance_mode(self) -> None:
         """Configure solver for performance mode with optimizations enabled.
@@ -74,6 +78,10 @@ class CVC5SolverAdapter:
         # Task 79 optimizations bundled here for performance mode
         self._solver.set('decision', 'stoponly')
         self._solver.set('bv-eager-eval', 'true')
+        # CEGQI (counterexample-guided quantifier instantiation) for BV quantifiers
+        self._solver.set('cegqi', 'true')
+        self._solver.set('cegqi-bv', 'true')
+        self._solver.set('cegqi-full', 'true')
 
     def add(self, constraint: Any) -> None:
         """Add a constraint to the solver.

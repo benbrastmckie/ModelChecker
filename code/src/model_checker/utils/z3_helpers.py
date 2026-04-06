@@ -78,7 +78,7 @@ def Exists(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "B
     else:
         bv = bvs[0]
         remaining_bvs = bvs[1:]
-        reduced_formula = Exists(remaining_bvs, formula) # Exists or ForAll?
+        reduced_formula = Exists(remaining_bvs, formula)
         for i in range(num_bvs):
             substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, N)))
             constraints.append(substituted_reduced_formula)

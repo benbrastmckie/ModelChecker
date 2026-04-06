@@ -24,6 +24,19 @@ class Z3SolverAdapter:
         """Initialize a new Z3 solver adapter."""
         self._solver = z3.Solver()
         self._tracked: Dict[str, Any] = {}  # label -> constraint
+        self._configure_quantifier_mode()
+
+    def _configure_quantifier_mode(self) -> None:
+        """Configure Z3 for reliable quantifier handling.
+
+        Explicitly sets quantifier instantiation strategy instead of relying
+        on auto_config. This prevents Z3 from selecting a strategy that may
+        be incomplete for the UFBV fragment used by native quantifiers.
+        """
+        self._solver.set('auto_config', False)
+        self._solver.set('smt.mbqi', True)
+        self._solver.set('smt.ematching', True)
+        self._solver.set('smt.mbqi.max_iterations', 1000)
 
     def add(self, constraint: Any) -> None:
         """Add a constraint to the solver.
