@@ -10,7 +10,9 @@ next_project_number: 89
 
 ### 88. Optimize quantifier implementation for logos theory
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [COMPLETED]
+- **Completed**: 2026-04-06
+- **Summary**: Added CEGQI config to CVC5 adapter (fixing finitary-cvc5 correctness: 12/12 baseline) and MBQI config to Z3 adapter (2x native quantifier improvement). Phases 1 (elim-small-bv) and 4 (variable collision) correctly abandoned after empirical testing.
 - **Language**: z3
 - **Dependencies**: 87
 - **Research**:
