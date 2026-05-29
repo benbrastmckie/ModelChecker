@@ -1,5 +1,5 @@
 ---
-next_project_number: 89
+next_project_number: 93
 ---
 
 # Task List
@@ -7,6 +7,36 @@ next_project_number: 89
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 92. Add frame constraints for bimodal task relation
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 91
+
+**Description**: Add nullity_identity (task_rel w 0 u ↔ w = u), forward_comp (compositionality for non-negative durations), and converse (task_rel w d u ↔ task_rel u (-d) w) constraints to bimodal semantic.py. These match the Lean ProofChecker's TaskFrame axioms. Reference: BimodalLogic/Theories/Bimodal/Semantics/TaskFrame.lean.
+
+### 91. Update task relation to ternary with duration parameter
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Refactor task relation from binary task(w, u) to ternary task_rel(w, d, u) where d is duration. Currently the ModelChecker only supports unit transitions (±1 shifts); the ProofChecker supports arbitrary duration tasks with the full task relation signature. Update semantic.py primitives, frame constraints, and Box operator quantification. Reference: BimodalLogic/Theories/Bimodal/Semantics/TaskFrame.lean line 97.
+
+### 90. Update temporal quantification to strict semantics
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+- **Dependencies**: 89
+
+**Description**: Update temporal operators (G, H, F, P, Until, Since) to use strict quantification (< instead of ≤) matching the Lean ProofChecker's irreflexive temporal semantics. Also change temporal quantification scope from "times within world's interval" to "all times in domain D" - atoms at times outside domain are false, not undefined. Reference: BimodalLogic/Theories/Bimodal/Semantics/Truth.lean lines 10-48.
+
+### 89. Add Until and Since operators to bimodal operators.py
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Language**: z3
+
+**Description**: Implement Until U(φ,ψ) and Since S(φ,ψ) temporal operators in operators.py. Currently only G (Future) and H (Past) exist, but 22 of 42 BX axiom constructors require Until/Since. Until: "ψ holds at some future time s > t, and φ holds for all times in (t,s)". Since: "ψ held at some past time s < t, and φ held for all times in (s,t)". Use strict witness with open guard per ProofChecker convention. Reference: BimodalLogic/Theories/Bimodal/Semantics/Truth.lean.
 
 ### 88. Optimize quantifier implementation for logos theory
 - **Effort**: medium

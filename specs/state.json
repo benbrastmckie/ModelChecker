@@ -1,6 +1,44 @@
 {
-  "next_project_number": 89,
+  "next_project_number": 93,
   "active_projects": [
+    {
+      "project_number": 89,
+      "project_name": "add_until_since_operators",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-05-29T17:24:41Z",
+      "last_updated": "2026-05-29T17:24:41Z"
+    },
+    {
+      "project_number": 90,
+      "project_name": "update_temporal_quantification_strict_semantics",
+      "status": "not_started",
+      "language": "z3",
+      "dependencies": [
+        89
+      ],
+      "created": "2026-05-29T17:24:41Z",
+      "last_updated": "2026-05-29T17:24:41Z"
+    },
+    {
+      "project_number": 91,
+      "project_name": "update_task_relation_ternary_duration",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-05-29T17:24:41Z",
+      "last_updated": "2026-05-29T17:24:41Z"
+    },
+    {
+      "project_number": 92,
+      "project_name": "add_frame_constraints_nullity_comp_converse",
+      "status": "not_started",
+      "language": "z3",
+      "dependencies": [
+        91
+      ],
+      "created": "2026-05-29T17:24:41Z",
+      "last_updated": "2026-05-29T17:24:41Z"
+    },
     {
       "project_number": 88,
       "project_name": "optimize_quantifier_implementation_logos_theory",
