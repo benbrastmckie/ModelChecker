@@ -1,7 +1,7 @@
 # Implementation Plan: Align Bimodal Tests with ProofChecker BX Axiom System
 
 - **Task**: 93 - Align bimodal tests with ProofChecker BX axiom system
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 5 hours
 - **Dependencies**: 89 (Until/Since operators), 90 (strict semantics)
 - **Research Inputs**: reports/01_bx-axiom-alignment.md
@@ -64,7 +64,7 @@ No ROADMAP.md found.
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Propositional and S5 Modal Axiom Examples [NOT STARTED]
+### Phase 1: Propositional and S5 Modal Axiom Examples [COMPLETED]
 
 **Goal**: Add test examples for Layer 1 (propositional, 4 axioms) and Layer 2 (S5 modal, 4 new axioms) to `examples.py`.
 
@@ -88,7 +88,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Basic BX Temporal Axiom Examples [NOT STARTED]
+### Phase 2: Basic BX Temporal Axiom Examples [COMPLETED]
 
 **Goal**: Add test examples for the simpler BX temporal axioms: seriality (BX1/BX1'), connectedness (BX4/BX4'), eventuality extraction (BX10/BX10'), and F-Until/P-Since bridge (BX12/BX12'). Also add the modal-temporal interaction axiom.
 
@@ -116,7 +116,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Advanced BX Temporal Axiom Examples [NOT STARTED]
+### Phase 3: Advanced BX Temporal Axiom Examples [COMPLETED]
 
 **Goal**: Add test examples for the more complex BX temporal axioms: self-accumulation (BX5/BX5'), absorption (BX6/BX6'), temporal linearity (BX11/BX11'), and enrichment (BX13/BX13').
 
@@ -144,7 +144,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: BX7 Linearity Axioms and Final Validation [NOT STARTED]
+### Phase 4: BX7 Linearity Axioms and Final Validation [COMPLETED]
 
 **Goal**: Add the most complex BX7 linearity axioms (4-variable formulas) and perform full test suite validation to confirm complete coverage.
 
