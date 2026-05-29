@@ -1,7 +1,7 @@
 # Implementation Plan: Task #96
 
 - **Task**: 96 - Investigate perpetuity principle validity alignment
-- **Status**: [NOT STARTED]
+- **Status**: [IN PROGRESS]
 - **Effort**: 6 hours
 - **Dependencies**: None
 - **Research Inputs**: reports/01_perpetuity-alignment.md
@@ -66,16 +66,16 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Fix Box Operator Scope Guard [NOT STARTED]
+### Phase 1: Fix Box Operator Scope Guard [COMPLETED]
 
 **Goal**: Remove the `is_valid_time_for_world` guard from the Box operator's Z3 quantification so that Box quantifies over ALL valid worlds unconditionally, matching the paper and Lean semantics.
 
 **Tasks**:
-- [ ] In `NecessityOperator.true_at` (operators.py:387-409), remove the `semantics.is_valid_time_for_world(other_world, eval_time)` conjunct from the `z3.Implies` antecedent, keeping only `semantics.is_world(other_world)`
-- [ ] In `NecessityOperator.false_at` (operators.py:411-431), remove the `semantics.is_valid_time_for_world(other_world, eval_time)` conjunct from the `z3.And` body, keeping only `semantics.is_world(other_world)` and the `false_at` condition
-- [ ] Update docstrings for both methods to document the paper-aligned semantics: Box quantifies over all worlds, atoms are false outside their domain
-- [ ] Run the non-timeout bimodal test suite to check for regressions: `pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v`
-- [ ] Manually test BM_TH_1 and BM_TH_2 with the box-only fix to observe whether the countermodel changes or disappears (it likely will not fully disappear yet, because abundance is still +/-1)
+- [x] In `NecessityOperator.true_at` (operators.py:387-409), remove the `semantics.is_valid_time_for_world(other_world, eval_time)` conjunct from the `z3.Implies` antecedent, keeping only `semantics.is_world(other_world)`
+- [x] In `NecessityOperator.false_at` (operators.py:411-431), remove the `semantics.is_valid_time_for_world(other_world, eval_time)` conjunct from the `z3.And` body, keeping only `semantics.is_world(other_world)` and the `false_at` condition
+- [x] Update docstrings for both methods to document the paper-aligned semantics: Box quantifies over all worlds, atoms are false outside their domain
+- [x] Run the non-timeout bimodal test suite to check for regressions: `pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v`
+- [x] Manually test BM_TH_1 and BM_TH_2 with the box-only fix to observe whether the countermodel changes or disappears (it likely will not fully disappear yet, because abundance is still +/-1)
 
 **Timing**: 1 hour
 

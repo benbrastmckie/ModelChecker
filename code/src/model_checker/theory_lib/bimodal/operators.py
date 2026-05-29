@@ -385,46 +385,62 @@ class NecessityOperator(syntactic.Operator):
     arity = 1
 
     def true_at(self, argument, eval_point):
-        """Returns true if argument is true in all possible worlds at the eval_time."""
+        """Returns true if argument is true in all possible worlds at the eval_time.
+
+        Paper/Lean-aligned semantics: Box quantifies over ALL valid world histories
+        unconditionally, with no domain guard on the evaluation time. For atoms,
+        truth at times outside a world's interval is already false by definition
+        (atom_false_of_not_domain). This means Box phi at time t requires phi to
+        be true at ALL worlds at time t, including worlds whose interval does not
+        contain t -- for which atoms are always false.
+
+        This aligns with:
+        - JPL paper: M,tau,x |= Box phi iff M,sigma,x |= phi for ALL sigma in H_F
+        - Lean BimodalLogic: box phi := forall sigma in Omega, truth_at M Omega sigma t phi
+        """
         semantics = self.semantics
-        
+
         # Extract time from eval_point
         eval_time = eval_point["time"]
-        
+
         # The argument must be true in all worlds at the eval_time
         other_world = z3.Int('nec_true_world')
-        # For any other_world
+        # For any other_world -- no is_valid_time_for_world guard (paper-aligned)
         return z3.ForAll(
             other_world,
             z3.Implies(
-                z3.And(
-                    # If other_world is a valid world
-                    semantics.is_world(other_world),
-                    # And eval_time is in other_world
-                    semantics.is_valid_time_for_world(other_world, eval_time),
-                ),
+                # If other_world is a valid world (no domain guard on eval_time)
+                semantics.is_world(other_world),
                 # Then the argument is true in other_world at the eval_time
                 semantics.true_at(argument, {"world": other_world, "time": eval_time})
             )
         )
 
     def false_at(self, argument, eval_point):
-        """Returns true if argument is false in any possible worlds at the eval_time."""
+        """Returns true if argument is false in any possible worlds at the eval_time.
+
+        Paper/Lean-aligned semantics: Box is false at (world, t) iff there EXISTS
+        some world sigma (unconditionally, no domain guard) where the argument is
+        false at (sigma, t). This is dual to true_at: Box phi is false iff negation
+        of phi is true somewhere.
+
+        This aligns with:
+        - JPL paper: NOT(M,tau,x |= Box phi) iff exists sigma in H_F: NOT(M,sigma,x |= phi)
+        - Lean BimodalLogic: dual of box truth via negation
+        """
         semantics = self.semantics
-        
+
         # Extract time from eval_point
         eval_time = eval_point["time"]
-        
+
         # The argument must be false in some world at the eval_time
         other_world = z3.Int('nec_true_world')
-        # There is some other_world
+        # There is some other_world -- no is_valid_time_for_world guard (paper-aligned)
         return z3.Exists(
             other_world,
             z3.And(
-                # Where other_world is a valid world
+                # Where other_world is a valid world (no domain guard on eval_time)
                 semantics.is_world(other_world),
-                # And eval_time is in other_world
-                semantics.is_valid_time_for_world(other_world, eval_time),
                 # And the argument is false in other_world at the eval_time
                 semantics.false_at(argument, {"world": other_world, "time": eval_time})
             )
