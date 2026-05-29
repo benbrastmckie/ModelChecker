@@ -1,12 +1,12 @@
 # Component Selection Guide
 
-This guide helps you decide which component type to create when adding new capabilities to the Neovim Configuration agent system.
+This guide helps you decide which component type to create when adding new capabilities to the agent system.
 
 ---
 
 ## Overview: Three-Layer Architecture
 
-The Neovim Configuration system uses a three-layer architecture where each layer has distinct responsibilities:
+The system uses a three-layer architecture where each layer has distinct responsibilities:
 
 ```
 Layer 1: Commands         User-facing entry points (/research, /plan, /implement)
@@ -102,14 +102,14 @@ You need a new user-invocable operation that does not exist yet.
 You need to add routing logic or input validation for execution.
 
 **Good candidates**:
-- New language support (e.g., `skill-python-research`)
+- New language support (e.g., `skill-rust-research`)
 - Specialized domain handling (e.g., `skill-database-implementation`)
 - Thin wrapper for delegation with validation
 
 **Examples**:
 | Skill | Purpose |
 |-------|---------|
-| `skill-neovim-research` | Neovim/plugin research via web search |
+| `skill-{domain}-research` | Domain-specific research via web search |
 | `skill-researcher` | General web/codebase research |
 | `skill-status-sync` | Atomic multi-file status updates |
 
@@ -130,7 +130,7 @@ You need to implement actual execution logic that creates artifacts.
 **Examples**:
 | Agent | Purpose |
 |-------|---------|
-| `neovim-research-agent` | Neovim configuration research via web search |
+| `{domain}-research-agent` | Domain-specific research via web search |
 | `general-implementation-agent` | General file implementation |
 | `planner-agent` | Implementation plan creation |
 
@@ -164,10 +164,10 @@ Creates: Command + Skill + Agent
 /research (existing)
     |
     v
-skill-python-research (new)
+skill-rust-research (new)
     |
     v
-python-research-agent (new)
+rust-research-agent (new)
 ```
 Creates: Skill + Agent (command exists)
 
@@ -250,8 +250,8 @@ Creates: Agent only (skill routes to it)
 | Component | Pattern | Example |
 |-----------|---------|---------|
 | Command | `{verb}.md` | `research.md`, `implement.md` |
-| Skill | `skill-{purpose}/SKILL.md` | `skill-neovim-research/SKILL.md` |
-| Agent | `{domain}-{purpose}-agent.md` | `neovim-research-agent.md` |
+| Skill | `skill-{purpose}/SKILL.md` | `skill-python-research/SKILL.md` |
+| Agent | `{domain}-{purpose}-agent.md` | `python-research-agent.md` |
 
 ---
 
@@ -262,9 +262,9 @@ Creates: Agent only (skill routes to it)
 | Command | Skill(s) Used |
 |---------|---------------|
 | /task | skill-status-sync |
-| /research | skill-researcher, skill-neovim-research |
+| /research | skill-researcher (+ extension skills when loaded) |
 | /plan | skill-planner |
-| /implement | skill-implementer, skill-neovim-implementation |
+| /implement | skill-implementer (+ extension skills when loaded) |
 | /revise | skill-planner |
 | /review | (direct execution) |
 | /errors | (direct execution) |
@@ -277,14 +277,12 @@ Creates: Agent only (skill routes to it)
 
 | Skill | Agent |
 |-------|-------|
-| skill-orchestrator | (routing only) |
+| skill-orchestrate | (autonomous loop) |
 | skill-status-sync | (direct execution) |
 | skill-git-workflow | (direct execution) |
 | skill-researcher | general-research-agent |
-| skill-neovim-research | neovim-research-agent |
 | skill-planner | planner-agent |
 | skill-implementer | general-implementation-agent |
-| skill-neovim-implementation | neovim-implementation-agent |
 | skill-meta | meta-builder-agent |
 
 **Note**: Additional skills (latex, typst, filetypes) available via extensions.
@@ -294,10 +292,8 @@ Creates: Agent only (skill routes to it)
 | Agent | Purpose |
 |-------|---------|
 | general-research-agent | General web/codebase research |
-| neovim-research-agent | Neovim/plugin research |
 | planner-agent | Implementation planning |
 | general-implementation-agent | General file implementation |
-| neovim-implementation-agent | Neovim configuration implementation |
 | meta-builder-agent | System building and task creation |
 
 **Note**: Additional agents (latex, typst, filetypes) available via extensions.
@@ -306,13 +302,13 @@ Creates: Agent only (skill routes to it)
 
 ## Examples
 
-### Example 1: Adding Python Support
+### Example 1: Adding Rust Support
 
-**Goal**: Support Python tasks with language-specific tooling
+**Goal**: Support Rust tasks with task-type-specific tooling
 
 **Components needed**:
-1. `skill-python-research/SKILL.md` - Routes Python tasks to Python agent
-2. `python-research-agent.md` - Uses Python-specific tools
+1. `skill-rust-research/SKILL.md` - Routes Rust tasks to Rust agent
+2. `rust-research-agent.md` - Uses Rust-specific tools
 
 **No command needed** - existing `/research` routes by language
 
@@ -406,4 +402,4 @@ Research completed successfully. Found 5 patterns.
 
 **Document Version**: 1.0
 **Created**: 2026-01-12
-**Maintained By**: Neovim Configuration Development Team
+**Maintained By**: Development Team

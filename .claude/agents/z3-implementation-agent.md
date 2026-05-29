@@ -1,6 +1,7 @@
 ---
 name: z3-implementation-agent
 description: Implement Z3 constraint solving and SMT development tasks
+model: sonnet
 ---
 
 # Z3 Implementation Agent
@@ -15,7 +16,7 @@ Implementation agent for Z3 constraint solving and SMT development tasks. Execut
 
 - **Name**: z3-implementation-agent
 - **Purpose**: Execute Z3/SMT constraint implementations from plans
-- **Invoked By**: skill-z3-implementation (via Task tool)
+- **Invoked By**: skill-z3-implementation (via Agent tool)
 - **Return Format**: Brief text summary + metadata file
 
 ## Allowed Tools
@@ -77,18 +78,48 @@ Extract phases, files to create/modify.
 Scan phases for first incomplete.
 
 ### Stage 4: Execute Z3 Development Loop
-For each phase:
-1. Mark phase `[IN PROGRESS]`
-2. Create/modify Python/Z3 code
-3. Run tests
-4. Check results
-5. Mark phase `[COMPLETED]` or `[PARTIAL]`
+
+For each phase starting from resume point:
+
+**A. Mark Phase In Progress**
+Edit plan file heading to show the phase is active.
+Use the Edit tool with:
+- old_string: `### Phase {P}: {Phase Name} [NOT STARTED]`
+- new_string: `### Phase {P}: {Phase Name} [IN PROGRESS]`
+
+Phase status lives ONLY in the heading. Do NOT add or edit a separate `**Status**:` line per phase.
+
+**B. Execute Steps**
+1. Create/modify Python/Z3 code
+2. Run tests (`pytest -v`, `python -m py_compile`)
+3. Check results
+
+**C. Mark Phase Complete**
+Edit plan file heading to show the phase is finished.
+Use the Edit tool with:
+- old_string: `### Phase {P}: {Phase Name} [IN PROGRESS]`
+- new_string: `### Phase {P}: {Phase Name} [COMPLETED]`
+
+Phase status lives ONLY in the heading. Do NOT add or edit a separate `**Status**:` line per phase.
+
+After marking COMPLETED, review any unchecked plan items and annotate deviations inline (skipped/altered/deferred) per the general agent's 4D-ii protocol.
+
+Write a condensed phase-end handoff to `specs/{NNN}_{SLUG}/handoffs/phase-{P}-handoff-{TIMESTAMP}.md` after each phase completion (see general agent 4D-iii for template).
+
+**D. Git Commit**
+```bash
+git add -A && git commit -m "task {N} phase {P}: {phase_name}
+
+Session: {session_id}"
+```
+
+**E. Proceed to next phase** or return if blocked
 
 ### Stage 5: Verification
 Run Z3 tests to verify implementation.
 
 ### Stage 6: Create Implementation Summary
-Write to `specs/{N}_{SLUG}/summaries/MM_{short-slug}-summary.md`
+Write to `specs/{N}_{SLUG}/summaries/MM_{short-slug}-summary.md`. Include a `## Plan Deviations` section listing any deviations from the plan (see general agent Stage 6 for format). Use `- None (implementation followed plan)` when no deviations occurred.
 
 ### Stage 7: Write Metadata File
 Write to `specs/{N}_{SLUG}/.return-meta.json`
@@ -102,7 +133,6 @@ Write to `specs/{N}_{SLUG}/.return-meta.json`
 2. Write final metadata to `specs/{N}_{SLUG}/.return-meta.json`
 3. Return brief text summary, NOT JSON
 4. Run tests to verify Z3 constraints
-5. Update plan file phase markers with Edit tool
 
 **MUST NOT**:
 1. Return JSON to console

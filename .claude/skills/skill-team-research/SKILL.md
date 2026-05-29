@@ -1,19 +1,19 @@
 ---
 name: skill-team-research
 description: Orchestrate multi-agent research with wave-based parallel execution. Spawns 2-4 teammates for diverse investigation angles and synthesizes findings.
-allowed-tools: Task, Bash, Edit, Read, Write
-# This skill uses TeammateTool for team coordination (available when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)
+allowed-tools: Agent, Bash, Edit, Read, Write
+# This skill uses Agent tool for team coordination (available when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)
 # Context loaded by lead during synthesis:
 #   - .claude/context/patterns/team-orchestration.md
 #   - .claude/context/formats/team-metadata-extension.md
-#   - .claude/utils/team-wave-helpers.md
+#   - .claude/context/reference/team-wave-helpers.md
 ---
 
 # Team Research Skill
 
 Multi-agent research with wave-based parallelization. Spawns 2-4 teammates to investigate complementary angles, then synthesizes findings into a unified report.
 
-**Language-Aware Routing**: Teammates are spawned with language-appropriate prompts and tools. Meta tasks focus on .claude/ system patterns; general tasks use web search and codebase exploration.
+**Task-Type-Aware Routing**: Teammates are spawned with task-type-appropriate prompts and tools. Meta tasks focus on .claude/ system patterns; general tasks use web search and codebase exploration.
 
 **IMPORTANT**: This skill requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable. If team creation fails, gracefully degrades to single-agent research via skill-researcher.
 
@@ -23,7 +23,7 @@ Reference (load as needed during synthesis):
 - Path: `.claude/context/patterns/team-orchestration.md` - Wave coordination patterns
 - Path: `.claude/context/formats/team-metadata-extension.md` - Team result schema
 - Path: `.claude/context/formats/return-metadata-file.md` - Base metadata schema
-- Path: `.claude/utils/team-wave-helpers.md` - Reusable wave patterns
+- Path: `.claude/context/reference/team-wave-helpers.md` - Reusable wave patterns
 
 ## Trigger Conditions
 
@@ -40,6 +40,8 @@ This skill activates when:
 | `focus_prompt` | string | No | Optional focus for research |
 | `team_size` | integer | No | Number of teammates (2-4, default 2) |
 | `session_id` | string | Yes | Session ID for tracking |
+| `model_flag` | string | No | Model override (haiku, sonnet, opus). If set, use instead of default |
+| `effort_flag` | string | No | Effort level (fast, hard). Passed as prompt context |
 
 ---
 
@@ -62,15 +64,13 @@ if [ -z "$task_data" ]; then
 fi
 
 # Extract fields
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 project_name=$(echo "$task_data" | jq -r '.project_name')
 description=$(echo "$task_data" | jq -r '.description // ""')
 
-# Validate team_size
-team_size=${team_size:-2}
-[ "$team_size" -lt 2 ] && team_size=2
-[ "$team_size" -gt 4 ] && team_size=4
+# Team research always uses 4 teammates (Primary, Alternatives, Critic, Horizons)
+team_size=4
 ```
 
 ---
@@ -169,29 +169,30 @@ run_padded=$(printf "%02d" "$artifact_number")
 
 ---
 
-### Stage 5b: Language Routing Decision
+### Stage 5b: Task Type Routing Decision
 
-Determine language-specific configuration for teammate prompts:
+Determine task-type-specific configuration for teammate prompts:
 
 ```bash
-# Route by task language
-case "$language" in
+# Route by task type
+case "$task_type" in
   "meta")
     # Meta tasks - focus on .claude/ system patterns
-    default_model="sonnet"
     context_refs="@.claude/CLAUDE.md, @.claude/context/index.json"
     available_tools="Read, Grep, Glob"
     ;;
   *)
-    # General tasks - use Sonnet for cost-effectiveness
-    default_model="sonnet"
+    # General tasks
     context_refs=""
     available_tools="WebSearch, WebFetch, Read, Grep, Glob"
     ;;
 esac
 
+# Determine model for teammates: use model_flag if provided, otherwise default to sonnet (cost-effective for team mode)
+teammate_model="${model_flag:-sonnet}"
+
 # Prepare model preference line for prompts (secondary guidance)
-model_preference_line="Model preference: Use Claude ${default_model^} 4.6 for this analysis."
+model_preference_line="Model preference: Use Claude ${teammate_model^} 4.6 for this analysis."
 ```
 
 ---
@@ -205,7 +206,8 @@ Create teammate prompts and spawn wave. Pass `artifact_number` and `teammate_let
 {
   "artifact_number": "{run_padded}",
   "teammate_letter": "a",
-  "artifact_pattern": "{NN}_teammate-{letter}-findings.md"
+  "artifact_pattern": "{NN}_teammate-{letter}-findings.md",
+  "roadmap_path": "specs/ROADMAP.md"
 }
 ```
 
@@ -251,7 +253,7 @@ specs/{NNN}_{SLUG}/reports/{run_padded}_teammate-b-findings.md
 Format: Same as Teammate A
 ```
 
-**Teammate C - Risk Analysis (if team_size >= 3)**:
+**Teammate C - Critic (always present)**:
 ```
 Research task {task_number}: {description}
 
@@ -260,9 +262,15 @@ Research task {task_number}: {description}
 Artifact number: {run_padded}
 Teammate letter: c
 
-Focus on risks, blockers, and edge cases.
-Identify what could go wrong with proposed approaches.
-Consider integration challenges and dependencies.
+You are the Critic. Your job is to identify gaps, shortcomings, and blind spots in the research.
+Focus on:
+- What assumptions haven't been validated?
+- What could the other researchers be missing or getting wrong?
+- Are there known limitations in the proposed approaches?
+- Is the task scope complete, or are there important aspects being overlooked?
+- What questions should be asked but aren't being asked?
+
+Do NOT duplicate risk analysis (implementation risks). Focus on research quality and completeness.
 
 Output your findings to:
 specs/{NNN}_{SLUG}/reports/{run_padded}_teammate-c-findings.md
@@ -270,7 +278,7 @@ specs/{NNN}_{SLUG}/reports/{run_padded}_teammate-c-findings.md
 Format: Same as Teammate A
 ```
 
-**Teammate D - Devil's Advocate (if team_size >= 4)**:
+**Teammate D - Horizons (always present)**:
 ```
 Research task {task_number}: {description}
 
@@ -279,11 +287,19 @@ Research task {task_number}: {description}
 Artifact number: {run_padded}
 Teammate letter: d
 
-Challenge findings from other teammates once available.
-Look for gaps, inconsistencies, and missed alternatives.
-Question assumptions and identify blind spots.
+You are the Horizons researcher. Your job is to think about long-term alignment and strategic direction.
 
-Wait for other teammates to complete, then analyze their outputs.
+Read the project roadmap at {roadmap_path} (from delegation context) if it exists.
+If the roadmap file does not exist, contribute general strategic thinking about project direction.
+
+Focus on:
+- Does the proposed approach align with the project's long-term goals and priorities?
+- Are there opportunities to advance adjacent roadmap items simultaneously?
+- Could the task be scoped differently to better serve the project trajectory?
+- What creative or unconventional approaches might better serve the long-term vision?
+- What strategic challenges remain that this task could help address?
+
+Think outside the box. Challenge conventional approaches where a better path exists.
 
 Output your findings to:
 specs/{NNN}_{SLUG}/reports/{run_padded}_teammate-d-findings.md
@@ -293,12 +309,12 @@ Format: Same as Teammate A
 
 ---
 
-**Spawn teammates using TeammateTool**.
+**Spawn teammates using Agent tool**.
 
 **IMPORTANT**: Pass the `model` parameter to enforce model selection:
-- Use `model: "sonnet"` for all tasks (cost-effective for non-Lean work)
+- Use `model: "${teammate_model}"` (from Stage 5b: model_flag if provided, otherwise "sonnet" as default)
 
-The `model_preference_line` in prompts serves as secondary guidance only. The `model` parameter on TeammateTool is the enforced selection.
+The `model_preference_line` in prompts serves as secondary guidance only. The `model` parameter on Agent tool is the enforced selection.
 
 **Synthesis uses base number without letter**: After all teammates complete, the synthesis report uses `{run_padded}_{slug}.md` (e.g., `01_team-research.md`).
 
@@ -386,10 +402,10 @@ Write synthesized report:
 ### Alternative Approaches (from Teammate B)
 {Findings}
 
-### Risks and Blockers (from Teammate C, if present)
+### Gaps and Shortcomings (from Critic)
 {Findings}
 
-### Critical Analysis (from Teammate D, if present)
+### Strategic Horizons (from Horizons)
 {Findings}
 
 ## Synthesis
@@ -409,6 +425,8 @@ Write synthesized report:
 |----------|-------|--------|------------|
 | A | Primary | completed | high |
 | B | Alternatives | completed | medium |
+| C | Critic | completed | high |
+| D | Horizons | completed | medium |
 
 ## References
 
@@ -442,9 +460,9 @@ jq '(.active_projects[] | select(.project_number == '$task_number')).next_artifa
 
 **Note**: Team research (like single-agent research) is the only operation that increments `next_artifact_number`. Team plan and team implement use `(current - 1)` to stay in the same "round".
 
-**Update TODO.md**: Change status marker to `[RESEARCHED]`.
+**Update TODO.md**: Change status marker from `[RESEARCHING]` to `[RESEARCHED]` via Edit tool.
 
-**Link artifact**:
+**Link artifact in state.json**:
 ```bash
 padded_num=$(printf "%03d" "$task_number")
 jq --arg path "specs/${padded_num}_${project_name}/reports/${run_padded}_team-research.md" \
@@ -453,6 +471,14 @@ jq --arg path "specs/${padded_num}_${project_name}/reports/${run_padded}_team-re
   '(.active_projects[] | select(.project_number == '$task_number')).artifacts += [{"path": $path, "type": $type, "summary": $summary}]' \
   specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
+
+**Link artifact in TODO.md**: Use the `link-artifact-todo.sh` script (REQUIRED -- do NOT manually edit artifact links in TODO.md):
+
+```bash
+bash .claude/scripts/link-artifact-todo.sh $task_number '**Research**' '**Plan**' "$artifact_path"
+```
+
+The script produces bracket-only `[path]` format. Never use markdown `[name](path)` format for artifact links. If the script exits non-zero, log a warning but continue (linking errors are non-blocking).
 
 ---
 
@@ -510,8 +536,6 @@ git add \
 git commit -m "task ${task_number}: complete team research (${team_size} teammates)
 
 Session: ${session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 **Note**: Use targeted staging, NOT `git add -A`. See `.claude/context/standards/git-staging-scope.md`.

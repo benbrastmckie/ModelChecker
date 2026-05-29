@@ -1,140 +1,11 @@
 # Artifact Templates Reference
 
-Template structures for research reports, implementation plans, and summaries. For behavioral rules (naming conventions, versioning), see `.claude/rules/artifact-formats.md`.
+Template structures for error reports. For research reports, implementation plans, and summaries, see the authoritative format files:
+- `.claude/context/formats/report-format.md`
+- `.claude/context/formats/plan-format.md`
+- `.claude/context/formats/summary-format.md`
 
-## Research Reports
-
-**Location**: `specs/{NNN}_{SLUG}/reports/MM_{short-slug}.md`
-
-```markdown
-# Research Report: Task #{N}
-
-**Task**: {title}
-**Date**: {ISO_DATE}
-**Focus**: {optional focus}
-
-## Summary
-
-{2-3 sentence overview}
-
-## Findings
-
-### {Topic}
-
-{Details with evidence}
-
-## Recommendations
-
-1. {Actionable recommendation}
-
-## References
-
-- {Source with link if applicable}
-
-## Context Extension Recommendations
-
-{Optional section for identifying gaps in project context documentation}
-
-**Note**: This section is populated when research reveals topics not covered by existing context files. For meta tasks, this section should be omitted or set to "none" to avoid circular task creation.
-
-### Pattern for Context Gap Detection
-
-During research, agents should note when:
-- Information is discovered that would benefit future tasks
-- No relevant context file exists for a recurring topic
-- Existing context files are outdated or incomplete
-
-### Example Entry
-
-```
-- **Topic**: telescope.nvim advanced pickers
-- **Gap**: No context file covers custom picker creation
-- **Recommendation**: Add to `project/neovim/tools/telescope-guide.md` or create `project/neovim/patterns/telescope-pickers.md`
-```
-
-## Next Steps
-
-{What to do next}
-```
-
-## Implementation Plans
-
-**Location**: `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md`
-
-```markdown
-# Implementation Plan: Task #{N}
-
-**Task**: {title}
-**Version**: {NNN}
-**Created**: {ISO_DATE}
-**Language**: {language}
-
-## Overview
-
-{Approach summary}
-
-## Phases
-
-### Phase 1: {Name} [NOT STARTED]
-
-**Estimated effort**: {hours}
-
-**Objectives**:
-1. {Objective}
-
-**Files to modify**:
-- `path/to/file` - {changes}
-
-**Steps**:
-1. {Step}
-
-**Verification**:
-- {How to verify}
-
----
-
-## Dependencies
-
-- {Dependency}
-
-## Risks and Mitigations
-
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-
-## Success Criteria
-
-- [ ] {Criterion}
-```
-
-## Implementation Summaries
-
-**Location**: `specs/{NNN}_{SLUG}/summaries/MM_{short-slug}-summary.md`
-
-Summaries follow the same naming convention but use `-summary` suffix for clarity.
-
-```markdown
-# Implementation Summary: Task #{N}
-
-**Completed**: {ISO_DATE}
-**Duration**: {time}
-
-## Changes Made
-
-{Overview}
-
-## Files Modified
-
-- `path/to/file` - {change}
-
-## Verification
-
-- {What was verified}
-
-## Notes
-
-{Additional notes}
-```
+For behavioral rules (naming conventions, versioning), see `.claude/rules/artifact-formats.md`.
 
 ## Error Reports
 
@@ -174,6 +45,6 @@ After fixing, run `/lake` again to verify the build passes.
 ```
 
 **Notes**:
-- Error reports use date-based naming (like summaries) since each report is a snapshot
+- Error reports use date-based naming since each report is a snapshot
 - Reports are linked as artifacts in state.json with type `"error_report"`
 - The Source field in the task entry links back to the affected file

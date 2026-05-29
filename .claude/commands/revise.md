@@ -1,8 +1,8 @@
 ---
 description: Create new version of implementation plan, or update task description if no plan exists
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(jq:*), Bash(git:*), TodoWrite
+allowed-tools: Skill, Bash(jq:*), Bash(git:*), Read, Edit, Glob
 argument-hint: TASK_NUMBER [REASON]
-model: claude-opus-4-5-20251101
+model: opus
 ---
 
 # /revise Command
@@ -32,140 +32,91 @@ Create a new version of an implementation plan, or update task description if no
      specs/state.json)
    ```
 
-3. **Validate and Route**
-   - Task exists (ABORT if not)
-   - Route based on status:
+3. **Validate Task Exists**
+   - **ABORT** if task not found in state.json
 
-   | Status | Action |
-   |--------|--------|
-   | planned, implementing, partial, blocked | → Plan Revision (Stage 2A) |
-   | not_started, researched | → Description Update (Stage 2B) |
-   | completed | ABORT "Task completed, no revision needed" |
-   | abandoned | ABORT "Task abandoned, use /task --recover first" |
+   No other ABORT conditions. The command works regardless of task status.
 
-**ABORT** if any validation fails. **PROCEED** to appropriate stage.
-
----
-
-### STAGE 2A: Plan Revision
-
-For tasks with existing plans (planned, implementing, partial, blocked):
-
-1. **Load Current Context**
-   - Current plan from `specs/{NNN}_{SLUG}/plans/*.md` (latest version)
-     (Check padded directory first, fall back to unpadded for legacy tasks)
-   - Research reports if any
-   - Implementation progress (phase statuses)
-
-2. **Analyze What Changed**
-   - What phases succeeded/failed?
-   - What new information emerged?
-   - What dependencies weren't anticipated?
-
-3. **Create Revised Plan**
-   Increment version: MM_{short-slug}.md format (e.g., 02_revised-approach.md, 03_updated-design.md)
-
-   Write to `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md`
-   (Always use padded directory for new plans)
-
-4. **Update Status Inline** (two-step to avoid jq escaping bug - see `jq-escaping-workarounds.md`)
-   Update state.json to "planned" status and add plan artifact:
+4. **Check Plan Existence**
    ```bash
-   # Step 1: Update status and timestamps
-    jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-       --arg status "planned" \
-      '(.active_projects[] | select(.project_number == {task_number})) |= . + {
-        status: $status,
-        last_updated: $ts,
-        planned: $ts
-      }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
-
-   # Step 2: Add artifact (use "| not" pattern to avoid != escaping - Issue #1132)
-    jq --arg path "{new_plan_path}" \
-      '(.active_projects[] | select(.project_number == {task_number})).artifacts =
-        ([(.active_projects[] | select(.project_number == {task_number})).artifacts // [] | .[] | select(.type == "plan" | not)] + [{"path": $path, "type": "plan"}])' \
-      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+   padded_num=$(printf "%03d" "$task_number")
+   project_name=$(echo "$task_data" | jq -r '.project_name')
+   plan_exists=$(ls specs/${padded_num}_${project_name}/plans/*.md 2>/dev/null | head -1)
    ```
 
-   Update TODO.md status marker using Edit tool.
+   This determines routing:
+   - Plan file exists: Plan Revision path
+   - No plan file: Description Update path
 
--> Continue to CHECKPOINT 2 (Plan Revision)
-
----
-
-### STAGE 2B: Description Update
-
-For tasks without plans (not_started, researched):
-
-1. **Read Current Description**
-   ```bash
-   old_description=$(echo "$task_data" | jq -r '.description // ""')
-   ```
-
-2. **Validate Revision Reason**
-   If no revision_reason provided: ABORT "No revision reason provided. Usage: /revise N \"new description\""
-
-3. **Update state.json**
-   ```bash
-    jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --arg desc "$new_description" \
-      '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
-        description: $desc,
-        last_updated: $ts
-      }' specs/state.json > specs/tmp/state.json && \
-      mv specs/tmp/state.json specs/state.json
-   ```
-
-4. **Update TODO.md**
-   Use Edit tool to replace description
-
-→ Continue to CHECKPOINT 2 (Description Update)
+**PROCEED** to delegation.
 
 ---
 
-### CHECKPOINT 2: GATE OUT
+### CHECKPOINT 2: DELEGATE TO SKILL
 
-**For Plan Revision (Stage 2A):**
-1. Verify new plan file exists
-2. Verify status is "planned"
-3. Verify plan link updated in TODO.md
+Invoke `skill-reviser` with the validated task context. The skill delegates to `reviser-agent` which handles:
 
-**For Description Update (Stage 2B):**
-1. Verify description updated in state.json
-2. Verify description updated in TODO.md
+- **Plan Revision path**: Load current plan, discover new research, synthesize revised plan
+- **Description Update path**: Update task description based on revision reason
 
-**PROCEED** to commit.
+Pass to skill-reviser:
+- `task_number` - Validated task number
+- `session_id` - Generated session ID
+- `revision_reason` - Optional reason from remaining args
+- `task_data` - Full task data from state.json lookup
+- `plan_exists` - Whether a plan file exists (boolean flag)
 
----
-
-### CHECKPOINT 3: COMMIT
-
-**For Plan Revision:**
-```bash
-git add -A
-git commit -m "$(cat <<'EOF'
-task {N}: revise plan (v{NEW_VERSION})
-
-Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-EOF
-)"
+```
+skill: "skill-reviser"
+args: "task_number={N} session_id={session_id} revision_reason={reason} plan_exists={true|false}"
 ```
 
-**For Description Update:**
-```bash
-git add -A
-git commit -m "$(cat <<'EOF'
-task {N}: revise description
+The skill spawns the reviser-agent, handles postflight (status update, artifact linking, git commit), and returns a brief text summary.
 
-Session: {session_id}
+**On DELEGATE success**: Revision complete. **IMMEDIATELY CONTINUE** to CHECKPOINT 3 below.
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
-EOF
-)"
-```
+---
 
-Commit failure is non-blocking (log and continue).
+### CHECKPOINT 3: GATE OUT
+
+1. **Verify Artifacts** (Plan Revision only)
+   If `plan_exists` was true (plan revision path), check the revised plan file exists on disk:
+   ```bash
+   revised_plan=$(ls -1t specs/${padded_num}_${project_name}/plans/*.md 2>/dev/null | head -1)
+   if [ -z "$revised_plan" ]; then
+       echo "WARNING: No plan file found after revision."
+   fi
+   ```
+
+2. **Verify Status Updated** (Plan Revision only)
+   The skill handles status updates internally (postflight).
+   Confirm status is now "planned" in state.json:
+
+   ```bash
+   current_status=$(jq -r --argjson num "$task_number" \
+     '.active_projects[] | select(.project_number == $num) | .status' \
+     specs/state.json)
+
+   if [ "$current_status" = "planned" | not ]; then
+       echo "WARNING: state.json status is '$current_status', expected 'planned'. Applying defensive correction."
+       bash .claude/scripts/update-task-status.sh postflight "$task_number" plan "$session_id"
+   fi
+   ```
+
+3. **Verify TODO.md Status** (Plan Revision only)
+   Check that the task entry in TODO.md shows `[PLANNED]`:
+
+   ```bash
+   if grep -q "- \*\*Status\*\*: \[PLANNING\]" <(grep -A 5 "^### ${task_number}\." specs/TODO.md); then
+       echo "WARNING: TODO.md status not updated to [PLANNED]. Applying defensive correction."
+   fi
+   ```
+
+   If mismatch found, use Edit tool to fix both task entry and Task Order.
+
+**On GATE OUT success**: Revision verified.
+
+---
 
 ## Output
 
@@ -197,14 +148,13 @@ Status: [{current_status}]
 
 ### GATE IN Failure
 - Task not found: Return error with guidance
-- Invalid status: Return error with current status
 
-### STAGE Failure
-- Missing plan for revision: Fall back to description update
-- Write failure: Log error, preserve original
+### DELEGATE Failure
+- skill-reviser handles all error cases internally
+- Missing plan for revision: Agent falls back to description update
+- Write failure: Agent logs error, preserves original
+- Git commit failure: Non-blocking (logged by skill)
 
 ### GATE OUT Failure
-- Verification failure: Log warning, continue
-
-### COMMIT Failure
-- Non-blocking: Log warning, continue with success
+- Missing artifacts: Log warning, continue with available
+- Status mismatch: Apply defensive correction via update-task-status.sh

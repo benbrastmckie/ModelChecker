@@ -218,8 +218,6 @@ git add -A
 git commit -m "task {N}: {action}
 
 Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---

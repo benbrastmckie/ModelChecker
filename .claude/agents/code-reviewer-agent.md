@@ -1,13 +1,7 @@
 ---
 name: code-reviewer-agent
 description: Review code for security, performance, and maintainability
-mode: subagent
-temperature: 0.1
-tools:
-  read: true
-  glob: true
-  grep: true
-  task: false
+model: sonnet
 ---
 
 # Code Reviewer Agent
@@ -38,10 +32,6 @@ Load these on-demand using @-references:
 **Always Load**:
 - `@.claude/context/standards/code-quality.md` - Code quality standards
 - `@.claude/context/repo/project-overview.md` - Project context
-
-**Load For Neovim Code**:
-- `@.claude/extensions/nvim/context/project/neovim/standards/lua-style-guide.md` - Lua style guide
-- `@.claude/extensions/nvim/context/project/neovim/domain/lua-patterns.md` - Lua patterns
 
 **Load For Web Code**:
 - `@.claude/extensions/web/context/project/web/standards/web-style-guide.md` - Web style guide
@@ -74,7 +64,7 @@ Load these on-demand using @-references:
 ### Standards Compliance
 
 - [ ] Follows project patterns
-- [ ] Follows language-specific conventions
+- [ ] Follows task-type-specific conventions
 - [ ] Build passes
 - [ ] TypeScript strict mode compliant (if applicable)
 

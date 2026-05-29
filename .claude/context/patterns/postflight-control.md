@@ -15,7 +15,7 @@ Claude Code skill returns can bypass the invoking skill and return directly to t
 │  SKILL EXECUTION FLOW                                       │
 │                                                             │
 │  1. Skill creates postflight marker                         │
-│  2. Skill invokes subagent via Task tool                    │
+│  2. Skill invokes subagent via Agent tool                    │
 │  3. Subagent executes and returns                          │
 │  4. SubagentStop hook detects marker → blocks stop          │
 │  5. Skill continues with postflight operations              │
@@ -23,6 +23,16 @@ Claude Code skill returns can bypass the invoking skill and return directly to t
 │  7. Normal stop allowed                                     │
 └─────────────────────────────────────────────────────────────┘
 ```
+
+## Unconditional Postflight Execution
+
+Postflight stages (status update, artifact linking, git commit, cleanup) MUST execute after Stage 5 regardless of whether work was done by a subagent or inline. This is enforced through:
+
+1. **Stage 5b fallback**: If the skill executor performed work inline without the Agent tool, it writes `.return-meta.json` manually before postflight begins.
+2. **"ALWAYS EXECUTE" header**: Postflight stages are marked with `## Postflight (ALWAYS EXECUTE)` to make the unconditional requirement visually prominent.
+3. **Marker file**: Created before Stage 5 and cleaned up at Stage 10 regardless of execution path. The SubagentStop hook is a complementary safety net that prevents premature termination, but it is NOT the primary trigger for postflight -- the skill's instruction flow is.
+
+**Key invariant**: After any work is completed (Stage 5 or Stage 5b), a valid `.return-meta.json` file exists, and postflight stages can proceed identically regardless of how the work was done.
 
 ## Marker File Protocol
 
@@ -151,7 +161,7 @@ EOF
 
 ### Stage 2: Invoke Subagent
 
-Invoke the subagent via Task tool as normal.
+Invoke the subagent via Agent tool as normal.
 
 ### Stage 3: Subagent Returns
 

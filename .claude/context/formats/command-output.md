@@ -330,7 +330,7 @@ Next: /implement 258
 Task #260 created: Fix parser edge case
 
 Status: [NOT STARTED]
-Language: neovim
+Task Type: general
 Artifacts path: specs/260_fix_parser_edge_case/ (created on first artifact)
 ```
 
@@ -400,7 +400,7 @@ Next Steps:
 
 **Review command:**
 ```
-Review complete for: nvim/lua/
+Review complete for: src/
 
 Report: specs/reviews/review-20260312.md
 

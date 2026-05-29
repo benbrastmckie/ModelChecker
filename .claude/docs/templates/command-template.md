@@ -1,122 +1,112 @@
 ---
-agent: <agent-name>
+description: <one-line description of what this command does>
+allowed-tools: Skill, Agent, Bash(jq:*), Bash(git:*), Read, Edit
+argument-hint: "<required-arg>" [--flag]
+model: sonnet
 ---
 
 # /<command-name> Command
 
-## Purpose
+<Brief description of what this command does and when to use it.>
 
-[Brief description of what this command does and when to use it]
+**Use this command when you need to**: <specific use case>
 
-**Use this command when you need to**: [specific use case]
+## Arguments
 
----
+- `$1` - Task number(s) (required). Supports single task, comma-separated lists, and ranges.
+- Remaining args - Optional focus/prompt (applies to all tasks in multi-task mode)
 
-## Usage
+## Options
 
-```
-/<command-name> <required-arg> [optional-arg]
-```
+| Flag | Description | Default |
+|------|-------------|---------|
+| `--team` | Enable multi-agent parallel execution | false |
+| `--fast` | Low-effort mode | false |
+| `--hard` | High-effort mode | false |
 
-### Arguments
+## Execution
 
-- `<required-arg>`: [Description of required argument]
-- `[optional-arg]`: [Description of optional argument] (optional)
+### STAGE 0: PARSE TASK NUMBERS
 
-### Examples
-
-```
-# Example 1: [Description]
-/<command-name> example-value
-
-# Example 2: [Description with optional arg]
-/<command-name> example-value --option
+```bash
+source .claude/scripts/parse-command-args.sh "$ARGUMENTS"
+# Exports: TASK_NUMBERS, REMAINING_ARGS, TEAM_MODE, TEAM_SIZE,
+#          EFFORT_FLAG, MODEL_FLAG, CLEAN_FLAG, FORCE_FLAG, FOCUS_PROMPT
 ```
 
----
+If `len(TASK_NUMBERS) > 1`: dispatch to multi-task batch flow.
+If `len(TASK_NUMBERS) == 1`: fall through to CHECKPOINT 1.
 
-## Workflow
+### CHECKPOINT 1: GATE IN
 
-This command delegates to the `<agent-name>` agent, which executes the following workflow:
+```bash
+source .claude/scripts/command-gate-in.sh "$task_number" "<operation>"
+# Exports: SESSION_ID, TASK_TYPE, TASK_STATUS, PROJECT_NAME, DESCRIPTION, PADDED_NUM
+# Displays: [OPERATION] Task {N}: {project_name}
+# Aborts if task not found or in terminal status
+```
 
-1. **Input Validation**: Validates command arguments and prerequisites
-2. **Context Loading**: Loads required context files on-demand
-3. **Core Execution**: [Brief description of core work]
-4. **Output Generation**: [Brief description of output]
-5. **Artifact Creation**: Creates [artifact type] in `specs/<task-number>_<topic>/`
-6. **Return Formatting**: Formats response following subagent-return-format.md
-7. **Artifact Validation**: Validates artifacts, updates TODO.md, state.json, creates git commit
-8. **Cleanup**: Performs any necessary cleanup
+**On GATE IN success**: Task validated. **IMMEDIATELY CONTINUE** to STAGE 2.
 
----
+### STAGE 2: DELEGATE
 
-## Artifacts
+```bash
+source .claude/scripts/command-route-skill.sh "<operation>" "$TASK_TYPE" "skill-<default>"
+skill_name="$SKILL_NAME"
+```
 
-This command creates the following artifacts:
+**Invoke the Skill tool NOW** with:
+```
+skill: "{skill_name}"
+args: "task_number={N} session_id={SESSION_ID} effort_flag={EFFORT_FLAG} model_flag={MODEL_FLAG} clean_flag={CLEAN_FLAG} orchestrator_mode=false"
+```
 
-- **[Artifact Type]**: `specs/<task-number>_<topic>/<artifact-path>`
-  - [Description of artifact]
-  - [Required sections or format]
+**On DELEGATE success**: **IMMEDIATELY CONTINUE** to CHECKPOINT 2.
 
----
+### CHECKPOINT 2: GATE OUT
 
-## Prerequisites
+```bash
+bash .claude/scripts/command-gate-out.sh "$task_number" "<operation>" "$SESSION_ID"
+# Reads .return-meta.json; applies defensive status correction if needed
+# Runs validate-artifact.sh --fix (non-blocking)
+```
 
-- [Prerequisite 1]
-- [Prerequisite 2]
+**On GATE OUT success**: **IMMEDIATELY CONTINUE** to CHECKPOINT 3.
 
----
+### CHECKPOINT 3: COMMIT
 
-## Related Commands
+```bash
+git add -A
+git commit -m "$(cat <<'EOF'
+task {N}: <action>
 
-- `/<related-command-1>`: [Brief description of relationship]
-- `/<related-command-2>`: [Brief description of relationship]
+Session: {SESSION_ID}
 
----
+EOF
+)"
+```
 
-## See Also
+Commit failure is non-blocking (log and continue).
 
-- **Skill**: `.claude/skills/<skill-name>.md`
-- **Agent**: `.claude/agents/<agent-name>.md`
-- **Return Format**: `.claude/context/formats/subagent-return.md`
+## Output
 
----
+```
+<Operation> completed for Task #{N}
 
-## Validation Checklist
+Artifact: specs/{NNN}_{SLUG}/<type>/MM_{short-slug}.md
 
-Use this checklist when creating a new command:
+Status: [<STATUS>]
+Next: /<next-command> {N}
+```
 
-### Frontmatter
-- [ ] Frontmatter includes `agent:` field
-- [ ] Agent name matches agent file (without `.md` extension)
-- [ ] Agent file exists in `.claude/skills/`
+## Error Handling
 
-### Documentation
-- [ ] Purpose section clearly describes command use case
-- [ ] Usage section includes syntax and examples
-- [ ] Workflow section describes 8-stage workflow
-- [ ] Artifacts section lists all created artifacts
-- [ ] Prerequisites section lists all requirements
+- **GATE IN Failure**: Task not found or invalid status -- return error with guidance
+- **DELEGATE Failure**: Keep in-progress status, log error; timeout preserves partial progress
+- **GATE OUT Failure**: Missing artifacts -- log warning, continue with available
 
-### File Size
-- [ ] Command file is <250 lines (target)
-- [ ] Command file is <300 lines (maximum)
-- [ ] No embedded routing logic (delegated to agent)
-- [ ] No embedded workflow execution (delegated to agent)
+## Related Documentation
 
-### Testing
-- [ ] Command tested with valid arguments
-- [ ] Command tested with invalid arguments (error handling)
-- [ ] Artifacts created successfully
-- [ ] Stage 7 execution verified (TODO.md, state.json, git commit)
-
-### Documentation Quality
-- [ ] All sections complete (no placeholders)
-- [ ] Examples are realistic and helpful
-- [ ] Related commands documented
-- [ ] See Also section includes relevant links
-
----
-
-**Template Version**: 1.0
-**Last Updated**: 2025-12-29
+- [Creating Commands](../guides/creating-commands.md) - Step-by-step command creation
+- [Command Lifecycle](../../context/workflows/command-lifecycle.md) - Checkpoint stage details
+- [Return Format](../../context/formats/subagent-return.md) - Agent return-metadata schema

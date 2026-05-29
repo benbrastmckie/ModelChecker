@@ -56,7 +56,7 @@ FILES_WITH_VIOLATIONS=0
 # Check if a skill delegates to a subagent
 does_skill_delegate() {
     local file="$1"
-    grep -qE 'Task tool|subagent_type|subagent|Invoke Subagent' "$file" 2>/dev/null
+    grep -qE 'Agent tool|subagent_type|subagent|Invoke Subagent' "$file" 2>/dev/null
 }
 
 # Check for prohibited patterns in postflight section

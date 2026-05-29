@@ -80,65 +80,10 @@ Direct execution skill for archiving tasks, updating CHANGE_LOG.md, and suggesti
          done
          ```
 
-      3. Scan TODO.md for completed/abandoned tasks not in state.json:
-         ```lua
-         -- Read TODO.md content
-         local todo_content = read_file("specs/TODO.md")
-
-         -- Pattern to match task headers: ### OC_{N}. or ### {N}.
-         local task_pattern = "###%s+(OC_)?(%d+)%.%s+(.-)\n"
-
-         -- Pattern to match status line
-         local status_pattern = "%-%s+\*\*Status%*\*:%s+\[(COMPLETED|ABANDONED)\]"
-
-         -- Extract all tasks with their status
-         local todo_tasks = {}
-         for prefix, num_str, name in todo_content:gmatch(task_pattern) do
-           local task_num = tonumber(num_str)
-           local task_entry = todo_content:match("(###%s+" .. (prefix or "") .. num_str .. "%." .. name .. ".-)\n###%s+")
-             or todo_content:match("(###%s+" .. (prefix or "") .. num_str .. "%." .. name .. ".-)$")
-
-           if task_entry then
-             local status = task_entry:match(status_pattern)
-             if status then
-               table.insert(todo_tasks, {
-                 project_number = task_num,
-                 status = status:lower(),
-                 project_name = name:gsub("%s*\n.*", ""), -- First line only
-                 has_directory = vim.fn.isdirectory("specs/OC_" .. num_str .. "_" .. name:gsub("%s*\n.*", "")) == 1
-                   or vim.fn.isdirectory("specs/" .. num_str .. "_" .. name:gsub("%s*\n.*", "")) == 1
-               })
-             end
-           end
-         end
-
-         -- Cross-reference with state.json active_projects
-         local todo_md_orphans = {}
-         for _, task in ipairs(todo_tasks) do
-           local in_active = false
-           for _, proj in ipairs(state.active_projects or {}) do
-             if proj.project_number == task.project_number then
-               in_active = true
-               break
-             end
-           end
-
-           local in_archive = false
-           if archive_state.completed_projects then
-             for _, proj in ipairs(archive_state.completed_projects) do
-               if proj.project_number == task.project_number then
-                 in_archive = true
-                 break
-               end
-             end
-           end
-
-           -- If task is in TODO.md as completed/abandoned but not in state.json and has directory
-           if not in_active and not in_archive and task.has_directory then
-             table.insert(todo_md_orphans, task)
-           end
-         end
-         ```
+      3. Scan TODO.md for completed/abandoned tasks not tracked in state.json or archive:
+         - Parse task headers (`### {N}.` or `### OC_{N}.`) and status lines (`[COMPLETED]`/`[ABANDONED]`)
+         - Cross-reference each against active_projects and archive completed_projects
+         - Collect as `todo_md_orphans[]` if: status is completed/abandoned, not in either state file, and has a directory in specs/
     </process>
   </stage>
   
@@ -171,12 +116,24 @@ Direct execution skill for archiving tasks, updating CHANGE_LOG.md, and suggesti
   <stage id="5" name="ScanRoadmap">
     <action>Scan for roadmap references</action>
     <process>
-      1. Read specs/ROAD_MAP.md
+      0. Ensure specs/ROADMAP.md exists. If the file does not exist, create it with the default template:
+         ```markdown
+         # Project Roadmap
+
+         ## Phase 1: Current Priorities (High Priority)
+
+         - [ ] (No items yet -- add roadmap items here)
+
+         ## Success Metrics
+
+         - (Define success metrics here)
+         ```
+      1. Read specs/ROADMAP.md
       2. For each completed task, extract:
          - completion_summary from completion_data
          - roadmap_items if present
          - Task N references from summaries
-      3. Match against ROAD_MAP.md items
+      3. Match against ROADMAP.md items
       4. Track roadmap_matches array with confidence levels
     </process>
   </stage>
@@ -195,21 +152,34 @@ Direct execution skill for archiving tasks, updating CHANGE_LOG.md, and suggesti
   </stage>
   
   <stage id="7" name="HarvestMemories">
-    <action>Scan artifacts for memory harvest suggestions</action>
+    <action>Collect, deduplicate, and classify memory candidates from state.json</action>
     <process>
-      1. For each completed task:
-         - Scan reports/ for insights and findings
-         - Scan plans/ for reusable patterns
-         - Check summaries/ for key learnings
-      2. Extract potential memory candidates:
-         - Research findings with general applicability
-         - Implementation patterns documented
-         - Configuration examples
-         - Workflow descriptions
-      3. Generate suggestions list with:
-         - Source file path
-         - Brief description of insight
-         - Suggested memory category (TECHNIQUE, PATTERN, CONFIG, WORKFLOW, INSIGHT)
+      1. Collect candidates from state.json:
+         - For each completed task in the archival batch:
+           - Read `memory_candidates // []` from the task's state.json entry
+           - Flatten into a single list, tagging each candidate with `task_number` provenance
+         - If no candidates across all tasks, set `harvest_candidates = []` and skip to Stage 8
+
+      2. Deduplicate against existing memory-index.json:
+         - Read `.memory/memory-index.json` (if missing or empty, skip dedup -- all candidates are CREATE)
+         - For each candidate, compute keyword overlap against every index entry:
+           ```
+           overlap = |candidate.suggested_keywords INTERSECT entry.keywords| / |candidate.suggested_keywords|
+           ```
+         - Classify dedup action:
+           - overlap > 90%: mark `dedup_action = "NOOP"` (exclude from prompt)
+           - overlap > 60%: mark `dedup_action = "UPDATE"` (present with warning label)
+           - overlap <= 60%: mark `dedup_action = "CREATE"` (standard new memory)
+         - If ALL candidates are NOOP after dedup, set `harvest_candidates = []` and skip to Stage 8
+
+      3. Apply three-tier classification:
+         - **Tier 1** (pre-selected): category in [PATTERN, CONFIG] AND confidence >= 0.8
+         - **Tier 2** (shown, not pre-selected): category in [WORKFLOW, TECHNIQUE] AND confidence >= 0.5
+         - **Tier 3** (hidden by default): category == INSIGHT OR confidence < 0.5
+         - Assign `tier` (1, 2, or 3) to each non-NOOP candidate
+
+      4. Store the classified candidate list as `harvest_candidates`:
+         Each entry contains: `task_number`, `content`, `category`, `source_artifact`, `confidence`, `suggested_keywords`, `tier`, `dedup_action`
     </process>
   </stage>
   
@@ -223,7 +193,9 @@ Direct execution skill for archiving tasks, updating CHANGE_LOG.md, and suggesti
          - Misplaced directories count
          - Roadmap updates needed
          - README.md suggestions count
-         - Memory harvest suggestions count
+         - Memory candidates: tiered breakdown from `harvest_candidates`
+           - Format: `Memory candidates: {T1} Tier 1, {T2} Tier 2, {T3} Tier 3 ({after_dedup} after dedup, {noop_count} NOOP excluded)`
+           - If no candidates: `Memory candidates: none`
       2. Exit after display
     </process>
   </stage>
@@ -231,50 +203,27 @@ Direct execution skill for archiving tasks, updating CHANGE_LOG.md, and suggesti
   <stage id="9" name="InteractivePrompts">
     <action>Handle interactive prompts</action>
     <process>
-      1. If orphaned directories found:
-         - Present AskUserQuestion with track/skip options
-         - Store user decisions
-
-      2. If misplaced directories found:
-         - Present AskUserQuestion with move/skip options
-         - Store user decisions
-
-      3. If TODO.md orphans found (todo_md_orphans array not empty):
-         - Display formatted list:
-           ```
-           Found {N} completed/abandoned tasks in TODO.md not tracked in state.json:
-           ```
-         - For each orphan, show:
-           ```
-           - OC_{project_number}: {project_name} (Status: {status})
-             Directory: specs/OC_{project_number}_{project_name}/
-           ```
-         - Use AskUserQuestion with multiSelect to prompt:
-           ```json
-           {
-             "question": "Select TODO.md orphans to archive:",
-             "options": [
-               {"label": "OC_138: task_name (completed)", "value": "todo_orphan_138"},
-               {"label": "OC_139: task_name (abandoned)", "value": "todo_orphan_139"}
-             ],
-             "multiple": true
-           }
-           ```
-         - Store user decisions in `selected_todo_orphans` array
-
-      4. If memory harvest suggestions found:
-         - Present suggestions with multiSelect:
-           ```json
-           {
-             "question": "Select memories to create from completed tasks:",
-             "options": [
-               {"label": "[PATTERN] Configuration pattern from task 142", "value": "mem_142_pattern"},
-               {"label": "[TECHNIQUE] Agent delegation from task 143", "value": "mem_143_tech"}
-             ],
-             "multiple": true
-           }
-           ```
-         - Store selected memories for creation
+      Present AskUserQuestion prompts for each detected condition:
+      1. **Orphaned directories**: track/skip options per directory
+      2. **Misplaced directories**: move/skip options per directory
+      3. **TODO.md orphans**: multiSelect list of completed/abandoned tasks not in state.json; store as `selected_todo_orphans`
+      4. **Memory harvest candidates** (from `harvest_candidates`):
+         - If `harvest_candidates` is empty (no candidates or all NOOP), skip this sub-step entirely
+         - Build multiSelect option list, ordered by tier:
+           a. **Tier 1 candidates first** (pre-selected): Format each as:
+              `[PRE-SELECTED] [TIER 1] [{CATEGORY}] Task {N}: {content first 80 chars}... (confidence: {X.XX})`
+              If `dedup_action == "UPDATE"`, append: ` [WARNING: similar memory exists]`
+           b. **Tier 2 candidates** (shown, not pre-selected): Format each as:
+              `[TIER 2] [{CATEGORY}] Task {N}: {content first 80 chars}... (confidence: {X.XX})`
+              If `dedup_action == "UPDATE"`, append: ` [WARNING: similar memory exists]`
+           c. **Tier 3 expansion option**: If Tier 3 candidates exist, add a final option:
+              `Show {count} more candidates (Tier 3 -- low confidence/insight)`
+         - Present AskUserQuestion with multiSelect
+         - If user selected the Tier 3 expansion option:
+           - Re-prompt with ALL tiers visible (Tier 1 + Tier 2 + Tier 3), Tier 1 still pre-selected
+           - Tier 3 candidates formatted as:
+             `[TIER 3] [{CATEGORY}] Task {N}: {content first 80 chars}... (confidence: {X.XX})`
+         - Store user-approved candidates as `approved_memories` for Stage 14
     </process>
   </stage>
   
@@ -312,15 +261,7 @@ Direct execution skill for archiving tasks, updating CHANGE_LOG.md, and suggesti
 
       4. Move project directories to specs/archive/
 
-      5. Remove archived task from Recommended Order section (non-blocking):
-         ```bash
-         # Remove archived task from Recommended Order section (non-blocking)
-         if source "$PROJECT_ROOT/.claude/scripts/update-recommended-order.sh" 2>/dev/null; then
-             remove_from_recommended_order "$project_number" || echo "Note: Failed to update Recommended Order"
-         fi
-         ```
-
-      6. Track orphaned directories (if approved)
+      5. Track orphaned directories (if approved)
 
       7. Move misplaced directories (if approved)
 
@@ -693,7 +634,7 @@ ${transition_comment}
   </stage>
 
   <stage id="11" name="UpdateRoadmap">
-    <action>Update ROAD_MAP.md with completion annotations</action>
+    <action>Update ROADMAP.md with completion annotations</action>
     <process>
       For each roadmap match:
       1. Skip if already annotated
@@ -718,149 +659,117 @@ ${transition_comment}
   <stage id="13" name="UpdateChangelog">
     <action>Update CHANGE_LOG.md with archive entries</action>
     <process>
-      1. Create specs/CHANGE_LOG.md if not exists:
-         ```markdown
-         # Change Log
-         
-         All notable changes to the OpenCode system.
-         
-         ## Format
-         
-         Each entry includes:
-         - Date
-         - Task number and name
-         - Type of change
-         - Brief description
-         
-         ---
-         ```
-      
-      2. For each archived task, append entry:
-         ```markdown
-         ### YYYY-MM-DD
-         
-         **Task {N}: {project_name}**
-         - Status: {completed|abandoned}
-         - Type: {meta|neovim|general|lean}
-         - Summary: {completion_summary or description}
-         
-         Artifacts:
-         {List of artifact paths}
-         ```
-      
+      1. Create specs/CHANGE_LOG.md if not exists (header + format description)
+      2. For each archived task, append dated entry with: task number/name, status, type, completion_summary, artifact list
       3. Append memory harvest note if memories were suggested
     </process>
   </stage>
-  
+
   <stage id="14" name="CreateMemories">
-    <action>Create selected memories</action>
+    <action>Create approved memory files and regenerate indexes</action>
     <process>
-      For each selected memory suggestion:
-      1. Generate memory ID: MEM-YYYY-MM-DD-NNN
-      2. Create memory file in .opencode/memory/10-Memories/
-      3. Format with classification tag:
-         ```markdown
-         # Memory: {title}
-         
-         **Category**: [TECHNIQUE|PATTERN|CONFIG|WORKFLOW|INSIGHT]
-         **Source**: Task OC_{N} - {artifact_path}
-         **Date**: YYYY-MM-DD
-         
-         {content}
-         ```
-      4. Update .opencode/memory/20-Indices/index.md
-      5. Track created memory IDs
+      If `approved_memories` is empty, skip this stage entirely.
+
+      For each candidate in `approved_memories`:
+
+      1. **Generate slug**:
+         - Derive from candidate category + content first few words (lowercase, hyphens, no special chars)
+         - Example: `pattern-jq-safe-not-operator`, `config-lean4-lake-env`
+         - Collision check: if `MEM-{slug}.md` exists in `.memory/10-Memories/`, append numeric suffix (`-2`, `-3`, ...)
+
+      2. **Create memory file** at `.memory/10-Memories/MEM-{slug}.md`:
+         - Use template from `.memory/30-Templates/memory-template.md`
+         - Field mapping from candidate:
+           - `{{title}}` -> descriptive title derived from content (first ~60 chars, cleaned)
+           - `{{date}}` -> current date (YYYY-MM-DD)
+           - `{{tags}}` -> `[{category}]` (e.g., `[PATTERN]`)
+           - `{{topic}}` -> derived from category (lowercase, e.g., "pattern", "configuration")
+           - `{{source}}` -> `"Task {N}: {source_artifact}"`
+           - `{{last_updated}}` -> current date (YYYY-MM-DD)
+           - `retrieval_count` -> `0`
+           - `last_retrieved` -> `null`
+           - `keywords` -> candidate's `suggested_keywords` array
+           - `summary` -> first 60 characters of `content`
+           - `token_count` -> `word_count(content) * 1.3` (rounded to integer)
+           - `{{content}}` -> candidate's `content` field
+
+      3. After ALL memory files are created, **batch-regenerate indexes**:
+         - `.memory/memory-index.json`: Rebuild from filesystem scan of `.memory/10-Memories/MEM-*.md`
+           - Parse frontmatter of each file to populate entries array
+           - Update `entry_count`, `total_tokens`, `generated_at`
+         - `.memory/20-Indices/index.md`: Rebuild table of contents from all memory files
+         - `.memory/10-Memories/README.md`: Update memory listing
+
+      Note: `memory_candidates` field is implicitly cleaned when the task entry is removed from
+      active_projects and moved to archive during Stage 10.
     </process>
   </stage>
   
   <stage id="15" name="GitCommit">
     <action>Commit all changes</action>
     <process>
-      1. **Pre-commit vault safety net**:
-
-         Before committing, verify vault threshold was handled if exceeded:
-         ```bash
-         # PRE-COMMIT SAFETY NET - blocks commit if vault was skipped when required
-         PROJECT_ROOT="${PROJECT_ROOT:-.}"
-         STATE_FILE="${PROJECT_ROOT}/specs/state.json"
-         VAULT_THRESHOLD=1000
-
-         next_num=$(jq -r '.next_project_number // 0' "$STATE_FILE")
-         vault_count_before=$(jq -r '.vault_count // 0' "$STATE_FILE")
-         vault_count_after=$(jq -r '.vault_count // 0' "$STATE_FILE")
-
-         if [[ "$next_num" -gt "$VAULT_THRESHOLD" ]]; then
-           # Threshold exceeded - vault should have been performed
-           if [[ "$vault_count_after" -eq "$vault_count_before" ]]; then
-             echo ""
-             echo "=============================================="
-             echo "  ERROR: VAULT OPERATION SKIPPED"
-             echo "=============================================="
-             echo "  next_project_number: $next_num (exceeds threshold: $VAULT_THRESHOLD)"
-             echo "  vault_count unchanged: $vault_count_after"
-             echo ""
-             echo "  The vault threshold was exceeded but vault operation"
-             echo "  was not performed. Return to Stage 10 sub-step 9 and"
-             echo "  complete the vault operation before committing."
-             echo "=============================================="
-             echo ""
-             exit 1
-           fi
-         fi
-         echo "Pre-commit vault check: OK"
-         ```
-
-      2. Stage all modified files:
-         ```bash
-         git add -A
-         ```
-      
-      2. Create comprehensive commit message:
-         ```
-         todo: archive {N} tasks
-         
-         - {completed} completed tasks
-         - {abandoned} abandoned tasks
-         - {roadmap} roadmap items updated
-         - {orphans} orphaned directories tracked
-         - {misplaced} misplaced directories moved
-         - {readme} README.md suggestions applied
-         - {memories} memories harvested from artifacts
-         
-         Updated: specs/state.json, specs/TODO.md, specs/CHANGE_LOG.md
-         ```
-      
-      3. Commit changes
+      1. **Pre-commit vault safety net**: If next_project_number > 1000 and vault_count unchanged, block commit with error directing back to Stage 10 sub-step 9
+      2. `git add -A`
+      3. Commit: `todo: archive {N} tasks` with counts for completed, abandoned, roadmap, orphans, misplaced, readme, memories
     </process>
   </stage>
   
   <stage id="16" name="OutputResults">
     <action>Display final results</action>
     <process>
-      Display complete summary:
-      ```
-      Task Archival Complete
-      ======================
-      
-      Archived Tasks:
-      - {completed} completed
-      - {abandoned} abandoned
-      
-      Directory Operations:
-      - {orphans} orphaned directories tracked
-      - {misplaced} misplaced directories moved
-      
-      Updates Applied:
-      - {roadmap} roadmap items annotated
-      - {readme} README.md suggestions applied
-      - {changelog} CHANGE_LOG.md entries added
-      
-      Memory Harvest:
-      - {memories_created} new memories created
-      - {memories_suggested} suggestions available
-      
-      Active tasks remaining: {remaining_count}
-      ```
+      Display summary with counts for:
+      - Archived tasks (completed/abandoned)
+      - Directory operations (orphans tracked/misplaced moved)
+      - Updates applied (roadmap annotations/readme changes/changelog entries)
+      - Memory harvest with tier breakdown:
+        - Format: `Memory harvest: {created} created ({t1_created} Tier 1, {t2_created} Tier 2, {t3_created} Tier 3), {noop_skipped} skipped (NOOP), {user_skipped} declined`
+        - If no memories created: `Memory harvest: none (no candidates)` or `Memory harvest: none (all skipped)`
+      - Active tasks remaining
+
+      **Suggested Next Steps**:
+
+      After displaying the archival summary, append a numbered "Suggested Next Steps" list.
+      The list always includes at least one item (the archive review suggestion).
+      Distill suggestions are conditionally added based on `memory_health` from state.json.
+
+      1. Read `memory_health` from specs/state.json with fallback:
+         ```bash
+         memory_health=$(jq -r '.memory_health // {}' specs/state.json)
+         total_memories=$(echo "$memory_health" | jq -r '.total_memories // 0')
+         never_retrieved=$(echo "$memory_health" | jq -r '.never_retrieved // 0')
+         health_score=$(echo "$memory_health" | jq -r '.health_score // 100')
+         last_distilled=$(echo "$memory_health" | jq -r '.last_distilled // null')
+         ```
+         If `memory_health` is absent or empty (`{}`), suppress all /distill suggestions
+         (only show the archive review suggestion).
+
+      2. Always include as the first suggestion:
+         `1. Review the archive at specs/archive/ to verify task directories moved correctly`
+
+      3. Suppress ALL /distill suggestions when `total_memories < 5`:
+         - Do not mention /distill at all in this case
+
+      4. When `total_memories >= 5`, evaluate these conditions (in order):
+
+         a. Suggest `/distill --report` when `total_memories >= 10`:
+            `N. Run /distill --report to review memory vault health ({total_memories} memories, {health_score}/100 health)`
+
+         b. Suggest `/distill` (full interactive) when ANY of these conditions are true:
+            - `total_memories >= 30`
+            - `never_retrieved / total_memories > 0.5` AND `total_memories >= 5`
+            - `last_distilled` is null or stale (older than 30 days) AND `total_memories >= 10`
+
+            Format: `N. Run /distill to maintain memory vault ({total_memories} memories, {health_score}/100 health)`
+
+         Note: If condition (b) is met, it replaces condition (a) -- do not show both
+         /distill --report and /distill suggestions. Show the stronger suggestion only.
+
+      5. Format as a clean numbered list:
+         ```
+         Suggested next steps:
+         1. Review the archive at specs/archive/ to verify task directories moved correctly
+         2. Run /distill to maintain memory vault (42 memories, 72/100 health)
+         ```
     </process>
   </stage>
 </execution>
@@ -871,53 +780,7 @@ ${transition_comment}
 
 ## Error Handling
 
-- **jq failures**: Log error with technical details, skip affected operation
-- **File permission errors**: Return error with guidance
-- **Git commit failures**: Log warning, continue with other operations
-- **User cancels prompts**: Exit gracefully
-- **AskUserQuestion failures**: Default to conservative option (skip)
-
-## Memory Harvest Categories
-
-When suggesting memories from task artifacts, use these categories:
-
-| Category | Description | Example |
-|----------|-------------|---------|
-| TECHNIQUE | Reusable method or approach | "Three-phase debugging process" |
-| PATTERN | Design or implementation pattern | "Agent delegation wrapper pattern" |
-| CONFIG | Configuration or setup knowledge | "Neovim LSP keymap configuration" |
-| WORKFLOW | Process or procedure | "Code review checklist workflow" |
-| INSIGHT | Key learning or understanding | "Root cause of race condition" |
-
-## CHANGE_LOG.md Format
-
-```markdown
-# Change Log
-
-All notable changes to the OpenCode system.
-
-## Format
-
-Each entry includes:
-- Date
-- Task number and name  
-- Type of change
-- Brief description
-
----
-
-### YYYY-MM-DD
-
-**Task {N}: {project_name}**
-- Status: {completed|abandoned}
-- Type: {meta|neovim|general|lean}
-- Summary: {description}
-
-Artifacts:
-- path/to/artifact.ext - description
-
----
-```
+See `rules/error-handling.md` for general patterns. Skill-specific: jq failures skip affected operation; git failures are non-blocking; user cancel or AskUserQuestion failure defaults to skip.
 
 ## Example Usage
 

@@ -111,8 +111,6 @@ Updated plan with phase status
 
 ```
 {scope}: {action} {description}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ## CI Triggering
@@ -149,8 +147,6 @@ Skip CI (default) when:
 
 ```
 task {N}: complete implementation [ci]
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ### When CI Always Runs
@@ -167,8 +163,6 @@ CI runs regardless of marker on:
 git add {files}
 git commit -m "$(cat <<'EOF'
 {message}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -178,8 +172,6 @@ EOF
 git add specs/
 git commit -m "$(cat <<'EOF'
 task {N}: {action}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```

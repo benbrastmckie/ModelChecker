@@ -1,0 +1,67 @@
+{
+  "name": "formal",
+  "version": "1.0.0",
+  "description": "Formal reasoning extension providing agents, skills, and context for mathematical logic, mathematics, and physics research. Includes modal logic, Kripke semantics, lattice theory, category theory, and dynamical systems.",
+  "task_type": "formal",
+  "dependencies": [
+    "core"
+  ],
+  "provides": {
+    "agents": [
+      "formal-research-agent.md",
+      "logic-research-agent.md",
+      "math-research-agent.md",
+      "physics-research-agent.md"
+    ],
+    "skills": [
+      "skill-formal-research",
+      "skill-logic-research",
+      "skill-math-research",
+      "skill-physics-research"
+    ],
+    "context": [
+      "project/logic",
+      "project/math",
+      "project/physics"
+    ],
+    "commands": [],
+    "scripts": [],
+    "rules": []
+  },
+  "routing": {
+    "research": {
+      "formal": "skill-formal-research",
+      "formal:logic": "skill-logic-research",
+      "formal:math": "skill-math-research",
+      "formal:physics": "skill-physics-research"
+    },
+    "plan": {
+      "formal": "skill-planner",
+      "formal:logic": "skill-planner",
+      "formal:math": "skill-planner",
+      "formal:physics": "skill-planner"
+    },
+    "implement": {
+      "formal": "skill-implementer",
+      "formal:logic": "skill-implementer",
+      "formal:math": "skill-implementer",
+      "formal:physics": "skill-implementer"
+    }
+  },
+  "merge_targets": {
+    "claudemd": {
+      "source": "EXTENSION.md",
+      "target": ".claude/CLAUDE.md",
+      "section_id": "extension_formal"
+    },
+    "index": {
+      "source": "index-entries.json",
+      "target": ".claude/context/index.json"
+    },
+    "opencode_json": {
+      "source": "opencode-agents.json",
+      "target": "opencode.json"
+    }
+  },
+  "hooks": {}
+}

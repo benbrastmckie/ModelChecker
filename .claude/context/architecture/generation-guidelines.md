@@ -68,7 +68,7 @@ routing:
 
 ## Routing
 
-| Language | Target Skill |
+| Task Type | Target Skill |
 |----------|--------------|
 | lean | skill-{name} |
 | general | skill-{name} |
@@ -98,7 +98,7 @@ routing:
 ---
 name: skill-{name}
 description: {One-line description}
-allowed-tools: Task
+allowed-tools: Agent
 context: fork
 agent: {agent-name}
 ---
@@ -149,7 +149,7 @@ Prepare delegation context:
     "task_number": N,
     "task_name": "{slug}",
     "description": "{description}",
-    "language": "{language}"
+    "task_type": "{task_type}"
   }
 }
 ```
@@ -161,10 +161,10 @@ session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
 
 ### 3. Invoke Subagent
 
-**CRITICAL**: Use the **Task** tool to spawn the subagent.
+**CRITICAL**: Use the **Agent** tool to spawn the subagent.
 
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "{agent-name}"
   - prompt: [Include task_context, delegation_context]
@@ -202,8 +202,8 @@ Return partial status if subagent times out.
 
 ### Generation Rules for Skills
 
-1. **Use thin wrapper pattern** - `context: fork`, `allowed-tools: Task`
-2. **Always use Task tool** - Never Skill tool for agent invocation
+1. **Use thin wrapper pattern** - `context: fork`, `allowed-tools: Agent`
+2. **Always use Agent tool** - Never Skill tool for agent invocation
 3. **Include session_id generation** - Portable bash command
 4. **Validate returns** - Check all required fields
 5. **Document trigger conditions** - When does this skill activate?
@@ -228,7 +228,7 @@ description: {One-line description}
 
 - **Name**: {name}-agent
 - **Purpose**: {What this agent does}
-- **Invoked By**: skill-{name} (via Task tool)
+- **Invoked By**: skill-{name} (via Agent tool)
 - **Return Format**: JSON (see subagent-return.md)
 
 ## Allowed Tools
@@ -267,7 +267,7 @@ Extract from input:
     "task_number": N,
     "task_name": "{slug}",
     "description": "...",
-    "language": "{language}"
+    "task_type": "{task_type}"
   },
   "metadata": {
     "session_id": "sess_...",
@@ -414,9 +414,9 @@ head -20 {file_path}
 grep '"status": "completed"' .claude/agents/{name}-agent.md
 ```
 
-### 4. Task Tool Usage (Skills)
+### 4. Agent Tool Usage (Skills)
 ```bash
-# Should find Task tool reference
+# Should find Agent tool reference
 grep -i "task tool" .claude/skills/skill-{name}/SKILL.md
 ```
 

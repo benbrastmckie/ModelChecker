@@ -46,80 +46,18 @@ session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
 
 ### Step 3: Execute Tag Extraction
 
-Scan for tags using file-type-specific patterns. Use Bash with grep for consistent output parsing.
+Scan for all four tag types (FIX:, NOTE:, TODO:, QUESTION:) using file-type-specific comment patterns:
 
-#### 3.1: Extract FIX: Tags
+| File Type | Comment Prefix | Includes |
+|-----------|---------------|----------|
+| Lua | `--` | `*.lua` |
+| LaTeX | `%` | `*.tex` |
+| Markdown | `<!--` | `*.md` |
+| Script | `#` | `*.py`, `*.sh`, `*.yaml`, `*.yml` |
 
-**Lua files (Neovim config)**:
-```bash
-grep -rn --include="*.lua" "-- FIX:" $paths 2>/dev/null || true
-```
+For each tag type, grep across all file types with `-rn` and collect matches. Parse each match into: file path, line number, tag type, tag content.
 
-**LaTeX files**:
-```bash
-grep -rn --include="*.tex" "% FIX:" $paths 2>/dev/null || true
-```
-
-**Markdown files**:
-```bash
-grep -rn --include="*.md" "<!-- FIX:" $paths 2>/dev/null || true
-```
-
-**Python/Shell/YAML files**:
-```bash
-grep -rn --include="*.py" --include="*.sh" --include="*.yaml" --include="*.yml" "# FIX:" $paths 2>/dev/null || true
-```
-
-#### 3.2: Extract NOTE: Tags
-
-Same patterns as above, replacing `FIX:` with `NOTE:`.
-
-#### 3.3: Extract TODO: Tags
-
-Same patterns as above, replacing `FIX:` with `TODO:`.
-
-#### 3.4: Extract QUESTION: Tags
-
-**Lua files (Neovim config)**:
-```bash
-grep -rn --include="*.lua" "-- QUESTION:" $paths 2>/dev/null || true
-```
-
-**LaTeX files**:
-```bash
-grep -rn --include="*.tex" "% QUESTION:" $paths 2>/dev/null || true
-```
-
-**Markdown files**:
-```bash
-grep -rn --include="*.md" "<!-- QUESTION:" $paths 2>/dev/null || true
-```
-
-**Python/Shell/YAML files**:
-```bash
-grep -rn --include="*.py" --include="*.sh" --include="*.yaml" --include="*.yml" "# QUESTION:" $paths 2>/dev/null || true
-```
-
-#### 3.5: Parse Results
-
-For each grep match, extract:
-- File path
-- Line number
-- Tag type (FIX, NOTE, TODO, QUESTION)
-- Tag content (text after the tag)
-
-Example raw output:
-```
-nvim/lua/plugins/telescope.lua:67:-- TODO: Add custom picker for git worktrees
-docs/KEYMAPS.md:89:<!-- FIX: Update keymap table with new bindings -->
-nvim/lua/config/lsp.lua:45:-- QUESTION: What is the best way to configure LSP hover windows?
-```
-
-Categorize into four arrays:
-- `fix_tags[]` - All FIX: tags
-- `note_tags[]` - All NOTE: tags
-- `todo_tags[]` - All TODO: tags
-- `question_tags[]` - All QUESTION: tags
+Categorize into arrays: `fix_tags[]`, `note_tags[]`, `todo_tags[]`, `question_tags[]`.
 
 ### Step 4: Display Tag Summary
 
@@ -259,294 +197,50 @@ Add a "Select all" option at the top:
 
 If "Select all" is chosen, include all TODOs. Otherwise, only selected items.
 
-### Step 7.5: Topic Grouping for TODO Items
+### Step 7.5: Topic Grouping (Shared Algorithm)
 
-**Condition**: User selected "TODO tasks" AND selected more than 1 TODO item
+This grouping algorithm applies to both TODO items (Step 7.5) and QUESTION items (Step 7.7). Skip if only 1 item selected.
 
-If only 1 TODO item was selected, skip to Step 8 (no grouping benefit).
+**Topic Indicator Extraction** per item:
+- **Key Terms**: Significant words (nouns, verbs), ignoring stop words
+- **File Section**: Group by file path prefix
+- **Action Type**: Inferred from content (Add/Create -> implementation, Fix -> fix, Document -> docs, Test -> testing, Refactor -> improvement). For QUESTION items, action_type is always "research".
 
-#### 7.5.1: Extract Topic Indicators
+**Clustering Algorithm**:
+1. Start with first item as initial group
+2. For each remaining item: add to existing group if shares 2+ key terms OR shares file_section + action_type; otherwise start new group
+3. Generate topic label from most common shared terms
+4. Single-item groups are kept as-is
 
-For each selected TODO item, extract topic indicators:
-
-**Key Terms**: Extract significant words from the TODO content (nouns, verbs). Ignore stop words (the, a, is, to, for, etc.).
-
-**File Section**: Group by file path prefix (e.g., `Logos/Layer1/` vs `Logos/Shared/`).
-
-**Action Type**: Identify common action patterns:
-- "Add/Implement/Create" → implementation tasks
-- "Fix/Handle/Correct" → fix tasks
-- "Document/Update docs" → documentation tasks
-- "Test/Verify" → testing tasks
-- "Refactor/Optimize" → improvement tasks
-
-Example extraction:
-```
-TODO: "Add custom picker for worktrees" at nvim/lua/plugins/telescope.lua:67
-  → key_terms: ["picker", "worktrees", "telescope"]
-  → file_section: "nvim/lua/plugins/"
-  → action_type: "implementation"
-
-TODO: "Add preview window for worktrees" at nvim/lua/plugins/telescope.lua:89
-  → key_terms: ["preview", "worktrees", "telescope"]
-  → file_section: "nvim/lua/plugins/"
-  → action_type: "implementation"
-
-TODO: "Optimize lazy loading" at nvim/lua/config/lazy.lua:23
-  → key_terms: ["optimize", "lazy", "loading"]
-  → file_section: "nvim/lua/config/"
-  → action_type: "improvement"
-```
-
-#### 7.5.2: Cluster TODOs by Shared Terms
-
-Group TODOs that share **2 or more significant terms** or share **file section + action type**.
-
-**Clustering algorithm**:
-1. Start with first TODO as initial group
-2. For each remaining TODO:
-   - If shares 2+ key terms with existing group → add to group
-   - If shares file_section AND action_type with existing group → add to group
-   - Otherwise → start new group
-3. Generate topic label from most common shared terms in group
-
-**Example clustering**:
-```
-Group 1: "Telescope Worktrees" (shared: worktrees, telescope, nvim/lua/plugins/, implementation)
-  - Add custom picker for worktrees
-  - Add preview window for worktrees
-
-Group 2: "Config Optimization" (shared: nvim/lua/config/, improvement)
-  - Optimize lazy loading
-```
-
-**Single-item groups**: If a TODO doesn't cluster with others, it becomes its own single-item group.
-
-#### 7.5.3: Store Grouped Topics
-
-Store the topic groups for use in Step 7.5.4:
-
-```
-topic_groups = [
-  {
-    label: "Telescope Worktrees",
-    items: [
-      {file: "nvim/lua/plugins/telescope.lua", line: 67, content: "Add custom picker for worktrees"},
-      {file: "nvim/lua/plugins/telescope.lua", line: 89, content: "Add preview window for worktrees"}
-    ],
-    shared_terms: ["worktrees", "telescope"],
-    action_type: "implementation"
-  },
-  {
-    label: "Config Optimization",
-    items: [
-      {file: "nvim/lua/config/lazy.lua", line: 23, content: "Optimize lazy loading"}
-    ],
-    shared_terms: [],
-    action_type: "improvement"
-  }
-]
-```
+**Store result**: `topic_groups[]` with `{label, items[], shared_terms[], action_type}`
 
 ### Step 7.5.4: Topic Group Confirmation
 
-**Condition**: topic_groups contains at least one group with 2+ items
+**Condition**: At least one group has 2+ items (otherwise skip -- no grouping benefit).
 
-If all groups have only 1 item, skip to Step 8 (no grouping benefit).
+Present via AskUserQuestion (multiSelect: false):
+- "Accept suggested topic groups" -- Creates {N} grouped tasks
+- "Keep as separate tasks" -- Creates {M} individual tasks
+- "Create single combined task" -- Creates 1 task with all items
 
-Present topic groups via AskUserQuestion:
-
-```json
-{
-  "question": "How should TODO items be grouped into tasks?",
-  "header": "TODO Topic Grouping",
-  "multiSelect": false,
-  "options": [
-    {
-      "label": "Accept suggested topic groups",
-      "description": "Creates {N} grouped tasks: {group_summaries}"
-    },
-    {
-      "label": "Keep as separate tasks",
-      "description": "Creates {M} individual tasks (one per TODO item)"
-    },
-    {
-      "label": "Create single combined task",
-      "description": "Creates 1 task containing all {M} TODO items"
-    }
-  ]
-}
-```
-
-Where:
-- `{N}` = number of topic groups
-- `{M}` = total number of selected TODO items
-- `{group_summaries}` = comma-separated list like "S5 Theorems (2 items), Utility Optimization (1 item)"
-
-**Store user choice**: `grouping_mode = "grouped" | "separate" | "combined"`
+**Store**: `grouping_mode = "grouped" | "separate" | "combined"`
 
 ### Step 7.6: Individual QUESTION Selection
 
-**Condition**: User selected "Research tasks" in Step 6 AND QUESTION: tags exist
+**Condition**: User selected "Research tasks" in Step 6 AND QUESTION: tags exist.
 
-If "Research tasks" was selected AND there are QUESTION: tags:
-
-#### Standard Case (<=20 QUESTIONs)
-
-```json
-{
-  "question": "Select QUESTION items to create as research tasks:",
-  "header": "QUESTION Selection",
-  "multiSelect": true,
-  "options": [
-    {
-      "label": "{content truncated to 50 chars}",
-      "description": "{file}:{line}"
-    },
-    ...
-  ]
-}
-```
-
-#### Large Number of QUESTIONs (>20)
-
-Add a "Select all" option at the top:
-
-```json
-{
-  "question": "Select QUESTION items to create as research tasks:",
-  "header": "QUESTION Selection (many items)",
-  "multiSelect": true,
-  "options": [
-    {
-      "label": "Select all ({N} items)",
-      "description": "Create a research task for every QUESTION tag"
-    },
-    {
-      "label": "{content truncated to 50 chars}",
-      "description": "{file}:{line}"
-    },
-    ...
-  ]
-}
-```
-
-If "Select all" is chosen, include all QUESTIONs. Otherwise, only selected items.
+Same pattern as Step 7 (TODO selection): AskUserQuestion with multiSelect, "Select all" option when >20 items.
 
 ### Step 7.7: Topic Grouping for QUESTION Items
 
-**Condition**: User selected "Research tasks" AND selected more than 1 QUESTION item
+**Condition**: Selected more than 1 QUESTION item.
 
-If only 1 QUESTION item was selected, skip to Step 8 (no grouping benefit).
+Apply the **same algorithm as Step 7.5** with these differences:
+- action_type is always "research"
+- Store result in `question_topic_groups[]`
+- Confirmation prompt uses "research tasks" wording
 
-#### 7.7.1: Extract Topic Indicators
-
-For each selected QUESTION item, extract topic indicators. Use the **same algorithm as Step 7.5.1** (TODO topic extraction):
-
-**Key Terms**: Extract significant words from the QUESTION content (nouns, verbs). Ignore stop words (the, a, is, to, for, etc.).
-
-**File Section**: Group by file path prefix (e.g., `nvim/lua/plugins/` vs `nvim/lua/config/`).
-
-**Action Type**: For QUESTION tags, action_type defaults to "research" for all items (since all are questions to be researched).
-
-Example extraction:
-```
-QUESTION: "What is the best way to configure LSP hover windows?" at nvim/lua/config/lsp.lua:45
-  → key_terms: ["configure", "LSP", "hover", "windows"]
-  → file_section: "nvim/lua/config/"
-  → action_type: "research"
-
-QUESTION: "How do I add custom LSP handlers?" at nvim/lua/config/lsp.lua:89
-  → key_terms: ["custom", "LSP", "handlers"]
-  → file_section: "nvim/lua/config/"
-  → action_type: "research"
-
-QUESTION: "What telescope extensions are available for git worktrees?" at nvim/lua/plugins/telescope.lua:23
-  → key_terms: ["telescope", "extensions", "git", "worktrees"]
-  → file_section: "nvim/lua/plugins/"
-  → action_type: "research"
-```
-
-#### 7.7.2: Cluster QUESTIONs by Shared Terms
-
-Use the **same clustering algorithm as Step 7.5.2** (TODO clustering).
-
-Group QUESTIONs that share **2 or more significant terms** or share **file section** (action_type is always "research" for questions, so only file_section matters for secondary matching).
-
-**Example clustering**:
-```
-Group 1: "LSP Configuration" (shared: LSP, nvim/lua/config/)
-  - What is the best way to configure LSP hover windows?
-  - How do I add custom LSP handlers?
-
-Group 2: "Telescope Extensions" (shared: nvim/lua/plugins/)
-  - What telescope extensions are available for git worktrees?
-```
-
-**Single-item groups**: If a QUESTION doesn't cluster with others, it becomes its own single-item group.
-
-#### 7.7.3: Store Grouped Topics
-
-Store the topic groups for use in Step 7.7.4:
-
-```
-question_topic_groups = [
-  {
-    label: "LSP Configuration",
-    items: [
-      {file: "nvim/lua/config/lsp.lua", line: 45, content: "What is the best way to configure LSP hover windows?"},
-      {file: "nvim/lua/config/lsp.lua", line: 89, content: "How do I add custom LSP handlers?"}
-    ],
-    shared_terms: ["LSP"],
-    action_type: "research"
-  },
-  {
-    label: "Telescope Extensions",
-    items: [
-      {file: "nvim/lua/plugins/telescope.lua", line: 23, content: "What telescope extensions are available for git worktrees?"}
-    ],
-    shared_terms: [],
-    action_type: "research"
-  }
-]
-```
-
-### Step 7.7.4: QUESTION Topic Group Confirmation
-
-**Condition**: question_topic_groups contains at least one group with 2+ items
-
-If all groups have only 1 item, skip to Step 8 (no grouping benefit).
-
-Present topic groups via AskUserQuestion:
-
-```json
-{
-  "question": "How should QUESTION items be grouped into research tasks?",
-  "header": "QUESTION Topic Grouping",
-  "multiSelect": false,
-  "options": [
-    {
-      "label": "Accept suggested topic groups",
-      "description": "Creates {N} grouped research tasks: {group_summaries}"
-    },
-    {
-      "label": "Keep as separate tasks",
-      "description": "Creates {M} individual research tasks (one per QUESTION item)"
-    },
-    {
-      "label": "Create single combined task",
-      "description": "Creates 1 research task containing all {M} QUESTION items"
-    }
-  ]
-}
-```
-
-Where:
-- `{N}` = number of topic groups
-- `{M}` = total number of selected QUESTION items
-- `{group_summaries}` = comma-separated list like "LSP Configuration (2 items), Telescope Extensions (1 item)"
-
-**Store user choice**: `question_grouping_mode = "grouped" | "separate" | "combined"`
+**Store**: `question_grouping_mode = "grouped" | "separate" | "combined"`
 
 ### Step 8: Create Selected Tasks
 
@@ -583,7 +277,7 @@ has_note_dependency = (NOTE: tags exist) AND (user selected both "fix-it task" A
 {
   "title": "Update context files from NOTE: tags",
   "description": "Update {N} context files based on learnings:\n\n{grouped by target context}",
-  "language": "meta",
+  "task_type": "meta",
   "effort": "1-2 hours"
 }
 ```
@@ -600,7 +294,7 @@ Increment: `next_num = next_num + 1`
 {
   "title": "Fix issues from FIX:/NOTE: tags",
   "description": "Address {N} items from embedded tags:\n\n{list of items with file:line references}\n\n**Important**: When making changes, remove the FIX: and NOTE: tags from the source files. Leave TODO: tags untouched (they create separate tasks).",
-  "language": "{predominant language from source files}",
+  "task_type": "{predominant task_type from source files}",
   "effort": "2-4 hours",
   "dependencies": [learn_it_task_num]
 }
@@ -611,7 +305,7 @@ Increment: `next_num = next_num + 1`
 {
   "title": "Fix issues from FIX:/NOTE: tags",
   "description": "Address {N} items from embedded tags:\n\n{list of items with file:line references}\n\n**Important**: When making changes, remove the FIX: and NOTE: tags from the source files. Leave TODO: tags untouched (they create separate tasks).",
-  "language": "{predominant language from source files}",
+  "task_type": "{predominant task_type from source files}",
   "effort": "2-4 hours"
 }
 ```
@@ -632,7 +326,7 @@ else -> "general"
 {
   "title": "Update context files from NOTE: tags",
   "description": "Update {N} context files based on learnings:\n\n{grouped by target context}",
-  "language": "meta",
+  "task_type": "meta",
   "effort": "1-2 hours"
 }
 ```
@@ -651,20 +345,20 @@ For each topic group in `topic_groups`:
 {
   "title": "{topic_label}: {item_count} TODO items",
   "description": "Address TODO items related to {topic_label}:\n\n{item_list}\n\n---\n\nShared context: {shared_terms_description}",
-  "language": "{detected from majority file type in group}",
+  "task_type": "{detected from majority file type in group}",
   "effort": "{scaled_effort}"
 }
 ```
 
 Where:
-- `{topic_label}` = generated label (e.g., "Telescope Worktrees")
+- `{topic_label}` = generated label (e.g., "Database Migrations")
 - `{item_count}` = number of items in group
 - `{item_list}` = formatted list of items:
   ```
   - [ ] {content} (`{file}:{line}`)
   - [ ] {content} (`{file}:{line}`)
   ```
-- `{shared_terms_description}` = brief description of why items are grouped (e.g., "Related to telescope worktree functionality")
+- `{shared_terms_description}` = brief description of why items are grouped (e.g., "Related to database schema changes")
 
 **Effort Scaling Formula**:
 ```
@@ -686,7 +380,7 @@ Create single task containing all selected TODO items:
 {
   "title": "Address {item_count} TODO items",
   "description": "Combined TODO items from scan:\n\n{all_items_list}\n\n---\n\nFiles: {unique_files_list}",
-  "language": "{detected from majority file type}",
+  "task_type": "{detected from majority file type}",
   "effort": "{scaled_effort}"
 }
 ```
@@ -706,14 +400,14 @@ For each selected TODO item individually:
 {
   "title": "{tag content, truncated to 60 chars}",
   "description": "{full tag content}\n\nSource: {file}:{line}",
-  "language": "{detected from file type}",
+  "task_type": "{detected from file type}",
   "effort": "1 hour"
 }
 ```
 
 **Language Detection for Todo-Task** (all modes):
 ```
-.lua (nvim/) -> "neovim"
+.lua -> "general"
 .tex  -> "latex"
 .md   -> "markdown"
 .py/.sh -> "general"
@@ -722,123 +416,17 @@ For each selected TODO item individually:
 
 #### 8.5: Research-Tasks (if selected)
 
-**Condition**: User selected "Research tasks" AND user selected specific QUESTION items
+**Condition**: User selected "Research tasks" AND user selected specific QUESTION items.
 
-**Check question_grouping_mode** (from Step 7.7.4, defaults to "separate" if Step 7.7.4 was skipped):
+Uses `question_grouping_mode` from Step 7.7 (defaults to "separate"). Same grouped/combined/separate modes as TODO tasks (Step 8.4), with these differences:
 
-##### 8.5.1: Content-Based Language Detection for Research Tasks
-
-**IMPORTANT**: Research task language is detected from the **content** of the question, NOT the source file type. This ensures questions are routed to the appropriate research agent based on what is being asked.
-
-**Keyword-to-Language Mapping**:
-
-```
-neovim_keywords = ["nvim", "neovim", "plugin", "lazy", "telescope", "treesitter", "lsp", "buffer", "window", "keymap", "autocmd", "filetype", "lua"]
-latex_keywords = ["theorem", "proof", "lemma", "axiom", "logic", "formula", "derivation", "proposition", "corollary", "latex", "tex"]
-meta_keywords = [".claude", "command", "agent", "skill", "workflow", "state.json", "TODO.md", "specs/"]
-
-function detect_research_language(question_content):
-    content_lower = question_content.lower()
-
-    # Check for neovim keywords
-    for keyword in neovim_keywords:
-        if keyword in content_lower:
-            return "neovim"
-
-    # Check for latex keywords
-    for keyword in latex_keywords:
-        if keyword in content_lower:
-            return "latex"
-
-    # Check for meta keywords
-    for keyword in meta_keywords:
-        if keyword in content_lower:
-            return "meta"
-
-    # Default to general for all other cases
-    return "general"
-```
-
-**Examples**:
-- "What is the best way to configure LSP hover windows?" → neovim (contains "LSP")
-- "How do I prove this theorem about completeness?" → latex (contains "theorem")
-- "What is the difference between a skill and an agent?" → meta (contains "skill", "agent")
-- "What are the best practices for API design?" → general (no matching keywords)
-
-##### 8.5.2: Grouped Mode (question_grouping_mode == "grouped")
-
-For each topic group in `question_topic_groups`:
-
-```json
-{
-  "title": "{topic_label}: {item_count} research questions",
-  "description": "Research questions related to {topic_label}:\n\n{question_list}\n\n---\n\nShared context: {shared_terms_description}",
-  "language": "{detected from majority question content in group}",
-  "effort": "{scaled_effort}"
-}
-```
-
-Where:
-- `{topic_label}` = generated label (e.g., "LSP Configuration")
-- `{item_count}` = number of items in group
-- `{question_list}` = formatted list of questions using blockquote syntax:
-  ```
-  > {question text}
-  > Source: `{file}:{line}`
-
-  > {question text}
-  > Source: `{file}:{line}`
-  ```
-- `{shared_terms_description}` = brief description of why questions are grouped
-
-**Effort Scaling Formula** (research tasks use slightly higher base):
-```
-base_effort = 1.5 hours (research requires more exploration)
-scaled_effort = base_effort + (30 min * (item_count - 1))
-
-Examples:
-  1 item  → 1-2 hours
-  2 items → 2 hours (1.5h + 30min)
-  3 items → 2.5 hours (1.5h + 60min)
-  4 items → 3 hours (1.5h + 90min)
-```
-
-**Language Detection for Grouped Mode**: Analyze all question content in the group, use the most frequently detected language. If tie, default to "general".
-
-##### 8.5.3: Combined Mode (question_grouping_mode == "combined")
-
-Create single task containing all selected QUESTION items:
-
-```json
-{
-  "title": "Research: {item_count} questions",
-  "description": "Research questions from scan:\n\n{all_questions_list}\n\n---\n\nFiles: {unique_files_list}",
-  "language": "{detected from majority question content}",
-  "effort": "{scaled_effort}"
-}
-```
-
-Where:
-- `{item_count}` = total number of selected QUESTION items
-- `{all_questions_list}` = formatted list of all questions with blockquotes
-- `{unique_files_list}` = comma-separated list of unique source files
-
-**Effort Scaling**: Same formula as grouped mode.
-
-##### 8.5.4: Separate Mode (question_grouping_mode == "separate" or default)
-
-For each selected QUESTION item individually:
-
-```json
-{
-  "title": "Research: {question content, truncated to 60 chars}",
-  "description": "> {full question text}\n\nSource: `{file}:{line}`",
-  "language": "{detected from question content}",
-  "effort": "1-2 hours"
-}
-```
-
-**Language Detection**: Apply content-based detection (Step 8.5.1) to the individual question.
+- **Language detection is content-based** (not file-based): Match question text against keyword lists:
+  - latex: theorem, proof, lemma, axiom, logic, formula, derivation, proposition, corollary, latex, tex
+  - meta: .claude, command, agent, skill, workflow, state.json, TODO.md, specs/
+  - Default: "general"
+- **Effort base**: 1.5 hours (vs 1 hour for TODO tasks), same +30min scaling per additional item
+- **Title prefix**: "Research: {content}" for separate mode
+- **Description format**: Uses blockquote syntax (`> {question text}`) instead of checkboxes
 
 ### Step 9: Update State Files
 
@@ -866,7 +454,7 @@ current=$(cat specs/state.json)
   "project_number": {N},
   "project_name": "{slug}",
   "status": "not_started",
-  "language": "{language}",
+  "task_type": "{task_type}",
   "dependencies": [learn_it_task_num]
 }
 ```
@@ -882,7 +470,7 @@ Prepend new task entry to `## Tasks` section (new tasks at top):
 ### {N}. {Title}
 - **Effort**: {estimate}
 - **Status**: [NOT STARTED]
-- **Language**: {language}
+- **Task Type**: {task_type}
 - **Started**: {timestamp}
 
 **Description**: {description}
@@ -895,7 +483,7 @@ Prepend new task entry to `## Tasks` section (new tasks at top):
 ### {N}. {Title}
 - **Effort**: {estimate}
 - **Status**: [NOT STARTED]
-- **Language**: {language}
+- **Task Type**: {task_type}
 - **Dependencies**: {learn_it_task_num}
 - **Started**: {timestamp}
 
@@ -940,66 +528,19 @@ git add specs/TODO.md specs/state.json
 git commit -m "fix-it: create $task_count tasks from tags
 
 Session: $session_id
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---
 
 ## Error Handling
 
-### Path Access Errors
+See `rules/error-handling.md` for general patterns. Skill-specific behaviors:
 
-When paths don't exist or can't be accessed:
-1. Log warning for each invalid path
-2. Continue with valid paths
-3. If no valid paths remain, report and exit
-
-### No Tags Found
-
-This is NOT an error condition:
-- Report informatively
-- Exit without prompts
-
-### state.json Update Failure
-
-If jq fails:
-1. Log error with command and output
-2. Try two-step jq pattern
-3. If still failing, report partial success (tags found but tasks not created)
-
-### TODO.md Parse Error
-
-If TODO.md format is corrupted:
-1. Log error
-2. Skip TODO.md update
-3. State.json update may still succeed
-4. Report partial success
-
-### Git Commit Failure
-
-Non-blocking:
-1. Log the failure
-2. Tasks are still created successfully
-3. Report that commit failed but tasks exist
-
----
+- **Path access errors**: Log warning per invalid path, continue with valid ones; exit if none remain
+- **No tags found**: Not an error -- report informatively and exit without prompts
+- **state.json/TODO.md failures**: Try two-step jq pattern; report partial success if still failing
+- **Git commit failure**: Non-blocking (tasks still created)
 
 ## Standards Reference
 
-This skill implements the multi-task creation pattern. See `.claude/docs/reference/standards/multi-task-creation-standard.md` for the complete standard.
-
-**Compliance Level**: Full (all required components)
-
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Discovery | Yes | Tag scanning (FIX:, NOTE:, TODO:, QUESTION:) |
-| Selection | Yes | AskUserQuestion with multiSelect |
-| Grouping | Yes | Topic clustering (Step 7.5 for TODO, Step 7.7 for QUESTION) |
-| Dependencies | Partial | Internal only (learn-it -> fix-it in Step 8.2) |
-| Ordering | No | Sequential creation |
-| Visualization | No | Not implemented |
-| Confirmation | Yes | Implicit via selection |
-| State Updates | Yes | Atomic updates (Step 9) |
-
-**Limitation**: External dependencies (TODO tasks depending on existing tasks) not implemented. Consider as future enhancement.
+Implements the multi-task creation pattern (full compliance). See `.claude/docs/reference/standards/multi-task-creation-standard.md`.

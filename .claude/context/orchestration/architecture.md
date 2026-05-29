@@ -179,7 +179,7 @@ Command File: Return to orchestrator
 **Key Characteristics**:
 - **Specialized**: Each subagent has a single, well-defined purpose
 - **Stateless**: No persistent state between invocations
-- **Standardized**: All returns follow subagent-return-format.md
+- **Standardized**: All returns follow subagent-return.md
 - **Composable**: Can be combined in different workflows
 - **Testable**: Clear inputs and outputs
 
@@ -189,7 +189,7 @@ Command File: Return to orchestrator
    - `researcher`: Conduct research, create reports
    - `planner`: Create implementation plans
    - `implementer`: Execute implementation phases
-   - `neovim-implementation-agent`: Execute Neovim-specific implementations
+   - Extension-provided agents for domain-specific implementations
    - `reviewer`: Review code and documentation
 
 2. **State Managers**:

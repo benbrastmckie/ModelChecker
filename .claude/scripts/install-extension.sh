@@ -226,7 +226,7 @@ merge_index_entries() {
         line_count: (.line_count // 100),
         load_when: {
           agents: (.load_when.agents // []),
-          languages: (.load_when.languages // [])
+          task_types: (.load_when.task_types // [])
         }
       })) | .generated = (now | strftime("%Y-%m-%dT%H:%M:%SZ"))
     ' "$main_index" > specs/tmp/merged-index.json

@@ -77,8 +77,8 @@ Use AskUserQuestion with multiSelect for item selection.
   "header": "TODO Selection",
   "multiSelect": true,
   "options": [
-    {"label": "Add LSP configuration", "description": "nvim/lua/plugins/lsp.lua:67"},
-    {"label": "Implement helper function", "description": "utils/helpers.lua:23"}
+    {"label": "Add API configuration", "description": "src/config/api.py:67"},
+    {"label": "Implement helper function", "description": "src/utils/helpers.py:23"}
   ]
 }
 ```
@@ -267,7 +267,7 @@ Always show task summary and require explicit confirmation before creating tasks
 ```markdown
 **Tasks to Create** ({N} total):
 
-| # | Title | Language | Effort | Dependencies |
+| # | Title | Task Type | Effort | Dependencies |
 |---|-------|----------|--------|--------------|
 | 37 | Add sorting | meta | 2h | None |
 | 38 | Update insertion | meta | 1h | Task #37 |
@@ -290,6 +290,13 @@ Always show task summary and require explicit confirmation before creating tasks
 
 **Mandatory**: User MUST explicitly select "Yes, create tasks" before any tasks are created.
 
+**Foreground Requirement**: Confirmation MUST execute in the foreground skill layer (not inside a delegated background agent). `AskUserQuestion` called from background agents (spawned via Task tool) does not reliably surface to users. Skills that delegate to agents for task creation must complete all confirmation steps before spawning the agent. The correct pattern:
+1. Skill performs item discovery, proposal, and confirmation via `AskUserQuestion` (foreground)
+2. On user confirmation, skill passes `mode=confirmed` + `confirmed_tasks=[...]` to the agent
+3. Agent creates tasks without any interactive prompts
+
+Reference implementation: `skill-meta` Stage 2.5 (Pre-Confirmation) + `meta-builder-agent` Stage 3D (Confirmed Task Creation).
+
 ### 8. State Updates (Required)
 
 Update state.json and TODO.md atomically with correct dependency information.
@@ -300,7 +307,7 @@ Update state.json and TODO.md atomically with correct dependency information.
   "project_number": 36,
   "project_name": "task_slug",
   "status": "not_started",
-  "language": "meta",
+  "task_type": "meta",
   "dependencies": [35, 34],
   "created": "2026-02-03T12:00:00Z",
   "last_updated": "2026-02-03T12:00:00Z"
@@ -312,7 +319,7 @@ Update state.json and TODO.md atomically with correct dependency information.
 ### 36. Task Title
 - **Effort**: 2 hours
 - **Status**: [NOT STARTED]
-- **Language**: meta
+- **Task Type**: meta
 - **Dependencies**: Task #35, Task #34
 
 **Description**: Task description here.
@@ -370,31 +377,27 @@ The `/meta` command and `meta-builder-agent` implement all 8 components plus enh
 | Ordering | Interview Stage 6 (Kahn's algorithm) |
 | Visualization | Interview Stage 7 (DeliverSummary with graph) |
 | Confirmation | Interview Stage 5 (mandatory confirmation) |
-| **Research Generation** | **Interview Stage 5.5 (GenerateResearchArtifacts)** |
-| State Updates | Interview Stage 6 (batch insertion with RESEARCHED status) |
+| State Updates | Interview Stage 6 (batch insertion with NOT STARTED status) |
 
 **Enhanced Stages** (added for Task Minimization Principle):
 - **Stage 3.5 (AnalyzeTopics)**: Extracts topic indicators, clusters by shared terms/components, presents consolidation picker
-- **Stage 5.5 (GenerateResearchArtifacts)**: Creates `01_meta-research.md` from interview context for each task
 
 See `.claude/agents/meta-builder-agent.md` for complete implementation details.
 
 ## Current Compliance Status
 
-| Command | Required | Grouping | Dependencies | Ordering | Visualization | Research Gen |
-|---------|----------|----------|--------------|----------|---------------|--------------|
-| `/meta` | Yes | **Automatic** | Full DAG | Kahn's | Linear/Layered | **Yes** |
-| `/fix-it` | Yes | Yes | Internal only | No | No | No |
-| `/review` | Yes | Yes | No | No | No | No |
-| `/errors` | Partial* | No | No | No | No | No |
-| `/task --review` | Yes | No | parent_task | No | No | No |
+| Command | Required | Grouping | Dependencies | Ordering | Visualization |
+|---------|----------|----------|--------------|----------|---------------|
+| `/meta` | Yes | **Automatic** | Full DAG | Kahn's | Linear/Layered |
+| `/fix-it` | Yes | Yes | Internal only | No | No |
+| `/review` | Yes | Yes | No | No | No |
+| `/errors` | Partial* | No | No | No | No |
+| `/task --review` | Yes | No | parent_task | No | No |
 
 *`/errors` creates tasks automatically without interactive selection (intentional for error triage workflow).
 
 **Enhanced `/meta` Features**:
 - **Automatic Topic Clustering** (Stage 3.5): Proactively analyzes user-provided task breakdown and suggests consolidation opportunities
-- **Research Artifact Generation** (Stage 5.5): Creates lightweight research reports from interview context
-- **RESEARCHED Status**: Tasks start in `researched` status, enabling immediate `/plan N` without separate `/research N`
 
 ## Gaps and Future Enhancements
 

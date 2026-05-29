@@ -45,14 +45,14 @@ START: What capability do you need?
 | User types `/something` to trigger it | YES |
 | It is a new workflow operation (not variant) | YES |
 | Operation spans multiple tasks or has utility function | YES |
-| Just adding language variant (e.g., Python research) | NO - use existing command |
+| Just adding language variant (e.g., Rust research) | NO - use existing command |
 | Internal-only capability | NO - create skill/agent only |
 
 ### Create a Skill When...
 
 | Criterion | Decision |
 |-----------|----------|
-| New language support (e.g., Python, Rust) | YES |
+| New language support (e.g., Rust, Go) | YES |
 | Specialized domain handling | YES |
 | Need input validation before agent execution | YES |
 | Direct execution with no agent needed | YES (skill-status-sync pattern) |
@@ -114,7 +114,7 @@ routing:
 ---
 name: skill-{name}
 description: {One-line description}
-allowed-tools: Task
+allowed-tools: Agent
 context: fork
 agent: {agent-name}
 ---
@@ -124,11 +124,11 @@ agent: {agent-name}
 - [ ] Trigger conditions section
 - [ ] Input validation section
 - [ ] Context preparation section (session_id generation)
-- [ ] Agent invocation section (MUST use Task tool, not Skill tool)
+- [ ] Agent invocation section (MUST use Agent tool, not Skill tool)
 - [ ] Return validation section
 - [ ] Error handling section
 
-**Critical**: Always use Task tool to invoke agents.
+**Critical**: Always use Agent tool to invoke agents.
 
 **File location**: `.claude/skills/skill-{name}/SKILL.md`
 
@@ -185,11 +185,11 @@ When: Creating entirely new command workflow (e.g., /analyze)
 
 ### Pattern 2: New Language Support
 
-When: Adding support for a new language (e.g., Python)
+When: Adding support for a new language (e.g., Rust)
 
 **Creates**:
-1. Skill: `.claude/skills/skill-python-research/SKILL.md`
-2. Agent: `.claude/agents/python-research-agent.md`
+1. Skill: `.claude/skills/skill-rust-research/SKILL.md`
+2. Agent: `.claude/agents/rust-research-agent.md`
 
 **Uses existing**: `/research` command routes by language
 
@@ -245,7 +245,7 @@ When: Need atomic operation without full agent
 |-------|----------|-------------|
 | `name` | Yes | `skill-{name}` format |
 | `description` | Yes | One-line description |
-| `allowed-tools` | Yes | Usually `Task` for thin wrappers |
+| `allowed-tools` | Yes | Usually `Agent` for thin wrappers |
 | `context` | Yes | Usually `fork` to avoid eager loading |
 | `agent` | Yes | Target agent name |
 
@@ -276,8 +276,8 @@ head -20 .claude/commands/{name}.md
 # Check directory and file exist
 ls -la .claude/skills/skill-{name}/SKILL.md
 
-# Verify uses Task tool, not Skill tool
-grep -n "Task tool" .claude/skills/skill-{name}/SKILL.md
+# Verify uses Agent tool, not Skill tool
+grep -n "Agent tool" .claude/skills/skill-{name}/SKILL.md
 ```
 
 ### Agent Validation
@@ -314,16 +314,16 @@ description: Does specific things for a purpose
 ...
 ```
 
-### 2. Skill Using Skill Tool Instead of Task Tool
+### 2. Skill Using Skill Tool Instead of Agent Tool
 
 **Wrong**: Skill invokes agent via Skill tool
 ```markdown
 Use Skill(lean-research-agent) to execute...
 ```
 
-**Right**: Skill invokes agent via Task tool
+**Right**: Skill invokes agent via Agent tool
 ```markdown
-Use Task tool with subagent_type: lean-research-agent
+Use Agent tool with subagent_type: lean-research-agent
 ```
 
 ### 3. Agent Returning "completed" Status

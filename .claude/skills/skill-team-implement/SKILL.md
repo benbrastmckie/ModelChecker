@@ -1,12 +1,12 @@
 ---
 name: skill-team-implement
 description: Orchestrate multi-agent implementation with parallel phase execution. Spawns teammates for independent phases and coordinates dependent phases. Includes debugger teammate for error recovery.
-allowed-tools: Task, Bash, Edit, Read, Write, Glob
-# This skill uses TeammateTool for team coordination (available when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)
+allowed-tools: Agent, Bash, Edit, Read, Write, Glob
+# This skill uses Agent tool for team coordination (available when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)
 # Context loaded by lead during coordination:
 #   - .claude/context/patterns/team-orchestration.md
 #   - .claude/context/formats/team-metadata-extension.md
-#   - .claude/utils/team-wave-helpers.md
+#   - .claude/context/reference/team-wave-helpers.md
 ---
 
 # Team Implement Skill
@@ -21,7 +21,7 @@ Reference (load as needed during coordination):
 - Path: `.claude/context/patterns/team-orchestration.md` - Wave coordination patterns
 - Path: `.claude/context/formats/team-metadata-extension.md` - Team result schema
 - Path: `.claude/context/formats/return-metadata-file.md` - Base metadata schema
-- Path: `.claude/utils/team-wave-helpers.md` - Reusable wave patterns
+- Path: `.claude/context/reference/team-wave-helpers.md` - Reusable wave patterns
 
 ## Trigger Conditions
 
@@ -39,6 +39,15 @@ This skill activates when:
 | `resume_phase` | integer | No | Phase to resume from |
 | `team_size` | integer | No | Max concurrent teammates (2-4, default 2) |
 | `session_id` | string | Yes | Session ID for tracking |
+| `model_flag` | string | No | Model override (haiku, sonnet, opus). If set, use instead of default |
+| `effort_flag` | string | No | Effort level (fast, hard). Passed as prompt context |
+
+**Model Selection**: Determine teammate model early:
+```bash
+# Use model_flag if provided, otherwise default to sonnet (cost-effective for team mode)
+teammate_model="${model_flag:-sonnet}"
+model_preference_line="Model preference: Use Claude ${teammate_model^} 4.6 for this task."
+```
 
 ---
 
@@ -62,7 +71,7 @@ if [ -z "$task_data" ]; then
 fi
 
 # Extract fields
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 project_name=$(echo "$task_data" | jq -r '.project_name')
 
@@ -181,53 +190,83 @@ run_padded=$(printf "%02d" "$artifact_number")
 
 ### Stage 5: Analyze Phase Dependencies
 
-Parse implementation plan to identify parallelization opportunities:
+Parse implementation plan to identify parallelization opportunities. Prefer explicit dependency data from the plan; fall back to heuristic inference for older plans.
+
+**Primary: Explicit dependencies** (plans with `**Depends on**:` fields per phase):
 
 ```bash
-# Extract phases and their dependencies
-# Phases with no unfinished dependencies can run in parallel
-
-# Phase structure analysis:
-# - Phase status: [NOT STARTED], [IN PROGRESS], [COMPLETED], [PARTIAL]
-# - Dependencies: Listed in phase or inferred from file modifications
-
-# Build dependency graph
+# Parse explicit "**Depends on**:" fields from each phase
 dependency_graph = {}
-for phase in phases:
-  dependency_graph[phase.number] = {
-    "status": phase.status,
-    "depends_on": phase.dependencies,
-    "files": phase.files_modified
-  }
+has_explicit_deps = false
 
-# Find parallelizable phases (no unfinished dependencies)
-parallel_phases = [p for p in phases
-                   if all(dep_status == "completed" for dep in p.dependencies)]
+for phase in phases:
+  depends_on_field = parse_field(phase, "Depends on")
+  if depends_on_field is not None:
+    has_explicit_deps = true
+    if depends_on_field == "none":
+      deps = []
+    else:
+      deps = [int(x.strip()) for x in depends_on_field.split(",")]
+    dependency_graph[phase.number] = {
+      "status": phase.status,
+      "depends_on": deps
+    }
 ```
 
-**Dependency Analysis**:
-- Explicit dependencies from plan metadata
+**Fallback: Heuristic inference** (plans without explicit dependency fields):
+
+```bash
+if not has_explicit_deps:
+  # Build dependency graph from file overlap analysis
+  dependency_graph = {}
+  for phase in phases:
+    dependency_graph[phase.number] = {
+      "status": phase.status,
+      "depends_on": infer_from_file_overlap(phase, phases),
+      "files": phase.files_modified
+    }
+```
+
+**Heuristic signals** (fallback only):
 - Implicit dependencies from file modifications (phases modifying same files are dependent)
 - Cross-phase imports or references
+
+> **CRITICAL: Plan-Text-Only Analysis** -- Stage 5 analyzes dependencies using file paths and phase descriptions extracted from the plan text. The lead agent MUST NOT read, grep, or glob source files to infer dependencies. All signals come from parsing the plan document itself. Actual source file reading is the exclusive responsibility of phase implementer sub-agents.
 
 ---
 
 ### Stage 6: Calculate Implementation Waves
 
-Group phases into waves based on dependencies:
+**Primary: Read wave table from plan** (plans with `**Dependency Analysis**` table):
 
 ```
-Wave 1: Phases with no unfinished dependencies
-Wave 2: Phases depending on Wave 1
-Wave 3: Phases depending on Wave 2
-...
+# Parse the Dependency Analysis table from the plan
+# Format: | Wave | Phases | Blocked by |
+waves = parse_dependency_analysis_table(plan)
 
-Example:
-  Plan has phases 1, 2, 3, 4, 5, 6
-  Phase 1, 2, 3: No dependencies -> Wave 1 (parallel)
-  Phase 4: Depends on 1, 2 -> Wave 2
-  Phase 5: Depends on 3 -> Wave 2
-  Phase 6: Depends on 4, 5 -> Wave 3 (sequential after Wave 2)
+if waves is not empty:
+  # Use pre-computed wave groupings directly
+  # Example parsed result:
+  #   Wave 1: [1]        (blocked by: --)
+  #   Wave 2: [2, 3]     (blocked by: 1)
+  #   Wave 3: [4]        (blocked by: 2, 3)
+```
+
+**Fallback: Compute from dependency graph** (plans without wave table):
+
+```
+if waves is empty:
+  # Topological grouping from dependency_graph (Stage 5 output)
+  Wave 1: Phases with no unfinished dependencies
+  Wave 2: Phases depending on Wave 1
+  Wave 3: Phases depending on Wave 2
+  ...
+
+  Example:
+    Phase 1, 2, 3: No dependencies -> Wave 1 (parallel)
+    Phase 4: Depends on 1, 2 -> Wave 2
+    Phase 5: Depends on 3 -> Wave 2
+    Phase 6: Depends on 4, 5 -> Wave 3
 ```
 
 ---
@@ -235,6 +274,8 @@ Example:
 ### Stage 7: Spawn Phase Implementers
 
 For each wave, spawn teammates for parallelizable phases (up to team_size):
+
+> **CRITICAL: Template Population from Plan Text Only** -- All template variables (`{phase_details}`, `{files_list}`, `{steps_from_plan}`, `{verification_criteria}`) MUST be populated by extracting text from the plan file. The lead agent MUST NOT read source files, run grep/glob, or use MCP tools to populate these fields. The sub-agent will read source files after it is spawned.
 
 **Phase Implementer Prompt Template**:
 ```
@@ -272,31 +313,48 @@ If build/test fails:
 
 ### Stage 8: Wave Execution Loop
 
-Execute waves sequentially, phases within wave in parallel:
+Execute waves sequentially, phases within wave in parallel. Detect Y-shaped
+dependency patterns: when a single-phase "trunk" wave precedes a multi-phase
+"branching" wave, execute the trunk with a single agent before spawning
+parallel teammates for the branching waves.
 
 ```
+# Y-shaped detection: classify each wave as trunk or branching
+# A trunk wave has 1 phase and is followed by a wave with 2+ phases
+for i, wave in enumerate(waves):
+  next_wave = waves[i+1] if i+1 < len(waves) else None
+  wave.is_trunk = (len(wave.phases) == 1 and
+                   next_wave is not None and
+                   len(next_wave.phases) > 1)
+
 for wave in waves:
-  # Spawn teammates for this wave (up to team_size concurrent)
-  active_teammates = []
-  for phase in wave.phases[:team_size]:
-    teammate = spawn_phase_implementer(phase)
-    active_teammates.append(teammate)
+  if wave.is_trunk:
+    # Trunk wave: execute single phase directly (no team spawning)
+    phase = wave.phases[0]
+    execute_phase_directly(phase)  # single agent, no teammate overhead
+    mark_phase_complete(phase)
+  else:
+    # Branching or standard wave: spawn parallel teammates
+    active_teammates = []
+    for phase in wave.phases[:team_size]:
+      teammate = spawn_phase_implementer(phase)
+      active_teammates.append(teammate)
 
-  # Wait for wave completion
-  while not all_complete(active_teammates):
-    for teammate in active_teammates:
-      if teammate.complete():
-        result = teammate.result
-        if result.error:
-          # Spawn debugger for this phase
-          spawn_debugger(phase, result.error)
-        else:
-          mark_phase_complete(phase)
+    # Wait for wave completion
+    while not all_complete(active_teammates):
+      for teammate in active_teammates:
+        if teammate.complete():
+          result = teammate.result
+          if result.error:
+            # Spawn debugger for this phase
+            spawn_debugger(phase, result.error)
+          else:
+            mark_phase_complete(phase)
 
-    # Spawn additional teammates if slots available
-    remaining_phases = wave.phases[len(active_teammates):]
-    for phase in remaining_phases[:team_size - len(active)]:
-      spawn_phase_implementer(phase)
+      # Spawn additional teammates if slots available
+      remaining_phases = wave.phases[len(active_teammates):]
+      for phase in remaining_phases[:team_size - len(active)]:
+        spawn_phase_implementer(phase)
 
   # Commit wave progress
   git_commit_wave(wave)
@@ -349,8 +407,6 @@ git add \
 git commit -m "task ${task_number}: complete wave ${wave_num} (phases ${phase_list})
 
 Session: ${session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -439,6 +495,14 @@ jq --arg path "specs/${padded_num}_${project_name}/summaries/${run_padded}_imple
   specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
 
+**Update TODO.md**: Link artifact using the automated script:
+
+```bash
+bash .claude/scripts/link-artifact-todo.sh $task_number '**Summary**' '**Description**' "$artifact_path"
+```
+
+If the script exits non-zero, log a warning but continue (linking errors are non-blocking).
+
 ---
 
 ### Stage 13: Write Metadata File
@@ -466,8 +530,7 @@ Write team execution metadata:
     "degraded_to_single": false
   },
   "completion_data": {
-    "completion_summary": "Brief description of what was implemented",
-    "claudemd_suggestions": "Changes to .claude/ (meta tasks) or 'none'"
+    "completion_summary": "Brief description of what was implemented"
   },
   "metadata": {
     "session_id": "{session_id}",
@@ -495,8 +558,6 @@ git add \
 git commit -m "task ${task_number}: complete team implementation
 
 Session: ${session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -594,13 +655,15 @@ Team implementation partially completed for task 412:
 
 ## MUST NOT (Postflight Boundary)
 
-After teammates complete phase execution, this skill MUST NOT:
+After teammates complete phase execution -- whether with status implemented, partial, or failed -- this skill MUST proceed immediately to postflight operations. The skill MUST NOT:
 
 1. **Edit source files** - All implementation work is done by teammates
 2. **Run build/test commands** - Verification is done by teammates
 3. **Use MCP tools** - Domain tools are for teammate use only
 4. **Analyze or grep source** - Analysis is teammate work
 5. **Write summary/reports** - Artifact creation is done by teammates
+
+> **PROHIBITION**: If a teammate returned partial or failed status, the lead skill MUST NOT attempt to continue, complete, or "fill in" the teammate's work. Report the partial/failed status and let the user re-run `/implement` to resume.
 
 The postflight phase is LIMITED TO:
 - Reading teammate metadata files
@@ -611,3 +674,22 @@ The postflight phase is LIMITED TO:
 - Cleanup of temp/marker files
 
 Reference: @.claude/context/standards/postflight-tool-restrictions.md
+
+---
+
+## MUST NOT (Pre-Delegation Boundary)
+
+Before spawning phase implementer teammates, this skill MUST NOT:
+
+1. **Read source files** - Source files are read by sub-agents, not the lead
+2. **Grep or glob the codebase** - Codebase exploration is sub-agent work
+3. **Use MCP tools** - Domain tools (LSP, build, etc.) are for sub-agent use only
+4. **Analyze source code** - Code analysis belongs to phase implementers
+5. **Run build or test commands** - Verification is done by sub-agents
+
+The pre-delegation phase is LIMITED TO:
+- Reading the plan file to extract phases, dependencies, and template variables
+- Reading state.json and TODO.md for status updates
+- Parsing phase dependency graphs from plan text
+- Populating prompt templates with plan-extracted content
+- Spawning sub-agents with delegation context

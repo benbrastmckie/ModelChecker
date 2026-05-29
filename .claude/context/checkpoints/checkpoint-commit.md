@@ -19,8 +19,6 @@ Format depends on operation:
 task {N}: complete research
 
 Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 **Plan:**
@@ -28,8 +26,6 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 task {N}: create implementation plan
 
 Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 **Implementation (complete):**
@@ -37,8 +33,6 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 task {N}: complete implementation
 
 Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 **Implementation (partial):**
@@ -46,8 +40,6 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 task {N}: partial implementation (phases 1-{M} of {total})
 
 Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 **Implementation (phase):**
@@ -55,8 +47,6 @@ Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 task {N} phase {P}: {phase_name}
 
 Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 ### 3. Create Commit

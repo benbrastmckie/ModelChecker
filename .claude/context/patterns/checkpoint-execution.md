@@ -61,18 +61,18 @@ session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
 1. Determine target skill by language
 2. Prepare delegation context (session_id, depth, path)
 3. Invoke skill
-4. Skill invokes agent via Task tool
+4. Skill invokes agent via Agent tool
 5. Agent creates artifacts
 6. Return structured result (JSON or metadata file)
 
 **Language Routing**:
-| Language | Research | Planning | Implementation |
+| Task Type | Research | Planning | Implementation |
 |----------|----------|----------|----------------|
-| neovim | skill-neovim-research | skill-planner | skill-neovim-implementation |
 | general | skill-researcher | skill-planner | skill-implementer |
 | meta | skill-researcher | skill-planner | skill-implementer |
+| _{extension}_ | _Extension-provided_ | skill-planner | _Extension-provided_ |
 
-**Note**: Additional languages (latex, typst) available via extensions.
+**Note**: Extensions add task type routing entries. See `.claude/extensions/*/manifest.json`.
 
 ---
 
@@ -121,8 +121,6 @@ fi
 task {N}: {action}
 
 Session: {session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 **Action Values**:

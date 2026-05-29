@@ -1,7 +1,7 @@
 ---
 name: spawn-agent
 description: Analyzes blocked tasks, researches blockers, and proposes minimal new tasks to overcome the blocker
-model: opus
+model: sonnet
 tools:
   - Read
   - Write
@@ -14,41 +14,11 @@ tools:
 
 ## Overview
 
-Blocker analysis and task decomposition agent for the /spawn workflow. Invoked by `skill-spawn` via the forked subagent pattern. Analyzes what is blocking a task, identifies root causes, and proposes a minimal set of new tasks to overcome the blocker with explicit dependency reasoning.
-
-**IMPORTANT**: This agent writes metadata to a file instead of returning JSON to the console. The invoking skill reads this file during postflight operations.
-
-## Agent Metadata
-
-- **Name**: spawn-agent
-- **Purpose**: Analyze blocked tasks and propose minimal new tasks to overcome blockers
-- **Invoked By**: skill-spawn (via Task tool)
-- **Return Format**: Brief text summary + metadata files (.spawn-return.json and report)
-
-## Allowed Tools
-
-This agent has access to:
-
-### File Operations
-- Read - Read task context, plans, research reports, existing artifacts
-- Write - Create blocker analysis report and spawn return file
-- Glob - Find files by pattern (plans, reports, summaries)
-- Grep - Search file contents for context
-
-### Data Queries
-- Bash(jq:*) - Query state.json for task data
-
-### Note
-No web tools - spawn analysis is based on existing task context and artifacts. No state writes - the skill handles all state.json and TODO.md updates.
+Blocker analysis and task decomposition agent for the /spawn workflow. Analyzes what is blocking a task, identifies root causes, and proposes a minimal set of new tasks to overcome the blocker with explicit dependency reasoning.
 
 ## Context References
 
-Load these on-demand using @-references:
-
-**Always Load**:
-- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema
-
-**Load for Analysis**:
+- `@.claude/context/formats/return-metadata-file.md` - Metadata file schema (always load)
 - `@.claude/CLAUDE.md` - Project configuration and conventions
 - `@.claude/context/standards/tasks.md` - Task structure guidelines
 
@@ -56,59 +26,15 @@ Load these on-demand using @-references:
 
 ### Stage 0: Write Early Metadata
 
-**CRITICAL**: Create metadata file BEFORE any substantive work. This ensures metadata exists even if the agent is interrupted.
-
-1. Ensure task directory exists:
-   ```bash
-   mkdir -p "specs/{NNN}_{SLUG}"
-   ```
-
-2. Write initial metadata to `specs/{NNN}_{SLUG}/.return-meta.json`:
-   ```json
-   {
-     "status": "in_progress",
-     "started_at": "{ISO8601 timestamp}",
-     "artifacts": [],
-     "partial_progress": {
-       "stage": "initializing",
-       "details": "Agent started, analyzing blocker"
-     },
-     "metadata": {
-       "session_id": "{from delegation context}",
-       "agent_type": "spawn-agent",
-       "delegation_depth": 2,
-       "delegation_path": ["orchestrator", "spawn", "skill-spawn", "spawn-agent"]
-     }
-   }
-   ```
-
-3. **Why this matters**: If agent is interrupted at ANY point after this, the metadata file will exist and skill postflight can detect the interruption and provide guidance for resuming.
+**CRITICAL**: Create `specs/{NNN}_{SLUG}/.return-meta.json` with `"status": "in_progress"` BEFORE any substantive work. Use `agent_type: "spawn-agent"` and `delegation_path: ["orchestrator", "spawn", "skill-spawn", "spawn-agent"]`. See `return-metadata-file.md` for full schema.
 
 ### Stage 1: Load Context
 
-Extract from delegation context:
-```json
-{
-  "session_id": "sess_...",
-  "task_number": N,
-  "task_data": {
-    "project_number": N,
-    "project_name": "slug",
-    "status": "blocked",
-    "language": "meta",
-    "description": "...",
-    "effort": "..."
-  },
-  "artifact_number": "02",
-  "blocker_prompt": "optional user description of blocker",
-  "plan_path": "path/to/latest/plan or null",
-  "metadata_file_path": "specs/{NNN}_{SLUG}/.return-meta.json"
-}
-```
-
-**Artifact Naming**:
-- Use `artifact_number` from delegation context for the `{NN}` prefix in report path
-- Report path: `specs/{NNN}_{SLUG}/reports/{NN}_spawn-analysis.md`
+Extract standard delegation fields (see `return-metadata-file.md` for schema). Agent-specific fields:
+- `task_data` - Full task object from state.json (includes status, task_type, description, effort)
+- `blocker_prompt` - Optional user description of what is blocking
+- `plan_path` - Path to latest plan (or null)
+- Report path: `specs/{NNN}_{SLUG}/reports/{NN}_spawn-analysis.md` (using `artifact_number` for `{NN}`)
 
 **Load task artifacts**:
 - Read plan file if provided: identify which phase is blocked and why
@@ -156,7 +82,7 @@ Apply the **Task Minimization Principle**:
 | `title` | Clear, actionable title (verb + noun pattern) |
 | `description` | Full description with enough detail for an implementer |
 | `effort` | Time estimate (e.g., "1-2 hours") |
-| `language` | Inherit from parent task unless clearly different |
+| `task_type` | Inherit from parent task unless clearly different |
 | `dependencies` | Array of indices of other new tasks this depends on |
 
 **Dependency reasoning**: For each dependency, explicitly state WHY task B depends on task A. The reason must be about implementation details (what choices/decisions from A affect how B is done), not just "A must be done first".
@@ -189,13 +115,13 @@ Write to `specs/{NNN}_{SLUG}/reports/{NN}_spawn-analysis.md`:
 
 ### New Task 1: {title}
 - **Effort**: {estimate}
-- **Language**: {language}
+- **Task Type**: {task_type}
 - **Rationale**: {why this task is needed to unblock the parent}
 - **Depends on**: None
 
 ### New Task 2: {title}
 - **Effort**: {estimate}
-- **Language**: {language}
+- **Task Type**: {task_type}
 - **Rationale**: {why this task is needed}
 - **Depends on**: New Task 1, because {specific reason - what implementation details from Task 1 affect how Task 2 should be done}
 
@@ -228,7 +154,7 @@ Write to `specs/{NNN}_{SLUG}/.spawn-return.json`:
       "title": "Task title (verb + noun)",
       "description": "Full description with enough detail for an implementer to act without additional context",
       "effort": "1-2 hours",
-      "language": "meta",
+      "task_type": "meta",
       "dependencies": []
     },
     {
@@ -236,7 +162,7 @@ Write to `specs/{NNN}_{SLUG}/.spawn-return.json`:
       "title": "Second task title",
       "description": "Full description referencing what it needs from task 0",
       "effort": "2-3 hours",
-      "language": "meta",
+      "task_type": "meta",
       "dependencies": [0]
     }
   ],
@@ -256,7 +182,7 @@ Write to `specs/{NNN}_{SLUG}/.spawn-return.json`:
 | `new_tasks[].title` | string | Task title (will become project_name as snake_case) |
 | `new_tasks[].description` | string | Full task description |
 | `new_tasks[].effort` | string | Time estimate like "1-2 hours" |
-| `new_tasks[].language` | string | Task language (meta, general, neovim, etc.) |
+| `new_tasks[].task_type` | string | Task type (meta, general, etc.) |
 | `new_tasks[].dependencies` | array | Indices of other new tasks this depends on |
 | `dependency_order` | array | Topologically sorted list of indices (foundational first) |
 | `parent_task_number` | integer | The blocked task number |
@@ -267,94 +193,35 @@ Write to `specs/{NNN}_{SLUG}/.spawn-return.json`:
 
 ### Stage 6: Update Early Metadata to Final Status
 
-Update `specs/{NNN}_{SLUG}/.return-meta.json` to final status:
-
-```json
-{
-  "status": "researched",
-  "artifacts": [
-    {
-      "type": "spawn_analysis",
-      "path": "specs/{NNN}_{SLUG}/reports/{NN}_spawn-analysis.md",
-      "summary": "Blocker analysis with {N} proposed tasks"
-    }
-  ],
-  "metadata": {
-    "session_id": "{from delegation context}",
-    "agent_type": "spawn-agent",
-    "duration_seconds": 123,
-    "delegation_depth": 2,
-    "delegation_path": ["orchestrator", "spawn", "skill-spawn", "spawn-agent"],
-    "proposed_task_count": 2
-  },
-  "next_steps": "Skill postflight will create tasks from .spawn-return.json"
-}
-```
+Update `specs/{NNN}_{SLUG}/.return-meta.json` with status `researched`. Agent-specific metadata fields: `proposed_task_count`. Set `next_steps` to `"Skill postflight will create tasks from .spawn-return.json"`.
 
 ### Stage 7: Return Brief Text Summary
 
-**CRITICAL**: Return a brief text summary (3-6 bullet points), NOT JSON.
-
-Example return:
-```
-Blocker analysis completed for task 241:
-- Root cause: Missing prerequisite - need state machine utilities before implementation
-- Proposed 2 new tasks with explicit dependencies
-- Task 1: Create state validation utilities (no dependencies)
-- Task 2: Implement recovery workflow (depends on Task 1)
-- Analysis report at specs/241_blocked_task/reports/02_spawn-analysis.md
-- Return data written to .spawn-return.json for skill postflight
-```
+Return 3-6 bullet points summarizing: root cause, proposed task count with dependency summary, report path, return file status.
 
 ## Error Handling
 
-### Invalid Task
-
-When task validation fails:
-1. Write `failed` status to metadata file
-2. Include clear error message
-3. Return brief error summary
-
-### Missing Plan or Context
-
-When plan_path is provided but file not found:
-1. Log warning but continue
-2. Analyze based on task description and blocker_prompt
-3. Note in report that plan context was unavailable
-
-### Timeout/Interruption
-
-If time runs out before completion:
-1. Save partial analysis (if any)
-2. Write `partial` status to metadata file with:
-   - What analysis was completed
-   - Resume point information
-
-### Invalid Blocker Scope
-
-If blocker requires more than 4 tasks:
-1. Recommend more focused blocker_prompt
-2. Propose 2-3 highest-priority tasks
-3. Note that blocker scope is broad
+See `rules/error-handling.md` for general error patterns. Agent-specific behavior:
+- **Invalid task**: Write `failed` status to metadata file
+- **Missing plan/context**: Continue with task description and blocker_prompt
+- **Timeout**: Save partial analysis, write partial status
+- **Blocker scope too broad (>4 tasks)**: Propose 2-3 highest-priority, note broad scope
 
 ## Critical Requirements
 
 **MUST DO**:
-1. **Create early metadata at Stage 0** before any substantive work
-2. Always write both `.spawn-return.json` AND blocker analysis report
-3. Always return brief text summary (3-6 bullets), NOT JSON
-4. Always include session_id from delegation context in metadata
-5. Always provide explicit dependency reasoning (WHY, not just WHAT)
-6. Always validate dependency_order is a valid topological sort
-7. Apply Task Minimization Principle - prefer fewer, well-scoped tasks
-8. Each task must be actionable without additional context
+1. Create early metadata at Stage 0 before any substantive work
+2. Write both `.spawn-return.json` AND blocker analysis report
+3. Return brief text summary (3-6 bullets), NOT JSON
+4. Provide explicit dependency reasoning (WHY, not just WHAT)
+5. Validate dependency_order is a valid topological sort
+6. Apply Task Minimization Principle - prefer fewer, well-scoped tasks
 
 **MUST NOT**:
-1. Create tasks in state.json or TODO.md (skill postflight handles all state writes)
-2. Create task directories for new tasks (skill postflight handles this)
-3. Return JSON to the console (skill cannot parse it reliably)
-4. Propose more than 4 tasks (blocker scope too broad)
-5. Create circular dependencies between proposed tasks
-6. Use status value "completed" (triggers Claude stop behavior)
-7. Skip Stage 0 early metadata creation (critical for interruption recovery)
-8. Write to any files outside `specs/{NNN}_{SLUG}/` directory
+1. Create tasks in state.json or TODO.md (skill postflight handles state writes)
+2. Return JSON to console
+3. Propose more than 4 tasks
+4. Create circular dependencies
+5. Use status value "completed" (triggers Claude stop behavior)
+6. Skip Stage 0 early metadata creation
+7. Write to files outside `specs/{NNN}_{SLUG}/` directory

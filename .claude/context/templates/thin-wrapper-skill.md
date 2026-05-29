@@ -7,10 +7,12 @@
 
 ## Overview
 
+**Template scope**: This template shows the **extension skill pattern** (Pattern B) using `context: fork` + `agent:` frontmatter. Core workflow skills (skill-researcher, skill-planner, skill-implementer, etc.) use Pattern A: explicit Agent tool with `subagent_type` and no `context: fork`. See @.claude/context/patterns/fork-patterns.md for the decision matrix on which pattern to use.
+
 This template defines the minimal structure for skills that use the `context: fork` pattern. These skills act as thin wrappers that:
 1. Validate inputs
 2. Prepare delegation context
-3. Invoke a subagent via Task tool
+3. Invoke a subagent via Agent tool
 4. Validate and propagate the return
 
 Thin wrapper skills do NOT:
@@ -26,7 +28,7 @@ Thin wrapper skills do NOT:
 ---
 name: skill-{name}
 description: {Brief description of skill purpose}
-allowed-tools: Task
+allowed-tools: Agent
 context: fork
 agent: {subagent-name}
 # Original context (now loaded by subagent):
@@ -40,7 +42,7 @@ agent: {subagent-name}
 
 | Field | Value | Purpose |
 |-------|-------|---------|
-| `allowed-tools` | `Task` | Only tool needed for delegation |
+| `allowed-tools` | `Agent` | Only tool needed for delegation |
 | `context` | `fork` | Signal to NOT load context eagerly |
 | `agent` | `{name}` | Subagent to invoke |
 
@@ -95,7 +97,7 @@ Prepare delegation context:
     "task_number": N,
     "task_name": "{slug}",
     "description": "{description}",
-    "language": "{language}"
+    "task_type": "{task_type}"
   },
   "focus_prompt": "{optional focus}"
 }
@@ -109,13 +111,13 @@ session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
 
 ### 3. Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 The `agent` field in frontmatter specifies the target subagent.
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "{agent-name}" (from frontmatter)
   - prompt: [Include task_context, delegation_context, focus_prompt if present]
@@ -211,22 +213,22 @@ Return partial status if subagent times out.
 
 ```yaml
 ---
-name: skill-neovim-research
-description: Research Neovim plugins and configuration patterns.
-allowed-tools: Task
+name: skill-{extension}-research
+description: Research {extension} patterns and conventions.
+allowed-tools: Agent
 context: fork
-agent: neovim-research-agent
+agent: {extension}-research-agent
 ---
 ```
 
 ```markdown
-# Neovim Research Skill
+# {Extension} Research Skill
 
-Specialized research for Neovim configuration tasks.
+Specialized research for {extension} tasks.
 
 ## Trigger Conditions
-- Task language is "neovim"
-- Research involves plugins, configuration, or Lua patterns
+- Task type is "{extension}"
+- Research involves {extension}-specific patterns and tools
 
 ## Execution
 
@@ -241,18 +243,18 @@ Prepare delegation context with task details.
 
 ### 3. Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
-  - subagent_type: "neovim-research-agent"
+  - subagent_type: "{extension}-research-agent"
   - prompt: [Include task_context, delegation_context, focus_prompt if present]
-  - description: "Execute Neovim research for task {N}"
+  - description: "Execute {extension} research for task {N}"
 ```
 
-**DO NOT** use `Skill(neovim-research-agent)` - this will FAIL.
+**DO NOT** use `Skill({extension}-research-agent)` - this will FAIL.
 
 ### 4. Return Validation
 Validate return matches subagent-return.md schema.

@@ -1,0 +1,54 @@
+{
+  "name": "typst",
+  "version": "1.0.0",
+  "description": "Typst document development with single-pass compilation",
+  "task_type": "typst",
+  "dependencies": [
+    "core"
+  ],
+  "provides": {
+    "agents": [
+      "typst-research-agent.md",
+      "typst-implementation-agent.md"
+    ],
+    "skills": [
+      "skill-typst-research",
+      "skill-typst-implementation"
+    ],
+    "commands": [],
+    "rules": [],
+    "context": [
+      "project/typst"
+    ],
+    "scripts": [],
+    "hooks": []
+  },
+  "routing": {
+    "research": {
+      "typst": "skill-typst-research"
+    },
+    "plan": {
+      "typst": "skill-planner"
+    },
+    "implement": {
+      "typst": "skill-typst-implementation"
+    }
+  },
+  "merge_targets": {
+    "claudemd": {
+      "source": "EXTENSION.md",
+      "target": ".claude/CLAUDE.md",
+      "section_id": "extension_typst"
+    },
+    "index": {
+      "source": "index-entries.json",
+      "target": ".claude/context/index.json"
+    },
+    "opencode_json": {
+      "source": "opencode-agents.json",
+      "target": "opencode.json"
+    }
+  },
+  "mcp_servers": {},
+  "hooks": {}
+}

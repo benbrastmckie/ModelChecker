@@ -41,12 +41,10 @@ Execute checkpoint-gate-in.md:
 
 Route to skill by language (see routing.md):
 
-| Language | Skill |
+| Task Type | Skill |
 |----------|-------|
-| neovim | skill-neovim-{operation} |
-| latex | skill-latex-{operation} |
-| typst | skill-typst-{operation} |
 | general/meta/markdown | skill-{operation} |
+| _{extension}_ | skill-{ext}-{operation} |
 
 Invoke via Skill tool with:
 - task_number
@@ -111,9 +109,9 @@ Generate session_id at GATE IN, include in commit for traceability.
 3. Invoke skill-status-sync: preflight_update(N, "researching")
 
 ### STAGE 2: DELEGATE
-Route by language:
-- neovim → skill-neovim-research
-- other → skill-researcher
+Route by task_type:
+- Extension type → extension-provided skill
+- Core types → skill-researcher
 
 ### CHECKPOINT 2: GATE OUT
 1. Validate return

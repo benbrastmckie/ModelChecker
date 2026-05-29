@@ -1,14 +1,8 @@
 ---
 name: skill-meta
 description: Interactive system builder. Invoke for /meta command to create tasks for .claude/ system changes.
-allowed-tools: Task, Bash, Edit, Read, Write
-# Original context (now loaded by subagent):
-#   - .claude/docs/guides/component-selection.md
-#   - .claude/docs/guides/creating-commands.md
-#   - .claude/docs/guides/creating-skills.md
-#   - .claude/docs/guides/creating-agents.md
-# Original tools (now used by subagent):
-#   - Read, Write, Edit, Glob, Grep, Bash(git, jq, mkdir), AskUserQuestion
+allowed-tools: Agent, Bash, Edit, Read, Write
+agent: meta-builder-agent
 ---
 
 # Meta Skill
@@ -34,6 +28,16 @@ This skill activates when:
 - /meta command is invoked (with any arguments)
 - User requests system building or task creation for .claude/ changes
 - System analysis is requested (--analyze flag)
+
+---
+
+## Anti-Bypass Constraint
+
+**PROHIBITION**: This skill and its delegated agent (meta-builder-agent) MUST NOT write to `.claude/` paths using Write or Edit tools. The /meta workflow creates TASKS only. All `.claude/` file modifications happen through the /implement lifecycle with proper skill delegation.
+
+**Detected by**: PostToolUse hook `validate-meta-write.sh` provides corrective context if bypass is attempted.
+
+**Legitimate writes**: Only `specs/` paths (TODO.md, state.json, task directories) are valid write targets for this skill chain.
 
 ---
 
@@ -78,13 +82,13 @@ Prepare delegation context:
 
 ### 3. Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 The `agent` field in this skill's frontmatter specifies the target: `meta-builder-agent`
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "meta-builder-agent"
   - prompt: [Include mode, prompt if provided, delegation_context]
@@ -106,7 +110,7 @@ The subagent will:
 
 ### 4. Return Validation
 
-Validate return matches `subagent-return.md` schema:
+Validate return matches `return-metadata-file.md` schema:
 - Status is one of: completed, partial, failed, blocked
 - Summary is non-empty and <100 tokens
 - Artifacts array present (task directories for interactive/prompt modes)
@@ -120,14 +124,14 @@ Return validated result to caller without modification.
 
 ## Return Format
 
-See `.claude/context/formats/subagent-return.md` for full specification.
+See `.claude/context/formats/return-metadata-file.md` for full specification.
 
 ### Expected Return: Interactive Mode (tasks created)
 
 ```json
 {
   "status": "tasks_created",
-  "summary": "Created 2 tasks for command creation workflow. Tasks start in RESEARCHED status.",
+  "summary": "Created 2 tasks for command creation workflow. Tasks start in NOT STARTED status.",
   "artifacts": [
     {
       "type": "task",
@@ -135,19 +139,9 @@ See `.claude/context/formats/subagent-return.md` for full specification.
       "summary": "Task directory for new command"
     },
     {
-      "type": "research",
-      "path": "specs/430_create_export_command/reports/01_meta-research.md",
-      "summary": "Auto-generated research from /meta interview"
-    },
-    {
       "type": "task",
       "path": "specs/431_export_command_tests/",
       "summary": "Task directory for tests"
-    },
-    {
-      "type": "research",
-      "path": "specs/431_export_command_tests/reports/01_meta-research.md",
-      "summary": "Auto-generated research from /meta interview"
     }
   ],
   "metadata": {
@@ -157,13 +151,13 @@ See `.claude/context/formats/subagent-return.md` for full specification.
     "delegation_path": ["orchestrator", "meta", "meta-builder-agent"],
     "mode": "interactive",
     "tasks_created": 2,
-    "tasks_status": "researched"
+    "tasks_status": "not_started"
   },
-  "next_steps": "Run /plan 430 to create implementation plan (research already complete)"
+  "next_steps": "Run /research 430 to begin research on first task"
 }
 ```
 
-**Note**: Tasks created via `/meta` start in RESEARCHED status because the interview process generates research artifacts from the captured context. This enables immediate `/plan N` execution without requiring separate `/research N` calls.
+**Note**: Tasks created via `/meta` start in NOT STARTED status. Run `/research N` to begin the standard research -> plan -> implement lifecycle.
 
 ### Expected Return: Analyze Mode (read-only)
 

@@ -5,8 +5,15 @@
 # Integration: Called from UserPromptSubmit hook in .claude/settings.json
 # Requirements: wezterm with user variable support, jq for JSON parsing
 #
-# Parses prompts for /research N, /plan N, /implement N, /revise N patterns
-# and sets/clears the TASK_NUMBER user variable accordingly.
+# 3-tier logic:
+#   Tier 1 (SET): Workflow command with task number(s)
+#     1a: /research|plan|implement|revise|spawn + task spec (multi-task: N, N-N, N)
+#     1b: /task --recover|expand|abandon|review + task spec
+#     1c: /errors --fix N
+#   Tier 2 (CLEAR): Any slash command without task number
+#   Tier 3 (PRESERVE): Free text / follow-up (no change to TASK_NUMBER)
+#
+# Multi-task specs are displayed compactly: "7, 22-24, 59" -> "7,22-24,59"
 #
 # Note: Claude Code hooks run with redirected stdio (stdout is a socket),
 # so we must write the escape sequence directly to the pane's TTY.
@@ -30,11 +37,41 @@ HOOK_INPUT=$(cat)
 # Parse user prompt from JSON input
 PROMPT=$(echo "$HOOK_INPUT" | jq -r '.prompt // ""' 2>/dev/null || echo "")
 
-# Extract task number from Claude commands
-# Matches: /research N, /plan N, /implement N, /revise N
-TASK_NUMBER=""
-if [[ "$PROMPT" =~ ^[[:space:]]*/?(research|plan|implement|revise)[[:space:]]+([0-9]+) ]]; then
-    TASK_NUMBER="${BASH_REMATCH[2]}"
+# 3-tier task number logic
+TASK_DISPLAY=""
+SHOULD_SET=0
+SHOULD_CLEAR=0
+
+# Tier 1a: research, plan, implement, revise, spawn + task spec (supports multi-task syntax)
+if [[ "$PROMPT" =~ ^[[:space:]]*/?(research|plan|implement|revise|spawn)[[:space:]]+([0-9][0-9,' '-]*) ]]; then
+    TASK_SPEC="${BASH_REMATCH[2]}"
+    TASK_SPEC="${TASK_SPEC%%--*}"       # strip from first "--" (removes flags like --team)
+    while [[ "$TASK_SPEC" =~ [[:space:],]$ ]]; do
+        TASK_SPEC="${TASK_SPEC%[[:space:],]}"   # strip trailing space/comma
+    done
+    TASK_DISPLAY="${TASK_SPEC// /}"     # compact: remove internal spaces
+    SHOULD_SET=1
+
+# Tier 1b: /task --recover/expand/abandon/review + task spec
+elif [[ "$PROMPT" =~ ^[[:space:]]*/?(task)[[:space:]]+(--(recover|expand|abandon|review))[[:space:]]+([0-9][0-9,' '-]*) ]]; then
+    TASK_SPEC="${BASH_REMATCH[4]}"
+    TASK_SPEC="${TASK_SPEC%%--*}"
+    while [[ "$TASK_SPEC" =~ [[:space:],]$ ]]; do
+        TASK_SPEC="${TASK_SPEC%[[:space:],]}"
+    done
+    TASK_DISPLAY="${TASK_SPEC// /}"
+    SHOULD_SET=1
+
+# Tier 1c: /errors --fix N
+elif [[ "$PROMPT" =~ ^[[:space:]]*/?(errors)[[:space:]]+--fix[[:space:]]+([0-9]+) ]]; then
+    TASK_DISPLAY="${BASH_REMATCH[2]}"
+    SHOULD_SET=1
+
+# Tier 2: Any other slash command (new session context, no task number) -> clear
+elif [[ "$PROMPT" =~ ^[[:space:]]*/[a-zA-Z] ]]; then
+    SHOULD_CLEAR=1
+
+# Tier 3: Free text / follow-up -> preserve TASK_NUMBER (implicit no-op)
 fi
 
 # Get the TTY for the current pane from WezTerm CLI
@@ -47,18 +84,15 @@ if [[ -z "$PANE_TTY" ]] || [[ ! -w "$PANE_TTY" ]]; then
     exit_success
 fi
 
-if [[ -n "$TASK_NUMBER" ]]; then
+if [[ "$SHOULD_SET" -eq 1 ]]; then
     # Set TASK_NUMBER user variable via OSC 1337
     # Format: OSC 1337 ; SetUserVar=name=base64_value ST
-    TASK_VALUE=$(echo -n "$TASK_NUMBER" | base64 | tr -d '\n')
+    TASK_VALUE=$(echo -n "$TASK_DISPLAY" | base64 | tr -d '\n')
     printf '\033]1337;SetUserVar=TASK_NUMBER=%s\007' "$TASK_VALUE" > "$PANE_TTY"
-else
-    # Clear TASK_NUMBER on non-workflow commands (task 795)
-    # This implements the correct behavior:
-    # - Workflow commands (/research N, /plan N, /implement N, /revise N) -> Set
-    # - Non-workflow commands (anything else) -> Clear
-    # - Claude output (no UserPromptSubmit event) -> No change (preserves)
+elif [[ "$SHOULD_CLEAR" -eq 1 ]]; then
+    # Clear TASK_NUMBER on non-task slash commands
     printf '\033]1337;SetUserVar=TASK_NUMBER=\007' > "$PANE_TTY"
 fi
+# Tier 3: no-op (TASK_NUMBER preserved from previous prompt)
 
 exit_success

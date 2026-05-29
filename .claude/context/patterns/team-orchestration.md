@@ -10,12 +10,12 @@ Team orchestration uses a wave-based model where agents work in parallel within 
 
 ```
 Wave 1:
-+----------------+  +----------------+  +----------------+
-| Teammate A     |  | Teammate B     |  | Teammate C     |
-| Primary Angle  |  | Alternatives   |  | Risk Analysis  |
-+-------+--------+  +-------+--------+  +-------+--------+
-        |                   |                   |
-        +-------------------+-------------------+
++----------------+  +----------------+  +----------------+  +----------------+
+| Teammate A     |  | Teammate B     |  | Teammate C     |  | Teammate D     |
+| Primary Angle  |  | Alternatives   |  | Critic         |  | Horizons       |
++-------+--------+  +-------+--------+  +-------+--------+  +-------+--------+
+        |                   |                   |                   |
+        +-------------------+-------------------+-------------------+
                            |
                     +------+------+
                     |   Lead      |
@@ -38,7 +38,7 @@ The lead agent (skill) is responsible for:
 
 2. **Teammate Spawning**
    - Create prompts with specific angles/roles
-   - Enforce model selection via TeammateTool parameter
+   - Enforce model selection via Agent tool parameter
    - Pass run-scoped output paths
 
 3. **Synthesis**
@@ -116,7 +116,7 @@ If lead cannot synthesize:
 
 ### Team Creation Failure
 
-If TeammateTool fails (feature unavailable):
+If Agent tool fails (feature unavailable):
 
 1. Log warning
 2. Fall back to single-agent execution

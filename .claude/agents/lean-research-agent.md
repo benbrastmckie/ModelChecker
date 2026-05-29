@@ -16,7 +16,7 @@ Research agent specialized for Lean 4 and Mathlib theorem discovery. Invoked by 
 
 - **Name**: lean-research-agent
 - **Purpose**: Conduct research for Lean 4 theorem proving tasks
-- **Invoked By**: skill-lean-research (via Task tool)
+- **Invoked By**: skill-lean-research (via Agent tool)
 - **Return Format**: Brief text summary + metadata file
 
 ## BLOCKED TOOLS (NEVER USE)
@@ -98,6 +98,97 @@ When researching Lean implementation approaches, you MUST NOT recommend patterns
 2. If multiple approaches exist: Recommend the one most likely to achieve zero sorries
 3. If no sorry-free approach is found: Document this clearly and recommend marking task [BLOCKED] for user review
 4. If proof complexity is high: Recommend plan decomposition, not sorry deferral
+
+### Literature Extraction Protocol
+
+When the task description or focus prompt references a literature source (paper, textbook, proof sketch, or formalization from another proof assistant):
+
+1. **Identify the literature source** from task description, user instructions, or attached files
+2. **Extract the proof structure** by documenting:
+   - The main theorem/claim being proved
+   - The sequence of major proof steps (numbered)
+   - Key lemmas or sub-results used
+   - The proof strategy (direct, indirect, induction, construction, etc.)
+   - Any dependencies between steps
+3. **Create a "Literature Proof Structure" section** in the research report with:
+   ```markdown
+   ## Literature Proof Structure
+
+   **Source**: {title, author, section/theorem reference}
+   **Strategy**: {proof strategy used in the source}
+
+   ### Step Map
+   1. {Step 1 description} -- [Source] Section X.Y / Theorem Z
+   2. {Step 2 description} -- [Source] Lemma A
+   3. ...
+
+   ### Dependencies
+   - Step 3 depends on Step 1 and Step 2
+   - Step 5 depends on Step 4
+
+   ### Potential Formalization Challenges
+   - {Step N}: {why this step may be hard to translate to Lean}
+   ```
+4. **Note Lean-specific translation considerations** for each step:
+   - Does the step have a direct Lean/Mathlib counterpart?
+   - Does the notation need encoding differently?
+   - Are there implicit assumptions that need to be made explicit?
+5. **Pass the step map to downstream agents** by including it prominently in the research report so the planner-agent can use it for phase decomposition
+
+When no literature source is referenced, skip this protocol. Standard research proceeds per the lean-research-flow.md execution stages.
+
+**Cross-reference**: `literature-fidelity-policy.md` -- Defines the two modes (literature-guided vs. first-principles), anti-patterns, and escalation protocol.
+
+### Tactic Discovery Survey Protocol
+
+When investigating proof approaches, survey available tactics to identify which could help improve proof quality. This protocol is advisory guidance -- it should not block research progress, but findings should be reported alongside other research results.
+
+**Step 1: Survey the tactic pipeline**
+
+For each proof goal under investigation, consider tactics from the LeanHammer portfolio in order:
+1. `aesop` -- white-box best-first proof search with configurable premise sets
+2. `simp` / `simp only [...]` -- simplification with explicit lemma control
+3. `omega` -- linear arithmetic over naturals and integers
+4. `decide` -- decidable propositions
+5. `norm_num` -- numeric normalization
+6. `ring` / `linarith` / `nlinarith` / `positivity` -- algebraic and inequality tactics
+7. `exact?` / `apply?` / `rw?` -- interactive search tactics
+
+**Step 2: Test candidates when feasible**
+
+Use `lean_multi_attempt` to test candidate tactics against the proof goal without editing the file:
+```
+lean_multi_attempt(file, line, column, tactics: ["simp", "omega", "aesop", "decide"])
+```
+
+Report which tactics succeeded and with what configuration.
+
+**Step 3: Check premise availability**
+
+Use `lean_hammer_premise` to discover premises for simp/aesop:
+```
+lean_hammer_premise(file, line, column)
+```
+
+**Step 4: Consider decomposition (APOLLO pattern)**
+
+For complex proof goals, consider recursive decomposition:
+1. Break the goal into sub-goals using `have` steps with `sorry`
+2. Attempt each sub-goal independently with a controlled tactic budget
+3. Reassemble the proof and verify with `lake build`
+
+**Step 5: Report findings**
+
+Include a "Tactic Survey Results" section in the research report:
+```markdown
+## Tactic Survey Results
+
+| Goal | Tactic | Result | Premises/Config |
+|------|--------|--------|-----------------|
+| {goal description} | simp | success | [lemma1, lemma2] |
+| {goal description} | omega | fail | N/A |
+| {goal description} | aesop | success | default premises |
+```
 
 ## Stage 0: Initialize Early Metadata
 
@@ -182,3 +273,4 @@ When a search tool rate limit is hit:
 11. **Call blocked tools** (lean_diagnostic_messages, lean_file_outline)
 12. **Recommend sorry deferral patterns (Option B style)** - STRICTLY FORBIDDEN
 13. **Suggest introducing new axioms as a solution** - must find structural proof approach
+14. **Ignore literature sources referenced in the task** - if a paper or proof is cited, extraction is mandatory

@@ -1,8 +1,8 @@
 ---
 description: Execute implementation with resume support
-allowed-tools: Skill, Bash(jq:*), Bash(git:*), Read, Edit, Glob
-argument-hint: TASK_NUMBER [--team [--team-size N]] [--force]
-model: claude-opus-4-5-20251101
+allowed-tools: Skill, Agent, Bash(jq:*), Bash(git:*), Read, Edit, Glob
+argument-hint: TASK_NUMBERS [--team [--team-size N]] [--force] [--fast|--hard] [--haiku|--sonnet|--opus]
+model: opus
 ---
 
 # /implement Command
@@ -11,7 +11,11 @@ Execute implementation plan with automatic resume support by delegating to the a
 
 ## Arguments
 
-- `$1` - Task number (required)
+- `$1` - Task number(s) (required). Supports:
+  - Single task: `353`
+  - Comma-separated: `7, 22, 59`
+  - Ranges: `22-24`
+  - Combined: `7, 22-24, 59`
 - Optional: `--force` to override status validation
 
 ## Options
@@ -21,14 +25,242 @@ Execute implementation plan with automatic resume support by delegating to the a
 | `--team` | Enable parallel phase execution with multiple teammates | false |
 | `--team-size N` | Number of implementation teammates to spawn (2-4) | 2 |
 | `--force` | Override status validation | false |
+| `--fast` | Low-effort mode: lighter reasoning, faster responses | false |
+| `--hard` | High-effort mode: deeper reasoning, more thorough analysis | false |
+| `--haiku` | Use Haiku model (fastest, lowest cost) | false |
+| `--sonnet` | Use Sonnet model (balanced cost/quality) | false |
+| `--opus` | Use Opus model (highest quality, same as agent default) | false |
+| `--clean` | Skip automatic memory retrieval | false |
 
 When `--team` is specified, implementation is delegated to `skill-team-implement` which spawns teammates to execute independent phases in parallel. Dependent phases wait for their dependencies. A debugger teammate can be spawned on build errors.
 
 **Note**: Team mode requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable. If unavailable, gracefully degrades to single-agent implementation.
 
+## Anti-Bypass Constraint
+
+**PROHIBITION**: You MUST NOT write implementation summary artifacts directly using Write or Edit tools. All summary files MUST be created by invoking the appropriate skill (skill-implementer or skill-team-implement) via the Skill tool.
+
+**Why**: Direct writes bypass format enforcement (validate-artifact.sh), produce non-conforming artifacts missing required metadata fields and sections, and circumvent the delegation chain that ensures quality. A PostToolUse hook monitors all Write/Edit operations to artifact paths and will flag violations with corrective context.
+
+**Required**: Always delegate to the Skill tool. Never write to `specs/*/summaries/*.md` directly from this command.
+
 ## Execution
 
-**Note**: Delegate to skills for language-specific implementation.
+**Note**: Delegate to skills for task-type-specific implementation.
+
+### STAGE 0: PARSE TASK NUMBERS
+
+Parse raw arguments to extract task numbers and remaining arguments (flags, focus prompts).
+
+**Algorithm** (inline `parse_task_args()`):
+
+```bash
+parse_task_args() {
+  local input="$1"
+  local task_spec=""
+  local remaining=""
+
+  # Match leading task specification: digits, commas, hyphens, spaces
+  # Stop at first alphabetic char or -- flag
+  if [[ "$input" =~ ^([0-9][0-9,\ \-]*)(\ +.*)?$ ]]; then
+    task_spec="${BASH_REMATCH[1]}"
+    remaining="${BASH_REMATCH[2]}"
+  else
+    echo "[FAIL] No task number found in arguments"
+    return 1
+  fi
+
+  # Trim trailing whitespace/commas from task_spec
+  task_spec=$(echo "$task_spec" | sed 's/[, ]*$//')
+
+  # Parse through existing parse_ranges()
+  task_numbers=($(parse_ranges "$task_spec"))
+
+  # Trim leading whitespace from remaining
+  remaining=$(echo "$remaining" | sed 's/^[[:space:]]*//')
+
+  echo "TASK_NUMBERS=${task_numbers[*]}"
+  echo "REMAINING_ARGS=$remaining"
+}
+```
+
+**Examples**:
+
+| Input | task_numbers | remaining_args | Mode |
+|-------|-------------|----------------|------|
+| `7` | `[7]` | `` | single |
+| `7, 22-24, 59` | `[7, 22, 23, 24, 59]` | `` | multi |
+| `7 --force` | `[7]` | `--force` | single |
+| `7, 22-24 --team` | `[7, 22, 23, 24]` | `--team` | multi |
+| `10-12, 15 --force` | `[10, 11, 12, 15]` | `--force` | multi |
+
+**Dispatch Decision**:
+
+```
+if len(task_numbers) == 1:
+    # SINGLE-TASK MODE
+    task_number = task_numbers[0]
+    # Fall through to CHECKPOINT 1: GATE IN below (existing flow, unchanged)
+
+elif len(task_numbers) > 1:
+    # MULTI-TASK MODE
+    # Continue to MULTI-TASK DISPATCH below
+```
+
+**Single-task fallthrough**: When exactly one task number is parsed (including degenerate ranges like `7-7` or `7,7,7` that deduplicate to `[7]`), execution continues directly to CHECKPOINT 1: GATE IN. The entire existing single-task flow is unchanged.
+
+---
+
+### MULTI-TASK DISPATCH
+
+When `parse_task_args()` produces more than one task number, enter multi-task mode. This section replaces the single-task checkpoints for the batch operation.
+
+#### Step 1: Batch Validation
+
+Validate all tasks exist and have valid status before spawning any agents.
+
+```bash
+validated_tasks=()
+skipped_tasks=()
+
+for task_num in "${task_numbers[@]}"; do
+  task_data=$(jq -r --argjson num "$task_num" \
+    '.active_projects[] | select(.project_number == $num)' \
+    specs/state.json)
+
+  if [ -z "$task_data" ]; then
+    skipped_tasks+=("$task_num: not found")
+    continue
+  fi
+
+  status=$(echo "$task_data" | jq -r '.status')
+
+  # Block terminal statuses only; --force overrides completed
+  case "$status" in
+    completed)
+      if [ "$force_mode" = "true" ]; then
+        : # Allow with --force
+      else
+        skipped_tasks+=("$task_num: already completed (use --force)")
+        continue
+      fi
+      ;;
+    abandoned|expanded)
+      skipped_tasks+=("$task_num: terminal status [$status]")
+      continue
+      ;;
+  esac
+
+  validated_tasks+=("$task_num")
+done
+```
+
+**Report skipped tasks** (warnings, non-blocking):
+```
+if skipped_tasks is not empty:
+    [WARN] Skipping tasks:
+      - {task_num}: {reason}
+      ...
+
+if validated_tasks is empty:
+    [FAIL] No valid tasks to implement
+    ABORT
+```
+
+#### Step 2: Generate Batch Session ID
+
+```bash
+batch_session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
+```
+
+#### Step 3: Dispatch Skills
+
+For each validated task, invoke the appropriate implementation skill using parallel Skill tool calls from the orchestrator's built-in batch loop:
+
+- Extract task type per task (from state.json)
+- Route per task using existing task-type-based routing from extension manifests (or default `skill-implementer`)
+- Invoke all skills in a single message (parallel execution, one skill per task)
+- Each skill runs the full single-task implementation lifecycle independently (preflight, agent delegation, postflight)
+- Collect text results from all skills; read `.return-meta.json` in each task directory for structured data if needed
+
+**Note**: Batch dispatch is handled directly by this command's orchestrator loop via parallel Skill tool calls, not by a separate batch skill.
+
+**--force flag**: When `--force` is present in `remaining_args`, it is passed to each invoked skill, which passes it through to its agent to bypass status validation in single-task GATE IN.
+
+**--team flag**: When `--team` is present in `remaining_args`, each task routes to `skill-team-implement` (multiple agents per task). Total agents = `N_tasks * team_size`. Cost warning applies.
+
+#### Step 4: Batch Git Commit
+
+After all skills return results, produce a single git commit. Per-skill postflight may have already committed individual task changes; this batch commit captures any remaining unstaged changes and may be empty (which fails gracefully).
+
+**Full success**:
+```bash
+git add -A
+git commit -m "$(cat <<'EOF'
+implement tasks {range_summary}: complete implementation
+
+Tasks: {comma-separated list}
+Session: {batch_session_id}
+
+EOF
+)"
+```
+
+**Partial success**:
+```bash
+git add -A
+git commit -m "$(cat <<'EOF'
+implement tasks {range_summary}: complete implementation ({succeeded}/{total} succeeded)
+
+Tasks completed: {comma-separated}
+Tasks failed: {num} ({reason})[, {num} ({reason})]
+Session: {batch_session_id}
+
+EOF
+)"
+```
+
+Commit failure is non-blocking (log and continue).
+
+#### Step 5: Consolidated Output
+
+Display results after all agents complete.
+
+```markdown
+## Batch Implement Results
+
+Session: {batch_session_id}
+Tasks requested: {count}
+Succeeded: {count}
+Failed: {count}
+Skipped: {count}
+
+### Succeeded
+
+| Task | Title | Status | Artifact |
+|------|-------|--------|----------|
+| #7 | project_name | [COMPLETED] | specs/007_slug/summaries/01_short-summary.md |
+| #22 | project_name | [COMPLETED] | specs/022_slug/summaries/01_short-summary.md |
+
+### Failed
+
+| Task | Error |
+|------|-------|
+| #23 | Agent timeout |
+
+### Skipped
+
+| Task | Reason |
+|------|--------|
+| #99 | Not found in state.json |
+
+### Next Steps
+- Re-run failed tasks individually: /implement {N}
+```
+
+**After consolidated output, STOP.** The multi-task flow does not continue to CHECKPOINT 1.
+
+---
 
 ### CHECKPOINT 1: GATE IN
 
@@ -51,9 +283,8 @@ When `--team` is specified, implementation is delegated to `skill-team-implement
 
 3. **Validate**
    - Task exists (ABORT if not)
-   - Status allows implementation: planned, implementing, partial, researched, not_started
-   - If completed: ABORT unless --force
-   - If abandoned: ABORT "Recover task first"
+   - Status is not terminal: block completed (unless --force), abandoned, expanded
+   - If terminal (and not --force): ABORT with recommendation
 
 4. **Load Implementation Plan**
    Find latest: `specs/{NNN}_{SLUG}/plans/*.md` (sorted by version)
@@ -87,13 +318,36 @@ When `--team` is specified, implementation is delegated to `skill-team-implement
 2. **Extract Other Flags**
    - `--force` -> `force_mode = true`
 
-3. **Validate Team Size**
+3. **Extract Effort Flags**
+   Check remaining args for effort flags:
+   - `--fast` -> `effort_flag = "fast"` (low-effort mode: lighter reasoning)
+   - `--hard` -> `effort_flag = "hard"` (high-effort mode: deeper reasoning)
+
+   If multiple are provided, last one wins.
+   If none: `effort_flag = null` (normal effort)
+
+4. **Extract Model Flags**
+   Check remaining args for model flags:
+   - `--haiku` -> `model_flag = "haiku"` (use Haiku model)
+   - `--sonnet` -> `model_flag = "sonnet"` (use Sonnet model)
+   - `--opus` -> `model_flag = "opus"` (use Opus model)
+
+   If multiple are provided, last one wins.
+   If none: `model_flag = null` (use agent's frontmatter default: opus for planner/meta-builder/reviser; sonnet for general-purpose agents)
+
+5. **Validate Team Size**
    ```bash
    # Clamp team_size to valid range
    team_size=${team_size:-2}
    [ "$team_size" -lt 2 ] && team_size=2
    [ "$team_size" -gt 4 ] && team_size=4
    ```
+
+6. **Extract Clean Flag**
+   Check remaining args for memory retrieval suppression:
+   - `--clean` -> `clean_flag = true` (skip automatic memory retrieval)
+
+   If not present: `clean_flag = false`
 
 **On STAGE 1.5 success**: Flags parsed. **IMMEDIATELY CONTINUE** to STAGE 2 below.
 
@@ -109,24 +363,39 @@ If `team_mode == true`:
 
 **Extension Routing** (when `--team` flag NOT present):
 
-Check extension manifests for language-specific implement routing:
+Check extension manifests for task-type-specific implement routing:
 
 ```bash
-# Get task language
-language=$(echo "$task_data" | jq -r '.language // "general"')
+# Get task_type (may be simple "founder" or compound "founder:deck")
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 
 # Check extension routing for implement (skill_name starts empty)
 skill_name=""
 for manifest in .claude/extensions/*/manifest.json; do
   if [ -f "$manifest" ]; then
-    ext_skill=$(jq -r --arg lang "$language" \
-      '.routing.implement[$lang] // empty' "$manifest")
+    ext_skill=$(jq -r --arg tt "$task_type" \
+      '.routing.implement[$tt] // empty' "$manifest")
     if [ -n "$ext_skill" ]; then
       skill_name="$ext_skill"
       break
     fi
   fi
 done
+
+# Fallback: if compound key (contains ":"), try base task_type
+if [ -z "$skill_name" ] && echo "$task_type" | grep -q ":"; then
+  base_type=$(echo "$task_type" | cut -d: -f1)
+  for manifest in .claude/extensions/*/manifest.json; do
+    if [ -f "$manifest" ]; then
+      ext_skill=$(jq -r --arg tt "$base_type" \
+        '.routing.implement[$tt] // empty' "$manifest")
+      if [ -n "$ext_skill" ]; then
+        skill_name="$ext_skill"
+        break
+      fi
+    fi
+  done
+fi
 
 # Fallback to default implementer if no extension routing found
 skill_name=${skill_name:-"skill-implementer"}
@@ -137,6 +406,8 @@ skill_name=${skill_name:-"skill-implementer"}
 | Language | Skill to Invoke |
 |----------|-----------------|
 | `founder` | `skill-founder-implement` (from founder extension) |
+| `founder:deck` | `skill-deck-implement` (from founder extension) |
+| `founder:{sub-type}` | Compound key lookup, falls back to `skill-founder-implement` |
 | `general`, `meta`, `markdown` | `skill-implementer` (default) |
 | `formal`, `logic`, `math`, `physics` | `skill-implementer` (default) |
 
@@ -154,16 +425,24 @@ else:
 ```
 # For team mode:
 skill: "skill-team-implement"
-args: "task_number={N} plan_path={path to implementation plan} resume_phase={phase number} team_size={team_size} session_id={session_id}"
+args: "task_number={N} plan_path={path to implementation plan} resume_phase={phase number} team_size={team_size} session_id={session_id} effort_flag={effort_flag} model_flag={model_flag} clean_flag={clean_flag}"
 
 # For extension-routed skill (e.g., skill-founder-implement):
 skill: "{skill_name from extension routing}"
-args: "task_number={N} plan_path={path to implementation plan} resume_phase={phase number} session_id={session_id}"
+args: "task_number={N} plan_path={path to implementation plan} resume_phase={phase number} session_id={session_id} effort_flag={effort_flag} model_flag={model_flag} clean_flag={clean_flag}"
 
 # For default single-agent mode:
 skill: "skill-implementer"
-args: "task_number={N} plan_path={path to implementation plan} resume_phase={phase number} session_id={session_id}"
+args: "task_number={N} plan_path={path to implementation plan} resume_phase={phase number} session_id={session_id} effort_flag={effort_flag} model_flag={model_flag} clean_flag={clean_flag}"
 ```
+
+If `model_flag` is set, pass the `model` parameter to override the agent's default model:
+- `model_flag="haiku"` -> pass `model: haiku`
+- `model_flag="sonnet"` -> pass `model: sonnet`
+- `model_flag="opus"` -> pass `model: opus`
+- `model_flag=null` -> omit `model` parameter (use agent's frontmatter default: opus for planner/meta-builder/reviser; sonnet for general-purpose agents)
+
+If `effort_flag` is set, pass it as prompt context to the skill/agent for reasoning depth guidance.
 
 The skill will spawn the appropriate agent(s) which execute plan phases (in parallel for team mode), update phase markers, create commits per phase, and return a structured result.
 
@@ -235,6 +514,27 @@ The skill will spawn the appropriate agent(s) which execute plan phases (in para
    **Skip if result.status == "partial":**
    Partial implementations do not need plan file verification.
 
+6. **Verify TODO.md Status (Defensive)**
+
+   **Only when result.status == "implemented":**
+
+   Check that the task entry in TODO.md shows `[COMPLETED]`. If it still shows `[IMPLEMENTING]`, apply correction:
+
+   ```bash
+   # Check if TODO.md task entry still shows [IMPLEMENTING]
+   if grep -q "- \*\*Status\*\*: \[IMPLEMENTING\]" <(grep -A 5 "^### ${task_number}\." specs/TODO.md); then
+       echo "WARNING: TODO.md status not updated to [COMPLETED]. Applying defensive correction."
+   fi
+   ```
+
+   If the check finds a mismatch, use Edit tool to fix both:
+   - Task entry: `- **Status**: [IMPLEMENTING]` → `- **Status**: [COMPLETED]`
+   - Task Order: `**{N}** [IMPLEMENTING]` → `**{N}** [COMPLETED]`
+
+7. **Post-Delegation Takeover Detection (Future Work)**
+
+   > **Note**: A future enhancement should detect if the skill performed source-file reads, builds, or codebase exploration after the subagent returned. If the skill's tool-call sequence shows Read/Grep/Glob/Bash operations on non-specs files after the Agent tool returned, log a warning: "Skill violated postflight boundary -- source operations detected after delegation." This is not currently enforced automatically but is documented as a desired GATE OUT validation.
+
 **RETRY** skill if validation fails.
 
 **On GATE OUT success**: Artifacts and completion summary verified. **IMMEDIATELY CONTINUE** to CHECKPOINT 3 below.
@@ -249,7 +549,6 @@ task {N}: complete implementation
 
 Session: {session_id}
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -262,7 +561,6 @@ task {N}: partial implementation (phases 1-{M} of {total})
 
 Session: {session_id}
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```

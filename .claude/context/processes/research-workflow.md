@@ -7,7 +7,7 @@
 
 ## Overview
 
-This document describes the complete research workflow executed by the researcher subagent. It covers language-based routing, research execution, and report creation.
+This document describes the complete research workflow executed by the researcher subagent. It covers task-type-based routing, research execution, and report creation.
 
 ---
 
@@ -23,19 +23,17 @@ This document describes the complete research workflow executed by the researche
 - File analysis
 - API exploration
 
-### Neovim Research
+### Extension-Specific Research
 
-**When**: Task language is neovim
-**Agent**: neovim-research-agent
-**Tools**:
-- WebSearch (plugin documentation)
-- WebFetch (plugin READMEs)
-- Read (codebase exploration)
-- Documentation review
+**When**: Task type matches a loaded extension
+**Agent**: Extension-provided research agent
+**Tools**: Defined by extension manifest
+
+Extension-specific research tools and workflows are loaded from extension context when the extension is active. See `.claude/extensions/*/context/` for details.
 
 ---
 
-## Language-Based Routing
+## Task-Type-Based Routing
 
 ### Language Extraction
 
@@ -49,16 +47,14 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 
 ### Routing Rules
 
-| Language | Agent | Tools Available |
+| Task Type | Agent | Tools Available |
 |----------|-------|----------------|
-| `neovim` | `neovim-research-agent` | WebSearch, WebFetch, Read, documentation review |
-| `latex` | `researcher` | Web search, documentation review |
-| `typst` | `researcher` | Web search, documentation review |
 | `markdown` | `researcher` | Web search, documentation review |
 | `meta` | `researcher` | Read, Grep, Glob |
 | `general` | `researcher` | Web search, documentation review |
+| _{extension}_ | _Extension-provided agent_ | _Defined by extension manifest_ |
 
-**Critical**: Language extraction MUST occur before routing. Incorrect routing bypasses language-specific tooling.
+**Critical**: Language extraction MUST occur before routing. Incorrect routing bypasses task-type-specific tooling.
 
 ---
 
@@ -122,33 +118,11 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
    - Best practices
    - Potential pitfalls
 
-#### For Neovim Research:
+#### For Extension-Specific Research:
 
-**Action**: Conduct research using Neovim-specific tools
+**Action**: Conduct research using extension-provided tools and workflows
 
-**Process**:
-1. Use WebSearch to find plugin documentation:
-   - Search for plugin READMEs
-   - Find configuration examples
-   - Discover related plugins
-2. Use WebFetch to retrieve documentation:
-   - Fetch plugin documentation
-   - Get configuration guides
-   - Access API references
-3. Use Read to explore codebase:
-   - Analyze existing configuration
-   - Check module structure
-   - Explore dependencies
-4. Review Neovim documentation:
-   - Neovim API docs
-   - lazy.nvim guide
-   - Plugin documentation
-5. Synthesize findings:
-   - Relevant plugins
-   - Configuration patterns
-   - Lua module structure
-   - Keymap conventions
-   - API recommendations
+Extension research agents follow the same general pattern but use domain-specific tools, search strategies, and synthesis patterns defined in their extension context. See `.claude/extensions/*/context/` for extension-specific research workflows.
 
 **Checkpoint**: Research conducted
 
@@ -169,12 +143,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
    - **Technical Details**: Specific APIs, functions, theorems, etc.
    - **Considerations**: Potential issues, trade-offs, alternatives
    - **Next Steps**: Recommended actions
-3. For Neovim research, include:
-   - Plugins to use
-   - Configuration patterns
-   - Lua module structure
-   - Keymap conventions
-   - Example code snippets
+3. For extension-specific research, include domain-relevant details as defined by the extension context
 4. Validate report:
    - All research questions addressed
    - Findings are clear and actionable
@@ -187,7 +156,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 - Relevant documentation and references cited
 - Clear recommendations for implementation
 - Technical details and considerations documented
-- NO EMOJI (per documentation.md standards)
+- NO EMOJI (per documentation-standards.md)
 
 **Checkpoint**: Research report created
 
@@ -235,7 +204,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 2. status-sync-manager performs atomic update:
    - Update TODO.md:
      - Status: [NOT STARTED] → [RESEARCHED]
-     - Add **Research**: {report_path} using count-aware format (see state-management.md "Artifact Linking Format")
+     - Add **Research**: {report_path} using count-aware format (see `artifact-linking-todo.md`)
      - Add **Completed**: {date}
    - Update state.json:
      - Update status and timestamps
@@ -277,7 +246,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 
 ### Step 7: Prepare Return
 
-**Action**: Format return object per subagent-return-format.md
+**Action**: Format return object per subagent-return.md
 
 **Process**:
 1. Build return object:
@@ -296,7 +265,7 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
        "task_number": {number},
        "findings_count": {count},
        "recommendations_count": {count},
-       "language": "{language}"
+       "task_type": "{task_type}"
      },
      "session_id": "{session_id}"
    }
@@ -447,8 +416,8 @@ Proceeding with researcher agent (web search, documentation)
 ```
 Error: Routing validation failed: language={language}, agent={agent}
 
-Expected: language=neovim → agent=neovim-research-agent
-Got: language=neovim → agent=researcher
+Expected: language={extension} → agent={extension}-research-agent
+Got: language={extension} → agent=researcher
 
 Recommendation: Fix language extraction or routing logic
 ```
@@ -506,7 +475,7 @@ Error: {git_error}
 - Relevant documentation and references cited
 - Clear recommendations for implementation
 - Technical details and considerations documented
-- NO EMOJI (per documentation.md standards)
+- NO EMOJI (per documentation-standards.md)
 
 ### Status Marker Compliance
 
@@ -550,37 +519,9 @@ grep -A 50 "^### ${task_number}\." specs/TODO.md > specs/tmp/task-${task_number}
 
 ---
 
-## Neovim-Specific Research Tools
+## Extension-Specific Research Tools
 
-### WebSearch
-
-**Purpose**: Find plugin documentation and examples
-**Usage**: Search for plugin READMEs, configuration guides
-**Output**: Relevant documentation links
-
-**Example**:
-```
-Query: "telescope.nvim configuration"
-Results: Plugin README, wiki pages, configuration examples
-```
-
-### WebFetch
-
-**Purpose**: Retrieve plugin documentation
-**Usage**: Fetch README files, API documentation
-**Output**: Full documentation content
-
-**Example**:
-```
-URL: https://github.com/nvim-telescope/telescope.nvim
-Results: Full README with configuration examples
-```
-
-### Read
-
-**Purpose**: Explore existing codebase
-**Usage**: Analyze configuration, check module structure
-**Output**: File contents for analysis
+Extension-provided research agents may have access to additional tools beyond the core set. These are defined in the extension's manifest and context files. See `.claude/extensions/*/manifest.json` for tool availability per extension.
 
 ---
 
@@ -620,4 +561,4 @@ Use most appropriate tool for each research task:
 - **Agent**: `.claude/agents/general-research-agent.md`
 - **Return Format**: `.claude/context/formats/subagent-return.md`
 - **Artifact Formats**: `.claude/rules/artifact-formats.md`
-- **Extension Context**: `.claude/extensions/*/context/` (language-specific)
+- **Extension Context**: `.claude/extensions/*/context/` (task-type-specific)

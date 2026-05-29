@@ -1,8 +1,8 @@
 ---
 description: Create implementation plan for a task
-allowed-tools: Skill, Bash(jq:*), Bash(git:*), Read, Edit
-argument-hint: TASK_NUMBER [--team [--team-size N]]
-model: claude-opus-4-5-20251101
+allowed-tools: Skill, Agent, Bash(jq:*), Bash(git:*), Read, Edit
+argument-hint: TASK_NUMBERS [--team [--team-size N]] [--fast|--hard] [--haiku|--sonnet|--opus]
+model: opus
 ---
 
 # /plan Command
@@ -11,7 +11,14 @@ Create a phased implementation plan for a task by delegating to the planner skil
 
 ## Arguments
 
-- `$1` - Task number (required)
+- `$1` - Task number(s) (required). Supports:
+  - Single task: `352`
+  - Comma-separated: `7, 22, 59`
+  - Ranges: `22-24`
+  - Combined: `7, 22-24, 59`
+- Remaining args - Optional flags
+
+When multiple task numbers are provided, the command enters multi-task mode (see STAGE 0 below). Single task numbers fall through to the existing single-task flow unchanged.
 
 ## Options
 
@@ -19,12 +26,212 @@ Create a phased implementation plan for a task by delegating to the planner skil
 |------|-------------|---------|
 | `--team` | Enable multi-agent parallel planning with multiple teammates | false |
 | `--team-size N` | Number of planning teammates to spawn (2-3) | 2 |
+| `--fast` | Low-effort mode: lighter reasoning, faster responses | false |
+| `--hard` | High-effort mode: deeper reasoning, more thorough analysis | false |
+| `--haiku` | Use Haiku model (fastest, lowest cost) | false |
+| `--sonnet` | Use Sonnet model (balanced cost/quality) | false |
+| `--opus` | Use Opus model (highest quality, same as agent default) | false |
+| `--clean` | Skip automatic memory retrieval | false |
+| `--roadmap` | Include ROADMAP.md review/update phases in plan | false |
 
 When `--team` is specified, planning is delegated to `skill-team-plan` which spawns multiple planning agents generating alternative plans in parallel. Each teammate produces a plan candidate, and the lead synthesizes findings into a final plan with trade-off analysis.
 
 **Note**: Team mode requires `CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1` environment variable. If unavailable, gracefully degrades to single-agent planning.
 
+## Anti-Bypass Constraint
+
+**PROHIBITION**: You MUST NOT write plan artifacts directly using Write or Edit tools. All plan files MUST be created by invoking the appropriate skill (skill-planner or skill-team-plan) via the Skill tool.
+
+**Why**: Direct writes bypass format enforcement (validate-artifact.sh), produce non-conforming artifacts missing required metadata fields and sections, and circumvent the delegation chain that ensures quality. A PostToolUse hook monitors all Write/Edit operations to artifact paths and will flag violations with corrective context.
+
+**Required**: Always delegate to the Skill tool. Never write to `specs/*/plans/*.md` directly from this command.
+
 ## Execution
+
+### STAGE 0: PARSE TASK NUMBERS
+
+**Parse task arguments to separate task numbers from remaining args.**
+
+```bash
+parse_task_args() {
+  local input="$1"
+  local task_spec=""
+  local remaining=""
+
+  # Match leading task specification: digits, commas, hyphens, spaces
+  # Stop at first alphabetic char or -- flag
+  if [[ "$input" =~ ^([0-9][0-9,\ \-]*)(\ +.*)?$ ]]; then
+    task_spec="${BASH_REMATCH[1]}"
+    remaining="${BASH_REMATCH[2]}"
+  else
+    echo "[FAIL] No task number found in arguments"
+    return 1
+  fi
+
+  # Trim trailing whitespace/commas from task_spec
+  task_spec=$(echo "$task_spec" | sed 's/[, ]*$//')
+
+  # Parse through existing parse_ranges()
+  task_numbers=($(parse_ranges "$task_spec"))
+
+  # Trim leading whitespace from remaining
+  remaining=$(echo "$remaining" | sed 's/^[[:space:]]*//')
+
+  echo "TASK_NUMBERS=${task_numbers[*]}"
+  echo "REMAINING_ARGS=$remaining"
+}
+```
+
+**Examples**:
+
+| Input | task_numbers | remaining_args | Mode |
+|-------|-------------|----------------|------|
+| `7` | `[7]` | `` | single |
+| `7, 22-24, 59` | `[7, 22, 23, 24, 59]` | `` | multi |
+| `7 --team` | `[7]` | `--team` | single |
+| `7, 22-24 --team` | `[7, 22, 23, 24]` | `--team` | multi |
+| `42 --team --team-size 3` | `[42]` | `--team --team-size 3` | single |
+
+**Dispatch decision**:
+
+```
+task_numbers = parse_task_args($ARGUMENTS)
+
+if len(task_numbers) == 1:
+    # SINGLE-TASK MODE
+    task_number = task_numbers[0]
+    # Fall through to CHECKPOINT 1: GATE IN below
+    # Existing single-task flow proceeds unchanged
+
+elif len(task_numbers) > 1:
+    # MULTI-TASK MODE
+    # Continue to MULTI-TASK DISPATCH below
+```
+
+### MULTI-TASK DISPATCH
+
+When `parse_task_args()` produces more than one task number, execute the batch flow below instead of the single-task checkpoints.
+
+#### Step 1: Batch Validation
+
+Validate all tasks exist and are not in a terminal state:
+
+```bash
+validated_tasks=()
+invalid_tasks=()
+
+for task_num in "${task_numbers[@]}"; do
+  task_data=$(jq -r --argjson num "$task_num" \
+    '.active_projects[] | select(.project_number == $num)' \
+    specs/state.json)
+
+  if [ -z "$task_data" ]; then
+    invalid_tasks+=("$task_num: not found")
+    continue
+  fi
+
+  status=$(echo "$task_data" | jq -r '.status')
+
+  # /plan accepts any non-terminal status
+  if [ "$status" = "completed" ] || [ "$status" = "abandoned" ] || [ "$status" = "expanded" ]; then
+    invalid_tasks+=("$task_num: terminal status [$status]")
+  else
+    validated_tasks+=("$task_num")
+  fi
+done
+
+# Report invalid tasks but continue with valid ones
+if [ ${#invalid_tasks[@]} -gt 0 ]; then
+  echo "[WARN] Skipping invalid tasks:"
+  for msg in "${invalid_tasks[@]}"; do
+    echo "  - $msg"
+  done
+fi
+
+if [ ${#validated_tasks[@]} -eq 0 ]; then
+  echo "[FAIL] No valid tasks to process"
+  exit 1
+fi
+```
+
+#### Step 2: Generate Batch Session ID
+
+```bash
+batch_session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
+```
+
+#### Step 3: Dispatch Skills
+
+For each validated task, invoke the appropriate planner skill using parallel Skill tool calls from the orchestrator's built-in batch loop:
+
+1. Extract task_type per task from state.json
+2. Route each task to the appropriate planner skill (extension routing or default `skill-planner`)
+3. Invoke all skills in a single message (parallel execution, one skill per task)
+4. Each skill runs the full single-task planning lifecycle independently (preflight, agent delegation, postflight)
+5. Collect text results from all skills; read `.return-meta.json` in each task directory for structured data if needed
+
+**Note**: Batch dispatch is handled directly by this command's orchestrator loop via parallel Skill tool calls, not by a separate batch skill.
+
+#### Step 4: Batch Git Commit
+
+After all skills return, produce a single git commit. Per-skill postflight may have already committed individual task changes; this batch commit captures any remaining unstaged changes and may be empty (which fails gracefully).
+
+**Full success**:
+```
+plan tasks {range_summary}: create implementation plan
+
+Tasks: {comma-separated list}
+Session: {batch_session_id}
+```
+
+**Partial success**:
+```
+plan tasks {range_summary}: create implementation plan ({succeeded}/{total} succeeded)
+
+Tasks completed: {comma-separated}
+Tasks failed: {num} ({reason})[, {num} ({reason})]
+Session: {batch_session_id}
+```
+
+#### Step 5: Consolidated Output
+
+```markdown
+## Batch Plan Results
+
+Session: {batch_session_id}
+Tasks requested: {count}
+Succeeded: {count}
+Failed: {count}
+Skipped: {count}
+
+### Succeeded
+
+| Task | Title | Status | Artifact |
+|------|-------|--------|----------|
+| #7 | task_title | [PLANNED] | specs/007_slug/plans/01_short.md |
+| #22 | task_title | [PLANNED] | specs/022_slug/plans/01_short.md |
+
+### Failed
+
+| Task | Error |
+|------|-------|
+| #23 | Invalid status [IMPLEMENTING] |
+
+### Skipped
+
+| Task | Reason |
+|------|--------|
+| #99 | Not found in state.json |
+
+### Next Steps
+- /implement 7, 22, 24, 59
+```
+
+**End of multi-task flow. Do NOT continue to the single-task checkpoints below.**
+
+---
+
+**The sections below handle SINGLE-TASK mode only (when `parse_task_args()` produces exactly one task number).**
 
 ### CHECKPOINT 1: GATE IN
 
@@ -47,14 +254,17 @@ When `--team` is specified, planning is delegated to `skill-team-plan` which spa
 
 3. **Validate**
    - Task exists (ABORT if not)
-   - Status allows planning: not_started, researched, partial
-   - If planned: Note existing plan, offer --force for revision
-   - If completed: ABORT "Task already completed"
-   - If implementing: ABORT "Task in progress, use /revise instead"
+   - If completed, abandoned, or expanded: ABORT "Task is in terminal state"
+   - All other states: proceed
 
 4. **Load Context**
    - Task description from state.json
    - Research reports from `specs/{NNN}_{SLUG}/reports/` (if any)
+   - Discover prior plan (if any):
+     ```bash
+     padded_num=$(printf "%03d" "$task_number")
+     prior_plan_path=$(ls -1 "specs/${padded_num}_${project_name}/plans/"*.md 2>/dev/null | sort -V | tail -1)
+     ```
 
 **ABORT** if any validation fails.
 
@@ -62,7 +272,7 @@ When `--team` is specified, planning is delegated to `skill-team-plan` which spa
 
 ### STAGE 1.5: PARSE FLAGS
 
-**Parse arguments to determine team mode.**
+**Parse arguments to determine team mode, effort level, and model override.**
 
 1. **Extract Team Options**
    Check args for team flags:
@@ -79,6 +289,35 @@ When `--team` is specified, planning is delegated to `skill-team-plan` which spa
    [ "$team_size" -gt 3 ] && team_size=3
    ```
 
+3. **Extract Effort Flags**
+   Check remaining args for effort flags:
+   - `--fast` -> `effort_flag = "fast"` (low-effort mode: lighter reasoning)
+   - `--hard` -> `effort_flag = "hard"` (high-effort mode: deeper reasoning)
+
+   If multiple are provided, last one wins.
+   If none: `effort_flag = null` (normal effort)
+
+4. **Extract Model Flags**
+   Check remaining args for model flags:
+   - `--haiku` -> `model_flag = "haiku"` (use Haiku model)
+   - `--sonnet` -> `model_flag = "sonnet"` (use Sonnet model)
+   - `--opus` -> `model_flag = "opus"` (use Opus model)
+
+   If multiple are provided, last one wins.
+   If none: `model_flag = null` (use agent's frontmatter default: opus for planner/meta-builder/reviser; sonnet for general-purpose agents)
+
+5. **Extract Clean Flag**
+   Check remaining args for memory retrieval suppression:
+   - `--clean` -> `clean_flag = true` (skip automatic memory retrieval)
+
+   If not present: `clean_flag = false`
+
+6. **Extract Roadmap Flag**
+   Check remaining args for roadmap phase injection:
+   - `--roadmap` -> `roadmap_flag = true` (add ROADMAP.md review/update phases to plan)
+
+   If not present: `roadmap_flag = false`
+
 **On STAGE 1.5 success**: Flags parsed. **IMMEDIATELY CONTINUE** to STAGE 2 below.
 
 ### STAGE 2: DELEGATE
@@ -93,18 +332,18 @@ If `team_mode == true`:
 
 **Extension Routing** (when `--team` flag NOT present):
 
-Check extension manifests for language-specific plan routing:
+Check extension manifests for task-type-specific plan routing:
 
 ```bash
-# Get task language
-language=$(echo "$task_data" | jq -r '.language // "general"')
+# Get task_type (may be simple "founder" or compound "founder:deck")
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 
 # Check extension routing for plan (skill_name starts empty)
 skill_name=""
 for manifest in .claude/extensions/*/manifest.json; do
   if [ -f "$manifest" ]; then
-    ext_skill=$(jq -r --arg lang "$language" \
-      '.routing.plan[$lang] // empty' "$manifest")
+    ext_skill=$(jq -r --arg tt "$task_type" \
+      '.routing.plan[$tt] // empty' "$manifest")
     if [ -n "$ext_skill" ]; then
       skill_name="$ext_skill"
       break
@@ -112,15 +351,32 @@ for manifest in .claude/extensions/*/manifest.json; do
   fi
 done
 
+# Fallback: if compound key (contains ":"), try base task_type
+if [ -z "$skill_name" ] && echo "$task_type" | grep -q ":"; then
+  base_type=$(echo "$task_type" | cut -d: -f1)
+  for manifest in .claude/extensions/*/manifest.json; do
+    if [ -f "$manifest" ]; then
+      ext_skill=$(jq -r --arg tt "$base_type" \
+        '.routing.plan[$tt] // empty' "$manifest")
+      if [ -n "$ext_skill" ]; then
+        skill_name="$ext_skill"
+        break
+      fi
+    fi
+  done
+fi
+
 # Fallback to default planner if no extension routing found
 skill_name=${skill_name:-"skill-planner"}
 ```
 
 **Extension-Based Routing Table**:
 
-| Language | Skill to Invoke |
-|----------|-----------------|
+| Task Type | Skill to Invoke |
+|-----------|-----------------|
 | `founder` | `skill-founder-plan` (from founder extension) |
+| `founder:deck` | `skill-deck-plan` (from founder extension) |
+| `founder:{sub-type}` | Compound key lookup, falls back to `skill-founder-plan` |
 | Other | `skill-planner` (default) |
 
 **Skill Selection Logic**:
@@ -135,16 +391,24 @@ else:
 ```
 # For team mode:
 skill: "skill-team-plan"
-args: "task_number={N} research_path={path to research report if exists} team_size={team_size} session_id={session_id}"
+args: "task_number={N} research_path={path to research report if exists} prior_plan_path={path to prior plan if exists} team_size={team_size} session_id={session_id} effort_flag={effort_flag} model_flag={model_flag} clean_flag={clean_flag} roadmap_flag={roadmap_flag}"
 
 # For extension-routed skill (e.g., skill-founder-plan):
 skill: "{skill_name from extension routing}"
-args: "task_number={N} research_path={path to research report if exists} session_id={session_id}"
+args: "task_number={N} research_path={path to research report if exists} prior_plan_path={path to prior plan if exists} session_id={session_id} effort_flag={effort_flag} model_flag={model_flag} clean_flag={clean_flag} roadmap_flag={roadmap_flag}"
 
 # For default single-agent mode:
 skill: "skill-planner"
-args: "task_number={N} research_path={path to research report if exists} session_id={session_id}"
+args: "task_number={N} research_path={path to research report if exists} prior_plan_path={path to prior plan if exists} session_id={session_id} effort_flag={effort_flag} model_flag={model_flag} clean_flag={clean_flag} roadmap_flag={roadmap_flag}"
 ```
+
+If `model_flag` is set, pass the `model` parameter to override the agent's default model:
+- `model_flag="haiku"` -> pass `model: haiku`
+- `model_flag="sonnet"` -> pass `model: sonnet`
+- `model_flag="opus"` -> pass `model: opus`
+- `model_flag=null` -> omit `model` parameter (use agent's frontmatter default: opus for planner/meta-builder/reviser; sonnet for general-purpose agents)
+
+If `effort_flag` is set, pass it as prompt context to the skill/agent for reasoning depth guidance.
 
 The skill spawns agent(s) which analyze task requirements and research findings, decompose into logical phases, identify risks and mitigations, and create a plan in `specs/{NNN}_{SLUG}/plans/`.
 
@@ -162,6 +426,63 @@ The skill spawns agent(s) which analyze task requirements and research findings,
    The skill handles status updates internally (preflight and postflight).
    Confirm status is now "planned" in state.json.
 
+4. **Verify state.json Status (Defensive)**
+
+   **Only when skill reports success:**
+
+   Check that state.json shows status "planned" for this task. If not, apply defensive correction:
+
+   ```bash
+   # Check if state.json status is "planned"
+   current_status=$(jq -r --argjson num "$task_number" \
+     '.active_projects[] | select(.project_number == $num) | .status' \
+     specs/state.json)
+
+   if [ "$current_status" = "planned" | not ]; then
+       echo "WARNING: state.json status is '$current_status', expected 'planned'. Applying defensive correction."
+       bash .claude/scripts/update-task-status.sh postflight "$task_number" plan "$session_id"
+   fi
+   ```
+
+5. **Verify TODO.md Status (Defensive)**
+
+   **Only when skill reports success:**
+
+   Check that the task entry in TODO.md shows `[PLANNED]`. If it still shows `[PLANNING]`, apply correction:
+
+   ```bash
+   # Check if TODO.md task entry still shows [PLANNING]
+   if grep -q "- \*\*Status\*\*: \[PLANNING\]" <(grep -A 5 "^### ${task_number}\." specs/TODO.md); then
+       echo "WARNING: TODO.md status not updated to [PLANNED]. Applying defensive correction."
+   fi
+   ```
+
+   If the check finds a mismatch, use Edit tool to fix both:
+   - Task entry: `- **Status**: [PLANNING]` -> `- **Status**: [PLANNED]`
+   - Task Order: `**{N}** [PLANNING]` -> `**{N}** [PLANNED]`
+
+6. **Verify Plan File Status (Defensive)**
+
+   **Only when skill reports success:**
+
+   Check that the plan file status marker shows `[NOT STARTED]` (expected state for a newly created plan). If it shows something unexpected like `[PLANNING]`, log a warning:
+
+   ```bash
+   # Find latest plan file
+   padded_num=$(printf "%03d" "$task_number")
+   project_name=$(jq -r --argjson num "$task_number" \
+     '.active_projects[] | select(.project_number == $num) | .project_name' \
+     specs/state.json)
+   plan_file=$(ls -1 "specs/${padded_num}_${project_name}/plans/"*.md 2>/dev/null | sort -V | tail -1)
+
+   if [ -n "$plan_file" ] && [ -f "$plan_file" ]; then
+       # Check if plan file has a valid status (NOT STARTED or IMPLEMENTING)
+       if grep -qE '^\*\*Status\*\*: \[PLANNING\]|^\- \*\*Status\*\*: \[PLANNING\]' "$plan_file"; then
+           echo "WARNING: Plan file status still shows [PLANNING]. Expected [NOT STARTED] for newly created plan."
+       fi
+   fi
+   ```
+
 **RETRY** skill if validation fails.
 
 **On GATE OUT success**: Plan verified. **IMMEDIATELY CONTINUE** to CHECKPOINT 3 below.
@@ -175,7 +496,6 @@ task {N}: create implementation plan
 
 Session: {session_id}
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```
@@ -200,7 +520,7 @@ Next: /implement {N}
 
 ### GATE IN Failure
 - Task not found: Return error with guidance
-- Invalid status: Return error with current status
+- Terminal status (completed/abandoned): Return error with current status
 
 ### DELEGATE Failure
 - Skill fails: Keep [PLANNING], log error

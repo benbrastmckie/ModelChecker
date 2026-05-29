@@ -59,12 +59,12 @@ User: /research 197
 
 GATE IN:
 - Task 197 exists: YES
-- Language: neovim
+- Task Type: general
 - Session: sess_1735460684_a1b2c3
 - Status update: [RESEARCHING]
 
 DELEGATE:
-- Route to: neovim-research-agent
+- Route to: general-research-agent
 - Timeout: 3600s
 
 GATE OUT:
@@ -171,13 +171,13 @@ Error: Phantom research detected
 
 **Detection**:
 ```
-[FAIL] Routing validation failed: language=neovim but agent=researcher
+[FAIL] Routing validation failed: task_type={extension} but agent=researcher
 ```
 
 **Fix**:
-1. Verify **Language** field in TODO.md
+1. Verify **Task Type** field in TODO.md
 2. Check routing configuration
-3. Re-run after fixing language field
+3. Re-run after fixing task_type field
 
 ### Symptom: Session ID Mismatch
 
@@ -275,8 +275,8 @@ For conflict resolution, git blame determines which file has more recent changes
 ### Routing Logs
 
 ```
-[INFO] Task 258 language: neovim
-[INFO] Routing to neovim-research-agent (language=neovim)
+[INFO] Task 258 task_type: general
+[INFO] Routing to general-research-agent (task_type=general)
 [PASS] Routing validation succeeded
 ```
 

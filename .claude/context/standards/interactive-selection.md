@@ -173,7 +173,7 @@ User selects from multiple items.
   "options": [
     {
       "label": "Add LSP configuration",
-      "description": "nvim/lua/Layer1/Modal.lua:67"
+      "description": "src/config/server.ext:67"
     },
     {
       "label": "Implement helper function",

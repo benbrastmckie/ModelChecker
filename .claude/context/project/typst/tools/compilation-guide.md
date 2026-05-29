@@ -55,9 +55,9 @@ Typst is significantly faster than LaTeX:
 - Incremental recompilation in watch mode
 - No auxiliary file overhead
 
-## Neovim Integration
+## Editor Integration
 
-With typst.vim or similar:
-- `:TypstCompile` - Compile document
-- `:TypstWatch` - Start watch mode
+Most editors with Typst support provide:
+- Compile command - Compile document
+- Watch mode - Start watch mode with auto-refresh
 - Automatic compilation on save

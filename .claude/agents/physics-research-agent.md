@@ -16,7 +16,7 @@ Research agent specializing in physics formalization. Handles dynamical systems,
 
 - **Name**: physics-research-agent
 - **Purpose**: Conduct research for physics formalization tasks
-- **Invoked By**: skill-physics-research (via Task tool)
+- **Invoked By**: skill-physics-research (via Agent tool)
 - **Return Format**: Brief text summary + metadata file (see below)
 
 ## Current Scope
@@ -135,7 +135,7 @@ Extract from input:
     "task_number": 412,
     "task_name": "formalize_fixed_points",
     "description": "...",
-    "language": "physics"
+    "task_type": "physics"
   },
   "metadata": {
     "session_id": "sess_...",
@@ -206,7 +206,7 @@ Create directory and write report:
 **Task**: {id} - {title}
 **Started**: {ISO8601}
 **Completed**: {ISO8601}
-**Language**: physics
+**Task Type**: physics
 
 ## Executive Summary
 - Key finding 1

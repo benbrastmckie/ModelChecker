@@ -19,6 +19,8 @@ Core skills are always available regardless of which extensions are loaded.
 |-------|-------|-------|---------|
 | skill-implementer | general-implementation-agent | - | General file implementation |
 | skill-meta | meta-builder-agent | - | System building and meta tasks |
+| skill-reviser | reviser-agent | opus | Plan revision with research synthesis |
+| skill-spawn | spawn-agent | opus | Blocker analysis and task decomposition |
 
 ### Direct Execution Skills
 
@@ -29,6 +31,9 @@ These skills execute directly without agent delegation:
 | skill-status-sync | Atomic status updates to state.json/TODO.md |
 | skill-refresh | Process and file cleanup |
 | skill-todo | Archive completed tasks, sync metrics |
+| skill-orchestrate | Autonomous lifecycle state machine — drives research/plan/implement loop (/orchestrate command) |
+| skill-git-workflow | Create scoped git commits for task operations |
+| skill-fix-it | Scan codebase for tagged comments and create structured tasks |
 
 ### User-Only Skills
 
@@ -50,15 +55,15 @@ When `--team` flag is passed to commands, routing overrides to team skills which
 
 **Graceful Degradation**: If team mode unavailable, falls back to single-agent mode.
 
-**Cost Note**: Team mode uses ~5x tokens compared to single-agent. Default team_size=2 minimizes cost.
+**Cost Note**: Team mode uses ~5x tokens compared to single-agent. Default team_size=3 (Primary + Alternatives + Critic). Use `--fast` for 2 or `--hard` for 4.
 
-## Language-Based Routing
+## Task-Type-Based Routing
 
 Skills are selected based on task language:
 
 ### Core Languages
 
-| Language | Research Skill | Implementation Skill | Tools |
+| Task Type | Research Skill | Implementation Skill | Tools |
 |----------|----------------|---------------------|-------|
 | `general` | skill-researcher | skill-implementer | WebSearch, WebFetch, Read, Write, Edit, Bash |
 | `meta` | skill-researcher | skill-implementer | Read, Grep, Glob, Write, Edit |
@@ -71,7 +76,7 @@ Extensions define their own skill-to-agent mappings via `manifest.json`:
 ```json
 {
   "name": "extension-name",
-  "languages": ["lang1", "lang2"],
+  "task_types": ["lang1", "lang2"],
   "skills": {
     "skill-lang-research": "lang-research-agent",
     "skill-lang-implementation": "lang-implementation-agent"
@@ -79,11 +84,11 @@ Extensions define their own skill-to-agent mappings via `manifest.json`:
 }
 ```
 
-When an extension is loaded (via `<leader>ac` or `@-reference`), its skills become available for routing.
+When an extension is loaded (via the extension picker or `@-reference`), its skills become available for routing.
 
 **Example Extension Routing** (when lean extension loaded):
 
-| Language | Research Skill | Implementation Skill |
+| Task Type | Research Skill | Implementation Skill |
 |----------|----------------|---------------------|
 | `lean4` | skill-lean-research | skill-lean-implementation |
 
@@ -107,7 +112,7 @@ Command invoked with task N
          │
          ▼
 ┌─────────────────┐
-│ Get task.language│
+│ Get task.task_type│
 │ from state.json  │
 └────────┬────────┘
          │
@@ -138,7 +143,7 @@ Command invoked with task N
 
 Extensions are loaded via:
 
-1. **Keybind**: `<leader>ac` opens extension selector
+1. **Extension picker**: Opens extension selector
 2. **@-reference**: `@.claude/extensions/lean/context/...` auto-loads extension
 3. **Context discovery**: Agents query `index.json` which includes merged extension entries
 
@@ -151,6 +156,6 @@ When extension loaded:
 
 ## Related Documentation
 
-- [State JSON Schema](state-json-schema.md) - Task language field values
+- [State Management Schema](state-management-schema.md) - Task task_type field values
 - [Agent Frontmatter Standard](../../docs/reference/standards/agent-frontmatter-standard.md) - Model declarations
 - [Extensions Architecture](../../extensions/README.md) - Extension structure

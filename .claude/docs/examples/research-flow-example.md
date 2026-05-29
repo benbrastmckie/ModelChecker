@@ -18,19 +18,15 @@ User Input: /research 427
        v
 [Layer 1: Command] .claude/commands/research.md
        |
-       | Frontmatter specifies: agent: orchestrator
-       v
-[Orchestrator] skill-orchestrator/SKILL.md
-       |
-       | 1. Parse $ARGUMENTS -> task_number = 427
-       | 2. Lookup task in state.json -> language = "meta"
-       | 3. Route by language: meta -> skill-researcher
+       | 1. parse-command-args.sh -> task_number = 427
+       | 2. command-gate-in.sh -> session_id, task validation
+       | 3. command-route-skill.sh -> meta -> skill-researcher
        v
 [Layer 2: Skill] skill-researcher/SKILL.md
        |
-       | 1. Validate task exists
+       | 1. skill-base.sh: validate, preflight, marker
        | 2. Prepare delegation context
-       | 3. Invoke general-research-agent via Task tool
+       | 3. Invoke general-research-agent via Agent tool
        v
 [Layer 3: Agent] general-research-agent.md
        |
@@ -38,12 +34,11 @@ User Input: /research 427
        | 2. Load required context files
        | 3. Execute research (codebase + web)
        | 4. Create report artifact
-       | 5. Update status
-       | 6. Return JSON result
+       | 5. Write .return-meta.json
        v
 [Return Flow]
        |
-       | Agent -> Skill -> Orchestrator -> User
+       | Agent -> Skill (postflight) -> Command (gate-out) -> User
        v
 Output: Research report created at specs/427_document.../reports/01_research-findings.md
 ```
@@ -58,81 +53,46 @@ Output: Research report created at specs/427_document.../reports/01_research-fin
 /research 427
 ```
 
-Claude Code reads `.claude/commands/research.md` and sees:
+Claude Code reads `.claude/commands/research.md`, which executes shared infrastructure scripts.
 
-```yaml
----
-name: research
-agent: orchestrator
-description: Conduct research for a task
-routing:
-  language_based: true
-  neovim: skill-neovim-research
-  default: skill-researcher
----
+### Step 2: Command Parses Arguments and Validates Task
+
+The command uses shared gate scripts instead of a separate orchestrator.
+
+**STAGE 0: Parse Arguments** (`parse-command-args.sh`)
+```bash
+source .claude/scripts/parse-command-args.sh "427"
+# Exports: TASK_NUMBERS=(427), TEAM_MODE=false, EFFORT_FLAG=, MODEL_FLAG=
 ```
 
-### Step 2: Orchestrator Receives Command
-
-The orchestrator (skill-orchestrator) receives `$ARGUMENTS = "427"`.
-
-**Orchestrator Stage 1: Parse Arguments**
-```
-Input: $ARGUMENTS = "427"
-Parsed: task_number = 427
+**CHECKPOINT 1: Gate In** (`command-gate-in.sh`)
+```bash
+source .claude/scripts/command-gate-in.sh 427 "research"
+# Validates task exists, generates session_id, updates status to "researching"
+# Exports: SESSION_ID, TASK_TYPE="meta", PROJECT_NAME, PADDED_NUM
 ```
 
-**Orchestrator Stage 2: Lookup Task**
-
-Read from `specs/state.json`:
-```json
-{
-  "project_number": 427,
-  "project_name": "document_command_skill_subagent_framework",
-  "status": "researching",
-  "language": "meta",
-  "priority": "medium"
-}
-```
-
-Extracted:
-- task_number = 427
-- language = "meta"
-- status = "researching"
-- project_name = "document_command_skill_subagent_framework"
-
-**Orchestrator Stage 3: Route by Language**
-
-```
-Language: "meta"
-Routing rules from command frontmatter:
-  neovim -> skill-neovim-research
-  default -> skill-researcher
-
-Decision: "meta" matches default -> invoke skill-researcher
+**STAGE 2: Route by Task Type** (`command-route-skill.sh`)
+```bash
+source .claude/scripts/command-route-skill.sh "research" "meta" "skill-researcher"
+# Routes: meta -> skill-researcher (default)
+# Extension task types route to domain-specific skills
 ```
 
 ### Step 3: Skill Validates and Delegates
 
-The skill (`skill-researcher/SKILL.md`) receives the routing.
+The command invokes `skill-researcher` via the Skill tool. The skill uses `skill-base.sh` shared lifecycle functions.
 
-**Skill Step 1: Input Validation**
+**Skill Steps 1-3: Validate, Preflight, Marker** (`skill-base.sh`)
 
 ```bash
-# Lookup task
-task_data=$(jq -r --arg num "427" \
-  '.active_projects[] | select(.project_number == ($num | tonumber))' \
-  specs/state.json)
-
-# Validate exists -> YES
-# Extract fields
-language="meta"
-status="researching"
-project_name="document_command_skill_subagent_framework"
-description="Systematically document the framework..."
+source .claude/scripts/skill-base.sh
+skill_validate_input 427          # Lookup task, extract TASK_TYPE, PROJECT_NAME, etc.
+skill_preflight_update 427 "research" "$session_id"  # Status -> researching
+skill_create_postflight_marker 427 "$PROJECT_NAME" "$session_id" "skill-researcher" "research"
 ```
 
-**Skill Step 2: Prepare Delegation Context**
+**Skill Step 4: Prepare Delegation Context**
 
 ```json
 {
@@ -144,15 +104,15 @@ description="Systematically document the framework..."
     "task_number": 427,
     "task_name": "document_command_skill_subagent_framework",
     "description": "Systematically document the framework for using commands, skills, and subagents in conjunction.",
-    "language": "meta"
+    "task_type": "meta"
   },
   "focus_prompt": null
 }
 ```
 
-**Skill Step 3: Invoke Subagent**
+**Skill Step 5: Invoke Subagent**
 
-The skill invokes `general-research-agent` via the Task tool.
+The skill invokes `general-research-agent` via the Agent tool.
 
 ### Step 4: Agent Executes Research
 
@@ -228,70 +188,65 @@ mkdir -p specs/427_document_command_skill_subagent_framework/reports/
 write 01_research-findings.md
 ```
 
-**Agent Stage 6: Update Status**
+**Agent Stage 6: Write Metadata File**
 
-```bash
-# Update state.json
-jq '.active_projects |= map(
-  if .project_number == 427
-  then .status = "researched" | .last_updated = "2026-01-12T05:40:23Z"
-  else . end
-)' state.json > state.json.tmp && mv state.json.tmp state.json
-
-# Update TODO.md
-# Add [RESEARCHED] status and research report link
-```
-
-**Agent Stage 7: Return JSON Result**
+The agent writes `.return-meta.json` (not inline JSON return):
 
 ```json
 {
-  "status": "completed",
-  "summary": "Research completed with 8 key findings on the three-layer architecture. Identified documentation gaps and formed 4 recommendations for component selection, skill creation, agent creation, and integration examples.",
+  "status": "researched",
+  "summary": "Research completed with 8 key findings on the three-layer architecture.",
   "artifacts": [
     {
-      "type": "report",
+      "type": "research",
       "path": "specs/427_document_command_skill_subagent_framework/reports/01_research-findings.md",
       "summary": "Research report with 8 findings and 4 recommendations"
     }
   ],
   "metadata": {
     "session_id": "sess_1736700000_abc123",
-    "duration_seconds": 180,
-    "agent_type": "general-research-agent",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "general-research-agent"],
-    "findings_count": 8
-  },
-  "next_steps": "Run /plan 427 to create implementation plan"
+    "agent_type": "general-research-agent"
+  }
 }
 ```
 
-### Step 5: Return Flow
+### Step 5: Return Flow (Skill Postflight)
 
-**Agent -> Skill**
+**Agent -> Skill Postflight** (`skill-base.sh` functions)
 
-Skill receives JSON, validates against `subagent-return.md`:
-- status is "completed" (valid)
-- summary is non-empty and <100 tokens (valid)
-- artifacts array present with path (valid)
-- metadata contains session_id (valid, matches expected)
+The skill reads the metadata file and runs postflight operations:
 
-Skill propagates return without modification.
-
-**Skill -> Orchestrator**
-
-Orchestrator receives validated result, formats for user.
-
-**Orchestrator -> User**
-
-User sees:
+```bash
+skill_read_metadata "$PADDED_NUM" "$PROJECT_NAME"     # Read .return-meta.json
+skill_validate_artifact "$SUBAGENT_STATUS" "$ARTIFACT_PATH" "research"
+skill_postflight_update 427 "research" "$session_id" "$SUBAGENT_STATUS"  # Status -> researched
+skill_link_artifacts 427 "$ARTIFACT_PATH" "research" "$ARTIFACT_SUMMARY" '**Research**' '**Plan**'
+skill_cleanup "$PADDED_NUM" "$PROJECT_NAME"            # Remove marker and metadata files
 ```
-Research completed for task 427.
 
-Created: specs/427_document_command_skill_subagent_framework/reports/01_research-findings.md
+**Skill -> Command Gate Out** (`command-gate-out.sh`)
 
-Next steps: Run /plan 427 to create implementation plan
+The command runs the gate-out checkpoint:
+
+```bash
+bash .claude/scripts/command-gate-out.sh 427 "research" "$SESSION_ID"
+# Validates artifacts, applies defensive status correction if needed
+```
+
+**Command -> Git Commit**
+
+```bash
+git add -A && git commit -m "task 427: complete research\n\nSession: sess_..."
+```
+
+**User Sees:**
+```
+Research completed for Task #427
+
+Report: specs/427_document.../reports/01_research-findings.md
+
+Status: [RESEARCHED]
+Next: /plan 427
 ```
 
 ---
@@ -301,38 +256,43 @@ Next steps: Run /plan 427 to create implementation plan
 ### Routing Decision
 
 ```
-Input: /research 427 (task language = "meta")
+Input: /research 427 (task_type = "meta")
 
-Command frontmatter:
-  routing:
-    neovim: skill-neovim-research
-    default: skill-researcher
+command-route-skill.sh resolves:
+  source .claude/scripts/command-route-skill.sh "research" "meta" "skill-researcher"
+  # Checks extension manifests for task_type-specific routing
+  # Falls back to default: skill-researcher
 
 Decision tree:
-  Is language "neovim"? NO
+  Is task_type an extension type with custom routing? NO
   -> Use default: skill-researcher
 ```
 
-If task 427 had `language: "neovim"`, the flow would be:
+If task 427 had a task type provided by an extension (e.g., `task_type: "python"`), the flow would route to the extension's skill:
 ```
-orchestrator -> skill-neovim-research -> neovim-research-agent
+command -> command-route-skill.sh -> skill-python-research -> python-research-agent
 ```
 
 ### Context Loading Decision
 
 ```
 Agent: general-research-agent
-Task language: "meta"
+Task type: "meta"
 
-Context loading:
-  Always load:
-    - subagent-return.md (return format)
-    - report-format.md (artifact format)
+Context loading from index.json (4-tier progressive disclosure):
+  Always load (tier 1):
+    - repo/project-overview.md
+    - patterns/anti-stop-patterns.md
 
-  Language-specific (meta):
-    - Load existing skill/agent patterns
-    - NO Lean-specific context
-    - NO LaTeX-specific context
+  Task-type-specific (meta, tier 2-3):
+    - meta/meta-guide.md
+    - architecture/component-checklist.md
+    - reference/skill-agent-mapping.md
+    - (other entries matching task_type "meta" in index.json)
+
+  Agent-specific:
+    - formats/report-format.md (research agent context)
+    - formats/return-metadata-file.md
 ```
 
 ---
@@ -359,19 +319,12 @@ specs/
 If user runs `/research 999` but task 999 does not exist:
 
 ```
-Orchestrator Stage 2:
+command-gate-in.sh:
   Lookup task 999 in state.json -> NOT FOUND
+  Aborts with: "Task 999 not found in state.json"
 
-Return:
-{
-  "status": "failed",
-  "summary": "Task 999 not found in state.json",
-  "errors": [{
-    "type": "validation",
-    "message": "Task 999 not found",
-    "recommendation": "Check task exists with /task --sync"
-  }]
-}
+User sees:
+  Error: Task 999 not found. Check task exists with /task --sync
 ```
 
 ### Scenario B: Network Error During Research
@@ -399,25 +352,25 @@ Return:
 }
 ```
 
-### Scenario C: Neovim Task Routing
+### Scenario C: Extension Task Type Routing
 
-If user runs `/research 259` where task 259 has `language: "neovim"`:
+If user runs `/research 259` where task 259 has `task_type: "python"` (with the python extension loaded):
 
 ```
 Orchestrator Stage 2:
-  Lookup task 259 -> language = "neovim"
+  Lookup task 259 -> task_type = "python"
 
 Orchestrator Stage 3:
-  Routing: neovim -> skill-neovim-research
+  Routing: python -> skill-python-research
 
 Flow:
-  orchestrator -> skill-neovim-research -> neovim-research-agent
+  orchestrator -> skill-python-research -> python-research-agent
 
 Agent uses:
-  - WebSearch for plugin documentation
+  - WebSearch for library documentation
   - WebFetch for API references
   - Read for codebase exploration
-  - Neovim/lazy.nvim context
+  - Python-specific context files
 ```
 
 ---
@@ -427,16 +380,19 @@ Agent uses:
 The session_id flows through all layers:
 
 ```
-Skill generates: session_id = "sess_1736700000_abc123"
+command-gate-in.sh generates: session_id = "sess_1736700000_abc123"
          |
          v
-Agent receives session_id in delegation context
+Command passes session_id to skill via Skill tool args
          |
          v
-Agent includes session_id in return metadata
+Skill passes session_id in delegation context to agent
          |
          v
-Skill validates session_id matches expected
+Agent includes session_id in .return-meta.json
+         |
+         v
+command-gate-out.sh and git commit reference session_id
          |
          v
 Session tracked for debugging/auditing
@@ -448,19 +404,19 @@ Session tracked for debugging/auditing
 
 This example demonstrated:
 
-1. **Command Layer**: User entry point, routing configuration in frontmatter
-2. **Orchestrator**: Parses arguments, looks up task, routes by language
-3. **Skill Layer**: Validates inputs, prepares context, delegates to agent
-4. **Agent Layer**: Executes work, creates artifacts, returns structured JSON
-5. **Return Flow**: JSON propagated back through layers with validation
-6. **Status Updates**: state.json and TODO.md updated after completion
+1. **Command Layer**: User entry point; shared gate scripts handle parsing, validation, and routing
+2. **Skill Layer**: Shared lifecycle via `skill-base.sh`; validates, delegates to agent, runs postflight
+3. **Agent Layer**: Executes work, creates artifacts, writes `.return-meta.json` metadata file
+4. **Return Flow**: Skill reads metadata file, runs postflight (status update, artifact linking, git commit)
+5. **Gate Out**: Command validates artifacts, applies defensive status correction
+6. **Status Updates**: Atomic state.json + TODO.md updates via shared scripts
 
 The three-layer architecture provides:
 - Clean separation of concerns
-- Token-efficient context loading
-- Language-based routing
-- Standardized return format
-- Resume support via partial status
+- Shared infrastructure via gate scripts and skill-base.sh (~60% code reduction)
+- Task-type-based routing via `command-route-skill.sh`
+- File-based metadata exchange (`.return-meta.json`)
+- Resume support via partial status and postflight markers
 
 ---
 
@@ -473,6 +429,6 @@ The three-layer architecture provides:
 
 ---
 
-**Document Version**: 1.0
+**Document Version**: 2.0 (Updated 2026-05-22 for shared infrastructure refactor)
 **Created**: 2026-01-12
-**Maintained By**: project Development Team
+**Maintained By**: Project Development Team

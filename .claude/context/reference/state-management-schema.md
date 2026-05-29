@@ -12,8 +12,7 @@ Complete schema reference for state.json, TODO.md, and artifact formats. For beh
       "project_number": 334,
       "project_name": "task_slug_here",
       "status": "planned",
-      "language": "general",
-      "task_type": null,
+      "task_type": "general",
       "effort": "4 hours",
       "created": "2026-01-08T10:00:00Z",
       "last_updated": "2026-01-08T14:30:00Z",
@@ -26,8 +25,7 @@ Complete schema reference for state.json, TODO.md, and artifact formats. For beh
         }
       ],
       "completion_summary": "1-3 sentence description of what was accomplished",
-      "roadmap_items": ["Optional explicit roadmap item text to match"],
-      "claudemd_suggestions": "Description of .claude/ changes (meta tasks only)"
+      "roadmap_items": ["Optional explicit roadmap item text to match"]
     }
   ],
   "repository_health": {
@@ -45,12 +43,12 @@ Complete schema reference for state.json, TODO.md, and artifact formats. For beh
 ### {NUMBER}. {TITLE}
 - **Effort**: {estimate}
 - **Status**: [{STATUS}]
-- **Language**: {neovim|general|meta|markdown|latex|typst}
+- **Task Type**: {general|meta|markdown} or extension-provided type
 - **Dependencies**: Task #{N}, Task #{N}  OR  None
 - **Started**: {ISO timestamp}
 - **Completed**: {ISO timestamp}
-- **Research**: [link to report]
-- **Plan**: [link to plan]
+- **Research**: [{NNN}_{SLUG}/reports/01_slug.md]
+- **Plan**: [{NNN}_{SLUG}/plans/01_slug.md]
 
 **Description**: {full description}
 ```
@@ -64,8 +62,7 @@ Complete schema reference for state.json, TODO.md, and artifact formats. For beh
 | `project_number` | number | Yes | Unique task identifier |
 | `project_name` | string | Yes | Snake_case slug from title |
 | `status` | string | Yes | Current status (see Status Values) |
-| `language` | string | Yes | Task language (see Language Values) |
-| `task_type` | string/null | No | Sub-type for finer-grained routing |
+| `task_type` | string | Yes | Task type for routing (see Task Type Values). Bare values (`meta`, `general`) or compound `extension:subtype` (`present:grant`, `founder:deck`) |
 | `effort` | string | No | Estimated effort |
 | `created` | string | Yes | ISO8601 creation timestamp |
 | `last_updated` | string | Yes | ISO8601 last update timestamp |
@@ -75,36 +72,42 @@ Complete schema reference for state.json, TODO.md, and artifact formats. For beh
 
 ### task_type Field
 
-The `task_type` field enables finer-grained routing within a language, particularly useful for extension languages.
+The `task_type` field is the unified routing field for all tasks. It replaces the former `language` field and the former secondary `task_type` field.
 
 | Field | Type | Required | Default | Description |
 |-------|------|----------|---------|-------------|
-| `task_type` | string or null | No | `null` | Sub-type for routing within a language |
+| `task_type` | string | Yes | - | Routing key: bare value or compound `extension:subtype` |
+
+**Values**:
+- **Bare values**: `meta`, `general`, `markdown`, plus extension-provided types (e.g., `lean4`, `latex`, etc.)
+- **Compound values**: `present:grant`, `founder:deck`, `present:slides`, etc.
+- Compound format: `{extension}:{subtype}` -- the extension prefix is used for routing to the correct extension, the subtype for sub-routing within the extension.
 
 **Routing Behavior**: When a command is invoked on a task:
-1. Check if `task_type` is set
-2. If set, route to skill matching task_type
-3. If null or missing, fall back to default routing
+1. Read `task_type` from the task entry
+2. If compound (contains `:`), split into base key and subtype
+3. Route to extension matching base key, then to skill matching subtype
+4. If bare value, route directly to matching extension or core skill
 
 **Format Conversion**:
 
 | state.json | TODO.md |
 |------------|---------|
-| `null` | (not shown) |
-| `"market"` | `- **Type**: market` |
-| `"analyze"` | `- **Type**: analyze` |
+| `"meta"` | `- **Task Type**: meta` |
+| `"general"` | `- **Task Type**: general` |
+| `"present:grant"` | `- **Task Type**: present:grant` |
 
-### Language Values
+### Task Type Values
 
-**Core Languages** (always available):
+**Core Task Types** (always available):
 
-| Language | Description |
-|----------|-------------|
+| Task Type | Description |
+|-----------|-------------|
 | `general` | General programming, web research |
 | `meta` | System building, .claude/ modifications |
 | `markdown` | Documentation tasks |
 
-**Extension Languages** (when extensions loaded): See `.claude/extensions/*/manifest.json`.
+**Extension Task Types** (when extensions loaded): See `.claude/extensions/*/manifest.json`.
 
 ### Unified Artifact Numbering (next_artifact_number)
 
@@ -158,8 +161,25 @@ artifact_number=$((count + 1))
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `completion_summary` | string | Yes (when completed) | 1-3 sentence summary of accomplishment |
-| `roadmap_items` | array | No | Explicit ROAD_MAP.md item texts (non-meta only) |
-| `claudemd_suggestions` | string | Yes (meta only) | .claude/ changes made, or "none" |
+| `roadmap_items` | array | No | Explicit ROADMAP.md item texts (non-meta only) |
+| `memory_candidates` | array | No | Structured memory candidates emitted by agents (see below) |
+
+### Memory Candidates Field
+
+The `memory_candidates` array on task entries accumulates structured memory candidates emitted by agents during research and implementation. Candidates are appended (not overwritten) so research and implementation candidates coexist.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `content` | string | Yes | Description of reusable knowledge (~300 tokens max) |
+| `category` | string | Yes | One of: `TECHNIQUE`, `PATTERN`, `CONFIG`, `WORKFLOW`, `INSIGHT` |
+| `source_artifact` | string | Yes | Path to the artifact that produced this candidate |
+| `confidence` | number | Yes | Float 0-1 indicating reusability confidence |
+| `suggested_keywords` | array of strings | Yes | Keywords for memory index retrieval |
+
+**Lifecycle**:
+- **Producer**: Skill postflight extracts `memory_candidates` from `.return-meta.json` and appends to the task entry
+- **Consumer**: `/todo` processes candidates during task archival (writes memory files, updates index)
+- **Semantics**: Append-only during task lifecycle; consumed and removed during archival
 
 **Responsibility Split**:
 - **`/implement` (Producer)**: Reports what was changed factually
@@ -241,23 +261,25 @@ The vault system manages task number cycling when `next_project_number` exceeds 
 
 ## Artifact Linking Formats
 
+Links use bracket-only format `[path]` (not markdown `[text](url)` format).
+
 ### Research Completion
 ```markdown
 - **Status**: [RESEARCHED]
-- **Research**: [01_research-findings.md]({NNN}_{SLUG}/reports/01_research-findings.md)
+- **Research**: [{NNN}_{SLUG}/reports/01_research-findings.md]
 ```
 
 ### Plan Completion
 ```markdown
 - **Status**: [PLANNED]
-- **Plan**: [02_implementation-plan.md]({NNN}_{SLUG}/plans/02_implementation-plan.md)
+- **Plan**: [{NNN}_{SLUG}/plans/02_implementation-plan.md]
 ```
 
 ### Implementation Completion
 ```markdown
 - **Status**: [COMPLETED]
 - **Completed**: 2026-01-08
-- **Summary**: [03_execution-summary.md]({NNN}_{SLUG}/summaries/03_execution-summary.md)
+- **Summary**: [{NNN}_{SLUG}/summaries/03_execution-summary.md]
 ```
 
 ### Count-Aware Linking
@@ -266,20 +288,22 @@ The vault system manages task number cycling when `next_project_number` exceeds 
 
 **Single artifact**:
 ```markdown
-- **Research**: [01_research-findings.md]({NNN}_{SLUG}/reports/01_research-findings.md)
+- **Research**: [{NNN}_{SLUG}/reports/01_research-findings.md]
 ```
 
 **Multiple artifacts**:
 ```markdown
 - **Research**:
-  - [01_research-findings.md]({NNN}_{SLUG}/reports/01_research-findings.md)
-  - [02_supplemental.md]({NNN}_{SLUG}/reports/02_supplemental.md)
+  - [{NNN}_{SLUG}/reports/01_research-findings.md]
+  - [{NNN}_{SLUG}/reports/02_supplemental.md]
 ```
 
 **Detection Patterns**:
 - **No existing line**: `- **{Type}**:` not found in task entry
-- **Existing inline**: Line matches `- **{Type}**: \[.*\]\(.*\)` (has link on same line)
+- **Existing inline**: Line matches `- **{Type}**: \[.*\]` (has link on same line)
 - **Existing multi-line**: Line matches `- **{Type}**:$` (ends with colon, no link)
+
+**Implementation Reference**: For the full four-case Edit tool logic used by skills during postflight, see `.claude/context/patterns/artifact-linking-todo.md`.
 
 ## Directory Creation
 
@@ -304,38 +328,6 @@ mkdir -p "specs/${padded_num}_${slug}/reports"
 write "specs/${padded_num}_${slug}/reports/01_research-findings.md"
 ```
 
-## Recommended Order Section
-
-The `## Recommended Order` section in TODO.md provides a topologically-sorted list of active tasks.
-
-### Section Format
-```markdown
-## Recommended Order
-
-1. **995** -> plan + implement (unblocks 988, 989, 997)
-2. **996** -> research (independent)
-3. **997** -> implement (independent)
-```
-
-### Action Hint Derivation
-
-| Task Status | Action Hint |
-|-------------|-------------|
-| `not_started`, `researching` | `research` |
-| `researched`, `planning` | `plan` |
-| `planned`, `implementing`, `partial` | `implement` |
-| `completed` | `complete` |
-| `blocked` | `blocked` |
-| `abandoned`, `expanded` | `skip` |
-
-### Utility Script
-
-```bash
-.claude/scripts/update-recommended-order.sh add TASK_NUM
-.claude/scripts/update-recommended-order.sh remove TASK_NUM
-.claude/scripts/update-recommended-order.sh refresh
-```
-
 ## Examples
 
 ### New Task Entry
@@ -344,7 +336,7 @@ The `## Recommended Order` section in TODO.md provides a topologically-sorted li
   "project_number": 500,
   "project_name": "implement_new_feature",
   "status": "not_started",
-  "language": "general",
+  "task_type": "general",
   "created": "2026-02-25T10:00:00Z",
   "last_updated": "2026-02-25T10:00:00Z",
   "artifacts": []
@@ -357,7 +349,7 @@ The `## Recommended Order` section in TODO.md provides a topologically-sorted li
   "project_number": 502,
   "project_name": "integrate_feature",
   "status": "not_started",
-  "language": "general",
+  "task_type": "general",
   "dependencies": [500, 501],
   "created": "2026-02-25T10:30:00Z",
   "last_updated": "2026-02-25T10:30:00Z",
@@ -371,7 +363,7 @@ The `## Recommended Order` section in TODO.md provides a topologically-sorted li
   "project_number": 510,
   "project_name": "add_merge_command",
   "status": "completed",
-  "language": "meta",
+  "task_type": "meta",
   "created": "2026-02-26T09:00:00Z",
   "last_updated": "2026-02-26T12:00:00Z",
   "artifacts": [
@@ -381,8 +373,7 @@ The `## Recommended Order` section in TODO.md provides a topologically-sorted li
       "summary": "Unified /merge command with GitHub/GitLab detection"
     }
   ],
-  "completion_summary": "Created /merge command with platform auto-detection.",
-  "claudemd_suggestions": "Added merge.md command, updated CLAUDE.md command reference"
+  "completion_summary": "Created /merge command with platform auto-detection."
 }
 ```
 

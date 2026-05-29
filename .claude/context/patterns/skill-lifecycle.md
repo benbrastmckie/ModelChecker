@@ -47,7 +47,7 @@ Skills that manage lifecycle need these tools.
 ---
 name: skill-{name}
 description: {description}
-allowed-tools: Task, Bash, Edit, Read
+allowed-tools: Agent, Bash, Edit, Read
 ---
 ```
 
@@ -125,7 +125,7 @@ Not all skills need inline status updates. Skills that match these patterns are 
 |---------|-------------|----------------|
 | **Utility** | Provides utility function, no task state management | skill-git-workflow |
 | **Task Creation** | Creates new tasks, does not transition existing tasks | skill-meta |
-| **Routing** | Routes only, delegates state management to invoked skill | skill-orchestrator |
+| **Autonomous Loop** | Runs multi-phase lifecycle autonomously, delegates to workflow skills | skill-orchestrate |
 | **Terminal State** | Operates only on completed/abandoned tasks | (archive operations) |
 | **Non-Task** | Operates on different data like errors or reviews | (error/review skills) |
 | **Mechanism** | IS the status update mechanism itself | skill-status-sync |
@@ -134,20 +134,51 @@ Not all skills need inline status updates. Skills that match these patterns are 
 
 These skills manage task lifecycle transitions:
 - skill-researcher (not_started/researched -> researching -> researched)
-- skill-neovim-research (same as researcher, neovim-specific)
 - skill-planner (researched -> planning -> planned)
 - skill-implementer (planned -> implementing -> completed)
-- skill-neovim-implementation (same as implementer, neovim-specific)
 
-**Note**: Additional workflow skills (latex, typst) available via extensions.
+**Note**: Extensions add workflow skills (e.g., skill-{ext}-research, skill-{ext}-implementation) that follow the same lifecycle pattern.
 
 ### Non-Workflow Skills (Excluded from Pattern)
 
 These skills are intentionally excluded:
 - skill-status-sync: IS the mechanism, used for standalone operations
 - skill-git-workflow: Creates commits, no task state
-- skill-orchestrator: Routes to workflow skills which handle state
+- skill-orchestrate: Runs autonomous lifecycle loop (dispatches to workflow skills which handle state)
 - skill-meta: Creates tasks via interview, no transitions
+
+## Parallel Invocation
+
+Workflow commands (`/research`, `/plan`, `/implement`) invoke multiple skills in a single message for multi-task dispatch. When more than one task number is provided, the command's orchestrator loop routes each task to the appropriate skill and invokes all skills in parallel.
+
+### How it works
+
+```
+/research 7, 22, 24
+  -> Skill(skill-researcher, task 7)   \
+  -> Skill(skill-researcher, task 22)   > all invoked in a single message
+  -> Skill(skill-researcher, task 24)  /
+```
+
+Each skill instance runs **independently** with its own:
+- Preflight status update
+- Agent delegation and execution
+- Postflight status update and artifact creation
+- Per-skill git commit
+
+### State.json concurrent write consideration
+
+Multiple parallel skill instances may write to `state.json` concurrently. This is acceptable because each skill writes to a specific `project_number` entry using scoped jq operations (`select(.project_number == $num)`), so no skill modifies another task's fields. Rapid concurrent writes could cause read-modify-write races in edge cases; this is a known limitation that scoped writes substantially mitigate.
+
+### Relationship to team mode
+
+Parallel invocation (multi-task) and team mode are orthogonal:
+- **Multi-task**: Invokes multiple skills in parallel (one per task), each for a different task
+- **Team mode**: A single team skill (e.g., `skill-team-research`) spawns multiple agents for one task
+
+When combined (`/research 7, 22 --team`), each task is routed to the team skill, resulting in `N_tasks * team_size` total agents.
+
+---
 
 ## Postflight Boundary Restrictions
 

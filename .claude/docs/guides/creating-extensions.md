@@ -8,10 +8,10 @@ Step-by-step guide for creating a new domain extension for the .claude/ system.
 
 ## Overview
 
-Extensions are self-contained packages that add domain-specific support (agents, skills, rules, context) to the .claude/ system. Extensions can be loaded/unloaded via Neovim picker (`<leader>ac`) without modifying core files.
+Extensions are self-contained packages that add domain-specific support (agents, skills, rules, context) to the .claude/ system. Extensions can be loaded/unloaded via the extension picker without modifying core files. Extensions can optionally declare dependencies on other extensions for shared resources.
 
 **When to Create an Extension**:
-- Adding support for a new language/framework (Python, React, Rust)
+- Adding support for a new language/framework (Rust, React, Go)
 - Adding support for a specialized tool (Lean, Z3, Typst)
 - Creating portable domain knowledge that can be shared across projects
 
@@ -31,6 +31,7 @@ mkdir -p .claude/extensions/your-domain/{agents,skills,rules,context/project/you
 # Required files
 touch .claude/extensions/your-domain/manifest.json
 touch .claude/extensions/your-domain/EXTENSION.md
+touch .claude/extensions/your-domain/README.md
 
 # Optional but recommended
 touch .claude/extensions/your-domain/index-entries.json
@@ -51,7 +52,7 @@ Follow the templates below for each file type.
   "name": "your-domain",
   "version": "1.0.0",
   "description": "Your domain description for picker display",
-  "language": "your-domain",
+  "task_type": "your-domain",
   "dependencies": [],
   "provides": {
     "agents": [
@@ -70,7 +71,20 @@ Follow the templates below for each file type.
       "project/your-domain"
     ],
     "scripts": [],
-    "hooks": []
+    "hooks": [],
+    "docs": [],
+    "templates": [],
+    "systemd": [],
+    "root_files": [],
+    "data": []
+  },
+  "routing": {
+    "research": {
+      "your-domain": "skill-your-domain-research"
+    },
+    "implement": {
+      "your-domain": "skill-your-domain-implement"
+    }
   },
   "merge_targets": {
     "claudemd": {
@@ -94,15 +108,17 @@ Follow the templates below for each file type.
 | `name` | Yes | Extension name (matches directory name) |
 | `version` | Yes | Semantic version for update tracking |
 | `description` | Yes | Shown in picker UI |
-| `language` | Yes | Language code for orchestrator routing |
-| `dependencies` | No | Extensions that must load first |
+| `task_type` | No | Language code for orchestrator routing (omit for resource-only extensions) |
+| `dependencies` | No | Extensions that must load first (auto-loaded silently) |
 | `provides` | Yes | Lists all files/directories provided |
 | `merge_targets` | Yes | Defines CLAUDE.md and index.json merging |
 | `mcp_servers` | No | MCP server configs to merge |
 
+For the complete manifest schema with all field descriptions and examples, see [Extension System Architecture](../architecture/extension-system.md#manifest-schema).
+
 ### EXTENSION.md (Required)
 
-Content injected into CLAUDE.md when loaded:
+Content included in CLAUDE.md via `generate_claudemd()` when loaded:
 
 ```markdown
 ## Your Domain Extension
@@ -111,7 +127,7 @@ This project includes [Your Domain] support via the your-domain extension.
 
 ### Language Routing
 
-| Language | Research Tools | Implementation Tools |
+| Task Type | Research Tools | Implementation Tools |
 |----------|----------------|---------------------|
 | `your-domain` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (your-tool) |
 
@@ -129,6 +145,32 @@ This project includes [Your Domain] support via the your-domain extension.
 - Common pattern: Example usage
 ```
 
+### README.md (Required)
+
+Every extension must provide a `README.md` file in its root directory. This is the user-facing overview of the extension, distinct from `EXTENSION.md` (which is included in `.claude/CLAUDE.md` via `generate_claudemd()` when the extension is loaded).
+
+Start from the canonical template: `.claude/templates/extension-readme-template.md`.
+
+The template includes a **section-applicability matrix** that distinguishes simple extensions (latex, python, typst, z3) from complex extensions (filetypes, lean, formal, nix, web, epidemiology). Simple extensions omit sections they do not need (MCP Setup, Workflow diagram, Output Artifacts) and produce README files under ~120 lines. Complex extensions use the full structure.
+
+**Required sections for all extensions**:
+- Overview (with a task type / command table)
+- Installation
+- Skill-Agent Mapping
+- Language Routing
+- References (optional but encouraged)
+
+**Required sections for complex extensions**:
+- MCP Tool Setup (if the extension configures MCP servers)
+- Commands (if the extension provides commands)
+- Architecture tree
+- Workflow diagram
+- Output Artifacts
+- Key Patterns
+- Tool Dependencies
+
+The doc-lint script at `.claude/scripts/check-extension-docs.sh` flags missing `README.md` files during verification.
+
 ### index-entries.json (Recommended)
 
 Context file metadata for agent discovery:
@@ -141,7 +183,7 @@ Context file metadata for agent discovery:
       "description": "Overview of your domain context",
       "tags": ["your-domain", "overview"],
       "load_when": {
-        "languages": ["your-domain"],
+        "task_types": ["your-domain"],
         "agents": ["your-domain-research-agent", "your-domain-implementation-agent"]
       }
     },
@@ -150,7 +192,7 @@ Context file metadata for agent discovery:
       "description": "Common implementation patterns",
       "tags": ["your-domain", "patterns"],
       "load_when": {
-        "languages": ["your-domain"],
+        "task_types": ["your-domain"],
         "agents": ["your-domain-implementation-agent"]
       }
     },
@@ -159,13 +201,48 @@ Context file metadata for agent discovery:
       "description": "Coding style conventions",
       "tags": ["your-domain", "style"],
       "load_when": {
-        "languages": ["your-domain"],
+        "task_types": ["your-domain"],
         "agents": ["your-domain-implementation-agent"]
       }
     }
   ]
 }
 ```
+
+---
+
+## Resource-Only Extensions
+
+Extensions that provide only shared context (no agents, skills, commands, or routing) are called resource-only extensions. They exist to share resources between other extensions.
+
+**Example**: The `slidev` extension provides Slidev animation patterns and CSS style presets consumed by `founder` and `present`:
+
+```json
+{
+  "name": "slidev",
+  "version": "1.0.0",
+  "description": "Shared Slidev animation patterns and CSS style presets",
+  "dependencies": [],
+  "provides": {
+    "agents": [], "skills": [], "commands": [],
+    "rules": [], "context": ["project/slidev"],
+    "scripts": [], "hooks": []
+  },
+  "merge_targets": {
+    "index": { "source": "index-entries.json", "target": ".claude/context/index.json" }
+  }
+}
+```
+
+Consuming extensions declare the dependency: `"dependencies": ["slidev"]`. When founder or present is loaded, slidev is auto-loaded first if not already present.
+
+**Key characteristics**:
+- No `task_type` field (no routing)
+- No `EXTENSION.md` or `claudemd` merge target (nothing included in CLAUDE.md)
+- Only `provides.context` populated
+- Loaded automatically as a dependency, not typically selected directly
+
+For complete resource-only extension patterns, see [Extension System Architecture](../architecture/extension-system.md).
 
 ---
 
@@ -335,7 +412,7 @@ Create `skills/skill-your-domain-research/SKILL.md`:
 ---
 name: skill-your-domain-research
 description: Conduct [Your Domain] research. Invoke for your-domain research tasks.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Your Domain Research Skill
@@ -357,7 +434,7 @@ Invoked by the orchestrator when:
 4. Create postflight marker file
 
 ### DELEGATE
-5. Invoke `your-domain-research-agent` via Task tool with delegation context
+5. Invoke `your-domain-research-agent` via Agent tool with delegation context
 
 ### GATE OUT (Postflight)
 6. Read metadata file from agent
@@ -379,7 +456,7 @@ Create `skills/skill-your-domain-implementation/SKILL.md`:
 ---
 name: skill-your-domain-implementation
 description: Implement [Your Domain] changes from plans. Invoke for your-domain implementation.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Your Domain Implementation Skill
@@ -401,7 +478,7 @@ Invoked by the orchestrator when:
 4. Create postflight marker file
 
 ### DELEGATE
-5. Invoke `your-domain-implementation-agent` via Task tool with delegation context
+5. Invoke `your-domain-implementation-agent` via Agent tool with delegation context
 
 ### GATE OUT (Postflight)
 6. Read metadata file from agent
@@ -518,7 +595,7 @@ Domain knowledge for [Your Domain] development.
 
 ### 1. Load the Extension
 
-Press `<leader>ac` and select your extension from the picker.
+Press the extension picker and select your extension from the picker.
 
 ### 2. Verify Files are Installed
 
@@ -535,8 +612,8 @@ ls .claude/rules/your-domain.md
 # Check context
 ls .claude/context/project/your-domain/
 
-# Check CLAUDE.md injection
-grep "extension_your_domain" .claude/CLAUDE.md
+# Check CLAUDE.md content was included
+grep "Your Domain Extension" .claude/CLAUDE.md
 
 # Check index entries
 grep "your-domain" .claude/context/index.json
@@ -561,12 +638,149 @@ Verify:
 
 ### 4. Test Unload
 
-Press `<leader>ac` and select your extension again to unload.
+Press the extension picker and select your extension again to unload.
 
 Verify:
 - All copied files are removed
 - CLAUDE.md section is removed
 - Index entries are removed
+
+---
+
+## Lifecycle Hooks
+
+Extensions can declare **lifecycle hook scripts** in `manifest.json` under a top-level `hooks` object. These hooks are invoked by `skill-base.sh` at specific points in the skill execution lifecycle, before and after agent delegation.
+
+### Hooks vs. provides.hooks
+
+**Important distinction**: Two different `hooks` concepts exist in manifests:
+
+| Field | Purpose | Example |
+|-------|---------|---------|
+| `"hooks": {}` (top-level) | Lifecycle hook scripts called by skill-base.sh | `{"preflight": "scripts/my-check.sh"}` |
+| `"provides": { "hooks": [] }` | File-copy targets deployed to `.claude/hooks/` | `["log-session.sh", "post-command.sh"]` |
+
+Top-level `hooks` are NOT copied anywhere — they are called in-place from the extension directory.
+
+### Hook Schema
+
+Add a `hooks` object to your manifest:
+
+```json
+{
+  "name": "your-domain",
+  ...
+  "hooks": {
+    "preflight": "scripts/your-domain-preflight.sh",
+    "context_injection": "scripts/your-domain-context.sh",
+    "verification": "scripts/your-domain-verify.sh",
+    "postflight": "scripts/your-domain-postflight.sh"
+  }
+}
+```
+
+All hooks are optional. Missing keys (or `"hooks": {}`) are silently skipped.
+
+### Hook Execution Contract
+
+Hook scripts receive 5 positional arguments:
+
+| Arg | Variable | Example |
+|-----|----------|---------|
+| `$1` | `task_number` | `42` |
+| `$2` | `task_type` | `"your-domain"` |
+| `$3` | `task_dir` | `"specs/042_my-task"` |
+| `$4` | `session_id` | `"sess_1234_abc"` |
+| `$5` | `operation` | `"research"` or `"implement"` |
+
+**Exit codes**:
+- Exit 0: success (hook output printed to stdout)
+- Exit non-zero: warning logged (non-blocking, skill continues)
+
+Scripts MUST be executable (`chmod +x`).
+
+### Lifecycle Stage Mapping
+
+| Hook | Called From | When |
+|------|-------------|------|
+| `preflight` | `skill_preflight_update()` | After status is set to "in_progress" |
+| `context_injection` | `skill_context_injection()` | Before agent delegation |
+| `verification` | `skill_validate_artifact()` | After agent returns, artifact validated |
+| `postflight` | `skill_postflight_update()` | After status is set to completed |
+
+### Example: Preflight Validation Hook
+
+```bash
+#!/usr/bin/env bash
+# scripts/your-domain-preflight.sh
+
+set -euo pipefail
+
+TASK_NUMBER="${1:-}"
+TASK_TYPE="${2:-}"
+TASK_DIR="${3:-}"
+SESSION_ID="${4:-}"
+OPERATION="${5:-}"
+
+# Validate toolchain availability (warn but do not fail)
+if ! command -v your-tool &>/dev/null; then
+  echo "[your-domain-preflight] WARNING: 'your-tool' not found" >&2
+fi
+
+echo "[your-domain-preflight] Preflight OK"
+exit 0
+```
+
+### Example: Context Injection Hook
+
+```bash
+#!/usr/bin/env bash
+# scripts/your-domain-context.sh
+
+set -euo pipefail
+
+TASK_NUMBER="${1:-}"
+TASK_TYPE="${2:-}"
+TASK_DIR="${3:-}"
+SESSION_ID="${4:-}"
+OPERATION="${5:-}"
+
+echo "[your-domain-context] Domain context:"
+
+if command -v your-tool &>/dev/null; then
+  version=$(your-tool --version 2>/dev/null | head -1 || echo "unknown")
+  echo "[your-domain-context]   Tool version: $version"
+fi
+
+exit 0
+```
+
+### Adding Hooks to Your Extension
+
+1. Create `scripts/` directory in your extension:
+   ```bash
+   mkdir -p .claude/extensions/your-domain/scripts
+   ```
+
+2. Create and make executable:
+   ```bash
+   touch .claude/extensions/your-domain/scripts/your-domain-preflight.sh
+   chmod +x .claude/extensions/your-domain/scripts/your-domain-preflight.sh
+   ```
+
+3. Update `manifest.json`:
+   ```json
+   {
+     "hooks": {
+       "preflight": "scripts/your-domain-preflight.sh"
+     }
+   }
+   ```
+
+4. Verify with jq:
+   ```bash
+   jq '.hooks' .claude/extensions/your-domain/manifest.json
+   ```
 
 ---
 
@@ -586,19 +800,20 @@ Verify:
 
 ### Load Fails with Conflicts
 
-The loader detected existing files that would be overwritten. Either:
-- Rename conflicting files in your extension
+The loader detected existing files that would be overwritten and showed a confirmation dialog. If you chose not to override, the load was cancelled. To resolve:
+- Rename conflicting files in your extension to avoid the collision
 - Remove conflicting files from core (if safe)
 - Check if another extension provides the same files
+- Re-run the load and confirm the override if the conflict is acceptable
 
 ### Routing Not Working After Load
 
-1. Check CLAUDE.md section was injected:
+1. Check CLAUDE.md includes your extension content:
    ```bash
-   grep "extension_your_domain" .claude/CLAUDE.md
+   grep "Your Domain Extension" .claude/CLAUDE.md
    ```
 
-2. Verify orchestrator knows about your language routing
+2. Verify orchestrator knows about your language routing (check `task_type` in manifest and routing entries)
 
 3. Check skill files exist:
    ```bash

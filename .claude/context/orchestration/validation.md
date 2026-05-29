@@ -79,7 +79,7 @@ The orchestrator validates **structural correctness** and **safety constraints**
 - Plan file format/structure (let planner validate)
 - Research report completeness (let researcher validate)
 - Implementation correctness (let implementer validate)
-- Neovim config correctness (let neovim-implementation-agent validate)
+- Domain-specific correctness (let extension-provided agents validate)
 
 **Rationale**: Orchestrator shouldn't understand domain-specific formats  
 **Verdict**: ❌ Skip - Let agents handle

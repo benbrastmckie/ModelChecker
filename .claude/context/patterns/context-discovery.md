@@ -1,7 +1,7 @@
 # Context Discovery Patterns
 
 **Created**: 2026-02-24
-**Updated**: 2026-03-25
+**Updated**: 2026-03-30
 **Purpose**: jq query patterns for three-layer context discovery
 
 ## Three-Layer Architecture
@@ -32,7 +32,7 @@ jq -r '.entries[] |
 
 ```bash
 jq -r '.entries[] |
-  select(.load_when.languages[]? == "neovim") |
+  select(.load_when.task_types[]? == "meta") |
   .path' .claude/context/index.json
 ```
 
@@ -138,7 +138,7 @@ jq -r '.entries[] |
 
 ```bash
 jq -r '.entries[] |
-  select(.load_when.languages[]? == "neovim") |
+  select(.load_when.task_types[]? == "meta") |
   select(.line_count < 300) |
   .path' .claude/context/index.json
 ```
@@ -165,9 +165,9 @@ jq -r --arg agent "general-implementation-agent" \
   .entries[] |
   select(
     (.load_when.always == true) or
-    (.load_when.agents[]? == $agent) or
-    (.load_when.languages[]? == $lang) or
-    (.load_when.commands[]? == $cmd)
+    any(.load_when.agents[]?; . == $agent) or
+    any(.load_when.task_types[]?; . == $task_type) or
+    any(.load_when.commands[]?; . == $cmd)
   ) |
   select(.deprecated == true | not) |
   .path' .claude/context/index.json
@@ -176,7 +176,7 @@ jq -r --arg agent "general-implementation-agent" \
 **Priority Order**:
 1. `always: true` - Universal files loaded for all contexts
 2. `agents[]?` - Agent-specific context
-3. `languages[]?` - Language-specific context
+3. `task_types[]?` - Task-type-specific context
 4. `commands[]?` - Command-specific context
 
 **Empty Array Semantics**:
@@ -184,13 +184,13 @@ jq -r --arg agent "general-implementation-agent" \
 - To load unconditionally, use `"always": true`
 - Entries must match at least one dimension to be discoverable
 
-### Agent + Language
+### Agent + Task Type
 
 ```bash
 jq -r '.entries[] |
   select(
-    (.load_when.agents[]? == "general-implementation-agent") or
-    (.load_when.languages[]? == "neovim")
+    any(.load_when.agents[]?; . == "general-implementation-agent") or
+    any(.load_when.task_types[]?; . == "meta")
   ) |
   select(.deprecated == true | not) |
   .path' .claude/context/index.json
@@ -209,7 +209,7 @@ jq -r '.entries[] |
 
 1. Always-load files (critical patterns, standards)
 2. Agent-specific files (from `load_when.agents`)
-3. Language-specific files (from `load_when.languages`)
+3. Language-specific files (from `load_when.task_types`)
 4. Project context (from `.context/index.json`)
 5. Project memory (from `.memory/`)
 6. Topic-specific files (as needed for task)
@@ -237,14 +237,44 @@ jq -r '.entries[].path' .claude/context/index.json | while read p; do
 done
 ```
 
+### Check Command Scope (Domain-Specific Files)
+
+Domain-specific context files (paths under `project/*`) should never have generic workflow
+commands in their `load_when.commands` arrays. These files should only be discovered via
+their domain-specific agents, task types, and domain-specific commands.
+
+**Generic commands (must NOT appear in project/* entries)**:
+`/plan`, `/implement`, `/research`, `/task`, `/revise`, `/review`, `/errors`, `/todo`, `/spawn`
+
+**Domain-specific commands (OK in project/* entries)**:
+`/market`, `/analyze`, `/strategy`, `/legal`, `/project`, `/sheet`, `/convert`, `/table`,
+`/slides`, `/scrape`, `/grant`, `/deck`, `/learn`
+
+```bash
+# Detect project/* entries with generic workflow commands (should return 0)
+jq '[.entries[] | select(
+  (.path | test("^project/")) and
+  any(.load_when.commands[]?;
+    . == "/plan" or . == "/implement" or . == "/research" or
+    . == "/task" or . == "/revise" or . == "/review" or
+    . == "/errors" or . == "/todo" or . == "/spawn")
+)] | length' .claude/context/index.json
+# Should return 0
+```
+
+**Rationale**: Generic commands like `/plan` and `/implement` match ALL tasks regardless of
+language. If domain files include these commands, they get loaded for every planning or
+implementation operation across all domains, wasting context budget and polluting unrelated
+workflows.
+
 ### Check for Orphaned Entries
 
-Entries with empty `load_when` arrays (no agents, languages, commands) and without `always: true` are orphaned and will never be loaded:
+Entries with empty `load_when` arrays (no agents, task_types, commands) and without `always: true` are orphaned and will never be loaded:
 
 ```bash
 jq '[.entries[] | select(
   (.load_when.agents | length) == 0 and
-  (.load_when.languages | length) == 0 and
+  (.load_when.task_types | length) == 0 and
   (.load_when.commands | length) == 0 and
   (.load_when.always == true | not)
 )] | length' .claude/context/index.json

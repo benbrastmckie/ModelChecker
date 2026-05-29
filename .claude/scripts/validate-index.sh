@@ -5,7 +5,7 @@
 # 1. Orphaned entries (empty load_when without always:true)
 # 2. Missing files (path doesn't exist)
 # 3. Duplicate paths
-# 4. Budget estimates per agent/language
+# 4. Budget estimates per agent/task_type
 #
 # Usage: ./validate-index.sh [index-file]
 #        Default: .claude/context/index.json
@@ -40,7 +40,7 @@ echo ""
 echo "Checking for orphaned entries..."
 ORPHANED=$(jq -r '.entries[] | select(
     (.load_when.agents | length) == 0 and
-    (.load_when.languages | length) == 0 and
+    (.load_when.task_types | length) == 0 and
     (.load_when.commands | length) == 0 and
     (.load_when.always == true | not)
 ) | .path' "$INDEX_FILE" 2>/dev/null || echo "")
@@ -101,14 +101,14 @@ for agent in "general-research-agent" "planner-agent" "general-implementation-ag
     printf "  %-30s %5d entries, %6d lines\n" "$agent:" "$count" "$lines"
 done
 
-# 5. Budget estimates per language
+# 5. Budget estimates per task_type
 echo ""
-echo "Budget estimates by language:"
-echo "-----------------------------"
-for lang in "meta" "markdown" "general"; do
-    lines=$(jq --arg lang "$lang" '[.entries[] | select(.load_when.languages[]? == $lang) | .line_count] | add // 0' "$INDEX_FILE")
-    count=$(jq --arg lang "$lang" '[.entries[] | select(.load_when.languages[]? == $lang)] | length' "$INDEX_FILE")
-    printf "  %-30s %5d entries, %6d lines\n" "$lang:" "$count" "$lines"
+echo "Budget estimates by task_type:"
+echo "------------------------------"
+for tt in "meta" "markdown" "general"; do
+    lines=$(jq --arg tt "$tt" '[.entries[] | select(.load_when.task_types[]? == $tt) | .line_count] | add // 0' "$INDEX_FILE")
+    count=$(jq --arg tt "$tt" '[.entries[] | select(.load_when.task_types[]? == $tt)] | length' "$INDEX_FILE")
+    printf "  %-30s %5d entries, %6d lines\n" "$tt:" "$count" "$lines"
 done
 
 # 6. Universal (always:true) budget

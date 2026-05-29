@@ -1,12 +1,12 @@
 ---
 name: skill-team-plan
 description: Orchestrate multi-agent planning with parallel plan generation. Spawns 2-3 teammates for diverse planning approaches and synthesizes into final plan with trade-off analysis.
-allowed-tools: Task, Bash, Edit, Read, Write
-# This skill uses TeammateTool for team coordination (available when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)
+allowed-tools: Agent, Bash, Edit, Read, Write
+# This skill uses Agent tool for team coordination (available when CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1)
 # Context loaded by lead during synthesis:
 #   - .claude/context/patterns/team-orchestration.md
 #   - .claude/context/formats/team-metadata-extension.md
-#   - .claude/utils/team-wave-helpers.md
+#   - .claude/context/reference/team-wave-helpers.md
 ---
 
 # Team Plan Skill
@@ -21,7 +21,7 @@ Reference (load as needed during synthesis):
 - Path: `.claude/context/patterns/team-orchestration.md` - Wave coordination patterns
 - Path: `.claude/context/formats/team-metadata-extension.md` - Team result schema
 - Path: `.claude/context/formats/return-metadata-file.md` - Base metadata schema
-- Path: `.claude/utils/team-wave-helpers.md` - Reusable wave patterns
+- Path: `.claude/context/reference/team-wave-helpers.md` - Reusable wave patterns
 
 ## Trigger Conditions
 
@@ -38,6 +38,15 @@ This skill activates when:
 | `research_path` | string | No | Path to research report |
 | `team_size` | integer | No | Number of teammates (2-3, default 2) |
 | `session_id` | string | Yes | Session ID for tracking |
+| `model_flag` | string | No | Model override (haiku, sonnet, opus). If set, use instead of default |
+| `effort_flag` | string | No | Effort level (fast, hard). Passed as prompt context |
+
+**Model Selection**: Determine teammate model early:
+```bash
+# Use model_flag if provided, otherwise default to sonnet (cost-effective for team mode)
+teammate_model="${model_flag:-sonnet}"
+model_preference_line="Model preference: Use Claude ${teammate_model^} 4.6 for this task."
+```
 
 ---
 
@@ -60,7 +69,7 @@ if [ -z "$task_data" ]; then
 fi
 
 # Extract fields
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 project_name=$(echo "$task_data" | jq -r '.project_name')
 description=$(echo "$task_data" | jq -r '.description // ""')
@@ -279,7 +288,7 @@ Format: Risk analysis with dependency graph and critical path
 
 ---
 
-**Spawn teammates using TeammateTool**.
+**Spawn teammates using Agent tool**.
 
 **IMPORTANT**: Pass the `model` parameter to enforce model selection:
 - Use `model: "sonnet"` for all tasks
@@ -361,7 +370,7 @@ Write synthesized plan:
 **Task**: {title}
 **Version**: {run_padded}
 **Created**: {ISO_DATE}
-**Language**: {language}
+**Task Type**: {task_type}
 **Mode**: Team Planning ({team_size} teammates)
 
 ## Overview
@@ -459,6 +468,14 @@ jq --arg path "specs/${padded_num}_${project_name}/plans/${run_padded}_implement
   specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 ```
 
+**Update TODO.md**: Link artifact using the automated script:
+
+```bash
+bash .claude/scripts/link-artifact-todo.sh $task_number '**Plan**' '**Description**' "$artifact_path"
+```
+
+If the script exits non-zero, log a warning but continue (linking errors are non-blocking).
+
 ---
 
 ### Stage 11: Write Metadata File
@@ -510,8 +527,6 @@ git add \
 git commit -m "task ${task_number}: complete team planning (${team_size} teammates)
 
 Session: ${session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---
