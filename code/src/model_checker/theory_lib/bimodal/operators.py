@@ -577,18 +577,21 @@ class FutureOperator(syntactic.Operator):
     
     def find_truth_condition(self, argument, eval_point):
         """Gets truth-condition for 'It will always be the case that: argument'.
-        
+
+        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
+        world's interval. Atoms at times outside the world's domain are FALSE.
+
         Args:
             argument: The argument to apply the future operator to
             eval_point: Dictionary containing evaluation parameters:
                 - "world": The world ID for evaluation context
                 - "time": The time for evaluation context
-            
+
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
                  where a time is in the true_times if the argument is true in all
                  future times and the time is in the false_times otherwise
-                 
+
         Raises:
             KeyError: If world_time_intervals information is missing for a required world_id.
                       This follows the fail-fast philosophy to make errors explicit.
@@ -597,45 +600,54 @@ class FutureOperator(syntactic.Operator):
         semantics = model_structure.semantics
         argument_extension = argument.proposition.extension
         truth_condition = {}
-        
+
+        # Domain D: all valid times (not world-specific)
+        # Using semantics.M to get the time domain range (-M+1, M-1)
+        all_D_times = list(range(-semantics.M + 1, semantics.M))
+
         # For any current_world with a temporal_profile of true and false times
         for current_world, temporal_profile in argument_extension.items():
             true_times, false_times = temporal_profile
-            
+
             # Start with empty lists for past/future times
             new_true_times, new_false_times = [], []
-            
-            # Find the time_interval for the current_world
+
+            # Find the time_interval for the current_world (for iteration over evaluation points)
             start_time, end_time = semantics.world_time_intervals[current_world]
             time_interval = list(range(start_time, end_time + 1))
-            
+
             # Calculate which times the argument always will be true
             for time_point in time_interval:
 
-                # Check if there are any world_times strictly after this time_point
-                has_future_times = any(any_time > time_point for any_time in time_interval)
-                
-                # If there are no future times in this world's interval, the Future operator is vacuously true
+                # Check if there are any times strictly after this time_point in domain D
+                has_future_times = any(any_time > time_point for any_time in all_D_times)
+
+                # If there are no future times in domain D, the Future operator is vacuously true
                 if not has_future_times:
                     new_true_times.append(time_point)
                     continue
-                    
-                # Find all false times that are after this time point
-                future_false_times = [
-                    any_time
-                    for any_time in false_times
-                    if any_time > time_point
-                    and any_time in time_interval
-                ]
-                
-                # If there are no false times in the future
-                if not future_false_times:
-                    # Add time_point to the new_true_times
-                    new_true_times.append(time_point)
-                else:
-                    # Otherwise add time_point to the new_false_times
+
+                # ProofChecker alignment: check all times in D that are > time_point
+                # Times outside the world's interval have atoms FALSE
+                future_false = False
+                for future_time in all_D_times:
+                    if future_time > time_point:
+                        if future_time in time_interval:
+                            # Time is in world's interval: check argument extension
+                            if future_time in false_times:
+                                future_false = True
+                                break
+                        else:
+                            # Time is outside world's interval: atoms are FALSE
+                            # So argument (if it contains atoms) is FALSE
+                            future_false = True
+                            break
+
+                if future_false:
                     new_false_times.append(time_point)
-            
+                else:
+                    new_true_times.append(time_point)
+
             # Store the results for this world_id
             truth_condition[current_world] = (new_true_times, new_false_times)
 
@@ -734,6 +746,9 @@ class PastOperator(syntactic.Operator):
     def find_truth_condition(self, argument, eval_point):
         """Gets truth-condition for 'It has always been the case that: argument'.
 
+        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
+        world's interval. Atoms at times outside the world's domain are FALSE.
+
         Args:
             argument: The argument to apply the past operator to
             eval_point: Dictionary containing evaluation parameters:
@@ -754,6 +769,9 @@ class PastOperator(syntactic.Operator):
         argument_extension = argument.proposition.extension
         truth_condition = {}
 
+        # Domain D: all valid times (not world-specific)
+        all_D_times = list(range(-semantics.M + 1, semantics.M))
+
         # For any current_world with a temporal_profile of true and false times
         for current_world, temporal_profile in argument_extension.items():
             true_times, false_times = temporal_profile
@@ -761,36 +779,41 @@ class PastOperator(syntactic.Operator):
             # Start with empty lists for past/future times
             new_true_times, new_false_times = [], []
 
-            # Find the time_interval for the current_world
+            # Find the time_interval for the current_world (for iteration over evaluation points)
             start_time, end_time = semantics.world_time_intervals[current_world]
             time_interval = list(range(start_time, end_time + 1))
 
             # Calculate which times the argument always has been true
             for time_point in time_interval:
 
-                # Check if there are any world_times strictly before this time_point
-                has_past_times = any(any_time < time_point for any_time in time_interval)
+                # Check if there are any times strictly before this time_point in domain D
+                has_past_times = any(any_time < time_point for any_time in all_D_times)
 
-                # If there are no past times in this world's interval, the Past operator is vacuously true
+                # If there are no past times in domain D, the Past operator is vacuously true
                 if not has_past_times:
                     new_true_times.append(time_point)
                     continue
 
-                # Find all false times that are before this time point
-                past_false_times = [
-                    any_time
-                    for any_time in false_times
-                    if any_time < time_point
-                    and any_time in time_interval
-                ]
+                # ProofChecker alignment: check all times in D that are < time_point
+                # Times outside the world's interval have atoms FALSE
+                past_false = False
+                for past_time in all_D_times:
+                    if past_time < time_point:
+                        if past_time in time_interval:
+                            # Time is in world's interval: check argument extension
+                            if past_time in false_times:
+                                past_false = True
+                                break
+                        else:
+                            # Time is outside world's interval: atoms are FALSE
+                            # So argument (if it contains atoms) is FALSE
+                            past_false = True
+                            break
 
-                # If there are no false times in the past
-                if not past_false_times:
-                    # Add time_point to the new_true_times
-                    new_true_times.append(time_point)
-                else:
-                    # Otherwise add time_point to the new_false_times
+                if past_false:
                     new_false_times.append(time_point)
+                else:
+                    new_true_times.append(time_point)
 
             # Store the results for this world_id
             truth_condition[current_world] = (new_true_times, new_false_times)
@@ -945,6 +968,9 @@ class UntilOperator(syntactic.Operator):
     def find_truth_condition(self, event_arg, guard_arg, eval_point):
         """Computes the extension for Until operator by checking each time point.
 
+        ProofChecker Alignment: Considers all times in domain D. Atoms at times
+        outside the world's domain are FALSE.
+
         For each time t, Until is true if there exists a witness time s > t where:
         - event holds at s
         - guard holds for all times in the open interval (t, s)
@@ -963,6 +989,9 @@ class UntilOperator(syntactic.Operator):
         guard_extension = guard_arg.proposition.extension
         truth_condition = {}
 
+        # Domain D: all valid times (not world-specific)
+        all_D_times = list(range(-semantics.M + 1, semantics.M))
+
         # For each world in the model
         for world_id in event_extension.keys():
             event_true_times = event_extension[world_id][0]
@@ -980,13 +1009,23 @@ class UntilOperator(syntactic.Operator):
                 found_witness = False
 
                 # Search for a witness s > t where event holds
+                # Note: Witnesses can only be in world's interval since atoms outside are FALSE
                 for s in range(t + 1, end_time + 1):
                     if s in event_true_times:
-                        # Check if guard holds for all r in open interval (t, s)
-                        guard_ok = all(
-                            r in guard_true_times
-                            for r in range(t + 1, s)
-                        )
+                        # Check if guard holds for all r in open interval (t, s) within domain D
+                        # ProofChecker alignment: times outside world's interval have guard FALSE
+                        guard_ok = True
+                        for r in all_D_times:
+                            if t < r < s:
+                                if r in time_interval:
+                                    # Time inside world's interval: check guard extension
+                                    if r not in guard_true_times:
+                                        guard_ok = False
+                                        break
+                                else:
+                                    # Time outside world's interval: guard is FALSE
+                                    guard_ok = False
+                                    break
                         if guard_ok:
                             found_witness = True
                             break
@@ -1148,6 +1187,9 @@ class SinceOperator(syntactic.Operator):
     def find_truth_condition(self, event_arg, guard_arg, eval_point):
         """Computes the extension for Since operator by checking each time point.
 
+        ProofChecker Alignment: Considers all times in domain D. Atoms at times
+        outside the world's domain are FALSE.
+
         For each time t, Since is true if there exists a witness time s < t where:
         - event held at s
         - guard held for all times in the open interval (s, t)
@@ -1166,6 +1208,9 @@ class SinceOperator(syntactic.Operator):
         guard_extension = guard_arg.proposition.extension
         truth_condition = {}
 
+        # Domain D: all valid times (not world-specific)
+        all_D_times = list(range(-semantics.M + 1, semantics.M))
+
         # For each world in the model
         for world_id in event_extension.keys():
             event_true_times = event_extension[world_id][0]
@@ -1183,13 +1228,23 @@ class SinceOperator(syntactic.Operator):
                 found_witness = False
 
                 # Search for a witness s < t where event held
+                # Note: Witnesses can only be in world's interval since atoms outside are FALSE
                 for s in range(start_time, t):
                     if s in event_true_times:
-                        # Check if guard held for all r in open interval (s, t)
-                        guard_ok = all(
-                            r in guard_true_times
-                            for r in range(s + 1, t)
-                        )
+                        # Check if guard held for all r in open interval (s, t) within domain D
+                        # ProofChecker alignment: times outside world's interval have guard FALSE
+                        guard_ok = True
+                        for r in all_D_times:
+                            if s < r < t:
+                                if r in time_interval:
+                                    # Time inside world's interval: check guard extension
+                                    if r not in guard_true_times:
+                                        guard_ok = False
+                                        break
+                                else:
+                                    # Time outside world's interval: guard is FALSE
+                                    guard_ok = False
+                                    break
                         if guard_ok:
                             found_witness = True
                             break

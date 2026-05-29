@@ -207,39 +207,47 @@ class BimodalSemantics(SemanticDefaults):
         }
 
     def ForAllTime(self, world, time_var, body):
-        """Universal quantification over all valid times in world's interval.
+        """Universal quantification over all valid times in domain D.
+
+        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
+        world's interval. This matches the ProofChecker (Lean) semantics where
+        temporal operators like G and H quantify over the global time domain.
 
         Args:
-            world: World ID (z3.IntSort)
+            world: World ID (z3.IntSort) - kept for API compatibility, not used for scope
             time_var: Time variable (z3.IntSort) to quantify over
             body: Z3 expression to evaluate for each time
 
         Returns:
-            z3.ForAll expression with validity implications
+            z3.ForAll expression with validity implications over domain D
         """
         return z3.ForAll(
             time_var,
             z3.Implies(
-                self.is_valid_time_for_world(world, time_var),
+                self.is_valid_time(time_var),  # All times in D, not world-specific
                 body
             )
         )
 
     def ExistsTime(self, world, time_var, body):
-        """Existential quantification over valid times in world's interval.
+        """Existential quantification over valid times in domain D.
+
+        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
+        world's interval. This matches the ProofChecker (Lean) semantics where
+        temporal operators like F and P quantify over the global time domain.
 
         Args:
-            world: World ID (z3.IntSort)
+            world: World ID (z3.IntSort) - kept for API compatibility, not used for scope
             time_var: Time variable (z3.IntSort) to quantify over
             body: Z3 expression to evaluate
 
         Returns:
-            z3.Exists expression with validity conjunction
+            z3.Exists expression with validity conjunction over domain D
         """
         return z3.Exists(
             time_var,
             z3.And(
-                self.is_valid_time_for_world(world, time_var),
+                self.is_valid_time(time_var),  # All times in D, not world-specific
                 body
             )
         )
@@ -887,28 +895,38 @@ class BimodalSemantics(SemanticDefaults):
     def true_at(self, sentence, eval_point):
         """Returns a Z3 formula that is satisfied when the sentence is true at the given evaluation point.
 
+        ProofChecker Alignment: Atoms are FALSE outside the world's domain. This matches
+        the ProofChecker theorem `atom_false_of_not_domain` which ensures atoms evaluate
+        to false at times not in the world history's domain.
+
         Args:
             sentence: The sentence to evaluate
             eval_point: Dictionary containing evaluation parameters:
                 - "world": The world ID (integer) at which to evaluate the sentence
                 - "time": The time point at which to evaluate the sentence
-            
+
         Returns:
             Z3 formula that is satisfied when sentence is true at eval_point
         """
         # Extract world and time from eval_point
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
-        
+
         # Get the world array from the world ID
         world_array = self.world_function(eval_world)
-        
+
         sentence_letter = sentence.sentence_letter  # store sentence letter
 
         # base case
         if sentence_letter is not None:
+            # ProofChecker alignment: Atoms are FALSE outside the world's domain
+            # (atom_false_of_not_domain theorem in Truth.lean)
+            in_domain = self.is_valid_time_for_world(eval_world, eval_time)
             eval_world_state = z3.Select(world_array, eval_time)
-            return self.truth_condition(eval_world_state, sentence_letter)
+            return z3.And(
+                in_domain,
+                self.truth_condition(eval_world_state, sentence_letter)
+            )
 
         # recursive case
         operator = sentence.operator  # store operator

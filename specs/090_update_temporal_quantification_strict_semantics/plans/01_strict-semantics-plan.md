@@ -55,7 +55,7 @@ Key findings from research report (01_strict-semantics-research.md):
 
 ## Implementation Phases
 
-### Phase 1: Update Temporal Quantification Scope [NOT STARTED]
+### Phase 1: Update Temporal Quantification Scope [COMPLETED]
 
 **Goal**: Modify `ForAllTime` and `ExistsTime` to quantify over all times in domain D instead of world-specific intervals.
 
@@ -76,7 +76,7 @@ Key findings from research report (01_strict-semantics-research.md):
 
 ---
 
-### Phase 2: Add Domain Check to Atom Evaluation [NOT STARTED]
+### Phase 2: Add Domain Check to Atom Evaluation [COMPLETED]
 
 **Goal**: Ensure atoms evaluate to FALSE at times outside the world's domain, matching ProofChecker semantics.
 
@@ -115,7 +115,7 @@ if sentence_letter is not None:
 
 ---
 
-### Phase 3: Update find_truth_condition Methods [NOT STARTED]
+### Phase 3: Update find_truth_condition Methods [COMPLETED]
 
 **Goal**: Update extension computation in operators to consider all times in D, not just world-specific intervals.
 
@@ -145,7 +145,7 @@ if sentence_letter is not None:
 
 ---
 
-### Phase 4: Test Updates and Validation [NOT STARTED]
+### Phase 4: Test Updates and Validation [COMPLETED]
 
 **Goal**: Update existing tests and add new tests to verify ProofChecker-aligned semantics.
 

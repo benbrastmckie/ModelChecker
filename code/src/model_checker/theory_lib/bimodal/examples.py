@@ -477,6 +477,10 @@ TN_TH_2_example = [
 ########################
 
 # BM_TH_1: NECESSITY TO ALL FUTURE (PERPETUITY)
+# NOTE: Under strict semantics (ProofChecker-aligned), atoms are false outside
+# the world's domain. This breaks the perpetuity theorem because Future A requires
+# A to be true at all future times, but atoms at times outside the world's interval
+# are false. A countermodel can now be found.
 BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 BM_TH_1_settings = {
@@ -484,8 +488,8 @@ BM_TH_1_settings = {
     'M' : 2,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
-    'expectation' : False,
+    'max_time' : 10,  # Increased for strict semantics (harder problem)
+    'expectation' : True,  # Now expects countermodel under strict semantics
 }
 BM_TH_1_example = [
     BM_TH_1_premises,
@@ -494,6 +498,10 @@ BM_TH_1_example = [
 ]
 
 # BM_TH_2: NECESSITY TO ALL PAST (PERPETUITY)
+# NOTE: Under strict semantics (ProofChecker-aligned), atoms are false outside
+# the world's domain. This breaks the perpetuity theorem because Past A requires
+# A to be true at all past times, but atoms at times outside the world's interval
+# are false. A countermodel can now be found.
 BM_TH_2_premises = ['\\Box A']
 BM_TH_2_conclusions = ['\\Past A']
 BM_TH_2_settings = {
@@ -502,7 +510,7 @@ BM_TH_2_settings = {
     'contingent' : False,
     'disjoint' : False,
     'max_time' : 2,
-    'expectation' : False,
+    'expectation' : True,  # Now expects countermodel under strict semantics
 }
 BM_TH_2_example = [
     BM_TH_2_premises,
