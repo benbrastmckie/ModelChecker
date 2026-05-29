@@ -19,9 +19,10 @@ next_project_number: 94
 
 ### 92. Add frame constraints for bimodal task relation
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 91
+- **Research**: [01_frame-constraints-research.md](092_add_frame_constraints_nullity_comp_converse/reports/01_frame-constraints-research.md)
 
 **Description**: Add nullity_identity (task_rel w 0 u ↔ w = u), forward_comp (compositionality for non-negative durations), and converse (task_rel w d u ↔ task_rel u (-d) w) constraints to bimodal semantic.py. These match the Lean ProofChecker's TaskFrame axioms. Reference: BimodalLogic/Theories/Bimodal/Semantics/TaskFrame.lean.
 

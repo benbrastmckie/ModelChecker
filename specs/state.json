@@ -117,13 +117,22 @@
     {
       "project_number": 92,
       "project_name": "add_frame_constraints_nullity_comp_converse",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "dependencies": [
         91
       ],
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T17:24:41Z"
+      "last_updated": "2026-05-29T19:04:50Z",
+      "session_id": "sess_1780081196_94be8be05c90",
+      "artifacts": [
+        {
+          "path": "specs/092_add_frame_constraints_nullity_comp_converse/reports/01_frame-constraints-research.md",
+          "type": "report",
+          "summary": "Z3 encoding, constraint interactions, and performance analysis for nullity_identity, forward_comp, and converse constraints"
+        }
+      ],
+      "next_artifact_number": 2
     },
     {
       "project_number": 88,
