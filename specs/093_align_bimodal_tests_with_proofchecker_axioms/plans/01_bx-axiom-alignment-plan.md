@@ -1,7 +1,7 @@
 # Implementation Plan: Align Bimodal Tests with ProofChecker BX Axiom System
 
 - **Task**: 93 - Align bimodal tests with ProofChecker BX axiom system
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 5 hours
 - **Dependencies**: 89 (Until/Since operators), 90 (strict semantics)
 - **Research Inputs**: reports/01_bx-axiom-alignment.md

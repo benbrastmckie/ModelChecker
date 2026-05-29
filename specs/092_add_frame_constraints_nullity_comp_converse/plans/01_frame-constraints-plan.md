@@ -1,7 +1,7 @@
 # Implementation Plan: Add Frame Constraints (nullity, compositionality, converse)
 
 - **Task**: 92 - Add frame constraints for bimodal task relation
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3 hours
 - **Dependencies**: 91 (ternary task relation refactor, completed)
 - **Research Inputs**: reports/01_frame-constraints-research.md

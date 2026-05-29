@@ -4,14 +4,14 @@
     {
       "project_number": 93,
       "project_name": "align_bimodal_tests_with_proofchecker_axioms",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "dependencies": [
         89,
         90
       ],
       "created": "2026-05-29T18:16:47Z",
-      "last_updated": "2026-05-29T19:15:49Z",
+      "last_updated": "2026-05-29T19:38:05Z",
       "researched": "2026-05-29T18:22:45Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -24,9 +24,53 @@
           "path": "specs/093_align_bimodal_tests_with_proofchecker_axioms/plans/01_bx-axiom-alignment-plan.md",
           "type": "plan",
           "summary": "Implementation plan for aligning bimodal tests with 42 ProofChecker BX axioms across 4 phases"
+        },
+        {
+          "path": "specs/093_align_bimodal_tests_with_proofchecker_axioms/summaries/01_bx-axiom-alignment-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for task 93 BX axiom alignment"
         }
       ],
-      "session_id": "sess_1780081824_6d0db0"
+      "session_id": "sess_1780082257_2135ae",
+      "completion_summary": "Added 31 new theorem examples to bimodal examples.py covering 76% of the BimodalLogic ProofChecker BX axiom system (31/42 axioms organized across 4 layers: propositional, S5 modal, BX temporal, and modal-temporal interaction). Discovered and documented two syntax bugs: TopOperator fails at runtime requiring use of explicit neg-bot expansion, and binary Until/Since operators require infix syntax. All 40 active bimodal tests pass (up from 12 before this task). BX7 linearity and MF_MODAL_FUTURE examples added but excluded from CI via KNOWN_TIMEOUT_EXAMPLES.",
+      "memory_candidates": [
+        {
+          "content": "In bimodal ModelChecker, TopOperator fails at runtime when used as argument to temporal operators. Use explicit neg-bot instead of top in temporal formula contexts.",
+          "category": "TECHNIQUE",
+          "confidence": 0.95,
+          "suggested_keywords": [
+            "bimodal",
+            "top",
+            "temporal",
+            "operator",
+            "workaround"
+          ]
+        },
+        {
+          "content": "Binary operators Until and Since require infix form: (event Until guard). The prefix form fails with KeyError.",
+          "category": "TECHNIQUE",
+          "confidence": 0.95,
+          "suggested_keywords": [
+            "bimodal",
+            "Until",
+            "Since",
+            "syntax",
+            "infix"
+          ]
+        },
+        {
+          "content": "BX modal_future axiom: Box(A) -> Box(Future(A)) is NOT a theorem under bimodal ModelChecker semantics (countermodel at N=1, M=2). The related Box(A) -> Future(Box(A)) IS valid.",
+          "category": "INSIGHT",
+          "confidence": 0.85,
+          "suggested_keywords": [
+            "bimodal",
+            "modal_future",
+            "Box",
+            "Future",
+            "validity"
+          ]
+        }
+      ]
     },
     {
       "project_number": 89,
@@ -123,14 +167,14 @@
     {
       "project_number": 92,
       "project_name": "add_frame_constraints_nullity_comp_converse",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "dependencies": [
         91
       ],
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T19:30:00Z",
-      "session_id": "sess_1780081824_6d0db0",
+      "last_updated": "2026-05-29T19:38:04Z",
+      "session_id": "sess_1780082257_2135ae",
       "artifacts": [
         {
           "path": "specs/092_add_frame_constraints_nullity_comp_converse/reports/01_frame-constraints-research.md",
@@ -141,6 +185,11 @@
           "path": "specs/092_add_frame_constraints_nullity_comp_converse/plans/01_frame-constraints-plan.md",
           "type": "plan",
           "summary": "Implementation plan: 3 phases adding nullity_identity, converse, and forward_comp constraints with dedicated tests"
+        },
+        {
+          "path": "specs/092_add_frame_constraints_nullity_comp_converse/summaries/01_frame-constraints-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary covering all three phases: constraint methods added, frame constraints integrated, and test file created."
         }
       ],
       "next_artifact_number": 2,
@@ -169,7 +218,35 @@
             "integrated_date": "2026-05-29"
           }
         ]
-      }
+      },
+      "completion_summary": "Added three frame constraint builder methods to BimodalSemantics (build_nullity_identity_constraint, build_converse_constraint, build_forward_comp_constraint) in semantic.py, integrated them into build_frame_constraints(), and created a dedicated test file with 8 passing unit tests. The implementation aligns with the Lean ProofChecker TaskFrame axioms and Compositional typeclass from Frame.lean. All 12 pre-existing bimodal tests continue to pass.",
+      "memory_candidates": [
+        {
+          "content": "Z3 quantifier performance tip: when implementing compositionality constraints with 5 quantified variables (w, v, u, d1, d2), use z3.MultiPattern(premise1, premise2) in z3.ForAll(..., patterns=[...]) to guide instantiation only when both premises are in the ground term set.",
+          "category": "TECHNIQUE",
+          "confidence": 0.85,
+          "suggested_keywords": [
+            "z3",
+            "quantifier",
+            "multi-pattern",
+            "forall",
+            "performance"
+          ]
+        },
+        {
+          "content": "BimodalSemantics test fixture sizing: for unit tests that load the full frame_constraints list (including skolem_abundance_constraint), use N=2 (4 states) rather than N=3 (8 states) to prevent solver timeout.",
+          "category": "CONFIG",
+          "confidence": 0.9,
+          "suggested_keywords": [
+            "bimodal",
+            "z3",
+            "test",
+            "fixture",
+            "N",
+            "performance"
+          ]
+        }
+      ]
     },
     {
       "project_number": 88,
