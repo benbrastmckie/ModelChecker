@@ -72,7 +72,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Implement isolated_z3_context() and Wrap Runner Loop [NOT STARTED]
+### Phase 1: Implement isolated_z3_context() and Wrap Runner Loop [COMPLETED]
 
 **Goal**: Create the core context manager that swaps `z3.z3._main_ctx` to a fresh `z3.Context()` per example, and integrate it into the runner loop.
 
