@@ -477,19 +477,24 @@ TN_TH_2_example = [
 ########################
 
 # BM_TH_1: NECESSITY TO ALL FUTURE (PERPETUITY)
-# NOTE: Under strict semantics (ProofChecker-aligned), atoms are false outside
-# the world's domain. This breaks the perpetuity theorem because Future A requires
-# A to be true at all future times, but atoms at times outside the world's interval
-# are false. A countermodel can now be found.
+# This is a valid theorem aligned with the JPL paper (thm:MF-valid, cor:perpetuity-valid)
+# and the BimodalLogic Lean formalization (modal_future_valid in Soundness.lean).
+# The previous countermodel under "strict semantics" was an artifact of two semantic
+# divergences now corrected:
+# (1) The Box operator's is_valid_time_for_world guard was removed (Box now quantifies
+#     over ALL worlds unconditionally, matching paper and Lean semantics).
+# (2) The abundance constraint was extended from +/-1 to full shift coverage using
+#     capped_skolem_abundance_constraint, ensuring time-shifted world copies exist.
+# M=3 is required to provide sufficient interval shifts for the perpetuity proof structure.
 BM_TH_1_premises = ['\\Box A']
 BM_TH_1_conclusions = ['\\Future A']
 BM_TH_1_settings = {
     'N' : 2,
-    'M' : 2,
+    'M' : 3,  # M=3 required: with M=2 only 2 intervals exist, insufficient for full shift closure
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 10,  # Increased for strict semantics (harder problem)
-    'expectation' : True,  # Now expects countermodel under strict semantics
+    'max_time' : 30,  # Longer timeout: Z3 searches exhaustively before returning unknown (no countermodel)
+    'expectation' : False,  # Valid theorem: no countermodel expected
 }
 BM_TH_1_example = [
     BM_TH_1_premises,
@@ -498,19 +503,18 @@ BM_TH_1_example = [
 ]
 
 # BM_TH_2: NECESSITY TO ALL PAST (PERPETUITY)
-# NOTE: Under strict semantics (ProofChecker-aligned), atoms are false outside
-# the world's domain. This breaks the perpetuity theorem because Past A requires
-# A to be true at all past times, but atoms at times outside the world's interval
-# are false. A countermodel can now be found.
+# This is a valid theorem aligned with the JPL paper and BimodalLogic Lean formalization.
+# Same semantic corrections as BM_TH_1 apply (Box scope fix + extended abundance).
+# M=3 is required for sufficient time-shift closure.
 BM_TH_2_premises = ['\\Box A']
 BM_TH_2_conclusions = ['\\Past A']
 BM_TH_2_settings = {
     'N' : 2,
-    'M' : 2,
+    'M' : 3,  # M=3 required: with M=2 only 2 intervals exist, insufficient for full shift closure
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 2,
-    'expectation' : True,  # Now expects countermodel under strict semantics
+    'max_time' : 30,  # Longer timeout: Z3 searches exhaustively before returning unknown (no countermodel)
+    'expectation' : False,  # Valid theorem: no countermodel expected
 }
 BM_TH_2_example = [
     BM_TH_2_premises,
