@@ -1,6 +1,14 @@
 {
-  "next_project_number": 97,
+  "next_project_number": 98,
   "active_projects": [
+    {
+      "project_number": 97,
+      "project_name": "optimize_build_frame_constraints",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-05-29T23:55:26Z",
+      "last_updated": "2026-05-29T23:55:26Z"
+    },
     {
       "project_number": 96,
       "project_name": "investigate_perpetuity_validity_alignment",
