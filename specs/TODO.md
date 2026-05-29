@@ -10,9 +10,10 @@ next_project_number: 97
 
 ### 96. Investigate perpetuity principle validity alignment
 - **Effort**: large
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 94
+- **Research**: [096_investigate_perpetuity_validity_alignment/reports/01_perpetuity-alignment.md]
 
 **Description**: The JPL paper (possible_worlds.tex) proves that the perpetuity principles are valid: thm:MF-valid (line 3217) establishes `Box phi -> Box Future phi`, and cor:perpetuity-valid (line 3245) derives P1-P6 including SP1 (`Box phi -> always phi`) which entails `Box phi -> Future phi` and `Box phi -> Past phi`. The Lean formalization in BimodalLogic/ (Soundness.lean:253 `modal_future_valid`) formally verifies this. However, the ModelChecker finds countermodels to BM_TH_1 (`Box A -> Future A`) and BM_TH_2 (`Box A -> Past A`). The examples.py comments attribute this to "strict semantics" where atoms are false outside the world's time interval, but this conflicts with the paper's semantics where worlds (tau: D -> W) are defined over the entire duration group. Investigate: (1) how the ModelChecker's finite world histories and atom valuation outside the interval differ from the paper's semantics, (2) compare with the Lean formalization's semantic definitions in BimodalLogic/Theories/Bimodal/Semantics/, (3) determine whether the ModelChecker should validate perpetuity and what semantic changes are needed to achieve alignment, (4) assess impact on BM_CM_1, BM_CM_3, TN_CM_2 timeouts which may be related to the same issue.
 

@@ -4,15 +4,23 @@
     {
       "project_number": 96,
       "project_name": "investigate_perpetuity_validity_alignment",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "dependencies": [
         94
       ],
       "created": "2026-05-29T22:35:00Z",
-      "last_updated": "2026-05-29T22:35:00Z",
-      "next_artifact_number": 1,
-      "artifacts": []
+      "last_updated": "2026-05-29T22:50:00Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/096_investigate_perpetuity_validity_alignment/reports/01_perpetuity-alignment.md",
+          "type": "report",
+          "summary": "Three compounding semantic divergences cause perpetuity to fail: box scope guard, limited abundance, finite domain boundaries. Recommends Approach B (finite histories with full closure)."
+        }
+      ],
+      "session_id": "sess_1780094455_86573c",
+      "researched": "2026-05-29T22:50:00Z"
     },
     {
       "project_number": 93,
