@@ -580,7 +580,9 @@ class FutureOperator(syntactic.Operator):
         """Gets truth-condition for 'It will always be the case that: argument'.
 
         ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
-        world's interval. Atoms at times outside the world's domain are FALSE.
+        world's interval. Arguments at times outside the world's interval are evaluated
+        via semantics.true_at(), which returns FALSE for atoms (via is_valid_time_for_world)
+        and evaluates complex formulas (e.g., negations) recursively.
 
         Args:
             argument: The argument to apply the future operator to
@@ -629,7 +631,7 @@ class FutureOperator(syntactic.Operator):
                     continue
 
                 # ProofChecker alignment: check all times in D that are > time_point
-                # Times outside the world's interval have atoms FALSE
+                # Times outside the world's interval are evaluated via semantics.true_at()
                 future_false = False
                 for future_time in all_D_times:
                     if future_time > time_point:
@@ -754,7 +756,9 @@ class PastOperator(syntactic.Operator):
         """Gets truth-condition for 'It has always been the case that: argument'.
 
         ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
-        world's interval. Atoms at times outside the world's domain are FALSE.
+        world's interval. Arguments at times outside the world's interval are evaluated
+        via semantics.true_at(), which returns FALSE for atoms (via is_valid_time_for_world)
+        and evaluates complex formulas (e.g., negations) recursively.
 
         Args:
             argument: The argument to apply the past operator to
@@ -802,7 +806,7 @@ class PastOperator(syntactic.Operator):
                     continue
 
                 # ProofChecker alignment: check all times in D that are < time_point
-                # Times outside the world's interval have atoms FALSE
+                # Times outside the world's interval are evaluated via semantics.true_at()
                 past_false = False
                 for past_time in all_D_times:
                     if past_time < time_point:
@@ -981,8 +985,10 @@ class UntilOperator(syntactic.Operator):
     def find_truth_condition(self, event_arg, guard_arg, eval_point):
         """Computes the extension for Until operator by checking each time point.
 
-        ProofChecker Alignment: Considers all times in domain D. Atoms at times
-        outside the world's domain are FALSE.
+        ProofChecker Alignment: Considers all times in domain D. Arguments at times
+        outside the world's interval are evaluated via semantics.true_at(), which returns
+        FALSE for atoms (via is_valid_time_for_world) and evaluates complex formulas
+        (e.g., negations) recursively.
 
         For each time t, Until is true if there exists a witness time s > t where:
         - event holds at s
@@ -1022,11 +1028,11 @@ class UntilOperator(syntactic.Operator):
                 found_witness = False
 
                 # Search for a witness s > t where event holds
-                # Note: Witnesses can only be in world's interval since atoms outside are FALSE
+                # Note: Witnesses are limited to the world's interval for event evaluation
                 for s in range(t + 1, end_time + 1):
                     if s in event_true_times:
                         # Check if guard holds for all r in open interval (t, s) within domain D
-                        # ProofChecker alignment: times outside world's interval have guard FALSE
+                        # ProofChecker alignment: times outside world's interval evaluated via true_at()
                         guard_ok = True
                         for r in all_D_times:
                             if t < r < s:
@@ -1207,8 +1213,10 @@ class SinceOperator(syntactic.Operator):
     def find_truth_condition(self, event_arg, guard_arg, eval_point):
         """Computes the extension for Since operator by checking each time point.
 
-        ProofChecker Alignment: Considers all times in domain D. Atoms at times
-        outside the world's domain are FALSE.
+        ProofChecker Alignment: Considers all times in domain D. Arguments at times
+        outside the world's interval are evaluated via semantics.true_at(), which returns
+        FALSE for atoms (via is_valid_time_for_world) and evaluates complex formulas
+        (e.g., negations) recursively.
 
         For each time t, Since is true if there exists a witness time s < t where:
         - event held at s
@@ -1248,11 +1256,11 @@ class SinceOperator(syntactic.Operator):
                 found_witness = False
 
                 # Search for a witness s < t where event held
-                # Note: Witnesses can only be in world's interval since atoms outside are FALSE
+                # Note: Witnesses are limited to the world's interval for event evaluation
                 for s in range(start_time, t):
                     if s in event_true_times:
                         # Check if guard held for all r in open interval (s, t) within domain D
-                        # ProofChecker alignment: times outside world's interval have guard FALSE
+                        # ProofChecker alignment: times outside world's interval evaluated via true_at()
                         guard_ok = True
                         for r in all_D_times:
                             if s < r < t:
