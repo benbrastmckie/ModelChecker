@@ -5,7 +5,6 @@ running individual examples, handling iterations, and managing Z3 contexts.
 """
 
 # Standard library imports
-import gc
 import importlib
 import os
 import sys

@@ -51,8 +51,7 @@ class TestModelDefaultsStructure(unittest.TestCase):
         }
         
         # Create instance with proper mocks
-        with patch('model_checker.utils.Z3ContextManager.reset_context'):
-            self.model_defaults = ModelDefaults(self.model_constraints, self.settings)
+        self.model_defaults = ModelDefaults(self.model_constraints, self.settings)
     
     def test_initialization(self):
         """Test that ModelDefaults initializes correctly."""

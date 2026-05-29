@@ -129,20 +129,22 @@ world: str = bitvec_to_worldstate(bv, N=Optional[int])
 
 ### context.py - Z3 Context Management
 
-Ensures proper isolation between different Z3 solver instances.
+Ensures true C-level isolation between Z3 solver instances by swapping the
+global ``z3.z3._main_ctx`` pointer to a fresh ``z3.Context()`` for each
+example, then restoring it on exit.
 
 ```python
-from model_checker.utils import Z3ContextManager
+from model_checker.utils import isolated_z3_context
 
-# Reset Z3 context between examples
-Z3ContextManager.reset_context()
-
-# This prevents constraint leakage between model checking runs
+# Wrap each example in a fresh Z3 context
+with isolated_z3_context():
+    process_example(...)
 ```
 
-**Key Class**:
-- `Z3ContextManager`: Provides centralized Z3 context management
-  - `reset_context()`: Force fresh Z3 context
+**Key Function**:
+- `isolated_z3_context()`: Context manager that provides a fresh Z3 C-level
+  context for the duration of the ``with`` block, preventing learned lemmas,
+  caches, and heuristic seeds from leaking between examples.
 
 ### formatting.py - Output Formatting
 

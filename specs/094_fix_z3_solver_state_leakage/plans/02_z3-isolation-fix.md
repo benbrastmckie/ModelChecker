@@ -114,7 +114,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Clean Up Dead Reset Infrastructure [NOT STARTED]
+### Phase 2: Clean Up Dead Reset Infrastructure [COMPLETED]
 
 **Goal**: Remove the five ineffective reset mechanisms that are now superseded by `isolated_z3_context()`.
 
