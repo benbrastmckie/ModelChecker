@@ -10,7 +10,7 @@ next_project_number: 94
 
 ### 93. Align bimodal tests with ProofChecker BX axiom system
 - **Effort**: large
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Language**: z3
 - **Dependencies**: 89, 90
 - **Research**: [01_bx-axiom-alignment.md](093_align_bimodal_tests_with_proofchecker_axioms/reports/01_bx-axiom-alignment.md)
@@ -19,10 +19,11 @@ next_project_number: 94
 
 ### 92. Add frame constraints for bimodal task relation
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 - **Dependencies**: 91
 - **Research**: [01_frame-constraints-research.md](092_add_frame_constraints_nullity_comp_converse/reports/01_frame-constraints-research.md)
+- **Plan**: [01_frame-constraints-plan.md](092_add_frame_constraints_nullity_comp_converse/plans/01_frame-constraints-plan.md)
 
 **Description**: Add nullity_identity (task_rel w 0 u ↔ w = u), forward_comp (compositionality for non-negative durations), and converse (task_rel w d u ↔ task_rel u (-d) w) constraints to bimodal semantic.py. These match the Lean ProofChecker's TaskFrame axioms. Reference: BimodalLogic/Theories/Bimodal/Semantics/TaskFrame.lean.
 

@@ -4,14 +4,14 @@
     {
       "project_number": 93,
       "project_name": "align_bimodal_tests_with_proofchecker_axioms",
-      "status": "researched",
+      "status": "planning",
       "language": "z3",
       "dependencies": [
         89,
         90
       ],
       "created": "2026-05-29T18:16:47Z",
-      "last_updated": "2026-05-29T18:22:45Z",
+      "last_updated": "2026-05-29T19:10:46Z",
       "researched": "2026-05-29T18:22:45Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -20,7 +20,8 @@
           "type": "report",
           "summary": "Complete BX axiom catalog with coverage matrix, ModelChecker translations, and implementation priority"
         }
-      ]
+      ],
+      "session_id": "sess_1780081824_6d0db0"
     },
     {
       "project_number": 89,
@@ -117,22 +118,53 @@
     {
       "project_number": 92,
       "project_name": "add_frame_constraints_nullity_comp_converse",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "dependencies": [
         91
       ],
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T19:04:50Z",
-      "session_id": "sess_1780081196_94be8be05c90",
+      "last_updated": "2026-05-29T19:30:00Z",
+      "session_id": "sess_1780081824_6d0db0",
       "artifacts": [
         {
           "path": "specs/092_add_frame_constraints_nullity_comp_converse/reports/01_frame-constraints-research.md",
           "type": "report",
           "summary": "Z3 encoding, constraint interactions, and performance analysis for nullity_identity, forward_comp, and converse constraints"
+        },
+        {
+          "path": "specs/092_add_frame_constraints_nullity_comp_converse/plans/01_frame-constraints-plan.md",
+          "type": "plan",
+          "summary": "Implementation plan: 3 phases adding nullity_identity, converse, and forward_comp constraints with dedicated tests"
         }
       ],
-      "next_artifact_number": 2
+      "next_artifact_number": 2,
+      "planned": "2026-05-29T19:30:00Z",
+      "plan_metadata": {
+        "phases": 3,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_frame-constraints-research.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-05-29"
+          }
+        ]
+      }
     },
     {
       "project_number": 88,
