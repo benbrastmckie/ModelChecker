@@ -33,8 +33,9 @@ next_project_number: 93
 
 ### 89. Add Until and Since operators to bimodal operators.py
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
+- **Research**: [01_until-since-research.md](089_add_until_since_operators/reports/01_until-since-research.md)
 
 **Description**: Implement Until U(φ,ψ) and Since S(φ,ψ) temporal operators in operators.py. Currently only G (Future) and H (Past) exist, but 22 of 42 BX axiom constructors require Until/Since. Until: "ψ holds at some future time s > t, and φ holds for all times in (t,s)". Since: "ψ held at some past time s < t, and φ held for all times in (s,t)". Use strict witness with open guard per ProofChecker convention. Reference: BimodalLogic/Theories/Bimodal/Semantics/Truth.lean.
 

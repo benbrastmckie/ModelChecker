@@ -4,10 +4,19 @@
     {
       "project_number": 89,
       "project_name": "add_until_since_operators",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T17:24:41Z"
+      "last_updated": "2026-05-29T17:30:20Z",
+      "researched": "2026-05-29T17:30:20Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/089_add_until_since_operators/reports/01_until-since-research.md",
+          "type": "report",
+          "summary": "Until/Since operator Z3 encoding and implementation strategy"
+        }
+      ]
     },
     {
       "project_number": 90,
