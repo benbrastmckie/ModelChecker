@@ -1177,15 +1177,22 @@
       "language": "z3",
       "dependencies": [],
       "created": "2026-05-29T20:30:00Z",
-      "last_updated": "2026-05-29T20:30:00Z",
-      "next_artifact_number": 2,
+      "last_updated": "2026-05-29T21:30:10Z",
+      "next_artifact_number": 3,
       "artifacts": [
         {
           "path": "specs/094_fix_z3_solver_state_leakage/reports/01_z3-state-leakage.md",
           "type": "report",
           "summary": "Z3 solver state leakage root cause: reset_z3_context() does not reset C library state, causing nondeterministic results across examples"
+        },
+        {
+          "path": "specs/094_fix_z3_solver_state_leakage/reports/02_team-research.md",
+          "type": "report",
+          "summary": "Team research (4 teammates): B2 global _main_ctx swap recommended as primary fix; Option A has pickling blocker; ~25-line fix across 3 files"
         }
-      ]
+      ],
+      "session_id": "sess_1780089555_3b3c0e",
+      "researched": "2026-05-29T21:30:10Z"
     },
     {
       "project_number": 95,

@@ -26,7 +26,9 @@ next_project_number: 96
 - **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: none
-- **Research**: [094_fix_z3_solver_state_leakage/reports/01_z3-state-leakage.md]
+- **Research**:
+  - [094_fix_z3_solver_state_leakage/reports/01_z3-state-leakage.md]
+  - [094_fix_z3_solver_state_leakage/reports/02_team-research.md]
 
 **Description**: `reset_z3_context()` in `utils/context.py` does not effectively reset Z3's global C library state between examples. The `_main_ctx` attribute it tries to clear does not exist, and `importlib.reload(z3)` does not reset the C library's learned lemmas, caches, or heuristic seeds. This causes nondeterministic results: BM_CM_3 and BM_CM_1 find countermodels when run after other examples but time out when run alone. Fix: use explicit `z3.Context()` objects per example for true solver isolation.
 
