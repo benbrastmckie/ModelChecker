@@ -1,6 +1,19 @@
 {
-  "next_project_number": 96,
+  "next_project_number": 97,
   "active_projects": [
+    {
+      "project_number": 96,
+      "project_name": "investigate_perpetuity_validity_alignment",
+      "status": "not_started",
+      "language": "z3",
+      "dependencies": [
+        94
+      ],
+      "created": "2026-05-29T22:35:00Z",
+      "last_updated": "2026-05-29T22:35:00Z",
+      "next_artifact_number": 1,
+      "artifacts": []
+    },
     {
       "project_number": 93,
       "project_name": "align_bimodal_tests_with_proofchecker_axioms",
