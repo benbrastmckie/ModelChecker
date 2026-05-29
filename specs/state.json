@@ -92,11 +92,11 @@
     {
       "project_number": 91,
       "project_name": "update_task_relation_ternary_duration",
-      "status": "planned",
+      "status": "researched",
       "language": "z3",
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T18:33:52Z",
-      "session_id": "sess_1748539400_p91z3",
+      "last_updated": "2026-05-29T18:40:11Z",
+      "session_id": "sess_1748539800_r91cb",
       "planned": "2026-05-29T18:33:52Z",
       "artifacts": [
         {

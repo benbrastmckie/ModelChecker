@@ -27,7 +27,7 @@ next_project_number: 94
 
 ### 91. Update task relation to ternary with duration parameter
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Plan**: [01_task-relation-ternary-plan.md](091_update_task_relation_ternary_duration/plans/01_task-relation-ternary-plan.md)
 
@@ -240,7 +240,7 @@ next_project_number: 94
 
 ### 78. Design hybrid solver strategy (Z3 for UNSAT, CVC5 for SAT)
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 77
 
@@ -487,7 +487,7 @@ next_project_number: 94
 
 ### 64. Fix test_push_pop_sat_transitions signed/unsigned bitvector comparison bug
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 
 **Description**: The test `solver/tests/unit/test_equivalence.py::TestPushPopEquivalence::test_push_pop_sat_transitions` fails because it expects `z3_x > 200` and `z3_x < 100` on an 8-bit BitVec to be contradictory (unsat), but z3's `>` and `<` on BitVec are signed comparisons. Signed 8-bit value 200 is -56, so `x > -56 AND x < 100` is satisfiable. Fix by using unsigned comparisons (`z3.UGT` / `z3.ULT` and cvc5 equivalents) or by choosing values that are contradictory under signed comparison (e.g., `x > 50 AND x < 10`). File: `code/src/model_checker/solver/tests/unit/test_equivalence.py` line 127.
@@ -581,7 +581,7 @@ next_project_number: 94
 
 ### 50. Create standalone solver comparison script using dev_cli.py
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: python
 
 **Description**: Create standalone solver comparison script that runs each logos example through dev_cli.py twice (once with z3, once with cvc5), displaying concrete model/countermodel output with timing data for side-by-side comparison.
@@ -590,7 +590,7 @@ next_project_number: 94
 
 ### 36. Fill placeholders and fix metadata
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: latex
 - **Dependencies**: None
 
@@ -612,7 +612,7 @@ next_project_number: 94
 
 ### 35. Fix first-order semantics and predicate extension display
 - **Effort**: TBD
-- **Status**: [PLANNED]
+- **Status**: [RESEARCHED]
 - **Language**: python
 - **Dependencies**: None
 
