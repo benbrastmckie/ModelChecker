@@ -4,14 +4,23 @@
     {
       "project_number": 93,
       "project_name": "align_bimodal_tests_with_proofchecker_axioms",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "dependencies": [
         89,
         90
       ],
       "created": "2026-05-29T18:16:47Z",
-      "last_updated": "2026-05-29T18:16:47Z"
+      "last_updated": "2026-05-29T18:22:45Z",
+      "researched": "2026-05-29T18:22:45Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/093_align_bimodal_tests_with_proofchecker_axioms/reports/01_bx-axiom-alignment.md",
+          "type": "report",
+          "summary": "Complete BX axiom catalog with coverage matrix, ModelChecker translations, and implementation priority"
+        }
+      ]
     },
     {
       "project_number": 89,

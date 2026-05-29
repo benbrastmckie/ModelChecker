@@ -10,9 +10,10 @@ next_project_number: 94
 
 ### 93. Align bimodal tests with ProofChecker BX axiom system
 - **Effort**: large
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 89, 90
+- **Research**: [01_bx-axiom-alignment.md](093_align_bimodal_tests_with_proofchecker_axioms/reports/01_bx-axiom-alignment.md)
 
 **Description**: Align ModelChecker bimodal tests and examples with the full BX axiom system from BimodalLogic/Theories/Bimodal/Syntax/Axioms.lean. Current coverage is ~17% (7 of 42 axioms). Gap analysis: Layer 1 propositional (prop_k, prop_s, ex_falso, peirce) untested. Layer 2 modal (modal_t, modal_4, modal_b, modal_5_collapse) mostly missing. Layer 3 temporal (BX1-BX13 and primes) entirely missing -- 20 active constructors including seriality axioms and Until/Since axioms now testable after task 89. Layer 4 interaction (modal_future) partially covered. Layer 5 uniformity (5 discrete axioms) missing. Layer 6 Prior (prior_UZ, prior_SZ) missing. Layer 7 Z1 missing. Layer 8 density (2 axioms) blocked on frame class support (task 92). Also missing derived theorems: temp_k_dist, temp_4. Add examples to examples.py and corresponding tests for each axiom, marking validity expectations per frame class where relevant. Reference: BimodalLogic/Theories/Bimodal/Syntax/Axioms.lean.
 
