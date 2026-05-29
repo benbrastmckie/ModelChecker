@@ -25,10 +25,11 @@ next_project_number: 93
 
 ### 90. Update temporal quantification to strict semantics
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Language**: z3
 - **Dependencies**: 89
 - **Research**: [01_strict-semantics-research.md](090_update_temporal_quantification_strict_semantics/reports/01_strict-semantics-research.md)
+- **Plan**: [01_strict-semantics-plan.md](090_update_temporal_quantification_strict_semantics/plans/01_strict-semantics-plan.md)
 
 **Description**: Update temporal operators (G, H, F, P, Until, Since) to use strict quantification (< instead of ≤) matching the Lean ProofChecker's irreflexive temporal semantics. Also change temporal quantification scope from "times within world's interval" to "all times in domain D" - atoms at times outside domain are false, not undefined. Reference: BimodalLogic/Theories/Bimodal/Semantics/Truth.lean lines 10-48.
 

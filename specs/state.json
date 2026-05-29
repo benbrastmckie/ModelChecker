@@ -36,13 +36,13 @@
     {
       "project_number": 90,
       "project_name": "update_temporal_quantification_strict_semantics",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "dependencies": [
         89
       ],
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T17:49:23Z",
+      "last_updated": "2026-05-29T17:53:57Z",
       "researched": "2026-05-29T17:49:23Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -50,8 +50,15 @@
           "path": "specs/090_update_temporal_quantification_strict_semantics/reports/01_strict-semantics-research.md",
           "type": "report",
           "summary": "Strict temporal semantics analysis: ordering already correct, quantification scope needs change"
+        },
+        {
+          "path": "specs/090_update_temporal_quantification_strict_semantics/plans/01_strict-semantics-plan.md",
+          "type": "plan",
+          "summary": "4-phase plan for ProofChecker semantic alignment"
         }
-      ]
+      ],
+      "session_id": "sess_1780077091_8ce8bf",
+      "planned": "2026-05-29T17:53:57Z"
     },
     {
       "project_number": 91,
