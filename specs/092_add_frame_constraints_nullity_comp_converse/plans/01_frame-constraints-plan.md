@@ -100,20 +100,20 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Add forward_comp constraint with multi-patterns [NOT STARTED]
+### Phase 2: Add forward_comp constraint with multi-patterns [COMPLETED]
 
 **Goal**: Implement the compositionality constraint with Z3 multi-pattern hints for solver efficiency.
 
 **Tasks**:
-- [ ] Add `build_forward_comp_constraint()` method after `build_converse_constraint()`
+- [x] Add `build_forward_comp_constraint()` method after `build_converse_constraint()` *(deviation: altered -- implemented in Phase 1 alongside other constraint methods)*
   - Quantify over three BitVec variables `w, v, u` and two Int variables `d1, d2`
   - Guard premises with `is_valid_duration(d1)`, `is_valid_duration(d2)`, `is_valid_duration(d1 + d2)`
   - Body: `Implies(And(task_rel(w, d1, v), task_rel(v, d2, u), guards), task_rel(w, d1+d2, u))`
   - Add Z3 `MultiPattern(task_rel(w, d1, v), task_rel(v, d2, u))` to guide quantifier instantiation
   - Include docstring referencing Compositional.compose from Frame.lean:112-114
-- [ ] Add `forward_comp` to `build_frame_constraints()` return list (after converse)
-- [ ] Run existing test suite to verify no regressions
-- [ ] Check for any significant test time increase (rough comparison)
+- [x] Add `forward_comp` to `build_frame_constraints()` return list (after converse) *(completed)*
+- [x] Run existing test suite to verify no regressions *(completed: 136 passed)*
+- [x] Check for any significant test time increase (rough comparison) *(completed: no regression observed)*
 
 **Timing**: 45 minutes
 
