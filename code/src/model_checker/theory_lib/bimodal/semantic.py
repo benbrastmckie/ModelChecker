@@ -271,6 +271,122 @@ class BimodalSemantics(SemanticDefaults):
         target_state = z3.Select(self.world_function(world), time + duration)
         return self.task_rel(source_state, duration, target_state)
 
+    def build_nullity_identity_constraint(self):
+        """Build constraint: task_rel(w, 0, u) <-> w = u
+
+        Zero duration task implies and is implied by state identity.
+        A task of zero duration is a self-task: it relates a state to itself
+        and only to itself.
+
+        ProofChecker Alignment: Corresponds to the property that self-tasks
+        (tasks of zero duration) relate a state to itself. Aligns with the
+        nullity axiom of the additive group structure on durations (Q in Lean).
+
+        Returns:
+            Z3 ForAll formula asserting that task_rel(w, 0, u) <-> (w == u)
+            for all world states w, u : BitVec[N]
+        """
+        w = z3.BitVec('nullity_w', self.N)
+        u = z3.BitVec('nullity_u', self.N)
+
+        # Biconditional: task_rel(w, 0, u) iff w == u
+        # In Z3, A == B for BoolRef expressions is equivalent to Iff(A, B)
+        return z3.ForAll(
+            [w, u],
+            self.task_rel(w, z3.IntVal(0), u) == (w == u)
+        )
+
+    def build_converse_constraint(self):
+        """Build time reversal symmetry constraint: task_rel(w, d, u) <-> task_rel(u, -d, w)
+
+        Going from world state w to u in duration d is equivalent to going
+        from u to w in duration -d (time reversal). This is the group converse
+        property of the additive group structure on durations.
+
+        The constraint is guarded by duration validity to ensure both d and -d
+        are within the time domain bounds.
+
+        ProofChecker Alignment: Corresponds to the group converse property
+        of the additive group structure on durations (Q in Lean), where Q is an
+        AddCommGroup. Relates to the inverse element property: if task_rel(s, d, u)
+        then task_rel(u, -d, s).
+
+        Returns:
+            Z3 ForAll formula asserting that under valid duration guards,
+            task_rel(w, d, u) <-> task_rel(u, -d, w)
+            for all world states w, u : BitVec[N] and duration d : Int
+        """
+        w = z3.BitVec('converse_w', self.N)
+        u = z3.BitVec('converse_u', self.N)
+        d = z3.Int('converse_d')
+
+        # Guard: both d and -d must be within valid duration bounds
+        guard = z3.And(
+            self.is_valid_duration(d),
+            self.is_valid_duration(-d)
+        )
+
+        # Biconditional under guard: task_rel(w, d, u) <-> task_rel(u, -d, w)
+        return z3.ForAll(
+            [w, u, d],
+            z3.Implies(
+                guard,
+                self.task_rel(w, d, u) == self.task_rel(u, -d, w)
+            )
+        )
+
+    def build_forward_comp_constraint(self):
+        """Build compositionality constraint for sequential tasks.
+
+        If task_rel(w, d1, v) and task_rel(v, d2, u) then task_rel(w, d1+d2, u).
+        Sequential tasks compose: the composition of two tasks is itself a task
+        whose duration is the sum of the component durations.
+
+        The constraint uses Z3 multi-patterns on the two premise terms to guide
+        quantifier instantiation and reduce solver overhead from the 5 quantified
+        variables (w, v, u, d1, d2).
+
+        ProofChecker Alignment: Matches Compositional.compose from Frame.lean:112-114:
+          compose : forall s t r : S, forall x y : Q,
+            f.taskRel s x t -> f.taskRel t y r -> f.taskRel s (x + y) r
+
+        Returns:
+            Z3 ForAll formula with multi-pattern asserting compositionality:
+            (task_rel(w,d1,v) AND task_rel(v,d2,u) AND valid_durations) ->
+            task_rel(w, d1+d2, u)
+            for all w, v, u : BitVec[N] and d1, d2 : Int
+        """
+        w = z3.BitVec('comp_w', self.N)
+        v = z3.BitVec('comp_v', self.N)
+        u = z3.BitVec('comp_u', self.N)
+        d1 = z3.Int('comp_d1')
+        d2 = z3.Int('comp_d2')
+
+        body = z3.Implies(
+            z3.And(
+                # Premise: both component tasks exist
+                self.task_rel(w, d1, v),
+                self.task_rel(v, d2, u),
+                # Duration validity guards to narrow instantiation scope
+                self.is_valid_duration(d1),
+                self.is_valid_duration(d2),
+                self.is_valid_duration(d1 + d2)
+            ),
+            # Conclusion: composed task exists with summed duration
+            self.task_rel(w, d1 + d2, u)
+        )
+
+        # Multi-pattern on the two premise terms guides Z3 to instantiate
+        # this axiom only when both component tasks are already in the solver's
+        # ground term set, reducing spurious instantiations.
+        return z3.ForAll(
+            [w, v, u, d1, d2],
+            body,
+            patterns=[
+                z3.MultiPattern(self.task_rel(w, d1, v), self.task_rel(v, d2, u))
+            ]
+        )
+
     def ForAllTime(self, world, time_var, body):
         """Universal quantification over all valid times in domain D.
 
@@ -522,7 +638,14 @@ class BimodalSemantics(SemanticDefaults):
         # 11. Task state minimization - Encourages minimal changes between consecutive world states
         task_minimization = self.build_task_minimization_constraint()
 
-        
+        # 12. Frame axioms: TaskFrame constraints aligning with ProofChecker's Frame.lean
+        # nullity_identity: task_rel(w, 0, u) <-> w == u
+        nullity_identity = self.build_nullity_identity_constraint()
+        # converse: task_rel(w, d, u) <-> task_rel(u, -d, w) under duration validity guards
+        converse = self.build_converse_constraint()
+        # forward_comp: compositionality -- if task_rel(w,d1,v) and task_rel(v,d2,u) then task_rel(w,d1+d2,u)
+        forward_comp = self.build_forward_comp_constraint()
+
         return [
             # NOTE: order matters!
             valid_main_world,
@@ -531,6 +654,10 @@ class BimodalSemantics(SemanticDefaults):
             enumeration_constraint,
             convex_world_ordering,
             lawful,
+            # Frame axioms (TaskFrame, ProofChecker alignment):
+            nullity_identity,
+            converse,
+            forward_comp,
             skolem_abundance,
             world_uniqueness,
             # time_interval,

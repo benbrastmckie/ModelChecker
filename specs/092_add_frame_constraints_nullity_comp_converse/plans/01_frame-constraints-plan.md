@@ -1,7 +1,7 @@
 # Implementation Plan: Add Frame Constraints (nullity, compositionality, converse)
 
 - **Task**: 92 - Add frame constraints for bimodal task relation
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 3 hours
 - **Dependencies**: 91 (ternary task relation refactor, completed)
 - **Research Inputs**: reports/01_frame-constraints-research.md
@@ -67,25 +67,25 @@ No ROADMAP.md found.
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Add nullity_identity and converse constraints [NOT STARTED]
+### Phase 1: Add nullity_identity and converse constraints [COMPLETED]
 
 **Goal**: Implement the two simpler frame constraint builder methods and integrate them into the constraint list.
 
 **Tasks**:
-- [ ] Add `build_nullity_identity_constraint()` method to `BimodalSemantics` class after `build_task_rel_at()` (around line 273)
+- [x] Add `build_nullity_identity_constraint()` method to `BimodalSemantics` class after `build_task_rel_at()` (around line 273) *(completed)*
   - Quantify over two BitVec variables `w, u`
   - Return `ForAll([w, u], task_rel(w, IntVal(0), u) == (w == u))`
   - Include docstring referencing ProofChecker alignment
-- [ ] Add `build_converse_constraint()` method immediately after `build_nullity_identity_constraint()`
+- [x] Add `build_converse_constraint()` method immediately after `build_nullity_identity_constraint()` *(completed)*
   - Quantify over two BitVec variables `w, u` and one Int variable `d`
   - Guard with `is_valid_duration(d)` and `is_valid_duration(-d)`
   - Return `ForAll([w, u, d], Implies(guard, task_rel(w, d, u) == task_rel(u, -d, w)))`
   - Include docstring referencing group converse property
-- [ ] Add both constraints to `build_frame_constraints()` return list (after `lawful`, before `skolem_abundance`)
+- [x] Add both constraints to `build_frame_constraints()` return list (after `lawful`, before `skolem_abundance`) *(completed)*
   - Add builder calls: `nullity_identity = self.build_nullity_identity_constraint()`
   - Add builder calls: `converse = self.build_converse_constraint()`
   - Add comment block explaining the new frame axioms
-- [ ] Run existing test suite to verify no regressions
+- [x] Run existing test suite to verify no regressions *(completed: 136 passed)*
 
 **Timing**: 1 hour
 
