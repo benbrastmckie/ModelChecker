@@ -50,7 +50,7 @@ Key findings from `reports/02_clean-break-research.md`:
 
 ## Implementation Phases
 
-### Phase 1: Core Primitive Refactoring [NOT STARTED]
+### Phase 1: Core Primitive Refactoring [COMPLETED]
 
 **Goal**: Replace the binary task relation with ternary task_rel in define_primitives()
 
@@ -73,7 +73,7 @@ Key findings from `reports/02_clean-break-research.md`:
 
 ---
 
-### Phase 2: Frame Constraint Updates [NOT STARTED]
+### Phase 2: Frame Constraint Updates [COMPLETED]
 
 **Goal**: Update lawful and task restriction constraints to use task_rel with explicit duration
 
@@ -97,7 +97,7 @@ Key findings from `reports/02_clean-break-research.md`:
 
 ---
 
-### Phase 3: Model Injection Refactoring [NOT STARTED]
+### Phase 3: Model Injection Refactoring [COMPLETED]
 
 **Goal**: Update inject_z3_model_values to enumerate over duration dimension
 
@@ -119,7 +119,7 @@ Key findings from `reports/02_clean-break-research.md`:
 
 ---
 
-### Phase 4: Iteration Module Updates [NOT STARTED]
+### Phase 4: Iteration Module Updates [COMPLETED]
 
 **Goal**: Update iterate.py to track task relation differences with duration parameter
 
@@ -142,7 +142,7 @@ Key findings from `reports/02_clean-break-research.md`:
 
 ---
 
-### Phase 5: Test Suite Updates [NOT STARTED]
+### Phase 5: Test Suite Updates [COMPLETED]
 
 **Goal**: Update bimodal tests to use new task_rel API
 
@@ -167,7 +167,7 @@ Key findings from `reports/02_clean-break-research.md`:
 
 ---
 
-### Phase 6: Documentation and Migration Notes [NOT STARTED]
+### Phase 6: Documentation and Migration Notes [COMPLETED]
 
 **Goal**: Add comprehensive documentation and migration notes
 

@@ -214,44 +214,52 @@ class BimodalModelIterator(BaseModelIterator):
             if letter_diffs:
                 differences["truth_conditions"][str(letter)] = letter_diffs
         
-        # 3. Compare task relations between world states
-        if hasattr(semantics, 'task'):
+        # 3. Compare task relations between world states with duration parameter
+        # ProofChecker Alignment: Uses ternary task_rel(state, duration, state)
+        if hasattr(semantics, 'task_rel'):
             task_diffs = {}
-            
-            # For each pair of world states
+
+            # Get duration range based on M parameter
+            M = getattr(semantics, 'M', 2)
+            duration_range = range(-M + 1, M)
+
+            # For each pair of world states and each duration
             for state1 in all_states:
-                for state2 in all_states:
-                    try:
-                        # Compare task relations
-                        old_value = False
-                        new_value = False
-                        
+                for duration in duration_range:
+                    for state2 in all_states:
                         try:
-                            old_value = bool(previous_model.eval(
-                                semantics.task(state1, state2), 
-                                model_completion=True
-                            ))
-                        except:
+                            # Compare task relations
+                            old_value = False
+                            new_value = False
+
+                            try:
+                                old_value = bool(previous_model.eval(
+                                    semantics.task_rel(state1, duration, state2),
+                                    model_completion=True
+                                ))
+                            except:
+                                pass
+
+                            try:
+                                new_value = bool(new_model.eval(
+                                    semantics.task_rel(state1, duration, state2),
+                                    model_completion=True
+                                ))
+                            except:
+                                pass
+
+                            # If task relation changed
+                            if old_value != new_value:
+                                # Format: "state1--[duration]-->state2"
+                                key = f"{state1}--[{duration}]-->{state2}"
+                                task_diffs[key] = {
+                                    "old": old_value,
+                                    "new": new_value
+                                }
+                        except Exception as e:
+                            # Skip problematic states
                             pass
-                        
-                        try:
-                            new_value = bool(new_model.eval(
-                                semantics.task(state1, state2), 
-                                model_completion=True
-                            ))
-                        except:
-                            pass
-                        
-                        # If task relation changed
-                        if old_value != new_value:
-                            task_diffs[f"{state1}->{state2}"] = {
-                                "old": old_value,
-                                "new": new_value
-                            }
-                    except Exception as e:
-                        # Skip problematic states
-                        pass
-            
+
             # Only add if there are differences
             if task_diffs:
                 differences["task_relations"] = task_diffs
@@ -430,16 +438,17 @@ class BimodalModelIterator(BaseModelIterator):
                     
                     print(f"    State {state}: {old_value} -> {new_value}", file=output)
         
-        # 3. Print task relation changes
+        # 3. Print task relation changes (with duration parameter)
+        # Format: "state1--[duration]-->state2"
         if 'task_relations' in differences and differences['task_relations']:
             print("\nTask Relation Changes:", file=output)
-            
+
             for transition, change in differences['task_relations'].items():
                 old_value = change.get('old', False)
                 new_value = change.get('new', False)
-                
+
                 status = "added" if new_value and not old_value else "removed" if old_value and not new_value else "changed"
-                print(f"  Task {transition}: {status}", file=output)
+                print(f"  TaskRel {transition}: {status}", file=output)
         
         # 4. Print time interval changes
         if 'time_intervals' in differences and differences['time_intervals']:

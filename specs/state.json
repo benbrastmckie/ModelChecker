@@ -92,19 +92,27 @@
     {
       "project_number": 91,
       "project_name": "update_task_relation_ternary_duration",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T18:44:48Z",
-      "session_id": "sess_1748540200_p91v2",
+      "last_updated": "2026-05-29T18:55:51Z",
+      "session_id": "sess_1748540500_i91cb",
       "planned": "2026-05-29T18:44:48Z",
       "artifacts": [
         {
           "path": "specs/091_update_task_relation_ternary_duration/plans/02_clean-break-plan.md",
           "type": "plan",
           "summary": "6-phase clean-break implementation plan for ternary task_rel(w, d, u)"
+        },
+        {
+          "path": "specs/091_update_task_relation_ternary_duration/summaries/02_clean-break-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
         }
-      ]
+      ],
+      "started": "2026-05-29T18:50:11Z",
+      "completed": "2026-05-29T18:55:51Z",
+      "completion_summary": "Refactored task relation from binary task(w, u) to ternary task_rel(w, d, u) with explicit duration parameter, aligning with ProofChecker'\\''s taskRel : S -> Q -> S -> Prop. All frame constraints, model injection, and iteration updated. 136 tests pass."
     },
     {
       "project_number": 92,

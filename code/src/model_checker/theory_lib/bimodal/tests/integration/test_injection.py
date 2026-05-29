@@ -87,36 +87,47 @@ class TestBimodalInjection(unittest.TestCase):
         self.assertEqual(len(truth_constraints), 4)
     
     def test_inject_task_constraints(self):
-        """Test injection handles task relations."""
-        # Bimodal has task relation between states
-        self.assertTrue(hasattr(self.semantics, 'task'))
-        
-        # Create a Z3 model with task constraints
+        """Test injection handles ternary task relations with duration.
+
+        Task 91 Migration: task(w, u) -> task_rel(w, d, u)
+        The old binary task relation has been replaced with a ternary
+        task_rel that includes an explicit duration parameter.
+        """
+        # Bimodal now has ternary task_rel relation between states
+        self.assertTrue(hasattr(self.semantics, 'task_rel'))
+        self.assertFalse(hasattr(self.semantics, 'task'))  # Old API removed
+
+        # Create a Z3 model with task_rel constraints (with explicit durations)
         solver = z3.Solver()
-        
-        # Set some task values
-        solver.add(self.semantics.task(0, 1))
-        solver.add(z3.Not(self.semantics.task(0, 2)))
-        solver.add(self.semantics.task(1, 2))
-        
+
+        # Set some task_rel values with explicit durations
+        solver.add(self.semantics.task_rel(0, 1, 1))  # state 0 -> state 1 in duration 1
+        solver.add(z3.Not(self.semantics.task_rel(0, 1, 2)))  # NOT state 0 -> state 2 in duration 1
+        solver.add(self.semantics.task_rel(1, 1, 2))  # state 1 -> state 2 in duration 1
+        solver.add(self.semantics.task_rel(0, 2, 2))  # state 0 -> state 2 in duration 2 (composition)
+
         # Add world constraint
         solver.add(self.semantics.is_world(0))
-        
+
         result = solver.check()
         self.assertEqual(result, z3.sat)
         z3_model = solver.model()
-        
+
         # Inject values
         self.semantics.inject_z3_model_values(z3_model, self.semantics, self.mock_constraints)
-        
+
         # Check that constraints were added
         constraints = self.mock_constraints.all_constraints
-        
-        # Should have task constraints
-        task_constraints = [c for c in constraints if 'Task(' in str(c)]
-        
-        # We inject task for all state pairs: 4*4 = 16
-        self.assertEqual(len(task_constraints), 16)
+
+        # Should have task_rel constraints (note: TaskRel, not Task)
+        task_constraints = [c for c in constraints if 'TaskRel(' in str(c)]
+
+        # We inject task_rel for all state pairs and all durations:
+        # 4 states * 3 durations (-1, 0, 1 for M=2) * 4 states = 48
+        # But settings has M=3, so durations are (-2, -1, 0, 1, 2) = 5 durations
+        # 4 states * 5 durations * 4 states = 80
+        expected_count = 4 * (2 * self.settings['M'] - 1) * 4
+        self.assertEqual(len(task_constraints), expected_count)
     
     def test_uses_model_validator(self):
         """Test that inject_z3_model_values works correctly."""

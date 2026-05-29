@@ -1,3 +1,19 @@
+"""Bimodal Logic Semantics
+
+Migration Note (Task 91, 2026-05-29):
+  The task relation has been refactored from binary task(w, u) to
+  ternary task_rel(w, d, u) where d is the explicit duration parameter.
+
+  This aligns with the Lean ProofChecker's taskRel : S -> Q -> S -> Prop
+  (see Frame.lean:72). All code using the old binary task() function must
+  be updated to use task_rel() with an explicit duration argument.
+
+  For consecutive state transitions (unit duration), use:
+    task_rel(state1, 1, state2)
+
+  See: specs/091_update_task_relation_ternary_duration/reports/02_clean-break-research.md
+"""
+
 import sys
 import time
 from typing import cast
@@ -135,13 +151,21 @@ class BimodalSemantics(SemanticDefaults):
 
     def define_primitives(self):
         """Define the Z3 primitive functions and relations used in the bimodal logic model.
-        
+
         In bimodal logic we distinguish between:
         - World States: Instantaneous configurations of the system (e.g., {a, b, c})
         - World Histories: Temporally extended sequences of states that follow lawful transitions
-        
-        This method initializes:
-        - task: A binary relation between world states representing transitions between states
+
+        Primitives:
+        - task_rel: Ternary relation R(s, d, u) where:
+            - s: source world state (BitVec[N])
+            - d: duration of task (Int)
+            - u: target world state (BitVec[N])
+          Represents: "state s transitions to state u over duration d"
+
+          ProofChecker Alignment: Matches taskRel : S -> Q -> S -> Prop
+          from Frame.lean:72. The quantity type Q is represented as Int.
+
         - world_function: A mapping from world IDs to world histories (arrays mapping time -> world state)
         - truth_condition: A function assigning truth values to atomic propositions at instantaneous world states
         - main_world: The primary world history used for evaluation (world_function applied to ID 0)
@@ -149,12 +173,15 @@ class BimodalSemantics(SemanticDefaults):
         - main_point: Dictionary containing the main world history and evaluation time
         - is_world: A boolean function indicating whether a world_id maps to a valid world history
         """
-        # Define the task relation between world states
-        self.task = z3.Function(
-            "Task",
-            self.WorldStateSort,
-            self.WorldStateSort,
-            z3.BoolSort()
+        # Define the ternary task relation between world states with explicit duration
+        # Signature: task_rel(source_state, duration, target_state) -> Bool
+        # Aligns with ProofChecker's taskRel : S -> Q -> S -> Prop (Frame.lean:72)
+        self.task_rel = z3.Function(
+            "TaskRel",
+            self.WorldStateSort,  # source state: BitVec[N]
+            z3.IntSort(),         # duration: Int (matches TimeSort)
+            self.WorldStateSort,  # target state: BitVec[N]
+            z3.BoolSort()         # result: Bool
         )
 
         # Mapping from world IDs to world histories (arrays from time to state)
@@ -200,11 +227,49 @@ class BimodalSemantics(SemanticDefaults):
         
         # Main point of evaluation includes a world ID and time
         self.main_world = 0             # Store world ID, not array reference
-        self.main_time = z3.IntVal(0)   # Fix the main time to 0 
+        self.main_time = z3.IntVal(0)   # Fix the main time to 0
         self.main_point = {
             "world": self.main_world,
             "time": self.main_time,
         }
+
+    def is_valid_duration(self, duration):
+        """Check if a duration is within the valid range for the time domain.
+
+        Valid durations range from -(M-1) to (M-1) inclusive, which corresponds
+        to the maximum possible temporal shift within the time domain (-M, M).
+
+        Args:
+            duration: The duration value to check (Z3 Int or Python int)
+
+        Returns:
+            Z3 formula that is true if the duration is within valid bounds
+
+        ProofChecker Alignment: Duration bounds ensure task transitions stay
+        within the frame's time domain D.
+        """
+        return z3.And(duration > -self.M, duration < self.M)
+
+    def build_task_rel_at(self, world, time, duration):
+        """Build a task_rel constraint at a specific world and time with given duration.
+
+        This helper constructs the task relation between the state at (world, time)
+        and the state at (world, time + duration).
+
+        Args:
+            world: World ID (Z3 Int or Python int)
+            time: Time point (Z3 Int or Python int)
+            duration: Duration of the task (Z3 Int or Python int)
+
+        Returns:
+            Z3 formula: task_rel(state_at_time, duration, state_at_time_plus_duration)
+
+        ProofChecker Alignment: Matches the pattern used in IsEvolution where
+        task_rel relates states at different times in the same world history.
+        """
+        source_state = z3.Select(self.world_function(world), time)
+        target_state = z3.Select(self.world_function(world), time + duration)
+        return self.task_rel(source_state, duration, target_state)
 
     def ForAllTime(self, world, time_var, body):
         """Universal quantification over all valid times in domain D.
@@ -353,7 +418,8 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
         
-        # 6. Worlds are lawful (each world state can has task to its successor, if any)
+        # 6. Worlds are lawful (each world state has task_rel to its successor with unit duration)
+        # ProofChecker Alignment: Uses task_rel with explicit duration=1 for consecutive states
         lawful_world = z3.Int('lawful_world_id')
         lawful_time = z3.Int('lawful_time')
         lawful = z3.ForAll(
@@ -364,16 +430,18 @@ class BimodalSemantics(SemanticDefaults):
                     # The lawful_world is a valid world
                     self.is_world(lawful_world),
                     # The lawful_time is in (-M - 1, M - 1), so has a successor
-                    self.is_valid_time(lawful_time, -1),  
+                    self.is_valid_time(lawful_time, -1),
                     # The lawful_time is in the lawful_world
                     self.is_valid_time_for_world(lawful_world, lawful_time),
                     # The successor of the lawful_time is in the lawful_world
                     self.is_valid_time_for_world(lawful_world, lawful_time + 1),
                 ),
-                # Then there is a task
-                self.task(
+                # Then there is a task with unit duration (duration = 1)
+                self.task_rel(
                     # From the lawful_world at the lawful_time
                     z3.Select(self.world_function(lawful_world), lawful_time),
+                    # With unit duration (explicit)
+                    z3.IntVal(1),
                     # To the lawful_world at the successor of the lawful_time
                     z3.Select(self.world_function(lawful_world), lawful_time + 1)
                 )
@@ -414,31 +482,38 @@ class BimodalSemantics(SemanticDefaults):
         )
 
         # 10. Task relation only holds between states in lawful world histories
+        # ProofChecker Alignment: task_rel(s, d, u) requires existence of a world where
+        # the transition from s to u over duration d is realized
         some_state = z3.BitVec('task_restrict_some_state', self.N)
+        some_duration = z3.Int('task_restrict_duration')
         next_state = z3.BitVec('task_restrict_next_state', self.N)
         task_world = z3.Int('task_world')
         time_shifted = z3.Int('time_shifted')
         task_restriction = z3.ForAll(
-            [some_state, next_state],
+            [some_state, some_duration, next_state],
             z3.Implies(
-                # If there is a task from some_state to next_state
-                self.task(some_state, next_state),
+                # If there is a task_rel from some_state to next_state with some_duration
+                self.task_rel(some_state, some_duration, next_state),
                 # Then for some task_world at time_shifted:
                 z3.Exists(
                     [task_world, time_shifted],
                     z3.And(
                         # The task_world is a valid world
                         self.is_world(task_world),
-                        # The successor or time_shifted is a valid time
-                        self.is_valid_time(time_shifted, -1),
-                        # Where time_shifted is a time in the task_world,
+                        # Duration bounds: must fit within time domain
+                        self.is_valid_duration(some_duration),
+                        # Time validity for source endpoint
+                        self.is_valid_time(time_shifted),
+                        # Time validity for target endpoint
+                        self.is_valid_time(time_shifted + some_duration),
+                        # Source time is in the task_world
                         self.is_valid_time_for_world(task_world, time_shifted),
-                        # The successor of time_shifted is a time in the task_world
-                        self.is_valid_time_for_world(task_world, time_shifted + 1),
+                        # Target time is in the task_world
+                        self.is_valid_time_for_world(task_world, time_shifted + some_duration),
                         # The task_world is in some_state at time_shifted
                         some_state == z3.Select(self.world_function(task_world), time_shifted),
-                        # And the task_world is in next_state at the successor of time_shifted
-                        next_state == z3.Select(self.world_function(task_world), time_shifted + 1)
+                        # And the task_world is in next_state at time_shifted + some_duration
+                        next_state == z3.Select(self.world_function(task_world), time_shifted + some_duration)
                     )
                 )
             )
@@ -987,16 +1062,28 @@ class BimodalSemantics(SemanticDefaults):
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.truth_condition(state, atom)))
         
-        # Inject task relation constraints (transitions between world states)
+        # Inject task_rel constraints (transitions between world states with duration)
+        # Duration range based on time domain: for M time points, durations range from -(M-1) to (M-1)
+        M = model_constraints.settings.get('M', self.M)
+        duration_range = range(-M + 1, M)
+
         for state1 in range(num_states):
-            for state2 in range(num_states):
-                # Evaluate using original task function
-                task_val = z3_model.eval(original_semantics.task(state1, state2), model_completion=True)
-                # Add constraint using new task function
-                if is_true(task_val):
-                    model_constraints.all_constraints.append(self.task(state1, state2))
-                else:
-                    model_constraints.all_constraints.append(z3.Not(self.task(state1, state2)))
+            for duration in duration_range:
+                for state2 in range(num_states):
+                    # Evaluate using original task_rel function with duration
+                    task_val = z3_model.eval(
+                        original_semantics.task_rel(state1, duration, state2),
+                        model_completion=True
+                    )
+                    # Add constraint using new task_rel function
+                    if is_true(task_val):
+                        model_constraints.all_constraints.append(
+                            self.task_rel(state1, duration, state2)
+                        )
+                    else:
+                        model_constraints.all_constraints.append(
+                            z3.Not(self.task_rel(state1, duration, state2))
+                        )
         
         # Note: World arrays, intervals, and other temporal structures are
         # handled by the theory's own construction process
@@ -2409,16 +2496,17 @@ class BimodalStructure(ModelDefaults):
                     
                     print(f"    State {state}: {old_value} -> {new_value}", file=output)
         
-        # 3. Print task relation changes
+        # 3. Print task relation changes (with duration parameter)
+        # Format: "state1--[duration]-->state2" where duration is explicit
         if 'task_relations' in diffs and diffs['task_relations']:
             print("\nTask Relation Changes:", file=output)
-            
+
             for transition, change in diffs['task_relations'].items():
                 old_value = change.get('old', False)
                 new_value = change.get('new', False)
-                
+
                 status = "added" if new_value and not old_value else "removed" if old_value and not new_value else "changed"
-                print(f"  Task {transition}: {status}", file=output)
+                print(f"  TaskRel {transition}: {status}", file=output)
         
         # 4. Print time interval changes
         if 'time_intervals' in diffs and diffs['time_intervals']:
