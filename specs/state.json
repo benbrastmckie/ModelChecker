@@ -1194,15 +1194,21 @@
       "language": "z3",
       "dependencies": [],
       "created": "2026-05-29T20:30:00Z",
-      "last_updated": "2026-05-29T20:30:00Z",
-      "next_artifact_number": 2,
+      "last_updated": "2026-05-29T20:49:32Z",
+      "next_artifact_number": 3,
       "artifacts": [
         {
           "path": "specs/095_fix_temporal_display_truth_outside_interval/reports/01_temporal-display-truth.md",
           "type": "report",
           "summary": "Temporal operator find_truth_condition() incorrectly assumes arguments FALSE outside interval, causing wrong display truth values for negated/complex arguments"
+        },
+        {
+          "path": "specs/095_fix_temporal_display_truth_outside_interval/reports/02_refined-temporal-analysis.md",
+          "type": "report",
+          "summary": "Refined analysis: 4 operators affected (Future, Past, Until, Since). Fix uses z3_model.evaluate(semantics.true_at(...)) to correctly evaluate complex formulas at out-of-interval times."
         }
-      ]
+      ],
+      "session_id": "sess_1780087407_23d127"
     }
   ],
   "repository_health": {
