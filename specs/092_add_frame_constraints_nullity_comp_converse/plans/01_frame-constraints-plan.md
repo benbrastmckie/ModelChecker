@@ -129,25 +129,25 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Add frame constraint tests [NOT STARTED]
+### Phase 3: Add frame constraint tests [COMPLETED]
 
 **Goal**: Create dedicated tests verifying each constraint individually and their interactions with the existing lawful constraint.
 
 **Tasks**:
-- [ ] Create test file `code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py`
-- [ ] Implement `TestNullityIdentity` class:
+- [x] Create test file `code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py` *(deviation: altered -- fixture uses N=2 instead of N=3 to prevent solver timeout with skolem_abundance_constraint)*
+- [x] Implement `TestNullityIdentity` class: *(completed)*
   - `test_zero_duration_self_task` -- task_rel(s, 0, s) is satisfiable given frame constraints
   - `test_zero_duration_different_states_unsat` -- task_rel(s1, 0, s2) with s1 != s2 is unsatisfiable
-- [ ] Implement `TestConverse` class:
+- [x] Implement `TestConverse` class: *(completed)*
   - `test_converse_symmetry` -- task_rel(w, d, u) implies task_rel(u, -d, w) is satisfiable
   - `test_converse_exclusion` -- task_rel(w, d, u) AND NOT task_rel(u, -d, w) is unsatisfiable
-- [ ] Implement `TestForwardComp` class:
+- [x] Implement `TestForwardComp` class: *(completed)*
   - `test_composition_exists` -- given task_rel(w, d1, v) and task_rel(v, d2, u), task_rel(w, d1+d2, u) is satisfiable
   - `test_composition_chain` -- derive task_rel(s0, 2, s2) from two unit-duration tasks via lawful
-- [ ] Implement `TestConstraintInteractions` class:
+- [x] Implement `TestConstraintInteractions` class: *(completed)*
   - `test_lawful_plus_nullity` -- lawful + nullity_identity are jointly satisfiable
   - `test_all_constraints_consistent` -- all three new constraints + lawful are jointly satisfiable
-- [ ] Run full test suite including new tests
+- [x] Run full test suite including new tests *(completed: 8 new tests pass, all 12 original tests pass)*
 
 **Timing**: 1 hour 15 minutes
 
