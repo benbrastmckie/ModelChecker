@@ -48,7 +48,7 @@ Key findings from research report (01_until-since-research.md):
 
 ## Implementation Phases
 
-### Phase 1: UntilOperator Core Implementation [NOT STARTED]
+### Phase 1: UntilOperator Core Implementation [COMPLETED]
 
 **Goal**: Implement the Until operator with correct Z3 encoding for true_at and false_at methods.
 
@@ -70,7 +70,7 @@ Key findings from research report (01_until-since-research.md):
 
 ---
 
-### Phase 2: UntilOperator Extension Methods [NOT STARTED]
+### Phase 2: UntilOperator Extension Methods [COMPLETED]
 
 **Goal**: Implement find_truth_condition and print_method for Until operator.
 
@@ -90,7 +90,7 @@ Key findings from research report (01_until-since-research.md):
 
 ---
 
-### Phase 3: SinceOperator Implementation [NOT STARTED]
+### Phase 3: SinceOperator Implementation [COMPLETED]
 
 **Goal**: Implement Since operator as temporal mirror of Until.
 
@@ -113,7 +113,7 @@ Key findings from research report (01_until-since-research.md):
 
 ---
 
-### Phase 4: Registration and Integration [NOT STARTED]
+### Phase 4: Registration and Integration [COMPLETED]
 
 **Goal**: Register operators and verify integration with existing infrastructure.
 
@@ -133,7 +133,7 @@ Key findings from research report (01_until-since-research.md):
 
 ---
 
-### Phase 5: Unit Tests [NOT STARTED]
+### Phase 5: Unit Tests [COMPLETED]
 
 **Goal**: Create comprehensive unit tests for Until and Since operators.
 
@@ -156,7 +156,7 @@ Key findings from research report (01_until-since-research.md):
 
 ---
 
-### Phase 6: Integration Tests and Documentation [NOT STARTED]
+### Phase 6: Integration Tests and Documentation [COMPLETED]
 
 **Goal**: Test with actual model evaluation and document the operators.
 

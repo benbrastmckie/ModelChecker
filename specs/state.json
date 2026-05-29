@@ -4,10 +4,10 @@
     {
       "project_number": 89,
       "project_name": "add_until_since_operators",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T17:34:27Z",
+      "last_updated": "2026-05-29T17:44:15Z",
       "researched": "2026-05-29T17:30:20Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -20,10 +20,18 @@
           "path": "specs/089_add_until_since_operators/plans/01_implementation-plan.md",
           "type": "plan",
           "summary": "6-phase implementation plan for Until and Since temporal operators"
+        },
+        {
+          "path": "specs/089_add_until_since_operators/summaries/01_implementation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: Until/Since operators with 39 tests"
         }
       ],
-      "session_id": "sess_1780075935_0119cf",
-      "planned": "2026-05-29T17:34:27Z"
+      "session_id": "sess_1780076213_831863",
+      "planned": "2026-05-29T17:34:27Z",
+      "started": "2026-05-29T17:37:11Z",
+      "completed": "2026-05-29T17:44:15Z",
+      "completion_summary": "Implemented UntilOperator and SinceOperator temporal operators with strict witness semantics and open guard intervals. Both operators are fully tested (39 new tests) and registered in bimodal_operators."
     },
     {
       "project_number": 90,

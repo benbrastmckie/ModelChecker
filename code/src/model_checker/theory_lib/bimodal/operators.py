@@ -6,7 +6,7 @@ categories based on their semantic role:
 
 Extensional Operators:
     - NegationOperator (¬): Logical negation
-    - AndOperator (∧): Logical conjunction 
+    - AndOperator (∧): Logical conjunction
     - OrOperator (∨): Logical disjunction
     - ConditionalOperator (→): Material implication (defined)
     - BiconditionalOperator (↔): Material biconditional (defined)
@@ -22,6 +22,8 @@ Modal Operators:
 Temporal Operators:
     - FutureOperator (⏵): Truth at all future times
     - PastOperator (⏴): Truth at all past times
+    - UntilOperator (U): Event holds at future time with guard in between
+    - SinceOperator (S): Event held at past time with guard in between
     - DefFutureOperator: Possibility of future truth (defined)
     - DefPastOperator: Possibility of past truth (defined)
 
@@ -701,7 +703,7 @@ class PastOperator(syntactic.Operator):
                 semantics.true_at(argument, {"world": eval_world, "time": past_time})
             )
         )
-    
+
     def false_at(self, argument, eval_point):
         """Returns true if argument is false at at least one past time in this world's interval.
 
@@ -728,21 +730,21 @@ class PastOperator(syntactic.Operator):
                 semantics.false_at(argument, {"world": eval_world, "time": past_time})
             )
         )
-    
+
     def find_truth_condition(self, argument, eval_point):
         """Gets truth-condition for 'It has always been the case that: argument'.
-        
+
         Args:
             argument: The argument to apply the past operator to
             eval_point: Dictionary containing evaluation parameters:
                 - "world": The world ID for evaluation context
                 - "time": The time for evaluation context
-            
+
         Returns:
             dict: A dictionary mapping world_ids to (true_times, false_times) pairs,
                  where a time is in the true_times if the argument is true in all
                  past times and the time is in the false_times otherwise
-                 
+
         Raises:
             KeyError: If world_time_intervals information is missing for a world_id.
                      This follows the fail-fast philosophy to make errors explicit.
@@ -751,29 +753,29 @@ class PastOperator(syntactic.Operator):
         semantics = model_structure.semantics
         argument_extension = argument.proposition.extension
         truth_condition = {}
-        
+
         # For any current_world with a temporal_profile of true and false times
         for current_world, temporal_profile in argument_extension.items():
             true_times, false_times = temporal_profile
-            
+
             # Start with empty lists for past/future times
             new_true_times, new_false_times = [], []
-            
+
             # Find the time_interval for the current_world
             start_time, end_time = semantics.world_time_intervals[current_world]
             time_interval = list(range(start_time, end_time + 1))
-            
+
             # Calculate which times the argument always has been true
             for time_point in time_interval:
 
                 # Check if there are any world_times strictly before this time_point
                 has_past_times = any(any_time < time_point for any_time in time_interval)
-                
+
                 # If there are no past times in this world's interval, the Past operator is vacuously true
                 if not has_past_times:
                     new_true_times.append(time_point)
                     continue
-                    
+
                 # Find all false times that are before this time point
                 past_false_times = [
                     any_time
@@ -781,7 +783,7 @@ class PastOperator(syntactic.Operator):
                     if any_time < time_point
                     and any_time in time_interval
                 ]
-                
+
                 # If there are no false times in the past
                 if not past_false_times:
                     # Add time_point to the new_true_times
@@ -789,16 +791,16 @@ class PastOperator(syntactic.Operator):
                 else:
                     # Otherwise add time_point to the new_false_times
                     new_false_times.append(time_point)
-            
+
             # Store the results for this world_id
             truth_condition[current_world] = (new_true_times, new_false_times)
 
         # Return result dictionary
         return truth_condition
-    
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print the sentence over all time points.
-        
+
         Args:
             sentence_obj: The sentence to print
             eval_point: The evaluation point (world ID and time)
@@ -811,7 +813,409 @@ class PastOperator(syntactic.Operator):
         self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
 
 
+class UntilOperator(syntactic.Operator):
+    """Temporal operator U(event, guard): event holds at some future time s > t,
+    and guard holds for all times in the open interval (t, s).
 
+    This operator implements the temporal Until operator following the Burgess convention
+    and ProofChecker semantics. U(event, guard) is true at time t if there exists a
+    strictly future time s where the event holds, and the guard holds at all times
+    strictly between t and s.
+
+    Key Properties:
+        - Strict witness: The event time s must be strictly greater than evaluation time t
+        - Open guard interval: Guard must hold for all r in (t, s), excluding endpoints
+        - Current time excluded: Guard does NOT need to hold at time t
+        - Witness time excluded: Guard does NOT need to hold at time s
+        - Vacuously false at last time: No future times means no witness can exist
+        - Burgess convention: untl(event, guard) - event is what eventually happens
+
+    Semantics (from ProofChecker Truth.lean):
+        U(phi, psi) is true at t iff:
+        exists s > t: phi(s) AND forall r in (t,s): psi(r)
+
+    Methods:
+        true_at: Returns true if there exists a future witness with guard holding in between
+        false_at: Returns true if no such witness exists
+        find_truth_condition: Computes temporal profiles for all worlds
+        print_method: Displays evaluation across different time points
+
+    Example:
+        If p means "the train arrives" and q means "waiting", then U(p, q) means
+        "the train will arrive and until then we are waiting"
+    """
+
+    name = "\\Until"
+    arity = 2
+
+    def true_at(self, event_arg, guard_arg, eval_point):
+        """Returns true if Until condition is satisfied: exists witness s > t where
+        event holds at s and guard holds for all times in (t, s).
+
+        Args:
+            event_arg: The event formula (what eventually holds)
+            guard_arg: The guard formula (what holds until then)
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
+
+        Returns:
+            Z3 expression representing the Until truth condition with nested quantifiers
+        """
+        semantics = self.semantics
+
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+
+        # Create uniquely named time variables to avoid collision
+        witness_time = z3.Int('until_witness_time')
+        guard_time = z3.Int('until_guard_time')
+
+        # U(event, guard) is true at t iff:
+        # exists s > t: event(s) AND forall r in (t,s): guard(r)
+        return semantics.ExistsTime(
+            eval_world,
+            witness_time,
+            z3.And(
+                # Strict witness: s > t
+                eval_time < witness_time,
+                # Event holds at witness time
+                semantics.true_at(event_arg, {"world": eval_world, "time": witness_time}),
+                # Guard holds for all r in the open interval (t, s)
+                semantics.ForAllTime(
+                    eval_world,
+                    guard_time,
+                    z3.Implies(
+                        z3.And(eval_time < guard_time, guard_time < witness_time),
+                        semantics.true_at(guard_arg, {"world": eval_world, "time": guard_time})
+                    )
+                )
+            )
+        )
+
+    def false_at(self, event_arg, guard_arg, eval_point):
+        """Returns true if Until condition is not satisfied: for all potential witnesses,
+        either event fails or guard fails at some intermediate point.
+
+        Args:
+            event_arg: The event formula (what eventually holds)
+            guard_arg: The guard formula (what holds until then)
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
+
+        Returns:
+            Z3 expression representing the negation of Until condition
+        """
+        semantics = self.semantics
+
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+
+        # Create uniquely named time variables
+        witness_time = z3.Int('until_false_witness_time')
+        guard_time = z3.Int('until_false_guard_time')
+
+        # U(event, guard) is false at t iff:
+        # forall s > t: event is false at s OR exists r in (t,s): guard is false at r
+        return semantics.ForAllTime(
+            eval_world,
+            witness_time,
+            z3.Implies(
+                eval_time < witness_time,
+                z3.Or(
+                    # Event fails at potential witness
+                    semantics.false_at(event_arg, {"world": eval_world, "time": witness_time}),
+                    # Or guard fails at some intermediate point
+                    semantics.ExistsTime(
+                        eval_world,
+                        guard_time,
+                        z3.And(
+                            eval_time < guard_time,
+                            guard_time < witness_time,
+                            semantics.false_at(guard_arg, {"world": eval_world, "time": guard_time})
+                        )
+                    )
+                )
+            )
+        )
+
+    def find_truth_condition(self, event_arg, guard_arg, eval_point):
+        """Computes the extension for Until operator by checking each time point.
+
+        For each time t, Until is true if there exists a witness time s > t where:
+        - event holds at s
+        - guard holds for all times in the open interval (t, s)
+
+        Args:
+            event_arg: The event formula (what eventually holds)
+            guard_arg: The guard formula (what holds until then)
+            eval_point: Dictionary containing evaluation parameters
+
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs
+        """
+        model_structure = event_arg.proposition.model_structure
+        semantics = model_structure.semantics
+        event_extension = event_arg.proposition.extension
+        guard_extension = guard_arg.proposition.extension
+        truth_condition = {}
+
+        # For each world in the model
+        for world_id in event_extension.keys():
+            event_true_times = event_extension[world_id][0]
+            guard_true_times = guard_extension[world_id][0]
+
+            # Get the time interval for this world
+            start_time, end_time = semantics.world_time_intervals[world_id]
+            time_interval = list(range(start_time, end_time + 1))
+
+            true_times, false_times = [], []
+
+            # For each time point t in this world
+            for t in time_interval:
+                # Check if Until holds at time t
+                found_witness = False
+
+                # Search for a witness s > t where event holds
+                for s in range(t + 1, end_time + 1):
+                    if s in event_true_times:
+                        # Check if guard holds for all r in open interval (t, s)
+                        guard_ok = all(
+                            r in guard_true_times
+                            for r in range(t + 1, s)
+                        )
+                        if guard_ok:
+                            found_witness = True
+                            break
+
+                if found_witness:
+                    true_times.append(t)
+                else:
+                    false_times.append(t)
+
+            truth_condition[world_id] = (true_times, false_times)
+
+        return truth_condition
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print the Until operator evaluation across different time points.
+
+        Args:
+            sentence_obj: The sentence to print
+            eval_point: The evaluation point (world ID and time)
+            indent_num: The indentation level
+            use_colors: Whether to use colors in output
+        """
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+
+
+class SinceOperator(syntactic.Operator):
+    """Temporal operator S(event, guard): event held at some past time s < t,
+    and guard held for all times in the open interval (s, t).
+
+    This operator implements the temporal Since operator following the Burgess convention
+    and ProofChecker semantics. S(event, guard) is true at time t if there exists a
+    strictly past time s where the event held, and the guard held at all times
+    strictly between s and t.
+
+    Key Properties:
+        - Strict witness: The event time s must be strictly less than evaluation time t
+        - Open guard interval: Guard must hold for all r in (s, t), excluding endpoints
+        - Current time excluded: Guard does NOT need to hold at time t
+        - Witness time excluded: Guard does NOT need to hold at time s
+        - Vacuously false at first time: No past times means no witness can exist
+        - Burgess convention: snce(event, guard) - event is what previously happened
+
+    Semantics (from ProofChecker Truth.lean):
+        S(phi, psi) is true at t iff:
+        exists s < t: phi(s) AND forall r in (s,t): psi(r)
+
+    Methods:
+        true_at: Returns true if there exists a past witness with guard holding in between
+        false_at: Returns true if no such witness exists
+        find_truth_condition: Computes temporal profiles for all worlds
+        print_method: Displays evaluation across different time points
+
+    Example:
+        If p means "the alarm rang" and q means "sleeping", then S(p, q) means
+        "the alarm rang and since then we have been sleeping" (actually: "and before
+        that we were sleeping")
+    """
+
+    name = "\\Since"
+    arity = 2
+
+    def true_at(self, event_arg, guard_arg, eval_point):
+        """Returns true if Since condition is satisfied: exists witness s < t where
+        event held at s and guard held for all times in (s, t).
+
+        Args:
+            event_arg: The event formula (what previously held)
+            guard_arg: The guard formula (what held since then)
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
+
+        Returns:
+            Z3 expression representing the Since truth condition with nested quantifiers
+        """
+        semantics = self.semantics
+
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+
+        # Create uniquely named time variables to avoid collision
+        witness_time = z3.Int('since_witness_time')
+        guard_time = z3.Int('since_guard_time')
+
+        # S(event, guard) is true at t iff:
+        # exists s < t: event(s) AND forall r in (s,t): guard(r)
+        return semantics.ExistsTime(
+            eval_world,
+            witness_time,
+            z3.And(
+                # Strict witness: s < t
+                witness_time < eval_time,
+                # Event held at witness time
+                semantics.true_at(event_arg, {"world": eval_world, "time": witness_time}),
+                # Guard held for all r in the open interval (s, t)
+                semantics.ForAllTime(
+                    eval_world,
+                    guard_time,
+                    z3.Implies(
+                        z3.And(witness_time < guard_time, guard_time < eval_time),
+                        semantics.true_at(guard_arg, {"world": eval_world, "time": guard_time})
+                    )
+                )
+            )
+        )
+
+    def false_at(self, event_arg, guard_arg, eval_point):
+        """Returns true if Since condition is not satisfied: for all potential witnesses,
+        either event failed or guard failed at some intermediate point.
+
+        Args:
+            event_arg: The event formula (what previously held)
+            guard_arg: The guard formula (what held since then)
+            eval_point: Dictionary containing evaluation parameters:
+                - "world": The world ID for evaluation context
+                - "time": The time for evaluation context
+
+        Returns:
+            Z3 expression representing the negation of Since condition
+        """
+        semantics = self.semantics
+
+        # Extract world and time from eval_point
+        eval_world = eval_point["world"]
+        eval_time = eval_point["time"]
+
+        # Create uniquely named time variables
+        witness_time = z3.Int('since_false_witness_time')
+        guard_time = z3.Int('since_false_guard_time')
+
+        # S(event, guard) is false at t iff:
+        # forall s < t: event was false at s OR exists r in (s,t): guard was false at r
+        return semantics.ForAllTime(
+            eval_world,
+            witness_time,
+            z3.Implies(
+                witness_time < eval_time,
+                z3.Or(
+                    # Event failed at potential witness
+                    semantics.false_at(event_arg, {"world": eval_world, "time": witness_time}),
+                    # Or guard failed at some intermediate point
+                    semantics.ExistsTime(
+                        eval_world,
+                        guard_time,
+                        z3.And(
+                            witness_time < guard_time,
+                            guard_time < eval_time,
+                            semantics.false_at(guard_arg, {"world": eval_world, "time": guard_time})
+                        )
+                    )
+                )
+            )
+        )
+
+    def find_truth_condition(self, event_arg, guard_arg, eval_point):
+        """Computes the extension for Since operator by checking each time point.
+
+        For each time t, Since is true if there exists a witness time s < t where:
+        - event held at s
+        - guard held for all times in the open interval (s, t)
+
+        Args:
+            event_arg: The event formula (what previously held)
+            guard_arg: The guard formula (what held since then)
+            eval_point: Dictionary containing evaluation parameters
+
+        Returns:
+            dict: A dictionary mapping world_ids to (true_times, false_times) pairs
+        """
+        model_structure = event_arg.proposition.model_structure
+        semantics = model_structure.semantics
+        event_extension = event_arg.proposition.extension
+        guard_extension = guard_arg.proposition.extension
+        truth_condition = {}
+
+        # For each world in the model
+        for world_id in event_extension.keys():
+            event_true_times = event_extension[world_id][0]
+            guard_true_times = guard_extension[world_id][0]
+
+            # Get the time interval for this world
+            start_time, end_time = semantics.world_time_intervals[world_id]
+            time_interval = list(range(start_time, end_time + 1))
+
+            true_times, false_times = [], []
+
+            # For each time point t in this world
+            for t in time_interval:
+                # Check if Since holds at time t
+                found_witness = False
+
+                # Search for a witness s < t where event held
+                for s in range(start_time, t):
+                    if s in event_true_times:
+                        # Check if guard held for all r in open interval (s, t)
+                        guard_ok = all(
+                            r in guard_true_times
+                            for r in range(s + 1, t)
+                        )
+                        if guard_ok:
+                            found_witness = True
+                            break
+
+                if found_witness:
+                    true_times.append(t)
+                else:
+                    false_times.append(t)
+
+            truth_condition[world_id] = (true_times, false_times)
+
+        return truth_condition
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print the Since operator evaluation across different time points.
+
+        Args:
+            sentence_obj: The sentence to print
+            eval_point: The evaluation point (world ID and time)
+            indent_num: The indentation level
+            use_colors: Whether to use colors in output
+        """
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
 
 
 ##############################################################################
@@ -1036,6 +1440,8 @@ bimodal_operators = syntactic.OperatorCollection(
     # tense operators
     FutureOperator,
     PastOperator,
+    UntilOperator,
+    SinceOperator,
 
     # defined operators
     ConditionalOperator,
