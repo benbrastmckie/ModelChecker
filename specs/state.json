@@ -1173,11 +1173,11 @@
     {
       "project_number": 94,
       "project_name": "fix_z3_solver_state_leakage",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "dependencies": [],
       "created": "2026-05-29T20:30:00Z",
-      "last_updated": "2026-05-29T21:30:10Z",
+      "last_updated": "2026-05-29T21:38:50Z",
       "next_artifact_number": 3,
       "artifacts": [
         {
@@ -1189,9 +1189,14 @@
           "path": "specs/094_fix_z3_solver_state_leakage/reports/02_team-research.md",
           "type": "report",
           "summary": "Team research (4 teammates): B2 global _main_ctx swap recommended as primary fix; Option A has pickling blocker; ~25-line fix across 3 files"
+        },
+        {
+          "path": "specs/094_fix_z3_solver_state_leakage/plans/02_z3-isolation-fix.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan for Z3 context isolation via _main_ctx swap, dead code cleanup, test validation, and conftest fixtures"
         }
       ],
-      "session_id": "sess_1780089555_3b3c0e",
+      "session_id": "sess_1780090494_897408",
       "researched": "2026-05-29T21:30:10Z"
     },
     {
