@@ -92,10 +92,10 @@
     {
       "project_number": 91,
       "project_name": "update_task_relation_ternary_duration",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T17:24:41Z"
+      "last_updated": "2026-05-29T18:28:17Z"
     },
     {
       "project_number": 92,

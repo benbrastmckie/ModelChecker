@@ -27,7 +27,7 @@ next_project_number: 94
 
 ### 91. Update task relation to ternary with duration parameter
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 
 **Description**: Refactor task relation from binary task(w, u) to ternary task_rel(w, d, u) where d is duration. Currently the ModelChecker only supports unit transitions (±1 shifts); the ProofChecker supports arbitrary duration tasks with the full task relation signature. Update semantic.py primitives, frame constraints, and Box operator quantification. Reference: BimodalLogic/Theories/Bimodal/Semantics/TaskFrame.lean line 97.
@@ -239,7 +239,7 @@ next_project_number: 94
 
 ### 78. Design hybrid solver strategy (Z3 for UNSAT, CVC5 for SAT)
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Language**: z3
 - **Dependencies**: 77
 
