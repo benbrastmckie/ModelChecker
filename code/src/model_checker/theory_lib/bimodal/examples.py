@@ -108,8 +108,8 @@ from .operators import bimodal_operators
 #######################
 
 general_settings = {
-    "print_constraints": True,
-    "print_z3": True,
+    "print_constraints": False,
+    "print_z3": False,
     "save_output": False,
     "align_vertically": False,
 }
@@ -294,7 +294,7 @@ TN_CM_2_settings = {
     'M' : 3,
     'contingent' : False,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,
     'expectation' : True,
 }
 TN_CM_2_example = [
@@ -432,7 +432,7 @@ MD_TH_1_example = [
 
 # MD_TH_2: TEST CONTINGENCY SETTING
 MD_TH_2_premises = ['\\Box A']
-MD_TH_2_conclusions = []
+MD_TH_2_conclusions = ['A']
 MD_TH_2_settings = {
     'N' : 2,
     'M' : 2,
@@ -1352,44 +1352,44 @@ example_range = {
     ### COUNTERMODELS ###
 
     # Extensional Countermodels
-    # "EX_CM_1" : EX_CM_1_example,
+    "EX_CM_1" : EX_CM_1_example,
     
     # Modal Countermodels
-    # "MD_CM_1" : MD_CM_1_example,
-    # "MD_CM_2" : MD_CM_2_example,
-    # "MD_CM_3" : MD_CM_3_example,
-    # "MD_CM_4" : MD_CM_4_example,
-    # "MD_CM_5" : MD_CM_5_example,
-    # "MD_CM_6" : MD_CM_6_example,
+    "MD_CM_1" : MD_CM_1_example,
+    "MD_CM_2" : MD_CM_2_example,
+    "MD_CM_3" : MD_CM_3_example,
+    "MD_CM_4" : MD_CM_4_example,
+    "MD_CM_5" : MD_CM_5_example,
+    "MD_CM_6" : MD_CM_6_example,
 
     # Tense Countermodels
     "TN_CM_1" : TN_CM_1_example,
-    # "TN_CM_2" : TN_CM_2_example,
+    "TN_CM_2" : TN_CM_2_example, # No countermodel
     
     # Bimodal Countermodel
-    # "BM_CM_1" : BM_CM_1_example,
-    # "BM_CM_2" : BM_CM_2_example,
-    # "BM_CM_3" : BM_CM_3_example,
-    # "BM_CM_4" : BM_CM_4_example,
+    "BM_CM_1" : BM_CM_1_example, # No countermodel
+    "BM_CM_2" : BM_CM_2_example, # No countermodel
+    "BM_CM_3" : BM_CM_3_example, # Doesn't find countermodel if run in isolation
+    "BM_CM_4" : BM_CM_4_example, # Countermodel has true conclusion
 
     ### THEOREMS ###
 
     # Extensional Theorems
-    # "EX_TH_1" : EX_TH_1_example,
+    "EX_TH_1" : EX_TH_1_example,
 
     # Modal Theorems
     "MD_TH_1" : MD_TH_1_example,
-    # "MD_TH_2" : MD_TH_2_example,
+    "MD_TH_2" : MD_TH_2_example,
 
     # Tense Theorems
-    # "TN_TH_2" : TN_TH_2_example,
+    "TN_TH_2" : TN_TH_2_example,
 
     # Bimodal Theorems
-    # "BM_TH_1" : BM_TH_1_example,
-    # "BM_TH_2" : BM_TH_2_example,
-    # "BM_TH_3" : BM_TH_3_example,
-    # "BM_TH_4" : BM_TH_4_example,
-    # "BM_TH_5" : BM_TH_5_example,
+    "BM_TH_1" : BM_TH_1_example, # Has countermodel
+    "BM_TH_2" : BM_TH_2_example, # Has countermodel
+    "BM_TH_3" : BM_TH_3_example,
+    "BM_TH_4" : BM_TH_4_example,
+    "BM_TH_5" : BM_TH_5_example,
 }
 
 

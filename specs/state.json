@@ -1,5 +1,5 @@
 {
-  "next_project_number": 94,
+  "next_project_number": 96,
   "active_projects": [
     {
       "project_number": 93,
@@ -1169,6 +1169,40 @@
       "language": "python",
       "created": "2026-03-06T20:55:38Z",
       "last_updated": "2026-03-06T20:55:38Z"
+    },
+    {
+      "project_number": 94,
+      "project_name": "fix_z3_solver_state_leakage",
+      "status": "researched",
+      "language": "z3",
+      "dependencies": [],
+      "created": "2026-05-29T20:30:00Z",
+      "last_updated": "2026-05-29T20:30:00Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/094_fix_z3_solver_state_leakage/reports/01_z3-state-leakage.md",
+          "type": "report",
+          "summary": "Z3 solver state leakage root cause: reset_z3_context() does not reset C library state, causing nondeterministic results across examples"
+        }
+      ]
+    },
+    {
+      "project_number": 95,
+      "project_name": "fix_temporal_display_truth_outside_interval",
+      "status": "researched",
+      "language": "z3",
+      "dependencies": [],
+      "created": "2026-05-29T20:30:00Z",
+      "last_updated": "2026-05-29T20:30:00Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/095_fix_temporal_display_truth_outside_interval/reports/01_temporal-display-truth.md",
+          "type": "report",
+          "summary": "Temporal operator find_truth_condition() incorrectly assumes arguments FALSE outside interval, causing wrong display truth values for negated/complex arguments"
+        }
+      ]
     }
   ],
   "repository_health": {

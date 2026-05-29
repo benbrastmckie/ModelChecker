@@ -2064,13 +2064,15 @@ class BimodalStructure(ModelDefaults):
         # Get the main world history for display
         main_world_history = self.world_histories[self.main_world]
 
-        # Create the sequence of states connected by arrows
-        state_sequence = []
-        for time in sorted(main_world_history.keys()):
-            state_sequence.append(str(main_world_history[time]))
-        
-        # Join states with arrows and print
-        world_line = " =⟹ ".join(state_sequence)
+        # Create the sequence of states connected by duration-annotated arrows
+        sorted_times = sorted(main_world_history.keys())
+        parts = []
+        for i, time in enumerate(sorted_times):
+            parts.append(str(main_world_history[time]))
+            if i < len(sorted_times) - 1:
+                dur = sorted_times[i + 1] - time
+                parts.append(f" ⟹{self._to_subscript(dur)} ")
+        world_line = "".join(parts)
 
         # Get evaluation time and state
         eval_time = self.main_time
@@ -2084,12 +2086,19 @@ class BimodalStructure(ModelDefaults):
             file=output,
         )
 
+    @staticmethod
+    def _to_subscript(n):
+        """Convert an integer to Unicode subscript characters."""
+        sub = {'0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+               '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉', '-': '₋'}
+        return ''.join(sub.get(c, c) for c in str(n))
+
     def format_time(self, time):
         """Format time with appropriate sign for display.
-        
+
         Args:
             time: Time point to format
-            
+
         Returns:
             str: Formatted time string with sign prefix
         """
@@ -2200,10 +2209,11 @@ class BimodalStructure(ModelDefaults):
                 if pos + j < len(line):
                     line[pos + j] = char
             
-            # Add arrow if not the last state
+            # Add arrow with duration subscript if not the last state
             if i < len(visible_times) - 1:
                 arrow_pos = pos + len(state_str)
-                arrow = " =⟹ "
+                dur = visible_times[i + 1] - time
+                arrow = f" ⟹{self._to_subscript(dur)} "
                 for j, char in enumerate(arrow):
                     if arrow_pos + j < len(line):
                         line[arrow_pos + j] = char

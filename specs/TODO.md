@@ -1,5 +1,5 @@
 ---
-next_project_number: 94
+next_project_number: 96
 ---
 
 # Task List
@@ -7,6 +7,24 @@ next_project_number: 94
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 95. Fix temporal operator display truth values outside world interval
+- **Effort**: medium
+- **Status**: [RESEARCHED]
+- **Language**: z3
+- **Dependencies**: none
+- **Research**: [095_fix_temporal_display_truth_outside_interval/reports/01_temporal-display-truth.md]
+
+**Description**: `FutureOperator.find_truth_condition()` and `PastOperator.find_truth_condition()` in operators.py hardcode the assumption that the argument is FALSE at times outside the world's time interval. This is correct for atoms but wrong for negated or complex arguments (e.g., `\neg A` is TRUE when atoms are FALSE). This causes BM_CM_4's countermodel to display the conclusion `\past A` as True, contradicting the solver's correct False result. The same bug pattern exists in `UntilOperator.find_truth_condition()`. Fix: evaluate the argument's actual truth value at out-of-interval times rather than assuming FALSE.
+
+### 94. Fix Z3 solver state leakage between examples
+- **Effort**: large
+- **Status**: [RESEARCHED]
+- **Language**: z3
+- **Dependencies**: none
+- **Research**: [094_fix_z3_solver_state_leakage/reports/01_z3-state-leakage.md]
+
+**Description**: `reset_z3_context()` in `utils/context.py` does not effectively reset Z3's global C library state between examples. The `_main_ctx` attribute it tries to clear does not exist, and `importlib.reload(z3)` does not reset the C library's learned lemmas, caches, or heuristic seeds. This causes nondeterministic results: BM_CM_3 and BM_CM_1 find countermodels when run after other examples but time out when run alone. Fix: use explicit `z3.Context()` objects per example for true solver isolation.
 
 ### 93. Align bimodal tests with ProofChecker BX axiom system
 - **Effort**: large
