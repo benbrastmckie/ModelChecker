@@ -1190,11 +1190,11 @@
     {
       "project_number": 95,
       "project_name": "fix_temporal_display_truth_outside_interval",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "dependencies": [],
       "created": "2026-05-29T20:30:00Z",
-      "last_updated": "2026-05-29T20:49:32Z",
+      "last_updated": "2026-05-29T21:00:28Z",
       "next_artifact_number": 3,
       "artifacts": [
         {
@@ -1206,9 +1206,14 @@
           "path": "specs/095_fix_temporal_display_truth_outside_interval/reports/02_refined-temporal-analysis.md",
           "type": "report",
           "summary": "Refined analysis: 4 operators affected (Future, Past, Until, Since). Fix uses z3_model.evaluate(semantics.true_at(...)) to correctly evaluate complex formulas at out-of-interval times."
+        },
+        {
+          "path": "specs/095_fix_temporal_display_truth_outside_interval/plans/02_temporal-display-fix.md",
+          "type": "plan",
+          "summary": "3-phase plan to fix temporal operator display truth at out-of-interval times using semantics.true_at()"
         }
       ],
-      "session_id": "sess_1780087407_23d127"
+      "session_id": "sess_1780088169_1c43a2"
     }
   ],
   "repository_health": {
