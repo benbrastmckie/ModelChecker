@@ -66,7 +66,7 @@ No ROADMAP.md found.
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Add Import and Fix All Four Temporal Operators [NOT STARTED]
+### Phase 1: Add Import and Fix All Four Temporal Operators [COMPLETED]
 
 **Goal**: Replace the hardcoded FALSE assumption in FutureOperator, PastOperator, UntilOperator, and SinceOperator with `semantics.true_at()` evaluation, and add the required `is_true` import.
 

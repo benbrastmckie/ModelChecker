@@ -36,6 +36,7 @@ from model_checker import z3_shim as z3
 
 from model_checker import syntactic
 from model_checker.utils import pretty_set_print
+from model_checker.solver import is_true
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################
@@ -638,10 +639,16 @@ class FutureOperator(syntactic.Operator):
                                 future_false = True
                                 break
                         else:
-                            # Time is outside world's interval: atoms are FALSE
-                            # So argument (if it contains atoms) is FALSE
-                            future_false = True
-                            break
+                            # Time is outside world's interval: evaluate argument using
+                            # semantics.true_at() which handles atoms (FALSE via
+                            # is_valid_time_for_world) and complex formulas (recursive eval)
+                            truth_expr = semantics.true_at(
+                                argument.proposition.sentence,
+                                {"world": current_world, "time": future_time}
+                            )
+                            if not is_true(argument.proposition.z3_model.evaluate(truth_expr)):
+                                future_false = True
+                                break
 
                 if future_false:
                     new_false_times.append(time_point)
@@ -653,7 +660,7 @@ class FutureOperator(syntactic.Operator):
 
         # Return result dictionary
         return truth_condition
-    
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print temporal operator evaluation across different time points."""
         eval_world = eval_point["world"]
@@ -805,10 +812,16 @@ class PastOperator(syntactic.Operator):
                                 past_false = True
                                 break
                         else:
-                            # Time is outside world's interval: atoms are FALSE
-                            # So argument (if it contains atoms) is FALSE
-                            past_false = True
-                            break
+                            # Time is outside world's interval: evaluate argument using
+                            # semantics.true_at() which handles atoms (FALSE via
+                            # is_valid_time_for_world) and complex formulas (recursive eval)
+                            truth_expr = semantics.true_at(
+                                argument.proposition.sentence,
+                                {"world": current_world, "time": past_time}
+                            )
+                            if not is_true(argument.proposition.z3_model.evaluate(truth_expr)):
+                                past_false = True
+                                break
 
                 if past_false:
                     new_false_times.append(time_point)
@@ -1023,9 +1036,16 @@ class UntilOperator(syntactic.Operator):
                                         guard_ok = False
                                         break
                                 else:
-                                    # Time outside world's interval: guard is FALSE
-                                    guard_ok = False
-                                    break
+                                    # Time outside world's interval: evaluate guard using
+                                    # semantics.true_at() which handles atoms (FALSE via
+                                    # is_valid_time_for_world) and complex formulas (recursive eval)
+                                    truth_expr = semantics.true_at(
+                                        guard_arg.proposition.sentence,
+                                        {"world": world_id, "time": r}
+                                    )
+                                    if not is_true(guard_arg.proposition.z3_model.evaluate(truth_expr)):
+                                        guard_ok = False
+                                        break
                         if guard_ok:
                             found_witness = True
                             break
@@ -1242,9 +1262,16 @@ class SinceOperator(syntactic.Operator):
                                         guard_ok = False
                                         break
                                 else:
-                                    # Time outside world's interval: guard is FALSE
-                                    guard_ok = False
-                                    break
+                                    # Time outside world's interval: evaluate guard using
+                                    # semantics.true_at() which handles atoms (FALSE via
+                                    # is_valid_time_for_world) and complex formulas (recursive eval)
+                                    truth_expr = semantics.true_at(
+                                        guard_arg.proposition.sentence,
+                                        {"world": world_id, "time": r}
+                                    )
+                                    if not is_true(guard_arg.proposition.z3_model.evaluate(truth_expr)):
+                                        guard_ok = False
+                                        break
                         if guard_ok:
                             found_witness = True
                             break
