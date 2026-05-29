@@ -152,7 +152,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Test Validation and Timeout Tuning [NOT STARTED]
+### Phase 3: Test Validation and Timeout Tuning [COMPLETED]
 
 **Goal**: Validate that BM_CM_3 and BM_CM_1 produce consistent results in isolation and in sequence, and tune timeouts if needed.
 
