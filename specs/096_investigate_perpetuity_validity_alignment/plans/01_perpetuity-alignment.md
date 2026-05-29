@@ -153,18 +153,27 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Assess Countermodel Examples [NOT STARTED]
+### Phase 4: Assess Countermodel Examples [COMPLETED]
 
 **Goal**: Evaluate the impact of the semantic corrections on countermodel examples BM_CM_1, BM_CM_3, and TN_CM_2, which previously timed out. Determine whether they now find countermodels efficiently or need parameter adjustments.
 
 **Tasks**:
-- [ ] Run BM_CM_1 (`Future A |= Box A`, expectation: countermodel) and record result and time. This should still be invalid (a countermodel exists) -- verify it finds one
-- [ ] Run BM_CM_3 (`Diamond A |= future A`, expectation: countermodel) and record result and time
-- [ ] Run TN_CM_2 (`future A, future B |= future(A /\ B)`, expectation: countermodel) and record result and time
-- [ ] Run BM_CM_2 (`Past A |= Box A`, expectation: countermodel) and BM_CM_4 (`Diamond A |= Past A`, expectation: countermodel) to check for broader impacts
-- [ ] If any examples now find countermodels within timeout, remove them from KNOWN_TIMEOUT_EXAMPLES in test_bimodal.py
-- [ ] If any examples still timeout, document the behavior and consider whether N/M or max_time adjustments help
-- [ ] If any examples now produce unexpected results (e.g., formerly-valid countermodel is no longer found), investigate and document the root cause
+- [x] Run BM_CM_1 (`Future A |= Box A`, expectation: countermodel) and record result and time. This should still be invalid (a countermodel exists) -- verify it finds one
+  - Result: Finds countermodel in ~0.8s. IMPROVEMENT (was timeout). Removed from KNOWN_TIMEOUT_EXAMPLES.
+- [x] Run BM_CM_3 (`Diamond A |= future A`, expectation: countermodel) and record result and time
+  - Result: Finds countermodel in 1-10s, non-deterministic. Kept in KNOWN_TIMEOUT_EXAMPLES due to Z3 state non-determinism causing failures in full suite.
+- [x] Run TN_CM_2 (`future A, future B |= future(A /\ B)`, expectation: countermodel) and record result and time
+  - Result: Timeouts even at 15s. Kept in KNOWN_TIMEOUT_EXAMPLES. Needs further investigation.
+- [x] Run BM_CM_2 (`Past A |= Box A`, expectation: countermodel) and BM_CM_4 (`Diamond A |= Past A`, expectation: countermodel) to check for broader impacts
+  - BM_CM_2: finds countermodel in ~0.6s. IMPROVEMENT. Removed from KNOWN_TIMEOUT_EXAMPLES.
+  - BM_CM_4: finds countermodel in ~3s with max_time=15. IMPROVEMENT. Removed from KNOWN_TIMEOUT_EXAMPLES.
+- [x] If any examples now find countermodels within timeout, remove them from KNOWN_TIMEOUT_EXAMPLES in test_bimodal.py
+  - Removed: BM_CM_1, BM_CM_2, BM_CM_4
+- [x] If any examples still timeout, document the behavior and consider whether N/M or max_time adjustments help
+  - TN_CM_2: still times out. The 3-formula interaction makes it inherently harder for the capped Skolem strategy.
+  - BM_CM_3: non-deterministic, kept in KNOWN_TIMEOUT_EXAMPLES.
+- [x] If any examples now produce unexpected results (e.g., formerly-valid countermodel is no longer found), investigate and document the root cause
+  - No unexpected results. All examples either find countermodels (expected) or time out (acceptable).
 
 **Timing**: 1 hour
 

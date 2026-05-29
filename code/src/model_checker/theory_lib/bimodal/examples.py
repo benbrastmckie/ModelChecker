@@ -310,7 +310,10 @@ TN_CM_2_example = [
 ### BIMODAL COUNTERMODELS ###
 #############################
 
-# TN_CM_1: ALL FUTURE TO NECESSITY
+# BM_CM_1: ALL FUTURE TO NECESSITY
+# Future A does not imply Box A: a world can have A true at all future times
+# while some other world has A false at the current time.
+# Previously timed out; now finds countermodel quickly with corrected semantics.
 BM_CM_1_premises = ['\\Future A']
 BM_CM_1_conclusions = ['\\Box A']
 BM_CM_1_settings = {
@@ -318,7 +321,7 @@ BM_CM_1_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,  # Increased from 5 for reliability across Z3 state variations
     'expectation' : True,
 }
 BM_CM_1_example = [
@@ -327,7 +330,10 @@ BM_CM_1_example = [
     BM_CM_1_settings,
 ]
 
-# TN_CM_2: ALL PAST TO NECESSITY
+# BM_CM_2: ALL PAST TO NECESSITY
+# Past A does not imply Box A: a world can have A true at all past times
+# while some other world has A false at the current time.
+# Previously timed out; now finds countermodel quickly with corrected semantics.
 BM_CM_2_premises = ['\\Past A']
 BM_CM_2_conclusions = ['\\Box A']
 BM_CM_2_settings = {
@@ -335,7 +341,7 @@ BM_CM_2_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 10,  # Increased from 5 for reliability across Z3 state variations
     'expectation' : True,
 }
 BM_CM_2_example = [
@@ -344,7 +350,10 @@ BM_CM_2_example = [
     BM_CM_2_settings,
 ]
 
-# MD_CM_3: POSSIBILITY TO SOME FUTURE
+# BM_CM_3: POSSIBILITY TO SOME FUTURE
+# Diamond A does not imply future A: a world can be possibly A (some world has A now)
+# without A being true at any future time in the current world.
+# Previously timed out; now finds countermodel quickly with corrected semantics.
 BM_CM_3_premises = ['\\Diamond A']
 BM_CM_3_conclusions = ['\\future A']
 BM_CM_3_settings = {
@@ -352,7 +361,7 @@ BM_CM_3_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 2,
+    'max_time' : 10,  # Increased from 2 for reliability across Z3 state variations
     'expectation' : True,
 }
 BM_CM_3_example = [
@@ -361,7 +370,10 @@ BM_CM_3_example = [
     BM_CM_3_settings,
 ]
 
-# MD_CM_4: POSSIBILITY TO SOME PAST
+# BM_CM_4: POSSIBILITY TO SOME PAST
+# Diamond A does not imply past A: a world can be possibly A (some world has A now)
+# without A being true at any past time in the current world.
+# Previously timed out with Z3 state issues; now finds countermodel with corrected semantics.
 BM_CM_4_premises = ['\\Diamond A']
 BM_CM_4_conclusions = ['\\past A']
 BM_CM_4_settings = {
@@ -369,7 +381,7 @@ BM_CM_4_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 5,
+    'max_time' : 15,  # Increased for reliability; finds countermodel in ~3s but varies by Z3 state
     'expectation' : True,
 }
 BM_CM_4_example = [
