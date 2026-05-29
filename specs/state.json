@@ -1190,11 +1190,11 @@
     {
       "project_number": 95,
       "project_name": "fix_temporal_display_truth_outside_interval",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "dependencies": [],
       "created": "2026-05-29T20:30:00Z",
-      "last_updated": "2026-05-29T21:00:28Z",
+      "last_updated": "2026-05-29T21:28:00Z",
       "next_artifact_number": 3,
       "artifacts": [
         {
@@ -1211,9 +1211,15 @@
           "path": "specs/095_fix_temporal_display_truth_outside_interval/plans/02_temporal-display-fix.md",
           "type": "plan",
           "summary": "3-phase plan to fix temporal operator display truth at out-of-interval times using semantics.true_at()"
+        },
+        {
+          "path": "specs/095_fix_temporal_display_truth_outside_interval/summaries/02_temporal-display-fix-summary.md",
+          "type": "summary",
+          "summary": "Fixed all four temporal operators to use semantics.true_at() instead of hardcoded FALSE for out-of-interval times"
         }
       ],
-      "session_id": "sess_1780088169_1c43a2"
+      "session_id": "sess_1780088169_1c43a2",
+      "completion_summary": "Fixed all four temporal operators (FutureOperator, PastOperator, UntilOperator, SinceOperator) to use semantics.true_at() instead of hardcoded FALSE for arguments at times outside a world's interval, correcting display truth values for complex formulas like negations."
     }
   ],
   "repository_health": {

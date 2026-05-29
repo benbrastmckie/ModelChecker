@@ -10,13 +10,14 @@ next_project_number: 96
 
 ### 95. Fix temporal operator display truth values outside world interval
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Language**: z3
 - **Dependencies**: none
 - **Research**:
   - [095_fix_temporal_display_truth_outside_interval/reports/01_temporal-display-truth.md]
   - [095_fix_temporal_display_truth_outside_interval/reports/02_refined-temporal-analysis.md]
 - **Plan**: [095_fix_temporal_display_truth_outside_interval/plans/02_temporal-display-fix.md]
+- **Summary**: [095_fix_temporal_display_truth_outside_interval/summaries/02_temporal-display-fix-summary.md]
 
 **Description**: `FutureOperator.find_truth_condition()` and `PastOperator.find_truth_condition()` in operators.py hardcode the assumption that the argument is FALSE at times outside the world's time interval. This is correct for atoms but wrong for negated or complex arguments (e.g., `\neg A` is TRUE when atoms are FALSE). This causes BM_CM_4's countermodel to display the conclusion `\past A` as True, contradicting the solver's correct False result. The same bug pattern exists in `UntilOperator.find_truth_condition()`. Fix: evaluate the argument's actual truth value at out-of-interval times rather than assuming FALSE.
 

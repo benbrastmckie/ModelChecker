@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Temporal Operator Display Truth Outside Interval
 
 - **Task**: 95 - fix_temporal_display_truth_outside_interval
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 2 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/095_fix_temporal_display_truth_outside_interval/reports/02_refined-temporal-analysis.md
