@@ -40,11 +40,13 @@ from model_checker.theory_lib.bimodal.examples import countermodel_examples, the
 # NOTE: BX7_LINEAR_U_TH, BX7P_LINEAR_S_TH use N=4, M=5 and are computationally expensive;
 # they may time out in CI depending on system resources.
 KNOWN_TIMEOUT_EXAMPLES = {
-    "TN_CM_1", "TN_CM_2", "BM_CM_1", "BM_CM_2", "BM_CM_3", "BM_CM_4",
+    "TN_CM_1", "TN_CM_2", "BM_CM_1", "BM_CM_2", "BM_CM_3",
     "MD_TH_2", "BM_TH_1", "BM_TH_2",
     "MF_MODAL_FUTURE_TH",   # BX modal_future: Box A -> Box(G A) not valid under bimodal semantics
     "BX7_LINEAR_U_TH",      # BX7 Until linearity: N=4, M=5 - computationally expensive
     "BX7P_LINEAR_S_TH",     # BX7' Since linearity: N=4, M=5 - computationally expensive
+    "BM_CM_4",              # Diamond A -> Past A: passes in isolation (display bug fixed), fails in
+                            # full suite due to Z3 state non-determinism across test runs
 }
 test_examples = {k: v for k, v in {**countermodel_examples, **theorem_examples}.items()
                  if k not in KNOWN_TIMEOUT_EXAMPLES}
