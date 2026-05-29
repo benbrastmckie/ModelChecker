@@ -565,7 +565,13 @@ class BimodalSemantics(SemanticDefaults):
         )
         
         # 7. All valid time-shifted worlds exist
-        skolem_abundance = self.skolem_abundance_constraint()
+        # Uses capped_skolem_abundance_constraint: provides time-shifted worlds for all
+        # shifts that keep the shifted interval within the global time range, using a
+        # Skolem function to avoid nested ForAll/Exists. This provides full closure under
+        # time-shifts (modulo boundary conditions) and is necessary for the perpetuity
+        # principles (BM_TH_1/BM_TH_2) to hold, aligning with app:auto_existence in the
+        # JPL paper and ShiftClosed in the Lean BimodalLogic formalization.
+        skolem_abundance = self.capped_skolem_abundance_constraint()
         
         # 8. World interval constraint
         time_interval = self.time_interval_constraint()
@@ -1001,9 +1007,228 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
 
+    def full_abundance_constraint(self):
+        """Build abundance constraint covering ALL valid integer shifts.
+
+        Replaces the +/-1 Skolem abundance with a constraint requiring that for
+        every valid world and every valid shift amount (within the valid duration
+        range), there exists a corresponding time-shifted world.
+
+        The valid shift range is {-(2*(M-1)), ..., 2*(M-1)} to cover all possible
+        time translations between worlds in the finite domain. However, a shift is
+        only required to produce a world if the shifted interval would be valid
+        (i.e., both start and end of the shifted interval fall within the global
+        time range (-M, M)).
+
+        This implementation uses existential quantifiers over target worlds
+        (nested ForAll/Exists pattern).
+
+        Paper alignment: Corresponds to app:auto_existence (JPL paper, lines 2154-2178)
+        which provides time-shifted copies for any pair of times x, y in D.
+        """
+        source_world = z3.Int('abund_src')
+        target_world = z3.Int('abund_tgt')
+        shift_amount = z3.Int('abund_shift')
+
+        return z3.ForAll(
+            [source_world, shift_amount],
+            z3.Implies(
+                z3.And(
+                    # Source must be a valid world
+                    self.is_world(source_world),
+                    # Shift must be within the valid duration range
+                    self.is_valid_duration(shift_amount),
+                    # The shifted start must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_start(source_world) + shift_amount
+                    ),
+                    # The shifted end must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_end(source_world) + shift_amount
+                    ),
+                ),
+                # Then a properly shifted target world must exist
+                z3.Exists(
+                    [target_world],
+                    z3.And(
+                        self.is_world(target_world),
+                        # Target interval is source interval shifted by shift_amount
+                        self.world_interval_start(target_world) == (
+                            self.world_interval_start(source_world) + shift_amount
+                        ),
+                        self.world_interval_end(target_world) == (
+                            self.world_interval_end(source_world) + shift_amount
+                        ),
+                        # Target states match source states when shifted
+                        self.matching_states_when_shifted_var(
+                            source_world, shift_amount, target_world
+                        ),
+                    )
+                )
+            )
+        )
+
+    def matching_states_when_shifted_var(self, source_world, shift, target_world):
+        """Check if states match when shifted between world arrays (variable shift amount).
+
+        Like matching_states_when_shifted but accepts a Z3 expression for the shift
+        amount rather than a Python integer, enabling use in universally-quantified
+        abundance constraints.
+
+        Args:
+            source_world: Source world identifier (Z3 Int)
+            shift: Shift amount (Z3 Int expression, may be a quantified variable)
+            target_world: Target world identifier (Z3 Int)
+
+        Returns:
+            Z3 formula that is true if states match when shifted
+        """
+        time = z3.Int('shift_var_check_time')
+        source_array = self.world_function(source_world)
+        target_array = self.world_function(target_world)
+
+        return z3.ForAll(
+            [time],
+            z3.Implies(
+                z3.And(
+                    # Time is within source interval
+                    time >= self.world_interval_start(source_world),
+                    time <= self.world_interval_end(source_world),
+                    # Shifted time is within target interval
+                    time + shift >= self.world_interval_start(target_world),
+                    time + shift <= self.world_interval_end(target_world),
+                ),
+                # States must match when shifted
+                z3.Select(source_array, time) == z3.Select(target_array, time + shift)
+            )
+        )
+
+    def skolem_full_abundance_constraint(self):
+        """Build full abundance constraint using a Skolem function for target worlds.
+
+        Uses a Skolem function `shift_of(world, delta)` that maps a source world
+        and shift amount to the target world, avoiding the nested ForAll/Exists
+        pattern which can be expensive for Z3 to reason about.
+
+        The shift_of function is required to produce:
+        1. A valid world
+        2. With the correctly shifted interval
+        3. With matching states when shifted
+
+        This is the primary abundance strategy for performance-critical use.
+
+        Paper alignment: Skolemizes app:auto_existence -- the existence is
+        witnessed by an explicit function rather than a bare existential.
+        """
+        # Define Skolem function: (world_id, shift_amount) -> target_world_id
+        shift_of = z3.Function(
+            'shift_of', self.WorldIdSort, self.TimeSort, self.WorldIdSort
+        )
+
+        source_world = z3.Int('skfull_src')
+        shift_amount = z3.Int('skfull_shift')
+
+        return z3.ForAll(
+            [source_world, shift_amount],
+            z3.Implies(
+                z3.And(
+                    # Source must be a valid world
+                    self.is_world(source_world),
+                    # Shift must be within the valid duration range
+                    self.is_valid_duration(shift_amount),
+                    # The shifted start must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_start(source_world) + shift_amount
+                    ),
+                    # The shifted end must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_end(source_world) + shift_amount
+                    ),
+                ),
+                z3.And(
+                    # The Skolem function produces a valid world
+                    self.is_world(shift_of(source_world, shift_amount)),
+                    # Target interval is source interval shifted by shift_amount
+                    self.world_interval_start(shift_of(source_world, shift_amount)) == (
+                        self.world_interval_start(source_world) + shift_amount
+                    ),
+                    self.world_interval_end(shift_of(source_world, shift_amount)) == (
+                        self.world_interval_end(source_world) + shift_amount
+                    ),
+                    # Target states match source states when shifted
+                    self.matching_states_when_shifted_var(
+                        source_world, shift_amount, shift_of(source_world, shift_amount)
+                    ),
+                )
+            )
+        )
+
+    def capped_skolem_abundance_constraint(self):
+        """Build abundance constraint with Skolem functions and shift caps.
+
+        Like skolem_full_abundance_constraint but limits the shift amount based
+        on the actual interval lengths of worlds, capping shifts to those that
+        keep the shifted interval within the global time range. This reduces
+        unnecessary constraint complexity for worlds near the time boundaries.
+
+        The shift cap ensures: for a world with interval [s, e], only shifts delta
+        where s+delta >= -M+1 and e+delta <= M-1 are required (i.e., the shifted
+        world's interval stays within the valid time range).
+
+        This is equivalent to: -M+1 - s <= delta <= M-1 - e, or equivalently:
+        delta >= -M+1 - s  AND  delta <= M-1 - e
+        combined with the is_valid_duration check.
+
+        Uses Skolem functions to eliminate existential quantifiers.
+        """
+        # Define Skolem function: (world_id, shift_amount) -> target_world_id
+        shift_of_capped = z3.Function(
+            'shift_of_capped', self.WorldIdSort, self.TimeSort, self.WorldIdSort
+        )
+
+        source_world = z3.Int('skcap_src')
+        shift_amount = z3.Int('skcap_shift')
+
+        # Compute boundary-constrained shift conditions inline
+        source_start = self.world_interval_start(source_world)
+        source_end = self.world_interval_end(source_world)
+
+        return z3.ForAll(
+            [source_world, shift_amount],
+            z3.Implies(
+                z3.And(
+                    # Source must be a valid world
+                    self.is_world(source_world),
+                    # Shift keeps the start within valid global range
+                    source_start + shift_amount >= z3.IntVal(-self.M + 1),
+                    # Shift keeps the end within valid global range
+                    source_end + shift_amount <= z3.IntVal(self.M - 1),
+                    # Shift is non-zero (identity already satisfied by source_world itself)
+                    shift_amount != z3.IntVal(0),
+                ),
+                z3.And(
+                    # The Skolem function produces a valid world
+                    self.is_world(shift_of_capped(source_world, shift_amount)),
+                    # Target interval is source interval shifted by shift_amount
+                    self.world_interval_start(
+                        shift_of_capped(source_world, shift_amount)
+                    ) == source_start + shift_amount,
+                    self.world_interval_end(
+                        shift_of_capped(source_world, shift_amount)
+                    ) == source_end + shift_amount,
+                    # Target states match source states when shifted
+                    self.matching_states_when_shifted_var(
+                        source_world,
+                        shift_amount,
+                        shift_of_capped(source_world, shift_amount)
+                    ),
+                )
+            )
+        )
+
     def build_task_minimization_constraint(self):
         """Build constraint encouraging minimal changes between consecutive world states.
-        
+
         This constraint guides Z3 to prefer solutions where consecutive world states
         are identical when possible, reducing unnecessary state changes and potentially
         reducing the search space.
