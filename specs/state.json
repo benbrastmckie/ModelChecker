@@ -36,13 +36,22 @@
     {
       "project_number": 90,
       "project_name": "update_temporal_quantification_strict_semantics",
-      "status": "not_started",
+      "status": "researched",
       "language": "z3",
       "dependencies": [
         89
       ],
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T17:24:41Z"
+      "last_updated": "2026-05-29T17:49:23Z",
+      "researched": "2026-05-29T17:49:23Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/090_update_temporal_quantification_strict_semantics/reports/01_strict-semantics-research.md",
+          "type": "report",
+          "summary": "Strict temporal semantics analysis: ordering already correct, quantification scope needs change"
+        }
+      ]
     },
     {
       "project_number": 91,
