@@ -92,17 +92,17 @@
     {
       "project_number": 91,
       "project_name": "update_task_relation_ternary_duration",
-      "status": "researched",
+      "status": "planned",
       "language": "z3",
       "created": "2026-05-29T17:24:41Z",
-      "last_updated": "2026-05-29T18:40:11Z",
-      "session_id": "sess_1748539800_r91cb",
-      "planned": "2026-05-29T18:33:52Z",
+      "last_updated": "2026-05-29T18:44:48Z",
+      "session_id": "sess_1748540200_p91v2",
+      "planned": "2026-05-29T18:44:48Z",
       "artifacts": [
         {
-          "path": "specs/091_update_task_relation_ternary_duration/plans/01_task-relation-ternary-plan.md",
+          "path": "specs/091_update_task_relation_ternary_duration/plans/02_clean-break-plan.md",
           "type": "plan",
-          "summary": "8-phase implementation plan for ternary task_rel with duration parameter"
+          "summary": "6-phase clean-break implementation plan for ternary task_rel(w, d, u)"
         }
       ]
     },
