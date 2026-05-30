@@ -18,7 +18,7 @@ next_project_number: 99
 
 ### 97. Optimize build_frame_constraints for Z3 solver performance
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Research**: [097_optimize_build_frame_constraints/reports/01_team-research.md]
 - **Plan**: [097_optimize_build_frame_constraints/plans/01_implementation-plan.md]

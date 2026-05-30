@@ -74,7 +74,7 @@ Phases are strictly sequential because each change must be validated against the
 
 ---
 
-### Phase 1: Baseline Capture and Test Infrastructure [NOT STARTED]
+### Phase 1: Baseline Capture and Test Infrastructure [COMPLETED]
 
 **Goal**: Capture exact pass/fail/result for all bimodal examples as the reference baseline, and create a lightweight script to compare future runs against this baseline.
 
