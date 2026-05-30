@@ -23,6 +23,7 @@ import pytest
 from model_checker.solver import detect_cvc5, detect_z3
 from model_checker.solver.registry import set_cli_backend, clear_cli_backend, reset_registry
 from model_checker import z3_shim
+from model_checker.utils.context import isolated_z3_context
 from model_checker.theory_lib.logos import get_theory
 from model_checker.theory_lib.logos.examples import all_subtheory_examples
 from model_checker.builder.example import BuildExample
@@ -235,11 +236,13 @@ def test_example_with_solver(solver, subtheory, example_name, example_case):
     # Get required subtheories for this example
     required_subs = get_required_subtheories(subtheory)
 
-    # Load theory with correct subtheories
-    theory = get_theory(required_subs)
+    # Run inside isolated Z3 context to prevent cross-test state contamination
+    with isolated_z3_context():
+        # Load theory with correct subtheories
+        theory = get_theory(required_subs)
 
-    # Run with timing
-    passed, elapsed, error = run_example_with_timing(example_case, theory)
+        # Run with timing
+        passed, elapsed, error = run_example_with_timing(example_case, theory)
 
     # Record result
     expectation = example_case[2].get('expectation', None)

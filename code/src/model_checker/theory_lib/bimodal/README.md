@@ -606,23 +606,7 @@ Every model must have a valid evaluation time (designated as time 0).
 valid_main_time = self.is_valid_time(self.main_time)
 ```
 
-### 3. Classical Truth Constraint
-
-Each atomic sentence must have a consistent classical truth value at each world state.
-
-```python
-classical_truth = z3.ForAll(
-    [world_state, sentence_letter],
-    z3.Or(
-        # Either sentence_letter is true in the world_state
-        self.truth_condition(world_state, sentence_letter),
-        # Or not
-        z3.Not(self.truth_condition(world_state, sentence_letter))
-    )
-)
-```
-
-### 4. World Enumeration Constraint
+### 3. World Enumeration Constraint
 
 World histories must be enumerated in sequence starting from 0.
 
@@ -638,7 +622,7 @@ enumeration_constraint = z3.ForAll(
 )
 ```
 
-### 5. Convex World Ordering Constraint
+### 4. Convex World Ordering Constraint
 
 There can be no gaps in the enumeration of worlds, ensuring worlds are created in sequence.
 
@@ -659,7 +643,7 @@ convex_world_ordering = z3.ForAll(
 )
 ```
 
-### 6. Lawful Transition Constraint
+### 5. Lawful Transition Constraint
 
 Each world history must follow lawful transitions between consecutive states.
 
@@ -689,7 +673,7 @@ lawful = z3.ForAll(
 )
 ```
 
-### 8. Skolem Abundance Constraint
+### 6. Skolem Abundance Constraint
 
 An optimized version of the abundance constraint using Skolem functions to eliminate nested quantifiers, improving Z3 performance.
 
@@ -731,7 +715,7 @@ return z3.ForAll(
 )
 ```
 
-### 8. World Uniqueness Constraint
+### 7. World Uniqueness Constraint
 
 No two worlds can have identical histories over their entire intervals.
 
@@ -759,7 +743,7 @@ world_uniqueness = z3.ForAll(
 )
 ```
 
-### 9. Time Interval Constraint
+### 8. Time Interval Constraint
 
 An optimized version of the world interval constraint that directly defines interval bounds for each world.
 

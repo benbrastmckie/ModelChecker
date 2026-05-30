@@ -5,6 +5,12 @@ This module provides ``isolated_z3_context()``, a context manager that swaps
 ``z3.z3._main_ctx`` to a fresh ``z3.Context()`` for the duration of a ``with``
 block, providing true C-level isolation between examples. This is the
 authoritative approach to preventing Z3 state leakage.
+
+Any test that runs Z3-based model checking should wrap its solver work in
+``isolated_z3_context()`` to avoid cross-test state contamination.  Without
+isolation, Z3's global context accumulates learned lemmas and heuristic state
+from earlier tests, which can make later tests 2-10x slower and cause
+non-deterministic timeouts in the full suite.
 """
 
 from contextlib import contextmanager

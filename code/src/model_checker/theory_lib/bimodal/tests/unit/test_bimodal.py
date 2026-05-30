@@ -29,6 +29,7 @@ from model_checker.theory_lib.bimodal import (
     bimodal_operators,
 )
 from model_checker.theory_lib.bimodal.examples import countermodel_examples, theorem_examples
+from model_checker.utils.context import isolated_z3_context
 
 # Combine both example sets for testing, excluding known solver timeout cases
 # NOTE: MF_MODAL_FUTURE_TH tests the BX axiom "Box A -> Box(G A)" which is NOT a theorem
@@ -59,15 +60,16 @@ test_examples = {k: v for k, v in {**countermodel_examples, **theorem_examples}.
 @pytest.mark.parametrize("example_name, example_case", test_examples.items())
 def test_example_cases(example_name, example_case):
     """Test each example case from test_example_range."""
-    result = run_test(
-        example_case,
-        BimodalSemantics,
-        BimodalProposition,
-        bimodal_operators,
-        Syntax,
-        ModelConstraints,
-        BimodalStructure,
-    )
+    with isolated_z3_context():
+        result = run_test(
+            example_case,
+            BimodalSemantics,
+            BimodalProposition,
+            bimodal_operators,
+            Syntax,
+            ModelConstraints,
+            BimodalStructure,
+        )
     assert result, f"Test failed for example: {example_name}"
 
 

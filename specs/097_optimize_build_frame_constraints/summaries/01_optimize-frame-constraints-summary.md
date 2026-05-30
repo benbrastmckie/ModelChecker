@@ -14,8 +14,8 @@
 
 ### Phase 2: Tautology Removal and Reordering
 - **Removed `classical_truth` tautological constraint**: The constraint `ForAll([world_state, sentence_letter], Or(P, Not(P)))` was always true by the Law of Excluded Middle and added no solver information while wasting E-matching index budget.
-- **Moved `world_interval` before `lawful` in return list**: Interval bounds are now established before the lawful axiom fires, enabling better MBQI seeding.
-- **Updated docstring** in `build_frame_constraints()` to reflect the removed constraint and new ordering rationale.
+- **Moved `world_interval` before `lawful` in return list**: Tested but later reverted -- the reordering caused BM_CM_1/2/4 countermodel tests to time out (~2-4s slower per example) when run in the full 828-test suite. The regressions were not caught during Task 97 because verification only ran the 43-test bimodal file in isolation, where Z3 global state contamination is absent. The original ordering (world_interval after world_uniqueness) was restored.
+- **Updated docstring** in `build_frame_constraints()` to reflect the removed constraint.
 
 ### Phase 3: Pattern Annotations (SKIPPED)
 - Attempted `MultiPattern` annotations on `lawful` and `converse` constraints.
@@ -35,9 +35,9 @@
 ## Performance Results
 
 - **Baseline**: 43/43 tests, ~93 seconds
-- **After optimization**: 43/43 tests, ~50 seconds
-- **Improvement**: ~46% faster (43 seconds saved per full suite run)
-- The speedup comes primarily from removing the `classical_truth` tautology (which generated expensive ForAll constraints on atomic sentence letters) and the reordering of `world_interval` before `lawful`.
+- **After optimization**: 43/43 tests, ~50 seconds (bimodal file only)
+- **Improvement**: ~46% faster on the bimodal file, primarily from removing the `classical_truth` tautology (which generated expensive ForAll constraints on atomic sentence letters).
+- **Post-fix note**: The `world_interval` reordering was reverted after discovering it caused regressions in the full suite. The `classical_truth` removal and `max_memory` guard remain as net improvements. Additionally, `isolated_z3_context()` was added to the bimodal test parametrization and the solver comparison tests, eliminating cross-test Z3 state contamination that had caused flaky timeouts.
 
 ## Files Modified
 

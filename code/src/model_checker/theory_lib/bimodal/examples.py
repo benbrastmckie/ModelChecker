@@ -321,7 +321,7 @@ BM_CM_1_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 10,  # Increased from 5 for reliability across Z3 state variations
+    'max_time' : 15,  # ~8s with isolated Z3 context; extra headroom for CI variance
     'expectation' : True,
 }
 BM_CM_1_example = [
@@ -341,7 +341,7 @@ BM_CM_2_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 10,  # Increased from 5 for reliability across Z3 state variations
+    'max_time' : 10,  # ~2s with isolated Z3 context
     'expectation' : True,
 }
 BM_CM_2_example = [
@@ -381,7 +381,7 @@ BM_CM_4_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 15,  # Increased for reliability; finds countermodel in ~3s but varies by Z3 state
+    'max_time' : 15,  # ~3s with isolated Z3 context; extra headroom for CI variance
     'expectation' : True,
 }
 BM_CM_4_example = [

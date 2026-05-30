@@ -29,32 +29,32 @@ def test_cli_execution_of_examples():
     original_content = content
     
     try:
-        # Uncomment a basic example (EX_CM_1) in the example_range
-        modified_content = content.replace(
-            '    # "EX_CM_1" : EX_CM_1_example,', 
-            '    "EX_CM_1" : EX_CM_1_example,'
+        # Replace example_range with just EX_CM_1 so the CLI runs one fast example
+        import re
+        modified_content = re.sub(
+            r'(example_range\s*=\s*\{)[^}]*(})',
+            r'\1\n    "EX_CM_1" : EX_CM_1_example,\n\2',
+            content,
+            count=1,
+            flags=re.DOTALL,
         )
-        
-        # Save the modified file
+
         with open(examples_path, 'w') as f:
             f.write(modified_content)
-        
-        # Run the example file through dev_cli.py
+
         dev_cli_path = PROJECT_ROOT / "dev_cli.py"
         result = subprocess.run(
             [str(dev_cli_path), str(examples_path)],
             capture_output=True,
             text=True,
-            cwd=PROJECT_ROOT
+            cwd=PROJECT_ROOT,
+            timeout=30,
         )
-        
-        # With the fixed API, CLI execution should succeed
-        if "No module named 'z3'" not in result.stdout:  # If z3 is available
+
+        if "No module named 'z3'" not in result.stdout:
             assert "there is a countermodel" in result.stdout, "Example should run and find a countermodel"
             assert result.returncode == 0, "CLI execution should succeed with the fixed API"
-        # If z3 module is not available, we'll still pass the test
-        
+
     finally:
-        # Restore the original content
         with open(examples_path, 'w') as f:
             f.write(original_content)
