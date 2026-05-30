@@ -190,17 +190,23 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 5: Full Test Suite Verification and Cleanup [NOT STARTED]
+### Phase 5: Full Test Suite Verification and Cleanup [COMPLETED]
 
 **Goal**: Run the complete bimodal test suite and broader ModelChecker tests to confirm no regressions, clean up deprecated code, and document the changes.
 
 **Tasks**:
-- [ ] Run the full bimodal unit test suite: `pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v`
-- [ ] Run the broader integration tests: `pytest code/tests/ -v`
-- [ ] If the original `build_abundance_constraint` (non-Skolem) and `skolem_abundance_constraint` methods are no longer used, add deprecation comments or remove them
-- [ ] If `can_shift_forward` and `can_shift_backward` are no longer used by the selected abundance strategy, add deprecation comments
-- [ ] Update docstrings on `build_frame_constraints` to document the new abundance strategy and the rationale for the Box scope fix
-- [ ] Verify BM_TH_3 through BM_TH_6 (other perpetuity principles) still work correctly -- some may have already been working, others may benefit from the fix
+- [x] Run the full bimodal unit test suite: `pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v`
+  - Result: 43 tests pass (all non-timeout examples). Total suite time ~95s.
+- [x] Run the broader integration tests: `pytest code/tests/ -v`
+  - Result: System imports, formula system, model building sync tests all pass. test_complex_model_performance is a pre-existing failure in logos theory (N=16 Z3 substitution timeout, confirmed to fail on commit b96f7a73 before Phase 5 changes). test_maximum_n_performance is a pre-existing segfault (N=64 BitVec in Z3 core). These failures are unrelated to bimodal changes.
+- [x] If the original `build_abundance_constraint` (non-Skolem) and `skolem_abundance_constraint` methods are no longer used, add deprecation comments or remove them
+  - DONE: Both methods already have DEPRECATED docstring headers added in uncommitted semantic.py changes.
+- [x] If `can_shift_forward` and `can_shift_backward` are no longer used by the selected abundance strategy, add deprecation comments
+  - NOTE: These methods are still used by the deprecated `build_abundance_constraint` and `skolem_abundance_constraint`. No deprecation comments needed as those methods document their own deprecated status.
+- [x] Update docstrings on `build_frame_constraints` to document the new abundance strategy and the rationale for the Box scope fix
+  - DONE: `build_frame_constraints` docstring updated to reference capped Skolem, JPL paper, Lean BimodalLogic, and connection to perpetuity principles.
+- [x] Verify BM_TH_3 through BM_TH_6 (other perpetuity principles) still work correctly -- some may have already been working, others may benefit from the fix
+  - BM_TH_3: PASSES (0.18s). BM_TH_4: PASSES (0.11s). BM_TH_5 is defined but not in theorem_examples dict (pre-existing state, never added to automated suite). BM_TH_6 does not exist in examples.py.
 
 **Timing**: 1 hour
 
@@ -218,14 +224,14 @@ Phases within the same wave can execute in parallel.
 
 ## Testing & Validation
 
-- [ ] BM_TH_1 (`Box A -> Future A`) produces no countermodel (was: found countermodel)
-- [ ] BM_TH_2 (`Box A -> Past A`) produces no countermodel (was: found countermodel)
-- [ ] BM_TH_3 through BM_TH_6 continue to produce no countermodel
-- [ ] All non-timeout bimodal examples pass with correct expectations
-- [ ] At least one of BM_CM_1, BM_CM_3, TN_CM_2 finds a countermodel (improved from timeout)
-- [ ] Full bimodal test suite passes: `pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v`
-- [ ] Integration tests pass: `pytest code/tests/ -v`
-- [ ] Performance profiling results documented with solve times for each abundance strategy
+- [x] BM_TH_1 (`Box A -> Future A`) produces no countermodel (was: found countermodel)
+- [x] BM_TH_2 (`Box A -> Past A`) produces no countermodel (was: found countermodel)
+- [x] BM_TH_3 through BM_TH_6 continue to produce no countermodel (BM_TH_3/4 pass; BM_TH_5 not in test suite, BM_TH_6 does not exist)
+- [x] All non-timeout bimodal examples pass with correct expectations (43 tests pass)
+- [x] At least one of BM_CM_1, BM_CM_3, TN_CM_2 finds a countermodel (improved from timeout): BM_CM_1 finds countermodel in ~0.8s
+- [x] Full bimodal test suite passes: `pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py -v`
+- [x] Integration tests pass: `pytest code/tests/ -v` (pre-existing failures in logos performance tests unrelated to bimodal)
+- [x] Performance profiling results documented with solve times for each abundance strategy
 
 ## Artifacts & Outputs
 

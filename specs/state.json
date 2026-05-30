@@ -12,7 +12,7 @@
     {
       "project_number": 96,
       "project_name": "investigate_perpetuity_validity_alignment",
-      "status": "planned",
+      "status": "completed",
       "language": "z3",
       "dependencies": [
         94
@@ -33,7 +33,8 @@
         }
       ],
       "session_id": "sess_1780094455_86573c",
-      "researched": "2026-05-29T22:50:00Z"
+      "researched": "2026-05-29T22:50:00Z",
+      "completion_summary": "Fixed Box operator scope guard and extended abundance constraint to full shift coverage (capped Skolem) with M=3, making BM_TH_1 and BM_TH_2 valid theorems aligned with JPL paper and Lean formalization. Also improved BM_CM_1, BM_CM_2, BM_CM_4 from timeout to reliable countermodel finding. All 43 non-timeout bimodal tests pass."
     },
     {
       "project_number": 93,

@@ -475,10 +475,22 @@ class BimodalSemantics(SemanticDefaults):
         5. World diversity - Ensures different world histories exist for proper modal evaluation
         6. Valid worlds - Constraints on which world_ids map to valid world histories
         7. World interval constraint - Ensures each world has a valid time interval
-        8. Abundance constraint - Ensures necessary time-shifted worlds exist
-        9. Systematic world relationship - Explicitly defines relationships between world IDs
+        8. Abundance constraint - Ensures time-shifted worlds exist for all valid shifts (capped Skolem)
+        9. World uniqueness - Each world ID maps to a distinct world history
         10. Task state minimization - Encourages minimal changes between consecutive world states
-        
+        11-13. Frame axioms - TaskFrame constraints (nullity, converse, compositionality)
+
+        The abundance constraint (item 8) uses capped_skolem_abundance_constraint which
+        provides time-shifted world copies for all shift amounts that keep the shifted
+        interval within the global time range. This aligns with:
+        - JPL paper (app:auto_existence, lines 2154-2178): closed under arbitrary time shifts
+        - Lean BimodalLogic (ShiftClosed, Truth.lean line 295): Omega is shift-closed
+
+        Together with removing the is_valid_time_for_world guard from NecessityOperator
+        (operators.py), these constraints make the perpetuity principles BM_TH_1
+        (Box A -> Future A) and BM_TH_2 (Box A -> Past A) valid (no countermodel).
+        Sufficient M (>=3) is needed for the shift closure to cover all relevant shifts.
+
         The frame constraints ensure that world histories represent lawful evolutions of world states
         over time, following the task relation which specifies valid state transitions.
 
@@ -910,7 +922,11 @@ class BimodalSemantics(SemanticDefaults):
     
     def build_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist.
-        
+
+        DEPRECATED: Replaced by capped_skolem_abundance_constraint which provides
+        full shift coverage (not just +/-1) with better Z3 performance characteristics.
+        This method is retained for reference and fallback comparison.
+
         The abundance property ensures that for any world that can be shifted forward
         or backward in time (while staying within valid time bounds), there exists a
         corresponding world that represents that time shift.
@@ -960,11 +976,16 @@ class BimodalSemantics(SemanticDefaults):
 
     def skolem_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist using Skolemization.
-        
+
+        DEPRECATED: Replaced by capped_skolem_abundance_constraint which provides
+        full shift coverage (not just +/-1) and is necessary for the perpetuity
+        principles (BM_TH_1/BM_TH_2) to hold. This method is retained for reference
+        and fallback comparison.
+
         The abundance property ensures that for any world that can be shifted forward
         or backward in time (while staying within valid time bounds), there exists a
         corresponding world that represents that time shift.
-        
+
         This implementation uses Skolem functions to eliminate nested quantifiers,
         which can improve Z3 performance.
         """
