@@ -128,7 +128,7 @@ Phases are strictly sequential because each change must be validated against the
 
 ---
 
-### Phase 3: Pattern Annotations and Constraint Reordering [NOT STARTED]
+### Phase 3: Pattern Annotations and Constraint Reordering [COMPLETED]
 
 **Goal**: Add MultiPattern annotations to `lawful` and `converse` constraints, and move `world_interval` before `lawful` in the return list to establish interval bounds early for MBQI seeding.
 
