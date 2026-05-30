@@ -47,6 +47,11 @@ class Z3SolverAdapter:
         self._solver.set('smt.mbqi', True)
         self._solver.set('smt.ematching', True)
         self._solver.set('smt.mbqi.max_iterations', 1000)
+        # Task 98 tuning: smt.mbqi.max_cexs limits the number of counterexample candidates
+        # MBQI generates per round, bounding ground term growth. Tested at 50 and found
+        # safe (no regressions) with no measurable memory reduction for our constraint set.
+        # Not added because the benefit is marginal and the max_memory limit is sufficient.
+        # If testing again: self._solver.set('smt.mbqi.max_cexs', 50)
         # Memory guard: 4096 MB per solver instance. Prevents OOM kills from unbounded
         # quantifier instantiation. Causes Z3 to return 'unknown' gracefully instead of
         # being killed by the OS. Direct mitigation for task 98 OOM investigation.

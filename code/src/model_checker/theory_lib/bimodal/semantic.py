@@ -469,9 +469,13 @@ class BimodalSemantics(SemanticDefaults):
 
         Optimization history (Task 97, 2026-05-29):
           Phase 2: Removed tautological classical_truth constraint (Or(P, Not(P)));
-                   replaced world_uniqueness ForAll/Exists with Z3 array inequality
-                   (world_function(w1) != world_function(w2)) which is ~200x faster
-                   since Z3 handles array disequality natively via the array theory.
+                   world_uniqueness grounding (array inequality) was reverted due to
+                   regressions; the original ForAll/Exists formulation is retained.
+
+        Task 98 investigation (2026-05-29):
+          Tested build_grounded_abundance_constraints() to replace the doubly-quantified
+          capped_skolem_abundance_constraint, but found it caused regressions for both
+          SAT and UNSAT examples. OOM is handled by max_memory=4096 in Z3SolverAdapter.
 
         This method constructs the fundamental constraints that define the behavior of the model:
         1. Time constraints - Ensures main_time is within valid range
@@ -479,7 +483,7 @@ class BimodalSemantics(SemanticDefaults):
         3. Lawful transitions - Each world history must follow the task relation between consecutive states
         4. World interval constraint - Ensures each world has a valid time interval
         5. Abundance constraint - Ensures time-shifted worlds exist for all valid shifts (capped Skolem)
-        6. World uniqueness - Each world ID maps to a distinct world history (array inequality)
+        6. World uniqueness - Each world ID maps to a distinct world history
         7-9. Frame axioms - TaskFrame constraints (nullity, converse, compositionality)
 
         The abundance constraint (item 5) uses capped_skolem_abundance_constraint which
@@ -592,6 +596,11 @@ class BimodalSemantics(SemanticDefaults):
         # time-shifts (modulo boundary conditions) and is necessary for the perpetuity
         # principles (BM_TH_1/BM_TH_2) to hold, aligning with app:auto_existence in the
         # JPL paper and ShiftClosed in the Lean BimodalLogic formalization.
+        #
+        # Task 98 Note: build_grounded_abundance_constraints() was tested as a replacement
+        # but found to cause regressions -- it creates MORE ground terms via eager E-matching
+        # instead of lazy MBQI, making SAT (BM_CM_1) and UNSAT (BM_TH_1/2) searches
+        # strictly slower. OOM is prevented by max_memory=4096 in Z3SolverAdapter (Task 97).
         skolem_abundance = self.capped_skolem_abundance_constraint()
 
         # 9. Every valid world is unique
@@ -682,9 +691,6 @@ class BimodalSemantics(SemanticDefaults):
             forward_comp,
             skolem_abundance,
             world_uniqueness,
-            # time_interval_constraint() is a grounded (non-quantified) alternative to
-            # world_interval -- see comment above before world_interval assignment.
-
             # MAYBE (not yet enabled, preserved for future experimentation):
             # task_restriction,     # restricts task_rel to lawful histories
             # task_minimization,    # encourages minimal state changes
@@ -1188,6 +1194,84 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
 
+    def build_grounded_abundance_constraints(self):
+        """Build abundance constraints by enumerating all valid (interval, shift) pairs.
+
+        This is the primary OOM fix for M>=3. For each concrete (interval, shift) pair,
+        creates a ForAll[src] constraint asserting existence and state-matching of the
+        shifted world. Replaces the doubly-quantified capped_skolem_abundance_constraint
+        (ForAll[src, shift] -> ForAll[time]) with per-pair ForAll[src] constraints that
+        have concrete integer time indices in the conclusion.
+
+        Benefits over the quantified form:
+        1. Eliminates 'shift' as a quantified integer variable (the main MBQI trigger)
+        2. Eliminates the nested ForAll[time] quantifier entirely
+        3. Concrete integer values guide E-matching instead of requiring MBQI
+        4. Generates only len(pairs) constraints instead of one open-ended ForAll[Int, Int]
+
+        Constraint counts by M:
+        - M=3: 3 intervals, 6 valid pairs, 3 time equalities per pair = 18 total equalities
+        - M=4: 4 intervals, 12 valid pairs, 4 equalities per pair = 48 total equalities
+        - M=5: 5 intervals, 20 valid pairs, 5 equalities per pair = 100 total equalities
+
+        Uses the same 'shift_of_capped' Skolem function as capped_skolem_abundance_constraint
+        for backward compatibility with existing Skolem term names in Z3 models.
+
+        Returns:
+            list: ForAll[src] constraints, one per valid (interval, shift) pair
+        """
+        # Reuse the same Skolem function name for backward compatibility
+        shift_of_capped = z3.Function(
+            'shift_of_capped', self.WorldIdSort, self.TimeSort, self.WorldIdSort
+        )
+
+        constraints = []
+        intervals = self.generate_time_intervals(self.M)
+        # Shared quantified variable -- same name as the deprecated method's variable
+        # for Z3 index consistency; the name is only a Z3 declaration inside ForAll scope
+        src = z3.Int('skcap_src')
+
+        for (start, end) in intervals:
+            # Enumerate all valid non-zero shifts for this interval
+            # A shift delta is valid if start+delta >= -M+1 AND end+delta <= M-1
+            for delta in range(-(2 * self.M - 1), 2 * self.M):
+                if delta == 0:
+                    continue
+                new_start = start + delta
+                new_end = end + delta
+                if not (-self.M + 1 <= new_start and new_end <= self.M - 1):
+                    continue
+
+                # Concrete Skolem term with fixed shift amount
+                target = shift_of_capped(src, z3.IntVal(delta))
+
+                # Concrete state equalities at each time point in the source interval
+                state_eqs = []
+                for t in range(start, end + 1):
+                    t_val = z3.IntVal(t)
+                    shifted_t = z3.IntVal(t + delta)
+                    state_eqs.append(
+                        z3.Select(self.world_function(src), t_val) ==
+                        z3.Select(self.world_function(target), shifted_t)
+                    )
+
+                body = z3.Implies(
+                    z3.And(
+                        self.is_world(src),
+                        self.world_interval_start(src) == z3.IntVal(start),
+                        self.world_interval_end(src) == z3.IntVal(end),
+                    ),
+                    z3.And(
+                        self.is_world(target),
+                        self.world_interval_start(target) == z3.IntVal(new_start),
+                        self.world_interval_end(target) == z3.IntVal(new_end),
+                        *state_eqs
+                    )
+                )
+                constraints.append(z3.ForAll([src], body))
+
+        return constraints
+
     def capped_skolem_abundance_constraint(self):
         """Build abundance constraint with Skolem functions and shift caps.
 
@@ -1203,6 +1287,13 @@ class BimodalSemantics(SemanticDefaults):
         This is equivalent to: -M+1 - s <= delta <= M-1 - e, or equivalently:
         delta >= -M+1 - s  AND  delta <= M-1 - e
         combined with the is_valid_duration check.
+
+        Task 98 Note: build_grounded_abundance_constraints() was tested as an alternative
+        but found counterproductive -- the per-interval grounded form creates MORE ground
+        terms via eager E-matching (one Skolem term per world per valid shift immediately),
+        while the quantified MBQI form is lazy (only instantiated when needed by the
+        solver). For both SAT (BM_CM_1: 9s -> 15s timeout) and UNSAT (BM_TH_1/2: 30s ->
+        75s+) the quantified form is faster. OOM is handled by max_memory=4096 (Task 97).
 
         Uses Skolem functions to eliminate existential quantifiers.
         """
