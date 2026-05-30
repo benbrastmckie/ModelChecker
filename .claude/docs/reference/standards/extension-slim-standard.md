@@ -2,7 +2,7 @@
 
 ## Purpose
 
-EXTENSION.md files are injected into CLAUDE.md context when loaded via `<leader>ac`. Large EXTENSION.md files waste context window budget on documentation that agents rarely need during routing. This standard defines maximum size and required content for EXTENSION.md files.
+EXTENSION.md files are injected into CLAUDE.md context when loaded via the extension picker. Large EXTENSION.md files waste context window budget on documentation that agents rarely need during routing. This standard defines maximum size and required content for EXTENSION.md files.
 
 ## Size Limit
 
@@ -103,7 +103,7 @@ File format conversion and manipulation: documents, spreadsheets, presentations,
 | Skill | Agent | Purpose |
 |-------|-------|---------|
 | skill-filetypes | filetypes-router-agent | Format detection and routing |
-| skill-spreadsheet | spreadsheet-agent | Spreadsheet to LaTeX/Typst |
+| skill-filetypes-spreadsheet | filetypes-spreadsheet-agent | Spreadsheet to LaTeX/Typst |
 | skill-presentation | presentation-agent | Slide extraction and generation |
 | skill-scrape | scrape-agent | PDF annotation extraction |
 
@@ -111,9 +111,8 @@ File format conversion and manipulation: documents, spreadsheets, presentations,
 
 | Command | Usage | Description |
 |---------|-------|-------------|
-| /convert | `/convert file.pdf` | Convert between document formats |
+| /convert | `/convert file.pdf` | Convert between document formats (incl. `/convert deck.pptx --format beamer`) |
 | /table | `/table data.xlsx` | Convert spreadsheets to LaTeX/Typst tables |
-| /slides | `/slides deck.pptx` | Convert presentations to Beamer/Polylux/Touying |
 | /scrape | `/scrape paper.pdf` | Extract PDF annotations to Markdown/JSON |
 
 ### Context
@@ -135,5 +134,5 @@ After slimming an EXTENSION.md:
 5. [ ] Context pointers reference moved content (max 5 lines)
 6. [ ] Moved content exists in context files
 7. [ ] New context files have index-entries.json entries
-8. [ ] Extension loads without errors via `<leader>ac`
+8. [ ] Extension loads without errors via the extension picker
 9. [ ] Commands still route correctly after changes

@@ -91,8 +91,8 @@ Warning: Operation succeeded but git commit failed
 Changes were successfully applied but could not be committed to git.
 
 Manual commit required:
-  git add lua/neotex/plugins/new-plugin.lua
-  git commit -m "feat: Add new plugin configuration"
+  git add src/modules/new-module.ext
+  git commit -m "feat: Add new module"
 
 Error: fatal: not a git repository
 ```
@@ -120,7 +120,7 @@ Git reset failed during error recovery. Your working directory may be in an inco
 Manual recovery required:
 1. Check git status: git status
 2. Reset to safety commit: git reset --hard abc123
-3. Cneovim untracked files: git cneovim -fd
+3. Clean untracked files: git clean -fd
 4. Verify state: git status
 
 Safety commit SHA: abc123
@@ -155,7 +155,7 @@ If issues persist, contact support with this error log.
 
 **`<handling>`**: Internal error handling logic
 - Immediate actions to take
-- State cneovimup required
+- State cleanup required
 - Rollback procedures
 - Delegation to error handlers
 
@@ -319,8 +319,8 @@ Recovery:
 ```
 Error: Subagent delegation failed
 
-Subagent: @subagents/neovim/proof-planner
-Task: Generate proof plan for lattice theorem
+Subagent: @subagents/domain/specialist-agent
+Task: Generate analysis for complex problem
 Reason: Subagent timeout after 120 seconds
 
 This may indicate:
@@ -378,7 +378,7 @@ This safety commit protects your work before making changes.
 
 Recommendation:
 1. Ensure git is configured: git config --list
-2. Check working directory is cneovim: git status
+2. Check working directory is clean: git status
 3. Fix any git issues and retry
 ```
 
@@ -406,7 +406,7 @@ Safety commit: {safety_commit_sha}
 Manual recovery steps:
 1. Check git status: git status
 2. Reset to safety commit: git reset --hard {safety_commit_sha}
-3. Cneovim untracked files: git cneovim -fd
+3. Clean untracked files: git clean -fd
 4. Verify state: git status
 
 Or restore from git reflog:
@@ -503,25 +503,25 @@ Error: {git_error}
 
 **Example**:
 ```
-Error: Neovim MCP server not available
+Error: MCP server not available
 
-The Neovim proof assistant requires the MCP server to be configured.
+The requested operation requires an MCP server to be configured.
 
 Setup instructions:
 1. Verify .mcp.json exists: cat .mcp.json
 2. Check server configuration:
    {
      "mcpServers": {
-       "neovim": {
-         "command": "neovim",
+       "example-server": {
+         "command": "example-tool",
          "args": ["--server"]
        }
      }
    }
-3. Test server: neovim --version
+3. Test server: example-tool --version
 
 Verification:
-  neovim --server --help
+  example-tool --server --help
 ```
 
 ### 7. State Errors
@@ -709,9 +709,9 @@ def create_user(user_data: dict) -> dict:
         }
 ```
 
-### Neovim 4
+### Lean 4
 
-```neovim
+```lean
 -- [PASS] Error handling with Option
 def safeDivide (n m : Nat) : Option Nat :=
   if m = 0 then
@@ -853,7 +853,7 @@ def parseConfig (json : Json) : Except ParseError Config :=
     4. Notify user of degraded functionality
   </implementation>
   <example>
-    Primary: Use MCP Neovim server for proof checking
+    Primary: Use MCP server for domain-specific validation
     Fallback: Use basic syntax validation
     Notification: "Warning: Advanced proof checking unavailable, using basic validation"
   </example>
@@ -976,7 +976,7 @@ def parseConfig (json : Json) : Except ParseError Config :=
 - [ ] Errors logged with context
 - [ ] User-facing errors don't expose internals
 - [ ] Async operations handle errors
-- [ ] Resource cneovimup in error paths (finally blocks)
+- [ ] Resource cleanup in error paths (finally blocks)
 - [ ] Error types documented
 
 ---
@@ -1046,7 +1046,7 @@ validation:
 
 **Examples**:
 - `.claude/command/research.md` - Command error handling
-- `.claude/agent/subagents/neovim/proof-planner.md` - Subagent error handling
+- `.claude/agents/` - Agent error handling examples
 
 ---
 

@@ -111,13 +111,14 @@ class BuildExample:
                     set_backend_with_invalidation(requested_solver)
 
     def _initialize_z3_context(self) -> None:
-        """Reset Z3 context to ensure a clean state for this example."""
-        from model_checker import z3_shim as z3
-        # This helps ensure different examples don't interfere with each other
-        try:
-            z3.main_ctx().solver.reset()
-        except Exception:
-            pass
+        """No-op: context isolation is handled by isolated_z3_context() in runner.py.
+
+        The previous body attempted ``z3.main_ctx().solver.reset()`` which always
+        failed silently because the main context does not expose a ``solver``
+        attribute. True isolation is now achieved at the run_examples() level via
+        ``isolated_z3_context()``, so no per-example reset is needed here.
+        """
+        pass
     
     def _validate_and_extract_components(
         self,

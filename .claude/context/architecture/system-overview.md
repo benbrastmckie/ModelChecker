@@ -9,7 +9,7 @@
 
 ## Three-Layer Architecture
 
-The Neovim Configuration agent system implements a three-layer delegation pattern separating concerns into distinct execution layers.
+The agent system implements a three-layer delegation pattern separating concerns into distinct execution layers.
 
 ```
                          USER INPUT
@@ -24,14 +24,14 @@ The Neovim Configuration agent system implements a three-layer delegation patter
                               ▼
                     ┌─────────────────┐
      Layer 2:       │     Skills      │  Thin wrappers with validation
-     (Skills)       │ (skill-neovim-    │  Prepare delegation context
-                    │  research, etc.)│  Invoke agents via Task tool
+     (Skills)       │ (skill-researcher,│  Prepare delegation context
+                    │  etc.)          │  Invoke agents via Agent tool
                     └────────┬────────┘
                               │
                               ▼
                     ┌─────────────────┐
      Layer 3:       │     Agents      │  Full execution components
-     (Agents)       │ (neovim-research- │  Load context on-demand
+     (Agents)       │ (general-research-│  Load context on-demand
                     │  agent, etc.)   │  Create artifacts
                     └────────┬────────┘
                               │
@@ -48,7 +48,7 @@ The Neovim Configuration agent system implements a three-layer delegation patter
 |--------|---------|-------|-------|
 | **Location** | `.claude/commands/` | `.claude/skills/skill-*/SKILL.md` | `.claude/agents/*.md` |
 | **User-facing** | Yes | No | No |
-| **Invocation** | `/command` syntax | Via Command routing | Via Task tool from Skill |
+| **Invocation** | `/command` syntax | Via Command routing | Via Agent tool from Skill |
 | **Context loading** | None | Minimal | Full (lazy loading) |
 | **Input validation** | Basic parsing | Delegation validation | Execution validation |
 | **Execution** | Route only | Validate + delegate | Full workflow |
@@ -78,8 +78,8 @@ The Neovim Configuration agent system implements a three-layer delegation patter
 ```yaml
 ---
 routing:
-  neovim: skill-neovim-research
   general: skill-researcher
+  meta: skill-researcher
   default: skill-researcher
 ---
 ```
@@ -95,7 +95,7 @@ routing:
 **Key characteristics**:
 - Validate inputs before delegation
 - Prepare delegation context (session_id, depth, path)
-- Invoke agent via **Task tool** (not Skill tool)
+- Invoke agent via **Agent tool** (not Skill tool)
 - Handle preflight/postflight status updates internally
 - Perform git commit after agent completion
 - Return brief text summary (agent writes JSON to metadata file)
@@ -105,13 +105,18 @@ routing:
 ---
 name: skill-{name}
 description: {description}
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 ```
 
-**Note**: Skills do NOT use `context: fork` or `agent:` frontmatter fields. Delegation is explicit via Task tool invocation in the skill body. Context loading happens in the agent (not via skill frontmatter).
+**Note on delegation patterns**: Skills use one of two delegation approaches:
+- **Core skills** (skill-researcher, skill-planner, skill-implementer, etc.): Use Agent tool with explicit `subagent_type` for structured delegation. These do NOT use `context: fork` or `agent:` frontmatter because they inject structured context (session_id, delegation_depth, memory_context) directly.
+- **Extension skills** (skill-{ext}-research, skill-{ext}-implementation, etc.): May optionally use `context: fork` + `agent:` frontmatter for simpler delegation when structured context injection is not needed. This is the standard thin-wrapper pattern documented in the template.
+- **skill-meta**: Uses `agent:` frontmatter (but not `context: fork`) as a hybrid pattern.
 
-**Critical**: Skills delegate via Task tool, not Skill tool. Agents live in `.claude/agents/`, not `.claude/skills/`.
+In all cases, delegation happens via the **Agent tool** (not the Skill tool). See @.claude/context/patterns/fork-patterns.md for the full decision matrix.
+
+**Critical**: Skills delegate via Agent tool, not Skill tool. Agents live in `.claude/agents/`, not `.claude/skills/`.
 
 **Reference**: @.claude/context/patterns/thin-wrapper-skill.md
 
@@ -164,12 +169,12 @@ Skills implement three distinct architecture patterns based on their execution n
 
 ### Pattern A: Delegating Skills with Internal Postflight
 
-**Used by**: skill-researcher, skill-neovim-research, skill-planner, skill-implementer, skill-neovim-implementation, skill-meta (6 core skills; extensions add more)
+**Used by**: skill-researcher, skill-planner, skill-implementer, skill-meta (core skills; extensions add more)
 
 **Characteristics**:
-- Frontmatter: `allowed-tools: Task, Bash, Edit, Read, Write`
+- Frontmatter: `allowed-tools: Agent, Bash, Edit, Read, Write`
 - 11-stage execution flow with preflight/postflight inline
-- Invoke subagent via Task tool with explicit subagent_type
+- Invoke subagent via Agent tool with explicit subagent_type
 - Handle all lifecycle operations (status updates, git commit)
 - Create postflight marker file to prevent premature termination
 - Return brief text summary (agent writes JSON to metadata file)
@@ -180,7 +185,7 @@ Stage 1:  Input Validation
 Stage 2:  Preflight Status Update      [RESEARCHING]
 Stage 3:  Create Postflight Marker
 Stage 4:  Prepare Delegation Context
-Stage 5:  Invoke Subagent (Task tool)
+Stage 5:  Invoke Subagent (Agent tool)
 Stage 6:  Parse Subagent Return (read metadata file)
 Stage 7:  Update Task Status           [RESEARCHED]
 Stage 8:  Link Artifacts
@@ -198,7 +203,7 @@ Stage 11: Return Brief Summary
 **Used by**: skill-status-sync, skill-refresh, skill-git-workflow (3 skills)
 
 **Characteristics**:
-- Frontmatter: `allowed-tools: Bash, Edit, Read` (no Task tool)
+- Frontmatter: `allowed-tools: Bash, Edit, Read` (no Agent tool)
 - Execute work inline without spawning subagent
 - No postflight marker needed (work is atomic)
 - Return JSON or text directly
@@ -218,10 +223,10 @@ allowed-tools: Bash, Edit, Read
 
 ### Pattern C: Orchestrator/Routing Skills
 
-**Used by**: skill-orchestrator (1 skill)
+**Used by**: skill-orchestrate (1 skill)
 
 **Characteristics**:
-- Frontmatter: `allowed-tools: Read, Glob, Grep, Task`
+- Frontmatter: `allowed-tools: Read, Glob, Grep, Agent`
 - Central routing intelligence
 - Dispatches to other skills/agents based on task language
 - Provides context preparation and routing logic
@@ -261,13 +266,13 @@ User: "/research 259"
          ▼
 ┌───────────────────┐
 │ 1. Command parses │  Extract task_number=259
-│    $ARGUMENTS     │  Determine language=neovim
+│    $ARGUMENTS     │  Determine task_type=general
 └─────────┬─────────┘
           │
           ▼
 ┌───────────────────┐
-│ 2. Route to skill │  language=neovim → skill-neovim-research
-│    by language    │
+│ 2. Route to skill │  task_type=general → skill-researcher
+│    by task_type   │
 └─────────┬─────────┘
           │
           ▼
@@ -279,7 +284,7 @@ User: "/research 259"
           │
           ▼
 ┌───────────────────┐
-│ 4. Skill invokes  │  Task tool with subagent_type: neovim-research-agent
+│ 4. Skill invokes  │  Agent tool with subagent_type: general-research-agent
 │    agent via Task │  Pass: task_context, delegation_context
 └─────────┬─────────┘
           │
@@ -374,17 +379,17 @@ session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
 
 ---
 
-## Language-Based Routing
+## Task-Type-Based Routing
 
-Tasks route to specialized skills/agents based on their `language` field:
+Tasks route to specialized skills/agents based on their `task_type` field:
 
-| Language | Research | Planning | Implementation |
+| Task Type | Research | Planning | Implementation |
 |----------|----------|----------|----------------|
-| `neovim` | skill-neovim-research → neovim-research-agent | skill-planner → planner-agent | skill-neovim-implementation → neovim-implementation-agent |
 | `general` | skill-researcher → general-research-agent | skill-planner → planner-agent | skill-implementer → general-implementation-agent |
 | `meta` | skill-researcher → general-research-agent | skill-planner → planner-agent | skill-implementer → general-implementation-agent |
+| _{extension}_ | _Extension-provided skill → extension agent_ | skill-planner → planner-agent | _Extension-provided skill → extension agent_ |
 
-**Note**: Additional languages (latex, typst) available via extensions in `.claude/extensions/`.
+**Note**: Extensions (e.g., nix, lean4, latex, typst) add task type routing entries. See `.claude/extensions/*/manifest.json`.
 
 ---
 
@@ -394,15 +399,16 @@ Complete mapping of all commands to their skill and agent paths:
 
 | Command | Routing Type | Skill(s) | Agent(s) | Pattern |
 |---------|--------------|----------|----------|---------|
-| `/research` | Language-based | neovim: skill-neovim-research, other: skill-researcher | neovim-research-agent, general-research-agent | A |
+| `/research` | Task-type-based | Extension or skill-researcher | Extension or general-research-agent | A |
 | `/plan` | Single | skill-planner | planner-agent | A |
-| `/implement` | Language-based | neovim: skill-neovim-implementation, other: skill-implementer | neovim-implementation-agent, general-implementation-agent | A |
+| `/implement` | Task-type-based | Extension or skill-implementer | Extension or general-implementation-agent | A |
 | `/revise` | Single | skill-planner (new version) | planner-agent | A |
 | `/meta` | Single | skill-meta | meta-builder-agent | A |
-| `/review` | Direct | skill-orchestrator | (inline execution) | C |
-| `/errors` | Direct | skill-orchestrator | (inline execution) | C |
-| `/todo` | Direct | skill-orchestrator | (inline execution) | C |
-| `/task` | Direct | skill-orchestrator | (inline execution) | C |
+| `/review` | Direct | (direct execution) | (inline execution) | B |
+| `/errors` | Direct | (direct execution) | (inline execution) | B |
+| `/todo` | Direct | skill-todo | (no agent) | B |
+| `/task` | Direct | skill-meta | meta-builder-agent | A |
+| `/orchestrate` | Autonomous | skill-orchestrate | (dispatches multiple) | C |
 | `/refresh` | Direct | skill-refresh | (no agent) | B |
 
 **Note**: Additional commands (/convert) available via extensions in `.claude/extensions/`.
@@ -413,7 +419,7 @@ Complete mapping of all commands to their skill and agent paths:
 - **C**: Orchestrator/routing skill (central dispatch)
 
 **Routing Types**:
-- **Language-based**: Routes to different skills based on task language field
+- **Language-based**: Routes to different skills based on task task_type field
 - **Single**: Always routes to the same skill regardless of language
 - **Direct**: Executes inline without spawning a subagent
 

@@ -1,0 +1,54 @@
+{
+  "name": "python",
+  "version": "1.0.0",
+  "description": "Python development with pytest integration and type checking",
+  "task_type": "python",
+  "dependencies": [
+    "core"
+  ],
+  "provides": {
+    "agents": [
+      "python-research-agent.md",
+      "python-implementation-agent.md"
+    ],
+    "skills": [
+      "skill-python-research",
+      "skill-python-implementation"
+    ],
+    "commands": [],
+    "rules": [],
+    "context": [
+      "project/python"
+    ],
+    "scripts": [],
+    "hooks": []
+  },
+  "routing": {
+    "research": {
+      "python": "skill-python-research"
+    },
+    "plan": {
+      "python": "skill-planner"
+    },
+    "implement": {
+      "python": "skill-python-implementation"
+    }
+  },
+  "merge_targets": {
+    "claudemd": {
+      "source": "EXTENSION.md",
+      "target": ".claude/CLAUDE.md",
+      "section_id": "extension_python"
+    },
+    "index": {
+      "source": "index-entries.json",
+      "target": ".claude/context/index.json"
+    },
+    "opencode_json": {
+      "source": "opencode-agents.json",
+      "target": "opencode.json"
+    }
+  },
+  "mcp_servers": {},
+  "hooks": {}
+}

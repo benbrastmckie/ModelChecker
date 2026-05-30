@@ -1,12 +1,7 @@
 ---
 name: skill-implementer
 description: Execute general implementation tasks following a plan. Invoke for general implementation work.
-allowed-tools: Task, Bash, Edit, Read, Write
-# Original context (now loaded by subagent):
-#   - .claude/context/formats/summary-format.md
-#   - .claude/context/standards/code-patterns.md
-# Original tools (now used by subagent):
-#   - Read, Write, Edit, Glob, Grep, Bash
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Implementer Skill
@@ -22,6 +17,8 @@ This eliminates the "continue" prompt issue between skill return and orchestrato
 Reference (do not load eagerly):
 - Path: `.claude/context/formats/return-metadata-file.md` - Metadata file schema
 - Path: `.claude/context/patterns/postflight-control.md` - Marker file protocol
+- Path: `.claude/context/patterns/subagent-continuation-loop.md` - Continuation loop pattern
+- Path: `.claude/context/patterns/context-exhaustion-detection.md` - Context exhaustion heuristics
 - Path: `.claude/context/patterns/file-metadata-exchange.md` - File I/O helpers
 - Path: `.claude/context/patterns/jq-escaping-workarounds.md` - jq escaping patterns (Issue #1132)
 
@@ -30,7 +27,7 @@ Note: This skill is a thin wrapper with internal postflight. Context is loaded b
 ## Trigger Conditions
 
 This skill activates when:
-- Task language is "general", "meta", or "markdown"
+- Task type is "general", "meta", or "markdown"
 - /implement command is invoked
 - Plan exists and task is ready for implementation
 
@@ -56,14 +53,14 @@ if [ -z "$task_data" ]; then
 fi
 
 # Extract fields
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 project_name=$(echo "$task_data" | jq -r '.project_name')
 description=$(echo "$task_data" | jq -r '.description // ""')
 
-# Validate status
-if [ "$status" = "completed" ]; then
-  return error "Task already completed"
+# Validate status (only block terminal states)
+if [ "$status" = "completed" ] || [ "$status" = "abandoned" ] || [ "$status" = "expanded" ]; then
+  return error "Task is in terminal state [$status]"
 fi
 ```
 
@@ -73,25 +70,13 @@ fi
 
 Update task status to "implementing" BEFORE invoking subagent.
 
-**Update state.json**:
+Run the centralized status update script, which atomically updates state.json, TODO.md (task entry + Task Order), and the plan file:
+
 ```bash
-jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-   --arg status "implementing" \
-   --arg sid "$session_id" \
-  '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
-    status: $status,
-    last_updated: $ts,
-    session_id: $sid,
-    started: $ts
-  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+bash .claude/scripts/update-task-status.sh preflight "$task_number" implement "$session_id"
 ```
 
-**Update TODO.md**: Use Edit tool to change status marker from `[PLANNED]` to `[IMPLEMENTING]`.
-
-**Update plan file** (if exists): Update the Status field in plan metadata:
-```bash
-.claude/scripts/update-plan-status.sh "$task_number" "$project_name" "IMPLEMENTING"
-```
+**Note**: The script handles all three updates (state.json status/timestamps/session_id, TODO.md `[PLANNED]` -> `[IMPLEMENTING]` in both task entry and Task Order, and plan file status -> `[IMPLEMENTING]`) in a single call. No additional Edit or jq operations are needed.
 
 ---
 
@@ -151,6 +136,29 @@ artifact_padded=$(printf "%02d" "$artifact_number")
 
 ---
 
+### Stage 4a: Memory Retrieval (Auto)
+
+Retrieve relevant memories from the memory system to inject into the delegation context.
+
+**Skip if**: `clean_flag` is true in the delegation context (from `--clean` command flag).
+
+```bash
+# Check clean_flag
+if [ "$clean_flag" != "true" ]; then
+  memory_context=$(bash .claude/scripts/memory-retrieve.sh "$description" "$task_type" "" 2>/dev/null) || memory_context=""
+fi
+
+# memory_context will be empty string if:
+# - clean_flag is true (skipped)
+# - memory-index.json missing or empty
+# - no keywords matched any entries
+# - script exited with error
+```
+
+If `memory_context` is non-empty, it will be injected into the Stage 5 prompt alongside the format specification from Stage 4b. If empty, no memory block is injected.
+
+---
+
 ### Stage 4: Prepare Delegation Context
 
 Prepare delegation context for the subagent:
@@ -165,9 +173,11 @@ Prepare delegation context for the subagent:
     "task_number": N,
     "task_name": "{project_name}",
     "description": "{description}",
-    "language": "{language}"
+    "task_type": "{task_type}"
   },
   "artifact_number": "{artifact_number from Stage 3a}",
+  "effort_flag": "{effort_flag from command, null if not set}",
+  "model_flag": "{model_flag from command, null if not set}",
   "plan_path": "specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md",
   "metadata_file_path": "specs/{NNN}_{SLUG}/.return-meta.json"
 }
@@ -175,20 +185,60 @@ Prepare delegation context for the subagent:
 
 **Note**: The `artifact_number` field tells the agent which sequence number to use for artifact naming (e.g., `01`, `02`). Summary uses the same round number as the research and plan that preceded it.
 
+**Model/Effort Flags**: If `model_flag` is set (haiku, sonnet, opus), pass it as the `model` parameter on the Agent tool to override the agent's frontmatter default. If `effort_flag` is set (fast, hard), include it as prompt context for reasoning depth guidance.
+
+> **CRITICAL: No Source Reading Before Delegation** -- Between preparing the delegation context (Stage 4) and spawning the sub-agent (Stage 5), the lead skill MUST NOT read, grep, glob, or analyze source files. The plan file and state.json are the only files the lead reads. All codebase exploration (reading source files, grepping for patterns, using MCP tools) is the exclusive responsibility of the sub-agent after it is spawned.
+
+---
+
+### Stage 4b: Read and Inject Format Specification
+
+Read the summary format file and prepare it for injection into the subagent prompt. This ensures the subagent always has the full format specification in its context, regardless of whether it reads the file itself.
+
+```bash
+format_content=$(cat .claude/context/formats/summary-format.md)
+```
+
+The format content will be included as a delimited section in the Stage 5 prompt (see below).
+
 ---
 
 ### Stage 5: Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "general-implementation-agent"
-  - prompt: [Include task_context, delegation_context, plan_path, metadata_file_path]
+  - prompt: [Include task_context, delegation_context, plan_path, metadata_file_path,
+             AND the format specification from Stage 4b as shown below]
   - description: "Execute implementation for task {N}"
 ```
+
+**Format Injection**: Include the format specification from Stage 4b in the prompt as a clearly-delimited section:
+
+```
+<artifact-format-specification>
+## CRITICAL: Summary Format Requirements
+
+You MUST follow this format specification exactly when writing the implementation summary.
+Non-compliance will be caught by postflight validation.
+
+{format_content from Stage 4b}
+</artifact-format-specification>
+```
+
+Place this section AFTER the delegation context JSON and BEFORE any other instructions.
+
+**Memory Context Injection**: If `memory_context` from Stage 4a is non-empty, include it in the prompt as a separate block:
+
+```
+{memory_context from Stage 4a -- already wrapped in <memory-context> tags}
+```
+
+Place the memory context block AFTER the format specification and BEFORE the task-specific instructions. Do NOT inject an empty `<memory-context>` block when no memories were retrieved.
 
 **DO NOT** use `Skill(general-implementation-agent)` - this will FAIL.
 
@@ -205,31 +255,63 @@ The subagent will:
 
 ### Stage 5a: Validate Subagent Return Format
 
-**IMPORTANT**: Check if subagent accidentally returned JSON to console (v1 pattern) instead of writing to file (v2 pattern).
-
-If the subagent's text return parses as valid JSON, log a warning:
-
-```bash
-# Check if subagent return looks like JSON (starts with { and is valid JSON)
-subagent_return="$SUBAGENT_TEXT_RETURN"
-if echo "$subagent_return" | grep -q '^{' && echo "$subagent_return" | jq empty 2>/dev/null; then
-    echo "WARNING: Subagent returned JSON to console instead of writing metadata file."
-    echo "This indicates the agent may have outdated instructions (v1 pattern instead of v2)."
-    echo "The skill will continue by reading the metadata file, but this should be fixed."
-fi
-```
-
-This validation:
-- Does NOT fail the operation (continues to read metadata file)
-- Logs a warning for debugging
-- Indicates the subagent instructions need updating
-- Allows graceful handling of mixed v1/v2 agents
+If the subagent's text return parses as valid JSON, log a warning (v1 pattern instead of v2 file-based pattern). Non-blocking -- continue to read metadata file regardless.
 
 ---
 
-### Stage 6: Parse Subagent Return (Read Metadata File)
+### Stage 5b: Self-Execution Fallback
 
-After subagent returns, read the metadata file:
+**CRITICAL**: If you performed the work above WITHOUT using the Agent tool (i.e., you read files,
+wrote artifacts, or updated metadata directly instead of spawning a subagent), you MUST write a
+`.return-meta.json` file now before proceeding to postflight. Use the schema from
+`return-metadata-file.md` with status value `"implemented"` and the appropriate artifact information.
+
+If you DID use the Agent tool (Stage 5), skip this stage -- the subagent already wrote the metadata.
+
+---
+
+### Stage 5c: Continuation Loop Init
+
+Initialize continuation tracking before entering the postflight loop:
+
+```bash
+continuation_count=0
+max_continuations=3
+
+# Create loop-guard file to track count across potential interruptions
+task_dir="specs/${padded_num}_${project_name}"
+cat > "${task_dir}/.continuation-loop-guard" << EOF
+{
+  "session_id": "${session_id}",
+  "continuation_count": 0,
+  "max_continuations": 3,
+  "created": "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+}
+EOF
+```
+
+**Note**: The loop guard ensures that even if the skill is interrupted between iterations, the next invocation can read the count and enforce the limit.
+
+---
+
+## Postflight (ALWAYS EXECUTE)
+
+The following stages MUST execute after work is complete, whether the work was done by a
+subagent (Stage 5) or inline (Stage 5b). Do NOT skip these stages for any reason.
+
+### Continuation Loop
+
+The postflight stages below run inside a loop. Each iteration processes the return from one
+subagent execution. If the subagent returns `partial` with a `handoff_path`, a successor
+subagent is spawned and the loop continues (up to `max_continuations`).
+
+```
+while true; do
+```
+
+#### Stage 6: Parse Subagent Return (Read Metadata File)
+
+Read the metadata file:
 
 ```bash
 metadata_file="specs/${padded_num}_${project_name}/.return-meta.json"
@@ -244,8 +326,11 @@ if [ -f "$metadata_file" ] && jq empty "$metadata_file" 2>/dev/null; then
 
     # Extract completion_data fields (if present)
     completion_summary=$(jq -r '.completion_data.completion_summary // ""' "$metadata_file")
-    claudemd_suggestions=$(jq -r '.completion_data.claudemd_suggestions // ""' "$metadata_file")
     roadmap_items=$(jq -c '.completion_data.roadmap_items // []' "$metadata_file")
+    memory_candidates=$(jq -c '.memory_candidates // []' "$metadata_file")
+
+    # Extract handoff_path for continuation loop (if present)
+    handoff_path=$(jq -r '.partial_progress.handoff_path // ""' "$metadata_file")
 else
     echo "Error: Invalid or missing metadata file"
     status="failed"
@@ -254,62 +339,90 @@ fi
 
 ---
 
-### Stage 7: Update Task Status (Postflight)
+### Stage 6a: Validate Artifact Content
+
+If subagent status indicates success ("implemented" or "partial") and `artifact_path` is non-empty, validate the summary artifact against format requirements. This is **non-blocking** -- warnings are logged but do not prevent postflight from completing.
+
+```bash
+if [ "$status" = "implemented" ] || [ "$status" = "partial" ]; then
+    if [ -n "$artifact_path" ] && [ -f "$artifact_path" ]; then
+        echo "Validating summary artifact..."
+        if ! bash .claude/scripts/validate-artifact.sh "$artifact_path" summary --fix; then
+            echo "WARNING: Summary artifact has format issues (non-blocking). Review output above."
+        fi
+    fi
+fi
+```
+
+**Note**: The `--fix` flag attempts auto-repair of missing metadata fields. Validation failures are logged but do not block status update or git commit.
+
+---
+
+#### Stage 6b: Commit Phase Progress (Inside Loop)
+
+After each subagent completes (whether implemented, partial, or failed), commit the work:
+
+```bash
+git add -A
+git commit -m "task ${task_number} phase ${phases_completed}: implementation progress
+
+Session: ${session_id}
+" || echo "Note: Nothing to commit or commit failed (non-blocking)"
+```
+
+This ensures each subagent's progress is checkpointed in git before proceeding.
+
+---
+
+#### Stage 7: Update Task Status (Postflight)
 
 **If status is "implemented"**:
 
-Update state.json to "completed" and add completion_data fields:
+**Step 1**: Run the centralized status update script to update state.json (status -> "completed", timestamps), TODO.md (`[IMPLEMENTING]` -> `[COMPLETED]` in task entry + Task Order), and plan file (status -> `[COMPLETED]`):
 ```bash
-# Step 1: Update status and timestamps
-jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-   --arg status "completed" \
-  '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
-    status: $status,
-    last_updated: $ts,
-    completed: $ts
-  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+bash .claude/scripts/update-task-status.sh postflight "$task_number" implement "$session_id"
+```
 
-# Step 2: Add completion_summary (always required for completed tasks)
+**Step 2**: Add completion_summary to state.json (implementer-specific, not covered by centralized script):
+```bash
 if [ -n "$completion_summary" ]; then
     jq --arg summary "$completion_summary" \
       '(.active_projects[] | select(.project_number == '$task_number')).completion_summary = $summary' \
       specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
+```
 
-# Step 3: Add language-specific completion fields
-# For meta tasks: add claudemd_suggestions
-if [ "$language" = "meta" ] && [ -n "$claudemd_suggestions" ]; then
-    jq --arg suggestions "$claudemd_suggestions" \
-      '(.active_projects[] | select(.project_number == '$task_number')).claudemd_suggestions = $suggestions' \
-      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
-fi
-
+**Step 3**: Add roadmap_items for non-meta tasks (implementer-specific):
+```bash
 # For non-meta tasks: add roadmap_items (if present and non-empty)
-if [ "$language" != "meta" ] && [ "$roadmap_items" != "[]" ] && [ -n "$roadmap_items" ]; then
+if [ "$task_type" != "meta" ] && [ "$roadmap_items" != "[]" ] && [ -n "$roadmap_items" ]; then
     jq --argjson items "$roadmap_items" \
       '(.active_projects[] | select(.project_number == '$task_number')).roadmap_items = $items' \
       specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
 ```
 
-Update TODO.md: Change status marker from `[IMPLEMENTING]` to `[COMPLETED]`.
-
-**Update plan file** (if exists): Update the Status field to `[COMPLETED]`:
+**Step 4**: Propagate memory candidates (if any) with append semantics:
 ```bash
-.claude/scripts/update-plan-status.sh "$task_number" "$project_name" "COMPLETED"
-```
-
-**Remove from Recommended Order section** (non-blocking):
-```bash
-# Remove completed task from Recommended Order section (non-blocking)
-if source "$PROJECT_ROOT/.claude/scripts/update-recommended-order.sh" 2>/dev/null; then
-    remove_from_recommended_order "$task_number" || echo "Note: Failed to update Recommended Order"
+if [ "$memory_candidates" != "[]" ] && [ -n "$memory_candidates" ]; then
+    # Append new candidates to existing array (append semantics, not overwrite)
+    jq --argjson new_candidates "$memory_candidates" \
+      '(.active_projects[] | select(.project_number == '$task_number')).memory_candidates =
+        ((.active_projects[] | select(.project_number == '$task_number')).memory_candidates // []) + $new_candidates' \
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 fi
 ```
 
+**Note**: Uses `// []` fallback and `+` append so research candidates (from skill-researcher) and implementation candidates coexist on the same task entry.
+
+**Break loop** — proceed to Stage 8 (Link Artifacts).
+
+---
+
 **If status is "partial"**:
 
-Keep status as "implementing" but update resume point:
+Keep status as "implementing" but update resume point. This path remains inline because the centralized `update-task-status.sh` maps `postflight:implement` to "completed" only -- it has no "partial" mapping.
+
 ```bash
 jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
    --argjson phase "$phases_completed" \
@@ -326,7 +439,57 @@ TODO.md stays as `[IMPLEMENTING]`.
 .claude/scripts/update-plan-status.sh "$task_number" "$project_name" "PARTIAL"
 ```
 
-**On failed**: Keep status as "implementing" for retry. Do not update plan file (leave as `[IMPLEMENTING]` for retry).
+**Continuation decision**:
+
+```bash
+if [ -n "$handoff_path" ] && [ -f "$handoff_path" ] && [ "$continuation_count" -lt "$max_continuations" ]; then
+    # Increment counter and update loop guard
+    continuation_count=$((continuation_count + 1))
+    jq --argjson count "$continuation_count" \
+       --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+      '.continuation_count = $count | .last_updated = $ts' \
+      "${task_dir}/.continuation-loop-guard" > "${task_dir}/.continuation-loop-guard.tmp" \
+      && mv "${task_dir}/.continuation-loop-guard.tmp" "${task_dir}/.continuation-loop-guard"
+
+    # Log handoff for visibility
+    echo "Spawning successor subagent (continuation $continuation_count/$max_continuations)"
+    echo "Handoff: $handoff_path"
+
+    # Prepare successor delegation context (see Stage 5 for base context)
+    # Injected fields:
+    # - delegation_depth: incremented by 1
+    # - continuation_context: { is_successor: true, continuation_number: N, handoff_path: ..., progress_path: ..., previous_phases_completed: N }
+
+    # Spawn successor subagent via Agent tool with updated context
+    # (Same as Stage 5, but with continuation_context injected into delegation context JSON)
+
+    # Continue loop — next iteration reads successor's metadata
+    continue
+else
+    if [ -z "$handoff_path" ]; then
+        echo "Partial return with no handoff_path. User must re-run /implement to resume."
+    else
+        echo "Max continuations ($max_continuations) reached. Returning partial."
+    fi
+    # Break loop — proceed to Stage 8
+    break
+fi
+```
+
+**If no handoff_path**: Break loop, report partial (user must resume).
+**If continuation_count >= max_continuations**: Break loop, report partial (max reached).
+
+---
+
+**If status is "failed"**:
+
+Keep status as "implementing" for retry. Do not update plan file (leave as `[IMPLEMENTING]` for retry).
+
+**Break loop** — proceed to Stage 8.
+
+```
+done  # End Continuation Loop
+```
 
 ---
 
@@ -352,30 +515,29 @@ if [ -n "$artifact_path" ]; then
 fi
 ```
 
-**Update TODO.md** (if implemented): Add summary artifact link using count-aware format.
+**Update TODO.md** (if implemented): Link artifact using the automated script:
 
-See `.claude/rules/state-management.md` "Artifact Linking Format" for canonical rules. Use Edit tool:
+```bash
+bash .claude/scripts/link-artifact-todo.sh $task_number '**Summary**' '**Description**' "$artifact_path"
+```
 
-1. **Read existing task entry** to detect current summary links
-2. **If no `- **Summary**:` line exists**: Insert inline format:
-   ```markdown
-   - **Summary**: [MM_{short-slug}-summary.md]({artifact_path})
-   ```
-3. **If existing inline (single link)**: Convert to multi-line:
-   ```markdown
-   old_string: - **Summary**: [existing.md](existing/path)
-   new_string: - **Summary**:
-     - [existing.md](existing/path)
-     - [MM_{short-slug}-summary.md]({artifact_path})
-   ```
-4. **If existing multi-line**: Append new item before next field:
-   ```markdown
-   old_string:   - [last-item.md](last/path)
-   **Description**:
-   new_string:   - [last-item.md](last/path)
-     - [MM_{short-slug}-summary.md]({artifact_path})
-   **Description**:
-   ```
+If the script exits non-zero, log a warning but continue (linking errors are non-blocking).
+
+---
+
+### Stage 8a: Lifecycle TTS Notification
+
+Fire TTS and WezTerm tab coloring after artifact linking is complete:
+
+```bash
+lifecycle_script=".claude/scripts/lifecycle-notify.sh"
+if [ -f "$lifecycle_script" ]; then
+    bash "$lifecycle_script" "$STATE_STATUS" &
+fi
+```
+
+Non-blocking: called in background after artifacts are linked. Speaks "Tab N STATUS"
+(e.g., "Tab 3 completed") to announce the lifecycle transition.
 
 ---
 
@@ -388,19 +550,20 @@ git add -A
 git commit -m "task ${task_number}: complete implementation
 
 Session: ${session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---
 
 ### Stage 10: Cleanup
 
-Remove marker and metadata files:
+Cleanup runs **after** the continuation loop exits. The `.postflight-pending` marker persists across loop iterations to ensure the SubagentStop hook fires correctly.
+
+Remove marker, metadata, and loop-guard files:
 
 ```bash
 rm -f "specs/${padded_num}_${project_name}/.postflight-pending"
 rm -f "specs/${padded_num}_${project_name}/.postflight-loop-guard"
+rm -f "specs/${padded_num}_${project_name}/.continuation-loop-guard"
 rm -f "specs/${padded_num}_${project_name}/.return-meta.json"
 ```
 
@@ -423,65 +586,53 @@ Implementation completed for task {N}:
 
 ## Error Handling
 
-### Input Validation Errors
-Return immediately with error message if task not found or status invalid.
+See `rules/error-handling.md` for general patterns. Skill-specific behaviors:
 
-### Metadata File Missing
-If subagent didn't write metadata file:
-1. Keep status as "implementing"
-2. Do not cleanup postflight marker
-3. Report error to user
+- **Input validation errors**: Return immediately with error message
+- **Metadata file missing**: Keep status as "implementing", do not cleanup marker, report to user
+- **Git commit failure**: Non-blocking (log and continue)
+- **Subagent timeout**: Return partial status, keep "implementing" for resume
 
-### Git Commit Failure
-Non-blocking: Log failure but continue with success response.
+## Pre-Delegation Boundary
 
-### Subagent Timeout
-Return partial status if subagent times out (default 7200s).
-Keep status as "implementing" for resume.
+Before spawning the implementation sub-agent, this skill MUST NOT:
 
----
+1. **Read source files** - Source files are read by the sub-agent, not the lead
+2. **Grep or glob the codebase** - Codebase exploration is sub-agent work
+3. **Use MCP tools** - Domain tools (LSP, build, etc.) are for sub-agent use only
+4. **Analyze source code** - Code analysis belongs to the implementation agent
+5. **Run build or test commands** - Verification is done by the sub-agent
+
+The pre-delegation phase is LIMITED TO:
+- Reading the plan file to locate phases and extract the plan path
+- Reading state.json and TODO.md for status updates
+- Preparing the delegation context JSON
+- Reading the summary format file for injection (Stage 4b)
+- Spawning the sub-agent with the Agent tool
 
 ## MUST NOT (Postflight Boundary)
 
-After the agent returns, this skill MUST NOT:
+After the agent returns -- whether with status implemented, partial, or failed -- this skill MUST proceed immediately to Stage 6 (read metadata file). The skill MUST NOT:
 
-1. **Edit source files** - All implementation work is done by agent
-2. **Run build/test commands** - Verification is done by agent
-3. **Use MCP tools** - Domain tools are for agent use only
-4. **Analyze or grep source** - Analysis is agent work
-5. **Write summary/reports** - Artifact creation is agent work
+1. **Read source files** - Source files were the subagent's responsibility
+2. **Edit source files** - All implementation work is done by the subagent
+3. **Run build/test commands** - Verification is done by the subagent
+4. **Use MCP tools** - Domain tools are for subagent use only
+5. **Grep or glob the codebase** - Analysis is subagent work
+6. **Write summary/reports** - Artifact creation is done by the subagent
+
+> **Continuation Policy**: If the subagent returned `partial` status **WITH** a `handoff_path` in its metadata, the lead skill **MAY** spawn a successor subagent to continue the work automatically (see Continuation Loop in Postflight). This is the preferred path for context exhaustion recovery.
+>
+> If the subagent returned `partial` status **WITHOUT** a `handoff_path`, the lead skill MUST report partial and let the user re-run `/implement` to resume.
+>
+> If the subagent returned `failed` status, the lead skill MUST NOT attempt to continue or "fill in" the subagent's work. Report the failure and let the user investigate.
 
 The postflight phase is LIMITED TO:
-- Reading agent metadata file
+- Reading agent metadata file (.return-meta.json)
 - Updating state.json via jq
-- Updating TODO.md status marker via Edit
+- Updating TODO.md status marker via Edit or script
 - Linking artifacts in state.json
 - Git commit
 - Cleanup of temp/marker files
 
 Reference: @.claude/context/standards/postflight-tool-restrictions.md
-
----
-
-## Return Format
-
-This skill returns a **brief text summary** (NOT JSON). The JSON metadata is written to the file and processed internally.
-
-Example successful return:
-```
-Implementation completed for task 350:
-- All 5 phases executed successfully
-- Created new feature component with tests
-- Created summary at specs/350_feature/summaries/MM_{short-slug}-summary.md
-- Status updated to [COMPLETED]
-- Changes committed with session sess_1736700000_abc123
-```
-
-Example partial return:
-```
-Implementation partially completed for task 350:
-- Phases 1-3 of 5 executed
-- Phase 4 failed: TypeScript compilation error
-- Partial summary at specs/350_feature/summaries/MM_{short-slug}-summary.md
-- Status remains [IMPLEMENTING] - run /implement 350 to resume
-```

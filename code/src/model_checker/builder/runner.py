@@ -5,7 +5,6 @@ running individual examples, handling iterations, and managing Z3 contexts.
 """
 
 # Standard library imports
-import gc
 import importlib
 import os
 import sys
@@ -15,6 +14,7 @@ from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 from model_checker import z3_shim as z3
 from model_checker.solver.registry import clear_cli_backend
 from model_checker.solver.lifecycle import invalidate_all_caches
+from model_checker.utils.context import isolated_z3_context
 
 # Package imports
 from ..output.progress import Spinner, UnifiedProgress
@@ -308,22 +308,22 @@ class ModelRunner:
                                             semantic_theory, iterate_count)
     
     def _initialize_z3_context(self) -> None:
-        """Initialize Z3 context and configure logging for clean output."""
-        from model_checker.utils import Z3ContextManager
+        """Configure logging and Z3 params for clean output.
+
+        Context isolation is now handled at the run_examples() level via
+        ``isolated_z3_context()``. This method only handles logging suppression
+        and Z3 param reset, which are still needed per-example.
+        """
         import logging
         from model_checker import z3_shim as z3
 
-        # Always reset Z3 context at the start of processing a new example
-        from ..utils.context import reset_z3_context
-        reset_z3_context()
-        
         # Disable all debug logs for cleaner output
         logging.getLogger().setLevel(logging.ERROR)
         # Specifically disable iteration logs
         for logger_name in ["model_checker", "model_checker.builder", "model_checker.iterate"]:
             logging.getLogger(logger_name).setLevel(logging.ERROR)
-        
-        # Reset Z3 solver to ensure clean state for each example
+
+        # Reset Z3 solver params to ensure clean state for each example
         z3.reset_params()
         z3.set_param(verbose=0)
     
@@ -742,28 +742,18 @@ class ModelRunner:
         
         try:
             for example_name, example_case in self.build_module.example_range.items():
-                # Force garbage collection to clean up any lingering Z3 objects
-                gc.collect()
-                
-                # Reset Z3 context to create a fresh environment for this example
-                # This is the critical fix for ensuring proper Z3 state isolation
-                # Each example gets its own fresh Z3 context, preventing any state leakage
-                if hasattr(z3, '_main_ctx'):
-                    z3._main_ctx = None
-                
-                # Force another garbage collection to ensure clean state
-                gc.collect()
-                
-                # Run the system in a clean state
                 for theory_name, semantic_theory in self.build_module.semantic_theories.items():
                     # Make setting reset for each semantic_theory
                     example_copy = list(example_case)
                     example_copy[2] = example_case[2].copy()
-                    
-                    # Process the example with our new unified approach
-                    # This handles both single models and iterations consistently
+
+                    # Process the example with true C-level Z3 context isolation.
+                    # isolated_z3_context() swaps z3.z3._main_ctx to a fresh Context
+                    # on entry and restores the original on exit, ensuring learned
+                    # lemmas, caches, and heuristic seeds do not leak between examples.
                     try:
-                        self.process_example(example_name, example_copy, theory_name, semantic_theory)
+                        with isolated_z3_context():
+                            self.process_example(example_name, example_copy, theory_name, semantic_theory)
                     finally:
                         # Clear per-example solver override and invalidate caches.
                         # Examples may set solver via settings['solver'], which calls set_backend_with_invalidation().
@@ -771,8 +761,6 @@ class ModelRunner:
                         # We must also invalidate caches so z3_shim reloads the correct backend module.
                         clear_cli_backend()
                         invalidate_all_caches()
-                        # Force cleanup after each example to prevent state leaks
-                        gc.collect()
                         
         except KeyboardInterrupt:
             print("\n\nExecution interrupted by user.")

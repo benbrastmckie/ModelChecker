@@ -4,8 +4,8 @@ Utils subpackage for the ModelChecker framework.
 This package will replace the original utils.py module.
 """
 
-# Phase 2.2 - Z3 Context Management
-from .context import Z3ContextManager
+# Z3 Context Management
+from .context import isolated_z3_context
 
 # Phase 2.3 - Expression Parsing
 from .parsing import (
@@ -35,7 +35,7 @@ from .testing import (
 
 __all__ = [
     # Z3 Context Management
-    'Z3ContextManager',
+    'isolated_z3_context',
     # Expression Parsing
     'parse_expression',
     'op_left_right',

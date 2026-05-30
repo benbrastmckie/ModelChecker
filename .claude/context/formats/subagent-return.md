@@ -188,9 +188,9 @@ If validation fails:
   "metadata": {
     "session_id": "sess_1735460684_xyz789",
     "duration_seconds": 30,
-    "agent_type": "neovim-research-agent",
+    "agent_type": "general-research-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "neovim-research-agent"]
+    "delegation_path": ["orchestrator", "research", "general-research-agent"]
   },
   "errors": [
     {
@@ -212,12 +212,12 @@ If validation fails:
   "artifacts": [
     {
       "type": "implementation",
-      "path": "nvim/lua/plugins/lsp.lua",
+      "path": "src/config/module-a.ext",
       "summary": "Phase 1 implementation"
     },
     {
       "type": "implementation",
-      "path": "nvim/lua/plugins/treesitter.lua",
+      "path": "src/config/module-b.ext",
       "summary": "Phase 2 implementation"
     },
     {
@@ -229,9 +229,9 @@ If validation fails:
   "metadata": {
     "session_id": "sess_1735460684_abc123",
     "duration_seconds": 7200,
-    "agent_type": "neovim-implementation-agent",
+    "agent_type": "general-implementation-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "implement", "neovim-implementation-agent"]
+    "delegation_path": ["orchestrator", "implement", "general-implementation-agent"]
   },
   "errors": [
     {
@@ -257,7 +257,7 @@ Orchestrator Stage 3 (RegisterAndDelegate) appends the following instruction to 
 
 ```
 CRITICAL RETURN FORMAT REQUIREMENT:
-You MUST return ONLY valid JSON matching the schema in subagent-return-format.md.
+You MUST return ONLY valid JSON matching the schema in subagent-return.md.
 Do NOT return plain text, markdown narrative, or any other format.
 
 Required JSON structure:

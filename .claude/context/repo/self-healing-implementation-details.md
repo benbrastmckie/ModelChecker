@@ -437,9 +437,8 @@ cat specs/state.json | jq '.recent_activities[0].activity'
 ### Test Case 2: Missing Template (Degraded Mode)
 
 ```bash
-# Setup: Remove template file
-mv .claude/context/templates/state-template.json \
-   .claude/context/templates/state-template.json.backup
+# Setup: Remove template file (use git to recover later)
+rm .claude/context/templates/state-template.json
 
 # Execute: Run command
 /research 197
@@ -460,9 +459,8 @@ cat specs/state.json | jq '.schema_info.degraded_mode'
 cat specs/state.json | jq '.active_projects | length'
 # Should show: 0 (minimal state has empty arrays)
 
-# Cleanup: Restore template
-mv .claude/context/templates/state-template.json.backup \
-   .claude/context/templates/state-template.json
+# Cleanup: Restore template from git
+git checkout HEAD -- .claude/context/templates/state-template.json
 ```
 
 ### Test Case 3: Missing specs/TODO.md (Failure)

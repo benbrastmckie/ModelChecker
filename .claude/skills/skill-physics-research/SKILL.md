@@ -1,7 +1,7 @@
 ---
 name: skill-physics-research
 description: Research physics formalization tasks using domain context and codebase exploration. Invoke for physics-language research involving dynamical systems, chaos theory, and related formalization.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Physics Research Skill
@@ -20,7 +20,7 @@ Note: This skill is a thin wrapper with internal postflight. Context is loaded b
 ## Trigger Conditions
 
 This skill activates when:
-- Task language is "physics"
+- Task type is "physics"
 - Research involves dynamical systems, chaos theory, or physics formalization
 - Domain context files are needed for physics foundations
 
@@ -62,7 +62,7 @@ Prepare delegation context for the subagent:
     "task_number": N,
     "task_name": "{project_name}",
     "description": "{description}",
-    "language": "physics"
+    "task_type": "physics"
   },
   "focus_prompt": "{optional focus}",
   "metadata_file_path": "specs/{NNN}_{SLUG}/.return-meta.json"
@@ -73,11 +73,11 @@ Prepare delegation context for the subagent:
 
 ### Stage 5: Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "physics-research-agent"
   - prompt: [Include task_context, delegation_context, focus_prompt, metadata_file_path]
@@ -97,9 +97,25 @@ The subagent will:
 
 ---
 
+### Stage 5b: Self-Execution Fallback
+
+**CRITICAL**: If you performed the work above WITHOUT using the Agent tool (i.e., you read files,
+wrote artifacts, or updated metadata directly instead of spawning a subagent), you MUST write a
+`.return-meta.json` file now before proceeding to postflight. Use the schema from
+`return-metadata-file.md` with status value "researched".
+
+If you DID use the Agent tool, skip this stage -- the subagent already wrote the metadata.
+
+---
+
+## Postflight (ALWAYS EXECUTE)
+
+The following stages MUST execute after work is complete, whether the work was done by a
+subagent or inline (Stage 5b). Do NOT skip these stages for any reason.
+
 ### Stage 6-11: Standard Postflight
 
-Parse metadata file, update task status, link artifacts, git commit, cleanup, return brief summary.
+Parse metadata file, update task status, link artifacts (update TODO.md per `@.claude/context/patterns/artifact-linking-todo.md` with `field_name=**Research**`, `next_field=**Plan**`), git commit, cleanup, return brief summary.
 
 ---
 

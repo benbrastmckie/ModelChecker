@@ -13,6 +13,28 @@ import glob
 from pathlib import Path
 from unittest.mock import Mock
 
+
+@pytest.fixture
+def z3_context_isolation():
+    """Provide a fresh Z3 C-level context for a single test.
+
+    Use this fixture explicitly in tests that need Z3 context isolation.
+    Do not use it as autouse in tests that create Z3 variables in setUp()
+    because Z3 expressions are context-bound and cannot cross context
+    boundaries.
+
+    Usage::
+
+        def test_something(z3_context_isolation):
+            with z3_context_isolation:
+                x = z3.Int('x')
+                solver = z3.Solver()
+                solver.add(x > 0)
+                assert solver.check() == z3.sat
+    """
+    from model_checker.utils.context import isolated_z3_context
+    return isolated_z3_context()
+
 # Add src to path for testing
 sys.path.insert(0, str(Path(__file__).parent.parent / 'src'))
 

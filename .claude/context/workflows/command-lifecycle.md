@@ -28,7 +28,7 @@ All workflow commands follow a standardized 8-stage lifecycle:
 - Invoke target subagent
 
 **Stage 4 (ValidateReturn):**
-- Validate return format per subagent-return-format.md
+- Validate return format per subagent-return.md
 - Verify artifacts exist and are non-empty
 - Extract metadata from return
 
@@ -283,7 +283,7 @@ entry="### ${next_number}. ${description}
 - **Effort**: ${effort}
 - **Status**: [NOT STARTED]
 - **Priority**: ${priority}
-- **Language**: ${language}
+- **Task Type**: ${language}
 - **Blocking**: None
 - **Dependencies**: None
 
@@ -318,7 +318,7 @@ jq '.next_project_number = (.next_project_number + 1) |
 - Description is non-empty
 - Priority is Low|Medium|High
 - Effort is TBD or time estimate
-- Language is valid (neovim|markdown|general|meta|latex|typst)
+- Language is valid (general|meta|markdown, or extension-provided type)
 - Language field MANDATORY per tasks.md line 110
 
 **Post-execution:**

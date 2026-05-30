@@ -1,9 +1,7 @@
 ---
 name: skill-spawn
 description: Research blockers and spawn new tasks to overcome them, updating parent task dependencies
-version: "1.0"
-author: meta-builder-agent
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Spawn Skill
@@ -24,8 +22,7 @@ Note: This skill is a thin wrapper with internal postflight. Context is loaded b
 ## Trigger Conditions
 
 This skill activates when:
-- Task status allows spawn (implementing, partial, blocked, planned, researched)
-- Task is NOT completed or abandoned
+- Task status is not terminal (completed, abandoned, expanded)
 - /spawn command is invoked with a valid task number
 
 ---
@@ -55,7 +52,7 @@ fi
 
 # Extract fields
 project_name=$(echo "$task_data" | jq -r '.project_name')
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 description=$(echo "$task_data" | jq -r '.description // ""')
 ```
@@ -139,7 +136,7 @@ Prepare delegation context for the subagent:
     "project_number": N,
     "project_name": "{slug}",
     "status": "blocked",
-    "language": "{language}",
+    "task_type": "{task_type}",
     "description": "{description}",
     "effort": "{effort}"
   },
@@ -153,11 +150,11 @@ Prepare delegation context for the subagent:
 
 ### Stage 6: Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "spawn-agent"
   - prompt: [Include task_number, task_data, blocker_prompt, plan_path, metadata_file_path, session_id]
@@ -176,9 +173,25 @@ The subagent will:
 
 ---
 
+### Stage 6b: Self-Execution Fallback
+
+**CRITICAL**: If you performed the work above WITHOUT using the Agent tool (i.e., you read files,
+wrote artifacts, or updated metadata directly instead of spawning a subagent), you MUST write a
+`.return-meta.json` file now before proceeding to postflight. Use the schema from
+`return-metadata-file.md` with the appropriate status value for this operation.
+
+If you DID use the Agent tool, skip this stage -- the subagent already wrote the metadata.
+
+---
+
+## Postflight (ALWAYS EXECUTE)
+
+The following stages MUST execute after work is complete, whether the work was done by a
+subagent or inline (Stage 6b). Do NOT skip these stages for any reason.
+
 ### Stage 7: Read Return Metadata
 
-After subagent returns, read the spawn return file:
+Read the spawn return file:
 
 ```bash
 spawn_file="specs/${padded_num}_${project_name}/.spawn-return.json"
@@ -266,7 +279,7 @@ for idx in $(echo "$dependency_order" | jq -r '.[]'); do
     task_title=$(jq -r --argjson i "$idx" '.new_tasks[$i].title' "$spawn_file")
     task_desc=$(jq -r --argjson i "$idx" '.new_tasks[$i].description' "$spawn_file")
     task_effort=$(jq -r --argjson i "$idx" '.new_tasks[$i].effort' "$spawn_file")
-    task_lang=$(jq -r --argjson i "$idx" '.new_tasks[$i].language' "$spawn_file")
+    task_lang=$(jq -r --argjson i "$idx" '.new_tasks[$i].task_type' "$spawn_file")
     internal_deps=$(jq -r --argjson i "$idx" '.new_tasks[$i].dependencies' "$spawn_file")
 
     # Convert internal deps to task numbers
@@ -293,7 +306,7 @@ for idx in $(echo "$dependency_order" | jq -r '.[]'); do
         "project_number": $num,
         "project_name": $name,
         "status": "researched",
-        "language": $lang,
+        "task_type": $lang,
         "description": $desc,
         "effort": $effort,
         "parent_task": $parent,
@@ -320,7 +333,7 @@ Insert new task entries after the Tasks header, in topological order:
 ### {NEW_TASK_NUM}. {Title}
 - **Effort**: {estimate}
 - **Status**: [RESEARCHED]
-- **Language**: {language}
+- **Task Type**: {task_type}
 - **Dependencies**: Task #{dep1}, Task #{dep2}  OR  None
 - **Parent Task**: #{parent_task_number}
 - **Started**: {timestamp}
@@ -330,14 +343,6 @@ Insert new task entries after the Tasks header, in topological order:
 ```
 
 Use Edit tool to insert each task entry at the top of the Tasks section (after `## Tasks` header).
-
-**Refresh Recommended Order section** (non-blocking):
-```bash
-# Refresh Recommended Order section to include spawned tasks (non-blocking)
-if source "$PROJECT_ROOT/.claude/scripts/update-recommended-order.sh" 2>/dev/null; then
-    refresh_recommended_order || echo "Note: Failed to refresh Recommended Order"
-fi
-```
 
 ---
 
@@ -392,7 +397,6 @@ task {N}: spawn {M} tasks to resolve blocker
 
 Session: {session_id}
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```

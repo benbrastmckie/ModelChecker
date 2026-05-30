@@ -1,8 +1,8 @@
 ---
 description: Review code and create analysis reports
-allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), TodoWrite, AskUserQuestion
+allowed-tools: Read, Write, Edit, Glob, Grep, Bash(git:*), TaskCreate, TaskUpdate, AskUserQuestion
 argument-hint: [SCOPE] [--create-tasks]
-model: claude-opus-4-5-20251101
+model: opus
 ---
 
 # /review Command
@@ -46,7 +46,7 @@ fi
 ### 2. Gather Context
 
 **For Lua files (.lua):**
-- Run `nvim --headless` to check for errors
+- Run project-specific lint/check commands to verify correctness
 - Check for TODO/FIXME comments
 - Identify incomplete configurations
 - Check module organization
@@ -66,7 +66,20 @@ fi
 
 **Context**: Load @.claude/context/formats/roadmap-format.md for parsing patterns.
 
-Parse `specs/ROAD_MAP.md` to extract:
+**Ensure specs/ROADMAP.md exists** before parsing. If the file does not exist, create it with the default template:
+```markdown
+# Project Roadmap
+
+## Phase 1: Current Priorities (High Priority)
+
+- [ ] (No items yet -- add roadmap items here)
+
+## Success Metrics
+
+- (Define success metrics here)
+```
+
+Parse `specs/ROADMAP.md` to extract:
 1. **Phase headers**: `## Phase {N}: {Title} ({Priority})`
 2. **Checkboxes**: `- [ ]` (incomplete) and `- [x]` (complete)
 3. **Status tables**: Pipe-delimited rows with Component/Status/Location
@@ -94,13 +107,13 @@ Build `roadmap_state` structure:
     {
       "component": "Soundness",
       "status": "PROVEN",
-      "location": "nvim/lua/plugins/lsp.lua"
+      "location": "src/plugins/lsp.lua"
     }
   ]
 }
 ```
 
-**Error handling**: If ROAD_MAP.md doesn't exist or fails to parse, log warning and continue review without roadmap integration.
+**Error handling**: If ROADMAP.md doesn't exist or fails to parse, log warning and continue review without roadmap integration.
 
 ### 2.5.2. Cross-Reference Roadmap with Project State
 
@@ -129,7 +142,7 @@ jq '.active_projects[] | select(.status == "completed")' specs/state.json
 **4. Count TODOs in Lua files:**
 ```bash
 # Current TODO count for metrics
-grep -r "TODO" nvim/lua/ --include="*.lua" | wc -l
+grep -r "TODO" . --include="*.lua" --include="*.py" --include="*.js" --include="*.ts" --include="*.tex" | wc -l
 ```
 
 **Match roadmap items to completed work:**
@@ -157,7 +170,7 @@ Build `roadmap_matches` list:
 
 ### 2.5.3. Annotate Completed Roadmap Items
 
-For high-confidence matches, update ROAD_MAP.md to mark items as complete.
+For high-confidence matches, update ROADMAP.md to mark items as complete.
 
 **Annotation format** (per roadmap-format.md):
 ```markdown
@@ -441,7 +454,7 @@ The review command always presents task proposals after analysis. The `--create-
 
 ```
 For each Critical/High issue:
-  /task "Fix: {issue title}" --language={inferred_language} --priority={severity}
+  /task "Fix: {issue title}" --task-type={inferred_task_type} --priority={severity}
 ```
 
 Link tasks to review report.
@@ -467,7 +480,7 @@ Combine issues from review findings and incomplete roadmap items:
 ```json
 {
   "source": "review",
-  "file_path": "nvim/lua/plugins/lsp.lua",
+  "file_path": "src/plugins/lsp.lua",
   "line": 42,
   "severity": "high",
   "description": "Missing case in pattern match",
@@ -494,7 +507,7 @@ For each issue, extract grouping indicators:
 
 | Indicator | Extraction Rule |
 |-----------|-----------------|
-| `file_section` | Path prefix up to first-level directory (e.g., `nvim/lua/plugins/` from `nvim/lua/plugins/lsp.lua:42`) |
+| `file_section` | Path prefix up to first-level directory (e.g., `src/plugins/` from `src/plugins/lsp.lua:42`) |
 | `issue_type` | Map severity: Critical/High -> "fix", Medium -> "quality", Low -> "improvement". For roadmap: "roadmap" |
 | `priority` | Direct from severity (Critical=4, High=3, Medium=2, Low=1) or phase priority |
 | `key_terms` | Extract significant words (>4 chars, not stopwords) from description |
@@ -502,7 +515,7 @@ For each issue, extract grouping indicators:
 **Example extracted indicators:**
 ```json
 {
-  "file_section": "nvim/lua/plugins/",
+  "file_section": "src/plugins/",
   "issue_type": "fix",
   "priority": 3,
   "key_terms": ["pattern", "match", "evaluation", "incomplete"]
@@ -699,15 +712,15 @@ When "Keep as grouped tasks" is selected, create one task per group:
 {
   "title": "{group_label}: {item_count} issues",
   "description": "{combined issue descriptions with file:line references}",
-  "language": "{majority_language}",
+  "task_type": "{majority_task_type}",
   "priority": "{max_priority_in_group}"
 }
 ```
 
-**Language inference by majority file type in group:**
-| File pattern | Language |
-|--------------|----------|
-| `nvim/**/*.lua` | neovim |
+**Task type inference by majority file type in group:**
+| File pattern | Task Type |
+|--------------|-----------|
+| `*.lua` | general |
 | `*.md`, `*.json`, `.claude/**` | meta |
 | `*.tex` | latex |
 | `*.typ` | typst |
@@ -736,7 +749,7 @@ When "Expand into individual tasks" or manual selection is chosen:
 {
   "title": "{issue_description, truncated to 60 chars}",
   "description": "{full issue details}",
-  "language": "{language_from_file}",
+  "task_type": "{task_type_from_file}",
   "priority": "{priority_from_severity}"
 }
 ```
@@ -776,12 +789,12 @@ slug=$(echo "$title" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9]/_/g' | cut 
 **3. Add task to state.json:**
 ```bash
 jq --arg num "$next_num" --arg slug "$slug" --arg title "$title" \
-   --arg desc "$description" --arg lang "$language" --arg prio "$priority" \
+   --arg desc "$description" --arg tt "$task_type" --arg prio "$priority" \
    '.active_projects += [{
      "project_number": ($num | tonumber),
      "project_name": $slug,
      "status": "not_started",
-     "language": $lang,
+     "task_type": $tt,
      "priority": $prio,
      "description": $title,
      "created": (now | strftime("%Y-%m-%dT%H:%M:%SZ"))
@@ -1474,8 +1487,8 @@ Commit review report, state files, task state, and any roadmap changes:
 git add specs/reviews/review-{DATE}.md specs/reviews/state.json
 
 # Add roadmap if modified
-if git diff --name-only | grep -q "specs/ROAD_MAP.md"; then
-  git add specs/ROAD_MAP.md
+if git diff --name-only | grep -q "specs/ROADMAP.md"; then
+  git add specs/ROADMAP.md
 fi
 
 # Add task state if tasks were created
@@ -1497,7 +1510,6 @@ Task Order: {pruned_count} pruned, {inserted_count} added, {reassigned_count} re
 
 Session: {session_id}
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 EOF
 )"
 ```

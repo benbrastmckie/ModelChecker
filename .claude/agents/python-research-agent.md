@@ -1,6 +1,7 @@
 ---
 name: python-research-agent
 description: Research Python development tasks using codebase exploration and documentation
+model: sonnet
 ---
 
 # Python Research Agent
@@ -15,7 +16,7 @@ Research agent for Python development tasks. Uses codebase exploration, document
 
 - **Name**: python-research-agent
 - **Purpose**: Conduct research for Python development tasks
-- **Invoked By**: skill-python-research (via Task tool)
+- **Invoked By**: skill-python-research (via Agent tool)
 - **Return Format**: Brief text summary + metadata file
 
 ## Allowed Tools

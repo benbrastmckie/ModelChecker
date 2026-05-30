@@ -12,9 +12,8 @@ Token budget: ~200 tokens
 | python | skill-python-research | skill-python-implementation |
 | nix | skill-nix-research | skill-nix-implementation |
 | web | skill-web-research | skill-web-implementation |
-| epidemiology | skill-epidemiology-research | skill-epidemiology-implementation |
+| epi, epi:study | skill-epi-research | skill-epi-implement |
 | z3 | skill-z3-research | skill-z3-implementation |
-| neovim | skill-neovim-research | skill-neovim-implementation |
 | formal, logic, math, physics | skill-formal-research | skill-implementer |
 | general | skill-researcher | skill-implementer |
 | meta | skill-researcher | skill-implementer |

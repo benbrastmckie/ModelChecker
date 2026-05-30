@@ -21,7 +21,9 @@
       "WebSearch",
       "WebFetch",
       "Task",
-      "TodoWrite",
+      "TaskCreate",
+      "TaskUpdate",
+      "Skill",
       "mcp__lean-lsp__*"
     ],
     "deny": [
@@ -52,6 +54,15 @@
             "command": "bash -c 'FILE=$(echo \"$CLAUDE_TOOL_INPUT\" | jq -r \".file_path // empty\" 2>/dev/null); if [[ \"$FILE\" == *\"specs/state.json\"* ]]; then bash .claude/hooks/validate-state-sync.sh 2>/dev/null || echo \"{}\"; else echo \"{}\"; fi'"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .claude/hooks/validate-plan-write.sh 2>/dev/null || echo '{}'"
+          }
+        ]
       }
     ],
     "SessionStart": [
@@ -73,7 +84,7 @@
           },
           {
             "type": "command",
-            "command": "bash ~/.config/nvim/scripts/claude-ready-signal.sh 2>/dev/null || echo '{}'"
+            "command": "bash scripts/claude-ready-signal.sh 2>/dev/null || echo '{}'"
           }
         ]
       }
@@ -88,11 +99,11 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/tts-notify.sh 2>/dev/null || echo '{}'"
+            "command": "bash .claude/hooks/claude-stop-notify.sh 2>/dev/null || echo '{}'"
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/wezterm-notify.sh 2>/dev/null || echo '{}'"
+            "command": "bash .claude/hooks/memory-nudge.sh 2>/dev/null || echo '{}'"
           }
         ]
       }
@@ -107,7 +118,7 @@
           },
           {
             "type": "command",
-            "command": "bash .claude/hooks/wezterm-clear-status.sh 2>/dev/null || echo '{}'"
+            "command": "bash .claude/hooks/wezterm-preflight-status.sh 2>/dev/null || echo '{}'"
           }
         ]
       }
@@ -126,7 +137,7 @@
     ],
     "Notification": [
       {
-        "matcher": "permission_prompt|idle_prompt|elicitation_dialog",
+        "matcher": "permission_prompt|elicitation_dialog",
         "hooks": [
           {
             "type": "command",
@@ -135,5 +146,8 @@
         ]
       }
     ]
+  },
+  "env": {
+    "SLASH_COMMAND_TOOL_CHAR_BUDGET": "50000"
   }
 }

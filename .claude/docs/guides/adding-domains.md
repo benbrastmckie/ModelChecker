@@ -12,21 +12,22 @@ The .claude/ system supports two approaches for adding domain support:
 
 | Approach | Use When | Portability | Complexity |
 |----------|----------|-------------|------------|
-| **Extension** (Recommended) | Adding any new domain | High - portable across projects | Moderate - self-contained package |
+| **Extension** (Recommended) | Adding any new domain | High - portable across projects | Moderate - self-contained package with optional dependencies |
 | **Core** | Primary project domain only | Low - embedded in repository | Simple - direct integration |
 
 ### Decision Tree
 
 ```
 Is this the repository's PRIMARY domain?
-├── YES (e.g., neovim in a neovim config repo)
+├── YES (e.g., python in a Python project)
 │   └── Use Core Approach
-└── NO (e.g., latex, lean, python, react)
+└── NO (e.g., latex, lean, rust, react)
     └── Use Extension Approach (Recommended)
 ```
 
 **Why Extensions?**
 - Extensions are self-contained packages that can be loaded/unloaded
+- Extensions can declare dependencies on other extensions for shared resources
 - Extensions are portable across projects without modification
 - Extensions keep the core system clean and focused
 - Extensions can be versioned and shared independently
@@ -35,7 +36,7 @@ Is this the repository's PRIMARY domain?
 
 ## Extension Approach (Recommended)
 
-For most new domains, create an extension. Extensions live in `.claude/extensions/{domain}/` and are loaded via the Neovim picker (`<leader>ac`).
+For most new domains, create an extension. Extensions live in `.claude/extensions/{domain}/` and are loaded via the the extension picker.
 
 ### Directory Structure
 
@@ -74,7 +75,7 @@ The manifest declares what the extension provides:
   "name": "your-domain",
   "version": "1.0.0",
   "description": "Domain description for picker display",
-  "language": "your-domain",
+  "task_type": "your-domain",
   "dependencies": [],
   "provides": {
     "agents": ["your-domain-research-agent.md", "your-domain-implementation-agent.md"],
@@ -84,6 +85,14 @@ The manifest declares what the extension provides:
     "context": ["project/your-domain"],
     "scripts": [],
     "hooks": []
+  },
+  "routing": {
+    "research": {
+      "your-domain": "skill-your-domain-research"
+    },
+    "implement": {
+      "your-domain": "skill-your-domain-implement"
+    }
   },
   "merge_targets": {
     "claudemd": {
@@ -111,7 +120,7 @@ This project includes [Your Domain] support via the your-domain extension.
 
 ### Language Routing
 
-| Language | Research Tools | Implementation Tools |
+| Task Type | Research Tools | Implementation Tools |
 |----------|----------------|---------------------|
 | `your-domain` | WebSearch, WebFetch, Read | Read, Write, Edit, Bash (your-tool) |
 
@@ -140,7 +149,7 @@ Entries appended to the main context index:
       "description": "Common patterns for your domain",
       "tags": ["your-domain", "patterns"],
       "load_when": {
-        "languages": ["your-domain"],
+        "task_types": ["your-domain"],
         "agents": ["your-domain-implementation-agent"]
       }
     }
@@ -150,10 +159,10 @@ Entries appended to the main context index:
 
 ### Load/Unload Mechanism
 
-Extensions are managed via Neovim picker:
+Extensions are managed via the extension picker:
 
-1. **Loading**: `<leader>ac` → Select extension → Neovim copies files into core
-2. **Unloading**: `<leader>ac` → Select loaded extension → Neovim removes copied files
+1. **Loading**: Open the extension picker, select extension, files are copied into core
+2. **Unloading**: Open the extension picker, select loaded extension, copied files are removed
 
 When loaded:
 - Agents copied to `.claude/agents/`
@@ -179,7 +188,7 @@ See [Creating Extensions](creating-extensions.md) for a complete step-by-step gu
 
 ## Core Approach (Primary Domain Only)
 
-Use this approach only for the repository's primary domain (e.g., neovim for a Neovim config repo). Core domains are always available without loading.
+Use this approach only for the repository's primary domain (e.g., python for a Python project). Core domains are always available without loading.
 
 ### Architecture
 
@@ -189,12 +198,12 @@ Command (/research, /implement)
     ▼
 Orchestrator (skill-orchestrator)
     │
-    ├── language: your-domain → skill-your-domain-research / skill-your-domain-implementation
-    ├── language: general    → skill-researcher / skill-implementer
-    └── language: meta       → skill-researcher / skill-implementer
+    ├── task_type: your-domain → skill-your-domain-research / skill-your-domain-implementation
+    ├── task_type: general    → skill-researcher / skill-implementer
+    └── task_type: meta       → skill-researcher / skill-implementer
 ```
 
-Each language type routes to specialized skills, which delegate to specialized agents.
+Each task type routes to specialized skills, which delegate to specialized agents.
 
 ### Step 1: Create Domain Context Directory
 
@@ -291,7 +300,7 @@ Create skill wrappers in `.claude/skills/`:
 ---
 name: skill-your-domain-research
 description: Conduct [Your Domain] research. Invoke for your-domain research tasks.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Your Domain Research Skill
@@ -299,9 +308,9 @@ allowed-tools: Task, Bash, Edit, Read, Write
 Thin wrapper that delegates to `your-domain-research-agent`.
 
 ## Execution Flow
-1. Validate task exists and language matches
+1. Validate task exists and task_type matches
 2. Update status to "researching"
-3. Invoke your-domain-research-agent via Task tool
+3. Invoke your-domain-research-agent via Agent tool
 4. Update status to "researched"
 5. Git commit
 ```
@@ -311,7 +320,7 @@ Thin wrapper that delegates to `your-domain-research-agent`.
 ---
 name: skill-your-domain-implementation
 description: Implement [Your Domain] changes from plans. Invoke for your-domain implementation.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Your Domain Implementation Skill
@@ -321,7 +330,7 @@ Thin wrapper that delegates to `your-domain-implementation-agent`.
 ## Execution Flow
 1. Validate task exists and plan exists
 2. Update status to "implementing"
-3. Invoke your-domain-implementation-agent via Task tool
+3. Invoke your-domain-implementation-agent via Agent tool
 4. Update status to "completed"
 5. Git commit
 ```
@@ -356,18 +365,18 @@ Load for detailed patterns:
 Edit `.claude/skills/skill-orchestrator/SKILL.md`:
 
 ```markdown
-### Language-Based Routing
+### Task-Type-Based Routing
 
-| Language | Research Skill | Implementation Skill |
+| Task Type | Research Skill | Implementation Skill |
 |----------|---------------|---------------------|
-| neovim | skill-neovim-research | skill-neovim-implementation |
+| {domain} | skill-{domain}-research | skill-{domain}-implementation |
 | your-domain | skill-your-domain-research | skill-your-domain-implementation |
 | general | skill-researcher | skill-implementer |
 ```
 
 #### Update CLAUDE.md
 
-Add to Language-Based Routing table:
+Add to Task-Type-Based Routing table:
 ```markdown
 | `your-domain` | WebSearch, Read | Read, Write, Edit, Bash (your-tool) |
 ```
@@ -393,7 +402,7 @@ Add entries to `.claude/context/index.json`:
   "description": "Core concepts",
   "tags": ["your-domain", "domain"],
   "load_when": {
-    "languages": ["your-domain"],
+    "task_types": ["your-domain"],
     "agents": ["your-domain-research-agent", "your-domain-implementation-agent"]
   }
 }
@@ -428,7 +437,7 @@ Add entries to `.claude/context/index.json`:
 - [ ] Orchestrator routing updated
 - [ ] CLAUDE.md updated
 - [ ] Context index updated
-- [ ] Test with `/task "Test" --language your-domain`
+- [ ] Test with `/task "Test" --task-type your-domain`
 
 ---
 

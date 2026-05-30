@@ -1,8 +1,10 @@
 # System Architecture Overview
 
-**Last Verified**: 2026-01-19
+**Last Verified**: 2026-05-22
 
-This document provides a high-level overview of the Neovim Configuration agent system architecture for users and developers.
+This document provides a high-level overview of the agent system architecture for users and developers.
+
+The unified workflow refactor (tasks 593-599) is complete. This document describes the **current** architecture including skill-base.sh lifecycle functions, command gate scripts, dispatch-agent.sh, the /orchestrate autonomous state machine, computed CLAUDE.md generation, and extension lifecycle hooks.
 
 ---
 
@@ -15,50 +17,50 @@ The agent system uses a three-layer architecture that separates user interaction
                              |
                              | /command args
                              v
-    +-----------------------------------------------------+
-    |                   LAYER 1: COMMANDS                  |
-    |                                                      |
-    |   .claude/commands/                                  |
-    |   ├── research.md      Parse arguments              |
-    |   ├── plan.md          Route by language            |
-    |   ├── implement.md     Minimal logic                |
-    |   └── ...                                            |
-    +-----------------------------------------------------+
+    ┌─────────────────────────────────────────────────────┐
+    │                   LAYER 1: COMMANDS                  │
+    │                                                      │
+    │   .claude/commands/                                  │
+    │   ├── research.md      Parse arguments              │
+    │   ├── plan.md          Route by language            │
+    │   ├── implement.md     Minimal logic                │
+    │   └── ...                                            │
+    └─────────────────────────────────────────────────────┘
                              |
                              | Delegation context
                              v
-    +-----------------------------------------------------+
-    |                   LAYER 2: SKILLS                    |
-    |                                                      |
-    |   .claude/skills/skill-*/SKILL.md                   |
-    |   ├── skill-neovim-research/   Validate inputs      |
-    |   ├── skill-researcher/        Prepare context      |
-    |   ├── skill-planner/           Invoke agents        |
-    |   └── ...                                            |
-    +-----------------------------------------------------+
+    ┌─────────────────────────────────────────────────────┐
+    │                   LAYER 2: SKILLS                    │
+    │                                                      │
+    │   .claude/skills/skill-*/SKILL.md                   │
+    │   ├── skill-researcher/        Validate inputs      │
+    │   ├── skill-planner/           Prepare context      │
+    │   ├── skill-planner/           Invoke agents        │
+    │   └── ...                                            │
+    └─────────────────────────────────────────────────────┘
                              |
-                             | Task tool invocation
+                             | Agent tool invocation
                              v
-    +-----------------------------------------------------+
-    |                   LAYER 3: AGENTS                    |
-    |                                                      |
-    |   .claude/agents/*.md                               |
-    |   ├── neovim-research-agent.md Full execution       |
-    |   ├── general-research-agent.md  Create artifacts   |
-    |   ├── planner-agent.md         Return JSON          |
-    |   └── ...                                            |
-    +-----------------------------------------------------+
+    ┌─────────────────────────────────────────────────────┐
+    │                   LAYER 3: AGENTS                    │
+    │                                                      │
+    │   .claude/agents/*.md                               │
+    │   ├── general-research-agent.md  Full execution     │
+    │   ├── general-implementation-agent.md Create artifacts│
+    │   ├── planner-agent.md         Return JSON          │
+    │   └── ...                                            │
+    └─────────────────────────────────────────────────────┘
                              |
                              | Artifacts
                              v
-    +-----------------------------------------------------+
-    |                     ARTIFACTS                        |
-    |                                                      |
-    |   specs/{NNN}_{SLUG}/                                  |
-    |   ├── reports/01_{short-slug}.md                    |
-    |   ├── plans/02_{short-slug}.md                      |
-    |   └── summaries/03_{short-slug}-summary.md          |
-    +-----------------------------------------------------+
+    ┌─────────────────────────────────────────────────────┐
+    │                     ARTIFACTS                        │
+    │                                                      │
+    │   specs/{NNN}_{SLUG}/                                  │
+    │   ├── reports/01_{short-slug}.md                    │
+    │   ├── plans/02_{short-slug}.md                      │
+    │   └── summaries/03_{short-slug}-summary.md          │
+    └─────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -86,27 +88,37 @@ Commands are user-facing entry points invoked via `/command` syntax. They:
 | `/errors` | Analyze errors |
 | `/todo` | Archive completed tasks |
 | `/meta` | System builder |
+| `/fix-it` | Scan for FIX:/NOTE:/TODO:/QUESTION: tags |
+| `/refresh` | Clean orphaned processes and old files |
+| `/tag` | Create semantic version tag (user-only) |
+| `/spawn` | Spawn new tasks to unblock blocked task |
+| `/merge` | Create pull/merge request |
 
 ### Skills (Layer 2)
 
 **Location**: `.claude/skills/skill-*/SKILL.md`
 
-Skills are thin wrappers that validate inputs and delegate to agents. They:
-- Validate task exists and arguments are correct
-- Prepare delegation context (session_id, depth tracking)
-- Invoke agents via the Task tool
-- Pass through agent returns
+Skills are thin wrappers that validate inputs and delegate to agents. All skills share lifecycle logic via `.claude/scripts/skill-base.sh`, which provides:
+- `skill_validate_input()` — validate task number and state
+- `skill_preflight_update()` — update status to "in progress" + run extension `preflight` hook
+- `skill_context_injection()` — run extension `context_injection` hook before agent delegation
+- `skill_read_metadata()` / `skill_validate_artifact()` — read and validate agent return + run extension `verification` hook
+- `skill_postflight_update()` — update status to completed + run extension `postflight` hook
+- `skill_link_artifacts()` / `skill_cleanup()` — artifact linking and cleanup
 
 **Key skills**:
 | Skill | Agent | Purpose |
 |-------|-------|---------|
-| skill-neovim-research | neovim-research-agent | Neovim/plugin research |
 | skill-researcher | general-research-agent | General web/codebase research |
 | skill-planner | planner-agent | Create implementation plans |
 | skill-implementer | general-implementation-agent | General file implementation |
-| skill-neovim-implementation | neovim-implementation-agent | Neovim configuration implementation |
+| skill-meta | meta-builder-agent | System building and task creation |
+| skill-status-sync | (direct execution) | Atomic status updates |
+| skill-orchestrate | (direct execution) | Autonomous lifecycle state machine (/orchestrate command) |
+| skill-git-workflow | (direct execution) | Create scoped git commits |
+| skill-spawn | spawn-agent | Analyze blockers and spawn new tasks |
 
-**Note**: Additional skills (latex, typst, filetypes) are available via extensions in `.claude/extensions/`.
+**Note**: Additional skills are available via extensions in `.claude/extensions/`. Extension skills are thin wrappers (under ~110 lines) that source skill-base.sh and delegate to their domain agent. See [CLAUDE.md](../../CLAUDE.md) for the complete skill-to-agent mapping.
 
 ### Agents (Layer 3)
 
@@ -116,7 +128,43 @@ Agents are execution components that do the actual work. They:
 - Load context on-demand
 - Execute multi-step workflows
 - Create artifacts (reports, plans, summaries)
-- Return structured JSON results
+- Write structured `.return-meta.json` metadata (read by skills in postflight)
+
+---
+
+## Computed CLAUDE.md
+
+CLAUDE.md at `.claude/CLAUDE.md` is a **computed artifact** generated by `merge.lua:generate_claudemd()`. It is assembled from:
+- Core merge-source: `.claude/extensions/core/merge-sources/claudemd.md`
+- Loaded extension EXTENSION.md files (each extension contributes a section)
+
+Do not edit `.claude/CLAUDE.md` directly — it will be overwritten on the next generation. To modify core content, edit the merge-sources. To modify extension content, edit the extension's `EXTENSION.md`.
+
+---
+
+## Extension Lifecycle Hooks
+
+Extensions can declare lifecycle hooks in their `manifest.json` under a top-level `"hooks"` object:
+
+```json
+{
+  "hooks": {
+    "preflight": "scripts/my-preflight.sh",
+    "context_injection": "scripts/my-context.sh",
+    "verification": "scripts/my-verify.sh",
+    "postflight": "scripts/my-postflight.sh"
+  }
+}
+```
+
+**Distinction from `provides.hooks`**: The `provides.hooks` array lists scripts for file-copy deployment to `.claude/hooks/`. The top-level `hooks` object lists scripts called during skill lifecycle stages.
+
+Hook scripts receive 5 positional arguments: `task_number task_type task_dir session_id operation`.
+
+All hooks are:
+- Optional (missing key = skip silently)
+- Non-blocking (non-zero exit = warning, not failure)
+- Invoked by skill-base.sh at the corresponding lifecycle stage
 
 ---
 
@@ -127,18 +175,18 @@ When you run `/research 1`:
 ```
 1. Command: research.md
    - Parse: task_number = 1
-   - Lookup: language = "neovim" (from state.json)
-   - Route: skill-neovim-research
+   - Lookup: task_type = "general" (from state.json)
+   - Route: skill-researcher
 
-2. Skill: skill-neovim-research
+2. Skill: skill-researcher
    - Generate session_id: sess_1736700000_abc123
-   - Validate: task exists, status allows research
+   - Validate: task exists, status is not terminal
    - Prepare: delegation context
-   - Invoke: neovim-research-agent via Task tool
+   - Invoke: general-research-agent via Agent tool
 
-3. Agent: neovim-research-agent
-   - Load: Neovim context files
-   - Execute: Search documentation, analyze plugins
+3. Agent: general-research-agent
+   - Load: relevant context files
+   - Execute: Search documentation, analyze codebase
    - Create: specs/001_{slug}/reports/01_{short-slug}.md
    - Return: {"status": "researched", "artifacts": [...]}
 
@@ -175,19 +223,19 @@ This ensures:
 
 ---
 
-## Language-Based Routing
+## Task-Type-Based Routing
 
-Tasks route to specialized skills based on their `language` field:
+Tasks route to specialized skills based on their `task_type` field:
 
-| Language | Research | Implementation |
+| Task Type | Research | Implementation |
 |----------|----------|----------------|
-| `neovim` | skill-neovim-research | skill-neovim-implementation |
 | `general` | skill-researcher | skill-implementer |
 | `meta` | skill-researcher | skill-implementer |
+| `markdown` | skill-researcher | skill-implementer |
 
-The language is automatically detected from task description or can be set explicitly.
+The task type is automatically detected from task description or can be set explicitly.
 
-**Note**: Additional languages (latex, typst) are available via extensions in `.claude/extensions/`.
+**Note**: Additional task types (nix, latex, typst, python, etc.) are available via extensions in `.claude/extensions/`.
 
 ---
 
@@ -216,11 +264,11 @@ Updates use two-phase commit:
 │   ├── plan.md
 │   └── ...
 ├── skills/             # Layer 2: Skills
-│   ├── skill-neovim-research/
+│   ├── skill-researcher/
 │   │   └── SKILL.md
 │   └── ...
 ├── agents/             # Layer 3: Agents
-│   ├── neovim-research-agent.md
+│   ├── general-research-agent.md
 │   └── ...
 ├── rules/              # Automatic behavior rules
 ├── context/            # Domain knowledge
@@ -239,13 +287,18 @@ Updates use two-phase commit:
 
 ## Extending the System
 
-### Adding New Language Support
+### Adding New Language Support via Extensions
 
-To add support for a new language (e.g., Python):
+The recommended way to add new language support is via an extension. Create a directory under `.claude/extensions/{name}/` with:
 
-1. Create skill: `.claude/skills/skill-python-research/SKILL.md`
-2. Create agent: `.claude/agents/python-research-agent.md`
-3. Update routing in existing commands
+1. `manifest.json` — extension metadata, routing, hook scripts
+2. `EXTENSION.md` — content merged into CLAUDE.md
+3. `skills/skill-{name}-research/SKILL.md` — thin research skill
+4. `skills/skill-{name}-implementation/SKILL.md` — thin implementation skill
+5. `agents/{name}-research-agent.md` — research agent
+6. `agents/{name}-implementation-agent.md` — implementation agent
+
+Extension skills should source skill-base.sh for lifecycle management. See `.claude/docs/guides/creating-extensions.md` for detailed instructions.
 
 ### Adding New Commands
 

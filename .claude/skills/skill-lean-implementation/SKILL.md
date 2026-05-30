@@ -1,7 +1,7 @@
 ---
 name: skill-lean-implementation
 description: Implement Lean 4 proofs and definitions using lean-lsp tools. Invoke for Lean-language implementation tasks.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Lean Implementation Skill
@@ -14,7 +14,7 @@ this skill handles all postflight operations (status update, artifact linking, g
 ## Trigger Conditions
 
 This skill activates when:
-- Task language is "lean4" or "lean" (either accepted)
+- Task type is "lean4" or "lean" (either accepted)
 - /implement command targets a Lean task
 - Plan exists and task is ready for implementation
 
@@ -41,12 +41,12 @@ if [ -z "$task_data" ]; then
 fi
 
 # Extract fields
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 project_name=$(echo "$task_data" | jq -r '.project_name')
 
-# Validate language (accept both "lean" and "lean4")
-if [ "$language" != "lean" ] && [ "$language" != "lean4" ]; then
+# Validate task_type (accept both "lean" and "lean4")
+if [ "$task_type" != "lean" ] && [ "$task_type" != "lean4" ]; then
   return error "Task $task_number is not a Lean task"
 fi
 ```
@@ -88,7 +88,7 @@ Prepare delegation context for the subagent:
     "task_number": N,
     "task_name": "{project_name}",
     "description": "{description}",
-    "language": "lean"
+    "task_type": "lean"
   },
   "plan_path": "specs/{N}_{SLUG}/plans/MM_{short-slug}.md",
   "metadata_file_path": "specs/{N}_{SLUG}/.return-meta.json"
@@ -99,11 +99,11 @@ Prepare delegation context for the subagent:
 
 ### Stage 4: Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "lean-implementation-agent"
   - prompt: [Include task_context, delegation_context, plan_path, metadata_file_path]
@@ -123,9 +123,25 @@ The subagent will:
 
 ---
 
-### Stage 5: Parse Subagent Return (Read Metadata File)
+### Stage 4b: Self-Execution Fallback
 
-After subagent returns, read the metadata file:
+**CRITICAL**: If you performed the work above WITHOUT using the Agent tool (i.e., you read files,
+wrote artifacts, or updated metadata directly instead of spawning a subagent), you MUST write a
+`.return-meta.json` file now before proceeding to postflight. Use the schema from
+`return-metadata-file.md` with the appropriate status value for this operation.
+
+If you DID use the Agent tool, skip this stage -- the subagent already wrote the metadata.
+
+---
+
+## Postflight (ALWAYS EXECUTE)
+
+The following stages MUST execute after work is complete, whether the work was done by a
+subagent or inline (Stage 4b). Do NOT skip these stages for any reason.
+
+### Stage 5: Parse Subagent Return
+
+Read the metadata file:
 
 ```bash
 metadata_file="specs/${padded_num}_${project_name}/.return-meta.json"
@@ -146,6 +162,36 @@ fi
 ```
 
 **Note**: The agent performs all verification (sorry check, axiom check, lake build) and records results in metadata. This skill reads those results - it does NOT re-verify.
+
+---
+
+### Stage 6b: Plan Compliance Check (Read from Metadata)
+
+**This stage only runs if status from metadata is "implemented".**
+
+Read the agent-reported compliance result from metadata (agent ran the grep check in Final Verification Stage; SKILL reads the result — MUST NOT re-run grep per postflight-tool-restrictions.md):
+
+```bash
+if [ "$status" = "implemented" ]; then
+    compliance_check=$(jq -r '.metadata.compliance_check // "skipped"' "$metadata_file" 2>/dev/null)
+
+    case "$compliance_check" in
+        "failed")
+            echo "Stage 6b: Plan compliance check FAILED (agent reported)"
+            echo "  See agent output for missing deliverables or integrity violations"
+            status="partial"
+            ;;
+        "passed")
+            echo "Stage 6b: Plan compliance check PASSED"
+            ;;
+        "skipped"|*)
+            echo "Stage 6b: INFO — compliance_check absent or skipped; proceeding"
+            ;;
+    esac
+fi
+```
+
+**Architecture note**: The `.claude/` skill MUST NOT run grep or shell analysis in postflight (see postflight-tool-restrictions.md). The lean-implementation-agent runs the check during Final Verification Stage and records results in metadata. This stage reads that result only.
 
 ---
 
@@ -175,7 +221,7 @@ TODO.md stays as `[IMPLEMENTING]`.
 
 ### Stage 7: Link Artifacts
 
-Add summary artifact to state.json.
+Add summary artifact to state.json. Update TODO.md per `@.claude/context/patterns/artifact-linking-todo.md` with `field_name=**Summary**`, `next_field=**Description**`.
 
 ```bash
 if [ -n "$summary_artifact_path" ]; then
@@ -202,8 +248,6 @@ git add \
 git commit -m "task ${task_number}: complete implementation
 
 Session: ${session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---
@@ -252,6 +296,8 @@ After the agent returns, this skill MUST NOT:
 3. **Use MCP tools** - lean-lsp tools are for agent use only
 4. **Grep for sorries** - Debt analysis is agent work
 5. **Write summary/reports** - Artifact creation is agent work
+
+> **PROHIBITION**: If the subagent returned partial or failed status, the lead skill MUST NOT attempt to continue, complete, or "fill in" the subagent's work. Report the partial/failed status and let the user re-run `/implement` to resume.
 
 The postflight phase is LIMITED TO:
 - Reading agent metadata file

@@ -2,7 +2,7 @@
 description: Scan files for FIX:, NOTE:, TODO:, QUESTION: tags and create structured tasks interactively
 allowed-tools: Skill
 argument-hint: [PATH...]
-model: claude-opus-4-5-20251101
+model: opus
 ---
 
 # /fix-it Command
@@ -45,7 +45,7 @@ This design ensures users always see what was found before any tasks are created
 
 **todo-task**: One task per selected TODO: tag (or grouped by topic). Preserves original text as task description. Language detected from source file type.
 
-**research-task**: One task per selected QUESTION: tag (or grouped by topic). Creates research tasks to answer embedded questions. **Language is detected from question content** (not source file type) using keyword matching: neovim keywords (nvim, lsp, telescope, etc.) -> "neovim", latex keywords (theorem, proof, lemma, etc.) -> "latex", meta keywords (.claude, command, agent, etc.) -> "meta", otherwise -> "general".
+**research-task**: One task per selected QUESTION: tag (or grouped by topic). Creates research tasks to answer embedded questions. **Language is detected from question content** (not source file type) using keyword matching: extension-specific keywords are matched by loaded extensions, latex keywords (theorem, proof, lemma, etc.) -> "latex", meta keywords (.claude, command, agent, etc.) -> "meta", otherwise -> "general".
 
 ### TODO Topic Grouping
 
@@ -106,7 +106,7 @@ The skill scans specified paths and displays findings:
 ```
 ## Tag Scan Results
 
-**Files Scanned**: nvim/lua/, docs/
+**Files Scanned**: src/, docs/
 **Tags Found**: 17
 
 ### FIX: Tags (5)
@@ -119,11 +119,11 @@ The skill scans specified paths and displays findings:
 ...
 
 ### TODO: Tags (7)
-- `nvim/lua/Layer1/Modal.lua:67` - Add LSP configuration
+- `src/components/Modal.js:67` - Add LSP configuration
 ...
 
 ### QUESTION: Tags (2)
-- `nvim/lua/config/lsp.lua:45` - What is the best way to configure hover windows?
+- `src/config/lsp.js:45` - What is the best way to configure hover windows?
 ...
 ```
 
@@ -155,8 +155,8 @@ If "TODO tasks" is selected, user picks individual items:
   "header": "TODO Selection",
   "multiSelect": true,
   "options": [
-    {"label": "Add LSP configuration", "description": "nvim/lua/Layer1/Modal.lua:67"},
-    {"label": "Implement helper function", "description": "utils/helpers.lua:23"}
+    {"label": "Add LSP configuration", "description": "src/components/Modal.js:67"},
+    {"label": "Implement helper function", "description": "src/utils/helpers.js:23"}
   ]
 }
 ```
@@ -204,13 +204,13 @@ Selected tasks are created in TODO.md and state.json.
 - `.claude/agents/foo.md:12` - Update context routing
 
 ### TODO: Tags (7)
-- `nvim/lua/Layer1/Modal.lua:67` - Add LSP configuration
-- `nvim/lua/utils/helpers.lua:23` - Implement helper function
+- `src/components/Modal.js:67` - Add LSP configuration
+- `src/utils/helpers.js:23` - Implement helper function
 ...
 
 ### QUESTION: Tags (2)
-- `nvim/lua/config/lsp.lua:45` - What is the best way to configure hover windows?
-- `nvim/lua/plugins/cmp.lua:78` - How do I customize completion sources?
+- `src/config/lsp.js:45` - What is the best way to configure hover windows?
+- `src/plugins/cmp.js:78` - How do I customize completion sources?
 
 ---
 
@@ -226,11 +226,11 @@ Selected tasks are created in TODO.md and state.json.
 
 | # | Type | Title | Priority | Language |
 |---|------|-------|----------|----------|
-| 650 | fix-it | Fix issues from FIX:/NOTE: tags | High | neovim |
+| 650 | fix-it | Fix issues from FIX:/NOTE: tags | High | general |
 | 651 | learn-it | Update context files from NOTE: tags | Medium | meta |
-| 652 | todo | Add LSP configuration | Medium | neovim |
-| 653 | todo | Implement helper function | Medium | neovim |
-| 654 | research | Research: What is the best way to configure... | Medium | neovim |
+| 652 | todo | Add LSP configuration | Medium | general |
+| 653 | todo | Implement helper function | Medium | general |
+| 654 | research | Research: What is the best way to configure... | Medium | general |
 
 ---
 
@@ -245,7 +245,7 @@ Next Steps:
 ```
 ## No Tags Found
 
-Scanned files in: nvim/lua/
+Scanned files in: src/
 No FIX:, NOTE:, TODO:, or QUESTION: tags detected.
 
 Nothing to create.
@@ -269,13 +269,13 @@ No task types selected. No tasks created.
 /fix-it
 
 # Scan specific directory
-/fix-it nvim/lua/Layer1/
+/fix-it src/components/
 
 # Scan specific file
 /fix-it docs/04-Metalogic.tex
 
 # Scan multiple paths
-/fix-it nvim/lua/ .claude/agents/
+/fix-it src/ .claude/agents/
 ```
 
 ## Standards Reference

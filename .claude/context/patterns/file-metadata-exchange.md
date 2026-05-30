@@ -276,7 +276,6 @@ if [ -f "$metadata_file" ] && jq empty "$metadata_file" 2>/dev/null; then
 
 Session: ${session_id}
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 
         # Cleanup
         rm -f "$metadata_file"

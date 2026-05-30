@@ -1,6 +1,6 @@
 # Creating Skills Guide
 
-This guide explains how to create new skills in the Neovim Configuration agent system using the thin wrapper pattern.
+This guide explains how to create new skills in the agent system using the thin wrapper pattern.
 
 ---
 
@@ -20,7 +20,7 @@ Skills use the **thin wrapper pattern** - they do minimal work themselves and de
 
 ### What It Is
 
-Skills are "thin wrappers" that delegate to agents via the Task tool. This pattern provides:
+Skills are "thin wrappers" that delegate to agents via the Agent tool. This pattern provides:
 
 - **Token Efficiency**: Context loaded only in the agent's conversation
 - **Isolation**: Agent context does not bloat the skill's conversation
@@ -39,7 +39,7 @@ Skill receives invocation
 2. Prepare delegation context (session_id, task info)
     |
     v
-3. Invoke agent via Task tool
+3. Invoke agent via Agent tool
     |
     v
 4. Validate agent return matches schema
@@ -75,23 +75,210 @@ Skills are located in `.claude/skills/skill-{name}/SKILL.md`:
 
 ---
 
+## Using skill-base.sh in Extension Skills
+
+Extension skills (in `.claude/extensions/*/skills/`) should be **thin wrappers** under ~110 lines. They delegate lifecycle management to `skill-base.sh` and focus on:
+1. Domain-specific context description
+2. Correct agent name routing
+3. Domain-specific delegation context fields
+
+### What skill-base.sh Provides
+
+`skill-base.sh` at `.claude/scripts/skill-base.sh` exports shared lifecycle functions:
+
+| Function | Stage | Purpose |
+|----------|-------|---------|
+| `skill_validate_input()` | 1 | Validate task number, export TASK_TYPE, TASK_DIR |
+| `skill_preflight_update()` | 2 | Update status to "in_progress" + run `preflight` hook |
+| `skill_create_postflight_marker()` | 3 | Write `.postflight-pending` marker file |
+| `skill_context_injection()` | 4 | Run `context_injection` extension hook |
+| `skill_read_artifact_number()` | 3a | Read/compute artifact sequence number |
+| `skill_read_metadata()` | 6 | Read `.return-meta.json` from agent |
+| `skill_validate_artifact()` | 6a | Validate artifact format + run `verification` hook |
+| `skill_postflight_update()` | 7 | Update status to completed + run `postflight` hook |
+| `skill_increment_artifact_number()` | 7a | Increment artifact counter in state.json |
+| `skill_propagate_memory_candidates()` | 7b | Propagate memory candidates to state.json |
+| `skill_link_artifacts()` | 8 | Link artifact in state.json and TODO.md |
+| `skill_cleanup()` | 9/10 | Remove marker files |
+
+### Before (Fat Extension Skill - 412 lines)
+
+```markdown
+---
+name: skill-nix-implementation
+...
+---
+
+### Stage 1: Input Validation
+
+Validate required inputs:
+- task_number - Must be provided and exist in state.json
+
+bash
+task_data=$(jq -r --argjson num "$task_number" ...)
+if [ -z "$task_data" ]; then
+  return error "Task $task_number not found"
+fi
+...
+
+### Stage 2: Preflight Status Update
+
+Update task status to "implementing" BEFORE invoking subagent.
+
+bash
+jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" ...
+   specs/state.json > specs/tmp/state.json && mv ...
+
+### Stage 3: Create Postflight Marker
+... (40+ lines) ...
+
+### Stage 5: Postflight Status Update
+... (50+ lines) ...
+```
+
+### After (Thin Extension Skill - ~104 lines)
+
+```markdown
+---
+name: skill-nix-implementation
+description: Implement Nix configuration changes from plans. Invoke for nix implementation tasks.
+allowed-tools: Agent, Bash, Edit, Read, Write
+---
+
+# Nix Implementation Skill
+
+Thin wrapper that delegates Nix configuration implementation to `nix-implementation-agent` subagent.
+
+## Trigger Conditions
+
+This skill activates when task type is "nix".
+
+## Execution Flow
+
+### Stage 1: Input Validation
+Validate task_number exists, task_type is "nix", and an implementation plan is present.
+
+### Stage 2: Preflight Status Update
+Update status to "implementing" BEFORE invoking subagent.
+
+### Stage 3: Prepare Delegation Context
+
+Domain-specific context for the nix-implementation-agent:
+- Nix style guide from context/
+- MCP-NixOS for package/option validation (when available)
+- Verification: nix flake check, nixos-rebuild build
+
+{delegation context JSON example}
+
+### Stage 4: Invoke Subagent
+Use Agent tool with subagent_type: "nix-implementation-agent".
+
+### Stage 4b: Self-Execution Fallback
+If no Agent tool, write .return-meta.json before postflight.
+
+## Postflight (ALWAYS EXECUTE)
+
+### Stage 5: Parse Subagent Return
+Read specs/{N}_{SLUG}/.return-meta.json.
+
+### Stage 6: Update Task Status (Postflight)
+Update state.json and TODO.md based on result.
+
+### Stage 7: Link Artifacts
+field_name=**Summary**, next_field=**Description**.
+
+### Stage 8: Git Commit
+
+### Stage 9: Return Brief Summary
+
+## MUST NOT (Postflight Boundary)
+...
+
+## Return Format
+Brief text summary (NOT JSON).
+```
+
+### Key Differences
+
+| Aspect | Fat Skill | Thin Skill |
+|--------|-----------|------------|
+| Lines | 254-412 | 83-104 |
+| Lifecycle code | Inlined (jq, bash) | Described (prose) |
+| Domain context | Mixed with lifecycle | Isolated in Stage 3 |
+| Maintenance | Update each skill | Update skill-base.sh once |
+
+Extension skills describe WHAT to do in prose. The actual execution (jq calls, status updates, file I/O) is handled by skill-base.sh functions which the skills delegate to. This makes skills readable and maintainable without sacrificing correctness.
+
+### Reference Examples
+
+Look at these working thin skills for reference:
+- `.claude/extensions/python/skills/skill-python-research/SKILL.md` (62 lines)
+- `.claude/extensions/nix/skills/skill-nix-research/SKILL.md` (83 lines)
+- `.claude/extensions/nvim/skills/skill-neovim-research/SKILL.md` (83 lines)
+
+---
+
 ## Skill Template
 
-### Frontmatter
+There are two skill patterns depending on where the skill lives.
 
-Every skill starts with YAML frontmatter:
+### Pattern A: Core Skills (`.claude/skills/`)
+
+Core skills (skill-researcher, skill-planner, skill-implementer, etc.) use `skill-base.sh` lifecycle functions directly and invoke agents with explicit `subagent_type` to inject structured context:
 
 ```yaml
 ---
 name: skill-{name}
 description: {Brief description}. Invoke for {use case}.
-allowed-tools: Task
+allowed-tools: Agent, Bash, Edit, Read, Write
+---
+```
+
+Core skills call `skill-base.sh` functions for lifecycle management:
+
+```markdown
+### Stage 1: Input Validation
+source .claude/scripts/skill-base.sh
+skill_validate_input "$task_number"
+
+### Stage 2: Preflight Status Update
+skill_preflight_update "$task_number" "<operation>" "$session_id"
+
+### Stage 3: Create Postflight Marker
+skill_create_postflight_marker "$PADDED_NUM" "$PROJECT_NAME" "$session_id" "skill-{name}" "<operation>"
+
+### Stage 4: Invoke Subagent
+Use Agent tool with subagent_type: "{agent-name}"
+
+## Postflight (ALWAYS EXECUTE)
+### Stage 5: Read Metadata
+skill_read_metadata "$PADDED_NUM" "$PROJECT_NAME"
+
+### Stage 6: Update Status
+skill_postflight_update "$task_number" "<operation>" "$session_id" "$SUBAGENT_STATUS"
+
+### Stage 7: Link Artifacts
+skill_link_artifacts "$task_number" "$ARTIFACT_PATH" "$ARTIFACT_TYPE" "$ARTIFACT_SUMMARY" '**Type**' '**Next**'
+
+### Stage 8: Git Commit + Cleanup
+skill_cleanup "$PADDED_NUM" "$PROJECT_NAME"
+```
+
+See `skill-researcher`, `skill-planner`, or `skill-implementer` for working examples.
+
+### Pattern B: Extension Skills (`.claude/extensions/*/skills/`)
+
+Extension skills use `context: fork` + `agent:` for simple delegation. The agent loads its own context. These are thin wrappers under ~110 lines that describe WHAT to do in prose (see the "Using skill-base.sh" section above).
+
+```yaml
+---
+name: skill-{name}
+description: {Brief description}. Invoke for {use case}.
+allowed-tools: Agent
 context: fork
 agent: {target-agent-name}
 # Original context (now loaded by subagent):
 #   - .claude/context/path/to/context.md
-# Original tools (now used by subagent):
-#   - Read, Write, Edit, Glob, Grep, etc.
 ---
 ```
 
@@ -101,13 +288,13 @@ agent: {target-agent-name}
 |-------|-------|---------|
 | `name` | `skill-{name}` | Skill identifier |
 | `description` | Brief text | Helps orchestrator route correctly |
-| `allowed-tools` | `Task` | Only tool needed for delegation |
-| `context` | `fork` | Signals NOT to load context eagerly |
-| `agent` | `{name}-agent` | Target agent to invoke |
+| `allowed-tools` | `Agent` (extension) or `Agent, Bash, ...` (core) | Tools needed for execution |
+| `context` | `fork` (extension only) | Signals NOT to load context eagerly |
+| `agent` | `{name}-agent` (extension only) | Target agent to invoke |
 
-**Critical**: `context: fork` is essential for token efficiency. Without it, context would be loaded into the skill's conversation, wasting tokens.
+**Decision Matrix**: Extension skills use `context: fork` + `agent:` for simple delegation. Core skills omit these and call the Agent tool with explicit `subagent_type` to inject structured context (session_id, delegation_depth, memory_context). See @.claude/context/patterns/fork-patterns.md for the full matrix.
 
-### Body Structure
+### Body Structure (Extension Skills)
 
 ```markdown
 # {Name} Skill
@@ -118,57 +305,49 @@ agent: {target-agent-name}
 
 This skill activates when:
 - {Condition 1}
-- {Condition 2}
 
----
+## Execution Flow
 
-## Execution
+### Stage 1: Input Validation
+skill_validate_input "$task_number"
 
-### 1. Input Validation
-{Validation logic}
+### Stage 2: Preflight Status Update
+skill_preflight_update "$task_number" "<operation>" "$session_id"
 
-### 2. Context Preparation
-{Delegation context setup}
+### Stage 3: Prepare Delegation Context
+{Domain-specific context description}
 
-### 3. Invoke Subagent
-{Agent invocation}
+### Stage 4: Invoke Subagent
+Use Agent tool with subagent_type: "{agent-name}".
 
-### 4. Return Validation
-{Return validation}
+## Postflight (ALWAYS EXECUTE)
+{Stages 5-9 using skill-base.sh functions}
 
-### 5. Return Propagation
-{Return propagation}
-
----
-
-## Return Format
-{Reference to subagent-return.md}
-
----
-
-## Error Handling
-{Error handling patterns}
+## MUST NOT (Postflight Boundary)
+{Reference to postflight-tool-restrictions.md}
 ```
 
 ---
 
 ## Step-by-Step Guide
 
+This guide covers creating an **extension skill** (the most common case). For core skills, follow the same structure but use `skill-base.sh` functions directly (see Pattern A above).
+
 ### Step 1: Create Skill Directory
 
 ```bash
-mkdir -p .claude/skills/skill-{name}
+mkdir -p .claude/extensions/{ext}/skills/skill-{name}
 ```
 
 ### Step 2: Create SKILL.md
 
-Create `.claude/skills/skill-{name}/SKILL.md`:
+Create `SKILL.md` with frontmatter:
 
 ```yaml
 ---
 name: skill-{name}
 description: {Description}. Invoke for {use case}.
-allowed-tools: Task
+allowed-tools: Agent
 context: fork
 agent: {agent-name}
 ---
@@ -182,112 +361,58 @@ Specify when this skill should be used:
 ## Trigger Conditions
 
 This skill activates when:
-- Task language is "python"
-- Research involves Python packages or APIs
-- Python-specific tooling is needed
+- Task type is "{domain}"
+- {Domain}-specific research/implementation is needed
 ```
 
-### Step 4: Implement Input Validation
+### Step 4: Define Execution Flow with skill-base.sh
 
-Validate required inputs before delegation:
+Use `skill-base.sh` lifecycle functions for all stages. The skill only needs to describe domain-specific context and agent selection:
 
 ```markdown
-### 1. Input Validation
+### Stage 1: Input Validation
+source .claude/scripts/skill-base.sh
+skill_validate_input "$task_number"
+# Exports: TASK_TYPE, TASK_STATUS, PROJECT_NAME, DESCRIPTION, PADDED_NUM, TASK_DIR
 
-Validate required inputs:
-- `task_number` - Must be provided and exist in state.json
-- `focus_prompt` - Optional focus for research direction
+### Stage 2: Preflight Status Update
+skill_preflight_update "$task_number" "<operation>" "$session_id"
 
-```bash
-# Lookup task
-task_data=$(jq -r --arg num "$task_number" \
-  '.active_projects[] | select(.project_number == ($num | tonumber))' \
-  specs/state.json)
+### Stage 3: Prepare Delegation Context
+{Domain-specific context: tools, search strategies, verification commands}
 
-# Validate exists
-if [ -z "$task_data" ]; then
-  return error "Task $task_number not found"
-fi
-
-# Extract fields
-language=$(echo "$task_data" | jq -r '.language // "general"')
-status=$(echo "$task_data" | jq -r '.status')
-project_name=$(echo "$task_data" | jq -r '.project_name')
-description=$(echo "$task_data" | jq -r '.description // ""')
-```
+### Stage 4: Invoke Subagent
+Use Agent tool with subagent_type: "{agent-name}".
 ```
 
-### Step 5: Define Context Preparation
-
-Prepare the delegation context:
+### Step 5: Define Postflight with skill-base.sh
 
 ```markdown
-### 2. Context Preparation
+## Postflight (ALWAYS EXECUTE)
 
-Prepare delegation context:
+### Stage 5: Read Metadata
+skill_read_metadata "$PADDED_NUM" "$PROJECT_NAME"
 
-```json
-{
-  "session_id": "sess_{timestamp}_{random}",
-  "delegation_depth": 1,
-  "delegation_path": ["orchestrator", "{command}", "skill-{name}"],
-  "timeout": 3600,
-  "task_context": {
-    "task_number": N,
-    "task_name": "{project_name}",
-    "description": "{description}",
-    "language": "{language}"
-  },
-  "focus_prompt": "{optional focus}"
-}
-```
+### Stage 6: Update Status
+skill_postflight_update "$task_number" "<operation>" "$session_id" "$SUBAGENT_STATUS"
+
+### Stage 7: Link Artifacts
+skill_link_artifacts "$task_number" "$ARTIFACT_PATH" "$ARTIFACT_TYPE" "$ARTIFACT_SUMMARY" '**Type**' '**Next**'
+
+### Stage 8: Git Commit
+git add -A && git commit -m "task ${task_number}: ..."
+
+### Stage 9: Cleanup
+skill_cleanup "$PADDED_NUM" "$PROJECT_NAME"
 ```
 
-### Step 6: Document Agent Invocation
-
-Describe what the agent will do:
+### Step 6: Add Postflight Boundary and Error Handling
 
 ```markdown
-### 3. Invoke Subagent
-
-Invoke `{agent-name}` via Task tool with:
-- Task context (number, name, description, language)
-- Delegation context (session_id, depth, path)
-- Focus prompt (if provided)
-
-The subagent will:
-- Load required context files
-- Execute domain-specific research/implementation
-- Create artifacts in proper locations
-- Return standardized JSON result
-```
-
-### Step 7: Define Return Validation
-
-Specify validation requirements:
-
-```markdown
-### 4. Return Validation
-
-Validate return matches `subagent-return.md` schema:
-- Status is one of: completed, partial, failed, blocked
-- Summary is non-empty and <100 tokens
-- Artifacts array present (may be empty for failures)
-- Metadata contains session_id, agent_type, delegation info
-```
-
-### Step 8: Document Return Propagation
-
-```markdown
-### 5. Return Propagation
-
-Return validated result to caller without modification.
-```
-
-### Step 9: Add Error Handling
-
-```markdown
----
+## MUST NOT (Postflight Boundary)
+After the agent returns, MUST NOT: edit source files, run build/test, use domain tools.
+Postflight is LIMITED TO: reading metadata, status updates, artifact linking, git commit, cleanup.
+Reference: @.claude/context/standards/postflight-tool-restrictions.md
 
 ## Error Handling
 
@@ -305,31 +430,31 @@ Return partial status if subagent times out (default 3600s).
 
 ## Complete Example
 
-Here is a complete skill for Python research:
+Here is a complete skill for Rust research:
 
 ```yaml
 ---
-name: skill-python-research
-description: Research Python packages and APIs for implementation tasks. Invoke for Python-language research.
-allowed-tools: Task
+name: skill-rust-research
+description: Research Rust crates and APIs for implementation tasks. Invoke for Rust-language research.
+allowed-tools: Agent
 context: fork
-agent: python-research-agent
+agent: rust-research-agent
 # Original context (now loaded by subagent):
-#   - .claude/context/project/python/tools.md
+#   - .claude/context/project/rust/tools.md
 # Original tools (now used by subagent):
 #   - Read, Write, Glob, Grep, WebSearch, WebFetch
 ---
 
-# Python Research Skill
+# Rust Research Skill
 
-Thin wrapper that delegates Python research to `python-research-agent` subagent.
+Thin wrapper that delegates Rust research to `rust-research-agent` subagent.
 
 ## Trigger Conditions
 
 This skill activates when:
-- Task language is "python"
-- Research involves Python packages, APIs, or frameworks
-- Python-specific tooling documentation is needed
+- Task language is "rust"
+- Research involves Rust crates, APIs, or frameworks
+- Rust-specific tooling documentation is needed
 
 ---
 
@@ -361,29 +486,29 @@ Prepare delegation context:
 {
   "session_id": "sess_{timestamp}_{random}",
   "delegation_depth": 1,
-  "delegation_path": ["orchestrator", "research", "skill-python-research"],
+  "delegation_path": ["orchestrator", "research", "skill-rust-research"],
   "timeout": 3600,
   "task_context": {
     "task_number": 450,
-    "task_name": "add_async_support",
-    "description": "Add async/await support to API client",
-    "language": "python"
+    "task_name": "add_async_runtime",
+    "description": "Add async runtime support to API client",
+    "task_type": "rust"
   },
-  "focus_prompt": "asyncio best practices"
+  "focus_prompt": "tokio best practices"
 }
 ```
 
 ### 3. Invoke Subagent
 
-Invoke `python-research-agent` via Task tool with:
-- Task context (number, name, description, language)
+Invoke `rust-research-agent` via Agent tool with:
+- Task context (number, name, description, task_type)
 - Delegation context (session_id, depth, path)
 - Focus prompt (if provided)
 
 The subagent will:
-- Search for Python-specific documentation
-- Analyze package dependencies
-- Review asyncio patterns and best practices
+- Search for Rust-specific documentation
+- Analyze crate dependencies
+- Review tokio patterns and best practices
 - Create research report in `specs/{NNN}_{SLUG}/reports/`
 - Return standardized JSON result
 
@@ -409,19 +534,19 @@ Expected successful return:
 ```json
 {
   "status": "completed",
-  "summary": "Research completed with 6 findings on asyncio patterns",
+  "summary": "Research completed with 6 findings on tokio patterns",
   "artifacts": [
     {
       "type": "research",
-      "path": "specs/450_add_async_support/reports/01_asyncio-patterns.md",
-      "summary": "Python asyncio research report"
+      "path": "specs/450_add_async_runtime/reports/01_tokio-patterns.md",
+      "summary": "Rust tokio research report"
     }
   ],
   "metadata": {
     "session_id": "sess_1736700000_abc123",
-    "agent_type": "python-research-agent",
+    "agent_type": "rust-research-agent",
     "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "research", "python-research-agent"]
+    "delegation_path": ["orchestrator", "research", "rust-research-agent"]
   },
   "next_steps": "Run /plan 450 to create implementation plan"
 }
@@ -450,7 +575,7 @@ Before finalizing a new skill, verify:
 ### Frontmatter
 - [ ] `name` matches directory name
 - [ ] `description` is clear and includes "Invoke for" pattern
-- [ ] `allowed-tools` is `Task` (for thin wrapper skills)
+- [ ] `allowed-tools` is `Agent` (for thin wrapper skills)
 - [ ] `context` is `fork` (for lazy loading)
 - [ ] `agent` specifies target agent
 
@@ -508,7 +633,7 @@ Skill blindly returns whatever agent returns.
 **Right**:
 Skill validates return matches `subagent-return.md` schema before propagating.
 
-### 4. Not Using Task Tool
+### 4. Not Using Agent Tool
 
 **Wrong**:
 ```yaml
@@ -517,7 +642,7 @@ allowed-tools: Read, Write, Bash, WebSearch
 
 **Right**:
 ```yaml
-allowed-tools: Task
+allowed-tools: Agent
 ```
 
 ---
@@ -534,4 +659,4 @@ allowed-tools: Task
 
 **Document Version**: 1.0
 **Created**: 2026-01-12
-**Maintained By**: Neovim Configuration Development Team
+**Maintained By**: Development Team

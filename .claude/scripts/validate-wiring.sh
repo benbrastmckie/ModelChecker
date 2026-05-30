@@ -102,10 +102,10 @@ validate_index_entries() {
     fi
 }
 
-# Validate index.json entries for a language
-validate_language_entries() {
+# Validate index.json entries for a task_type
+validate_task_type_entries() {
     local system_dir="$1"
-    local language="$2"
+    local task_type="$2"
 
     local index_file="$system_dir/context/index.json"
     if [[ ! -f "$index_file" ]]; then
@@ -114,13 +114,13 @@ validate_language_entries() {
     fi
 
     local count
-    count=$(jq -r "[.entries[] | select(.load_when.languages[]? == \"$language\")] | length" "$index_file" 2>/dev/null || echo "0")
+    count=$(jq -r "[.entries[] | select(.load_when.task_types[]? == \"$task_type\")] | length" "$index_file" 2>/dev/null || echo "0")
 
     if [[ "$count" -gt 0 ]]; then
-        log_pass "index.json: language '$language' has $count entries"
+        log_pass "index.json: task_type '$task_type' has $count entries"
         return 0
     else
-        log_warn "index.json: language '$language' has 0 entries (extension not loaded?)"
+        log_warn "index.json: task_type '$task_type' has 0 entries (extension not loaded?)"
         return 0
     fi
 }
@@ -203,9 +203,9 @@ validate_core_system() {
     validate_index_entries "$system_dir" "general-implementation-agent"
     validate_index_entries "$system_dir" "meta-builder-agent"
 
-    # Check core language routing
-    log_info "Checking core language routing..."
-    validate_language_entries "$system_dir" "meta"
+    # Check core task_type routing
+    log_info "Checking core task_type routing..."
+    validate_task_type_entries "$system_dir" "meta"
 }
 
 # Validate extensions loaded
@@ -237,12 +237,6 @@ validate_extensions_loaded() {
 
         # Check extension agents exist
         case "$ext_name" in
-            nvim)
-                validate_agent_exists "$system_dir/$agents_subdir" "neovim-research-agent"
-                validate_agent_exists "$system_dir/$agents_subdir" "neovim-implementation-agent"
-                validate_index_entries "$system_dir" "neovim-research-agent"
-                validate_language_entries "$system_dir" "neovim"
-                ;;
             lean)
                 validate_agent_exists "$system_dir/$agents_subdir" "lean-research-agent"
                 validate_agent_exists "$system_dir/$agents_subdir" "lean-implementation-agent"

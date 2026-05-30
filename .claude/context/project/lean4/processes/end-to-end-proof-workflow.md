@@ -16,6 +16,17 @@ This file outlines the standard workflow for developing a proof in Lean 4, from 
 
 ## Process Steps
 
+### Step 0: Check for Literature Source
+
+**Action**: Determine whether a literature source (paper, textbook, lecture notes) is provided for this proof.
+**Validation**: If a source exists, identify the specific proof or argument to follow.
+**Output**: Mode determination -- literature-guided or first-principles.
+
+When a literature source is provided:
+- Extract the proof structure from the source before proceeding to Step 1
+- Steps 2-4 should follow the source's argument structure
+- See `literature-fidelity-policy.md` for full policy details
+
 ### Step 1: State the Theorem
 
 **Action**: Write the theorem statement in Lean 4 syntax.
@@ -24,9 +35,9 @@ This file outlines the standard workflow for developing a proof in Lean 4, from 
 
 ### Step 2: Outline the Proof
 
-**Action**: Write a high-level outline of the proof in comments.
-**Validation**: The outline should be a valid argument for the theorem.
-**Output**: A commented proof outline.
+**Action**: Write a high-level outline of the proof in comments. In literature-guided mode, extract the outline from the literature source rather than composing one independently.
+**Validation**: The outline should be a valid argument for the theorem. In literature-guided mode, it should mirror the source's argument structure (same decomposition, same ordering).
+**Output**: A commented proof outline, with literature step references when applicable.
 
 ### Step 3: Fill in the Proof
 
@@ -45,8 +56,10 @@ This file outlines the standard workflow for developing a proof in Lean 4, from 
 - `lean4-syntax.md`
 - `mathlib-overview.md`
 - `key-mathematical-concepts.md`
+- `literature-fidelity-policy.md`
 
 ## Success Criteria
 
 - The proof is complete and correct.
 - The proof is readable and maintainable.
+- When a literature source is provided, the proof structure mirrors the source.

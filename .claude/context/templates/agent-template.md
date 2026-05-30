@@ -1,331 +1,114 @@
-# Agent Templates for System Generation
+# Agent Template (Context Reference)
 
-**Purpose**: Standard templates for different agent types
-**Last Updated**: 2025-12-29
+**Purpose**: Canonical agent structure used by `meta-builder-agent` when generating new agents via the `/meta` command.
 
----
+For the user-facing tutorial version of this template, see `.claude/docs/templates/agent-template.md` and `.claude/docs/guides/creating-agents.md`.
 
-## Orchestrator Template
+## Frontmatter Standard
 
-**Purpose**: Route requests and delegate to subagents
-
-### Frontmatter
+All agents use the minimal frontmatter format defined in `.claude/docs/reference/standards/agent-frontmatter-standard.md`:
 
 ```yaml
 ---
-name: "domain-orchestrator"
-version: "1.0.0"
-description: "Routes requests and delegates to domain-specific subagents"
-mode: orchestrator
-agent_type: router
-temperature: 0.1
-max_tokens: 2000
-timeout: 3600
-tools:
-  read: true
-permissions:
-  allow:
-    - read: [".claude/**/*"]
-  deny: []
-context_loading:
-  strategy: lazy
-  index: ".claude/context/index.json"
-  required:
-    - "core/standards/delegation.md"
-    - "core/standards/delegation.md"
-  optional:
-    - "domain/routing-rules.md"
-  max_context_size: 30000
-delegation:
-  max_depth: 3
-  can_delegate_to: ["subagent-1", "subagent-2", "subagent-3"]
-  timeout_default: 1800
-  timeout_max: 3600
-lifecycle:
-  stage: 8
-  return_format: "subagent-return-format.md"
+name: <agent-name>
+description: <brief description of agent purpose>
+model: opus
 ---
 ```
 
-### Structure
+**Required fields**: `name`, `description`
 
-```xml
-<context>
-  <specialist_domain>Request routing and delegation</specialist_domain>
-  <task_scope>Analyze requests and route to appropriate subagents</task_scope>
-</context>
+**Optional field**: `model` (values: `opus`, `sonnet`)
 
-<role>Orchestrator specializing in request analysis and delegation</role>
+**Do NOT include** these fields - they are not supported by the current Agent tool:
+- `mode`
+- `version`
+- `temperature`
+- `max_tokens`
+- `timeout`
+- `tools:` block
+- `return_format`
 
-<task>Route requests to appropriate subagents based on request type and context</task>
+## Agent Body Structure
 
-<workflow_execution>
-  <stage id="1" name="InputValidation">...</stage>
-  <stage id="2" name="ContextLoading">...</stage>
-  <stage id="3" name="RequestAnalysis">...</stage>
-  <stage id="4" name="SubagentSelection">...</stage>
-  <stage id="5" name="Delegation">...</stage>
-  <stage id="6" name="ResultProcessing">...</stage>
-  <stage id="7" name="Postflight">...</stage>
-  <stage id="8" name="Cleanup">...</stage>
-</workflow_execution>
+Every agent body follows this canonical structure:
+
+```markdown
+# <Agent Name>
+
+<One-paragraph overview.>
+
+## Context References
+
+- `@.claude/context/formats/return-metadata-file.md` - Always load
+- <domain-specific @-references>
+
+## Execution Flow
+
+### Stage 0: Initialize Early Metadata
+Create `.return-meta.json` with `status: "in_progress"` before any substantive work.
+
+### Stage 1: Parse Delegation Context
+Extract `session_id`, `task_number`, `task_name`, `task_type`, `delegation_depth`.
+
+### Stage 2: Load Context
+Use adaptive query from `context-discovery.md`.
+
+### Stage 3: Execute Core Work
+<Domain-specific work.>
+
+### Stage 4: Write Artifacts
+Create artifacts in `specs/{NNN}_{SLUG}/{reports,plans,summaries}/`.
+
+### Stage 5: Validate Artifacts
+Verify files exist, non-empty, required sections present.
+
+### Stage 6: Write Final Metadata
+Status values: `researched`, `planned`, `implemented`, `partial`, `failed`. Never `completed`.
+
+### Stage 7: Return Brief Summary
+Return 3-6 bullet points, NOT JSON.
+
+## Error Handling
+
+See `.claude/rules/error-handling.md`. Agent-specific overrides documented here.
+
+## Critical Requirements
+
+- Create early metadata before substantive work
+- Write final metadata before returning
+- Never use `completed` status value
+- Never return JSON to console
 ```
 
----
+## Agent Type Variants
 
-## Research Template
+### Research Agent
 
-**Purpose**: Investigate topics and create research reports
+- Typical model: `opus`
+- Primary artifact: `specs/{NNN}_{SLUG}/reports/MM_{short-slug}.md`
+- Key sources: web search, codebase exploration, MCP tools
+- Status transitions: `researching` -> `researched`
 
-### Frontmatter
+### Planning Agent
 
-```yaml
----
-name: "domain-researcher"
-version: "1.0.0"
-description: "Conducts research and creates comprehensive reports"
-mode: subagent
-agent_type: research
-temperature: 0.3
-max_tokens: 4000
-timeout: 3600
-tools:
-  read: true
-  webfetch: true
-permissions:
-  allow:
-    - read: ["**/*"]
-    - write: ["specs/**/*"]
-  deny: []
-context_loading:
-  strategy: lazy
-  index: ".claude/context/index.json"
-  required:
-    - "core/standards/delegation.md"
-    - "core/workflows/research-workflow.md"
-  max_context_size: 50000
-delegation:
-  max_depth: 3
-  can_delegate_to: []
-  timeout_default: 3600
-  timeout_max: 3600
-lifecycle:
-  stage: 8
-  return_format: "subagent-return-format.md"
----
-```
+- Typical model: `opus`
+- Primary artifact: `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md`
+- Plan format: see `.claude/rules/plan-format-enforcement.md`
+- Status transitions: `planning` -> `planned`
 
-### Structure
+### Implementation Agent
 
-```xml
-<context>
-  <specialist_domain>Research and investigation</specialist_domain>
-  <task_scope>Investigate topics and create comprehensive reports</task_scope>
-</context>
+- Typical model: (default, omit `model:` field)
+- Primary artifacts: source files, tests, configuration
+- Secondary artifact: `specs/{NNN}_{SLUG}/summaries/MM_{short-slug}-summary.md`
+- Phase-level git commits: `task {N} phase {P}: {name}`
+- Status transitions: `implementing` -> `implemented`/`partial`
 
-<role>Research Specialist expert in investigation and documentation</role>
+## Related Context
 
-<task>Conduct research and create detailed reports with findings and recommendations</task>
-
-<workflow_execution>
-  <stage id="1" name="InputValidation">...</stage>
-  <stage id="2" name="ContextLoading">...</stage>
-  <stage id="3" name="Investigation">...</stage>
-  <stage id="4" name="Analysis">...</stage>
-  <stage id="5" name="ReportGeneration">...</stage>
-  <stage id="6" name="ReturnFormatting">...</stage>
-  <stage id="7" name="Postflight">...</stage>
-  <stage id="8" name="Cleanup">...</stage>
-</workflow_execution>
-```
-
----
-
-## Validation Template
-
-**Purpose**: Check and verify artifacts for quality and correctness
-
-### Frontmatter
-
-```yaml
----
-name: "domain-validator"
-version: "1.0.0"
-description: "Validates artifacts for quality and correctness"
-mode: subagent
-agent_type: validation
-temperature: 0.1
-max_tokens: 2000
-timeout: 1200
-tools:
-  read: true
-permissions:
-  allow:
-    - read: ["**/*"]
-  deny: []
-context_loading:
-  strategy: lazy
-  index: ".claude/context/index.json"
-  required:
-    - "core/standards/validation-criteria.md"
-  max_context_size: 30000
-delegation:
-  max_depth: 3
-  can_delegate_to: []
-  timeout_default: 1200
-  timeout_max: 1200
-lifecycle:
-  stage: 8
-  return_format: "subagent-return-format.md"
----
-```
-
----
-
-## Processing Template
-
-**Purpose**: Transform and analyze data or artifacts
-
-### Frontmatter
-
-```yaml
----
-name: "domain-processor"
-version: "1.0.0"
-description: "Processes and transforms data or artifacts"
-mode: subagent
-agent_type: processing
-temperature: 0.2
-max_tokens: 3000
-timeout: 1800
-tools:
-  read: true
-  write: true
-permissions:
-  allow:
-    - read: ["**/*"]
-    - write: ["specs/**/*"]
-  deny: []
-context_loading:
-  strategy: lazy
-  index: ".claude/context/index.json"
-  required:
-    - "core/standards/delegation.md"
-  max_context_size: 40000
-delegation:
-  max_depth: 3
-  can_delegate_to: []
-  timeout_default: 1800
-  timeout_max: 1800
-lifecycle:
-  stage: 8
-  return_format: "subagent-return-format.md"
----
-```
-
----
-
-## Generation Template
-
-**Purpose**: Create new artifacts (code, documentation, etc.)
-
-### Frontmatter
-
-```yaml
----
-name: "domain-generator"
-version: "1.0.0"
-description: "Generates new artifacts based on specifications"
-mode: subagent
-agent_type: generation
-temperature: 0.4
-max_tokens: 4000
-timeout: 2400
-tools:
-  read: true
-  write: true
-permissions:
-  allow:
-    - read: ["**/*"]
-    - write: [".claude/**/*"]
-  deny: []
-context_loading:
-  strategy: lazy
-  index: ".claude/context/index.json"
-  required:
-    - "core/standards/delegation.md"
-    - "domain/generation-templates.md"
-  max_context_size: 50000
-delegation:
-  max_depth: 3
-  can_delegate_to: []
-  timeout_default: 2400
-  timeout_max: 2400
-lifecycle:
-  stage: 8
-  return_format: "subagent-return-format.md"
----
-```
-
----
-
-## Common Workflow Stages
-
-All templates follow the 8-stage workflow pattern:
-
-### Stage 1: Input Validation
-- Verify all required parameters provided
-- Validate parameter types and formats
-- Check prerequisites
-- Return error if validation fails
-
-### Stage 2: Context Loading
-- Load context index
-- Load required context files
-- Load optional context on-demand
-- Validate context within size limits
-
-### Stage 3: Core Execution
-- Execute primary task logic
-- Process inputs
-- Generate intermediate results
-- Handle errors gracefully
-
-### Stage 4: Output Generation
-- Format results
-- Generate artifacts
-- Prepare return data
-- Validate outputs
-
-### Stage 5: Artifact Creation
-- Write files to disk
-- Create directory structure
-- Validate file writes
-- Track artifact paths
-
-### Stage 6: Return Formatting
-- Format response per subagent-return-format.md
-- Include status, summary, artifacts, metadata
-- Ensure summary <100 tokens
-- Validate return structure
-
-### Stage 7: Postflight (Critical)
-- Validate all artifacts created
-- Update TODO.md and state.json (via status-sync-manager)
-- Create git commit (via git-workflow-manager)
-- Log errors to errors.json
-
-### Stage 8: Cleanup
-- Clean up temporary files
-- Release resources
-- Log completion
-- Return final result
-
----
-
-## Related Templates
-
-- **Interview Patterns**: `.claude/context/workflows/interview-patterns.md`
-- **Architecture Principles**: `.claude/context/standards/architecture-principles.md`
-- **Domain Patterns**: `.claude/context/standards/domain-patterns.md`
-
+- `.claude/context/formats/return-metadata-file.md` - Metadata schema
+- `.claude/context/formats/subagent-return.md` - Return format spec
+- `.claude/context/patterns/context-discovery.md` - Context query pattern
+- `.claude/docs/reference/standards/agent-frontmatter-standard.md` - Frontmatter standard
+- `.claude/docs/guides/creating-agents.md` - User-facing creation guide

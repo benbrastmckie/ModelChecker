@@ -50,7 +50,7 @@ This document describes the complete implementation workflow executed by the imp
 
 ---
 
-## Language-Based Routing
+## Task-Type-Based Routing
 
 ### Language Extraction
 
@@ -64,16 +64,16 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 
 ### Routing Rules
 
-| Language | Agent | Tools Available |
+| Task Type | Agent | Tools Available |
 |----------|-------|----------------|
-| `neovim` | `neovim-implementation-agent` | nvim --headless, File operations, git |
 | `markdown` | `implementer` | File operations, git |
 | `meta` | `implementer` | File operations, git |
 | `general` | `implementer` | File operations, git |
+| _{extension}_ | _Extension-provided agent_ | _Defined by extension manifest_ |
 
 **Note**: Additional languages (latex, typst) available via extensions in `.claude/extensions/`.
 
-**Critical**: Language extraction MUST occur before routing. Incorrect routing bypasses language-specific tooling.
+**Critical**: Language extraction MUST occur before routing. Incorrect routing bypasses task-type-specific tooling.
 
 ---
 
@@ -173,10 +173,9 @@ grep -A 20 "^### ${task_number}\." specs/TODO.md | grep "Language" | sed 's/\*\*
 **Process**:
 1. Create implementation files (code, docs, configs):
    - Paths vary by language and task
-   - Neovim: `nvim/lua/**/*.lua`, `after/ftplugin/**/*.lua`
    - Markdown: `docs/**/*.md`, `.claude/**/*.md`
-   - LaTeX: `**/*.tex`
    - Config: `**/*.json`, `**/*.yaml`, etc.
+   - Extension-specific paths defined by extension context
 2. If multi-file output (>1 file modified/created):
    - Create implementation summary artifact
    - Path: `specs/{number}_{slug}/summaries/MM_{short-slug}-summary.md`
@@ -282,7 +281,7 @@ status-sync-manager ensures TODO.md, state.json, and plan file (if exists) are u
 
 ### Step 6: Prepare Return
 
-**Action**: Format return object per subagent-return-format.md
+**Action**: Format return object per subagent-return.md
 
 **Process**:
 1. Build return object:
@@ -307,7 +306,7 @@ status-sync-manager ensures TODO.md, state.json, and plan file (if exists) are u
        "mode": "phased|direct",
        "phases_completed": {count} (if phased),
        "files_modified": {count},
-       "language": "{language}"
+       "task_type": "{task_type}"
      },
      "session_id": "{session_id}"
    }
@@ -497,7 +496,7 @@ Warning: Could not extract language from task entry
 Defaulting to: general
 Agent: implementer
 
-Recommendation: Add **Language**: {language} to task entry in TODO.md
+Recommendation: Add **Task Type**: {language} to task entry in TODO.md
 ```
 
 ---

@@ -20,15 +20,17 @@ General workflow and best practices for constructing formal proofs in modal and 
 
 ### 3. Choose Strategy
 
-- Direct proof vs indirect proof
-- Forward vs backward reasoning
-- Induction vs case analysis
+- **Literature-guided** (when a reference proof is provided): Follow the reference. The strategy, lemma decomposition, and proof technique are determined by the source. See `literature-fidelity-policy.md`.
+- **First-principles** (when no reference is provided): Choose from:
+  - Direct proof vs indirect proof
+  - Forward vs backward reasoning
+  - Induction vs case analysis
 
 ## Proof Development Phases
 
 ### Phase 1: Sketch
 
-1. Write informal proof idea
+1. Write informal proof idea (first-principles) OR extract proof structure from literature source (literature-guided)
 2. Identify key lemmas needed
 3. Note potential difficulties
 
@@ -140,3 +142,4 @@ To prove phi:
 - How to Prove It (Velleman)
 - Proof Theory (Troelstra, Schwichtenberg)
 - Certified Programming with Dependent Types (Chlipala)
+- `literature-fidelity-policy.md` - Literature fidelity policy for formal proofs

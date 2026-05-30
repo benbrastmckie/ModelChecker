@@ -1,7 +1,7 @@
 ---
 name: skill-z3-implementation
 description: Implement Z3 constraints. Invoke for Z3-language implementation tasks.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Z3 Implementation Skill
@@ -11,7 +11,7 @@ Thin wrapper that delegates Z3 implementation to `z3-implementation-agent` subag
 ## Trigger Conditions
 
 This skill activates when:
-- Task language is "z3"
+- Task type is "z3"
 - /implement command targets a Z3 task
 - Plan exists and task is ready for implementation
 
@@ -27,16 +27,30 @@ Update status to "implementing" BEFORE invoking subagent.
 Include task_context, plan_path, metadata_file_path.
 
 ### Stage 4: Invoke Subagent
-Use Task tool with subagent_type: "z3-implementation-agent".
+Use Agent tool with subagent_type: "z3-implementation-agent".
+
+### Stage 4b: Self-Execution Fallback
+
+**CRITICAL**: If you performed the work above WITHOUT using the Agent tool (i.e., you read files,
+wrote artifacts, or updated metadata directly instead of spawning a subagent), you MUST write a
+`.return-meta.json` file now before proceeding to postflight. Use the schema from
+`return-metadata-file.md` with status value "implemented".
+
+If you DID use the Agent tool, skip this stage -- the subagent already wrote the metadata.
+
+## Postflight (ALWAYS EXECUTE)
+
+The following stages MUST execute after work is complete, whether the work was done by a
+subagent or inline (Stage 4b). Do NOT skip these stages for any reason.
 
 ### Stage 5: Parse Subagent Return
-Read metadata from `specs/{N}_{SLUG}/.return-meta.json`.
+Read the metadata file from `specs/{N}_{SLUG}/.return-meta.json`.
 
 ### Stage 6: Update Task Status (Postflight)
 Update state.json and TODO.md based on result.
 
 ### Stage 7: Link Artifacts
-Add artifact to state.json with summary.
+Add artifact to state.json with summary. Update TODO.md per `@.claude/context/patterns/artifact-linking-todo.md` with `field_name=**Summary**`, `next_field=**Description**`.
 
 ### Stage 8: Git Commit
 Commit changes with session ID.
@@ -51,6 +65,8 @@ After the agent returns, this skill MUST NOT:
 2. **Run z3 solver** - Verification is done by agent
 3. **Analyze or grep source** - Analysis is agent work
 4. **Write summary/reports** - Artifact creation is agent work
+
+> **PROHIBITION**: If the subagent returned partial or failed status, the lead skill MUST NOT attempt to continue, complete, or "fill in" the subagent's work. Report the partial/failed status and let the user re-run `/implement` to resume.
 
 The postflight phase is LIMITED TO:
 - Reading agent metadata file

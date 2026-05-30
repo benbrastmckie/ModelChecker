@@ -72,7 +72,7 @@ specs/
       "project_number": 89,
       "project_name": "task_slug",
       "status": "planned",
-      "language": "neovim",
+      "task_type": "general",
       "description": "Detailed task description (50-500 chars)",
       "created": "2025-12-29T09:00:00Z",
       "last_updated": "2025-12-29"
@@ -90,7 +90,7 @@ specs/
 - `project_number`: Unique task ID
 - `project_name`: Slug from task title
 - `status`: Current status (lowercase: `not_started`, `researching`, `planned`, etc.)
-- `language`: Task language (`neovim`, `general`, `meta`, `markdown`, `latex`, `typst`)
+- `language`: Task type (`general`, `meta`, `markdown`, or extension-provided type)
 - `description`: Task description (50-500 chars, optional for legacy tasks)
 
 ### Archive State File (`specs/archive/state.json`)
@@ -129,7 +129,7 @@ if [ -z "$task_data" ]; then
 fi
 
 # 3. Extract metadata (single pass)
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 project_name=$(echo "$task_data" | jq -r '.project_name')
 description=$(echo "$task_data" | jq -r '.description // ""')
@@ -144,8 +144,8 @@ description=$(echo "$task_data" | jq -r '.description // ""')
 in_progress=$(jq -r '.active_projects[] | select(.status == "implementing") | .project_number' \
   specs/state.json)
 
-# Get all Neovim tasks
-neovim_tasks=$(jq -r '.active_projects[] | select(.language == "neovim") | .project_number' \
+# Get all tasks of a specific type
+typed_tasks=$(jq -r '.active_projects[] | select(.task_type == "meta") | .project_number' \
   specs/state.json)
 ```
 
@@ -269,7 +269,7 @@ grep -A 20 "### ${task_number}\." specs/TODO.md
 ### 3. Provide Default Values
 
 ```bash
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 description=$(echo "$task_data" | jq -r '.description // ""')
 ```
 
@@ -282,32 +282,23 @@ description=$(echo "$task_data" | jq -r '.description // ""')
 
 ## Status Transition Rules
 
-### Valid Transitions
+### Permissive Model
+
+Any command can run from any non-terminal status. Only terminal states block transitions:
 
 ```
-[NOT STARTED] -> [RESEARCHING] | [PLANNING] | [IMPLEMENTING] | [BLOCKED] | [EXPANDED]
-[RESEARCHING] -> [RESEARCHED] | [BLOCKED] | [ABANDONED]
-[RESEARCHED] -> [PLANNING] | [IMPLEMENTING] | [BLOCKED] | [EXPANDED]
-[PLANNING] -> [PLANNED] | [BLOCKED] | [ABANDONED]
-[PLANNED] -> [REVISING] | [IMPLEMENTING] | [BLOCKED] | [EXPANDED]
-[REVISING] -> [REVISED] | [BLOCKED] | [ABANDONED]
-[REVISED] -> [IMPLEMENTING] | [REVISING] | [BLOCKED] | [EXPANDED]
-[IMPLEMENTING] -> [COMPLETED] | [PARTIAL] | [BLOCKED] | [ABANDONED]
-[PARTIAL] -> [IMPLEMENTING] | [COMPLETED] | [ABANDONED]
-[BLOCKED] -> [RESEARCHING] | [PLANNING] | [IMPLEMENTING] | [ABANDONED] | [EXPANDED]
+Terminal states: [COMPLETED], [ABANDONED], [EXPANDED]
+
+Any non-terminal status -> any command (research, plan, implement, revise)
+Any non-terminal status -> [BLOCKED] | [ABANDONED] | [EXPANDED]
+[IMPLEMENTING] -> [PARTIAL] (on timeout/error)
 ```
 
 ### Terminal States
 
 - `[COMPLETED]` - No further transitions
-- `[EXPANDED]` - Terminal-like (work continues in subtasks)
-- `[ABANDONED]` - Typically terminal (rare restart to [NOT STARTED])
-
-### Invalid Transitions
-
-- `[NOT STARTED]` -> `[COMPLETED]` (must go through work phases)
-- `[NOT STARTED]` -> `[ABANDONED]` (cannot abandon work never started)
-- `[ABANDONED]` -> `[COMPLETED]` (abandoned work not complete)
+- `[ABANDONED]` - No further transitions (use /task --recover to restart)
+- `[EXPANDED]` - No further transitions (work continues in subtasks)
 
 ### Command Mappings
 

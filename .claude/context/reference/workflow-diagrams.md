@@ -22,9 +22,9 @@ Process diagrams for research, planning, and implementation workflows. For behav
          |
          v
 +-----------------+
-| Route by lang   |
-| neovim->neovim-*|
-| other->web/code |
+| Route by type   |
+| ext->ext-agent  |
+| core->core-agent|
 +--------+--------+
          |
          v

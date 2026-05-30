@@ -19,7 +19,7 @@ The context discovery system uses a machine-readable `index.json` format that en
 1. **Automated Discovery**: Agents can query for relevant context without hardcoded file lists
 2. **Budget-Aware Loading**: `line_count` field enables context budget management
 3. **Agent-Specific Loading**: `load_when.agents[]` field allows automatic context for agents
-4. **Language Routing**: `load_when.languages[]` supports language-based context selection
+4. **Language Routing**: `load_when.task_types[]` supports task-type-based context selection
 5. **Deprecation Tracking**: `deprecated` and `replacement` fields for clean transitions
 6. **Validation**: JSON Schema enables automated validation
 
@@ -50,16 +50,16 @@ The context discovery system uses a machine-readable `index.json` format that en
 
 ```json
 {
-  "path": "project/neovim/domain/neovim-api.md",
+  "path": "project/python/domain/python-api.md",
   "domain": "project",
-  "subdomain": "neovim",
-  "topics": ["vim-api", "vim-fn", "vim-opt"],
-  "keywords": ["vim.api", "vim.fn", "vim.opt", "Neovim"],
-  "summary": "vim.* API patterns for Neovim",
+  "subdomain": "python",
+  "topics": ["stdlib", "typing", "async"],
+  "keywords": ["asyncio", "typing", "dataclass", "Python"],
+  "summary": "Python standard library patterns",
   "line_count": 236,
   "load_when": {
-    "agents": ["neovim-research-agent", "neovim-implementation-agent"],
-    "languages": ["neovim"]
+    "agents": ["python-research-agent", "python-implementation-agent"],
+    "task_types": ["python"]
   }
 }
 ```
@@ -77,7 +77,7 @@ The context discovery system uses a machine-readable `index.json` format that en
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `subdomain` | string | Subdomain category (e.g., `neovim`, `latex`) |
+| `subdomain` | string | Subdomain category (e.g., `python`, `latex`) |
 | `topics` | array | Semantic topics covered |
 | `keywords` | array | Search keywords |
 | `load_when` | object | Automatic loading conditions |
@@ -92,7 +92,7 @@ The `load_when` object controls automatic context loading:
 "load_when": {
   "agents": ["agent-name"],       // Load for specific agents
   "commands": ["/command"],       // Load for specific commands
-  "languages": ["neovim"],        // Load for task languages
+  "task_types": ["python"],        // Load for task languages
   "always": true                  // Always load for domain
 }
 ```
@@ -114,14 +114,14 @@ Add entry to `index.json`:
 {
   "path": "path/to/new-file.md",
   "domain": "project",
-  "subdomain": "neovim",
+  "subdomain": "python",
   "topics": ["topic1", "topic2"],
   "keywords": ["keyword1", "keyword2"],
   "summary": "Brief description",
   "line_count": 150,
   "load_when": {
     "agents": ["relevant-agent"],
-    "languages": ["neovim"]
+    "task_types": ["python"]
   }
 }
 ```
@@ -188,7 +188,7 @@ Checks performed:
 
 ```bash
 jq -r '.entries[] |
-  select(.load_when.agents[]? == "neovim-research-agent") |
+  select(.load_when.agents[]? == "general-research-agent") |
   .path' .claude/context/index.json
 ```
 
@@ -196,7 +196,7 @@ jq -r '.entries[] |
 
 ```bash
 jq -r '.entries[] |
-  select(.load_when.languages[]? == "neovim") |
+  select(.load_when.task_types[]? == "python") |
   .path' .claude/context/index.json
 ```
 

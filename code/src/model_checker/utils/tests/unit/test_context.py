@@ -2,67 +2,79 @@
 
 import pytest
 import z3
+import z3.z3
 
 
-def test_z3_context_manager_exists():
-    """Test that Z3ContextManager can be imported."""
-    from model_checker.utils import Z3ContextManager
-    from model_checker.utils.context import reset_z3_context
-    assert Z3ContextManager is not None
-    assert reset_z3_context is not None
-    
-
-def test_reset_context_method_exists():
-    """Test that reset_context method exists."""
-    from model_checker.utils import Z3ContextManager
-    from model_checker.utils.context import reset_z3_context
-    manager = Z3ContextManager()
-    assert hasattr(manager, 'reset_context')
-    assert callable(manager.reset_context)
-    assert callable(reset_z3_context)
+def test_isolated_z3_context_importable():
+    """Test that isolated_z3_context can be imported."""
+    from model_checker.utils import isolated_z3_context
+    from model_checker.utils.context import isolated_z3_context as ctx2
+    assert isolated_z3_context is not None
+    assert isolated_z3_context is ctx2
 
 
-def test_reset_context_clears_z3_state():
-    """Test that reset_context actually clears Z3 state."""
-    from model_checker.utils.context import reset_z3_context
-    
-    # Create a solver with some constraints
-    s1 = z3.Solver()
-    x = z3.Int('x')
-    s1.add(x > 0)
-    assert s1.check() == z3.sat
-    
-    # Reset context
-    reset_z3_context()
-    
-    # Create a new solver - should be independent
-    s2 = z3.Solver()
-    y = z3.Int('y')
-    s2.add(y < 0)
-    assert s2.check() == z3.sat
-    
+def test_isolated_z3_context_is_callable():
+    """Test that isolated_z3_context is a callable context manager factory."""
+    from model_checker.utils.context import isolated_z3_context
+    assert callable(isolated_z3_context)
 
-def test_reset_context_handles_missing_attributes():
-    """Test that reset_context handles missing Z3 attributes gracefully."""
-    from model_checker.utils.context import reset_z3_context
-    
-    # This should not raise an exception
+
+def test_isolated_z3_context_creates_fresh_context():
+    """Test that isolated_z3_context creates a distinct C-level context."""
+    from model_checker.utils.context import isolated_z3_context
+
+    original_ctx = z3.z3._main_ctx
+    with isolated_z3_context():
+        inner_ctx = z3.z3._main_ctx
+        assert inner_ctx is not original_ctx, "Fresh context should differ from original"
+    restored_ctx = z3.z3._main_ctx
+    assert restored_ctx is original_ctx, "Original context should be restored on exit"
+
+
+def test_isolated_z3_context_restores_on_exception():
+    """Test that the original context is restored even if an exception is raised."""
+    from model_checker.utils.context import isolated_z3_context
+
+    original_ctx = z3.z3._main_ctx
     try:
-        reset_z3_context()
-    except AttributeError:
-        pytest.fail("reset_context should handle missing attributes gracefully")
+        with isolated_z3_context():
+            raise RuntimeError("deliberate error")
+    except RuntimeError:
+        pass
+    assert z3.z3._main_ctx is original_ctx, "Context must be restored after exception"
 
 
-def test_multiple_resets():
-    """Test that multiple context resets work correctly."""
-    from model_checker.utils.context import reset_z3_context
-    
-    # Multiple resets should not cause issues
+def test_isolated_z3_context_provides_isolation():
+    """Test that Z3 state does not leak between two consecutive isolated blocks."""
+    from model_checker.utils.context import isolated_z3_context
+
+    # First block: create a solver with x > 100
+    with isolated_z3_context():
+        x = z3.Int('x')
+        solver1 = z3.Solver()
+        solver1.add(x > 100)
+        assert solver1.check() == z3.sat
+
+    # Second block: new context, x > 100 should have no influence
+    with isolated_z3_context():
+        x = z3.Int('x')
+        solver2 = z3.Solver()
+        solver2.add(x < 0)
+        result = solver2.check()
+        # Must still be SAT because x < 0 is satisfiable independently
+        assert result == z3.sat
+
+
+def test_multiple_nested_uses():
+    """Test that sequential isolated_z3_context calls work correctly."""
+    from model_checker.utils.context import isolated_z3_context
+
+    original = z3.z3._main_ctx
     for _ in range(3):
-        reset_z3_context()
-        
-        # Create a solver to verify Z3 still works
-        s = z3.Solver()
-        x = z3.Bool('x')
-        s.add(x)
-        assert s.check() == z3.sat
+        with isolated_z3_context():
+            s = z3.Solver()
+            b = z3.Bool('b')
+            s.add(b)
+            assert s.check() == z3.sat
+    # Context must be back to original after all iterations
+    assert z3.z3._main_ctx is original

@@ -18,7 +18,7 @@ Extract from input:
     "task_number": 123,
     "task_name": "prove_theorem",
     "description": "...",
-    "language": "lean"
+    "task_type": "lean"
   },
   "metadata": {
     "session_id": "sess_...",
@@ -29,6 +29,24 @@ Extract from input:
   "metadata_file_path": "specs/123_theorem/.return-meta.json"
 }
 ```
+
+---
+
+## Stage 1.5: Check for Literature Source
+
+Before loading the plan, check whether the task involves a literature source:
+
+1. **Scan delegation context** for literature references in task description
+2. **Check plan artifacts** (if previously loaded) for literature step annotations
+3. **Determine mode**: If literature source found, enter **literature-guided mode**; otherwise, **first-principles mode**
+
+In literature-guided mode:
+- Load the literature source (paper, textbook section, proof sketch)
+- Identify the proof strategy prescribed by the source
+- Map source steps to expected proof development stages
+- Carry this mapping into Stage 4B for step-by-step translation
+
+See `literature-fidelity-policy.md` for full mode detection criteria and anti-patterns.
 
 ---
 
@@ -71,20 +89,27 @@ For each proof/theorem in the phase:
 
 1. **Read target file, locate proof point**
 2. **Check current proof state** using `lean_goal`
-3. **Develop proof iteratively**
+3. **Consult literature source** (literature-guided mode only)
+   - Identify which literature step corresponds to the current goal
+   - Translate the literature step into Lean tactics/terms
+   - If translation is clear, apply directly via Edit
+   - If translation is unclear, follow escalation protocol from `literature-fidelity-policy.md`
+4. **Develop proof iteratively** (first-principles mode, or when literature step is not applicable)
    ```
    REPEAT until goals closed or stuck:
      a. Use lean_goal to see current state
-     b. Use lean_multi_attempt to try candidate tactics
+     b. Use lean_multi_attempt to trial candidate tactics WITHOUT editing (pre-edit trial)
      c. If promising tactic found, apply via Edit
-     d. If stuck, use lean_state_search, lean_hammer_premise
-     e. If still stuck, log state and return partial
+     d. After editing, use lean_goal to confirm goal progress; use lean_verify for axiom/sorry check
+     e. If stuck, use lean_state_search, lean_hammer_premise
+     f. If still stuck, log state and return partial
    ```
-4. **Verify step completion** with `lean_goal` and `lake build`
+5. **Verify step completion** with `lean_goal` (proof state) and `lean_verify` (axiom/sorry check); do NOT run `lake build` per-step
 
 ### 4C. Verify Phase Completion
 
-- Run `lake build` to verify full project builds
+- Run `lake build Module.Name` to verify the module compiles (preferred; faster than full build)
+- Fall back to `lake build` only if the module name is unknown or the phase spans multiple modules
 - Check verification criteria from plan
 
 ### 4D. Mark Phase Complete
@@ -95,10 +120,12 @@ Update phase status to `[COMPLETED]` or `[PARTIAL]` or `[BLOCKED]`.
 
 ## Stage 5: Run Final Build Verification
 
-After all phases complete:
+After all phases complete, run the full project build (mandatory -- this is the only required full build):
 ```bash
 lake build
 ```
+
+Note: Per-step verification uses `lean_goal` + `lean_verify`. Phase-end uses `lake build Module.Name`. Only this final stage requires full `lake build`.
 
 ---
 
@@ -141,6 +168,7 @@ Return 3-6 bullet points (NOT JSON).
 
 ### Tactic Selection Strategy
 
+0. **Literature step** (literature-guided mode): Follow the tactic/approach prescribed by the source for this step. See `literature-fidelity-policy.md`.
 1. **Start Simple**: `simp`, `rfl`, `trivial`, `decide`, `ring`, `omega`
 2. **Structural Tactics**: `intro`, `cases`, `rcases`, `induction`
 3. **Application Tactics**: `exact h`, `apply lemma`, `have`

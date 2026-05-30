@@ -2,7 +2,7 @@
 description: Interactive system builder that creates TASKS for agent architecture changes (never implements directly)
 allowed-tools: Skill
 argument-hint: [PROMPT] | --analyze
-model: claude-opus-4-5-20251101
+model: opus
 ---
 
 # /meta Command
@@ -30,6 +30,27 @@ Interactive system builder that delegates to `skill-meta` for creating TASKS for
 - Require explicit user confirmation before creating any tasks
 - Create task directories for each task
 - Delegate execution to skill-meta
+
+## Anti-Bypass Constraint
+
+**PROHIBITION**: The /meta command and its delegated agents MUST NOT create or modify files in `.claude/` directly using Write or Edit tools. All `.claude/` file creation and modification MUST happen through the standard task lifecycle: /meta creates tasks, then /research -> /plan -> /implement executes them via the Skill tool delegation chain.
+
+**Scope**: This prohibition covers all paths under `.claude/` including:
+- `.claude/commands/*`
+- `.claude/skills/*`
+- `.claude/agents/*`
+- `.claude/rules/*`
+- `.claude/context/*`
+- `*/CLAUDE.md`
+
+**Exclusion**: Writes to `specs/` paths (TODO.md, state.json, task directories) are legitimate and expected.
+
+**Why**: The delegation chain (command -> skill -> agent) ensures format compliance, validation, and audit trails. Bypassing any layer degrades artifact quality and breaks the enforcement model. A PostToolUse hook (`validate-meta-write.sh`) provides corrective context when bypass is attempted.
+
+**Enforcement**: Three-layer enforcement prevents bypass:
+1. This Anti-Bypass section (command-level prohibition)
+2. PostToolUse hook `validate-meta-write.sh` (runtime detection with corrective context)
+3. Skill and agent reinforcement (delegation requirement in skill-meta and meta-builder-agent)
 
 ## Execution
 
@@ -160,7 +181,7 @@ These templates are provided for reference when creating tasks. Actual file crea
 description: {description}
 allowed-tools: {tools}
 argument-hint: {hint}
-model: claude-opus-4-5-20251101
+model: opus
 ---
 
 # /{command} Command
@@ -174,7 +195,7 @@ model: claude-opus-4-5-20251101
 ---
 name: {skill-name}
 description: {when to invoke}
-allowed-tools: Task
+allowed-tools: Agent
 context: fork
 agent: {agent-name}
 ---

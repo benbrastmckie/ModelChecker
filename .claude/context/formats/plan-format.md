@@ -26,7 +26,7 @@
 
 ## Plan Metadata Schema
 
-Plans may include a `plan_metadata` object in state.json tracking plan characteristics:
+Plans may include a `plan_metadata` object in state.json with fields: `phases` (int), `total_effort_hours` (int), `complexity` (simple/medium/complex), `research_integrated` (bool), `plan_version` (int), `dependency_waves` (array of phase-number arrays for parallel execution groups), and `reports_integrated` (array of `{path, integrated_in_plan_version, integrated_date}` objects). Plans without `reports_integrated` use empty array default.
 
 ```json
 {
@@ -35,6 +35,7 @@ Plans may include a `plan_metadata` object in state.json tracking plan character
   "complexity": "medium",
   "research_integrated": true,
   "plan_version": 1,
+  "dependency_waves": [[1], [2, 3], [4, 5]],
   "reports_integrated": [
     {
       "path": "reports/01_{short-slug}.md",
@@ -45,26 +46,11 @@ Plans may include a `plan_metadata` object in state.json tracking plan character
 }
 ```
 
-**Field Descriptions**:
-- `phases`: Number of implementation phases in plan
-- `total_effort_hours`: Total estimated effort across all phases
-- `complexity`: Plan complexity (simple, medium, complex)
-- `research_integrated`: Boolean indicating if research was incorporated
-- `plan_version`: Plan version number (1 for initial, increments with revisions)
-- `reports_integrated`: Array tracking which research reports were integrated into which plan versions
-
-**reports_integrated Schema**:
-- `path`: Relative path to research report (e.g., "reports/01_{short-slug}.md")
-- `integrated_in_plan_version`: Plan version that integrated this report
-- `integrated_date`: Date report was integrated (YYYY-MM-DD format)
-
-**Backward Compatibility**: Plans without `reports_integrated` field use empty array default.
-
 ## Structure
 1. **Overview** – 2-4 sentences: problem, scope, constraints, definition of done. May include "Research Integration" subsection listing integrated reports.
 2. **Goals & Non-Goals** – bullets.
 3. **Risks & Mitigations** – bullets.
-4. **Implementation Phases** – under `## Implementation Phases` with each phase at level `###` and including a status marker at the end of the heading.
+4. **Implementation Phases** – under `## Implementation Phases`, preceded by a **Dependency Analysis** wave table (see below), with each phase at level `###` and including a status marker at the end of the heading.
 5. **Testing & Validation** – bullets/tests to run.
 6. **Artifacts & Outputs** – enumerate expected outputs with paths.
 7. **Rollback/Contingency** – brief plan if changes must be reverted.
@@ -75,8 +61,24 @@ Plans may include a `plan_metadata` object in state.json tracking plan character
   - **Goal:** short statement
   - **Tasks:** bullet checklist
   - **Timing:** expected duration or window
+  - **Depends on:** phase numbers this phase requires (e.g., `none`, `1`, `1, 3`). Absence means sequential (depends on all prior phases).
   - **Owner:** (optional)
   - **Started/Completed/Blocked/Abandoned:** timestamp lines when status changes (ISO8601). Do not leave null placeholders.
+
+## Dependency Analysis (format)
+
+Place a **Dependency Analysis** wave table immediately after `## Implementation Phases` and before the first `### Phase`. Columns: **Wave** (execution order), **Phases** (can run in parallel within wave), **Blocked by** (prerequisite phases, `--` for none). Generate from per-phase `Depends on` fields. For fully sequential plans, each wave contains one phase.
+
+```
+**Dependency Analysis**:
+| Wave | Phases | Blocked by |
+|------|--------|------------|
+| 1 | 1 | -- |
+| 2 | 2, 3 | 1 |
+| 3 | 4 | 2, 3 |
+
+Phases within the same wave can execute in parallel.
+```
 
 ## Status Marker Requirements
 - Use markers exactly as defined in status-markers.md.
@@ -113,13 +115,24 @@ Plans may include a `plan_metadata` object in state.json tracking plan character
 - Risk: ... Mitigation: ...
 
 ## Implementation Phases
+
+**Dependency Analysis**:
+| Wave | Phases | Blocked by |
+|------|--------|------------|
+| 1 | 1 | -- |
+| 2 | 2, 3 | 1 |
+
+Phases within the same wave can execute in parallel.
+
 ### Phase 1: {name} [NOT STARTED]
 - **Goal:** ...
 - **Tasks:**
   - [ ] ...
 - **Timing:** ...
+- **Depends on:** none
 
 ### Phase 2: ... [NOT STARTED]
+- **Depends on:** 1
 ...
 
 ## Testing & Validation

@@ -11,7 +11,7 @@
 Thin wrapper skills are the standard pattern for workflow skills. They:
 1. Validate inputs
 2. Prepare delegation context
-3. Invoke a subagent via Task tool
+3. Invoke a subagent via Agent tool
 4. Validate and propagate the return
 
 They do NOT:
@@ -27,14 +27,14 @@ They do NOT:
 ---
 name: skill-{name}
 description: {One-line description}
-allowed-tools: Task
+allowed-tools: Agent
 context: fork
 agent: {agent-name}
 ---
 ```
 
 **Key fields**:
-- `allowed-tools: Task` - Only tool needed for delegation
+- `allowed-tools: Agent` - Only tool needed for delegation
 - `context: fork` - Do NOT load context eagerly; subagent loads context
 - `agent: {name}` - Target subagent to invoke
 
@@ -74,17 +74,17 @@ session_id="sess_$(date +%s)_$(od -An -N3 -tx1 /dev/urandom | tr -d ' ')"
     "task_number": N,
     "task_name": "{slug}",
     "description": "{description}",
-    "language": "{language}"
+    "task_type": "{task_type}"
   }
 }
 ```
 
 ### 3. Invoke Subagent
 
-**CRITICAL**: Use the **Task** tool to spawn the subagent.
+**CRITICAL**: Use the **Agent** tool to spawn the subagent.
 
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "{agent-name}" (from frontmatter)
   - prompt: [Include task_context, delegation_context]
@@ -93,6 +93,24 @@ Parameters:
 
 **DO NOT** use `Skill({agent-name})` - this will FAIL.
 Agents live in `.claude/agents/`, not `.claude/skills/`.
+
+### 3b. Self-Execution Fallback
+
+If the skill executor performed work inline (without spawning a subagent via Agent tool), it MUST write a `.return-meta.json` file before proceeding to postflight. This ensures postflight stages can read metadata regardless of execution path.
+
+**Why this is needed**: The postflight stages (status update, artifact linking, git commit) depend on reading `.return-meta.json`. When work is done by a subagent, the subagent writes this file. When work is done inline, the skill executor must write it manually using the schema from `return-metadata-file.md`.
+
+**Template** (add after Stage 5 / subagent invocation in each skill):
+```markdown
+### Stage 5b: Self-Execution Fallback
+
+**CRITICAL**: If you performed the work above WITHOUT using the Agent tool (i.e., you read files,
+wrote artifacts, or updated metadata directly instead of spawning a subagent), you MUST write a
+`.return-meta.json` file now before proceeding to postflight. Use the schema from
+`return-metadata-file.md` with the appropriate status value for this operation.
+
+If you DID use the Agent tool (Stage 5), skip this stage -- the subagent already wrote the metadata.
+```
 
 ### 4. Return Validation
 
@@ -113,20 +131,20 @@ Return validated result to caller without modification.
 
 ```markdown
 ---
-name: skill-neovim-research
-description: Research Neovim plugins and configuration patterns tasks.
-allowed-tools: Task
+name: skill-{extension}-research
+description: Research {extension} patterns and conventions.
+allowed-tools: Agent
 context: fork
-agent: neovim-research-agent
+agent: {extension}-research-agent
 ---
 
-# Neovim Research Skill
+# {Extension} Research Skill
 
-Specialized research for Neovim configuration tasks.
+Specialized research for {extension} tasks.
 
 ## Trigger Conditions
-- Task language is "neovim"
-- Research involves plugins, LSP, or configuration patterns
+- Task type is "{extension}"
+- Research involves {extension}-specific patterns and tools
 
 ## Execution
 
@@ -137,7 +155,7 @@ Extract task_number. Validate task exists.
 Generate session_id. Prepare delegation context.
 
 ### 3. Invoke Subagent
-Use Task tool with subagent_type: neovim-research-agent
+Use Agent tool with subagent_type: {extension}-research-agent
 
 ### 4. Return Validation
 Validate return matches subagent-return.md schema.
@@ -145,6 +163,56 @@ Validate return matches subagent-return.md schema.
 ### 5. Return Propagation
 Return validated result to caller.
 ```
+
+---
+
+## Two Delegation Sub-Patterns
+
+Thin wrapper skills use one of two delegation approaches. The choice depends on whether structured context injection is needed.
+
+### Pattern A: Core skill pattern (explicit `subagent_type`, no `context: fork`)
+
+Used by: skill-researcher, skill-planner, skill-implementer, skill-reviser, skill-spawn, and other core workflow skills.
+
+```yaml
+---
+name: skill-implementer
+description: Execute implementation tasks.
+allowed-tools: Agent, Bash, Edit, Read, Write
+---
+```
+
+The skill body explicitly calls the Agent tool with `subagent_type`:
+```
+Tool: Agent
+Parameters:
+  subagent_type: "general-implementation-agent"
+  prompt: [full structured context JSON: session_id, delegation_depth, memory_context, etc.]
+```
+
+**Why no `context: fork`**: Core skills have multi-stage postflight (status update, artifact linking, git commit). They inject structured context that requires knowing the exact agent. They do NOT use `context: fork` or `agent:` frontmatter.
+
+---
+
+### Pattern B: Extension skill pattern (`context: fork` + `agent:`, simpler delegation)
+
+Used by: skill-lean-research, skill-present-research, and similar extension skills.
+
+```yaml
+---
+name: skill-{ext}-research
+description: Research {ext} patterns. Invoke for {ext} research tasks.
+allowed-tools: Agent
+context: fork
+agent: {ext}-research-agent
+---
+```
+
+The skill body passes simpler instructions to the agent without a full structured context JSON.
+
+**Why `context: fork`**: Extension skills are thin wrappers with minimal postflight. The `context: fork` field prevents context files from being loaded into the skill's session, since the agent loads its own context.
+
+**Note**: `context: fork` and `CLAUDE_CODE_FORK_SUBAGENT=1` are independent. See @.claude/context/patterns/fork-patterns.md for the full decision matrix and cache sharing mechanics.
 
 ---
 
@@ -160,9 +228,11 @@ Direct execution skills use:
 allowed-tools: Bash, Edit, Read
 ```
 
-### Neovim Skills (Standard Pattern)
+**Note**: Direct-execution skills do not need the Stage 5b self-execution fallback since they do not delegate to subagents and handle their own metadata directly.
 
-The Neovim skills (`skill-neovim-research`, `skill-neovim-implementation`) follow the standard thin wrapper pattern, delegating to `neovim-research-agent` and `neovim-implementation-agent` respectively.
+### Extension Skills (Standard Pattern)
+
+Extension skills follow the standard thin wrapper pattern, delegating to extension-provided agents. For example, an extension may provide `skill-{ext}-research` and `skill-{ext}-implementation` that delegate to `{ext}-research-agent` and `{ext}-implementation-agent` respectively.
 
 ---
 

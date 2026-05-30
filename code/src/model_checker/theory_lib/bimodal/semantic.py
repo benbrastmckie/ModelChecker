@@ -1,3 +1,19 @@
+"""Bimodal Logic Semantics
+
+Migration Note (Task 91, 2026-05-29):
+  The task relation has been refactored from binary task(w, u) to
+  ternary task_rel(w, d, u) where d is the explicit duration parameter.
+
+  This aligns with the Lean ProofChecker's taskRel : S -> Q -> S -> Prop
+  (see Frame.lean:72). All code using the old binary task() function must
+  be updated to use task_rel() with an explicit duration argument.
+
+  For consecutive state transitions (unit duration), use:
+    task_rel(state1, 1, state2)
+
+  See: specs/091_update_task_relation_ternary_duration/reports/02_clean-break-research.md
+"""
+
 import sys
 import time
 from typing import cast
@@ -135,13 +151,21 @@ class BimodalSemantics(SemanticDefaults):
 
     def define_primitives(self):
         """Define the Z3 primitive functions and relations used in the bimodal logic model.
-        
+
         In bimodal logic we distinguish between:
         - World States: Instantaneous configurations of the system (e.g., {a, b, c})
         - World Histories: Temporally extended sequences of states that follow lawful transitions
-        
-        This method initializes:
-        - task: A binary relation between world states representing transitions between states
+
+        Primitives:
+        - task_rel: Ternary relation R(s, d, u) where:
+            - s: source world state (BitVec[N])
+            - d: duration of task (Int)
+            - u: target world state (BitVec[N])
+          Represents: "state s transitions to state u over duration d"
+
+          ProofChecker Alignment: Matches taskRel : S -> Q -> S -> Prop
+          from Frame.lean:72. The quantity type Q is represented as Int.
+
         - world_function: A mapping from world IDs to world histories (arrays mapping time -> world state)
         - truth_condition: A function assigning truth values to atomic propositions at instantaneous world states
         - main_world: The primary world history used for evaluation (world_function applied to ID 0)
@@ -149,12 +173,15 @@ class BimodalSemantics(SemanticDefaults):
         - main_point: Dictionary containing the main world history and evaluation time
         - is_world: A boolean function indicating whether a world_id maps to a valid world history
         """
-        # Define the task relation between world states
-        self.task = z3.Function(
-            "Task",
-            self.WorldStateSort,
-            self.WorldStateSort,
-            z3.BoolSort()
+        # Define the ternary task relation between world states with explicit duration
+        # Signature: task_rel(source_state, duration, target_state) -> Bool
+        # Aligns with ProofChecker's taskRel : S -> Q -> S -> Prop (Frame.lean:72)
+        self.task_rel = z3.Function(
+            "TaskRel",
+            self.WorldStateSort,  # source state: BitVec[N]
+            z3.IntSort(),         # duration: Int (matches TimeSort)
+            self.WorldStateSort,  # target state: BitVec[N]
+            z3.BoolSort()         # result: Bool
         )
 
         # Mapping from world IDs to world histories (arrays from time to state)
@@ -200,46 +227,208 @@ class BimodalSemantics(SemanticDefaults):
         
         # Main point of evaluation includes a world ID and time
         self.main_world = 0             # Store world ID, not array reference
-        self.main_time = z3.IntVal(0)   # Fix the main time to 0 
+        self.main_time = z3.IntVal(0)   # Fix the main time to 0
         self.main_point = {
             "world": self.main_world,
             "time": self.main_time,
         }
 
-    def ForAllTime(self, world, time_var, body):
-        """Universal quantification over all valid times in world's interval.
+    def is_valid_duration(self, duration):
+        """Check if a duration is within the valid range for the time domain.
+
+        Valid durations range from -(M-1) to (M-1) inclusive, which corresponds
+        to the maximum possible temporal shift within the time domain (-M, M).
 
         Args:
-            world: World ID (z3.IntSort)
+            duration: The duration value to check (Z3 Int or Python int)
+
+        Returns:
+            Z3 formula that is true if the duration is within valid bounds
+
+        ProofChecker Alignment: Duration bounds ensure task transitions stay
+        within the frame's time domain D.
+        """
+        return z3.And(duration > -self.M, duration < self.M)
+
+    def build_task_rel_at(self, world, time, duration):
+        """Build a task_rel constraint at a specific world and time with given duration.
+
+        This helper constructs the task relation between the state at (world, time)
+        and the state at (world, time + duration).
+
+        Args:
+            world: World ID (Z3 Int or Python int)
+            time: Time point (Z3 Int or Python int)
+            duration: Duration of the task (Z3 Int or Python int)
+
+        Returns:
+            Z3 formula: task_rel(state_at_time, duration, state_at_time_plus_duration)
+
+        ProofChecker Alignment: Matches the pattern used in IsEvolution where
+        task_rel relates states at different times in the same world history.
+        """
+        source_state = z3.Select(self.world_function(world), time)
+        target_state = z3.Select(self.world_function(world), time + duration)
+        return self.task_rel(source_state, duration, target_state)
+
+    def build_nullity_identity_constraint(self):
+        """Build constraint: task_rel(w, 0, u) <-> w = u
+
+        Zero duration task implies and is implied by state identity.
+        A task of zero duration is a self-task: it relates a state to itself
+        and only to itself.
+
+        ProofChecker Alignment: Corresponds to the property that self-tasks
+        (tasks of zero duration) relate a state to itself. Aligns with the
+        nullity axiom of the additive group structure on durations (Q in Lean).
+
+        Returns:
+            Z3 ForAll formula asserting that task_rel(w, 0, u) <-> (w == u)
+            for all world states w, u : BitVec[N]
+        """
+        w = z3.BitVec('nullity_w', self.N)
+        u = z3.BitVec('nullity_u', self.N)
+
+        # Biconditional: task_rel(w, 0, u) iff w == u
+        # In Z3, A == B for BoolRef expressions is equivalent to Iff(A, B)
+        return z3.ForAll(
+            [w, u],
+            self.task_rel(w, z3.IntVal(0), u) == (w == u)
+        )
+
+    def build_converse_constraint(self):
+        """Build time reversal symmetry constraint: task_rel(w, d, u) <-> task_rel(u, -d, w)
+
+        Going from world state w to u in duration d is equivalent to going
+        from u to w in duration -d (time reversal). This is the group converse
+        property of the additive group structure on durations.
+
+        The constraint is guarded by duration validity to ensure both d and -d
+        are within the time domain bounds.
+
+        ProofChecker Alignment: Corresponds to the group converse property
+        of the additive group structure on durations (Q in Lean), where Q is an
+        AddCommGroup. Relates to the inverse element property: if task_rel(s, d, u)
+        then task_rel(u, -d, s).
+
+        Returns:
+            Z3 ForAll formula asserting that under valid duration guards,
+            task_rel(w, d, u) <-> task_rel(u, -d, w)
+            for all world states w, u : BitVec[N] and duration d : Int
+        """
+        w = z3.BitVec('converse_w', self.N)
+        u = z3.BitVec('converse_u', self.N)
+        d = z3.Int('converse_d')
+
+        # Guard: both d and -d must be within valid duration bounds
+        guard = z3.And(
+            self.is_valid_duration(d),
+            self.is_valid_duration(-d)
+        )
+
+        # Biconditional under guard: task_rel(w, d, u) <-> task_rel(u, -d, w)
+        return z3.ForAll(
+            [w, u, d],
+            z3.Implies(
+                guard,
+                self.task_rel(w, d, u) == self.task_rel(u, -d, w)
+            )
+        )
+
+    def build_forward_comp_constraint(self):
+        """Build compositionality constraint for sequential tasks.
+
+        If task_rel(w, d1, v) and task_rel(v, d2, u) then task_rel(w, d1+d2, u).
+        Sequential tasks compose: the composition of two tasks is itself a task
+        whose duration is the sum of the component durations.
+
+        The constraint uses Z3 multi-patterns on the two premise terms to guide
+        quantifier instantiation and reduce solver overhead from the 5 quantified
+        variables (w, v, u, d1, d2).
+
+        ProofChecker Alignment: Matches Compositional.compose from Frame.lean:112-114:
+          compose : forall s t r : S, forall x y : Q,
+            f.taskRel s x t -> f.taskRel t y r -> f.taskRel s (x + y) r
+
+        Returns:
+            Z3 ForAll formula with multi-pattern asserting compositionality:
+            (task_rel(w,d1,v) AND task_rel(v,d2,u) AND valid_durations) ->
+            task_rel(w, d1+d2, u)
+            for all w, v, u : BitVec[N] and d1, d2 : Int
+        """
+        w = z3.BitVec('comp_w', self.N)
+        v = z3.BitVec('comp_v', self.N)
+        u = z3.BitVec('comp_u', self.N)
+        d1 = z3.Int('comp_d1')
+        d2 = z3.Int('comp_d2')
+
+        body = z3.Implies(
+            z3.And(
+                # Premise: both component tasks exist
+                self.task_rel(w, d1, v),
+                self.task_rel(v, d2, u),
+                # Duration validity guards to narrow instantiation scope
+                self.is_valid_duration(d1),
+                self.is_valid_duration(d2),
+                self.is_valid_duration(d1 + d2)
+            ),
+            # Conclusion: composed task exists with summed duration
+            self.task_rel(w, d1 + d2, u)
+        )
+
+        # Multi-pattern on the two premise terms guides Z3 to instantiate
+        # this axiom only when both component tasks are already in the solver's
+        # ground term set, reducing spurious instantiations.
+        return z3.ForAll(
+            [w, v, u, d1, d2],
+            body,
+            patterns=[
+                z3.MultiPattern(self.task_rel(w, d1, v), self.task_rel(v, d2, u))
+            ]
+        )
+
+    def ForAllTime(self, world, time_var, body):
+        """Universal quantification over all valid times in domain D.
+
+        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
+        world's interval. This matches the ProofChecker (Lean) semantics where
+        temporal operators like G and H quantify over the global time domain.
+
+        Args:
+            world: World ID (z3.IntSort) - kept for API compatibility, not used for scope
             time_var: Time variable (z3.IntSort) to quantify over
             body: Z3 expression to evaluate for each time
 
         Returns:
-            z3.ForAll expression with validity implications
+            z3.ForAll expression with validity implications over domain D
         """
         return z3.ForAll(
             time_var,
             z3.Implies(
-                self.is_valid_time_for_world(world, time_var),
+                self.is_valid_time(time_var),  # All times in D, not world-specific
                 body
             )
         )
 
     def ExistsTime(self, world, time_var, body):
-        """Existential quantification over valid times in world's interval.
+        """Existential quantification over valid times in domain D.
+
+        ProofChecker Alignment: Quantifies over ALL times in domain D, not just the
+        world's interval. This matches the ProofChecker (Lean) semantics where
+        temporal operators like F and P quantify over the global time domain.
 
         Args:
-            world: World ID (z3.IntSort)
+            world: World ID (z3.IntSort) - kept for API compatibility, not used for scope
             time_var: Time variable (z3.IntSort) to quantify over
             body: Z3 expression to evaluate
 
         Returns:
-            z3.Exists expression with validity conjunction
+            z3.Exists expression with validity conjunction over domain D
         """
         return z3.Exists(
             time_var,
             z3.And(
-                self.is_valid_time_for_world(world, time_var),
+                self.is_valid_time(time_var),  # All times in D, not world-specific
                 body
             )
         )
@@ -278,18 +467,36 @@ class BimodalSemantics(SemanticDefaults):
     def build_frame_constraints(self):
         """Build the frame constraints for the bimodal logic model.
 
+        Optimization history (Task 97, 2026-05-29):
+          Phase 2: Removed tautological classical_truth constraint (Or(P, Not(P)));
+                   world_uniqueness grounding (array inequality) was reverted due to
+                   regressions; the original ForAll/Exists formulation is retained.
+
+        Task 98 investigation (2026-05-29):
+          Tested build_grounded_abundance_constraints() to replace the doubly-quantified
+          capped_skolem_abundance_constraint, but found it caused regressions for both
+          SAT and UNSAT examples. OOM is handled by max_memory=4096 in Z3SolverAdapter.
+
         This method constructs the fundamental constraints that define the behavior of the model:
         1. Time constraints - Ensures main_time is within valid range
-        2. Truth value constraints - Each atomic sentence must have a definite truth value at each instantaneous world state
+        2. World enumeration - Ensures world IDs start at 0 and are contiguous
         3. Lawful transitions - Each world history must follow the task relation between consecutive states
-        4. Task restriction - The task relation only holds between consecutive states that appear in some world history
-        5. World diversity - Ensures different world histories exist for proper modal evaluation
-        6. Valid worlds - Constraints on which world_ids map to valid world histories
-        7. World interval constraint - Ensures each world has a valid time interval
-        8. Abundance constraint - Ensures necessary time-shifted worlds exist
-        9. Systematic world relationship - Explicitly defines relationships between world IDs
-        10. Task state minimization - Encourages minimal changes between consecutive world states
-        
+        4. World interval constraint - Ensures each world has a valid time interval
+        5. Abundance constraint - Ensures time-shifted worlds exist for all valid shifts (capped Skolem)
+        6. World uniqueness - Each world ID maps to a distinct world history
+        7-9. Frame axioms - TaskFrame constraints (nullity, converse, compositionality)
+
+        The abundance constraint (item 5) uses capped_skolem_abundance_constraint which
+        provides time-shifted world copies for all shift amounts that keep the shifted
+        interval within the global time range. This aligns with:
+        - JPL paper (app:auto_existence, lines 2154-2178): closed under arbitrary time shifts
+        - Lean BimodalLogic (ShiftClosed, Truth.lean line 295): Omega is shift-closed
+
+        Together with removing the is_valid_time_for_world guard from NecessityOperator
+        (operators.py), these constraints make the perpetuity principles BM_TH_1
+        (Box A -> Future A) and BM_TH_2 (Box A -> Past A) valid (no countermodel).
+        Sufficient M (>=3) is needed for the shift closure to cover all relevant shifts.
+
         The frame constraints ensure that world histories represent lawful evolutions of world states
         over time, following the task relation which specifies valid state transitions.
 
@@ -298,24 +505,15 @@ class BimodalSemantics(SemanticDefaults):
         """
         # 1. The main_world must be valid
         valid_main_world = self.is_world(self.main_world)
-        
+
         # 2. The main_time must be valid
         valid_main_time = self.is_valid_time(self.main_time)
-        
-        # 3. Each sentence letter is true or false (and not both which is unsat)
-        world_state = z3.BitVec('world_state', self.N)
-        sentence_letter = z3.Const('atom_interpretation', get_atom_sort())
-        classical_truth = z3.ForAll(
-            [world_state, sentence_letter],
-            z3.Or(
-                # Either sentence_letter is true in the world_state
-                self.truth_condition(world_state, sentence_letter),
-                # Or not
-                z3.Not(self.truth_condition(world_state, sentence_letter))
-            )
-        )
-        
-        # 4. World enumeration starts at 0
+
+        # NOTE: classical_truth (Or(P, Not(P))) was removed in Task 97 Phase 2.
+        # It was a tautology (always true by LEM) and added no solver information,
+        # only wasting E-matching index budget on a trivially satisfied constraint.
+
+        # 3. World enumeration starts at 0
         enumerate_world = z3.Int('enumerate_world')
         enumeration_constraint = z3.ForAll(
             [enumerate_world],
@@ -327,7 +525,7 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
         
-        # 5. The worlds form a convex ordering (no gaps)
+        # 4. The worlds form a convex ordering (no gaps)
         # Implements "lazy" world creation by ensuring worlds are created in sequence
         convex_world = z3.Int('convex_world')
         convex_world_ordering = z3.ForAll(
@@ -344,8 +542,17 @@ class BimodalSemantics(SemanticDefaults):
                 self.is_world(convex_world - 1)
             )
         )
-        
-        # 6. Worlds are lawful (each world state can has task to its successor, if any)
+
+        # 5. World interval constraint -- placed before lawful so Z3's MBQI can seed
+        # interval bounds before instantiating the more complex lawful axiom.
+        # NOTE: time_interval_constraint() is a grounded (non-quantified) alternative.
+        # It was tested but is not currently used (world_interval_constraint() is active).
+        # Both produce equivalent valid-world interval constraints; the grounded form
+        # may be faster for small max_world_id but was not benchmarked in Task 97.
+        world_interval = self.world_interval_constraint()
+
+        # 6. Worlds are lawful (each world state has task_rel to its successor with unit duration)
+        # ProofChecker Alignment: Uses task_rel with explicit duration=1 for consecutive states
         lawful_world = z3.Int('lawful_world_id')
         lawful_time = z3.Int('lawful_time')
         lawful = z3.ForAll(
@@ -356,30 +563,51 @@ class BimodalSemantics(SemanticDefaults):
                     # The lawful_world is a valid world
                     self.is_world(lawful_world),
                     # The lawful_time is in (-M - 1, M - 1), so has a successor
-                    self.is_valid_time(lawful_time, -1),  
+                    self.is_valid_time(lawful_time, -1),
                     # The lawful_time is in the lawful_world
                     self.is_valid_time_for_world(lawful_world, lawful_time),
                     # The successor of the lawful_time is in the lawful_world
                     self.is_valid_time_for_world(lawful_world, lawful_time + 1),
                 ),
-                # Then there is a task
-                self.task(
+                # Then there is a task with unit duration (duration = 1)
+                self.task_rel(
                     # From the lawful_world at the lawful_time
                     z3.Select(self.world_function(lawful_world), lawful_time),
+                    # With unit duration (explicit)
+                    z3.IntVal(1),
                     # To the lawful_world at the successor of the lawful_time
                     z3.Select(self.world_function(lawful_world), lawful_time + 1)
                 )
             )
         )
-        
-        # 7. All valid time-shifted worlds exist
-        skolem_abundance = self.skolem_abundance_constraint()
-        
-        # 8. World interval constraint
-        time_interval = self.time_interval_constraint()
-        world_interval = self.world_interval_constraint()
-        
+
+        # 7. Frame axioms: TaskFrame constraints aligning with ProofChecker's Frame.lean
+        # nullity_identity: task_rel(w, 0, u) <-> w == u
+        nullity_identity = self.build_nullity_identity_constraint()
+        # converse: task_rel(w, d, u) <-> task_rel(u, -d, w) under duration validity guards
+        converse = self.build_converse_constraint()
+        # forward_comp: compositionality -- if task_rel(w,d1,v) and task_rel(v,d2,u) then task_rel(w,d1+d2,u)
+        forward_comp = self.build_forward_comp_constraint()
+
+        # 8. All valid time-shifted worlds exist
+        # Uses capped_skolem_abundance_constraint: provides time-shifted worlds for all
+        # shifts that keep the shifted interval within the global time range, using a
+        # Skolem function to avoid nested ForAll/Exists. This provides full closure under
+        # time-shifts (modulo boundary conditions) and is necessary for the perpetuity
+        # principles (BM_TH_1/BM_TH_2) to hold, aligning with app:auto_existence in the
+        # JPL paper and ShiftClosed in the Lean BimodalLogic formalization.
+        #
+        # Task 98 Note: build_grounded_abundance_constraints() was tested as a replacement
+        # but found to cause regressions -- it creates MORE ground terms via eager E-matching
+        # instead of lazy MBQI, making SAT (BM_CM_1) and UNSAT (BM_TH_1/2) searches
+        # strictly slower. OOM is prevented by max_memory=4096 in Z3SolverAdapter (Task 97).
+        skolem_abundance = self.capped_skolem_abundance_constraint()
+
         # 9. Every valid world is unique
+        # Original ForAll/Exists formulation preserved: worlds must differ at a time
+        # point that is valid for BOTH worlds. Array inequality was tested but caused
+        # regressions (8 failures) because Z3 array disequality checks ALL indices,
+        # not just the shared interval, conflicting with valid_array_domain constraints.
         world_one = z3.Int('world_one')
         world_two = z3.Int('world_two')
         some_time = z3.Int('some_time')
@@ -406,31 +634,38 @@ class BimodalSemantics(SemanticDefaults):
         )
 
         # 10. Task relation only holds between states in lawful world histories
+        # ProofChecker Alignment: task_rel(s, d, u) requires existence of a world where
+        # the transition from s to u over duration d is realized
         some_state = z3.BitVec('task_restrict_some_state', self.N)
+        some_duration = z3.Int('task_restrict_duration')
         next_state = z3.BitVec('task_restrict_next_state', self.N)
         task_world = z3.Int('task_world')
         time_shifted = z3.Int('time_shifted')
         task_restriction = z3.ForAll(
-            [some_state, next_state],
+            [some_state, some_duration, next_state],
             z3.Implies(
-                # If there is a task from some_state to next_state
-                self.task(some_state, next_state),
+                # If there is a task_rel from some_state to next_state with some_duration
+                self.task_rel(some_state, some_duration, next_state),
                 # Then for some task_world at time_shifted:
                 z3.Exists(
                     [task_world, time_shifted],
                     z3.And(
                         # The task_world is a valid world
                         self.is_world(task_world),
-                        # The successor or time_shifted is a valid time
-                        self.is_valid_time(time_shifted, -1),
-                        # Where time_shifted is a time in the task_world,
+                        # Duration bounds: must fit within time domain
+                        self.is_valid_duration(some_duration),
+                        # Time validity for source endpoint
+                        self.is_valid_time(time_shifted),
+                        # Time validity for target endpoint
+                        self.is_valid_time(time_shifted + some_duration),
+                        # Source time is in the task_world
                         self.is_valid_time_for_world(task_world, time_shifted),
-                        # The successor of time_shifted is a time in the task_world
-                        self.is_valid_time_for_world(task_world, time_shifted + 1),
+                        # Target time is in the task_world
+                        self.is_valid_time_for_world(task_world, time_shifted + some_duration),
                         # The task_world is in some_state at time_shifted
                         some_state == z3.Select(self.world_function(task_world), time_shifted),
-                        # And the task_world is in next_state at the successor of time_shifted
-                        next_state == z3.Select(self.world_function(task_world), time_shifted + 1)
+                        # And the task_world is in next_state at time_shifted + some_duration
+                        next_state == z3.Select(self.world_function(task_world), time_shifted + some_duration)
                     )
                 )
             )
@@ -439,23 +674,26 @@ class BimodalSemantics(SemanticDefaults):
         # 11. Task state minimization - Encourages minimal changes between consecutive world states
         task_minimization = self.build_task_minimization_constraint()
 
-        
         return [
-            # NOTE: order matters!
+            # NOTE: order matters for Z3 MBQI seed quality.
+            # World structure constraints first (ground facts), then interval bounds
+            # (so MBQI can seed world intervals before the lawful axiom fires),
+            # then frame axioms, then abundance (shift closure), then uniqueness.
             valid_main_world,
             valid_main_time,
-            classical_truth,
             enumeration_constraint,
             convex_world_ordering,
+            world_interval,       # interval bounds before lawful (MBQI seeding)
             lawful,
+            # Frame axioms (TaskFrame, ProofChecker alignment):
+            nullity_identity,
+            converse,
+            forward_comp,
             skolem_abundance,
             world_uniqueness,
-            # time_interval,
-
-            # MAYBE
-            # task_restriction,
-            # task_minimization,
-            world_interval,
+            # MAYBE (not yet enabled, preserved for future experimentation):
+            # task_restriction,     # restricts task_rel to lawful histories
+            # task_minimization,    # encourages minimal state changes
         ]
 
     def is_valid_time(self, given_time, offset=0):
@@ -694,7 +932,11 @@ class BimodalSemantics(SemanticDefaults):
     
     def build_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist.
-        
+
+        DEPRECATED: Replaced by capped_skolem_abundance_constraint which provides
+        full shift coverage (not just +/-1) with better Z3 performance characteristics.
+        This method is retained for reference and fallback comparison.
+
         The abundance property ensures that for any world that can be shifted forward
         or backward in time (while staying within valid time bounds), there exists a
         corresponding world that represents that time shift.
@@ -744,11 +986,16 @@ class BimodalSemantics(SemanticDefaults):
 
     def skolem_abundance_constraint(self):
         """Build constraint ensuring necessary time-shifted worlds exist using Skolemization.
-        
+
+        DEPRECATED: Replaced by capped_skolem_abundance_constraint which provides
+        full shift coverage (not just +/-1) and is necessary for the perpetuity
+        principles (BM_TH_1/BM_TH_2) to hold. This method is retained for reference
+        and fallback comparison.
+
         The abundance property ensures that for any world that can be shifted forward
         or backward in time (while staying within valid time bounds), there exists a
         corresponding world that represents that time shift.
-        
+
         This implementation uses Skolem functions to eliminate nested quantifiers,
         which can improve Z3 performance.
         """
@@ -791,9 +1038,313 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
 
+    def full_abundance_constraint(self):
+        """Build abundance constraint covering ALL valid integer shifts.
+
+        Replaces the +/-1 Skolem abundance with a constraint requiring that for
+        every valid world and every valid shift amount (within the valid duration
+        range), there exists a corresponding time-shifted world.
+
+        The valid shift range is {-(2*(M-1)), ..., 2*(M-1)} to cover all possible
+        time translations between worlds in the finite domain. However, a shift is
+        only required to produce a world if the shifted interval would be valid
+        (i.e., both start and end of the shifted interval fall within the global
+        time range (-M, M)).
+
+        This implementation uses existential quantifiers over target worlds
+        (nested ForAll/Exists pattern).
+
+        Paper alignment: Corresponds to app:auto_existence (JPL paper, lines 2154-2178)
+        which provides time-shifted copies for any pair of times x, y in D.
+        """
+        source_world = z3.Int('abund_src')
+        target_world = z3.Int('abund_tgt')
+        shift_amount = z3.Int('abund_shift')
+
+        return z3.ForAll(
+            [source_world, shift_amount],
+            z3.Implies(
+                z3.And(
+                    # Source must be a valid world
+                    self.is_world(source_world),
+                    # Shift must be within the valid duration range
+                    self.is_valid_duration(shift_amount),
+                    # The shifted start must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_start(source_world) + shift_amount
+                    ),
+                    # The shifted end must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_end(source_world) + shift_amount
+                    ),
+                ),
+                # Then a properly shifted target world must exist
+                z3.Exists(
+                    [target_world],
+                    z3.And(
+                        self.is_world(target_world),
+                        # Target interval is source interval shifted by shift_amount
+                        self.world_interval_start(target_world) == (
+                            self.world_interval_start(source_world) + shift_amount
+                        ),
+                        self.world_interval_end(target_world) == (
+                            self.world_interval_end(source_world) + shift_amount
+                        ),
+                        # Target states match source states when shifted
+                        self.matching_states_when_shifted_var(
+                            source_world, shift_amount, target_world
+                        ),
+                    )
+                )
+            )
+        )
+
+    def matching_states_when_shifted_var(self, source_world, shift, target_world):
+        """Check if states match when shifted between world arrays (variable shift amount).
+
+        Like matching_states_when_shifted but accepts a Z3 expression for the shift
+        amount rather than a Python integer, enabling use in universally-quantified
+        abundance constraints.
+
+        Args:
+            source_world: Source world identifier (Z3 Int)
+            shift: Shift amount (Z3 Int expression, may be a quantified variable)
+            target_world: Target world identifier (Z3 Int)
+
+        Returns:
+            Z3 formula that is true if states match when shifted
+        """
+        time = z3.Int('shift_var_check_time')
+        source_array = self.world_function(source_world)
+        target_array = self.world_function(target_world)
+
+        return z3.ForAll(
+            [time],
+            z3.Implies(
+                z3.And(
+                    # Time is within source interval
+                    time >= self.world_interval_start(source_world),
+                    time <= self.world_interval_end(source_world),
+                    # Shifted time is within target interval
+                    time + shift >= self.world_interval_start(target_world),
+                    time + shift <= self.world_interval_end(target_world),
+                ),
+                # States must match when shifted
+                z3.Select(source_array, time) == z3.Select(target_array, time + shift)
+            )
+        )
+
+    def skolem_full_abundance_constraint(self):
+        """Build full abundance constraint using a Skolem function for target worlds.
+
+        Uses a Skolem function `shift_of(world, delta)` that maps a source world
+        and shift amount to the target world, avoiding the nested ForAll/Exists
+        pattern which can be expensive for Z3 to reason about.
+
+        The shift_of function is required to produce:
+        1. A valid world
+        2. With the correctly shifted interval
+        3. With matching states when shifted
+
+        This is the primary abundance strategy for performance-critical use.
+
+        Paper alignment: Skolemizes app:auto_existence -- the existence is
+        witnessed by an explicit function rather than a bare existential.
+        """
+        # Define Skolem function: (world_id, shift_amount) -> target_world_id
+        shift_of = z3.Function(
+            'shift_of', self.WorldIdSort, self.TimeSort, self.WorldIdSort
+        )
+
+        source_world = z3.Int('skfull_src')
+        shift_amount = z3.Int('skfull_shift')
+
+        return z3.ForAll(
+            [source_world, shift_amount],
+            z3.Implies(
+                z3.And(
+                    # Source must be a valid world
+                    self.is_world(source_world),
+                    # Shift must be within the valid duration range
+                    self.is_valid_duration(shift_amount),
+                    # The shifted start must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_start(source_world) + shift_amount
+                    ),
+                    # The shifted end must remain in the global time range
+                    self.is_valid_time(
+                        self.world_interval_end(source_world) + shift_amount
+                    ),
+                ),
+                z3.And(
+                    # The Skolem function produces a valid world
+                    self.is_world(shift_of(source_world, shift_amount)),
+                    # Target interval is source interval shifted by shift_amount
+                    self.world_interval_start(shift_of(source_world, shift_amount)) == (
+                        self.world_interval_start(source_world) + shift_amount
+                    ),
+                    self.world_interval_end(shift_of(source_world, shift_amount)) == (
+                        self.world_interval_end(source_world) + shift_amount
+                    ),
+                    # Target states match source states when shifted
+                    self.matching_states_when_shifted_var(
+                        source_world, shift_amount, shift_of(source_world, shift_amount)
+                    ),
+                )
+            )
+        )
+
+    def build_grounded_abundance_constraints(self):
+        """Build abundance constraints by enumerating all valid (interval, shift) pairs.
+
+        This is the primary OOM fix for M>=3. For each concrete (interval, shift) pair,
+        creates a ForAll[src] constraint asserting existence and state-matching of the
+        shifted world. Replaces the doubly-quantified capped_skolem_abundance_constraint
+        (ForAll[src, shift] -> ForAll[time]) with per-pair ForAll[src] constraints that
+        have concrete integer time indices in the conclusion.
+
+        Benefits over the quantified form:
+        1. Eliminates 'shift' as a quantified integer variable (the main MBQI trigger)
+        2. Eliminates the nested ForAll[time] quantifier entirely
+        3. Concrete integer values guide E-matching instead of requiring MBQI
+        4. Generates only len(pairs) constraints instead of one open-ended ForAll[Int, Int]
+
+        Constraint counts by M:
+        - M=3: 3 intervals, 6 valid pairs, 3 time equalities per pair = 18 total equalities
+        - M=4: 4 intervals, 12 valid pairs, 4 equalities per pair = 48 total equalities
+        - M=5: 5 intervals, 20 valid pairs, 5 equalities per pair = 100 total equalities
+
+        Uses the same 'shift_of_capped' Skolem function as capped_skolem_abundance_constraint
+        for backward compatibility with existing Skolem term names in Z3 models.
+
+        Returns:
+            list: ForAll[src] constraints, one per valid (interval, shift) pair
+        """
+        # Reuse the same Skolem function name for backward compatibility
+        shift_of_capped = z3.Function(
+            'shift_of_capped', self.WorldIdSort, self.TimeSort, self.WorldIdSort
+        )
+
+        constraints = []
+        intervals = self.generate_time_intervals(self.M)
+        # Shared quantified variable -- same name as the deprecated method's variable
+        # for Z3 index consistency; the name is only a Z3 declaration inside ForAll scope
+        src = z3.Int('skcap_src')
+
+        for (start, end) in intervals:
+            # Enumerate all valid non-zero shifts for this interval
+            # A shift delta is valid if start+delta >= -M+1 AND end+delta <= M-1
+            for delta in range(-(2 * self.M - 1), 2 * self.M):
+                if delta == 0:
+                    continue
+                new_start = start + delta
+                new_end = end + delta
+                if not (-self.M + 1 <= new_start and new_end <= self.M - 1):
+                    continue
+
+                # Concrete Skolem term with fixed shift amount
+                target = shift_of_capped(src, z3.IntVal(delta))
+
+                # Concrete state equalities at each time point in the source interval
+                state_eqs = []
+                for t in range(start, end + 1):
+                    t_val = z3.IntVal(t)
+                    shifted_t = z3.IntVal(t + delta)
+                    state_eqs.append(
+                        z3.Select(self.world_function(src), t_val) ==
+                        z3.Select(self.world_function(target), shifted_t)
+                    )
+
+                body = z3.Implies(
+                    z3.And(
+                        self.is_world(src),
+                        self.world_interval_start(src) == z3.IntVal(start),
+                        self.world_interval_end(src) == z3.IntVal(end),
+                    ),
+                    z3.And(
+                        self.is_world(target),
+                        self.world_interval_start(target) == z3.IntVal(new_start),
+                        self.world_interval_end(target) == z3.IntVal(new_end),
+                        *state_eqs
+                    )
+                )
+                constraints.append(z3.ForAll([src], body))
+
+        return constraints
+
+    def capped_skolem_abundance_constraint(self):
+        """Build abundance constraint with Skolem functions and shift caps.
+
+        Like skolem_full_abundance_constraint but limits the shift amount based
+        on the actual interval lengths of worlds, capping shifts to those that
+        keep the shifted interval within the global time range. This reduces
+        unnecessary constraint complexity for worlds near the time boundaries.
+
+        The shift cap ensures: for a world with interval [s, e], only shifts delta
+        where s+delta >= -M+1 and e+delta <= M-1 are required (i.e., the shifted
+        world's interval stays within the valid time range).
+
+        This is equivalent to: -M+1 - s <= delta <= M-1 - e, or equivalently:
+        delta >= -M+1 - s  AND  delta <= M-1 - e
+        combined with the is_valid_duration check.
+
+        Task 98 Note: build_grounded_abundance_constraints() was tested as an alternative
+        but found counterproductive -- the per-interval grounded form creates MORE ground
+        terms via eager E-matching (one Skolem term per world per valid shift immediately),
+        while the quantified MBQI form is lazy (only instantiated when needed by the
+        solver). For both SAT (BM_CM_1: 9s -> 15s timeout) and UNSAT (BM_TH_1/2: 30s ->
+        75s+) the quantified form is faster. OOM is handled by max_memory=4096 (Task 97).
+
+        Uses Skolem functions to eliminate existential quantifiers.
+        """
+        # Define Skolem function: (world_id, shift_amount) -> target_world_id
+        shift_of_capped = z3.Function(
+            'shift_of_capped', self.WorldIdSort, self.TimeSort, self.WorldIdSort
+        )
+
+        source_world = z3.Int('skcap_src')
+        shift_amount = z3.Int('skcap_shift')
+
+        # Compute boundary-constrained shift conditions inline
+        source_start = self.world_interval_start(source_world)
+        source_end = self.world_interval_end(source_world)
+
+        return z3.ForAll(
+            [source_world, shift_amount],
+            z3.Implies(
+                z3.And(
+                    # Source must be a valid world
+                    self.is_world(source_world),
+                    # Shift keeps the start within valid global range
+                    source_start + shift_amount >= z3.IntVal(-self.M + 1),
+                    # Shift keeps the end within valid global range
+                    source_end + shift_amount <= z3.IntVal(self.M - 1),
+                    # Shift is non-zero (identity already satisfied by source_world itself)
+                    shift_amount != z3.IntVal(0),
+                ),
+                z3.And(
+                    # The Skolem function produces a valid world
+                    self.is_world(shift_of_capped(source_world, shift_amount)),
+                    # Target interval is source interval shifted by shift_amount
+                    self.world_interval_start(
+                        shift_of_capped(source_world, shift_amount)
+                    ) == source_start + shift_amount,
+                    self.world_interval_end(
+                        shift_of_capped(source_world, shift_amount)
+                    ) == source_end + shift_amount,
+                    # Target states match source states when shifted
+                    self.matching_states_when_shifted_var(
+                        source_world,
+                        shift_amount,
+                        shift_of_capped(source_world, shift_amount)
+                    ),
+                )
+            )
+        )
+
     def build_task_minimization_constraint(self):
         """Build constraint encouraging minimal changes between consecutive world states.
-        
+
         This constraint guides Z3 to prefer solutions where consecutive world states
         are identical when possible, reducing unnecessary state changes and potentially
         reducing the search space.
@@ -887,28 +1438,38 @@ class BimodalSemantics(SemanticDefaults):
     def true_at(self, sentence, eval_point):
         """Returns a Z3 formula that is satisfied when the sentence is true at the given evaluation point.
 
+        ProofChecker Alignment: Atoms are FALSE outside the world's domain. This matches
+        the ProofChecker theorem `atom_false_of_not_domain` which ensures atoms evaluate
+        to false at times not in the world history's domain.
+
         Args:
             sentence: The sentence to evaluate
             eval_point: Dictionary containing evaluation parameters:
                 - "world": The world ID (integer) at which to evaluate the sentence
                 - "time": The time point at which to evaluate the sentence
-            
+
         Returns:
             Z3 formula that is satisfied when sentence is true at eval_point
         """
         # Extract world and time from eval_point
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
-        
+
         # Get the world array from the world ID
         world_array = self.world_function(eval_world)
-        
+
         sentence_letter = sentence.sentence_letter  # store sentence letter
 
         # base case
         if sentence_letter is not None:
+            # ProofChecker alignment: Atoms are FALSE outside the world's domain
+            # (atom_false_of_not_domain theorem in Truth.lean)
+            in_domain = self.is_valid_time_for_world(eval_world, eval_time)
             eval_world_state = z3.Select(world_array, eval_time)
-            return self.truth_condition(eval_world_state, sentence_letter)
+            return z3.And(
+                in_domain,
+                self.truth_condition(eval_world_state, sentence_letter)
+            )
 
         # recursive case
         operator = sentence.operator  # store operator
@@ -969,16 +1530,28 @@ class BimodalSemantics(SemanticDefaults):
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.truth_condition(state, atom)))
         
-        # Inject task relation constraints (transitions between world states)
+        # Inject task_rel constraints (transitions between world states with duration)
+        # Duration range based on time domain: for M time points, durations range from -(M-1) to (M-1)
+        M = model_constraints.settings.get('M', self.M)
+        duration_range = range(-M + 1, M)
+
         for state1 in range(num_states):
-            for state2 in range(num_states):
-                # Evaluate using original task function
-                task_val = z3_model.eval(original_semantics.task(state1, state2), model_completion=True)
-                # Add constraint using new task function
-                if is_true(task_val):
-                    model_constraints.all_constraints.append(self.task(state1, state2))
-                else:
-                    model_constraints.all_constraints.append(z3.Not(self.task(state1, state2)))
+            for duration in duration_range:
+                for state2 in range(num_states):
+                    # Evaluate using original task_rel function with duration
+                    task_val = z3_model.eval(
+                        original_semantics.task_rel(state1, duration, state2),
+                        model_completion=True
+                    )
+                    # Add constraint using new task_rel function
+                    if is_true(task_val):
+                        model_constraints.all_constraints.append(
+                            self.task_rel(state1, duration, state2)
+                        )
+                    else:
+                        model_constraints.all_constraints.append(
+                            z3.Not(self.task_rel(state1, duration, state2))
+                        )
         
         # Note: World arrays, intervals, and other temporal structures are
         # handled by the theory's own construction process
@@ -1832,13 +2405,15 @@ class BimodalStructure(ModelDefaults):
         # Get the main world history for display
         main_world_history = self.world_histories[self.main_world]
 
-        # Create the sequence of states connected by arrows
-        state_sequence = []
-        for time in sorted(main_world_history.keys()):
-            state_sequence.append(str(main_world_history[time]))
-        
-        # Join states with arrows and print
-        world_line = " =⟹ ".join(state_sequence)
+        # Create the sequence of states connected by duration-annotated arrows
+        sorted_times = sorted(main_world_history.keys())
+        parts = []
+        for i, time in enumerate(sorted_times):
+            parts.append(str(main_world_history[time]))
+            if i < len(sorted_times) - 1:
+                dur = sorted_times[i + 1] - time
+                parts.append(f" ⟹{self._to_subscript(dur)} ")
+        world_line = "".join(parts)
 
         # Get evaluation time and state
         eval_time = self.main_time
@@ -1852,12 +2427,19 @@ class BimodalStructure(ModelDefaults):
             file=output,
         )
 
+    @staticmethod
+    def _to_subscript(n):
+        """Convert an integer to Unicode subscript characters."""
+        sub = {'0': '₀', '1': '₁', '2': '₂', '3': '₃', '4': '₄',
+               '5': '₅', '6': '₆', '7': '₇', '8': '₈', '9': '₉', '-': '₋'}
+        return ''.join(sub.get(c, c) for c in str(n))
+
     def format_time(self, time):
         """Format time with appropriate sign for display.
-        
+
         Args:
             time: Time point to format
-            
+
         Returns:
             str: Formatted time string with sign prefix
         """
@@ -1968,10 +2550,11 @@ class BimodalStructure(ModelDefaults):
                 if pos + j < len(line):
                     line[pos + j] = char
             
-            # Add arrow if not the last state
+            # Add arrow with duration subscript if not the last state
             if i < len(visible_times) - 1:
                 arrow_pos = pos + len(state_str)
-                arrow = " =⟹ "
+                dur = visible_times[i + 1] - time
+                arrow = f" ⟹{self._to_subscript(dur)} "
                 for j, char in enumerate(arrow):
                     if arrow_pos + j < len(line):
                         line[arrow_pos + j] = char
@@ -2391,16 +2974,17 @@ class BimodalStructure(ModelDefaults):
                     
                     print(f"    State {state}: {old_value} -> {new_value}", file=output)
         
-        # 3. Print task relation changes
+        # 3. Print task relation changes (with duration parameter)
+        # Format: "state1--[duration]-->state2" where duration is explicit
         if 'task_relations' in diffs and diffs['task_relations']:
             print("\nTask Relation Changes:", file=output)
-            
+
             for transition, change in diffs['task_relations'].items():
                 old_value = change.get('old', False)
                 new_value = change.get('new', False)
-                
+
                 status = "added" if new_value and not old_value else "removed" if old_value and not new_value else "changed"
-                print(f"  Task {transition}: {status}", file=output)
+                print(f"  TaskRel {transition}: {status}", file=output)
         
         # 4. Print time interval changes
         if 'time_intervals' in diffs and diffs['time_intervals']:

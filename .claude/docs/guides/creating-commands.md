@@ -1,329 +1,203 @@
 # Creating Commands Guide
 
-## Overview
-
-This guide provides a streamlined walkthrough for creating new task-based commands in the Neovim Configuration .opencode system.
+This guide walks through creating a new slash command in the Claude Code agent system. Commands are the user-facing entry points; they route work to skills, which delegate to agents.
 
 ## Prerequisites
 
-Before creating a new command, understand:
+Before creating a command, understand:
 
-1. **Task-Based Pattern**: Neovim Configuration uses task numbers from TODO.md, not topics
-2. **Orchestrator-Mediated**: All task-based commands route through orchestrator
-3. **Hybrid Architecture**: Orchestrator validates, subagents execute
-4. **Language Routing**: Neovim tasks route to neovim-specific agents
+1. **Checkpoint-based execution**: Every command follows GATE IN -> DELEGATE -> GATE OUT -> COMMIT
+2. **Task-number arguments**: Most commands operate on task numbers from `specs/TODO.md`, not free-form topics
+3. **Skill delegation**: Commands invoke skills via the Skill tool; skills spawn agents via the Agent tool
+4. **Separation of concerns**: Commands parse arguments and validate; skills prepare context; agents execute
 
-**Required Reading**:
-- `.claude/skills/skill-orchestrator/SKILL.md` - Orchestrator skill
-- `.claude/context/formats/subagent-return.md` - Subagent return format
-- [Creating Skills](creating-skills.md) - For skill delegation patterns
-- [Creating Agents](creating-agents.md) - For agent implementation
+**Required reading**:
+- [Command Template](../templates/command-template.md)
+- [Component Selection](component-selection.md)
+- [Creating Skills](creating-skills.md)
+- [Creating Agents](creating-agents.md)
+- `.claude/context/workflows/command-lifecycle.md`
 
-## Neovim Configuration vs OpenAgents
+## When to Create a Command
 
-**IMPORTANT**: Neovim Configuration has a different command pattern than OpenAgents.
+Create a new command when:
+- There is a user-facing operation that warrants a dedicated entry point
+- The operation is distinct from existing commands in terms of workflow or artifacts
+- The operation needs argument parsing and preflight validation
 
-| Aspect | Neovim Configuration | OpenAgents |
-|--------|--------------|------------|
-| **Arguments** | Task numbers (integers) | Topics (natural language) |
-| **Workflow** | Task exists first | Creates new projects |
-| **Validation** | TODO.md lookup required | No validation needed |
-| **Routing** | Language-based (neovim vs general) | Keyword-based |
-| **Example** | `/research 259` | `/research "modal logic"` |
-
-**You cannot copy OpenAgents patterns directly to Neovim Configuration.**
+Do NOT create a command when:
+- An existing command can handle the use case with an additional flag
+- The work is internal to a skill or agent
+- The operation is a one-off script that can live in `.claude/scripts/`
 
 ## Step-by-Step Process
 
-### Step 1: Understand the Hybrid Architecture
+### Step 1: Choose a Name and Check for Conflicts
 
-Neovim Configuration uses a **hybrid architecture** (v6.1):
+Commands are invoked as `/<name>`. Pick a short, verb-oriented name. Check `.claude/commands/` for existing conflicts.
 
-**Orchestrator Responsibilities**:
-1. Extract task number from `$ARGUMENTS`
-2. Validate task exists in TODO.md
-3. Extract language from task metadata
-4. Route to appropriate subagent (neovim vs general)
-5. Pass validated context to subagent
+### Step 2: Start from the Command Template
 
-**Subagent Responsibilities**:
-1. Receive validated inputs (task_number, language, task_description)
-2. Update task status
-3. Execute workflow
-4. Return standardized result
+Copy `.claude/docs/templates/command-template.md` to `.claude/commands/<name>.md` and replace the placeholders.
 
-**Why This Pattern?**:
-- Only orchestrator has access to `$ARGUMENTS`
-- Task validation prevents errors
-- Language extraction enables routing
-- Subagents receive clean, pre-validated inputs
+### Step 3: Define Frontmatter
 
-### Step 2: Create Command File
+All commands use this frontmatter format:
 
-Create `.claude/commands/{command-name}.md` with this structure:
-
-**Task-Based Command Template**:
-
-```markdown
+```yaml
 ---
-name: {command-name}
-agent: orchestrator
-description: "{Brief description with status}"
-timeout: 3600
-routing:
-  language_based: true
-  neovim: neovim-{command}-agent
-  default: {command}er
+description: <one-line description>
+allowed-tools: <comma-separated tool list>
+argument-hint: "<required>" [--flag]
+model: opus
 ---
-
-# /{command-name} - {Title}
-
-{Brief description of what this command does}
-
-## Usage
-
-\`\`\`bash
-/{command-name} TASK_NUMBER [PROMPT]
-/{command-name} 196
-/{command-name} 196 "Custom focus"
-\`\`\`
-
-## What This Does
-
-1. Routes to appropriate agent based on task language
-2. Agent executes workflow
-3. Creates artifacts
-4. Updates task status to [{STATUS}]
-5. Creates git commit
-
-## Language-Based Routing
-
-| Language | Agent | Tools |
-|----------|-------|-------|
-| neovim | neovim-{command}-agent | {neovim-specific tools} |
-| general | {command}er | {general tools} |
-
-See `.claude/agents/{agent}.md` for details.
 ```
 
-**Key Points**:
-- **MUST use `agent: orchestrator`** (not `agent: implementer` or direct agent!)
-- Include `routing` configuration for language-based routing
-- Keep documentation concise (<50 lines)
+| Field | Required | Purpose |
+|-------|----------|---------|
+| `description` | Yes | One-line summary shown in `/help` output |
+| `allowed-tools` | Yes | Scoped tool allowlist (e.g., `Read(specs/*), Bash(git:*)`) |
+| `argument-hint` | Yes | Usage hint shown to the user |
+| `model` | No | Preferred model (`opus`, `sonnet`, or omit for default). See Model Selection below |
 
-### Step 3: Create or Update Subagent
+### Model Selection
 
-If creating a new subagent, follow this pattern:
+Commands that dispatch to agents should use `model: sonnet` in their frontmatter. The agent's own frontmatter model takes precedence during execution, so the command-level model primarily affects the command's own preflight/postflight reasoning.
 
-**Step 0 Template** (Receives Validated Inputs):
+| Command Type | Recommended Model | Rationale |
+|-------------|-------------------|-----------|
+| Dispatch commands (`/research`, `/plan`, `/implement`) | `sonnet` | Lightweight routing; agent model takes precedence |
+| Direct-execution commands (`/todo`, `/meta`, `/review`) | `opus` | Command itself does the reasoning work |
+| Utility commands (`/refresh`, `/tag`) | `opus` or omit | Simple operations; model matters less |
 
-```xml
-<step_0_preflight>
-  <action>Preflight: Extract validated inputs and update status</action>
-  <process>
-    1. Extract task inputs from delegation context (already validated by orchestrator):
-       - task_number: Integer (already validated to exist in TODO.md)
-       - language: String (already extracted from task metadata)
-       - task_description: String (already extracted from TODO.md)
-       - Example: task_number=259, language="neovim", task_description="..."
-       
-       NOTE: Orchestrator has already:
-       - Validated task_number exists in TODO.md
-       - Extracted language from task metadata
-       - Extracted task description
-       - Performed language-based routing
-       
-       No re-parsing or re-validation needed!
-    
-    2. Update status to [{STATUS}]:
-       - Delegate to status-sync-manager
-       - Validate status update succeeded
-    
-    3. Proceed to execution with validated inputs
-  </process>
-  <checkpoint>Task inputs extracted from validated context, status updated</checkpoint>
-</step_0_preflight>
-```
+See `.claude/docs/reference/standards/agent-frontmatter-standard.md` for the full tiered model policy.
 
-**Workflow Steps** (Steps 1-N):
+### Step 4: Implement the Four Checkpoint Stages
 
-Implement your specific workflow. Subagent has access to:
-- `task_number`: Validated integer
-- `language`: String ("neovim", "general", etc.)
-- `task_description`: Full description from TODO.md
+Commands use shared infrastructure scripts in `.claude/scripts/` for checkpoint execution. These scripts handle session generation, task validation, status updates, and artifact verification — commands should not reimplement this logic inline.
 
-**Return Format**:
-
-Must return JSON matching `subagent-return-format.md` schema:
-```json
-{
-  "status": "completed|partial|failed|blocked",
-  "summary": "Brief summary <100 tokens",
-  "artifacts": [{"type": "...", "path": "...", "summary": "..."}],
-  "metadata": {
-    "session_id": "...",
-    "duration_seconds": 123,
-    "agent_type": "...",
-    "delegation_depth": 1,
-    "delegation_path": ["orchestrator", "agent"]
-  },
-  "errors": [],
-  "next_steps": "What user should do next"
-}
-```
-
-### Step 4: Test Command
-
-Test your new command:
+#### STAGE 0: PARSE TASK NUMBERS
 
 ```bash
-# Find a test task
-grep "^###" specs/TODO.md | head -5
-
-# Test command
-/{command-name} {task-number}
-
-# Verify:
-# 1. Orchestrator extracts task number from $ARGUMENTS
-# 2. Orchestrator validates task exists
-# 3. Orchestrator extracts language from TODO.md
-# 4. Orchestrator routes to correct agent
-# 5. Subagent receives validated context
-# 6. Artifacts created
-# 7. Status updated
-# 8. Git commit created
+source .claude/scripts/parse-command-args.sh "$ARGUMENTS"
+# Exports: TASK_NUMBERS, REMAINING_ARGS, TEAM_MODE, TEAM_SIZE,
+#          EFFORT_FLAG, MODEL_FLAG, CLEAN_FLAG, FORCE_FLAG, FOCUS_PROMPT
 ```
 
-## Architecture Flow
+`parse-command-args.sh` extracts task numbers (single, comma-separated, or ranges), flags (`--team`, `--fast`, `--hard`, `--clean`, `--force`), model selectors (`--haiku`, `--sonnet`, `--opus`), and remaining text as `FOCUS_PROMPT`.
 
-### How Commands Work (v6.1 Hybrid)
+#### CHECKPOINT 1: GATE IN (Preflight)
 
-```
-User types: /implement 259
-  ↓
-OpenCode reads command file: agent: orchestrator
-  ↓
-OpenCode invokes orchestrator with $ARGUMENTS = "259"
-  ↓
-Orchestrator Stage 1 (ExtractAndValidate):
-  - Parse task_number from $ARGUMENTS: 259
-  - Validate task 259 exists in TODO.md
-  - Extract language: "neovim"
-  - Extract task_description: "Configure LSP settings"
-  ↓
-Orchestrator Stage 2 (Route):
-  - Check routing config: language_based = true
-  - Map language "neovim" → agent "neovim-implementation-agent"
-  - Prepare delegation context
-  ↓
-Orchestrator Stage 3 (Delegate):
-  - Invoke neovim-implementation-agent with validated context:
-    * task_number = 259
-    * language = "neovim"
-    * task_description = "Configure LSP settings"
-  ↓
-Subagent Step 0:
-  - Extract validated inputs from delegation context
-  - Update status to [IMPLEMENTING]
-  - Proceed with validated inputs (no parsing!)
-  ↓
-Subagent executes workflow, returns result
-  ↓
-Orchestrator relays result to user
+```bash
+source .claude/scripts/command-gate-in.sh "$task_number" "<operation>"
+# Exports: SESSION_ID, TASK_TYPE, TASK_STATUS, PROJECT_NAME, DESCRIPTION, PADDED_NUM
+# Displays: [OPERATION] Task {N}: {project_name}
+# Aborts if task not found or in terminal status
 ```
 
-## Key Principles
+`command-gate-in.sh` generates the session ID, validates the task exists, checks status allows the operation, and updates status to the in-progress variant. Commands should not generate session IDs or validate tasks manually.
 
-1. **Orchestrator-Mediated**: All task-based commands route through orchestrator
-2. **Validate Once**: Orchestrator validates, subagent receives clean inputs
-3. **No Re-Parsing**: Subagent uses validated context, doesn't re-parse prompts
-4. **Language Routing**: Orchestrator extracts language, routes to correct agent
-5. **Clean Separation**: Orchestrator validates/routes, subagent executes
-6. **No Version History**: NEVER add version history sections to commands or agents (useless cruft)
+#### STAGE 2: DELEGATE
 
-## Common Mistakes
+```bash
+source .claude/scripts/command-route-skill.sh "<operation>" "$TASK_TYPE" "skill-<default>"
+skill_name="$SKILL_NAME"
+```
 
-### ❌ WRONG: Direct Invocation
+`command-route-skill.sh` resolves the task type to the appropriate skill name using extension manifests and fallback defaults. Then invoke the skill:
+
+```
+Skill: "{skill_name}"
+Args: "task_number={N} session_id={SESSION_ID} ..."
+```
+
+#### CHECKPOINT 2: GATE OUT (Postflight)
+
+```bash
+bash .claude/scripts/command-gate-out.sh "$task_number" "<operation>" "$SESSION_ID"
+# Reads .return-meta.json; applies defensive status correction if needed
+# Runs validate-artifact.sh --fix (non-blocking)
+```
+
+`command-gate-out.sh` reads the return metadata file, validates artifacts exist, and applies defensive status corrections to both state.json and TODO.md if needed.
+
+#### CHECKPOINT 3: COMMIT
+
+```bash
+git add -A
+git commit -m "$(cat <<'EOF'
+task {N}: {action}
+
+Session: {SESSION_ID}
+
+EOF
+)"
+```
+
+Commit failure is non-blocking (log and continue).
+
+### Step 5: Document Artifacts
+
+List every artifact the command creates, using absolute paths with placeholders:
 
 ```markdown
----
-name: implement
-agent: implementer  # WRONG! Bypasses orchestrator
----
+## Artifacts
+
+- `specs/{NNN}_{SLUG}/reports/MM_{short-slug}.md` - Research report
+- `specs/{NNN}_{SLUG}/plans/MM_{short-slug}.md` - Implementation plan
 ```
 
-**Problem**: OpenCode directly invokes implementer, bypassing orchestrator.
-Implementer has no access to `$ARGUMENTS`, cannot extract task number.
+See `.claude/rules/artifact-formats.md` for naming conventions.
 
-### ❌ WRONG: Subagent Parses Prompt
+### Step 6: Add Error Handling
 
-```xml
-<step_0_preflight>
-  <process>
-    1. Parse task number from prompt string  # WRONG! Orchestrator already did this
-    2. Validate task exists  # WRONG! Already validated
-  </process>
-</step_0_preflight>
-```
-
-**Problem**: Duplicate parsing, duplicate validation. Fragile and inefficient.
-
-### ✅ CORRECT: Use Validated Inputs
+Document the recovery paths:
 
 ```markdown
----
-name: implement
-agent: orchestrator  # CORRECT! Routes through orchestrator
-routing:
-  language_based: true
-  neovim: neovim-implementation-agent
-  default: implementer
----
+## Error Handling
+
+- **Task not found**: Exit with error, preserve no state
+- **Delegation failure**: Keep task in current status, log to errors.json
+- **Timeout**: Mark phase [PARTIAL] in plan, next invocation resumes
 ```
 
-```xml
-<step_0_preflight>
-  <process>
-    1. Extract validated inputs from delegation context  # CORRECT!
-       - task_number, language, task_description
-    2. Update status
-    3. Proceed with validated inputs
-  </process>
-</step_0_preflight>
-```
+See `.claude/rules/error-handling.md` for the general patterns.
 
-## Examples
+### Step 7: Register the Command
 
-See existing implementations:
-- `.claude/commands/implement.md` - Language-based command
-- `.claude/commands/research.md` - Language-based command
-- `.claude/commands/plan.md` - Language-based command
-- `.claude/skills/skill-orchestrator/SKILL.md` - Orchestrator skill
-- `.claude/skills/skill-implementer/SKILL.md` - General implementer skill
-- `.claude/agents/general-implementation-agent.md` - General implementation agent
-- `.claude/agents/neovim-implementation-agent.md` - Neovim-specific agent
+1. Add the command to the command reference table in `.claude/README.md`
+2. Add the command to the command reference table in `.claude/CLAUDE.md`
+3. If the command introduces a new skill or agent, update the skill-to-agent mapping in `.claude/context/reference/skill-agent-mapping.md`
 
-## Related Guides
+### Step 8: Test
 
-- [Component Selection](component-selection.md) - When to create a command vs skill vs agent
-- [Creating Skills](creating-skills.md) - How to create skills that commands delegate to
-- [Creating Agents](creating-agents.md) - How to create agents that skills invoke
+Test the command with:
+- Valid task number and arguments
+- Invalid task number (should error cleanly)
+- Timeout simulation (Ctrl-C mid-execution)
+- Resume from partial state
 
-## Troubleshooting
+## Command File Size Targets
 
-**"Task number not provided"**:
-- Check command file has `agent: orchestrator` (not direct agent)
-- Orchestrator extracts from `$ARGUMENTS`, subagent receives validated context
+- **Target**: under 250 lines
+- **Maximum**: 300 lines
+- **Rationale**: Commands should delegate, not execute. Long commands indicate that logic should move into a skill or agent.
 
-**"Task not found"**:
-- Task number doesn't exist in TODO.md
-- Orchestrator validates this in Stage 1
+## Example Commands to Study
 
-**Wrong agent invoked**:
-- Check routing configuration in command frontmatter
-- Check language field in TODO.md task entry
-- Orchestrator uses language to route to correct agent
+| Command | Why read it |
+|---------|-------------|
+| `.claude/commands/task.md` | Simple argument-mode dispatch |
+| `.claude/commands/research.md` | Multi-task routing and skill delegation |
+| `.claude/commands/implement.md` | Resume support and phase-level progress |
+| `.claude/commands/todo.md` | Direct skill execution (no agent delegation) |
 
-**Subagent can't access task_number**:
-- Check Step 0 extracts from delegation_context
-- Orchestrator passes validated context as parameters
+## Related Documentation
+
+- [Command Template](../templates/command-template.md)
+- [Creating Skills](creating-skills.md)
+- [Creating Agents](creating-agents.md)
+- [Component Selection](component-selection.md)
+- `.claude/context/workflows/command-lifecycle.md`
+- `.claude/rules/artifact-formats.md`
+- `.claude/rules/state-management.md`

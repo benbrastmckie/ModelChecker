@@ -1,51 +1,31 @@
-# Neovim Configuration Project
+<!-- GENERIC TEMPLATE: This file provides a default project overview for new repositories.
+     To generate a project-specific version, run:
+       /task "Generate project-overview.md for this repository"
+     Then add context/repo/project-overview.md to your .syncprotect file to prevent
+     future syncs from overwriting it. -->
 
-## Project Overview
+# Project Overview
 
-This is a Neovim configuration project using Lua and lazy.nvim for plugin management. The configuration provides a modern, efficient development environment with LSP support, treesitter integration, and extensive customization.
+## Purpose
 
-**Purpose**: Maintain a productive Neovim development environment with organized, modular configuration.
+This file describes the repository structure for agent context. When extensions are loaded, they provide project-specific domain knowledge (technology stack, development workflows, verification commands).
 
-## Technology Stack
+## Two-Layer Extension Architecture
 
-**Primary Language:** Lua
-**Plugin Manager:** lazy.nvim
-**LSP:** nvim-lspconfig + mason.nvim
-**Treesitter:** nvim-treesitter
-**Version:** Neovim 0.9+
+This repository uses a two-layer extension system:
 
-## Project Structure
+- **Layer 1 -- Editor loader**: Manages which agent files, skills, rules, and context exist in the agent runtime directory. The extension picker triggers the loader, which copies files from extension sources into the runtime and regenerates the main configuration file.
+- **Layer 2 -- Agent system** (`.claude/` or `.opencode/`): The runtime read by the AI coding assistant. Contains only the files that have been loaded by the editor loader. The assistant does not know about the extension system; it sees a standard directory structure.
+
+See `.claude/docs/architecture/extension-system.md` for the full two-layer architecture documentation.
+
+## Repository Structure
 
 ```
-nvim/
-├── init.lua                 # Entry point
-├── lua/
-│   ├── config/             # Core configuration
-│   │   ├── options.lua     # vim.opt settings
-│   │   ├── keymaps.lua     # Key bindings
-│   │   ├── autocmds.lua    # Autocommands
-│   │   └── lazy.lua        # Plugin manager setup
-│   ├── plugins/            # Plugin specifications
-│   │   ├── init.lua        # Main plugin list
-│   │   ├── ui.lua          # UI plugins
-│   │   ├── editor.lua      # Editor enhancements
-│   │   ├── lsp.lua         # LSP configuration
-│   │   ├── treesitter.lua  # Treesitter setup
-│   │   └── git.lua         # Git integration
-│   └── utils/              # Utility functions
-│       └── init.lua
-├── after/
-│   └── ftplugin/           # Filetype-specific settings
-│       ├── lua.lua
-│       ├── python.lua
-│       └── markdown.lua
-├── plugin/                  # Auto-loaded plugins
-└── lazy-lock.json          # Plugin lockfile
-
 specs/                       # Task management
 ├── TODO.md                 # Task list
 ├── state.json              # Task state
-└── {NNN}_{SLUG}/             # Task artifacts
+└── {NNN}_{SLUG}/           # Task artifacts
     ├── reports/
     ├── plans/
     └── summaries/
@@ -56,89 +36,35 @@ specs/                       # Task management
 ├── skills/                 # Skill definitions
 ├── agents/                 # Agent definitions
 ├── rules/                  # Auto-applied rules
-└── context/                # Domain knowledge
+├── context/                # Domain knowledge
+└── extensions/             # Extension modules
+    └── */                  # Per-extension directories
+        ├── manifest.json   # Extension metadata
+        ├── index-entries.json  # Context index entries
+        └── context/        # Extension-specific context
 ```
 
-## Core Configuration
+## Extension-Provided Context
 
-### Plugin Manager: lazy.nvim
+Extensions supply project-specific knowledge:
+- Technology stack and language details
+- Development workflows and verification commands
+- Coding standards and patterns
+- Tool-specific guides
 
-The configuration uses lazy.nvim for plugin management with:
-- Automatic lazy loading by event, command, or filetype
-- Lockfile for reproducibility
-- Built-in profiler for performance analysis
+Extensions can declare dependencies on other extensions. Resource-only extensions provide only context files with no agents, skills, or routing.
 
-### LSP Integration
+See `.claude/extensions/*/manifest.json` for available extensions, their capabilities, and dependency declarations.
 
-Language Server Protocol support via:
-- nvim-lspconfig for server configuration
-- mason.nvim for automatic server installation
-- Built-in vim.lsp.* API
+## AI-Assisted Workflow
 
-### Treesitter
-
-Native tree-sitter support providing:
-- Syntax highlighting
-- Code folding
-- Incremental selection
-- Text objects
-
-## Development Workflow
-
-### Standard Workflow
-
-1. **Identify Need**: Plugin to add, keymap to change, feature to implement
-2. **Research**: Look up plugin docs, check existing patterns
-3. **Implement**: Create/modify Lua files
-4. **Test**: Restart Neovim, verify behavior
-5. **Commit**: Track changes
-
-### AI-Assisted Workflow
-
-1. **Research**: `/research` - Gather plugin docs, patterns
+1. **Research**: `/research` - Gather documentation and patterns
 2. **Planning**: `/plan` - Create implementation plan
 3. **Implementation**: `/implement` - Execute the plan
-4. **Review**: `/review` - Analyze configuration
-
-## Common Tasks
-
-### Adding a Plugin
-
-1. Create spec file in `lua/plugins/` or add to existing
-2. Define lazy loading conditions (event, cmd, ft, keys)
-3. Configure plugin options
-4. Add keymaps if needed
-
-### Modifying Keymaps
-
-1. Edit `lua/config/keymaps.lua` for global mappings
-2. Use buffer-local mappings for filetype-specific
-3. Always include descriptions for which-key
-
-### Adding Filetype Settings
-
-1. Create `after/ftplugin/{filetype}.lua`
-2. Use `vim.opt_local` for buffer settings
-3. Add buffer-local keymaps as needed
-
-## Verification Commands
-
-```bash
-# Test Neovim starts without errors
-nvim --headless -c "echo 'OK'" -c "q"
-
-# Test module loading
-nvim --headless -c "lua require('plugins')" -c "q"
-
-# Check plugin health
-nvim --headless -c "checkhealth" -c "q"
-
-# Profile startup
-nvim --startuptime specs/tmp/startup.log
-```
+4. **Review**: `/review` - Analyze changes
 
 ## Related Documentation
 
-- `.claude/context/project/neovim/` - Neovim domain knowledge
-- `.claude/rules/neovim-lua.md` - Lua coding standards
-- `nvim/CLAUDE.md` - Configuration-specific guidelines
+- `.claude/CLAUDE.md` - Agent system configuration
+- `.claude/extensions/` - Extension modules with project-specific context
+- `CLAUDE.md` (project root) - Project-specific coding standards

@@ -32,7 +32,7 @@ The marker can appear anywhere in the commit message:
 
 | Change Type | Trigger CI | Reason |
 |-------------|------------|--------|
-| Neovim Lua files (.lua) | Yes | Ensure configuration loads correctly |
+| Source code files | Yes | Ensure project builds correctly |
 | Plugin dependencies (lazy-lock.json) | Yes | Verify compatibility |
 | CI configuration (.github/workflows/) | Yes | Validate workflow changes |
 | Implementation completion | Yes | Final verification |
@@ -57,19 +57,18 @@ The marker can appear anywhere in the commit message:
 |-----------|-----------|----------|
 | `/research` complete | Skip | Add `[ci]` if needed |
 | `/plan` complete | Skip | Add `[ci]` if needed |
-| `/implement` phase complete | Skip | Add `[ci]` for Neovim phases |
-| `/implement` task complete | Skip (unless Neovim) | Add `[ci]` for final verification |
+| `/implement` phase complete | Skip | Add `[ci]` for source code phases |
+| `/implement` task complete | Skip (unless source changes) | Add `[ci]` for final verification |
 | `/task` create/archive | Skip | Rarely needed |
 
 ### Language-Based Defaults
 
 | Task Language | Default on Completion |
 |---------------|----------------------|
-| `neovim` | Trigger CI (modifies source) |
-| `latex` | Skip (modifies documents) |
-| `typst` | Skip (modifies documents) |
+| `general` | Trigger CI (modifies source) |
 | `meta` | Skip (modifies orchestration) |
 | `markdown` | Skip (documentation only) |
+| _{extension}_ | Depends on extension (source vs. documents) |
 | `general` | Case-by-case |
 
 ## Examples
@@ -79,7 +78,6 @@ The marker can appear anywhere in the commit message:
 ```
 task 423: complete research
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 CI result: Skipped on push
@@ -88,8 +86,6 @@ CI result: Skipped on push
 
 ```
 task 334: complete implementation [ci]
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
 ```
 
 CI result: Runs build, test, and lint

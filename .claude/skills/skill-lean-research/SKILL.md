@@ -1,7 +1,7 @@
 ---
 name: skill-lean-research
 description: Research Lean 4 and Mathlib for theorem proving tasks. Invoke for Lean-language research using LeanSearch, Loogle, and lean-lsp tools.
-allowed-tools: Task, Bash, Edit, Read, Write
+allowed-tools: Agent, Bash, Edit, Read, Write
 ---
 
 # Lean Research Skill
@@ -14,7 +14,7 @@ this skill handles all postflight operations (status update, artifact linking, g
 ## Trigger Conditions
 
 This skill activates when:
-- Task language is "lean4" or "lean" (either accepted)
+- Task type is "lean4" or "lean" (either accepted)
 - Research involves Mathlib, theorems, or proofs
 - Lean-specific MCP tools are needed
 
@@ -40,7 +40,7 @@ if [ -z "$task_data" ]; then
 fi
 
 # Extract fields
-language=$(echo "$task_data" | jq -r '.language // "general"')
+task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 project_name=$(echo "$task_data" | jq -r '.project_name')
 description=$(echo "$task_data" | jq -r '.description // ""')
@@ -82,7 +82,7 @@ Prepare delegation context for the subagent:
     "task_number": N,
     "task_name": "{project_name}",
     "description": "{description}",
-    "language": "lean"
+    "task_type": "lean"
   },
   "focus_prompt": "{optional focus}",
   "metadata_file_path": "specs/{N}_{SLUG}/.return-meta.json"
@@ -93,11 +93,11 @@ Prepare delegation context for the subagent:
 
 ### Stage 4: Invoke Subagent
 
-**CRITICAL**: You MUST use the **Task** tool to spawn the subagent.
+**CRITICAL**: You MUST use the **Agent** tool to spawn the subagent.
 
 **Required Tool Invocation**:
 ```
-Tool: Task (NOT Skill)
+Tool: Agent (NOT Skill, NOT Plan)
 Parameters:
   - subagent_type: "lean-research-agent"
   - prompt: [Include task_context, delegation_context, focus_prompt, metadata_file_path]
@@ -116,9 +116,25 @@ The subagent will:
 
 ---
 
-### Stage 5: Parse Subagent Return (Read Metadata File)
+### Stage 4b: Self-Execution Fallback
 
-After subagent returns, read the metadata file:
+**CRITICAL**: If you performed the work above WITHOUT using the Agent tool (i.e., you read files,
+wrote artifacts, or updated metadata directly instead of spawning a subagent), you MUST write a
+`.return-meta.json` file now before proceeding to postflight. Use the schema from
+`return-metadata-file.md` with the appropriate status value for this operation.
+
+If you DID use the Agent tool, skip this stage -- the subagent already wrote the metadata.
+
+---
+
+## Postflight (ALWAYS EXECUTE)
+
+The following stages MUST execute after work is complete, whether the work was done by a
+subagent or inline (Stage 4b). Do NOT skip these stages for any reason.
+
+### Stage 5: Parse Subagent Return
+
+Read the metadata file:
 
 ```bash
 metadata_file="specs/${padded_num}_${project_name}/.return-meta.json"
@@ -171,7 +187,7 @@ if [ -n "$artifact_path" ]; then
 fi
 ```
 
-**Update TODO.md**: Add research artifact link.
+**Update TODO.md**: Link artifact using count-aware format. Apply the four-case Edit logic from `@.claude/context/patterns/artifact-linking-todo.md` with `field_name=**Research**`, `next_field=**Plan**`.
 
 ---
 
@@ -188,8 +204,6 @@ git add \
 git commit -m "task ${task_number}: complete research
 
 Session: ${session_id}
-
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>"
 ```
 
 ---

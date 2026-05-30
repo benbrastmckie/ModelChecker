@@ -55,7 +55,7 @@ All subagents MUST include these 13 essential fields:
 **Examples**:
 ```yaml
 name: "researcher"
-name: "neovim-implementation-agent"
+name: "general-implementation-agent"
 name: "status-sync-manager"
 ```
 
@@ -100,7 +100,7 @@ version: "2.0.0"  # Breaking changes
 **Example**:
 ```yaml
 description: |
-  General research agent for non-Neovim tasks with topic subdivision support.
+  General research agent with topic subdivision support.
   Conducts comprehensive research using web sources and documentation.
   Returns detailed reports and summaries following standardized format.
 ```
@@ -354,7 +354,7 @@ context_loading:
     - "core/workflows/command-lifecycle.md"
     - "formats/subagent-return.md"
   optional:
-    - "project/neovim/plugin-patterns.md"
+    - "patterns/implementation-patterns.md"
   max_context_size: 50000
 ```
 
@@ -367,7 +367,7 @@ context_loading:
 
 **Guidelines**:
 - Use lazy strategy for efficiency
-- Include command-lifecycle.md and subagent-return-format.md in required
+- Include command-lifecycle.md and subagent-return.md in required
 - Add agent-specific context in optional
 - Set max_context_size to 50000 tokens (default)
 
@@ -421,7 +421,7 @@ delegation:
 lifecycle:
   stage: 4
   command: "/research"
-  return_format: "subagent-return-format.md"
+  return_format: "subagent-return.md"
 ```
 
 **Fields**:
@@ -520,7 +520,7 @@ delegation:
 lifecycle:
   stage: 4
   command: "/research"
-  return_format: "subagent-return-format.md"
+  return_format: "subagent-return.md"
 ---
 ```
 
@@ -561,14 +561,14 @@ context_loading:
 delegation:
   max_depth: 3
   can_delegate_to:
-    - "neovim-implementation-agent"
+    - "general-implementation-agent"
     - "status-sync-manager"
   timeout_default: 7200
   timeout_max: 7200
 lifecycle:
   stage: 4
   command: "/implement"
-  return_format: "subagent-return-format.md"
+  return_format: "subagent-return.md"
 ---
 ```
 
@@ -695,7 +695,7 @@ temperature: 0.7  # Too high for implementation
 2. **Context Loading Implementation**: Lazy loading with index-based discovery
 3. **Delegation Routing**: Delegation with depth limits and cycle detection
 4. **CI/CD Integration**: GitHub Actions workflow for frontmatter validation
-5. **Plugin Integration**: Add Neovim plugin tooling for configuration agents
+5. **Plugin Integration**: Add domain-specific tooling for configuration agents
 
 ---
 

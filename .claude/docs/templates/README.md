@@ -108,7 +108,7 @@ All agents must implement the complete 8-stage workflow:
 3. **Stage 3: Core Execution** - Perform core work
 4. **Stage 4: Output Generation** - Generate outputs in required formats
 5. **Stage 5: Artifact Creation** - Create artifacts in task directory
-6. **Stage 6: Return Formatting** - Format return following subagent-return-format.md
+6. **Stage 6: Return Formatting** - Format return following subagent-return.md
 7. **Stage 7: Artifact Validation and Status Updates** - Validate artifacts, update TODO.md, state.json, create git commit
 8. **Stage 8: Cleanup** - Perform cleanup
 
@@ -200,7 +200,7 @@ Before submitting a new agent, verify:
 - [ ] Timestamp recording implemented
 
 **Return Format**:
-- [ ] Matches subagent-return-format.md
+- [ ] Matches subagent-return.md
 - [ ] All required fields present
 - [ ] Summary concise (<100 tokens)
 - [ ] Artifacts array populated
@@ -310,7 +310,7 @@ Analyzes code for potential issues and suggests improvements.
 
 1. **Implement All 8 Stages**: Don't skip stages, especially Stage 7
 2. **Load Context On-Demand**: Use lazy-loading pattern
-3. **Follow Return Format**: Match subagent-return-format.md exactly
+3. **Follow Return Format**: Match subagent-return.md exactly
 4. **Handle Errors Gracefully**: Provide clear error messages and recovery steps
 5. **Validate Stage 7**: Ensure artifacts validated, TODO.md updated, git commit created
 
@@ -320,7 +320,7 @@ Analyzes code for potential issues and suggests improvements.
 2. **Test Invalid Inputs**: Verify error handling works
 3. **Test Stage 7**: Verify TODO.md, state.json, git commit created
 4. **Test Artifacts**: Verify artifacts created and validated
-5. **Test Return Format**: Verify return matches subagent-return-format.md
+5. **Test Return Format**: Verify return matches subagent-return.md
 
 ---
 
@@ -331,6 +331,14 @@ Analyzes code for potential issues and suggests improvements.
 - [Creating Commands](../guides/creating-commands.md) - Step-by-step command creation
 - [Creating Skills](../guides/creating-skills.md) - Step-by-step skill creation
 - [Creating Agents](../guides/creating-agents.md) - Step-by-step agent creation
+
+### Architecture
+- [System Overview](../architecture/system-overview.md) - High-level system architecture
+- [Extension System](../architecture/extension-system.md) - Extension loader, merger, and state
+- [Architecture Spec](../architecture/architecture-spec.md) - Unified workflow architecture (shared scripts, skill base)
+- [Dispatch Agent Spec](../architecture/dispatch-agent-spec.md) - dispatch_agent() fork-vs-subagent function
+- [Handoff Schema](../architecture/handoff-schema.md) - Orchestrator handoff JSON schema
+- [Orchestrate State Machine](../architecture/orchestrate-state-machine.md) - /orchestrate state machine
 
 ### Standards
 - **Return Format**: `.claude/context/formats/subagent-return.md`

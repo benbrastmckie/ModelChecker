@@ -1,0 +1,59 @@
+# Bimodal Test Baseline Results
+# Captured: 2026-05-29 for Task 97
+# Total: 43 tests, 43 passed, 0 failed, 0 skipped, 0 timeout
+# Run time: ~93 seconds
+
+PASSED test_example_cases[EX_CM_1-example_case0]
+PASSED test_example_cases[MD_CM_1-example_case1]
+PASSED test_example_cases[MD_CM_2-example_case2]
+PASSED test_example_cases[MD_CM_3-example_case3]
+PASSED test_example_cases[MD_CM_4-example_case4]
+PASSED test_example_cases[MD_CM_5-example_case5]
+PASSED test_example_cases[MD_CM_6-example_case6]
+PASSED test_example_cases[BM_CM_1-example_case7]
+PASSED test_example_cases[BM_CM_2-example_case8]
+PASSED test_example_cases[BM_CM_4-example_case9]
+PASSED test_example_cases[EX_TH_1-example_case10]
+PASSED test_example_cases[MD_TH_1-example_case11]
+PASSED test_example_cases[TN_TH_2-example_case12]
+PASSED test_example_cases[BM_TH_3-example_case13]
+PASSED test_example_cases[BM_TH_4-example_case14]
+PASSED test_example_cases[PROP_K_TH-example_case15]
+PASSED test_example_cases[PROP_S_TH-example_case16]
+PASSED test_example_cases[EX_FALSO_TH-example_case17]
+PASSED test_example_cases[PEIRCE_TH-example_case18]
+PASSED test_example_cases[MODAL_T_TH-example_case19]
+PASSED test_example_cases[MODAL_4_TH-example_case20]
+PASSED test_example_cases[MODAL_B_TH-example_case21]
+PASSED test_example_cases[MODAL_5_TH-example_case22]
+PASSED test_example_cases[BX1_SERIAL_F_TH-example_case23]
+PASSED test_example_cases[BX1P_SERIAL_P_TH-example_case24]
+PASSED test_example_cases[BX2G_MONO_U_TH-example_case25]
+PASSED test_example_cases[BX2H_MONO_S_TH-example_case26]
+PASSED test_example_cases[BX3_MONO_U_TH-example_case27]
+PASSED test_example_cases[BX3P_MONO_S_TH-example_case28]
+PASSED test_example_cases[BX4_CONNECT_F_TH-example_case29]
+PASSED test_example_cases[BX4P_CONNECT_P_TH-example_case30]
+PASSED test_example_cases[BX10_UNTIL_F_TH-example_case31]
+PASSED test_example_cases[BX10P_SINCE_P_TH-example_case32]
+PASSED test_example_cases[BX12_F_UNTIL_TH-example_case33]
+PASSED test_example_cases[BX12P_P_SINCE_TH-example_case34]
+PASSED test_example_cases[BX5_ACCUM_U_TH-example_case35]
+PASSED test_example_cases[BX5P_ACCUM_S_TH-example_case36]
+PASSED test_example_cases[BX6_ABSORB_U_TH-example_case37]
+PASSED test_example_cases[BX6P_ABSORB_S_TH-example_case38]
+PASSED test_example_cases[BX11_LIN_F_TH-example_case39]
+PASSED test_example_cases[BX11P_LIN_P_TH-example_case40]
+PASSED test_example_cases[BX13_ENRICH_U_TH-example_case41]
+PASSED test_example_cases[BX13P_ENRICH_S_TH-example_case42]
+
+# Timing notes (slowest tests):
+# BX11_LIN_F_TH:   20.69s
+# BX11P_LIN_P_TH:  20.69s
+# BX3P_MONO_S_TH:  7.57s
+# BX2H_MONO_S_TH:  7.36s
+# BX3_MONO_U_TH:   7.19s
+# BX13_ENRICH_U_TH: 7.16s
+# BX2G_MONO_U_TH:  7.08s
+# BX13P_ENRICH_S_TH: 7.07s
+# BM_CM_4:         4.07s

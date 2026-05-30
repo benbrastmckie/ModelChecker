@@ -1,58 +1,90 @@
 #!/bin/bash
 # TTS notification hook for Claude Code events
-# Announces WezTerm tab number via Piper TTS when Claude stops or needs input
+# Announces WezTerm tab number via Piper TTS for lifecycle transitions
+# and interactive prompts requiring user input.
 #
-# Integration: Called from Stop and Notification hooks in .claude/settings.json
-# Requirements: piper-tts, aplay (alsa-utils), jq, wezterm
+# Integration:
+#   Notification hook (permission_prompt, elicitation_dialog): called with no args
+#   Lifecycle transitions: called by update-task-status.sh postflight with --lifecycle STATUS
 #
-# Supported Events:
-#   Stop - Claude finished responding: "Tab N"
-#   Notification (permission_prompt, idle_prompt, elicitation_dialog) - "Tab N"
+# Requirements: piper-tts, aplay or paplay (alsa-utils), wezterm
+#
+# Supported Modes:
+#   Interactive (no args) - speaks "Tab N" for permission_prompt/elicitation_dialog
+#   Lifecycle (--lifecycle STATUS) - speaks "Tab N STATUS" (e.g., "Tab 3 researched")
+#
+# Lifecycle status vocabulary (no artifact-type vocabulary):
+#   researching, researched, planning, planned, implementing, completed, blocked
 #
 # Configuration:
 #   PIPER_MODEL - Path to piper voice model (default: ~/.local/share/piper/en_US-lessac-medium.onnx)
-#   TTS_COOLDOWN - Seconds between notifications (default: 10)
 #   TTS_ENABLED - Set to "0" to disable (default: 1)
 
 set -uo pipefail
 
 # Configuration with defaults
 PIPER_MODEL="${PIPER_MODEL:-$HOME/.local/share/piper/en_US-lessac-medium.onnx}"
-TTS_COOLDOWN="${TTS_COOLDOWN:-10}"
 TTS_ENABLED="${TTS_ENABLED:-1}"
 
-# Read stdin JSON (hooks provide context via stdin)
-# Use timeout to avoid hanging if no stdin is available
-STDIN_JSON=""
-if read -t 0.1 -r line; then
-    STDIN_JSON="$line"
-    # Read any remaining lines
-    while read -t 0.1 -r more; do
-        STDIN_JSON="${STDIN_JSON}${more}"
-    done
-fi
-
-# Parse event type and notification type from stdin JSON
-HOOK_EVENT_NAME=""
-NOTIFICATION_TYPE=""
-if [[ -n "$STDIN_JSON" ]] && command -v jq &>/dev/null; then
-    HOOK_EVENT_NAME=$(echo "$STDIN_JSON" | jq -r '.hook_event_name // empty' 2>/dev/null || echo "")
-    NOTIFICATION_TYPE=$(echo "$STDIN_JSON" | jq -r '.notification_type // empty' 2>/dev/null || echo "")
-fi
-
-# State files
-LAST_NOTIFY_FILE="specs/tmp/claude-tts-last-notify"
+# Log file
 LOG_FILE="specs/tmp/claude-tts-notify.log"
+
+# --- Parse arguments ---
+LIFECYCLE_STATUS=""
+if [[ "${1:-}" == "--lifecycle" ]] && [[ -n "${2:-}" ]]; then
+    LIFECYCLE_STATUS="$2"
+fi
 
 # Helper: log message
 log() {
-    echo "[$(date -Iseconds)] $1" >> "$LOG_FILE"
+    echo "[$(date -Iseconds)] $1" >> "$LOG_FILE" 2>/dev/null || true
 }
 
-# Helper: return success JSON for Stop hook
+# Helper: return success JSON for hook
 exit_success() {
     echo '{}'
     exit 0
+}
+
+# Helper: get WezTerm tab prefix ("Tab N" or fallback "Tab")
+get_tab_prefix() {
+    local tab_prefix="Tab"
+    if [[ -n "${WEZTERM_PANE:-}" ]] && command -v wezterm &>/dev/null; then
+        local all_panes current_tab_id unique_tab_ids tab_index position tab_num
+        all_panes=$(wezterm cli list --format=json 2>/dev/null)
+        current_tab_id=$(echo "$all_panes" | jq -r ".[] | select(.pane_id == $WEZTERM_PANE) | .tab_id" 2>/dev/null || echo "")
+        if [[ -n "$current_tab_id" ]] && ! [[ "$current_tab_id" == "null" ]]; then
+            unique_tab_ids=$(echo "$all_panes" | jq -r '[.[].tab_id] | unique | .[]')
+            tab_index=0
+            position=0
+            while IFS= read -r tab_id; do
+                if [[ "$tab_id" == "$current_tab_id" ]]; then
+                    position=$tab_index
+                    break
+                fi
+                ((tab_index++))
+            done <<< "$unique_tab_ids"
+            tab_num=$((position + 1))
+            tab_prefix="Tab $tab_num"
+        fi
+    fi
+    echo "$tab_prefix"
+}
+
+# Helper: speak a message via piper
+speak() {
+    local message="$1"
+    if command -v paplay &>/dev/null; then
+        local temp_wav="specs/tmp/claude-tts-$$.wav"
+        mkdir -p specs/tmp
+        (timeout 10s bash -c "echo '${message}' | piper --model '${PIPER_MODEL}' --output_file '${temp_wav}' 2>/dev/null && paplay '${temp_wav}' 2>/dev/null; rm -f '${temp_wav}'" &) || true
+    elif command -v aplay &>/dev/null; then
+        (timeout 10s bash -c "echo '${message}' | piper --model '${PIPER_MODEL}' --output_file - 2>/dev/null | aplay -q 2>/dev/null" &) || true
+    else
+        log "No audio player found (aplay or paplay) - skipping TTS"
+        return 1
+    fi
+    return 0
 }
 
 # Check if TTS is disabled
@@ -72,90 +104,24 @@ if [[ ! -f "$PIPER_MODEL" ]]; then
     exit_success
 fi
 
-# Check cooldown (simple time-based)
-if [[ -f "$LAST_NOTIFY_FILE" ]]; then
-    LAST_TIME=$(cat "$LAST_NOTIFY_FILE" 2>/dev/null || echo "0")
-    NOW=$(date +%s)
-    ELAPSED=$((NOW - LAST_TIME))
-    if (( ELAPSED < TTS_COOLDOWN )); then
-        log "Cooldown active: ${ELAPSED}s < ${TTS_COOLDOWN}s - skipping notification"
-        exit_success
-    fi
-fi
-
-# Get WezTerm tab info
-TAB_LABEL=""
-if [[ -n "${WEZTERM_PANE:-}" ]] && command -v wezterm &>/dev/null; then
-    # Get all panes data
-    ALL_PANES=$(wezterm cli list --format=json 2>/dev/null)
-
-    # Get the tab_id for the current pane
-    CURRENT_TAB_ID=$(echo "$ALL_PANES" | jq -r ".[] | select(.pane_id == $WEZTERM_PANE) | .tab_id" 2>/dev/null || echo "")
-
-    # Check if we got a valid tab_id (workaround for != escaping bug)
-    if [[ -n "$CURRENT_TAB_ID" ]] && ! [[ "$CURRENT_TAB_ID" == "null" ]]; then
-        # Get list of unique tab_ids in the order they appear
-        # WezTerm lists panes in tab order, so first occurrence gives us the position
-        UNIQUE_TAB_IDS=$(echo "$ALL_PANES" | jq -r '[.[].tab_id] | unique | .[]')
-
-        # Find the position (0-indexed) of current tab
-        TAB_INDEX=0
-        POSITION=0
-        while IFS= read -r tab_id; do
-            if [[ "$tab_id" == "$CURRENT_TAB_ID" ]]; then
-                POSITION=$TAB_INDEX
-                break
-            fi
-            ((TAB_INDEX++))
-        done <<< "$UNIQUE_TAB_IDS"
-
-        # Convert to 1-indexed for display
-        TAB_NUM=$((POSITION + 1))
-        TAB_LABEL="Tab $TAB_NUM: "
-    fi
-fi
-
-# Detect if running inside a git worktree (sub-agent session)
-IS_WORKTREE=false
-if command -v git &>/dev/null; then
-    GIT_DIR=$(git rev-parse --git-dir 2>/dev/null)
-    GIT_COMMON_DIR=$(git rev-parse --git-common-dir 2>/dev/null)
-    # In main worktree: both return same path (typically ".git")
-    # In linked worktree: git-dir returns ".git/worktrees/<name>", common-dir returns main ".git"
-    if [[ -n "$GIT_DIR" ]] && [[ -n "$GIT_COMMON_DIR" ]] && [[ "$GIT_DIR" != "$GIT_COMMON_DIR" ]]; then
-        IS_WORKTREE=true
-    fi
-fi
-
-# Build message based on event type
-TAB_PREFIX="${TAB_LABEL%: }"  # Strip ": " suffix if present
-if [[ -z "$TAB_PREFIX" ]]; then
-    TAB_PREFIX="Tab"  # Fallback if tab detection failed
-fi
-
-# Append "worker" suffix for worktree (sub-agent) sessions
-if [[ "$IS_WORKTREE" == "true" ]]; then
-    MESSAGE="$TAB_PREFIX worker"
-else
-    MESSAGE="$TAB_PREFIX"
-fi
-
-# Speak using piper with paplay (background, tolerant of errors)
-if command -v paplay &>/dev/null; then
-    # paplay available (PulseAudio) - need to write to temp file first
-    TEMP_WAV="specs/tmp/claude-tts-$$.wav"
-    (timeout 10s bash -c "echo '$MESSAGE' | piper --model '$PIPER_MODEL' --output_file '$TEMP_WAV' 2>/dev/null && paplay '$TEMP_WAV' 2>/dev/null; rm -f '$TEMP_WAV'" &) || true
-elif command -v aplay &>/dev/null; then
-    # aplay available (ALSA)
-    (timeout 10s bash -c "echo '$MESSAGE' | piper --model '$PIPER_MODEL' --output_file - 2>/dev/null | aplay -q 2>/dev/null" &) || true
-else
-    log "No audio player found (aplay or paplay) - skipping TTS notification"
+# ============================================================
+# LIFECYCLE MODE: --lifecycle STATUS
+# Speak "Tab N STATUS" for researched/planned/completed events
+# ============================================================
+if [[ -n "$LIFECYCLE_STATUS" ]]; then
+    TAB_PREFIX=$(get_tab_prefix)
+    MESSAGE="$TAB_PREFIX $LIFECYCLE_STATUS"
+    speak "$MESSAGE"
+    log "Lifecycle notification sent: $MESSAGE (status=$LIFECYCLE_STATUS)"
     exit_success
 fi
 
-# Update cooldown timestamp
-date +%s > "$LAST_NOTIFY_FILE"
-
-log "Notification sent: $MESSAGE (worktree=$IS_WORKTREE)"
-
+# ============================================================
+# INTERACTIVE MODE: no args (Notification hook)
+# Speak "Tab N" for permission_prompt and elicitation_dialog
+# ============================================================
+TAB_PREFIX=$(get_tab_prefix)
+MESSAGE="$TAB_PREFIX"
+speak "$MESSAGE"
+log "Interactive notification sent: $MESSAGE"
 exit_success

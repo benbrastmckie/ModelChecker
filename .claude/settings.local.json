@@ -1,10 +1,24 @@
 {
+  "_comment": "Personal project overrides - not committed to git",
+  "model": "opus",
+  "mcpServers": {
+    "mcp-nixos": {
+      "command": "uvx",
+      "args": [
+        "mcp-nixos"
+      ]
+    },
+    "lean-lsp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "lean-lsp-mcp@latest"
+      ]
+    }
+  },
   "enabledMcpjsonServers": [
     "lean-lsp"
   ],
-  "model": "opus",
-  "enableAllProjectMcpServers": true,
-  "_comment": "Personal project overrides - not committed to git",
   "permissions": {
     "allow": [
       "Bash(echo:*)",
@@ -19,11 +33,38 @@
       "Bash(mv .claude/context/project/repo/project-overview.md .claude/context/repo/)",
       "Bash(mv .claude/context/project/repo/self-healing-implementation-details.md .claude/context/repo/)",
       "Bash(mv .claude/context/project/repo/update-project.md .claude/context/repo/)",
-      "Bash(mv .claude/context/project/neovim/standards/box-drawing-guide.md .claude/extensions/nvim/context/project/neovim/standards/)",
-      "Bash(mv .claude/context/project/neovim/standards/documentation-policy.md .claude/extensions/nvim/context/project/neovim/standards/)",
-      "Bash(mv .claude/context/project/neovim/standards/emoji-policy.md .claude/extensions/nvim/context/project/neovim/standards/)",
-      "Bash(mv .claude/context/project/neovim/standards/lua-assertion-patterns.md .claude/extensions/nvim/context/project/neovim/standards/)",
-      "Bash(mv .claude/context/project/hooks/wezterm-integration.md .claude/extensions/nvim/context/project/neovim/hooks/)",
+      "Bash(bash .claude/scripts/check-extension-docs.sh)",
+      "Bash(bash .claude/scripts/check-extension-docs.sh --quiet)",
+      "Bash(bash /home/benjamin/.config/nvim/.claude/scripts/check-extension-docs.sh)",
+      "Bash(python3 -c \"import json; json.load\\(open\\(''.claude/extensions/present/context/project/present/talk/themes/ucsf-institutional.json''\\)\\)\")",
+      "Bash(/home/benjamin/.config/nvim/specs/408_audit_implementation_agents_phase_checkpoint/.return-meta.json:*)",
+      "Bash(ZED_SRC=\"/home/benjamin/.config/zed/.claude_NEW/context/project/present/talk/templates\")",
+      "Bash(NVM_DST=\"/home/benjamin/.config/nvim/.claude/extensions/present/context/project/present/talk/templates\")",
+      "Bash(__NEW_LINE_97bfd5a74c29f80c__ cp:*)",
+      "Bash(cp \"$ZED_SRC/pptx-project/generate_deck.py\" \"$NVM_DST/pptx-project/generate_deck.py\")",
+      "Bash(cp \"$ZED_SRC/pptx-project/theme_mappings.json\" \"$NVM_DST/pptx-project/theme_mappings.json\")",
+      "Bash(python3 -c \"import json; json.load\\(open\\(''$NVM_DST/pptx-project/theme_mappings.json''\\)\\)\")",
+      "Bash(python3 -c \"import json; json.load\\(open\\(''$NVM_DST/slidev-project/package.json''\\)\\)\")",
+      "Bash(for f:*)",
+      "Bash(do test:*)",
+      "Bash(done)",
+      "Bash(python3 -c \"import json; json.load\\(open\\(''.claude/extensions/present/context/project/present/talk/themes/academic-clean.json''\\)\\)\")",
+      "Bash(python3 -c \"import json; json.load\\(open\\(''.claude/extensions/present/context/project/present/talk/themes/clinical-teal.json''\\)\\)\")",
+      "Bash(python3 -c \"import json; json.load\\(open\\(''.claude/extensions/present/context/project/present/talk/index.json''\\)\\)\")",
+      "Bash(/home/benjamin/.config/nvim/specs/403_split_slides_agent_with_phase_checkpoint/summaries/01_agent-split-summary.md:*)",
+      "Bash(python3:*)",
+      "Bash(BASE=\"/home/benjamin/.config/nvim/.claude/extensions/present/context/project/present\")",
+      "Bash(do)",
+      "Bash(test -s \"$BASE/$f\")",
+      "Read(//home/benjamin/.config/nvim/$BASE/talk/themes/**)",
+      "Read(//home/benjamin/.config/nvim/$BASE/patterns/**)",
+      "Bash(bash .claude/scripts/update-task-status.sh postflight 437 implement \"sess_1776217178_5c9282\")",
+      "Read(//home/benjamin/.config/nvim/**)",
+      "Bash(bash .claude/scripts/update-task-status.sh preflight 438 research \"sess_1776217178_5c9282\")",
+      "Bash(specs/438_comprehensive_core_genericization/.postflight-pending:*)",
+      "Bash(sort -t: -k1,1)",
+      "Bash(xargs -I{} basename {})",
+      "Bash(grep -rl \"merge_targets\" /home/benjamin/.config/nvim/.claude/extensions/*/manifest.json)",
       "mcp__lean-lsp__lean_build",
       "mcp__lean-lsp__lean_file_outline",
       "mcp__lean-lsp__lean_diagnostic_messages",
@@ -44,17 +85,11 @@
       "mcp__lean-lsp__lean_code_actions",
       "mcp__lean-lsp__lean_get_widgets",
       "mcp__lean-lsp__lean_get_widget_source",
-      "mcp__lean-lsp__lean_profile_proof"
+      "mcp__lean-lsp__lean_profile_proof",
+      "mcp__nixos__nix",
+      "mcp__nixos__nix_versions"
     ]
   },
-  "mcpServers": {
-    "lean-lsp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "lean-lsp-mcp@latest"
-      ]
-    }
-  },
+  "enableAllProjectMcpServers": true,
   "outputStyle": "default"
 }

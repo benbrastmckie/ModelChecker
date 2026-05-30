@@ -1,0 +1,70 @@
+{
+  "name": "nix",
+  "version": "1.0.0",
+  "description": "NixOS and Home Manager configuration support with MCP-NixOS integration for package/option validation",
+  "task_type": "nix",
+  "dependencies": [
+    "core"
+  ],
+  "provides": {
+    "agents": [
+      "nix-research-agent.md",
+      "nix-implementation-agent.md"
+    ],
+    "skills": [
+      "skill-nix-research",
+      "skill-nix-implementation"
+    ],
+    "commands": [],
+    "rules": [
+      "nix.md"
+    ],
+    "context": [
+      "project/nix"
+    ],
+    "scripts": [],
+    "hooks": []
+  },
+  "routing": {
+    "research": {
+      "nix": "skill-nix-research"
+    },
+    "plan": {
+      "nix": "skill-planner"
+    },
+    "implement": {
+      "nix": "skill-nix-implementation"
+    }
+  },
+  "merge_targets": {
+    "claudemd": {
+      "source": "EXTENSION.md",
+      "target": ".claude/CLAUDE.md",
+      "section_id": "extension_nix"
+    },
+    "settings": {
+      "source": "settings-fragment.json",
+      "target": ".claude/settings.local.json"
+    },
+    "index": {
+      "source": "index-entries.json",
+      "target": ".claude/context/index.json"
+    },
+    "opencode_json": {
+      "source": "opencode-agents.json",
+      "target": "opencode.json"
+    }
+  },
+  "mcp_servers": {
+    "mcp-nixos": {
+      "command": "uvx",
+      "args": [
+        "mcp-nixos"
+      ]
+    }
+  },
+  "hooks": {
+    "preflight": "scripts/nix-preflight.sh",
+    "context_injection": "scripts/nix-context.sh"
+  }
+}

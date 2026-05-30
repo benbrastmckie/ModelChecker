@@ -11,7 +11,7 @@ TODO.md and state.json MUST stay synchronized. Any update to one requires updati
 ### Canonical Sources
 - **state.json**: Machine-readable source of truth
   - next_project_number
-  - active_projects array with status, language
+  - active_projects array with status, task_type
   - Faster to query (12ms vs 100ms for TODO.md parsing)
 
 - **TODO.md**: User-facing source of truth
@@ -21,21 +21,22 @@ TODO.md and state.json MUST stay synchronized. Any update to one requires updati
 
 ## Status Transitions
 
-### Valid Transitions
-```
-[NOT STARTED] -> [RESEARCHING] -> [RESEARCHED]
-[RESEARCHED] -> [PLANNING] -> [PLANNED]
-[PLANNED] -> [IMPLEMENTING] -> [COMPLETED]
+### Permissive Model
 
-Any state -> [BLOCKED] (with reason)
-Any state -> [ABANDONED] (moves to archive)
+Any command can run from any non-terminal status. Only terminal states block transitions:
+
+```
+Terminal states: [COMPLETED], [ABANDONED], [EXPANDED]
+
+Any non-terminal status -> any command (research, plan, implement, revise)
+Any status -> [BLOCKED] (with reason)
+Any status -> [ABANDONED] (moves to archive)
 Any non-terminal -> [EXPANDED] (when divided into subtasks)
 [IMPLEMENTING] -> [PARTIAL] (on timeout/error)
 ```
 
-### Invalid Transitions
-- Cannot skip phases (e.g., NOT STARTED -> PLANNED)
-- Cannot regress (e.g., PLANNED -> RESEARCHED) except for revisions
+### Restrictions
+- Cannot transition from terminal states (completed, abandoned, expanded)
 - Cannot mark COMPLETED without all phases done
 
 ## Two-Phase Update Pattern
@@ -71,7 +72,7 @@ When updating task status:
 1. Log the inconsistency
 2. Use git blame to determine latest
 3. Sync to latest version
-4. Create backup of overwritten version
+4. Use git for recovery of overwritten versions
 
 ## Schema Reference
 

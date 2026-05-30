@@ -1,7 +1,7 @@
 # Domain Patterns for System Generation
 
-**Purpose**: Common domain patterns and their typical agent/context structures
-**Last Updated**: 2025-12-29
+**Purpose**: Common domain patterns and their typical agent/context structures for use by meta-builder-agent when creating extensions or evaluating system architecture.
+**Last Updated**: 2026-04-19
 
 ---
 
@@ -14,162 +14,100 @@
 - Code generation and refactoring
 - Test authoring and execution
 - Build validation and type checking
-- Deployment automation
 - Code review and quality assurance
 
 ### Recommended Agent Structure
 
 ```
-development-orchestrator
-├── coder-agent (code generation)
-├── tester-agent (test authoring)
-├── build-agent (build validation)
-├── reviewer-agent (code review)
-└── deployer-agent (deployment)
+{domain}-research-agent     (domain research)
+{domain}-implementation-agent (domain implementation)
 ```
+
+Agents are registered in the extension manifest under `provides.agents` and routed via `routing.research`, `routing.plan`, and `routing.implement`.
 
 ### Context Organization
 
 ```
-context/development/
-├── coding-standards.md
-├── testing-patterns.md
-├── build-processes.md
-└── deployment-workflows.md
+extensions/{ext}/context/
+  domain/          # Core domain concepts
+  patterns/        # Common implementation patterns
+  standards/       # Coding conventions
+  tools/           # Tool-specific guides
 ```
 
 ### Integration Points
 
 - Version control (git)
 - Build systems (make, cmake, cargo, npm)
-- Test frameworks (pytest, jest, lean)
-- CI/CD platforms (GitHub Actions, Jenkins)
+- Test frameworks (pytest, jest, busted)
+- Language servers and linters
 
 ---
 
-## Business Domain Pattern
+## Extension Domain Pattern (Template)
 
-**Characteristics**: E-commerce, support, marketing, content management
+**Characteristics**: Domain-specific tooling, workflows, and conventions provided by an extension
 
-### Typical Use Cases
+### When to Use
 
-- Customer support ticket routing
-- Product catalog management
-- Marketing campaign automation
-- Content creation and publishing
-- Order processing and fulfillment
+Create a new extension when a domain requires:
+- Dedicated research and implementation agents
+- Domain-specific context files (standards, patterns, tools)
+- Custom routing for `/research`, `/plan`, `/implement`
+- Domain-specific rules auto-applied by file path
 
-### Recommended Agent Structure
+### Manifest Structure
 
-```
-business-orchestrator
-├── support-agent (ticket routing, responses)
-├── catalog-agent (product management)
-├── marketing-agent (campaign automation)
-├── content-agent (content creation)
-└── order-agent (order processing)
+Each extension declares its capabilities in `manifest.json`:
+
+```json
+{
+  "name": "{ext}",
+  "version": "1.0.0",
+  "description": "Brief description",
+  "task_type": "{ext}",
+  "dependencies": ["core"],
+  "provides": {
+    "agents": ["{ext}-research-agent.md", "{ext}-implementation-agent.md"],
+    "skills": ["skill-{ext}-research", "skill-{ext}-implementation"],
+    "commands": [],
+    "rules": ["{ext}-rules.md"],
+    "context": ["project/{ext}"],
+    "scripts": [],
+    "hooks": []
+  },
+  "routing": {
+    "research": { "{ext}": "skill-{ext}-research" },
+    "plan": { "{ext}": "skill-planner" },
+    "implement": { "{ext}": "skill-{ext}-implementation" }
+  }
+}
 ```
 
 ### Context Organization
 
 ```
-context/business/
-├── customer-personas.md
-├── product-categories.md
-├── support-workflows.md
-└── marketing-templates.md
+extensions/{ext}/
+  manifest.json
+  context/
+    project/{ext}/
+      domain/       # Core domain concepts
+      patterns/     # Common implementation patterns
+      standards/    # Coding conventions
+      tools/        # Tool-specific guides
+  agents/           # Agent definitions
+  skills/           # Skill definitions
+  rules/            # Auto-applied rules
 ```
 
 ### Integration Points
 
-- CRM systems (Salesforce, HubSpot)
-- E-commerce platforms (Shopify, WooCommerce)
-- Email marketing (Mailchimp, SendGrid)
-- Analytics (Google Analytics, Mixpanel)
+- Domain-specific build/test tools
+- Language servers and linters
+- Package managers and registries
+- Domain-specific documentation sources
 
----
-
-## Hybrid Domain Pattern
-
-**Characteristics**: Data engineering, product management, analytics
-
-### Typical Use Cases
-
-- Data pipeline orchestration
-- ETL workflow automation
-- Analytics report generation
-- Product roadmap planning
-- Feature prioritization
-
-### Recommended Agent Structure
-
-```
-hybrid-orchestrator
-├── data-agent (pipeline orchestration)
-├── analytics-agent (report generation)
-├── planning-agent (roadmap planning)
-└── prioritization-agent (feature prioritization)
-```
-
-### Context Organization
-
-```
-context/hybrid/
-├── data-schemas.md
-├── analytics-metrics.md
-├── planning-frameworks.md
-└── prioritization-criteria.md
-```
-
-### Integration Points
-
-- Data warehouses (Snowflake, BigQuery)
-- BI tools (Tableau, Looker)
-- Project management (Jira, Linear)
-- Data pipelines (Airflow, Prefect)
-
----
-
-## Neovim Configuration Domain Pattern
-
-**Characteristics**: Editor configuration, plugin management, Lua scripting
-
-### Typical Use Cases
-
-- Plugin configuration and management
-- Keymap setup and customization
-- LSP client configuration
-- Filetype-specific settings
-- UI customization and themes
-
-### Recommended Agent Structure
-
-```
-neovim-orchestrator
-├── config-agent (core configuration)
-├── plugin-agent (plugin management)
-├── keymap-agent (keymap setup)
-├── lsp-agent (LSP configuration)
-└── ftplugin-agent (filetype settings)
-```
-
-### Context Organization
-
-```
-context/neovim/
-├── domain/neovim-api.md
-├── patterns/plugin-spec.md
-├── patterns/keymap-patterns.md
-├── standards/lua-style-guide.md
-└── tools/lazy-nvim-guide.md
-```
-
-### Integration Points
-
-- Plugin managers (lazy.nvim, packer.nvim)
-- LSP servers (lua-language-server)
-- Testing (nvim --headless, plenary.nvim)
-- Linting (luacheck, stylua)
+See `.claude/extensions/*/manifest.json` for concrete examples (nvim, nix, core).
 
 ---
 
@@ -181,79 +119,25 @@ context/neovim/
 - Tools: git, make, npm, cargo, pytest, jest
 - Artifacts: source files, test files, build configs
 
-### Business Indicators
+### Extension Domain Indicators
 
-- Keywords: customer, product, order, campaign, ticket, support
-- Tools: CRM, e-commerce, email, analytics
-- Artifacts: customer data, product catalogs, marketing content
-
-### Hybrid Indicators
-
-- Keywords: data, pipeline, analytics, roadmap, feature, metric
-- Tools: data warehouse, BI, project management, ETL
-- Artifacts: data schemas, reports, roadmaps
-
-### Neovim Configuration Indicators
-
-- Keywords: plugin, keymap, config, lsp, autocmd, filetype
-- Tools: lazy.nvim, treesitter, telescope, nvim-lsp
-- Artifacts: init.lua, plugin specs, ftplugin files
+Extension-specific indicators are defined in the extension's manifest and context. Each extension declares its own task_type, routing entries, and context files. See `.claude/extensions/*/manifest.json`.
 
 ---
 
-## Agent Count Guidelines
+## Sizing Guidelines
 
-### Simple Domains (1-3 agents)
-
-- Single clear purpose
-- Few use cases (1-3)
-- Minimal integrations
-- Example: Simple task tracker
-
-### Moderate Domains (4-7 agents)
-
-- Multiple related purposes
-- Several use cases (4-7)
-- Some integrations
-- Example: E-commerce system
-
-### Complex Domains (8+ agents)
-
-- Many diverse purposes
-- Numerous use cases (8+)
-- Extensive integrations
-- Example: Enterprise platform
+| Dimension | Simple | Moderate | Complex |
+|-----------|--------|----------|---------|
+| Agents | 2 (research + impl) | 3-4 | 5+ |
+| Task types | 1 | Multiple / sub-routing | Many compound types |
+| Context files | 1-3 | 4-7 | 8+ |
+| Example | nvim extension | formal verification | enterprise platform |
 
 ---
 
-## Context File Guidelines
+## Related Resources
 
-### Minimal Context (1-3 files)
-
-- Simple domain with clear boundaries
-- Well-understood patterns
-- Minimal domain-specific knowledge
-
-### Standard Context (4-7 files)
-
-- Moderate complexity
-- Some domain-specific patterns
-- Moderate knowledge requirements
-
-### Extensive Context (8+ files)
-
-- High complexity
-- Many domain-specific patterns
-- Significant knowledge requirements
-
----
-
-## Related Patterns
-
-- **Interview Patterns**: `.claude/context/workflows/interview-patterns.md`
-- **Architecture Principles**: `.claude/context/standards/architecture-principles.md`
-- **Agent Templates**: `.claude/context/templates/agent-templates.md`
-
----
-
-**Maintained By**: Development Team
+- **Meta Guide**: `.claude/context/meta/meta-guide.md`
+- **Extension Development**: `.claude/context/guides/extension-development.md`
+- **Context Revision Guide**: `.claude/context/meta/context-revision-guide.md`
