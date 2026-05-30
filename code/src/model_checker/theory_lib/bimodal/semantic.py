@@ -541,7 +541,10 @@ class BimodalSemantics(SemanticDefaults):
 
         # 5. World interval constraint -- placed before lawful so Z3's MBQI can seed
         # interval bounds before instantiating the more complex lawful axiom.
-        time_interval = self.time_interval_constraint()
+        # NOTE: time_interval_constraint() is a grounded (non-quantified) alternative.
+        # It was tested but is not currently used (world_interval_constraint() is active).
+        # Both produce equivalent valid-world interval constraints; the grounded form
+        # may be faster for small max_world_id but was not benchmarked in Task 97.
         world_interval = self.world_interval_constraint()
 
         # 6. Worlds are lawful (each world state has task_rel to its successor with unit duration)
@@ -679,11 +682,12 @@ class BimodalSemantics(SemanticDefaults):
             forward_comp,
             skolem_abundance,
             world_uniqueness,
-            # time_interval,        # grounded alternative to world_interval (unused)
+            # time_interval_constraint() is a grounded (non-quantified) alternative to
+            # world_interval -- see comment above before world_interval assignment.
 
-            # MAYBE
-            # task_restriction,
-            # task_minimization,
+            # MAYBE (not yet enabled, preserved for future experimentation):
+            # task_restriction,     # restricts task_rel to lawful histories
+            # task_minimization,    # encourages minimal state changes
         ]
 
     def is_valid_time(self, given_time, offset=0):
