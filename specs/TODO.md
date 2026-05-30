@@ -1,5 +1,5 @@
 ---
-next_project_number: 98
+next_project_number: 99
 ---
 
 # Task List
@@ -7,6 +7,14 @@ next_project_number: 98
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 98. Investigate Z3 OOM kills during bimodal theorem verification
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Dependencies**: 97
+
+**Description**: Investigate Z3 OOM kills during bimodal theorem verification. earlyoom kills python3.12 when running bimodal examples with M>=3, especially M=4/M=5 examples (BX5-BX13, BX7) which have 20-60s timeouts. Z3's quantifier instantiation engine has no memory cap and expands ground terms unboundedly when processing the capped Skolem abundance constraint combined with forward_comp (5 quantified variables) and world_uniqueness (ForAll/Exists). Research: (1) Z3 memory limiting options (memory_max_size param, per-solver limits), (2) quantifier instantiation strategies (MBQI vs E-matching, pattern annotations) that reduce memory footprint, (3) whether constraint restructuring (e.g., grounding Skolem abundance for small M) would help, (4) interaction between abundance constraint and frame axioms that amplifies instantiation. System has 30GB RAM.
 
 ### 97. Optimize build_frame_constraints for Z3 solver performance
 - **Effort**: medium
