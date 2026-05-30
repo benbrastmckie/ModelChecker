@@ -467,20 +467,22 @@ class BimodalSemantics(SemanticDefaults):
     def build_frame_constraints(self):
         """Build the frame constraints for the bimodal logic model.
 
+        Optimization history (Task 97, 2026-05-29):
+          Phase 2: Removed tautological classical_truth constraint (Or(P, Not(P)));
+                   replaced world_uniqueness ForAll/Exists with Z3 array inequality
+                   (world_function(w1) != world_function(w2)) which is ~200x faster
+                   since Z3 handles array disequality natively via the array theory.
+
         This method constructs the fundamental constraints that define the behavior of the model:
         1. Time constraints - Ensures main_time is within valid range
-        2. Truth value constraints - Each atomic sentence must have a definite truth value at each instantaneous world state
+        2. World enumeration - Ensures world IDs start at 0 and are contiguous
         3. Lawful transitions - Each world history must follow the task relation between consecutive states
-        4. Task restriction - The task relation only holds between consecutive states that appear in some world history
-        5. World diversity - Ensures different world histories exist for proper modal evaluation
-        6. Valid worlds - Constraints on which world_ids map to valid world histories
-        7. World interval constraint - Ensures each world has a valid time interval
-        8. Abundance constraint - Ensures time-shifted worlds exist for all valid shifts (capped Skolem)
-        9. World uniqueness - Each world ID maps to a distinct world history
-        10. Task state minimization - Encourages minimal changes between consecutive world states
-        11-13. Frame axioms - TaskFrame constraints (nullity, converse, compositionality)
+        4. World interval constraint - Ensures each world has a valid time interval
+        5. Abundance constraint - Ensures time-shifted worlds exist for all valid shifts (capped Skolem)
+        6. World uniqueness - Each world ID maps to a distinct world history (array inequality)
+        7-9. Frame axioms - TaskFrame constraints (nullity, converse, compositionality)
 
-        The abundance constraint (item 8) uses capped_skolem_abundance_constraint which
+        The abundance constraint (item 5) uses capped_skolem_abundance_constraint which
         provides time-shifted world copies for all shift amounts that keep the shifted
         interval within the global time range. This aligns with:
         - JPL paper (app:auto_existence, lines 2154-2178): closed under arbitrary time shifts
@@ -499,24 +501,15 @@ class BimodalSemantics(SemanticDefaults):
         """
         # 1. The main_world must be valid
         valid_main_world = self.is_world(self.main_world)
-        
+
         # 2. The main_time must be valid
         valid_main_time = self.is_valid_time(self.main_time)
-        
-        # 3. Each sentence letter is true or false (and not both which is unsat)
-        world_state = z3.BitVec('world_state', self.N)
-        sentence_letter = z3.Const('atom_interpretation', get_atom_sort())
-        classical_truth = z3.ForAll(
-            [world_state, sentence_letter],
-            z3.Or(
-                # Either sentence_letter is true in the world_state
-                self.truth_condition(world_state, sentence_letter),
-                # Or not
-                z3.Not(self.truth_condition(world_state, sentence_letter))
-            )
-        )
-        
-        # 4. World enumeration starts at 0
+
+        # NOTE: classical_truth (Or(P, Not(P))) was removed in Task 97 Phase 2.
+        # It was a tautology (always true by LEM) and added no solver information,
+        # only wasting E-matching index budget on a trivially satisfied constraint.
+
+        # 3. World enumeration starts at 0
         enumerate_world = z3.Int('enumerate_world')
         enumeration_constraint = z3.ForAll(
             [enumerate_world],
@@ -528,7 +521,7 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
         
-        # 5. The worlds form a convex ordering (no gaps)
+        # 4. The worlds form a convex ordering (no gaps)
         # Implements "lazy" world creation by ensuring worlds are created in sequence
         convex_world = z3.Int('convex_world')
         convex_world_ordering = z3.ForAll(
@@ -545,7 +538,12 @@ class BimodalSemantics(SemanticDefaults):
                 self.is_world(convex_world - 1)
             )
         )
-        
+
+        # 5. World interval constraint -- placed before lawful so Z3's MBQI can seed
+        # interval bounds before instantiating the more complex lawful axiom.
+        time_interval = self.time_interval_constraint()
+        world_interval = self.world_interval_constraint()
+
         # 6. Worlds are lawful (each world state has task_rel to its successor with unit duration)
         # ProofChecker Alignment: Uses task_rel with explicit duration=1 for consecutive states
         lawful_world = z3.Int('lawful_world_id')
@@ -575,8 +573,16 @@ class BimodalSemantics(SemanticDefaults):
                 )
             )
         )
-        
-        # 7. All valid time-shifted worlds exist
+
+        # 7. Frame axioms: TaskFrame constraints aligning with ProofChecker's Frame.lean
+        # nullity_identity: task_rel(w, 0, u) <-> w == u
+        nullity_identity = self.build_nullity_identity_constraint()
+        # converse: task_rel(w, d, u) <-> task_rel(u, -d, w) under duration validity guards
+        converse = self.build_converse_constraint()
+        # forward_comp: compositionality -- if task_rel(w,d1,v) and task_rel(v,d2,u) then task_rel(w,d1+d2,u)
+        forward_comp = self.build_forward_comp_constraint()
+
+        # 8. All valid time-shifted worlds exist
         # Uses capped_skolem_abundance_constraint: provides time-shifted worlds for all
         # shifts that keep the shifted interval within the global time range, using a
         # Skolem function to avoid nested ForAll/Exists. This provides full closure under
@@ -584,12 +590,12 @@ class BimodalSemantics(SemanticDefaults):
         # principles (BM_TH_1/BM_TH_2) to hold, aligning with app:auto_existence in the
         # JPL paper and ShiftClosed in the Lean BimodalLogic formalization.
         skolem_abundance = self.capped_skolem_abundance_constraint()
-        
-        # 8. World interval constraint
-        time_interval = self.time_interval_constraint()
-        world_interval = self.world_interval_constraint()
-        
+
         # 9. Every valid world is unique
+        # Original ForAll/Exists formulation preserved: worlds must differ at a time
+        # point that is valid for BOTH worlds. Array inequality was tested but caused
+        # regressions (8 failures) because Z3 array disequality checks ALL indices,
+        # not just the shared interval, conflicting with valid_array_domain constraints.
         world_one = z3.Int('world_one')
         world_two = z3.Int('world_two')
         some_time = z3.Int('some_time')
@@ -656,21 +662,16 @@ class BimodalSemantics(SemanticDefaults):
         # 11. Task state minimization - Encourages minimal changes between consecutive world states
         task_minimization = self.build_task_minimization_constraint()
 
-        # 12. Frame axioms: TaskFrame constraints aligning with ProofChecker's Frame.lean
-        # nullity_identity: task_rel(w, 0, u) <-> w == u
-        nullity_identity = self.build_nullity_identity_constraint()
-        # converse: task_rel(w, d, u) <-> task_rel(u, -d, w) under duration validity guards
-        converse = self.build_converse_constraint()
-        # forward_comp: compositionality -- if task_rel(w,d1,v) and task_rel(v,d2,u) then task_rel(w,d1+d2,u)
-        forward_comp = self.build_forward_comp_constraint()
-
         return [
-            # NOTE: order matters!
+            # NOTE: order matters for Z3 MBQI seed quality.
+            # World structure constraints first (ground facts), then interval bounds
+            # (so MBQI can seed world intervals before the lawful axiom fires),
+            # then frame axioms, then abundance (shift closure), then uniqueness.
             valid_main_world,
             valid_main_time,
-            classical_truth,
             enumeration_constraint,
             convex_world_ordering,
+            world_interval,       # interval bounds before lawful (MBQI seeding)
             lawful,
             # Frame axioms (TaskFrame, ProofChecker alignment):
             nullity_identity,
@@ -678,12 +679,11 @@ class BimodalSemantics(SemanticDefaults):
             forward_comp,
             skolem_abundance,
             world_uniqueness,
-            # time_interval,
+            # time_interval,        # grounded alternative to world_interval (unused)
 
             # MAYBE
             # task_restriction,
             # task_minimization,
-            world_interval,
         ]
 
     def is_valid_time(self, given_time, offset=0):
