@@ -1,6 +1,81 @@
 {
-  "next_project_number": 99,
+  "next_project_number": 107,
   "active_projects": [
+    {
+      "project_number": 106,
+      "project_name": "architecture_review_refactor",
+      "status": "researched",
+      "task_type": "python",
+      "created": "2026-05-30T12:30:00Z",
+      "last_updated": "2026-05-30T23:55:00Z",
+      "session_id": "sess_1748612400_a3b7c1",
+      "researched": "2026-05-30T23:55:00Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/106_architecture_review_refactor/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Team research with 4 teammates"
+        }
+      ]
+    },
+    {
+      "project_number": 99,
+      "project_name": "refactor_audit_bimodal",
+      "status": "abandoned",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-05-30T23:55:00Z",
+      "completion_summary": "Absorbed by task 106 architecture review. Audit findings captured in team research report."
+    },
+    {
+      "project_number": 100,
+      "project_name": "strip_non_bimodal_code",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-05-30T23:55:00Z"
+    },
+    {
+      "project_number": 101,
+      "project_name": "restructure_pip_package",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-05-30T23:55:00Z"
+    },
+    {
+      "project_number": 102,
+      "project_name": "formula_json_translation",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-05-30T23:55:00Z"
+    },
+    {
+      "project_number": 103,
+      "project_name": "oracle_provider_implementation",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-05-30T23:55:00Z"
+    },
+    {
+      "project_number": 104,
+      "project_name": "programmatic_api_cleanup",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-05-30T23:55:00Z"
+    },
+    {
+      "project_number": 105,
+      "project_name": "integration_testing_validation",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-05-30T23:55:00Z"
+    },
     {
       "project_number": 98,
       "project_name": "investigate_z3_oom_bimodal_verification",
@@ -15,18 +90,10 @@
         "research_integrated": true,
         "plan_version": 1,
         "dependency_waves": [
-          [
-            1
-          ],
-          [
-            2
-          ],
-          [
-            3
-          ],
-          [
-            4
-          ]
+          [1],
+          [2],
+          [3],
+          [4]
         ],
         "reports_integrated": [
           {
