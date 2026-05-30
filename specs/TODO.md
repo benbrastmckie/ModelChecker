@@ -18,8 +18,9 @@ next_project_number: 99
 
 ### 97. Optimize build_frame_constraints for Z3 solver performance
 - **Effort**: medium
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Research**: [097_optimize_build_frame_constraints/reports/01_team-research.md]
+- **Plan**: [097_optimize_build_frame_constraints/plans/01_implementation-plan.md]
 
 **Description**: Optimize build_frame_constraints in code/src/model_checker/theory_lib/bimodal/semantic.py for Z3 solver performance without compromising the architecture or changing which examples are valid/invalid. The function (lines 467-687) builds 13 constraint groups including ForAll/Exists quantifiers, Skolem functions, and frame axioms. Target areas: redundant tautological constraints (classical_truth is always true), potential for Z3 quantifier patterns/triggers on heavy quantifier blocks (lawful, task_restriction, world_uniqueness), possible constraint ordering optimizations, and reducing solver overhead in helper methods (capped_skolem_abundance_constraint, world_interval_constraint, build_forward_comp_constraint with 5 quantified variables). Must preserve identical valid/invalid classification for all existing examples.

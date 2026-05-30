@@ -12,11 +12,11 @@
     {
       "project_number": 97,
       "project_name": "optimize_build_frame_constraints",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-05-29T23:55:26Z",
-      "last_updated": "2026-05-30T00:32:50Z",
-      "session_id": "sess_1780100124_25b66c",
+      "last_updated": "2026-05-30T00:39:08Z",
+      "session_id": "sess_1780101282_8f67f8",
       "researched": "2026-05-30T00:32:50Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -24,6 +24,11 @@
           "path": "specs/097_optimize_build_frame_constraints/reports/01_team-research.md",
           "type": "research",
           "summary": "Team research with 4 teammates"
+        },
+        {
+          "path": "specs/097_optimize_build_frame_constraints/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for Z3 solver performance optimization of build_frame_constraints, structured by risk tier with full regression testing"
         }
       ]
     }
