@@ -223,7 +223,7 @@ class TestTimeBasedProgress:
         """Test progress bar with custom start time for timing sync."""
         display = MockDisplay()
         custom_start = time.time() - 2.0  # 2 seconds ago
-        
+
         progress = TimeBasedProgress(
             timeout=5.0,
             model_number=2,
@@ -231,16 +231,119 @@ class TestTimeBasedProgress:
             display=display,
             start_time=custom_start
         )
-        
+
         # Start should use the provided time
         progress.start()
         assert progress.start_time == custom_start
-        
+
         # Let it run briefly
         time.sleep(0.2)
         progress.complete(success=True)
-        
+
         # Check that elapsed time accounts for custom start
         # Should show at least 2 seconds elapsed
         final_msg = display.messages[-1]
         assert "2." in final_msg or "3." in final_msg or "4." in final_msg  # 2.x, 3.x, or 4.x seconds
+
+    def test_freeze_at_current(self):
+        """Test freeze_at_current() captures actual fill fraction."""
+        display = MockDisplay()
+        progress = TimeBasedProgress(
+            timeout=1.0,  # 1 second timeout
+            model_number=1,
+            total_models=2,
+            display=display
+        )
+
+        progress.start()
+        time.sleep(0.3)  # Wait for 30% of timeout
+
+        # Freeze at current position
+        fill_fraction = progress.freeze_at_current()
+
+        # Check that fill fraction is roughly 30% (allow some tolerance)
+        assert 0.2 <= fill_fraction <= 0.5, f"Expected fill ~0.3, got {fill_fraction}"
+        assert progress._frozen is True
+        assert progress.fill_fraction == fill_fraction
+        assert not progress.active
+
+        # Now complete - should use frozen fill fraction, not 100%
+        progress.complete(success=True)
+        final_msg = display.messages[-1]
+
+        # The bar should NOT be full (20 filled chars)
+        # With 30% fill, expect about 6 filled chars
+        assert "[████████████████████]" not in final_msg
+
+    def test_freeze_without_start(self):
+        """Test freeze_at_current() when start() was never called."""
+        display = MockDisplay()
+        progress = TimeBasedProgress(
+            timeout=1.0,
+            model_number=1,
+            total_models=1,
+            display=display
+        )
+
+        # Freeze without starting
+        fill_fraction = progress.freeze_at_current()
+
+        # Should return 0.0 since start_time is None
+        assert fill_fraction == 0.0
+        assert progress._frozen is True
+
+    def test_freeze_elapsed_time_consistency(self):
+        """Test that frozen elapsed time matches fill fraction after freeze.
+
+        This tests the fix for the timing inconsistency where fill_fraction
+        was captured at freeze time but elapsed was calculated at complete() time.
+        Both values should now be captured at freeze_at_current() time.
+        """
+        display = MockDisplay()
+        progress = TimeBasedProgress(
+            timeout=1.0,  # 1 second timeout
+            model_number=1,
+            total_models=2,
+            display=display
+        )
+
+        progress.start()
+        time.sleep(0.3)  # Wait ~0.3 seconds
+
+        # Freeze at current position - captures both fill and elapsed
+        fill_fraction = progress.freeze_at_current()
+        frozen_elapsed = progress._frozen_elapsed
+
+        # Both should be captured at the same moment
+        # frozen_elapsed should be ~0.3s, fill_fraction should be ~0.3
+        assert 0.2 <= frozen_elapsed <= 0.5, f"Expected elapsed ~0.3s, got {frozen_elapsed}"
+        assert 0.2 <= fill_fraction <= 0.5, f"Expected fill ~0.3, got {fill_fraction}"
+
+        # Key: fill_fraction should equal frozen_elapsed / timeout
+        expected_fill = frozen_elapsed / progress.timeout
+        assert abs(fill_fraction - expected_fill) < 0.01, \
+            f"fill_fraction ({fill_fraction}) should equal elapsed/timeout ({expected_fill})"
+
+        # Now add some delay to simulate post-search processing
+        time.sleep(0.4)  # Additional delay before complete()
+
+        # Complete the bar - should use frozen values, not current time
+        progress.complete(success=True)
+        final_msg = display.messages[-1]
+
+        # Extract elapsed time from message (format: "X.Xs")
+        # The message should show the FROZEN elapsed time (~0.3s), NOT current time (~0.7s)
+        import re
+        match = re.search(r'(\d+\.\d+)s$', final_msg)
+        assert match, f"Could not parse elapsed time from message: {final_msg}"
+        displayed_elapsed = float(match.group(1))
+
+        # Displayed elapsed should match frozen_elapsed (within tolerance)
+        # NOT be the current elapsed time (which would be ~0.7s)
+        assert abs(displayed_elapsed - frozen_elapsed) < 0.15, \
+            f"Displayed elapsed ({displayed_elapsed}s) should match frozen ({frozen_elapsed}s), not current time"
+
+        # Verify it's NOT showing the complete() time
+        # If the bug were present, displayed_elapsed would be ~0.7s (0.3 + 0.4 delay)
+        assert displayed_elapsed < 0.6, \
+            f"Displayed elapsed ({displayed_elapsed}s) should be frozen time (~0.3s), not complete() time (~0.7s)"

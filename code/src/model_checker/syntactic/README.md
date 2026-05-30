@@ -45,20 +45,14 @@ The syntactic package serves as the bridge between:
 
 ### types.py - Type Definitions and Protocols
 
-Defines type aliases and protocols for type safety throughout the package:
+Defines type aliases for type safety throughout the package:
 
 ```python
-from model_checker.syntactic.types import FormulaString, PrefixList, ISemantics
+from model_checker.syntactic.types import FormulaString, PrefixList
 
 # Type aliases for clarity
 formula: FormulaString = "(p ∧ q)"
 prefix: PrefixList = ["∧", "p", "q"]
-
-# Protocol for semantics integration
-class MySemantics(ISemantics):
-    def evaluate(self, *args) -> z3.BoolRef:
-        """Implement semantic evaluation."""
-        # Implementation here
 ```
 
 **Key Type Definitions:**
@@ -66,7 +60,6 @@ class MySemantics(ISemantics):
 - `PrefixList`: Recursive list structure for prefix notation
 - `OperatorName`: String identifier for operators
 - `AtomType`: Z3 datatype reference for atomic propositions
-- `ISemantics`: Protocol defining semantic interface requirements
 
 ### atoms.py - Z3 Atomic Propositions
 
@@ -108,7 +101,7 @@ print(conjunction.complexity)      # 1 (nesting depth) -> int
 # Sentence lifecycle phases with type validation:
 # 1. Creation: Stores infix and converts to prefix (FormulaString -> PrefixList)
 # 2. Type Update: Links to operator classes (OperatorCollection)
-# 3. Object Update: Links to semantic operators (ISemantics)
+# 3. Object Update: Links to semantic operators (SemanticDefaults)
 # 4. Proposition Update: Builds evaluation proposition
 ```
 
@@ -118,21 +111,22 @@ Defines the foundation for all logical operators:
 
 ```python
 from model_checker.syntactic import Operator, DefinedOperator
-from model_checker.syntactic.types import ISemantics, OperatorName
+from model_checker.syntactic.types import OperatorName
+from model_checker.models.semantic import SemanticDefaults
 from typing import Any, List, Dict
 
 # Primitive operator example with type hints
 class Negation(Operator):
     name: OperatorName = "\\neg"
     arity: int = 1
-    
-    def __init__(self, semantics: ISemantics) -> None:
+
+    def __init__(self, semantics: SemanticDefaults) -> None:
         super().__init__(semantics)
-    
+
     def true_at(self, world: Any, sentence: 'Sentence') -> Any:
         """Negation is true when the negated sentence is false."""
         return self.semantics.false_at(world, sentence.arguments[0])
-    
+
     def false_at(self, world: Any, sentence: 'Sentence') -> Any:
         """Negation is false when the negated sentence is true."""
         return self.semantics.true_at(world, sentence.arguments[0])

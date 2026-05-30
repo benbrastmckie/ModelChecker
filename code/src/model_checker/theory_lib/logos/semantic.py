@@ -8,12 +8,14 @@ providing unified classes for semantics, propositions, and model structures.
 import itertools
 import sys
 import time
-from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING
+from typing import Dict, Any, Optional, Set, Tuple, Union, List, TYPE_CHECKING, cast
 
-from z3 import simplify
-import z3
+from model_checker import z3_shim as z3
+
+from model_checker.solver import is_true, is_false
 
 from model_checker import syntactic
+from model_checker.syntactic.atoms import get_atom_sort
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
 from model_checker.models.structure import ModelDefaults
@@ -115,6 +117,7 @@ class LogosSemantics(SemanticDefaults):
     
     DEFAULT_EXAMPLE_SETTINGS = {
         'N': 16,
+        'M': None,  # Time steps for temporal models (used by constitutive subtheory)
         'contingent': True,
         'non_empty': True,
         'non_null': True,
@@ -122,6 +125,7 @@ class LogosSemantics(SemanticDefaults):
         'max_time': 10,
         'iterate': False,
         'expectation': None,
+        'solver': 'z3',  # Solver backend: 'z3' or 'cvc5'
     }
     
     def __init__(self, combined_settings: Optional['SettingsDict'] = None,
@@ -138,13 +142,13 @@ class LogosSemantics(SemanticDefaults):
         self.verify = z3.Function(
             "verify",                   # Names the function 'verify'
             z3.BitVecSort(self.N),      # which maps a bitvector
-            syntactic.AtomSort,         # and a sentence letter
+            get_atom_sort(),            # and a sentence letter
             z3.BoolSort()               # to a truth-value
         )
         self.falsify = z3.Function(
             "falsify",                  # Names the function 'falsify'
             z3.BitVecSort(self.N),      # which maps a bitvector
-            syntactic.AtomSort,         # and a sentence letter
+            get_atom_sort(),            # and a sentence letter
             z3.BoolSort()               # to a truth-value
         )
         self.possible = z3.Function(
@@ -213,10 +217,10 @@ class LogosSemantics(SemanticDefaults):
 
     def is_world(self, state_w: 'StateType') -> 'Z3Constraint':
         """Determines if a state represents a possible world in the model."""
-        return z3.And(
+        return cast(z3.BoolRef, z3.And(
             self.possible(state_w),
             self.maximal(state_w),
-        )
+        ))
 
     def true_at(self, sentence: 'Sentence', eval_point: 'EvaluationPoint') -> 'Z3Constraint':
         """Determines if a sentence is true at a given evaluation point.
@@ -246,7 +250,7 @@ class LogosSemantics(SemanticDefaults):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("t_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter)))
+            return Exists(x, cast(z3.BoolRef, z3.And(self.is_part_of(x, eval_world), self.verify(x, sentence_letter))))
 
         operator = sentence.operator
         if operator is None:
@@ -299,7 +303,7 @@ class LogosSemantics(SemanticDefaults):
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             x = z3.BitVec("f_atom_x", self.N)
-            return Exists(x, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter)))
+            return Exists(x, cast(z3.BoolRef, z3.And(self.is_part_of(x, eval_world), self.falsify(x, sentence_letter))))
 
         operator = sentence.operator
         if operator is None:
@@ -484,10 +488,10 @@ class LogosSemantics(SemanticDefaults):
             self.is_part_of(state_y, state_u),
             Exists(
                 [z],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     self.is_part_of(z, state_u),
                     self.max_compatible_part(z, state_w, state_y)
-                )
+                ))
             )
         )
 
@@ -532,7 +536,7 @@ class LogosSemantics(SemanticDefaults):
         product_set = set()
         for bit_a in set_A:
             for bit_b in set_B:
-                bit_ab = simplify(bit_a | bit_b)
+                bit_ab = z3.simplify(bit_a | bit_b)
                 product_set.add(bit_ab)
         return product_set
 
@@ -594,7 +598,7 @@ class LogosSemantics(SemanticDefaults):
             # Evaluate using original is_world function
             is_world_val = z3_model.eval(original_semantics.is_world(state), model_completion=True)
             # Add constraint using new is_world function
-            if z3.is_true(is_world_val):
+            if is_true(is_world_val):
                 model_constraints.all_constraints.append(self.is_world(state))
             else:
                 model_constraints.all_constraints.append(z3.Not(self.is_world(state)))
@@ -604,7 +608,7 @@ class LogosSemantics(SemanticDefaults):
             # Evaluate using original possible function
             is_possible_val = z3_model.eval(original_semantics.possible(state), model_completion=True)
             # Add constraint using new possible function
-            if z3.is_true(is_possible_val):
+            if is_true(is_possible_val):
                 model_constraints.all_constraints.append(self.possible(state))
             else:
                 model_constraints.all_constraints.append(z3.Not(self.possible(state)))
@@ -618,7 +622,7 @@ class LogosSemantics(SemanticDefaults):
                 # Evaluate using original verify function
                 verify_val = z3_model.eval(original_semantics.verify(state, atom), model_completion=True)
                 # Add constraint using new verify function
-                if z3.is_true(verify_val):
+                if is_true(verify_val):
                     model_constraints.all_constraints.append(self.verify(state, atom))
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.verify(state, atom)))
@@ -628,7 +632,7 @@ class LogosSemantics(SemanticDefaults):
                 # Evaluate using original falsify function
                 falsify_val = z3_model.eval(original_semantics.falsify(state, atom), model_completion=True)
                 # Add constraint using new falsify function
-                if z3.is_true(falsify_val):
+                if is_true(falsify_val):
                     model_constraints.all_constraints.append(self.falsify(state, atom))
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.falsify(state, atom)))
@@ -671,6 +675,27 @@ class LogosSemantics(SemanticDefaults):
             A new evaluation point dictionary with the assignment
         """
         return {**eval_point, "assignment": assignment}
+
+    def with_world(
+        self,
+        eval_point: 'EvaluationPoint',
+        world: 'StateType'
+    ) -> 'EvaluationPoint':
+        """Create a new evaluation point with the given world.
+
+        Creates a copy of the evaluation point with the world field set
+        to the provided value, preserving all other keys (including assignment).
+        Used by intensional operators to thread variable bindings through
+        world-shifting evaluation.
+
+        Args:
+            eval_point: The base evaluation point to extend
+            world: The world to evaluate in
+
+        Returns:
+            A new evaluation point dictionary with the world
+        """
+        return {**eval_point, "world": world}
 
     def register_constant(self, name: str, value: z3.BitVecRef) -> None:
         """Register a constant with its interpretation.
@@ -876,10 +901,10 @@ class LogosSemantics(SemanticDefaults):
         x = z3.BitVec(f"pred_t_{pred_name}_x", self.N)
         return Exists(
             x,
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 self.is_part_of(x, eval_world),
                 self.predicate_verify(pred_name, arg_denotations, x)
-            )
+            ))
         )
 
     def _predicate_false_at(self, pred_name, term_args, eval_point):
@@ -914,10 +939,10 @@ class LogosSemantics(SemanticDefaults):
         x = z3.BitVec(f"pred_f_{pred_name}_x", self.N)
         return Exists(
             x,
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 self.is_part_of(x, eval_world),
                 self.predicate_falsify(pred_name, arg_denotations, x)
-            )
+            ))
         )
 
     def _predicate_extended_verify(self, state, pred_name, term_args, eval_point):
@@ -1067,13 +1092,13 @@ class LogosProposition(PropositionDefaults):
                     semantics.possible(x),
                     Exists(
                         y,
-                        z3.And(
+                        cast(z3.BoolRef, z3.And(
                             semantics.compatible(x, y),
-                            z3.Or(
+                            cast(z3.BoolRef, z3.Or(
                                 semantics.verify(y, sentence_letter),
                                 semantics.falsify(y, sentence_letter)
-                            ),
-                        ),
+                            )),
+                        )),
                     ),
                 ),
             )
@@ -1091,11 +1116,11 @@ class LogosProposition(PropositionDefaults):
             x, y = z3.BitVecs("ct_cont_x ct_cont_y", semantics.N)
             possible_verifier = Exists(
                 x,
-                z3.And(semantics.possible(x), semantics.verify(x, sentence_letter))
+                cast(z3.BoolRef, z3.And(semantics.possible(x), semantics.verify(x, sentence_letter)))
             )
             possible_falsifier = Exists(
                 y,
-                z3.And(semantics.possible(y), semantics.falsify(y, sentence_letter))
+                cast(z3.BoolRef, z3.And(semantics.possible(y), semantics.falsify(y, sentence_letter)))
             )
             return [
                 possible_verifier,
@@ -1108,8 +1133,8 @@ class LogosProposition(PropositionDefaults):
             the disjoint constraints, though they are already entailed by the contingent constraints
             when those are enabled."""
             return [
-                z3.Not(semantics.verify(0, sentence_letter)),
-                z3.Not(semantics.falsify(0, sentence_letter)),
+                cast(z3.BoolRef, z3.Not(semantics.verify(0, sentence_letter))),
+                cast(z3.BoolRef, z3.Not(semantics.falsify(0, sentence_letter))),
             ]
 
         def get_disjoint_constraints():
@@ -1118,10 +1143,10 @@ class LogosProposition(PropositionDefaults):
             return [
                 ForAll(
                     [x],
-                    z3.Not(z3.And(
+                    cast(z3.BoolRef, z3.Not(cast(z3.BoolRef, z3.And(
                         semantics.verify(x, sentence_letter),
                         semantics.falsify(x, sentence_letter)
-                    )),
+                    )))),
                 )
             ]
 
@@ -1286,16 +1311,16 @@ class LogosProposition(PropositionDefaults):
             result = z3_model.evaluate(expression, model_completion=True)
             
             # Check if result is a boolean constant
-            if z3.is_true(result):
+            if is_true(result):
                 return True
-            elif z3.is_false(result):
+            elif is_false(result):
                 return False
             
             # Try to simplify
             simplified = z3.simplify(result)
-            if z3.is_true(simplified):
+            if is_true(simplified):
                 return True
-            elif z3.is_false(simplified):
+            elif is_false(simplified):
                 return False
                 
             # Check string representation as last resort
@@ -1490,16 +1515,16 @@ class LogosModelStructure(ModelDefaults):
         """
         try:
             result = self.z3_model.evaluate(expression, model_completion=True)
-            if z3.is_true(result):
+            if is_true(result):
                 return True
-            elif z3.is_false(result):
+            elif is_false(result):
                 return False
 
             # Try to simplify
             simplified = z3.simplify(result)
-            if z3.is_true(simplified):
+            if is_true(simplified):
                 return True
-            elif z3.is_false(simplified):
+            elif is_false(simplified):
                 return False
 
             # Conservative default

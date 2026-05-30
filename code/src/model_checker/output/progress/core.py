@@ -149,9 +149,46 @@ class UnifiedProgress:
         """Complete search for current model."""
         if found:
             self.models_found += 1
-            
+
         if self.model_progress_bars:
             self.model_progress_bars[-1].complete(found)
+
+    def stop_animation_only(self) -> float:
+        """Stop the current progress bar animation without printing final state.
+
+        This freezes the progress bar at its current fill level and elapsed time,
+        stops the animation thread, and clears the animated line from the terminal.
+        The frozen values are preserved for when complete_model_search() is called.
+
+        Timing Synchronization Contract
+        -------------------------------
+        This method is part of the bar->output->bar pattern that ensures visual
+        consistency between the progress bar fill and displayed elapsed time:
+
+        1. Call stop_animation_only() when model is found
+           - Captures fill_fraction and elapsed time at this moment
+           - Clears animated line, allowing other output to be printed
+
+        2. Print headers, results, or other output
+
+        3. Call complete_model_search(found=True)
+           - Uses the FROZEN fill and elapsed values, NOT current time
+           - Ensures "0.3s" shown matches the 30% fill bar
+
+        Without this pattern, the bar might show 30% fill but "0.7s" elapsed
+        (calculated at complete() time instead of model-found time).
+
+        Returns:
+            float: The frozen fill fraction (0.0 to 1.0), or 1.0 if no active bar
+        """
+        if self.model_progress_bars:
+            bar = self.model_progress_bars[-1]
+            if hasattr(bar, 'freeze_at_current'):
+                fill_fraction = bar.freeze_at_current()
+                # Clear the animated line from terminal
+                self.display.clear()
+                return fill_fraction
+        return 1.0
             
     def finish(self) -> None:
         """Complete all progress tracking."""

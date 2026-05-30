@@ -898,6 +898,812 @@
       "planned": "2026-03-03T18:33:25Z",
       "completed": "2026-03-03T18:49:20Z",
       "completion_summary": "Fixed 13 failing tests across 5 test files. All fixes targeted test-side mismatches rather than production code: argparse argv ordering, N=16 hang prevention, realistic timing thresholds, proper helper functions, and correct CLI flags."
+    },
+    {
+      "project_number": 56,
+      "project_name": "fix_comparison_warnings_default_settings",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-30T18:42:30Z",
+      "last_updated": "2026-03-30T18:46:22Z",
+      "session_id": "sess_1774896209_6d2df3",
+      "planned": "2026-03-30T18:44:29Z",
+      "completed": "2026-03-30T18:46:22Z",
+      "completion_summary": "Added M to DEFAULT_EXAMPLE_SETTINGS to suppress 8 unknown setting warnings, and added output.json to gitignore."
+    },
+    {
+      "project_number": 55,
+      "project_name": "create_comparison_script_z3_cvc5_benchmarking",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-30T17:48:28Z",
+      "last_updated": "2026-03-30T18:28:00Z",
+      "next_artifact_number": 2,
+      "session_id": "sess_1774894752_aab4d6",
+      "planned": "2026-03-30T18:12:40Z",
+      "started": "2026-03-30T18:19:52Z",
+      "completed": "2026-03-30T18:28:00Z",
+      "completion_summary": "Created comparison.py script that benchmarks z3 vs cvc5 on all 138 logos theory examples with structured JSON output, solver switching, and disagreement tracking.",
+      "artifacts": [
+        {
+          "path": "specs/055_create_comparison_script_z3_cvc5_benchmarking/reports/01_comparison-script-research.md",
+          "type": "research",
+          "summary": "Research documenting solver switching patterns, example infrastructure, and JSON schema"
+        },
+        {
+          "path": "specs/055_create_comparison_script_z3_cvc5_benchmarking/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan for comparison.py benchmarking script"
+        },
+        {
+          "path": "specs/055_create_comparison_script_z3_cvc5_benchmarking/summaries/01_execution-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ]
+    },
+    {
+      "project_number": 54,
+      "project_name": "fix_mod_comp_solver_comparison_test_failures",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-30T17:28:35Z",
+      "last_updated": "2026-03-30T17:39:59Z",
+      "session_id": "sess_1774892263_a4432b",
+      "researched": "2026-03-30T17:34:06Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/054_fix_mod_comp_solver_comparison_test_failures/reports/01_lambda-error-research.md",
+          "type": "research",
+          "summary": "Research report identifying root cause: MOD_COMP examples require first_order subtheory but test only loads modal"
+        },
+        {
+          "path": "specs/054_fix_mod_comp_solver_comparison_test_failures/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "1-phase implementation plan for fix_mod_comp_solver_comparison_test_failures"
+        },
+        {
+          "path": "specs/054_fix_mod_comp_solver_comparison_test_failures/summaries/01_execution-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-30T17:36:27Z",
+      "started": "2026-03-30T17:37:58Z",
+      "completed": "2026-03-30T17:39:59Z",
+      "completion_summary": "Added 'first_order' to modal subtheory dependencies in test_solver_comparison.py to fix the MOD_COMP test failures caused by missing lambda operator support."
+    },
+    {
+      "project_number": 53,
+      "project_name": "refine_progress_bar_timing_architecture",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-30T16:45:39Z",
+      "last_updated": "2026-03-30T17:17:17Z",
+      "session_id": "sess_1774890323_53bf70",
+      "planned": "2026-03-30T17:00:49Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/053_refine_progress_bar_timing_architecture/reports/01_timing-architecture-review.md",
+          "type": "research",
+          "summary": "Research on progress bar timing architecture and fill/display inconsistencies"
+        },
+        {
+          "path": "specs/053_refine_progress_bar_timing_architecture/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "Implementation plan for refining progress bar timing architecture"
+        },
+        {
+          "path": "specs/053_refine_progress_bar_timing_architecture/summaries/01_execution-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "started": "2026-03-30T17:05:41Z",
+      "completed": "2026-03-30T17:17:17Z",
+      "completion_summary": "Fixed progress bar timing mismatch by storing _frozen_elapsed in freeze_at_current() and using it in complete(). Added 4 new tests (1 unit, 3 integration), class constants, type hints, and state machine documentation."
+    },
+    {
+      "project_number": 52,
+      "project_name": "redesign_progress_bar_model_iteration",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-30T15:54:15Z",
+      "last_updated": "2026-03-30T16:30:00Z",
+      "session_id": "sess_1774886773_F2COQ0",
+      "planned": "2026-03-30T16:05:15Z",
+      "started": "2026-03-30T16:06:43Z",
+      "completed": "2026-03-30T16:30:00Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/052_redesign_progress_bar_model_iteration/reports/01_progress-bar-redesign.md",
+          "type": "research",
+          "summary": "Research on progress bar architecture, timing semantics, and output ordering issues"
+        },
+        {
+          "path": "specs/052_redesign_progress_bar_model_iteration/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "4-phase plan: freeze-at-current method, modified complete(), iterator refactor, edge case handling"
+        },
+        {
+          "path": "specs/052_redesign_progress_bar_model_iteration/summaries/01_execution-summary.md",
+          "type": "summary",
+          "summary": "Complete execution summary with all 4 phases implemented and verified"
+        }
+      ],
+      "completion_summary": "Redesigned progress bar system with time-proportional fill semantics and correct bar->output->bar ordering. Added freeze_at_current() method, stop_animation_only() for deferred completion, and modified iterator/runner for proper output sequencing."
+    },
+    {
+      "project_number": 51,
+      "project_name": "fix_cvc5_cli_integration_issues",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T15:22:02Z",
+      "last_updated": "2026-03-30T16:00:00Z",
+      "session_id": "sess_1774885037_awTBg4",
+      "researched": "2026-03-30T15:30:42Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/051_fix_cvc5_cli_integration_issues/reports/01_teammate-a-findings.md",
+          "type": "research",
+          "summary": "Primary approach: settings integration mechanics"
+        },
+        {
+          "path": "specs/051_fix_cvc5_cli_integration_issues/reports/01_teammate-b-findings.md",
+          "type": "research",
+          "summary": "Alternative patterns: comprehensive Z3 audit and test impact"
+        },
+        {
+          "path": "specs/051_fix_cvc5_cli_integration_issues/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Synthesized team research: standard_args fix and backend-aware label"
+        },
+        {
+          "path": "specs/051_fix_cvc5_cli_integration_issues/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for fixing cvc5 CLI integration issues"
+        },
+        {
+          "path": "specs/051_fix_cvc5_cli_integration_issues/summaries/01_execution-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-30T15:36:02Z",
+      "started": "2026-03-30T15:37:59Z",
+      "completed": "2026-03-30T16:00:00Z",
+      "completion_summary": "Fixed cvc5 CLI integration by adding z3/cvc5/subtheory to standard_args, updating runtime label to backend-neutral 'Solver Run Time', and documenting solver backend selection in Settings README."
+    },
+    {
+      "project_number": 49,
+      "project_name": "solver_comparison_first_order_examples",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T00:58:08Z",
+      "last_updated": "2026-03-30T04:30:00Z",
+      "session_id": "sess_1774841566_caa020c7",
+      "researched": "2026-03-30T01:08:08Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/reports/01_teammate-a-findings.md",
+          "type": "research",
+          "summary": "Primary approach: solver switching mechanics, timing, first_order integration pattern"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/reports/01_teammate-b-findings.md",
+          "type": "research",
+          "summary": "Alternative patterns: settings-injection, subtheory inventory, existing test patterns"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Synthesized team research: 5-step first_order integration, parametrized solver comparison test design"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for first_order integration and solver comparison test suite"
+        },
+        {
+          "path": "specs/049_solver_comparison_first_order_examples/summaries/01_solver-comparison-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-30T01:12:44Z",
+      "started": "2026-03-30T03:33:33Z",
+      "completed": "2026-03-30T04:30:00Z",
+      "completion_summary": "Integrated 12 first_order examples into unified logos examples module and created parametrized solver comparison test suite covering 138 examples against z3 and cvc5 backends with timing collection and graceful degradation."
+    },
+    {
+      "project_number": 48,
+      "project_name": "fix_test_update_types_atomic_syntactic",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-30T00:16:00Z",
+      "last_updated": "2026-03-30T00:37:35Z",
+      "artifacts": {
+        "research": [
+          "reports/01_research-report.md"
+        ],
+        "plan": [
+          "plans/01_implementation-plan.md"
+        ],
+        "summary": [
+          "summaries/01_execution-summary.md"
+        ]
+      },
+      "session_id": "sess_1774830907_6ff716",
+      "planned": "2026-03-30T00:30:06Z",
+      "completed": "2026-03-30T00:37:35Z",
+      "completion_summary": "Fixed test_update_types_atomic by replacing MagicMock with real Z3 Const object. The test was failing because z3.is_const() returns False for MagicMock objects."
+    },
+    {
+      "project_number": 47,
+      "project_name": "multi_solver_abstraction_layer",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-29T23:25:18Z",
+      "last_updated": "2026-03-29T16:00:00Z",
+      "session_id": "sess_1774831099_331978",
+      "researched": "2026-03-30T00:13:55Z",
+      "next_artifact_number": 4,
+      "artifacts": [
+        {
+          "path": "specs/047_multi_solver_abstraction_layer/reports/01_teammate-a-findings.md",
+          "type": "research",
+          "summary": "SMT solver landscape 2026, cvc5 Pythonic API comparison, full Z3 coupling analysis across 422+ call sites with abstraction difficulty rankings"
+        },
+        {
+          "path": "specs/047_multi_solver_abstraction_layer/reports/03_plan-review.md",
+          "type": "research",
+          "summary": "Critical plan review: cvc5 unsat core limitation, import shim strategy, Protocol-based typing"
+        },
+        {
+          "path": "specs/047_multi_solver_abstraction_layer/plans/03_multi-solver-revised.md",
+          "type": "plan",
+          "summary": "7-phase revised plan: split cvc5 adapter, import shim, Protocol-based typing"
+        },
+        {
+          "path": "specs/047_multi_solver_abstraction_layer/summaries/03_implementation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-30T00:18:50Z",
+      "started": "2026-03-30T00:38:53Z",
+      "completed": "2026-03-29T16:00:00Z",
+      "completion_summary": "Implemented multi-solver abstraction layer enabling Z3 and cvc5 backends with CLI flags, Protocol-based interfaces, and 34 new tests."
+    },
+    {
+      "project_number": 46,
+      "project_name": "fix_z3_and_return_type_narrowing",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-29T22:10:06Z",
+      "last_updated": "2026-03-30T00:09:35Z",
+      "session_id": "sess_1774823313_c61cd3",
+      "researched": "2026-03-29T22:27:06Z",
+      "artifacts": [
+        {
+          "path": "specs/046_fix_z3_and_return_type_narrowing/reports/01_teammate-a-findings.md",
+          "type": "research"
+        },
+        {
+          "path": "specs/046_fix_z3_and_return_type_narrowing/plans/04_cast-z3-returns.md",
+          "type": "plan",
+          "summary": "5-phase plan: cast z3.And/Or returns across 13 files (51 errors)"
+        }
+      ],
+      "next_artifact_number": 2,
+      "planned": "2026-03-29T23:24:50Z",
+      "started": "2026-03-29T23:26:07Z",
+      "completed": "2026-03-30T00:09:35Z",
+      "completion_summary": "Added cast(BoolRef, ...) to all 51 z3.And/z3.Or/z3.Not call sites across 13 files, eliminating all Probe-related Pyright errors. Zero runtime impact. All z3_helpers tests pass."
+    },
+    {
+      "project_number": 45,
+      "project_name": "rename_first_order_directory",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-29T22:05:55Z",
+      "last_updated": "2026-03-29T22:29:33Z",
+      "session_id": "sess_1774847000_d5e8f2",
+      "planned": "2026-03-29T22:11:10Z",
+      "artifacts": [
+        {
+          "path": "specs/045_rename_first_order_directory/plans/01_rename-first-order.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for renaming first-order directory to first_order"
+        }
+      ],
+      "started": "2026-03-29T22:14:06Z",
+      "completed": "2026-03-29T16:06:15-07:00",
+      "completion_summary": "Verified directory rename from first-order to first_order. All 53 subtheory tests pass, all 9 proposition tests pass, all 99 parsing tests pass, all 33 unit tests pass. No remaining first-order string references in code."
+    },
+    {
+      "project_number": 44,
+      "project_name": "remove_vestigial_isemantics_protocol",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-29T19:37:41Z",
+      "last_updated": "2026-03-29T22:21:00Z",
+      "session_id": "sess_1774814282_021983",
+      "planned": "2026-03-29T21:49:43Z",
+      "artifacts": [
+        {
+          "path": "specs/044_remove_vestigial_isemantics_protocol/plans/02_isemantics-refactor-revised.md",
+          "type": "plan"
+        },
+        {
+          "path": "specs/044_remove_vestigial_isemantics_protocol/summaries/02_isemantics-refactor-summary.md",
+          "type": "summary"
+        }
+      ],
+      "completed": "2026-03-29",
+      "completion_summary": "Removed 3 vestigial ISemantics/Semantics Protocol definitions, updated Operator base class to use SemanticDefaults, and added LogosSemantics class annotations to 22 Logos operator classes. All 334 tests pass."
+    },
+    {
+      "project_number": 43,
+      "project_name": "fix_preexisting_test_failures",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-29T19:25:36Z",
+      "last_updated": "2026-03-29T19:59:00Z",
+      "session_id": "sess_1774812627_spssjn",
+      "researched": "2026-03-29T19:29:12Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/043_fix_preexisting_test_failures/reports/01_test-failures-research.md",
+          "type": "research",
+          "summary": "Research on 3 pre-existing test failures with root causes and fixes"
+        },
+        {
+          "path": "specs/043_fix_preexisting_test_failures/plans/01_test-failures-fix.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan for fixing pre-existing test failures"
+        },
+        {
+          "path": "specs/043_fix_preexisting_test_failures/summaries/01_test-failures-fix-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for fixing 3 pre-existing test failures"
+        }
+      ],
+      "planned": "2026-03-29T19:32:30Z",
+      "completed": "2026-03-29T19:59:00Z",
+      "completion_summary": "Fixed 3 pre-existing test failures: updated test_exists_duality.py to check for extract_lambda_term, added parser to valid_errors in test_semantic_coverage.py, and changed FO_CM_4 example to use closed formula. All 86 tests pass."
+    },
+    {
+      "project_number": 42,
+      "project_name": "uniform_eval_point_threading",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-29T17:23:16Z",
+      "last_updated": "2026-03-29T18:15:00Z",
+      "session_id": "sess_1774806317_36vvaw",
+      "researched": "2026-03-29T17:37:41Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/042_uniform_eval_point_threading/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Team research with 2 teammates - eval_point threading patterns"
+        },
+        {
+          "path": "specs/042_uniform_eval_point_threading/plans/01_eval-point-threading.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for uniform eval_point threading"
+        },
+        {
+          "path": "specs/042_uniform_eval_point_threading/summaries/01_eval-point-threading-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-29T17:43:00Z",
+      "started": "2026-03-29T17:45:38Z",
+      "completed": "2026-03-29T18:15:00Z",
+      "completion_summary": "Added with_world helper to preserve variable bindings across modal world shifts. Fixed NecessityOperator and CounterfactualOperator, removed vestigial PossibilityOperator code, added 3 compositionality tests."
+    },
+    {
+      "project_number": 41,
+      "project_name": "final_conciseness_pass",
+      "status": "completed",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-25T01:20:00Z",
+      "dependencies": [
+        40
+      ],
+      "session_id": "sess_1774400812_4f99c3",
+      "researched": "2026-03-25T00:57:53Z",
+      "artifacts": [
+        {
+          "path": "specs/041_final_conciseness_pass/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Team research with 2 teammates: throat-clearing audit and narrative flow analysis"
+        },
+        {
+          "path": "specs/041_final_conciseness_pass/plans/01_conciseness-plan.md",
+          "type": "plan",
+          "summary": "2-phase plan: throat-clearing removal + narrative flow improvements"
+        },
+        {
+          "path": "specs/041_final_conciseness_pass/summaries/01_conciseness-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with detailed change log"
+        }
+      ],
+      "planned": "2026-03-25T01:04:59Z",
+      "completed": "2026-03-25T01:20:00Z",
+      "completion_summary": "Removed ~102 words of throat-clearing (roadmap paragraph, transition sentence, minor hedges) and added ~80 words of motivated section transitions for Sections 3, 6, and 7. Net ~22 word reduction with improved narrative flow."
+    },
+    {
+      "project_number": 40,
+      "project_name": "trim_code_and_overexplanation",
+      "status": "completed",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T18:00:00Z",
+      "dependencies": [
+        39
+      ],
+      "artifacts": [
+        {
+          "path": "specs/040_trim_code_and_overexplanation/reports/01_trim-overexplanation.md",
+          "type": "research",
+          "summary": "Research report identifying verbosity reduction targets"
+        },
+        {
+          "path": "specs/040_trim_code_and_overexplanation/plans/01_trim-overexplanation-plan.md",
+          "type": "plan",
+          "summary": "3-phase plan for targeted verbosity reduction"
+        },
+        {
+          "path": "specs/040_trim_code_and_overexplanation/summaries/01_trim-overexplanation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with all changes and commit references"
+        }
+      ],
+      "session_id": "sess_1774399275_1f3b07",
+      "planned": "2026-03-25T00:40:26Z",
+      "completed": "2026-03-24T18:00:00Z",
+      "completion_summary": "Reduced paper from 29 to 27 pages by trimming ~1,310 words: aspirational TheoryLib content (~500 words), code listings (~340 words), and over-explanations for JAR audience (~470 words). All phases completed with LaTeX compilation verified."
+    },
+    {
+      "project_number": 39,
+      "project_name": "eliminate_structural_redundancy",
+      "status": "completed",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T15:55:00Z",
+      "dependencies": [
+        37,
+        38
+      ],
+      "session_id": "sess_1774400889_f2c4e8",
+      "researched": "2026-03-24T15:20:00Z",
+      "artifacts": [
+        {
+          "path": "specs/039_eliminate_structural_redundancy/reports/01_redundancy-research.md",
+          "type": "research",
+          "summary": "Research report with line-level redundancy analysis across 7 areas, with specific recommendations for consolidation"
+        },
+        {
+          "path": "specs/039_eliminate_structural_redundancy/plans/01_redundancy-plan.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for eliminating structural redundancy"
+        },
+        {
+          "path": "specs/039_eliminate_structural_redundancy/summaries/01_redundancy-summary.md",
+          "type": "summary",
+          "summary": "Execution summary for structural redundancy elimination"
+        }
+      ],
+      "planned": "2026-03-24T15:35:00Z",
+      "completed": "2026-03-24T15:55:00Z",
+      "completion_summary": "Completed all 6 phases: removed 3 redundant first implementation claims, consolidated Tables 6/8, added bitvector and bilateral back-references, trimmed Section 6 re-explanations, restructured Section 9.1 to focus on implications. Document compiles successfully at 30 pages."
+    },
+    {
+      "project_number": 38,
+      "project_name": "strengthen_proofs_and_limitations",
+      "status": "completed",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T15:00:00Z",
+      "dependencies": [
+        37
+      ],
+      "session_id": "sess_1774399156_a2c8d4",
+      "researched": "2026-03-24T14:30:00Z",
+      "artifacts": [
+        {
+          "path": "specs/038_strengthen_proofs_and_limitations/reports/01_proofs-limitations-research.md",
+          "type": "research",
+          "summary": "Research report with findings on proof expansion, limitations section template, and novelty claim qualification with survey of existing tools"
+        },
+        {
+          "path": "specs/038_strengthen_proofs_and_limitations/plans/01_proofs-limitations-plan.md",
+          "type": "plan",
+          "summary": "Implementation plan covering encoding correctness section, threats-to-validity limitations, expanded related work, and qualified novelty claims"
+        },
+        {
+          "path": "specs/038_strengthen_proofs_and_limitations/summaries/01_proofs-limitations-summary.md",
+          "type": "summary",
+          "summary": "Execution summary for proofs, limitations, and novelty claim implementation"
+        }
+      ],
+      "planned": "2026-03-24T14:45:00Z",
+      "completed": "2026-03-24T15:00:00Z",
+      "completion_summary": "Added encoding correctness section with soundness/extraction theorems, expanded limitations with threats-to-validity format, added modal logic solvers and hyperintensional logic to related work, qualified 5 novelty claims with 'to our knowledge' language, verified compilation with zero errors"
+    },
+    {
+      "project_number": 37,
+      "project_name": "add_formal_definitions_and_complexity",
+      "status": "completed",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T14:15:00Z",
+      "dependencies": [
+        36
+      ],
+      "session_id": "sess_1774393135_22f4af",
+      "researched": "2026-03-24T12:30:00Z",
+      "artifacts": [
+        {
+          "path": "specs/037_add_formal_definitions_and_complexity/reports/01_formal-definitions-research.md",
+          "type": "research",
+          "summary": "Research on hyperintensionality definition, complexity analysis, and experimental setup for JAR paper"
+        },
+        {
+          "path": "specs/037_add_formal_definitions_and_complexity/plans/01_formal-content-plan.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for adding formal hyperintensionality definition, complexity analysis, and experimental setup to paper.tex"
+        },
+        {
+          "path": "specs/037_add_formal_definitions_and_complexity/summaries/01_formal-content-summary.md",
+          "type": "summary",
+          "summary": "Execution summary for formal definitions implementation"
+        }
+      ],
+      "planned": "2026-03-24T13:00:00Z",
+      "completed": "2026-03-24T14:15:00Z",
+      "completion_summary": "Added experimental setup paragraph, hyperintensionality definition, complexity analysis section, and two bibliography entries to latex/paper.tex. Document compiles successfully."
+    },
+    {
+      "project_number": 34,
+      "project_name": "display_predicate_extensions_in_countermodels",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-03T21:30:00Z",
+      "last_updated": "2026-03-04T01:00:26Z",
+      "dependencies": [],
+      "artifacts": [
+        {
+          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report documenting predicate storage system, Z3 evaluation patterns, state formatting utilities, and recommended implementation approach for displaying predicate extensions"
+        },
+        {
+          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-002.md",
+          "type": "research",
+          "summary": "Comprehensive research report documenting recursive printing patterns, modal operator print_over_worlds() approach, and recommended print_over_domain() design for first-order quantifiers"
+        },
+        {
+          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-003.md",
+          "type": "research",
+          "summary": "Deep analysis of lambda semantics, proposition generation for complex formulas, and complete print_over_domain() architecture design"
+        },
+        {
+          "path": "specs/034_display_predicate_extensions_in_countermodels/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan for displaying predicate extensions in first-order countermodels"
+        },
+        {
+          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-004.md",
+          "type": "research",
+          "summary": "Cross-repository alignment analysis for first-order quantifier semantics across ModelChecker, Logos Manual, and Lean implementation"
+        },
+        {
+          "path": "specs/034_display_predicate_extensions_in_countermodels/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "session_id": "sess_1772584211_71c3b6",
+      "researched": "2026-03-04T00:23:09Z",
+      "planned": "2026-03-04T00:28:21Z",
+      "completed": "2026-03-04T01:00:26Z",
+      "completion_summary": "Implemented predicate extension display for first-order countermodels in LogosModelStructure. Added 3 new methods and integrated with print_all(). All 8 new tests pass with no regressions."
+    },
+    {
+      "project_number": 33,
+      "project_name": "fix_premature_progress_bar_display",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-03T21:30:00Z",
+      "last_updated": "2026-03-03T22:21:07Z",
+      "dependencies": [],
+      "artifacts": [
+        {
+          "path": "specs/033_fix_premature_progress_bar_display/reports/research-001.md",
+          "type": "research",
+          "summary": "Initial research report (superseded - proposed wrong approach)"
+        },
+        {
+          "path": "specs/033_fix_premature_progress_bar_display/reports/research-002.md",
+          "type": "research",
+          "summary": "Revised research: keep progress bar, fix print sequence by deferring completion"
+        },
+        {
+          "path": "specs/033_fix_premature_progress_bar_display/plans/implementation-002.md",
+          "type": "plan",
+          "summary": "Revised plan: defer progress bar completion until after header prints"
+        },
+        {
+          "path": "specs/033_fix_premature_progress_bar_display/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with test results and expected output format"
+        }
+      ],
+      "session_id": "sess_1772575968_a0d235",
+      "researched": "2026-03-03T21:40:52Z",
+      "planned": "2026-03-03T22:10:19Z",
+      "completed": "2026-03-03T22:21:07Z",
+      "completion_summary": "Fixed progress bar appearing before example header by introducing deferred completion pattern in runner.py. The animation thread is now stopped manually, header is printed, then progress bar is printed via complete_model_search(). Added 7 new tests and defensive checks in TimeBasedProgress.complete()."
+    },
+    {
+      "project_number": 32,
+      "project_name": "consolidate_first_order_subtheory_structure",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-03T20:24:45Z",
+      "last_updated": "2026-03-03T21:10:22Z",
+      "session_id": "sess_1772570724_5d7c1b",
+      "researched": "2026-03-03T20:31:40Z",
+      "artifacts": [
+        {
+          "path": "specs/032_consolidate_first_order_subtheory_structure/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report on first-order subtheory consolidation with analysis of denotation.py and constraints.py integration points"
+        },
+        {
+          "path": "specs/032_consolidate_first_order_subtheory_structure/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan for consolidating first-order subtheory structure"
+        },
+        {
+          "path": "specs/032_consolidate_first_order_subtheory_structure/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with test results and change details"
+        }
+      ],
+      "planned": "2026-03-03T20:42:55Z",
+      "completed": "2026-03-03T21:10:22Z",
+      "completion_summary": "Refactored first-order subtheory to standard structure by moving term_denotation() into semantic.py, removing unused constraints.py and denotation.py, and updating all imports. Structure now matches other subtheories."
+    },
+    {
+      "project_number": 28,
+      "project_name": "archive_unused_theories",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:49:54Z",
+      "session_id": "sess_1772566182_34aa6d",
+      "planned": "2026-03-03T19:26:32Z",
+      "artifacts": [
+        {
+          "path": "specs/028_archive_unused_theories/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "7-phase implementation plan to archive exclusion and imposition theories to boneyard"
+        },
+        {
+          "path": "specs/028_archive_unused_theories/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with full list of modified files"
+        }
+      ],
+      "completed": "2026-03-03T19:49:54Z",
+      "completion_summary": "Archived exclusion and imposition theories to boneyard, updated 25+ files across the codebase to remove references, rewrote theory documentation, and verified all critical tests pass."
+    },
+    {
+      "project_number": 29,
+      "project_name": "cleanup_specs_directories",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:27:45Z",
+      "session_id": "sess_1772565824_d480e0",
+      "researched": "2026-03-03T19:11:21Z",
+      "artifacts": [
+        {
+          "path": "specs/029_cleanup_specs_directories/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report identifying 3 specs/ directories (57 files, 1.1MB) to delete with no migration needed"
+        },
+        {
+          "path": "specs/029_cleanup_specs_directories/plans/implementation-002.md",
+          "type": "plan",
+          "summary": "2-phase simplified plan to delete obsolete specs directories and update documentation"
+        },
+        {
+          "path": "specs/029_cleanup_specs_directories/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with deleted directories and updated file references"
+        }
+      ],
+      "planned": "2026-03-03T19:22:51Z",
+      "started": "2026-03-03T19:24:02Z",
+      "completed": "2026-03-03T19:27:45Z",
+      "completion_summary": "Removed 3 obsolete specs/ directories (bimodal/specs, theory_lib/specs, docs/specs) totaling 57 files and ~1.1MB, updated 8 documentation and script files to reference the current specs/ path at repository root."
+    },
+    {
+      "project_number": 30,
+      "project_name": "consolidate_documentation",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T19:56:35Z",
+      "session_id": "sess_1772567298_9ce934",
+      "researched": "2026-03-03T19:33:51Z",
+      "artifacts": [
+        {
+          "path": "specs/030_consolidate_documentation/reports/research-001.md",
+          "type": "research",
+          "summary": "Research report documenting 5 docs directories, identifying docs/maintenance/ as misplaced content, and providing 4-phase implementation plan"
+        },
+        {
+          "path": "specs/030_consolidate_documentation/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for consolidating documentation from docs/maintenance/ to code/docs/standards/"
+        },
+        {
+          "path": "specs/030_consolidate_documentation/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results and complete file change log"
+        }
+      ],
+      "planned": "2026-03-03T19:41:05Z",
+      "started": "2026-03-03T19:48:37Z",
+      "completed": "2026-03-03T19:56:35Z",
+      "completion_summary": "Consolidated documentation by moving docs/maintenance/ content to code/docs/standards/ and code/docs/templates/documentation/. Moved 11 files, updated 11+ cross-references, removed empty directories, and updated navigation in both docs/README.md and code/docs/README.md to reflect the new structure."
+    },
+    {
+      "project_number": 31,
+      "project_name": "clean_scripts_and_artifacts",
+      "status": "completed",
+      "language": "general",
+      "created": "2026-03-03T19:02:58Z",
+      "last_updated": "2026-03-03T20:37:41Z",
+      "session_id": "sess_1772569693_0c891b",
+      "researched": "2026-03-03T20:19:18Z",
+      "artifacts": [
+        {
+          "path": "specs/031_clean_scripts_and_artifacts/reports/research-001.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of scripts and artifacts in code/ directory with cleanup recommendations"
+        },
+        {
+          "path": "specs/031_clean_scripts_and_artifacts/plans/implementation-001.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan covering script removal, artifact cleanup, gitignore updates, and documentation"
+        },
+        {
+          "path": "specs/031_clean_scripts_and_artifacts/summaries/implementation-summary-20260303.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all removed scripts, cleaned artifacts, and documentation updates"
+        }
+      ],
+      "planned": "2026-03-03T20:22:41Z",
+      "started": "2026-03-03T20:28:34Z",
+      "completed": "2026-03-03T20:37:41Z",
+      "completion_summary": "Removed 9 outdated scripts from code/scripts/ and code/fix_output_tests.py, cleaned boneyard build artifacts, fixed .gitignore patterns for ipynb_checkpoints and pytest_cache, and added Development Scripts documentation section to code/README.md."
     }
   ]
 }

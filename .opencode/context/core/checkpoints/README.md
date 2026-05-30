@@ -97,4 +97,10 @@ Execute checkpoint-gate-out.md with skill return.
 
 ### CHECKPOINT 3: COMMIT
 Execute checkpoint-commit.md with operation: research.
+
+---
+
+## Navigation
+
+[← Parent Directory](../../README.md)
 ```

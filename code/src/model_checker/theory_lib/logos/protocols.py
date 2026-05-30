@@ -7,7 +7,7 @@ to ensure proper integration with the main Logos theory framework.
 
 from typing import Protocol, Dict, Type, Any, Set, Optional, Union, TypeVar, Generic
 from typing_extensions import runtime_checkable
-import z3
+from model_checker import z3_shim as z3
 
 from model_checker.syntactic import Operator, Sentence
 

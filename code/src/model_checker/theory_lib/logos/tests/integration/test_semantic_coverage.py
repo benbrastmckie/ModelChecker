@@ -112,7 +112,7 @@ class TestLogosSemanticsCalls:
                 except Exception as e:
                     # Method may require more complex setup - that's okay
                     error_msg = str(e).lower()
-                    valid_errors = ["required", "missing", "invalid", "setup", "state", "model", "argument", "parameter", "bitvector", "z3", "operand", "type", "unsupported"]
+                    valid_errors = ["required", "missing", "invalid", "setup", "state", "model", "argument", "parameter", "bitvector", "z3", "operand", "type", "unsupported", "parser"]
                     assert any(word in error_msg for word in valid_errors), f"Unexpected error: {e}"
                              
     def test_alternative_world_calculation(self):

@@ -34,7 +34,7 @@ The `types.py` module provides comprehensive type definitions, aliases, and prot
 - Z3 type aliases (Z3Expr, Z3Model, Z3Solver)
 - Model checking types (Settings, OperatorDict, EvaluationPoint)
 - Constraint types (ConstraintList, ConstraintGenerator)
-- Protocol definitions (ISemantics, IProposition)
+- Protocol definitions (IProposition)
 
 ### errors.py - Custom Exception Classes
 

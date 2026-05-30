@@ -240,3 +240,9 @@ Add to `project/`:
 - ✅ Improved organization (orchestration vs formats vs standards)
 - ✅ State.json optimization patterns documented
 - ✅ Workflow timing standards integrated
+
+---
+
+## Navigation
+
+[← Parent Directory](../README.md)

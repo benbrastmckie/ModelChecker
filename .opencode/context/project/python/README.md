@@ -45,3 +45,9 @@ Load: `domain/python-patterns.md`, `standards/code-style.md`
 ## For Implementation
 
 Load: `patterns/testing-patterns.md`, `standards/code-style.md`
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

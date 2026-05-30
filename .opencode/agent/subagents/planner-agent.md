@@ -67,7 +67,7 @@ Load these on-demand using @-references:
 - `@.opencode/context/core/workflows/task-breakdown.md` - Task decomposition guidelines
 
 **Load for Context**:
-- `@.opencode/OPENCODE.md` - Project configuration and conventions
+- `@.opencode/README.md` - Project configuration and conventions
 - `@.opencode/context/index.md` - Full context discovery index (if needed)
 
 ## Stage 0: Initialize Early Metadata

@@ -1,234 +1,927 @@
 {
-  "next_project_number": 35,
+  "next_project_number": 89,
   "active_projects": [
     {
-      "project_number": 34,
-      "project_name": "display_predicate_extensions_in_countermodels",
+      "project_number": 88,
+      "project_name": "optimize_quantifier_implementation_logos_theory",
       "status": "completed",
-      "language": "python",
-      "created": "2026-03-03T21:30:00Z",
-      "last_updated": "2026-03-04T01:00:26Z",
-      "dependencies": [],
+      "language": "z3",
+      "dependencies": [
+        87
+      ],
+      "created": "2026-04-05T22:55:42Z",
+      "last_updated": "2026-04-06T20:03:46Z",
+      "session_id": "sess_1775505321_W0U83A",
+      "researched": "2026-04-06T19:56:42Z",
+      "next_artifact_number": 7,
       "artifacts": [
         {
-          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-001.md",
-          "type": "research",
-          "summary": "Research report documenting predicate storage system, Z3 evaluation patterns, state formatting utilities, and recommended implementation approach for displaying predicate extensions"
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/01_teammate-a-findings.md",
+          "type": "report",
+          "summary": "Teammate A: Current implementation analysis and optimization opportunities"
         },
         {
-          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-002.md",
-          "type": "research",
-          "summary": "Comprehensive research report documenting recursive printing patterns, modal operator print_over_worlds() approach, and recommended print_over_domain() design for first-order quantifiers"
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/01_teammate-b-findings.md",
+          "type": "report",
+          "summary": "Teammate B: elim-small-bv discovery and alternative patterns"
         },
         {
-          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-003.md",
-          "type": "research",
-          "summary": "Deep analysis of lambda semantics, proposition generation for complex formulas, and complete print_over_domain() architecture design"
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/01_team-research.md",
+          "type": "report",
+          "summary": "Team synthesis: prioritized optimization recommendations"
         },
         {
-          "path": "specs/034_display_predicate_extensions_in_countermodels/plans/implementation-001.md",
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/02_teammate-a-findings.md",
+          "type": "report",
+          "summary": "Round 2 - elim-small-bv implementation specification"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/02_teammate-b-findings.md",
+          "type": "report",
+          "summary": "Round 2 - CVC5/Z3 adapter and collision fixes"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/02_team-research.md",
+          "type": "report",
+          "summary": "Round 2 - Complete implementation specification for plan construction"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/plans/02_implementation-plan.md",
           "type": "plan",
-          "summary": "6-phase implementation plan for displaying predicate extensions in first-order countermodels"
+          "summary": "4-phase implementation plan for quantifier optimization"
         },
         {
-          "path": "specs/034_display_predicate_extensions_in_countermodels/reports/research-004.md",
-          "type": "research",
-          "summary": "Cross-repository alignment analysis for first-order quantifier semantics across ModelChecker, Logos Manual, and Lean implementation"
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/summaries/02_quantifier-optimization-summary.md",
+          "type": "summary",
+          "summary": "Partial implementation: 2/4 phases (CEGQI+MBQI config), phases 1+4 abandoned"
         },
         {
-          "path": "specs/034_display_predicate_extensions_in_countermodels/summaries/implementation-summary-20260303.md",
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/03_teammate-a-findings.md",
+          "type": "report",
+          "summary": "Round 3 - elim-small-bv root cause analysis and hybrid tactic proposal"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/03_teammate-b-findings.md",
+          "type": "report",
+          "summary": "Round 3 - native quantifier approach and collision analysis"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/03_team-research.md",
+          "type": "report",
+          "summary": "Round 3 - team synthesis with root cause findings and recommended path forward"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/04_team-research.md",
+          "type": "report",
+          "summary": "Round 4 - empirical benchmark: UNSAT regression invalidates native quantifier wholesale replacement"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/04_teammate-a-findings.md",
+          "type": "report",
+          "summary": "Round 4 - Systematic native quantifier benchmarks (REJECT: not uniformly better)"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/04_teammate-b-findings.md",
+          "type": "report",
+          "summary": "Round 4 - Solver config verification and alternatives (KEEP: CEGQI+MBQI confirmed)"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/04_team-research.md",
+          "type": "report",
+          "summary": "Round 4 - Final assessment: current implementation is optimal, recommend closing task"
+        },
+        {
+          "path": "specs/088_optimize_quantifier_implementation_logos_theory/reports/05_undo-analysis.md",
+          "type": "report",
+          "summary": "Round 5 - Undo analysis: KEEP all implemented changes (CEGQI+MBQI)"
+        }
+      ],
+      "planned": "2026-04-05T23:30:14Z",
+      "completion_summary": "Added CEGQI config to CVC5 adapter (fixing finitary-cvc5 correctness: 12/12 baseline) and MBQI config to Z3 adapter (2x native quantifier improvement). Phases 1 (elim-small-bv) and 4 (variable collision) correctly abandoned after empirical testing showed regressions."
+    },
+    {
+      "project_number": 87,
+      "project_name": "research_native_quantifiers_z3_cvc5",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-05T21:39:35Z",
+      "last_updated": "2026-04-05T22:34:23Z",
+      "researching": "2026-04-05T21:46:08Z",
+      "researched": "2026-04-05T22:23:13Z",
+      "session_id": "sess_1775428152_7OiSo7",
+      "artifacts": [
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/01_teammate-a-findings.md",
+          "type": "report",
+          "summary": "Teammate A: Z3 quantifier internals and ModelChecker failure analysis"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/01_teammate-b-findings.md",
+          "type": "report",
+          "summary": "Teammate B: CVC5 quantifier internals and comparison with Z3"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/01_team-research.md",
+          "type": "report",
+          "summary": "Team synthesis: unified root cause analysis and fix recommendations"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/02_teammate-a-findings.md",
+          "type": "report",
+          "summary": "Round 2 - Z3 quantifier mechanisms educational content"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/02_teammate-b-findings.md",
+          "type": "report",
+          "summary": "Round 2 - CVC5 quantifier mechanisms educational content"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/reports/02_team-research.md",
+          "type": "report",
+          "summary": "Round 2 - Synthesis for QUANTIFIER_SOLVERS.md documentation"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/plans/02_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for QUANTIFIER_SOLVERS.md educational documentation"
+        },
+        {
+          "path": "specs/087_research_native_quantifiers_z3_cvc5/summaries/02_implementation-summary.md",
           "type": "summary",
           "summary": "Implementation summary with verification results"
         }
       ],
-      "session_id": "sess_1772584211_71c3b6",
-      "researched": "2026-03-04T00:23:09Z",
-      "planned": "2026-03-04T00:28:21Z",
-      "completed": "2026-03-04T01:00:26Z",
-      "completion_summary": "Implemented predicate extension display for first-order countermodels in LogosModelStructure. Added 3 new methods and integrated with print_all(). All 8 new tests pass with no regressions."
+      "next_artifact_number": 3,
+      "planned": "2026-04-05T22:27:36Z",
+      "started": "2026-04-05T22:29:44Z",
+      "completed": "2026-04-05T22:34:23Z",
+      "completion_summary": "Created docs/theory/QUANTIFIER_SOLVERS.md with educational documentation on Z3/CVC5 quantifier mechanisms including e-matching, MBQI, CEGQI, FMF, comparison tables, and ModelChecker application guidance."
     },
     {
-      "project_number": 33,
-      "project_name": "fix_premature_progress_bar_display",
+      "project_number": 86,
+      "project_name": "extend_first_order_examples_test_solver_limits",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-05T16:56:15Z",
+      "last_updated": "2026-04-05T20:38:10Z",
+      "researching": "2026-04-05T17:18:24Z",
+      "researched": "2026-04-05T17:22:11Z",
+      "session_id": "sess_1775420823_55ad7f",
+      "planned": "2026-04-05T17:30:44Z",
+      "started": "2026-04-05T20:27:34Z",
+      "completed": "2026-04-05T20:38:10Z",
+      "completion_summary": "Added 46 stress test examples across 5 suites (N_SCALE, NEST, ALT, COMP, STRESS) to examples.py, plus --suite and --find-choke-point flags to benchmark script for solver limit testing.",
+      "artifacts": [
+        {
+          "path": "specs/086_extend_first_order_examples_test_solver_limits/summaries/01_execution-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ]
+    },
+    {
+      "project_number": 85,
+      "project_name": "create_systematic_quantifier_benchmark_first_order",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-04T19:01:49Z",
+      "last_updated": "2026-04-05T16:50:59Z",
+      "researching": "2026-04-04T19:26:24Z",
+      "researched": "2026-04-04T19:30:06Z",
+      "session_id": "sess_1775352640_c5e9f2",
+      "planned": "2026-04-05T16:44:40Z",
+      "implementing": "2026-04-05T16:45:26Z",
+      "completed": "2026-04-05T16:50:59Z",
+      "completion_summary": "Created first-order quantifier benchmark comparing 4 modes (finitary-z3, finitary-cvc5, native-z3, native-cvc5). All 12 examples run successfully. Key finding: native-cvc5 returns incorrect UNSAT for countermodel examples."
+    },
+    {
+      "project_number": 84,
+      "project_name": "add_native_z3_quantifier_operators_first_order",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-04T01:01:40Z",
+      "last_updated": "2026-04-04T18:48:49Z",
+      "session_id": "sess_1775273012_622548",
+      "planned": "2026-04-04T03:26:10Z",
+      "implementing": "2026-04-04T18:39:27Z",
+      "completed": "2026-04-04T18:48:49Z",
+      "completion_summary": "Added NativeForAllOperator (\\\\all) and NativeExistsOperator (\\\\some) using Z3 native quantifiers. Extended parser to recognize new syntax. Created 12 NFO examples and 20 unit tests. Native quantifiers are 44% faster while producing identical results to finitary quantifiers."
+    },
+    {
+      "project_number": 83,
+      "project_name": "investigate_native_quantifier_unsat_root_cause",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-04T00:01:15Z",
+      "last_updated": "2026-04-04T00:42:30Z",
+      "researched": "2026-04-04",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/083_investigate_native_quantifier_unsat_root_cause/reports/01_root-cause-analysis.md",
+          "type": "research",
+          "summary": "Root cause: nested quantifier structures in semantic functions create complex alternating patterns that SMT solvers cannot efficiently solve"
+        },
+        {
+          "path": "specs/083_investigate_native_quantifier_unsat_root_cause/plans/01_revert-task82-plan.md",
+          "type": "plan",
+          "summary": "4-phase plan to revert task 82 quantifier mode toggle, restoring finitary-only implementation"
+        },
+        {
+          "path": "specs/083_investigate_native_quantifier_unsat_root_cause/summaries/01_reversion-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting reversion of quantifier toggle and test validation"
+        }
+      ],
+      "session_id": "sess_1775261724_9c666e",
+      "planned": "2026-04-04",
+      "completion_summary": "Reverted Task 82 toggleable quantifier mode implementation. Restored z3_helpers.py to pre-Task-82 state with only finitary enumeration (ForAll/Exists/safe_getattr). Moved investigation scripts to task directory, preserved benchmark scripts in code/scripts/. All unit tests pass.",
+      "completed": "2026-04-04"
+    },
+    {
+      "project_number": 82,
+      "project_name": "test_z3_cvc5_primitive_quantifiers",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-03T20:33:53Z",
+      "last_updated": "2026-04-04T00:04:00Z",
+      "session_id": "sess_1775259302_526305",
+      "researched": "2026-04-03",
+      "next_artifact_number": 3,
+      "artifacts": [
+        {
+          "path": "specs/082_test_z3_cvc5_primitive_quantifiers/reports/01_quantifier-comparison-design.md",
+          "type": "research",
+          "summary": "Designed standalone benchmark script for comparing Z3/CVC5 with native vs finitary quantifiers"
+        },
+        {
+          "path": "specs/082_test_z3_cvc5_primitive_quantifiers/reports/02_toggleable-quantifier-design.md",
+          "type": "research",
+          "summary": "Designed toggleable quantifier mechanism via z3_helpers.py mode flag; inventoried 37 CF examples; selected 20 for benchmark"
+        },
+        {
+          "path": "specs/082_test_z3_cvc5_primitive_quantifiers/plans/02_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase plan: add mode toggle to z3_helpers.py, create benchmark script, run 20 CF examples across finitary+Z3/native+Z3/native+CVC5"
+        }
+      ],
+      "planned": "2026-04-03",
+      "completed": "2026-04-04",
+      "completion_summary": "Implemented toggleable quantifier mode in z3_helpers.py and benchmark script. Benchmark results show finitary enumeration is essential: native quantifiers incorrectly return UNSAT for all SAT cases (0% accuracy on countermodels vs 100% for finitary). Finitary is also 11x faster."
+    },
+    {
+      "project_number": 81,
+      "project_name": "fix_iterate_package_test_regression",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-03T19:43:19Z",
+      "last_updated": "2026-04-03T19:49:39Z",
+      "session_id": "sess_1775264620_f3a9c2",
+      "next_artifact_number": 2,
+      "researched": "2026-04-03T19:50:00Z",
+      "artifacts": [
+        {
+          "path": "specs/081_fix_iterate_package_test_regression/reports/01_iterate-regression-analysis.md",
+          "type": "research",
+          "summary": "Root cause: Task 74 added settings.get('max_time') to constraints.py but 3 tests in test_coverage_improvements.py don't mock settings attribute. Fix: add mock_example.settings = {'max_time': 300} to each failing test."
+        }
+      ],
+      "completed": "2026-04-03T19:49:39Z",
+      "completion_summary": "Fixed iterate package test regression by adding mock_example.settings = {'max_time': 300} to 3 tests in test_coverage_improvements.py. Root cause was task 74 adding settings.get('max_time') to constraints.py without updating test mocks."
+    },
+    {
+      "project_number": 80,
+      "project_name": "cvc5_encoding_optimization",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T13:00:45-07:00",
+      "dependencies": [
+        79
+      ],
+      "session_id": "sess_1775245739_6796e7",
+      "researched": "2026-04-03",
+      "next_artifact_number": 3,
+      "artifacts": [
+        {
+          "path": "specs/080_cvc5_encoding_optimization/reports/02_optimization-testing.md",
+          "type": "research",
+          "summary": "Empirical testing confirms Task 77 config is optimal. Push/pop batching degraded 15-46%. Simplification options degraded 0-45%. Final gap: 1.70x overall."
+        }
+      ],
+      "completed": "2026-04-03",
+      "completion_summary": "Empirical testing confirms encoding is near-optimal for CVC5. Push/pop batching and simplification options both degraded performance. Final gap: 1.70x overall (2.70x UNSAT, 1.39x SAT) is inherent to solver differences, not encoding deficiencies. No further optimization needed."
+    },
+    {
+      "project_number": 79,
+      "project_name": "cvc5_solver_options_tuning",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T21:00:00Z",
+      "dependencies": [
+        77
+      ],
+      "session_id": "sess_1775241738_c0ec3e",
+      "next_artifact_number": 3,
+      "researched": "2026-04-03T20:32:00Z",
+      "artifacts": [
+        {
+          "path": "specs/079_cvc5_solver_options_tuning/reports/01_cvc5-options-research.md",
+          "type": "research",
+          "summary": "Identified produce-unsat-cores + tracked assertions as root cause. Optimized config: 5.4x faster, CVC5 now only 1.65x slower than Z3"
+        },
+        {
+          "path": "specs/079_cvc5_solver_options_tuning/reports/02_cvc5-options-post-task77.md",
+          "type": "research",
+          "summary": "Validated Task 77 config as optimal. CVC5 now only 1.61x slower than Z3 (was 8.9x)."
+        }
+      ],
+      "completed": "2026-04-03",
+      "completion_summary": "Validated Task 77 performance mode config as optimal. CVC5 now 1.61x slower than Z3 (was 8.9x). decision=stoponly + bv-eager-eval=true provide 5.5x improvement with no further tuning needed."
+    },
+    {
+      "project_number": 78,
+      "project_name": "hybrid_solver_strategy",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T20:00:00Z",
+      "dependencies": [
+        77
+      ]
+    },
+    {
+      "project_number": 77,
+      "project_name": "conditional_unsat_core_tracking",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-03T20:00:00Z",
+      "last_updated": "2026-04-03T19:36:35Z",
+      "session_id": "sess_1775263550_d2e8a1",
+      "next_artifact_number": 3,
+      "researched": "2026-04-03T20:15:00Z",
+      "artifacts": [
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/reports/01_unsat-core-overhead.md",
+          "type": "research",
+          "summary": "Measured produce-unsat-cores overhead at 10-30% (~0.1ms), insufficient to explain 25-35x slowdown. Root cause is elsewhere."
+        },
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/reports/02_conditional-design.md",
+          "type": "research",
+          "summary": "Root cause: produce-unsat-cores + tracked assertions interaction. Designed settings-based auto-detection mechanism with diagnostic/performance modes."
+        },
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/plans/02_conditional-core-tracking.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan for conditional unsat core tracking with diagnostic/performance mode switching"
+        },
+        {
+          "path": "specs/077_conditional_unsat_core_tracking/summaries/02_conditional-core-tracking-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary documenting all changes across 3 files"
+        }
+      ],
+      "planned": "2026-04-03T19:27:37Z",
+      "completed": "2026-04-03T19:36:35Z",
+      "completion_summary": "Implemented conditional unsat core tracking for CVC5 solver with auto-detection from print settings. Added diagnostic mode (cores enabled) and performance mode (cores disabled with optimizations). All 299 existing tests pass."
+    },
+    {
+      "project_number": 76,
+      "project_name": "refactor_comparison_dual_solver_timing",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-04-03T17:42:01Z",
+      "last_updated": "2026-04-03T18:01:00Z",
+      "session_id": "sess_1775238810_ec43e3",
+      "planned": "2026-04-03T17:52:46Z",
+      "started": "2026-04-03T17:53:48Z",
+      "completed": "2026-04-03",
+      "completion_summary": "Added --curated, --format, --table flags to comparison.py for focused dual-solver timing comparison",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/076_refactor_comparison_dual_solver_timing/plans/01_implementation-plan.md",
+          "type": "plan",
+          "summary": "3-phase implementation plan for curated examples and timing output"
+        },
+        {
+          "path": "specs/076_refactor_comparison_dual_solver_timing/summaries/01_implementation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ]
+    },
+    {
+      "project_number": 75,
+      "project_name": "optimize_cvc5_solver_best_practices",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-31T22:35:34Z",
+      "last_updated": "2026-04-01T00:09:28Z",
+      "next_artifact_number": 4,
+      "session_id": "sess_1774998525_eJp0Uu",
+      "researched": "2026-03-31T22:56:27Z",
+      "planned": "2026-03-31T23:06:14Z",
+      "artifacts": [
+        {
+          "path": "specs/075_optimize_cvc5_solver_best_practices/plans/02_implementation-plan.md",
+          "type": "plan",
+          "summary": "3 phases, 1.5 hours - adds three-layer term ID fallback to CVC5SolverAdapter"
+        },
+        {
+          "path": "specs/075_optimize_cvc5_solver_best_practices/summaries/02_execution-summary.md",
+          "type": "summary",
+          "summary": "Three-layer term ID fallback implementation"
+        }
+      ],
+      "completed": "2026-04-01",
+      "completion_summary": "Added three-layer term ID fallback to CVC5SolverAdapter.unsat_core()"
+    },
+    {
+      "project_number": 74,
+      "project_name": "investigate_cvc5_iteration_performance",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-31T22:50:00Z",
+      "last_updated": "2026-03-31T22:10:29Z",
+      "next_artifact_number": 3,
+      "artifacts": [
+        {
+          "path": "specs/074_investigate_cvc5_iteration_performance/reports/01_cvc5-performance-findings.md",
+          "type": "research",
+          "summary": "CVC5 model.eval() is ~30x slower than Z3 during BuildExample construction. Solver timeout fixes prevent hangs but do not address root performance issue."
+        },
+        {
+          "path": "specs/074_investigate_cvc5_iteration_performance/reports/02_cvc5-deep-dive.md",
+          "type": "research",
+          "summary": "CVC5 bottleneck root cause: Python truthiness checks on models trigger expensive __len__() enumeration (~48s) plus slow str() conversion (~8s). Fix identified."
+        },
+        {
+          "path": "specs/074_investigate_cvc5_iteration_performance/plans/02_cvc5-performance-fix.md",
+          "type": "plan",
+          "summary": "4-phase implementation plan to fix CVC5 Python-level performance bottlenecks"
+        },
+        {
+          "path": "specs/074_investigate_cvc5_iteration_performance/summaries/02_cvc5-performance-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with performance verification results"
+        }
+      ],
+      "session_id": "sess_1743466500_i74c",
+      "planned": "2026-03-31T22:01:40Z",
+      "started": "2026-03-31T22:03:23Z",
+      "completed": "2026-03-31T22:10:29Z",
+      "completion_summary": "Fixed CVC5 performance bottlenecks reducing BuildExample time from 18s to 0.7s by using explicit None checks and lazy string conversion."
+    },
+    {
+      "project_number": 73,
+      "project_name": "fix_per_example_solver_backend_leak",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-31T20:45:00Z",
+      "last_updated": "2026-03-31T21:00:00Z",
+      "session_id": "sess_1774989913_05ss9o",
+      "researched": "2026-03-31T20:28:10Z",
+      "next_artifact_number": 3,
+      "artifacts": [
+        {
+          "path": "specs/073_fix_per_example_solver_backend_leak/reports/01_backend-leak-analysis.md",
+          "type": "research",
+          "summary": "Root cause: _cli_override persists across examples. Fix: clear_cli_backend() in runner.py finally block"
+        },
+        {
+          "path": "specs/073_fix_per_example_solver_backend_leak/reports/02_iterator-context-analysis.md",
+          "type": "research",
+          "summary": "Confirmed plan correctness. Dual-loop example/theory processing. Minor improvements: module-level import, explanatory comment."
+        },
+        {
+          "path": "specs/073_fix_per_example_solver_backend_leak/plans/02_clear-cli-backend-revised.md",
+          "type": "plan",
+          "summary": "Revised plan with module-level import and detailed explanatory comment"
+        },
+        {
+          "path": "specs/073_fix_per_example_solver_backend_leak/summaries/02_clear-cli-backend-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: added clear_cli_backend() and invalidate_all_caches() to runner.py"
+        }
+      ],
+      "planned": "2026-03-31T20:43:20Z",
+      "started": "2026-03-31T20:45:44Z",
+      "completed": "2026-03-31T21:00:00Z",
+      "completion_summary": "Added clear_cli_backend() and invalidate_all_caches() calls to runner.py's example processing finally block, preventing solver backend settings from leaking between examples."
+    },
+    {
+      "project_number": 72,
+      "project_name": "fix_cvc5_constraint_compatibility",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-31T17:37:03Z",
+      "last_updated": "2026-03-31T20:31:52Z",
+      "session_id": "sess_1774985900_563c67",
+      "planned": "2026-03-31T20:05:34Z",
+      "artifacts": [
+        {
+          "path": "specs/072_fix_cvc5_constraint_compatibility/reports/02_team-research.md",
+          "type": "research",
+          "summary": "Team research with 2 teammates: initialization fix + SMT-LIB bridge"
+        },
+        {
+          "path": "specs/072_fix_cvc5_constraint_compatibility/plans/02_cache-invalidation-fix.md",
+          "type": "plan",
+          "summary": "3-phase revised implementation plan for cache invalidation fix"
+        },
+        {
+          "path": "specs/072_fix_cvc5_constraint_compatibility/reports/03_unified-architecture.md",
+          "type": "research",
+          "summary": "Unified architecture analysis: hook-based lifecycle, centralized backend access, runtime type guards"
+        },
+        {
+          "path": "specs/072_fix_cvc5_constraint_compatibility/plans/03_unified-architecture.md",
+          "type": "plan",
+          "summary": "6-phase unified architecture plan: lifecycle hooks, centralized backend, type guards"
+        },
+        {
+          "path": "specs/072_fix_cvc5_constraint_compatibility/summaries/03_unified-architecture-summary.md",
+          "type": "summary",
+          "summary": "Execution summary: 6-phase implementation of unified solver architecture"
+        }
+      ],
+      "researched": "2026-03-31T20:01:45Z",
+      "next_artifact_number": 3,
+      "started": "2026-03-31T20:18:20Z",
+      "completed": "2026-03-31T20:31:52Z",
+      "completion_summary": "Implemented unified z3/cvc5 architecture with hook-based lifecycle management (lifecycle.py), centralized backend access (backend.py), and runtime type guards (type_guards.py). All 34 solver tests and 14 CVC5 integration tests pass."
+    },
+    {
+      "project_number": 71,
+      "project_name": "add_per_example_solver_setting",
       "status": "completed",
       "language": "python",
-      "created": "2026-03-03T21:30:00Z",
-      "last_updated": "2026-03-03T22:21:07Z",
-      "dependencies": [],
+      "created": "2026-03-31T03:40:36Z",
+      "last_updated": "2026-03-31T04:30:07Z",
+      "researched": "2026-03-31T03:51:47Z",
+      "session_id": "sess_1774930918_yfyj",
+      "next_artifact_number": 3,
       "artifacts": [
         {
-          "path": "specs/033_fix_premature_progress_bar_display/reports/research-001.md",
-          "type": "research",
-          "summary": "Initial research report (superseded - proposed wrong approach)"
+          "path": "specs/071_add_per_example_solver_setting/reports/01_per-example-solver.md",
+          "type": "research"
         },
         {
-          "path": "specs/033_fix_premature_progress_bar_display/reports/research-002.md",
-          "type": "research",
-          "summary": "Revised research: keep progress bar, fix print sequence by deferring completion"
-        },
-        {
-          "path": "specs/033_fix_premature_progress_bar_display/plans/implementation-002.md",
+          "path": "specs/071_add_per_example_solver_setting/plans/01_per-example-solver.md",
           "type": "plan",
-          "summary": "Revised plan: defer progress bar completion until after header prints"
+          "summary": "6-phase implementation plan for per-example solver setting with 2.5 hours estimated effort"
         },
         {
-          "path": "specs/033_fix_premature_progress_bar_display/summaries/implementation-summary-20260303.md",
+          "path": "specs/071_add_per_example_solver_setting/reports/02_settings-architecture.md",
+          "type": "research"
+        },
+        {
+          "path": "specs/071_add_per_example_solver_setting/plans/02_settings-architecture.md",
+          "type": "plan",
+          "summary": "5-phase implementation plan for per-example solver setting with settings architecture integration"
+        },
+        {
+          "path": "specs/071_add_per_example_solver_setting/plans/03_revised-with-examples.md",
+          "type": "plan",
+          "summary": "6-phase revised plan: z3 default, update all examples"
+        },
+        {
+          "path": "specs/071_add_per_example_solver_setting/summaries/03_execution-summary.md",
           "type": "summary",
-          "summary": "Implementation summary with test results and expected output format"
+          "summary": "Execution summary for per-example solver setting implementation"
         }
       ],
-      "session_id": "sess_1772575968_a0d235",
-      "researched": "2026-03-03T21:40:52Z",
-      "planned": "2026-03-03T22:10:19Z",
-      "completed": "2026-03-03T22:21:07Z",
-      "completion_summary": "Fixed progress bar appearing before example header by introducing deferred completion pattern in runner.py. The animation thread is now stopped manually, header is printed, then progress bar is printed via complete_model_search(). Added 7 new tests and defensive checks in TimeBasedProgress.complete()."
+      "planned": "2026-03-31T04:22:48Z",
+      "completed": "2026-03-31T04:30:07Z",
+      "completion_summary": "Added per-example solver setting with 'z3' default, validation, tests, and documentation. Precedence: CLI > per-example > default."
     },
     {
-      "project_number": 32,
-      "project_name": "consolidate_first_order_subtheory_structure",
+      "project_number": 70,
+      "project_name": "fix_cvc5_z3_expression_compatibility",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-31T02:15:11Z",
+      "last_updated": "2026-03-31T03:30:00Z",
+      "session_id": "sess_1774926000_e8f5c3",
+      "researched": "2026-03-31T02:37:19Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/070_fix_cvc5_z3_expression_compatibility/reports/01_cvc5-expression-errors.md",
+          "type": "research"
+        },
+        {
+          "path": "specs/070_fix_cvc5_z3_expression_compatibility/plans/01_cvc5-expression-fix.md",
+          "type": "plan",
+          "summary": "2-phase implementation plan for cvc5 compatibility fix"
+        },
+        {
+          "path": "specs/070_fix_cvc5_z3_expression_compatibility/summaries/01_cvc5-expression-fix-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary with verification results"
+        }
+      ],
+      "planned": "2026-03-31T03:07:03Z",
+      "started": "2026-03-31T03:09:31Z",
+      "completed": "2026-03-31T03:30:00Z",
+      "completion_summary": "Fixed cvc5 'Z3 expression expected' errors by replacing static simplify import with dynamic z3.simplify() lookup in semantic.py; all 13 affected examples now pass."
+    },
+    {
+      "project_number": 69,
+      "project_name": "fix_all_skipped_and_failing_tests",
       "status": "completed",
       "language": "python",
-      "created": "2026-03-03T20:24:45Z",
-      "last_updated": "2026-03-03T21:10:22Z",
-      "session_id": "sess_1772570724_5d7c1b",
-      "researched": "2026-03-03T20:31:40Z",
+      "created": "2026-03-31T00:10:00Z",
+      "last_updated": "2026-03-31T01:05:00Z",
+      "session_id": "sess_1774919681_0ff75e",
+      "next_artifact_number": 2,
+      "researched": "2026-03-31T00:50:00Z",
       "artifacts": [
         {
-          "path": "specs/032_consolidate_first_order_subtheory_structure/reports/research-001.md",
-          "type": "research",
-          "summary": "Research report on first-order subtheory consolidation with analysis of denotation.py and constraints.py integration points"
+          "path": "specs/069_fix_all_skipped_and_failing_tests/reports/01_fix-skipped-failing.md",
+          "type": "research"
         },
         {
-          "path": "specs/032_consolidate_first_order_subtheory_structure/plans/implementation-001.md",
-          "type": "plan",
-          "summary": "4-phase implementation plan for consolidating first-order subtheory structure"
-        },
-        {
-          "path": "specs/032_consolidate_first_order_subtheory_structure/summaries/implementation-summary-20260303.md",
-          "type": "summary",
-          "summary": "Implementation summary with test results and change details"
+          "path": "specs/069_fix_all_skipped_and_failing_tests/plans/01_fix-skipped-failing.md",
+          "type": "plan"
         }
       ],
-      "planned": "2026-03-03T20:42:55Z",
-      "completed": "2026-03-03T21:10:22Z",
-      "completion_summary": "Refactored first-order subtheory to standard structure by moving term_denotation() into semantic.py, removing unused constraints.py and denotation.py, and updating all imports. Structure now matches other subtheories."
+      "planned": "2026-03-31T00:55:00Z",
+      "started": "2026-03-31T00:56:00Z",
+      "completed": "2026-03-31T01:05:00Z",
+      "completion_summary": "Fixed 1 failing test (signed bitvec comparison), unskipped bimodal tests (7 xfail for solver timeouts), deleted legacy builder test file, mocked cvc5 detection for registry test. Net: 0 failures, 0 unexpected skips."
     },
     {
-      "project_number": 28,
-      "project_name": "archive_unused_theories",
+      "project_number": 68,
+      "project_name": "fix_flaky_builder_performance_test",
       "status": "completed",
       "language": "python",
-      "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:49:54Z",
-      "session_id": "sess_1772566182_34aa6d",
-      "planned": "2026-03-03T19:26:32Z",
+      "created": "2026-03-31T00:12:26Z",
+      "last_updated": "2026-03-30T23:45:00Z",
+      "session_id": "sess_1774916194_85648e",
+      "next_artifact_number": 2,
+      "completed": "2026-03-30T23:45:00Z",
+      "researched": "2026-03-30T23:35:00Z",
+      "planned": "2026-03-30T23:40:00Z",
+      "started": "2026-03-30T23:40:00Z",
+      "completion_summary": "Increased per-example performance threshold from 0.25s to 0.5s, matching sibling test for same N=2 complexity. Test passes reliably with avg ~0.346s.",
       "artifacts": [
         {
-          "path": "specs/028_archive_unused_theories/plans/implementation-001.md",
-          "type": "plan",
-          "summary": "7-phase implementation plan to archive exclusion and imposition theories to boneyard"
+          "path": "specs/068_fix_flaky_builder_performance_test/reports/01_flaky-perf-threshold.md",
+          "type": "research"
         },
         {
-          "path": "specs/028_archive_unused_theories/summaries/implementation-summary-20260303.md",
-          "type": "summary",
-          "summary": "Implementation summary with full list of modified files"
+          "path": "specs/068_fix_flaky_builder_performance_test/plans/01_fix-perf-threshold.md",
+          "type": "plan"
+        },
+        {
+          "path": "specs/068_fix_flaky_builder_performance_test/summaries/01_fix-perf-threshold-summary.md",
+          "type": "summary"
         }
-      ],
-      "completed": "2026-03-03T19:49:54Z",
-      "completion_summary": "Archived exclusion and imposition theories to boneyard, updated 25+ files across the codebase to remove references, rewrote theory documentation, and verified all critical tests pass."
+      ]
     },
     {
-      "project_number": 29,
-      "project_name": "cleanup_specs_directories",
+      "project_number": 67,
+      "project_name": "make_run_tests_exhaustive",
       "status": "completed",
-      "language": "general",
-      "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:27:45Z",
-      "session_id": "sess_1772565824_d480e0",
-      "researched": "2026-03-03T19:11:21Z",
+      "language": "python",
+      "created": "2026-03-31T00:12:11Z",
+      "last_updated": "2026-03-30T23:55:00Z",
+      "session_id": "sess_1774916194_468554",
+      "next_artifact_number": 2,
+      "completed": "2026-03-30T23:55:00Z",
+      "researched": "2026-03-30T23:35:00Z",
+      "planned": "2026-03-30T23:45:00Z",
+      "started": "2026-03-30T23:45:00Z",
+      "completion_summary": "Made run_tests.py exhaustive: removed bimodal exclusion (+98 tests), added dynamic subtheory discovery including first_order (+53 tests), extended nested component discovery for output.notebook (+14 tests), added --list flag.",
       "artifacts": [
         {
-          "path": "specs/029_cleanup_specs_directories/reports/research-001.md",
-          "type": "research",
-          "summary": "Research report identifying 3 specs/ directories (57 files, 1.1MB) to delete with no migration needed"
+          "path": "specs/067_make_run_tests_exhaustive/reports/01_run-tests-coverage.md",
+          "type": "research"
         },
         {
-          "path": "specs/029_cleanup_specs_directories/plans/implementation-002.md",
-          "type": "plan",
-          "summary": "2-phase simplified plan to delete obsolete specs directories and update documentation"
+          "path": "specs/067_make_run_tests_exhaustive/plans/01_exhaustive-coverage.md",
+          "type": "plan"
         },
         {
-          "path": "specs/029_cleanup_specs_directories/summaries/implementation-summary-20260303.md",
-          "type": "summary",
-          "summary": "Implementation summary with deleted directories and updated file references"
+          "path": "specs/067_make_run_tests_exhaustive/summaries/01_exhaustive-coverage-summary.md",
+          "type": "summary"
         }
-      ],
-      "planned": "2026-03-03T19:22:51Z",
-      "started": "2026-03-03T19:24:02Z",
-      "completed": "2026-03-03T19:27:45Z",
-      "completion_summary": "Removed 3 obsolete specs/ directories (bimodal/specs, theory_lib/specs, docs/specs) totaling 57 files and ~1.1MB, updated 8 documentation and script files to reference the current specs/ path at repository root."
+      ]
     },
     {
-      "project_number": 30,
-      "project_name": "consolidate_documentation",
+      "project_number": 66,
+      "project_name": "fix_output_notebook_test_failures",
       "status": "completed",
-      "language": "general",
-      "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T19:56:35Z",
-      "session_id": "sess_1772567298_9ce934",
-      "researched": "2026-03-03T19:33:51Z",
+      "language": "python",
+      "created": "2026-03-31T00:11:43Z",
+      "last_updated": "2026-03-30T23:50:00Z",
+      "session_id": "sess_1774916194_ea117d",
+      "next_artifact_number": 2,
+      "completed": "2026-03-30T23:50:00Z",
+      "researched": "2026-03-30T23:35:00Z",
+      "planned": "2026-03-30T23:42:00Z",
+      "started": "2026-03-30T23:42:00Z",
+      "completion_summary": "Fixed 6 failing notebook tests across 4 root causes: created missing exclusion/imposition template modules, fixed stale API name, corrected mock paths, and fixed test design issue with /tmp path discovery. All 14 tests pass.",
       "artifacts": [
         {
-          "path": "specs/030_consolidate_documentation/reports/research-001.md",
-          "type": "research",
-          "summary": "Research report documenting 5 docs directories, identifying docs/maintenance/ as misplaced content, and providing 4-phase implementation plan"
+          "path": "specs/066_fix_output_notebook_test_failures/reports/01_notebook-test-failures.md",
+          "type": "research"
         },
         {
-          "path": "specs/030_consolidate_documentation/plans/implementation-001.md",
-          "type": "plan",
-          "summary": "5-phase implementation plan for consolidating documentation from docs/maintenance/ to code/docs/standards/"
+          "path": "specs/066_fix_output_notebook_test_failures/plans/01_fix-notebook-tests.md",
+          "type": "plan"
         },
         {
-          "path": "specs/030_consolidate_documentation/summaries/implementation-summary-20260303.md",
-          "type": "summary",
-          "summary": "Implementation summary with verification results and complete file change log"
+          "path": "specs/066_fix_output_notebook_test_failures/summaries/01_fix-notebook-tests-summary.md",
+          "type": "summary"
         }
-      ],
-      "planned": "2026-03-03T19:41:05Z",
-      "started": "2026-03-03T19:48:37Z",
-      "completed": "2026-03-03T19:56:35Z",
-      "completion_summary": "Consolidated documentation by moving docs/maintenance/ content to code/docs/standards/ and code/docs/templates/documentation/. Moved 11 files, updated 11+ cross-references, removed empty directories, and updated navigation in both docs/README.md and code/docs/README.md to reflect the new structure."
+      ]
     },
     {
-      "project_number": 31,
-      "project_name": "clean_scripts_and_artifacts",
+      "project_number": 65,
+      "project_name": "fix_cvc5_sort_conversion_errors",
       "status": "completed",
-      "language": "general",
-      "created": "2026-03-03T19:02:58Z",
-      "last_updated": "2026-03-03T20:37:41Z",
-      "session_id": "sess_1772569693_0c891b",
-      "researched": "2026-03-03T20:19:18Z",
+      "language": "z3",
+      "created": "2026-03-30T22:39:40Z",
+      "last_updated": "2026-03-30T23:35:05Z",
+      "session_id": "sess_1774913123_fe5fbc65",
+      "researched": "2026-03-30T23:04:30Z",
+      "next_artifact_number": 2,
+      "planned": "2026-03-30T23:16:52Z",
       "artifacts": [
         {
-          "path": "specs/031_clean_scripts_and_artifacts/reports/research-001.md",
-          "type": "research",
-          "summary": "Comprehensive analysis of scripts and artifacts in code/ directory with cleanup recommendations"
-        },
-        {
-          "path": "specs/031_clean_scripts_and_artifacts/plans/implementation-001.md",
+          "path": "specs/065_fix_cvc5_sort_conversion_errors/plans/01_fix-atomsort-binding.md",
           "type": "plan",
-          "summary": "4-phase implementation plan covering script removal, artifact cleanup, gitignore updates, and documentation"
+          "summary": "4-phase implementation plan for fixing cvc5 Sort conversion errors"
         },
         {
-          "path": "specs/031_clean_scripts_and_artifacts/summaries/implementation-summary-20260303.md",
+          "path": "specs/065_fix_cvc5_sort_conversion_errors/summaries/01_fix-atomsort-binding-summary.md",
           "type": "summary",
-          "summary": "Implementation summary documenting all removed scripts, cleaned artifacts, and documentation updates"
+          "summary": "Implementation summary with verification results"
         }
       ],
-      "planned": "2026-03-03T20:22:41Z",
-      "started": "2026-03-03T20:28:34Z",
-      "completed": "2026-03-03T20:37:41Z",
-      "completion_summary": "Removed 9 outdated scripts from code/scripts/ and code/fix_output_tests.py, cleaned boneyard build artifacts, fixed .gitignore patterns for ipynb_checkpoints and pytest_cache, and added Development Scripts documentation section to code/README.md."
+      "started": "2026-03-30T23:26:05Z",
+      "completed": "2026-03-30T23:35:05Z",
+      "completion_summary": "Fixed cvc5 Sort conversion errors by adding dynamic AtomSort resolution via __getattr__ and updating 4 crash sites to use get_atom_sort() directly, enabling backend switching without stale Sort references."
+    },
+    {
+      "project_number": 64,
+      "project_name": "fix_test_push_pop_sat_transitions_signed_unsigned",
+      "status": "not_started",
+      "language": "z3",
+      "created": "2026-03-30T22:33:01Z",
+      "last_updated": "2026-03-30T22:33:01Z"
+    },
+    {
+      "project_number": 63,
+      "project_name": "migrate_builder_iterate_to_solver_abstraction",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [
+        59
+      ],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 14 files in builder/, iterate/, and utils/ from direct z3 imports to z3_shim abstraction layer. All 262 builder tests, 207 iterate tests pass."
+    },
+    {
+      "project_number": 62,
+      "project_name": "migrate_bimodal_theory_to_solver_abstraction",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [
+        59
+      ],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 5 bimodal theory files (semantic.py, operators.py, iterate.py, witness_constraints.py, witness_registry.py) from direct z3 imports to z3_shim. All 73 bimodal tests pass."
+    },
+    {
+      "project_number": 61,
+      "project_name": "migrate_logos_operators_to_solver_abstraction",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [
+        59
+      ],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 8 files in logos subtheories (all 5 operator files, iterate.py, protocols.py, theory_lib/types.py) from direct z3 imports to z3_shim. All 221 logos tests pass."
+    },
+    {
+      "project_number": 60,
+      "project_name": "migrate_logos_semantic_to_solver_abstraction",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T23:30:00Z",
+      "dependencies": [
+        59
+      ],
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Migrated 8 files (logos/semantic.py, syntactic/assignments.py, syntactic/sentence.py, syntactic/types.py, models/semantic.py, models/constraints.py, models/types.py, models/structure.py) from direct z3 imports to z3_shim."
+    },
+    {
+      "project_number": 59,
+      "project_name": "extend_solver_expressions_and_compat",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T21:59:49Z",
+      "last_updated": "2026-03-30T23:30:00Z",
+      "completed": "2026-03-30T23:30:00Z",
+      "completion_summary": "Extended expressions.py with type predicates (is_bool, is_int, is_int_value, is_real, is_bv, is_quantifier, is_true, is_false), missing functions (Sum, Var, ArraySort, set_param, reset_params). Created types_runtime.py with runtime type refs (BoolRef, BitVecRef, ExprRef, FuncDeclRef, ModelRef, etc.) and SolverException wrapper."
+    },
+    {
+      "project_number": 58,
+      "project_name": "wire_solver_registry_into_core",
+      "status": "completed",
+      "language": "z3",
+      "created": "2026-03-30T21:00:19Z",
+      "last_updated": "2026-03-30T21:30:34Z",
+      "session_id": "sess_1774905172_393f12",
+      "researched": "2026-03-30T21:04:26Z",
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/058_wire_solver_registry_into_core/reports/01_solver-registry-wiring.md",
+          "type": "research",
+          "summary": "Comprehensive analysis of z3 imports across 181 files, identified 15-20 core pipeline files requiring modification, documented two-phase migration strategy using existing expressions.py and adapter layer"
+        },
+        {
+          "path": "specs/058_wire_solver_registry_into_core/plans/01_solver-registry-wiring-plan.md",
+          "type": "plan",
+          "summary": "10-phase comprehensive migration plan to wire solver registry into core solving pipeline"
+        },
+        {
+          "path": "specs/058_wire_solver_registry_into_core/summaries/01_solver-registry-wiring-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary for solver registry wiring into core pipeline"
+        }
+      ],
+      "planned": "2026-03-30T21:10:29Z",
+      "started": "2026-03-30T21:13:17Z",
+      "completed": "2026-03-30T21:30:34Z",
+      "completion_summary": "Migrated core solving pipeline from direct z3 imports to solver abstraction layer across 26 files, enabling MODEL_CHECKER_SOLVER=cvc5 to route through CVC5 backend with lazy AtomSort initialization and unified context reset"
+    },
+    {
+      "project_number": 57,
+      "project_name": "v2_scaling_solver_comparison",
+      "status": "completed",
+      "language": "python",
+      "created": "2026-03-30T19:25:57Z",
+      "last_updated": "2026-03-30T20:08:31Z",
+      "artifacts": {
+        "research": [
+          "specs/057_v2_scaling_solver_comparison/reports/01_scaling-benchmark-design.md",
+          "specs/057_v2_scaling_solver_comparison/reports/02_max-model-discovery.md",
+          "specs/057_v2_scaling_solver_comparison/reports/03_existing-infrastructure.md"
+        ],
+        "plan": {
+          "path": "specs/057_v2_scaling_solver_comparison/plans/03_revised-implementation-plan.md",
+          "summary": "4-phase revised plan leveraging existing infrastructure. Reduced from 6 to 3-4 hours by reusing _find_max_N_static, try_single_N_static, serialize_semantic_theory, and switch_solver."
+        },
+        "summary": {
+          "path": "specs/057_v2_scaling_solver_comparison/summaries/03_scaling-benchmark-summary.md",
+          "summary": "Implementation summary with verification results and usage examples"
+        }
+      },
+      "session_id": "sess_1774900967_4xg",
+      "planned": "2026-03-30T20:02:17Z",
+      "started": "2026-03-30T20:03:23Z",
+      "completed": "2026-03-30T20:08:31Z",
+      "completion_summary": "Created scaling_benchmark.py that progressively scales model sizes to find z3 vs cvc5 performance divergence points. Script collects timing curves, calculates growth factors, and outputs JSON with per-example scaling results."
+    },
+    {
+      "project_number": 50,
+      "project_name": "standalone_solver_comparison_script",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-30T14:53:50Z",
+      "last_updated": "2026-03-30T14:53:50Z"
+    },
+    {
+      "project_number": 36,
+      "project_name": "fill_placeholders_and_metadata",
+      "status": "not_started",
+      "language": "latex",
+      "created": "2026-03-24T00:00:00Z",
+      "last_updated": "2026-03-24T00:00:00Z",
+      "dependencies": []
+    },
+    {
+      "project_number": 35,
+      "project_name": "fix_first_order_semantics_and_extension_display",
+      "status": "not_started",
+      "language": "python",
+      "created": "2026-03-06T20:55:38Z",
+      "last_updated": "2026-03-06T20:55:38Z"
     }
   ],
   "repository_health": {

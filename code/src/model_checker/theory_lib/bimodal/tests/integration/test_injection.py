@@ -9,6 +9,7 @@ from unittest.mock import Mock
 import z3
 from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
 from model_checker import syntactic
+from model_checker.syntactic.atoms import get_atom_sort
 
 
 class TestBimodalInjection(unittest.TestCase):
@@ -53,7 +54,7 @@ class TestBimodalInjection(unittest.TestCase):
         """Test injection of truth_condition constraints."""
         # Create mock sentence letters
         letter_a = Mock()
-        letter_a.sentence_letter = z3.Const('A', syntactic.AtomSort)
+        letter_a.sentence_letter = z3.Const('A', get_atom_sort())
         self.mock_constraints.syntax.sentence_letters = [letter_a]
         
         # Create a Z3 model with truth_condition values

@@ -5,22 +5,26 @@ This module provides helper functions for working with Z3, including:
 - Set operations (future)
 """
 
-from typing import List, Union, Any
-from z3 import BitVecVal, And, Or, substitute, BitVecRef, BoolRef
+from typing import List, Union, Any, TYPE_CHECKING
+
+from model_checker.solver.expressions import BitVecVal, And, Or, substitute
+
+if TYPE_CHECKING:
+    from model_checker.z3_shim import BitVecRef, BoolRef
 
 
-def ForAll(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
+def ForAll(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "BoolRef":
     """Implements universal quantification over bit vectors for Z3.
-    
+
     This function explicitly generates universal quantification by substituting
     all possible bit vector values for the variables in the formula and taking
     the conjunction of the resulting constraints. This approach allows for
     more direct control over quantification than using Z3's built-in ForAll.
-    
+
     Args:
         bvs: Either a single Z3 bit vector or a list of bit vectors to quantify over
         formula: The Z3 formula to quantify
-        
+
     Returns:
         BoolRef: A Z3 formula representing the conjunction of all substituted constraints
     """
@@ -45,18 +49,18 @@ def ForAll(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
     return And(constraints)
 
 
-def Exists(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
+def Exists(bvs: Union["BitVecRef", List["BitVecRef"]], formula: "BoolRef") -> "BoolRef":
     """Implements existential quantification over bit vectors for Z3.
-    
+
     This function explicitly generates existential quantification by substituting
     all possible bit vector values for the variables in the formula and taking
     the disjunction of the resulting constraints. This approach allows for
     more direct control over quantification than using Z3's built-in Exists.
-    
+
     Args:
         bvs: Either a single Z3 bit vector or a list of bit vectors to quantify over
         formula: The Z3 formula to quantify
-        
+
     Returns:
         BoolRef: A Z3 formula representing the disjunction of all substituted constraints
     """
@@ -74,7 +78,7 @@ def Exists(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
     else:
         bv = bvs[0]
         remaining_bvs = bvs[1:]
-        reduced_formula = Exists(remaining_bvs, formula) # Exists or ForAll?
+        reduced_formula = Exists(remaining_bvs, formula)
         for i in range(num_bvs):
             substituted_reduced_formula = substitute(reduced_formula, (bv, BitVecVal(i, N)))
             constraints.append(substituted_reduced_formula)
@@ -83,17 +87,17 @@ def Exists(bvs: Union[BitVecRef, List[BitVecRef]], formula: BoolRef) -> BoolRef:
 
 def safe_getattr(obj: Any, attr_name: str, default: Any = None) -> Any:
     """Safely get an attribute with a default value.
-    
+
     This is a simple wrapper around getattr that ensures consistent
     attribute access patterns throughout the codebase. It's particularly
     useful for accessing model structure attributes that may not always
     be present.
-    
+
     Args:
         obj: The object to get the attribute from
         attr_name: The name of the attribute to get
         default: The default value to return if attribute doesn't exist
-        
+
     Returns:
         The attribute value if it exists, otherwise the default value
     """

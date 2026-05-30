@@ -144,7 +144,16 @@ class SettingsManager:
         valid_keys: Set[SettingName] = set(user_example_settings.keys()).intersection(self.DEFAULT_EXAMPLE_SETTINGS.keys())
         for key in valid_keys:
             merged_settings[key] = user_example_settings[key]
-            
+
+        # Validate solver field if present
+        if 'solver' in merged_settings:
+            solver_value = merged_settings['solver']
+            valid_solvers = ('z3', 'cvc5')
+            if solver_value not in valid_solvers:
+                raise ValidationError(
+                    f"Invalid solver value '{solver_value}'. Must be one of: {valid_solvers}"
+                )
+
         return merged_settings
     
     def apply_flag_overrides(self, settings: SettingsDict, module_flags: Any) -> SettingsDict:
@@ -230,8 +239,9 @@ class SettingsManager:
             is_mock: Whether this is a mock object
         """
         # Standard args that don't correspond to settings
-        standard_args = {'load_theory', 'upgrade', 'version', 'save', 
-                        'interactive', 'output_mode', 'sequential_files'}
+        standard_args = {'load_theory', 'upgrade', 'version', 'save',
+                        'interactive', 'output_mode', 'sequential_files',
+                        'z3', 'cvc5', 'subtheory'}
         
         for key, value in vars(module_flags).items():
             # Skip internal attributes and file_path

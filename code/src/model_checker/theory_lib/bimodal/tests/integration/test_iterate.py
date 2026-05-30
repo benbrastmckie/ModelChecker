@@ -2,19 +2,11 @@
 
 This module tests the BimodalModelIterator implementation to ensure it can
 correctly find multiple distinct models for bimodal logic examples.
-
-TODO: REMOVE MODULE-LEVEL SKIP ONCE BIMODAL THEORY DEVELOPMENT IS COMPLETE
-The bimodal theory is currently under development. All tests in this module
-are skipped to avoid false failures. Once the bimodal theory implementation
-is finalized, remove the pytestmark line below.
 """
 
 import pytest
-import z3
+from model_checker.z3_shim import z3
 from unittest.mock import Mock, patch
-
-# Skip all tests in this module while bimodal theory is under development
-pytestmark = pytest.mark.skip(reason="Bimodal theory is under development - unskip when implementation is complete")
 from model_checker.theory_lib.bimodal import (
     BimodalSemantics,
     BimodalProposition,

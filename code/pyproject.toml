@@ -32,12 +32,16 @@ jupyter = [
     "jupyter",            # For notebook environment
     "ipython",            # For interactive features
 ]
+cvc5 = [
+    "cvc5>=1.1.0",        # Alternative SMT solver backend
+]
 all = [
     "ipywidgets>=7.0.0",
     "matplotlib>=3.0.0",
     "networkx>=2.0",
     "jupyter",
     "ipython",
+    "cvc5>=1.1.0",
 ]
 
 [project.urls]

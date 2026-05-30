@@ -1,0 +1,675 @@
+{
+  "metadata": {
+    "timestamp": "2026-04-03T11:15:02.880318",
+    "z3_version": "4.15.8",
+    "cvc5_version": "1.3.3-modified",
+    "platform": "Linux",
+    "python_version": "3.12.13",
+    "total_examples": 24,
+    "total_runtime_seconds": 18.69,
+    "curated": true
+  },
+  "summary": {
+    "z3": {
+      "total_examples": 24,
+      "passed": 24,
+      "failed": 0,
+      "errors": 0,
+      "timeouts": 0,
+      "total_time_seconds": 3.8102,
+      "avg_time_seconds": 0.15876
+    },
+    "cvc5": {
+      "total_examples": 24,
+      "passed": 24,
+      "failed": 0,
+      "errors": 0,
+      "timeouts": 0,
+      "total_time_seconds": 14.8689,
+      "avg_time_seconds": 0.619536
+    }
+  },
+  "timing_summary": {
+    "z3": {
+      "total_time_seconds": 3.8102,
+      "avg_time_seconds": 0.15876,
+      "fastest_example": "FO_TH_5",
+      "fastest_time": 0.008056,
+      "slowest_example": "CF_CM_1",
+      "slowest_time": 1.781852
+    },
+    "cvc5": {
+      "total_time_seconds": 14.8689,
+      "avg_time_seconds": 0.619536,
+      "fastest_example": "FO_TH_5",
+      "fastest_time": 0.013556,
+      "slowest_example": "CF_TH_2",
+      "slowest_time": 2.709831
+    }
+  },
+  "comparison_stats": {
+    "agreements": 24,
+    "disagreements": 0,
+    "z3_faster_count": 19,
+    "cvc5_faster_count": 5,
+    "ties": 0,
+    "avg_time_ratio": 9.37
+  },
+  "by_subtheory": {
+    "extensional": {
+      "z3": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 0.2211
+      },
+      "cvc5": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 1.0282
+      }
+    },
+    "modal": {
+      "z3": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 0.3249
+      },
+      "cvc5": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 3.2971
+      }
+    },
+    "constitutive": {
+      "z3": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 0.6207
+      },
+      "cvc5": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 3.0766
+      }
+    },
+    "counterfactual": {
+      "z3": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 2.1809
+      },
+      "cvc5": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 5.1413
+      }
+    },
+    "relevance": {
+      "z3": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 0.3414
+      },
+      "cvc5": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 1.991
+      }
+    },
+    "first_order": {
+      "z3": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 0.1212
+      },
+      "cvc5": {
+        "passed": 4,
+        "failed": 0,
+        "errors": 0,
+        "time": 0.3346
+      }
+    }
+  },
+  "results": [
+    {
+      "subtheory": "extensional",
+      "example_name": "EXT_TH_1",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.042625,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.367695,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 8.63
+    },
+    {
+      "subtheory": "extensional",
+      "example_name": "EXT_TH_7",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.028701,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.408214,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 14.22
+    },
+    {
+      "subtheory": "extensional",
+      "example_name": "EXT_CM_1",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.027466,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.034608,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 1.26
+    },
+    {
+      "subtheory": "extensional",
+      "example_name": "EXT_CM_2",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.122346,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.217637,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 1.78
+    },
+    {
+      "subtheory": "modal",
+      "example_name": "MOD_TH_5",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.071247,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 2.011514,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 28.23
+    },
+    {
+      "subtheory": "modal",
+      "example_name": "MOD_TH_3",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.044126,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 1.08631,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 24.62
+    },
+    {
+      "subtheory": "modal",
+      "example_name": "MOD_CM_1",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.091309,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.112866,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 1.24
+    },
+    {
+      "subtheory": "modal",
+      "example_name": "MOD_CM_3",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.118218,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.086435,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "cvc5",
+      "time_ratio": 1.37
+    },
+    {
+      "subtheory": "constitutive",
+      "example_name": "CL_TH_1",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.064375,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 2.205706,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 34.26
+    },
+    {
+      "subtheory": "constitutive",
+      "example_name": "CL_TH_16",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.024175,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.119995,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 4.96
+    },
+    {
+      "subtheory": "constitutive",
+      "example_name": "CL_CM_1",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.229359,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.405672,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 1.77
+    },
+    {
+      "subtheory": "constitutive",
+      "example_name": "CL_CM_7",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.30279,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.345253,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 1.14
+    },
+    {
+      "subtheory": "counterfactual",
+      "example_name": "CF_TH_1",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.132844,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 1.462411,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 11.01
+    },
+    {
+      "subtheory": "counterfactual",
+      "example_name": "CF_TH_2",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.089787,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 2.709831,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 30.18
+    },
+    {
+      "subtheory": "counterfactual",
+      "example_name": "CF_CM_1",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 1.781852,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.796455,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "cvc5",
+      "time_ratio": 2.24
+    },
+    {
+      "subtheory": "counterfactual",
+      "example_name": "CF_CM_7",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.176442,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.172598,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "cvc5",
+      "time_ratio": 1.02
+    },
+    {
+      "subtheory": "relevance",
+      "example_name": "REL_TH_1",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.043642,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 1.029148,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 23.58
+    },
+    {
+      "subtheory": "relevance",
+      "example_name": "REL_TH_7",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.034282,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.496513,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 14.48
+    },
+    {
+      "subtheory": "relevance",
+      "example_name": "REL_CM_1",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.122809,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.341064,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 2.78
+    },
+    {
+      "subtheory": "relevance",
+      "example_name": "REL_CM_3",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.140619,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.124297,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "cvc5",
+      "time_ratio": 1.13
+    },
+    {
+      "subtheory": "first_order",
+      "example_name": "FO_TH_1",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.020363,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.221213,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 10.86
+    },
+    {
+      "subtheory": "first_order",
+      "example_name": "FO_TH_5",
+      "expectation": false,
+      "z3": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.008056,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": false,
+        "passed": true,
+        "time_seconds": 0.013556,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 1.68
+    },
+    {
+      "subtheory": "first_order",
+      "example_name": "FO_CM_1",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.022927,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.019549,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "cvc5",
+      "time_ratio": 1.17
+    },
+    {
+      "subtheory": "first_order",
+      "example_name": "FO_CM_3",
+      "expectation": true,
+      "z3": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.069872,
+        "error": null,
+        "timed_out": false
+      },
+      "cvc5": {
+        "result": true,
+        "passed": true,
+        "time_seconds": 0.080317,
+        "error": null,
+        "timed_out": false
+      },
+      "agreement": true,
+      "faster_solver": "z3",
+      "time_ratio": 1.15
+    }
+  ],
+  "disagreements": []
+}

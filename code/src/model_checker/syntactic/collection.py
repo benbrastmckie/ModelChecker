@@ -6,9 +6,9 @@ for all logical operators available in the model checking system.
 """
 
 from typing import Dict, List, Optional, Iterator, Type, Union, Any
-from z3 import Const
 
-from .atoms import AtomSort
+from model_checker.solver.expressions import Const
+from .atoms import get_atom_sort
 from .types import OperatorName, PrefixList
 from .errors import DuplicateOperatorError, UnknownOperatorError
 
@@ -136,7 +136,7 @@ class OperatorCollection:
 
             # Handle string atoms as sentence letters (from P[] syntax)
             if isinstance(atom, str) and atom.isalnum():
-                return [Const(atom, AtomSort)]
+                return [Const(atom, get_atom_sort())]
 
             raise ValueError(f"The atom {atom} is invalid in apply_operator.")
 

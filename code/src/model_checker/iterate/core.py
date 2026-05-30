@@ -368,11 +368,12 @@ class BaseModelIterator:
                     self.current_search_skipped = 0
                     self.current_search_checked = 0
                     self.current_search_start = time.time()
-                    
-                    # Complete search as found
+
+                    # Stop animation but don't print final bar yet
+                    # The runner will call complete_model_search() after displaying output
                     if self.search_progress:
-                        self.search_progress.complete_model_search(found=True)
-                    
+                        self.search_progress.stop_animation_only()
+
                     # Calculate differences from previous model
                     if len(self.model_structures) >= 2:
                         differences = self.difference_calculator.calculate_differences(

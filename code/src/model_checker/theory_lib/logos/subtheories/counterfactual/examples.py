@@ -63,6 +63,7 @@ CF_CM_1_settings = {
     'max_time': 10,
     'iterate': 2,
     'expectation': True,
+    'solver': 'z3',
 }
 CF_CM_1_example = [
     CF_CM_1_premises,
@@ -177,6 +178,7 @@ CF_CM_7_settings = {
     'max_time': 10,
     'iterate': 1,
     'expectation': True,
+    'solver': 'z3',
 }
 CF_CM_7_example = [
     CF_CM_7_premises,
@@ -605,6 +607,7 @@ CF_TH_5_settings = {
     'max_time': 10,
     'iterate': 1,
     'expectation': False,
+    'solver': 'z3',
 }
 CF_TH_5_example = [
     CF_TH_5_premises,
@@ -704,6 +707,7 @@ CF_TH_10_settings = {
     'max_time': 10,
     'iterate': 1,
     'expectation': False,
+    'solver': 'z3',
 }
 CF_TH_10_example = [
     CF_TH_10_premises,
@@ -867,7 +871,7 @@ semantic_theories = {
 example_range = {
 
     # COUNTERMODELS
-    "CF_CM_1": CF_CM_1_example,      # COUNTERFACTUAL ANTECEDENT STRENGTHENING
+    "CF_CM_1": CF_CM_1_example,    # COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "CF_CM_2": CF_CM_2_example,    # MIGHT COUNTERFACTUAL ANTECEDENT STRENGTHENING
     # "CF_CM_3": CF_CM_3_example,    # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH POSSIBILITY
     # "CF_CM_4": CF_CM_4_example,    # COUNTERFACTUAL ANTECEDENT STRENGTHENING WITH NEGATION

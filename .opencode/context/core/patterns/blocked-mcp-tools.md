@@ -53,13 +53,13 @@ When upstream bugs are fixed:
 2. Update lean-lsp-mcp package version in the project
 3. Test the tool manually to confirm fix
 4. Update this document to mark tool as UNBLOCKED
-5. Update OPENCODE.md to remove from blocked list
+5. Update README.md to remove from blocked list
 6. Update deprecated agent files if still relevant
 7. Update mcp-tools-guide.md to restore detailed documentation
 
 ## Related Documentation
 
-- `.opencode/OPENCODE.md` - Main blocked tools warning in "Lean 4 Integration" section
+- `.opencode/README.md` - Main blocked tools warning in "Lean 4 Integration" section
 - `.opencode/context/project/lean4/tools/mcp-tools-guide.md` - MCP tool reference
 - `.opencode/agent/lean-research-agent.md` - Agent with blocked tools warning
 - `.opencode/agent/lean-implementation-agent.md` - Agent with blocked tools warning

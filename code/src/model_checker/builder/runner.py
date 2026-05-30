@@ -12,7 +12,9 @@ import sys
 import time
 from typing import TYPE_CHECKING, Any, Dict, List, Optional, Tuple, Union
 
-import z3
+from model_checker import z3_shim as z3
+from model_checker.solver.registry import clear_cli_backend
+from model_checker.solver.lifecycle import invalidate_all_caches
 
 # Package imports
 from ..output.progress import Spinner, UnifiedProgress
@@ -309,8 +311,8 @@ class ModelRunner:
         """Initialize Z3 context and configure logging for clean output."""
         from model_checker.utils import Z3ContextManager
         import logging
-        import z3
-        
+        from model_checker import z3_shim as z3
+
         # Always reset Z3 context at the start of processing a new example
         from ..utils.context import reset_z3_context
         reset_z3_context()
@@ -441,6 +443,11 @@ class ModelRunner:
         # Model found - stop animation without printing final bar yet
         self._stop_progress_animation(progress)
 
+        # Print the completed progress bar BEFORE model output
+        # This ensures bar -> output ordering so consecutive bars aren't adjacent
+        progress.complete_model_search(found=True)
+        print()  # Add vertical space after progress bar
+
         # Set up for iteration
         if iterate_count > 1:
             example._unified_progress = progress
@@ -448,10 +455,6 @@ class ModelRunner:
         # Handle interactive vs batch mode (this prints the header)
         iterate_count = self._handle_iteration_mode(example, example_name, theory_name,
                                                     iterate_count, progress)
-
-        # NOW print the progress bar after header
-        progress.complete_model_search(found=True)
-        print()  # Add vertical space after progress bar
         
         # Process remaining iterations
         try:
@@ -495,21 +498,14 @@ class ModelRunner:
     def _stop_progress_animation(self, progress: UnifiedProgress) -> None:
         """Stop the progress animation without printing the final bar.
 
-        This allows us to print the example header BEFORE the progress bar,
-        ensuring correct output ordering.
+        Uses stop_animation_only() to freeze the bar at its current fill level
+        and capture the elapsed time fraction, ensuring correct partial fill
+        display when complete() is called later.
 
         Args:
             progress: The UnifiedProgress tracker with an active animation
         """
-        if progress.model_progress_bars:
-            bar = progress.model_progress_bars[-1]
-            # Stop animation thread
-            bar.active = False
-            # Wait for thread to stop
-            if bar.thread and bar.thread.is_alive():
-                bar.thread.join(timeout=0.5)
-            # Clear the animated line from the terminal
-            progress.display.clear()
+        progress.stop_animation_only()
 
     def _handle_iteration_mode(
         self,
@@ -606,7 +602,13 @@ class ModelRunner:
     
     def _run_generator_iteration(self, example, theory_iterate_example, example_name, theory_name, iterate_count):
         """Run iteration using generator interface for incremental display.
-        
+
+        Uses deferred completion pattern for correct bar -> output -> bar ordering:
+        1. Iterator finds model and calls stop_animation_only() (freezes bar, no print)
+        2. Runner displays model output (differences, header, model details)
+        3. Runner calls complete_model_search() to print frozen progress bar
+        4. Next iteration starts new progress bar
+
         Args:
             example: The BuildExample instance
             theory_iterate_example: Theory-specific iterate function with generator support
@@ -616,20 +618,29 @@ class ModelRunner:
         """
         # Get generator from theory
         model_generator = theory_iterate_example(example, max_iterations=iterate_count)
-        
+
+        # Get progress tracker for deferred completion
+        progress = getattr(example, '_unified_progress', None)
+
         # Track distinct models
         distinct_count = 0  # Will increment when we find the first additional model
         previous_model = example.model_structure
-        
+
         try:
             # Process models as they're yielded
             for i, structure in enumerate(model_generator, start=2):
                 # Skip isomorphic models in display
                 if hasattr(structure, '_is_isomorphic') and structure._is_isomorphic:
                     continue
-                    
+
                 distinct_count += 1
-                
+
+                # Print completed progress bar BEFORE model output
+                # This ensures bar -> output -> bar ordering so consecutive bars aren't adjacent
+                if progress:
+                    progress.complete_model_search(found=True)
+                    print()  # Add vertical space after progress bar
+
                 # Always print differences from previous model (except for the first additional model)
                 if previous_model:
                     # Print differences using structure's method
@@ -645,26 +656,26 @@ class ModelRunner:
                             print(diff_report)
                         else:
                             print("(No differences calculated)")
-                
+
                 # Print model header - now showing correct numbering (2/4, 3/4, 4/4)
                 print(f"MODEL {distinct_count + 1}/{iterate_count}")
-                
+
                 # Update example with new model
                 example.model_structure = structure
-                
+
                 # Display model immediately
                 self.build_module._capture_and_save_output(example, example_name, theory_name, model_num=distinct_count)
-                
+
                 # Add extra vertical space after non-isomorphic models (except for the last one)
                 # Only add space if we're not at the last model we'll actually find
                 # Note: We can't know if more models exist until we try to get the next one
                 # So we always add space unless we've reached the requested count
-                if distinct_count < iterate_count - 1:
+                if distinct_count < iterate_count - 1 and not progress:
                     print()
-                
+
                 # Update previous model for next iteration
                 previous_model = structure
-                
+
         except StopIteration:
             # Normal termination - no more models found
             pass
@@ -672,7 +683,7 @@ class ModelRunner:
             print(f"Error during iteration: {e}", file=sys.stderr)
             import traceback
             traceback.print_exc()
-        
+
         # Termination info is now handled by the iterator's detailed report
     
     def _get_termination_info(self, example, found_count, requested_count):
@@ -754,6 +765,12 @@ class ModelRunner:
                     try:
                         self.process_example(example_name, example_copy, theory_name, semantic_theory)
                     finally:
+                        # Clear per-example solver override and invalidate caches.
+                        # Examples may set solver via settings['solver'], which calls set_backend_with_invalidation().
+                        # Without clearing, this "leaks" to subsequent examples that expect the default (z3).
+                        # We must also invalidate caches so z3_shim reloads the correct backend module.
+                        clear_cli_backend()
+                        invalidate_all_caches()
                         # Force cleanup after each example to prevent state leaks
                         gc.collect()
                         

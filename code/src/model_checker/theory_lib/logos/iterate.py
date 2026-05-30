@@ -8,10 +8,11 @@ This module provides the LogosModelIterator implementation which handles:
 
 import logging
 import sys
-from typing import Dict, List, Set, Any, Optional, Union, Generator, TYPE_CHECKING
+from typing import Dict, List, Set, Any, Optional, Union, Generator, TYPE_CHECKING, cast
 
-import z3
+from model_checker import z3_shim as z3
 
+from model_checker.solver import is_true, is_false
 from model_checker.iterate.core import BaseModelIterator
 from model_checker.utils import bitvec_to_substates, pretty_set_print
 
@@ -254,14 +255,14 @@ class LogosModelIterator(BaseModelIterator):
                 constraints.append(z3.Or(*model_constraints))
         
         # All models must be different
-        return z3.And(*constraints) if constraints else z3.BoolVal(True)
-    
+        return cast(z3.BoolRef, z3.And(*constraints)) if constraints else z3.BoolVal(True)
+
     def _create_world_count_constraint(self, prev_model: z3.ModelRef, semantics: Any) -> Optional['Z3Constraint']:
         """Create constraint on different number of worlds."""
         # Count worlds in previous model
         prev_world_count = 0
         for state in range(2**semantics.N):
-            if z3.is_true(prev_model.eval(semantics.is_world(state), model_completion=True)):
+            if is_true(prev_model.eval(semantics.is_world(state), model_completion=True)):
                 prev_world_count += 1
         
         # Current model must have different number of worlds

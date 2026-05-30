@@ -94,3 +94,9 @@ Agents should load context based on task type:
 | Filetype | ftplugin-patterns.md, ftplugin-template.md |
 | LSP setup | lsp-overview.md |
 | General | neovim-api.md, lua-style-guide.md |
+
+---
+
+## Navigation
+
+[← Parent Directory](../../README.md)

@@ -1,6 +1,6 @@
 # Command Workflows User Guide
 
-[Back to Docs](../README.md) | [OPENCODE.md](../../OPENCODE.md) | [Architecture](../architecture/system-overview.md)
+[Back to Docs](../README.md) | [README.md](../../README.md) | [Architecture](../architecture/system-overview.md)
 
 A comprehensive guide to using the `.opencode/` task management system commands for Logos/Theory development.
 
@@ -656,8 +656,8 @@ For more details, see the full [TTS/STT Integration Guide](../../../.claude/docs
 
 - **Architecture docs**: See [system-overview.md](../architecture/system-overview.md)
 - **Command details**: Check individual command files in `.opencode/commands/`
-- **OPENCODE.md**: Quick reference at [../../OPENCODE.md](../../OPENCODE.md)
+- **README.md**: Quick reference at [../../README.md](../../README.md)
 
 ---
 
-[Back to Docs](../README.md) | [OPENCODE.md](../../OPENCODE.md) | [Architecture](../architecture/system-overview.md)
+[Back to Docs](../README.md) | [README.md](../../README.md) | [Architecture](../architecture/system-overview.md)

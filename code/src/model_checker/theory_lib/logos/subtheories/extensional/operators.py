@@ -11,10 +11,15 @@ This module implements the basic extensional logical operators:
 - Biconditional (↔)
 """
 
-import z3
+from typing import TYPE_CHECKING, cast
+
+from model_checker import z3_shim as z3
 
 from model_checker import syntactic
 from model_checker.utils import ForAll, Exists
+
+if TYPE_CHECKING:
+    from model_checker.theory_lib.logos.semantic import LogosSemantics
 
 
 
@@ -22,13 +27,14 @@ from model_checker.utils import ForAll, Exists
 
 class NegationOperator(syntactic.Operator):
     """Implementation of logical negation (¬).
-    
+
     This operator implements both intensional truth/falsity conditions and
-    hyperintensional verifier/falsifier semantics for logical negation. 
-    It flips the truth value of its argument: if A is true, ¬A is false, 
+    hyperintensional verifier/falsifier semantics for logical negation.
+    It flips the truth value of its argument: if A is true, ¬A is false,
     and if A is false, ¬A is true.
     """
 
+    semantics: "LogosSemantics"
     name = "\\neg"
     arity = 1
 
@@ -60,12 +66,13 @@ class NegationOperator(syntactic.Operator):
 
 class AndOperator(syntactic.Operator):
     """Implementation of logical conjunction (∧).
-    
+
     This operator represents the logical AND operation. A ∧ B is true when both
     A and B are true, and false otherwise. In hyperintensional semantics, the
     verifiers are the fusion of verifiers from both conjuncts.
     """
 
+    semantics: "LogosSemantics"
     name = "\\wedge"
     arity = 2
 
@@ -91,11 +98,11 @@ class AndOperator(syntactic.Operator):
         y = z3.BitVec("and_verify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 sem.extended_verify(x, leftarg, eval_point),
                 sem.extended_verify(y, rightarg, eval_point),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
@@ -109,11 +116,11 @@ class AndOperator(syntactic.Operator):
             sem.extended_falsify(state, rightarg, eval_point),
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_falsify(x, leftarg, eval_point),
                     sem.extended_falsify(y, rightarg, eval_point),
                     state == sem.fusion(x, y)
-                )
+                ))
             )
         )
 
@@ -132,12 +139,13 @@ class AndOperator(syntactic.Operator):
 
 class OrOperator(syntactic.Operator):
     """Implementation of logical disjunction (∨).
-    
+
     This operator represents the logical OR operation. A ∨ B is true when at least
     one of A or B is true, and false when both are false. In hyperintensional
     semantics, the verifiers are the coproduct of verifiers from both disjuncts.
     """
 
+    semantics: "LogosSemantics"
     name = "\\vee"
     arity = 2
 
@@ -166,11 +174,11 @@ class OrOperator(syntactic.Operator):
             sem.extended_verify(state, rightarg, eval_point),
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_verify(x, leftarg, eval_point),
                     sem.extended_verify(y, rightarg, eval_point),
                     state == sem.fusion(x, y)
-                )
+                ))
             )
         )
 
@@ -182,11 +190,11 @@ class OrOperator(syntactic.Operator):
         y = z3.BitVec("or_falsify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 sem.extended_falsify(x, leftarg, eval_point),
                 sem.extended_falsify(y, rightarg, eval_point),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
@@ -204,11 +212,12 @@ class OrOperator(syntactic.Operator):
 
 class TopOperator(syntactic.Operator):
     """Implementation of the top/tautology operator (⊤).
-    
+
     This operator represents logical truth. ⊤ is always true regardless of the
     evaluation point or model. It has the null state as its sole verifier.
     """
 
+    semantics: "LogosSemantics"
     name = "\\top"
     arity = 0
 
@@ -239,11 +248,12 @@ class TopOperator(syntactic.Operator):
 
 class BotOperator(syntactic.Operator):
     """Implementation of the bottom/contradiction operator (⊥).
-    
+
     This operator represents logical falsehood. ⊥ is always false regardless of the
     evaluation point or model. It has the null state as its sole falsifier.
     """
 
+    semantics: "LogosSemantics"
     name = "\\bot"
     arity = 0
 
@@ -279,6 +289,7 @@ class ConditionalOperator(syntactic.DefinedOperator):
     ¬A ∨ B. It is false only when A is true and B is false.
     """
 
+    semantics: "LogosSemantics"
     name = "\\rightarrow"
     arity = 2
 
@@ -318,11 +329,11 @@ class ConditionalOperator(syntactic.DefinedOperator):
             # Fusion of verifiers for ¬A and B
             Exists(
                 [x, y],
-                z3.And(
+                cast(z3.BoolRef, z3.And(
                     sem.extended_falsify(x, leftarg, eval_point),
                     sem.extended_verify(y, rightarg, eval_point),
                     state == sem.fusion(x, y)
-                )
+                ))
             )
         )
 
@@ -335,11 +346,11 @@ class ConditionalOperator(syntactic.DefinedOperator):
         y = z3.BitVec("cond_falsify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 sem.extended_verify(x, leftarg, eval_point),
                 sem.extended_falsify(y, rightarg, eval_point),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):
@@ -363,6 +374,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
     (A → B) ∧ (B → A). It is true when both A and B have the same truth value.
     """
 
+    semantics: "LogosSemantics"
     name = "\\leftrightarrow"
     arity = 2
 
@@ -407,7 +419,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         y = z3.BitVec("bicond_verify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 z3.Or(
                     z3.And(
                         sem.extended_verify(x, leftarg, eval_point),
@@ -419,7 +431,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
                     )
                 ),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def extended_falsify(self, state, leftarg, rightarg, eval_point):
@@ -431,7 +443,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
         y = z3.BitVec("bicond_falsify_y", N)
         return Exists(
             [x, y],
-            z3.And(
+            cast(z3.BoolRef, z3.And(
                 z3.Or(
                     z3.And(
                         sem.extended_verify(x, leftarg, eval_point),
@@ -443,7 +455,7 @@ class BiconditionalOperator(syntactic.DefinedOperator):
                     )
                 ),
                 state == sem.fusion(x, y)
-            )
+            ))
         )
 
     def find_verifiers_and_falsifiers(self, left_sent_obj, right_sent_obj, eval_point):

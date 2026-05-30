@@ -8,10 +8,9 @@ bindings, and proposition values.
 """
 
 from typing import List, Optional, Dict, Any, Union, Tuple, TYPE_CHECKING
-from z3 import ExprRef
 
 from model_checker.utils import parse_expression, tokenize_first_order, parse_first_order_expression
-from .atoms import AtomSort
+from .atoms import get_atom_sort
 from .types import FormulaString, PrefixList
 from .errors import InvalidFormulaError, ParseError
 from .terms import Term, Variable
@@ -19,6 +18,7 @@ from .formulas import compute_formula_free_variables, is_syntactically_wff
 
 if TYPE_CHECKING:
     from .collection import OperatorCollection
+    from model_checker.z3_shim import ExprRef
 
 
 class Sentence:
@@ -82,7 +82,7 @@ class Sentence:
         if self.complexity > 0:
             # Handle first-order operators differently
             first_op = self.prefix_sentence[0]
-            if first_op in {"\\lambda", "\\forall", "\\exists", "\\lambdaApp"}:
+            if first_op in {"\\lambda", "\\forall", "\\exists", "\\all", "\\some", "\\lambdaApp"}:
                 # For binders, arguments after the variable are the body
                 # Store in a way that's compatible with the original system
                 self.original_arguments = [
@@ -224,8 +224,6 @@ class Sentence:
 
         if hasattr(prefix, 'name') and not isinstance(prefix, Term):
             return prefix.name
-        if isinstance(prefix, ExprRef):
-            return str(prefix)
         if isinstance(prefix, str):
             return prefix
         if isinstance(prefix, (list, tuple)):
@@ -240,10 +238,10 @@ class Sentence:
                 body = self.infix(prefix[2])
                 return f"{op_str} {var}. {body}"
 
-            # Handle Church-style quantifiers: ["\\forall", lambda_term]
+            # Handle Church-style quantifiers: ["\\forall", lambda_term] or ["\\all", lambda_term]
             # where lambda_term = ["\\lambda", variable, body]
             # After apply_operator, lambda_term may be [LambdaOperator, [variable], body]
-            if op_str in {"\\forall", "\\exists"}:
+            if op_str in {"\\forall", "\\exists", "\\all", "\\some"}:
                 lambda_term = prefix[1]
                 if isinstance(lambda_term, list) and len(lambda_term) >= 3:
                     # Check if it's a lambda term (either string "\\lambda" or LambdaOperator class)
@@ -279,6 +277,10 @@ class Sentence:
                 return f"{op_str} {self.infix(prefix[1])}"
             left_expr, right_expr = prefix[1], prefix[2]
             return f"({self.infix(left_expr)} {op_str} {self.infix(right_expr)})"
+        # Handle solver expressions (z3.ExprRef, cvc5 expressions)
+        # Check after list/tuple to avoid matching Python lists (which also have .sort())
+        if hasattr(prefix, 'sort') and callable(getattr(prefix, 'sort', None)):
+            return str(prefix)
         raise TypeError(f"The prefix {prefix} has a type error in infix().")
 
     def update_types(self, operator_collection: 'OperatorCollection') -> None:
@@ -327,7 +329,7 @@ class Sentence:
             # - Extremal operators: \top, \bot
             # - Complex sentences: operator + arguments
 
-            from z3 import is_const
+            from model_checker.solver.expressions import is_const
             from .terms import Term
 
             first_elem = derived_type[0]

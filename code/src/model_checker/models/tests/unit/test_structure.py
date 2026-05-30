@@ -77,11 +77,15 @@ class TestModelDefaultsStructure(unittest.TestCase):
         """Test solver setup functionality."""
         # Test solver creation and constraint addition
         solver = self.model_defaults._setup_solver(self.model_constraints)
-        
+
         # Check solver was created and returned
         self.assertIsNotNone(solver)
-        self.assertIsInstance(solver, Solver)
-        
+        # Solver is now an adapter (Z3SolverAdapter) conforming to TrackedSolverProtocol
+        # instead of a direct z3.Solver instance
+        self.assertTrue(hasattr(solver, 'check'), "Solver should have check method")
+        self.assertTrue(hasattr(solver, 'add'), "Solver should have add method")
+        self.assertTrue(hasattr(solver, 'assert_tracked'), "Solver should have assert_tracked method")
+
         # Check constraints were added (by checking solver assertions)
         assertions = solver.assertions()
         self.assertGreater(len(assertions), 0)

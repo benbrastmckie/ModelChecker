@@ -1,19 +1,4 @@
 {
-  "mcpServers": {
-    "mcp-nixos": {
-      "args": [
-        "mcp-nixos"
-      ],
-      "command": "uvx"
-    },
-    "lean-lsp": {
-      "args": [
-        "-y",
-        "lean-lsp-mcp@latest"
-      ],
-      "command": "npx"
-    }
-  },
   "permissions": {
     "allow": [
       "mcp__nixos__nix",
@@ -40,5 +25,20 @@
       "mcp__lean-lsp__lean_get_widget_source",
       "mcp__lean-lsp__lean_profile_proof"
     ]
+  },
+  "mcpServers": {
+    "mcp-nixos": {
+      "command": "uvx",
+      "args": [
+        "mcp-nixos"
+      ]
+    },
+    "lean-lsp": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "lean-lsp-mcp@latest"
+      ]
+    }
   }
 }

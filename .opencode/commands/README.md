@@ -18,3 +18,9 @@ Slash command definitions for the Logos/Theory opencode system.
 - `/revise` - Create new version of implementation plan, or update task description if no plan exists
 - `/task` - Create, recover, divide, sync, or abandon tasks
 - `/todo` - Archive completed and abandoned tasks
+
+---
+
+## Navigation
+
+[← Parent Directory](../README.md)

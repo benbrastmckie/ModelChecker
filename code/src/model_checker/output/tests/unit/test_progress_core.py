@@ -261,3 +261,35 @@ class TestUnifiedProgressEdgeCases:
         assert progress.display is not None
         from model_checker.output.progress.display import TerminalDisplay
         assert isinstance(progress.display, TerminalDisplay)
+
+    def test_stop_animation_only(self):
+        """Test stop_animation_only() freezes bar without printing."""
+        display = BatchDisplay()
+        progress = UnifiedProgress(total_models=2, max_time=1.0, display=display)
+
+        # Start a model search
+        progress.start_model_search(1)
+        time.sleep(0.2)  # Let it run a bit
+
+        # Stop animation only
+        fill_fraction = progress.stop_animation_only()
+
+        # Should have captured a fill fraction
+        assert 0.0 <= fill_fraction <= 1.0
+
+        # The bar should be stopped
+        if progress.model_progress_bars:
+            bar = progress.model_progress_bars[-1]
+            assert not bar.active
+            assert bar._frozen
+
+    def test_stop_animation_only_no_bar(self):
+        """Test stop_animation_only() when no bar exists."""
+        display = BatchDisplay()
+        progress = UnifiedProgress(total_models=1, max_time=1.0, display=display)
+
+        # Stop without starting any bar
+        fill_fraction = progress.stop_animation_only()
+
+        # Should return default 1.0
+        assert fill_fraction == 1.0

@@ -495,24 +495,24 @@ class UnitTestRunner:
         command = ["pytest", str(test_dir)]
         
         # Add subtheory filtering if specified
+        # Note: logos unit tests (logos/tests/) are in a separate directory from
+        # subtheory example tests (logos/subtheories/*/tests/), so NO example
+        # exclusion filter is needed here - there is zero overlap.
         if subtheories:
             # Build filter for specific subtheories
             subtheory_patterns = {
                 'modal': '(modal or MOD_)',
-                'counterfactual': '(counterfactual or CF_)', 
+                'counterfactual': '(counterfactual or CF_)',
                 'extensional': '(extensional or EXT_)',
                 'constitutive': '(constitutive or CON_ or CL_)',
-                'relevance': '(relevance or REL_)'
+                'relevance': '(relevance or REL_)',
+                'first_order': '(first_order or FO_)',
             }
-            
+
             patterns = [subtheory_patterns[sub] for sub in subtheories if sub in subtheory_patterns]
             if patterns:
-                filter_expr = f"({' or '.join(patterns)}) and not example"
+                filter_expr = f"({' or '.join(patterns)})"
                 command.extend(["-k", filter_expr])
-            else:
-                command.extend(["-k", "not example"])  # Just exclude examples
-        else:
-            command.extend(["-k", "not example"])  # Exclude example tests
         
         if config.verbose:
             command.append("-v")
@@ -570,9 +570,15 @@ class PackageTestRunner:
         self.src_dir = code_dir / "src"
     
     def run_component_tests(self, component: str, config: TestConfig) -> int:
-        """Run tests for a specific package component."""
+        """Run tests for a specific package component.
+
+        Supports dotted names for sub-components (e.g., 'output.notebook').
+        """
         if component == "theory_lib":
             test_dir = self.src_dir / "model_checker" / "theory_lib" / "tests"
+        elif '.' in component:
+            parts = component.split('.')
+            test_dir = self.src_dir / "model_checker" / parts[0] / parts[1] / "tests"
         else:
             test_dir = self.src_dir / "model_checker" / component / "tests"
         
@@ -657,9 +663,8 @@ class TestRunner:
             return theories
         
         for item in theory_lib_dir.iterdir():
-            if (item.is_dir() and 
-                not item.name.startswith('__') and 
-                item.name != 'bimodal' and  # Exclude bimodal theory (not finished)
+            if (item.is_dir() and
+                not item.name.startswith('__') and
                 (item / "tests").exists() and
                 (item / "examples.py").exists()):
                 theories.append(item.name)
@@ -667,33 +672,52 @@ class TestRunner:
         return sorted(theories)
     
     def _discover_components(self) -> List[str]:
-        """Discover available package components with test directories."""
+        """Discover available package components with test directories.
+
+        Scans direct children of src/model_checker/ and also one level deeper
+        for sub-components with their own tests/ directories (e.g., output.notebook).
+        """
         components = []
         src_dir = self.code_dir / "src" / "model_checker"
-        
+
         if not src_dir.exists():
             return components
-        
+
         for item in src_dir.iterdir():
-            if (item.is_dir() and 
-                not item.name.startswith('__') and 
-                item.name != 'theory_lib' and  # Skip theory_lib (handled separately)
-                (item / "tests").exists()):
-                components.append(item.name)
-        
+            if (item.is_dir() and
+                not item.name.startswith('__') and
+                item.name != 'theory_lib'):
+                # Check for direct test directory
+                if (item / "tests").exists():
+                    components.append(item.name)
+                # Check one level deeper for sub-components with tests
+                for sub_item in item.iterdir():
+                    if (sub_item.is_dir() and
+                        not sub_item.name.startswith('__') and
+                        (sub_item / "tests").exists()):
+                        components.append(f"{item.name}.{sub_item.name}")
+
         # Add theory_lib itself (for infrastructure tests)
         theory_lib_tests = src_dir / "theory_lib" / "tests"
         if theory_lib_tests.exists():
             components.append("theory_lib")
-        
+
         return sorted(components)
     
     def _discover_subtheories(self) -> Dict[str, List[str]]:
         """Discover subtheories for theories that support them."""
-        # Currently only logos supports subtheories
-        return {
-            'logos': ['modal', 'counterfactual', 'extensional', 'constitutive', 'relevance']
-        }
+        subtheories = {}
+        logos_subtheories_dir = self.code_dir / "src" / "model_checker" / "theory_lib" / "logos" / "subtheories"
+        if logos_subtheories_dir.exists():
+            subs = []
+            for item in logos_subtheories_dir.iterdir():
+                if (item.is_dir() and
+                    not item.name.startswith('__') and
+                    (item / "tests").exists()):
+                    subs.append(item.name)
+            if subs:
+                subtheories['logos'] = sorted(subs)
+        return subtheories
     
     def _detect_target_types(self, targets: List[str], force_theory: bool, force_component: bool) -> str:
         """Detect whether targets are theories, components, or mixed.
@@ -972,6 +996,13 @@ Examples:
         help=argparse.SUPPRESS  # Hide deprecated option
     )
     
+    # Information options
+    parser.add_argument(
+        "--list",
+        action="store_true",
+        help="List all discovered theories, subtheories, and components, then exit"
+    )
+
     # Standard options
     parser.add_argument(
         "--verbose", "-v",
@@ -995,7 +1026,15 @@ def main():
     try:
         # Create test runner and configuration
         runner = TestRunner()
-        
+
+        # List mode: print discovered targets and exit
+        if args.list:
+            print("Discovered theories:", ', '.join(runner.theories))
+            print("Discovered components:", ', '.join(runner.components))
+            for theory, subs in sorted(runner.subtheories.items()):
+                print(f"Discovered subtheories ({theory}):", ', '.join(subs))
+            sys.exit(0)
+
         # Show available targets if none specified and no test type flags
         if not args.targets and not any([args.examples, args.unit, args.package]):
             print("Available theories:", ', '.join(runner.theories))

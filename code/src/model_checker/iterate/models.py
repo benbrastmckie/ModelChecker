@@ -1,12 +1,15 @@
 """Model creation and validation for iteration.
 
-This module handles building new model structures from Z3 models,
+This module handles building new model structures from solver models,
 managing model interpretation, validating model constraints, and
 calculating differences between models.
 """
 
 import logging
-import z3
+from model_checker import z3_shim as z3
+
+from model_checker.solver import is_true, is_false
+
 from typing import Any, Dict, List, Optional, Set, Tuple, TYPE_CHECKING
 from .errors import ModelExtractionError, ModelValidationError
 
@@ -44,8 +47,8 @@ class ModelBuilder:
             # Import required modules
             from model_checker.syntactic import Syntax
             from model_checker.models.constraints import ModelConstraints
-            import z3
-            
+            from model_checker import z3_shim as z3
+
             # Get original build example components
             original_build = self.build_example
             settings = original_build.settings.copy()
@@ -88,7 +91,7 @@ class ModelBuilder:
             for state in range(2**semantics.N):
                 # Is this state a world in the iterator model?
                 is_world_val = z3_model.eval(semantics.is_world(state), model_completion=True)
-                if z3.is_true(is_world_val):
+                if is_true(is_world_val):
                     temp_solver.add(semantics.is_world(state))
                 else:
                     temp_solver.add(z3.Not(semantics.is_world(state)))
@@ -97,7 +100,7 @@ class ModelBuilder:
                 # Note: Not all theories have a 'possible' predicate (e.g., bimodal theory)
                 if hasattr(semantics, 'possible'):
                     is_possible_val = z3_model.eval(semantics.possible(state), model_completion=True)
-                    if z3.is_true(is_possible_val):
+                    if is_true(is_possible_val):
                         temp_solver.add(semantics.possible(state))
                     else:
                         temp_solver.add(z3.Not(semantics.possible(state)))
@@ -111,7 +114,7 @@ class ModelBuilder:
                         for state in range(2**semantics.N):
                             # Verify value
                             verify_val = z3_model.eval(semantics.verify(state, atom), model_completion=True)
-                            if z3.is_true(verify_val):
+                            if is_true(verify_val):
                                 temp_solver.add(semantics.verify(state, atom))
                             else:
                                 temp_solver.add(z3.Not(semantics.verify(state, atom)))
@@ -119,7 +122,7 @@ class ModelBuilder:
                             # Falsify value (if it exists)
                             if hasattr(semantics, 'falsify'):
                                 falsify_val = z3_model.eval(semantics.falsify(state, atom), model_completion=True)
-                                if z3.is_true(falsify_val):
+                                if is_true(falsify_val):
                                     temp_solver.add(semantics.falsify(state, atom))
                                 else:
                                     temp_solver.add(z3.Not(semantics.falsify(state, atom)))
@@ -285,7 +288,7 @@ class ModelBuilder:
             
             # Check if the result is a Z3 boolean
             if z3.is_bool(result):
-                return z3.is_true(result)
+                return is_true(result)
             
             # Handle numeric results (0 = False, non-zero = True)
             if z3.is_int_value(result) or z3.is_real(result):
@@ -566,9 +569,9 @@ def evaluate_z3_boolean(z3_model: z3.ModelRef, expression: Any) -> bool:
             evaluated = z3_model.evaluate(expression, model_completion=True)
             
             # Check various ways Z3 might represent true/false
-            if z3.is_true(evaluated):
+            if is_true(evaluated):
                 return True
-            elif z3.is_false(evaluated):
+            elif is_false(evaluated):
                 return False
             else:
                 # Try string comparison as last resort

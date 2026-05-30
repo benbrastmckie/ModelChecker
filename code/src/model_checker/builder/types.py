@@ -13,7 +13,7 @@ from enum import Enum
 from pathlib import Path
 
 if TYPE_CHECKING:
-    import z3
+    from model_checker import z3_shim as z3
     from model_checker.syntactic import Syntax
     from model_checker.models import ModelDefaults
     from model_checker.output import OutputManager

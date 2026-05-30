@@ -229,7 +229,7 @@ Constraint-based exploration of finite models provides evidence for validity by 
 Computational tractability (solver performance, timeout rates, maximum model size) provides a rigorous, quantifiable measure of theoretical complexity, replacing subjective aesthetic evaluations with empirical metrics.
 The extensible \theorylib{} library of semantic theories supports modular composition, sharing, and citation to advance semantic research.
 We demonstrate implementation of four major semantic frameworks (\theorylogos{} bilateral truthmaker semantics with 19 operators, \theoryexclusion{} unilateral semantics, \theoryimposition{} counterfactual theory, \theorybimodal{} temporal-modal logic) with over 177 validated examples.
-This represents the first systematic computational implementation of bilateral truthmaker semantics and demonstrates feasibility of programmatic semantic theory development at scale.
+To our knowledge, this represents the first computational implementation of bilateral truthmaker semantics integrating hyperintensional operators (ground, essence, propositional identity), counterfactual conditionals, modal operators, and SMT-based finite model finding, demonstrating feasibility of programmatic semantic theory development at scale.
 }
 
 %%=======================================================%%
@@ -261,7 +261,7 @@ This represents the first systematic computational implementation of bilateral t
 Semantic theories have traditionally been developed through hand-constructed models and manual proofs.
 This approach carries significant limitations: difficulty verifying complex inference patterns across multiple operators, no systematic way to compare theories on identical test cases, barriers to entry for implementing emerging semantic frameworks, limited exploration of model space due to the burden of manual example construction, and validation bottlenecks where checking validity claims requires extensive manual computation prone to error.
 
-Perhaps most significantly, theories are typically assessed via subjective aesthetic criteria---``elegance,'' ``simplicity,'' ``naturalness''---rather than empirical measures.
+Theories are typically assessed via subjective aesthetic criteria---``elegance,'' ``simplicity,'' ``naturalness''---rather than empirical measures.
 Debates about theoretical complexity remain unresolved due to the lack of objective metrics.
 Different theorists may disagree profoundly about whether a theory is ``simple'' or ``elegant.''
 
@@ -281,16 +281,6 @@ We present \modelchecker{}, a programmatic framework that:
     \item \textbf{Implements \theorylib{}}: Extensible library of semantic theories as reusable, citable components.
     \item \textbf{Establishes objective complexity measures}: Computational tractability (solver performance, timeout rates, feasible model sizes) replaces subjective aesthetic evaluations with empirical, quantifiable metrics.
 \end{enumerate}
-
-\paragraph{Paper Roadmap.}
-Section~\ref{sec:methodology} presents the programmatic methodology, three-level architecture, and computational complexity of semantic primitives.
-Section~\ref{sec:modularity} discusses modularity, extensibility, and systematic theory comparison.
-Section~\ref{sec:finite-model} covers finite model exploration and countermodel methodology.
-Section~\ref{sec:theorylib} describes the theory-agnostic framework and \theorylib{} vision.
-Section~\ref{sec:logos} presents the \theorylogos{} theory case study.
-Section~\ref{sec:results} provides implementation results and validation.
-Section~\ref{sec:related} surveys related work.
-Section~\ref{sec:discussion} discusses future directions and conclusions.
 
 %%=======================================================%%
 %% Section 2: The Programmatic Methodology               %%
@@ -443,7 +433,7 @@ selection = z3.Function('selection', BitVecSort(N), BitVecSort(N), AtomSort, Boo
 # Constraint: ForAll w,w',A[selection(w,w',A) -> ...]  (3 quantifiers)
 \end{lstlisting}
 
-Each additional argument introduces another quantifier in constraints, increasing solver difficulty exponentially.
+Each additional argument introduces another quantifier in constraints, increasing solver difficulty exponentially (see Section~\ref{sec:state-space} for complete bitvector representation).
 Quantifier alternation is especially significant: $\forall s \forall A[\ldots]$ is relatively tractable, while $\forall A[\exists s[\ldots]]$ is much harder, and triple alternation $\forall w[\exists w'[\forall s[\ldots]]]$ is very difficult.
 
 \subsubsection{Theory Comparison by Primitive Arity}
@@ -510,7 +500,109 @@ The \emph{arity} of required primitives matters more than their count.
 
 When implementing a new semantic theory, prefer binary over ternary (factor complex relations when possible), implicit over explicit (encode relationships as constraints rather than primitives), and stratified quantifiers (avoid alternation when possible).
 
-The \theorylogos{} theory demonstrates this principle: fusion could be a ternary primitive \zfusion{}$(s_1, s_2, s_3)$, but instead uses bitvector OR ($s_1 \mathbin{|} s_2$), enabling $N=6$ whereas ternary fusion would limit to $N=4$.
+The \theorylogos{} theory demonstrates this principle: fusion could be a ternary primitive \zfusion{}$(s_1, s_2, s_3)$, but instead uses bitvector OR ($s_1 \mathbin{|} s_2$; see Section~\ref{sec:state-space}), enabling $N=6$ whereas ternary fusion would limit to $N=4$.
+
+\subsection{Complexity Classification}\label{sec:complexity-classification}
+
+\subsubsection{Decision Problem Complexity}
+
+The satisfiability problem for the modal fragment of \theorylogos{} inherits classical complexity bounds.
+
+\begin{proposition}[Modal Fragment Complexity]
+For the modal operators $\nec$ and $\poss$ over S4 frames:
+\begin{enumerate}
+    \item The satisfiability problem is PSPACE-complete~\cite{ladner1977}.
+    \item The finite model property holds.
+\end{enumerate}
+\end{proposition}
+
+The hyperintensional operators (ground, essence, propositional identity) operate over a finite state lattice, preserving decidability.
+Recent work establishes that truthmaker logics on semilattices are decidable with the finite model property~\cite{knudstorp2023}.
+
+\subsubsection{Z3 Encoding Complexity}
+
+The constraint count and quantifier depth grow with parameters $N$ (state space bits) and $K$ (atomic proposition count):
+
+\begin{table}[htbp]
+\centering
+\caption{Constraint Scaling by Primitive Arity}
+\label{tab:constraint-scaling}
+\begin{tabular}{@{}lll@{}}
+\toprule
+\textbf{Primitive Type} & \textbf{Arity} & \textbf{Instantiation Count} \\
+\midrule
+State predicates (\zpossible{}) & 1 & $O(2^N)$ \\
+Evaluation (\zverify{}, \zfalsify{}) & 2 & $O(2^N \cdot K)$ \\
+Accessibility (\zaccessible{}) & 2 & $O(2^{2N})$ \\
+Fusion (\zfusion{}) & 3 & $O(2^{2N})$ \\
+Selection (counterfactuals) & 4 & $O(2^{3N})$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The exponential growth in instantiation count with arity explains the empirical performance degradation observed in Table~\ref{tab:performance}.
+Quantifier alternation depth increases with operator nesting: modal operators introduce $\forall w'[\zaccessible(w, w') \imp \ldots]$, while counterfactuals require triple alternation patterns.
+
+\subsection{Encoding Correctness}\label{sec:encoding-correctness}
+
+We establish that the Z3 encoding faithfully represents truthmaker semantics.
+
+\begin{definition}[Encoding Function]\label{def:encoding}
+Let $\mathcal{E}: \mathcal{L}_{\theorylogos} \times \statespace \to \text{Z3Formula}$ be the encoding function mapping formulas and states to Z3 constraints:
+\begin{itemize}
+    \item $\mathcal{E}(p, s) = \zverify(s, p)$ for atomic $p$
+    \item $\mathcal{E}(\lneg A, s) = \zfalsify(s, A)$
+    \item $\mathcal{E}(A \land B, s) = \mathcal{E}(A, s) \land \mathcal{E}(B, s)$
+    \item $\mathcal{E}(A \lor B, s) = \exists s_1, s_2[s = \fuse{s_1}{s_2} \land \mathcal{E}(A, s_1) \land \mathcal{E}(B, s_2)]$
+    \item $\mathcal{E}(\nec A, w) = \forall w'[\zaccessible(w,w') \imp \mathcal{E}(A, w')]$
+    \item $\mathcal{E}(\poss A, w) = \exists w'[\zaccessible(w,w') \land \mathcal{E}(A, w')]$
+\end{itemize}
+The remaining operators (counterfactuals, constitutive operators) extend this mapping following their semantic clauses in Section~\ref{sec:logos}.
+\end{definition}
+
+\begin{theorem}[Encoding Soundness]\label{thm:soundness}
+For any $\theorylogos$ formula $\varphi$ and finite state space $\statespace$ with $|\statespace| = 2^N$:
+\[
+\text{If } \mathcal{E}(\varphi) \text{ is UNSAT in Z3, then } \varphi \text{ has no } \theorylogos\text{-model over } \statespace.
+\]
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+By structural induction on $\varphi$.
+
+\textbf{Base case (atomic).}
+$\mathcal{E}(p, s) = \zverify(s, p)$ is satisfiable iff there exists a valuation assigning $\zverify(s, p) = \top$.
+Frame constraints ensure $s$ is possible and not null when $\zverify(s,p)$ holds.
+
+\textbf{Inductive case (conjunction).}
+By IH, $\mathcal{E}(A, s)$ is satisfiable iff $s \verifies A$ in some model.
+$\mathcal{E}(A \land B, s) = \mathcal{E}(A, s) \land \mathcal{E}(B, s)$ is satisfiable iff both conjuncts are, iff $s$ verifies both $A$ and $B$.
+By the truthmaker clause for conjunction (Definition~\ref{def:hyperintensional}), this holds iff $s \verifies A \land B$.
+
+\textbf{Inductive case (necessity).}
+$\mathcal{E}(\nec A, w) = \forall w'[\zaccessible(w,w') \imp \mathcal{E}(A, w')]$.
+By IH, each $\mathcal{E}(A, w')$ correctly encodes $w' \models A$.
+The universal quantification encodes ``for all accessible worlds,'' which is the standard Kripke semantics for necessity.
+
+The remaining cases (negation, disjunction, modalities, counterfactuals, constitutive operators) follow similarly, with each encoding clause mirroring the corresponding semantic clause.
+\end{proof}
+
+\begin{theorem}[Countermodel Extraction]\label{thm:countermodel}
+If $\mathcal{E}(\lneg \varphi)$ is SAT with model $M$, then $M$ can be extracted as a $\theorylogos$-countermodel to $\varphi$.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Z3's model extraction provides truth values for all $\zverify(s, p)$ and $\zfalsify(s, p)$.
+These directly constitute the verification/falsification functions of the semantic model.
+Frame constraints ensure the extracted model satisfies $\theorylogos$ structural requirements (downward closure, fusion closure, world existence).
+\end{proof}
+
+\begin{remark}[Limitations of Proof Sketch]
+The encoding correctness argument above is a proof sketch, not a machine-checked proof.
+Mechanized verification in a proof assistant (Coq, Isabelle/HOL, or Lean 4) remains future work.
+The 177 validated examples provide extensive empirical evidence for correctness, and regression testing on every commit guards against encoding errors.
+See Section~\ref{sec:limitations} for further discussion.
+\end{remark}
 
 %%=======================================================%%
 %% Section 3: Modularity and Extensibility               %%
@@ -518,7 +610,8 @@ The \theorylogos{} theory demonstrates this principle: fusion could be a ternary
 
 \section{Modularity, Extensibility, and Systematic Theory Comparison}\label{sec:modularity}
 
-Semantic theories should be modular components that can be composed, compared, and extended without reimplementing core infrastructure.
+The three-level architecture of Section~\ref{sec:methodology} enables any single theory to compile and validate examples---but a framework that requires rewriting core infrastructure for each new theory would limit rather than accelerate semantic research.
+Modularity addresses this: by separating theory-specific semantics from theory-agnostic infrastructure, new theories can be added, combined, and systematically compared without touching the core pipeline.
 
 \subsection{Theory-Agnostic Core Framework}\label{sec:theory-agnostic}
 
@@ -556,17 +649,8 @@ Different semantic applications need different operator subsets: classical logic
 The \texttt{LogosOperatorRegistry} provides dynamic loading:
 
 \begin{lstlisting}[caption={Dynamic operator loading}]
-# Load only extensional operators
-logos_classical = logos.get_theory(['extensional'])
-# Operators: not, or, and, implies, top, bottom
-
-# Load extensional + modal
 logos_modal = logos.get_theory(['extensional', 'modal'])
-# Adds: Box, Diamond
-
-# Load all operators
-logos_full = logos.get_theory(['extensional', 'modal', 'constitutive',
-                               'counterfactual', 'relevance'])
+# Analogous calls load constitutive, counterfactual, relevance subtheories
 \end{lstlisting}
 
 Operators are organized by semantic function in subtheory modules: extensional (conjunction, disjunction, negation, implication), modal (necessity, possibility), constitutive (ground, essence, subject-matter, propositional identity), counterfactual (counterfactual conditionals), and relevance (relevant implication).
@@ -582,39 +666,13 @@ Extensional-only loads approximately 15 constraints versus full \theorylogos{} a
 The framework enables running identical examples across theories for rigorous comparison:
 
 \begin{lstlisting}[caption={Multi-theory comparison}]
-example = {
-    'premises': ['A \\wedge B'],
-    'conclusions': ['B \\wedge A'],
-    'settings': {'N': 3}
-}
-
-theories = {
-    'Classical': classical_semantics,
-    'Logos': logos_semantics,
-    'Exclusion': exclusion_semantics
-}
-
-for name, theory in theories.items():
+for name, theory in [('Classical', classical), ('Logos', logos)]:
     result = BuildExample(module, theory, example, name)
-    display_result(result)
 \end{lstlisting}
 
 Sample output shows: \textbf{Classical}: Valid (conjunction commutes); \textbf{\theorylogos{}}: Invalid (different verifiers)---countermodel shows $A \land B$ verified by state $[a, b]$, but $B \land A$ not verified by $[a, b]$ (hyperintensional distinction); \textbf{\theoryexclusion{}}: Depends on topic assignments.
 
-\begin{table}[htbp]
-\centering
-\caption{Comparative Predictions Across Theories}
-\label{tab:comparison}
-\begin{tabular}{@{}lccccl@{}}
-\toprule
-\textbf{Argument} & \textbf{Classical} & \textbf{Modal S4} & \textbf{\theorylogos{}} & \textbf{\theoryexclusion{}} & \textbf{Notes} \\
-\midrule
-$A \land B \imp B \land A$ & Valid & Valid & Invalid & Invalid & Hyperintensional \\
-$A \imp A \lor B$ & Valid & Valid & Invalid & Invalid & Disj.\ intro fails \\
-$\nec(A \imp B), \nec A \vdash \nec B$ & Valid & Valid & Valid & N/A & K axiom \\
-\bottomrule
-\end{tabular}
-\end{table}
+Table~\ref{tab:inference-comparison} in Section~\ref{sec:theory-comparison-results} provides a comprehensive comparison of inference validity across theories.
 
 \subsection{Extensibility Dimensions}\label{sec:extensibility}
 
@@ -668,12 +726,7 @@ States are represented as $N$-bit vectors where each bit position corresponds to
 For $N=3$:
 \begin{align*}
 000_2 = 0 &\mapsto \nullstate \text{ (null state)} \\
-001_2 = 1 &\mapsto a \\
-010_2 = 2 &\mapsto b \\
-011_2 = 3 &\mapsto \fuse{a}{b} \text{ (fusion of $a$ and $b$)} \\
-100_2 = 4 &\mapsto c \\
-101_2 = 5 &\mapsto \fuse{a}{c} \\
-110_2 = 6 &\mapsto \fuse{b}{c} \\
+&\vdots \\
 111_2 = 7 &\mapsto \fuse{a}{\fuse{b}{c}} \text{ (full state)}
 \end{align*}
 
@@ -785,11 +838,10 @@ The guiding principle is that semantic theories are scientific hypotheses requir
 
 The current implementation includes four theories.
 
-\textbf{\theorylogos{} --- Bilateral Hyperintensional Truthmaker Semantics.}
+\textbf{\theorylogos{} --- Bilateral Hyperintensional Truthmaker Semantics} (Section~\ref{sec:logos}).
 Foundation: Kit Fine's truthmaker semantics with bilateral evaluation~\cite{fine2017tms,fine2017content}.
 Operators: 19 operators across 5 subtheories---extensional (7: $\lneg, \lor, \land, \imp, \leftrightarrow, \top, \bot$), modal (2: $\nec, \poss$), constitutive (4: $\propident$ identity, $\ground$ ground, $\essence$ essence, $\relimpl$ relevance), counterfactual (4: $\boxright, \diamondright$, and variants), and relevance (2: $\relimpl$ relevant implication).
 Examples: 177 validated test cases.
-Key features: bilateral (verifiers and falsifiers), hyperintensional (distinguishes logical equivalents), mereologically structured state space.
 Applications: philosophy of language, grounding theory, essence metaphysics.
 
 \textbf{\theoryexclusion{} --- Unilateral Witness Semantics.}
@@ -814,89 +866,32 @@ Each theory is a self-contained package with \texttt{semantic.py} (core semantic
 
 \subsection{Vision: A Collaborative Platform for Semantic Research}\label{sec:vision}
 
-\paragraph{Comparative Research Platform.}
-Enable systematic comparison across semantic approaches:
-\begin{lstlisting}[caption={Running benchmark comparisons}]
-from model_checker.comparison import run_benchmark
-
-results = run_benchmark(
-    test_suite='standard_inferences',
-    theories=['logos', 'exclusion', 'classical', 'modal_s4'],
-    output='comparison_table.md'
-)
-\end{lstlisting}
-
-Applications include theory selection (choose theory matching desired inference patterns), theory refinement (identify divergent predictions for philosophical adjudication), and empirical adequacy (test theories against intuition databases).
-
-\paragraph{Archival and Citation System.}
-Theories function as citable, versioned components:
-\begin{lstlisting}[caption={BibTeX citation for theory}]
-@software{modelchecker_logos_v1,
-  title = {Logos Bilateral Truthmaker Semantics},
-  author = {ModelChecker Contributors},
-  version = {1.0.3},
-  year = {2024},
-  url = {https://github.com/benbrastmckie/.../logos},
-  note = {Semantic theory implementation in ModelChecker}
-}
-\end{lstlisting}
-
-Benefits include reproducibility (exact theory version used in research), credit attribution (theory developers receive citations), longevity (implementations preserved for future study), and incremental improvement (version history tracks theory evolution).
-
-\paragraph{Extensibility and Contribution.}
-The \modelchecker{} workflow lowers barriers to entry: implement semantic rules programmatically (days), validate against hundreds of examples automatically (hours), publish paper with executable theory as supplement, and enable community extension, testing, and citation.
-
-Contribution pathways include new theories, operator extensions, example databases, performance optimizations, and documentation.
+The framework enables systematic cross-theory comparison via benchmark suites, with theories as citable, versioned components supporting reproducible research.
 
 \subsection{Theory-Agnostic Framework Design}\label{sec:agnostic-design}
 
 All theories extend a common base class:
 \begin{lstlisting}[caption={The semantic interface}]
 class SemanticDefaults:
-    """Base class providing fundamental semantic operations."""
-
-    def __init__(self, combined_settings):
-        self.N = combined_settings.get('N')
-        self.frame_constraints = []
-
     def fusion(self, bit_s, bit_t):
-        """Bitwise OR for state fusion"""
-        return bit_s | bit_t
+        return bit_s | bit_t  # Bitwise OR for state fusion
 
     def is_part_of(self, bit_s, bit_t):
-        """Mereological part-of relation"""
-        return (bit_s & bit_t) == bit_s
-
-# Theories extend and override
-class LogosSemantics(SemanticDefaults):
-    def __init__(self, combined_settings):
-        super().__init__(combined_settings)
-        # Define theory-specific Z3 primitives
-        # Add theory-specific frame constraints
+        return (bit_s & bit_t) == bit_s  # Mereological parthood
 \end{lstlisting}
 
-Simple inheritance with no abstract methods means theories override what they need.
+Theories extend \texttt{SemanticDefaults}, overriding primitive declarations as needed.
 
-Benefits of theory-agnosticism include: innovation freedom (theories can experiment with novel approaches), maintenance isolation (bugs in one theory don't affect others), parallel development (multiple researchers can develop theories concurrently), and future-proofing (framework accommodates unforeseen theory types).
+This separation enables independent theory development without framework modification.
 
 \subsection{Sharing, Reuse, and Modularity}\label{sec:sharing}
 
-Common operators can be reused across theories.
-Classical conjunction behaves identically in \theorylogos{} and \theoryexclusion{}, while negation differs.
-Benefits include consistency (same operator behaves identically across theories), shared testing, and no code duplication.
+Common operators can be reused across theories with consistency (same operator behaves identically), shared testing, and no code duplication.
 
 Subtheory composition allows users to select which subtheories to load, with automatic dependency resolution.
 This supports focused research (test modal operators without counterfactual complexity), better performance (reduce constraints for faster solving), and pedagogical use (introduce operators incrementally).
 
 Cross-theory utilities provide shared infrastructure: solvers (Z3 backend used by all theories), parsers (\LaTeX{} formula parser is theory-independent), output formatters (JSON/Markdown/text formats uniform), testing frameworks (pytest infrastructure), and documentation generators.
-
-\subsection{Community and Contribution Model}\label{sec:community}
-
-Open source foundations include MIT license (permissive, encourages reuse), public GitHub with issue tracking, comprehensive contributor guides, and CI/CD ensuring contributed code passes tests.
-
-Quality standards require $>$85\% test coverage, documented operators with semantic rules, minimum 20 validated examples, and tutorial notebooks.
-
-Incentives for contribution include academic incentives (citation credit, co-authorship opportunities, showcase expertise), practical incentives (use contributed theory immediately, benefit from community testing), and educational incentives (create teaching resources, build reputation).
 
 %%=======================================================%%
 %% Section 6: Logos Case Study                           %%
@@ -904,49 +899,52 @@ Incentives for contribution include academic incentives (citation credit, co-aut
 
 \section{Case Study: Logos Theory and Unified Hyperintensional Semantics}\label{sec:logos}
 
-The \theorylogos{} theory demonstrates the framework's capacity to implement sophisticated semantic theories---a unified approach to hyperintensional reasoning needed for the language of thought.
+The four theories catalogued in Section~\ref{sec:theorylib} illustrate the framework's breadth, but breadth alone does not demonstrate depth: can the framework handle a semantically demanding theory that integrates multiple operator subtheories, bilateral evaluation, mereological state structure, and configurable modal axioms?
+The \theorylogos{} theory answers this question---a unified hyperintensional framework that extends truthmaker semantics to cover grounding, essence, counterfactuals, and relevance within a single coherent architecture.
 
 \subsection{Philosophical Background: The Language of Thought}\label{sec:philosophical-background}
 
 The core idea of truthmaker semantics~\cite{fine2017tms} is that propositions are characterized by what makes them true or false.
 
-\textbf{Bilateral Evaluation.}
-Verifiers are states that make a proposition true.
-Falsifiers are states that make a proposition false.
-Gaps are partial states that do neither.
+\begin{definition}[Hyperintensional Operator]\label{def:hyperintensional}
+An operator $\mathcal{O}$ is \emph{hyperintensional} if there exist formulas $A$ and $B$ such that:
+\begin{enumerate}
+    \item $A$ and $B$ are necessarily equivalent: $\nec(A \leftrightarrow B)$, yet
+    \item $\mathcal{O}(A)$ and $\mathcal{O}(B)$ may differ in truth-value.
+\end{enumerate}
+Equivalently, substitution of necessary equivalents within the scope of $\mathcal{O}$ does not preserve truth.
+\end{definition}
 
-For proposition $A$: ``It is raining,'' verifiers include states where rain occurs ($r$, $\fuse{r}{w}$, $\fuse{r}{c}$, \ldots), falsifiers include states where no-rain obtains ($\lneg r$, $\fuse{\lneg r}{c}$, \ldots), and gaps are partial states indeterminate about rain.
+\begin{remark}[Hyperintensional Operators in \theorylogos{}]\label{rem:hyperintensional-operators}
+The following \theorylogos{} operators are hyperintensional:
+\begin{itemize}
+    \item \textbf{Conjunction} ($\land$): $A \land B$ and $B \land A$ are necessarily equivalent but may have distinct verifiers, hence $\lneg((A \land B) \propident (B \land A))$ is satisfiable.
+    \item \textbf{Propositional identity} ($\propident$): $A \propident B$ requires identical verifiers \emph{and} falsifiers, not merely necessary equivalence.
+    \item \textbf{Ground} ($\ground$): $A \ground B$ requires every verifier of $B$ to contain a verifier of $A$ as a part.
+    \item \textbf{Relevant implication} ($\relimpl$): Requires subject-matter overlap beyond material truth.
+\end{itemize}
+These distinctions arise from bilateral evaluation: propositions are characterized by their exact verifiers and falsifiers, not merely their truth-values across possible worlds.
+\end{remark}
 
-\textbf{Mereological Structure.}
-States form a partial order under part-of ($\parthood$).
-The null state ($\nullstate$) is part of everything and verifies/falsifies nothing.
-Atomic states are minimal non-null states ($a, b, c, \ldots$).
-Fusions combine states via the $\sqcup$ operation.
-Closure properties (whether $s \verifies A$ and $s \parthood t$ implies $t \verifies A$) are theory-dependent.
+Bilateral evaluation uses exact verifiers and falsifiers (Section~\ref{sec:state-space}).
 
 \subsection{Logos Implementation Strategy}\label{sec:logos-implementation}
 
-Design goals include a comprehensive operator suite (covering extensional, modal, constitutive, counterfactual, and relevance operators), modular architecture (operators organized by semantic function, selectively loadable), empirical validation (extensive example suite testing operator interactions), and performance optimization (constraints optimized for tractability despite complexity).
+The implementation prioritizes modularity and tractability.
 
-\textbf{Z3 Primitive Declarations:}
+\textbf{Z3 Primitive Declarations} (using the bitvector representation from Section~\ref{sec:state-space}):
 \begin{lstlisting}[caption={\theorylogos{} Z3 primitives}]
 class LogosSemantics(SemanticDefaults):
     def declare_z3_primitives(self):
-        # Core evaluation functions
+        # Evaluation, mereology, modal accessibility, worlds
         self.verify = z3.Function('verify', BitVecSort(N), AtomSort, BoolSort)
         self.falsify = z3.Function('falsify', BitVecSort(N), AtomSort, BoolSort)
-
-        # Mereology
         self.possible = z3.Function('possible', BitVecSort(N), BoolSort)
-
-        # Modal accessibility
         self.accessible = z3.Function('accessible', BitVecSort(N), BitVecSort(N), BoolSort)
-
-        # Worlds (maximal consistent states)
         self.is_world = z3.Function('is_world', BitVecSort(N), BoolSort)
 \end{lstlisting}
 
-\textbf{Frame Constraints} (9 constraints): (1) null state exists: $\zpossible(\nullstate)$; (2) downward closure: $\forall s[\zpossible(s) \imp \forall t[t \parthood s \imp \zpossible(t)]]$; (3) fusion closure: $\forall s,t[\zpossible(s) \land \zpossible(t) \imp \zpossible(\fuse{s}{t})]$; (4) world existence: $\exists w[\zisworld(w)]$; (5) world maximality: worlds contain all possible states as parts; (6) modal reflexivity: accessibility relation reflexive (for S4/S5); (7) modal transitivity: accessibility relation transitive; (8) no null verification: $\forall A[\lneg \zverify(\nullstate, A) \land \lneg \zfalsify(\nullstate, A)]$; (9) exclusive verification: $\forall A,s[\lneg(\zverify(s,A) \land \zfalsify(s,A))]$ (optional via settings).
+Frame constraints include null state existence, downward/fusion closure, world existence/maximality, and configurable modal axioms (reflexivity, transitivity for S4/S5).
 
 \subsection{Operator Semantics: Five Subtheories}\label{sec:operator-semantics}
 
@@ -972,10 +970,7 @@ class Conjunction(OperatorDefaults):
 
 Interpretation: $s$ verifies $A \land B$ iff $s$ verifies both $A$ and $B$; $s$ falsifies $A \land B$ iff $s$ falsifies $A$ or falsifies $B$.
 
-\textbf{Negation} ($\lneg$): Negation swaps verifiers and falsifiers.
-The verify method returns \texttt{extended\_falsify(state, A)}, and falsify returns \texttt{extended\_verify(state, A)}.
-
-Other extensional operators: disjunction defined via De Morgan ($\lneg(\lneg A \land \lneg B)$), implication as $\lneg A \lor B$, biconditional as $(A \imp B) \land (B \imp A)$, top ($\top$) verified by all states, bottom ($\bot$) falsified by all states.
+Negation swaps verifiers/falsifiers; remaining extensional operators follow standard definitions (De Morgan for disjunction, material implication).
 
 \subsubsection{Modal Operators}
 
@@ -984,17 +979,12 @@ Other extensional operators: disjunction defined via De Morgan ($\lneg(\lneg A \
 class Necessity(OperatorDefaults):
     def true_at(self, world, sentence, eval_point):
         A = sentence.sentences[0]
-        accessible_worlds = [w for w in self.semantics.worlds
-                            if self.semantics.accessible(world, w)]
-        return z3.And([
-            self.semantics.true_at(w_prime, A, eval_point)
-            for w_prime in accessible_worlds
-        ])
+        return z3.And([self.semantics.true_at(w, A, eval_point)
+                       for w in self.semantics.worlds
+                       if self.semantics.accessible(world, w)])
 \end{lstlisting}
 
-Interpretation: $\nec A$ true at $w$ iff $A$ true at all accessible worlds from $w$.
-Possibility ($\poss$) is defined as $\lneg \nec \lneg A$.
-The accessibility relation is configurable (reflexive, transitive, symmetric), determining the modal logic (S4, S5, K, etc.).
+Standard Kripke semantics with configurable accessibility (K, S4, S5).
 
 \subsubsection{Constitutive Operators}
 
@@ -1021,7 +1011,7 @@ Additionally requires subject matter overlap between $A$ and $B$.
 
 The key insight is that a unified language of thought requires operators from all these domains.
 Cognitive agents reason modally (what's possible), counterfactually (what would happen if\ldots), content-sensitively (what thoughts are about), and explanatorily (why things are true).
-\theorylogos{} represents the first computational implementation integrating all these dimensions.
+This unification demonstrates the framework's expressiveness.
 
 \subsection{Empirical Validation and Test Suite}\label{sec:validation}
 
@@ -1033,15 +1023,28 @@ The 177 examples span multiple categories.
 
 \textbf{Constitutive} (35 examples): ground transitivity ($A \ground B, B \ground C \vdash A \ground C$), identity symmetry ($A \propident B \imp B \propident A$), distinguishing ($A \leftrightarrow B \not\Rightarrow A \propident B$).
 
-\textbf{Counterfactual} (32 examples): modus ponens ($A, A \boxright B \vdash B$), contraposition failures, strengthening antecedent failures, transitivity failures (as expected theoretically).
+\textbf{Counterfactual} (32 examples): modus ponens ($A, A \boxright B \vdash B$), contraposition failures, strengthening antecedent failures, transitivity failures.
 
-The validation process involves manual construction (theory expert constructs example and predicts validity/invalidity), automated testing (each example runs in $<5$ seconds at $N=3$ or $N=4$), regression testing (all 177 examples run on every commit), and cross-theory validation (some examples run across multiple theories to confirm divergent predictions are intentional).
+Each example is manually constructed with expected validity, then regression-tested on every commit.
 
 %%=======================================================%%
 %% Section 7: Implementation Results                     %%
 %%=======================================================%%
 
 \section{Implementation Results and Empirical Validation}\label{sec:results}
+
+The preceding sections establish the framework's design and theoretical properties; this section asks whether it works empirically---whether the encoding is tractable, the theories validate correctly, and the performance scales to practical use.
+
+\paragraph{Experimental Setup.}
+All experiments were conducted on the following configuration:
+\begin{itemize}
+    \item \textbf{Hardware}: [INSERT: CPU model, e.g., Intel Core i7-12700K @ 3.6GHz], [INSERT: RAM, e.g., 32GB DDR4-3200], [INSERT: OS, e.g., Ubuntu 22.04 LTS]
+    \item \textbf{Software}: Python [INSERT: version, e.g., 3.11.4], Z3 [INSERT: version, e.g., 4.12.2], \modelchecker{} version [INSERT: version or commit hash]
+    \item \textbf{Methodology}: Each example was executed [INSERT: number] times; reported times are [INSERT: mean/median] wall-clock time in seconds.
+    Standard deviation is reported where applicable.
+    \item \textbf{Timeout}: Default timeout of 60 seconds per example; examples exceeding this threshold are marked as timeouts.
+    \item \textbf{Reproducibility}: All experiments are reproducible via \texttt{make benchmark} in the repository; random seed fixed at [INSERT: seed value] for deterministic model iteration.
+\end{itemize}
 
 \subsection{Quantitative Metrics}\label{sec:metrics}
 
@@ -1172,6 +1175,12 @@ Similarity: automated validation of modal inferences.
 Difference: proof search focus, not model construction.
 Our contribution: model-finding emphasis with Z3 enables countermodel inspection.
 
+\textbf{Modal Logic Solvers.}
+MLSolver~\cite{friedmann2010} addresses the satisfiability problem for modal fixpoint logics including the mu-calculus, CTL*, and PDL using parity game reduction.
+PRONOM~\cite{pronom2021} is the first theorem prover for the non-normal modal logic cube, extending coverage beyond normal modal logics.
+These tools focus on validity/satisfiability decision procedures using possible-worlds semantics rather than model construction with truthmaker semantics.
+Our contribution differs in: (1) model-finding emphasis (exploring actual countermodels rather than just deciding satisfiability), (2) bilateral evaluation structure (explicit verifiers and falsifiers), and (3) hyperintensional operators beyond modal logic.
+
 \subsection{SMT Solvers in Verification}\label{sec:smt-verification}
 
 De Moura \& Bjørner's Z3~\cite{demoura2008} provides efficient SMT solving with theories (arithmetic, bitvectors, arrays).
@@ -1191,10 +1200,17 @@ Similarity: formal verification of logical systems.
 Difference: interactive proof construction, high learning curve.
 Our contribution: automated model finding, lower barrier to entry, rapid prototyping.
 
-\textbf{Truthmaker Semantics Implementations.}
-Fine's informal presentation of bilateral truthmaker framework~\cite{fine2017tms,fine2017content} and Yablo's work on aboutness~\cite{yablo2014} provide philosophical foundations.
-Our work: first systematic computational implementation.
-Contribution: executable semantics enabling empirical validation.
+\textbf{Truthmaker Semantics.}
+Fine's bilateral truthmaker framework~\cite{fine2017tms,fine2017content} introduces exact verification and falsification as primitive notions, providing the philosophical foundation for hyperintensional semantics.
+Subsequent theoretical developments include Yablo's work on aboutness~\cite{yablo2014} and Jago's applications to grounding and content~\cite{jago2020}.
+Knudstorp~\cite{knudstorp2023} establishes decidability and finite model property results for truthmaker logics on semilattices.
+These remain primarily theoretical; our implementation (Section~\ref{sec:logos}) translates Fine's informal semantics into executable Z3 constraints.
+
+\textbf{Hyperintensional Logic.}
+Transparent Intensional Logic (TIL)~\cite{til2010} provides a hyperintensional framework for natural language analysis, using procedural semantics based on typed lambda calculus.
+Recent work investigates hyperlogic with structured propositions and counterfactual conditionals.
+These frameworks focus on theoretical foundations and proof theory rather than automated model finding.
+Our contribution: executable implementation enabling empirical exploration of hyperintensional theories with automated countermodel discovery.
 
 \subsection{Comparison Summary}\label{sec:comparison-summary}
 
@@ -1227,36 +1243,90 @@ Our niche: modular semantic theory development for hyperintensional and non-clas
 
 \subsection{Contributions Summary}\label{sec:contributions}
 
-\textbf{Theoretical Contributions.}
-(1) Programmatic methodology for semantics: treating semantic theories as executable programs where truth conditions compile to SMT constraints.
-(2) First comprehensive bilateral truthmaker implementation: Fine's informal semantics formalized computationally with 19 operators across 5 semantic domains.
-(3) Theory-agnostic framework design: clean separation between core infrastructure and theory-specific logic with zero coupling between theories.
-(4) Finite model methodology: constraint-based approach to finite model exploration with progressive search strategy.
+\textbf{Implications for Semantic Theory Development.}
+The systematic comparison reveals that computational tractability diverges from theoretical parsimony: the ``simpler'' unilateral \theoryexclusion{} theory is 7$\times$ slower than bilateral \theorylogos{} due to higher primitive arity.
+This provides objective grounds for theory selection beyond aesthetic criteria.
 
-\textbf{Practical Contributions.}
-(1) \theorylib{}: reusable semantic components with 4 implemented theories and modular operators with automatic dependency resolution.
-(2) Systematic comparative analysis: side-by-side theory comparison on identical examples with database of comparative predictions.
-(3) Educational resources: interactive Jupyter notebooks with comprehensive documentation.
-(4) Open source infrastructure: MIT licensed, public repository with CI/CD.
+\textbf{Implications for Research Practice.}
+The finite model methodology enables rapid hypothesis testing---formulas can be validated against hundreds of examples in minutes rather than through manual proof construction.
+The \theorylib{} vision of citable, versioned theory implementations supports reproducible semantic research.
 
-\subsection{Limitations and Challenges}\label{sec:limitations}
+\subsection{Limitations and Threats to Validity}\label{sec:limitations}
 
-\textbf{Computational Limitations.}
-Incompleteness: cannot prove validity in general (only find countermodels)---mitigated by supplementing with analytic proofs.
-State space ceiling ($N=6$ typically): exponential growth limits model size---mitigated by optimization strategies.
-Timeout sensitivity: complex formulas exceed solver capacity---mitigated by adjusting timeout and simplifying formulas.
+\subsubsection{Internal Validity: Encoding Correctness}
 
-\textbf{Theoretical Limitations.}
-Finite model property assumption: some logics require infinite models---current work limited to finite-model fragments.
-Frame constraint correctness: requires expert judgment---mitigated by extensive testing.
-Operator interaction complexity: 19 operators yield 361 pairwise interactions---mitigated by focusing on philosophically significant combinations.
+\textbf{Semantic encoding fidelity.}
+The Z3 encoding must faithfully represent truthmaker semantic clauses.
+We mitigate this threat through: (1) extensive test suite coverage (177 validated examples), (2) regression testing on every commit, and (3) comparison with hand-constructed examples from the truthmaker semantics literature~\cite{fine2017tms}.
+However, the encoding has not been mechanically verified in a proof assistant (see Section~\ref{sec:encoding-correctness}).
+
+\textbf{Frame constraint soundness.}
+Frame constraints require expert judgment to ensure they correctly capture semantic principles.
+Incorrect constraints could admit spurious models or exclude valid ones.
+Mitigation: constraints are derived directly from published definitions in~\cite{fine2017tms,fine2017content}.
+
+\textbf{BitVector representation limits.}
+States are represented as $N$-bit bitvectors.
+For $N > 64$, this exceeds native word size.
+Current implementation is limited to $N \leq 16$, corresponding to $\leq 65{,}536$ states.
+
+\subsubsection{External Validity: Generalizability}
+
+\textbf{Finite model restriction.}
+The framework can only explore finite models.
+Logics without the finite model property (e.g., certain second-order extensions) cannot be completely characterized.
+Mitigation: many philosophically significant modal and hyperintensional logics have the finite model property~\cite{knudstorp2023}.
+
+\textbf{Theory coverage.}
+Results generalize to theories expressible within our framework (bilateral semantics, mereological state spaces).
+Theories requiring different primitives (e.g., neighborhood semantics for non-normal modal logics) would require framework extension.
+
+\textbf{Example selection bias.}
+The 177 examples were constructed to test specific operator behaviors, not sampled randomly.
+They may not represent ``typical'' formulas users will test.
+
+\subsubsection{Construct Validity: Complexity Measurement}
+
+\textbf{Solver time as complexity proxy.}
+We use Z3 solving time as a measure of theory complexity.
+This conflates semantic complexity with encoding efficiency and solver heuristics.
+Mitigation: we also report constraint counts and timeout rates.
+
+\textbf{Feasible model size threshold.}
+Defining tractability as ``$N \leq 6$ before timeout'' is arbitrary.
+Different applications may have different size requirements.
+
+\subsubsection{Scalability Limitations}
+
+\textbf{Exponential state space.}
+The state space grows as $2^N$, limiting practical exploration.
+At $N=6$ (64 states), many formulas time out; $N=7$ (128 states) is often infeasible.
+See Section~\ref{sec:finite-limitations} for detailed discussion.
+
+\textbf{Constraint explosion.}
+Complex formulas with many atomic propositions generate thousands of constraints.
+The ternary/quaternary primitives required by some operators (e.g., \zcloser{} for counterfactuals) exacerbate this.
+
+\textbf{Quantifier alternation.}
+Nested modal operators introduce quantifier alternation, which is exponentially harder for SMT solvers.
+Formulas like $\nec\poss\nec p$ may time out even at $N=3$.
+
+\subsubsection{Limitations Not Addressed}
+
+\textbf{Infinite models.}
+No support for reasoning about infinite model classes.
+
+\textbf{Soundness proof automation.}
+The encoding correctness argument (Section~\ref{sec:encoding-correctness}) is a proof sketch, not a machine-checked proof.
+Mechanized verification in Coq, Isabelle/HOL, or Lean 4 remains future work.
+
+\textbf{Multi-theory comparison validity.}
+When comparing theories on the same example, differences may reflect encoding choices rather than deep semantic differences.
 
 \subsection{Broader Impact}\label{sec:impact}
 
 \textbf{Philosophy and Logic.}
 Computational turn in semantics: shift from informal to executable semantic theories with empirical validation as standard practice.
-Cumulative knowledge building: theories as reusable, citable components.
-Lower barrier to entry: non-specialists can implement theories.
 
 \textbf{Computer Science and AI.}
 Formal reasoning systems: hyperintensional semantics for content-sensitive AI, planning systems with counterfactual reasoning.
@@ -1270,14 +1340,13 @@ Belief attribution: modeling hyperintensional belief states.
 \subsection{Conclusion}\label{sec:conclusion}
 
 We have presented \modelchecker{}, a programmatic framework for developing modular semantic theories using SMT solvers.
-The framework enables rapid development (theory-agnostic architecture allows implementing new semantic frameworks in days/weeks), supports systematic comparison (run identical examples across multiple theories), provides empirical validation (extensive test suites ensure correctness), facilitates finite model exploration (constraint-based approach efficiently searches model spaces), implements rich semantics (first comprehensive implementation of bilateral truthmaker semantics), promotes modularity (operators, theories, and tools as reusable components), and lowers barriers (accessible Python API and comprehensive documentation).
+The framework enables rapid development (theory-agnostic architecture allows implementing new semantic frameworks in days/weeks), supports systematic comparison (run identical examples across multiple theories), provides empirical validation (extensive test suites ensure correctness), facilitates finite model exploration (constraint-based approach efficiently searches model spaces), implements rich semantics (bilateral truthmaker semantics with integrated hyperintensional operators), promotes modularity (operators, theories, and tools as reusable components), and lowers barriers (accessible Python API and comprehensive documentation).
 
-The \theorylib{} vision provides an extensible library of executable semantic theories serving as a comparative research platform, archival and citation system, educational resource, and collaborative community hub.
+The \theorylib{} vision provides an extensible library of executable semantic theories serving as a comparative research platform with version-controlled archival.
 
 The \theorylogos{} case study demonstrates the framework's capacity to implement sophisticated theories with 19 operators across 5 semantic domains, unified hyperintensional semantics for language of thought, and 177 validated examples confirming correctness.
 
 By treating semantic theories as executable programs, we enable a more rigorous, empirical, and collaborative approach to developing the formal languages needed for philosophical inquiry, cognitive science, and AI.
-The future of semantic theory is computational, modular, and collaborative---and it starts with frameworks like \modelchecker{} making that future accessible to researchers today.
 
 %%=======================================================%%
 %% Back Matter                                           %%

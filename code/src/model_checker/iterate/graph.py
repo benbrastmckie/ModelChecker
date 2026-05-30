@@ -11,7 +11,7 @@ import json
 import logging
 import sys
 from typing import List, Optional, Set, Any, Tuple, Dict, TYPE_CHECKING
-import z3
+from model_checker import z3_shim as z3
 
 if TYPE_CHECKING:
     from model_checker.models.structures import ModelStructure

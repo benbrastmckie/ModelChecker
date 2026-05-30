@@ -5,7 +5,7 @@ iterators must implement.
 """
 
 from typing import TYPE_CHECKING, List, Optional, Any, Dict
-import z3
+from model_checker import z3_shim as z3
 
 if TYPE_CHECKING:
     from ..builder.build_example import BuildExample

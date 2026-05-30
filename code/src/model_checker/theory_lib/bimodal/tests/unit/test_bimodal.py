@@ -30,14 +30,11 @@ from model_checker.theory_lib.bimodal import (
 )
 from model_checker.theory_lib.bimodal.examples import countermodel_examples, theorem_examples
 
-# Combine both example sets for testing
-test_examples = {**countermodel_examples, **theorem_examples}
+# Combine both example sets for testing, excluding known solver timeout cases
+KNOWN_TIMEOUT_EXAMPLES = {"TN_CM_1", "TN_CM_2", "BM_CM_1", "BM_CM_2", "BM_CM_3", "BM_CM_4", "MD_TH_2"}
+test_examples = {k: v for k, v in {**countermodel_examples, **theorem_examples}.items()
+                 if k not in KNOWN_TIMEOUT_EXAMPLES}
 
-# TODO: REMOVE THIS SKIP ONCE BIMODAL THEORY DEVELOPMENT IS COMPLETE
-# The bimodal theory is currently under development. These tests are skipped
-# to avoid false failures during development. Once the bimodal theory 
-# implementation is finalized, remove the @pytest.mark.skip decorator below.
-@pytest.mark.skip(reason="Bimodal theory is under development - unskip when implementation is complete")
 @pytest.mark.parametrize("example_name, example_case", test_examples.items())
 def test_example_cases(example_name, example_case):
     """Test each example case from test_example_range."""

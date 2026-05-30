@@ -21,7 +21,7 @@ This guide establishes the process for maintaining documentation quality in the 
 1. **Update references immediately** - If you move or rename a file, update all references
 2. **Sync component counts** - If you add/remove commands, skills, or agents, update:
    - `.opencode/docs/guides/component-selection.md` inventory section
-   - `.opencode/OPENCODE.md` Skill-to-Agent mapping table
+   - `.opencode/README.md` Skill-to-Agent mapping table
 3. **Verify examples still work** - Test any command examples in documentation
 4. **Check cross-references** - Ensure @-references point to existing files
 
@@ -96,7 +96,7 @@ find .opencode -name "*.md" ! -path "*/project-overview.md" \
    ls .opencode/agent/subagents/*.md | wc -l
    ```
 2. Update `.opencode/docs/guides/component-selection.md`
-3. Update `.opencode/OPENCODE.md` mapping tables
+3. Update `.opencode/README.md` mapping tables
 
 ### Issue: Non-existent Commands
 

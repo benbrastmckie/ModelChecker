@@ -22,3 +22,9 @@ Load: `patterns/document-structure.md`, `standards/latex-style-guide.md`
 ## For Implementation
 
 Load: `patterns/theorem-environments.md`, `tools/compilation-guide.md`
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

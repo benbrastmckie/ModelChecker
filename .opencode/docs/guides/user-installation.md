@@ -294,7 +294,7 @@ Please diagnose the issue and suggest fixes.
 
 - **[Architecture](../architecture/system-overview.md)** - System architecture overview
 - **[User Guide](user-guide.md)** - Comprehensive command reference
-- **[OPENCODE.md](../../OPENCODE.md)** - Quick reference
+- **[README.md](../../README.md)** - Quick reference
 
 ### Project Documentation
 

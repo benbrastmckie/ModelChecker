@@ -132,8 +132,13 @@ class ImpositionSemantics(LogosSemantics):
 **Example Settings** (per-model configuration):
 - Model size (`N` for states, `M` for time points)
 - Semantic constraints (`contingent`, `disjoint`, `non_empty`)
-- Solver configuration (`max_time`, `expectation`)
+- Solver configuration (`max_time`, `expectation`, `solver`)
 - Theory-specific options (coherence checks, optimization flags)
+
+**Solver Selection** (`solver` setting):
+- `'z3'` (default): Use Z3 SMT solver
+- `'cvc5'`: Use cvc5 SMT solver
+- Precedence chain: CLI flags (`--z3`/`--cvc5`) > per-example `solver` setting > default
 
 ## Settings Architecture
 
@@ -236,6 +241,15 @@ This setting must be configured in example files, not as CLI flags:
 - `--save [formats]` - Save output to files (markdown, json, notebook)
 - `--save-output` - Save output to file
 - `--maximize` - Compare theories by maximizing model size
+
+#### Solver Backend Selection
+
+Select which SMT solver backend to use for constraint solving:
+
+- `--z3` - Use Z3 solver backend (default)
+- `--cvc5` - Use cvc5 solver backend
+
+For detailed information about solver backends, capabilities, and configuration, see the [Solver Package documentation](../solver/README.md).
 
 #### Usage Examples
 

@@ -1,6 +1,9 @@
 import sys
 import time
-import z3
+from typing import cast
+from model_checker import z3_shim as z3
+
+from model_checker.solver import is_true, is_false
 
 # Standard imports
 from model_checker.models.semantic import SemanticDefaults
@@ -13,6 +16,7 @@ from model_checker.utils import (
     pretty_set_print,
 )
 from model_checker import syntactic
+from model_checker.syntactic.atoms import get_atom_sort
 
 # Witness predicate components (Phase 4 integration)
 # Note: These imports use fully qualified paths because semantic.py is being
@@ -46,6 +50,8 @@ class BimodalSemantics(SemanticDefaults):
         'expectation': True,
         # Number of model iterations to generate
         'iterate': 1,
+        # Solver backend: 'z3' or 'cvc5'
+        'solver': 'z3',
     }
     
     # Optional: Add bimodal-specific general settings
@@ -172,7 +178,7 @@ class BimodalSemantics(SemanticDefaults):
         self.truth_condition = z3.Function(
             "truth_condition",
             self.WorldStateSort,
-            syntactic.AtomSort,
+            get_atom_sort(),
             z3.BoolSort()
         )
 
@@ -298,7 +304,7 @@ class BimodalSemantics(SemanticDefaults):
         
         # 3. Each sentence letter is true or false (and not both which is unsat)
         world_state = z3.BitVec('world_state', self.N)
-        sentence_letter = z3.Const('atom_interpretation', syntactic.AtomSort)
+        sentence_letter = z3.Const('atom_interpretation', get_atom_sort())
         classical_truth = z3.ForAll(
             [world_state, sentence_letter],
             z3.Or(
@@ -858,7 +864,7 @@ class BimodalSemantics(SemanticDefaults):
                 main_point = {"world": self.main_world, "time": self.main_time}
                 premise_expr = self.true_at(premise, main_point)
                 result = z3_model.eval(premise_expr)
-                if not z3.is_true(result):
+                if not is_true(result):
                     verification_results["premises_verified"] = False
                     verification_results["errors"].append(f"Premise {premise} is not true at main evaluation point")
             except z3.Z3Exception as e:
@@ -870,7 +876,7 @@ class BimodalSemantics(SemanticDefaults):
                 main_point = {"world": self.main_world, "time": self.main_time}
                 conclusion_expr = self.false_at(conclusion, main_point)
                 result = z3_model.eval(conclusion_expr)
-                if not z3.is_true(result):
+                if not is_true(result):
                     verification_results["conclusions_verified"] = False
                     verification_results["errors"].append(f"Conclusion {conclusion} is not false at main evaluation point")
             except z3.Z3Exception as e:
@@ -945,7 +951,7 @@ class BimodalSemantics(SemanticDefaults):
             # Evaluate using original is_world function
             is_world_val = z3_model.eval(original_semantics.is_world(world_id), model_completion=True)
             # Add constraint using new is_world function
-            if z3.is_true(is_world_val):
+            if is_true(is_world_val):
                 model_constraints.all_constraints.append(self.is_world(world_id))
             else:
                 model_constraints.all_constraints.append(z3.Not(self.is_world(world_id)))
@@ -958,7 +964,7 @@ class BimodalSemantics(SemanticDefaults):
                 # Evaluate using original truth_condition function
                 truth_val = z3_model.eval(original_semantics.truth_condition(state, atom), model_completion=True)
                 # Add constraint using new truth_condition function
-                if z3.is_true(truth_val):
+                if is_true(truth_val):
                     model_constraints.all_constraints.append(self.truth_condition(state, atom))
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.truth_condition(state, atom)))
@@ -969,7 +975,7 @@ class BimodalSemantics(SemanticDefaults):
                 # Evaluate using original task function
                 task_val = z3_model.eval(original_semantics.task(state1, state2), model_completion=True)
                 # Add constraint using new task function
-                if z3.is_true(task_val):
+                if is_true(task_val):
                     model_constraints.all_constraints.append(self.task(state1, state2))
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.task(state1, state2)))
@@ -1071,7 +1077,7 @@ class BimodalSemantics(SemanticDefaults):
                 
                 # Check if this world_id maps to a valid world history
                 is_valid_expr = z3_model.eval(is_world_expr)
-                is_valid = z3.is_true(is_valid_expr)
+                is_valid = is_true(is_valid_expr)
                 
                 if is_valid:
                     all_worlds.append(i)
@@ -1420,7 +1426,7 @@ class BimodalProposition(PropositionDefaults):
             )
             possibly_false = Exists(
                 [false_contingent_state],
-                z3.Not(semantics.truth_condition(false_contingent_state, sentence_letter))
+                cast(z3.BoolRef, z3.Not(semantics.truth_condition(false_contingent_state, sentence_letter)))
             )
             return [possibly_true, possibly_false]
 
@@ -1433,10 +1439,10 @@ class BimodalProposition(PropositionDefaults):
                 if other_letter is not sentence_letter:
                     other_is_disjoint = ForAll(
                         disjoint_state,
-                        z3.Or(
+                        cast(z3.BoolRef, z3.Or(
                             z3.Not(semantics.truth_condition(disjoint_state, sentence_letter)),
                             z3.Not(semantics.truth_condition(disjoint_state, other_letter))
-                        )
+                        ))
                     )
                     disjoint_constraints.append(other_is_disjoint)
             return disjoint_constraints
@@ -1485,7 +1491,7 @@ class BimodalProposition(PropositionDefaults):
                         self.sentence, {"world" : world_id, "time" : time}
                     )
                     evaluated_expr = self.z3_model.evaluate(truth_expr)
-                    if z3.is_true(evaluated_expr):
+                    if is_true(evaluated_expr):
                         true_times.append(time)
                     else:
                         false_times.append(time)

@@ -26,9 +26,9 @@ from model_checker.theory_lib.logos.semantic import (
 from model_checker.theory_lib.logos.operators import LogosOperatorRegistry
 
 
-# Import the first-order examples module using importlib due to hyphen in name
+# Import the first-order examples module
 first_order_examples = importlib.import_module(
-    'model_checker.theory_lib.logos.subtheories.first-order.examples'
+    'model_checker.theory_lib.logos.subtheories.first_order.examples'
 )
 
 
@@ -44,7 +44,7 @@ def create_first_order_model_structure(premises, conclusions, settings):
         LogosModelStructure instance or None if no countermodel found
     """
     registry = LogosOperatorRegistry()
-    registry.load_subtheories(['extensional', 'constitutive', 'first-order'])
+    registry.load_subtheories(['extensional', 'constitutive', 'first_order'])
     operators = registry.get_operators()
 
     syntax = Syntax(

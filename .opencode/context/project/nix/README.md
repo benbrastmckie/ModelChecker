@@ -91,3 +91,9 @@ Agents should load context based on task type:
 | User config | home-manager.md, module-patterns.md |
 | Flake changes | flakes.md |
 | General | nix-language.md, nix-style-guide.md |
+
+---
+
+## Navigation
+
+[← Parent Directory](../../../../../README.md)

@@ -233,8 +233,8 @@ def parse_first_order_expression(tokens: List[str]) -> Tuple[List[Any], int]:
     if token == "\\lambda":
         return _parse_lambda_abstraction(tokens)
 
-    # Handle quantifiers: \forall v.body, \exists v.body
-    if token in {"\\forall", "\\exists"}:
+    # Handle quantifiers: \forall v.body, \exists v.body, \all v.body, \some v.body
+    if token in {"\\forall", "\\exists", "\\all", "\\some"}:
         return _parse_quantifier(tokens)
 
     # Handle LaTeX operators
@@ -398,7 +398,7 @@ def _parse_binary_expression(tokens: List[str]) -> Tuple[List[Any], int]:
         elif depth_paren == 0 and depth_bracket == 0 and depth_angle == 0:
             # Check if this is a binary operator
             # Include = for identity, and LaTeX binary operators
-            if t == "=" or (t.startswith("\\") and t not in {"\\top", "\\bot", "\\neg", "\\lambda", "\\forall", "\\exists"}):
+            if t == "=" or (t.startswith("\\") and t not in {"\\top", "\\bot", "\\neg", "\\lambda", "\\forall", "\\exists", "\\all", "\\some"}):
                 operator_idx = i
                 break
 

@@ -1,14 +1,17 @@
 """Constraint generation and management for model iteration.
 
-This module handles creating constraints that ensure each new model differs 
-from previously found models. It manages Z3 solver interaction and constraint
+This module handles creating constraints that ensure each new model differs
+from previously found models. It manages solver interaction and constraint
 validation.
 """
 
-import z3
+from model_checker import z3_shim as z3
 import itertools
 import logging
-from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING
+
+from model_checker.solver import is_true, is_false
+
+from typing import Any, Dict, List, Optional, Tuple, TYPE_CHECKING, cast
 
 if TYPE_CHECKING:
     from model_checker.builder.example import BuildExample
@@ -38,7 +41,11 @@ class ConstraintGenerator:
     
     def _create_persistent_solver(self) -> z3.Solver:
         """Create a persistent solver with original constraints.
-        
+
+        For CVC5, reuses the original solver directly to avoid cross-solver
+        assertion-copying issues. For Z3, creates a new solver and copies
+        assertions (existing behavior).
+
         Returns:
             z3.Solver: Solver with original constraints loaded
         """
@@ -46,11 +53,32 @@ class ConstraintGenerator:
         original_solver = self.build_example.model_structure.solver
         if original_solver is None:
             original_solver = getattr(self.build_example.model_structure, 'stored_solver', None)
-            
+
         if original_solver is None:
             raise RuntimeError("No solver available - both solver and stored_solver are None")
-            
+
+        settings = getattr(self.build_example, 'settings', {})
+        max_time = settings.get('max_time', 300)
+        timeout_ms = int(max_time * 1000)
+
+        # For CVC5SolverAdapter, reuse the internal solver directly.
+        # CVC5 solvers don't reliably support assertion-copying between instances.
+        from model_checker.solver.cvc5_adapter import CVC5SolverAdapter
+        if isinstance(original_solver, CVC5SolverAdapter):
+            raw = original_solver._solver
+            try:
+                raw.set('tlimit-per', str(timeout_ms))
+            except Exception:
+                logger.warning("Could not set CVC5 solver timeout for iteration")
+            return raw
+
+        # Z3 path: create new solver and copy assertions
         persistent_solver = z3.Solver()
+        try:
+            persistent_solver.set('timeout', timeout_ms)
+        except Exception:
+            logger.warning("Could not set solver timeout for iteration")
+
         for assertion in original_solver.assertions():
             persistent_solver.add(assertion)
         return persistent_solver
@@ -153,9 +181,9 @@ class ConstraintGenerator:
             if valid_constraints:
                 if len(valid_constraints) == 1:
                     return valid_constraints[0]
-                return z3.Or(valid_constraints)
+                return cast(z3.BoolRef, z3.Or(valid_constraints))
         return None
-    
+
     def _create_state_difference_constraints(self, prev_model: z3.ModelRef) -> List[z3.BoolRef]:
         """Create constraints based on state-level differences.
         
@@ -185,7 +213,7 @@ class ConstraintGenerator:
                     try:
                         prev_value = prev_model.eval(is_world_expr, model_completion=True)
                         
-                        if z3.is_true(prev_value):
+                        if is_true(prev_value):
                             # Previous model had this as world, new model should not
                             not_world_expr = z3.Not(is_world_expr)
                             if not_world_expr is not None:
@@ -232,7 +260,7 @@ class ConstraintGenerator:
                     try:
                         iso_value = isomorphic_model.eval(is_world_expr, model_completion=True)
                         
-                        if z3.is_true(iso_value):
+                        if is_true(iso_value):
                             not_world_expr = z3.Not(is_world_expr)
                             if not_world_expr is not None:
                                 difference_constraints.append(not_world_expr)
@@ -258,8 +286,8 @@ class ConstraintGenerator:
                 if valid_constraints:
                     if len(valid_constraints) == 1:
                         return valid_constraints[0]
-                    return z3.Or(valid_constraints)
-                
+                    return cast(z3.BoolRef, z3.Or(valid_constraints))
+
         except (AttributeError, TypeError, KeyError) as e:
             logger.warning(f"Error creating non-isomorphic constraint: {e}")
             

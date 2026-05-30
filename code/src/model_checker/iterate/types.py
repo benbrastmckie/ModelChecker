@@ -12,8 +12,8 @@ from typing import (
 from enum import Enum
 
 if TYPE_CHECKING:
-    import z3
-    from z3 import BoolRef, ArithRef, ModelRef, Solver
+    from model_checker import z3_shim as z3
+    from model_checker.z3_shim import BoolRef, ArithRef, ModelRef, Solver
 
 # Type variables
 T = TypeVar('T')
