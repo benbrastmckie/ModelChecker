@@ -156,7 +156,7 @@ Phases are strictly sequential because each change must be validated against the
 
 ---
 
-### Phase 4: Solver Configuration Guards [NOT STARTED]
+### Phase 4: Solver Configuration Guards [COMPLETED]
 
 **Goal**: Add `qi.max_instances` cap and `max_memory` guard to the Z3 solver adapter to bound OOM risk and reduce spurious quantifier instantiation, directly supporting task 98 coordination.
 

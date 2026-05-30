@@ -32,11 +32,25 @@ class Z3SolverAdapter:
         Explicitly sets quantifier instantiation strategy instead of relying
         on auto_config. This prevents Z3 from selecting a strategy that may
         be incomplete for the UFBV fragment used by native quantifiers.
+
+        Memory guard (Task 97, 2026-05-29):
+          - max_memory: per-solver memory limit (MB) to prevent OOM kills.
+            Set to 4096 MB (4 GB). This directly addresses the OOM kills described
+            in task 98 (bimodal theorems with M>=3) by ensuring the solver process
+            is hard-stopped rather than killed by the OS at a higher memory usage.
+
+        NOTE: qi.max_instances was tested but causes 'unknown' results on countermodel
+        examples that require many quantifier instantiations (BM_CM_2, BM_CM_4).
+        Not safe to cap without thorough per-example profiling.
         """
         self._solver.set('auto_config', False)
         self._solver.set('smt.mbqi', True)
         self._solver.set('smt.ematching', True)
         self._solver.set('smt.mbqi.max_iterations', 1000)
+        # Memory guard: 4096 MB per solver instance. Prevents OOM kills from unbounded
+        # quantifier instantiation. Causes Z3 to return 'unknown' gracefully instead of
+        # being killed by the OS. Direct mitigation for task 98 OOM investigation.
+        self._solver.set('max_memory', 4096)
 
     def add(self, constraint: Any) -> None:
         """Add a constraint to the solver.
