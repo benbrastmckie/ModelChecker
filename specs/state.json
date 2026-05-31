@@ -4,11 +4,11 @@
     {
       "project_number": 106,
       "project_name": "architecture_review_refactor",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-05-30T12:30:00Z",
-      "last_updated": "2026-05-31T06:13:51Z",
-      "session_id": "sess_1780192594_f5ac21",
+      "last_updated": "2026-05-31T06:20:44Z",
+      "session_id": "sess_1780208200_22f2ee",
       "researched": "2026-05-31T06:13:51Z",
       "next_artifact_number": 4,
       "artifacts": [
@@ -26,6 +26,11 @@
           "path": "specs/106_architecture_review_refactor/reports/03_clean-break-architecture.md",
           "type": "research",
           "summary": "Clean-break architecture design research"
+        },
+        {
+          "path": "specs/106_architecture_review_refactor/plans/03_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase plan to update task descriptions 99-105, create 4 new tasks (107-110), produce architectural decision record, and update dependency graph"
         }
       ]
     },
