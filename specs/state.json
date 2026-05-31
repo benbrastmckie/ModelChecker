@@ -20,15 +20,6 @@
       ]
     },
     {
-      "project_number": 99,
-      "project_name": "refactor_audit_bimodal",
-      "status": "abandoned",
-      "task_type": "python",
-      "created": "2026-05-30T12:00:00Z",
-      "last_updated": "2026-05-30T23:55:00Z",
-      "completion_summary": "Absorbed by task 106 architecture review. Audit findings captured in team research report."
-    },
-    {
       "project_number": 100,
       "project_name": "strip_non_bimodal_code",
       "status": "not_started",
@@ -75,68 +66,10 @@
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
       "last_updated": "2026-05-30T23:55:00Z"
-    },
-    {
-      "project_number": 98,
-      "project_name": "investigate_z3_oom_bimodal_verification",
-      "status": "completed",
-      "task_type": "python",
-      "created": "2026-05-30T00:06:24Z",
-      "last_updated": "2026-05-29T00:00:00Z",
-      "plan_metadata": {
-        "phases": 4,
-        "total_effort_hours": 5,
-        "complexity": "medium",
-        "research_integrated": true,
-        "plan_version": 1,
-        "dependency_waves": [
-          [1],
-          [2],
-          [3],
-          [4]
-        ],
-        "reports_integrated": [
-          {
-            "path": "reports/01_z3-oom-investigation.md",
-            "integrated_in_plan_version": 1,
-            "integrated_date": "2026-05-29"
-          }
-        ]
-      },
-      "completion_summary": "Investigated Z3 OOM fix via constraint grounding; found grounding counterproductive (regression) vs lazy MBQI; confirmed max_memory=4096 from Task 97 is the correct and sufficient OOM fix; full 43-test bimodal suite passes"
-    },
-    {
-      "project_number": 97,
-      "project_name": "optimize_build_frame_constraints",
-      "status": "completed",
-      "task_type": "python",
-      "created": "2026-05-29T23:55:26Z",
-      "last_updated": "2026-05-30T01:15:00Z",
-      "session_id": "sess_1780101648_c73e7e",
-      "researched": "2026-05-30T00:32:50Z",
-      "next_artifact_number": 2,
-      "completion_summary": "Optimized build_frame_constraints: removed classical_truth tautology, reordered world_interval before lawful for MBQI seeding, added max_memory=4096MB guard to Z3 adapter. Test suite: 43/43 passing, ~46% faster (93s -> 50s). Pattern annotations and array inequality for world_uniqueness were tested but reverted due to regressions.",
-      "artifacts": [
-        {
-          "path": "specs/097_optimize_build_frame_constraints/reports/01_team-research.md",
-          "type": "research",
-          "summary": "Team research with 4 teammates"
-        },
-        {
-          "path": "specs/097_optimize_build_frame_constraints/plans/01_implementation-plan.md",
-          "type": "plan",
-          "summary": "5-phase implementation plan for Z3 solver performance optimization of build_frame_constraints, structured by risk tier with full regression testing"
-        },
-        {
-          "path": "specs/097_optimize_build_frame_constraints/summaries/01_optimize-frame-constraints-summary.md",
-          "type": "summary",
-          "summary": "Implementation completed: tautology removal, reordering, memory guard. 46% speedup, 43/43 tests pass."
-        }
-      ]
     }
   ],
   "repository_health": {
-    "last_assessed": "2026-05-30T00:13:06Z",
+    "last_assessed": "2026-05-31T01:11:13Z",
     "todo_count": 16,
     "fixme_count": 0,
     "build_errors": 0,

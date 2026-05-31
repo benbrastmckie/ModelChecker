@@ -2974,6 +2974,30 @@
       ],
       "session_id": "sess_1780088169_1c43a2",
       "completion_summary": "Fixed all four temporal operators (FutureOperator, PastOperator, UntilOperator, SinceOperator) to use semantics.true_at() instead of hardcoded FALSE for arguments at times outside a world's interval, correcting display truth values for complex formulas like negations."
+    },
+    {
+      "project_number": 97,
+      "project_name": "optimize_build_frame_constraints",
+      "status": "completed",
+      "task_type": "python",
+      "archived": "2026-05-30T23:58:00Z",
+      "completion_summary": "Optimized build_frame_constraints: removed classical_truth tautology, reordered world_interval before lawful for MBQI seeding, added max_memory=4096MB guard to Z3 adapter. Test suite: 43/43 passing, ~46% faster (93s -> 50s)."
+    },
+    {
+      "project_number": 98,
+      "project_name": "investigate_z3_oom_bimodal_verification",
+      "status": "completed",
+      "task_type": "python",
+      "archived": "2026-05-30T23:58:00Z",
+      "completion_summary": "Investigated Z3 OOM fix via constraint grounding; found grounding counterproductive vs lazy MBQI; confirmed max_memory=4096 from Task 97 is the correct and sufficient OOM fix; full 43-test bimodal suite passes"
+    },
+    {
+      "project_number": 99,
+      "project_name": "refactor_audit_bimodal",
+      "status": "abandoned",
+      "task_type": "python",
+      "archived": "2026-05-30T23:58:00Z",
+      "completion_summary": "Absorbed by task 106 architecture review."
     }
   ]
 }
