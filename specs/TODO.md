@@ -12,7 +12,9 @@ next_project_number: 107
 - **Effort**: large
 - **Status**: [RESEARCHED]
 - **Task Type**: python
-- **Research**: [106_architecture_review_refactor/reports/01_team-research.md]
+- **Research**:
+  - [106_architecture_review_refactor/reports/01_team-research.md]
+  - [106_architecture_review_refactor/reports/02_team-research.md]
 
 **Description**: Deep architectural review of the planned bimodal ModelChecker refactor (tasks 99-105). Study the current ModelChecker codebase (code/src/model_checker/), the BimodalHarness OracleProvider protocol (bimodal_harness/oracle/protocol.py in /home/benjamin/Projects/BimodalHarness/), the BimodalLogic interface expectations, and the technical memo (/home/benjamin/Projects/Logos/Vision/shared/strategy/01-overview/03-technical_memo.typ). Evaluate: (1) whether the proposed task decomposition and ordering is optimal, (2) whether the package boundary and public API surface are well-drawn, (3) whether the formula JSON translation approach handles all edge cases (defined operators, operator precedence, round-trip fidelity), (4) whether the countermodel serialization maps cleanly to BimodalStructure's extract_model_elements output, (5) whether tasks 99 (audit) and 100 (strip) should be merged or resequenced, (6) whether the builder/output/settings simplification in task 104 is scoped correctly or risks breaking the Z3 solving pipeline, (7) any missing tasks (e.g., documentation, CI/CD, version pinning against BimodalHarness). Produce a report with concrete architectural recommendations and revised task descriptions where warranted. The end product is updated descriptions and dependencies for tasks 99-105.
 
