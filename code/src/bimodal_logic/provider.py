@@ -1,10 +1,7 @@
-"""bimodal_logic.provider - Z3OracleProvider entry point stub.
+"""bimodal_logic.provider - Z3OracleProvider entry point.
 
 This module provides the Z3OracleProvider class that implements the
 bimodal_harness oracle interface using the Z3 SMT solver.
-
-NOTE: This is a placeholder stub. Full implementation will be provided
-in task 103 (implement Z3OracleProvider).
 
 ## Z3 Frame Hierarchy and BimodalLogic Axiom Mapping
 
@@ -112,6 +109,22 @@ guarantees are intact in practice.
 
 from __future__ import annotations
 
+from .translation import (
+    json_to_prefix,
+    temporal_depth,
+    prefix_to_infix,
+    fold_formula,
+)
+from .serialization import serialize_countermodel
+from model_checker.utils.context import isolated_z3_context
+from model_checker import ModelConstraints, Syntax
+from model_checker.theory_lib.bimodal import (
+    BimodalSemantics,
+    BimodalProposition,
+    BimodalStructure,
+    bimodal_operators,
+)
+
 
 class Z3OracleProvider:
     """Z3-based oracle provider for bimodal logic reasoning.
@@ -125,9 +138,155 @@ class Z3OracleProvider:
     docstring for the complete Z3-to-BimodalLogic axiom mapping and the soundness
     analysis of the disabled task_restriction constraint.
 
-    NOTE: Placeholder stub - full implementation in task 103.
+    Attributes:
+        provider_id (str): Unique identifier for this provider.
+        provider_version (str): Semantic version string.
+        semantics_version (str): Version string for the bimodal semantics.
+        supported_frame_classes (frozenset): Set of supported frame class names.
+        capabilities (dict): Dict of provider capability flags and limits.
     """
 
+    # Class-level constants (static properties)
+    provider_id = "bmlogic_z3_base_v1"
+    provider_version = "0.1.0"
+    semantics_version = "bimodal-logic-v0.1.0"
     supported_frame_classes = frozenset({"Base"})
+    capabilities = {
+        "max_N": 4,
+        "max_M": 8,
+        "supports_enriched_tags": True,
+        "z3_timeout_configurable": True,
+    }
 
-    pass
+    def __init__(self):
+        """Initialize the Z3OracleProvider.
+
+        Sets up the internal semantics reference (kept as None to prevent
+        cross-call state leakage).
+        """
+        self._semantics = None
+
+    def find_countermodel(
+        self,
+        formula_json: dict,
+        frame_class: str = "Base",
+        timeout_ms: int = 5000,
+    ) -> dict | None:
+        """Find a countermodel for the given formula JSON.
+
+        Implements the bimodal_harness oracle interface: given a formula in JSON
+        format, determines whether it is invalid (satisfiable negation) and if so,
+        returns a structured countermodel dict. Returns None for tautologies
+        (valid/UNSAT formulas) and unsupported frame classes.
+
+        Pipeline:
+            json_to_prefix() -> prefix_to_infix() ->
+            Syntax([], [infix], bimodal_operators) ->
+            BimodalSemantics(settings) ->
+            ModelConstraints(settings, syntax, semantics, BimodalProposition) ->
+            BimodalStructure(model_constraints, settings) ->
+            serialize_countermodel(...)
+
+        Args:
+            formula_json: A dict with a "tag" field and tag-specific fields,
+                following the JSON formula schema in translation.py.
+            frame_class: The frame class to check against. Only "Base" is
+                supported; other values return None immediately.
+            timeout_ms: Maximum solver time in milliseconds.
+
+        Returns:
+            A dict with countermodel fields if a countermodel is found, or
+            None if the formula is valid (no countermodel) or the frame class
+            is unsupported.
+        """
+        # Check frame class support
+        if frame_class not in self.supported_frame_classes:
+            return None
+
+        # Compute temporal depth and time bound M.
+        # Ideal boundary-safe M is max(depth+2, 3), but the bimodal constraint
+        # system with skolem_abundance at M>=3 over-constrains no-premise queries,
+        # producing false UNSAT for formulas that should have countermodels.
+        # M=2 is the practical safe maximum: it allows countermodel search for
+        # depth-0 and depth-1 formulas without the M=3 over-constraint issue.
+        # For depth>=2 formulas, M=max(depth, 2) extends the time domain.
+        # Note: boundary_safe in the output reflects M > depth+1.
+        depth = temporal_depth(formula_json)
+        M = max(depth, 2)
+
+        # Fold formula for output (enrich primitive forms to enriched tags)
+        formula_folded = fold_formula(formula_json)
+
+        # Convert JSON formula to infix string for ModelChecker Syntax
+        prefix = json_to_prefix(formula_json)
+        infix = prefix_to_infix(prefix)
+
+        # Build settings dict
+        settings = {
+            'N': 2,
+            'M': M,
+            'contingent': False,
+            'disjoint': False,
+            'max_time': timeout_ms / 1000.0,
+            'expectation': True,
+            'solver': 'z3',
+        }
+
+        # Reset internal semantics reference to prevent leakage
+        self._semantics = None
+
+        # Run solver within isolated Z3 context to prevent state leakage
+        result = None
+        try:
+            with isolated_z3_context():
+                semantics = BimodalSemantics(settings)
+                # Keep reference only within context; will be None after exit
+                self._semantics = semantics
+                syntax = Syntax([], [infix], bimodal_operators)
+                model_constraints = ModelConstraints(
+                    settings, syntax, semantics, BimodalProposition
+                )
+                structure = BimodalStructure(model_constraints, settings)
+
+                # Check if solver found a satisfying model
+                if structure.timeout or not structure.z3_model_status:
+                    self._semantics = None
+                    return None
+
+                # Serialize the countermodel
+                result = serialize_countermodel(
+                    z3_model=structure.z3_model,
+                    semantics=semantics,
+                    model_constraints=model_constraints,
+                    structure=structure,
+                    formula_json=formula_json,
+                    formula_folded=formula_folded,
+                    depth=depth,
+                    M=M,
+                    semantics_version=self.semantics_version,
+                )
+        finally:
+            # Always clear the semantics reference when done
+            self._semantics = None
+
+        return result
+
+    def validate_self(self, spot_check_formulas: list) -> bool:
+        """Validate the oracle against a list of known-invalid formulas.
+
+        Returns True only if all spot_check_formulas produce non-None results
+        from find_countermodel() (i.e., all can find countermodels).
+
+        Args:
+            spot_check_formulas: List of JSON formula dicts that should all
+                have countermodels (be invalid).
+
+        Returns:
+            True if every formula produces a non-None countermodel result.
+            False if any formula returns None (no countermodel found).
+        """
+        for formula in spot_check_formulas:
+            result = self.find_countermodel(formula)
+            if result is None:
+                return False
+        return True

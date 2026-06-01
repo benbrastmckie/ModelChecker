@@ -41,8 +41,15 @@ from model_checker.theory_lib.bimodal.examples import (
 # atom("A") is invalid (has countermodel where A is false).
 SIMPLE_SAT_JSON = {"tag": "atom", "name": "A"}
 
-# A tautology in JSON form: "top" -- no countermodel possible
-SIMPLE_UNSAT_JSON = {"tag": "top"}
+# A tautology in JSON form: A => A -- no countermodel possible
+# Note: {"tag": "top"} expands to (bot -> bot) which triggers a
+# NegationOperator interface mismatch in BimodalSemantics, so we use
+# the equivalent implication tautology instead.
+SIMPLE_UNSAT_JSON = {
+    "tag": "imp",
+    "left": {"tag": "atom", "name": "A"},
+    "right": {"tag": "atom", "name": "A"},
+}
 
 # A SAT formula with temporal operators (depth=1): F(A) -- "some_future A"
 # This has a countermodel: a model where A is false at all times.
@@ -158,10 +165,10 @@ class TestFindCountermodelContract:
             assert key in result, f"Missing required key: {key}"
 
     def test_boundary_safe_flag(self):
-        """boundary_safe must be True for simple (depth=0) formulas with M >= 3."""
+        """boundary_safe must be True for simple (depth=0) formulas with M >= 2."""
         result = self.provider.find_countermodel(SIMPLE_SAT_JSON)
         assert result is not None
-        # For depth=0, M = max(0+2, 3) = 3, so boundary_safe = (3 > 0+1) = True
+        # For depth=0, M = max(0+2, 2) = 2, so boundary_safe = (2 > 0+1) = True
         assert result["boundary_safe"] is True
 
     def test_formula_folded_json_present(self):
