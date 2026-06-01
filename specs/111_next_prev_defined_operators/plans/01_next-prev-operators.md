@@ -1,7 +1,7 @@
 # Implementation Plan: Add Next/Prev (X/Y) Defined Operator Classes
 
 - **Task**: 111 - Add Next/Prev (X/Y) defined operator classes
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 1 hour
 - **Dependencies**: 100 (completed)
 - **Research Inputs**: specs/111_next_prev_defined_operators/reports/01_next-prev-operators.md
@@ -66,18 +66,18 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Write Tests (TDD Red Phase) [NOT STARTED]
+### Phase 1: Write Tests (TDD Red Phase) [COMPLETED]
 
 **Goal**: Create comprehensive test file for DefNextOperator and DefPrevOperator before implementation, establishing the test-first contract.
 
 **Tasks**:
-- [ ] Create test file `code/src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py`
-- [ ] Write signature tests (TestDefNextOperatorSignature, TestDefPrevOperatorSignature): operator exists, arity == 1, name matches, is DefinedOperator subclass, has required methods
-- [ ] Write derived_definition structure tests (TestDefNextDefinition, TestDefPrevDefinition): returns list, uses correct base operator (UntilOperator/SinceOperator), uses [BotOperator] as guard
-- [ ] Write registration tests (TestOperatorRegistration): "\\next" and "\\prev" in bimodal_operators.operator_dictionary
-- [ ] Write semantic equivalence tests via run_test: `\\next A \\leftrightarrow (A \\Until \\bot)` and `\\prev A \\leftrightarrow (A \\Since \\bot)` are theorems
-- [ ] Write prefix construction tests: Syntax(["\\next A"], [], bimodal_operators) and Syntax(["\\prev A"], [], bimodal_operators) succeed without error
-- [ ] Verify tests fail (red phase) because classes do not yet exist
+- [x] Create test file `code/src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py`
+- [x] Write signature tests (TestDefNextOperatorSignature, TestDefPrevOperatorSignature): operator exists, arity == 1, name matches, is DefinedOperator subclass, has required methods
+- [x] Write derived_definition structure tests (TestDefNextDefinition, TestDefPrevDefinition): returns list, uses correct base operator (UntilOperator/SinceOperator), uses [BotOperator] as guard
+- [x] Write registration tests (TestOperatorRegistration): "\\next" and "\\prev" in bimodal_operators.operator_dictionary
+- [x] Write semantic equivalence tests via run_test: `\\next A \\leftrightarrow (A \\Until \\bot)` and `\\prev A \\leftrightarrow (A \\Since \\bot)` are theorems
+- [x] Write prefix construction tests: Syntax(["\\next A"], [], bimodal_operators) and Syntax(["\\prev A"], [], bimodal_operators) succeed without error
+- [x] Verify tests fail (red phase) because classes do not yet exist
 
 **Timing**: 30 minutes
 
