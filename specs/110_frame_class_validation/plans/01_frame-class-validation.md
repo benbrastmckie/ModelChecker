@@ -155,19 +155,20 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Integration Verification and Cleanup [NOT STARTED]
+### Phase 4: Integration Verification and Cleanup [COMPLETED]
 
 **Goal**: Run full test suite to verify no regressions, and confirm all task deliverables are met.
 
 **Tasks**:
-- [ ] Run full bimodal test suite: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v`
-- [ ] Verify all 4 deliverables are addressed:
-  1. Frame axiom mapping documented in provider.py (check docstring present)
-  2. task_restriction soundness analysis documented in semantic.py (check comment block)
-  3. Z3 frame hierarchy documented in provider.py (check hierarchy section)
-  4. test_frame_class_mapping.py passes with post-hoc validation (check test results)
-- [ ] Verify documentation consistency: ensure the axiom mapping in provider.py matches the actual constraint builders in semantic.py (cross-reference line numbers)
-- [ ] Verify test coverage: each of the three TaskFrame axioms + lawful property has at least one dedicated test
+- [x] Run full bimodal test suite: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v`
+  - Result: 184 passed, 1 pre-existing failure (BM_CM_1 - present before task 110 changes)
+- [x] Verify all 4 deliverables are addressed:
+  1. Frame axiom mapping documented in provider.py (grep "TaskFrame" = 12 matches)
+  2. task_restriction soundness analysis documented in semantic.py (grep "soundness" = 1 match)
+  3. Z3 frame hierarchy documented in provider.py (grep "Frame Hierarchy" = 1 match)
+  4. test_frame_class_mapping.py passes with post-hoc validation (13 tests passing)
+- [x] Verify documentation consistency: axiom mapping in provider.py matches constraint builders in semantic.py
+- [x] Verify test coverage: nullity (2 tests), converse (2 tests), compose (1 test), lawful (1 test)
 
 **Timing**: 0.5 hours
 
@@ -183,11 +184,11 @@ Phases within the same wave can execute in parallel.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py -v` -- all new tests pass
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py -v` -- existing frame constraint tests still pass
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` -- full bimodal test suite passes
-- [ ] provider.py contains frame hierarchy documentation (grep for "TaskFrame")
-- [ ] semantic.py contains task_restriction soundness analysis (grep for "soundness")
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py -v` -- 13 tests pass
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py -v` -- 8 existing tests pass
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` -- 184 pass, 1 pre-existing failure (BM_CM_1, not introduced by task 110)
+- [x] provider.py contains frame hierarchy documentation (grep "TaskFrame" = 12 matches)
+- [x] semantic.py contains task_restriction soundness analysis (grep "soundness" = 1 match)
 
 ## Artifacts & Outputs
 

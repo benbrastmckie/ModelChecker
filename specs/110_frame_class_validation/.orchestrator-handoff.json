@@ -1,15 +1,16 @@
 {
   "status": "completed",
-  "summary": "Created 4-phase implementation plan for frame class validation: Phase 1 documents frame axiom mapping and task_restriction soundness analysis in provider.py and semantic.py; Phases 2-3 (parallel) create test fixtures and write post-hoc frame axiom validation tests in test_frame_class_mapping.py; Phase 4 runs integration verification. Total effort: 3 hours.",
+  "summary": "Documented Z3-to-BimodalLogic frame axiom mapping in provider.py (module docstring with terminology disambiguation, axiom mapping table, soundness analysis) and semantic.py (frame hierarchy classification, task_restriction soundness comment). Created test_frame_class_mapping.py with 13 tests performing post-hoc validation of TaskFrame axioms (nullity, converse, compose) and lawful history property on extracted Z3 countermodels. All 13 new tests pass; 184 existing bimodal tests pass (1 pre-existing BM_CM_1 failure unrelated to task 110).",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "implement",
-  "phases_completed": 0,
+  "next_action_hint": "none",
+  "phases_completed": 4,
   "phases_total": 4,
   "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/110_frame_class_validation/plans/01_frame-class-validation.md"
-    }
+    {"type": "plan", "path": "specs/110_frame_class_validation/plans/01_frame-class-validation.md"},
+    {"type": "summary", "path": "specs/110_frame_class_validation/summaries/01_frame-class-validation-summary.md"},
+    {"type": "implementation", "path": "code/src/bimodal_logic/provider.py"},
+    {"type": "implementation", "path": "code/src/model_checker/theory_lib/bimodal/semantic.py"},
+    {"type": "test", "path": "code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py"}
   ]
 }

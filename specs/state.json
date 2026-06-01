@@ -37,14 +37,15 @@
     {
       "project_number": 110,
       "project_name": "frame_class_validation",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
-      "last_updated": "2026-06-01T17:10:17Z",
+      "last_updated": "2026-06-01T00:00:00Z",
       "dependencies": [
         100
       ],
       "next_artifact_number": 2,
+      "completion_summary": "Documented Z3-to-BimodalLogic frame axiom mapping in provider.py (module docstring with terminology disambiguation, axiom mapping table, soundness analysis) and semantic.py (frame hierarchy classification, task_restriction soundness comment). Created test_frame_class_mapping.py with 13 tests performing post-hoc validation of TaskFrame axioms (nullity, converse, compose) and lawful history property on extracted Z3 countermodels. All 13 new tests pass; 184 existing bimodal tests pass (1 pre-existing BM_CM_1 failure unrelated to task 110).",
       "plan_metadata": {
         "phases": 4,
         "total_effort_hours": 3,
@@ -81,6 +82,11 @@
           "path": "specs/110_frame_class_validation/plans/01_frame-class-validation.md",
           "type": "plan",
           "summary": "4-phase plan: document frame axiom mapping in provider.py, create test fixtures, write post-hoc validation tests, integration verification"
+        },
+        {
+          "path": "specs/110_frame_class_validation/summaries/01_frame-class-validation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 4 phases completed, 13 new tests passing, M=2 deviation from M=3 plan for solver performance"
         }
       ]
     },

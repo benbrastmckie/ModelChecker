@@ -10,7 +10,7 @@ next_project_number: 114
 
 **Wave 1 — Foundation (independent, all depend only on completed tasks):**
 111 [NOT STARTED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
-110 [IMPLEMENTING] — Frame class validation for Base frame (dep: 100✓)
+110 [COMPLETED] — Frame class validation for Base frame (dep: 100✓)
 
 **Wave 2 — Translation:**
 102 [NOT STARTED] — Formula JSON translation with enriched operator support (dep: 100✓, 111)
@@ -75,11 +75,12 @@ Wave 6: 105  109
 
 ### 110. Frame class validation for Base frame
 - **Effort**: small
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 100
 - **Report**: [specs/110_frame_class_validation/reports/01_frame-class-validation.md]
 - **Plan**: [specs/110_frame_class_validation/plans/01_frame-class-validation.md]
+- **Summary**: [specs/110_frame_class_validation/summaries/01_frame-class-validation-summary.md]
 
 **Description**: Validate that the Z3 oracle's "Base" frame class matches BimodalLogic's base frame class (LinearTemporalFrame + SerialFrame axioms). Currently, task 103 claims supported_frame_classes=frozenset({"Base"}) but "Base" is not formally defined against BimodalLogic's frame hierarchy. This task resolves the ambiguity. Deliverables: (1) Document the mapping between Z3's frame axioms (nullity_identity, forward_comp, converse from semantic.py:274-388) and BimodalLogic's LinearTemporalFrame + SerialFrame Lean axioms; (2) Verify that the disabled task_restriction constraint (semantic.py constraint 10) does not create soundness issues — specifically, confirm that allowing task_rel entries not realized in any world history is consistent with BimodalLogic's frame definition or document the divergence; (3) Document the Z3 frame hierarchy: what does the oracle guarantee about task_rel structure (which axioms hold, which do not), and how does "Base" map to BimodalLogic's frame hierarchy (LinearTemporalFrame < SerialFrame < Dense/Discrete); (4) Write a `test_frame_class_mapping.py` test that asserts all extracted countermodels satisfy the documented frame axioms programmatically. Gate: Frame hierarchy mapping is documented in a comment in `provider.py` and verified by the test suite.
 
