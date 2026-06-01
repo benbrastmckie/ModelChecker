@@ -302,3 +302,598 @@ def prefix_to_infix(prefix_list: list) -> str:
     raise ValueError(
         f"prefix_list has unexpected arity {len(prefix_list) - 1}: {prefix_list!r}"
     )
+
+
+##############################################################################
+# Private helpers for fold/unfold
+##############################################################################
+
+def _make_bot() -> dict:
+    """Return a fresh bot node."""
+    return {"tag": "bot"}
+
+
+def _make_top_expanded() -> dict:
+    """Return imp(bot, bot), the primitive expansion of top."""
+    return {"tag": "imp", "left": _make_bot(), "right": _make_bot()}
+
+
+def _is_bot(node: dict) -> bool:
+    """Return True if node is a bot node."""
+    return node.get("tag") == "bot"
+
+
+def _is_top_pattern(node: dict) -> bool:
+    """Return True if node matches the top pattern: imp(bot, bot)."""
+    return (
+        node.get("tag") == "imp"
+        and _is_bot(node.get("left", {}))
+        and _is_bot(node.get("right", {}))
+    )
+
+
+def _is_neg_pattern(node: dict) -> bool:
+    """Return True if node matches the neg pattern: imp(_, bot)."""
+    return node.get("tag") == "imp" and _is_bot(node.get("right", {}))
+
+
+##############################################################################
+# unfold_formula
+##############################################################################
+
+def unfold_formula(formula_json: dict) -> dict:
+    """Recursively expand all enriched tags to the 6 primitive tags.
+
+    Primitive tags (atom, bot, imp, box, untl, snce) are passed through
+    with their children recursively unfolded.  The 11 enriched tags are
+    replaced by their primitive-only definitions.
+
+    Unfold mappings:
+        neg φ  -> imp(unfold(φ), bot)
+        top    -> imp(bot, bot)
+        and φ ψ -> imp(imp(unfold(φ), imp(unfold(ψ), bot)), bot)
+        or  φ ψ -> imp(imp(unfold(φ), bot), unfold(ψ))
+        diamond φ -> imp(box(imp(unfold(φ), bot)), bot)
+        next φ -> untl(unfold(φ), bot)
+        prev φ -> snce(unfold(φ), bot)
+        some_future φ -> untl(unfold(φ), imp(bot, bot))
+        some_past   φ -> snce(unfold(φ), imp(bot, bot))
+        all_future  φ -> imp(untl(imp(unfold(φ), bot), imp(bot, bot)), bot)
+        all_past    φ -> imp(snce(imp(unfold(φ), bot), imp(bot, bot)), bot)
+
+    Args:
+        formula_json: A dict with a "tag" field and tag-specific fields.
+
+    Returns:
+        A new formula dict using only the 6 primitive tags.
+
+    Raises:
+        ValueError: If the tag is unknown.
+        KeyError: If required fields are missing from formula_json.
+    """
+    tag = formula_json["tag"]
+
+    # ---- Primitive tags: recurse into children ----
+
+    if tag == "atom":
+        return dict(formula_json)
+
+    if tag == "bot":
+        return _make_bot()
+
+    if tag == "imp":
+        return {
+            "tag": "imp",
+            "left": unfold_formula(formula_json["left"]),
+            "right": unfold_formula(formula_json["right"]),
+        }
+
+    if tag == "box":
+        return {
+            "tag": "box",
+            "child": unfold_formula(formula_json["child"]),
+        }
+
+    if tag == "untl":
+        return {
+            "tag": "untl",
+            "event": unfold_formula(formula_json["event"]),
+            "guard": unfold_formula(formula_json["guard"]),
+        }
+
+    if tag == "snce":
+        return {
+            "tag": "snce",
+            "event": unfold_formula(formula_json["event"]),
+            "guard": unfold_formula(formula_json["guard"]),
+        }
+
+    # ---- Level 1 enriched tags ----
+
+    if tag == "top":
+        # top -> imp(bot, bot)
+        return _make_top_expanded()
+
+    if tag == "neg":
+        # neg φ -> imp(φ, bot)
+        phi = unfold_formula(formula_json["arg"])
+        return {"tag": "imp", "left": phi, "right": _make_bot()}
+
+    if tag == "next":
+        # next φ -> untl(φ, bot)
+        phi = unfold_formula(formula_json["arg"])
+        return {"tag": "untl", "event": phi, "guard": _make_bot()}
+
+    if tag == "prev":
+        # prev φ -> snce(φ, bot)
+        phi = unfold_formula(formula_json["arg"])
+        return {"tag": "snce", "event": phi, "guard": _make_bot()}
+
+    # ---- Level 2 enriched tags ----
+
+    if tag == "and":
+        # and φ ψ -> imp(imp(φ, imp(ψ, bot)), bot)
+        phi = unfold_formula(formula_json["left"])
+        psi = unfold_formula(formula_json["right"])
+        return {
+            "tag": "imp",
+            "left": {
+                "tag": "imp",
+                "left": phi,
+                "right": {"tag": "imp", "left": psi, "right": _make_bot()},
+            },
+            "right": _make_bot(),
+        }
+
+    if tag == "or":
+        # or φ ψ -> imp(imp(φ, bot), ψ)
+        phi = unfold_formula(formula_json["left"])
+        psi = unfold_formula(formula_json["right"])
+        return {
+            "tag": "imp",
+            "left": {"tag": "imp", "left": phi, "right": _make_bot()},
+            "right": psi,
+        }
+
+    if tag == "diamond":
+        # diamond φ -> imp(box(imp(φ, bot)), bot)
+        phi = unfold_formula(formula_json["arg"])
+        return {
+            "tag": "imp",
+            "left": {
+                "tag": "box",
+                "child": {"tag": "imp", "left": phi, "right": _make_bot()},
+            },
+            "right": _make_bot(),
+        }
+
+    if tag == "some_future":
+        # some_future φ -> untl(φ, imp(bot, bot))
+        phi = unfold_formula(formula_json["arg"])
+        return {
+            "tag": "untl",
+            "event": phi,
+            "guard": _make_top_expanded(),
+        }
+
+    if tag == "some_past":
+        # some_past φ -> snce(φ, imp(bot, bot))
+        phi = unfold_formula(formula_json["arg"])
+        return {
+            "tag": "snce",
+            "event": phi,
+            "guard": _make_top_expanded(),
+        }
+
+    # ---- Level 3 enriched tags ----
+
+    if tag == "all_future":
+        # all_future φ -> imp(untl(imp(φ, bot), imp(bot, bot)), bot)
+        phi = unfold_formula(formula_json["arg"])
+        return {
+            "tag": "imp",
+            "left": {
+                "tag": "untl",
+                "event": {"tag": "imp", "left": phi, "right": _make_bot()},
+                "guard": _make_top_expanded(),
+            },
+            "right": _make_bot(),
+        }
+
+    if tag == "all_past":
+        # all_past φ -> imp(snce(imp(φ, bot), imp(bot, bot)), bot)
+        phi = unfold_formula(formula_json["arg"])
+        return {
+            "tag": "imp",
+            "left": {
+                "tag": "snce",
+                "event": {"tag": "imp", "left": phi, "right": _make_bot()},
+                "guard": _make_top_expanded(),
+            },
+            "right": _make_bot(),
+        }
+
+    raise ValueError(
+        f"unknown JSON formula tag in unfold_formula: {tag!r}. "
+        f"Expected one of: {sorted(_ALL_KNOWN_TAGS)}"
+    )
+
+
+##############################################################################
+# fold_formula
+##############################################################################
+
+def fold_formula(formula_json: dict) -> dict:
+    """Greedily fold primitive patterns into enriched tags using outside-in matching.
+
+    Pattern matching is applied outside-in with Level 3 before Level 2 before
+    Level 1.  Within the imp(_, bot) family, specificity order prevents
+    ambiguity:
+        1. all_future: left is untl with top guard and neg-pattern event
+        2. all_past:   left is snce with top guard and neg-pattern event
+        3. diamond:    left is box with neg-pattern child
+        4. and:        left is imp with neg-pattern right child
+        5. top:        left is bot AND right is bot (before neg)
+        6. neg:        any remaining imp(_, bot)
+
+    Args:
+        formula_json: A dict with a "tag" field and tag-specific fields.
+            May contain only primitive tags or a mix.
+
+    Returns:
+        A new formula dict with enriched tags applied where patterns match.
+
+    Raises:
+        KeyError: If required fields are missing from formula_json.
+    """
+    tag = formula_json["tag"]
+
+    # ---- Level 3 patterns (check before recursing children) ----
+
+    if tag == "imp":
+        left = formula_json["left"]
+        right = formula_json["right"]
+
+        if _is_bot(right):
+            # imp(X, bot): check specificity order
+
+            # 1. all_future: left is untl(neg_event, top_guard)
+            if (
+                left.get("tag") == "untl"
+                and _is_top_pattern(left.get("guard", {}))
+                and _is_neg_pattern(left.get("event", {}))
+            ):
+                # Fold inner event neg-pattern's left as arg
+                event_node = left["event"]  # imp(phi, bot)
+                phi = fold_formula(event_node["left"])
+                return {"tag": "all_future", "arg": phi}
+
+            # 2. all_past: left is snce(neg_event, top_guard)
+            if (
+                left.get("tag") == "snce"
+                and _is_top_pattern(left.get("guard", {}))
+                and _is_neg_pattern(left.get("event", {}))
+            ):
+                event_node = left["event"]  # imp(phi, bot)
+                phi = fold_formula(event_node["left"])
+                return {"tag": "all_past", "arg": phi}
+
+            # 3. diamond: left is box(neg_pattern_child)
+            if (
+                left.get("tag") == "box"
+                and _is_neg_pattern(left.get("child", {}))
+            ):
+                child_node = left["child"]  # imp(phi, bot)
+                phi = fold_formula(child_node["left"])
+                return {"tag": "diamond", "arg": phi}
+
+            # 4. and: left is imp(phi, imp(psi, bot))
+            if (
+                left.get("tag") == "imp"
+                and _is_neg_pattern(left.get("right", {}))
+            ):
+                phi = fold_formula(left["left"])
+                psi = fold_formula(left["right"]["left"])
+                return {"tag": "and", "left": phi, "right": psi}
+
+            # 5. top: both sides are bot  (more specific than neg)
+            if _is_bot(left):
+                return {"tag": "top"}
+
+            # 6. neg: fallback for remaining imp(X, bot)
+            folded_left = fold_formula(left)
+            return {"tag": "neg", "arg": folded_left}
+
+        # imp(X, Y) where Y is not bot
+        # Check or pattern: imp(imp(phi, bot), psi)
+        if _is_neg_pattern(left):
+            phi = fold_formula(left["left"])
+            psi = fold_formula(right)
+            return {"tag": "or", "left": phi, "right": psi}
+
+        # Generic imp: recurse into both children
+        return {
+            "tag": "imp",
+            "left": fold_formula(left),
+            "right": fold_formula(right),
+        }
+
+    if tag == "untl":
+        guard = formula_json["guard"]
+        event = formula_json["event"]
+
+        # next: guard is bot
+        if _is_bot(guard):
+            phi = fold_formula(event)
+            return {"tag": "next", "arg": phi}
+
+        # some_future: guard is top pattern (imp(bot, bot))
+        if _is_top_pattern(guard):
+            phi = fold_formula(event)
+            return {"tag": "some_future", "arg": phi}
+
+        # Generic untl
+        return {
+            "tag": "untl",
+            "event": fold_formula(event),
+            "guard": fold_formula(guard),
+        }
+
+    if tag == "snce":
+        guard = formula_json["guard"]
+        event = formula_json["event"]
+
+        # prev: guard is bot
+        if _is_bot(guard):
+            phi = fold_formula(event)
+            return {"tag": "prev", "arg": phi}
+
+        # some_past: guard is top pattern (imp(bot, bot))
+        if _is_top_pattern(guard):
+            phi = fold_formula(event)
+            return {"tag": "some_past", "arg": phi}
+
+        # Generic snce
+        return {
+            "tag": "snce",
+            "event": fold_formula(event),
+            "guard": fold_formula(guard),
+        }
+
+    # ---- Passthrough tags: recurse into children ----
+
+    if tag == "atom":
+        return dict(formula_json)
+
+    if tag == "bot":
+        return _make_bot()
+
+    if tag == "box":
+        return {
+            "tag": "box",
+            "child": fold_formula(formula_json["child"]),
+        }
+
+    # ---- Enriched tags that might appear in already-folded or mixed input ----
+    # Recurse into their children so they stay consistent
+
+    if tag == "top":
+        return {"tag": "top"}
+
+    if tag == "neg":
+        return {"tag": "neg", "arg": fold_formula(formula_json["arg"])}
+
+    if tag == "and":
+        return {
+            "tag": "and",
+            "left": fold_formula(formula_json["left"]),
+            "right": fold_formula(formula_json["right"]),
+        }
+
+    if tag == "or":
+        return {
+            "tag": "or",
+            "left": fold_formula(formula_json["left"]),
+            "right": fold_formula(formula_json["right"]),
+        }
+
+    if tag == "diamond":
+        return {"tag": "diamond", "arg": fold_formula(formula_json["arg"])}
+
+    if tag == "next":
+        return {"tag": "next", "arg": fold_formula(formula_json["arg"])}
+
+    if tag == "prev":
+        return {"tag": "prev", "arg": fold_formula(formula_json["arg"])}
+
+    if tag == "some_future":
+        return {"tag": "some_future", "arg": fold_formula(formula_json["arg"])}
+
+    if tag == "some_past":
+        return {"tag": "some_past", "arg": fold_formula(formula_json["arg"])}
+
+    if tag == "all_future":
+        return {"tag": "all_future", "arg": fold_formula(formula_json["arg"])}
+
+    if tag == "all_past":
+        return {"tag": "all_past", "arg": fold_formula(formula_json["arg"])}
+
+    raise ValueError(
+        f"unknown JSON formula tag in fold_formula: {tag!r}. "
+        f"Expected one of: {sorted(_ALL_KNOWN_TAGS)}"
+    )
+
+
+##############################################################################
+# normalize_formula
+##############################################################################
+
+def _fold_at_level(formula_json: dict, max_level: int) -> dict:
+    """Fold a formula allowing only enriched operators at or below max_level.
+
+    Level 0: no enriched operators (same as unfold)
+    Level 1: neg, top, next, prev
+    Level 2: Level 1 + and, or, diamond, some_future, some_past
+    Level 3: Level 2 + all_future, all_past (same as full fold)
+
+    Args:
+        formula_json: A primitive-only formula dict (output of unfold_formula).
+        max_level: Maximum enriched operator level to allow (0-3).
+
+    Returns:
+        A formula dict with enriched operators up to max_level applied.
+    """
+    _LEVEL1 = frozenset({"neg", "top", "next", "prev"})
+    _LEVEL2 = frozenset({"and", "or", "diamond", "some_future", "some_past"})
+    _LEVEL3 = frozenset({"all_future", "all_past"})
+
+    tag = formula_json["tag"]
+
+    if tag == "imp":
+        left = formula_json["left"]
+        right = formula_json["right"]
+
+        if _is_bot(right):
+            # Check Level 3 patterns
+            if max_level >= 3:
+                if (
+                    left.get("tag") == "untl"
+                    and _is_top_pattern(left.get("guard", {}))
+                    and _is_neg_pattern(left.get("event", {}))
+                ):
+                    event_node = left["event"]
+                    phi = _fold_at_level(event_node["left"], max_level)
+                    return {"tag": "all_future", "arg": phi}
+
+                if (
+                    left.get("tag") == "snce"
+                    and _is_top_pattern(left.get("guard", {}))
+                    and _is_neg_pattern(left.get("event", {}))
+                ):
+                    event_node = left["event"]
+                    phi = _fold_at_level(event_node["left"], max_level)
+                    return {"tag": "all_past", "arg": phi}
+
+            # Check Level 2 patterns
+            if max_level >= 2:
+                if (
+                    left.get("tag") == "box"
+                    and _is_neg_pattern(left.get("child", {}))
+                ):
+                    child_node = left["child"]
+                    phi = _fold_at_level(child_node["left"], max_level)
+                    return {"tag": "diamond", "arg": phi}
+
+                if (
+                    left.get("tag") == "imp"
+                    and _is_neg_pattern(left.get("right", {}))
+                ):
+                    phi = _fold_at_level(left["left"], max_level)
+                    psi = _fold_at_level(left["right"]["left"], max_level)
+                    return {"tag": "and", "left": phi, "right": psi}
+
+            # Check Level 1 patterns
+            if max_level >= 1:
+                if _is_bot(left):
+                    return {"tag": "top"}
+                # neg: fallback
+                folded_left = _fold_at_level(left, max_level)
+                return {"tag": "neg", "arg": folded_left}
+
+            # Level 0: no enriched, recurse into both sides
+            return {
+                "tag": "imp",
+                "left": _fold_at_level(left, max_level),
+                "right": _fold_at_level(right, max_level),
+            }
+
+        # imp(X, Y) where Y is not bot
+        if max_level >= 2 and _is_neg_pattern(left):
+            phi = _fold_at_level(left["left"], max_level)
+            psi = _fold_at_level(right, max_level)
+            return {"tag": "or", "left": phi, "right": psi}
+
+        return {
+            "tag": "imp",
+            "left": _fold_at_level(left, max_level),
+            "right": _fold_at_level(right, max_level),
+        }
+
+    if tag == "untl":
+        guard = formula_json["guard"]
+        event = formula_json["event"]
+
+        if max_level >= 1 and _is_bot(guard):
+            phi = _fold_at_level(event, max_level)
+            return {"tag": "next", "arg": phi}
+
+        if max_level >= 2 and _is_top_pattern(guard):
+            phi = _fold_at_level(event, max_level)
+            return {"tag": "some_future", "arg": phi}
+
+        return {
+            "tag": "untl",
+            "event": _fold_at_level(event, max_level),
+            "guard": _fold_at_level(guard, max_level),
+        }
+
+    if tag == "snce":
+        guard = formula_json["guard"]
+        event = formula_json["event"]
+
+        if max_level >= 1 and _is_bot(guard):
+            phi = _fold_at_level(event, max_level)
+            return {"tag": "prev", "arg": phi}
+
+        if max_level >= 2 and _is_top_pattern(guard):
+            phi = _fold_at_level(event, max_level)
+            return {"tag": "some_past", "arg": phi}
+
+        return {
+            "tag": "snce",
+            "event": _fold_at_level(event, max_level),
+            "guard": _fold_at_level(guard, max_level),
+        }
+
+    if tag == "atom":
+        return dict(formula_json)
+
+    if tag == "bot":
+        return _make_bot()
+
+    if tag == "box":
+        return {"tag": "box", "child": _fold_at_level(formula_json["child"], max_level)}
+
+    raise ValueError(
+        f"unexpected tag in _fold_at_level: {tag!r} (input should be primitive-only)"
+    )
+
+
+def normalize_formula(formula_json: dict, level: int) -> dict:
+    """Fold/unfold a formula to use enriched operators up to the given level.
+
+    First unfolds all enriched tags to primitives, then folds back allowing
+    only operators at or below the specified level.
+
+    Levels:
+        0: No enriched operators (equivalent to unfold_formula)
+        1: Allow neg, top, next, prev
+        2: Allow Level 1 + and, or, diamond, some_future, some_past
+        3: Allow all 11 enriched operators (equivalent to fold_formula(unfold_formula(f)))
+
+    Args:
+        formula_json: A formula dict with any combination of tags.
+        level: Target level (integer 0-3).
+
+    Returns:
+        A normalized formula dict using enriched operators up to level.
+
+    Raises:
+        ValueError: If level is not in the range [0, 3].
+    """
+    if not isinstance(level, int) or level < 0 or level > 3:
+        raise ValueError(
+            f"level must be an integer in [0, 3], got: {level!r}"
+        )
+    unfolded = unfold_formula(formula_json)
+    return _fold_at_level(unfolded, level)
