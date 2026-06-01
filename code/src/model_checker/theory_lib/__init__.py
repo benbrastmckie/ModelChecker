@@ -1,8 +1,8 @@
 """Model checker theory library.
 
-This module provides access to various logical theories implementing programmatic 
-semantics for modal, counterfactual, and hyperintensional operators. Theories are
-loaded on-demand through lazy loading for better performance.
+This module provides access to the bimodal logical theory implementing programmatic
+semantics for temporal and modal operators. Theories are loaded on-demand through
+lazy loading for better performance.
 
 Each theory implements:
 - Semantic model structures with state fusion, part-hood relations, etc.
@@ -11,8 +11,7 @@ Each theory implements:
 - Example models demonstrating the theory's principles
 
 Available Theories:
-- logos: Standard bilateral truthmaker semantics with modular subtheories
-- bimodal: Bimodal semantics for counterfactuals (experimental)
+- bimodal: Bimodal semantics for counterfactuals
 
 The module supports theory extension through a central registry. To add a new theory:
 1. Create a new directory under theory_lib/
@@ -22,23 +21,22 @@ The module supports theory extension through a central registry. To add a new th
 
 Usage Examples:
     # Import a specific theory
-    from model_checker.theory_lib import logos
-    
+    from model_checker.theory_lib import bimodal
+
     # Get a theory configuration
-    theory = logos.get_theory()
-    
+    theory = bimodal.get_theory()
+
     # Access examples from a theory
     from model_checker.theory_lib import get_examples
-    examples = get_examples('logos')
-    cf_theorem = examples['CF_TH_1']  # Counterfactual theorem
-    
+    examples = get_examples('bimodal')
+
     # Use with model checking via examples.py files
     # See the Examples Standard documentation for the recommended workflow
-    
+
     # Get test examples for unit testing
     from model_checker.theory_lib import get_test_examples
-    test_examples = get_test_examples('logos')
-    
+    test_examples = get_test_examples('bimodal')
+
     # Discover all available theories
     from model_checker.theory_lib import discover_theories
     all_theories = discover_theories()
@@ -48,8 +46,6 @@ import datetime
 import importlib
 import os
 from typing import Dict, List, Optional, Any
-
-from model_checker.theory_lib import logos
 
 from ..utils import get_license_template
 
@@ -61,8 +57,7 @@ from ..utils import get_license_template
 
 # Registry of available theories - add new theories here
 AVAILABLE_THEORIES = [
-    'logos',        # Standard bilateral truthmaker semantics with modular subtheories
-    'bimodal',      # Bimodal semantics for counterfactuals (experimental)
+    'bimodal',      # Bimodal semantics for counterfactuals
 ]
 
 # Dictionary to cache loaded theory modules
@@ -81,7 +76,7 @@ def get_examples(theory_name: str) -> Dict[str, Any]:
     These examples are used for demonstration and model checking.
 
     Args:
-        theory_name: Name of the registered theory ('default', 'exclusion', etc.)
+        theory_name: Name of the registered theory ('bimodal', etc.)
 
     Returns:
         Dictionary mapping example names to (premises, conclusions, settings) tuples
@@ -91,9 +86,8 @@ def get_examples(theory_name: str) -> Dict[str, Any]:
 
     Example:
         >>> from model_checker.theory_lib import get_examples
-        >>> logos_examples = get_examples('logos')
-        >>> print(list(logos_examples.keys())[:5])
-        ['EXT_TH_1', 'EXT_TH_2', 'EXT_TH_3', 'EXT_TH_4', 'EXT_TH_5']
+        >>> bimodal_examples = get_examples('bimodal')
+        >>> print(list(bimodal_examples.keys())[:5])
     """
     if theory_name not in AVAILABLE_THEORIES:
         raise ValueError(f"Unknown theory: {theory_name}")
@@ -111,7 +105,7 @@ def get_test_examples(theory_name: str) -> Dict[str, Any]:
     Each example typically includes premises, conclusions, settings, and expected outcome.
 
     Args:
-        theory_name: Name of the registered theory ('default', 'exclusion', etc.)
+        theory_name: Name of the registered theory ('bimodal', etc.)
 
     Returns:
         Dictionary mapping test names to (premises, conclusions, settings) tuples
@@ -121,7 +115,7 @@ def get_test_examples(theory_name: str) -> Dict[str, Any]:
 
     Example:
         >>> from model_checker.theory_lib import get_test_examples
-        >>> tests = get_test_examples('logos')
+        >>> tests = get_test_examples('bimodal')
         >>> # Use with pytest parametrization
         >>> @pytest.mark.parametrize("example_name, example_case", tests.items())
         >>> def test_examples(example_name, example_case):
@@ -143,7 +137,7 @@ def get_semantic_theories(theory_name: str) -> Dict[str, Any]:
     the logical behavior of each theory variant.
 
     Args:
-        theory_name: Name of the registered theory ('default', 'exclusion', etc.)
+        theory_name: Name of the registered theory ('bimodal', etc.)
 
     Returns:
         Dictionary mapping semantic theory names to their implementation classes
@@ -153,9 +147,7 @@ def get_semantic_theories(theory_name: str) -> Dict[str, Any]:
 
     Example:
         >>> from model_checker.theory_lib import get_semantic_theories
-        >>> semantics = get_semantic_theories('logos')
-        >>> # The logos theory uses a modular architecture
-        >>> # with semantic theories loaded from subtheories
+        >>> semantics = get_semantic_theories('bimodal')
     """
     if theory_name not in AVAILABLE_THEORIES:
         raise ValueError(f"Unknown theory: {theory_name}")

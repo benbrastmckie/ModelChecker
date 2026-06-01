@@ -1,7 +1,7 @@
 # Implementation Plan: Strip Non-Bimodal Code
 
 - **Task**: 100 - Strip non-bimodal code and fix coupling
-- **Status**: [NOT STARTED]
+- **Status**: [IN PROGRESS]
 - **Effort**: 4 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/100_strip_non_bimodal_code/reports/01_codebase-audit.md
@@ -69,24 +69,24 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 1: Fix Hard Coupling Points [NOT STARTED]
+### Phase 1: Fix Hard Coupling Points [COMPLETED]
 
 **Goal**: Remove all hard imports and references to logos, jupyter, and notebook from source files so that module deletions in Phase 3 do not break imports.
 
 **Tasks**:
-- [ ] **theory_lib/__init__.py**: Delete line 52 (`from model_checker.theory_lib import logos`)
-- [ ] **theory_lib/__init__.py**: Update `AVAILABLE_THEORIES` (lines 63-66) to `['bimodal']` only
-- [ ] **theory_lib/__init__.py**: Update docstrings (module docstring, `get_examples()`, `get_test_examples()`) to remove logos references and use bimodal examples
-- [ ] **builder/example.py**: Delete line 34 (`from ..theory_lib.logos import semantic`)
-- [ ] **builder/example.py**: Delete line 266 (`from .iterate import ModelIterator`) and the `find_next_model` method that uses it
-- [ ] **builder/runner.py**: Simplify lines 82-85 -- remove `if 'Logos' in semantics_class.__name__:` branch, keep only `semantics = semantics_class(settings)`
-- [ ] **builder/runner.py**: Simplify lines 206-209 -- remove `if hasattr(semantics_class, '__name__') and 'Logos' in semantics_class.__name__:` branch, keep only `semantics = semantics_class(settings)`
-- [ ] **builder/runner.py**: Delete line 653 (`from model_checker.iterate.metrics import ResultFormatter`) and surrounding block that uses it
-- [ ] **model_checker/__init__.py**: Remove `"jupyter"` from `__all__` list (line 32)
-- [ ] **model_checker/__init__.py**: Delete jupyter import block lines 42-54 (try/except with `has_jupyter_dependencies`)
-- [ ] **model_checker/__init__.py**: Delete jupyter import block lines 88-112 (conditional jupyter imports)
-- [ ] **output/__init__.py**: Delete line 21 (`from .notebook import StreamingNotebookGenerator, NotebookWriter, TemplateLoader`)
-- [ ] **output/__init__.py**: Delete notebook entries from `__all__` (lines 37-40)
+- [x] **theory_lib/__init__.py**: Delete line 52 (`from model_checker.theory_lib import logos`)
+- [x] **theory_lib/__init__.py**: Update `AVAILABLE_THEORIES` (lines 63-66) to `['bimodal']` only
+- [x] **theory_lib/__init__.py**: Update docstrings (module docstring, `get_examples()`, `get_test_examples()`) to remove logos references and use bimodal examples
+- [x] **builder/example.py**: Delete line 34 (`from ..theory_lib.logos import semantic`)
+- [x] **builder/example.py**: Delete line 266 (`from .iterate import ModelIterator`) and the `find_next_model` method that uses it
+- [x] **builder/runner.py**: Simplify lines 82-85 -- remove `if 'Logos' in semantics_class.__name__:` branch, keep only `semantics = semantics_class(settings)`
+- [x] **builder/runner.py**: Simplify lines 206-209 -- remove `if hasattr(semantics_class, '__name__') and 'Logos' in semantics_class.__name__:` branch, keep only `semantics = semantics_class(settings)`
+- [x] **builder/runner.py**: Delete line 653 (`from model_checker.iterate.metrics import ResultFormatter`) and surrounding block that uses it
+- [x] **model_checker/__init__.py**: Remove `"jupyter"` from `__all__` list (line 32)
+- [x] **model_checker/__init__.py**: Delete jupyter import block lines 42-54 (try/except with `has_jupyter_dependencies`)
+- [x] **model_checker/__init__.py**: Delete jupyter import block lines 88-112 (conditional jupyter imports)
+- [x] **output/__init__.py**: Delete line 21 (`from .notebook import StreamingNotebookGenerator, NotebookWriter, TemplateLoader`)
+- [x] **output/__init__.py**: Delete notebook entries from `__all__` (lines 37-40)
 
 **Timing**: 1 hour
 

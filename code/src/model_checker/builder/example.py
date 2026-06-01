@@ -31,7 +31,6 @@ from .z3_utils import (
     extract_model_values,
     find_next_model as find_next_z3_model
 )
-from ..theory_lib.logos import semantic
 
 class BuildExample:
     """Handles the creation and evaluation of a single model checking example.
@@ -246,60 +245,6 @@ class BuildExample:
             # Add additional model details as needed
             
         return result
-    
-    def find_next_model(self) -> bool:
-        """Find a new model that differs from the previous one.
-        
-        Uses the refactored approach to find a semantically distinct model by:
-        1. Creating extended constraints requiring difference from the current model
-        2. Building a completely new model structure from scratch
-        3. Calculating differences between the models for presentation
-        
-        Returns:
-            bool: True if a new distinct model was found, False otherwise
-        """
-        if self.model_structure.z3_model is None:
-            return False
-            
-        try:
-            # Import the ModelIterator dynamically to avoid circular imports
-            from .iterate import ModelIterator
-            
-            # Create a model iterator for this build example
-            iterator = ModelIterator(self)
-            
-            # Override to find just one more model
-            iterator.max_iterations = 2  # Initial + 1 more
-            
-            # Find the next model
-            model_structures = iterator.iterate()
-            
-            # Check if we found a new model
-            if len(model_structures) <= 1:
-                return False
-                
-            # Replace our model structure with the new one
-            new_structure = model_structures[-1]
-            
-            # Keep a reference to the old structure for comparison
-            old_structure = self.model_structure
-            
-            # Update the build example with the new structure
-            self.model_structure = new_structure
-            
-            # We don't need to print differences here since they'll be printed by print_to
-            # when the model is displayed through print_model
-            
-            return True
-            
-        except z3.Z3Exception as e:
-            print(f"Z3 error while finding next model: {e}")
-            return False
-        except Exception as e:
-            print(f"Error while finding next model: {e}")
-            import traceback
-            print(traceback.format_exc())
-            return False
     
     def print_model(
         self,

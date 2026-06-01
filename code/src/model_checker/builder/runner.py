@@ -78,12 +78,7 @@ def try_single_N_static(
     operators = semantic_theory["operators"]
     syntax = Syntax(premises, conclusions, operators)
     
-    # Different theories have different initialization patterns
-    if 'Logos' in semantics_class.__name__:
-        semantics = semantics_class(combined_settings=settings)
-    else:
-        semantics = semantics_class(settings)
-        
+    semantics = semantics_class(settings)
     model_constraints = ModelConstraints(
         settings,
         syntax,
@@ -202,12 +197,7 @@ class ModelRunner:
         operators = semantic_theory["operators"]
         syntax = Syntax(premises, conclusions, operators)
         
-        # Different theories have different initialization patterns
-        if hasattr(semantics_class, '__name__') and 'Logos' in semantics_class.__name__:
-            semantics = semantics_class(combined_settings=settings)
-        else:
-            semantics = semantics_class(settings)
-            
+        semantics = semantics_class(settings)
         model_constraints = ModelConstraints(
             settings,
             syntax,
@@ -648,14 +638,7 @@ class ModelRunner:
                         structure.print_model_differences()
                     else:
                         print("\n=== DIFFERENCES FROM PREVIOUS MODEL ===")
-                        if hasattr(structure, 'model_differences') and structure.model_differences:
-                            # Basic difference display if no custom method
-                            from model_checker.iterate.metrics import ResultFormatter
-                            formatter = ResultFormatter()
-                            diff_report = formatter.format_difference_report(structure.model_differences)
-                            print(diff_report)
-                        else:
-                            print("(No differences calculated)")
+                        print("(No differences calculated)")
 
                 # Print model header - now showing correct numbering (2/4, 3/4, 4/4)
                 print(f"MODEL {distinct_count + 1}/{iterate_count}")

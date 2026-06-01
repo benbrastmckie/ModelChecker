@@ -79,7 +79,7 @@
     {
       "project_number": 100,
       "project_name": "strip_non_bimodal_code",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
       "last_updated": "2026-06-01T12:00:00Z",

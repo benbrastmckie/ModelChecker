@@ -29,7 +29,7 @@ __version__ = get_model_checker_version()
 
 # Define the public API of the package
 __all__ = [
-    "model", "syntactic", "jupyter",                # modules
+    "model", "syntactic",                           # modules
     "ParseFileFlags",                               # main.py
     "ForAll", "Exists", "bitvec_to_substates",      # utils.py
     "get_example", "get_theory", "run_test",
@@ -38,20 +38,6 @@ __all__ = [
     "ModelConstraints",
     "Syntax",
 ]
-
-# Add jupyter components to API only if dependencies are available
-try:
-    # Use the function from jupyter module to check dependencies
-    from .jupyter import has_jupyter_dependencies
-    
-    if has_jupyter_dependencies():
-        __all__.extend([
-            "check_formula", "find_countermodel", "explore_formula",
-            "ModelExplorer", "FormulaChecker",
-        ])
-except ImportError:
-    # If we can't import, don't add jupyter components to __all__
-    pass
 
 # Import model components
 from .models.constraints import ModelConstraints
@@ -85,28 +71,3 @@ from .__main__ import (
     main,
 )
 
-# Import jupyter components if they are available
-try:
-    # First import has_jupyter_dependencies to check for dependencies
-    from .jupyter import has_jupyter_dependencies
-    
-    # Then conditionally import the components if dependencies are available
-    if has_jupyter_dependencies():
-        from .jupyter import (
-            check_formula,
-            find_countermodel,
-            explore_formula,
-            ModelExplorer,
-            FormulaChecker,
-        )
-    else:
-        # Import stub implementations instead
-        from .jupyter import (
-            check_formula,  # This is already the stub version that raises error
-            find_countermodel,
-            explore_formula,
-        )
-        # ModelExplorer and FormulaChecker will not be imported
-except ImportError:
-    # If jupyter module itself can't be imported, just pass
-    pass
