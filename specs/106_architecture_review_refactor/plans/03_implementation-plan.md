@@ -99,19 +99,19 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Rewrite Task Descriptions for Tasks 100-105 [NOT STARTED]
+### Phase 2: Rewrite Task Descriptions for Tasks 100-105 [COMPLETED]
 
 **Goal**: Update each task description in TODO.md to incorporate research findings, making each task self-contained with specific file references, acceptance criteria, and research-informed scope.
 
 **Tasks**:
-- [ ] Rewrite Task 100 (Strip non-bimodal code): Add expanded gate criteria ("43 examples pass AND all unit tests in theory_lib/bimodal/tests/unit/ pass"), add explicit keep-list from Report 03 Section 2, add specific hard-coupling fixes with line numbers (theory_lib/__init__.py:52, builder/example.py:34, builder/runner.py:82,206)
-- [ ] Rewrite Task 101 (Restructure as bmlogic-oracle): Clarify that existing directory structure is preserved (no core/ subdirectory rename per Report 03 Rec 1), specify entry point format, confirm package name bmlogic-oracle with import name bmlogic_oracle
-- [ ] Rewrite Task 102 (Formula JSON translation): Add temporal_depth(formula_json) as a required deliverable (Report 03 Rec 2, Section 4), add Syntax programmatic constructor requirement (Report 03 Section 10 Q1), confirm 6-tag JSON field names from BimodalHarness schema, add G/H equivalence boundary caveat from Report 02 Section 1
-- [ ] Rewrite Task 103 (OracleProvider implementation): Add ternary task_rel extraction loop (Report 03 Section 3), add boundary buffer (M = max(temporal_depth + 2, 3)), add boundary_safe flag and temporal_depth in output, add StructuredCountermodel format from Report 03 Rec 8, add Z3 isolation strategy (fresh BimodalSemantics per call)
-- [ ] Rewrite Task 104 (Dead-code cleanup): Add explicit "do NOT remove" list from Report 03 Rec 6 (tests, examples.py, operators.py, extract_model_elements, print_* methods), narrow scope to only multi-theory CLI artifacts
-- [ ] Rewrite Task 105 (Integration testing): Add oracle pipeline test through OracleProvider (Report 03 Rec 2), add boundary regression tests, add ternary serialization validation, add temporal_depth reporting verification
-- [ ] Update dependency fields: Task 100 depends on none, Tasks 101 and 102 depend on 100, Task 103 depends on 101 and 102, Task 104 depends on 103, Task 105 depends on 103 and 104
-- [ ] Mark task 99 (audit) as subsumed by task 106 research -- its deliverables are fully covered by the three research reports; update its status to reflect this
+- [x] Rewrite Task 100 (Strip non-bimodal code): Add expanded gate criteria ("43 examples pass AND all unit tests in theory_lib/bimodal/tests/unit/ pass"), add explicit keep-list from Report 03 Section 2, add specific hard-coupling fixes with line numbers (theory_lib/__init__.py:52, builder/example.py:34, builder/runner.py:82,206)
+- [x] Rewrite Task 101 (Restructure as bmlogic-oracle): Clarify that existing directory structure is preserved (no core/ subdirectory rename per Report 03 Rec 1), specify entry point format, confirm package name bmlogic-oracle with import name bmlogic_oracle
+- [x] Rewrite Task 102 (Formula JSON translation): Add temporal_depth(formula_json) as a required deliverable (Report 03 Rec 2, Section 4), add Syntax programmatic constructor requirement (Report 03 Section 10 Q1), confirm 6-tag JSON field names from BimodalHarness schema, add G/H equivalence boundary caveat from Report 02 Section 1
+- [x] Rewrite Task 103 (OracleProvider implementation): Add ternary task_rel extraction loop (Report 03 Section 3), add boundary buffer (M = max(temporal_depth + 2, 3)), add boundary_safe flag and temporal_depth in output, add StructuredCountermodel format from Report 03 Rec 8, add Z3 isolation strategy (fresh BimodalSemantics per call)
+- [x] Rewrite Task 104 (Dead-code cleanup): Add explicit "do NOT remove" list from Report 03 Rec 6 (tests, examples.py, operators.py, extract_model_elements, print_* methods), narrow scope to only multi-theory CLI artifacts
+- [x] Rewrite Task 105 (Integration testing): Add oracle pipeline test through OracleProvider (Report 03 Rec 2), add boundary regression tests, add ternary serialization validation, add temporal_depth reporting verification
+- [x] Update dependency fields: Task 100 depends on none, Tasks 101 and 102 depend on 100, Task 103 depends on 101 and 102, Task 104 depends on 103, Task 105 depends on 103 and 104
+- [x] Mark task 99 (audit) as subsumed by task 106 research -- its deliverables are fully covered by the three research reports; update its status to reflect this (Note: task 99 is in specs/archive/ per git log; it was already archived as ABANDONED; no action needed in TODO.md)
 
 **Timing**: 1 hour
 
@@ -128,17 +128,17 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Create New Tasks from Research Gaps [NOT STARTED]
+### Phase 3: Create New Tasks from Research Gaps [COMPLETED]
 
 **Goal**: Create 4 new tasks identified by the research as missing from the original 99-105 plan: boundary effect mitigation, soundness regression test suite, cross-oracle differential testing, and frame class validation.
 
 **Tasks**:
-- [ ] Create Task 107: "Boundary effect analysis and temporal_depth mitigation" -- Implement temporal_depth(formula_json) validation, add boundary buffer constraints to BimodalSemantics, prove that for M > temporal_depth(phi) + 1 no boundary effects create spurious countermodels, regression test known-valid/invalid formulas. Dependencies: 102 (needs temporal_depth function). Effort: medium. Type: python.
-- [ ] Create Task 108: "Soundness regression test suite for boundary and shift-closure edge cases" -- Test suite specifically probing boundary effects (G(phi) at t=M-1), incomplete shift closure near edges, guarded compositionality gaps, atom_false_of_not_domain alignment. Dependencies: 103 (needs OracleProvider). Effort: small. Type: python.
-- [ ] Create Task 109: "Cross-oracle differential testing infrastructure" -- Build infrastructure to compare Z3 oracle results against BimodalLogic's findCountermodel for systematic formula comparison; leverage BimodalLogic's FormulaEnumerator for formulas up to complexity 7. Dependencies: 103 (needs OracleProvider), requires BimodalHarness integration. Effort: medium. Type: python.
-- [ ] Create Task 110: "Frame class validation for Base frame" -- Validate that Z3's "Base" frame class matches BimodalLogic's base frame class (LinearTemporalFrame + SerialFrame axioms); verify disabled task_restriction constraint (semantic.py constraint 10) does not affect soundness; document frame hierarchy mapping. Dependencies: 100 (needs codebase audit). Effort: small. Type: python.
-- [ ] Assign task numbers using next_project_number from state.json (currently 107)
-- [ ] Write task descriptions with effort, status [NOT STARTED], task_type, and dependencies
+- [x] Create Task 107: "Boundary effect analysis and temporal_depth mitigation" -- Implement temporal_depth(formula_json) validation, add boundary buffer constraints to BimodalSemantics, prove that for M > temporal_depth(phi) + 1 no boundary effects create spurious countermodels, regression test known-valid/invalid formulas. Dependencies: 102 (needs temporal_depth function). Effort: medium. Type: python.
+- [x] Create Task 108: "Soundness regression test suite for boundary and shift-closure edge cases" -- Test suite specifically probing boundary effects (G(phi) at t=M-1), incomplete shift closure near edges, guarded compositionality gaps, atom_false_of_not_domain alignment. Dependencies: 103 (needs OracleProvider). Effort: small. Type: python.
+- [x] Create Task 109: "Cross-oracle differential testing infrastructure" -- Build infrastructure to compare Z3 oracle results against BimodalLogic's findCountermodel for systematic formula comparison; leverage BimodalLogic's FormulaEnumerator for formulas up to complexity 7. Dependencies: 103 (needs OracleProvider), requires BimodalHarness integration. Effort: medium. Type: python.
+- [x] Create Task 110: "Frame class validation for Base frame" -- Validate that Z3's "Base" frame class matches BimodalLogic's base frame class (LinearTemporalFrame + SerialFrame axioms); verify disabled task_restriction constraint (semantic.py constraint 10) does not affect soundness; document frame hierarchy mapping. Dependencies: 100 (needs codebase audit). Effort: small. Type: python.
+- [x] Assign task numbers using next_project_number from state.json (107, 108, 109, 110 assigned; next_project_number updated to 111)
+- [x] Write task descriptions with effort, status [NOT STARTED], task_type, and dependencies
 
 **Timing**: 45 minutes
 
