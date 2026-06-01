@@ -1,7 +1,7 @@
 # Implementation Plan: Add Next/Prev (X/Y) Defined Operator Classes
 
 - **Task**: 111 - Add Next/Prev (X/Y) defined operator classes
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 1 hour
 - **Dependencies**: 100 (completed)
 - **Research Inputs**: specs/111_next_prev_defined_operators/reports/01_next-prev-operators.md
@@ -92,17 +92,17 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Implement Operators and Verify (TDD Green Phase) [NOT STARTED]
+### Phase 2: Implement Operators and Verify (TDD Green Phase) [COMPLETED]
 
 **Goal**: Add DefNextOperator and DefPrevOperator classes and register them, making all tests pass.
 
 **Tasks**:
-- [ ] Add DefNextOperator class after DefPastOperator in `code/src/model_checker/theory_lib/bimodal/operators.py`: name="\\next", arity=1, derived_definition returns [UntilOperator, argument, [BotOperator]], print_method delegates to print_over_times
-- [ ] Add DefPrevOperator class after DefNextOperator: name="\\prev", arity=1, derived_definition returns [SinceOperator, argument, [BotOperator]], print_method delegates to print_over_times
-- [ ] Register DefNextOperator and DefPrevOperator in bimodal_operators collection (after DefPastOperator in the defined operators section)
-- [ ] Run new tests: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py -v`
-- [ ] Run full existing test suite: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v`
-- [ ] Verify all new tests pass (green phase) and all 171 existing tests still pass
+- [x] Add DefNextOperator class after DefPastOperator in `code/src/model_checker/theory_lib/bimodal/operators.py`: name="\\next", arity=1, derived_definition returns [UntilOperator, argument, [BotOperator]], print_method delegates to print_over_times
+- [x] Add DefPrevOperator class after DefNextOperator: name="\\prev", arity=1, derived_definition returns [SinceOperator, argument, [BotOperator]], print_method delegates to print_over_times
+- [x] Register DefNextOperator and DefPrevOperator in bimodal_operators collection (after DefPastOperator in the defined operators section)
+- [x] Run new tests: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py -v`
+- [x] Run full existing test suite: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v`
+- [x] Verify all new tests pass (green phase) and 218 of 219 existing tests still pass (BM_CM_1 pre-existing failure unrelated to this task)
 
 **Timing**: 30 minutes
 
@@ -118,13 +118,13 @@ Phases within the same wave can execute in parallel.
 
 ## Testing & Validation
 
-- [ ] Signature tests: both operators have correct name, arity, and DefinedOperator inheritance
-- [ ] Definition tests: derived_definition returns correct prefix-notation lists
-- [ ] Registration tests: operators found in bimodal_operators.operator_dictionary
-- [ ] Semantic equivalence: Next(A) <-> U(A, bot) is a theorem (no countermodel)
-- [ ] Semantic equivalence: Prev(A) <-> S(A, bot) is a theorem (no countermodel)
-- [ ] Prefix construction: Syntax can parse "\\next A" and "\\prev A"
-- [ ] Regression: all 171 existing bimodal tests still pass
+- [x] Signature tests: both operators have correct name, arity, and DefinedOperator inheritance
+- [x] Definition tests: derived_definition returns correct prefix-notation lists
+- [x] Registration tests: operators found in bimodal_operators.operator_dictionary
+- [x] Semantic equivalence: Next(A) <-> U(A, bot) is a theorem (no countermodel)
+- [x] Semantic equivalence: Prev(A) <-> S(A, bot) is a theorem (no countermodel)
+- [x] Prefix construction: Syntax can parse "\\next A" and "\\prev A"
+- [x] Regression: 218 of 219 existing bimodal tests still pass (BM_CM_1 was pre-existing failure)
 
 ## Artifacts & Outputs
 

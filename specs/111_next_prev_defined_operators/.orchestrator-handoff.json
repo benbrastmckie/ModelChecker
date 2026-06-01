@@ -1,15 +1,19 @@
 {
   "status": "completed",
-  "summary": "Created 2-phase TDD implementation plan for DefNextOperator and DefPrevOperator. Phase 1 writes comprehensive tests (signatures, derived_definition structure, registration, semantic equivalence, prefix construction). Phase 2 implements both operator classes and registers them in bimodal_operators. Estimated 1 hour total effort.",
+  "summary": "Added DefNextOperator (\\next, arity=1, Next(phi)=U(phi,bot)) and DefPrevOperator (\\prev, arity=1, Prev(phi)=S(phi,bot)) as DefinedOperator subclasses to bimodal operators.py. Both registered in bimodal_operators collection. Created 34-test test_next_prev.py; all pass. 218/219 bimodal tests pass (BM_CM_1 pre-existing failure unrelated to this task).",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "implement",
-  "phases_completed": 0,
+  "next_action_hint": "none",
+  "phases_completed": 2,
   "phases_total": 2,
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/111_next_prev_defined_operators/plans/01_next-prev-operators.md"
+    },
+    {
+      "type": "summary",
+      "path": "specs/111_next_prev_defined_operators/summaries/01_next-prev-operators-summary.md"
     }
   ]
 }

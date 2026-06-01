@@ -1520,7 +1520,69 @@ class DefPastOperator(syntactic.DefinedOperator):
 
     def derived_definition(self, argument):  # type: ignore
         return [NegationOperator, [PastOperator, [NegationOperator, argument]]]
-    
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print temporal operator evaluation across different time points."""
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+
+
+class DefNextOperator(syntactic.DefinedOperator):
+    """Temporal operator for 'next instant': true iff argument holds at the immediately next time.
+
+    Defined as Next(phi) = U(phi, bot): phi holds at some future time s > t with bot (falsity)
+    holding in the open interval (t, s). Since bot is never true, the interval (t, s) must be
+    empty, meaning s is the immediately next time after t.
+
+    Key Properties:
+        - Arity 1: unary operator
+        - Defined in terms of UntilOperator with BotOperator as the guard
+        - Semantics: true at time t iff argument is true at the next time t+1
+
+    Methods:
+        derived_definition: Returns [UntilOperator, argument, [BotOperator]]
+        print_method: Displays evaluation across different time points
+    """
+
+    name = "\\next"
+    arity = 1
+
+    def derived_definition(self, argument):  # type: ignore
+        return [UntilOperator, argument, [BotOperator]]
+
+    def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
+        """Print temporal operator evaluation across different time points."""
+        eval_world = eval_point["world"]
+        eval_world_history = sentence_obj.proposition.model_structure.get_world_history(eval_world)
+        eval_world_times = eval_world_history.keys()
+        self.print_over_times(sentence_obj, eval_point, eval_world_times, indent_num, use_colors)
+
+
+class DefPrevOperator(syntactic.DefinedOperator):
+    """Temporal operator for 'previous instant': true iff argument held at the immediately prior time.
+
+    Defined as Prev(phi) = S(phi, bot): phi held at some past time s < t with bot (falsity)
+    holding in the open interval (s, t). Since bot is never true, the interval (s, t) must be
+    empty, meaning s is the immediately previous time before t.
+
+    Key Properties:
+        - Arity 1: unary operator
+        - Defined in terms of SinceOperator with BotOperator as the guard
+        - Semantics: true at time t iff argument was true at the previous time t-1
+
+    Methods:
+        derived_definition: Returns [SinceOperator, argument, [BotOperator]]
+        print_method: Displays evaluation across different time points
+    """
+
+    name = "\\prev"
+    arity = 1
+
+    def derived_definition(self, argument):  # type: ignore
+        return [SinceOperator, argument, [BotOperator]]
+
     def print_method(self, sentence_obj, eval_point, indent_num, use_colors):
         """Print temporal operator evaluation across different time points."""
         eval_world = eval_point["world"]
@@ -1556,5 +1618,7 @@ bimodal_operators = syntactic.OperatorCollection(
     DefPossibilityOperator,
     DefFutureOperator,
     DefPastOperator,
+    DefNextOperator,
+    DefPrevOperator,
 )
 
