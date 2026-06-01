@@ -104,7 +104,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: fold_formula with TDD [NOT STARTED]
+### Phase 2: fold_formula with TDD [COMPLETED]
 
 **Goal**: Implement `fold_formula` with outside-in pattern matching that correctly disambiguates all overlapping patterns, with unit tests for each of the 11 enriched patterns written first.
 
@@ -143,7 +143,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: normalize_formula and exports [NOT STARTED]
+### Phase 3: normalize_formula and exports [COMPLETED]
 
 **Goal**: Implement `normalize_formula` that fold/unfolds to a specific operator level, export all new functions from `__init__.py`, and verify level-based normalization.
 
