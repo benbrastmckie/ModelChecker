@@ -50,7 +50,7 @@ class ParseFileFlags:
 examples:
   %(prog)s                          # Interactive project creation
   %(prog)s examples.py             # Run examples file
-  %(prog)s -l logos examples.py    # Use logos theory
+  %(prog)s -l bimodal examples.py  # Use bimodal theory
   %(prog)s --save markdown         # Save output as markdown
   %(prog)s -c -n examples.py       # Force contingent, non-null propositions
 
@@ -299,16 +299,7 @@ def main():
         return
     if module_flags.load_theory:
         semantic_theory_name = module_flags.load_theory
-
-        # Check if subtheory flag is used with non-logos theory
-        if hasattr(module_flags, 'subtheory') and module_flags.subtheory:
-            if semantic_theory_name != 'logos':
-                print(f"Error: The --subtheory flag only applies to the logos theory, not '{semantic_theory_name}'")
-                return
-            builder = BuildProject(semantic_theory_name, subtheories=module_flags.subtheory)
-        else:
-            builder = BuildProject(semantic_theory_name)
-
+        builder = BuildProject(semantic_theory_name)
         builder.ask_generate()
         return
     

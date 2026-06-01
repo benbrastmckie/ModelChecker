@@ -160,7 +160,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Remove other dead code [NOT STARTED]
+### Phase 3: Remove other dead code [COMPLETED]
 
 **Goal**: Remove remaining dead files: cli.py debug artifact, profile_abundance.py, dead e2e test, and clean up __main__.py.
 
