@@ -100,22 +100,22 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Create Test Infrastructure and Fixtures [NOT STARTED]
+### Phase 2: Create Test Infrastructure and Fixtures [COMPLETED]
 
 **Goal**: Set up the test_frame_class_mapping.py file with fixtures that produce solved BimodalStructure instances from known-countermodel examples.
 
 **Tasks**:
-- [ ] Create `code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py` with module docstring explaining its purpose (post-hoc frame axiom validation of extracted countermodels)
-- [ ] Implement a pytest fixture that:
-  - Creates a BimodalSemantics instance with small settings (N=2, M=3)
-  - Constructs a formula known to have countermodels (select 2-3 from examples.py with `expectation=True`)
+- [x] Create `code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py` with module docstring explaining its purpose (post-hoc frame axiom validation of extracted countermodels)
+- [x] Implement a pytest fixture that:
+  - Creates a BimodalSemantics instance with small settings (N=2, M=2)
+  - Constructs a formula known to have countermodels (forces task_rel(0, 1, 1) as satisfying assertion)
   - Runs the Z3 solver to obtain a satisfying model
   - Extracts model elements (world_histories, task_rel pairs) from the Z3 model
   - Returns the extracted data for post-hoc checking
-- [ ] Implement helper functions for task_rel extraction:
+- [x] Implement helper functions for task_rel extraction:
   - `extract_task_rel_pairs(semantics, z3_model)` -> set of (source_state, duration, target_state) tuples
   - `extract_world_histories(semantics, z3_model)` -> dict mapping world_id to {time: state} dicts
-- [ ] Write a smoke test that verifies the fixture produces non-empty countermodel data
+- [x] Write a smoke test that verifies the fixture produces non-empty countermodel data
 
 **Timing**: 1 hour
 
@@ -130,16 +130,16 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Write Post-Hoc Frame Axiom Validation Tests [NOT STARTED]
+### Phase 3: Write Post-Hoc Frame Axiom Validation Tests [COMPLETED]
 
 **Goal**: Implement test classes that assert extracted countermodels satisfy the three TaskFrame axioms and lawful history property.
 
 **Tasks**:
-- [ ] `TestNullityIdentityPostHoc`: For every extracted task_rel pair with duration=0, assert source == target. For every distinct state in the countermodel, assert task_rel(s, 0, s) holds.
-- [ ] `TestConversePostHoc`: For every extracted task_rel pair (s, d, u), assert (u, -d, s) is also present (within valid duration bounds).
-- [ ] `TestForwardCompPostHoc`: For extracted task_rel pairs (s, d1, v) and (v, d2, u), assert (s, d1+d2, u) is present (within valid duration bounds).
-- [ ] `TestLawfulHistoryPostHoc`: For every world history, assert that consecutive time points (t, t+1) have a corresponding task_rel pair (state_at_t, 1, state_at_t+1).
-- [ ] `TestFrameClassDeclarationConsistency`: Assert that the oracle's "Base" frame class claim is justified by documenting what "Base" means and verifying the three TaskFrame axioms hold in the extracted model.
+- [x] `TestNullityIdentityPostHoc`: For every extracted task_rel pair with duration=0, assert source == target. For every distinct state in the countermodel, assert task_rel(s, 0, s) holds.
+- [x] `TestConversePostHoc`: For every extracted task_rel pair (s, d, u), assert (u, -d, s) is also present (within valid duration bounds).
+- [x] `TestForwardCompPostHoc`: For extracted task_rel pairs (s, d1, v) and (v, d2, u), assert (s, d1+d2, u) is present (within valid duration bounds).
+- [x] `TestLawfulHistoryPostHoc`: For every world history, assert that consecutive time points (t, t+1) have a corresponding task_rel pair (state_at_t, 1, state_at_t+1).
+- [x] `TestFrameClassDeclarationConsistency`: Assert that the oracle's "Base" frame class claim is justified by documenting what "Base" means and verifying the three TaskFrame axioms hold in the extracted model.
 
 **Timing**: 1 hour
 
