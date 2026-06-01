@@ -308,13 +308,44 @@
     {
       "project_number": 102,
       "project_name": "formula_json_translation",
-      "status": "not_started",
+      "status": "implementing",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
-      "last_updated": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T19:10:00Z",
+      "session_id": "sess_1780336357_1a2c03",
+      "researched": "2026-06-01T18:45:00Z",
+      "planned": "2026-06-01T19:10:00Z",
+      "next_artifact_number": 2,
       "dependencies": [
         100,
         111
+      ],
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2], [3], [4]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_formula-json-translation.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/102_formula_json_translation/reports/01_formula-json-translation.md",
+          "type": "research",
+          "summary": "JSON tag schema (6 primitive + 11 enriched), json_to_prefix design, temporal_depth rules, Sentence.from_prefix gap analysis, pipeline integration, test strategy, and key file mapping"
+        },
+        {
+          "path": "specs/102_formula_json_translation/plans/01_formula-json-translation.md",
+          "type": "plan",
+          "summary": "4-phase TDD plan: write translation tests, implement json_to_prefix/temporal_depth/prefix_to_infix, add Sentence.from_prefix, verify enriched operator Z3 equivalence"
+        }
       ]
     },
     {

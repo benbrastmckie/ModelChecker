@@ -13,7 +13,7 @@ next_project_number: 114
 110 [COMPLETED] — Frame class validation for Base frame (dep: 100✓)
 
 **Wave 2 — Translation:**
-102 [NOT STARTED] — Formula JSON translation with enriched operator support (dep: 100✓, 111)
+102 [IMPLEMENTING] — Formula JSON translation with enriched operator support (dep: 100✓, 111✓)
 
 **Wave 3 — Normalization & Testing (independent of each other, both depend on 102):**
 112 [NOT STARTED] — Fold/unfold formula normalization utilities (dep: 102)
@@ -150,9 +150,11 @@ Wave 6: 105  109
 
 ### 102. Formula JSON translation with enriched operator support
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Dependencies**: 100, 111
+- **Report**: [specs/102_formula_json_translation/reports/01_formula-json-translation.md]
+- **Plan**: [specs/102_formula_json_translation/plans/01_formula-json-translation.md]
 
 **Description**: Implement JSON→internal formula translation supporting both primitive and enriched formula tags. The translation layer accepts 17 JSON tags, matching the full operator vocabulary shared between BimodalLogic and BimodalHarness. **6 primitive tags** map directly to primitive operator prefix-list format: atom→variable name (field: "base"), bot→\bot, imp→\rightarrow (fields: "left", "right"), box→\Box (field: "arg"), untl→U (fields: "guard", "reach"), snce→S (fields: "guard", "reach"). **11 enriched tags** map to their corresponding operator classes in operators.py: neg→NegationOperator (field: "arg"), top→TopOperator (no fields), and→AndOperator (fields: "left", "right"), or→OrOperator (fields: "left", "right"), diamond→DefPossibilityOperator (field: "arg"), next→DefNextOperator (field: "arg"), prev→DefPrevOperator (field: "arg"), some_future→DefFutureOperator (field: "arg"), some_past→DefPastOperator (field: "arg"), all_future→FutureOperator (field: "arg"), all_past→PastOperator (field: "arg"). Confirm exact field names from BimodalLogic Formula.toJson output or BimodalHarness schema before implementing. Create temporal_depth(formula_json) -> int function: recursively walks formula AST, returns maximum temporal nesting depth. Depth rules: atom/bot/top→0; neg/imp/and/or→max of children; box/diamond/untl/snce/next/prev/some_future/some_past/all_future/all_past→1 + max of children. Create Sentence.from_prefix(prefix_list, operators) classmethod that constructs Sentence objects programmatically, bypassing the infix parser entirely. Must call update_types()/update_objects() so defined operators expand via derive_type(). Open question (must resolve): Does Syntax.__init__() currently accept Sentence objects directly or only infix strings? If only infix strings, add a programmatic constructor overload. Critical: enriched operator equivalence verification — for each of the 11 enriched operators, verify that translating via the enriched tag and then solving produces identical Z3 results as translating via the equivalent primitive expansion. This generalizes the original G/H equivalence check (G(φ) ≡ ¬U(¬φ,⊤), H(φ) ≡ ¬S(¬φ,⊤)) to all enriched operators. G/H boundary caveat (from Report 02): equivalence holds in infinite domains but Z3's ForAllTime guard with is_valid_time creates a different quantification range at boundaries; temporal_depth + M = max(depth+2, 3) in task 103 mitigates this. Drop reverse direction (sentence→JSON). Tests: prefix construction for all 17 tag types, nested formulas mixing primitive and enriched tags, temporal_depth for leaf/unary/binary/nested across all operators, equivalence check for all 11 enriched operators against primitive expansions.
 
