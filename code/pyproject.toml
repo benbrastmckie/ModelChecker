@@ -3,30 +3,28 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "model-checker"
-version = "1.2.12"
-description = "A hyperintensional theorem prover for developing and and exploring programmatic semantic theories."
+name = "bimodal-logic"
+version = "0.1.0"
+description = "Z3-based bimodal logic oracle: temporal and modal reasoning for the bimodal_harness."
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
 ]
 license = { text = "GPL-3.0-or-later" }
 readme = "README.md"
 classifiers = [
-    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
     "Operating System :: OS Independent",
+    "Topic :: Scientific/Engineering :: Mathematics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model checker", "theorem prover", "hyperintensionality"]
+keywords = ["bimodal logic", "temporal logic", "modal logic", "Z3", "SMT", "model checking", "oracle", "theorem prover"]
 dependencies = [
-    "z3-solver>=4.8.0",  # Core dependency for constraint solving
-]
-requires-python = ">=3.8"
-
-# Optional dependencies
-[project.optional-dependencies]
-all = [
     "z3-solver>=4.8.0",
 ]
+requires-python = ">=3.10"
 
 [project.urls]
 Homepage = "https://github.com/benbrastmckie/ModelChecker"
@@ -34,6 +32,9 @@ Issues = "https://github.com/benbrastmckie/ModelChecker/issues"
 
 [project.scripts]
 model-checker = "model_checker.__main__:run"
+
+[project.entry-points."bimodal_harness.oracle_providers"]
+z3_base = "bimodal_logic.provider:Z3OracleProvider"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -47,7 +48,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
-testpaths = ["src/model_checker/theory_lib"]
+testpaths = ["src/model_checker/theory_lib/bimodal/tests"]
 python_files = "test_*.py"
 python_classes = "Test*"
 addopts = "--durations=0 -v --import-mode=importlib"
