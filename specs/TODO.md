@@ -9,7 +9,7 @@ next_project_number: 114
 *Updated 2026-06-01. 12 active tasks (3 completed, 9 not started) across 2 waves.*
 
 **Wave 1 — Foundation (independent, all depend only on completed tasks):**
-111 [RESEARCHED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
+111 [PLANNED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
 110 [COMPLETED] — Frame class validation for Base frame (dep: 100✓)
 
 **Wave 2 — Translation:**
@@ -67,9 +67,11 @@ Wave 6: 105  109
 
 ### 111. Add Next/Prev (X/Y) defined operator classes
 - **Effort**: small
-- **Status**: [RESEARCHING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Dependencies**: 100
+- **Report**: [specs/111_next_prev_defined_operators/reports/01_next-prev-operators.md]
+- **Plan**: [specs/111_next_prev_defined_operators/plans/01_next-prev-operators.md]
 
 **Description**: Create DefNextOperator and DefPrevOperator as DefinedOperator subclasses in theory_lib/bimodal/operators.py. These are the temporal "next instant" and "previous instant" operators missing from the current operator collection. Definitions match BimodalLogic (Syntax/Formula.lean): Next(φ) = U(φ, ⊥) i.e. untl φ bot, Prev(φ) = S(φ, ⊥) i.e. snce φ bot. Implementation: (1) DefNextOperator with name="\\next", arity=1, derived_definition returns [UntilOperator, argument, [BotOperator]], print_method delegates to print_over_times; (2) DefPrevOperator with name="\\prev", arity=1, derived_definition returns [SinceOperator, argument, [BotOperator]], print_method delegates to print_over_times; (3) Register both in bimodal_operators collection. Tests: verify Next(p) produces same Z3 constraints as U(p, ⊥), verify Prev(p) produces same Z3 constraints as S(p, ⊥), verify print_method displays evaluation across time points, verify from_prefix construction works for both operators. Gate: existing 171 bimodal tests still pass; new Next/Prev operator tests pass.
 
