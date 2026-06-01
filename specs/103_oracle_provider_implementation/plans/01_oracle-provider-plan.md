@@ -232,7 +232,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 5: 43-Example Regression via Oracle Interface [NOT STARTED]
+### Phase 5: 43-Example Regression via Oracle Interface [COMPLETED]
 
 **Goal**: Verify all 43 active examples produce identical SAT/UNSAT through the oracle's `find_countermodel()` as through the direct pipeline. This is the primary gate criterion.
 

@@ -21,7 +21,7 @@ next_project_number: 114
 107 [COMPLETED] — Boundary effect analysis and temporal_depth mitigation (dep: 102)
 
 **Wave 4 — Oracle:**
-103 [NOT STARTED] — OracleProvider implementation with programmatic pipeline (dep: 101✓, 102, 112)
+103 [RESEARCHED] — OracleProvider implementation with programmatic pipeline (dep: 101✓, 102, 112)
 
 **Wave 5 — Cleanup & Regression (independent of each other, both depend on 103):**
 104 [NOT STARTED] — Dead-code cleanup and thin CLI (dep: 103)
@@ -151,9 +151,14 @@ Wave 6: 105  109
 
 ### 103. OracleProvider implementation with programmatic pipeline
 - **Effort**: large
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 101, 102, 112
+- **Reports**:
+  - [specs/103_oracle_provider_implementation/reports/01_tiered-oracle-architecture.md]
+  - [specs/103_oracle_provider_implementation/reports/02_oracle-provider-research.md]
+- **Plan**: [specs/103_oracle_provider_implementation/plans/01_oracle-provider-plan.md]
+- **Summary**: [specs/103_oracle_provider_implementation/summaries/01_oracle-provider-summary.md]
 
 **Description**: Implement the OracleProvider protocol class with a new programmatic solving pipeline. New pipeline: formula_json → json_to_prefix() → Sentence.from_prefix() → BimodalSemantics(N, M) → Syntax(operators, [sentence]) → ModelConstraints → BimodalStructure → Z3 solve → extract model → serialize. The pipeline accepts all 17 JSON tags (6 primitive + 11 enriched from task 102); enriched tags are handled transparently by the translation layer. OracleProvider properties: provider_id="bmlogic_z3_base_v1", provider_version (semver), semantics_version (pinned to BimodalLogic git tag or release), supported_frame_classes=frozenset({"Base"}), capabilities dict. find_countermodel(formula_json, frame_class, timeout_ms): implements full pipeline, returns None on UNSAT/timeout/unsupported frame_class. Boundary buffer: compute M = max(temporal_depth(formula_json) + 2, 3) using the temporal_depth() function from task 102 — do NOT use a fixed M. Ternary task_rel extraction: iterate all (source, duration, target) triples and evaluate semantics.task_rel(s, d, u) on z3_model (see ADR Decision 6 for loop). Oracle output must include: `temporal_depth` (int), `boundary_safe` (bool: M > temporal_depth + 1), `time_bound` (M), `semantics_version`, `formula_folded_json` (enriched representation of the input formula, produced by fold_formula() from task 112 — enables BimodalHarness to display human-readable formulas in training data). Countermodel serialization: both SimpleCountermodel (trueAtoms/falseAtoms from evaluating atoms at eval point) and StructuredCountermodel (world_histories, task_relation as ternary triples, truth_valuation from extract_model_elements()). In StructuredCountermodel, subformula truth valuations should use folded (enriched) representations where possible. Z3 context isolation: construct fresh BimodalSemantics instance per find_countermodel() call; wrap each call in isolated_z3_context() from utils/context.py; do NOT hold a reference to BimodalSemantics between calls (self._semantics = None between calls). validate_self(spot_check_formulas): must find countermodels for all provided known-invalid formulas. Finalize entry point in pyproject.toml: [project.entry-points.'bimodal_harness.oracle_providers'] z3_base = "bimodal_logic.provider:Z3OracleProvider". Gate: 100 sequential calls complete without state leakage; 43 examples produce correct SAT/UNSAT (identical to pre-refactor); formula_folded_json is present and valid in all non-None outputs.
 
