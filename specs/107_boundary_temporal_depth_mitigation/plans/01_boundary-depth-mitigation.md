@@ -91,7 +91,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Boundary-Unsafe Formula Tests [NOT STARTED]
+### Phase 2: Boundary-Unsafe Formula Tests [COMPLETED]
 
 **Goal**: Create `test_boundary_regression.py` with hand-crafted formulas that demonstrate boundary vacuity with insufficient M and correct behavior with M = max(depth+2, 3).
 

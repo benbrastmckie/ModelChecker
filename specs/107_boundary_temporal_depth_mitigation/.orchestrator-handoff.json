@@ -1,0 +1,15 @@
+{
+  "status": "planned",
+  "summary": "4-phase plan created: (1) document boundary claim in temporal_depth() and ForAllTime() docstrings, (2) create test_boundary_regression.py with hand-crafted formulas demonstrating boundary vacuity at insufficient M and correct behavior at sufficient M, (3) 43-example regression test verifying all active examples produce correct SAT/UNSAT, (4) gate validation. No Z3 constraint changes -- research recommends dynamic M in OracleProvider (task 103) instead.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "implement",
+  "phases_completed": 0,
+  "phases_total": 4,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/107_boundary_temporal_depth_mitigation/plans/01_boundary-depth-mitigation.md"
+    }
+  ]
+}
