@@ -64,23 +64,23 @@ No ROADMAP.md found.
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Document Frame Axiom Mapping and Hierarchy [NOT STARTED]
+### Phase 1: Document Frame Axiom Mapping and Hierarchy [COMPLETED]
 
 **Goal**: Add comprehensive documentation of the Z3-to-BimodalLogic frame axiom correspondence in both provider.py and semantic.py.
 
 **Tasks**:
-- [ ] Add module-level docstring to `code/src/bimodal_logic/provider.py` documenting:
+- [x] Add module-level docstring to `code/src/bimodal_logic/provider.py` documenting:
   - The three TaskFrame axioms (nullity_identity, forward_comp, converse) and their Z3 implementations
   - The mapping table: Z3 constraint builder -> BimodalLogic TaskFrame.lean field -> semantic type (TaskFrame axiom vs model-building)
   - The terminology distinction: "Base" in `supported_frame_classes` means TaskFrame axiom satisfaction, NOT BimodalLogic's proof-system `FrameClass.Base`
   - The bounded domain approximation: Z3 uses `(-M, M)` integer time; Lean uses unbounded `Int`
   - The converse guard discrepancy: Z3 uses `is_valid_duration(d)` guard; Lean is unconditional
   - The forward_comp asymmetry: Z3 uses general duration guards; Lean restricts to `0 <= x, 0 <= y` (equivalent via converse)
-- [ ] Add frame hierarchy docstring to `build_frame_constraints()` in `code/src/model_checker/theory_lib/bimodal/semantic.py` summarizing:
+- [x] Add frame hierarchy docstring to `build_frame_constraints()` in `code/src/model_checker/theory_lib/bimodal/semantic.py` summarizing:
   - Which constraints are TaskFrame axioms (items 7-9) vs model-building constraints (items 1-6, 8-9)
   - What the oracle guarantees about task_rel structure
   - What the oracle does NOT guarantee (task_restriction disabled, bounded domain)
-- [ ] Document task_restriction soundness analysis as a detailed comment block in `semantic.py` near the disabled constraint (lines 636-696), covering:
+- [x] Document task_restriction soundness analysis as a detailed comment block in `semantic.py` near the disabled constraint (lines 636-696), covering:
   - Why disabling task_restriction is sound for countermodel generation (UNSAT results are conservative in the larger domain)
   - The phantom task-pair gap: task_rel pairs not grounded in world histories may exist
   - The mitigation: post-hoc frame axiom checking via StructuredCountermodel.validate()

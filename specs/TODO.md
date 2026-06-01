@@ -10,7 +10,7 @@ next_project_number: 114
 
 **Wave 1 — Foundation (independent, all depend only on completed tasks):**
 111 [NOT STARTED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
-110 [PLANNED] — Frame class validation for Base frame (dep: 100✓)
+110 [IMPLEMENTING] — Frame class validation for Base frame (dep: 100✓)
 
 **Wave 2 — Translation:**
 102 [NOT STARTED] — Formula JSON translation with enriched operator support (dep: 100✓, 111)
@@ -75,7 +75,7 @@ Wave 6: 105  109
 
 ### 110. Frame class validation for Base frame
 - **Effort**: small
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Dependencies**: 100
 - **Report**: [specs/110_frame_class_validation/reports/01_frame-class-validation.md]
