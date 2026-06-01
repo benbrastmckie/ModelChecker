@@ -106,7 +106,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Serialization Helpers [NOT STARTED]
+### Phase 2: Serialization Helpers [COMPLETED]
 
 **Goal**: Implement the countermodel serialization module with helpers for atom extraction, task_rel triples, world history conversion, and truth valuation.
 
