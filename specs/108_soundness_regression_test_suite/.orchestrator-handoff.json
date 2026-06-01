@@ -1,0 +1,10 @@
+{
+  "status": "planned",
+  "summary": "5-phase TDD plan for soundness regression test suite: test infrastructure with helpers, boundary vacuity tests (G(G(p)) prime case), shift closure and guarded compositionality on oracle output, state isolation with temporal depth-2 formulas, and 5 known-boundary-unsafe formulas. All tests in single file test_soundness_regression.py. Estimated 3 hours.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "implement",
+  "phases_completed": 0,
+  "phases_total": 5,
+  "artifacts": [{"type": "plan", "path": "specs/108_soundness_regression_test_suite/plans/01_soundness-regression-plan.md"}]
+}

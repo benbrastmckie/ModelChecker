@@ -229,23 +229,85 @@
     {
       "project_number": 109,
       "project_name": "cross_oracle_differential_testing",
-      "status": "not_started",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
       "last_updated": "2026-06-01T00:00:00Z",
       "dependencies": [
         103
+      ],
+      "next_artifact_number": 2,
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2, 3], [4], [5]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_differential-testing.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/109_cross_oracle_differential_testing/reports/01_differential-testing.md",
+          "type": "research",
+          "summary": "BimodalHarness availability confirmed at /home/benjamin/Projects/BimodalHarness. FormulaEnumerator available for complexity-based enumeration. MC oracle and BH Z3 oracle have different box semantics (4/18 disagreements at complexity <= 3 confirmed expected). Recommended: test against MockOracleProvider for spot-check and temporal-only formulas for BH Z3 comparison. CI integration via self-contained enumerator to avoid repo dependency."
+        },
+        {
+          "path": "specs/109_cross_oracle_differential_testing/plans/01_differential-testing-plan.md",
+          "type": "plan",
+          "summary": "5-phase TDD plan: self-contained formula enumerator, differential harness with known-formula baselines, BimodalHarness conditional integration, differential report format, CI workflow and gate validation"
+        }
       ]
     },
     {
       "project_number": 108,
       "project_name": "soundness_regression_test_suite",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
-      "last_updated": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
       "dependencies": [
         103
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Created test_soundness_regression.py with 22 passing tests (+ 1 xfailed) across 5 test classes: TestBoundaryVacuity (6 tests documenting G(G(p)) and F(G(p)) spurious theorems at M=2), TestShiftClosure (2 tests, M=3 shift closure xfailed), TestGuardedCompositionality (6 tests validating frame axioms on serialized task_relation), TestStateIsolationRegression (4 tests with 100+ calls mixing propositional/depth-1/depth-2 formulas), TestKnownBoundaryUnsafe (5 tests with documented boundary mechanisms). Key discovery: F(G(p)) also returns None at M=2 (same boundary vacuity as G(G(p))).",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2, 3], [4, 5]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_soundness-regression.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/108_soundness_regression_test_suite/reports/01_soundness-regression.md",
+          "type": "research",
+          "summary": "Coverage gap analysis for boundary vacuity, shift closure, forward_comp/converse, state isolation, and known-boundary-unsafe formulas. Identified G(G(p)) as prime boundary-unsafe formula (oracle returns None spuriously at M=2). 5 test categories mapped to concrete test classes and helpers."
+        },
+        {
+          "path": "specs/108_soundness_regression_test_suite/plans/01_soundness-regression-plan.md",
+          "type": "plan",
+          "summary": "5-phase TDD plan: test infrastructure with helpers, boundary vacuity tests, shift closure and compositionality tests, state isolation with temporal depth-2 formulas, known-boundary-unsafe formula suite"
+        },
+        {
+          "path": "specs/108_soundness_regression_test_suite/summaries/01_soundness-regression-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 5 phases completed, 22 new tests passing, 1 xfailed (M=3 shift closure), key deviation: F(G(p)) is also a spurious theorem at M=2 (not spurious SAT as originally predicted)"
+        }
       ]
     },
     {
@@ -562,10 +624,38 @@
     {
       "project_number": 104,
       "project_name": "programmatic_api_cleanup",
-      "status": "not_started",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
-      "last_updated": "2026-05-30T23:55:00Z"
+      "last_updated": "2026-06-01T19:00:00Z",
+      "next_artifact_number": 2,
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2], [3], [4], [5]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_dead-code-cleanup.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/104_programmatic_api_cleanup/reports/01_dead-code-cleanup.md",
+          "type": "research",
+          "summary": "Complete file-by-file inventory: builder/ and output/ are CLI-only dead code. Oracle pipeline import chain documented. Thin CLI design for bimodal-logic check command. Risk assessment for each removal."
+        },
+        {
+          "path": "specs/104_programmatic_api_cleanup/plans/01_dead-code-cleanup-plan.md",
+          "type": "plan",
+          "summary": "5-phase plan: remove builder/, remove dead output/ components, remove other dead code, add thin CLI, final validation"
+        }
+      ]
     },
     {
       "project_number": 105,

@@ -6,43 +6,25 @@ next_project_number: 114
 
 ## Task Order
 
-*Updated 2026-06-01. 12 active tasks (4 completed, 8 not started) across 2 waves.*
+*Updated 2026-06-01. 12 active tasks (8 completed, 4 not started) across 2 remaining waves.*
 
-**Wave 1 — Foundation (independent, all depend only on completed tasks):**
-111 [COMPLETED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
-110 [COMPLETED] — Frame class validation for Base frame (dep: 100✓)
+**Waves 1–4 — Complete:**
+111✓, 110✓, 102✓, 112✓, 113✓, 107✓, 101✓, 103✓
 
-**Wave 2 — Translation:**
-102 [COMPLETED] — Formula JSON translation with enriched operator support (dep: 100✓, 111✓)
+**Wave 5 — Cleanup & Regression (all three independent, runnable in parallel):**
+104 [PLANNED] — Dead-code cleanup and thin CLI (dep: 103✓)
+108 ✓ — Soundness regression test suite (dep: 103✓)
+109 [PLANNED] — Cross-oracle differential testing infrastructure (dep: 103✓)
 
-**Wave 3 — Normalization & Testing (independent of each other, both depend on 102):**
-112 [COMPLETED] — Fold/unfold formula normalization utilities (dep: 102)
-113 [COMPLETED] — Enriched operator equivalence test suite (dep: 102)
-107 [COMPLETED] — Boundary effect analysis and temporal_depth mitigation (dep: 102)
-
-**Wave 4 — Oracle:**
-103 [RESEARCHED] — OracleProvider implementation with programmatic pipeline (dep: 101✓, 102, 112)
-
-**Wave 5 — Cleanup & Regression (independent of each other, both depend on 103):**
-104 [NOT STARTED] — Dead-code cleanup and thin CLI (dep: 103)
-108 [NOT STARTED] — Soundness regression test suite (dep: 103)
-
-**Wave 6 — Integration & Validation:**
-105 [NOT STARTED] — Integration testing and validation (dep: 103, 104, 112)
-109 [NOT STARTED] — Cross-oracle differential testing infrastructure (dep: 103)
+**Wave 6 — Integration:**
+105 [NOT STARTED] — Integration testing and validation (dep: 103✓, 104, 112✓)
 
 ```
-Wave 1:  111    110
+Waves 1–4: ✓ complete
+
+Wave 5: 104    108    109   ← all parallel now
           │
-Wave 2:  102
-        ╱  │  ╲
-Wave 3: 112 107  113
-        │
-Wave 4: 103 ←── 101✓
-       ╱   ╲
-Wave 5: 104  108
-        │
-Wave 6: 105  109
+Wave 6:  105
 ```
 
 ## Tasks
@@ -95,17 +77,22 @@ Wave 6: 105  109
 
 ### 109. Cross-oracle differential testing infrastructure
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Dependencies**: 103
+- **Report**: [specs/109_cross_oracle_differential_testing/reports/01_differential-testing.md]
+- **Plan**: [specs/109_cross_oracle_differential_testing/plans/01_differential-testing-plan.md]
 
 **Description**: Build infrastructure to compare Z3 oracle results against BimodalLogic's findCountermodel for systematic formula comparison. This is the Tier 1 empirical soundness validation mechanism. Deliverables: (1) A test harness that calls both `OracleProvider.find_countermodel()` and BimodalLogic's `findCountermodel` endpoint (via BimodalHarness subprocess or API) for the same formula and asserts agreement on SAT/UNSAT classification; (2) Integration with BimodalLogic's FormulaEnumerator (or equivalent) to generate formulas up to complexity 7 for systematic comparison; (3) A differential report format: for any disagreement, output the formula, the Z3 countermodel (if any), the BimodalLogic result, and the `temporal_depth` and `boundary_safe` flags; (4) CI integration: the differential test suite runs on every oracle code change. Note: requires BimodalHarness integration and may require a subprocess call to BimodalLogic's Python/CLI interface. If the BimodalHarness API is not available, implement the framework with a mock BimodalLogic oracle and document the integration point. Dependencies: requires OracleProvider (task 103) to be implemented; the BimodalHarness SoundnessGateway (bimodal_harness/oracle/gateway.py:219-508) is the integration point.
 
 ### 108. Soundness regression test suite for boundary and shift-closure edge cases
 - **Effort**: small
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 103
+- **Report**: [specs/108_soundness_regression_test_suite/reports/01_soundness-regression.md]
+- **Plan**: [specs/108_soundness_regression_test_suite/plans/01_soundness-regression-plan.md]
+- **Summary**: [specs/108_soundness_regression_test_suite/summaries/01_soundness-regression-summary.md]
 
 **Description**: Test suite specifically probing the soundness gap points identified in task 106 research. The existing test suite (`test_bimodal.py`, etc.) tests general correctness; this suite targets specific failure modes. Test categories: (1) Boundary vacuity tests: construct formulas where G(phi) at the domain edge (t=M-1) is vacuously true; verify the oracle correctly sets boundary_safe=False for formulas of temporal_depth >= M-1, and that the M=max(depth+2,3) formula prevents these from appearing; (2) Shift closure tests: verify that extracted countermodels satisfy shift closure for shifts within (-M+1, M-1); (3) Guarded compositionality tests: verify forward_comp and converse constraints hold for all durations in the extracted task_relation (not just those near the boundary); (4) State isolation regression: run find_countermodel() 100+ times in sequence on a mix of SAT and UNSAT formulas; assert no state leakage (SAT results same as first call, UNSAT results same as first call); (5) Known-boundary-unsafe formulas: hand-craft 5 formulas with temporal_depth >= 2 that would produce boundary artifacts with M=2 but correct results with M=max(depth+2,3); verify oracle produces correct SAT/UNSAT with dynamic M. Gate: All tests in `test_soundness_regression.py` pass; no boundary-unsafe formulas produce incorrect results.
 
@@ -143,9 +130,11 @@ Wave 6: 105  109
 
 ### 104. Dead-code cleanup and thin CLI
 - **Effort**: small
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Dependencies**: 103
+- **Report**: [specs/104_programmatic_api_cleanup/reports/01_dead-code-cleanup.md]
+- **Plan**: [specs/104_programmatic_api_cleanup/plans/01_dead-code-cleanup-plan.md]
 
 **Description**: With OracleProvider working as the primary public interface, remove dead code and add a thin CLI. Remove unused builder components: project scaffolding (`builder/`), multi-theory comparison (`builder/comparison.py`), theory template generation. Simplify output/: remove interactive prompts, notebook templates (`output/notebook/`), progress bars (OracleProvider returns dicts, not formatted output). Remove logos-specific branching remnants in builder/runner.py. Add thin CLI: `bimodal-logic check '<formula_json>'` for standalone countermodel checking. DO NOT remove the following — they are required by the oracle pipeline, testing infrastructure, or thin CLI: (1) `theory_lib/bimodal/tests/` — the full test suite (correctness gate), (2) `theory_lib/bimodal/examples.py` — the 43-example evaluation suite, (3) `theory_lib/bimodal/operators.py` — operator implementations, (4) `extract_model_elements()`, `extract_states()`, and all model extraction chain methods, (5) `print_*` methods on BimodalStructure (needed for thin CLI), (6) `output/formatters/` (structured output formatting), (7) `settings/settings.py` (CLI settings parsing). Only remove code that was exclusively used by the multi-theory CLI and is unreachable from the oracle pipeline or test infrastructure.
 
