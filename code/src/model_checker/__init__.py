@@ -11,13 +11,9 @@ Key Features:
     - Syntactic parsing and model building
     - Built-in example models and theories
     - Integration with Z3 theorem prover
-    - Jupyter notebook integration
 
 Basic Usage:
-    >>> from model_checker import check_formula
-    >>> # Check if a counterfactual formula is valid
-    >>> result = check_formula("(A \\boxright B)", theory_name="logos")
-    >>> print(f"Valid: {result}")
+    >>> from model_checker import ModelConstraints, Syntax
 
 For more examples and detailed documentation, please see:
 https://github.com/benbrastmckie/ModelChecker
@@ -30,11 +26,8 @@ __version__ = get_model_checker_version()
 # Define the public API of the package
 __all__ = [
     "model", "syntactic",                           # modules
-    "ParseFileFlags",                               # main.py
     "ForAll", "Exists", "bitvec_to_substates",      # utils.py
     "get_example", "get_theory", "run_test",
-    "BuildModule", "BuildProject", "BuildExample",  # builder.py
-    "BuildModule", "main",
     "ModelConstraints",
     "Syntax",
 ]
@@ -55,19 +48,5 @@ from .utils import (
     get_theory,
     get_example,
     run_test,
-)
-
-# Import specific items from builder
-from .builder import (
-    BuildModule,
-    BuildProject,
-)
-# Import BuildExample directly for notebooks
-from .builder.example import BuildExample
-
-# Import specific items from __main__
-from .__main__ import (
-    ParseFileFlags,
-    main,
 )
 
