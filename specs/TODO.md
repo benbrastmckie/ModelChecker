@@ -16,9 +16,9 @@ next_project_number: 114
 102 [COMPLETED] — Formula JSON translation with enriched operator support (dep: 100✓, 111✓)
 
 **Wave 3 — Normalization & Testing (independent of each other, both depend on 102):**
-112 [NOT STARTED] — Fold/unfold formula normalization utilities (dep: 102)
-113 [NOT STARTED] — Enriched operator equivalence test suite (dep: 102)
-107 [NOT STARTED] — Boundary effect analysis and temporal_depth mitigation (dep: 102)
+112 [COMPLETED] — Fold/unfold formula normalization utilities (dep: 102)
+113 [RESEARCHED] — Enriched operator equivalence test suite (dep: 102)
+107 [PLANNED] — Boundary effect analysis and temporal_depth mitigation (dep: 102)
 
 **Wave 4 — Oracle:**
 103 [NOT STARTED] — OracleProvider implementation with programmatic pipeline (dep: 101✓, 102, 112)
@@ -51,17 +51,22 @@ Wave 6: 105  109
 
 ### 113. Enriched operator equivalence test suite
 - **Effort**: small
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Dependencies**: 102
+- **Report**: [specs/113_enriched_operator_equivalence_tests/reports/01_enriched-equivalence-tests.md]
+- **Plan**: [specs/113_enriched_operator_equivalence_tests/plans/01_enriched-equivalence-tests.md]
 
 **Description**: Systematic verification that every enriched-tag translation path produces identical Z3 constraints as the primitive-expansion path. For each of the 11 enriched operators (neg, top, and, or, diamond, next, prev, some_future, some_past, all_future, all_past): (1) construct a formula using the enriched tag, (2) construct the equivalent formula using only primitives, (3) run both through the oracle pipeline to Z3 constraint generation, (4) verify find_countermodel() returns identical SAT/UNSAT for both across a suite of test formulas, (5) for SAT cases, verify countermodels satisfy the same truth conditions. Extends task 108's soundness regression testing specifically for enriched translation. Special attention to boundary-sensitive operators: all_future/all_past (G/H) where ForAllTime boundary quantification can diverge from the enriched operator semantics at domain edges — verify temporal_depth mitigation (M = max(depth+2, 3)) prevents divergence. Test matrix: at least 5 formulas per enriched operator, including nested combinations (e.g., diamond(and(p, neg(q)))), formulas at complexity levels 3, 5, 7. Gate: all 55+ test cases pass (5 per operator x 11 operators); no enriched-tag formula produces a different SAT/UNSAT result than its primitive equivalent.
 
 ### 112. Fold/unfold formula normalization utilities
 - **Effort**: small
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 102
+- **Report**: [specs/112_fold_unfold_formula_normalization/reports/01_fold-unfold-normalization.md]
+- **Plan**: [specs/112_fold_unfold_formula_normalization/plans/01_fold-unfold-normalization.md]
+- **Summary**: [specs/112_fold_unfold_formula_normalization/summaries/01_fold-unfold-normalization-summary.md]
 
 **Description**: Implement bidirectional formula JSON conversion in bimodal_logic/translation.py. unfold_formula(formula_json) -> formula_json: recursively expands all enriched tags (neg, top, and, or, diamond, next, prev, some_future, some_past, all_future, all_past) to the 6 primitives (atom, bot, imp, box, untl, snce) following BimodalLogic's operator hierarchy. fold_formula(formula_json) -> formula_json: greedily replaces primitive patterns with enriched tags, applying highest-level operators first (Level 6→1 per BimodalLogic's 7-level dependency hierarchy) to maximize compression. Pattern matching must handle overlapping patterns — neg matches any imp(_, bot), but and also contains imp(_, bot) internally, so fold from outside in. normalize_formula(formula_json, level: int) -> formula_json: fold/unfold to a specific operator level (0=primitives only, 1=neg/top/next/prev, 2=and/or/diamond/F/P, 3=G/H). Reference: BimodalLogic's Syntax/Formula.lean definitions — neg φ = φ.imp bot, top = bot.imp bot, and φ ψ = (φ.imp ψ.neg).neg, or φ ψ = φ.neg.imp ψ, diamond φ = φ.neg.box.neg, some_future φ = untl φ top, some_past φ = snce φ top, all_future φ = (some_future φ.neg).neg, all_past φ = (some_past φ.neg).neg, next φ = untl φ bot, prev φ = snce φ bot. Property-based tests: unfold(fold(f)) == f for all formulas; fold(unfold(f)) should maximize enriched operator usage; normalize(f, 0) == unfold(f). Gate: round-trip property holds for 100+ randomly generated formulas; fold correctly identifies all 11 enriched operator patterns.
 
@@ -105,9 +110,11 @@ Wave 6: 105  109
 
 ### 107. Boundary effect analysis and temporal_depth mitigation
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Dependencies**: 102
+- **Report**: [specs/107_boundary_temporal_depth_mitigation/reports/01_boundary-depth-mitigation.md]
+- **Plan**: [specs/107_boundary_temporal_depth_mitigation/plans/01_boundary-depth-mitigation.md]
 
 **Description**: Full analysis and mitigation of the finite time domain boundary problem identified in task 106 research as the primary soundness gap. The minimum viable mitigation (dynamic M = max(temporal_depth + 2, 3)) is implemented in task 103; this task provides the formal analysis and regression tests. Deliverables: (1) Implement and test temporal_depth(formula_json) function if not already completed by task 102 (this task depends on 102 but provides additional depth analysis); (2) Prove informally (via argument in code comments and documentation) that for formulas of temporal depth d evaluated with M > d + 1, boundary effects cannot create spurious countermodels — specifically, that G(phi) at t=0 with M > d+1 is not vacuously true because t+d < M-1; (3) Add boundary buffer constraints to BimodalSemantics: for formula depth d, add Z3 constraints that assert the evaluation time t=0 is at least d steps from both domain edges (i.e., ForAll t in formula subformulas, is_valid_time(t + d) holds); (4) Regression test: verify that all 43 known-valid formulas still return None (no spurious countermodels from boundary changes), and all 43 known-invalid formulas still return countermodels (no countermodels lost from over-buffering); (5) Document the boundary claim: "For formulas of temporal depth d evaluated with M > d + 1, no boundary effects create spurious countermodels." Include this as a docstring on temporal_depth() and as a comment in OracleProvider.find_countermodel(). Gate: All 43 examples produce correct results with boundary buffer active; temporal_depth() is correct for all 17 JSON formula tag types (6 primitive + 11 enriched).
 

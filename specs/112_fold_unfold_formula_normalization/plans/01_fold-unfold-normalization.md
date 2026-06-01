@@ -1,7 +1,7 @@
 # Implementation Plan: Fold/Unfold Formula Normalization Utilities
 
 - **Task**: 112 - Fold/unfold formula normalization utilities
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 3.5 hours
 - **Dependencies**: 102 (completed)
 - **Research Inputs**: specs/112_fold_unfold_formula_normalization/reports/01_fold-unfold-normalization.md
@@ -176,7 +176,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Property-based tests and gate validation [NOT STARTED]
+### Phase 4: Property-based tests and gate validation [COMPLETED]
 
 **Goal**: Implement random formula generator, run round-trip property tests on 100+ formulas, verify all gate criteria, and run the full test suite to confirm no regressions.
 

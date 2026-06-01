@@ -4,23 +4,85 @@
     {
       "project_number": 113,
       "project_name": "enriched_operator_equivalence_tests",
-      "status": "not_started",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-06-01T17:00:00Z",
-      "last_updated": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T22:00:00Z",
       "dependencies": [
         102
+      ],
+      "next_artifact_number": 2,
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2, 3], [4], [5]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_enriched-equivalence-tests.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/113_enriched_operator_equivalence_tests/reports/01_enriched-equivalence-tests.md",
+          "type": "research",
+          "summary": "Full test matrix design (55 formulas across 11 operators), translation layer analysis, boundary sensitivity analysis for G/H operators, TopOperator bug workaround, all 55 cases verified passing at M=2"
+        },
+        {
+          "path": "specs/113_enriched_operator_equivalence_tests/plans/01_enriched-equivalence-tests.md",
+          "type": "plan",
+          "summary": "5-phase plan: test infrastructure, Level 1 operators (neg/top/next/prev), Level 2 operators (and/or/diamond/F/P), Level 3 operators with nested combinations and boundary tests, gate validation"
+        }
       ]
     },
     {
       "project_number": 112,
       "project_name": "fold_unfold_formula_normalization",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "created": "2026-06-01T17:00:00Z",
-      "last_updated": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T23:45:00Z",
       "dependencies": [
         102
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Implemented unfold_formula (11 enriched tags -> 6 primitives), fold_formula (outside-in pattern matching with Level 3->1 disambiguation), and normalize_formula (level-restricted fold/unfold) in bimodal_logic/translation.py. All 3 functions exported from bimodal_logic/__init__.py. 90 new tests pass (35 unfold, 28 fold+overlap, 10 normalize, 17 property-based). Round-trip property unfold(fold(unfold(f)))==unfold(f) verified for 120 random formulas. All 451 bimodal unit tests pass, no regressions.",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 3.5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2], [3], [4]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_fold-unfold-normalization.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/112_fold_unfold_formula_normalization/reports/01_fold-unfold-normalization.md",
+          "type": "research",
+          "summary": "Operator hierarchy analysis (3 levels), unfold algorithm, fold outside-in pattern matching with overlapping pattern disambiguation, normalize_formula design, testing strategy with property-based round-trip tests"
+        },
+        {
+          "path": "specs/112_fold_unfold_formula_normalization/plans/01_fold-unfold-normalization.md",
+          "type": "plan",
+          "summary": "4-phase TDD plan: unfold_formula, fold_formula with overlapping pattern disambiguation, normalize_formula with level-based folding, property-based round-trip tests for 100+ formulas"
+        },
+        {
+          "path": "specs/112_fold_unfold_formula_normalization/summaries/01_fold-unfold-normalization-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 4 phases completed, 90 new tests passing, no plan deviations"
+        }
       ]
     },
     {
@@ -156,12 +218,40 @@
     {
       "project_number": 107,
       "project_name": "boundary_temporal_depth_mitigation",
-      "status": "not_started",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
-      "last_updated": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T22:00:00Z",
       "dependencies": [
         102
+      ],
+      "next_artifact_number": 2,
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2, 3], [4]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_boundary-depth-mitigation.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/107_boundary_temporal_depth_mitigation/reports/01_boundary-depth-mitigation.md",
+          "type": "research",
+          "summary": "temporal_depth() complete from task 102; boundary claim proven: M >= d+2 prevents spurious countermodels; 43 test examples categorized; implementation plan: dynamic M in OracleProvider (not Z3 constraints), regression test file for boundary-unsafe formulas"
+        },
+        {
+          "path": "specs/107_boundary_temporal_depth_mitigation/plans/01_boundary-depth-mitigation.md",
+          "type": "plan",
+          "summary": "4-phase plan: boundary claim documentation, boundary-unsafe formula tests, 43-example regression test, gate validation"
+        }
       ]
     },
     {
