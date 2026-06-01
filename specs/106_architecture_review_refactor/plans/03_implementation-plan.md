@@ -1,7 +1,7 @@
 # Implementation Plan: Architecture Review Deliverables for Tasks 99-105
 
 - **Task**: 106 - Architecture review of bimodal refactor plan (tasks 99-105)
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 3 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/106_architecture_review_refactor/reports/02_team-research.md, specs/106_architecture_review_refactor/reports/03_clean-break-architecture.md
@@ -156,22 +156,22 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Update Dependency Graph and Sequencing [NOT STARTED]
+### Phase 4: Update Dependency Graph and Sequencing [COMPLETED]
 
 **Goal**: Produce a complete dependency graph across all tasks (100-110) and verify consistency between TODO.md dependency fields and state.json.
 
 **Tasks**:
-- [ ] Build dependency adjacency list for all tasks 100-110
-- [ ] Verify dependency graph is a DAG (no cycles)
-- [ ] Compute wave structure for parallel execution:
+- [x] Build dependency adjacency list for all tasks 100-110
+- [x] Verify dependency graph is a DAG (no cycles): Topological order confirmed: 100 → 110 → 102 → 107 → 101 → 103 → 108 → 109 → 104 → 105
+- [x] Compute wave structure for parallel execution:
   - Wave 1: Task 100 (strip non-bimodal code)
   - Wave 2: Tasks 101, 102, 110 (package restructure, formula translation, frame validation -- all depend only on 100)
   - Wave 3: Tasks 103, 107 (OracleProvider, boundary analysis -- depend on 101+102 and 102 respectively)
   - Wave 4: Tasks 104, 108 (dead-code cleanup, soundness regression tests -- depend on 103)
   - Wave 5: Tasks 105, 109 (integration testing, cross-oracle testing -- depend on 103+104 and 103 respectively)
-- [ ] Add a dependency graph visualization to the ADR (Phase 1 artifact)
-- [ ] Verify TODO.md dependency fields match the computed graph
-- [ ] Verify state.json entries are consistent
+- [x] Add a dependency graph visualization to the ADR (Phase 1 artifact -- already included in 04_architectural-decisions.md during Phase 1)
+- [x] Verify TODO.md dependency fields match the computed graph: all 10 tasks verified, all fields consistent
+- [x] Verify state.json entries are consistent: tasks 107-110 have dependencies array; tasks 100-106 present
 
 **Timing**: 20 minutes
 
@@ -190,17 +190,17 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 5: Final Validation and State Updates [NOT STARTED]
+### Phase 5: Final Validation and State Updates [COMPLETED]
 
 **Goal**: Verify all deliverables are complete, update task 106 status, and ensure TODO.md and state.json are synchronized.
 
 **Tasks**:
-- [ ] Re-read TODO.md and verify all task descriptions (100-110) are complete and consistent
-- [ ] Re-read state.json and verify all entries match TODO.md
-- [ ] Verify ADR artifact exists and is complete
-- [ ] Update task 106 status to [COMPLETED] in state.json and TODO.md
-- [ ] Add plan artifact link to task 106 in TODO.md
-- [ ] Run a final consistency check: every dependency target exists, every task has status and type
+- [x] Re-read TODO.md and verify all task descriptions (100-110) are complete and consistent
+- [x] Re-read state.json and verify all entries match TODO.md
+- [x] Verify ADR artifact exists and is complete (9 decisions, pipeline diagram, keep/drop/fix inventory, dependency graph)
+- [x] Update task 106 status to [COMPLETED] in state.json and TODO.md
+- [x] Add ADR artifact link to task 106 in TODO.md (added 04_architectural-decisions.md to Research list)
+- [x] Run a final consistency check: all 10 tasks have status, task_type, and dependencies; next_project_number=111
 
 **Timing**: 10 minutes
 
@@ -218,13 +218,13 @@ Phases within the same wave can execute in parallel.
 
 ## Testing & Validation
 
-- [ ] All task descriptions (100-110) in TODO.md have: description, effort, status, task_type, dependencies
-- [ ] Dependency graph is acyclic (verify by topological sort)
-- [ ] state.json next_project_number equals 111
-- [ ] state.json active_projects contains entries for tasks 107-110
-- [ ] ADR document covers all 9 architectural decisions
-- [ ] Task 99 status is updated to reflect subsumption by task 106 research
-- [ ] No information from research reports 02 and 03 is lost in the task rewrites
+- [x] All task descriptions (100-110) in TODO.md have: description, effort, status, task_type, dependencies
+- [x] Dependency graph is acyclic (verify by topological sort) -- topological order confirmed: 100→110→102→107→101→103→108→109→104→105
+- [x] state.json next_project_number equals 111
+- [x] state.json active_projects contains entries for tasks 107-110
+- [x] ADR document covers all 9 architectural decisions
+- [x] Task 99 status is reflected as absorbed: already archived as "abandoned" with note "Absorbed by task 106 architecture review" prior to this task
+- [x] No information from research reports 02 and 03 is lost in the task rewrites (temporal_depth, ternary serialization, G/H boundary caveat, 6-tag field names, Z3 isolation, boundary buffer, keep/drop/fix, all captured in task descriptions)
 
 ## Artifacts & Outputs
 
