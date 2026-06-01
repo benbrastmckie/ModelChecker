@@ -34,7 +34,7 @@
         100
       ],
       "next_artifact_number": 2,
-      "completion_summary": "Added DefNextOperator (\\next, arity=1, defined as U(phi, bot)) and DefPrevOperator (\\prev, arity=1, defined as S(phi, bot)) to bimodal operators.py. Both registered in bimodal_operators collection. Created 34-test test file; all pass. 218/219 existing bimodal tests pass (BM_CM_1 pre-existing failure).",
+      "completion_summary": "Added DefNextOperator and DefPrevOperator as DefinedOperator subclasses. Next(φ)=U(φ,⊥), Prev(φ)=S(φ,⊥). Both registered in bimodal_operators. 34 new tests pass, no regressions.",
       "plan_metadata": {
         "phases": 2,
         "total_effort_hours": 1,
