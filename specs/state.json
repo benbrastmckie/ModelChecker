@@ -184,7 +184,7 @@
           }
         ]
       },
-      "completion_summary": "Restructured as bimodal-logic pip package: overhauled pyproject.toml metadata, created thin bimodal_logic/ facade with 4 stub files, cleaned up stale egg-info, verified editable install and all imports work. Bimodal test suite: 171 pass, 1 pre-existing failure (BM_CM_1)."
+      "completion_summary": "Restructured codebase as bimodal-logic pip package: overhauled pyproject.toml (name bimodal-logic, version 0.1.0, Python >=3.10, z3-solver dependency, entry-point stub), created bimodal_logic/ facade package with 4 stub files, cleaned stale egg-info, verified editable install and imports. 171/172 bimodal tests pass (1 pre-existing failure)."
     },
     {
       "project_number": 102,
