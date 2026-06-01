@@ -8,7 +8,9 @@
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
       "last_updated": "2026-06-01T00:00:00Z",
-      "dependencies": [100]
+      "dependencies": [
+        100
+      ]
     },
     {
       "project_number": 109,
@@ -17,7 +19,9 @@
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
       "last_updated": "2026-06-01T00:00:00Z",
-      "dependencies": [103]
+      "dependencies": [
+        103
+      ]
     },
     {
       "project_number": 108,
@@ -26,7 +30,9 @@
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
       "last_updated": "2026-06-01T00:00:00Z",
-      "dependencies": [103]
+      "dependencies": [
+        103
+      ]
     },
     {
       "project_number": 107,
@@ -35,7 +41,9 @@
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
       "last_updated": "2026-06-01T00:00:00Z",
-      "dependencies": [102]
+      "dependencies": [
+        102
+      ]
     },
     {
       "project_number": 106,
@@ -94,7 +102,26 @@
         "complexity": "medium",
         "research_integrated": true,
         "plan_version": 1,
-        "dependency_waves": [[1], [2], [3], [4], [5], [6]],
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ],
+          [
+            6
+          ]
+        ],
         "reports_integrated": [
           {
             "path": "reports/01_codebase-audit.md",
@@ -113,6 +140,11 @@
           "path": "specs/100_strip_non_bimodal_code/plans/02_implementation-plan.md",
           "type": "plan",
           "summary": "6-phase implementation plan: fix coupling, remove iterate dep, delete modules, clean refs, clean tests, clean dependencies"
+        },
+        {
+          "path": "specs/100_strip_non_bimodal_code/summaries/02_strip-non-bimodal-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 6 phases completed, 203+ files deleted, 171 tests passing"
         }
       ]
     },
