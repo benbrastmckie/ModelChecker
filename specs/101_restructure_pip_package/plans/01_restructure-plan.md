@@ -1,7 +1,7 @@
 # Implementation Plan: Restructure as bimodal-logic pip package
 
 - **Task**: 101 - Restructure as bimodal-logic pip package
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: 100 (completed)
 - **Research Inputs**: specs/101_restructure_pip_package/reports/01_restructure-research.md
@@ -150,19 +150,19 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Editable install and full verification [NOT STARTED]
+### Phase 4: Editable install and full verification [COMPLETED]
 
 **Goal**: Verify the complete restructure by performing an editable install and running all verification checks.
 
 **Tasks**:
-- [ ] Run `cd code && pip install -e .` (editable install)
-- [ ] Verify `import bimodal_logic` works: `python -c "import bimodal_logic; print(bimodal_logic.__all__)"`
-- [ ] Verify `from bimodal_logic.provider import Z3OracleProvider` works
-- [ ] Verify `import model_checker` still works: `python -c "import model_checker"`
-- [ ] Verify `pip show bimodal-logic` shows correct metadata (name, version 0.1.0)
-- [ ] Run bimodal test suite: `cd code && PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -v` and confirm 171 pass, 1 pre-existing failure (BM_CM_1)
-- [ ] Verify the narrowed testpaths work: `cd code && pytest` runs only bimodal tests
-- [ ] Verify entry point is registered: `python -c "from importlib.metadata import entry_points; eps = entry_points(group='bimodal_harness.oracle_providers'); print([ep.name for ep in eps])"` should include `z3_base`
+- [x] Run `cd code && pip install -e .` (editable install)
+- [x] Verify `import bimodal_logic` works: `python -c "import bimodal_logic; print(bimodal_logic.__all__)"`
+- [x] Verify `from bimodal_logic.provider import Z3OracleProvider` works
+- [x] Verify `import model_checker` still works: `python -c "import model_checker"`
+- [x] Verify `pip show bimodal-logic` shows correct metadata (name, version 0.1.0)
+- [x] Run bimodal test suite: `cd code && PYTHONPATH=src pytest src/model_checker/theory_lib/bimodal/tests/ -v` and confirm 171 pass, 1 pre-existing failure (BM_CM_1)
+- [x] Verify the narrowed testpaths work: `cd code && pytest` runs only bimodal tests
+- [x] Verify entry point is registered: `python -c "from importlib.metadata import entry_points; eps = entry_points(group='bimodal_harness.oracle_providers'); print([ep.name for ep in eps])"` should include `z3_base`
 
 **Timing**: 45 minutes (includes test run time)
 
@@ -178,14 +178,14 @@ Phases within the same wave can execute in parallel.
 
 ## Testing & Validation
 
-- [ ] `pip install -e .` succeeds from `code/` directory without errors
-- [ ] `import bimodal_logic` works and exposes `Z3OracleProvider`
-- [ ] `import model_checker` still works (existing package not broken)
-- [ ] `pip show bimodal-logic` shows name=bimodal-logic, version=0.1.0
-- [ ] Entry point `z3_base` discoverable via `importlib.metadata.entry_points`
-- [ ] `pytest` from `code/` runs only bimodal tests (testpaths narrowed)
-- [ ] Full bimodal test suite: 171 pass, 1 pre-existing failure (BM_CM_1)
-- [ ] No stale `model_checker.egg-info` remains after install
+- [x] `pip install -e .` succeeds from `code/` directory without errors
+- [x] `import bimodal_logic` works and exposes `Z3OracleProvider`
+- [x] `import model_checker` still works (existing package not broken)
+- [x] `pip show bimodal-logic` shows name=bimodal-logic, version=0.1.0
+- [x] Entry point `z3_base` discoverable via `importlib.metadata.entry_points`
+- [x] `pytest` from `code/` runs only bimodal tests (testpaths narrowed)
+- [x] Full bimodal test suite: 171 pass, 1 pre-existing failure (BM_CM_1)
+- [x] No stale `model_checker.egg-info` remains after install
 
 ## Artifacts & Outputs
 

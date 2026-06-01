@@ -151,10 +151,40 @@
     {
       "project_number": 101,
       "project_name": "restructure_pip_package",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
-      "last_updated": "2026-06-01T12:00:00Z"
+      "last_updated": "2026-06-01T09:35:00Z",
+      "next_artifact_number": 2,
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 2.5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_restructure-research.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "completion_summary": "Restructured as bimodal-logic pip package: overhauled pyproject.toml metadata, created thin bimodal_logic/ facade with 4 stub files, cleaned up stale egg-info, verified editable install and all imports work. Bimodal test suite: 171 pass, 1 pre-existing failure (BM_CM_1)."
     },
     {
       "project_number": 102,

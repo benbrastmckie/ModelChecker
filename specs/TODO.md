@@ -87,9 +87,12 @@ next_project_number: 111
 
 ### 101. Restructure as bimodal-logic pip package
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 100
+- **Research**: [101_restructure_pip_package/reports/01_restructure-research.md]
+- **Plan**: [101_restructure_pip_package/plans/01_restructure-plan.md]
+- **Summary**: [101_restructure_pip_package/summaries/01_restructure-summary.md]
 
 **Description**: Restructure the codebase as pip-installable bimodal-logic package. Major pyproject.toml overhaul: package name bimodal-logic (import as bimodal_logic), description/classifiers/keywords updated for bimodal-only oracle, dependencies z3-solver>=4.8.0 as core dep (remove networkx, jupyter, cvc5, matplotlib), Python version >=3.10 (protocol uses modern type syntax). Existing directory structure is preserved — do NOT create a core/ subdirectory or rename theory_lib/bimodal/; renaming would cause mass import churn across ~20 files (ADR Decision 3 Rec 1). Entry point stub: [project.entry-points.'bimodal_harness.oracle_providers'] z3_base = "bimodal_logic.provider:Z3OracleProvider" (class created in task 103 — stub must exist in pyproject.toml now). Update package directory mapping in pyproject.toml. Fix testpaths in pytest config (task 100 removed logos-specific top-level tests; point at theory_lib/bimodal/tests/). New thin files: bimodal_logic/__init__.py (public: Z3OracleProvider placeholder), provider.py placeholder, translation.py placeholder, serialization.py placeholder — placeholders are empty stubs that will be filled in task 103/102 respectively. Verify: pip install -e . succeeds in fresh venv; import bimodal_logic works.
 
