@@ -672,11 +672,12 @@
     {
       "project_number": 104,
       "project_name": "programmatic_api_cleanup",
-      "status": "planned",
+      "status": "completed",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
-      "last_updated": "2026-06-01T19:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
       "next_artifact_number": 2,
+      "completion_summary": "Removed CLI-only dead code: builder/ directory (67 files), output/progress/ and 9 dead output files, 16 dead output tests, cli.py debug artifact, profile_abundance.py, test_cli_execution.py. Simplified model_checker/__init__.py and output/__init__.py. Cleaned __main__.py logos dead-code. Added bimodal-logic check CLI (bimodal_logic/cli.py) backed by Z3OracleProvider with JSON output. 18 new TDD tests pass. Core bimodal test suite 624-627 passing (2 pre-existing BM_CM_1 flaky failures).",
       "plan_metadata": {
         "phases": 5,
         "total_effort_hours": 4,
@@ -718,6 +719,11 @@
           "path": "specs/104_programmatic_api_cleanup/plans/01_dead-code-cleanup-plan.md",
           "type": "plan",
           "summary": "5-phase plan: remove builder/, remove dead output/ components, remove other dead code, add thin CLI, final validation"
+        },
+        {
+          "path": "specs/104_programmatic_api_cleanup/summaries/01_dead-code-cleanup-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 5 phases completed, ~102 files deleted, 18 new CLI tests passing, oracle pipeline and bimodal test suite intact, no plan deviations"
         }
       ]
     },

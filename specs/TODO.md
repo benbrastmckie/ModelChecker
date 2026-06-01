@@ -12,7 +12,7 @@ next_project_number: 114
 111✓, 110✓, 102✓, 112✓, 113✓, 107✓, 101✓, 103✓
 
 **Wave 5 — Cleanup & Regression (all three independent, runnable in parallel):**
-104 [PLANNED] — Dead-code cleanup and thin CLI (dep: 103✓)
+104✓ — Dead-code cleanup and thin CLI (dep: 103✓)
 108✓ — Soundness regression test suite (dep: 103✓)
 109✓ — Cross-oracle differential testing infrastructure (dep: 103✓)
 
@@ -140,11 +140,12 @@ Wave 6:  105   114
 
 ### 104. Dead-code cleanup and thin CLI
 - **Effort**: small
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 103
 - **Report**: [specs/104_programmatic_api_cleanup/reports/01_dead-code-cleanup.md]
 - **Plan**: [specs/104_programmatic_api_cleanup/plans/01_dead-code-cleanup-plan.md]
+- **Summary**: [specs/104_programmatic_api_cleanup/summaries/01_dead-code-cleanup-summary.md]
 
 **Description**: With OracleProvider working as the primary public interface, remove dead code and add a thin CLI. Remove unused builder components: project scaffolding (`builder/`), multi-theory comparison (`builder/comparison.py`), theory template generation. Simplify output/: remove interactive prompts, notebook templates (`output/notebook/`), progress bars (OracleProvider returns dicts, not formatted output). Remove logos-specific branching remnants in builder/runner.py. Add thin CLI: `bimodal-logic check '<formula_json>'` for standalone countermodel checking. DO NOT remove the following — they are required by the oracle pipeline, testing infrastructure, or thin CLI: (1) `theory_lib/bimodal/tests/` — the full test suite (correctness gate), (2) `theory_lib/bimodal/examples.py` — the 43-example evaluation suite, (3) `theory_lib/bimodal/operators.py` — operator implementations, (4) `extract_model_elements()`, `extract_states()`, and all model extraction chain methods, (5) `print_*` methods on BimodalStructure (needed for thin CLI), (6) `output/formatters/` (structured output formatting), (7) `settings/settings.py` (CLI settings parsing). Only remove code that was exclusively used by the multi-theory CLI and is unreachable from the oracle pipeline or test infrastructure.
 

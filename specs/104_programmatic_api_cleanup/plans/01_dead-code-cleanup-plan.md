@@ -1,7 +1,7 @@
 # Implementation Plan: Task #104 - Dead-Code Cleanup and Thin CLI
 
 - **Task**: 104 - Dead-code cleanup and thin CLI
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Effort**: 4 hours
 - **Dependencies**: 103 (OracleProvider - completed)
 - **Research Inputs**: specs/104_programmatic_api_cleanup/reports/01_dead-code-cleanup.md
@@ -234,7 +234,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 5: Final validation and cleanup [NOT STARTED]
+### Phase 5: Final validation and cleanup [COMPLETED]
 
 **Goal**: Run comprehensive test suite, verify no collection errors, update pyproject.toml testpaths if needed, and clean up any remaining issues.
 
