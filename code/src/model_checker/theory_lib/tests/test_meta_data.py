@@ -91,8 +91,8 @@ class TestMetadataSystem:
         assert mock_stdout.write.called
     
     @pytest.mark.parametrize(
-        "theory_name", 
-        ["logos", "exclusion", "imposition", "bimodal"]
+        "theory_name",
+        ["bimodal"]
     )
     def test_theory_version_format(self, theory_name):
         """Test that theory versions follow the expected format."""

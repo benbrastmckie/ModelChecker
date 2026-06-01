@@ -3,12 +3,10 @@
 from .base import IOutputFormatter
 from .markdown import MarkdownFormatter, ANSIToMarkdown
 from .json import JSONFormatter
-from .notebook import NotebookFormatter
 
 __all__ = [
     'IOutputFormatter',
     'MarkdownFormatter',
-    'ANSIToMarkdown', 
+    'ANSIToMarkdown',
     'JSONFormatter',
-    'NotebookFormatter'
 ]

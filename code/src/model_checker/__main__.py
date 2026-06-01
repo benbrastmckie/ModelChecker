@@ -74,18 +74,7 @@ repository: https://github.com/benbrastmckie/ModelChecker/""",
             '-l',
             type=str,
             metavar='THEORY',
-            help='Load semantic theory: logos, exclusion, imposition, bimodal. '
-                 'For logos, use --subtheory to specify which subtheories to load'
-        )
-        theory_group.add_argument(
-            '--subtheory',
-            '-st',
-            nargs='+',
-            choices=['extensional', 'modal', 'constitutive', 'counterfactual',
-                     'relevance'],
-            metavar='SUBTHEORY',
-            help='Specify logos subtheories to load (applies only with -l logos). '
-                 'Dependencies are auto-loaded. Without this flag, all subtheories are loaded.'
+            help='Load semantic theory: bimodal.'
         )
 
         # Model constraints group

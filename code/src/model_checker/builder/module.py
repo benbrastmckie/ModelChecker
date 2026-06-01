@@ -133,35 +133,27 @@ class BuildModule:
         # Create output configuration from CLI arguments and settings
         config = create_output_config(self.module_flags, self.general_settings)
         
-        # Check if saving is enabled via new --save flag
-        save_enabled = hasattr(self.module_flags, 'save') and self.module_flags.save is not None
-        
-        # Check if we're only generating a notebook (no other formats)
-        only_notebook = (save_enabled and 
-                        isinstance(self.module_flags.save, list) and 
-                        self.module_flags.save == ['jupyter'])
-        
         # Set save_output flag
-        self.save_output = config.save_output and not only_notebook
-        
+        self.save_output = config.save_output
+
         # Create prompt manager if prompting is enabled
         self.prompt_manager = None
-        if config.sequential and not only_notebook:
+        if config.sequential:
             # Sequential mode is enabled - create sequential manager
             input_provider = ConsoleInputProvider()
             self.prompt_manager = SequentialSaveManager(input_provider)
-        
+
         # Create output manager with configuration
         self.output_manager = OutputManager(config, self.prompt_manager)
-        
-        # Pass module context for notebook generation
+
+        # Pass module context for output generation
         if self.output_manager.should_save():
             self.output_manager.set_module_context(
                 self.module_variables,
                 self.module_path
             )
-        
-        # Create output directory if needed (skip for notebook-only)
+
+        # Create output directory if needed
         if self.output_manager.should_save():
             self.output_manager.create_output_directory()
     

@@ -39,12 +39,12 @@ class BuildProject:
 
     # No longer enforcing essential files to allow for flexible project structures
 
-    def __init__(self, theory: str = 'logos', subtheories: Optional[List[str]] = None) -> None:
+    def __init__(self, theory: str = 'bimodal', subtheories: Optional[List[str]] = None) -> None:
         """Initialize project builder with specified theory.
 
         Args:
             theory: Name of the source theory to use as template
-            subtheories: List of subtheories to load (logos only)
+            subtheories: List of subtheories to load (unused, kept for API compatibility)
 
         Raises:
             FileNotFoundError: If the source theory directory doesn't exist
@@ -83,11 +83,7 @@ class BuildProject:
         If yes, prompts for a project name and calls generate(). If no, displays
         information about running existing example files.
         """
-        if self.theory == 'logos' and self.subtheories:
-            subtheory_desc = f" with subtheories: {', '.join(self.subtheories)}"
-        else:
-            subtheory_desc = ""
-        result = input(f"Would you like to generate a new {self.theory}-project{subtheory_desc}? (y/n): ")
+        result = input(f"Would you like to generate a new {self.theory}-project? (y/n): ")
         if result.lower() not in {'yes', 'ye', 'y'}:
             print("\nYou can run an example.py file that already exists with the command:\n")
             print("  $ model-checker example.py\n")

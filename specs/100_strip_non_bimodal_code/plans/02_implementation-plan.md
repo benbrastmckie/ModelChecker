@@ -158,22 +158,22 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 4: Clean Residual Source References [NOT STARTED]
+### Phase 4: Clean Residual Source References [COMPLETED]
 
 **Goal**: Update all remaining source files that reference deleted theories, modules, or features.
 
 **Tasks**:
-- [ ] **builder/loader.py**: Remove `'LogosProposition': 'logos'` (line 186) and `'Logos': 'logos'` (line 198) from mapping dicts; update docstring (line 168) to remove logos/exclusion references
-- [ ] **builder/project.py**: Change default theory from `'logos'` to `'bimodal'` (line 42); remove logos-specific subtheory handling (lines 86-87); update docstring
-- [ ] **builder/serialize.py**: Update docstring (line 26) to use bimodal example instead of logos
-- [ ] **builder/module.py**: Remove jupyter save option check (line 142) if it only applies to notebook/jupyter output
-- [ ] **output/manager.py**: Delete `_generate_notebook()` method (lines 277-304); delete notebook format check (lines 206-208); simplify `set_module_context()` to remove notebook parts (lines 73-86)
-- [ ] **output/config.py**: Remove `'notebook'` from formats list (line 65); delete notebook/jupyter format handling (lines 73-74); update docstrings
-- [ ] **theory_lib/errors.py**: Remove `WitnessSemanticError`, `WitnessPredicateError` (lines 164-189) and `ImpositionSemanticError`, `ImpositionOperationError` (lines 217-224)
-- [ ] **theory_lib/types.py**: Remove `ImpositionSemantics` protocol class (lines 117-123)
-- [ ] **theory_lib/__init__.py**: Simplify registry functions that use AVAILABLE_THEORIES; remove dead code paths for non-existent theories
-- [ ] **theory_lib/tests/test_meta_data.py**: Update expected theories list (line 95) from `["logos", "exclusion", "imposition", "bimodal"]` to `["bimodal"]`
-- [ ] **model_checker/__main__.py**: Update help text (line 77) from `'logos, exclusion, imposition, bimodal'` to `'bimodal'`
+- [x] **builder/loader.py**: Remove `'LogosProposition': 'logos'` (line 186) and `'Logos': 'logos'` (line 198) from mapping dicts; update docstring (line 168) to remove logos/exclusion references
+- [x] **builder/project.py**: Change default theory from `'logos'` to `'bimodal'` (line 42); remove logos-specific subtheory handling (lines 86-87); update docstring
+- [x] **builder/serialize.py**: Update docstring (line 26) to use bimodal example instead of logos
+- [x] **builder/module.py**: Remove jupyter save option check (line 142) if it only applies to notebook/jupyter output
+- [x] **output/manager.py**: Delete `_generate_notebook()` method (lines 277-304); delete notebook format check (lines 206-208); simplify `set_module_context()` to remove notebook parts (lines 73-86)
+- [x] **output/config.py**: Remove `'notebook'` from formats list (line 65); delete notebook/jupyter format handling (lines 73-74); update docstrings
+- [x] **theory_lib/errors.py**: Remove logos-specific `WitnessSemanticError` parent class and `ImpositionSemanticError`, `ImpositionOperationError`; keep bimodal-used `WitnessRegistryError`, `WitnessConstraintError`, `WitnessPredicateError` as direct subclasses of `WitnessError`
+- [x] **theory_lib/types.py**: Remove `ImpositionSemantics` protocol class (lines 117-123) and `SubtheoryProtocol`
+- [x] **theory_lib/__init__.py**: Simplify registry functions that use AVAILABLE_THEORIES; remove dead code paths for non-existent theories
+- [x] **theory_lib/tests/test_meta_data.py**: Update expected theories list (line 95) from `["logos", "exclusion", "imposition", "bimodal"]` to `["bimodal"]`
+- [x] **model_checker/__main__.py**: Update help text (line 77) from `'logos, exclusion, imposition, bimodal'` to `'bimodal'`
 
 **Timing**: 1 hour
 

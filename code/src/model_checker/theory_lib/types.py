@@ -113,34 +113,6 @@ class WitnessRegistry(Protocol):
 
 
 @runtime_checkable
-class ImpositionSemantics(Protocol):
-    """Protocol for imposition-based semantic implementations."""
-    def calculate_outcome_worlds(self, verifiers: Set[StateId], eval_point: Dict[str, Any], model_structure: 'ModelStructure') -> Set[StateId]:
-        """Calculate outcome worlds for imposition operation."""
-        ...
-
-    def alt_imposition(self, state_y: StateId, state_w: StateId, state_u: StateId) -> bool:
-        """Check alternative imposition relation."""
-        ...
-
-
-@runtime_checkable
-class SubtheoryProtocol(Protocol):
-    """Protocol for logos subtheory implementations."""
-    def get_operators(self) -> Dict[str, type]:
-        """Get subtheory operator classes."""
-        ...
-
-    def get_examples(self) -> Dict[str, Any]:
-        """Get subtheory example definitions."""
-        ...
-
-    def validate_config(self, config: Dict[str, Any]) -> bool:
-        """Validate subtheory configuration."""
-        ...
-
-
-@runtime_checkable
 class ModelIterator(Protocol):
     """Protocol for model iteration implementations."""
     def __iter__(self) -> 'ModelIterator':

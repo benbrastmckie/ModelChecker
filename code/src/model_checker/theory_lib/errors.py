@@ -161,7 +161,7 @@ class SubtheoryConflictError(SubtheoryError):
 
 
 class WitnessError(TheoryError):
-    """Base for witness errors (exclusion-specific)."""
+    """Base for witness errors."""
     pass
 
 
@@ -170,36 +170,17 @@ class WitnessNotFoundError(WitnessError):
     pass
 
 
-class ConstraintError(TheoryError):
-    """Base for constraint errors."""
-    pass
-
-
-class UnsatisfiableError(ConstraintError):
-    """Constraints are unsatisfiable."""
-    pass
-
-
-# Theory-specific error hierarchies
-
-class WitnessSemanticError(SemanticError):
-    """Base for witness semantics (exclusion theory) errors."""
-
-    def __init__(self, message: str, **kwargs):
-        super().__init__(message, theory="exclusion", **kwargs)
-
-
-class WitnessRegistryError(WitnessSemanticError):
+class WitnessRegistryError(WitnessError):
     """Witness predicate registry operation failed."""
     pass
 
 
-class WitnessConstraintError(WitnessSemanticError):
+class WitnessConstraintError(WitnessError):
     """Witness constraint generation failed."""
     pass
 
 
-class WitnessPredicateError(WitnessSemanticError):
+class WitnessPredicateError(WitnessError):
     """Witness predicate operation failed."""
 
     def __init__(self, predicate_name: str, operation: str, **kwargs):
@@ -213,58 +194,13 @@ class WitnessPredicateError(WitnessSemanticError):
         super().__init__(message, **kwargs)
 
 
-class ImpositionSemanticError(SemanticError):
-    """Base for imposition semantics (Kit Fine's theory) errors."""
-
-    def __init__(self, message: str, **kwargs):
-        super().__init__(message, theory="imposition", **kwargs)
-
-
-class ImpositionOperationError(ImpositionSemanticError):
-    """Imposition operation (alt_imposition) failed."""
+class ConstraintError(TheoryError):
+    """Base for constraint errors."""
     pass
 
 
-class ImpositionModelError(ImpositionSemanticError):
-    """Imposition model structure operation failed."""
-    pass
-
-
-class ImpositionHelperError(ImpositionSemanticError):
-    """Imposition helper function error."""
-
-    def __init__(self, function_name: str, **kwargs):
-        message = f"Imposition helper function '{function_name}' failed"
-        context = kwargs.get('context', {})
-        context['function_name'] = function_name
-        kwargs['context'] = context
-        super().__init__(message, **kwargs)
-
-
-class LogosSubtheoryError(SubtheoryError):
-    """Base for logos subtheory errors."""
-
-    def __init__(self, message: str, subtheory_name: Optional[str] = None, **kwargs):
-        super().__init__(message, theory="logos", **kwargs)
-        self.subtheory_name = subtheory_name
-
-
-class LogosProtocolError(LogosSubtheoryError):
-    """Logos protocol compliance error."""
-
-    def __init__(self, protocol_name: str, compliance_issue: str, **kwargs):
-        message = f"Protocol '{protocol_name}' compliance failed: {compliance_issue}"
-        context = kwargs.get('context', {})
-        context.update({
-            'protocol_name': protocol_name,
-            'compliance_issue': compliance_issue
-        })
-        kwargs['context'] = context
-        super().__init__(message, **kwargs)
-
-
-class LogosOperatorError(LogosSubtheoryError):
-    """Logos operator definition or execution error."""
+class UnsatisfiableError(ConstraintError):
+    """Constraints are unsatisfiable."""
     pass
 
 

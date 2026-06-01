@@ -11,9 +11,9 @@ logger = logging.getLogger(__name__)
 
 from .config import OutputConfig
 from .constants import (
-    FORMAT_MARKDOWN, FORMAT_JSON, FORMAT_NOTEBOOK,
+    FORMAT_MARKDOWN, FORMAT_JSON,
     DEFAULT_FORMATS, EXTENSIONS,
-    DEFAULT_MARKDOWN_FILE, DEFAULT_JSON_FILE, DEFAULT_NOTEBOOK_FILE
+    DEFAULT_MARKDOWN_FILE, DEFAULT_JSON_FILE
 )
 from .helpers import save_file, save_json, ensure_directory_exists
 from .errors import OutputError, OutputDirectoryError
@@ -53,37 +53,29 @@ class OutputManager:
         # Initialize formatters
         self._initialize_formatters()
         
-        # Module context for notebook generation
+        # Module context for output generation
         self._module_vars = None
         self._source_path = None
     
     def _initialize_formatters(self):
         """Initialize format handlers."""
-        from .formatters import MarkdownFormatter, JSONFormatter, NotebookFormatter
-        
+        from .formatters import MarkdownFormatter, JSONFormatter
+
         self.formatters = {}
         if self.config.is_format_enabled(FORMAT_MARKDOWN):
             self.formatters[FORMAT_MARKDOWN] = MarkdownFormatter()
         if self.config.is_format_enabled(FORMAT_JSON):
             self.formatters[FORMAT_JSON] = JSONFormatter()
-        if self.config.is_format_enabled(FORMAT_NOTEBOOK):
-            self.formatters[FORMAT_NOTEBOOK] = NotebookFormatter()
     
     def set_module_context(self, module_vars: Dict[str, Any], source_path: str):
-        """Set module context for notebook generation.
-        
+        """Set module context for output generation.
+
         Args:
             module_vars: Module variables including semantic_theories
             source_path: Path to the source examples file
         """
         self._module_vars = module_vars
         self._source_path = source_path
-        
-        # Pass context to notebook formatter if it exists
-        if FORMAT_NOTEBOOK in self.formatters:
-            notebook_formatter = self.formatters[FORMAT_NOTEBOOK]
-            if hasattr(notebook_formatter, 'set_context'):
-                notebook_formatter.set_context(module_vars, source_path)
     
     def should_save(self) -> bool:
         """Check if output should be saved.
@@ -202,10 +194,6 @@ class OutputManager:
         else:
             # Batch mode - save all accumulated outputs
             self._save_batch_outputs()
-        
-        # Generate notebook if enabled
-        if self.config.is_format_enabled(FORMAT_NOTEBOOK):
-            self._generate_notebook()
     
     def _save_batch_outputs(self):
         """Save all accumulated outputs in batch mode."""
@@ -274,31 +262,3 @@ class OutputManager:
         summary_path = os.path.join(self.output_dir, 'summary.json')
         save_json(summary_path, summary)
     
-    def _generate_notebook(self):
-        """Generate Jupyter notebook if enabled."""
-        if FORMAT_NOTEBOOK not in self.formatters:
-            logger.warning("Notebook formatter not initialized")
-            return
-        
-        notebook_formatter = self.formatters[FORMAT_NOTEBOOK]
-        
-        # Ensure context has been set
-        if not self._module_vars or not self._source_path:
-            logger.warning("Module context not set for notebook generation")
-            return
-        
-        try:
-            notebook_path = os.path.join(self.output_dir, DEFAULT_NOTEBOOK_FILE)
-            
-            if hasattr(notebook_formatter, 'format_for_streaming'):
-                # Direct streaming for efficiency
-                notebook_formatter.format_for_streaming(notebook_path)
-                logger.info(f"Notebook generated: {notebook_path}")
-            else:
-                # Fallback to basic method
-                notebook_content = notebook_formatter.format_batch([])
-                save_file(notebook_path, notebook_content)
-                logger.info(f"Notebook generated via batch: {notebook_path}")
-                
-        except Exception as e:
-            logger.warning(f"Failed to generate notebook: {e}")

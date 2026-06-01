@@ -159,13 +159,13 @@ class ModuleLoader:
 
 def discover_theory_module(theory_name: str, semantic_theory: Dict[str, Any]) -> Optional[str]:
     """Discover which theory module a semantic theory belongs to.
-    
+
     Args:
-        theory_name: Name of the theory (e.g., "Logos", "Exclusion")
+        theory_name: Name of the theory (e.g., "Bimodal")
         semantic_theory: Dictionary containing the semantic theory implementation
-        
+
     Returns:
-        The module name (e.g., "logos", "exclusion") or None if not found
+        The module name (e.g., "bimodal") or None if not found
     """
     # Method 1: Check the module path of the semantics class
     semantics_class = semantic_theory.get("semantics")
@@ -177,33 +177,31 @@ def discover_theory_module(theory_name: str, semantic_theory: Dict[str, Any]) ->
                 theory_idx = parts.index('theory_lib') + 1
                 if theory_idx < len(parts):
                     return parts[theory_idx]
-    
+
     # Method 2: Check for theory-specific markers
     prop_class = semantic_theory.get("proposition")
     if prop_class and hasattr(prop_class, '__name__'):
         prop_name = prop_class.__name__
         prop_to_theory = {
-            'LogosProposition': 'logos',
             'BimodalProposition': 'bimodal',
         }
         for prop_pattern, theory_module in prop_to_theory.items():
             if prop_pattern in prop_name:
                 return theory_module
-    
+
     # Method 3: Check model class names
     model_class = semantic_theory.get("model")
     if model_class and hasattr(model_class, '__name__'):
         model_name = model_class.__name__
         theory_patterns = {
-            'Logos': 'logos',
             'Bimodal': 'bimodal',
         }
         for pattern, module in theory_patterns.items():
             if pattern in model_name:
                 return module
-    
+
     # Method 4: Fallback to theory name
     if theory_name:
         return theory_name.lower()
-    
+
     return None
