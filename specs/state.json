@@ -26,12 +26,20 @@
     {
       "project_number": 111,
       "project_name": "next_prev_defined_operators",
-      "status": "not_started",
+      "status": "researched",
       "task_type": "python",
       "created": "2026-06-01T17:00:00Z",
-      "last_updated": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T17:28:29Z",
       "dependencies": [
         100
+      ],
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/111_next_prev_defined_operators/reports/01_next-prev-operators.md",
+          "type": "research",
+          "summary": "DefinedOperator base class analysis, UntilOperator/SinceOperator/BotOperator signatures, derived_definition pattern, bimodal_operators registration, print_over_times usage, test infrastructure patterns, and complete implementation recipe for DefNextOperator and DefPrevOperator"
+        }
       ]
     },
     {

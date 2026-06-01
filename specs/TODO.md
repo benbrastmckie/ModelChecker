@@ -9,7 +9,7 @@ next_project_number: 114
 *Updated 2026-06-01. 12 active tasks (3 completed, 9 not started) across 2 waves.*
 
 **Wave 1 — Foundation (independent, all depend only on completed tasks):**
-111 [RESEARCHING] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
+111 [RESEARCHED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
 110 [COMPLETED] — Frame class validation for Base frame (dep: 100✓)
 
 **Wave 2 — Translation:**

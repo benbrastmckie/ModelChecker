@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "summary": "Researched all components needed to implement DefNextOperator and DefPrevOperator. Found that both are straightforward 1-arity DefinedOperator subclasses where Next(φ)=U(φ,⊥) maps to derived_definition returning [UntilOperator, argument, [BotOperator]] and Prev(φ)=S(φ,⊥) maps to [SinceOperator, argument, [BotOperator]]. Templates: DefFutureOperator/DefPastOperator (lines 1479-1529 in operators.py). Registration: append to bimodal_operators collection. print_method: identical pattern to DefFutureOperator using print_over_times with world history times.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "plan",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/111_next_prev_defined_operators/reports/01_next-prev-operators.md"
+    }
+  ]
+}
