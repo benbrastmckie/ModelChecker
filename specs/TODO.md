@@ -6,30 +6,39 @@ next_project_number: 114
 
 ## Task Order
 
-*Updated 2026-06-01. 12 active tasks (8 completed, 4 not started) across 2 remaining waves.*
+*Updated 2026-06-01. 13 active tasks (9 completed, 4 not started) across 3 remaining waves.*
 
 **Waves 1–4 — Complete:**
 111✓, 110✓, 102✓, 112✓, 113✓, 107✓, 101✓, 103✓
 
 **Wave 5 — Cleanup & Regression (all three independent, runnable in parallel):**
 104 [PLANNED] — Dead-code cleanup and thin CLI (dep: 103✓)
-108 ✓ — Soundness regression test suite (dep: 103✓)
-109 [PLANNED] — Cross-oracle differential testing infrastructure (dep: 103✓)
+108✓ — Soundness regression test suite (dep: 103✓)
+109✓ — Cross-oracle differential testing infrastructure (dep: 103✓)
 
-**Wave 6 — Integration:**
+**Wave 6 — Integration & Fix:**
 105 [NOT STARTED] — Integration testing and validation (dep: 103✓, 104, 112✓)
+114 [NOT STARTED] — Fix skolem_abundance over-constraint at M>=3 (dep: 108✓)
 
 ```
 Waves 1–4: ✓ complete
 
-Wave 5: 104    108    109   ← all parallel now
-          │
-Wave 6:  105
+Wave 5: 104    108✓   109✓   ← all parallel now
+          │           │
+Wave 6:  105   114
 ```
 
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 114. Fix skolem_abundance over-constraint at M>=3
+- **Effort**: medium
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Dependencies**: 108
+
+**Description**: The `capped_skolem_abundance_constraint` in BimodalSemantics (semantic.py) over-constrains no-premise queries at M>=3, causing the solver to time out or return spurious UNSAT. This forces the oracle to use M=max(depth,2) instead of the spec'd M=max(depth+2,3), which means boundary_safe is always False for depth>=1 formulas. Root cause: skolem_abundance requires shifted copies of every world for every valid shift, which at M=3 creates an exponential blowup in the constraint system. Investigate: (1) Can skolem_abundance be weakened (e.g., only require shifts up to temporal_depth rather than M-1)? (2) Can it be made conditional on formula structure? (3) Can the constraint encoding be reformulated to avoid the MBQI blowup? Fix should enable M=max(depth+2,3) without solver timeout, restoring proper boundary safety. Gate: the xfail test in test_soundness_regression.py passes (shift closure at M=3); oracle can use M=max(depth+2,3); all existing tests still pass; boundary_safe=True for depth-0 and depth-1 formulas.
 
 ### 113. Enriched operator equivalence test suite
 - **Effort**: small
@@ -77,11 +86,12 @@ Wave 6:  105
 
 ### 109. Cross-oracle differential testing infrastructure
 - **Effort**: medium
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 103
 - **Report**: [specs/109_cross_oracle_differential_testing/reports/01_differential-testing.md]
 - **Plan**: [specs/109_cross_oracle_differential_testing/plans/01_differential-testing-plan.md]
+- **Summary**: [specs/109_cross_oracle_differential_testing/summaries/01_differential-testing-summary.md]
 
 **Description**: Build infrastructure to compare Z3 oracle results against BimodalLogic's findCountermodel for systematic formula comparison. This is the Tier 1 empirical soundness validation mechanism. Deliverables: (1) A test harness that calls both `OracleProvider.find_countermodel()` and BimodalLogic's `findCountermodel` endpoint (via BimodalHarness subprocess or API) for the same formula and asserts agreement on SAT/UNSAT classification; (2) Integration with BimodalLogic's FormulaEnumerator (or equivalent) to generate formulas up to complexity 7 for systematic comparison; (3) A differential report format: for any disagreement, output the formula, the Z3 countermodel (if any), the BimodalLogic result, and the `temporal_depth` and `boundary_safe` flags; (4) CI integration: the differential test suite runs on every oracle code change. Note: requires BimodalHarness integration and may require a subprocess call to BimodalLogic's Python/CLI interface. If the BimodalHarness API is not available, implement the framework with a mock BimodalLogic oracle and document the integration point. Dependencies: requires OracleProvider (task 103) to be implemented; the BimodalHarness SoundnessGateway (bimodal_harness/oracle/gateway.py:219-508) is the integration point.
 

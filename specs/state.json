@@ -1,5 +1,5 @@
 {
-  "next_project_number": 114,
+  "next_project_number": 115,
   "active_projects": [
     {
       "project_number": 113,
@@ -229,21 +229,36 @@
     {
       "project_number": 109,
       "project_name": "cross_oracle_differential_testing",
-      "status": "planned",
+      "status": "completed",
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
-      "last_updated": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
       "dependencies": [
         103
       ],
       "next_artifact_number": 2,
+      "completion_summary": "Implemented cross-oracle differential testing infrastructure: self-contained primitive formula enumerator (atom/bot/imp/box/untl/snce up to complexity N), known-formula baselines with 20+ tautologies and 20+ invalid formulas, BimodalHarness conditional integration testing temporal-only formula agreement with documented edge cases (untl(bot,bot) and untl(A,A) MC oracle limitations), JSON differential report generator, and GitHub Actions CI workflow. 51 non-slow tests pass across 8 test classes.",
       "plan_metadata": {
         "phases": 5,
         "total_effort_hours": 5,
         "complexity": "medium",
         "research_integrated": true,
         "plan_version": 1,
-        "dependency_waves": [[1], [2, 3], [4], [5]],
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
         "reports_integrated": [
           {
             "path": "reports/01_differential-testing.md",
@@ -262,6 +277,11 @@
           "path": "specs/109_cross_oracle_differential_testing/plans/01_differential-testing-plan.md",
           "type": "plan",
           "summary": "5-phase TDD plan: self-contained formula enumerator, differential harness with known-formula baselines, BimodalHarness conditional integration, differential report format, CI workflow and gate validation"
+        },
+        {
+          "path": "specs/109_cross_oracle_differential_testing/summaries/01_differential-testing-summary.md",
+          "type": "summary",
+          "summary": "5 phases completed: self-contained enumerator (6 primitive tags, complexity N), 40+ baseline formulas, BH integration with documented edge cases, JSON report generation, CI workflow"
         }
       ]
     },
@@ -283,7 +303,19 @@
         "complexity": "medium",
         "research_integrated": true,
         "plan_version": 1,
-        "dependency_waves": [[1], [2, 3], [4, 5]],
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ]
+        ],
         "reports_integrated": [
           {
             "path": "reports/01_soundness-regression.md",
@@ -584,7 +616,23 @@
         "complexity": "complex",
         "research_integrated": true,
         "plan_version": 1,
-        "dependency_waves": [[1], [2], [3], [4], [5]],
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
         "reports_integrated": [
           {
             "path": "reports/01_tiered-oracle-architecture.md",
@@ -635,7 +683,23 @@
         "complexity": "medium",
         "research_integrated": true,
         "plan_version": 1,
-        "dependency_waves": [[1], [2], [3], [4], [5]],
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
         "reports_integrated": [
           {
             "path": "reports/01_dead-code-cleanup.md",
@@ -668,6 +732,17 @@
         103,
         104,
         112
+      ]
+    },
+    {
+      "project_number": 114,
+      "project_name": "skolem_abundance_overconstrain_fix",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-06-01T22:00:00Z",
+      "last_updated": "2026-06-01T22:00:00Z",
+      "dependencies": [
+        108
       ]
     }
   ],
