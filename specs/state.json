@@ -308,7 +308,8 @@
     {
       "project_number": 102,
       "project_name": "formula_json_translation",
-      "status": "implementing",
+      "status": "completed",
+      "completion_summary": "Implemented json_to_prefix (17-tag dispatcher), temporal_depth (recursive walker), prefix_to_infix (standalone converter) in translation.py. Added Sentence.from_prefix() classmethod to sentence.py bypassing infix parser. Exported all 3 functions from bimodal_logic/__init__.py. 108 new tests (64 unit + 26 integration + 16 Z3 equivalence + 2 pipeline) all pass. 325 total bimodal tests pass with no regressions.",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
       "last_updated": "2026-06-01T19:10:00Z",

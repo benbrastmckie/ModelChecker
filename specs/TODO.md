@@ -13,7 +13,7 @@ next_project_number: 114
 110 [COMPLETED] — Frame class validation for Base frame (dep: 100✓)
 
 **Wave 2 — Translation:**
-102 [IMPLEMENTING] — Formula JSON translation with enriched operator support (dep: 100✓, 111✓)
+102 [COMPLETED] — Formula JSON translation with enriched operator support (dep: 100✓, 111✓)
 
 **Wave 3 — Normalization & Testing (independent of each other, both depend on 102):**
 112 [NOT STARTED] — Fold/unfold formula normalization utilities (dep: 102)
