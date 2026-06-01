@@ -119,28 +119,28 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Implement json_to_prefix, temporal_depth, and prefix_to_infix [NOT STARTED]
+### Phase 2: Implement json_to_prefix, temporal_depth, and prefix_to_infix [COMPLETED]
 
 **Goal**: Implement the three core translation functions in `translation.py` so that all Phase 1 tests pass (GREEN phase of TDD).
 
 **Tasks**:
-- [ ] Implement `json_to_prefix(formula_json: dict) -> list` in `translation.py`:
+- [x] Implement `json_to_prefix(formula_json: dict) -> list` in `translation.py`:
   - 17-tag dispatcher mapping JSON tags to prefix lists
   - Recursive descent for nested formulas
   - Fail-fast: raise `ValueError` for unknown tags or missing required fields
-- [ ] Implement `temporal_depth(formula_json: dict) -> int` in `translation.py`:
+- [x] Implement `temporal_depth(formula_json: dict) -> int` in `translation.py`:
   - Recursive walker with correct depth rules per tag category
   - Atom/bot/top -> 0
   - neg/imp/and/or -> max of children
   - box/diamond -> max of children (NO increment)
   - untl/snce -> 1 + max of children
   - next/prev/some_future/some_past/all_future/all_past -> 1 + depth(arg)
-- [ ] Implement `prefix_to_infix(prefix_list: list) -> str` in `translation.py`:
+- [x] Implement `prefix_to_infix(prefix_list: list) -> str` in `translation.py`:
   - Standalone function (not Sentence method) for converting prefix to infix
   - Handle atoms, nullary, unary, and binary operators
   - Produce parenthesized infix strings compatible with the existing parser
-- [ ] Update `bimodal_logic/__init__.py` to export `json_to_prefix`, `temporal_depth`, `prefix_to_infix`
-- [ ] Run Phase 1 tests: all must pass
+- [x] Update `bimodal_logic/__init__.py` to export `json_to_prefix`, `temporal_depth`, `prefix_to_infix`
+- [x] Run Phase 1 tests: all must pass
 
 **Timing**: 1 hour
 
