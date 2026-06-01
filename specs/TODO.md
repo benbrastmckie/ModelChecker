@@ -95,8 +95,9 @@ next_project_number: 111
 
 ### 100. Strip non-bimodal code and fix coupling
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
+- **Research**: [100_strip_non_bimodal_code/reports/01_codebase-audit.md]
 
 **Description**: Strip all non-bimodal theories and fix hard coupling points identified in task 106 research. Fix hard logos imports first: theory_lib/__init__.py:52 (unconditional `from model_checker.theory_lib import logos` — replace with direct bimodal-only export, no registry, no lazy loading), builder/example.py:34 (`from ..theory_lib.logos import semantic` — remove logos-specific initialization), builder/runner.py:82,206 (`if 'Logos' in semantics_class.__name__` — remove logos-specific branching). Delete non-bimodal theories: theory_lib/logos/ (and all subtheories), theory_lib/imposition/, theory_lib/exclusion/. Delete: jupyter/, output/notebook/ (notebook output templates). Delete: iterate/ module (OracleProvider needs one countermodel, not iteration). Remove: networkx, matplotlib, cvc5, jupyter from pyproject.toml dependencies. Clean top-level code/tests/ of logos-specific tests. Preserve the following (they are the correctness gate, not dead code): theory_lib/bimodal/tests/ (full unit test suite), theory_lib/bimodal/examples.py (43-example evaluation suite), theory_lib/bimodal/operators.py, all Z3 constraint builders in semantic.py. Gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` passes (43 examples) AND all unit tests in `theory_lib/bimodal/tests/unit/` pass (frame constraints, ForAllTime, Until/Since, witness predicates, strict semantics, API consistency, data extraction).
 
