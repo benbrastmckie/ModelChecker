@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "summary": "Research complete. The Z3 oracle's three active frame axioms (nullity_identity, forward_comp, converse) correspond exactly to BimodalLogic's TaskFrame structure fields in TaskFrame.lean. BimodalLogic's FrameClass.Base is a proof-system concept (37 axioms valid on all linear orders), not a semantic frame type — creating a terminology mismatch with the oracle's supported_frame_classes claim. The disabled task_restriction constraint (constraint 10) allows phantom task_rel pairs not grounded in world histories, but this is not a soundness issue for countermodel validity checking. The oracle additionally enforces world-structure constraints (lawful histories, shift closure/abundance, world uniqueness, convex ordering) that go beyond the pure TaskFrame axioms. A test plan for test_frame_class_mapping.py is provided with 5 test classes covering post-hoc frame axiom validation on extracted countermodels.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "plan",
+  "artifacts": [
+    {
+      "type": "report",
+      "path": "specs/110_frame_class_validation/reports/01_frame-class-validation.md"
+    }
+  ]
+}
