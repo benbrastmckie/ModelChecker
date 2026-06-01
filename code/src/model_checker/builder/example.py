@@ -104,7 +104,7 @@ class BuildExample:
         if len(example_case) >= 3 and isinstance(example_case[2], dict):
             settings = example_case[2]
             requested_solver = settings.get("solver")
-            if requested_solver and requested_solver in ("z3", "cvc5"):
+            if requested_solver and requested_solver == "z3":
                 current = get_active_backend()
                 if current != requested_solver:
                     set_backend_with_invalidation(requested_solver)

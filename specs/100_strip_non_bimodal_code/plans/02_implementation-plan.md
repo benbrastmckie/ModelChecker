@@ -1,7 +1,7 @@
 # Implementation Plan: Strip Non-Bimodal Code
 
 - **Task**: 100 - Strip non-bimodal code and fix coupling
-- **Status**: [IN PROGRESS]
+- **Status**: [COMPLETED]
 - **Effort**: 4 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/100_strip_non_bimodal_code/reports/01_codebase-audit.md
@@ -244,18 +244,18 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 6: Clean pyproject.toml Dependencies [NOT STARTED]
+### Phase 6: Clean pyproject.toml Dependencies [COMPLETED]
 
 **Goal**: Remove all dependencies that are only used by deleted modules.
 
 **Tasks**:
-- [ ] Remove `networkx>=2.0` from `dependencies` list
-- [ ] Remove entire `[project.optional-dependencies]` `jupyter` group (ipywidgets, matplotlib, networkx, jupyter, ipython)
-- [ ] Remove entire `[project.optional-dependencies]` `cvc5` group
-- [ ] Update `[project.optional-dependencies]` `all` group to only include z3-solver
-- [ ] Remove any pytest markers for notebook/jupyter tests
-- [ ] Also remove `cvc5` import check in `builder/example.py` line 108 if it exists (`if requested_solver in ("z3", "cvc5")` check)
-- [ ] Verify `z3-solver>=4.8.0` remains as the core dependency
+- [x] Remove `networkx>=2.0` from `dependencies` list
+- [x] Remove entire `[project.optional-dependencies]` `jupyter` group (ipywidgets, matplotlib, networkx, jupyter, ipython)
+- [x] Remove entire `[project.optional-dependencies]` `cvc5` group
+- [x] Update `[project.optional-dependencies]` `all` group to only include z3-solver
+- [x] Remove any pytest markers for notebook/jupyter tests (none existed)
+- [x] Also remove `cvc5` import check in `builder/example.py` line 108 (`if requested_solver in ("z3", "cvc5")` changed to `== "z3"`)
+- [x] Verify `z3-solver>=4.8.0` remains as the core dependency
 
 **Timing**: 30 minutes
 

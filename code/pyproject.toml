@@ -19,29 +19,13 @@ classifiers = [
 keywords = ["semantics", "Z3", "logic", "counterfactuals", "modality", "model checker", "theorem prover", "hyperintensionality"]
 dependencies = [
     "z3-solver>=4.8.0",  # Core dependency for constraint solving
-    "networkx>=2.0",     # For graph representation of models
 ]
 requires-python = ">=3.8"
 
 # Optional dependencies
 [project.optional-dependencies]
-jupyter = [
-    "ipywidgets>=7.0.0",  # For interactive notebook components
-    "matplotlib>=3.0.0",  # For visualization of models
-    "networkx>=2.0",      # For graph representation of models
-    "jupyter",            # For notebook environment
-    "ipython",            # For interactive features
-]
-cvc5 = [
-    "cvc5>=1.1.0",        # Alternative SMT solver backend
-]
 all = [
-    "ipywidgets>=7.0.0",
-    "matplotlib>=3.0.0",
-    "networkx>=2.0",
-    "jupyter",
-    "ipython",
-    "cvc5>=1.1.0",
+    "z3-solver>=4.8.0",
 ]
 
 [project.urls]
