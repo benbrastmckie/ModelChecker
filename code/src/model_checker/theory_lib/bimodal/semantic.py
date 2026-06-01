@@ -394,6 +394,27 @@ class BimodalSemantics(SemanticDefaults):
         world's interval. This matches the ProofChecker (Lean) semantics where
         temporal operators like G and H quantify over the global time domain.
 
+        Boundary Vacuity Mechanism:
+            The domain D = (-M, M) is a finite open interval with 2*M-1 integer time
+            points: {-(M-1), ..., 0, ..., M-1}. ForAllTime universally quantifies
+            over all times in D using is_valid_time(time_var) as the guard.
+
+            Boundary vacuity occurs when a temporal operator is evaluated near the
+            domain boundary. For example, G(p) evaluated at t = M-1 (the last future
+            time point) is vacuously true: the universal quantifier "for all t' > M-1
+            in D" is satisfied vacuously because no such t' exists.
+
+            For a formula of depth d, boundary vacuity can propagate:
+            - G(G(p)) at t=M-1: outer G vacuously true (no t'>M-1)
+            - G(G(p)) at t=M-2: outer G checks t=M-1, inner G(p) at t=M-1 vacuously true
+            - This means with insufficient M, a depth-d formula may produce a spurious
+              SAT/UNSAT result due to vacuous evaluation near the boundary.
+
+            Safety criterion: M >= d+2 ensures that evaluation from t=0 along a
+            depth-d chain reaches at most t=d, which satisfies M-1-d >= 1, meaning
+            at least one more time point exists. The boundary time t=M-1 is unreachable
+            from t=0 via a chain of length d when M >= d+2.
+
         Args:
             world: World ID (z3.IntSort) - kept for API compatibility, not used for scope
             time_var: Time variable (z3.IntSort) to quantify over
@@ -783,15 +804,29 @@ class BimodalSemantics(SemanticDefaults):
 
     def is_valid_time(self, given_time, offset=0):
         """Check if a time point exists in the expanded time domain.
-        
+
         Modified to support an expanded time domain that includes negative values.
-        
+
+        Domain Structure:
+            The time domain is the open integer interval (-M, M), giving the 2*M-1
+            integer time points: {-(M-1), -(M-2), ..., -1, 0, 1, ..., M-2, M-1}.
+            Evaluation is always fixed at t=0 (the main_time constraint).
+
+            Boundary safety: For a formula of temporal depth d, M >= d+2 ensures
+            that genuine (non-vacuous) evaluation can occur from t=0 along a
+            depth-d chain. With M >= d+2, a chain of d future steps from t=0
+            reaches at most t=d, which satisfies M-1-d >= 1 (the point t=d is
+            not the last time point, so further evaluation is non-vacuous).
+
+            Equivalently, M >= d+2 ensures d+1 future time points exist from t=0:
+            {1, 2, ..., d+1}, all within the domain (-M, M).
+
         Args:
-            time: The time point to check
-            offset: Optional offset to add to the bounds
-            
+            given_time: The time point to check (Z3 Int expression)
+            offset: Optional offset to add to the bounds (used for shifted checks)
+
         Returns:
-            Z3 formula that is true if the time point exists
+            Z3 formula that is true if the time point exists in (-M+offset, M+offset)
         """
         # Allow times in the range (-M, M)
         return z3.And(given_time > -self.M + offset, given_time < self.M + offset)
