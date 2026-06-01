@@ -1,0 +1,53 @@
+name: Differential Oracle Tests
+
+on:
+  push:
+    paths:
+      - 'code/src/bimodal_logic/**'
+      - 'code/src/model_checker/theory_lib/bimodal/**'
+  pull_request:
+    paths:
+      - 'code/src/bimodal_logic/**'
+      - 'code/src/model_checker/theory_lib/bimodal/**'
+
+jobs:
+  differential-tests:
+    name: Cross-Oracle Differential Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install bimodal-logic package with dependencies
+        run: pip install -e code/
+
+      - name: Run differential tests (non-slow, no BimodalHarness)
+        run: |
+          PYTHONPATH=code/src pytest \
+            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py \
+            -v \
+            -m "not slow and not differential" \
+            --timeout=300
+        env:
+          PYTHONPATH: code/src
+
+      - name: Run CI gate tests explicitly
+        run: |
+          PYTHONPATH=code/src pytest \
+            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestCIGate \
+            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestFormulaEnumerator \
+            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestDifferentialInfrastructure \
+            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestKnownFormulaBaseline \
+            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestDifferentialComparison \
+            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestDifferentialReport \
+            -v \
+            --timeout=300
+        env:
+          PYTHONPATH: code/src
