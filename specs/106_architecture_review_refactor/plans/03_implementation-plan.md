@@ -67,23 +67,23 @@ ROADMAP.md exists but contains no items relevant to this task. No roadmap alignm
 
 Phases within the same wave can execute in parallel.
 
-### Phase 1: Synthesize Research into Architectural Decision Record [NOT STARTED]
+### Phase 1: Synthesize Research into Architectural Decision Record [COMPLETED]
 
 **Goal**: Produce a single architectural decision record (ADR) that captures the converged design decisions from all three research reports, serving as the authoritative reference for task description rewrites.
 
 **Tasks**:
-- [ ] Create `specs/106_architecture_review_refactor/reports/04_architectural-decisions.md`
-- [ ] Document Decision 1: Three-repo architecture (BimodalLogic = specification, ModelChecker = pure Python Z3 oracle, BimodalHarness = soundness bridge)
-- [ ] Document Decision 2: Zero code-level dependency between ModelChecker and BimodalLogic (JSON schema contracts only)
-- [ ] Document Decision 3: Two-layer package structure (thin OracleProvider skin over preserved Z3 core, no intermediate representation objects)
-- [ ] Document Decision 4: Preserve full bimodal test suite and examples.py as correctness gate
-- [ ] Document Decision 5: Boundary buffer via dynamic M = max(temporal_depth(formula) + 2, 3)
-- [ ] Document Decision 6: Ternary task_relation serialization (source, duration, target)
-- [ ] Document Decision 7: Empirical soundness first (Tier 1 testing), formal proofs later (Tier 2-3)
-- [ ] Document Decision 8: Sentence.from_prefix() as surgical addition (not parser rewrite)
-- [ ] Document Decision 9: Fresh BimodalSemantics instance per find_countermodel() call for Z3 isolation
-- [ ] Include the pipeline diagram from Report 03 Section 3
-- [ ] Include the keep/drop/fix inventory from Report 03 Section 2
+- [x] Create `specs/106_architecture_review_refactor/reports/04_architectural-decisions.md`
+- [x] Document Decision 1: Three-repo architecture (BimodalLogic = specification, ModelChecker = pure Python Z3 oracle, BimodalHarness = soundness bridge)
+- [x] Document Decision 2: Zero code-level dependency between ModelChecker and BimodalLogic (JSON schema contracts only)
+- [x] Document Decision 3: Two-layer package structure (thin OracleProvider skin over preserved Z3 core, no intermediate representation objects)
+- [x] Document Decision 4: Preserve full bimodal test suite and examples.py as correctness gate
+- [x] Document Decision 5: Boundary buffer via dynamic M = max(temporal_depth(formula) + 2, 3)
+- [x] Document Decision 6: Ternary task_relation serialization (source, duration, target)
+- [x] Document Decision 7: Empirical soundness first (Tier 1 testing), formal proofs later (Tier 2-3)
+- [x] Document Decision 8: Sentence.from_prefix() as surgical addition (not parser rewrite)
+- [x] Document Decision 9: Fresh BimodalSemantics instance per find_countermodel() call for Z3 isolation
+- [x] Include the pipeline diagram from Report 03 Section 3
+- [x] Include the keep/drop/fix inventory from Report 03 Section 2
 
 **Timing**: 45 minutes
 
