@@ -199,17 +199,17 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 5: Clean Test Files [NOT STARTED]
+### Phase 5: Clean Test Files [COMPLETED]
 
 **Goal**: Remove or rewrite test files that reference logos, iterate, jupyter, or other deleted modules.
 
 **Tasks**:
-- [ ] **Delete entirely** (logos-specific test files in code/tests/):
+- [x] **Delete entirely** (logos-specific test files in code/tests/):
   - `code/tests/unit/theory_lib/logos/` (entire directory tree including subtheories/)
   - `code/tests/unit/test_first_order_propositions.py`
   - `code/tests/integration/test_cli_subtheory.py`
   - `code/tests/fixtures/example_data.py`
-- [ ] **Modify** (strip logos references, keep bimodal):
+- [x] **Modify** (strip logos references, keep bimodal):
   - `code/tests/conftest.py` - Remove logos imports (lines 140-143); update to use bimodal as default theory
   - `code/tests/integration/test_error_handling.py` - Remove logos imports and tests
   - `code/tests/integration/test_performance.py` - Remove logos imports and tests
@@ -218,13 +218,13 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
   - `code/tests/e2e/test_project_creation.py` - Remove logos from theory list (line 118)
   - `code/tests/utils/helpers.py` - Change logos defaults to bimodal
   - `code/tests/utils/base.py` - Change logos defaults to bimodal
-- [ ] **Delete or rewrite** (builder test files):
+- [x] **Delete or rewrite** (builder test files):
   - `code/src/model_checker/builder/tests/conftest.py` - Remove logos imports (lines 67-70), use bimodal
   - `code/src/model_checker/builder/tests/e2e/test_full_pipeline.py` - Remove logos imports
   - `code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py` - Change `BuildProject('logos')` to `BuildProject('bimodal')`
   - `code/src/model_checker/builder/tests/fixtures/temp_resources.py` - Remove logos imports
   - `code/src/model_checker/builder/tests/fixtures/test_data.py` - Remove logos imports
-  - `code/src/model_checker/builder/tests/integration/test_build_module_theories.py` - Rewrite for bimodal or delete
+  - `code/src/model_checker/builder/tests/integration/test_build_module_theories.py` - Rewrite for bimodal
   - `code/src/model_checker/builder/tests/integration/test_component_integration.py` - Remove logos references
   - `code/src/model_checker/builder/tests/integration/test_generated_projects.py` - Remove logos project tests
   - `code/src/model_checker/builder/tests/integration/test_package_imports.py` - Remove logos import tests

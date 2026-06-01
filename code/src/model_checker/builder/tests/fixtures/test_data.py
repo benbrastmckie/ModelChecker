@@ -153,7 +153,7 @@ class TestModules:
     """Standard module content for file-based testing."""
     
     MINIMAL_CONTENT = '''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -162,7 +162,7 @@ general_settings = {}
 '''
     
     WITH_EXAMPLES = '''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -191,7 +191,7 @@ example_range = {"TEST": [["A"], ["B"], {"N": 2}]}
 '''
 
     REALISTIC_MODULE_CONTENT = '''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Realistic": theory}
@@ -203,7 +203,7 @@ general_settings = {"save_output": False}
 '''
 
     OUTPUT_ENABLED_MODULE_CONTENT = '''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {
@@ -226,7 +226,7 @@ general_settings = {
 
     # Additional module contents for component integration tests
     LOGOS_CONTENT = '''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {
@@ -269,14 +269,14 @@ general_settings = {
 '''
 
     MULTI_THEORY_CONTENT = '''
-from model_checker.theory_lib.logos import get_theory as get_logos_theory
+from model_checker.theory_lib.bimodal import get_theory as get_bimodal_theory
 from model_checker.theory_lib.bimodal import get_theory as get_bimodal_theory
 
-logos_theory = get_logos_theory(['extensional'])
+bimodal_theory = get_bimodal_theory(['extensional'])
 bimodal_theory = get_bimodal_theory()
 
 semantic_theories = {
-    "Logos": logos_theory,
+    "Bimodal": bimodal_theory,
     "Bimodal": bimodal_theory
 }
 
@@ -294,7 +294,7 @@ general_settings = {
 '''
 
     COMPLETE_MODULE_CONTENT = '''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Complete": theory}

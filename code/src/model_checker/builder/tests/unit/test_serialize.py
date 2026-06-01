@@ -24,7 +24,7 @@ from model_checker.builder.serialize import (
     import_class
 )
 from model_checker.syntactic import OperatorCollection
-from model_checker.theory_lib.logos.semantic import LogosSemantics
+from model_checker.theory_lib.bimodal import BimodalSemantics
 
 
 class TestSerializationCore(unittest.TestCase):
@@ -240,10 +240,10 @@ class TestImportUtility(unittest.TestCase):
     def test_import_class_imports_valid_classes_successfully(self):
         """Test import_class imports valid classes from known modules."""
         # Test with known class
-        cls = import_class("model_checker.theory_lib.logos.semantic", "LogosSemantics")
-        
-        self.assertEqual(cls, LogosSemantics,
-                        "Should import LogosSemantics correctly")
+        cls = import_class("model_checker.theory_lib.bimodal.semantic", "BimodalSemantics")
+
+        self.assertEqual(cls, BimodalSemantics,
+                        "Should import BimodalSemantics correctly")
     
     def test_import_class_raises_error_for_nonexistent_module(self):
         """Test import_class raises ImportError for nonexistent modules."""
@@ -280,30 +280,28 @@ class TestImportUtility(unittest.TestCase):
 class TestRealTheoryIntegration(unittest.TestCase):
     """Test serialization with real theory components."""
     
-    def test_serialize_real_logos_theory_preserves_structure(self):
-        """Test serialization with real Logos theory preserves all components."""
-        import model_checker.theory_lib.logos as logos
-        real_theory = logos.get_theory(['extensional'])
-        
+    def test_serialize_real_bimodal_theory_preserves_structure(self):
+        """Test serialization with real Bimodal theory preserves all components."""
+        import model_checker.theory_lib.bimodal as bimodal
+        real_theory = bimodal.get_theory()
+
         result = assert_no_exceptions_during_execution(
             self,
-            lambda: serialize_semantic_theory("Logos", real_theory),
-            operation_name="Real Logos theory serialization"
+            lambda: serialize_semantic_theory("Bimodal", real_theory),
+            operation_name="Real Bimodal theory serialization"
         )
-        
+
         # Verify theory structure
-        self.assertEqual(result["theory_name"], "Logos",
+        self.assertEqual(result["theory_name"], "Bimodal",
                         "Theory name should be preserved")
-        self.assertEqual(result["semantics"]["class_name"], "LogosSemantics",
-                        "Should preserve LogosSemantics class name")
-        self.assertIn("model_checker.theory_lib.logos", result["semantics"]["module_name"],
+        self.assertEqual(result["semantics"]["class_name"], "BimodalSemantics",
+                        "Should preserve BimodalSemantics class name")
+        self.assertIn("model_checker.theory_lib.bimodal", result["semantics"]["module_name"],
                      "Should preserve module path information")
-        
+
         # Verify operators are serialized
         self.assertIsInstance(result["operators"], dict,
                             "Operators should be serialized as dictionary")
-        self.assertIn("\\neg", result["operators"],
-                     "Should contain negation operator from extensional theory")
 
 
 class TestSerializationErrorHandling(unittest.TestCase):

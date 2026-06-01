@@ -59,7 +59,7 @@ class TestFullPipeline(unittest.TestCase):
         # to avoid timeouts while still testing the discover_theory_module path
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
             f.write('''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -93,7 +93,7 @@ general_settings = {}
         # Create a simple test module
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
             f.write('''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}

@@ -94,7 +94,7 @@ def create_test_module(content: str, tmp_path: Path,
     return str(module_file)
 
 
-def capture_model_output(example_data: List, theory_name: str = 'logos',
+def capture_model_output(example_data: List, theory_name: str = 'bimodal',
                         settings: Optional[Dict[str, Any]] = None) -> str:
     """Capture model checking output for testing.
     
@@ -243,7 +243,7 @@ def compare_outputs(output1: str, output2: str,
 def create_test_model(settings: Optional[Dict[str, Any]] = None,
                      premises: Optional[List[str]] = None,
                      conclusions: Optional[List[str]] = None,
-                     theory_name: str = 'logos'):
+                     theory_name: str = 'bimodal'):
     """Create a test model with proper API usage.
 
     This helper function creates a ModelDefaults instance using the correct
@@ -262,10 +262,10 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
     from model_checker.syntactic import Syntax
     from model_checker.models import ModelDefaults
     from model_checker.models.constraints import ModelConstraints
-    from model_checker.theory_lib import logos
+    from model_checker.theory_lib import bimodal
 
     # Get theory components
-    theory = logos.get_theory()
+    theory = bimodal.get_theory()
     semantics_class = theory['semantics']
     proposition_class = theory['proposition']
     operators = theory['operators']
@@ -298,7 +298,7 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
 
 
 def create_temp_project(tmp_path: Path, project_name: str = 'test_project',
-                       theory_name: str = 'logos') -> Path:
+                       theory_name: str = 'bimodal') -> Path:
     """Create a temporary ModelChecker project for testing.
 
     Args:

@@ -52,8 +52,8 @@ class TestTimeoutHandling:
         
         # Create a module that would take long to process
         content = '''
-from model_checker.theory_lib import logos
-theory = logos.get_theory()
+from model_checker.theory_lib import bimodal
+theory = bimodal.get_theory()
 semantic_theories = {"test": theory}
 
 # Complex example that might take time
@@ -295,8 +295,8 @@ class TestResourceRecovery:
         # Create and process multiple files
         for i in range(5):
             content = f'''
-from model_checker.theory_lib import logos
-theory = logos.get_theory()
+from model_checker.theory_lib import bimodal
+theory = bimodal.get_theory()
 semantic_theories = {{"test_{i}": theory}}
 example_range = {{"TEST": [[], ["A"], {{"N": 2}}]}}
 '''

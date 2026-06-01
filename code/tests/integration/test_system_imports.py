@@ -25,10 +25,9 @@ class TestImportStructure:
         
     def test_theory_imports(self):
         """Test theory library imports."""
-        from model_checker.theory_lib import logos, bimodal
+        from model_checker.theory_lib import bimodal
 
-        # All theories should be importable
-        assert logos is not None
+        # Bimodal theory should be importable
         assert bimodal is not None
         
     def test_utils_api_imports(self):

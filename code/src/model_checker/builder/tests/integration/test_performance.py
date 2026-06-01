@@ -44,7 +44,7 @@ class TestBuilderPerformance(unittest.TestCase):
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -81,7 +81,7 @@ general_settings = {}
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -118,7 +118,7 @@ general_settings = {}
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -159,7 +159,7 @@ general_settings = {}
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -208,7 +208,7 @@ general_settings = {}
         """
         # Arrange
         test_file = self._create_test_file("""
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory1 = get_theory(['extensional'])
 theory2 = get_theory(['counterfactual'])
@@ -309,7 +309,7 @@ general_settings = {}
         
         for formula_count, example in test_cases:
             test_file = self._create_test_file(f"""
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {{"Test": theory}}

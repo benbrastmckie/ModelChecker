@@ -44,8 +44,8 @@ class TestCLIErrorHandling:
         """Test handling of module missing required attributes."""
         incomplete_content = '''
 # Missing semantic_theories and example_range
-from model_checker.theory_lib import logos
-theory = logos.get_theory()
+from model_checker.theory_lib import bimodal
+theory = bimodal.get_theory()
 '''
         incomplete_module = create_test_module(incomplete_content, tmp_path, 'incomplete.py')
         
@@ -78,10 +78,10 @@ class TestFrameworkErrorHandling:
     def test_invalid_formula_unicode(self):
         """Test invalid formula with Unicode characters."""
         from model_checker.syntactic import Syntax
-        from model_checker.theory_lib import logos
+        from model_checker.theory_lib import bimodal
 
         # Get a valid operator collection for testing
-        theory = logos.get_theory()
+        theory = bimodal.get_theory()
         operators = theory['operators']
 
         # Unicode formulas should be rejected
@@ -104,10 +104,10 @@ class TestFrameworkErrorHandling:
     def test_malformed_formula_structure(self):
         """Test handling of structurally invalid formulas."""
         from model_checker.syntactic import Syntax
-        from model_checker.theory_lib import logos
+        from model_checker.theory_lib import bimodal
 
         # Get a valid operator collection for testing
-        theory = logos.get_theory()
+        theory = bimodal.get_theory()
         operators = theory['operators']
 
         malformed_formulas = [
@@ -159,8 +159,8 @@ class TestErrorRecovery:
         """Test that partial results are preserved on error."""
         # Create module that will partially succeed
         content = '''
-from model_checker.theory_lib import logos
-theory = logos.get_theory()
+from model_checker.theory_lib import bimodal
+theory = bimodal.get_theory()
 semantic_theories = {"test": theory}
 
 # First example should work
@@ -252,10 +252,10 @@ class TestEdgeCases:
     def test_very_long_formulas(self):
         """Test handling of very long formulas."""
         from model_checker.syntactic import Syntax
-        from model_checker.theory_lib import logos
+        from model_checker.theory_lib import bimodal
 
         # Get a valid operator collection for testing
-        theory = logos.get_theory()
+        theory = bimodal.get_theory()
         operators = theory['operators']
 
         # Build a very deeply nested formula
@@ -283,8 +283,8 @@ class TestEdgeCases:
         
         for name in special_names:
             content = '''
-from model_checker.theory_lib import logos
-theory = logos.get_theory()
+from model_checker.theory_lib import bimodal
+theory = bimodal.get_theory()
 semantic_theories = {"test": theory}
 example_range = {"TEST": [[], ["A"], {"N": 2}]}
 '''

@@ -1,4 +1,4 @@
-"""Tests for the BuildModule class with focus on logos and bimodal theories."""
+"""Tests for the BuildModule class with focus on bimodal theory."""
 
 import unittest
 import tempfile
@@ -12,7 +12,7 @@ from model_checker.builder.runner import ModelRunner
 
 
 class TestBuildModule(unittest.TestCase):
-    """Test the BuildModule class focusing on logos and bimodal theory integration."""
+    """Test the BuildModule class focusing on bimodal theory."""
     
     def setUp(self):
         """Set up test fixtures."""
@@ -35,35 +35,9 @@ class TestBuildModule(unittest.TestCase):
         # Create a basic example module file
         self.create_test_module_file()
     
-    def create_test_module_file(self, theory_type="logos"):
+    def create_test_module_file(self, theory_type="bimodal"):
         """Create a test module file for testing."""
-        if theory_type == "logos":
-            module_content = '''
-from model_checker.theory_lib import logos
-
-# Get logos theory components
-theory = logos.get_theory(['extensional'])
-
-semantic_theories = {
-    "Logos": theory
-}
-
-example_range = {
-    "LOGOS_TEST_1": [
-        [],  # premises
-        ["p"],  # conclusions
-        {"N": 2, "max_time": 1, "expectation": False}  # settings
-    ]
-}
-
-general_settings = {
-    "print_constraints": False,
-    "print_z3": False,
-    "save_output": False,
-}
-'''
-        elif theory_type == "bimodal":
-            module_content = '''
+        module_content = '''
 from model_checker.theory_lib import bimodal
 
 theory = bimodal.get_theory()
@@ -86,32 +60,29 @@ general_settings = {
     "save_output": False,
 }
 '''
-        
         with open(self.mock_flags.file_path, 'w') as f:
             f.write(module_content)
     
-    def test_module_initialization_logos(self):
-        """Test that BuildModule initializes properly with logos theory."""
-        self.create_test_module_file("logos")
-        
+    def test_module_initialization_bimodal_basic(self):
+        """Test that BuildModule initializes properly with bimodal theory."""
         build_module = BuildModule(self.mock_flags)
-        
+
         # Test basic initialization
         self.assertIsNotNone(build_module.module)
         self.assertIsNotNone(build_module.semantic_theories)
         self.assertIsNotNone(build_module.example_range)
         self.assertIsNotNone(build_module.general_settings)
-        
-        # Test logos-specific attributes
-        self.assertIn("Logos", build_module.semantic_theories)
-        self.assertIn("LOGOS_TEST_1", build_module.example_range)
-        
-        # Test that logos theory components are loaded
-        logos_theory = build_module.semantic_theories["Logos"]
-        self.assertIn("semantics", logos_theory)
-        self.assertIn("operators", logos_theory)
-        self.assertIn("model", logos_theory)
-        self.assertIn("proposition", logos_theory)
+
+        # Test bimodal attributes
+        self.assertIn("Bimodal", build_module.semantic_theories)
+        self.assertIn("BIMODAL_TEST_1", build_module.example_range)
+
+        # Test that bimodal theory components are loaded
+        bimodal_theory = build_module.semantic_theories["Bimodal"]
+        self.assertIn("semantics", bimodal_theory)
+        self.assertIn("operators", bimodal_theory)
+        self.assertIn("model", bimodal_theory)
+        self.assertIn("proposition", bimodal_theory)
     
     def test_module_initialization_bimodal(self):
         """Test that BuildModule initializes properly with bimodal theory."""
@@ -152,14 +123,14 @@ general_settings = {}
         self.assertIn("semantic_theories", str(context.exception))
     
     def test_translate_example_method(self):
-        """Test the translate_example method works with logos/bimodal."""
-        self.create_test_module_file("logos")
+        """Test the translate_example method works with bimodal."""
+        self.create_test_module_file("bimodal")
         build_module = BuildModule(self.mock_flags)
         
         # Test example case
         example_case = [[], ["p"], {"N": 2}]
         
-        # Test translation (logos doesn't have translation dict by default)
+        # Test translation (bimodal doesn't have translation dict by default)
         # translate_example is now a module method that handles translation internally
         # We'll test the translation component directly instead
         result = []
@@ -182,7 +153,7 @@ general_settings = {}
     
     def test_translate_method(self):
         """Test the translate method for operator substitution."""
-        self.create_test_module_file("logos")
+        self.create_test_module_file("bimodal")
         build_module = BuildModule(self.mock_flags)
         
         # Test case with operator to be translated
@@ -201,27 +172,6 @@ general_settings = {}
         self.assertEqual(result[0], ["p \\land q"])  # premises should be translated
         self.assertEqual(result[1], ["p"])  # conclusions unchanged
         self.assertEqual(result[2], {"N": 2})  # settings unchanged
-    
-    @patch('model_checker.builder.example.BuildExample')
-    def test_run_model_check_logos(self, mock_build_example):
-        """Test run_model_check method with logos theory."""
-        self.create_test_module_file("logos")
-        build_module = BuildModule(self.mock_flags)
-        
-        # Mock BuildExample
-        mock_example = Mock()
-        mock_build_example.return_value = mock_example
-        
-        example_case = [[], ["p"], {"N": 2, "max_time": 1}]
-        example_name = "test_example"
-        theory_name = "Logos"
-        semantic_theory = build_module.semantic_theories[theory_name]
-        
-        result = build_module.runner.run_model_check(example_case, example_name, theory_name, semantic_theory)
-        
-        # Verify BuildExample was called
-        mock_build_example.assert_called_once()
-        self.assertEqual(result, mock_example)
     
     @patch('model_checker.builder.example.BuildExample')
     def test_run_model_check_bimodal(self, mock_build_example):
@@ -252,7 +202,7 @@ general_settings = {}
         mock_flags.print_constraints = True
         mock_flags.print_z3 = True
         
-        self.create_test_module_file("logos")
+        self.create_test_module_file("bimodal")
         build_module = BuildModule(mock_flags)
         
         # Test that flags overrode the module settings
@@ -261,7 +211,7 @@ general_settings = {}
     
     def test_process_example_error_handling(self):
         """Test error handling in process_example method."""
-        self.create_test_module_file("logos")
+        self.create_test_module_file("bimodal")
         build_module = BuildModule(self.mock_flags)
         
         # Test with malformed example case
@@ -270,7 +220,7 @@ general_settings = {}
             
             example_case = [[], ["p"], {"N": 2, "max_time": 1}]
             example_name = "test_example"
-            theory_name = "Logos"
+            theory_name = "Bimodal"
             semantic_theory = build_module.semantic_theories[theory_name]
             
             # Should handle the error gracefully
@@ -288,10 +238,10 @@ general_settings = {}
         config_file = os.path.join(project_dir, "config.py")
         with open(config_file, 'w') as f:
             f.write("""
-from model_checker.theory_lib import logos
+from model_checker.theory_lib import bimodal
 
 # Configuration for generated project
-theory = logos.get_theory(['extensional'])
+theory = bimodal.get_theory()
 """)
         
         # Create examples directory as additional marker
@@ -300,7 +250,7 @@ theory = logos.get_theory(['extensional'])
         self.mock_flags.file_path = os.path.join(project_dir, "examples.py")
         
         # Create test content
-        self.create_test_module_file("logos")
+        self.create_test_module_file("bimodal")
         
         build_module = BuildModule(self.mock_flags)
         
@@ -326,7 +276,7 @@ theory = logos.get_theory(['extensional'])
             f.write("# Package init")
         
         self.mock_flags.file_path = os.path.join(package_dir, "examples.py")
-        self.create_test_module_file("logos")
+        self.create_test_module_file("bimodal")
         
         build_module = BuildModule(self.mock_flags)
         
@@ -335,75 +285,13 @@ theory = logos.get_theory(['extensional'])
 
 
 class TestBuildModuleIntegration(unittest.TestCase):
-    """Integration tests for BuildModule with real logos and bimodal theories."""
+    """Integration tests for BuildModule with real bimodal theory."""
     
     def setUp(self):
         """Set up integration test fixtures."""
         self.temp_dir = tempfile.mkdtemp()
         self.addCleanup(lambda: __import__('shutil').rmtree(self.temp_dir))
     
-    def test_logos_theory_integration(self):
-        """Test integration with real logos theory."""
-        # Create a minimal logos example module
-        module_content = '''
-try:
-    from model_checker.theory_lib import logos
-    
-    # Get logos theory with extensional operators
-    theory = logos.get_theory(['extensional'])
-    
-    semantic_theories = {
-        "Logos": theory
-    }
-    
-    example_range = {
-        "LOGOS_INTEGRATION_TEST": [
-            [],  # premises
-            ["p"],  # conclusions
-            {"N": 2, "max_time": 1, "expectation": False}  # settings
-        ]
-    }
-    
-    general_settings = {
-        "print_constraints": False,
-        "print_z3": False,
-        "save_output": False,
-    }
-except ImportError:
-    # Fallback for test environments where logos might not be available
-    semantic_theories = {}
-    example_range = {}
-    general_settings = {}
-'''
-        
-        module_path = os.path.join(self.temp_dir, "logos_test.py")
-        with open(module_path, 'w') as f:
-            f.write(module_content)
-        
-        # Create mock flags
-        mock_flags = Mock()
-        mock_flags.file_path = module_path
-        mock_flags.print_constraints = False
-        mock_flags.print_z3 = False
-        mock_flags.save_output = False
-        mock_flags.output = None
-        mock_flags._parsed_args = []
-        mock_flags.save = None  # No saving requested
-        
-        try:
-            build_module = BuildModule(mock_flags)
-            
-            if build_module.semantic_theories:  # Only test if logos is available
-                self.assertIn("Logos", build_module.semantic_theories)
-                self.assertIn("LOGOS_INTEGRATION_TEST", build_module.example_range)
-                
-                # Test that we can access theory components
-                logos_theory = build_module.semantic_theories["Logos"]
-                self.assertIn("semantics", logos_theory)
-                self.assertIn("operators", logos_theory)
-        except (ImportError, AttributeError):
-            # Skip test if logos theory is not available in test environment
-            self.skipTest("Logos theory not available in test environment")
     
     def test_bimodal_theory_integration(self):
         """Test integration with real bimodal theory."""

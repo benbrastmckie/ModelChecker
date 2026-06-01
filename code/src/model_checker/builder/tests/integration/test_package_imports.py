@@ -60,7 +60,7 @@ class TestPackageImports(unittest.TestCase):
         os.chdir(self.temp_dir)
         
         # Generate a project with enhanced implementation
-        project = BuildProject('logos')
+        project = BuildProject('bimodal')
         project_dir = project.generate('test_imports')
         
         # Create a test file with relative imports
@@ -76,7 +76,7 @@ class TestPackageImports(unittest.TestCase):
             # If we get here, the import worked
             self.assertIsNotNone(module)
         except ImportError as e:
-            # This might still fail if semantic.py doesn't exist in logos theory
+            # This might still fail if semantic.py doesn't exist in bimodal theory
             # which is expected - just verify it's not a relative import error
             error_msg = str(e).lower()
             self.assertNotIn('relative import', error_msg)
@@ -86,7 +86,7 @@ class TestPackageImports(unittest.TestCase):
         os.chdir(self.temp_dir)
         
         # Generate project with enhanced implementation
-        project = BuildProject('logos')
+        project = BuildProject('bimodal')
         project_dir = project.generate('test_marker')
         
         # Check marker file now exists
@@ -96,7 +96,7 @@ class TestPackageImports(unittest.TestCase):
         # Verify content
         with open(marker_path, 'r') as f:
             content = f.read()
-            self.assertIn('theory=logos', content)
+            self.assertIn('theory=bimodal', content)
             self.assertIn('package=true', content)
 
 

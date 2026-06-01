@@ -121,15 +121,13 @@ class TestModuleTheoryIntegration(unittest.TestCase):
     
     def test_module_loads_multiple_theories_correctly(self):
         """Test module loading integrates correctly with multiple theories."""
-        # Create module with multiple theories
+        # Create module with bimodal theory
         multi_theory_content = '''
-from model_checker.theory_lib import logos, bimodal
+from model_checker.theory_lib import bimodal
 
-theory_logos = logos.get_theory(['extensional'])
 theory_bimodal = bimodal.get_theory()
 
 semantic_theories = {
-    "Logos": theory_logos,
     "Bimodal": theory_bimodal
 }
 

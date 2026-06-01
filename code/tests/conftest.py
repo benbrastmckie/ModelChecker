@@ -137,10 +137,10 @@ def test_module_content():
         str: Valid Python module content for testing
     """
     return '''
-from model_checker.theory_lib import logos
+from model_checker.theory_lib import bimodal
 
 # Get theory
-theory = logos.get_theory(['extensional'])
+theory = bimodal.get_theory()
 
 # Required attributes
 semantic_theories = {

@@ -281,10 +281,10 @@ class TestCachingPerformance:
     def test_repeated_operations(self):
         """Test repeated operations benefit from caching."""
         from model_checker.syntactic import Syntax
-        from model_checker.theory_lib import logos
+        from model_checker.theory_lib import bimodal
 
         # Get a valid operator collection for testing
-        theory = logos.get_theory()
+        theory = bimodal.get_theory()
         operators = theory['operators']
         formula = "(A[] \\wedge B[]) \\vee (C[] \\wedge D[])"
 
@@ -309,12 +309,12 @@ class TestCachingPerformance:
         
         # First load
         start = time.time()
-        theory1 = get_theory('logos')
+        theory1 = get_theory('bimodal')
         first_time = time.time() - start
         
         # Second load
         start = time.time()
-        theory2 = get_theory('logos')
+        theory2 = get_theory('bimodal')
         second_time = time.time() - start
         
         # Should be same or faster (cached)
@@ -350,10 +350,10 @@ class TestWorstCasePerformance:
     def test_many_propositions_performance(self):
         """Test performance with many propositions."""
         from model_checker.syntactic import Syntax
-        from model_checker.theory_lib import logos
+        from model_checker.theory_lib import bimodal
 
         # Get a valid operator collection for testing
-        theory = logos.get_theory()
+        theory = bimodal.get_theory()
         operators = theory['operators']
 
         # Create formula with many propositions (using proper syntax)

@@ -64,10 +64,10 @@ def temp_module_file(tmp_path):
         Path: Path to the created module file
     """
     module_content = '''
-from model_checker.theory_lib import logos
+from model_checker.theory_lib import bimodal
 
 # Get theory with minimal setup
-theory = logos.get_theory(['extensional'])
+theory = bimodal.get_theory()
 
 # Required attributes
 semantic_theories = {

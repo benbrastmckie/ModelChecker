@@ -52,7 +52,7 @@ class TestProjectGenerationEdgeCases(unittest.TestCase):
         
         for project_name in special_character_names:
             with self.subTest(project_name=project_name):
-                project_generator = BuildProject('logos')
+                project_generator = BuildProject('bimodal')
                 
                 project_dir = assert_no_exceptions_during_execution(
                     self,
@@ -81,7 +81,7 @@ class TestProjectGenerationEdgeCases(unittest.TestCase):
         os.makedirs(space_directory, exist_ok=True)
         os.chdir(space_directory)
         
-        project_generator = BuildProject('logos')
+        project_generator = BuildProject('bimodal')
         project_name = 'space_path_test'
         
         project_dir = assert_no_exceptions_during_execution(
@@ -112,7 +112,7 @@ class TestProjectGenerationEdgeCases(unittest.TestCase):
         created_projects = []
         
         for project_name in project_names:
-            project_generator = BuildProject('logos')
+            project_generator = BuildProject('bimodal')
             
             project_dir = assert_no_exceptions_during_execution(
                 self,
@@ -264,12 +264,12 @@ class TestSystemPathIsolationBehavior(unittest.TestCase):
         os.chdir(self.test_dir)
         
         # Create first project and capture sys.path state
-        project1 = BuildProject('logos')
+        project1 = BuildProject('bimodal')
         project_dir1 = project1.generate('isolation_test_1')
         path_after_project1 = sys.path.copy()
         
         # Create second project and capture sys.path state
-        project2 = BuildProject('logos')  
+        project2 = BuildProject('bimodal')  
         project_dir2 = project2.generate('isolation_test_2')
         path_after_project2 = sys.path.copy()
         
@@ -323,7 +323,7 @@ class TestPerformanceAndScalabilityScenarios(unittest.TestCase):
         
         created_projects = []
         for project_name in project_names:
-            project_generator = BuildProject('logos')
+            project_generator = BuildProject('bimodal')
             
             project_dir = assert_no_exceptions_during_execution(
                 self,
@@ -363,7 +363,7 @@ class TestPerformanceAndScalabilityScenarios(unittest.TestCase):
             
             start_time = time.time()
             
-            project_generator = BuildProject('logos')
+            project_generator = BuildProject('bimodal')
             project_dir = project_generator.generate(f'{project_name}_{iteration}')
             
             end_time = time.time()
@@ -410,7 +410,7 @@ class TestCompleteUserWorkflowSimulation(unittest.TestCase):
         
         # Step 1: Simulate initial CLI invocation (project creation)
         project_name = 'cli_workflow_simulation'
-        project_generator = BuildProject('logos')
+        project_generator = BuildProject('bimodal')
         
         project_dir = assert_no_exceptions_during_execution(
             self,

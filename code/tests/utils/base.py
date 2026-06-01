@@ -22,7 +22,7 @@ class BaseTheoryTest(ABC):
         """Return theory name to test.
         
         Returns:
-            str: Name of the theory (e.g., 'logos', 'exclusion')
+            str: Name of the theory (e.g., 'bimodal')
         """
         pass
     
@@ -211,7 +211,7 @@ class BaseExampleTest:
         from tests.utils.assertions import assert_example_structure
         assert_example_structure(example)
     
-    def run_example(self, example: List, theory_name: str = 'logos'):
+    def run_example(self, example: List, theory_name: str = 'bimodal'):
         """Run an example through model checking.
         
         Args:
@@ -233,7 +233,7 @@ class BaseIntegrationTest:
     
     def create_test_project(self, tmp_path: Path, 
                           project_name: str = 'test_project',
-                          theory_name: str = 'logos') -> Path:
+                          theory_name: str = 'bimodal') -> Path:
         """Create a test project.
         
         Args:

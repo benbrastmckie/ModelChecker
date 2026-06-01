@@ -104,7 +104,7 @@ def create_temp_module_file(content: Optional[str] = None,
     """
     if content is None:
         content = '''
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}

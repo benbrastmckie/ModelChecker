@@ -33,7 +33,7 @@ class TestBuildExampleBasic(unittest.TestCase):
     def _create_test_module(self):
         """Create a simple test module file."""
         content = """
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -150,7 +150,7 @@ general_settings = {}
         """Test BuildExample when no model is found."""
         # Create a module with unsatisfiable example
         content = """
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
@@ -193,7 +193,7 @@ general_settings = {}
         """Test BuildExample in comparison mode."""
         # Create a module with multiple theories
         content = """
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory1 = get_theory(['extensional'])
 theory2 = get_theory(['modal'])
@@ -297,7 +297,7 @@ class TestBuildExampleIntegration(unittest.TestCase):
     def test_logos_extensional_theory(self):
         """Test BuildExample with logos extensional theory."""
         content = """
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Extensional": theory}
@@ -336,7 +336,7 @@ general_settings = {}
     def test_find_next_model_basic(self):
         """Test find_next_model with a simple example."""
         content = """
-from model_checker.theory_lib.logos import get_theory
+from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}

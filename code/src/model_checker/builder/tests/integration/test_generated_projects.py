@@ -41,13 +41,13 @@ class TestGeneratedProjectImports(unittest.TestCase):
         import shutil
         shutil.rmtree(self.temp_dir, ignore_errors=True)
     
-    def test_logos_project_generation_and_loading(self):
-        """Test generating and verifying a logos-based project structure."""
+    def test_bimodal_project_generation_and_loading(self):
+        """Test generating and verifying a bimodal-based project structure."""
         os.chdir(self.temp_dir)
         
-        # Generate project from logos template
-        project = BuildProject('logos')
-        project_dir = project.generate('test_logos')
+        # Generate project from bimodal template
+        project = BuildProject('bimodal')
+        project_dir = project.generate('test_bimodal')
         
         # Test project structure exists
         examples_path = os.path.join(project_dir, 'examples.py')
@@ -67,8 +67,8 @@ class TestGeneratedProjectImports(unittest.TestCase):
         """Test project structure from generated theory project."""
         os.chdir(self.temp_dir)
         
-        # Generate project from logos template
-        project = BuildProject('logos')
+        # Generate project from bimodal template
+        project = BuildProject('bimodal')
         project_dir = project.generate('test_default')
         
         # Test project structure is created correctly
@@ -89,7 +89,7 @@ class TestGeneratedProjectImports(unittest.TestCase):
         os.chdir(self.temp_dir)
         
         # Create test project
-        project = BuildProject('logos')
+        project = BuildProject('bimodal')
         project_dir = project.generate('detection_test')
         
         # Verify project has expected structure markers
@@ -113,7 +113,7 @@ class TestGeneratedProjectImports(unittest.TestCase):
         os.chdir(self.temp_dir)
         
         # Create test project
-        project = BuildProject('logos')
+        project = BuildProject('bimodal')
         project_dir = project.generate('directory_test')
         
         # Verify we can identify project root by its structure
@@ -133,7 +133,7 @@ class TestGeneratedProjectImports(unittest.TestCase):
         os.chdir(self.temp_dir)
         
         # Generate project
-        project = BuildProject('logos')
+        project = BuildProject('bimodal')
         project_dir = project.generate('path_test')
         
         # Verify project structure that would require sys.path modifications
@@ -154,7 +154,7 @@ class TestGeneratedProjectImports(unittest.TestCase):
     def test_backward_compatibility(self):
         """Test that existing theory_lib functionality still works."""
         # Test loading from theory_lib (non-generated project)
-        theory_lib_path = os.path.join(src_dir, 'model_checker', 'theory_lib', 'logos', 'examples.py')
+        theory_lib_path = os.path.join(src_dir, 'model_checker', 'theory_lib', 'bimodal', 'examples.py')
         
         if os.path.exists(theory_lib_path):
             # Theory library files can be loaded as packages
@@ -218,7 +218,7 @@ class TestProjectStructureFlexibility(unittest.TestCase):
         os.chdir(self.temp_dir)
         
         # Test theories that should exist
-        test_theories = ['logos', 'default']
+        test_theories = ['bimodal']
         theory_lib_dir = os.path.join(src_dir, 'model_checker', 'theory_lib')
         available_theories = [d for d in os.listdir(theory_lib_dir) 
                             if os.path.isdir(os.path.join(theory_lib_dir, d)) 
