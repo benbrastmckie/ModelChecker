@@ -107,14 +107,14 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 2: Remove Bimodal Iterate Dependency [NOT STARTED]
+### Phase 2: Remove Bimodal Iterate Dependency [COMPLETED]
 
 **Goal**: Sever the bimodal package's dependency on the iterate module so that iterate/ can be safely deleted in Phase 3.
 
 **Tasks**:
-- [ ] **theory_lib/bimodal/iterate.py**: Delete this file entirely (per Option A from research -- OracleProvider needs one countermodel, not iteration)
-- [ ] **theory_lib/bimodal/__init__.py**: Remove line 59 (`from .iterate import BimodalModelIterator, iterate_example`) and any other iterate references
-- [ ] **theory_lib/bimodal/tests/integration/test_iterate.py**: Delete this file entirely (3 tests removed)
+- [x] **theory_lib/bimodal/iterate.py**: Delete this file entirely (per Option A from research -- OracleProvider needs one countermodel, not iteration)
+- [x] **theory_lib/bimodal/__init__.py**: Remove line 59 (`from .iterate import BimodalModelIterator, iterate_example`) and any other iterate references
+- [x] **theory_lib/bimodal/tests/integration/test_iterate.py**: Delete this file entirely (3 tests removed)
 
 **Timing**: 15 minutes
 
