@@ -45,7 +45,7 @@
         100
       ],
       "next_artifact_number": 2,
-      "completion_summary": "Documented Z3-to-BimodalLogic frame axiom mapping in provider.py (module docstring with terminology disambiguation, axiom mapping table, soundness analysis) and semantic.py (frame hierarchy classification, task_restriction soundness comment). Created test_frame_class_mapping.py with 13 tests performing post-hoc validation of TaskFrame axioms (nullity, converse, compose) and lawful history property on extracted Z3 countermodels. All 13 new tests pass; 184 existing bimodal tests pass (1 pre-existing BM_CM_1 failure unrelated to task 110).",
+      "completion_summary": "Documented Z3-to-BimodalLogic frame axiom mapping in provider.py and semantic.py. Created test_frame_class_mapping.py with 13 post-hoc validation tests for TaskFrame axioms (nullity, converse, composition) and lawful history on extracted countermodels. Clarified Base terminology mismatch and task_restriction soundness.",
       "plan_metadata": {
         "phases": 4,
         "total_effort_hours": 3,
