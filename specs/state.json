@@ -37,19 +37,39 @@
     {
       "project_number": 110,
       "project_name": "frame_class_validation",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-06-01T00:00:00Z",
-      "last_updated": "2026-06-01T17:30:00Z",
+      "last_updated": "2026-06-01T18:00:00Z",
       "dependencies": [
         100
       ],
       "next_artifact_number": 2,
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2, 3], [4]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_frame-class-validation.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
       "artifacts": [
         {
           "path": "specs/110_frame_class_validation/reports/01_frame-class-validation.md",
           "type": "research",
           "summary": "Full mapping of Z3 frame axioms to BimodalLogic TaskFrame; analysis of disabled task_restriction; FrameClass.Base terminology mismatch; test plan for test_frame_class_mapping.py"
+        },
+        {
+          "path": "specs/110_frame_class_validation/plans/01_frame-class-validation.md",
+          "type": "plan",
+          "summary": "4-phase plan: document frame axiom mapping in provider.py, create test fixtures, write post-hoc validation tests, integration verification"
         }
       ]
     },
