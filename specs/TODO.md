@@ -9,7 +9,7 @@ next_project_number: 114
 *Updated 2026-06-01. 12 active tasks (3 completed, 9 not started) across 2 waves.*
 
 **Wave 1 — Foundation (independent, all depend only on completed tasks):**
-111 [NOT STARTED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
+111 [RESEARCHING] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
 110 [COMPLETED] — Frame class validation for Base frame (dep: 100✓)
 
 **Wave 2 — Translation:**
@@ -51,7 +51,7 @@ Wave 6: 105  109
 
 ### 113. Enriched operator equivalence test suite
 - **Effort**: small
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 102
 
@@ -59,7 +59,7 @@ Wave 6: 105  109
 
 ### 112. Fold/unfold formula normalization utilities
 - **Effort**: small
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 102
 
@@ -86,7 +86,7 @@ Wave 6: 105  109
 
 ### 109. Cross-oracle differential testing infrastructure
 - **Effort**: medium
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 103
 
@@ -94,7 +94,7 @@ Wave 6: 105  109
 
 ### 108. Soundness regression test suite for boundary and shift-closure edge cases
 - **Effort**: small
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 103
 
@@ -102,7 +102,7 @@ Wave 6: 105  109
 
 ### 107. Boundary effect analysis and temporal_depth mitigation
 - **Effort**: medium
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 102
 
@@ -123,7 +123,7 @@ Wave 6: 105  109
 
 ### 105. Integration testing and validation
 - **Effort**: medium
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 103, 104, 112
 
@@ -131,7 +131,7 @@ Wave 6: 105  109
 
 ### 104. Dead-code cleanup and thin CLI
 - **Effort**: small
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 103
 
@@ -139,7 +139,7 @@ Wave 6: 105  109
 
 ### 103. OracleProvider implementation with programmatic pipeline
 - **Effort**: large
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 101, 102, 112
 
@@ -147,7 +147,7 @@ Wave 6: 105  109
 
 ### 102. Formula JSON translation with enriched operator support
 - **Effort**: medium
-- **Status**: [RESEARCHING]
+- **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Dependencies**: 100, 111
 
