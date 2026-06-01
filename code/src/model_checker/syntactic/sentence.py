@@ -422,3 +422,139 @@ class Sentence:
     def update_proposition(self, model_structure: Any) -> None:
         """Builds a proposition object for the sentence given the model_structure."""
         self.proposition = model_structure.proposition_class(self, model_structure)
+
+    @classmethod
+    def from_prefix(cls, prefix_list: 'PrefixList') -> 'Sentence':
+        """Create a Sentence directly from a prefix list, bypassing the infix parser.
+
+        This classmethod provides a programmatic construction path for Sentence
+        objects when the formula is already in prefix-list format (e.g., from
+        json_to_prefix()). It avoids the parse-then-validate round-trip of
+        __init__ and is suitable for formulas that may not have a unique canonical
+        infix representation parseable by the default parser.
+
+        The returned Sentence has its core attributes set:
+        - prefix_sentence: the input prefix_list
+        - name: an infix string derived from prefix_list (via Sentence.infix)
+        - complexity: nesting depth computed from prefix_list structure
+        - original_operator: the operator symbol string (or None for atoms)
+        - original_arguments: list of infix-string arguments (or None for atoms)
+        - arguments, operator, sentence_letter, proposition: all None (set later
+          by update_types, update_objects, update_proposition as in __init__)
+
+        Args:
+            prefix_list: A prefix list in ModelChecker format, e.g.
+                ["p"], ["\\neg", ["p"]], ["\\wedge", ["p"], ["q"]]
+
+        Returns:
+            A new Sentence instance with attributes set from prefix_list.
+
+        Example:
+            sentence = Sentence.from_prefix(["\\neg", ["p"]])
+            # sentence.name == "\\neg p"
+            # sentence.prefix_sentence == ["\\neg", ["p"]]
+            # sentence.complexity == 1
+            # sentence.original_operator == "\\neg"
+        """
+        # Create a sentinel instance that bypasses __init__ entirely
+        # by using object.__new__ to avoid any parsing or validation
+        instance = object.__new__(cls)
+
+        # Set the prefix list directly
+        instance.prefix_sentence = prefix_list
+
+        # Compute the infix name using Sentence.infix (which is an instance method
+        # but only depends on the input, not on `self` state)
+        instance.name = _compute_infix_from_prefix(prefix_list)
+
+        # Compute complexity: nesting depth of the prefix list
+        instance.complexity = _compute_prefix_complexity(prefix_list)
+
+        # Set internal flag (no WFF validation was done)
+        instance._internal = True
+
+        # Set original_operator and original_arguments
+        if len(prefix_list) == 1:
+            # Atom or nullary operator
+            first_elem = prefix_list[0]
+            instance.original_arguments = None
+            # Check for nullary operators like \\bot, \\top
+            if isinstance(first_elem, str) and first_elem in {'\\top', '\\bot'}:
+                instance.original_operator = first_elem
+            else:
+                instance.original_operator = None
+        else:
+            # Operator + arguments
+            instance.original_operator = prefix_list[0]
+            # Store arguments as infix strings (matching __init__ behavior)
+            instance.original_arguments = [
+                _compute_infix_from_prefix(arg)
+                for arg in prefix_list[1:]
+            ]
+
+        # Initialize lifecycle-updated attributes to None
+        instance.arguments = None
+        instance.operator = None
+        instance.sentence_letter = None
+        instance.proposition = None
+
+        return instance
+
+
+def _compute_infix_from_prefix(prefix_list) -> str:
+    """Compute infix string from prefix list without creating a Sentence.
+
+    This standalone helper mirrors Sentence.infix() for the common cases
+    used in from_prefix (string atoms, nullary, unary, binary operators).
+
+    Args:
+        prefix_list: A prefix list (list of str/list, no Term objects).
+
+    Returns:
+        Infix string representation.
+    """
+    if not isinstance(prefix_list, list):
+        return str(prefix_list)
+
+    if len(prefix_list) == 1:
+        return str(prefix_list[0])
+
+    head = prefix_list[0]
+    op_str = str(head)
+
+    if len(prefix_list) == 2:
+        arg_str = _compute_infix_from_prefix(prefix_list[1])
+        return f"{op_str} {arg_str}"
+
+    if len(prefix_list) == 3:
+        left_str = _compute_infix_from_prefix(prefix_list[1])
+        right_str = _compute_infix_from_prefix(prefix_list[2])
+        return f"({left_str} {op_str} {right_str})"
+
+    # Higher arity: fall back to space-separated
+    args_str = " ".join(_compute_infix_from_prefix(a) for a in prefix_list[1:])
+    return f"{op_str} {args_str}"
+
+
+def _compute_prefix_complexity(prefix_list) -> int:
+    """Compute nesting depth (complexity) of a prefix list.
+
+    Matches the complexity values that Sentence.__init__ produces via
+    parse_expression:
+    - Atoms / nullary: 0
+    - Operator + arguments: 1 + max(complexity of each argument sublist)
+
+    Args:
+        prefix_list: A prefix list.
+
+    Returns:
+        Non-negative integer complexity.
+    """
+    if not isinstance(prefix_list, list) or len(prefix_list) <= 1:
+        return 0
+    sub_complexities = [
+        _compute_prefix_complexity(arg)
+        for arg in prefix_list[1:]
+        if isinstance(arg, list)
+    ]
+    return 1 + (max(sub_complexities) if sub_complexities else 0)

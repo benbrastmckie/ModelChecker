@@ -156,29 +156,29 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Implement Sentence.from_prefix and Syntax Integration Tests [NOT STARTED]
+### Phase 3: Implement Sentence.from_prefix and Syntax Integration Tests [COMPLETED]
 
 **Goal**: Add the `Sentence.from_prefix()` classmethod to `sentence.py` and write+run integration tests verifying the full pipeline from JSON through Syntax to Z3 solving.
 
 **Tasks**:
-- [ ] Write test class `TestSentenceFromPrefix` in `test_json_translation.py`:
+- [x] Write test class `TestSentenceFromPrefix` in `test_json_translation.py`:
   - `test_from_prefix_creates_sentence`: Verify Sentence object is created
   - `test_from_prefix_preserves_prefix_list`: `sentence.prefix_sentence` matches input
   - `test_from_prefix_sets_name`: `sentence.name` is a valid infix string
   - `test_from_prefix_sets_complexity`: `sentence.complexity` is correct
   - `test_from_prefix_with_operator`: Verify operator-bearing formulas have `original_operator`
-- [ ] Write test class `TestSyntaxIntegration` in `test_json_translation.py`:
+- [x] Write test class `TestSyntaxIntegration` in `test_json_translation.py`:
   - `test_prefix_to_infix_round_trip`: json_to_prefix -> prefix_to_infix -> Syntax parses
   - `test_syntax_with_enriched_operator`: Full pipeline with enriched tag formula
   - `test_update_types_works_with_from_prefix`: Sentence.from_prefix -> update_types succeeds
-- [ ] Implement `Sentence.from_prefix(cls, prefix_list)` classmethod in `sentence.py`:
+- [x] Implement `Sentence.from_prefix(cls, prefix_list)` classmethod in `sentence.py`:
   - Create Sentence instance without calling the infix parser
   - Set `prefix_sentence` directly from input
-  - Compute `name` via `self.infix(prefix_list)` for display
-  - Compute `complexity` from prefix list structure
+  - Compute `name` via `_compute_infix_from_prefix(prefix_list)` for display
+  - Compute `complexity` from prefix list structure via `_compute_prefix_complexity`
   - Set `original_arguments`, `original_operator` from prefix structure
   - Initialize remaining attributes (arguments, operator, sentence_letter, proposition) to None
-- [ ] Run integration tests: all must pass
+- [x] Run integration tests: all must pass
 
 **Timing**: 1 hour
 
@@ -195,7 +195,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Enriched Operator Z3 Equivalence Tests [NOT STARTED]
+### Phase 4: Enriched Operator Z3 Equivalence Tests [IN PROGRESS]
 
 **Goal**: Verify that translating via enriched tags and solving with Z3 produces identical results as translating via primitive expansions. This is the acceptance gate for the translation layer.
 
