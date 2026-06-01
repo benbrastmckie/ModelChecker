@@ -129,13 +129,13 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Clean up stale artifacts [NOT STARTED]
+### Phase 3: Clean up stale artifacts [COMPLETED]
 
 **Goal**: Remove the stale `model_checker.egg-info` directory so it does not conflict with the new package metadata.
 
 **Tasks**:
-- [ ] Delete `code/src/model_checker.egg-info/` directory (stale from pre-task-100 era; will be regenerated as `bimodal_logic.egg-info` on install)
-- [ ] Verify no other stale `.egg-info` directories exist under `code/src/`
+- [x] Delete `code/src/model_checker.egg-info/` directory (stale from pre-task-100 era; will be regenerated as `bimodal_logic.egg-info` on install)
+- [x] Verify no other stale `.egg-info` directories exist under `code/src/`
 
 **Timing**: 5 minutes
 
