@@ -17,7 +17,7 @@ next_project_number: 114
 
 **Wave 3 — Normalization & Testing (independent of each other, both depend on 102):**
 112 [COMPLETED] — Fold/unfold formula normalization utilities (dep: 102)
-113 [RESEARCHED] — Enriched operator equivalence test suite (dep: 102)
+113 [COMPLETED] — Enriched operator equivalence test suite (dep: 102)
 107 [PLANNED] — Boundary effect analysis and temporal_depth mitigation (dep: 102)
 
 **Wave 4 — Oracle:**
@@ -51,11 +51,12 @@ Wave 6: 105  109
 
 ### 113. Enriched operator equivalence test suite
 - **Effort**: small
-- **Status**: [PLANNED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Dependencies**: 102
 - **Report**: [specs/113_enriched_operator_equivalence_tests/reports/01_enriched-equivalence-tests.md]
 - **Plan**: [specs/113_enriched_operator_equivalence_tests/plans/01_enriched-equivalence-tests.md]
+- **Summary**: [specs/113_enriched_operator_equivalence_tests/summaries/01_enriched-equivalence-tests-summary.md]
 
 **Description**: Systematic verification that every enriched-tag translation path produces identical Z3 constraints as the primitive-expansion path. For each of the 11 enriched operators (neg, top, and, or, diamond, next, prev, some_future, some_past, all_future, all_past): (1) construct a formula using the enriched tag, (2) construct the equivalent formula using only primitives, (3) run both through the oracle pipeline to Z3 constraint generation, (4) verify find_countermodel() returns identical SAT/UNSAT for both across a suite of test formulas, (5) for SAT cases, verify countermodels satisfy the same truth conditions. Extends task 108's soundness regression testing specifically for enriched translation. Special attention to boundary-sensitive operators: all_future/all_past (G/H) where ForAllTime boundary quantification can diverge from the enriched operator semantics at domain edges — verify temporal_depth mitigation (M = max(depth+2, 3)) prevents divergence. Test matrix: at least 5 formulas per enriched operator, including nested combinations (e.g., diamond(and(p, neg(q)))), formulas at complexity levels 3, 5, 7. Gate: all 55+ test cases pass (5 per operator x 11 operators); no enriched-tag formula produces a different SAT/UNSAT result than its primitive equivalent.
 

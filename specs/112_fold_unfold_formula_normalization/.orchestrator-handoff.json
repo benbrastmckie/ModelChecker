@@ -1,0 +1,15 @@
+{
+  "status": "planned",
+  "summary": "4-phase TDD plan for fold/unfold formula normalization: Phase 1 implements unfold_formula (recursive expansion of 11 enriched tags to 6 primitives), Phase 2 implements fold_formula (outside-in pattern matching with Level 3->1 ordering and overlapping pattern disambiguation), Phase 3 implements normalize_formula (level-based fold/unfold) and exports, Phase 4 adds property-based round-trip tests for 100+ random formulas. Total effort: 3.5 hours.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "implement",
+  "phases_completed": 0,
+  "phases_total": 4,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/112_fold_unfold_formula_normalization/plans/01_fold-unfold-normalization.md"
+    }
+  ]
+}
