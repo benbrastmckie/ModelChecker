@@ -1,0 +1,13 @@
+{
+  "status": "completed",
+  "summary": "Removed CLI-only dead code (~102 files including builder/, dead output/ components, cli.py, profile_abundance.py, test_cli_execution.py). Simplified model_checker/__init__.py and output/__init__.py. Added bimodal-logic check CLI backed by Z3OracleProvider with 18 TDD tests. Oracle pipeline intact, 624-627 bimodal tests passing (2 pre-existing flaky BM_CM_1 failures).",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "none",
+  "phases_completed": 5,
+  "phases_total": 5,
+  "artifacts": [
+    {"type": "plan", "path": "specs/104_programmatic_api_cleanup/plans/01_dead-code-cleanup-plan.md"},
+    {"type": "summary", "path": "specs/104_programmatic_api_cleanup/summaries/01_dead-code-cleanup-summary.md"}
+  ]
+}
