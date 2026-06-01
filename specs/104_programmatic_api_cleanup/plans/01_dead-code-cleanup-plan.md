@@ -104,7 +104,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Remove dead output/ components [NOT STARTED]
+### Phase 2: Remove dead output/ components [COMPLETED]
 
 **Goal**: Remove CLI-only output components while preserving formatters/ and its tests.
 
