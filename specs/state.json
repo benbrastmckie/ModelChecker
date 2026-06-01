@@ -79,18 +79,39 @@
     {
       "project_number": 100,
       "project_name": "strip_non_bimodal_code",
-      "status": "researched",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
-      "last_updated": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T12:00:00Z",
       "session_id": "sess_1780208200_22f2ee",
       "researched": "2026-06-01T00:00:00Z",
-      "next_artifact_number": 2,
+      "planned": "2026-06-01T12:00:00Z",
+      "next_artifact_number": 3,
+      "plan_metadata": {
+        "phases": 6,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [[1], [2], [3], [4], [5], [6]],
+        "reports_integrated": [
+          {
+            "path": "reports/01_codebase-audit.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
       "artifacts": [
         {
           "path": "specs/100_strip_non_bimodal_code/reports/01_codebase-audit.md",
           "type": "research",
           "summary": "Complete codebase audit: files to delete, coupling points with line refs, dependency analysis, risk assessment, and test baseline"
+        },
+        {
+          "path": "specs/100_strip_non_bimodal_code/plans/02_implementation-plan.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan: fix coupling, remove iterate dep, delete modules, clean refs, clean tests, clean dependencies"
         }
       ]
     },
