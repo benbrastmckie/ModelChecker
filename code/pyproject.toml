@@ -32,6 +32,7 @@ Issues = "https://github.com/benbrastmckie/ModelChecker/issues"
 
 [project.scripts]
 model-checker = "model_checker.__main__:run"
+bimodal-logic = "bimodal_logic.cli:run"
 
 [project.entry-points."bimodal_harness.oracle_providers"]
 z3_base = "bimodal_logic.provider:Z3OracleProvider"
@@ -56,6 +57,8 @@ markers = [
     "countermodel: Tests that verify a countermodel exists",
     "theorem: Tests that verify a formula is a theorem",
     "performance: Tests that verify performance characteristics",
+    "differential: Tests that compare MC oracle against reference oracles",
+    "slow: Tests that are computationally expensive and skipped in CI",
 ]
 filterwarnings = [
     # Ignore deprecation warning from z3's use of pkg_resources

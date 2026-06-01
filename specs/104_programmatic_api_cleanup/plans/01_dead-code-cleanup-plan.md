@@ -191,7 +191,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Add thin CLI (bimodal-logic check) [NOT STARTED]
+### Phase 4: Add thin CLI (bimodal-logic check) [COMPLETED]
 
 **Goal**: Create a `bimodal-logic` CLI entry point that invokes Z3OracleProvider for standalone countermodel checking, with tests.
 
