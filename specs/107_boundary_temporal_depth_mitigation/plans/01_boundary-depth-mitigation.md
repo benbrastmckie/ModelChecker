@@ -122,7 +122,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: 43-Example Regression Test [NOT STARTED]
+### Phase 3: 43-Example Regression Test [COMPLETED]
 
 **Goal**: Create a dedicated regression test that verifies all 43 active examples still produce correct SAT/UNSAT results, serving as the gate baseline for this task and future boundary-related changes.
 
