@@ -1,0 +1,15 @@
+{
+  "status": "planned",
+  "summary": "5-phase plan for 55+ enriched operator equivalence tests: infrastructure setup, Level 1 operators (neg/top/next/prev, 20 tests), Level 2 operators (and/or/diamond/some_future/some_past, 25 tests), Level 3 operators with nested combinations and boundary sensitivity (10+5+6 tests), and gate validation. All formulas pre-validated passing at M=2.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "implement",
+  "phases_completed": 0,
+  "phases_total": 5,
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/113_enriched_operator_equivalence_tests/plans/01_enriched-equivalence-tests.md"
+    }
+  ]
+}
