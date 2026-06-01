@@ -131,15 +131,15 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ---
 
-### Phase 3: Delete Module Directories [NOT STARTED]
+### Phase 3: Delete Module Directories [COMPLETED]
 
 **Goal**: Remove all non-bimodal module directories from the codebase.
 
 **Tasks**:
-- [ ] Delete `code/src/model_checker/theory_lib/logos/` entire directory tree
-- [ ] Delete `code/src/model_checker/iterate/` entire directory tree
-- [ ] Delete `code/src/model_checker/jupyter/` entire directory tree
-- [ ] Delete `code/src/model_checker/output/notebook/` entire directory tree
+- [x] Delete `code/src/model_checker/theory_lib/logos/` entire directory tree
+- [x] Delete `code/src/model_checker/iterate/` entire directory tree
+- [x] Delete `code/src/model_checker/jupyter/` entire directory tree
+- [x] Delete `code/src/model_checker/output/notebook/` entire directory tree
 
 **Timing**: 15 minutes
 
