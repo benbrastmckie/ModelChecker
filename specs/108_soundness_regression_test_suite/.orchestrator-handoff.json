@@ -1,10 +1,30 @@
 {
-  "status": "planned",
-  "summary": "5-phase TDD plan for soundness regression test suite: test infrastructure with helpers, boundary vacuity tests (G(G(p)) prime case), shift closure and guarded compositionality on oracle output, state isolation with temporal depth-2 formulas, and 5 known-boundary-unsafe formulas. All tests in single file test_soundness_regression.py. Estimated 3 hours.",
+  "status": "completed",
+  "summary": "Created test_soundness_regression.py with 22 passing tests (+1 xfailed) across 5 test classes: boundary vacuity documentation (G(G(p)) and F(G(p)) both return None at M=2), shift closure verification, TaskFrame axiom validation on serialized oracle output, 100+ sequential call state isolation with mixed temporal depths, and 5 known-boundary-unsafe formula suite with documented mechanisms.",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "implement",
-  "phases_completed": 0,
+  "next_action_hint": "none",
+  "phases_completed": 5,
   "phases_total": 5,
-  "artifacts": [{"type": "plan", "path": "specs/108_soundness_regression_test_suite/plans/01_soundness-regression-plan.md"}]
+  "artifacts": [
+    {
+      "type": "test_file",
+      "path": "code/src/model_checker/theory_lib/bimodal/tests/unit/test_soundness_regression.py"
+    },
+    {
+      "type": "plan",
+      "path": "specs/108_soundness_regression_test_suite/plans/01_soundness-regression-plan.md"
+    },
+    {
+      "type": "summary",
+      "path": "specs/108_soundness_regression_test_suite/summaries/01_soundness-regression-summary.md"
+    }
+  ],
+  "key_findings": [
+    "F(G(p)) returns None at M=2 (spurious theorem, same as G(G(p))): both exhibit inner-G boundary vacuity",
+    "All 3 TaskFrame axioms (nullity, converse, forward_comp) hold in oracle's serialized task_relation output",
+    "Shift closure at M=2 is trivially satisfied (no valid non-zero shifts in domain {-1,0,1})",
+    "100+ sequential calls with depth-0/1/2 formulas show no state leakage",
+    "M=3 shift closure test xfailed as predicted (skolem_abundance over-constraint documented)"
+  ]
 }
