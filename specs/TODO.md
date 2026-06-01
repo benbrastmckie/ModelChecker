@@ -4,6 +4,47 @@ next_project_number: 114
 
 # Task List
 
+## Task Order
+
+*Updated 2026-06-01. 12 active tasks (3 completed, 9 not started) across 2 waves.*
+
+**Wave 1 — Foundation (independent, all depend only on completed tasks):**
+111 [NOT STARTED] — Add Next/Prev (X/Y) defined operator classes (dep: 100✓)
+110 [NOT STARTED] — Frame class validation for Base frame (dep: 100✓)
+
+**Wave 2 — Translation:**
+102 [NOT STARTED] — Formula JSON translation with enriched operator support (dep: 100✓, 111)
+
+**Wave 3 — Normalization & Testing (independent of each other, both depend on 102):**
+112 [NOT STARTED] — Fold/unfold formula normalization utilities (dep: 102)
+113 [NOT STARTED] — Enriched operator equivalence test suite (dep: 102)
+107 [NOT STARTED] — Boundary effect analysis and temporal_depth mitigation (dep: 102)
+
+**Wave 4 — Oracle:**
+103 [NOT STARTED] — OracleProvider implementation with programmatic pipeline (dep: 101✓, 102, 112)
+
+**Wave 5 — Cleanup & Regression (independent of each other, both depend on 103):**
+104 [NOT STARTED] — Dead-code cleanup and thin CLI (dep: 103)
+108 [NOT STARTED] — Soundness regression test suite (dep: 103)
+
+**Wave 6 — Integration & Validation:**
+105 [NOT STARTED] — Integration testing and validation (dep: 103, 104, 112)
+109 [NOT STARTED] — Cross-oracle differential testing infrastructure (dep: 103)
+
+```
+Wave 1:  111    110
+          │
+Wave 2:  102
+        ╱  │  ╲
+Wave 3: 112 107  113
+        │
+Wave 4: 103 ←── 101✓
+       ╱   ╲
+Wave 5: 104  108
+        │
+Wave 6: 105  109
+```
+
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
