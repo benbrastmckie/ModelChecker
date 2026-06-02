@@ -1,0 +1,16 @@
+{
+  "status": "implemented",
+  "summary": "Created flake.nix devShell, removed all pytest.skip() guards, fixed list_providers() test bug. 108 passed, 0 skipped, 0 failed.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "none",
+  "phases_completed": 3,
+  "phases_total": 3,
+  "artifacts": [
+    {
+      "path": "specs/115_fix_skipped_integration_tests/summaries/01_nix-devshell-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary: flake.nix devShell + skip removal + test bug fix"
+    }
+  ]
+}

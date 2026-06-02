@@ -798,13 +798,14 @@
     {
       "project_number": 115,
       "project_name": "fix_skipped_integration_tests",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "nix",
       "created": "2026-06-01T23:45:00Z",
-      "last_updated": "2026-06-01T23:45:00Z",
+      "last_updated": "2026-06-02T01:45:00Z",
       "dependencies": [
         105
-      ]
+      ],
+      "completion_summary": "Created flake.nix devShell with PYTHONPATH for both ModelChecker and BimodalHarness sources. Removed all pytest.skip() guards from test_oracle_interface.py. Fixed list_providers() test bug. Gate: 108 passed, 0 skipped, 0 failed in nix develop."
     }
   ],
   "repository_health": {

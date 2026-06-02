@@ -34,6 +34,8 @@ import tracemalloc
 
 import pytest
 
+from bimodal_harness.oracle.protocol import OracleProvider
+from bimodal_harness.oracle.registry import OracleRegistry
 from bimodal_logic import Z3OracleProvider
 from bimodal_logic.translation import temporal_depth, unfold_formula
 from model_checker.theory_lib.bimodal.examples import (
@@ -492,17 +494,10 @@ class TestOracleProtocolCompliance:
         self.provider = Z3OracleProvider()
 
     def test_provider_implements_protocol(self):
-        """Verify isinstance(provider, OracleProvider) using runtime_checkable.
-
-        Conditionally imports from BimodalHarness; skips if not installed.
-        """
-        try:
-            from bimodal_harness.oracle.protocol import OracleProvider
-            assert isinstance(self.provider, OracleProvider), (
-                "Z3OracleProvider must satisfy the OracleProvider protocol"
-            )
-        except ImportError:
-            pytest.skip("bimodal_harness not installed -- skipping protocol check")
+        """Verify isinstance(provider, OracleProvider) using runtime_checkable."""
+        assert isinstance(self.provider, OracleProvider), (
+            "Z3OracleProvider must satisfy the OracleProvider protocol"
+        )
 
     def test_five_properties_exist(self):
         """Verify all 5 required protocol properties exist with correct types."""
@@ -1138,61 +1133,42 @@ class TestEntryPointDiscovery:
     def test_entry_point_registered(self):
         """z3_base entry point is registered in bimodal_harness.oracle_providers group."""
         import importlib.metadata
-        try:
-            eps = importlib.metadata.entry_points(
-                group="bimodal_harness.oracle_providers"
-            )
-            ep_names = [ep.name for ep in eps]
-            assert "z3_base" in ep_names, (
-                f"z3_base not found in entry points. Found: {ep_names}"
-            )
-        except Exception:
-            pytest.skip("Package not installed with entry points")
+        eps = importlib.metadata.entry_points(
+            group="bimodal_harness.oracle_providers"
+        )
+        ep_names = [ep.name for ep in eps]
+        assert "z3_base" in ep_names, (
+            f"z3_base not found in entry points. Found: {ep_names}"
+        )
 
     def test_entry_point_loads_correct_class(self):
         """Loading z3_base entry point yields Z3OracleProvider class."""
         import importlib.metadata
-        try:
-            eps = importlib.metadata.entry_points(
-                group="bimodal_harness.oracle_providers"
-            )
-            z3_eps = [ep for ep in eps if ep.name == "z3_base"]
-            if not z3_eps:
-                pytest.skip("z3_base entry point not found")
-            loaded = z3_eps[0].load()
-            assert loaded is Z3OracleProvider, (
-                f"Entry point loaded {loaded}, expected Z3OracleProvider"
-            )
-        except Exception as e:
-            pytest.skip(f"Could not load entry point: {e}")
+        eps = importlib.metadata.entry_points(
+            group="bimodal_harness.oracle_providers"
+        )
+        z3_eps = [ep for ep in eps if ep.name == "z3_base"]
+        assert z3_eps, "z3_base entry point not found"
+        loaded = z3_eps[0].load()
+        assert loaded is Z3OracleProvider, (
+            f"Entry point loaded {loaded}, expected Z3OracleProvider"
+        )
 
     def test_oracle_registry_discover(self):
-        """OracleRegistry.discover() finds z3_base provider (if BimodalHarness installed)."""
-        try:
-            from bimodal_harness.oracle.registry import OracleRegistry
-            registry = OracleRegistry()
-            registry.discover()
-            providers = registry.list_providers()
-            provider_ids = [p.provider_id for p in providers]
-            assert "bmlogic_z3_base_v1" in provider_ids, (
-                f"z3_base not discovered. Found: {provider_ids}"
-            )
-        except ImportError:
-            pytest.skip("bimodal_harness not installed")
+        """OracleRegistry.discover() finds z3_base provider."""
+        registry = OracleRegistry()
+        registry.discover()
+        provider_ids = registry.list_providers()
+        assert "bmlogic_z3_base_v1" in provider_ids, (
+            f"z3_base not discovered. Found: {provider_ids}"
+        )
 
     def test_discovered_provider_is_correct_type(self):
         """Discovered provider is Z3OracleProvider instance."""
-        try:
-            from bimodal_harness.oracle.registry import OracleRegistry
-            registry = OracleRegistry()
-            registry.discover()
-            providers = registry.list_providers()
-            z3_providers = [p for p in providers if p.provider_id == "bmlogic_z3_base_v1"]
-            if not z3_providers:
-                pytest.skip("z3_base provider not discovered")
-            assert isinstance(z3_providers[0], Z3OracleProvider)
-        except ImportError:
-            pytest.skip("bimodal_harness not installed")
+        registry = OracleRegistry()
+        registry.discover()
+        provider = registry.get("bmlogic_z3_base_v1")
+        assert isinstance(provider, Z3OracleProvider)
 
 
 class TestZ3IsolationStress:

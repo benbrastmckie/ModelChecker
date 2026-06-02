@@ -21,7 +21,7 @@ next_project_number: 116
 114✓ — Fix skolem_abundance over-constraint at M>=3 (dep: 108✓)
 
 **Wave 7 — Dependency fix:**
-115 [NOT STARTED] — Fix skipped integration tests (dep: 105✓)
+115 [COMPLETED] — Fix skipped integration tests (dep: 105✓)
 
 ```
 Waves 1–4: ✓ complete
@@ -39,9 +39,12 @@ Wave 7: 115
 
 ### 115. Fix skipped integration tests via Nix devShell
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: nix
 - **Dependencies**: 105
+- **Report**: [specs/115_fix_skipped_integration_tests/reports/01_nix-devshell-setup.md]
+- **Plan**: [specs/115_fix_skipped_integration_tests/plans/01_nix-devshell-plan.md]
+- **Summary**: [specs/115_fix_skipped_integration_tests/summaries/01_nix-devshell-summary.md]
 
 **Description**: Three tests in `test_oracle_interface.py` skip because `bimodal_harness` and `bimodal-logic` are not installed — `importlib.metadata` can't find entry points and `from bimodal_harness.oracle.protocol import OracleProvider` fails with ImportError. On NixOS, `pip install -e` is not viable. Fix by creating a Nix flake-based devShell that provides both packages as proper Nix derivations with entry points registered.
 
