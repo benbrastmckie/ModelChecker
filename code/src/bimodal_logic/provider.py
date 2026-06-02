@@ -204,15 +204,17 @@ class Z3OracleProvider:
             return None
 
         # Compute temporal depth and time bound M.
-        # Ideal boundary-safe M is max(depth+2, 3), but the bimodal constraint
-        # system with skolem_abundance at M>=3 over-constrains no-premise queries,
-        # producing false UNSAT for formulas that should have countermodels.
-        # M=2 is the practical safe maximum: it allows countermodel search for
-        # depth-0 and depth-1 formulas without the M=3 over-constraint issue.
-        # For depth>=2 formulas, M=max(depth, 2) extends the time domain.
+        # Task 114 Fix: Use M=max(depth+2, 3) -- the boundary-safe formula.
+        # The previous workaround used M=max(depth, 2) to avoid timeouts from
+        # capped_skolem_abundance_constraint's MBQI blowup at M>=3.
+        # With the Task 114 fix to build_frame_constraints (conditional dispatch to
+        # build_grounded_abundance_constraints for M>=3), M>=3 no longer causes
+        # MBQI blowup. The boundary-safe formula M=max(depth+2,3) ensures
+        # boundary_safe=(M>depth+1) is True for all formulas, eliminating the
+        # boundary vacuity artifacts documented in Task 108.
         # Note: boundary_safe in the output reflects M > depth+1.
         depth = temporal_depth(formula_json)
-        M = max(depth, 2)
+        M = max(depth + 2, 3)
 
         # Fold formula for output (enrich primitive forms to enriched tags)
         formula_folded = fold_formula(formula_json)
@@ -221,10 +223,11 @@ class Z3OracleProvider:
         prefix = json_to_prefix(formula_json)
         infix = prefix_to_infix(prefix)
 
-        # Build settings dict
+        # Build settings dict (temporal_depth limits shift closure — Task 114)
         settings = {
             'N': 2,
             'M': M,
+            'temporal_depth': depth,
             'contingent': False,
             'disjoint': False,
             'max_time': timeout_ms / 1000.0,

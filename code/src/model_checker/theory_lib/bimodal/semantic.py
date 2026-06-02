@@ -79,6 +79,12 @@ class BimodalSemantics(SemanticDefaults):
         # Initialize the superclass to set defaults and reset global state
         super().__init__(settings)
 
+        # Task 114: temporal_depth limits shift closure to formula's nesting depth.
+        # None = use capped Skolem (backward compat for direct BimodalSemantics use).
+        # 0 = skip abundance (oracle sets this for depth-0 formulas).
+        # >0 = depth-bounded Skolem at M>=3 (oracle sets this for temporal formulas).
+        self.temporal_depth = settings.get('temporal_depth', None)
+
         # Initialize always true/false worlds, updated in the model_structure
         self.all_true = {}
         self.all_false = {}
@@ -643,28 +649,23 @@ class BimodalSemantics(SemanticDefaults):
         # forward_comp: compositionality -- if task_rel(w,d1,v) and task_rel(v,d2,u) then task_rel(w,d1+d2,u)
         forward_comp = self.build_forward_comp_constraint()
 
-        # 8. All valid time-shifted worlds exist
-        # Provides time-shifted worlds for all shifts that keep the shifted interval
-        # within the global time range, using a Skolem function to avoid nested
-        # ForAll/Exists. This provides full closure under time-shifts (modulo boundary
-        # conditions) and is necessary for the perpetuity principles (BM_TH_1/BM_TH_2)
-        # to hold, aligning with app:auto_existence in the JPL paper and ShiftClosed in
-        # the Lean BimodalLogic formalization.
-        #
-        # Task 98 Note: build_grounded_abundance_constraints() was tested as a replacement
-        # at M=2 only and found to cause regressions there. The Task 98 benchmarks do NOT
-        # apply at M>=3 where capped_skolem_abundance_constraint's triply-nested quantifier
-        # structure (ForAll[src, shift] -> ForAll[time]) triggers Z3 MBQI instantiation
-        # loops, causing solver timeouts and spurious UNSAT.
-        #
-        # Task 114 Fix: Conditionally dispatch based on M:
-        # - M=2:  Use capped_skolem_abundance_constraint() (single formula, no MBQI issues)
-        # - M>=3: Use build_grounded_abundance_constraints() (list of per-pair ForAll[src]
-        #         constraints with concrete integer indices, handled via Z3 E-matching)
-        if self.M >= 3:
-            skolem_abundance = self.build_grounded_abundance_constraints()
-        else:
+        # 8. All valid time-shifted worlds exist (depth-aware)
+        # Task 114 Fix: When temporal_depth is explicitly set via settings:
+        # - 0: skip abundance (oracle depth-0 formulas, no temporal operators)
+        # - >0 at M>=3: depth-bounded Skolem (shift range = temporal_depth)
+        # When temporal_depth is None (not in settings): use capped Skolem
+        # at all M values (backward compat for direct BimodalSemantics use).
+        temporal_depth = getattr(self, 'temporal_depth', None)
+        if temporal_depth is None:
             skolem_abundance = [self.capped_skolem_abundance_constraint()]
+        elif temporal_depth == 0:
+            skolem_abundance = []
+        elif self.M <= 2:
+            skolem_abundance = [self.capped_skolem_abundance_constraint()]
+        else:
+            skolem_abundance = [self.depth_bounded_skolem_abundance_constraint(
+                max_shift=temporal_depth
+            )]
 
         # 9. Every valid world is unique
         # Original ForAll/Exists formulation preserved: worlds must differ at a time
@@ -1323,41 +1324,23 @@ class BimodalSemantics(SemanticDefaults):
             )
         )
 
-    def build_grounded_abundance_constraints(self):
-        """Build abundance constraints by fully enumerating (source_world_id, interval, shift) triples.
+    def build_grounded_abundance_constraints(self, max_shift=None):
+        """Build abundance constraints with shift range limited to max_shift.
 
-        Task 114 Fix: This replaces the original ForAll[src]+Skolem approach with a fully
-        ground (quantifier-free) implementation that enumerates source world IDs from 0 to
-        a small bound (3*M). For each source world ID, interval, and valid shift, it asserts
-        that some bounded target world ID satisfies the shift relationship.
+        Task 114 Fix: Enumerates (source_world_id, interval, shift) triples but
+        limits shift magnitudes to max_shift (defaults to temporal_depth). This
+        ensures constraint count scales with formula depth, not M.
 
-        This avoids ALL quantifier interaction with other frame constraints:
-        - No Skolem function terms that trigger ForAll[w] instantiation in lawful/frame axioms
-        - No MBQI instantiation chains from Skolem-created worlds entering lawful/frame scope
-        - Fully ground: only ground implications between concrete world IDs
-
-        Original approach (Task 98): ForAll[src] + Skolem function shift_of_capped(src, delta).
-        That approach was tested at M=2 and found acceptable but was NOT benchmarked at M>=3.
-        At M>=3, the Skolem-created worlds trigger MBQI instantiation of ForAll[w] frame
-        constraints (lawful, world_interval) for every new world ID, causing memory blowup.
-
-        Current approach (Task 114): Enumerate source IDs 0..3*M. Express target existence
-        as a disjunction over target IDs 0..3*M. All expressions are ground (concrete integers).
-        Z3 resolves ground disjunctions via pure propositional reasoning (SAT, no MBQI).
-
-        Constraint counts by M (bound = 3*M):
-        - M=3: bound=9, 6 pairs, 9 target options -> 54 constraints
-        - M=4: bound=12, 12 pairs, 12 target options -> 144 constraints
-        - M=5: bound=15, 20 pairs, 15 target options -> 300 constraints
+        Args:
+            max_shift: Maximum absolute shift magnitude. Defaults to M-1 (full closure).
 
         Returns:
             list: Ground Implies constraints, one per (source_id, interval, shift) triple
         """
+        if max_shift is None:
+            max_shift = self.M - 1
         constraints = []
         intervals = self.generate_time_intervals(self.M)
-        # Use a small bound for world IDs: 3*M provides enough IDs for all distinct
-        # intervals (M intervals) plus duplicates needed for the main world's shifts.
-        # Empirically tested: 3*M is sufficient for M=3,4,5 with N=2.
         bound = 3 * self.M
 
         for src_id in range(bound):
@@ -1371,7 +1354,7 @@ class BimodalSemantics(SemanticDefaults):
                 )
                 antecedent = z3.And(src_is_world, src_has_interval)
 
-                for delta in range(-(2 * self.M - 1), 2 * self.M):
+                for delta in range(-max_shift, max_shift + 1):
                     if delta == 0:
                         continue
                     new_start = start + delta
@@ -1465,6 +1448,51 @@ class BimodalSemantics(SemanticDefaults):
                         source_world,
                         shift_amount,
                         shift_of_capped(source_world, shift_amount)
+                    ),
+                )
+            )
+        )
+
+    def depth_bounded_skolem_abundance_constraint(self, max_shift):
+        """Build Skolem abundance constraint with shift magnitude bounded by max_shift.
+
+        Like capped_skolem_abundance_constraint but adds explicit bounds on the shift
+        amount: -max_shift <= shift_amount <= max_shift. This reduces MBQI instantiation
+        scope from O(M) to O(temporal_depth), preventing the blowup at M>=3.
+        """
+        shift_of_bounded = z3.Function(
+            'shift_of_bounded', self.WorldIdSort, self.TimeSort, self.WorldIdSort
+        )
+
+        source_world = z3.Int('skbnd_src')
+        shift_amount = z3.Int('skbnd_shift')
+
+        source_start = self.world_interval_start(source_world)
+        source_end = self.world_interval_end(source_world)
+
+        return z3.ForAll(
+            [source_world, shift_amount],
+            z3.Implies(
+                z3.And(
+                    self.is_world(source_world),
+                    source_start + shift_amount >= z3.IntVal(-self.M + 1),
+                    source_end + shift_amount <= z3.IntVal(self.M - 1),
+                    shift_amount != z3.IntVal(0),
+                    shift_amount >= z3.IntVal(-max_shift),
+                    shift_amount <= z3.IntVal(max_shift),
+                ),
+                z3.And(
+                    self.is_world(shift_of_bounded(source_world, shift_amount)),
+                    self.world_interval_start(
+                        shift_of_bounded(source_world, shift_amount)
+                    ) == source_start + shift_amount,
+                    self.world_interval_end(
+                        shift_of_bounded(source_world, shift_amount)
+                    ) == source_end + shift_amount,
+                    self.matching_states_when_shifted_var(
+                        source_world,
+                        shift_amount,
+                        shift_of_bounded(source_world, shift_amount)
                     ),
                 )
             )

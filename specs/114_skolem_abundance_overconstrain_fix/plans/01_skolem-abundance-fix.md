@@ -144,7 +144,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Restore M Formula and Update Tests [NOT STARTED]
+### Phase 3: Restore M Formula and Update Tests [IN PROGRESS]
 
 **Goal**: Change provider.py's M formula from `max(depth, 2)` to `max(depth+2, 3)` and update all test assertions that depend on specific M values or boundary_safe flags.
 
