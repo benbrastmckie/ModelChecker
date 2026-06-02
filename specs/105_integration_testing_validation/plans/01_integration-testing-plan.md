@@ -145,7 +145,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Cross-signal and boundary tests [NOT STARTED]
+### Phase 3: Cross-signal and boundary tests [COMPLETED]
 
 **Goal**: Validate cross-signal with SPOT_CHECK_FORMULAS, verify temporal_depth/boundary_safe consistency across all oracle outputs, and confirm ternary serialization format for all SAT results.
 
