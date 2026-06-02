@@ -781,7 +781,7 @@
           }
         ]
       },
-      "completion_summary": "Created test_oracle_interface.py with 105 passing tests (3 skipped) across 10 test classes: protocol compliance, 52-example regression via find_countermodel() API, 11 enriched operator round-trips, SPOT_CHECK_FORMULAS cross-signal, boundary/temporal_depth/ternary validation, edge cases, entry-point discovery, and Z3 isolation stress (150+ sequential calls, memory tracking)."
+      "completion_summary": "Created test_oracle_interface.py with 105 passing integration tests (3 skipped) across 10 test classes: oracle API protocol compliance, 41-example regression via find_countermodel(), 11 enriched operator round-trips, SPOT_CHECK cross-signal validation, boundary/ternary serialization checks, edge cases, entry-point discovery, and Z3 isolation stress testing (150+ sequential calls)."
     },
     {
       "project_number": 114,
