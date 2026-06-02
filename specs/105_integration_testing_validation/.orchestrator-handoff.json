@@ -1,14 +1,16 @@
 {
-  "status": "planned",
-  "summary": "4-phase integration test plan covering oracle API regression, enriched round-trips, cross-signal/boundary validation, and edge case stress tests (~140 new tests in test_oracle_interface.py)",
+  "status": "implemented",
+  "summary": "Created test_oracle_interface.py with 105 passing tests (3 skipped) across 10 test classes covering oracle API validation, enriched operator round-trips, SPOT_CHECK cross-signal, boundary/ternary validation, edge cases, entry-point discovery, and Z3 isolation stress tests.",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "implement",
+  "next_action_hint": "none",
+  "phases_completed": 4,
+  "phases_total": 4,
   "artifacts": [
     {
-      "path": "specs/105_integration_testing_validation/plans/01_integration-testing-plan.md",
-      "type": "plan",
-      "summary": "Implementation plan with 4 phases (5 hours estimated): Phase 1 oracle regression via find_countermodel, Phase 2 enriched formula round-trips, Phase 3 cross-signal and boundary validation, Phase 4 edge cases and Z3 isolation stress"
+      "path": "specs/105_integration_testing_validation/summaries/01_integration-testing-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary with test counts, plan deviations, and per-phase breakdown"
     }
   ]
 }
