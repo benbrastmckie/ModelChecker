@@ -1,5 +1,5 @@
 {
-  "next_project_number": 115,
+  "next_project_number": 116,
   "active_projects": [
     {
       "project_number": 113,
@@ -794,6 +794,17 @@
         108
       ],
       "completion_summary": "Depth-aware abundance dispatch: oracle passes temporal_depth to BimodalSemantics; depth-bounded Skolem constraint at M>=3; M=max(depth+2,3) restores boundary safety; 110/110 tests pass"
+    },
+    {
+      "project_number": 115,
+      "project_name": "fix_skipped_integration_tests",
+      "status": "not_started",
+      "task_type": "python",
+      "created": "2026-06-01T23:45:00Z",
+      "last_updated": "2026-06-01T23:45:00Z",
+      "dependencies": [
+        105
+      ]
     }
   ],
   "repository_health": {

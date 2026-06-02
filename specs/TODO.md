@@ -1,12 +1,12 @@
 ---
-next_project_number: 115
+next_project_number: 116
 ---
 
 # Task List
 
 ## Task Order
 
-*Updated 2026-06-01. 13 active tasks (9 completed, 4 not started) across 3 remaining waves.*
+*Updated 2026-06-01. 14 active tasks (10 completed, 4 not started) across 4 remaining waves.*
 
 **Waves 1–4 — Complete:**
 111✓, 110✓, 102✓, 112✓, 113✓, 107✓, 101✓, 103✓
@@ -17,20 +17,33 @@ next_project_number: 115
 109✓ — Cross-oracle differential testing infrastructure (dep: 103✓)
 
 **Wave 6 — Integration & Fix:**
-105 [COMPLETED] — Integration testing and validation (dep: 103✓, 104✓, 112✓)
-114 [COMPLETED] — Fix skolem_abundance over-constraint at M>=3 (dep: 108✓)
+105✓ — Integration testing and validation (dep: 103✓, 104✓, 112✓)
+114✓ — Fix skolem_abundance over-constraint at M>=3 (dep: 108✓)
+
+**Wave 7 — Dependency fix:**
+115 [NOT STARTED] — Fix skipped integration tests (dep: 105✓)
 
 ```
 Waves 1–4: ✓ complete
 
-Wave 5: 104    108✓   109✓   ← all parallel now
-          │           │
-Wave 6:  105   114
+Wave 5: 104✓   108✓   109✓
+          │
+Wave 6: 105✓   114✓
+          │
+Wave 7: 115
 ```
 
 ## Tasks
 
 <!-- New tasks are prepended below this line -->
+
+### 115. Fix skipped integration tests
+- **Effort**: small
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Dependencies**: 105
+
+**Description**: Three tests in `test_oracle_interface.py` are skipped because `bimodal_harness` and `bimodal-logic` are not pip-installed in the development environment. Fix by: (1) pip install -e /home/benjamin/Projects/BimodalHarness to make `bimodal_harness` importable and enable `OracleProvider` protocol isinstance checks and `OracleRegistry.discover()` tests; (2) pip install -e the ModelChecker package itself (or the bimodal-logic sub-package) so that `importlib.metadata.entry_points(group='bimodal_harness.oracle_providers')` finds the `z3_base` entry point; (3) remove all `pytest.skip()` guards from the affected tests (`test_provider_implements_protocol`, `test_entry_point_loads_correct_class`, `test_oracle_registry_discover`, `test_discovered_provider_is_correct_type`) — replace with hard assertions that fail if dependencies are missing; (4) verify all 108 tests pass with 0 skipped. Gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_oracle_interface.py -v` shows 108 passed, 0 skipped.
 
 ### 114. Fix skolem_abundance over-constraint at M>=3
 - **Effort**: medium
