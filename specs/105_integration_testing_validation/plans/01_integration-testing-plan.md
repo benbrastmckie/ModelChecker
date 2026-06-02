@@ -179,7 +179,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Edge cases and stress tests [NOT STARTED]
+### Phase 4: Edge cases and stress tests [COMPLETED]
 
 **Goal**: Test timeout handling, unsupported frame_class, malformed JSON, entry-point discovery, and Z3 isolation with memory tracking.
 
