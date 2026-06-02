@@ -17,7 +17,7 @@ next_project_number: 115
 109✓ — Cross-oracle differential testing infrastructure (dep: 103✓)
 
 **Wave 6 — Integration & Fix:**
-105 [NOT STARTED] — Integration testing and validation (dep: 103✓, 104, 112✓)
+105 [PLANNED] — Integration testing and validation (dep: 103✓, 104✓, 112✓)
 114 [COMPLETED] — Fix skolem_abundance over-constraint at M>=3 (dep: 108✓)
 
 ```
@@ -135,9 +135,11 @@ Wave 6:  105   114
 
 ### 105. Integration testing and validation
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Dependencies**: 103, 104, 112
+- **Report**: [specs/105_integration_testing_validation/reports/01_integration-testing.md]
+- **Plan**: [specs/105_integration_testing_validation/plans/01_integration-testing-plan.md]
 
 **Description**: End-to-end testing against the OracleProvider protocol and BimodalHarness compatibility, including enriched formula round-trips. Oracle pipeline test: run all 43 examples from `theory_lib/bimodal/examples.py` through `OracleProvider.find_countermodel()` (not the internal `run_test` pipeline) and verify identical SAT/UNSAT classifications — this is `test_oracle_interface.py`. Protocol compliance: verify all 5 properties, both methods, return format matches SimpleCountermodel/StructuredCountermodel schemas. Countermodel correctness: regression test against the existing 43-example bimodal test suite — refactored package must produce identical valid/invalid classifications. **Enriched formula round-trip tests**: for each of the 11 enriched operators, submit a formula using the enriched tag and submit the equivalent formula using only primitive tags; verify identical SAT/UNSAT results and equivalent countermodels. Verify formula_folded_json is present and correctly folded in all non-None outputs. Test that mixed formulas (combining enriched and primitive tags) are handled correctly. Cross-signal scenarios: use BimodalHarness's SPOT_CHECK_FORMULAS (10 known-invalid formulas from _mock.py) as ground truth for validate_self. Boundary regression tests: verify that formulas with known temporal depth d use M = max(d+2, 3) and that `boundary_safe` flag is True for all 43 examples. Ternary serialization validation: verify that all `task_relation` entries are ternary `{source, duration, target}` dicts, not binary pairs. Temporal_depth reporting: verify `temporal_depth` is present and correct in all oracle outputs, including for enriched-tag formulas (temporal_depth should be identical regardless of whether the formula is submitted in primitive or enriched form). Edge cases: timeout handling (formula that exceeds timeout_ms), unsupported frame_class ("Dense"→None), malformed formula JSON. Entry-point discovery: verify pip install bimodal-logic followed by OracleRegistry.discover() finds the provider. Z3 isolation: run find_countermodel() 100+ times in sequence, verify no state leakage or memory growth.
 

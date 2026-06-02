@@ -1,0 +1,14 @@
+{
+  "status": "planned",
+  "summary": "4-phase integration test plan covering oracle API regression, enriched round-trips, cross-signal/boundary validation, and edge case stress tests (~140 new tests in test_oracle_interface.py)",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "implement",
+  "artifacts": [
+    {
+      "path": "specs/105_integration_testing_validation/plans/01_integration-testing-plan.md",
+      "type": "plan",
+      "summary": "Implementation plan with 4 phases (5 hours estimated): Phase 1 oracle regression via find_countermodel, Phase 2 enriched formula round-trips, Phase 3 cross-signal and boundary validation, Phase 4 edge cases and Z3 isolation stress"
+    }
+  ]
+}

@@ -730,15 +730,47 @@
     {
       "project_number": 105,
       "project_name": "integration_testing_validation",
-      "status": "not_started",
+      "status": "planned",
       "task_type": "python",
       "created": "2026-05-30T12:00:00Z",
-      "last_updated": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T21:55:00Z",
       "dependencies": [
         103,
         104,
         112
-      ]
+      ],
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/105_integration_testing_validation/reports/01_integration-testing.md",
+          "type": "research",
+          "summary": "Full mapping of OracleProvider protocol, 52 examples, 11 enriched operators, existing 710-test coverage, 8 identified gaps for ~140 new integration tests"
+        }
+      ],
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3,
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_integration-testing.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      }
     },
     {
       "project_number": 114,
