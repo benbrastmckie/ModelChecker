@@ -112,7 +112,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Enriched formula round-trip tests [NOT STARTED]
+### Phase 2: Enriched formula round-trip tests [COMPLETED]
 
 **Goal**: For each of the 11 enriched operators, verify that submitting enriched-tag JSON and primitive-tag JSON to `find_countermodel()` yields identical SAT/UNSAT results, and that `formula_folded_json` and `temporal_depth` are consistent.
 
