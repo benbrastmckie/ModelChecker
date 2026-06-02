@@ -79,7 +79,7 @@ Split an existing file when:
 ### Core Workflows (`.claude/context/workflows/`)
 
 **When to revise**: Workflow pattern changes
-**Examples**: `command-lifecycle.md`, `status-transitions.md`, `preflight-postflight.md`
+**Examples**: `command-lifecycle.md`, `preflight-postflight.md`
 **Revision pattern**: Update in place, document changes
 **Frequency**: Medium (monthly)
 

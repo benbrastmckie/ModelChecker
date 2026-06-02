@@ -55,6 +55,7 @@ project_name=$(echo "$task_data" | jq -r '.project_name')
 task_type=$(echo "$task_data" | jq -r '.task_type // "general"')
 status=$(echo "$task_data" | jq -r '.status')
 description=$(echo "$task_data" | jq -r '.description // ""')
+parent_topic=$(echo "$task_data" | jq -r '.topic // ""')  # Inherited by spawned tasks
 ```
 
 ---
@@ -292,7 +293,7 @@ for idx in $(echo "$dependency_order" | jq -r '.[]'); do
     # Create task slug
     task_slug=$(echo "$task_title" | tr '[:upper:]' '[:lower:]' | tr ' ' '_' | sed 's/[^a-z0-9_]//g')
 
-    # Add to state.json
+    # Add to state.json (inherit parent topic if available)
     jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
        --argjson num "$new_task_num" \
        --arg name "$task_slug" \
@@ -301,6 +302,7 @@ for idx in $(echo "$dependency_order" | jq -r '.[]'); do
        --arg lang "$task_lang" \
        --argjson deps "$resolved_deps" \
        --argjson parent "$task_number" \
+       --arg topic "$parent_topic" \
        --arg report "$report_path" \
       '.active_projects += [{
         "project_number": $num,
@@ -310,11 +312,13 @@ for idx in $(echo "$dependency_order" | jq -r '.[]'); do
         "description": $desc,
         "effort": $effort,
         "parent_task": $parent,
+        "topic": (if ($topic == "") then null else $topic end),
         "dependencies": $deps,
         "created": $ts,
         "last_updated": $ts,
         "artifacts": [{"type": "research", "path": $report, "summary": "Spawn analysis from parent task"}]
-      }]' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+      } | if .topic == null then del(.topic) else . end]' \
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
 done
 
 # Update next_project_number
@@ -383,6 +387,36 @@ new_string: - **Dependencies**: Task #242, Task #243
 ```
 
 Use Edit tool to update the parent task entry.
+
+---
+
+### Stage 14a: Update active_topics (Non-Blocking)
+
+If the parent task has a topic, ensure it is present in the `active_topics` array:
+
+```bash
+# Append inherited parent topic to active_topics if not already present
+if [[ -n "$parent_topic" ]]; then
+  jq --arg t "$parent_topic" '
+    if ((.active_topics // []) | index($t)) == null
+    then .active_topics = ((.active_topics // []) + [$t])
+    else . end' \
+    specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+fi
+```
+
+---
+
+### Stage 14b: Update Task Order Section (Non-Blocking)
+
+After all new tasks have been written to state.json and TODO.md, regenerate the Task Order section:
+
+```bash
+if [ -f ".claude/scripts/generate-task-order.sh" ]; then
+  bash ".claude/scripts/generate-task-order.sh" --update-todo specs/TODO.md specs/state.json \
+    2>/dev/null || echo "Note: Failed to regenerate Task Order (non-fatal)" >&2
+fi
+```
 
 ---
 

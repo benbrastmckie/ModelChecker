@@ -86,7 +86,7 @@ For the full multi-layer architecture, see `architecture/context-layers.md`.
 
 **Tier 2: Commands (Targeted)**
 - Budget: 10-20% context window (~20-40KB)
-- Files: `formats/subagent-return.md`, `workflows/status-transitions.md`, command-specific
+- Files: `formats/subagent-return.md`, command-specific
 - Purpose: Command validation and formatting
 
 **Tier 3: Agents (Domain-Specific)**

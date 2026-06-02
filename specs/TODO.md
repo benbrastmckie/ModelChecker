@@ -18,7 +18,7 @@ next_project_number: 115
 
 **Wave 6 — Integration & Fix:**
 105 [NOT STARTED] — Integration testing and validation (dep: 103✓, 104, 112✓)
-114 [NOT STARTED] — Fix skolem_abundance over-constraint at M>=3 (dep: 108✓)
+114 [IMPLEMENTING] — Fix skolem_abundance over-constraint at M>=3 (dep: 108✓)
 
 ```
 Waves 1–4: ✓ complete
@@ -34,9 +34,11 @@ Wave 6:  105   114
 
 ### 114. Fix skolem_abundance over-constraint at M>=3
 - **Effort**: medium
-- **Status**: [NOT STARTED]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Dependencies**: 108
+- **Report**: [specs/114_skolem_abundance_overconstrain_fix/reports/01_skolem-abundance-fix.md]
+- **Plan**: [specs/114_skolem_abundance_overconstrain_fix/plans/01_skolem-abundance-fix.md]
 
 **Description**: The `capped_skolem_abundance_constraint` in BimodalSemantics (semantic.py) over-constrains no-premise queries at M>=3, causing the solver to time out or return spurious UNSAT. This forces the oracle to use M=max(depth,2) instead of the spec'd M=max(depth+2,3), which means boundary_safe is always False for depth>=1 formulas. Root cause: skolem_abundance requires shifted copies of every world for every valid shift, which at M=3 creates an exponential blowup in the constraint system. Investigate: (1) Can skolem_abundance be weakened (e.g., only require shifts up to temporal_depth rather than M-1)? (2) Can it be made conditional on formula structure? (3) Can the constraint encoding be reformulated to avoid the MBQI blowup? Fix should enable M=max(depth+2,3) without solver timeout, restoring proper boundary safety. Gate: the xfail test in test_soundness_regression.py passes (shift closure at M=3); oracle can use M=max(depth+2,3); all existing tests still pass; boundary_safe=True for depth-0 and depth-1 formulas.
 

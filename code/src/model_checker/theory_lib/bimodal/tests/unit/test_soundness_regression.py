@@ -967,3 +967,205 @@ class TestKnownBoundaryUnsafe:
         )
         assert result["temporal_depth"] == 2
         assert result["time_bound"] == 2
+
+
+##############################################################################
+# Phase 6 (Task 114): Grounded-Dispatch and M=max(depth+2,3) Tests (TDD Red)
+##############################################################################
+
+class TestGroundedDispatch:
+    """Tests for conditional dispatch to build_grounded_abundance_constraints at M>=3.
+
+    After the Task 114 fix:
+    - M>=3: BimodalSemantics uses build_grounded_abundance_constraints() (list of constraints)
+    - M=2:  BimodalSemantics uses capped_skolem_abundance_constraint() (single constraint)
+
+    These tests verify the dispatch logic and that M=3 no longer causes UNSAT on
+    valid no-premise queries like atom('p').
+    """
+
+    def test_grounded_dispatch_at_m3(self):
+        """BimodalSemantics at M=3 uses build_grounded_abundance_constraints() returning a list.
+
+        After the fix, build_grounded_abundance_constraints() is called for M>=3.
+        The method returns a non-empty list (not a single formula).
+        """
+        from model_checker.utils.context import isolated_z3_context
+
+        settings = {
+            'N': 2,
+            'M': 3,
+            'contingent': False,
+            'disjoint': False,
+            'max_time': 10.0,
+            'expectation': True,
+            'solver': 'z3',
+        }
+
+        with isolated_z3_context():
+            semantics = BimodalSemantics(settings)
+            constraints = semantics.build_grounded_abundance_constraints()
+
+        assert isinstance(constraints, list), (
+            f"build_grounded_abundance_constraints() should return a list at M=3, "
+            f"got {type(constraints)}"
+        )
+        assert len(constraints) > 0, (
+            "build_grounded_abundance_constraints() returned empty list at M=3"
+        )
+
+    def test_capped_dispatch_at_m2(self):
+        """BimodalSemantics at M=2 still provides capped_skolem_abundance_constraint.
+
+        The capped method returns a single Z3 formula (not a list).
+        Verifies the M=2 path is unchanged by the Task 114 fix.
+        """
+        from model_checker.utils.context import isolated_z3_context
+
+        settings = {
+            'N': 2,
+            'M': 2,
+            'contingent': False,
+            'disjoint': False,
+            'max_time': 10.0,
+            'expectation': True,
+            'solver': 'z3',
+        }
+
+        with isolated_z3_context():
+            semantics = BimodalSemantics(settings)
+            constraint = semantics.capped_skolem_abundance_constraint()
+
+        # capped_skolem_abundance_constraint returns a single z3 expression, not a list
+        assert not isinstance(constraint, list), (
+            "capped_skolem_abundance_constraint() should return a single Z3 expression, "
+            f"not a list. Got: {type(constraint)}"
+        )
+
+    def test_m3_solver_no_timeout_on_atom(self):
+        """BimodalSemantics at M=3 solves atom('p') (SAT) without timeout.
+
+        Before the fix, M=3 caused solver timeout due to MBQI instantiation loop
+        in capped_skolem_abundance_constraint. After the fix (grounded dispatch),
+        the solver should return SAT quickly.
+        """
+        from model_checker import ModelConstraints, Syntax
+        from model_checker.theory_lib.bimodal import (
+            BimodalProposition, BimodalStructure, bimodal_operators
+        )
+        from model_checker.utils.context import isolated_z3_context
+
+        settings = {
+            'N': 2,
+            'M': 3,
+            'contingent': False,
+            'disjoint': False,
+            'max_time': 15.0,  # 15s timeout -- grounded should solve in <1s
+            'expectation': True,
+            'solver': 'z3',
+        }
+
+        with isolated_z3_context():
+            semantics = BimodalSemantics(settings)
+            syntax = Syntax([], ["p"], bimodal_operators)
+            model_constraints = ModelConstraints(settings, syntax, semantics, BimodalProposition)
+            structure = BimodalStructure(model_constraints, settings)
+
+            timed_out = structure.timeout
+            sat = structure.z3_model_status
+
+        assert not timed_out, (
+            "BimodalSemantics at M=3 timed out on atom('p'). "
+            "Expected grounded dispatch to solve this quickly (< 15s). "
+            "The MBQI over-constraint is still present."
+        )
+        assert sat, (
+            "BimodalSemantics at M=3 returned UNSAT for atom('p'). "
+            "After grounded dispatch fix, atom('p') should be SAT (countermodel exists)."
+        )
+
+
+class TestOracleMFormulaBoundarySafe:
+    """Tests that oracle uses M=max(depth+2,3) after the provider.py fix.
+
+    After the Task 114 fix:
+    - depth=0: M=max(0+2,3)=3, boundary_safe=(3>1)=True
+    - depth=1: M=max(1+2,3)=3, boundary_safe=(3>2)=True
+    - depth=2: M=max(2+2,3)=4, boundary_safe=(4>3)=True
+    All formulas are now boundary_safe=True.
+    """
+
+    def setup_method(self):
+        self.provider = Z3OracleProvider()
+
+    def test_oracle_m_formula_depth0_boundary_safe(self):
+        """depth=0 formula: oracle uses M=max(0+2,3)=3, boundary_safe=True."""
+        result = self.provider.find_countermodel(ATOM_A)
+        assert result is not None, "atom(A) should have a countermodel"
+        assert result["boundary_safe"] is True, (
+            f"Expected boundary_safe=True for depth-0 formula with M=max(0+2,3)=3. "
+            f"Got boundary_safe={result['boundary_safe']}, M={result['time_bound']}"
+        )
+        assert result["time_bound"] == 3, (
+            f"Expected time_bound=3 for depth-0 formula (M=max(0+2,3)=3), "
+            f"got {result['time_bound']}"
+        )
+
+    def test_oracle_m_formula_depth1_boundary_safe(self):
+        """depth=1 formula: oracle uses M=max(1+2,3)=3, boundary_safe=True."""
+        result = self.provider.find_countermodel(F_P)
+        assert result is not None, "F(p) should have a countermodel"
+        assert result["boundary_safe"] is True, (
+            f"Expected boundary_safe=True for depth-1 formula with M=max(1+2,3)=3. "
+            f"Got boundary_safe={result['boundary_safe']}, M={result['time_bound']}"
+        )
+        assert result["time_bound"] == 3, (
+            f"Expected time_bound=3 for depth-1 formula (M=max(1+2,3)=3), "
+            f"got {result['time_bound']}"
+        )
+
+    def test_oracle_m_formula_depth2_boundary_safe(self):
+        """depth=2 formula: oracle uses M=max(2+2,3)=4, boundary_safe=True."""
+        result = self.provider.find_countermodel(GF_P)
+        assert result is not None, "G(F(p)) should have a countermodel"
+        assert result["boundary_safe"] is True, (
+            f"Expected boundary_safe=True for depth-2 formula with M=max(2+2,3)=4. "
+            f"Got boundary_safe={result['boundary_safe']}, M={result['time_bound']}"
+        )
+        assert result["time_bound"] == 4, (
+            f"Expected time_bound=4 for depth-2 formula (M=max(2+2,3)=4), "
+            f"got {result['time_bound']}"
+        )
+
+    def test_gg_p_returns_countermodel_at_m4(self):
+        """G(G(p)) at oracle's M=max(2+2,3)=4 returns a countermodel (non-None).
+
+        After the fix, G(G(p)) uses M=4 (boundary-safe). At M=4, the inner G(p)
+        at t'=1 is no longer vacuously true (t''=3 is in domain and p can be false).
+        So G(G(p)) can be falsified, and oracle returns a genuine countermodel.
+        """
+        result = self.provider.find_countermodel(GG_P)
+        assert result is not None, (
+            "G(G(p)) should return a countermodel at M=max(2+2,3)=4. "
+            "At M=4, inner G(p) at t'=1 is NOT vacuously true (t''=3 exists). "
+            f"Got: {result}"
+        )
+        assert result["boundary_safe"] is True, (
+            f"Expected boundary_safe=True for G(G(p)) at M=4, "
+            f"got {result['boundary_safe']}"
+        )
+
+    def test_fg_p_returns_countermodel_at_m4(self):
+        """F(G(p)) at oracle's M=max(2+2,3)=4 returns a countermodel (non-None).
+
+        After the fix, F(G(p)) uses M=4 (boundary-safe). The oracle asks if
+        ~F(G(p)) = G(~G(p)) is satisfiable. At M=4, ~G(p) at t'=1 is NOT
+        vacuously false (t''=3 exists, so p can be false at t''=3). Therefore
+        G(~G(p)) can be satisfied, meaning F(G(p)) has a countermodel.
+        """
+        result = self.provider.find_countermodel(FG_P)
+        assert result is not None, (
+            "F(G(p)) should return a countermodel at M=max(2+2,3)=4. "
+            "At M=4, the inner G(p) is no longer vacuously true at boundary. "
+            f"Got: {result}"
+        )

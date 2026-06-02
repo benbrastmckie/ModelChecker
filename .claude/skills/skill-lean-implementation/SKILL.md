@@ -57,20 +57,9 @@ fi
 
 Update task status to "implementing" BEFORE invoking subagent.
 
-**Update state.json**:
 ```bash
-jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-   --arg status "implementing" \
-   --arg sid "$session_id" \
-  '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
-    status: $status,
-    last_updated: $ts,
-    session_id: $sid,
-    started: $ts
-  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+bash .claude/scripts/update-task-status.sh preflight "$task_number" implement "$session_id"
 ```
-
-**Update TODO.md**: Use Edit tool to change status marker from `[PLANNED]` to `[IMPLEMENTING]`.
 
 ---
 
@@ -199,18 +188,30 @@ fi
 
 **If status is "implemented" AND verification_passed is true**:
 
-Update state.json to "completed":
 ```bash
-jq --arg ts "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-   --arg status "completed" \
-  '(.active_projects[] | select(.project_number == '$task_number')) |= . + {
-    status: $status,
-    last_updated: $ts,
-    completed: $ts
-  }' specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+bash .claude/scripts/update-task-status.sh postflight "$task_number" implement "$session_id"
 ```
 
-Update TODO.md: Change status marker from `[IMPLEMENTING]` to `[COMPLETED]`.
+Then add completion_data to state.json (not covered by centralized script):
+```bash
+# Extract completion_data fields from metadata (if present)
+completion_summary=$(jq -r '.completion_data.completion_summary // ""' "$metadata_file")
+roadmap_items=$(jq -c '.completion_data.roadmap_items // []' "$metadata_file")
+
+# Add completion_summary if present
+if [ -n "$completion_summary" ]; then
+    jq --arg summary "$completion_summary" \
+      '(.active_projects[] | select(.project_number == '$task_number')).completion_summary = $summary' \
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+fi
+
+# Add roadmap_items if present (for non-meta tasks only)
+if [ "$task_type" != "meta" ] && [ "$roadmap_items" != "[]" ] && [ -n "$roadmap_items" ]; then
+    jq --argjson items "$roadmap_items" \
+      '(.active_projects[] | select(.project_number == '$task_number')).roadmap_items = $items' \
+      specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+fi
+```
 
 **If status is "partial"**:
 

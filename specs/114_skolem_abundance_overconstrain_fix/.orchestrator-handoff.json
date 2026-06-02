@@ -1,0 +1,21 @@
+{
+  "status": "planned",
+  "summary": "4-phase plan to fix skolem_abundance over-constraint: conditional dispatch to grounded constraints at M>=3, restore M=max(depth+2,3), update boundary tests",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "implement",
+  "phases_completed": 0,
+  "phases_total": 4,
+  "artifacts": [
+    {
+      "path": "specs/114_skolem_abundance_overconstrain_fix/reports/01_skolem-abundance-fix.md",
+      "type": "report",
+      "summary": "Root cause analysis of MBQI blowup from triply-nested quantifier in capped_skolem_abundance_constraint at M>=3, with constraint complexity breakdown, three fix options, and recommendation to dispatch to existing build_grounded_abundance_constraints"
+    },
+    {
+      "path": "specs/114_skolem_abundance_overconstrain_fix/plans/01_skolem-abundance-fix.md",
+      "type": "plan",
+      "summary": "Implementation plan with 4 sequential phases: TDD red tests, semantic.py dispatch fix, provider.py M formula + test updates, full regression gate"
+    }
+  ]
+}

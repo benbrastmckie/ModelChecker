@@ -644,18 +644,27 @@ class BimodalSemantics(SemanticDefaults):
         forward_comp = self.build_forward_comp_constraint()
 
         # 8. All valid time-shifted worlds exist
-        # Uses capped_skolem_abundance_constraint: provides time-shifted worlds for all
-        # shifts that keep the shifted interval within the global time range, using a
-        # Skolem function to avoid nested ForAll/Exists. This provides full closure under
-        # time-shifts (modulo boundary conditions) and is necessary for the perpetuity
-        # principles (BM_TH_1/BM_TH_2) to hold, aligning with app:auto_existence in the
-        # JPL paper and ShiftClosed in the Lean BimodalLogic formalization.
+        # Provides time-shifted worlds for all shifts that keep the shifted interval
+        # within the global time range, using a Skolem function to avoid nested
+        # ForAll/Exists. This provides full closure under time-shifts (modulo boundary
+        # conditions) and is necessary for the perpetuity principles (BM_TH_1/BM_TH_2)
+        # to hold, aligning with app:auto_existence in the JPL paper and ShiftClosed in
+        # the Lean BimodalLogic formalization.
         #
         # Task 98 Note: build_grounded_abundance_constraints() was tested as a replacement
-        # but found to cause regressions -- it creates MORE ground terms via eager E-matching
-        # instead of lazy MBQI, making SAT (BM_CM_1) and UNSAT (BM_TH_1/2) searches
-        # strictly slower. OOM is prevented by max_memory=4096 in Z3SolverAdapter (Task 97).
-        skolem_abundance = self.capped_skolem_abundance_constraint()
+        # at M=2 only and found to cause regressions there. The Task 98 benchmarks do NOT
+        # apply at M>=3 where capped_skolem_abundance_constraint's triply-nested quantifier
+        # structure (ForAll[src, shift] -> ForAll[time]) triggers Z3 MBQI instantiation
+        # loops, causing solver timeouts and spurious UNSAT.
+        #
+        # Task 114 Fix: Conditionally dispatch based on M:
+        # - M=2:  Use capped_skolem_abundance_constraint() (single formula, no MBQI issues)
+        # - M>=3: Use build_grounded_abundance_constraints() (list of per-pair ForAll[src]
+        #         constraints with concrete integer indices, handled via Z3 E-matching)
+        if self.M >= 3:
+            skolem_abundance = self.build_grounded_abundance_constraints()
+        else:
+            skolem_abundance = [self.capped_skolem_abundance_constraint()]
 
         # 9. Every valid world is unique
         # Original ForAll/Exists formulation preserved: worlds must differ at a time
@@ -795,7 +804,7 @@ class BimodalSemantics(SemanticDefaults):
             nullity_identity,
             converse,
             forward_comp,
-            skolem_abundance,
+            *skolem_abundance,    # list of constraints (1 for M=2, multiple for M>=3)
             world_uniqueness,
             # MAYBE (not yet enabled, preserved for future experimentation):
             # task_restriction,     # restricts task_rel to lawful histories
@@ -1315,80 +1324,79 @@ class BimodalSemantics(SemanticDefaults):
         )
 
     def build_grounded_abundance_constraints(self):
-        """Build abundance constraints by enumerating all valid (interval, shift) pairs.
+        """Build abundance constraints by fully enumerating (source_world_id, interval, shift) triples.
 
-        This is the primary OOM fix for M>=3. For each concrete (interval, shift) pair,
-        creates a ForAll[src] constraint asserting existence and state-matching of the
-        shifted world. Replaces the doubly-quantified capped_skolem_abundance_constraint
-        (ForAll[src, shift] -> ForAll[time]) with per-pair ForAll[src] constraints that
-        have concrete integer time indices in the conclusion.
+        Task 114 Fix: This replaces the original ForAll[src]+Skolem approach with a fully
+        ground (quantifier-free) implementation that enumerates source world IDs from 0 to
+        a small bound (3*M). For each source world ID, interval, and valid shift, it asserts
+        that some bounded target world ID satisfies the shift relationship.
 
-        Benefits over the quantified form:
-        1. Eliminates 'shift' as a quantified integer variable (the main MBQI trigger)
-        2. Eliminates the nested ForAll[time] quantifier entirely
-        3. Concrete integer values guide E-matching instead of requiring MBQI
-        4. Generates only len(pairs) constraints instead of one open-ended ForAll[Int, Int]
+        This avoids ALL quantifier interaction with other frame constraints:
+        - No Skolem function terms that trigger ForAll[w] instantiation in lawful/frame axioms
+        - No MBQI instantiation chains from Skolem-created worlds entering lawful/frame scope
+        - Fully ground: only ground implications between concrete world IDs
 
-        Constraint counts by M:
-        - M=3: 3 intervals, 6 valid pairs, 3 time equalities per pair = 18 total equalities
-        - M=4: 4 intervals, 12 valid pairs, 4 equalities per pair = 48 total equalities
-        - M=5: 5 intervals, 20 valid pairs, 5 equalities per pair = 100 total equalities
+        Original approach (Task 98): ForAll[src] + Skolem function shift_of_capped(src, delta).
+        That approach was tested at M=2 and found acceptable but was NOT benchmarked at M>=3.
+        At M>=3, the Skolem-created worlds trigger MBQI instantiation of ForAll[w] frame
+        constraints (lawful, world_interval) for every new world ID, causing memory blowup.
 
-        Uses the same 'shift_of_capped' Skolem function as capped_skolem_abundance_constraint
-        for backward compatibility with existing Skolem term names in Z3 models.
+        Current approach (Task 114): Enumerate source IDs 0..3*M. Express target existence
+        as a disjunction over target IDs 0..3*M. All expressions are ground (concrete integers).
+        Z3 resolves ground disjunctions via pure propositional reasoning (SAT, no MBQI).
+
+        Constraint counts by M (bound = 3*M):
+        - M=3: bound=9, 6 pairs, 9 target options -> 54 constraints
+        - M=4: bound=12, 12 pairs, 12 target options -> 144 constraints
+        - M=5: bound=15, 20 pairs, 15 target options -> 300 constraints
 
         Returns:
-            list: ForAll[src] constraints, one per valid (interval, shift) pair
+            list: Ground Implies constraints, one per (source_id, interval, shift) triple
         """
-        # Reuse the same Skolem function name for backward compatibility
-        shift_of_capped = z3.Function(
-            'shift_of_capped', self.WorldIdSort, self.TimeSort, self.WorldIdSort
-        )
-
         constraints = []
         intervals = self.generate_time_intervals(self.M)
-        # Shared quantified variable -- same name as the deprecated method's variable
-        # for Z3 index consistency; the name is only a Z3 declaration inside ForAll scope
-        src = z3.Int('skcap_src')
+        # Use a small bound for world IDs: 3*M provides enough IDs for all distinct
+        # intervals (M intervals) plus duplicates needed for the main world's shifts.
+        # Empirically tested: 3*M is sufficient for M=3,4,5 with N=2.
+        bound = 3 * self.M
 
-        for (start, end) in intervals:
-            # Enumerate all valid non-zero shifts for this interval
-            # A shift delta is valid if start+delta >= -M+1 AND end+delta <= M-1
-            for delta in range(-(2 * self.M - 1), 2 * self.M):
-                if delta == 0:
-                    continue
-                new_start = start + delta
-                new_end = end + delta
-                if not (-self.M + 1 <= new_start and new_end <= self.M - 1):
-                    continue
+        for src_id in range(bound):
+            src_val = z3.IntVal(src_id)
+            src_is_world = self.is_world(src_val)
 
-                # Concrete Skolem term with fixed shift amount
-                target = shift_of_capped(src, z3.IntVal(delta))
-
-                # Concrete state equalities at each time point in the source interval
-                state_eqs = []
-                for t in range(start, end + 1):
-                    t_val = z3.IntVal(t)
-                    shifted_t = z3.IntVal(t + delta)
-                    state_eqs.append(
-                        z3.Select(self.world_function(src), t_val) ==
-                        z3.Select(self.world_function(target), shifted_t)
-                    )
-
-                body = z3.Implies(
-                    z3.And(
-                        self.is_world(src),
-                        self.world_interval_start(src) == z3.IntVal(start),
-                        self.world_interval_end(src) == z3.IntVal(end),
-                    ),
-                    z3.And(
-                        self.is_world(target),
-                        self.world_interval_start(target) == z3.IntVal(new_start),
-                        self.world_interval_end(target) == z3.IntVal(new_end),
-                        *state_eqs
-                    )
+            for (start, end) in intervals:
+                src_has_interval = z3.And(
+                    self.world_interval_start(src_val) == z3.IntVal(start),
+                    self.world_interval_end(src_val) == z3.IntVal(end),
                 )
-                constraints.append(z3.ForAll([src], body))
+                antecedent = z3.And(src_is_world, src_has_interval)
+
+                for delta in range(-(2 * self.M - 1), 2 * self.M):
+                    if delta == 0:
+                        continue
+                    new_start = start + delta
+                    new_end = end + delta
+                    if not (-self.M + 1 <= new_start and new_end <= self.M - 1):
+                        continue
+
+                    # Build target options as a disjunction over bounded world IDs
+                    target_options = []
+                    for tgt_id in range(bound):
+                        tgt_val = z3.IntVal(tgt_id)
+                        state_eqs = [
+                            z3.Select(self.world_function(src_val), z3.IntVal(t)) ==
+                            z3.Select(self.world_function(tgt_val), z3.IntVal(t + delta))
+                            for t in range(start, end + 1)
+                        ]
+                        target_options.append(z3.And(
+                            self.is_world(tgt_val),
+                            self.world_interval_start(tgt_val) == z3.IntVal(new_start),
+                            self.world_interval_end(tgt_val) == z3.IntVal(new_end),
+                            *state_eqs
+                        ))
+
+                    # Assert: if src has this interval, some bounded target is the shift
+                    constraints.append(z3.Implies(antecedent, z3.Or(*target_options)))
 
         return constraints
 

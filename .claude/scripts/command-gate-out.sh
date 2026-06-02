@@ -54,14 +54,15 @@ skill_status=$(jq -r '.status' "$meta_file")
 # Defensive status correction: map skill status to task status
 # Only applies when skill reports completion but state.json is stale
 case "$operation" in
-  research)  expected_status="researched" ;;
-  plan)      expected_status="planned" ;;
-  implement) expected_status="completed" ;;
-  *)         expected_status="" ;;
+  research)    expected_status="researched" ;;
+  plan)        expected_status="planned" ;;
+  implement)   expected_status="completed" ;;
+  orchestrate) expected_status="completed" ;;
+  *)           expected_status="" ;;
 esac
 
-if [ -n "$expected_status" ] && [ "$skill_status" = "implemented" ] || \
-   [ "$skill_status" = "researched" ] || [ "$skill_status" = "planned" ]; then
+if [ -n "$expected_status" ] && { [ "$skill_status" = "implemented" ] || \
+   [ "$skill_status" = "researched" ] || [ "$skill_status" = "planned" ]; }; then
 
   # Get current status from state.json using safe jq pattern (no != operator per Issue #1132)
   current_status=$(jq -r --argjson num "$task_number" \

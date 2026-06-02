@@ -1352,6 +1352,32 @@ Return ONLY valid JSON matching this schema:
    - Add to active_projects array
    - Increment next_project_number
 
+4a. **Update Task Order section** (non-blocking):
+   Run the following to regenerate the Task Order in TODO.md after all tasks have been written:
+   ```bash
+   if [ -f ".claude/scripts/generate-task-order.sh" ]; then
+     bash ".claude/scripts/generate-task-order.sh" --update-todo specs/TODO.md specs/state.json \
+       2>/dev/null || echo "Note: Failed to regenerate Task Order (non-fatal)" >&2
+   fi
+   ```
+
+4b. **Update active_topics** (after all tasks created, before Task Order call):
+
+   Collect the set of unique new topics assigned across all created tasks, then append any not already in `active_topics`:
+   ```bash
+   # Append each new topic to active_topics if not already present
+   for topic in "${new_topics[@]}"; do
+     [[ -z "$topic" ]] && continue
+     jq --arg t "$topic" '
+       if ((.active_topics // []) | index($t)) == null
+       then .active_topics = ((.active_topics // []) + [$t])
+       else . end' \
+       specs/state.json > specs/tmp/state.json && mv specs/tmp/state.json specs/state.json
+   done
+   ```
+
+   Where `new_topics` is the array of topic values assigned during Stage 5/6. Topics already in `active_topics` are skipped (idempotent). Topics that are empty/null are skipped via the `[[ -z "$topic" ]]` guard.
+
 5. **Git Commit**:
 ```bash
 git add specs/

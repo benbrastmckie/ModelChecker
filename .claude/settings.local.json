@@ -1,24 +1,10 @@
 {
-  "_comment": "Personal project overrides - not committed to git",
   "model": "opus",
-  "mcpServers": {
-    "mcp-nixos": {
-      "command": "uvx",
-      "args": [
-        "mcp-nixos"
-      ]
-    },
-    "lean-lsp": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "lean-lsp-mcp@latest"
-      ]
-    }
-  },
   "enabledMcpjsonServers": [
     "lean-lsp"
   ],
+  "outputStyle": "default",
+  "enableAllProjectMcpServers": true,
   "permissions": {
     "allow": [
       "Bash(echo:*)",
@@ -90,6 +76,20 @@
       "mcp__nixos__nix_versions"
     ]
   },
-  "enableAllProjectMcpServers": true,
-  "outputStyle": "default"
+  "mcpServers": {
+    "mcp-nixos": {
+      "command": "uvx",
+      "args": [
+        "mcp-nixos"
+      ]
+    },
+    "lean-lsp": {
+      "args": [
+        "-y",
+        "lean-lsp-mcp@latest"
+      ],
+      "command": "npx"
+    }
+  },
+  "_comment": "Personal project overrides - not committed to git"
 }

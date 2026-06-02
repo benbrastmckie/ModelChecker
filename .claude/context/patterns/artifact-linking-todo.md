@@ -26,6 +26,18 @@ All new artifact links use **bracket-only** format: `[{todo_link_path}]` (not ma
 
 ## Four-Case Edit Logic
 
+> **IMPORTANT -- Task Order Prohibition**
+>
+> Only target task entries in the `## Tasks` section of `specs/TODO.md`.
+> Anchor edits on `### {N}. {Title}` headings (the structured task entry blocks).
+>
+> **NEVER edit Task Order tree entries.** Task Order entries have the format:
+> `{N} [STATUS] -- {description}` (wave+tree indented lines after the `## Task Order` heading).
+> These entries are **auto-generated** by `generate-task-order.sh --update-todo` and must not
+> be manually edited. Any hand-edits to the Task Order section will be overwritten on the next
+> regeneration run. If the Task Order appears stale or incorrect, regenerate it via the script
+> rather than editing it directly.
+
 Read the task's entry in `specs/TODO.md` and determine which case applies.
 
 ### Case 1: No Existing Line

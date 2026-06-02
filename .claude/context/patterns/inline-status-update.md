@@ -1,5 +1,7 @@
 # Inline Status Update Patterns
 
+> **Note**: The primary status update path is `skill_preflight_update()` / `skill_postflight_update()` from `skill-base.sh`, which call `update-task-status.sh`. The jq patterns below document the underlying operations and serve as reference for debugging and recovery scenarios.
+
 Reusable patterns for updating task status directly in skills without invoking skill-status-sync.
 
 **IMPORTANT**: All artifact filtering uses `select(.type == "X" | not)` instead of `select(.type != "X")` to avoid Claude Code Issue #1132 which escapes `!=` as `\!=`. See `jq-escaping-workarounds.md` for details.

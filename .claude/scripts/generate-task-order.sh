@@ -48,13 +48,16 @@ while [[ $# -gt 0 ]]; do
       ;;
     --update-todo)
       MODE="update"
-      TODO_ARG="${2:-}"
-      STATE_ARG="${3:-}"
-      shift 3
+      shift  # consume --update-todo
+      TODO_ARG="${1:-}"
+      [[ $# -gt 0 ]] && shift
+      STATE_ARG="${1:-}"
+      [[ $# -gt 0 ]] && shift
       ;;
     --goal)
-      GOAL_OVERRIDE="${2:-}"
-      shift 2
+      shift  # consume --goal
+      GOAL_OVERRIDE="${1:-}"
+      [[ $# -gt 0 ]] && shift
       ;;
     *)
       echo "Unknown argument: $1" >&2

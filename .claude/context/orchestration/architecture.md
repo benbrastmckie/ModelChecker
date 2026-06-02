@@ -537,7 +537,6 @@ Example: Multi-file implementation → [implementer × N] → return all
 
 **See Also**:
 - `workflows/preflight-postflight.md` - Detailed workflow standards
-- `workflows/status-transitions.md` - Status transition rules
 
 ---
 

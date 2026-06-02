@@ -219,60 +219,39 @@ This document defines the complete set of status markers used throughout this ag
 
 ## Status Update Protocol
 
-**CRITICAL**: All status updates MUST be delegated to status-sync-manager for atomic synchronization.
+Status updates are performed by `skill-base.sh` functions that all workflow skills source:
 
-**DO NOT** update TODO.md or state.json directly.
+- `skill_preflight_update()` -- called BEFORE work begins. Sets the in-progress status variant (e.g., `[RESEARCHING]`, `[IMPLEMENTING]`) in both `state.json` and `TODO.md`.
+- `skill_postflight_update()` -- called AFTER work completes. Sets the final status variant (e.g., `[RESEARCHED]`, `[COMPLETED]`) and links artifacts.
+
+Both functions delegate to `update-task-status.sh` for the actual atomic file updates.
+
+For manual corrections and recovery operations outside the normal workflow, use the `skill-status-sync` skill, which provides standalone preflight, postflight, and artifact-link operations.
 
 ### Preflight Status Update
 
-**When**: BEFORE work begins (in step_0_preflight)  
+**When**: BEFORE work begins  
+**Path**: `skill_preflight_update()` in `skill-base.sh` -> `update-task-status.sh`  
 **Purpose**: Signal work has started  
-**Example**: `/research` updates status to `[RESEARCHING]` before beginning research
-
-```json
-{
-  "operation": "update_status",
-  "task_number": 321,
-  "new_status": "researching",
-  "timestamp": "2026-01-05",
-  "session_id": "sess_20260105_abc123"
-}
-```
+**Example**: `/research` calls `skill_preflight_update()` to set `[RESEARCHING]` before beginning research
 
 ### Postflight Status Update
 
-**When**: AFTER work completes (in step_7_postflight or equivalent)  
-**Purpose**: Signal work has finished, link artifacts  
-**Example**: `/research` updates status to `[RESEARCHED]` after creating research report
-
-```json
-{
-  "operation": "update_status",
-  "task_number": 321,
-  "new_status": "researched",
-  "timestamp": "2026-01-05",
-  "session_id": "sess_20260105_abc123",
-  "validated_artifacts": [
-    {
-      "type": "research_report",
-      "path": "specs/321_topic/reports/01_research-findings.md",
-      "summary": "Research findings",
-      "validated": true
-    }
-  ]
-}
-```
+**When**: AFTER work completes  
+**Path**: `skill_postflight_update()` in `skill-base.sh` -> `update-task-status.sh`  
+**Purpose**: Signal work has finished and link artifacts  
+**Example**: `/research` calls `skill_postflight_update()` to set `[RESEARCHED]` after creating research report
 
 ---
 
 ## Atomic Synchronization
 
-status-sync-manager updates atomically:
-1. TODO.md (status marker, timestamps, artifact links)
-2. state.json (status field, timestamps, artifact_paths)
+`update-task-status.sh` performs updates atomically in this order:
+1. `state.json` (status field, timestamps, artifact_paths)
+2. `TODO.md` (status marker, timestamps, artifact links)
 3. Plan file (phase status markers, if plan exists)
 
-**Atomic Write Pattern**: All files updated or none (uses temp files + atomic rename)
+All files are updated via temp-file + atomic rename so no partial state is written on failure.
 
 ---
 
@@ -310,8 +289,9 @@ status-sync-manager updates atomically:
 ## References
 
 - **state-management.md**: Complete state management standard
-- **status-transitions.md**: Status transition workflows
-- **status-sync-manager.md**: Atomic synchronization implementation
+- **skill-base.sh**: Source for `skill_preflight_update()` and `skill_postflight_update()` functions
+- **update-task-status.sh**: Atomic status update script called by skill-base.sh functions
+- **skill-status-sync/SKILL.md**: Standalone skill for manual status corrections and recovery
 
 ---
 

@@ -505,9 +505,77 @@ This approach keeps dispatch logic co-located with each command's validation and
 
 ---
 
+## 13. Orchestrate-Specific Behavior
+
+### Why Wave Dispatch Instead of Pure Parallel
+
+`/research`, `/plan`, and `/implement` operate on a **single lifecycle phase**: each command performs one well-defined step for each task. Since one task's research does not depend on another task's research completing (they are independent state machines), pure parallel dispatch is safe.
+
+`/orchestrate` is different: it drives tasks through their **entire lifecycle** (research -> plan -> implement -> complete). When task B depends on task A, B must not begin orchestration until A has completed -- if B requires A's output, starting B before A finishes produces incorrect results.
+
+This requires **wave-based dispatch**: tasks are grouped into topological waves based on their intra-batch dependency graph, waves execute sequentially, and tasks within each wave run in parallel.
+
+### Intra-Batch Dependency Resolution
+
+Only dependencies between tasks **within the current batch** affect wave assignment. External dependencies (on tasks not in the batch) are ignored for ordering purposes -- those are assumed to be already completed or irrelevant to the current run.
+
+```
+Example: /orchestrate 42, 43, 44, 45
+  state.json dependencies:
+    43 depends on [42, 10]  (10 is outside batch -- ignored)
+    44 depends on [43]
+    45 depends on [42]
+
+  Intra-batch dependency graph:
+    42: no deps         -> Wave 0
+    43: depends on 42   -> Wave 1
+    44: depends on 43   -> Wave 2
+    45: depends on 42   -> Wave 1
+
+  Execution:
+    Wave 0: [42]          (parallel -- 1 task)
+    Wave 1: [43, 45]      (parallel -- both depend only on Wave 0)
+    Wave 2: [44]          (parallel -- depends on Wave 1)
+```
+
+### Failed Predecessor Handling
+
+A failed task in Wave N causes its **direct dependents** to be skipped in Wave N+1 (and transitively in later waves). Failure does NOT propagate sideways -- other tasks in Wave N that succeeded do NOT become failed.
+
+The failed predecessor rule is applied at wave dispatch time:
+1. Before dispatching Wave N+1, check each task in the wave for failed predecessors.
+2. If any predecessor is in the failed or skipped set, move that task to `skipped_tasks` with reason "predecessor {N} failed/skipped".
+3. Dispatch only the remaining (non-skipped) tasks in the wave.
+
+This ensures a clean failure boundary: only the dependency chain of the failed task is affected.
+
+### Focus Prompt Compatibility
+
+The optional focus prompt (e.g., `/orchestrate 42, 43 focus on the auth layer`) applies uniformly to all tasks in the batch. Each `skill-orchestrate` invocation receives the same `focus_prompt` value. Per-task focus prompts are not supported; run separate `/orchestrate` commands for different focus areas.
+
+### `--team` Flag Not Supported
+
+`/orchestrate` does not support the `--team` flag. Team mode adds vertical parallelism (multiple agents per task), which conflicts with the wave orchestration model where each task's lifecycle must complete fully before dependents begin. Mixing team parallelism with wave sequencing would require complex state tracking beyond the current design scope.
+
+### Dispatch Model Comparison
+
+| Property | `/research`, `/plan`, `/implement` | `/orchestrate` |
+|----------|------------------------------------|----------------|
+| Scope per task | Single lifecycle phase | Full lifecycle (all phases) |
+| Dispatch model | Pure parallel (all tasks at once) | Wave dispatch (topological order) |
+| Dependency awareness | None (each phase is independent) | Yes (intra-batch dependency graph) |
+| Failed task impact | No cross-task impact | Blocks direct dependents in later waves |
+| Team mode support | Yes (`--team` flag) | No |
+| Batch session ID | Single ID, per-task suffix | Single ID, per-task suffix |
+| Per-task skill | Routed by task_type | Always `skill-orchestrate` |
+| Parallelism | All validated tasks simultaneously | Tasks within each wave simultaneously |
+
+---
+
 ## See Also
 
 - `checkpoint-execution.md` -- Three-checkpoint command flow (GATE IN, DELEGATE, GATE OUT)
 - `team-orchestration.md` -- Wave-based parallel agent spawning (precedent for parallel Skill/Task calls)
 - `skill-lifecycle.md` -- Self-contained skill lifecycle management
 - `routing.md` -- `parse_ranges()` function and task-type-based routing tables
+- `.claude/commands/orchestrate.md` -- Full orchestrate command implementation with MULTI-TASK DISPATCH section

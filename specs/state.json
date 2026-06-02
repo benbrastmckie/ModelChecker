@@ -743,10 +743,10 @@
     {
       "project_number": 114,
       "project_name": "skolem_abundance_overconstrain_fix",
-      "status": "not_started",
+      "status": "implementing",
       "task_type": "python",
       "created": "2026-06-01T22:00:00Z",
-      "last_updated": "2026-06-01T22:00:00Z",
+      "last_updated": "2026-06-02T00:43:18Z",
       "dependencies": [
         108
       ]
