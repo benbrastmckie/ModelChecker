@@ -2998,6 +2998,828 @@
       "task_type": "python",
       "archived": "2026-05-30T23:58:00Z",
       "completion_summary": "Absorbed by task 106 architecture review."
+    },
+    {
+      "project_number": 100,
+      "project_name": "strip_non_bimodal_code",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-06-01T16:00:00Z",
+      "session_id": "sess_1780208200_22f2ee",
+      "completion_summary": "Stripped all non-bimodal code from ModelChecker: deleted logos/, iterate/, jupyter/, output/notebook/ directories (203 files), fixed 13 hard coupling points, removed bimodal/iterate.py dependency, updated 25+ test files, removed networkx/jupyter/cvc5 dependencies from pyproject.toml. Gate: 171 of 172 expected tests pass (BM_CM_1 pre-existing timeout issue unrelated to changes).",
+      "researched": "2026-06-01T00:00:00Z",
+      "planned": "2026-06-01T12:00:00Z",
+      "next_artifact_number": 3,
+      "plan_metadata": {
+        "phases": 6,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ],
+          [
+            6
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_codebase-audit.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/100_strip_non_bimodal_code/reports/01_codebase-audit.md",
+          "type": "research",
+          "summary": "Complete codebase audit: files to delete, coupling points with line refs, dependency analysis, risk assessment, and test baseline"
+        },
+        {
+          "path": "specs/100_strip_non_bimodal_code/plans/02_implementation-plan.md",
+          "type": "plan",
+          "summary": "6-phase implementation plan: fix coupling, remove iterate dep, delete modules, clean refs, clean tests, clean dependencies"
+        },
+        {
+          "path": "specs/100_strip_non_bimodal_code/summaries/02_strip-non-bimodal-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 6 phases completed, 203+ files deleted, 171 tests passing"
+        }
+      ],
+      "archived": "2026-06-02T08:37:41Z"
+    },
+    {
+      "project_number": 101,
+      "project_name": "restructure_pip_package",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-06-01T09:35:00Z",
+      "next_artifact_number": 2,
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 2.5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_restructure-research.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "completion_summary": "Restructured codebase as bimodal-logic pip package: overhauled pyproject.toml (name bimodal-logic, version 0.1.0, Python >=3.10, z3-solver dependency, entry-point stub), created bimodal_logic/ facade package with 4 stub files, cleaned stale egg-info, verified editable install and imports. 171/172 bimodal tests pass (1 pre-existing failure).",
+      "archived": "2026-06-02T08:37:41Z"
+    },
+    {
+      "project_number": 102,
+      "project_name": "formula_json_translation",
+      "status": "completed",
+      "completion_summary": "Implemented json_to_prefix (17-tag dispatcher), temporal_depth (recursive walker), prefix_to_infix (standalone converter) in bimodal_logic/translation.py. Added Sentence.from_prefix() classmethod to sentence.py. 106 new tests, 325 total bimodal tests pass.",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-06-01T19:10:00Z",
+      "session_id": "sess_1780336357_1a2c03",
+      "researched": "2026-06-01T18:45:00Z",
+      "planned": "2026-06-01T19:10:00Z",
+      "next_artifact_number": 2,
+      "dependencies": [
+        100,
+        111
+      ],
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_formula-json-translation.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/102_formula_json_translation/reports/01_formula-json-translation.md",
+          "type": "research",
+          "summary": "JSON tag schema (6 primitive + 11 enriched), json_to_prefix design, temporal_depth rules, Sentence.from_prefix gap analysis, pipeline integration, test strategy, and key file mapping"
+        },
+        {
+          "path": "specs/102_formula_json_translation/plans/01_formula-json-translation.md",
+          "type": "plan",
+          "summary": "4-phase TDD plan: write translation tests, implement json_to_prefix/temporal_depth/prefix_to_infix, add Sentence.from_prefix, verify enriched operator Z3 equivalence"
+        }
+      ],
+      "archived": "2026-06-02T08:37:41Z"
+    },
+    {
+      "project_number": 103,
+      "project_name": "oracle_provider_implementation",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
+      "dependencies": [
+        101,
+        102,
+        112
+      ],
+      "next_artifact_number": 3,
+      "completion_summary": "Implemented Z3OracleProvider with find_countermodel() pipeline (JSON->prefix->infix->BimodalSemantics->ModelConstraints->BimodalStructure->serialize). Implemented serialization helpers (extract_true_false_atoms, extract_task_triples, serialize_world_histories, serialize_countermodel). 80 new tests pass: provider properties, output contract, 100-call state isolation, 42-example regression. Full bimodal suite 627/627 passing.",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 6,
+        "complexity": "complex",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_tiered-oracle-architecture.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          },
+          {
+            "path": "reports/02_oracle-provider-research.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/103_oracle_provider_implementation/reports/01_tiered-oracle-architecture.md",
+          "type": "research",
+          "summary": "Cross-repository architecture analysis proposing tiered oracle approach (Tier 1: quantifier-free, Tier 2: quantified BimodalSemantics)"
+        },
+        {
+          "path": "specs/103_oracle_provider_implementation/reports/02_oracle-provider-research.md",
+          "type": "research",
+          "summary": "Complete pipeline survey: all component locations, API signatures, ternary task_rel extraction loop, serialization design, 43-example test suite, and implementation approach"
+        },
+        {
+          "path": "specs/103_oracle_provider_implementation/plans/01_oracle-provider-plan.md",
+          "type": "plan",
+          "summary": "5-phase TDD plan: test infrastructure, serialization helpers, provider implementation, Z3 isolation tests, 43-example regression via oracle interface"
+        },
+        {
+          "path": "specs/103_oracle_provider_implementation/summaries/01_oracle-provider-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 5 phases completed, 80 new tests passing, full bimodal suite 627/627, key deviation: M=max(depth,2) instead of max(depth+2,3) to avoid M>=3 over-constraint"
+        }
+      ],
+      "archived": "2026-06-02T08:37:41Z"
+    },
+    {
+      "project_number": 104,
+      "project_name": "programmatic_api_cleanup",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
+      "next_artifact_number": 2,
+      "completion_summary": "Removed CLI-only dead code: builder/ directory (67 files), output/progress/ and 9 dead output files, 16 dead output tests, cli.py debug artifact, profile_abundance.py, test_cli_execution.py. Simplified model_checker/__init__.py and output/__init__.py. Cleaned __main__.py logos dead-code. Added bimodal-logic check CLI (bimodal_logic/cli.py) backed by Z3OracleProvider with JSON output. 18 new TDD tests pass. Core bimodal test suite 624-627 passing (2 pre-existing BM_CM_1 flaky failures).",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 4,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_dead-code-cleanup.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/104_programmatic_api_cleanup/reports/01_dead-code-cleanup.md",
+          "type": "research",
+          "summary": "Complete file-by-file inventory: builder/ and output/ are CLI-only dead code. Oracle pipeline import chain documented. Thin CLI design for bimodal-logic check command. Risk assessment for each removal."
+        },
+        {
+          "path": "specs/104_programmatic_api_cleanup/plans/01_dead-code-cleanup-plan.md",
+          "type": "plan",
+          "summary": "5-phase plan: remove builder/, remove dead output/ components, remove other dead code, add thin CLI, final validation"
+        },
+        {
+          "path": "specs/104_programmatic_api_cleanup/summaries/01_dead-code-cleanup-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 5 phases completed, ~102 files deleted, 18 new CLI tests passing, oracle pipeline and bimodal test suite intact, no plan deviations"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 105,
+      "project_name": "integration_testing_validation",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-05-30T12:00:00Z",
+      "last_updated": "2026-06-01T23:30:00Z",
+      "dependencies": [
+        103,
+        104,
+        112
+      ],
+      "next_artifact_number": 2,
+      "artifacts": [
+        {
+          "path": "specs/105_integration_testing_validation/reports/01_integration-testing.md",
+          "type": "research",
+          "summary": "Full mapping of OracleProvider protocol, 52 examples, 11 enriched operators, existing 710-test coverage, 8 identified gaps for ~140 new integration tests"
+        },
+        {
+          "path": "specs/105_integration_testing_validation/plans/01_integration-testing-plan.md",
+          "type": "plan",
+          "summary": "4-phase plan: oracle regression, enriched round-trips, cross-signal/boundary, edge cases/stress tests"
+        },
+        {
+          "path": "specs/105_integration_testing_validation/summaries/01_integration-testing-summary.md",
+          "type": "summary",
+          "summary": "105 tests passing across 10 test classes covering oracle API validation, enriched operators, SPOT_CHECK cross-signal, and Z3 isolation"
+        }
+      ],
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3,
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_integration-testing.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "completion_summary": "Created test_oracle_interface.py with 105 passing integration tests (3 skipped) across 10 test classes: oracle API protocol compliance, 41-example regression via find_countermodel(), 11 enriched operator round-trips, SPOT_CHECK cross-signal validation, boundary/ternary serialization checks, edge cases, entry-point discovery, and Z3 isolation stress testing (150+ sequential calls).",
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 106,
+      "project_name": "architecture_review_refactor",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-05-30T12:30:00Z",
+      "last_updated": "2026-06-01T00:00:00Z",
+      "session_id": "sess_1780208200_22f2ee",
+      "researched": "2026-05-31T06:13:51Z",
+      "next_artifact_number": 5,
+      "completion_summary": "Produced architectural decision record (ADR) with 9 decisions capturing three-repo architecture, zero code-level dependency, two-layer package structure, boundary buffer mitigation, ternary serialization, and empirical soundness strategy. Rewrote task descriptions for 100-105 with specific file references and acceptance criteria. Created 4 new tasks (107-110) covering boundary analysis, soundness regression tests, cross-oracle differential testing, and frame class validation. Updated dependency graph and confirmed DAG with wave structure enabling maximum parallelism.",
+      "artifacts": [
+        {
+          "path": "specs/106_architecture_review_refactor/reports/01_team-research.md",
+          "type": "research",
+          "summary": "Team research with 4 teammates"
+        },
+        {
+          "path": "specs/106_architecture_review_refactor/reports/02_team-research.md",
+          "type": "research",
+          "summary": "Team research with 4 teammates: BimodalLogic alignment and soundness architecture"
+        },
+        {
+          "path": "specs/106_architecture_review_refactor/reports/03_clean-break-architecture.md",
+          "type": "research",
+          "summary": "Clean-break architecture design research"
+        },
+        {
+          "path": "specs/106_architecture_review_refactor/plans/03_implementation-plan.md",
+          "type": "plan",
+          "summary": "5-phase plan to update task descriptions 99-105, create 4 new tasks (107-110), produce architectural decision record, and update dependency graph"
+        },
+        {
+          "path": "specs/106_architecture_review_refactor/reports/04_architectural-decisions.md",
+          "type": "research",
+          "summary": "Architectural decision record: 9 decisions, pipeline diagram, keep/drop/fix inventory, dependency graph"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 107,
+      "project_name": "boundary_temporal_depth_mitigation",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T12:10:00Z",
+      "dependencies": [
+        102
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Added formal boundary claim docstrings to temporal_depth(), ForAllTime(), and is_valid_time(). Created test_boundary_regression.py with 63 new tests: pure Python boundary math verification (TestBoundaryAnalysis), Z3 behavioral documentation (TestBoundaryDocumentation), 43-example gate baseline (TestExampleRegression), and all-17-tags coverage (TestTemporalDepthAllTags). All 547 bimodal tests pass.",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_boundary-depth-mitigation.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/107_boundary_temporal_depth_mitigation/reports/01_boundary-depth-mitigation.md",
+          "type": "research",
+          "summary": "temporal_depth() complete from task 102; boundary claim proven: M >= d+2 prevents spurious countermodels; 43 test examples categorized; implementation plan: dynamic M in OracleProvider (not Z3 constraints), regression test file for boundary-unsafe formulas"
+        },
+        {
+          "path": "specs/107_boundary_temporal_depth_mitigation/plans/01_boundary-depth-mitigation.md",
+          "type": "plan",
+          "summary": "4-phase plan: boundary claim documentation, boundary-unsafe formula tests, 43-example regression test, gate validation"
+        },
+        {
+          "path": "specs/107_boundary_temporal_depth_mitigation/summaries/01_boundary-depth-mitigation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 4 phases completed, 63 new tests passing, boundary claim documented in 3 functions, 43-example regression baseline established"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 108,
+      "project_name": "soundness_regression_test_suite",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
+      "dependencies": [
+        103
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Created test_soundness_regression.py with 22 passing tests (+ 1 xfailed) across 5 test classes: TestBoundaryVacuity (6 tests documenting G(G(p)) and F(G(p)) spurious theorems at M=2), TestShiftClosure (2 tests, M=3 shift closure xfailed), TestGuardedCompositionality (6 tests validating frame axioms on serialized task_relation), TestStateIsolationRegression (4 tests with 100+ calls mixing propositional/depth-1/depth-2 formulas), TestKnownBoundaryUnsafe (5 tests with documented boundary mechanisms). Key discovery: F(G(p)) also returns None at M=2 (same boundary vacuity as G(G(p))).",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4,
+            5
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_soundness-regression.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/108_soundness_regression_test_suite/reports/01_soundness-regression.md",
+          "type": "research",
+          "summary": "Coverage gap analysis for boundary vacuity, shift closure, forward_comp/converse, state isolation, and known-boundary-unsafe formulas. Identified G(G(p)) as prime boundary-unsafe formula (oracle returns None spuriously at M=2). 5 test categories mapped to concrete test classes and helpers."
+        },
+        {
+          "path": "specs/108_soundness_regression_test_suite/plans/01_soundness-regression-plan.md",
+          "type": "plan",
+          "summary": "5-phase TDD plan: test infrastructure with helpers, boundary vacuity tests, shift closure and compositionality tests, state isolation with temporal depth-2 formulas, known-boundary-unsafe formula suite"
+        },
+        {
+          "path": "specs/108_soundness_regression_test_suite/summaries/01_soundness-regression-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 5 phases completed, 22 new tests passing, 1 xfailed (M=3 shift closure), key deviation: F(G(p)) is also a spurious theorem at M=2 (not spurious SAT as originally predicted)"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 109,
+      "project_name": "cross_oracle_differential_testing",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
+      "dependencies": [
+        103
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Implemented cross-oracle differential testing infrastructure: self-contained primitive formula enumerator (atom/bot/imp/box/untl/snce up to complexity N), known-formula baselines with 20+ tautologies and 20+ invalid formulas, BimodalHarness conditional integration testing temporal-only formula agreement with documented edge cases (untl(bot,bot) and untl(A,A) MC oracle limitations), JSON differential report generator, and GitHub Actions CI workflow. 51 non-slow tests pass across 8 test classes.",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_differential-testing.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/109_cross_oracle_differential_testing/reports/01_differential-testing.md",
+          "type": "research",
+          "summary": "BimodalHarness availability confirmed at /home/benjamin/Projects/BimodalHarness. FormulaEnumerator available for complexity-based enumeration. MC oracle and BH Z3 oracle have different box semantics (4/18 disagreements at complexity <= 3 confirmed expected). Recommended: test against MockOracleProvider for spot-check and temporal-only formulas for BH Z3 comparison. CI integration via self-contained enumerator to avoid repo dependency."
+        },
+        {
+          "path": "specs/109_cross_oracle_differential_testing/plans/01_differential-testing-plan.md",
+          "type": "plan",
+          "summary": "5-phase TDD plan: self-contained formula enumerator, differential harness with known-formula baselines, BimodalHarness conditional integration, differential report format, CI workflow and gate validation"
+        },
+        {
+          "path": "specs/109_cross_oracle_differential_testing/summaries/01_differential-testing-summary.md",
+          "type": "summary",
+          "summary": "5 phases completed: self-contained enumerator (6 primitive tags, complexity N), 40+ baseline formulas, BH integration with documented edge cases, JSON report generation, CI workflow"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 110,
+      "project_name": "frame_class_validation",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T00:00:00Z",
+      "last_updated": "2026-06-01T00:00:00Z",
+      "dependencies": [
+        100
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Documented Z3-to-BimodalLogic frame axiom mapping in provider.py and semantic.py. Created test_frame_class_mapping.py with 13 post-hoc validation tests for TaskFrame axioms (nullity, converse, composition) and lawful history on extracted countermodels. Clarified Base terminology mismatch and task_restriction soundness.",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_frame-class-validation.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/110_frame_class_validation/reports/01_frame-class-validation.md",
+          "type": "research",
+          "summary": "Full mapping of Z3 frame axioms to BimodalLogic TaskFrame; analysis of disabled task_restriction; FrameClass.Base terminology mismatch; test plan for test_frame_class_mapping.py"
+        },
+        {
+          "path": "specs/110_frame_class_validation/plans/01_frame-class-validation.md",
+          "type": "plan",
+          "summary": "4-phase plan: document frame axiom mapping in provider.py, create test fixtures, write post-hoc validation tests, integration verification"
+        },
+        {
+          "path": "specs/110_frame_class_validation/summaries/01_frame-class-validation-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 4 phases completed, 13 new tests passing, M=2 deviation from M=3 plan for solver performance"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 111,
+      "project_name": "next_prev_defined_operators",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T18:00:00Z",
+      "dependencies": [
+        100
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Added DefNextOperator and DefPrevOperator as DefinedOperator subclasses. Next(φ)=U(φ,⊥), Prev(φ)=S(φ,⊥). Both registered in bimodal_operators. 34 new tests pass, no regressions.",
+      "plan_metadata": {
+        "phases": 2,
+        "total_effort_hours": 1,
+        "complexity": "simple",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_next-prev-operators.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/111_next_prev_defined_operators/reports/01_next-prev-operators.md",
+          "type": "research",
+          "summary": "DefinedOperator base class analysis, UntilOperator/SinceOperator/BotOperator signatures, derived_definition pattern, bimodal_operators registration, print_over_times usage, test infrastructure patterns, and complete implementation recipe for DefNextOperator and DefPrevOperator"
+        },
+        {
+          "path": "specs/111_next_prev_defined_operators/plans/01_next-prev-operators.md",
+          "type": "plan",
+          "summary": "2-phase TDD plan: write tests first (signatures, definitions, registration, equivalence, prefix), then implement DefNextOperator and DefPrevOperator classes with registration"
+        },
+        {
+          "path": "specs/111_next_prev_defined_operators/summaries/01_next-prev-operators-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 2 phases completed, 34 new tests passing, no plan deviations"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 112,
+      "project_name": "fold_unfold_formula_normalization",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T23:45:00Z",
+      "dependencies": [
+        102
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "Implemented unfold_formula (11 enriched tags -> 6 primitives), fold_formula (outside-in pattern matching with Level 3->1 disambiguation), and normalize_formula (level-restricted fold/unfold) in bimodal_logic/translation.py. All 3 functions exported from bimodal_logic/__init__.py. 90 new tests pass (35 unfold, 28 fold+overlap, 10 normalize, 17 property-based). Round-trip property unfold(fold(unfold(f)))==unfold(f) verified for 120 random formulas. All 451 bimodal unit tests pass, no regressions.",
+      "plan_metadata": {
+        "phases": 4,
+        "total_effort_hours": 3.5,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2
+          ],
+          [
+            3
+          ],
+          [
+            4
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_fold-unfold-normalization.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/112_fold_unfold_formula_normalization/reports/01_fold-unfold-normalization.md",
+          "type": "research",
+          "summary": "Operator hierarchy analysis (3 levels), unfold algorithm, fold outside-in pattern matching with overlapping pattern disambiguation, normalize_formula design, testing strategy with property-based round-trip tests"
+        },
+        {
+          "path": "specs/112_fold_unfold_formula_normalization/plans/01_fold-unfold-normalization.md",
+          "type": "plan",
+          "summary": "4-phase TDD plan: unfold_formula, fold_formula with overlapping pattern disambiguation, normalize_formula with level-based folding, property-based round-trip tests for 100+ formulas"
+        },
+        {
+          "path": "specs/112_fold_unfold_formula_normalization/summaries/01_fold-unfold-normalization-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 4 phases completed, 90 new tests passing, no plan deviations"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 113,
+      "project_name": "enriched_operator_equivalence_tests",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T17:00:00Z",
+      "last_updated": "2026-06-01T23:59:00Z",
+      "dependencies": [
+        102
+      ],
+      "next_artifact_number": 2,
+      "completion_summary": "69 enriched operator equivalence tests implemented covering all 11 enriched operators with 5+ formulas each, plus nested combinations and boundary sensitivity tests. All tests pass.",
+      "plan_metadata": {
+        "phases": 5,
+        "total_effort_hours": 3,
+        "complexity": "medium",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1
+          ],
+          [
+            2,
+            3
+          ],
+          [
+            4
+          ],
+          [
+            5
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "reports/01_enriched-equivalence-tests.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-06-01"
+          }
+        ]
+      },
+      "artifacts": [
+        {
+          "path": "specs/113_enriched_operator_equivalence_tests/reports/01_enriched-equivalence-tests.md",
+          "type": "research",
+          "summary": "Full test matrix design (55 formulas across 11 operators), translation layer analysis, boundary sensitivity analysis for G/H operators, TopOperator bug workaround, all 55 cases verified passing at M=2"
+        },
+        {
+          "path": "specs/113_enriched_operator_equivalence_tests/plans/01_enriched-equivalence-tests.md",
+          "type": "plan",
+          "summary": "5-phase plan: test infrastructure, Level 1 operators (neg/top/next/prev), Level 2 operators (and/or/diamond/F/P), Level 3 operators with nested combinations and boundary tests, gate validation"
+        },
+        {
+          "path": "specs/113_enriched_operator_equivalence_tests/summaries/01_enriched-equivalence-tests-summary.md",
+          "type": "summary",
+          "summary": "Implementation summary: 5 phases completed, 69 new tests passing (planned 55+), no plan deviations"
+        }
+      ],
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 114,
+      "project_name": "skolem_abundance_overconstrain_fix",
+      "status": "completed",
+      "task_type": "python",
+      "created": "2026-06-01T22:00:00Z",
+      "last_updated": "2026-06-02T02:24:37Z",
+      "dependencies": [
+        108
+      ],
+      "completion_summary": "Depth-aware abundance dispatch: oracle passes temporal_depth to BimodalSemantics; depth-bounded Skolem constraint at M>=3; M=max(depth+2,3) restores boundary safety; 110/110 tests pass",
+      "archived": "2026-06-02T08:37:42Z"
+    },
+    {
+      "project_number": 115,
+      "project_name": "fix_skipped_integration_tests",
+      "status": "completed",
+      "task_type": "nix",
+      "created": "2026-06-01T23:45:00Z",
+      "last_updated": "2026-06-02T01:45:00Z",
+      "dependencies": [
+        105
+      ],
+      "completion_summary": "Created flake.nix devShell with PYTHONPATH for both ModelChecker and BimodalHarness sources. Removed all pytest.skip() guards from test_oracle_interface.py. Fixed list_providers() test bug. Gate: 108 passed, 0 skipped, 0 failed in nix develop.",
+      "archived": "2026-06-02T08:37:42Z"
     }
   ]
 }
