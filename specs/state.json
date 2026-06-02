@@ -799,7 +799,7 @@
       "project_number": 115,
       "project_name": "fix_skipped_integration_tests",
       "status": "not_started",
-      "task_type": "python",
+      "task_type": "nix",
       "created": "2026-06-01T23:45:00Z",
       "last_updated": "2026-06-01T23:45:00Z",
       "dependencies": [

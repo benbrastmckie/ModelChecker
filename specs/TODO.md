@@ -37,13 +37,21 @@ Wave 7: 115
 
 <!-- New tasks are prepended below this line -->
 
-### 115. Fix skipped integration tests
-- **Effort**: small
+### 115. Fix skipped integration tests via Nix devShell
+- **Effort**: medium
 - **Status**: [NOT STARTED]
-- **Task Type**: python
+- **Task Type**: nix
 - **Dependencies**: 105
 
-**Description**: Three tests in `test_oracle_interface.py` are skipped because `bimodal_harness` and `bimodal-logic` are not pip-installed in the development environment. Fix by: (1) pip install -e /home/benjamin/Projects/BimodalHarness to make `bimodal_harness` importable and enable `OracleProvider` protocol isinstance checks and `OracleRegistry.discover()` tests; (2) pip install -e the ModelChecker package itself (or the bimodal-logic sub-package) so that `importlib.metadata.entry_points(group='bimodal_harness.oracle_providers')` finds the `z3_base` entry point; (3) remove all `pytest.skip()` guards from the affected tests (`test_provider_implements_protocol`, `test_entry_point_loads_correct_class`, `test_oracle_registry_discover`, `test_discovered_provider_is_correct_type`) — replace with hard assertions that fail if dependencies are missing; (4) verify all 108 tests pass with 0 skipped. Gate: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_oracle_interface.py -v` shows 108 passed, 0 skipped.
+**Description**: Three tests in `test_oracle_interface.py` skip because `bimodal_harness` and `bimodal-logic` are not installed — `importlib.metadata` can't find entry points and `from bimodal_harness.oracle.protocol import OracleProvider` fails with ImportError. On NixOS, `pip install -e` is not viable. Fix by creating a Nix flake-based devShell that provides both packages as proper Nix derivations with entry points registered.
+
+**Approach**: Add a `flake.nix` to ModelChecker that: (1) builds `bimodal-logic` (from `./code`, setuptools backend, depends on z3-solver) as a Python package using `buildPythonPackage`, ensuring `pyproject.toml` entry points (`bimodal_harness.oracle_providers.z3_base`) are registered in the Nix store's `entry_points.txt`; (2) builds `bimodal-harness` (from `/home/benjamin/Projects/BimodalHarness`, hatchling backend, heavy deps: torch, numpy, wandb, datasets) as a Python package — or, since only the protocol module and registry are needed for tests, build a minimal subset package that provides just `bimodal_harness.oracle.protocol` and `bimodal_harness.oracle.registry` without the torch/training dependencies; (3) assembles a `devShell` with a Python environment containing both packages plus pytest, so `nix develop` drops into a shell where all 108 tests pass with 0 skipped.
+
+**Key challenges**: (a) BimodalHarness uses hatchling build backend and has heavy deps (torch>=2.12, numpy>=2.4, datasets>=3.0, wandb>=0.19) — a full build may be impractical; consider an optional-dependency split where `bimodal_harness[oracle]` or a stub package provides just the protocol/registry modules. (b) Entry-point registration: Nix's `buildPythonPackage` handles `pyproject.toml` entry points natively, but the two packages' entry-point groups must be merged in the same Python environment. (c) The flake should use the existing nixpkgs Python package set and overlay only the two local packages.
+
+**Test changes**: Remove all `pytest.skip()` guards from: `test_provider_implements_protocol`, `test_entry_point_loads_correct_class`, `test_oracle_registry_discover`, `test_discovered_provider_is_correct_type`. Replace with hard assertions — if the devShell is configured correctly, these imports must succeed.
+
+**Gate**: `nix develop --command pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_oracle_interface.py -v` shows 108 passed, 0 skipped.
 
 ### 114. Fix skolem_abundance over-constraint at M>=3
 - **Effort**: medium
