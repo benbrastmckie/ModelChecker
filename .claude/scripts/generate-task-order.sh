@@ -144,6 +144,8 @@ build_graph() {
     local desc="${line#*|}"
     # Replace any embedded newlines in desc with space
     desc="${desc//$'\n'/ }"
+    # Un-slugify: replace underscores with spaces so project_name fallbacks display as readable text
+    desc="${desc//_/ }"
     [[ -n "$tn" ]] && task_desc["$tn"]="$desc"
   done <<< "$desc_data"
 
@@ -810,6 +812,45 @@ replace_section() {
 }
 
 # ============================================================================
+# Bootstrap Task Order Section
+# ============================================================================
+
+# bootstrap_task_order_section: if ## Task Order is missing from TODO_FILE,
+# insert a blank placeholder before ## Tasks (or at EOF if ## Tasks absent).
+# This makes replace_section() work on first run for new projects.
+bootstrap_task_order_section() {
+  # Idempotent: do nothing if section already present
+  if grep -q "^## Task Order$" "$TODO_FILE"; then
+    return 0
+  fi
+
+  echo "INFO: ## Task Order section missing — bootstrapping in $TODO_FILE" >&2
+
+  local tasks_line
+  tasks_line=$(grep -n "^## Tasks$" "$TODO_FILE" | head -1 | cut -d: -f1) || true
+
+  local tmp_file
+  tmp_file=$(mktemp)
+
+  if [[ -n "$tasks_line" ]]; then
+    # Insert before ## Tasks
+    if [[ "$tasks_line" -gt 1 ]]; then
+      head -n "$((tasks_line - 1))" "$TODO_FILE" > "$tmp_file"
+    else
+      : > "$tmp_file"
+    fi
+    printf '## Task Order\n\n' >> "$tmp_file"
+    tail -n +"${tasks_line}" "$TODO_FILE" >> "$tmp_file"
+  else
+    # No ## Tasks heading — append to end of file
+    cp "$TODO_FILE" "$tmp_file"
+    printf '\n## Task Order\n\n' >> "$tmp_file"
+  fi
+
+  mv "$tmp_file" "$TODO_FILE"
+}
+
+# ============================================================================
 # Main
 # ============================================================================
 
@@ -848,6 +889,7 @@ SECTION_CONTENT=$(generate_section "$GOAL_TEXT")
 if [[ "$MODE" == "print" ]]; then
   echo "$SECTION_CONTENT"
 elif [[ "$MODE" == "update" ]]; then
+  bootstrap_task_order_section
   replace_section "$SECTION_CONTENT"
   echo "OK: Task Order section updated in $TODO_FILE"
 fi
