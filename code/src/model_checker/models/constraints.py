@@ -164,14 +164,7 @@ class ModelConstraints:
         Note:
             This method should only be called after a valid Z3 model has been found.
         """
-        # Task 21: Import Term for type checking
-        from model_checker.syntactic.terms import Term
-
         for sent_obj in sentences:
-            # Task 21: Skip Term objects (Variable, Constant)
-            # These are not Sentences and don't have arguments or update_objects
-            if isinstance(sent_obj, Term):
-                continue
             if sent_obj.arguments:
                 self.instantiate(sent_obj.arguments)
             sent_obj.update_objects(self)

@@ -30,10 +30,9 @@ from model_checker.theory_lib.logos.subtheories.modal.examples import unit_tests
 def test_modal_examples(example_name, example_case):
     """Test each modal example case."""
     
-    # Create operator registry for modal theory (includes counterfactual for \\boxright operator
-    # and first-order for compositionality tests)
+    # Create operator registry for modal theory (includes counterfactual for \\boxright operator)
     registry = LogosOperatorRegistry()
-    registry.load_subtheories(['extensional', 'modal', 'counterfactual', 'first_order'])
+    registry.load_subtheories(['extensional', 'modal', 'counterfactual'])
     
     result = run_test(
         example_case,

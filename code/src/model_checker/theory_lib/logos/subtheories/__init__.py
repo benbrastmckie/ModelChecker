@@ -22,7 +22,6 @@ AVAILABLE_SUBTHEORIES = [
     'constitutive',
     'counterfactual',
     'relevance',
-    'first_order'
 ]
 
 SUBTHEORY_DESCRIPTIONS = {
@@ -31,7 +30,6 @@ SUBTHEORY_DESCRIPTIONS = {
     'constitutive': 'Ground, essence, and identity operators (≡,≤,⊑,≼)',
     'counterfactual': 'Counterfactual conditional operators (□→,◇→)',
     'relevance': 'Content-sensitive relevance operators',
-    'first_order': 'First-order quantification and lambda abstraction (∀,∃,λ,=)'
 }
 
 def get_subtheory_module(name):

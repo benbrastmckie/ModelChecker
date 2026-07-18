@@ -9,12 +9,11 @@ bindings, and proposition values.
 
 from typing import List, Optional, Dict, Any, Union, Tuple, TYPE_CHECKING
 
-from model_checker.utils import parse_expression, tokenize_first_order, parse_first_order_expression
+from model_checker.utils import parse_expression
 from .atoms import get_atom_sort
 from .types import FormulaString, PrefixList
 from .errors import InvalidFormulaError, ParseError
-from .terms import Term, Variable
-from .formulas import compute_formula_free_variables, is_syntactically_wff
+from .formulas import is_syntactically_wff
 
 if TYPE_CHECKING:
     from .collection import OperatorCollection
@@ -80,32 +79,19 @@ class Sentence:
         # updated by initialize_sentences in Syntax with operator_collection
         # updated by instantiate in ModelConstraints with semantics
         if self.complexity > 0:
-            # Handle first-order operators differently
             first_op = self.prefix_sentence[0]
-            if first_op in {"\\lambda", "\\forall", "\\exists", "\\all", "\\some", "\\lambdaApp"}:
-                # For binders, arguments after the variable are the body
-                # Store in a way that's compatible with the original system
-                self.original_arguments = [
-                    self.infix(arg)
-                    for arg in self.prefix_sentence[1:]
-                    if not isinstance(arg, Variable)  # Skip the bound variable
-                ]
-            else:
-                self.original_arguments = [  # store infix_arguments
-                    self.infix(arg)
-                    for arg in self.prefix_sentence[1:]
-                ]
+            self.original_arguments = [  # store infix_arguments
+                self.infix(arg)
+                for arg in self.prefix_sentence[1:]
+            ]
             # updated by update_types:
             self.original_operator = first_op
         else:
             self.original_arguments = None
-            # Handle atomic cases: \top, \bot, variables, and atomic predicates
+            # Handle atomic cases: \top, \bot, and atomic sentences
             first_elem = self.prefix_sentence[0]
             if isinstance(first_elem, str) and first_elem in {'\\top', '\\bot'}:
                 self.original_operator = first_elem
-            elif isinstance(first_elem, Variable):
-                # Variable as atomic sentence
-                self.original_operator = None
             else:
                 self.original_operator = None
         self.arguments = None # updated by initialize_types
@@ -126,35 +112,13 @@ class Sentence:
     def _validate_well_formedness(self) -> None:
         """Validate that the parsed formula is well-formed.
 
-        Performs two-level validation per the Logos Theory manual:
-        1. Syntactic category check: Is this a formula (not a bare term or lambda)?
-        2. Closedness check: Does the formula have free variables?
-
-        A sentence is a closed well-formed formula (WFF). Open formulas with
-        free variables are valid WFFs but not valid sentences.
-
         Raises:
-            ParseError: If the input is not a WFF (e.g., bare term or lambda)
-            ParseError: If the formula has free variables (open formula)
+            ParseError: If the input is not a well-formed formula.
         """
-        # Level 1: Check syntactic well-formedness
         is_wff, error_msg = is_syntactically_wff(self.prefix_sentence)
         if not is_wff:
             raise ParseError(
                 f"Invalid sentence '{self.name}': {error_msg}",
-                formula=self.name,
-                position=0
-            )
-
-        # Level 2: Check closedness (no free variables)
-        free_vars = compute_formula_free_variables(self.prefix_sentence)
-        if free_vars:
-            var_names = sorted(str(v) for v in free_vars)
-            var_list = ", ".join(var_names)
-            raise ParseError(
-                f"Invalid sentence '{self.name}': formula has free variable(s): {var_list}. "
-                f"Sentences must be closed formulas. Consider quantifying: "
-                f"'\\forall {var_names[0]}. {self.name}'",
                 formula=self.name,
                 position=0
             )
@@ -166,13 +130,6 @@ class Sentence:
         (e.g., ["∧", "p", "q"]) for easier processing by the model checker. This conversion
         works without prior knowledge of specific operators in the language.
 
-        Supports both propositional and first-order syntax:
-        - Variables: v_x, v_1, v_foo_bar
-        - Predicates: F[t1, t2, ...]
-        - Functions: f<t1, t2, ...>
-        - Lambda: \\lambda v.phi
-        - Quantifiers: \\forall v.phi, \\exists v.phi
-
         Args:
             infix_sentence (str): A logical expression in infix notation
 
@@ -181,35 +138,22 @@ class Sentence:
                 - list: The expression in prefix notation
                 - int: The complexity (nesting depth) of the expression
         """
-        # Check if the sentence contains first-order syntax markers
-        # Use first-order parser if we detect: v_ prefix, [ ], < >, or binding operators
-        first_order_markers = ['v_', '[', '<', '\\lambda', '\\forall', '\\exists']
-        uses_first_order = any(marker in infix_sentence for marker in first_order_markers)
-
-        if uses_first_order:
-            # Use first-order tokenizer and parser
-            tokens = tokenize_first_order(infix_sentence)
-            derived_object, complexity = parse_first_order_expression(tokens)
-            return derived_object, complexity
-        else:
-            # Use original propositional parser for backward compatibility
-            tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
-            derived_object, complexity = parse_expression(tokens)
-            return derived_object, complexity
+        tokens = infix_sentence.replace("(", " ( ").replace(")", " ) ").split()
+        derived_object, complexity = parse_expression(tokens)
+        return derived_object, complexity
 
     def infix(self, prefix: PrefixList) -> FormulaString:
         """Converts prefix notation to infix notation.
 
         Transforms a logical expression from prefix format (e.g., ["∧", "p", "q"]) to infix
         format (e.g., "(p ∧ q)"), handling various input types including sentence objects,
-        Z3 expressions, strings, Term objects, and nested lists.
+        Z3 expressions, strings, and nested lists.
 
         Args:
             prefix: The expression in prefix notation, which can be:
                 - A Sentence object (with a 'name' attribute)
                 - A Z3 ExprRef object
                 - A string (already in infix form)
-                - A Term object (Variable, Constant, FunctionApplication)
                 - A list/tuple (in prefix order: [operator, arg1, arg2, ...])
 
         Returns:
@@ -218,11 +162,7 @@ class Sentence:
         Raises:
             TypeError: If the input has an unsupported type
         """
-        # Handle Term objects (Variable, Constant, FunctionApplication)
-        if isinstance(prefix, Term):
-            return str(prefix)
-
-        if hasattr(prefix, 'name') and not isinstance(prefix, Term):
+        if hasattr(prefix, 'name'):
             return prefix.name
         if isinstance(prefix, str):
             return prefix
@@ -231,47 +171,6 @@ class Sentence:
                 return self.infix(prefix[0])
             operator = prefix[0]
             op_str = self.infix(operator)
-
-            # Handle lambda abstraction: ["\\lambda", variable, body]
-            if op_str == "\\lambda":
-                var = self.infix(prefix[1])
-                body = self.infix(prefix[2])
-                return f"{op_str} {var}. {body}"
-
-            # Handle Church-style quantifiers: ["\\forall", lambda_term] or ["\\all", lambda_term]
-            # where lambda_term = ["\\lambda", variable, body]
-            # After apply_operator, lambda_term may be [LambdaOperator, [variable], body]
-            if op_str in {"\\forall", "\\exists", "\\all", "\\some"}:
-                lambda_term = prefix[1]
-                if isinstance(lambda_term, list) and len(lambda_term) >= 3:
-                    # Check if it's a lambda term (either string "\\lambda" or LambdaOperator class)
-                    lambda_head = lambda_term[0]
-                    is_lambda = (
-                        lambda_head == "\\lambda" or
-                        (hasattr(lambda_head, 'name') and lambda_head.name == "\\lambda")
-                    )
-                    if is_lambda:
-                        # Get variable - may be in list after apply_operator
-                        var_elem = lambda_term[1]
-                        if isinstance(var_elem, list) and len(var_elem) == 1:
-                            var_elem = var_elem[0]
-                        var = self.infix(var_elem)
-                        body = self.infix(lambda_term[2])
-                        return f"{op_str} {var}. {body}"
-                # Fallback: print as is
-                return f"{op_str}({self.infix(lambda_term)})"
-
-            # Handle lambda application
-            if op_str == "\\lambdaApp":
-                var = self.infix(prefix[1])
-                body = self.infix(prefix[2])
-                arg = self.infix(prefix[3])
-                return f"(\\lambda {var}. {body})({arg})"
-
-            # Handle predicates with term arguments
-            if len(prefix) > 1 and isinstance(prefix[1], Term):
-                args = ", ".join(self.infix(arg) for arg in prefix[1:])
-                return f"{op_str}[{args}]"
 
             if len(prefix) == 2:
                 return f"{op_str} {self.infix(prefix[1])}"
@@ -323,14 +222,12 @@ class Sentence:
             return derive_type(derivation)
 
         def store_types(derived_type):
-            # Task 14: Detection logic updated for new convention
-            # - Sentence letters: Z3 Const objects (from P[] syntax)
-            # - Constants: Term objects (from bare or explicit <> syntax)
+            # Detection logic:
+            # - Sentence letters: Z3 Const objects (from atomic parsing)
             # - Extremal operators: \top, \bot
             # - Complex sentences: operator + arguments
 
             from model_checker.solver.expressions import is_const
-            from .terms import Term
 
             first_elem = derived_type[0]
 
@@ -338,49 +235,13 @@ class Sentence:
             if len(derived_type) == 1 and is_const(first_elem):
                 return None, None, first_elem
 
-            # Check for constant (Term object from parser)
-            if len(derived_type) == 1 and isinstance(first_elem, Term):
-                # Constants don't have sentence_letter representation
-                # They'll be handled in semantic evaluation
-                return None, None, None
-
             # Check for extremal operator
             if self.name in {'\\top', '\\bot'}:
                 return first_elem, None, None
 
-            # Check for predicate with term arguments: [name, Term1, Term2, ...]
-            # Predicates have a string name and all arguments are Term objects
-            # They should NOT have an operator - semantic evaluation handles them
-            if (len(derived_type) > 1 and
-                isinstance(first_elem, str) and
-                all(isinstance(arg, Term) for arg in derived_type[1:])):
-                # Predicate application: store as None operator with no sentence_letter
-                # The predicate info is in prefix_sentence for semantic evaluation
-                return None, None, None
-
             # Complex sentence with operator and arguments
             if len(derived_type) > 1:
                 operator_type, argument_types = first_elem, derived_type[1:]
-
-                # Task 21: For lambda operators, preserve Variable as Term
-                # Lambda structure after apply_operator: [LambdaOperator, [Variable], [body]]
-                # The variable may be wrapped in a singleton list, unwrap it
-                if hasattr(operator_type, 'name') and operator_type.name == "\\lambda":
-                    processed_args = []
-                    for arg_type in argument_types:
-                        # Check for singleton list containing a Term
-                        if (isinstance(arg_type, list) and len(arg_type) == 1 and
-                            isinstance(arg_type[0], Term)):
-                            # Unwrap and keep the Term object
-                            processed_args.append(arg_type[0])
-                        elif isinstance(arg_type, Term):
-                            # Keep Term objects (Variable, Constant) as-is
-                            processed_args.append(arg_type)
-                        else:
-                            # Convert formula to infix string
-                            processed_args.append(self.infix(arg_type))
-                    return operator_type, processed_args, None
-
                 infix_arguments = [self.infix(arg_type) for arg_type in argument_types]
                 return operator_type, infix_arguments, None
 

@@ -45,12 +45,6 @@ def relevance_theory():
 
 
 @pytest.fixture
-def first_order_theory():
-    """Logos theory with extensional, constitutive, and first_order subtheories."""
-    return logos.get_theory(['extensional', 'constitutive', 'first_order'])
-
-
-@pytest.fixture
 def basic_settings():
     """Standard settings for most tests."""
     return {

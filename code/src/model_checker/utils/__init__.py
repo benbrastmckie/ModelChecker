@@ -8,10 +8,7 @@ This package will replace the original utils.py module.
 from .context import isolated_z3_context
 
 # Phase 2.3 - Expression Parsing
-from .parsing import (
-    parse_expression, op_left_right,
-    tokenize_first_order, parse_term, parse_term_list, parse_first_order_expression
-)
+from .parsing import parse_expression, op_left_right
 
 # Phase 2.4 - Bitvector Operations
 from .bitvector import (
@@ -39,10 +36,6 @@ __all__ = [
     # Expression Parsing
     'parse_expression',
     'op_left_right',
-    'tokenize_first_order',
-    'parse_term',
-    'parse_term_list',
-    'parse_first_order_expression',
     # Bitvector Operations
     'binary_bitvector',
     'int_to_binary', 

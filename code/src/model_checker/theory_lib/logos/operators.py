@@ -37,7 +37,6 @@ class LogosOperatorRegistry:
             'constitutive': [],
             'relevance': ['constitutive'],
             'extensional': [],
-            'first_order': ['extensional', 'constitutive']
         }
     
     def load_subtheory(self, name: str) -> Any:

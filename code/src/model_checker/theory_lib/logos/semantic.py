@@ -19,8 +19,6 @@ from model_checker.syntactic.atoms import get_atom_sort
 from model_checker.models.proposition import PropositionDefaults
 from model_checker.models.semantic import SemanticDefaults
 from model_checker.models.structure import ModelDefaults
-from model_checker.syntactic.assignments import VariableAssignment
-from model_checker.syntactic.terms import Term, Variable, Constant, FunctionApplication
 from model_checker.utils import (
     ForAll,
     Exists,
@@ -41,70 +39,6 @@ if TYPE_CHECKING:
     )
     from model_checker.syntactic import Sentence
     from model_checker.models.model_constraints import ModelConstraints
-
-
-def term_denotation(
-    term: Term,
-    assignment: VariableAssignment,
-    semantics: 'LogosSemantics'
-) -> z3.BitVecRef:
-    """Compute [[t]]^sigma_M - the denotation of term t.
-
-    This function recursively evaluates a term to produce a Z3 bit vector
-    representing a domain element (state/haecceity). The denotation depends
-    on the current variable assignment and the model's interpretation of
-    constants and functions.
-
-    Args:
-        term: The term to evaluate
-        assignment: Current variable assignment sigma
-        semantics: Model semantics providing interpretation functions
-
-    Returns:
-        Z3 bit vector representing the denoted state/haecceity
-
-    Raises:
-        KeyError: If a variable is not bound in the assignment, or
-                 if a constant/function is not registered in semantics
-        TypeError: If term is of unknown type
-
-    Examples:
-        >>> v_x = Variable("v_x")
-        >>> sigma = assignment.variant(v_x, BitVecVal(3, N))
-        >>> term_denotation(v_x, sigma, sem)  # Returns 3
-
-        >>> semantics.register_constant('zero', BitVecVal(0, N))
-        >>> term_denotation(Constant('zero'), sigma, sem)  # Returns 0
-    """
-    if isinstance(term, Variable):
-        # [[v]]^sigma = sigma(v)
-        # If variable is bound, return its value
-        # If unbound (free variable), return a fresh Z3 variable
-        # This handles open formulas by treating free variables as arbitrary domain elements
-        try:
-            return assignment[term]
-        except KeyError:
-            # Free variable - create a fresh Z3 variable for it
-            # This is semantically correct: an open formula is satisfied iff
-            # for all assignments to free variables, the formula holds
-            return z3.BitVec(f"free_{term.name}", semantics.N)
-
-    if isinstance(term, Constant):
-        # [[c]]^sigma = |c| (interpretation of constant)
-        # The semantics must have this constant registered
-        return semantics.constant_interpretation(term.name)
-
-    if isinstance(term, FunctionApplication):
-        # [[f(t1, ..., tn)]]^sigma = |f|([[t1]]^sigma, ..., [[tn]]^sigma)
-        # First evaluate all arguments recursively
-        arg_denotations = tuple(
-            term_denotation(arg, assignment, semantics)
-            for arg in term.arguments
-        )
-        # Then apply the function interpretation
-        return semantics.function_interpretation(term.name, arg_denotations)
-
-    raise TypeError(f"Unknown term type: {type(term).__name__}")
 
 
 class LogosSemantics(SemanticDefaults):
@@ -186,12 +120,6 @@ class LogosSemantics(SemanticDefaults):
         self.premise_behavior = lambda premise: self.true_at(premise, self.main_point)
         self.conclusion_behavior = lambda conclusion: self.false_at(conclusion, self.main_point)
 
-        # First-order infrastructure
-        self._predicate_verifiers: Dict[str, z3.FuncDeclRef] = {}
-        self._predicate_falsifiers: Dict[str, z3.FuncDeclRef] = {}
-        self._constant_interpretations: Dict[str, z3.BitVecRef] = {}
-        self._function_interpretations: Dict[str, z3.FuncDeclRef] = {}
-    
     def load_subtheories(self, subtheories: Optional[List[str]] = None) -> List[Any]:
         """Load specified subtheories."""
         if subtheories is None:
@@ -231,9 +159,6 @@ class LogosSemantics(SemanticDefaults):
         For complex sentences, it delegates to the operator's true_at method with the
         sentence's arguments and evaluation point.
 
-        Task 14: Constants (bare identifiers or explicit <>) are domain elements,
-        not propositions, and cannot be evaluated for truth. This raises TypeError.
-
         Args:
             sentence (Sentence): The sentence to evaluate
             eval_point (dict): The evaluation point containing a "world" key
@@ -242,7 +167,7 @@ class LogosSemantics(SemanticDefaults):
             BoolRef: Z3 constraint expressing whether the sentence is true at eval_point
 
         Raises:
-            TypeError: If sentence is a constant (domain element, not proposition)
+            TypeError: If the sentence has neither a sentence letter nor an operator
         """
         # Extract world from evaluation point
         eval_world = eval_point["world"]
@@ -254,23 +179,9 @@ class LogosSemantics(SemanticDefaults):
 
         operator = sentence.operator
         if operator is None:
-            # Check if this is a predicate application: [pred_name, term1, term2, ...]
-            from model_checker.syntactic.terms import Term
-            prefix = sentence.prefix_sentence
-            if (isinstance(prefix, list) and len(prefix) >= 2 and
-                isinstance(prefix[0], str) and
-                all(isinstance(arg, Term) for arg in prefix[1:])):
-                # Predicate application: evaluate using predicate_verify
-                pred_name = prefix[0]
-                term_args = prefix[1:]
-                return self._predicate_true_at(pred_name, term_args, eval_point)
-
-            # Task 14: No operator and no sentence_letter means this is a constant
-            # Constants are domain elements, not propositions
             raise TypeError(
                 f"Cannot evaluate truth of '{sentence.name}': "
-                f"constants are domain elements, not propositions. "
-                f"Use predicate syntax P[] for sentence letters."
+                f"sentence has no operator or sentence letter."
             )
         arguments = sentence.arguments or ()
         return operator.true_at(*arguments, eval_point)
@@ -284,9 +195,6 @@ class LogosSemantics(SemanticDefaults):
         For complex sentences, it delegates to the operator's false_at method with the
         sentence's arguments and evaluation point.
 
-        Task 14: Constants (bare identifiers or explicit <>) are domain elements,
-        not propositions, and cannot be evaluated for falsity. This raises TypeError.
-
         Args:
             sentence (Sentence): The sentence to evaluate
             eval_point (dict): The evaluation point containing a "world" key
@@ -295,7 +203,7 @@ class LogosSemantics(SemanticDefaults):
             BoolRef: Z3 constraint expressing whether the sentence is false at eval_point
 
         Raises:
-            TypeError: If sentence is a constant (domain element, not proposition)
+            TypeError: If the sentence has neither a sentence letter nor an operator
         """
         # Extract world from evaluation point
         eval_world = eval_point["world"]
@@ -307,23 +215,9 @@ class LogosSemantics(SemanticDefaults):
 
         operator = sentence.operator
         if operator is None:
-            # Check if this is a predicate application: [pred_name, term1, term2, ...]
-            from model_checker.syntactic.terms import Term
-            prefix = sentence.prefix_sentence
-            if (isinstance(prefix, list) and len(prefix) >= 2 and
-                isinstance(prefix[0], str) and
-                all(isinstance(arg, Term) for arg in prefix[1:])):
-                # Predicate application: evaluate using predicate_falsify
-                pred_name = prefix[0]
-                term_args = prefix[1:]
-                return self._predicate_false_at(pred_name, term_args, eval_point)
-
-            # Task 14: No operator and no sentence_letter means this is a constant
-            # Constants are domain elements, not propositions
             raise TypeError(
                 f"Cannot evaluate falsity of '{sentence.name}': "
-                f"constants are domain elements, not propositions. "
-                f"Use predicate syntax P[] for sentence letters."
+                f"sentence has no operator or sentence letter."
             )
         arguments = sentence.arguments or ()
         return operator.false_at(*arguments, eval_point)
@@ -343,8 +237,6 @@ class LogosSemantics(SemanticDefaults):
         extended_verify method which handles the verification conditions specific to
         that operator.
 
-        Task 14: Constants cannot be verified - they are domain elements, not propositions.
-
         Args:
             state (BitVecRef): The state being tested as a verifier
             sentence (Sentence): The sentence to check
@@ -354,28 +246,16 @@ class LogosSemantics(SemanticDefaults):
             BoolRef: Z3 constraint expressing the verification condition
 
         Raises:
-            TypeError: If sentence is a constant (domain element, not proposition)
+            TypeError: If the sentence has neither a sentence letter nor an operator
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.verify(state, sentence_letter)
         operator = sentence.operator
         if operator is None:
-            # Check if this is a predicate application: [pred_name, term1, term2, ...]
-            from model_checker.syntactic.terms import Term
-            prefix = sentence.prefix_sentence
-            if (isinstance(prefix, list) and len(prefix) >= 2 and
-                isinstance(prefix[0], str) and
-                all(isinstance(arg, Term) for arg in prefix[1:])):
-                # Predicate application: evaluate using predicate extended verify
-                pred_name = prefix[0]
-                term_args = prefix[1:]
-                return self._predicate_extended_verify(state, pred_name, term_args, eval_point)
-
             raise TypeError(
                 f"Cannot verify '{sentence.name}': "
-                f"constants are domain elements, not propositions. "
-                f"Use predicate syntax P[] for sentence letters."
+                f"sentence has no operator or sentence letter."
             )
         arguments = sentence.arguments or ()
         return operator.extended_verify(state, *arguments, eval_point)
@@ -395,8 +275,6 @@ class LogosSemantics(SemanticDefaults):
         extended_falsify method which handles the falsification conditions specific to
         that operator.
 
-        Task 14: Constants cannot be falsified - they are domain elements, not propositions.
-
         Args:
             state (BitVecRef): The state being tested as a falsifier
             sentence (Sentence): The sentence to check
@@ -406,28 +284,16 @@ class LogosSemantics(SemanticDefaults):
             BoolRef: Z3 constraint expressing the falsification condition
 
         Raises:
-            TypeError: If sentence is a constant (domain element, not proposition)
+            TypeError: If the sentence has neither a sentence letter nor an operator
         """
         sentence_letter = sentence.sentence_letter
         if sentence_letter is not None:
             return self.falsify(state, sentence_letter)
         operator = sentence.operator
         if operator is None:
-            # Check if this is a predicate application: [pred_name, term1, term2, ...]
-            from model_checker.syntactic.terms import Term
-            prefix = sentence.prefix_sentence
-            if (isinstance(prefix, list) and len(prefix) >= 2 and
-                isinstance(prefix[0], str) and
-                all(isinstance(arg, Term) for arg in prefix[1:])):
-                # Predicate application: evaluate using predicate extended falsify
-                pred_name = prefix[0]
-                term_args = prefix[1:]
-                return self._predicate_extended_falsify(state, pred_name, term_args, eval_point)
-
             raise TypeError(
                 f"Cannot falsify '{sentence.name}': "
-                f"constants are domain elements, not propositions. "
-                f"Use predicate syntax P[] for sentence letters."
+                f"sentence has no operator or sentence letter."
             )
         arguments = sentence.arguments or ()
         return operator.extended_falsify(state, *arguments, eval_point)
@@ -637,45 +503,6 @@ class LogosSemantics(SemanticDefaults):
                 else:
                     model_constraints.all_constraints.append(z3.Not(self.falsify(state, atom)))
 
-    # =========================================================================
-    # First-Order Semantics Infrastructure
-    # =========================================================================
-
-    def get_assignment(self, eval_point: 'EvaluationPoint') -> VariableAssignment:
-        """Extract variable assignment from evaluation point.
-
-        If no assignment is present in the evaluation point, returns an empty
-        assignment. This allows operators to access variable bindings during
-        first-order evaluation.
-
-        Args:
-            eval_point: The evaluation point dictionary
-
-        Returns:
-            VariableAssignment: The current variable assignment, or empty if none
-        """
-        return eval_point.get("assignment", VariableAssignment.empty())
-
-    def with_assignment(
-        self,
-        eval_point: 'EvaluationPoint',
-        assignment: VariableAssignment
-    ) -> 'EvaluationPoint':
-        """Create a new evaluation point with the given assignment.
-
-        Creates a copy of the evaluation point with the assignment field set
-        to the provided value. Used by first-order operators to thread
-        variable bindings through recursive evaluation.
-
-        Args:
-            eval_point: The base evaluation point to extend
-            assignment: The variable assignment to include
-
-        Returns:
-            A new evaluation point dictionary with the assignment
-        """
-        return {**eval_point, "assignment": assignment}
-
     def with_world(
         self,
         eval_point: 'EvaluationPoint',
@@ -696,316 +523,6 @@ class LogosSemantics(SemanticDefaults):
             A new evaluation point dictionary with the world
         """
         return {**eval_point, "world": world}
-
-    def register_constant(self, name: str, value: z3.BitVecRef) -> None:
-        """Register a constant with its interpretation.
-
-        Associates a constant name with a specific domain element (bit vector).
-        This interpretation is used when computing term denotations.
-
-        Args:
-            name: The constant name (e.g., 'a', 'zero')
-            value: The domain element this constant denotes
-        """
-        self._constant_interpretations[name] = value
-
-    def constant_interpretation(self, name: str) -> z3.BitVecRef:
-        """Get the interpretation of a constant.
-
-        Auto-registers unknown constants with a fresh Z3 BitVec variable.
-        This allows constants to be used without explicit registration,
-        supporting first-order examples that reference constants like 'a<>'.
-
-        Args:
-            name: The constant name
-
-        Returns:
-            The domain element denoted by this constant
-        """
-        if name not in self._constant_interpretations:
-            # Auto-register with a fresh Z3 BitVec variable
-            # Use const_{name} naming convention for consistency
-            fresh_const = z3.BitVec(f"const_{name}", self.N)
-            self._constant_interpretations[name] = fresh_const
-        return self._constant_interpretations[name]
-
-    def register_function(self, name: str, arity: int) -> None:
-        """Register a function symbol with its interpretation.
-
-        Creates a Z3 function declaration for the function symbol.
-        The function maps n domain elements to a domain element.
-
-        Args:
-            name: The function symbol name (e.g., 'succ', 'plus')
-            arity: The number of arguments the function takes
-        """
-        # Function maps arity bit vectors to a bit vector
-        arg_sorts = [z3.BitVecSort(self.N)] * arity
-        self._function_interpretations[name] = z3.Function(
-            f"func_{name}",
-            *arg_sorts,
-            z3.BitVecSort(self.N)
-        )
-
-    def function_interpretation(
-        self,
-        name: str,
-        args: tuple[z3.BitVecRef, ...]
-    ) -> z3.BitVecRef:
-        """Apply a function interpretation to arguments.
-
-        Args:
-            name: The function symbol name
-            args: The argument values (already evaluated)
-
-        Returns:
-            The result of applying the function to the arguments
-
-        Raises:
-            KeyError: If the function has not been registered
-        """
-        if name not in self._function_interpretations:
-            raise KeyError(f"Function '{name}' not registered. "
-                          f"Call register_function('{name}', arity) first.")
-        return self._function_interpretations[name](*args)
-
-    def register_predicate(self, name: str, arity: int) -> None:
-        """Register a predicate with verifier/falsifier functions.
-
-        Creates Z3 functions for |F|+ and |F|- interpretation.
-        These functions map n domain elements plus a state to a boolean,
-        representing whether the state is in the verifier/falsifier set
-        for the predicate applied to those arguments.
-
-        Args:
-            name: The predicate name (e.g., 'P', 'Loves')
-            arity: The number of arguments the predicate takes
-        """
-        # Verifier function: maps n args + verifier state to bool
-        # Represents: s in |F|+(d1, ..., dn)
-        verifier_args = [z3.BitVecSort(self.N)] * arity + [z3.BitVecSort(self.N)]
-        self._predicate_verifiers[name] = z3.Function(
-            f"pred_verify_{name}",
-            *verifier_args,
-            z3.BoolSort()
-        )
-
-        # Falsifier function: maps n args + falsifier state to bool
-        # Represents: s in |F|-(d1, ..., dn)
-        self._predicate_falsifiers[name] = z3.Function(
-            f"pred_falsify_{name}",
-            *verifier_args,
-            z3.BoolSort()
-        )
-
-        # Add no_glut constraint for predicates: verifiers incompatible with falsifiers
-        # This mirrors the no_glut constraint for sentence letters:
-        # ForAll args, x, y. (verify(args, x) AND falsify(args, y)) => Not(compatible(x, y))
-        arg_vars = [z3.BitVec(f"pred_ng_{name}_arg{i}", self.N) for i in range(arity)]
-        x = z3.BitVec(f"pred_ng_{name}_x", self.N)
-        y = z3.BitVec(f"pred_ng_{name}_y", self.N)
-        all_vars = arg_vars + [x, y]
-
-        verify_func = self._predicate_verifiers[name]
-        falsify_func = self._predicate_falsifiers[name]
-
-        no_glut_constraint = ForAll(
-            all_vars,
-            z3.Implies(
-                z3.And(
-                    verify_func(*arg_vars, x),
-                    falsify_func(*arg_vars, y)
-                ),
-                z3.Not(self.compatible(x, y))
-            )
-        )
-        self.frame_constraints.append(no_glut_constraint)
-
-    def predicate_verify(
-        self,
-        name: str,
-        args: tuple[z3.BitVecRef, ...],
-        state: z3.BitVecRef
-    ) -> z3.BoolRef:
-        """Check if state verifies predicate F(args).
-
-        Args:
-            name: The predicate name
-            args: The argument values (domain elements)
-            state: The state being tested as a verifier
-
-        Returns:
-            Z3 constraint expressing whether state is in |F|+(args)
-
-        Raises:
-            KeyError: If the predicate has not been registered
-        """
-        if name not in self._predicate_verifiers:
-            raise KeyError(f"Predicate '{name}' not registered. "
-                          f"Call register_predicate('{name}', arity) first.")
-        return self._predicate_verifiers[name](*args, state)
-
-    def predicate_falsify(
-        self,
-        name: str,
-        args: tuple[z3.BitVecRef, ...],
-        state: z3.BitVecRef
-    ) -> z3.BoolRef:
-        """Check if state falsifies predicate F(args).
-
-        Args:
-            name: The predicate name
-            args: The argument values (domain elements)
-            state: The state being tested as a falsifier
-
-        Returns:
-            Z3 constraint expressing whether state is in |F|-(args)
-
-        Raises:
-            KeyError: If the predicate has not been registered
-        """
-        if name not in self._predicate_falsifiers:
-            raise KeyError(f"Predicate '{name}' not registered. "
-                          f"Call register_predicate('{name}', arity) first.")
-        return self._predicate_falsifiers[name](*args, state)
-
-    def _predicate_true_at(self, pred_name, term_args, eval_point):
-        """Evaluate truth of a predicate application at an evaluation point.
-
-        P(t1, ..., tn) is true at w iff there exists a state x that is part of w
-        and x verifies P(d1, ..., dn) where di = [[ti]].
-
-        Args:
-            pred_name: Name of the predicate
-            term_args: List of Term objects as arguments
-            eval_point: Evaluation point with world and assignment
-
-        Returns:
-            Z3 constraint for predicate truth
-        """
-        eval_world = eval_point["world"]
-        assignment = self.get_assignment(eval_point)
-
-        # Compute denotations of all term arguments
-        arg_denotations = tuple(
-            term_denotation(arg, assignment, self)
-            for arg in term_args
-        )
-
-        # Register predicate if not already registered
-        arity = len(term_args)
-        if pred_name not in self._predicate_verifiers:
-            self.register_predicate(pred_name, arity)
-
-        # P(args) is true iff exists x. x <= w and x verifies P(args)
-        x = z3.BitVec(f"pred_t_{pred_name}_x", self.N)
-        return Exists(
-            x,
-            cast(z3.BoolRef, z3.And(
-                self.is_part_of(x, eval_world),
-                self.predicate_verify(pred_name, arg_denotations, x)
-            ))
-        )
-
-    def _predicate_false_at(self, pred_name, term_args, eval_point):
-        """Evaluate falsity of a predicate application at an evaluation point.
-
-        P(t1, ..., tn) is false at w iff there exists a state x that is part of w
-        and x falsifies P(d1, ..., dn) where di = [[ti]].
-
-        Args:
-            pred_name: Name of the predicate
-            term_args: List of Term objects as arguments
-            eval_point: Evaluation point with world and assignment
-
-        Returns:
-            Z3 constraint for predicate falsity
-        """
-        eval_world = eval_point["world"]
-        assignment = self.get_assignment(eval_point)
-
-        # Compute denotations of all term arguments
-        arg_denotations = tuple(
-            term_denotation(arg, assignment, self)
-            for arg in term_args
-        )
-
-        # Register predicate if not already registered
-        arity = len(term_args)
-        if pred_name not in self._predicate_falsifiers:
-            self.register_predicate(pred_name, arity)
-
-        # P(args) is false iff exists x. x <= w and x falsifies P(args)
-        x = z3.BitVec(f"pred_f_{pred_name}_x", self.N)
-        return Exists(
-            x,
-            cast(z3.BoolRef, z3.And(
-                self.is_part_of(x, eval_world),
-                self.predicate_falsify(pred_name, arg_denotations, x)
-            ))
-        )
-
-    def _predicate_extended_verify(self, state, pred_name, term_args, eval_point):
-        """Determine if a state verifies a predicate application.
-
-        A state x verifies P(t1, ..., tn) iff x is a verifier for P(d1, ..., dn)
-        where di = [[ti]] (term denotation).
-
-        Args:
-            state: The state being tested as verifier
-            pred_name: Name of the predicate
-            term_args: List of Term objects as arguments
-            eval_point: Evaluation point with world and assignment
-
-        Returns:
-            Z3 constraint for predicate verification
-        """
-        assignment = self.get_assignment(eval_point)
-
-        # Compute denotations of all term arguments
-        arg_denotations = tuple(
-            term_denotation(arg, assignment, self)
-            for arg in term_args
-        )
-
-        # Register predicate if not already registered
-        arity = len(term_args)
-        if pred_name not in self._predicate_verifiers:
-            self.register_predicate(pred_name, arity)
-
-        # State verifies P(args) iff it's in the predicate's verifier function
-        return self.predicate_verify(pred_name, arg_denotations, state)
-
-    def _predicate_extended_falsify(self, state, pred_name, term_args, eval_point):
-        """Determine if a state falsifies a predicate application.
-
-        A state x falsifies P(t1, ..., tn) iff x is a falsifier for P(d1, ..., dn)
-        where di = [[ti]] (term denotation).
-
-        Args:
-            state: The state being tested as falsifier
-            pred_name: Name of the predicate
-            term_args: List of Term objects as arguments
-            eval_point: Evaluation point with world and assignment
-
-        Returns:
-            Z3 constraint for predicate falsification
-        """
-        assignment = self.get_assignment(eval_point)
-
-        # Compute denotations of all term arguments
-        arg_denotations = tuple(
-            term_denotation(arg, assignment, self)
-            for arg in term_args
-        )
-
-        # Register predicate if not already registered
-        arity = len(term_args)
-        if pred_name not in self._predicate_falsifiers:
-            self.register_predicate(pred_name, arity)
-
-        # State falsifies P(args) iff it's in the predicate's falsifier function
-        return self.predicate_falsify(pred_name, arg_denotations, state)
 
 
 class LogosProposition(PropositionDefaults):
@@ -1181,7 +698,6 @@ class LogosProposition(PropositionDefaults):
 
     def find_proposition(
         self,
-        assignment: Optional['VariableAssignment'] = None
     ) -> Tuple[Set['StateType'], Set['StateType']]:
         """Computes the verifier and falsifier sets for this proposition.
 
@@ -1189,16 +705,6 @@ class LogosProposition(PropositionDefaults):
         the proposition in the model. For atomic propositions, it uses the
         verify and falsify relations; for complex propositions, it delegates
         to the appropriate operator's implementation.
-
-        Task 21: Added optional assignment parameter for first-order logic.
-        When evaluating open formulas (those with free variables bound by an
-        outer quantifier), the assignment parameter provides the variable
-        bindings needed to compute the correct verifiers and falsifiers.
-
-        Args:
-            assignment: Optional variable assignment for first-order evaluation.
-                When provided, the assignment is included in the eval_point
-                passed to operators. Defaults to None (empty assignment).
 
         Returns:
             tuple: A pair (verifiers, falsifiers) containing the sets of
@@ -1228,69 +734,10 @@ class LogosProposition(PropositionDefaults):
             }
             return V, F
         if operator is not None:
-            # Task 21: Build eval_point with assignment if provided
             eval_point = {"world": eval_world}
-            if assignment is not None:
-                eval_point = semantics.with_assignment(eval_point, assignment)
             return operator.find_verifiers_and_falsifiers(*arguments, eval_point)
 
-        # Check if this is a predicate application: [pred_name, term1, term2, ...]
-        from model_checker.syntactic.terms import Term
-        prefix = self.sentence.prefix_sentence
-        if (isinstance(prefix, list) and len(prefix) >= 2 and
-            isinstance(prefix[0], str) and
-            all(isinstance(arg, Term) for arg in prefix[1:])):
-            # Predicate application: find verifiers/falsifiers
-            pred_name = prefix[0]
-            term_args = prefix[1:]
-            # Task 21: Pass assignment to predicate finder
-            return self._predicate_find_proposition(pred_name, term_args, eval_world, assignment)
-
         raise ValueError(f"There is no proposition for {self}.")
-
-    def _predicate_find_proposition(self, pred_name, term_args, eval_world, assignment=None):
-        """Find verifiers and falsifiers for a predicate application.
-
-        Args:
-            pred_name: Name of the predicate
-            term_args: List of Term objects as arguments
-            eval_world: The evaluation world
-            assignment: Optional variable assignment for first-order evaluation
-
-        Returns:
-            tuple: A pair (verifiers, falsifiers) containing the sets of states
-        """
-        model = self.model_structure.z3_model
-        semantics = self.semantics
-        eval_point = {"world": eval_world}
-
-        # Task 21: Use provided assignment or get from empty eval_point
-        if assignment is None:
-            assignment = semantics.get_assignment(eval_point)
-        else:
-            eval_point = semantics.with_assignment(eval_point, assignment)
-
-        # Compute denotations of all term arguments
-        arg_denotations = tuple(
-            term_denotation(arg, assignment, semantics)
-            for arg in term_args
-        )
-
-        # Register predicate if not already registered
-        arity = len(term_args)
-        if pred_name not in semantics._predicate_verifiers:
-            semantics.register_predicate(pred_name, arity)
-
-        # Find all states that verify/falsify the predicate
-        V = {
-            state for state in self.model_structure.all_states
-            if self._evaluate_z3_boolean(model, semantics.predicate_verify(pred_name, arg_denotations, state))
-        }
-        F = {
-            state for state in self.model_structure.all_states
-            if self._evaluate_z3_boolean(model, semantics.predicate_falsify(pred_name, arg_denotations, state))
-        }
-        return V, F
 
     def _evaluate_z3_boolean(self, z3_model: z3.ModelRef, expression: z3.BoolRef) -> bool:
         """Safely evaluate a Z3 boolean expression to a Python boolean.
@@ -1532,114 +979,6 @@ class LogosModelStructure(ModelDefaults):
         except Exception:
             return False
 
-    def _get_predicate_extension(
-        self,
-        pred_name: str,
-        arg_tuple: Tuple[z3.BitVecRef, ...]
-    ) -> Tuple[Set[str], Set[str]]:
-        """Get the verifier and falsifier states for a predicate application.
-
-        Evaluates the predicate at the given argument tuple and returns the
-        sets of states that verify and falsify the predicate application.
-
-        Args:
-            pred_name: The name of the predicate (e.g., 'F', 'R')
-            arg_tuple: Tuple of Z3 bitvector values for the arguments
-
-        Returns:
-            Tuple of (verifier_states, falsifier_states) where each is a set
-            of state strings formatted via bitvec_to_substates.
-        """
-        verifier_states: Set[str] = set()
-        falsifier_states: Set[str] = set()
-
-        for state in self.all_states:
-            # Check if state is possible (unless print_impossible is True)
-            is_possible = self._evaluate_z3_boolean_for_model(
-                self.semantics.possible(state)
-            )
-            if not is_possible and not self.settings.get('print_impossible', False):
-                continue
-
-            # Check if state verifies the predicate application
-            verify_expr = self.semantics.predicate_verify(pred_name, arg_tuple, state)
-            if self._evaluate_z3_boolean_for_model(verify_expr):
-                verifier_states.add(bitvec_to_substates(state, self.N))
-
-            # Check if state falsifies the predicate application
-            falsify_expr = self.semantics.predicate_falsify(pred_name, arg_tuple, state)
-            if self._evaluate_z3_boolean_for_model(falsify_expr):
-                falsifier_states.add(bitvec_to_substates(state, self.N))
-
-        return verifier_states, falsifier_states
-
-    def print_predicate_extensions(self, output=sys.__stdout__) -> None:
-        """Print predicate extensions showing what each predicate maps to for each domain element.
-
-        For each registered predicate, displays the verifier and falsifier states
-        for every combination of domain element arguments. This helps users
-        understand how predicates are interpreted in the countermodel.
-
-        The output format is:
-            PREDICATE EXTENSIONS:
-
-            F (arity 1):
-              F() = < {verifiers}, {falsifiers} >
-              F(a) = < {verifiers}, {falsifiers} >
-              ...
-
-            R (arity 2):
-              R(, ) = < {verifiers}, {falsifiers} >
-              R(, a) = < {verifiers}, {falsifiers} >
-              ...
-
-        Args:
-            output (file, optional): Output stream to write to. Defaults to sys.stdout.
-        """
-        # Skip if no predicates are registered
-        if not self.semantics._predicate_verifiers:
-            return
-
-        # Set up colors
-        BLUE = ""
-        RESET = ""
-        if output is sys.__stdout__:
-            BLUE = "\033[34m"
-            RESET = "\033[0m"
-
-        print(f"\n{BLUE}PREDICATE EXTENSIONS:{RESET}\n", file=output)
-
-        # Iterate over predicates in sorted order for consistent output
-        for pred_name in sorted(self.semantics._predicate_verifiers.keys()):
-            verify_func = self.semantics._predicate_verifiers[pred_name]
-            # Arity is function arity minus 1 (the state argument)
-            arity = verify_func.arity() - 1
-
-            print(f"{pred_name} (arity {arity}):", file=output)
-
-            # Enumerate all domain element combinations
-            # Domain elements are 0 to 2^N - 1
-            domain_range = range(2 ** self.N)
-
-            for args in itertools.product(domain_range, repeat=arity):
-                # Convert integer args to Z3 bitvector values
-                arg_bitvecs = tuple(z3.BitVecVal(a, self.N) for a in args)
-
-                # Get verifier and falsifier states
-                ver_states, fal_states = self._get_predicate_extension(pred_name, arg_bitvecs)
-
-                # Format domain element arguments for display
-                arg_strs = [bitvec_to_substates(z3.BitVecVal(a, self.N), self.N) for a in args]
-                args_display = ", ".join(arg_strs)
-
-                # Format output like propositions: < verifiers, falsifiers >
-                print(
-                    f"  {pred_name}({args_display}) = < {pretty_set_print(ver_states)}, {pretty_set_print(fal_states)} >",
-                    file=output
-                )
-
-            print(file=output)
-
     def print_all(self, default_settings, example_name, theory_name, output=sys.__stdout__):
         """Print a complete overview of the model structure and evaluation results.
         
@@ -1660,7 +999,6 @@ class LogosModelStructure(ModelDefaults):
         if model_status:
             self.print_states(output)
             self.print_evaluation(output)
-            self.print_predicate_extensions(output)
             self.print_input_sentences(output)
             self.print_model(output)
             if output is sys.__stdout__:

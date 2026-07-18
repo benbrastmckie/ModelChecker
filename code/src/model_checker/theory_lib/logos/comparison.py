@@ -74,7 +74,6 @@ COMPARISON_EXAMPLES = {
     "constitutive": ["CL_TH_1", "CL_TH_16", "CL_CM_1", "CL_CM_7"],
     "counterfactual": ["CF_TH_1", "CF_TH_2", "CF_CM_1", "CF_CM_7"],
     "relevance": ["REL_TH_1", "REL_TH_7", "REL_CM_1", "REL_CM_3"],
-    "first_order": ["FO_TH_1", "FO_TH_5", "FO_CM_1", "FO_CM_3"],
 }
 
 
@@ -474,11 +473,10 @@ def get_required_subtheories(subtheory: str) -> List[str]:
 
     Different subtheories have different dependency requirements:
     - extensional: just extensional
-    - modal: extensional + modal + first_order
+    - modal: extensional + modal
     - constitutive: extensional + modal + constitutive
     - counterfactual: extensional + modal + counterfactual
     - relevance: extensional + modal + constitutive + relevance
-    - first_order: extensional + constitutive + first_order
 
     Args:
         subtheory: Name of the target subtheory
@@ -488,11 +486,10 @@ def get_required_subtheories(subtheory: str) -> List[str]:
     """
     subtheory_deps = {
         "extensional": ["extensional"],
-        "modal": ["extensional", "modal", "first_order"],
+        "modal": ["extensional", "modal"],
         "constitutive": ["extensional", "modal", "constitutive"],
         "counterfactual": ["extensional", "modal", "counterfactual"],
         "relevance": ["extensional", "modal", "constitutive", "relevance"],
-        "first_order": ["extensional", "constitutive", "first_order"],
     }
     return subtheory_deps.get(subtheory, ["extensional", subtheory])
 
@@ -998,7 +995,6 @@ def parse_args() -> argparse.Namespace:
             "constitutive",
             "counterfactual",
             "relevance",
-            "first_order",
         ],
         help="Run only examples from this subtheory",
     )

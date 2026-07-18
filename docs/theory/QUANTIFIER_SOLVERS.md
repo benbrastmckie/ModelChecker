@@ -568,15 +568,7 @@ For ModelChecker's small bit-vector domains (typically N=2 to N=6), finitary qua
 
 3. **No structural advantage**: Native quantifiers excel when the solver can reason algebraically without explicit enumeration. For finite domains, explicit enumeration is already tractable.
 
-**Benchmark results** (from `first_order_benchmark.py`):
-
-- Finitary-Z3 and finitary-CVC5: 100% correctness across all test cases
-- Native-Z3: Generally correct but slower than finitary for small N
-- Native-CVC5: Has known correctness issues on countermodel queries
-
 **Recommendation**: Use finitary quantifiers for ModelChecker's finite state spaces. Reserve native quantifiers for exploring how solver-level reasoning handles quantified properties, or for domains too large to enumerate.
-
-For more details on the benchmark methodology and results, see the [first_order_benchmark.py documentation](../../code/scripts/README.md).
 
 ---
 

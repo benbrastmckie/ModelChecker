@@ -25,14 +25,8 @@ from .collection import OperatorCollection
 # Phase 3.6 - Import Syntax from the new module
 from .syntax import Syntax
 
-# First-order term algebra
-from .terms import Term, Variable, Constant, FunctionApplication
-
-# First-order variable assignments
-from .assignments import VariableAssignment
-
 # Formula-level operations
-from .formulas import compute_formula_free_variables, is_syntactically_wff
+from .formulas import is_syntactically_wff
 
 __all__ = [
     # Atoms (AtomSort resolved dynamically via __getattr__)
@@ -46,15 +40,7 @@ __all__ = [
     'DefinedOperator',
     'OperatorCollection',
     'Syntax',
-    # First-order terms
-    'Term',
-    'Variable',
-    'Constant',
-    'FunctionApplication',
-    # First-order assignments
-    'VariableAssignment',
     # Formula operations
-    'compute_formula_free_variables',
     'is_syntactically_wff',
 ]
 

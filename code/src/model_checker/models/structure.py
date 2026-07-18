@@ -318,32 +318,16 @@ class ModelDefaults:
             - This method should only be called after a valid Z3 model has been found
             - Modifies the sentence objects in-place by calling their update_objects method
             - Skips processing if no valid model exists
-            - Skips lambda abstraction subformulas (they're function bodies, not propositions)
         """
         # Use explicit None check: CVC5 models trigger expensive __len__() on truthiness tests
         if self.z3_model is None:
             return
 
-        # Task 21: Import Term for type checking
-        from model_checker.syntactic.terms import Term
-
         for sent_obj in sentences:
-            # Task 21: Skip Term objects (Variable, Constant)
-            # These are not formulas and don't have propositions
-            if isinstance(sent_obj, Term):
-                continue
-
             # Always recurse into arguments first
             # This ensures inner formulas get their propositions set
             if sent_obj.arguments:
                 self.interpret(sent_obj.arguments)
-
-            # Skip lambda abstractions - they're function bodies, not propositions
-            # They appear as subformulas inside quantifiers (\forall, \exists)
-            if (sent_obj.operator is not None and
-                hasattr(sent_obj.operator, 'name') and
-                sent_obj.operator.name == '\\lambda'):
-                continue
 
             sent_obj.update_proposition(self)
 

@@ -10,7 +10,6 @@ The logos theory is modular, with examples distributed across subtheories:
 - Constitutive: Ground, essence, and identity operators (≡,≤,⊑,≼,⊓)
 - Counterfactual: Counterfactual conditional operators (□→,◇→,⊙,♦)
 - Relevance: Content-sensitive relevance operators (≺)
-- First-Order: Universal and existential quantifiers (∀,∃) and identity (=)
 
 This module imports and combines all subtheory examples with prefixed names
 to avoid conflicts and maintain traceability back to the originating subtheory.
@@ -33,7 +32,6 @@ Example Name Prefixes:
 - CON_*: Constitutive examples (Note: renamed from CL_* to CON_* for consistency)
 - CF_*: Counterfactual examples
 - REL_*: Relevance examples
-- FO_*: First-Order examples
 """
 
 import os
@@ -56,9 +54,6 @@ from .subtheories.modal.examples import unit_tests as modal_all_examples
 from .subtheories.relevance import examples as rel_module
 from .subtheories.relevance.examples import example_range as relevance_examples
 from .subtheories.relevance.examples import unit_tests as relevance_all_examples
-from .subtheories.first_order import examples as fo_module
-from .subtheories.first_order.examples import example_range as first_order_examples
-from .subtheories.first_order.examples import unit_tests as first_order_all_examples
 
 
 
@@ -125,15 +120,6 @@ try:
 except ImportError:
     relevance_examples = {}
 
-try:
-    for key in first_order_examples:
-        example_metadata[key] = {
-            'subtheory': 'first_order',
-            'path': os.path.abspath(fo_module.__file__)
-        }
-except ImportError:
-    first_order_examples = {}
-
 # Note: Basic examples removed as they are redundant with subtheory examples
 # Modus ponens -> EXT_TH_1, Conjunction -> EXT_TH_3, etc.
 # Modal logic K -> MOD_TH_*, Identity reflexive -> CON_TH_*
@@ -146,7 +132,6 @@ unit_tests = {
     **{k.replace('CL_', 'CON_'): v for k, v in constitutive_examples.items()},  # Convert CL_* to CON_*
     **counterfactual_examples,  # Already has CF_ prefix
     **relevance_examples,       # Already has REL_ prefix
-    **first_order_examples,     # Already has FO_ prefix
 }
 
 # Basic examples removed - see subtheory examples instead
@@ -187,7 +172,7 @@ general_settings = {
 
 # Create operator registry for full logos theory
 logos_registry = LogosOperatorRegistry()
-logos_registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance', 'first_order'])
+logos_registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance'])
 
 # Define the semantic theory
 logos_theory = {
@@ -214,7 +199,6 @@ subtheory_examples = {
     'constitutive': constitutive_examples,
     'counterfactual': counterfactual_examples,
     'relevance': relevance_examples,
-    'first_order': first_order_examples,
 }
 
 # All examples from all subtheories (for testing frameworks that need full access)
@@ -224,7 +208,6 @@ all_subtheory_examples = {
     'constitutive': constitutive_all_examples,
     'counterfactual': counterfactual_all_examples,
     'relevance': relevance_all_examples,
-    'first_order': first_order_all_examples,
 }
 
 # The report will be printed by ModelRunner after all examples complete

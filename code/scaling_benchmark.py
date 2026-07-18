@@ -178,11 +178,10 @@ def get_required_subtheories(subtheory: str) -> List[str]:
     """
     subtheory_deps = {
         "extensional": ["extensional"],
-        "modal": ["extensional", "modal", "first_order"],
+        "modal": ["extensional", "modal"],
         "constitutive": ["extensional", "modal", "constitutive"],
         "counterfactual": ["extensional", "modal", "counterfactual"],
         "relevance": ["extensional", "modal", "constitutive", "relevance"],
-        "first_order": ["extensional", "constitutive", "first_order"],
     }
     return subtheory_deps.get(subtheory, ["extensional", subtheory])
 
@@ -203,7 +202,6 @@ def get_subtheory_for_example(example_name: str) -> str:
         "CL_": "constitutive",  # Legacy prefix
         "CF_": "counterfactual",
         "REL_": "relevance",
-        "FO_": "first_order",
     }
     for prefix, subtheory in prefix_map.items():
         if example_name.startswith(prefix):
@@ -231,7 +229,6 @@ def get_curated_benchmark_examples() -> Dict[str, List[Any]]:
         "constitutive": 1,
         "counterfactual": 1,
         "relevance": 1,
-        "first_order": 1,
     }
 
     for subtheory, count in subtheory_targets.items():
@@ -642,7 +639,7 @@ def parse_args() -> argparse.Namespace:
         "--subtheory", "-s",
         choices=[
             "extensional", "modal", "constitutive",
-            "counterfactual", "relevance", "first_order",
+            "counterfactual", "relevance",
         ],
         help="Run only examples from this subtheory",
     )

@@ -506,7 +506,6 @@ class UnitTestRunner:
                 'extensional': '(extensional or EXT_)',
                 'constitutive': '(constitutive or CON_ or CL_)',
                 'relevance': '(relevance or REL_)',
-                'first_order': '(first_order or FO_)',
             }
 
             patterns = [subtheory_patterns[sub] for sub in subtheories if sub in subtheory_patterns]

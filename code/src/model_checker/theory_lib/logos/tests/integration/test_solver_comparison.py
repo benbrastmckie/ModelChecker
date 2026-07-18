@@ -8,7 +8,7 @@ Usage:
     pytest test_solver_comparison.py -v
 
     # Run specific subtheory
-    pytest test_solver_comparison.py -k "first_order" -v
+    pytest test_solver_comparison.py -k "modal" -v
 
     # Run specific solver
     pytest test_solver_comparison.py -k "z3" -v
@@ -93,15 +93,13 @@ def get_required_subtheories(subtheory: str) -> List[str]:
     - constitutive: extensional + modal + constitutive
     - counterfactual: extensional + modal + counterfactual
     - relevance: extensional + modal + constitutive + relevance
-    - first_order: extensional + constitutive + first_order
     """
     subtheory_deps = {
         'extensional': ['extensional'],
-        'modal': ['extensional', 'modal', 'first_order'],
+        'modal': ['extensional', 'modal'],
         'constitutive': ['extensional', 'modal', 'constitutive'],
         'counterfactual': ['extensional', 'modal', 'counterfactual'],
         'relevance': ['extensional', 'modal', 'constitutive', 'relevance'],
-        'first_order': ['extensional', 'constitutive', 'first_order'],
     }
     return subtheory_deps.get(subtheory, ['extensional', subtheory])
 
