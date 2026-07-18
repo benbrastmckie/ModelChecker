@@ -4,25 +4,11 @@ next_project_number: 117
 
 # TODO
 
-## Task Order
-
-*Updated 2026-07-18. Generated from state.json dependency graph.*
-
-**Dependency Waves**:
-| Wave | Tasks | Blocked by | Topics |
-|------|-------|------------|--------|
-| 1 | 116 | -- | documentation |
-
-**Grouped by Topic** (indented = depends on parent):
-
-### Documentation
-
-116 [NOT STARTED] — Draft a brief email for a Python expert explaining how the ModelC
 
 ## Tasks
 
 ### 116. Draft email modelchecker architecture
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: markdown
 - **Topic**: documentation
 - **Dependencies**: None
