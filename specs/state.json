@@ -1,11 +1,25 @@
 {
-  "next_project_number": 116,
-  "active_projects": [],
+  "next_project_number": 117,
+  "active_projects": [
+    {
+      "project_number": 116,
+      "project_name": "draft_email_modelchecker_architecture",
+      "status": "not_started",
+      "task_type": "markdown",
+      "description": "Draft a brief email for a Python expert explaining how the ModelChecker supports modular extensions: each model structure is built over shared general infrastructure and supports a range of operators supplied semantic clauses using that model structure's resources. Explain the basic architecture and the pipeline by which logical claims are processed into SMTlib, solved, then passed back to print a model, where key methods are provided by each operator. Culminate with code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py as a worked example. Draw on docs/ and distributed README.md files as appropriate.",
+      "topic": "documentation",
+      "created": "2026-07-18T19:30:01Z",
+      "last_updated": "2026-07-18T19:30:01Z"
+    }
+  ],
   "repository_health": {
     "last_assessed": "2026-06-02T08:38:23Z",
     "todo_count": 8,
     "fixme_count": 0,
     "build_errors": 0,
     "status": "healthy"
-  }
+  },
+  "active_topics": [
+    "documentation"
+  ]
 }
