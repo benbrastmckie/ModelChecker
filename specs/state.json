@@ -1,6 +1,16 @@
 {
-  "next_project_number": 117,
+  "next_project_number": 118,
   "active_projects": [
+    {
+      "project_number": 117,
+      "project_name": "review_cli_pypi_parity_nix_flake_release",
+      "status": "not_started",
+      "task_type": "python",
+      "description": "Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI",
+      "topic": "packaging",
+      "created": "2026-07-23T17:05:44Z",
+      "last_updated": "2026-07-23T17:05:44Z"
+    },
     {
       "project_number": 116,
       "project_name": "draft_email_modelchecker_architecture",
@@ -22,6 +32,7 @@
     "status": "healthy"
   },
   "active_topics": [
-    "documentation"
+    "documentation",
+    "packaging"
   ]
 }

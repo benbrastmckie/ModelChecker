@@ -1,11 +1,35 @@
 ---
-next_project_number: 117
+next_project_number: 118
 ---
 
 # TODO
 
+## Task Order
+
+*Updated 2026-07-23. Generated from state.json dependency graph.*
+
+**Dependency Waves**:
+| Wave | Tasks | Blocked by | Topics |
+|------|-------|------------|--------|
+| 1 | 117 | -- | packaging |
+
+**Grouped by Topic** (indented = depends on parent):
+
+### Packaging
+
+117 [NOT STARTED] — Review and stabilize the repo after recent revisions: verify the 
 
 ## Tasks
+
+### 117. Review cli pypi parity nix flake release
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: packaging
+- **Dependencies**: None
+
+**Description**: Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI
+
+---
 
 ### 116. Draft email modelchecker architecture
 - **Status**: [COMPLETED]
