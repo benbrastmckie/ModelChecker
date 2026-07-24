@@ -18,11 +18,13 @@ def _isolated_registry():
     registrations performed at `model_checker` import time)."""
     saved_registry = dict(registry._REGISTRY)
     saved_order = list(registry._ORDER)
+    saved_default = registry._DEFAULT_THEORY
     yield
     registry._REGISTRY.clear()
     registry._REGISTRY.update(saved_registry)
     registry._ORDER.clear()
     registry._ORDER.extend(saved_order)
+    registry._DEFAULT_THEORY = saved_default
 
 
 class _FakeSemantics:

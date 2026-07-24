@@ -24,11 +24,14 @@ def load_examples(theory_name: str, example_prefix: Optional[str] = None) -> Dic
         dict: Dictionary of example name to example data
     """
     try:
-        # Dynamic import of the examples module
-        examples_module = importlib.import_module(
-            f"model_checker.theory_lib.{theory_name}.examples"
-        )
-        
+        # Dynamic import of the examples module, via the core registry's module_path rather
+        # than a hardcoded theory_lib prefix (see get_theory_details() above for the same
+        # pattern).
+        from .. import registry
+        theory_module_path = registry.get_theory_entry(theory_name).module_path
+        examples_module = importlib.import_module(f"{theory_module_path}.examples")
+
+
         # Filter examples by prefix if provided
         examples = {}
         for name in dir(examples_module):
@@ -44,7 +47,7 @@ def load_examples(theory_name: str, example_prefix: Optional[str] = None) -> Dic
                 examples[name] = value
                 
         return examples
-    except ImportError:
+    except (ImportError, ValueError):
         return {}
 
 
@@ -109,9 +112,12 @@ def get_theory_details(theory_name: str) -> Dict[str, Any]:
         dict: Dictionary with theory details
     """
     try:
-        # Import the theory module
-        theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
-        
+        # Import the theory module via the core registry's module_path (not a hardcoded
+        # theory_lib prefix here) so the dotted path knowledge stays owned by theory_lib.
+        from .. import registry
+        theory_module_path = registry.get_theory_entry(theory_name).module_path
+        theory_module = importlib.import_module(theory_module_path)
+
         # Get README if available
         readme_path = os.path.join(os.path.dirname(theory_module.__file__), "README.md")
         readme_content = None
@@ -150,10 +156,13 @@ def get_theory_details(theory_name: str) -> Dict[str, Any]:
             "path": theory_module.__file__
         }
         
-    except ImportError:
+    except (ImportError, ValueError):
+        # ValueError: theory_name is not registered (registry.get_theory_entry()); ImportError:
+        # the resolved module_path failed to import. Both are the same "couldn't get this
+        # theory's details" outcome from this function's perspective.
         return {
             "name": theory_name,
-            "error": f"Could not import theory module: model_checker.theory_lib.{theory_name}"
+            "error": f"Could not import theory module for '{theory_name}'"
         }
 
 

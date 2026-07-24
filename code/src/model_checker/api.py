@@ -12,11 +12,11 @@ the actual by-name lookup to `utils.api.get_theory()`, which is the pure (theory
 version operating on an already-supplied mapping.
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Optional
 
 from .utils.api import get_theory as _lookup_theory
 
-__all__ = ["get_theory"]
+__all__ = ["get_theory", "get_semantic_theories", "get_available_theories"]
 
 
 def get_theory(name: str, semantic_theories: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
@@ -60,3 +60,31 @@ def get_theory(name: str, semantic_theories: Optional[Dict[str, Any]] = None) ->
             raise ValueError(f"Theory '{name}' not found in theory_lib") from e
 
     return _lookup_theory(name, semantic_theories)
+
+
+def get_semantic_theories(theory_name: str) -> Dict[str, Any]:
+    """Get a theory's semantic theory implementations, routed through this upper-layer module
+    rather than importing `theory_lib` directly at each call site (see `jupyter/` callers).
+
+    Args:
+        theory_name: Name of the registered theory.
+
+    Returns:
+        dict: Mapping of semantic theory names to their implementation dicts.
+
+    Raises:
+        ValueError: If the theory is not registered or its semantic theories can't be loaded.
+    """
+    from .theory_lib import get_semantic_theories as _get_semantic_theories
+    return _get_semantic_theories(theory_name)
+
+
+def get_available_theories() -> List[str]:
+    """Get the list of registered theory names, routed through this upper-layer module rather
+    than importing `theory_lib.AVAILABLE_THEORIES` directly at each call site.
+
+    Returns:
+        list: Registered theory names in registration order.
+    """
+    from .theory_lib import AVAILABLE_THEORIES
+    return AVAILABLE_THEORIES

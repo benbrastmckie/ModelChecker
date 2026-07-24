@@ -1001,26 +1001,63 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 15: Reclassify jupyter/ and Remove Its Hardcoded Theory Knowledge [NOT STARTED]
+### Phase 15: Reclassify jupyter/ and Remove Its Hardcoded Theory Knowledge [COMPLETED]
 
 - **Goal:** Resolve the 7 remaining inversions, which all live in `jupyter/`.
 - **Tasks:**
-  - [ ] Formally classify `jupyter/` as the upper layer (per Phase 3): it legitimately needs to know
+  - [x] Formally classify `jupyter/` as the upper layer (per Phase 3): it legitimately needs to know
         about theories, so the fix is a correct layer assignment plus removal of *hardcoded* theory
-        knowledge — not removal of the dependency.
-  - [ ] Replace the hardcoded adapter registry at `jupyter/adapters.py:89-95` (a dict literal mapping
+        knowledge — not removal of the dependency. *(already classified as upper layer since
+        Phase 9's `UPPER_LAYER_DIR_PREFIXES`; confirmed unchanged)*
+  - [x] Replace the hardcoded adapter registry at `jupyter/adapters.py:89-95` (a dict literal mapping
         all four theory names to adapter classes) with registry-driven lookup: theories supply their
         adapter through the Phase 10 `register_theory(..., adapter=...)` parameter, defaulting to
-        `DefaultTheoryAdapter`. `jupyter/` stops enumerating theories.
-  - [ ] Replace `jupyter/interactive.py:35` and `:100` (`from model_checker.theory_lib import logos,
-        exclusion` — two theories hardcoded, two omitted) with registry iteration.
-  - [ ] Route `jupyter/interactive.py:233,288` and `jupyter/display.py:270,380`
+        `DefaultTheoryAdapter`. `jupyter/` stops enumerating theories. *(completed with a
+        structural-derivation mechanism rather than literally passing `adapter=` at
+        theory_lib's registration time -- see Deviations: `theory_lib` cannot import
+        jupyter-specific adapter classes without inverting the sanctioned dependency direction,
+        so `registry.set_adapter()` is a new post-hoc attachment point that
+        `jupyter/adapters.py` calls on its own after both sides already exist, deriving each
+        theory name from its adapter class's own `"{Name}TheoryAdapter"` naming convention
+        rather than writing it as a literal)*
+  - [x] Replace `jupyter/interactive.py:35` and `:100` (`from model_checker.theory_lib import logos,
+        exclusion` — two theories hardcoded, two omitted) with registry iteration. *(completed:
+        new shared `_resolve_theory(theory_name)` helper resolves via
+        `registry.get_theory_entry()` + `registry.get_default_theory()`, replacing both
+        hardcoded branches in `check_formula()` and `find_countermodel()`; `explore_formula()`
+        and `ModelExplorer`'s implicit default handled the same way)*
+  - [x] Route `jupyter/interactive.py:233,288` and `jupyter/display.py:270,380`
         (`get_semantic_theories`) and `jupyter/environment.py:166` (`AVAILABLE_THEORIES`) through the
-        Phase 12 `model_checker/api.py` upper-layer surface.
-  - [ ] Replace the string-literal `importlib` at `jupyter/utils.py:113,156` with the registry's
-        `module_path`.
-  - [ ] Confirm the layering test's upper-layer allowance covers `jupyter/` explicitly and that its
-        theory-name-literal assertion now passes for `jupyter/`.
+        Phase 12 `model_checker/api.py` upper-layer surface. *(completed: added
+        `get_semantic_theories()` and `get_available_theories()` pass-throughs to
+        `model_checker/api.py`; all 5 call sites now import from `model_checker.api` instead of
+        `model_checker.theory_lib` directly)*
+  - [x] Replace the string-literal `importlib` at `jupyter/utils.py:113,156` with the registry's
+        `module_path`. *(completed for both `get_theory_details()` and `load_examples()`; both
+        `except ImportError:` clauses widened to `except (ImportError, ValueError):` since
+        `registry.get_theory_entry()` raises `ValueError` for an unregistered name where the
+        prior code would have raised `ImportError` from the dynamic import itself -- same
+        graceful-degradation outcome, different exception type)*
+  - [x] Confirm the layering test's upper-layer allowance covers `jupyter/` explicitly and that its
+        theory-name-literal assertion now passes for `jupyter/`. *(confirmed: all 4 layering
+        tests pass -- both RED-baseline assertions from Phase 9 are now fully GREEN, zero
+        violations repo-wide, not just zero under jupyter/)*
+  - [x] *(deviation, not in original task list)* Fixed `jupyter/unicode.py:278`'s
+        `theory_specific = {'exclusion': {...}}` dict literal -- flagged by Phase 9's audit as
+        one of the 17 hardcoded-name violations but not named in this phase's task list or
+        Files-to-modify. No registry field naturally fits static LaTeX<->Unicode glyph data, so
+        added a `UNICODE_OPERATOR_EXTENSIONS` module-level constant to
+        `theory_lib/exclusion/__init__.py` (theory_lib is exempt from the naming rule) and
+        rewrote `jupyter/unicode.py`'s `get_theory_operators()` to discover it generically via
+        `registry.get_theory_entry(theory_name).module_path` + `getattr(..., 'UNICODE_OPERATOR_EXTENSIONS', None)`,
+        rather than a hardcoded dict key.
+  - [x] *(deviation, not in original task list)* Added `registry.set_default_theory()` /
+        `registry.get_default_theory()` to `registry.py`, and had `theory_lib/__init__.py` mark
+        `'logos'` as the default theory (a literal permitted there, since theory_lib is exempt
+        from the layering scan). This replaces every jupyter-side `theory_name="logos"` default
+        parameter and `else: theory_name = "logos"` fallback branch (previously flagged
+        literals) with `registry.get_default_theory()`, preserving the exact same observable
+        default (`'logos'`) without jupyter/ ever writing that name itself.
 - **Timing:** 1.5 hours
 - **Depends on:** 10, 13
 - **Files to modify:**

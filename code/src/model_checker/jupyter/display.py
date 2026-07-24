@@ -267,7 +267,7 @@ def display_formula_check(formula: str,
     
     try:
         from model_checker import BuildExample, get_theory
-        from model_checker.theory_lib import get_semantic_theories
+        from model_checker.api import get_semantic_theories
     except ImportError:
         from .environment import setup_environment
         setup_environment()
@@ -377,7 +377,7 @@ def display_countermodel(formula: str,
     # Extract the model from the BuildExample for visualization
     try:
         from model_checker import BuildExample, get_theory
-        from model_checker.theory_lib import get_semantic_theories
+        from model_checker.api import get_semantic_theories
         
         # Create the model again to get access to it
         semantic_theories = get_semantic_theories(theory_name)

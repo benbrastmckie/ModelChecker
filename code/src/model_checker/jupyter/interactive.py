@@ -20,35 +20,45 @@ except ImportError:
 if HAVE_IPYWIDGETS:
     from .ui_builders import ModelExplorerUIBuilder, FormulaCheckerUIBuilder
 
+def _resolve_theory(theory_name):
+    """Resolve a theory name to its get_theory()-shaped dict via the core registry.
+
+    Falls back to the registry's default theory (see theory_lib/__init__.py's
+    `set_default_theory()` call) for `None` or any name the registry doesn't recognize --
+    this is the registry-driven replacement for hardcoding 'logos' as the fallback theory
+    name and enumerating a fixed set of supported theories inline.
+
+    Returns:
+        (theory_dict, resolved_theory_name)
+    """
+    from .. import registry
+
+    name = theory_name or registry.get_default_theory()
+    try:
+        entry = registry.get_theory_entry(name)
+    except ValueError:
+        name = registry.get_default_theory()
+        entry = registry.get_theory_entry(name)
+    return entry.as_theory_dict(), name
+
+
 # Define high-level utility functions
-def check_formula(formula, theory_name="logos", premises=None, settings=None):
+def check_formula(formula, theory_name=None, premises=None, settings=None):
     """Check if a formula is valid given premises."""
     if not HAVE_IPYWIDGETS:
         raise ImportError(
             "ipywidgets is required for interactive features. "
             "Install with: pip install model-checker[jupyter]"
         )
-    
+
     try:
         from IPython.display import display, HTML
         from model_checker.jupyter.builder_utils import create_build_example
-        from model_checker.theory_lib import logos, exclusion
-        
-        # Get the appropriate theory
-        if theory_name == "logos":
-            theory = logos.get_theory()
-        elif theory_name == "exclusion":
-            theory = {
-                'semantics': exclusion.WitnessSemantics,
-                'proposition': exclusion.WitnessProposition,
-                'model': exclusion.WitnessStructure,
-                'operators': exclusion.witness_operators
-            }
-        else:
-            # Fall back to logos for unsupported theories
-            theory = logos.get_theory()
-            theory_name = "logos"
-        
+
+        # Get the appropriate theory (registry-driven; falls back to the default theory for
+        # unsupported/unknown names)
+        theory, theory_name = _resolve_theory(theory_name)
+
         # Set up default settings
         if settings is None:
             settings = {'N': 3, 'max_time': 5}
@@ -86,35 +96,23 @@ def check_formula(formula, theory_name="logos", premises=None, settings=None):
     except Exception as e:
         return HTML(f"<div style='color: red;'>Error checking formula: {str(e)}</div>")
 
-def find_countermodel(formula, theory_name="logos", premises=None, settings=None):
+def find_countermodel(formula, theory_name=None, premises=None, settings=None):
     """Find a countermodel for a formula with optional premises."""
     if not HAVE_IPYWIDGETS:
         raise ImportError(
             "ipywidgets is required for interactive features. "
             "Install with: pip install model-checker[jupyter]"
         )
-    
+
     try:
         from IPython.display import display, HTML
         from model_checker.jupyter.builder_utils import create_build_example
-        from model_checker.theory_lib import logos, exclusion
         from io import StringIO
-        
-        # Get the appropriate theory
-        if theory_name == "logos":
-            theory = logos.get_theory()
-        elif theory_name == "exclusion":
-            theory = {
-                'semantics': exclusion.WitnessSemantics,
-                'proposition': exclusion.WitnessProposition,
-                'model': exclusion.WitnessStructure,
-                'operators': exclusion.witness_operators
-            }
-        else:
-            # Fall back to logos for unsupported theories
-            theory = logos.get_theory()
-            theory_name = "logos"
-        
+
+        # Get the appropriate theory (registry-driven; falls back to the default theory for
+        # unsupported/unknown names)
+        theory, theory_name = _resolve_theory(theory_name)
+
         # Set up default settings for countermodel search
         if settings is None:
             settings = {'N': 3, 'max_time': 5, 'expectation': False}  # Expect invalid for countermodel
@@ -179,13 +177,16 @@ def find_countermodel(formula, theory_name="logos", premises=None, settings=None
     except Exception as e:
         return HTML(f"<div style='color: red;'>Error searching for countermodel: {str(e)}</div>")
 
-def explore_formula(formula, theory_name="logos", premises=None, settings=None):
+def explore_formula(formula, theory_name=None, premises=None, settings=None):
     """Create an interactive explorer for a specific formula."""
     if not HAVE_IPYWIDGETS:
         raise ImportError(
             "ipywidgets is required for interactive features. "
             "Install with: pip install model-checker[jupyter]"
         )
+    if theory_name is None:
+        from .. import registry
+        theory_name = registry.get_default_theory()
     explorer = ModelExplorer(theory_name)
     
     # These methods should be defined in the ModelExplorer class
@@ -230,7 +231,7 @@ class ModelExplorer:
         
         # Import dependencies now that environment is set up
         from model_checker import get_theory
-        from model_checker.theory_lib import get_semantic_theories
+        from model_checker.api import get_semantic_theories
         
         self.theory_name = theory_name
         self.available_theories = get_available_theories()
@@ -285,7 +286,7 @@ class ModelExplorer:
             change: Change event
         """
         from model_checker import get_theory
-        from model_checker.theory_lib import get_semantic_theories
+        from model_checker.api import get_semantic_theories
         
         self.theory_name = change['new']
         

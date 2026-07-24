@@ -17,6 +17,26 @@ from .semantic import WitnessSemantics, WitnessModelAdapter, WitnessProposition,
 __version__ = "1.0.0"
 __model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 
+# Optional, theory-supplied extension point: LaTeX<->Unicode operator mappings beyond the
+# default set (see jupyter/unicode.py's get_theory_operators(), which discovers this constant
+# generically via the core registry's module_path rather than hardcoding 'exclusion' as a
+# lookup key -- this keeps the theory-specific glyph data owned here, in exclusion's own
+# package, rather than duplicated as a jupyter-side literal).
+UNICODE_OPERATOR_EXTENSIONS = {
+    'latex_to_unicode': {
+        '\\exclude': '⦻',
+        '\\uniwedge': '⊓',
+        '\\univee': '⊔',
+        '\\uniequiv': '≔',
+    },
+    'unicode_to_latex': {
+        '⦻': '\\exclude',
+        '⊓': '\\uniwedge',
+        '⊔': '\\univee',
+        '≔': '\\uniequiv',
+    },
+}
+
 
 # For ModelChecker discovery
 DefaultSemantics = WitnessSemantics

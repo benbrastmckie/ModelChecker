@@ -1,0 +1,37 @@
+{
+  "phase": 15,
+  "phase_name": "Reclassify jupyter/ and Remove Its Hardcoded Theory Knowledge",
+  "started_at": "2026-07-24T23:29:00Z",
+  "last_updated": "2026-07-24T23:55:00Z",
+  "objectives": [
+    {"id": 1, "description": "registry.set_adapter/set_default_theory/get_default_theory added", "status": "done", "files_touched": ["code/src/model_checker/registry.py", "code/tests/unit/test_registry.py"]},
+    {"id": 2, "description": "theory_lib marks logos as default theory", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/__init__.py"]},
+    {"id": 3, "description": "jupyter/adapters.py registry-driven adapter lookup", "status": "done", "files_touched": ["code/src/model_checker/jupyter/adapters.py"]},
+    {"id": 4, "description": "jupyter/interactive.py registry-driven theory resolution", "status": "done", "files_touched": ["code/src/model_checker/jupyter/interactive.py"]},
+    {"id": 5, "description": "model_checker/api.py gains get_semantic_theories/get_available_theories pass-throughs", "status": "done", "files_touched": ["code/src/model_checker/api.py"]},
+    {"id": 6, "description": "jupyter/display.py, environment.py routed through api.py", "status": "done", "files_touched": ["code/src/model_checker/jupyter/display.py", "code/src/model_checker/jupyter/environment.py"]},
+    {"id": 7, "description": "jupyter/utils.py registry module_path replaces string-literal importlib", "status": "done", "files_touched": ["code/src/model_checker/jupyter/utils.py"]},
+    {"id": 8, "description": "jupyter/unicode.py exclusion glyph table moved to theory_lib/exclusion, discovered generically", "status": "done", "files_touched": ["code/src/model_checker/jupyter/unicode.py", "code/src/model_checker/theory_lib/exclusion/__init__.py"]}
+  ],
+  "current_objective": 8,
+  "approaches_tried": [
+    {"approach": "pass adapter= directly from theory_lib's register_theory() call", "result": "rejected", "reason": "would require theory_lib to import jupyter-specific adapter classes, inverting the sanctioned dependency direction (theory_lib -> core only); used a post-hoc registry.set_adapter() call from jupyter's own side instead"}
+  ],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "15.extra1",
+      "description": "Fix jupyter/unicode.py:278's hardcoded exclusion glyph table",
+      "type": "altered",
+      "reason": "Flagged by Phase 9's audit as one of the 17 violations but not named in this phase's task list; no registry field naturally fits static unicode glyph data, so added a theory-owned UNICODE_OPERATOR_EXTENSIONS constant discovered generically via the registry's module_path.",
+      "annotation": "*(deviation, not in original task list)*"
+    },
+    {
+      "task_id": "15.extra2",
+      "description": "Add registry.set_default_theory()/get_default_theory(); mark logos as default in theory_lib",
+      "type": "altered",
+      "reason": "Multiple jupyter functions hardcoded theory_name=\"logos\" as both a parameter default and a fallback value -- these are themselves flagged string-literal violations, requiring a registry-driven default-theory concept, not just per-call registry lookups.",
+      "annotation": "*(deviation, not in original task list)*"
+    }
+  ]
+}

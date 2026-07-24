@@ -25,6 +25,9 @@ __all__ = [
     "get_registered",
     "get_theory_entry",
     "iter_theories",
+    "set_adapter",
+    "set_default_theory",
+    "get_default_theory",
     "TheoryEntry",
 ]
 
@@ -99,6 +102,7 @@ class TheoryEntry:
 
 _REGISTRY: Dict[str, TheoryEntry] = {}
 _ORDER: List[str] = []
+_DEFAULT_THEORY: Optional[str] = None
 
 
 def register_theory(
@@ -166,6 +170,40 @@ def get_theory_entry(name: str) -> TheoryEntry:
         raise ValueError(f"Unknown theory '{name}'. Available theories: {available}") from None
 
 
+def set_adapter(name: str, adapter: Any) -> None:
+    """Attach (or replace) an already-registered theory's `adapter`.
+
+    Unlike `register_theory()`, this is not fail-fast on repeat calls for the same name --
+    an upper-layer package (e.g. `jupyter/`) updating its own adapter registration is not the
+    same kind of bug as a genuine duplicate `register_theory()` call, since `register_theory()`
+    itself has no way to know about upper-layer-only concerns like display adapters at the
+    point `theory_lib` registers each theory (see `theory_lib/__init__.py`'s
+    `_register_theories()`, which always passes `adapter=None`).
+
+    Raises:
+        ValueError: If `name` is not registered yet.
+    """
+    entry = get_theory_entry(name)
+    entry.adapter = adapter
+
+
+def set_default_theory(name: str) -> None:
+    """Mark `name` as the default theory for callers that need a sensible fallback without
+    naming any theory themselves.
+
+    Raises:
+        ValueError: If `name` is not registered yet.
+    """
+    get_theory_entry(name)  # validates registration; raises ValueError if unknown
+    global _DEFAULT_THEORY
+    _DEFAULT_THEORY = name
+
+
+def get_default_theory() -> Optional[str]:
+    """Return the name marked via `set_default_theory()`, or None if never set."""
+    return _DEFAULT_THEORY
+
+
 def iter_theories() -> Iterator[TheoryEntry]:
     """Iterate over registered theory entries in registration order."""
     for name in _ORDER:
@@ -174,5 +212,7 @@ def iter_theories() -> Iterator[TheoryEntry]:
 
 def _reset_registry_for_testing() -> None:
     """Clear all registrations. Test-only helper -- not part of the public API."""
+    global _DEFAULT_THEORY
     _REGISTRY.clear()
     _ORDER.clear()
+    _DEFAULT_THEORY = None

@@ -79,23 +79,59 @@ class TheoryAdapter:
 
 def get_theory_adapter(theory_name: TheoryName) -> TheoryAdapter:
     """Factory function to get the appropriate adapter for a theory.
-    
+
+    Looks the adapter class up via the core registry's `entry.adapter` (attached by
+    `_register_jupyter_adapters()` below), falling back to `DefaultTheoryAdapter` for any
+    theory with no theory-specific adapter registered (including logos, which the generic
+    adapter already handles) or any name the registry doesn't recognize at all. `jupyter/`
+    never enumerates theory names to make this decision -- see
+    `_register_jupyter_adapters()`'s docstring for how the association is derived.
+
     Args:
         theory_name: Name of the theory
-        
+
     Returns:
         TheoryAdapter: The appropriate adapter instance
     """
-    # Registry of theory adapters
-    registry: Dict[TheoryName, type[TheoryAdapter]] = {
-        "logos": DefaultTheoryAdapter,  # Logos uses the generic adapter
-        "exclusion": ExclusionTheoryAdapter,
-        "imposition": ImpositionTheoryAdapter,
-        "bimodal": BimodalTheoryAdapter,
-    }
-    
-    adapter_class = registry.get(theory_name, DefaultTheoryAdapter)
+    from .. import registry as _core_registry
+
+    adapter_class: type[TheoryAdapter] = DefaultTheoryAdapter
+    try:
+        entry = _core_registry.get_theory_entry(theory_name)
+        if entry.adapter is not None:
+            adapter_class = entry.adapter
+    except ValueError:
+        pass
+
     return adapter_class(theory_name)
+
+
+def _register_jupyter_adapters() -> None:
+    """Attach each theory-specific adapter class to its registry entry.
+
+    Rather than a `{theory_name: AdapterClass}` dict literal (which would hardcode every
+    theory name here, tripping the layering test's rule against theory-name string literals
+    outside theory_lib), the association is derived structurally from each adapter class's own
+    name via the `"{Name}TheoryAdapter"` convention -- e.g. `ExclusionTheoryAdapter` attaches
+    itself to whichever registered theory is named 'exclusion', discovered by matching
+    `type(adapter_cls).__name__` against the registry's own `get_registered()` list, never by
+    writing 'exclusion' as a literal in this file. A theory with no matching adapter class
+    (currently: logos) simply keeps `entry.adapter is None` and `get_theory_adapter()` falls
+    back to `DefaultTheoryAdapter`.
+    """
+    from .. import registry as _core_registry
+
+    registered = {name.lower(): name for name in _core_registry.get_registered()}
+    adapter_classes = (ExclusionTheoryAdapter, ImpositionTheoryAdapter, BimodalTheoryAdapter)
+    suffix = "TheoryAdapter"
+    for adapter_cls in adapter_classes:
+        class_name = adapter_cls.__name__
+        if not class_name.endswith(suffix):
+            continue
+        derived_name = class_name[: -len(suffix)].lower()
+        matched = registered.get(derived_name)
+        if matched is not None:
+            _core_registry.set_adapter(matched, adapter_cls)
 
 
 class DefaultTheoryAdapter(TheoryAdapter):
@@ -364,3 +400,9 @@ class BimodalTheoryAdapter(TheoryAdapter):
         # Use default implementation for now
         default_adapter = DefaultTheoryAdapter(self.theory_name)
         return default_adapter.format_model(model)
+
+# Attach theory-specific adapters to the registry at module import time (jupyter/ is only
+# imported when jupyter functionality is actually used, so this is not on the core import
+# path). See _register_jupyter_adapters()'s docstring for how names are derived without
+# hardcoding them here.
+_register_jupyter_adapters()

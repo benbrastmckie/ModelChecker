@@ -273,32 +273,30 @@ def get_theory_operators(theory_name: str) -> Dict[str, Dict[str, str]]:
         }
     }
     
-    # Theory-specific additional operators
-    theory_specific = {
-        'exclusion': {
-            'latex_to_unicode': {
-                '\\exclude': '⦻',
-                '\\uniwedge': '⊓',
-                '\\univee': '⊔',
-                '\\uniequiv': '≔'
-            },
-            'unicode_to_latex': {
-                '⦻': '\\exclude',
-                '⊓': '\\uniwedge',
-                '⊔': '\\univee',
-                '≔': '\\uniequiv'
-            }
-        }
-    }
-    
+    # Theory-specific additional operators: discovered generically via the core registry
+    # rather than a hardcoded {theory_name: {...}} literal here -- any theory may optionally
+    # expose a module-level `UNICODE_OPERATOR_EXTENSIONS` constant (see
+    # theory_lib/exclusion/__init__.py for the one theory that currently does) and it is
+    # picked up without jupyter/ ever naming that theory as a string literal.
+    theory_specific_operators = None
+    try:
+        from .. import registry
+        import importlib
+
+        entry = registry.get_theory_entry(theory_name)
+        theory_module = importlib.import_module(entry.module_path)
+        theory_specific_operators = getattr(theory_module, 'UNICODE_OPERATOR_EXTENSIONS', None)
+    except ValueError:
+        theory_specific_operators = None
+
     # Return combined operators for the specified theory
-    if theory_name in theory_specific:
+    if theory_specific_operators:
         result = {
-            'latex_to_unicode': {**default_operators['latex_to_unicode'], 
-                                 **theory_specific[theory_name]['latex_to_unicode']},
-            'unicode_to_latex': {**default_operators['unicode_to_latex'], 
-                                 **theory_specific[theory_name]['unicode_to_latex']}
+            'latex_to_unicode': {**default_operators['latex_to_unicode'],
+                                 **theory_specific_operators['latex_to_unicode']},
+            'unicode_to_latex': {**default_operators['unicode_to_latex'],
+                                 **theory_specific_operators['unicode_to_latex']}
         }
         return result
-    
+
     return default_operators

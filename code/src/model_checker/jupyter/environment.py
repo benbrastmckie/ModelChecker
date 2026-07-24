@@ -163,8 +163,8 @@ def get_available_theories() -> List[str]:
         list: Names of available theories
     """
     try:
-        from model_checker.theory_lib import AVAILABLE_THEORIES
-        return AVAILABLE_THEORIES
+        from model_checker.api import get_available_theories as _get_available_theories
+        return _get_available_theories()
     except ImportError:
         # Fallback: try to manually discover directories in theory_lib
         try:

@@ -480,3 +480,10 @@ _register_theories()
 # from the registration above, preserving both its public name (widely imported elsewhere) and
 # its original iteration order. Do not reintroduce a separate literal list here.
 AVAILABLE_THEORIES = _core_registry.get_registered()
+
+# Mark logos as the default theory for upper-layer callers (e.g. jupyter/) that need a
+# sensible fallback without naming any theory themselves -- this is the one place permitted to
+# say which theory that is; everywhere else queries `registry.get_default_theory()` instead of
+# hardcoding 'logos'. Idempotent: safe to call every time this module is (re-)executed.
+if 'logos' in AVAILABLE_THEORIES:
+    _core_registry.set_default_theory('logos')
