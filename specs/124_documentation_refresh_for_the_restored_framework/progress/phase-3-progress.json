@@ -1,0 +1,24 @@
+{
+  "phase": 3,
+  "phase_name": "Refresh package and scripts docs (code/README.md, code/scripts/README.md)",
+  "started_at": "2026-07-24T01:00:00Z",
+  "last_updated": "2026-07-24T01:30:00Z",
+  "objectives": [
+    {"id": 1, "description": "Fix code/README.md casing and component description", "status": "done", "files_touched": ["code/README.md"]},
+    {"id": 2, "description": "Confirm theory descriptions match registered set", "status": "done", "files_touched": []},
+    {"id": 3, "description": "Fix dead QUANTIFIER_SOLVERS link in code/scripts/README.md", "status": "done", "files_touched": []},
+    {"id": 4, "description": "Durable-anchor provenance check", "status": "done", "files_touched": []}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "3.3",
+      "description": "code/scripts/README.md: fix the dead link to the deleted ../../docs/theory/QUANTIFIER_SOLVERS.md",
+      "type": "skipped",
+      "reason": "docs/theory/QUANTIFIER_SOLVERS.md exists on disk (592 lines) and the relative link already resolves correctly; not dead as of this dispatch.",
+      "annotation": "*(deviation: skipped — verified docs/theory/QUANTIFIER_SOLVERS.md exists on disk (592 lines, substantive content) and the relative link already resolves correctly; the file is no longer deleted as of this dispatch, so no edit was needed)*"
+    }
+  ]
+}

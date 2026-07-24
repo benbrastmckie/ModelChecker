@@ -26,7 +26,7 @@ pip install model-checker
 For development:
 ```bash
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker/code
 pip install -e .
 ```
 
@@ -336,7 +336,7 @@ To run specific examples from a theory:
 
 ### Logos: Hyperintensional Truthmaker Semantics
 
-- 19 operators across 5 modular subtheories
+- 18 operators across 5 modular subtheories
 - Sensitive to differences in subject-matter via verifier/falsifier sets
 - Distinguishes necessarily equivalent propositions
 - Supports modal, counterfactual, constitutive, and relevance reasoning
@@ -367,12 +367,12 @@ To run specific examples from a theory:
 - **Model Saving**: Set `'save_output': True` to save results to file
 - **Theory Maximization**: Set `'maximize': True` to compare theories systematically
 
-For comprehensive guidance on theory comparison, avoiding circular imports, and advanced multi-theory setups, see **[Theory Comparison Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/docs/usage/COMPARE_THEORIES.md)**.
+For comprehensive guidance on theory comparison, avoiding circular imports, and advanced multi-theory setups, see **[Theory Comparison Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/docs/usage/TOOLS.md)**.
 
 ## Documentation
 
 - **[GitHub Repository](https://github.com/benbrastmckie/ModelChecker)** - Full documentation and source code
-- **[Development Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/docs/DEVELOPMENT.md)** - Contributing and development workflow
+- **[Development Guide](https://github.com/benbrastmckie/ModelChecker/blob/master/code/docs/development/README.md)** - Contributing and development workflow
 - **[Theory Documentation](https://github.com/benbrastmckie/ModelChecker/tree/master/code/src/model_checker/theory_lib)** - Detailed theory specifications
 - **[Academic Background](http://www.benbrastmckie.com/research#access)** - Personal website
 

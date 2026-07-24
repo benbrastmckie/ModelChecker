@@ -149,18 +149,30 @@ Phases within the same wave can execute in parallel.
 - **Verification:** No `cd Code` remains in `CLAUDE.md`; the jupyter link resolves or is removed;
   theory list matches Phase 1; no `task N` citations.
 
-### Phase 3: Refresh package and scripts docs (code/README.md, code/scripts/README.md) [NOT STARTED]
+### Phase 3: Refresh package and scripts docs (code/README.md, code/scripts/README.md) [COMPLETED]
 
 - **Goal:** Align the package-level docs with the restored component layout and remove the dead
   scripts link.
 - **Tasks:**
-  - [ ] `code/README.md`: fix `cd ModelChecker/Code` casing to `cd code`; update the component
+  - [x] `code/README.md`: fix `cd ModelChecker/Code` casing to `cd code`; update the component
         table/description to reflect restored `builder`/`iterate` and the relocated oracle.
-  - [ ] `code/README.md`: confirm the theory descriptions match the four registered theories.
-  - [ ] `code/scripts/README.md`: fix the dead link to the deleted
+        *(completed: fixed the casing; the file has no dedicated component table and does not
+        assert anything false about builder/iterate/oracle — its existing `run_tests.py iterate
+        builder` example already correctly implies both are present, so no additional prose was
+        added, consistent with the non-goal against restructuring beyond accuracy corrections.
+        Also fixed a stale "19 operators" count to "18", and repointed two dead
+        `github.com/.../blob/master/...` links — `docs/usage/COMPARE_THEORIES.md` (never
+        existed) to `docs/usage/TOOLS.md`, and `docs/DEVELOPMENT.md` to
+        `code/docs/development/README.md` — both discovered via the same link-scan used in
+        Phase 2)*
+  - [x] `code/README.md`: confirm the theory descriptions match the four registered theories.
+        *(completed: matches)*
+  - [x] `code/scripts/README.md`: fix the dead link to the deleted
         `../../docs/theory/QUANTIFIER_SOLVERS.md` (remove it or repoint to a live doc; do not
-        recreate the deleted file).
-  - [ ] Ensure durable-anchor provenance language only.
+        recreate the deleted file). *(deviation: skipped — verified `docs/theory/QUANTIFIER_SOLVERS.md`
+        exists on disk (592 lines, substantive content) and the relative link already resolves
+        correctly; the file is no longer deleted as of this dispatch, so no edit was needed)*
+  - [x] Ensure durable-anchor provenance language only. *(completed: no task-number citations)*
 - **Timing:** 25 minutes
 - **Depends on:** 1
 - **Files to modify:**
