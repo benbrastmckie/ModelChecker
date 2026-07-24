@@ -1,14 +1,21 @@
 {
-  "status": "planned",
-  "summary": "Created a 6-phase documentation-refresh plan (2.25h, 3 dependency waves) covering README.md, CLAUDE.md, code/README.md, code/scripts/README.md, docs/usage/SEMANTICS.md, code/CHANGELOG.md, and specs/ROADMAP.md. Phase 1 grounds the definitive framework facts (four registered theories, restored builder/iterate, standalone oracle, first-order removal); Wave 2 refreshes the docs in parallel; Phase 6 validates links and enforces the no-task-number deliverables rule.",
+  "status": "implemented",
+  "summary": "Completed all 6 phases of the documentation refresh plan. Verified ground-truth facts (four registered theories, restored builder/iterate, standalone oracle tree excluded from the wheel, no first-order quantification in logos), then refreshed README.md, CLAUDE.md (repo root), code/README.md, code/scripts/README.md, docs/usage/SEMANTICS.md, code/CHANGELOG.md, and specs/ROADMAP.md. Fixed cd-casing bugs, repointed six dead relative links to existing on-disk equivalents, corrected a stale operator count (19 -> 18), added an honest 1.3.0 CHANGELOG release entry, and seeded ROADMAP.md with the durable package-identity decision. Two plan-anticipated defects (jupyter link, QUANTIFIER_SOLVERS link) were found already resolved and were verified rather than re-edited. Zero task-number citations were introduced; a full relative-link scan across all seven scoped files found no dead links other than one pre-existing, unrelated pair in CHANGELOG.md's historical Issue #73 section, which was left untouched per the non-goal against out-of-scope restructuring.",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "Run /implement 124 to execute the documentation refresh plan.",
+  "next_action_hint": "Task 124 implementation is complete; ready for postflight/status transition to the standard markdown-task terminus.",
+  "phases_completed": 6,
+  "phases_total": 6,
   "artifacts": [
     {
       "path": "specs/124_documentation_refresh_for_the_restored_framework/plans/01_docs-refresh.md",
       "type": "plan",
-      "summary": "6-phase documentation refresh plan aligning seven docs with the restored, green-gated framework state"
+      "summary": "6-phase documentation refresh plan, all phases marked [COMPLETED]"
+    },
+    {
+      "path": "specs/124_documentation_refresh_for_the_restored_framework/summaries/01_docs-refresh-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary covering all file changes, decisions, deviations, and notes"
     }
   ]
 }
