@@ -1,0 +1,346 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collected 269 items / 2 errors
+
+<Dir code>
+  <Package tests>
+    <Package e2e>
+      <Module test_batch_output_real.py>
+        <UnitTestCase TestBatchOutputReal>
+          <TestCaseFunction test_bimodal_batch_output>
+      <Module test_project_creation.py>
+        <Class TestProjectCreation>
+          <Function test_project_directory_creation>
+          <Function test_project_file_structure>
+          <Function test_project_imports_work>
+          <Function test_project_content_validity>
+          <Function test_project_creation_all_theories[bimodal]>
+    <Package integration>
+      <Module test_error_handling.py>
+        <Class TestCLIErrorHandling>
+          <Function test_invalid_file_path>
+          <Function test_invalid_theory_name>
+          <Function test_malformed_module_syntax>
+          <Function test_missing_required_attributes>
+          <Function test_invalid_cli_flags[--invalid-flag]>
+          <Function test_invalid_cli_flags[-X]>
+          <Function test_invalid_cli_flags[--nonexistent]>
+          <Function test_conflicting_flags>
+        <Class TestFrameworkErrorHandling>
+          <Function test_invalid_formula_unicode>
+          <Function test_malformed_formula_structure>
+          <Function test_z3_timeout_handling>
+          <Function test_memory_limit_handling>
+        <Class TestErrorRecovery>
+          <Function test_partial_results_on_error>
+          <Function test_cleanup_after_error>
+          <Function test_graceful_degradation>
+        <Class TestEdgeCases>
+          <Function test_empty_formula_lists>
+          <Function test_valid_n_boundary_values[1]>
+          <Function test_valid_n_boundary_values[2]>
+          <Function test_valid_n_boundary_values[32]>
+          <Function test_valid_n_boundary_values[63]>
+          <Function test_valid_n_boundary_values[64]>
+          <Function test_invalid_n_boundary_values[-1]>
+          <Function test_invalid_n_boundary_values[0]>
+          <Function test_invalid_n_boundary_values[65]>
+          <Function test_invalid_n_boundary_values[100]>
+          <Function test_invalid_n_boundary_values[1000]>
+          <Function test_very_long_formulas>
+          <Function test_special_characters_in_names>
+      <Module test_formula_system.py>
+        <Class TestFormulaValidation>
+          <Function test_formula_syntax[(A \\wedge B)-True]>
+          <Function test_formula_syntax[\\Box (A \\rightarrow B)-True]>
+          <Function test_formula_syntax[\\neg (A \\vee B)-True]>
+          <Function test_formula_syntax[\\Diamond p-True]>
+          <Function test_formula_syntax[(p \\leftrightarrow q)-True]>
+          <Function test_formula_syntax[\\forall x (P(x))-True]>
+          <Function test_formula_syntax[\\exists x (Q(x))-True]>
+          <Function test_formula_syntax[A \u2227 B-False]>
+          <Function test_formula_syntax[\u25a1 A-False]>
+          <Function test_formula_syntax[\xac p-False]>
+          <Function test_formula_syntax[A \u2192 B-False]>
+          <Function test_formula_syntax[\u25c7 p-False]>
+          <Function test_formula_syntax[(A \\wedge-False]>
+          <Function test_formula_syntax[A \\wedge B)-False]>
+          <Function test_formula_syntax[((A \\wedge B)-False]>
+          <Function test_formula_syntax[-False]>
+          <Function test_operator_formats[conjunction-\\wedge-\u2227]>
+          <Function test_operator_formats[disjunction-\\vee-\u2228]>
+          <Function test_operator_formats[negation-\\neg-\xac]>
+          <Function test_operator_formats[implication-\\rightarrow-\u2192]>
+          <Function test_operator_formats[biconditional-\\leftrightarrow-\u2194]>
+          <Function test_operator_formats[necessity-\\Box-\u25a1]>
+          <Function test_operator_formats[possibility-\\Diamond-\u25c7]>
+          <Function test_nested_formulas[1]>
+          <Function test_nested_formulas[2]>
+          <Function test_nested_formulas[3]>
+          <Function test_nested_formulas[5]>
+          <Function test_nested_formulas[10]>
+          <Function test_multiple_propositions[props0]>
+          <Function test_multiple_propositions[props1]>
+          <Function test_multiple_propositions[props2]>
+          <Function test_multiple_propositions[props3]>
+      <Module test_performance.py>
+        <Class TestExecutionPerformance>
+          <Function test_simple_model_performance>
+          <Function test_medium_model_performance>
+          <Function test_complex_model_performance>
+          <Function test_scaling_with_n[2-1.0]>
+          <Function test_scaling_with_n[4-2.0]>
+          <Function test_scaling_with_n[8-10.0]>
+        <Class TestMemoryPerformance>
+          <Function test_memory_usage_simple>
+          <Function test_memory_usage_complex>
+          <Function test_memory_cleanup>
+        <Class TestBatchPerformance>
+          <Function test_batch_small_examples>
+          <Function test_batch_mixed_complexity>
+        <Class TestConcurrentPerformance>
+          <Function test_sequential_vs_concurrent>
+        <Class TestCachingPerformance>
+          <Function test_repeated_operations>
+          <Function test_theory_loading_performance>
+        <Class TestWorstCasePerformance>
+          <Function test_maximum_n_performance>
+          <Function test_many_propositions_performance>
+      <Module test_settings_system.py>
+        <Class TestSettingsValidation>
+          <Function test_n_value_validation[1-True]>
+          <Function test_n_value_validation[2-True]>
+          <Function test_n_value_validation[32-True]>
+          <Function test_n_value_validation[64-True]>
+          <Function test_n_value_validation[0-False]>
+          <Function test_n_value_validation[-1-False]>
+          <Function test_n_value_validation[65-False]>
+          <Function test_n_value_validation[100-False]>
+          <Function test_n_value_validation[1.5-False]>
+          <Function test_n_value_validation[2-False]>
+          <Function test_max_time_validation[1-True]>
+          <Function test_max_time_validation[10-True]>
+          <Function test_max_time_validation[60.5-True]>
+          <Function test_max_time_validation[0.1-True]>
+          <Function test_max_time_validation[0-False]>
+          <Function test_max_time_validation[-1-False]>
+          <Function test_max_time_validation[-10.5-False]>
+          <Function test_max_time_validation[10-False]>
+          <Function test_max_time_validation[None-False]>
+          <Function test_boolean_settings[True-True-print_constraints]>
+          <Function test_boolean_settings[True-True-print_z3]>
+          <Function test_boolean_settings[True-True-save_output]>
+          <Function test_boolean_settings[True-True-print_impossible]>
+          <Function test_boolean_settings[True-True-maximize]>
+          <Function test_boolean_settings[True-True-contingent]>
+          <Function test_boolean_settings[True-True-disjoint]>
+          <Function test_boolean_settings[True-True-non_empty]>
+          <Function test_boolean_settings[True-True-non_null]>
+          <Function test_boolean_settings[False-True-print_constraints]>
+          <Function test_boolean_settings[False-True-print_z3]>
+          <Function test_boolean_settings[False-True-save_output]>
+          <Function test_boolean_settings[False-True-print_impossible]>
+          <Function test_boolean_settings[False-True-maximize]>
+          <Function test_boolean_settings[False-True-contingent]>
+          <Function test_boolean_settings[False-True-disjoint]>
+          <Function test_boolean_settings[False-True-non_empty]>
+          <Function test_boolean_settings[False-True-non_null]>
+          <Function test_boolean_settings[1-False-print_constraints]>
+          <Function test_boolean_settings[1-False-print_z3]>
+          <Function test_boolean_settings[1-False-save_output]>
+          <Function test_boolean_settings[1-False-print_impossible]>
+          <Function test_boolean_settings[1-False-maximize]>
+          <Function test_boolean_settings[1-False-contingent]>
+          <Function test_boolean_settings[1-False-disjoint]>
+          <Function test_boolean_settings[1-False-non_empty]>
+          <Function test_boolean_settings[1-False-non_null]>
+          <Function test_boolean_settings[0-False-print_constraints]>
+          <Function test_boolean_settings[0-False-print_z3]>
+          <Function test_boolean_settings[0-False-save_output]>
+          <Function test_boolean_settings[0-False-print_impossible]>
+          <Function test_boolean_settings[0-False-maximize]>
+          <Function test_boolean_settings[0-False-contingent]>
+          <Function test_boolean_settings[0-False-disjoint]>
+          <Function test_boolean_settings[0-False-non_empty]>
+          <Function test_boolean_settings[0-False-non_null]>
+          <Function test_boolean_settings[true-False-print_constraints]>
+          <Function test_boolean_settings[true-False-print_z3]>
+          <Function test_boolean_settings[true-False-save_output]>
+          <Function test_boolean_settings[true-False-print_impossible]>
+          <Function test_boolean_settings[true-False-maximize]>
+          <Function test_boolean_settings[true-False-contingent]>
+          <Function test_boolean_settings[true-False-disjoint]>
+          <Function test_boolean_settings[true-False-non_empty]>
+          <Function test_boolean_settings[true-False-non_null]>
+          <Function test_boolean_settings[false-False-print_constraints]>
+          <Function test_boolean_settings[false-False-print_z3]>
+          <Function test_boolean_settings[false-False-save_output]>
+          <Function test_boolean_settings[false-False-print_impossible]>
+          <Function test_boolean_settings[false-False-maximize]>
+          <Function test_boolean_settings[false-False-contingent]>
+          <Function test_boolean_settings[false-False-disjoint]>
+          <Function test_boolean_settings[false-False-non_empty]>
+          <Function test_boolean_settings[false-False-non_null]>
+          <Function test_boolean_settings[None-False-print_constraints]>
+          <Function test_boolean_settings[None-False-print_z3]>
+          <Function test_boolean_settings[None-False-save_output]>
+          <Function test_boolean_settings[None-False-print_impossible]>
+          <Function test_boolean_settings[None-False-maximize]>
+          <Function test_boolean_settings[None-False-contingent]>
+          <Function test_boolean_settings[None-False-disjoint]>
+          <Function test_boolean_settings[None-False-non_empty]>
+          <Function test_boolean_settings[None-False-non_null]>
+          <Function test_valid_settings_combinations[settings_combo0]>
+          <Function test_valid_settings_combinations[settings_combo1]>
+          <Function test_valid_settings_combinations[settings_combo2]>
+          <Function test_valid_settings_combinations[settings_combo3]>
+          <Function test_invalid_settings_combinations[settings_combo0]>
+          <Function test_invalid_settings_combinations[settings_combo1]>
+          <Function test_invalid_settings_combinations[settings_combo2]>
+          <Function test_invalid_settings_combinations[settings_combo3]>
+          <Function test_empty_settings>
+          <Function test_unknown_settings_ignored>
+      <Module test_system_boundaries.py>
+        <Class TestBoundaryValues>
+          <Function test_n_value_boundaries[1-True]>
+          <Function test_n_value_boundaries[2-True]>
+          <Function test_n_value_boundaries[32-True]>
+          <Function test_n_value_boundaries[63-True]>
+          <Function test_n_value_boundaries[64-True]>
+          <Function test_n_value_boundaries[0-False]>
+          <Function test_n_value_boundaries[-1-False]>
+          <Function test_n_value_boundaries[65-False]>
+          <Function test_n_value_boundaries[100-False]>
+          <Function test_max_time_boundaries[0.001-True]>
+          <Function test_max_time_boundaries[0.01-True]>
+          <Function test_max_time_boundaries[1.0-True]>
+          <Function test_max_time_boundaries[60.0-True]>
+          <Function test_max_time_boundaries[3600.0-True]>
+          <Function test_max_time_boundaries[0-False]>
+          <Function test_max_time_boundaries[-0.1-False]>
+          <Function test_max_time_boundaries[-1-False]>
+        <Class TestEmptyInputs>
+          <Function test_empty_formula_string>
+          <Function test_whitespace_only_formula>
+          <Function test_empty_settings_dict>
+          <Function test_empty_lists_in_examples>
+        <Class TestExtremeValues>
+          <Function test_very_long_formula>
+          <Function test_many_propositions>
+          <Function test_complex_nested_operators>
+          <Function test_many_examples[1]>
+          <Function test_many_examples[10]>
+          <Function test_many_examples[50]>
+          <Function test_many_examples[100]>
+        <Class TestSpecialCharacters>
+          <Function test_propositions_with_numbers>
+          <Function test_propositions_with_underscores>
+          <Function test_mixed_case_propositions>
+        <Class TestCombinationEffects>
+          <Function test_minimum_n_with_complex_formula>
+          <Function test_maximum_n_with_many_propositions>
+          <Function test_settings_combinations[combo0]>
+          <Function test_settings_combinations[combo1]>
+          <Function test_settings_combinations[combo2]>
+        <Class TestRecursionLimits>
+          <Function test_deeply_nested_formula_parsing>
+          <Function test_wide_formula_structure>
+        <Class TestTypeCoercion>
+          <Function test_string_number_settings>
+          <Function test_numeric_boolean_settings>
+          <Function test_none_values_in_settings>
+      <Module test_system_imports.py>
+        <Class TestImportStructure>
+          <Function test_main_package_imports>
+          <Function test_builder_imports>
+          <Function test_theory_imports>
+          <Function test_utils_api_imports>
+          <Function test_models_imports>
+          <Function test_syntactic_imports>
+          <Function test_settings_imports>
+        <Class TestTheoryStructure>
+          <Function test_theory_has_get_theory[logos]>
+          <Function test_theory_has_get_theory[bimodal]>
+          <Function test_theory_components[logos]>
+          <Function test_theory_components[bimodal]>
+        <Class TestPackageImports>
+          <Function test_module_imports[model_checker.builder-class_names0]>
+          <Function test_module_imports[model_checker.models-class_names1]>
+          <Function test_module_imports[model_checker.syntactic-class_names2]>
+          <Function test_module_imports[model_checker.settings-class_names3]>
+          <Function test_error_hierarchy[ModelError-Exception]>
+          <Function test_error_hierarchy[ModelConstraintError-ModelError]>
+          <Function test_error_hierarchy[ModelSolverError-ModelError]>
+          <Function test_error_hierarchy[ModelConfigurationError-ModelError]>
+      <Module test_timeout_resources.py>
+        <Class TestTimeoutHandling>
+          <Function test_z3_solver_timeout>
+          <Function test_cli_command_timeout>
+          <Function test_various_timeout_values[0.001]>
+          <Function test_various_timeout_values[0.01]>
+          <Function test_various_timeout_values[0.1]>
+        <Class TestResourceLimits>
+          <Function test_large_state_space>
+          <Function test_many_propositions>
+          <Function test_concurrent_model_building>
+        <Class TestInterruptHandling>
+          <Function test_keyboard_interrupt_cleanup>
+          <Function test_graceful_shutdown>
+        <Class TestPerformanceDegradation>
+          <Function test_performance_with_many_constraints>
+          <Function test_scaling_behavior[2-0.1]>
+          <Function test_scaling_behavior[4-0.5]>
+          <Function test_scaling_behavior[8-2.0]>
+        <Class TestResourceRecovery>
+          <Function test_memory_released_after_error>
+          <Function test_file_handles_closed>
+    <Package unit>
+      <Package syntactic>
+        <Module test_formulas.py>
+          <Class TestIsSyntacticallyWff>
+            <Function test_atomic_sentence_letter_is_wff>
+            <Function test_top_is_wff>
+            <Function test_bot_is_wff>
+            <Function test_negation_is_wff>
+            <Function test_conjunction_is_wff>
+            <Function test_disjunction_is_wff>
+            <Function test_implication_is_wff>
+            <Function test_equivalence_is_wff>
+            <Function test_other_backslash_operator_is_wff>
+            <Function test_empty_list_is_not_wff>
+            <Function test_non_list_is_not_wff>
+        <Module test_well_formedness.py>
+          <Class TestSentenceAcceptanceOfPropositional>
+            <Function test_simple_propositional_atom>
+            <Function test_propositional_conjunction>
+            <Function test_propositional_disjunction>
+            <Function test_propositional_negation>
+            <Function test_complex_propositional_formula>
+            <Function test_top_constant>
+            <Function test_bot_constant>
+          <Class TestSentenceEdgeCases>
+            <Function test_empty_formula_rejected>
+
+==================================== ERRORS ====================================
+___________ ERROR collecting tests/e2e/test_simple_output_verify.py ____________
+ImportError while importing test module '/home/benjamin/Projects/ModelChecker/code/tests/e2e/test_simple_output_verify.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+code/tests/e2e/test_simple_output_verify.py:7: in <module>
+    from model_checker.output.manager import OutputManager
+E   ModuleNotFoundError: No module named 'model_checker.output.manager'
+________ ERROR collecting tests/integration/test_model_building_sync.py ________
+ImportError while importing test module '/home/benjamin/Projects/ModelChecker/code/tests/integration/test_model_building_sync.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+code/tests/integration/test_model_building_sync.py:9: in <module>
+    from model_checker.builder.example import BuildExample
+E   ModuleNotFoundError: No module named 'model_checker.builder'
+=========================== short test summary info ============================
+ERROR code/tests/e2e/test_simple_output_verify.py
+ERROR code/tests/integration/test_model_building_sync.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!!
+==================== 269 tests collected, 2 errors in 0.44s ====================

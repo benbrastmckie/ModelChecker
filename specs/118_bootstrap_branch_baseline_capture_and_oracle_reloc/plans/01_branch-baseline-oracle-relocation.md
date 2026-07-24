@@ -114,20 +114,25 @@ Phases within the same wave can execute in parallel.
   - `git branch --show-current` reports the new task branch name.
   - No remote push occurred.
 
-### Phase 2: Capture Pre-Change Baseline [IN PROGRESS]
+### Phase 2: Capture Pre-Change Baseline [COMPLETED]
 
 - **Goal:** Record the before-state so regressions introduced by later tasks are detectable.
 - **Tasks:**
-  - [ ] Run the live bimodal suite once for a pass/fail + timing baseline:
+  - [x] Run the live bimodal suite once for a pass/fail + timing baseline:
         `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -q`
         (long-running; may run in background). Save stdout/stderr and the timing to a file under
-        the task directory (e.g. `baselines/bimodal-suite.txt`).
-  - [ ] Snapshot the current (failing) canonical collect state:
+        the task directory (e.g. `baselines/bimodal-suite.txt`). **Deviation**: run split into two
+        segments for operational convenience (`baselines/bimodal-suite-segment1.txt`: 5 failed,
+        534 passed in 2875.30s; `baselines/bimodal-suite-remainder.txt`: 279 passed in 1325.56s).
+        Combined: 818 tests, 813 passed, 5 failed (all in `test_cross_oracle_differential.py`,
+        pre-existing). Two earlier aborted single-file attempts (`bimodal-suite.txt`,
+        `bimodal-suite-full.txt`) were deleted as superseded.
+  - [x] Snapshot the current (failing) canonical collect state:
         `PYTHONPATH=code/src pytest code/tests/ --collect-only -q` -> save to
         `baselines/collect-only-before.txt`.
-  - [ ] Snapshot `PYTHONPATH=code/src python -m model_checker --help` -> save to
+  - [x] Snapshot `PYTHONPATH=code/src python -m model_checker --help` -> save to
         `baselines/help-before.txt`.
-  - [ ] Record the exact commands and the resulting pass/fail counts in a short
+  - [x] Record the exact commands and the resulting pass/fail counts in a short
         `baselines/README.md` for before/after comparison by New Task 5.
 - **Timing:** 30 minutes (plus background suite wall-clock)
 - **Depends on:** 1
@@ -239,8 +244,8 @@ Phases within the same wave can execute in parallel.
 
 ## Testing & Validation
 
-- [ ] `git branch --show-current` shows the task branch; nothing was pushed.
-- [ ] Baseline artifacts (bimodal suite result/timing, `collect-only-before.txt`,
+- [x] `git branch --show-current` shows the task branch; nothing was pushed.
+- [x] Baseline artifacts (bimodal suite result/timing, `collect-only-before.txt`,
       `help-before.txt`, `restore-inventory.md`) exist and are non-empty under the task directory.
 - [ ] `oracle/bimodal_logic/` exists with its five modules, `tests/`, and a dev-setup file.
 - [ ] `code/src/bimodal_logic/` and `code/src/bimodal_logic.egg-info/` no longer exist.
