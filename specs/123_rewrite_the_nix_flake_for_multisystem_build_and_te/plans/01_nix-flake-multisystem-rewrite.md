@@ -122,19 +122,21 @@ reflects their shared logical dependency on Phase 1, not independent file owners
   - `nix run nixpkgs#...` not needed; instead `result/bin/model-checker --help` (or a Python
     `-c "import model_checker, z3"` against the built env) succeeds.
 
-### Phase 2: Dev Shell Subsuming `code/shell.nix` [NOT STARTED]
+### Phase 2: Dev Shell Subsuming `code/shell.nix` [COMPLETED]
 
 - **Goal:** Provide a `devShell` that fully replaces `code/shell.nix` with the `../BimodalHarness`
   path strictly optional.
 - **Tasks:**
-  - [ ] Define `devShells.default` = `mkShell` including a Python env with `z3`, `setuptools`, `pip`,
-        `networkx`, `pytest`, and `pytest-xdist`.
-  - [ ] Set `PYTHONPATH` to `code/src` in the `shellHook` (matching the package's `package-dir`).
-  - [ ] Make the sibling `../BimodalHarness/src` path strictly optional: add it to `PYTHONPATH` only
+  - [x] Define `devShells.default` = `mkShell` including a Python env with `z3`, `setuptools`, `pip`,
+        `networkx`, `pytest`, and `pytest-xdist`. *(completed)*
+  - [x] Set `PYTHONPATH` to `code/src` in the `shellHook` (matching the package's `package-dir`). *(completed)*
+  - [x] Make the sibling `../BimodalHarness/src` path strictly optional: add it to `PYTHONPATH` only
         when present, with NO warning/failure branch for a standalone checkout (drop the current
-        `shell.nix`/`flake.nix` WARNING path).
-  - [ ] Preserve any still-relevant convenience from `code/shell.nix` (dev CLI usability) without
-        re-introducing a backwards-compat shim.
+        `shell.nix`/`flake.nix` WARNING path). *(completed: verified both branches emit no warning)*
+  - [x] Preserve any still-relevant convenience from `code/shell.nix` (dev CLI usability) without
+        re-introducing a backwards-compat shim. *(completed: setuptools/pip retained for pkg_resources
+        parity; `code/shell.nix`'s script-chmod/PATH additions were dev-CLI-specific niceties not
+        needed once `model-checker` is a proper installed console-script entry point)*
 - **Timing:** 0.5 hours
 - **Depends on:** 1
 - **Files to modify:**
@@ -144,21 +146,24 @@ reflects their shared logical dependency on Phase 1, not independent file owners
     BimodalHarness present) with no warning emitted.
   - `nix develop -c pytest --version` and `python -c "import pytest_xdist"`-equivalent (`pytest -p xdist --help`) succeed.
 
-### Phase 3: `checks.default` Green Gate [NOT STARTED]
+### Phase 3: `checks.default` Green Gate [COMPLETED]
 
 - **Goal:** Add a hermetic `checks.default` that runs a known-green pytest scope so `nix flake check`
   is a real reproducibility gate.
 - **Tasks:**
   - [ ] Define `checks.default` running pytest over the reliably-green in-package
         `theory_lib/bimodal` suite (286/286 green per task-122 baseline) with `-n 6` (avoid `-n auto`
-        contention flakes documented in the baseline).
-  - [ ] Explicitly exclude the `oracle/` tree from the check (separate 2656s suite, not part of the
-        shipped package).
-  - [ ] Add an inline comment in `flake.nix` documenting the scope decision and citing the task-122
-        green baseline as the rationale (why the check is scoped rather than whole-tree).
-  - [ ] Ensure the check is hermetic: all Python deps from nixpkgs, no PyPI/network fetch inside the
-        Nix sandbox.
-  - [ ] Run `nix flake check` and confirm the check passes.
+        contention flakes documented in the baseline). *(completed)*
+  - [x] Explicitly exclude the `oracle/` tree from the check (separate 2656s suite, not part of the
+        shipped package). *(completed: checkPhase's pytest invocation targets only
+        `src/model_checker/theory_lib/bimodal/tests`, `oracle/` is never referenced)*
+  - [x] Add an inline comment in `flake.nix` documenting the scope decision and citing the task-122
+        green baseline as the rationale (why the check is scoped rather than whole-tree). *(completed)*
+  - [x] Ensure the check is hermetic: all Python deps from nixpkgs, no PyPI/network fetch inside the
+        Nix sandbox. *(completed: devPython is a pure nixpkgs python.withPackages closure, no pip
+        install step in checkPhase)*
+  - [x] Run `nix flake check` and confirm the check passes. *(completed: "all checks passed!",
+        286 passed in 42.30s, matching the task-122 baseline's 286/286 in 43.4s)*
 - **Timing:** 0.5 hours
 - **Depends on:** 1
 - **Files to modify:**
