@@ -3,9 +3,11 @@ requires = ["setuptools>=42", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "bimodal-logic"
-version = "0.1.0"
-description = "Z3-based bimodal logic oracle: temporal and modal reasoning for the bimodal_harness."
+name = "model-checker"
+# Version reset for the post-oracle-relocation restoration; the release task (parent 117)
+# confirms the final published number.
+version = "1.3.0"
+description = "A hyperintensional theorem prover for developing and exploring programmatic semantic theories."
 authors = [
     { name = "Benjamin Brast-McKie", email = "benbrastmckie@gmail.com" },
 ]
@@ -20,11 +22,28 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Mathematics",
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-keywords = ["bimodal logic", "temporal logic", "modal logic", "Z3", "SMT", "model checking", "oracle", "theorem prover"]
+keywords = ["semantics", "Z3", "SMT", "logic", "modal logic", "counterfactuals", "modality", "model checking", "theorem prover", "hyperintensionality"]
 dependencies = [
-    "z3-solver>=4.8.0",
+    "z3-solver>=4.8.0",  # Core dependency for constraint solving
+    "networkx>=2.0",     # For graph representation of models (model_checker.iterate.graph)
 ]
 requires-python = ">=3.10"
+
+[project.optional-dependencies]
+jupyter = [
+    "ipywidgets>=7.0.0",  # For interactive notebook components
+    "matplotlib>=3.0.0",  # For visualization of models
+    "networkx>=2.0",      # For graph representation of models
+    "jupyter",            # For notebook environment
+    "ipython",            # For interactive features
+]
+all = [
+    "ipywidgets>=7.0.0",
+    "matplotlib>=3.0.0",
+    "networkx>=2.0",
+    "jupyter",
+    "ipython",
+]
 
 [project.urls]
 Homepage = "https://github.com/benbrastmckie/ModelChecker"
@@ -32,10 +51,6 @@ Issues = "https://github.com/benbrastmckie/ModelChecker/issues"
 
 [project.scripts]
 model-checker = "model_checker.__main__:run"
-bimodal-logic = "bimodal_logic.cli:run"
-
-[project.entry-points."bimodal_harness.oracle_providers"]
-z3_base = "bimodal_logic.provider:Z3OracleProvider"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
