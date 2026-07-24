@@ -4,13 +4,13 @@
     {
       "project_number": 126,
       "project_name": "refactor_repo_core_infrastructure_theory_lib",
-      "status": "researched",
+      "status": "planned",
       "task_type": "general",
       "description": "Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.",
       "topic": "architecture",
       "created": "2026-07-24T16:04:19Z",
-      "last_updated": "2026-07-24T16:13:05Z",
-      "session_id": "sess_1784909138_bee998",
+      "last_updated": "2026-07-24T19:53:52Z",
+      "session_id": "sess_1784921778_5ba3c4",
       "researched": "2026-07-24T16:13:05Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -18,8 +18,85 @@
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md",
           "type": "research",
           "summary": "Team research with 4 teammates"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md",
+          "type": "plan",
+          "summary": "26-phase, 14-wave plan to decouple and standardize the ModelChecker core/theory_lib boundary in place. theory_lib does not move; instead the plan enforces a strictly one-way dependency via an executable layering test, replaces the triplicated theory registry with one registration-based registry, standardizes all four theories onto a canonical module set enforced by a parametrized conformance test, deletes the spatial subtheory and accumulated cruft, and fixes the live contract bugs found en route. Includes ROADMAP snapshot/update phases recording the extraction-rejected decision and its revisit trigger."
         }
-      ]
+      ],
+      "plan_metadata": {
+        "phases": 26,
+        "total_effort_hours": 41,
+        "complexity": "complex",
+        "research_integrated": true,
+        "plan_version": 1,
+        "dependency_waves": [
+          [
+            1,
+            2
+          ],
+          [
+            3,
+            4,
+            5,
+            6
+          ],
+          [
+            7,
+            8,
+            9
+          ],
+          [
+            10,
+            11
+          ],
+          [
+            12,
+            13,
+            14
+          ],
+          [
+            15,
+            16,
+            17
+          ],
+          [
+            18
+          ],
+          [
+            19,
+            20
+          ],
+          [
+            21
+          ],
+          [
+            22
+          ],
+          [
+            23
+          ],
+          [
+            24
+          ],
+          [
+            25
+          ],
+          [
+            26
+          ]
+        ],
+        "reports_integrated": [
+          {
+            "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md",
+            "integrated_in_plan_version": 1,
+            "integrated_date": "2026-07-24"
+          }
+        ],
+        "skeleton": false,
+        "follow_up_tasks": []
+      }
     },
     {
       "project_number": 117,
