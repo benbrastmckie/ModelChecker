@@ -4,15 +4,15 @@
     {
       "project_number": 117,
       "project_name": "review_cli_pypi_parity_nix_flake_release",
-      "status": "blocked",
+      "status": "researched",
       "task_type": "python",
       "description": "Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI",
       "topic": "packaging",
       "created": "2026-07-23T17:05:44Z",
-      "last_updated": "2026-07-24T02:18:31Z",
-      "session_id": "sess_1784859490_b947db",
-      "researched": "2026-07-23T17:32:08Z",
-      "next_artifact_number": 2,
+      "last_updated": "2026-07-24T16:00:40Z",
+      "session_id": "sess_1784907878_8edab2",
+      "researched": "2026-07-24T16:00:40Z",
+      "next_artifact_number": 4,
       "artifacts": [
         {
           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/01_team-research.md",
@@ -23,6 +23,11 @@
           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md",
           "type": "plan",
           "summary": "13-phase plan: branch/baseline, oracle separation, git-history infra restore, theory reconciliation (logos/exclusion/imposition), pyproject identity, test repair, differential root-cause, full green gate, Nix flake rewrite, docs, release engineering."
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/03_team-research.md",
+          "type": "research",
+          "summary": "Team research (4 teammates): systematic review of completed tasks 118-125; 3 release-blocking defects found"
         }
       ],
       "previous_status": "planned",

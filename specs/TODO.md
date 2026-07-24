@@ -17,7 +17,7 @@ next_project_number: 126
 
 ### Packaging
 
-117 [BLOCKED] — Review and stabilize the repo after recent revisions: verify the 
+117 [RESEARCHED] — Review and stabilize the repo after recent revisions: verify the 
 
 ## Tasks
 
@@ -133,11 +133,13 @@ next_project_number: 126
 ---
 
 ### 117. Review cli pypi parity nix flake release
-- **Status**: [BLOCKED]
+- **Status**: [RESEARCHED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 118, Task 119, Task 120, Task 121, Task 122, Task 123, Task 124, Task 125
-- **Research**: [117_review_cli_pypi_parity_nix_flake_release/reports/01_team-research.md]
+- **Research**:
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/01_team-research.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/03_team-research.md]
 - **Plan**: [117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md]
 
 **Description**: Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI
