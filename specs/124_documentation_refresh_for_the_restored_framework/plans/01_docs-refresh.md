@@ -1,7 +1,7 @@
 # Implementation Plan: Documentation Refresh for the Restored Framework
 
 - **Task**: 124 - documentation_refresh_for_the_restored_framework
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.25 hours
 - **Dependencies**: The full green test gate and release baseline are established (see `specs/122_rootcause_crossoracle_differential_and_establish_t/baselines/RELEASE-BASELINE.md`); this task consumes that definitive state as ground truth.
 - **Research Inputs**: specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md; parent plan phase 12 (specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md)
