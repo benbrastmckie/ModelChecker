@@ -82,8 +82,8 @@ For NixOS installation, see [Basic Installation Guide](BASIC_INSTALLATION.md#nix
 
 **Common NixOS Issues**:
 - Import errors: Use provided scripts (`dev_cli.py`, `run_tests.py`) instead of direct Python imports
-- Missing dependencies: Ensure you're in the `nix-shell` environment
-- Path issues: The `shell.nix` automatically configures PYTHONPATH
+- Missing dependencies: Ensure you're in the `nix develop` environment
+- Path issues: The `flake.nix` automatically configures PYTHONPATH
 
 See [Developer Setup](DEVELOPER_SETUP.md#nixos-development) for advanced usage.
 
@@ -181,7 +181,7 @@ pip install z3-solver --no-binary :all:
 ## Prevention Tips
 
 1. **Use virtual environments** - See [Virtual Environments Guide](VIRTUAL_ENVIRONMENTS.md)
-2. **Keep Python updated** - Use Python 3.8 or newer
+2. **Keep Python updated** - Use Python 3.10 or newer
 3. **Install as user** - Avoid system-wide installation issues
 4. **Check requirements** - Ensure all prerequisites are met
 

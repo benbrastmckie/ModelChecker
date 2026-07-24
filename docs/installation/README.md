@@ -64,7 +64,7 @@ model-checker examples/test.py --contingent --save json
 ```bash
 # Clone and install for development
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker/code
 pip install -e .
 
 # Run tests
@@ -120,7 +120,7 @@ This directory contains only installation guide files (no subdirectories). Each 
 - **Windows** - Special considerations for `py` vs `python`
 - **macOS** - Certificate updates and Homebrew options
 - **Linux** - Distribution-specific package managers
-- **NixOS** - Declarative `shell.nix` configuration
+- **NixOS** - Declarative `flake.nix` configuration (`nix develop` at the repository root)
 
 ### Environment Management
 - Virtual environment creation and activation

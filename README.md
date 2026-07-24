@@ -33,7 +33,7 @@ cd ModelChecker/code
 ./dev_cli.py examples/my_example.py
 ```
 
-For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Developer Setup Guide](docs/installation/DEVELOPER_SETUP.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
+For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Developer Setup Guide](docs/installation/DEVELOPER_SETUP.md). NixOS users can use the provided `flake.nix` configuration (`nix develop` at the repository root) for automatic environment setup.
 
 ### Installation Guides
 

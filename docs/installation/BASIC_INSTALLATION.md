@@ -12,7 +12,7 @@ This guide covers the standard installation of ModelChecker using pip, Python's 
 
 ModelChecker has minimal dependencies, making installation straightforward:
 
-- **Python 3.8 or higher** - The programming language
+- **Python 3.10 or higher** - The programming language
 - **z3-solver** - For constraint solving (automatically installed)
 - **networkx** - For graph operations (automatically installed)
 
@@ -32,7 +32,7 @@ Pip is Python's package installer - a tool that downloads and installs Python pa
 
 Before installing ModelChecker, ensure you have:
 
-- **Python 3.8 or higher** installed
+- **Python 3.10 or higher** installed
 - **pip** package manager (usually comes with Python)
 
 To check your Python version:
@@ -47,12 +47,12 @@ If Python is not installed, see [Installing Python](#installing-python) below.
 
 ## Understanding Python Versions
 
-Python version numbers like "3.8" or "3.11" indicate different releases of the language. ModelChecker requires version 3.8 or higher because it uses modern Python features.
+Python version numbers like "3.10" or "3.12" indicate different releases of the language. ModelChecker requires version 3.10 or higher because it uses modern Python features.
 
 **Why version matters:**
 - Newer versions have better features and performance
-- ModelChecker uses features introduced in Python 3.8
-- Most systems now have Python 3.8+ installed
+- ModelChecker uses features introduced in Python 3.10
+- Most systems now have Python 3.10+ installed
 
 **Common version issues:**
 - Multiple Python versions installed (use `python3` explicitly)
@@ -158,21 +158,22 @@ sudo pacman -S python python-pip
 
 ## NixOS Installation
 
-NixOS users cannot use pip directly due to the operating system's unique package management. Use the provided shell.nix instead:
+NixOS users cannot use pip directly due to the operating system's unique package management. Use the provided flake.nix instead:
 
 ```bash
 # Clone the repository
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker
 
-# Enter the Nix shell environment
-nix-shell
+# Enter the Nix development shell
+nix develop
 
 # Run examples using the development CLI
+cd code
 ./dev_cli.py examples/my_example.py
 ```
 
-The `shell.nix` provides everything you need:
+The `flake.nix` provides everything you need:
 - Python with all required dependencies
 - Correct PYTHONPATH configuration  
 - Development tools and scripts
@@ -182,7 +183,7 @@ For more details on NixOS development, see [Developer Setup](DEVELOPER_SETUP.md#
 
 ## Optional: Nix on Other Platforms
 
-While NixOS users must use nix-shell, the Nix package manager is also available on macOS, Linux, and Windows (WSL2) for those who prefer reproducible environments. However, given ModelChecker's minimal dependencies, standard pip installation works perfectly for most users.
+While NixOS users must use `nix develop`, the Nix package manager is also available on macOS, Linux, and Windows (WSL2) for those who prefer reproducible environments. However, given ModelChecker's minimal dependencies, standard pip installation works perfectly for most users.
 
 ## Common Beginner Mistakes
 

@@ -9,7 +9,7 @@ This guide covers setting up Jupyter notebooks for interactive ModelChecker deve
 ## Prerequisites
 
 - ModelChecker installed (see [Basic Installation](BASIC_INSTALLATION.md))
-- Python 3.8 or higher
+- Python 3.10 or higher
 
 ## Installation
 
@@ -50,7 +50,7 @@ This opens Jupyter in your default browser.
 If you cloned the repository:
 
 ```bash
-cd ModelChecker/Code
+cd ModelChecker/code
 ./run_jupyter.sh
 ```
 

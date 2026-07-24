@@ -13,7 +13,7 @@ ModelChecker has minimal dependencies, making development setup straightforward:
 ```bash
 # Clone the repository
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker/code
 
 # Install in development mode
 pip install -e .
@@ -37,7 +37,7 @@ This simple approach works because:
 
 ## Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher
 - Git
 - Basic command line knowledge
 
@@ -55,10 +55,10 @@ See [Virtual Environments Guide](VIRTUAL_ENVIRONMENTS.md) for more details.
 
 ## Optional: Nix Environment
 
-For those who prefer reproducible environments, a shell.nix is provided:
+For those who prefer reproducible environments, a flake.nix is provided at the repository root:
 
 ```bash
-nix-shell  # If you have Nix installed
+nix develop  # If you have Nix (with flakes enabled) installed
 ```
 
 This is particularly useful for:
@@ -77,19 +77,20 @@ But it's not necessary for general development given the simple dependencies.
 ```bash
 # Clone and enter repository
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker
 
-# Enter Nix shell (handles all dependencies)
-nix-shell
+# Enter the Nix development shell (handles all dependencies; sets PYTHONPATH)
+nix develop
 
 # Run examples
+cd code
 ./dev_cli.py examples/my_example.py
 
 # Run tests
 ./run_tests.py
 ```
 
-### What shell.nix Provides
+### What flake.nix Provides
 
 - Python with all dependencies pre-installed
 - Correct PYTHONPATH configuration
@@ -105,8 +106,8 @@ For automatic environment activation:
 # Install direnv
 nix-env -i direnv
 
-# Enable in project
-cd ModelChecker/Code
+# Enable in project (run from the repository root, where flake.nix lives)
+cd ModelChecker
 direnv allow
 
 # Now environment activates automatically when entering directory
@@ -114,12 +115,12 @@ direnv allow
 
 ### NixOS Development Workflow
 
-1. Always work within `nix-shell`
+1. Always work within `nix develop`
 2. Use provided scripts (`dev_cli.py`, `run_tests.py`)
 3. Never use `pip install` - all dependencies are managed by Nix
-4. For new dependencies, update `shell.nix`
+4. For new dependencies, update `flake.nix`
 
-For more NixOS-specific details, see the `shell.nix` file in the Code directory.
+For more NixOS-specific details, see the `flake.nix` file at the repository root.
 
 ## Development Tools and Testing
 
@@ -187,8 +188,8 @@ ModelChecker/
 │   ├── tests/                 # Integration tests
 │   ├── dev_cli.py            # Development CLI
 │   ├── run_tests.py          # Test runner
-│   ├── setup.py              # Package configuration
-│   └── shell.nix             # NixOS configuration
+│   └── pyproject.toml        # Package configuration
+├── flake.nix                  # NixOS/Nix configuration (repository root)
 └── docs/                      # User documentation
 ```
 
@@ -263,7 +264,7 @@ You can work on ModelChecker without installing it system-wide:
 ```bash
 # Clone and enter directory
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker/code
 
 # Run directly with dev CLI
 ./dev_cli.py examples/test.py
@@ -366,7 +367,7 @@ See [Development Guide](../../code/docs/development/README.md) for contribution 
             "request": "launch",
             "program": "${workspaceFolder}/code/dev_cli.py",
             "args": ["examples/debug.py", "-p", "-z"],
-            "cwd": "${workspaceFolder}/Code"
+            "cwd": "${workspaceFolder}/code"
         }
     ]
 }

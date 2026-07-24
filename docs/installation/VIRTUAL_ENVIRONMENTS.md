@@ -242,60 +242,68 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 The Nix package manager (available on macOS, Linux, and Windows WSL2) provides an alternative to virtual environments. While not necessary given ModelChecker's simple dependencies, some developers prefer Nix for reproducible environments.
 
-**Note**: NixOS users must use nix-shell as pip doesn't work on NixOS.
+**Note**: NixOS users must use `nix develop` as pip doesn't work on NixOS.
 
-### Using ModelChecker's shell.nix
+### Using ModelChecker's flake.nix
 
-The repository includes a `shell.nix` that provides complete isolation:
+The repository includes a `flake.nix` (at the repository root) that provides complete isolation:
 
 ```bash
 # Clone and enter the project
 git clone https://github.com/benbrastmckie/ModelChecker.git
-cd ModelChecker/Code
+cd ModelChecker
 
-# Enter isolated Nix shell
-nix-shell
+# Enter isolated Nix development shell
+nix develop
 ```
 
-The `shell.nix` provides:
+The `flake.nix` provides:
 - **Complete isolation** - Dependencies are isolated from system packages
-- **Reproducibility** - Exact versions specified in `shell.nix`
+- **Reproducibility** - Exact versions pinned via the flake's lockfile
 - **No conflicts** - Each project has its own dependency tree
 - **Automatic cleanup** - Dependencies garbage collected when not in use
 
-### Per-Project Nix Shells
+### Using ModelChecker's Flake From Another Project
 
-For multiple ModelChecker projects with different requirements:
+To enter ModelChecker's development environment while working from elsewhere:
 
 ```bash
 # Project 1: Research work
 cd ~/research/logic-project
-nix-shell ~/ModelChecker/code/shell.nix
+nix develop ~/ModelChecker
 
-# Project 2: Teaching materials  
+# Project 2: Teaching materials
 cd ~/teaching/modal-logic
-nix-shell ~/ModelChecker/code/shell.nix --arg pythonVersion "3.9"
+nix develop ~/ModelChecker
 ```
 
 ### Custom Nix Environments
 
-Create a project-specific `shell.nix`:
+Create a project-specific `flake.nix`:
 
 ```nix
-# my-project/shell.nix
-{ pkgs ? import <nixpkgs> {} }:
+# my-project/flake.nix
+{
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
-pkgs.mkShell {
-  buildInputs = with pkgs; [
-    python39
-    python39Packages.z3
-    # Add project-specific dependencies
-  ];
-  
-  shellHook = ''
-    export PYTHONPATH="${../ModelChecker/code/src}:$PYTHONPATH"
-    echo "Entered ModelChecker environment for my-project"
-  '';
+  outputs = { self, nixpkgs }:
+    let
+      system = "x86_64-linux";
+      pkgs = import nixpkgs { inherit system; };
+    in {
+      devShells.${system}.default = pkgs.mkShell {
+        buildInputs = with pkgs; [
+          python312
+          python312Packages.z3
+          # Add project-specific dependencies
+        ];
+
+        shellHook = ''
+          export PYTHONPATH="${toString ../ModelChecker/code/src}:$PYTHONPATH"
+          echo "Entered ModelChecker environment for my-project"
+        '';
+      };
+    };
 }
 ```
 
@@ -332,7 +340,7 @@ See [Developer Setup](DEVELOPER_SETUP.md#nixos-development) for more NixOS-speci
 - **For quick testing**: Just use `pip install model-checker` in your main environment
 - **For development**: Consider a venv if you want isolation
 - **For teams**: Nix provides reproducibility if needed
-- **For NixOS**: Must use nix-shell
+- **For NixOS**: Must use `nix develop`
 
 ## Next Steps
 
