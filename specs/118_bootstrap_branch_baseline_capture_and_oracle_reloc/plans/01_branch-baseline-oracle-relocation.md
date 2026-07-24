@@ -165,25 +165,40 @@ Phases within the same wave can execute in parallel.
   - `restore-inventory.md` lists every SHA/path pair with a confirmed/missing status.
   - Read-only: no files under `code/` are modified by this phase.
 
-### Phase 4: Relocate the Oracle Package [NOT STARTED]
+### Phase 4: Relocate the Oracle Package [COMPLETED]
 
 - **Goal:** Move the bimodal oracle/harness code out of the shipped package into a standalone
   top-level directory and remove the stale build artifact.
 - **Tasks:**
-  - [ ] `git mv code/src/bimodal_logic oracle/bimodal_logic` (creates `oracle/` at repo root),
+  - [x] `git mv code/src/bimodal_logic oracle/bimodal_logic` (creates `oracle/` at repo root),
         moving `cli.py`, `__init__.py`, `provider.py`, `serialization.py`, `translation.py`, and
-        the package's own `tests/`. Exclude `__pycache__` from the move.
-  - [ ] Delete the stale `code/src/bimodal_logic.egg-info/`.
-  - [ ] Confirm the moved package's internal imports remain intact (the oracle is self-contained;
-        it should not import `model_checker`).
+        the package's own `tests/`. Exclude `__pycache__` from the move. `__pycache__` dirs were
+        untracked (not moved by git); removed before the move.
+  - [x] Delete the stale `code/src/bimodal_logic.egg-info/`.
+  - [x] Confirm the moved package's internal imports remain intact. **Deviation from plan
+        assumption**: the oracle is NOT fully self-contained — `provider.py` imports
+        `model_checker.utils.context.isolated_z3_context`, `model_checker.ModelConstraints`,
+        `model_checker.Syntax`, and `model_checker.theory_lib.bimodal` symbols; `serialization.py`
+        imports `model_checker.solver.is_true`. This is architecturally necessary: the oracle is a
+        *cross-oracle differential harness* that must construct the in-package bimodal semantics
+        objects to compare against. `cli.py` imports `provider` lazily (inside `main()`, not at
+        module level), but `oracle/bimodal_logic/__init__.py` eagerly does
+        `from .provider import Z3OracleProvider` -> `from .serialization import
+        serialize_countermodel` -> `from model_checker.solver import is_true`, so merely
+        importing the `bimodal_logic` package (as `tests/test_cli.py` does via `from bimodal_logic
+        import cli`) requires `model_checker` to be importable. Verified: `PYTHONPATH=oracle`
+        alone fails collection (`ModuleNotFoundError: No module named 'model_checker'`);
+        `PYTHONPATH=oracle:code/src` collects all 18 tests successfully. Phase 6's dev-setup
+        file and verification command are corrected accordingly (both path entries required, not
+        `oracle` alone).
 - **Timing:** 30 minutes
 - **Depends on:** 2
 - **Files to modify:**
   - `code/src/bimodal_logic/**` -> `oracle/bimodal_logic/**` (moved).
   - `code/src/bimodal_logic.egg-info/` (deleted).
 - **Verification:**
-  - `oracle/bimodal_logic/` exists with the five modules plus `tests/`.
-  - `code/src/bimodal_logic/` and `code/src/bimodal_logic.egg-info/` no longer exist.
+  - [x] `oracle/bimodal_logic/` exists with the five modules plus `tests/`.
+  - [x] `code/src/bimodal_logic/` and `code/src/bimodal_logic.egg-info/` no longer exist.
 
 ### Phase 5: Reconcile In-Package Oracle-Dependent Tests [NOT STARTED]
 
