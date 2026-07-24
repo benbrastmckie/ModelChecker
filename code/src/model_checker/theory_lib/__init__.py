@@ -12,6 +12,8 @@ Each theory implements:
 
 Available Theories:
 - bimodal: Bimodal semantics for counterfactuals
+- logos: Modular hyperintensional semantics (extensional, modal, constitutive,
+  counterfactual, relevance, spatial subtheories)
 
 The module supports theory extension through a central registry. To add a new theory:
 1. Create a new directory under theory_lib/
@@ -58,6 +60,8 @@ from ..utils import get_license_template
 # Registry of available theories - add new theories here
 AVAILABLE_THEORIES = [
     'bimodal',      # Bimodal semantics for counterfactuals
+    'logos',        # Modular hyperintensional semantics (extensional, modal, constitutive,
+                    # counterfactual, relevance, spatial subtheories)
 ]
 
 # Dictionary to cache loaded theory modules
