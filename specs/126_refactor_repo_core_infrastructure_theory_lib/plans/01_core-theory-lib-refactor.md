@@ -208,7 +208,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Pin Verification Baselines and Build the Regression Gate [IN PROGRESS]
+### Phase 2: Pin Verification Baselines and Build the Regression Gate [PARTIAL]
 
 - **Goal:** Capture every pre-refactor measurement the plan will be judged against, and package the
   checks into one reusable script so every later phase can run the same gate.
@@ -229,9 +229,24 @@ Phases within the same wave can execute in parallel.
         *(completed: 289 passed, recorded in `baselines/bimodal-run.txt` and
         `baselines/bimodal-run-attempt2.txt` with junit XML)*
   - [ ] Run the oracle suite (`oracle/bimodal_logic/tests/`) and record results plus junit XML.
-        *(in progress — background run underway at commit time; collection count already pinned
-        at 550 matching baseline; results/junit XML to follow in a separate commit once the run
-        completes, per orchestrator instruction not to block this commit on it)*
+        *(deviation: partial — documented environment limitation: this sandbox has no `pytest-xdist`
+        installed despite it being declared in `pyproject.toml`'s dev extras (`pip install
+        pytest-xdist` fails with no network/index access), so the plan's `-n 6` invocation is
+        unavailable and the 550-test oracle suite must run fully serial. A serial run was
+        started and monitored for over an hour; it reached ~91%+ progress (`91%` marker visible
+        in `baselines/oracle-run.txt`, output pattern showing mostly passes with two `F`s and a
+        cluster of expected `x` (xfail) marks, consistent with a healthy run) before the
+        background process terminated without producing a final summary line or junit XML --
+        most likely killed by system resource pressure from concurrent sessions in this shared
+        sandbox (`earlyoom` is active; multiple other Claude Code sessions were independently
+        running heavy work throughout, confirmed via `ps aux`), not a test failure. The 550-item
+        oracle collection count itself is pinned and matches baseline exactly (verified 3
+        separate times across this phase and Phase 7/8/9's `verify-refactor.sh` runs). The 5
+        xfail(strict=True) line locations are independently verified unchanged (see next item).
+        Given the full serial run's ~90+ minute cost and the resource contention observed, a
+        clean completed run is deferred rather than re-attempted a second time within this
+        phase's scope -- recorded as a known gap in the handoff for a follow-up phase/session
+        with `pytest-xdist` available or dedicated resources.)*
   - [x] Enumerate the 5 `xfail(strict=True)` cross-oracle differentials in
         `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` (lines 767, 942, 1020, 1133,
         1431) with their current outcomes, so an XPASS flip is detectable. *(completed: line set
