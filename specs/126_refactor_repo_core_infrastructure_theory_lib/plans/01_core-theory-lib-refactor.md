@@ -603,34 +603,71 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 9: Write the RED Layering Test and Declare the Three-Layer Model [NOT STARTED]
+### Phase 9: Write the RED Layering Test and Declare the Three-Layer Model [COMPLETED]
 
 - **Goal:** Make the core/theory_lib boundary enforced rather than aspirational. This is the durable
   substitute for directory position and the reason relocation is unnecessary.
 - **Tasks:**
-  - [ ] Create `code/tests/test_layering.py` walking the AST of every module under
+  - [x] Create `code/tests/test_layering.py` walking the AST of every module under
         `code/src/model_checker/` and classifying it into the three layers declared in Phase 3.
-  - [ ] Assert that no **core** module (`models`, `syntactic`, `solver`, `utils`, `iterate`,
+        *(completed)*
+  - [x] Assert that no **core** module (`models`, `syntactic`, `solver`, `utils`, `iterate`,
         `builder`, `settings`, `output`, `z3_shim`) contains an `Import`/`ImportFrom` node naming
         `model_checker.theory_lib` — including function-local imports, which is how all 10 current
-        inversions evade notice today.
-  - [ ] Additionally assert no core module contains a **string literal** matching
+        inversions evade notice today. *(completed: `ast.walk()` descends into function bodies,
+        so function-local imports are caught by construction, not via special-casing)*
+  - [x] Additionally assert no core module contains a **string literal** matching
         `model_checker.theory_lib`. This is essential: `utils/version.py:37,63`,
         `builder/loader.py:137`, `builder/runner.py:867`, and `jupyter/utils.py:113` reach
         `theory_lib` via `importlib.import_module(f"model_checker.theory_lib.{...}")`, which a pure
-        import-node check would miss entirely.
-  - [ ] Assert no core module hardcodes any theory name (`bimodal`, `exclusion`, `imposition`,
+        import-node check would miss entirely. *(completed with one deliberate scope refinement:
+        this string-literal check is scoped to core only, matching Phase 3's explicit "upper
+        layer... permitted to import both" contract — `jupyter/utils.py:113` is therefore not
+        flagged by this specific check, since jupyter is upper layer, not core, and the plan's own
+        Phase 15 explicitly confirms "Formally classify jupyter/ as the upper layer... not
+        removal of the dependency." Also broadened detection to the path-separated form
+        (`model_checker/theory_lib`) alongside the dotted form, since `builder/strategies.py:290`
+        is a human-readable error string using the slash form, not an `importlib` call — and
+        added docstring exclusion after two false positives (`builder/serialize.py`,
+        `builder/strategies.py` — both only *mention* theory_lib in prose docstrings) surfaced on
+        first run.)*
+  - [x] Assert no core module hardcodes any theory name (`bimodal`, `exclusion`, `imposition`,
         `logos`) as a string literal — this catches the `builder/loader.py:185-201` drift and the
-        `jupyter/adapters.py:91-94` map.
-  - [ ] Explicitly list the upper layer (`model_checker/__init__.py`, `model_checker/api.py`,
+        `jupyter/adapters.py:91-94` map. *(completed as a SEPARATE assertion scoped to core +
+        upper, not core alone — deliberately, because this bullet's own citation of
+        `jupyter/adapters.py:91-94` only makes sense if the hardcoded-name rule is not
+        core-exclusive. Phase 15's task list confirms this design: "Confirm... its
+        theory-name-literal assertion now passes for jupyter/" implies the assertion currently
+        APPLIES to and FAILS for jupyter, unlike the theory_lib-dependency rule above which
+        exempts jupyter entirely. The two rules are independently scoped for this reason.)*
+  - [x] Explicitly list the upper layer (`model_checker/__init__.py`, `model_checker/api.py`,
         `__main__.py`, `jupyter/`) as permitted to import both, with the allowance recorded in the
-        test itself as a named constant rather than a scattered exemption.
-  - [ ] Run it and confirm it **fails RED**, reporting all current violations: `utils/api.py:52,57`,
+        test itself as a named constant rather than a scattered exemption. *(completed via
+        UPPER_LAYER_SINGLE_FILES / UPPER_LAYER_DIR_PREFIXES constants; note `model_checker/api.py`
+        does not exist as a physical file yet — it is the eventual upper-layer relocation target
+        for `utils/api.py`, out of this plan's current scope — so `utils/api.py` is correctly
+        classified as core and correctly flagged as a violation site, not silently exempted)*
+  - [x] Run it and confirm it **fails RED**, reporting all current violations: `utils/api.py:52,57`,
         `utils/version.py:37,57,63`, `jupyter/display.py:270,380`, `jupyter/environment.py:166`,
         `jupyter/interactive.py:35,100,233,288`, `jupyter/utils.py:113`, `builder/loader.py:137,185-201`,
-        `builder/runner.py:867`, `builder/strategies.py:290`.
-  - [ ] Consider `import-linter` as an alternative or supplement; if adopted, add the contract to
-        `pyproject.toml`. A plain pytest is acceptable and adds no dependency.
+        `builder/runner.py:867`, `builder/strategies.py:290`. *(completed: two separate RED
+        assertions — theory_lib-dependency (core-only, 9 violations: `builder/loader.py:93,137`,
+        `builder/runner.py:867`, `builder/strategies.py:290`, `utils/api.py:52,57`,
+        `utils/version.py:37,57,63`) and hardcoded-theory-name (core+upper, 17 violations
+        including `builder/loader.py:186,197`, `builder/project.py:99`, `jupyter/adapters.py:91-94`,
+        `jupyter/interactive.py` (9 sites), `jupyter/unicode.py:278`). All core-scoped items the
+        plan names are present. The plan's jupyter theory_lib-import sites
+        (`display.py:270,380`, `environment.py:166`, `interactive.py:35,100,233,288`,
+        `utils.py:113`) are correctly NOT flagged by the theory_lib-dependency assertion — they
+        are upper-layer-permitted imports per Phase 3's contract — but `interactive.py`'s
+        hardcoded `"logos"`/`"exclusion"` literals ARE flagged by the separate
+        hardcoded-name assertion, which does apply to jupyter/.)*
+  - [x] Consider `import-linter` as an alternative or supplement; if adopted, add the contract to
+        `pyproject.toml`. A plain pytest is acceptable and adds no dependency. *(considered and
+        declined: a plain pytest module needs no new dependency, and this sandbox environment
+        already lacks `pytest-xdist` despite it being declared in `pyproject.toml`'s dev extras —
+        adding another dependency that may not be installable here would risk the test suite
+        itself becoming uncollectable in this environment)*
 - **Timing:** 1.5 hours
 - **Depends on:** 3
 - **Files to modify:**
