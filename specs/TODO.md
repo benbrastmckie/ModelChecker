@@ -1,5 +1,5 @@
 ---
-next_project_number: 126
+next_project_number: 127
 ---
 
 # TODO
@@ -11,15 +11,29 @@ next_project_number: 126
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 117 | -- | packaging |
+| 1 | 117,126 | -- | packaging, architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Packaging
 
-117 [RESEARCHED] — Review and stabilize the repo after recent revisions: verify the 
+117 [PLANNING] — Review and stabilize the repo after recent revisions: verify the 
+
+### Architecture
+
+126 [NOT STARTED] — Systematically refactor the repo into: 1) the core codebase conta
 
 ## Tasks
+
+### 126. Refactor repo core infrastructure theory lib
+- **Status**: [NOT STARTED]
+- **Task Type**: general
+- **Topic**: architecture
+- **Dependencies**: None
+
+**Description**: Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.
+
+---
 
 ### 125. Release engineering and pypi rehearsal
 - **Effort**: 2.5 hours
@@ -133,7 +147,7 @@ next_project_number: 126
 ---
 
 ### 117. Review cli pypi parity nix flake release
-- **Status**: [RESEARCHED]
+- **Status**: [PLANNING]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 118, Task 119, Task 120, Task 121, Task 122, Task 123, Task 124, Task 125
