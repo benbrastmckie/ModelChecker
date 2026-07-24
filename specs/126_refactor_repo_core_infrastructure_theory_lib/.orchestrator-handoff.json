@@ -2,53 +2,74 @@
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
   "status": "partial",
-  "summary": "Completed phases 1-9 of 26 (waves 1-3, this dispatch's explicit scope). Snapshotted ROADMAP.md, pinned regression baselines and built verify-refactor.sh, rewrote THEORY_ARCHITECTURE.md as the canonical theory contract, removed spatial + dead semantic wrappers, swept cruft, relocated the logos benchmark, merged the case-colliding usage guide and replaced project.py's verbatim copy with an explicit manifest, and wrote two new RED-baseline tests (theory conformance, layering). Phase 2 alone is partial: the 550-test oracle suite could not finish (no pytest-xdist; ~91% through a serial run before termination, likely resource contention).",
+  "summary": "Completed phases 10-17 of 26 (waves 4-6, this dispatch's explicit scope), resuming from the phases-1-9 continuation handoff. Introduced the core theory registry with lazy resolution (Phase 10); fixed bimodal's test_example_range gap and unified all get_theory() signatures (Phase 11); moved theory-aware helpers from utils/ to a new upper-layer model_checker/api.py (Phase 12); rederived builder/'s theory identity entirely from the registry, fixing a live drift bug (Phase 13); normalized imposition, establishing the normalization template (Phase 14); fully reclassified jupyter/ and eliminated every hardcoded theory-name literal in the package (Phase 15); relocated builder/z3_utils.py into iterate/ (Phase 16); and split exclusion's 600-line semantic/__init__.py into core.py/model.py/proposition.py (Phase 17). The core/theory_lib layering test (code/tests/test_layering.py) is now fully GREEN repo-wide -- both RED-baseline assertions from Phase 9 pass with zero violations.",
   "artifacts": [
-    {"type": "summary", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md"}
+    {"type": "summary", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/03_phases-10-17-summary.md"}
   ],
   "blockers": [
     {
-      "description": "The oracle suite full run (oracle/bimodal_logic/tests/, 550 tests) has not completed in this sandbox: no pytest-xdist available (network/index unreachable), so it must run fully serial (~90+ min). A serial attempt reached ~91% before the background process was terminated without a final summary/junit XML, most likely killed by resource contention from concurrent Claude Code sessions sharing this sandbox (confirmed via ps aux). Collection count (550) and the 5 xfail(strict=True) line locations are independently verified clean. A future dispatch with pytest-xdist available, or dedicated resources, should re-run and commit baselines/oracle-run.txt + baselines/junit-oracle.xml to fully close Phase 2 (currently marked [PARTIAL] in the plan, not [COMPLETED]).",
+      "description": "Phase 2's full serial oracle suite run (550 tests) remains unattempted since the phases-1-9 dispatch -- this dispatch did not attempt it either, per the orchestrator's explicit instruction not to spend this dispatch re-running it. Collection count (550) and the 5 xfail(strict=True) line locations remain pinned and verified clean. A future session with pytest-xdist available, or dedicated/isolated resources, should re-attempt the full oracle run and commit baselines/oracle-run.txt + baselines/junit-oracle.xml to fully close Phase 2 (still marked [PARTIAL] in the plan).",
       "phase": "phase-2",
       "severity": "soft"
     },
     {
-      "description": "A second, independent implementer dispatch was confirmed active on this same task's working tree earlier in this session (see the prior handoff this one overwrites, and 01_phases-2-6-summary.md's collision note) -- substantial phase 3-7 work was found already committed mid-dispatch that this agent had not itself performed. No further collision evidence was observed after this agent resumed sole control from phase 7 onward, but the orchestrator should confirm only one active implementer runs on task 126 before dispatching phase 10.",
-      "phase": "phase-6",
+      "description": "Phase 18 (Normalize logos -- split semantic.py into a package) is the next wave-7 phase and is a materially larger, higher-risk unit of work than any phase completed in this dispatch: logos's semantic.py is 1283 lines and is the most widely-imported module in the tree, including from other theories (imposition/__init__.py, imposition/semantic/{core,model}.py, exclusion/examples.py, every logos subtheory's operators.py, roughly a dozen test modules). Recommended: begin Phase 18 with a fresh dispatch rather than continuing with reduced context budget.",
+      "phase": "phase-18",
       "severity": "soft"
     }
   ],
   "next_action_hint": "implement",
   "files_modified": [
-    "code/scripts/verify-refactor.sh",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/",
-    "code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md",
-    "code/src/model_checker/theory_lib/docs/{usage_guide.md (deleted) -> USAGE_GUIDE.md}",
-    "code/src/model_checker/theory_lib/logos/subtheories/spatial/ (deleted)",
-    "code/src/model_checker/theory_lib/{exclusion,imposition}/semantic.py (deleted)",
+    "code/src/model_checker/registry.py",
     "code/src/model_checker/theory_lib/__init__.py",
-    "code/boneyard/ (deleted)",
-    "docs/theory/{exclusion,imposition}/ (new, moved from theory_lib)",
-    "code/dev_cli.py",
-    "code/src/model_checker/theory_lib/logos/comparison.py -> code/scripts/logos_solver_benchmark.py",
-    "code/scripts/comparison.py",
-    "code/scripts/test_cvc5_stability.py",
+    "code/src/model_checker/__init__.py",
+    "code/src/model_checker/api.py",
+    "code/src/model_checker/utils/api.py",
+    "code/src/model_checker/utils/version.py",
+    "code/src/model_checker/utils/__init__.py",
+    "code/src/model_checker/theory_lib/meta_data.py",
+    "code/src/model_checker/theory_lib/tests/test_meta_data.py",
+    "code/src/model_checker/builder/loader.py",
+    "code/src/model_checker/builder/strategies.py",
+    "code/src/model_checker/builder/runner.py",
     "code/src/model_checker/builder/project.py",
-    "code/pyproject.toml",
-    "code/MANIFEST.in",
-    "code/src/model_checker/theory_lib/tests/test_theory_conformance.py (new)",
-    "code/tests/test_layering.py (new)"
+    "code/src/model_checker/builder/example.py",
+    "code/src/model_checker/builder/tests/unit/test_loader.py",
+    "code/src/model_checker/jupyter/adapters.py",
+    "code/src/model_checker/jupyter/interactive.py",
+    "code/src/model_checker/jupyter/display.py",
+    "code/src/model_checker/jupyter/environment.py",
+    "code/src/model_checker/jupyter/utils.py",
+    "code/src/model_checker/jupyter/unicode.py",
+    "code/src/model_checker/theory_lib/bimodal/examples.py",
+    "code/src/model_checker/theory_lib/logos/examples.py",
+    "code/src/model_checker/theory_lib/logos/__init__.py",
+    "code/src/model_checker/theory_lib/imposition/tests/conftest.py",
+    "code/src/model_checker/theory_lib/exclusion/__init__.py",
+    "code/src/model_checker/theory_lib/exclusion/semantic/__init__.py",
+    "code/src/model_checker/theory_lib/exclusion/semantic/model.py",
+    "code/src/model_checker/theory_lib/exclusion/semantic/proposition.py",
+    "code/src/model_checker/iterate/z3_utils.py (moved from builder/)",
+    "code/src/model_checker/iterate/tests/unit/test_z3_utils.py (moved from builder/tests/unit/)",
+    "code/src/model_checker/theory_lib/tests/test_theory_conformance.py",
+    "code/tests/test_layering.py",
+    "code/tests/unit/test_registry.py",
+    "~24 files across code/ and docs/ with get_theory([...]) -> get_theory(subtheories=[...]) call-site updates",
+    "several builder/ and iterate/ README.md files"
   ],
   "decisions_made": [
-    "Cruft archival destination is docs/theory/{exclusion,imposition}/, matching existing convention",
-    "builder/project.py's copy manifest allows semantic.py AND semantic/ to coexist (bimodal's pickling shim), and treats iterate.py as optional not hard-required (bimodal lacks one) to avoid regressing BuildProject('bimodal')",
-    "Layering test's hardcoded-theory-name rule applies to core+upper (incl. jupyter/); theory_lib-dependency rule applies to core only -- justified from Phase 3's contract plus a later phase's explicit task language"
+    "Adapter attachment is post-hoc via registry.set_adapter(), called from jupyter/adapters.py itself, not passed at theory_lib's register_theory() call time -- avoids theory_lib importing jupyter (upper layer)",
+    "Theory-name-to-adapter-class association derived structurally from each adapter class's own '{Name}TheoryAdapter' naming convention, never a hardcoded dict literal",
+    "Added a registry-driven default-theory concept (set_default_theory/get_default_theory) not originally scoped to any single phase, needed because several jupyter functions hardcoded theory_name='logos' as both a parameter default and a fallback",
+    "Each theory's four lazy registry components share one cache per theory (not one per component), so get_theory() is invoked at most once per theory",
+    "theory_lib's _register_theories() is idempotent (not fail-fast) for its own re-execution, observed under pytest --import-mode=importlib re-executing theory_lib/__init__.py's top-level code during isolated single-file collection",
+    "Exclusion's WitnessProposition moved into a new proposition.py (not folded into model.py), establishing the core/model/proposition three-file convention Phase 18 will reuse for logos"
   ],
   "dead_ends": [
-    "Do not re-trust a verify-refactor.sh run's FAIL output without checking for concurrent pytest processes first -- CPU contention from a simultaneous background oracle run produced one transient compare_bimodal_baseline.sh FAIL that cleared on immediate retry"
+    "Do not bulk-substitute get_theory([...]) -> get_theory(subtheories=[...]) across the whole repo without checking which theory's get_theory each call site actually targets -- 5 builder/tests fixture files call bimodal's config-only get_theory with a harmless unused positional placeholder and must NOT receive the subtheories= keyword"
   ],
   "continuation_context": {
-    "phases_completed": 9,
+    "phases_completed": 17,
     "phases_total": 26,
     "orchestrator_mode": true
   }
