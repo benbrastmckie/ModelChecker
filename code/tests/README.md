@@ -21,8 +21,7 @@ tests/                                      # SYSTEM-LEVEL TESTS ONLY
 │   └── test_system_boundaries.py           # System-wide edge cases
 ├── e2e/                                    # End-to-end workflow tests
 │   ├── test_project_creation.py            # Project generation (refactored)
-│   ├── test_batch_output_real.py
-│   └── test_simple_output_verify.py
+│   └── test_batch_output_real.py
 ├── fixtures/                               # Shared test data and mocks
 │   ├── example_data.py                     # Standard test examples
 │   └── mock_theories.py                    # Mock theory implementations
@@ -76,7 +75,6 @@ This structured approach ensures the ModelChecker framework operates correctly f
 
 - **test_project_creation.py**: Project generation with focused test methods and helpers
 - **test_batch_output_real.py**: Real batch processing workflow validation
-- **test_simple_output_verify.py**: Output format and content verification
 
 ## Testing Philosophy
 
@@ -174,6 +172,28 @@ python tests/test_project_creation.py --test-theory logos
 # On NixOS, use provided scripts for proper PYTHONPATH configuration
 ./run_tests.py --platform nixos
 ```
+
+### Parallel Test Execution (`pytest-xdist`)
+
+The full suite includes the slow `bimodal` theory tests alongside the widened
+`code/tests/` + `code/src/model_checker` `testpaths`. Install the `dev` extra
+(`pip install -e ".[dev]"` from `code/`) to get `pytest-xdist`, then run the
+suite with worker parallelism via `-n auto` (one worker per CPU core):
+
+```bash
+# Full suite, auto-detected worker count
+PYTHONPATH=code/src pytest -n auto code/tests/ code/src/model_checker
+
+# Collection-only sanity check (no worker parallelism needed, but accepted)
+PYTHONPATH=code/src pytest -n auto code/tests/ code/src/model_checker --collect-only -q
+
+# Pin a worker count instead of auto-detection
+PYTHONPATH=code/src pytest -n 4 code/tests/ code/src/model_checker
+```
+
+`-n auto` is most valuable for the computationally expensive `bimodal` and
+`slow`-marked tests; it is safe to combine with any other `pytest` flag
+(`-k`, `-m`, `--durations=0`, etc.) already documented above.
 
 ## Development Guidelines
 

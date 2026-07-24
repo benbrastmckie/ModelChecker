@@ -44,6 +44,9 @@ all = [
     "jupyter",
     "ipython",
 ]
+dev = [
+    "pytest-xdist>=3.0.0",  # Parallel test execution: pytest -n auto
+]
 
 [project.urls]
 Homepage = "https://github.com/benbrastmckie/ModelChecker"
