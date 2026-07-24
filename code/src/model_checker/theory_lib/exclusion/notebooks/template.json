@@ -1,0 +1,104 @@
+{
+  "setup_cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "# {{THEORY_NAME}} Examples\\n",
+        "\\n",
+        "Generated from examples.py - {{DATE}}\\n",
+        "\\n",
+        "This notebook contains runnable examples for the {{THEORY_NAME}} theory.\\n",
+        "Execute each cell to see countermodels or theorem validations."
+      ]
+    },
+    {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "import sys\\n",
+        "from model_checker.jupyter import create_build_example\\n",
+        "from model_checker.theory_lib.exclusion.semantic import ExclusionSemantics, ExclusionProposition, ExclusionModelStructure\\n",
+        "from model_checker.theory_lib.exclusion.operators import ExclusionOperatorRegistry\\n",
+        "\\n",
+        "# Create operator registry for exclusion theory\\n",
+        "exclusion_registry = ExclusionOperatorRegistry()\\n",
+        "exclusion_registry.load_operators()\\n",
+        "\\n",
+        "# Build the semantic theory dictionary\\n",
+        "theory = {\\n",
+        "    'semantics': ExclusionSemantics,\\n",
+        "    'proposition': ExclusionProposition,\\n",
+        "    'model': ExclusionModelStructure,\\n",
+        "    'operators': exclusion_registry.get_operators(),\\n",
+        "}\\n",
+        "\\n",
+        "print('=' * 70)\\n",
+        "print('{{THEORY_NAME}} LOADED')\\n",
+        "print('=' * 70)\\n",
+        "print('Using Exclusion theory with unilateral semantics')\\n",
+        "print('Available operators:', ', '.join(theory['operators'].keys()))\\n",
+        "print('=' * 70)"
+      ],
+      "outputs": [],
+      "execution_count": null
+    }
+  ],
+  "example_template": {
+    "header_cell": {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## {{EXAMPLE_NAME}}\\n",
+        "### {{EXAMPLE_TYPE}}"
+      ]
+    },
+    "code_cell": {
+      "cell_type": "code",
+      "metadata": {},
+      "source": [
+        "# {{EXAMPLE_NAME}}: {{EXAMPLE_TYPE}}\\n",
+        "{{EXAMPLE_CODE}}\\n",
+        "\\n",
+        "print('Running model checker...')\\n",
+        "model = create_build_example('{{EXAMPLE_NAME}}', theory, {{EXAMPLE_VAR}})\\n",
+        "\\n",
+        "# Display the results\\n",
+        "if model.model_structure.z3_model:\\n",
+        "    model.model_structure.print_to(\\n",
+        "        model.settings,\\n",
+        "        '{{EXAMPLE_NAME}}',\\n",
+        "        theory['semantics'].__name__,\\n",
+        "        output=sys.stdout\\n",
+        "    )\\n",
+        "else:\\n",
+        "    print('=' * 70)\\n",
+        "    print('THEOREM VALIDATED: {{EXAMPLE_NAME}}')\\n",
+        "    print('=' * 70)\\n",
+        "    print('No countermodel found - the inference is VALID')\\n",
+        "    print('=' * 70)"
+      ],
+      "outputs": [],
+      "execution_count": null
+    },
+    "interpretation_cell": {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "### Result Interpretation\\n",
+        "[To be added after running the example]"
+      ]
+    }
+  },
+  "conclusion_cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {},
+      "source": [
+        "## Summary\\n",
+        "### Final Evaluation\\n",
+        "[To be completed by user after running all examples]"
+      ]
+    }
+  ]
+}

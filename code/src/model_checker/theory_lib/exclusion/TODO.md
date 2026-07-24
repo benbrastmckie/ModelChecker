@@ -1,0 +1,28 @@
+# TODO
+
+- [ ] model_checker
+  - [x] compare old strategies
+  - [x] make spec file for new strategy
+  - [x] implement new strategy
+  - [x] test and compare with old
+  - [x] document process
+  - [ ] computational complexity of Fine's imposition relation
+    - [ ] compare size of models for `N = ?` in total for both theories
+    - [ ] where does the model_checker tap out for each?
+    - [ ] demo via running their theories in parallel
+  - [ ] manicure example (adjusting settings for each)
+    - [ ] go through `examples.py` one by one, finding the best and worst models for each example
+    - [ ] compare with bilateral semantics
+    - [ ] check data with Lucas
+  - [ ] model_checker tools
+    - [x] iterator
+    - [:] compare theories in parallel
+    - [ ] model_lib
+- [ ] paper
+  - [ ] outline sections
+    - [ ] ideological simplicity motivates unilateral
+    - [ ] complexity of the negation semantics
+    - [ ] weakness of the logic
+    - [ ] computability provides a further objective measure
+    - [ ] bottlenecks come from: arity and order of primitives
+  - [ ] draft

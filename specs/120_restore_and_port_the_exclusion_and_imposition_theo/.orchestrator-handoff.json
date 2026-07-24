@@ -1,0 +1,27 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "plan",
+  "status": "planned",
+  "summary": "Created a 5-phase, source-grounded plan to restore exclusion and imposition from abb3bf7d^ and port them to the current API. Direct source inspection narrowed the port to the solver abstraction only (import z3 + z3.is_true/is_false -> z3_shim + model_checker.solver is_true/is_false); the modular models.* structure and syntactic/utils re-exports already exist at abb3bf7d^, materially de-risking the work. Sequential waves: exclusion establishes the recipe (Phases 1-2), imposition reuses it (Phases 3-4), consolidated verification (Phase 5).",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md",
+      "summary": "5-phase implementation plan for restoring and porting the exclusion and imposition theories to the current z3_shim/solver/models.* API."
+    }
+  ],
+  "next_action_hint": "implement",
+  "files_modified": [
+    "specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md",
+    "specs/120_restore_and_port_the_exclusion_and_imposition_theo/.orchestrator-handoff.json",
+    "specs/120_restore_and_port_the_exclusion_and_imposition_theo/.return-meta.json"
+  ],
+  "decisions_made": [
+    "Scoped the port to the solver abstraction only after confirming abb3bf7d^ already uses models.semantic/proposition/structure/constraints and current syntactic/utils re-exports.",
+    "Kept exclusion and imposition phases sequential because both register into the same theory_lib/__init__.py AVAILABLE_THEORIES and imposition reuses the exclusion-established recipe.",
+    "Flagged dead backup modules (exclusion/semantic_backup.py, semantic_original.py) for removal-or-port decision in Phase 1.",
+    "Treated bimodal/logos as read-only reference pattern; the parent-documented logos+bimodal-only fallback is last resort, not pre-emptive."
+  ],
+  "dead_ends": [],
+  "plan_markers_verified": true
+}
