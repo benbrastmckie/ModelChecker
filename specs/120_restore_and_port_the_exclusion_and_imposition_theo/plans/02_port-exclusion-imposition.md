@@ -221,15 +221,17 @@ which the imposition port (Phases 3-4) reuses and appends to.
 
 ---
 
-### Phase 4: Register imposition and green its test suite [NOT STARTED]
+### Phase 4: Register imposition and green its test suite [COMPLETED]
 
 - **Goal:** Register `imposition` in `AVAILABLE_THEORIES` and make its full test suite collect and pass.
 - **Tasks:**
-  - [ ] Add `'imposition',` to `AVAILABLE_THEORIES` in `theory_lib/__init__.py`.
-  - [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/imposition -q`; triage
+  - [x] Add `'imposition',` to `AVAILABLE_THEORIES` in `theory_lib/__init__.py`.
+  - [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/imposition -q`; triage
         collection then runtime failures against the `logos`/`bimodal` reference usage.
-  - [ ] Fix theory code (not tests) except where tests import moved symbols.
-  - [ ] Commit: `task 120: restore and port imposition theory (green)`.
+        **Result**: all 110 tests passed on first run (9.90s) — no failures to triage.
+  - [x] Fix theory code (not tests) except where tests import moved symbols. N/A — zero failures.
+  - [x] Commit: `task 120: restore and port imposition theory (green)` (commit message adapted to
+        the phase-commit convention: `task 120 phase 4: register imposition and green its test suite`).
 - **Timing:** 1.5 hours
 - **Depends on:** 3
 

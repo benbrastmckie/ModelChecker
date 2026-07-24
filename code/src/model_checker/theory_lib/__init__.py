@@ -63,6 +63,7 @@ AVAILABLE_THEORIES = [
     'logos',        # Modular hyperintensional semantics (extensional, modal, constitutive,
                     # counterfactual, relevance, spatial subtheories)
     'exclusion',    # Witness-predicate unilateral negation/exclusion semantics
+    'imposition',   # Kit Fine's imposition semantics for counterfactuals
 ]
 
 # Dictionary to cache loaded theory modules
