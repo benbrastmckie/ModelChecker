@@ -1,490 +1,111 @@
 # Theory Architecture in ModelChecker
 
-This document provides detailed implementation guidance for the two architectural patterns supported by ModelChecker theories. For overview and pattern selection guidance, see [README.md](README.md#theory-architecture-patterns).
-
-## Architectural Pattern Implementation
-
-ModelChecker supports two distinct architectural patterns, each optimized for different theory complexities:
-
-- **Simple Pattern**: Single-file operator organization (e.g., Bimodal Theory)
-- **Modular Pattern**: Subtheory-based operator organization (e.g., Logos Theory)
-
-Both patterns share [common interface elements](README.md#common-interface-elements) while adapting their internal structure to semantic complexity.
-
-## Simple Pattern Architecture
-
-### Directory Structure
-
-```
-theory_lib/
-└── simple_theory/
-    ├── README.md           # Theory documentation
-    ├── __init__.py         # Public API exports
-    ├── semantic.py         # Core semantic framework
-    ├── operators.py        # All operators in single file
-    ├── examples.py         # Test cases and examples
-    ├── tests/              # Unit tests
-    │   ├── __init__.py
-    │   ├── test_operators.py
-    │   ├── test_examples.py
-    │   └── test_semantic.py
-    └── notebooks/          # Jupyter demonstrations (optional)
-        └── simple_theory_demo.ipynb
-```
-
-### Core Implementation Files
-
-#### 1. `semantic.py` - Semantic Framework
-
-```python
-from model_checker.models.semantic import SemanticDefaults
-from model_checker.models.proposition import PropositionDefaults
-from model_checker.models.structure import ModelDefaults
-
-class SimpleSemantics(SemanticDefaults):
-    """Core semantics for simple theory."""
-    
-    DEFAULT_EXAMPLE_SETTINGS = {
-        'N': 3,
-        'max_time': 1,
-        'theory_specific_setting': False,  # Only include relevant settings
-    }
-    
-    DEFAULT_GENERAL_SETTINGS = {
-        "print_constraints": False,
-        "print_z3": False,
-        "save_output": False,
-    }
-
-    def __init__(self, settings=None):
-        super().__init__(settings)
-        self._initialize_theory_primitives()
-        
-    def _initialize_theory_primitives(self):
-        """Initialize theory-specific semantic primitives."""
-        # Theory-specific Z3 functions and relations
-        self.theory_relation = self.z3.Function('theory_rel', 
-                                               self.StateSort, self.StateSort, self.z3.BoolSort())
-        
-    # Implement core semantic methods specific to your theory
-    def theory_specific_relation(self, s1, s2):
-        """Implement theory-specific semantic relation."""
-        return self.theory_relation(s1, s2)
-
-class SimpleProposition(PropositionDefaults):
-    """Proposition implementation for simple theory."""
-    # Standard proposition implementation
-    
-class SimpleStructure(ModelDefaults):
-    """Model structure for simple theory."""
-    # Standard model structure implementation
-
-__all__ = ["SimpleSemantics", "SimpleProposition", "SimpleStructure"]
-```
-
-#### 2. `operators.py` - Unified Operator Collection
-
-```python
-from model_checker.syntactic import Operator, DefinedOperator, OperatorCollection
-
-class TheorySpecificOperator(Operator):
-    """Primary operator unique to this theory."""
-    def __init__(self):
-        super().__init__("theory_op", "\\theoryop", 2)
-    
-    def semantic_clause(self, sentence):
-        """Implement operator semantics using theory primitives."""
-        # Use semantics from semantic.py
-        
-class AnotherOperator(Operator):
-    """Another operator in the theory."""
-    # Implementation...
-
-# Single collection containing all operators
-simple_operators = OperatorCollection(
-    # Standard extensional operators
-    NegationOperator,
-    AndOperator, 
-    OrOperator,
-    
-    # Theory-specific operators
-    TheorySpecificOperator,
-    AnotherOperator,
-)
-
-__all__ = ["simple_operators"]
-```
-
-#### 3. `examples.py` - Theory Examples
-
-```python
-from .semantic import SimpleSemantics, SimpleProposition, SimpleStructure
-from .operators import simple_operators
-
-# Example definitions using standard format
-SIMPLE_CM_1_example = [
-    ['premise'],           # premises
-    ['conclusion'],        # conclusions  
-    {'N': 2, 'expectation': True}  # settings
-]
-
-SIMPLE_TH_1_example = [
-    [],                    # premises
-    ['valid_formula'],     # conclusions
-    {'N': 2, 'expectation': False}  # settings
-]
-
-# Required dictionaries
-semantic_theories = {
-    "SimpleTheory": {
-        "semantics": SimpleSemantics,
-        "proposition": SimpleProposition,
-        "model": SimpleStructure,
-        "operators": simple_operators
-    }
-}
-
-example_range = {
-    "SIMPLE_CM_1": SIMPLE_CM_1_example,
-    "SIMPLE_TH_1": SIMPLE_TH_1_example,
-}
-
-test_example_range = example_range  # Same as example_range for simple theories
-
-general_settings = {
-    "print_constraints": False,
-    "print_z3": False,
-    "save_output": False,
-}
-
-__all__ = ['semantic_theories', 'example_range', 'test_example_range', 'general_settings']
-```
-
-#### 4. `__init__.py` - Public API
-
-```python
-"""
-SimpleTheory - A semantic theory for ModelChecker
-
-Brief description of theory and its key features.
-"""
-
-from .semantic import SimpleSemantics, SimpleProposition, SimpleStructure
-from .operators import simple_operators
-from .examples import semantic_theories, example_range, general_settings
-
-# For theories with simple APIs, export everything directly
-__all__ = [
-    'SimpleSemantics', 'SimpleProposition', 'SimpleStructure',
-    'simple_operators', 'semantic_theories', 'example_range', 'general_settings'
-]
-```
-
-## Modular Pattern Architecture
-
-### Directory Structure
-
-```
-theory_lib/
-└── modular_theory/
-    ├── README.md           # Theory documentation
-    ├── __init__.py         # Public API with get_theory() function
-    ├── semantic.py         # Core semantic framework
-    ├── operators.py        # Registry and loading system
-    ├── examples.py         # Cross-subtheory examples
-    ├── subtheories/        # Organized operator groups
-    │   ├── __init__.py
-    │   ├── extensional/
-    │   │   ├── __init__.py
-    │   │   ├── operators.py
-    │   │   ├── examples.py
-    │   │   └── tests/
-    │   ├── modal/
-    │   │   ├── __init__.py
-    │   │   ├── operators.py
-    │   │   ├── examples.py
-    │   │   └── tests/
-    │   └── constitutive/
-    │       ├── __init__.py
-    │       ├── operators.py
-    │       ├── examples.py
-    │       └── tests/
-    ├── tests/              # Integration and core tests
-    │   ├── __init__.py
-    │   ├── test_registry.py
-    │   ├── test_semantic_methods.py
-    │   └── test_integration.py
-    └── notebooks/          # Jupyter demonstrations
-        ├── modular_theory_intro.ipynb
-        └── subtheory_demos/
-            ├── extensional_demo.ipynb
-            └── modal_demo.ipynb
-```
-
-### Core Implementation Files
-
-#### 1. `semantic.py` - Shared Semantic Framework
-
-```python
-from model_checker.models.semantic import SemanticDefaults
-from model_checker.models.proposition import PropositionDefaults
-from model_checker.models.structure import ModelDefaults
-
-class ModularSemantics(SemanticDefaults):
-    """Shared semantic framework for modular theory."""
-    
-    DEFAULT_EXAMPLE_SETTINGS = {
-        'N': 3,
-        'max_time': 1,
-        # Include settings relevant across subtheories
-    }
-    
-    def __init__(self, settings=None):
-        super().__init__(settings)
-        self.loaded_subtheories = set()
-        
-    def load_subtheories(self, subtheory_names):
-        """Load specified subtheories into the semantic framework."""
-        for name in subtheory_names:
-            if name not in self.loaded_subtheories:
-                self._load_subtheory_primitives(name)
-                self.loaded_subtheories.add(name)
-                
-    def _load_subtheory_primitives(self, subtheory_name):
-        """Load semantic primitives for a specific subtheory."""
-        if subtheory_name == "modal":
-            self._initialize_modal_primitives()
-        elif subtheory_name == "constitutive":
-            self._initialize_constitutive_primitives()
-        # Add other subtheories...
-        
-    def _initialize_modal_primitives(self):
-        """Initialize modal-specific semantic primitives."""
-        self.accessibility = self.z3.Function('accessible', 
-                                            self.StateSort, self.StateSort, self.z3.BoolSort())
-
-class ModularProposition(PropositionDefaults):
-    """Proposition implementation supporting multiple subtheories."""
-    # Implementation that works across subtheories
-    
-class ModularStructure(ModelDefaults):  
-    """Model structure supporting multiple subtheories."""
-    # Implementation that handles different operator types
-
-__all__ = ["ModularSemantics", "ModularProposition", "ModularStructure"]
-```
-
-#### 2. `operators.py` - Registry and Loading System
-
-```python
-from model_checker.syntactic import OperatorCollection
-
-class ModularOperatorRegistry:
-    """Registry for loading operators from subtheories."""
-    
-    def __init__(self):
-        self.loaded_subtheories = {}
-        self.operator_collection = None
-        
-    def load_subtheories(self, subtheory_names):
-        """Load operators from specified subtheories."""
-        all_operators = []
-        
-        for name in subtheory_names:
-            if name not in self.loaded_subtheories:
-                operators = self._load_subtheory_operators(name)
-                self.loaded_subtheories[name] = operators
-                all_operators.extend(operators)
-                
-        self.operator_collection = OperatorCollection(*all_operators)
-        return self.operator_collection
-        
-    def _load_subtheory_operators(self, subtheory_name):
-        """Load operators from a specific subtheory."""
-        if subtheory_name == "extensional":
-            from .subtheories.extensional import get_operators
-            return list(get_operators().values())
-        elif subtheory_name == "modal":
-            from .subtheories.modal import get_operators  
-            return list(get_operators().values())
-        # Add other subtheories...
-        
-    def get_operators(self):
-        """Get the current operator collection."""
-        return self.operator_collection
-
-__all__ = ["ModularOperatorRegistry"]
-```
-
-#### 3. `subtheories/extensional/operators.py` - Subtheory Operators
-
-```python
-from model_checker.syntactic import Operator, DefinedOperator
-
-class NegationOperator(Operator):
-    """Negation operator for extensional logic."""
-    def __init__(self):
-        super().__init__("negation", "\\neg", 1)
-    
-    def semantic_clause(self, sentence):
-        """Implement negation semantics."""
-        # Implementation using shared semantic framework
-
-class ConjunctionOperator(Operator):
-    """Conjunction operator for extensional logic."""
-    def __init__(self):
-        super().__init__("conjunction", "\\wedge", 2)
-    
-    def semantic_clause(self, sentence):
-        """Implement conjunction semantics."""
-        # Implementation...
-
-def get_operators():
-    """Return dictionary of extensional operators."""
-    return {
-        '\\neg': NegationOperator,
-        '\\wedge': ConjunctionOperator,
-    }
-
-__all__ = ['get_operators']
-```
-
-#### 4. `__init__.py` - Modular Public API
-
-```python
-"""
-ModularTheory - A comprehensive semantic theory for ModelChecker
-
-This theory provides selective loading of operator subtheories.
-"""
-
-from .semantic import ModularSemantics, ModularProposition, ModularStructure
-from .operators import ModularOperatorRegistry
-
-def get_theory(subtheories=None):
-    """
-    Get theory instance with specified subtheories.
-    
-    Args:
-        subtheories: List of subtheory names to load, or None for default set
-        
-    Returns:
-        Dict with 'semantics', 'proposition', 'model' classes and 'operators' collection
-    """
-    registry = ModularOperatorRegistry()
-    
-    if subtheories is None:
-        # Default subtheories
-        subtheories = ['extensional', 'modal']
-    
-    operators = registry.load_subtheories(subtheories)
-    
-    return {
-        'semantics': ModularSemantics,
-        'proposition': ModularProposition, 
-        'model': ModularStructure,
-        'operators': operators
-    }
-
-# Convenience exports
-Semantics = ModularSemantics
-Proposition = ModularProposition
-ModelStructure = ModularStructure
-
-__all__ = [
-    'get_theory', 'Semantics', 'Proposition', 'ModelStructure'
-]
-```
-
-## Common Implementation Requirements
-
-### Testing Infrastructure
-
-Both patterns must implement [standardized testing](tests/README.md#theory-testing-framework-guide):
-
-- **Simple Pattern**: Tests in single `tests/` directory
-- **Modular Pattern**: Tests at both theory and subtheory levels
-
-### Jupyter Integration
-
-Both patterns must integrate with the ModelChecker framework:
-
-```python
-# Both patterns work with the standard examples.py approach:
-from model_checker.theory_lib.your_theory import get_theory
-
-theory = get_theory()
-example = [
-    ["A"],                    # Premises
-    ["(A \\rightarrow B)"],   # Conclusions
-    {'N': 3}                  # Settings
-]
-
-semantic_theories = {"your_theory": theory}
-test_example_range = {"test": example}
-```
-
-### Documentation Standards
-
-Both patterns require:
-
-- Comprehensive `README.md` following [standard format](README.md)
-- Examples demonstrating key features
-- API documentation for all public classes and methods
-
-## Pattern Selection Guidelines
-
-### Choose Simple Pattern When:
-- Theory has fewer than 10 operators
-- Operators don't form natural logical groupings
-- Rapid prototyping is priority
-- Theory addresses a focused semantic question
-
-### Choose Modular Pattern When:
-- Theory has 10+ operators across logical domains
-- Operators benefit from categorical organization
-- Selective operator loading is valuable
-- Multiple developers will contribute
-- Theory integrates multiple logical systems
-
-## Migration Between Patterns
-
-### Simple to Modular Migration
-
-1. Create `subtheories/` directory structure
-2. Group operators by logical domain
-3. Implement operator registry system
-4. Add `get_theory()` function with selective loading
-5. Update tests to handle both unified and selective testing
-
-### Modular to Simple Migration
-
-1. Flatten all operators into single `operators.py`
-2. Remove registry and loading system
-3. Simplify `__init__.py` to direct exports
-4. Consolidate tests into single directory
-5. Update documentation to reflect unified approach
-
-## Best Practices
-
-### For Both Patterns:
-- Follow [common interface standards](README.md#common-interface-elements)
-- Implement comprehensive testing per [Theory Testing Framework Guide](tests/README.md#theory-testing-framework-guide)
-- Provide clear documentation and examples
-- Support Jupyter integration
-- Use consistent naming conventions
-
-### Simple Pattern Specific:
-- Keep operator count reasonable (< 10)
-- Organize operators logically within single file
-- Focus on clarity and direct access
-- Minimize abstraction overhead
-
-### Modular Pattern Specific:
-- Organize subtheories by logical domains
-- Implement dependency resolution between subtheories
-- Provide clear subtheory documentation
-- Support selective loading efficiently
-- Maintain consistency across subtheories
-
-This architecture documentation ensures both simple and modular theories can be implemented effectively while maintaining consistency and interoperability within the ModelChecker framework.
+This document defines the single canonical module set that every theory in `theory_lib/` must
+implement, plus the optionality policy and the three-layer dependency model that keeps
+`theory_lib` and the core packages cleanly separated. For usage-oriented guidance, see
+[README.md](README.md) and [USAGE_GUIDE.md](USAGE_GUIDE.md).
+
+There is one pattern, not two. Every theory shares the same required file set; logos additionally
+carries a `subtheories/` layer because its operator set is large enough to benefit from
+categorical organization, not because it follows a different architecture.
+
+## Required Theory File Set
+
+Every entry under `theory_lib/` (e.g. `bimodal/`, `exclusion/`, `imposition/`, `logos/`) MUST
+provide:
+
+- **`__init__.py`** — the theory's public API. Exposes `get_theory(config=None)`, returning a
+  dict with `semantics`, `proposition`, `model`, and `operators` keys.
+- **`semantic/`** — a package, not a module (a directory containing `__init__.py`). Required
+  members:
+  - `__init__.py` — re-export-only; it imports and re-exports the theory's semantics,
+    proposition, and model classes from the modules below, and defines no class bodies of its
+    own.
+  - `core.py` — the core semantic framework (the `SemanticDefaults` subclass and its primitives).
+  - `model.py` — the model structure class (the `ModelDefaults` subclass).
+  - additional theory-specific modules as needed (for example, imposition's `helpers.py` or
+    exclusion's `constraints.py` and `registry.py`).
+- **`operators.py`** — the theory's operator collection (or, for logos, the registry that loads
+  operators from `subtheories/`).
+- **`iterate.py`** — **required for every theory**, not optional. Every theory's
+  `DEFAULT_EXAMPLE_SETTINGS` declares an `iterate` setting, so a theory lacking `iterate.py` has a
+  live, reachable `ImportError` the moment a user sets `iterate: 2` on an example. Must expose:
+  - `{Theory}ModelIterator` — the iterator class.
+  - `iterate_example` — the eager iteration entry point.
+  - `iterate_example_generator` — the generator-interface entry point, wrapped so that
+    `iterate_example_generator.__wrapped__.returns_generator` is truthy. The builder's runner
+    layer selects between the two entry points and detects the generator interface via
+    `hasattr(fn, '__wrapped__') and hasattr(fn.__wrapped__, 'returns_generator')` — theories that
+    omit the marker silently fall back to the eager path.
+- **`examples.py`** — see "Required `examples.py` Attributes" below.
+- **`tests/`** — `__init__.py`, `conftest.py`, `unit/`, `integration/`, `README.md`.
+- **`docs/`** — the six-file set: `README.md`, `API_REFERENCE.md`, `ARCHITECTURE.md`,
+  `ITERATE.md`, `SETTINGS.md`, `USER_GUIDE.md`.
+- **`README.md`**, **`CITATION.md`**, **`LICENSE.md`**, **`VERSION`** — theory-level metadata,
+  documentation entry point, and citation/licensing files.
+
+## Required `examples.py` Attributes
+
+`examples.py` MUST define each of the following exactly once (a plain `hasattr` check cannot
+detect a duplicate assignment where the second overwrites the first without either raising or
+being visibly wrong):
+
+- `example_range` — the full dict of named examples.
+- `test_example_range` — the subset (often identical to `example_range`) exercised by the test
+  suite.
+- `semantic_theories` — the dict describing this theory's semantic configuration(s), keyed by
+  display name, each value shaped like the `get_theory()` return dict.
+- `unit_tests` — the dict of examples used for unit-level testing.
+
+## Optional Elements
+
+- **`notebooks/`** — optional, and reported but not enforced by the conformance test. Some
+  theories (exclusion, imposition) ship Jupyter demonstrations; others (bimodal, logos) do not.
+  Absence is not a defect.
+
+## Subtheory File Set (logos)
+
+Semantics stays centralized in `logos/semantic/`; subtheories never define their own semantics.
+Each entry under `logos/subtheories/` MUST provide:
+
+- `__init__.py`
+- `operators.py` — MUST return a **non-empty** dict from `get_operators()`. A subtheory
+  contributing zero operators is a defect, not a valid configuration: it means the subtheory has
+  no independent content and its operators (if any exist) belong to another subtheory it silently
+  depends on.
+- `examples.py`
+- `tests/`
+- `README.md`
+
+## End-to-End Testing
+
+`e2e/` is **not** part of the per-theory test set. End-to-end coverage exercises the CLI and
+project-generation pipeline, not theory semantics, and lives at core level
+(`code/tests/e2e/`, `builder/tests/e2e/`, `iterate/tests/e2e/`), parametrized over all four
+theories. No theory directory should carry its own `tests/e2e/`.
+
+## Layering
+
+The codebase is organized into three layers with a strictly enforced dependency direction:
+
+1. **Core** — `models`, `syntactic`, `solver`, `utils`, `iterate`, `builder`, `settings`,
+   `output`, `z3_shim`. Core modules MUST NOT import `theory_lib`, whether via a static
+   `import`/`from … import` statement, a function-local import, or a string-literal reference
+   passed to `importlib.import_module`. Core modules MUST NOT hardcode any theory name
+   (`bimodal`, `exclusion`, `imposition`, `logos`) as a string literal; theory identity is
+   obtained by querying the theory registry, never by naming a theory directly.
+2. **`theory_lib`** — may import core freely. May never be imported by core.
+3. **Upper layer** — `model_checker/__init__.py`, `model_checker/api.py`, `__main__.py`,
+   `jupyter/`. May import both core and `theory_lib`; this is where "needs to know about all
+   theories" logic legitimately lives.
+
+This boundary is enforced by an executable layering test (`code/tests/test_layering.py`), not
+just documented here — the test is the authoritative check; this document is the contract it
+encodes.
+
+## Conformance Test
+
+The required/optional file set and `examples.py` attribute rules above are the specification that
+`code/src/model_checker/theory_lib/tests/test_theory_conformance.py` encodes as a parametrized
+test over the theory registry (see `registry.py` in the core layer). A theory is conformant when
+that test passes for it with zero `xfail` markers.
