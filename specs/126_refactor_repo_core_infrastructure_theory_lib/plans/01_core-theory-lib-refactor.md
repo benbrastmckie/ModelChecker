@@ -948,21 +948,48 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 14: Normalize imposition [NOT STARTED]
+### Phase 14: Normalize imposition [COMPLETED]
 
 - **Goal:** Bring the simplest theory fully onto the canonical contract, proving the pattern before
   the harder ones.
 - **Tasks:**
-  - [ ] Imposition already has `semantic/` (`core.py` 338, `helpers.py` 154, `model.py` 458,
+  - [x] Imposition already has `semantic/` (`core.py` 338, `helpers.py` 154, `model.py` 458,
         `__init__.py` 34), `iterate.py` (533), `operators.py`, `notebooks/`, and the six-file
-        `docs/` set. Verify each against the Phase 3 contract and close the specific gaps.
-  - [ ] Add `tests/conftest.py` (exclusion and logos have one; imposition and bimodal do not).
-  - [ ] Confirm `semantic/__init__.py` is re-export-only and that the module names match the
+        `docs/` set. Verify each against the Phase 3 contract and close the specific gaps. *(completed:
+        verified against `test_required_root_items_exist`/`test_required_docs_files_exist` --
+        both already pass for imposition; no gaps found beyond the missing conftest.py below)*
+  - [x] Add `tests/conftest.py` (exclusion and logos have one; imposition and bimodal do not).
+        *(completed: new file mirroring exclusion's fixture pattern -- `imposition_theory`,
+        `basic_settings`/`minimal_settings`/`complex_settings` matching
+        `ImpositionSemantics.DEFAULT_EXAMPLE_SETTINGS`, and an `imposition_semantics` instance
+        fixture)*
+  - [x] Confirm `semantic/__init__.py` is re-export-only and that the module names match the
         canonical set (`core.py`, `model.py`, plus theory-specific extras — `helpers.py` qualifies).
-  - [ ] Confirm `theory_lib/imposition/__init__.py` registers into the Phase 10 registry correctly.
-  - [ ] Remove the corresponding conformance xfails for imposition; the imposition parametrization
-        should be fully green at the end of this phase.
-  - [ ] Record the exact normalization steps taken as the template for Phases 17, 18, 20, 21.
+        *(confirmed: `semantic/__init__.py` is exactly imports + `__all__`, no inline class
+        bodies)*
+  - [x] Confirm `theory_lib/imposition/__init__.py` registers into the Phase 10 registry correctly.
+        *(confirmed: `registry.get_theory_entry('imposition')` resolves `module_path`,
+        `semantics` (`ImpositionSemantics`), `proposition` (`LogosProposition`, reused from
+        logos by design), `model` (`ImpositionModelStructure`), and a populated
+        `OperatorCollection`)*
+  - [x] Remove the corresponding conformance xfails for imposition; the imposition parametrization
+        should be fully green at the end of this phase. *(confirmed: imposition already had zero
+        xfails in the conformance test prior to this phase -- it was never among the 9 RED-baseline
+        gaps enumerated in Phase 8, since its `semantic/` package, `iterate.py`, and `examples.py`
+        contract were already conformant. All 10 imposition-parametrized conformance tests pass.)*
+  - [x] Record the exact normalization steps taken as the template for Phases 17, 18, 20, 21.
+        *(completed -- see Normalization Template note below)*
+
+  **Normalization Template** (for Phases 17/18/20/21): (1) confirm the required root items and
+  `docs/` six-file set exist; (2) confirm `semantic/` is a real package with `core.py` (not a
+  bare directory or compatibility shim) and its `__init__.py` is re-export-only, with inline
+  class bodies moved to named modules where needed; (3) add `tests/conftest.py` with theory
+  fixtures (`{theory}_theory` dict, `basic_settings`/`minimal_settings`/`complex_settings`
+  matching the theory's actual `DEFAULT_EXAMPLE_SETTINGS`, and a ready-to-use semantics
+  instance fixture) if missing; (4) confirm the theory registers into the core registry
+  correctly by resolving `registry.get_theory_entry(name)` and checking all four components;
+  (5) run the theory's own conformance-test parametrization and its full test suite, and remove
+  any now-satisfied xfail markers.
 - **Timing:** 1.5 hours
 - **Depends on:** 11
 - **Files to modify:**
