@@ -64,7 +64,7 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 pythonpath = "src"
-testpaths = ["src/model_checker/theory_lib/bimodal/tests"]
+testpaths = ["tests", "src/model_checker"]
 python_files = "test_*.py"
 python_classes = "Test*"
 addopts = "--durations=0 -v --import-mode=importlib"

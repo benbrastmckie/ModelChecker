@@ -173,36 +173,56 @@ concurrent-write conflicts on that shared file.
     contains `model_checker/jupyter/` and the four theory READMEs, and does NOT contain
     `bimodal_logic`/oracle files.
 
-### Phase 3: Repair Test Collection [NOT STARTED]
+### Phase 3: Repair Test Collection [COMPLETED]
 
 - **Goal:** Widen `testpaths` and resolve every collection error so the full suite collects
   cleanly.
 - **Tasks:**
-  - [ ] Set `[tool.pytest.ini_options] testpaths` to cover both `code/tests` and the in-package
+  - [x] Set `[tool.pytest.ini_options] testpaths` to cover both `code/tests` and the in-package
         theory/unit trees (e.g. `["tests", "src/model_checker"]`), or remove the pin so the
         CLAUDE.md-prescribed `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker`
         invocation drives collection. Keep `pythonpath = "src"`, `python_files`, markers, and
-        `filterwarnings` intact.
-  - [ ] Run `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker --collect-only -q` and
+        `filterwarnings` intact. (Set to `["tests", "src/model_checker"]`; all other pytest options
+        left untouched.)
+  - [x] Run `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker --collect-only -q` and
         repair each collection error against the live output. The current live errors are:
         - `code/tests/e2e/test_simple_output_verify.py` — imports
           `model_checker.output.collectors.ModelDataCollector`, which no longer exists (the
           `output/` module has no `collectors` submodule). Repair against the restored `output`
           module if an equivalent collector exists; otherwise delete the stale test.
+          **Decision: DELETE.** `ModelDataCollector` and the batch `data_collector` attribute on
+          `OutputManager` are genuinely gone (grepped the whole `output/` package; no equivalent
+          class or attribute exists) — no restored capability to repair against.
         - `code/src/model_checker/builder/tests/integration/test_interactive.py` — imports
           `SequentialSaveManager` from `model_checker.output`, which is not exported (output exports
           `ANSIToMarkdown`, `JSONFormatter`, `MarkdownFormatter`, `formatters`). Repair against the
           current `output.manager` API or delete if the interactive save flow is gone.
+          **Decision: DELETE.** `SequentialSaveManager` and `ConsoleInputProvider` do not exist
+          anywhere in the source tree (only mentioned in stale `output/README.md` prose); the
+          interactive/sequential save flow's classes are genuinely gone. (Note: `builder/module.py`
+          still has a deferred, function-local import of these same missing names at
+          `_initialize_output_management` — a pre-existing *runtime* bug, out of this task's
+          collection-only scope and outside `file_scope`; flagged here for the downstream
+          green-gate task.)
         - `code/src/model_checker/theory_lib/tests/unit/test_error_handling.py` — imports
           `WitnessSemanticError` from `theory_lib.errors`, which does not exist (available:
           `WitnessError`, `SemanticError`, `WitnessConstraintError`, etc.). Repair to the correct
           exception name(s) or delete if the referenced behavior is gone.
-  - [ ] Re-verify the parent plan's originally-flagged files against the live tree:
+          **Decision: REPAIR (partial).** `WitnessSemanticError` → `WitnessError` (exists).
+          Collecting after that fix surfaced four further genuinely-absent names in the same
+          import block not flagged by the research grounding (`ImpositionSemanticError`,
+          `ImpositionOperationError`, `ImpositionHelperError`, `LogosSubtheoryError`,
+          `LogosProtocolError`) — confirmed absent via grep across `theory_lib/errors.py` and the
+          imposition/logos packages (which only ever import the generic `SemanticError`/
+          `SubtheoryError` bases). Repaired `TestImpositionErrorHandling` to exercise the real
+          `SemanticError(..., theory="imposition")` base instead; deleted `TestLogosErrorHandling`
+          outright (no equivalent `Logos*` classes or constructor shape exist to repair against).
+  - [x] Re-verify the parent plan's originally-flagged files against the live tree:
         `tests/integration/test_model_building_sync.py`, `tests/integration/test_system_imports.py`,
         and `tests/utils/helpers.py` currently collect cleanly (builder/iterate restored), so they
         need no change unless a widened `testpaths` surfaces a new error — do not delete files that
-        collect.
-  - [ ] For each delete-vs-repair decision, prefer repair when the referenced capability exists in a
+        collect. (Confirmed: all three collect cleanly under the widened `testpaths`; untouched.)
+  - [x] For each delete-vs-repair decision, prefer repair when the referenced capability exists in a
         restored module under a new name; delete only when the referenced module/symbol is genuinely
         absent. Record the decision per file in the summary.
 - **Timing:** 1 hour

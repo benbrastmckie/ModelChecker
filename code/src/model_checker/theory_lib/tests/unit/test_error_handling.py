@@ -11,18 +11,22 @@ from unittest.mock import Mock, patch
 
 from model_checker.theory_lib.errors import (
     TheoryError,
-    WitnessSemanticError,
+    WitnessError,
     WitnessRegistryError,
     WitnessPredicateError,
     WitnessConstraintError,
-    ImpositionSemanticError,
-    ImpositionOperationError,
-    ImpositionHelperError,
-    LogosSubtheoryError,
-    LogosProtocolError,
+    SemanticError,
     Z3IntegrationError,
     Z3TimeoutError
 )
+
+# NOTE: theory-specific subclasses that this file previously imported
+# (ImpositionSemanticError, ImpositionOperationError, ImpositionHelperError,
+# LogosSubtheoryError, LogosProtocolError) do not exist anywhere in
+# model_checker.theory_lib.errors or in the imposition/logos packages (which
+# only use the generic SemanticError/SubtheoryError bases). Tests exercising
+# those fictional classes were removed rather than repaired; see task 121's
+# implementation summary for the per-file decision record.
 
 
 class TestTheoryErrorHierarchy:
@@ -55,9 +59,10 @@ class TestTheoryErrorHierarchy:
 class TestWitnessErrorHandling:
     """Test witness theory (exclusion) error handling."""
 
-    def test_witness_semantic_error_inherits_theory(self):
-        """Test that WitnessSemanticError sets theory correctly."""
-        error = WitnessSemanticError("Test witness error")
+    def test_witness_error_construction(self):
+        """Test that WitnessError (the base witness exception) can be constructed
+        with an explicit theory (the class itself does not default theory)."""
+        error = WitnessError("Test witness error", theory="exclusion")
         assert error.theory == "exclusion"
 
     def test_witness_predicate_error_construction(self):
@@ -83,44 +88,16 @@ class TestWitnessErrorHandling:
 
 
 class TestImpositionErrorHandling:
-    """Test imposition theory error handling."""
+    """Test imposition theory error handling using the generic SemanticError
+    base (the imposition package's own modules only ever import/raise
+    SemanticError from theory_lib.errors; no Imposition-specific subclasses
+    exist in the current codebase)."""
 
-    def test_imposition_semantic_error_inherits_theory(self):
-        """Test that ImpositionSemanticError sets theory correctly."""
-        error = ImpositionSemanticError("Test imposition error")
+    def test_semantic_error_with_imposition_theory(self):
+        """Test that SemanticError carries an explicit imposition theory tag."""
+        error = SemanticError("Test imposition error", theory="imposition")
         assert error.theory == "imposition"
-
-    def test_imposition_operation_error_basic(self):
-        """Test basic ImpositionOperationError."""
-        error = ImpositionOperationError("Imposition operation failed")
-        assert error.theory == "imposition"
-        assert "Imposition operation failed" in str(error)
-
-    def test_imposition_helper_error_construction(self):
-        """Test ImpositionHelperError construction."""
-        error = ImpositionHelperError("safe_bitvec_as_long")
-
-        assert "safe_bitvec_as_long" in str(error)
-        assert error.context['function_name'] == "safe_bitvec_as_long"
-
-
-class TestLogosErrorHandling:
-    """Test logos theory error handling."""
-
-    def test_logos_subtheory_error_basic(self):
-        """Test basic LogosSubtheoryError."""
-        error = LogosSubtheoryError("Subtheory error", subtheory_name="test_sub")
-        assert error.theory == "logos"
-        assert error.subtheory_name == "test_sub"
-
-    def test_logos_protocol_error_construction(self):
-        """Test LogosProtocolError construction."""
-        error = LogosProtocolError("TestProtocol", "missing method")
-
-        assert "TestProtocol" in str(error)
-        assert "missing method" in str(error)
-        assert error.context['protocol_name'] == "TestProtocol"
-        assert error.context['compliance_issue'] == "missing method"
+        assert "Test imposition error" in str(error)
 
 
 class TestZ3IntegrationErrorHandling:
@@ -147,8 +124,9 @@ class TestErrorContextAndSuggestions:
         """Test that error context is preserved through the hierarchy."""
         original_context = {'key1': 'value1', 'key2': 42}
 
-        error = WitnessSemanticError(
+        error = WitnessError(
             "Test error",
+            theory="exclusion",
             context=original_context,
             suggestion="Test suggestion"
         )
@@ -164,8 +142,9 @@ class TestErrorContextAndSuggestions:
             raise ValueError("Original error")
         except ValueError as e:
             # Chain with theory error
-            theory_error = ImpositionSemanticError(
+            theory_error = SemanticError(
                 "Wrapper error",
+                theory="imposition",
                 context={'wrapper_info': 'test'},
                 suggestion="Check the original error"
             )
