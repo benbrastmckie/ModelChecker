@@ -152,15 +152,15 @@ Phases within the same wave can execute in parallel. Heavy suite runs (4, 5, 6) 
 
 ---
 
-### Phase 4: In-package bimodal suite green without BimodalHarness (heavy, backgrounded) [IN PROGRESS]
+### Phase 4: In-package bimodal suite green without BimodalHarness (heavy, backgrounded) [COMPLETED]
 
 **Goal**: Confirm the in-package `theory_lib/bimodal` suite passes without `BimodalHarness` present, and record its definitive tally against the task-118 baseline. This is the dominant wall-clock run and is executed exactly once.
 
 **Tasks**:
-- [ ] Ensure `BimodalHarness` is not on the path (default state) so the in-package suite is genuinely independent of it.
-- [ ] Launch, backgrounded with a monitor, a single run: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -n auto --junitxml=specs/122_.../baselines/junit-bimodal.xml -q` with stdout/stderr teed to `baselines/bimodal-run.txt`. Do not block the session on it; overlap only non-CPU-heavy work.
-- [ ] On completion, derive the tally (passed/failed/skipped/xfailed) from `junit-bimodal.xml`; compare against the task-118 baseline (818/813/5). Confirm the previously-failing 5 are gone from the in-package tree (relocated) and the remaining count is fully green.
-- [ ] Record the bimodal tally and wall-clock (single `-n auto` runtime) in `baselines/`.
+- [x] Ensure `BimodalHarness` is not on the path (default state) so the in-package suite is genuinely independent of it. Confirmed: this run's `PYTHONPATH` was `<pylibs>:code/src` only, no oracle/BH path components.
+- [x] Launch, backgrounded with a monitor, a single run: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests -n auto --junitxml=specs/122_.../baselines/junit-bimodal.xml -q` with stdout/stderr teed to `baselines/bimodal-run.txt`. Do not block the session on it; overlap only non-CPU-heavy work. **Deviation**: two `-n auto` (12-worker) attempts each produced exactly 1 failure (`test_bimodal.py::test_example_cases[BM_CM_1-example_case7]`), root-caused as a full-suite-12-way-parallelism CPU-contention flake (Z3 solve normally ~10s, timed out at ~15s under contention; passes 3/3 in isolation and 43/43 as the file alone under `-n auto`). Per the plan's own risk-mitigation guidance ("pin the affected tests to -n 0 or a single worker and record the reason"), re-ran at `-n 6` instead of `-n auto`: 286/286 passed, 43.43s. The two `-n auto` attempts are preserved as `*-attempt1-flaky.*`/`*-attempt2-flaky.*`; the `-n 6` run is the definitive `junit-bimodal.xml`/`bimodal-run.txt` record. Full analysis in `baselines/bimodal-tally.md`.
+- [x] On completion, derive the tally (passed/failed/skipped/xfailed) from `junit-bimodal.xml`; compare against the task-118 baseline (818/813/5). Confirm the previously-failing 5 are gone from the in-package tree (relocated) and the remaining count is fully green. **Result**: 286 tests, 286 passed, 0 failed, 0 errored (task-118's 818/813/5 included the now-relocated 7-file oracle-dependent set, per `collection-counts.txt`; the in-package suite is fully green).
+- [x] Record the bimodal tally and wall-clock (single `-n auto` runtime) in `baselines/`. Recorded in `baselines/bimodal-tally.md` (43.43s at `-n 6`, the adopted worker count).
 
 **Timing**: 15 minutes active + backgrounded wall-clock (expected well under the 70-min single-threaded baseline with `-n auto`).
 
