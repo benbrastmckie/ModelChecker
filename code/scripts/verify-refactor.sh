@@ -45,7 +45,7 @@ note() { echo "[verify-refactor] $*"; }
 fail() { echo "[verify-refactor] FAIL: $*" >&2; FAILURES=$((FAILURES + 1)); }
 
 note "=== Step 1: in-package bimodal collection count ==="
-bimodal_count=$(PYTHONPATH=code/src python -m pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oE '^[0-9]+')
+bimodal_count=$(PYTHONPATH=code/src python -m pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q 2>/dev/null | grep -oE '[0-9]+ tests? collected' | grep -oE '^[0-9]+')
 if [ -z "$bimodal_count" ] || [ "$bimodal_count" -lt "$BASELINE_BIMODAL_COUNT" ]; then
   fail "bimodal collection count is '${bimodal_count:-<none>}', expected >= ${BASELINE_BIMODAL_COUNT}"
 else
@@ -53,7 +53,7 @@ else
 fi
 
 note "=== Step 2: full in-package suite collection count ==="
-full_count=$(cd code && PYTHONPATH=src python -m pytest --collect-only -q 2>/dev/null | tail -1 | grep -oE '^[0-9]+')
+full_count=$(cd code && PYTHONPATH=src python -m pytest --collect-only -q 2>/dev/null | grep -oE '[0-9]+ tests? collected' | grep -oE '^[0-9]+')
 if [ -z "$full_count" ] || [ "$full_count" -lt "$BASELINE_FULL_COUNT" ]; then
   fail "full in-package collection count is '${full_count:-<none>}', expected >= ${BASELINE_FULL_COUNT}"
 else
@@ -61,7 +61,7 @@ else
 fi
 
 note "=== Step 3: oracle suite collection count ==="
-oracle_count=$(PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/ --collect-only -q 2>/dev/null | tail -1 | grep -oE '^[0-9]+')
+oracle_count=$(PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/ --collect-only -q 2>/dev/null | grep -oE '[0-9]+ tests? collected' | grep -oE '^[0-9]+')
 if [ "$oracle_count" != "$BASELINE_ORACLE_COUNT" ]; then
   fail "oracle collection count is '${oracle_count:-<none>}', expected exactly ${BASELINE_ORACLE_COUNT}"
 else
