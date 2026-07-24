@@ -1,7 +1,7 @@
 # Implementation Plan: Refactor Core Infrastructure and theory_lib
 
 - **Task**: 126 - Systematically refactor the repo into core infrastructure and theory_lib; remove the logos spatial subtheory; standardize the per-theory module set
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Effort**: 41 hours
 - **Dependencies**: None (proceeds on branch `task-117-restore-model-checker`; see Non-Goals for merge/release sequencing)
 - **Research Inputs**: `specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md` (4-teammate synthesis; teammate findings `01_teammate-{a,b,c,d}-findings.md`)
@@ -178,22 +178,26 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 1: Review and Snapshot ROADMAP.md [NOT STARTED]
+### Phase 1: Review and Snapshot ROADMAP.md [COMPLETED]
 
 - **Goal:** Record the pre-refactor state of `specs/ROADMAP.md` so Phase 26 can show a clean
   before/after, and identify which roadmap items this refactor advances or supersedes.
 - **Tasks:**
-  - [ ] Read `specs/ROADMAP.md` in full and copy it verbatim to
-        `specs/126_refactor_repo_core_infrastructure_theory_lib/roadmap-before.md`.
-  - [ ] Record the current durable decision (package identity: `model_checker`, four registered
+  - [x] Read `specs/ROADMAP.md` in full and copy it verbatim to
+        `specs/126_refactor_repo_core_infrastructure_theory_lib/roadmap-before.md`. *(completed:
+        verified byte-identical via diff)*
+  - [x] Record the current durable decision (package identity: `model_checker`, four registered
         theories, built from `code/` with `where = ["src"]`, `oracle/` outside the wheel) and note
         that it constrains this refactor to reorganizing inside `code/src/model_checker/`.
-  - [ ] Identify items this refactor advances: none of the four Phase 1 priorities are directly
+        *(completed: recorded in snapshot; decision already present in ROADMAP.md text)*
+  - [x] Identify items this refactor advances: none of the four Phase 1 priorities are directly
         advanced, but "Merge and publish 1.3.0" is **superseded** by the refactor-first sequencing
-        and must be rewritten in Phase 26 rather than checked off.
-  - [ ] Note the two items this refactor will add: the `theory_lib` extraction decision record, and
-        the deferred core-package reorganization.
-  - [ ] Confirm ROADMAP.md is not modified in this phase (read-only snapshot).
+        and must be rewritten in Phase 26 rather than checked off. *(completed: deferred to Phase
+        26)*
+  - [x] Note the two items this refactor will add: the `theory_lib` extraction decision record, and
+        the deferred core-package reorganization. *(completed: deferred to Phase 26)*
+  - [x] Confirm ROADMAP.md is not modified in this phase (read-only snapshot). *(completed: git
+        diff specs/ROADMAP.md is empty)*
 - **Timing:** 0.5 hours
 - **Depends on:** none
 - **Files to modify:**
