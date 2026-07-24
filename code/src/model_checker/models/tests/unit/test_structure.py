@@ -269,6 +269,46 @@ class TestModelDefaultsStructure(unittest.TestCase):
         for sentence in sentences:
             sentence.update_proposition.assert_called_once_with(self.model_defaults)
     
+    def test_solve_unknown_non_timeout_reason_is_not_reported_unsat(self):
+        """UNKNOWN results whose reason_unknown() is not "timeout" must still be
+        treated as inconclusive (is_timeout=True), never as a definitive UNSAT.
+
+        Z3 commonly reports "canceled" (not the literal string "timeout") even
+        when the timeout configured via set_timeout() is what caused the
+        UNKNOWN result. Misclassifying such an UNKNOWN as UNSAT is unsound:
+        an inconclusive solver run is not evidence that the formula is valid.
+        """
+        mock_solver = MagicMock()
+        mock_solver.check.return_value = "unknown"
+        mock_solver.reason_unknown.return_value = "canceled"
+        # MagicMock treats attribute names starting with "assert" as
+        # assertion helpers unless explicitly configured as an attribute.
+        mock_solver.assert_tracked = MagicMock()
+
+        with patch('model_checker.models.structure.create_solver', return_value=mock_solver):
+            result = self.model_defaults.solve(self.model_constraints, 10)
+
+        is_timeout, model_or_core, is_satisfiable, runtime = result
+        self.assertTrue(is_timeout, "non-timeout UNKNOWN must be reported as inconclusive")
+        self.assertIsNone(model_or_core)
+        self.assertFalse(is_satisfiable)
+
+    def test_re_solve_unknown_non_timeout_reason_is_not_reported_unsat(self):
+        """Same UNKNOWN-classification guarantee as solve(), for re_solve()."""
+        mock_solver = MagicMock()
+        mock_solver.check.return_value = "unknown"
+        mock_solver.reason_unknown.return_value = "canceled"
+
+        self.model_defaults.solver = mock_solver
+        self.model_defaults.max_time = 10
+
+        result = self.model_defaults.re_solve()
+
+        is_timeout, model_or_core, is_satisfiable, runtime = result
+        self.assertTrue(is_timeout, "non-timeout UNKNOWN must be reported as inconclusive")
+        self.assertIsNone(model_or_core)
+        self.assertFalse(is_satisfiable)
+
     def test_solver_isolation(self):
         """Test that solving works correctly with different constraint sets."""
         # First solve

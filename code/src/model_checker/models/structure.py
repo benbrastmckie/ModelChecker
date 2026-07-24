@@ -242,10 +242,22 @@ class ModelDefaults:
             if SolverResult.is_sat(result):
                 return self._create_result(False, self.solver.model(), True, start_time)
 
-            if self.solver.reason_unknown() == "timeout":
-                return self._create_result(True, None, False, start_time)
+            if SolverResult.is_unsat(result):
+                return self._create_result(False, self.solver.unsat_core(), False, start_time)
 
-            return self._create_result(False, self.solver.unsat_core(), False, start_time)
+            # result is SolverResult.UNKNOWN: the solver could not decide.
+            # reason_unknown() is NOT guaranteed to be the literal string
+            # "timeout" even when the timeout set above is what caused the
+            # unknown result -- Z3 commonly reports "canceled" instead (and
+            # may report other strings, e.g. MBQI-related "(incomplete
+            # quantifiers)", for other inconclusive causes). Checking only
+            # for the literal "timeout" string silently misclassified every
+            # other UNKNOWN outcome as a definitive UNSAT result (i.e. "no
+            # countermodel / formula is valid"), which is unsound: an
+            # inconclusive solver run is not evidence of validity. Always
+            # treat UNKNOWN as an inconclusive timeout instead of a
+            # fall-through UNSAT, regardless of the specific reason string.
+            return self._create_result(True, None, False, start_time)
 
         except RuntimeError as e:
             from .errors import ModelSolverError
@@ -280,10 +292,13 @@ class ModelDefaults:
             if SolverResult.is_sat(result):
                 return self._create_result(False, self.solver.model(), True, start_time)
 
-            if self.solver.reason_unknown() == "timeout":
-                return self._create_result(True, None, False, start_time)
+            if SolverResult.is_unsat(result):
+                return self._create_result(False, self.solver.unsat_core(), False, start_time)
 
-            return self._create_result(False, self.solver.unsat_core(), False, start_time)
+            # See the identical UNKNOWN-handling comment in solve() above: any
+            # UNKNOWN result is treated as an inconclusive timeout, regardless
+            # of the specific reason_unknown() string.
+            return self._create_result(True, None, False, start_time)
 
         except RuntimeError as e:
             from .errors import ModelSolverError
