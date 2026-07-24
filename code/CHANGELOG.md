@@ -8,6 +8,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [1.3.0] - 2026-07-24
 
+This release restores the `model_checker` package to full working order and, alongside that
+restoration, ships a package-loading refactor addressing GitHub Issue #73.
+
 ### Changed
 
 #### Framework Restoration
@@ -25,65 +28,37 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   and model iteration (`model_checker.iterate`) are back to full working order alongside the
   rest of the package.
 
-#### Package Loading Improvements
-- Added `_load_as_package_module()` method for better package handling
-- Added `_is_generated_project_package()` to detect new package format
-- Improved sys.path handling for generated packages
-- Better error messages when packages cannot be imported
-
-#### New Package Format Support
-- Generated packages can now use `.modelchecker` marker file
-- Marker file with `package=true` enables package-style imports
-- Supports both new package format and legacy `config.py` format
-
-#### Error Handling Improvements
-- New `PackageError` hierarchy for clearer error messages:
-  - `PackageError`: Base class for package-related errors
-  - `PackageStructureError`: Missing or invalid package structure
-  - `PackageFormatError`: Invalid .modelchecker marker
-  - `PackageImportError`: Package cannot be imported
-  - `PackageNotImportableError`: Package not in importable state and context
+#### Package Loading Refactor (Issue #73)
+- Added `_load_as_package_module()` method for better package handling.
+- Added `_is_generated_project_package()` to detect new package format.
+- Improved `sys.path` handling for generated packages, for both the new package format and the
+  legacy `config.py` format.
+- New `PackageError` hierarchy for clearer, more actionable error messages:
+  - `PackageError`: base class for package-related errors
+  - `PackageStructureError`: missing or invalid package structure
+  - `PackageFormatError`: invalid `.modelchecker` marker
+  - `PackageImportError`: package cannot be imported
+  - `PackageNotImportableError`: package not in importable state and context
+- Generated packages can now use a `.modelchecker` marker file (`package=true`) to opt into
+  package-style imports; the legacy `config.py` format continues to work unchanged, so this is a
+  backwards-compatible, additive change.
 
 ### Fixed
-- **Issue #73**: Fixed ModuleNotFoundError when testing generated project examples
-  - Complete refactor of package loading system
-  - Clear, actionable error messages for package issues
+- **Issue #73**: Fixed `ModuleNotFoundError` when testing generated project examples via a
+  complete refactor of the package loading system, with clear, actionable error messages for
+  package issues. See `src/model_checker/builder/README.md` ("Package Loading" section) for the
+  loader interface and error hierarchy.
 
 ### Added
-- Comprehensive test suite for package loading (`test_package_loading.py`, `test_issue_73_fix.py`)
-- API documentation for ModuleLoader (`docs/api/builder/loader.md`)
-- Project creation guide (`docs/guides/project_creation.md`)
-- Support for `.modelchecker` marker files in generated packages
+- Comprehensive test suite for package loading
+  (`src/model_checker/builder/tests/test_package_loading.py`,
+  `src/model_checker/builder/tests/test_issue_73_fix.py`).
+- Support for `.modelchecker` marker files in generated packages.
 
 ### Documentation
-- Updated builder package README with package loading improvements
-- Created API documentation for loader module
-- Updated error handling documentation with new error types
-- Added project creation guide
+- `src/model_checker/builder/README.md` documents the package-loading refactor: the
+  `ModuleLoader` interface, the `.modelchecker` marker file format, and the `PackageError`
+  hierarchy.
 
-### Internal
-- Better sys.path handling for generated packages
-- Support for both legacy and new package formats
-- Improved error messages with context
-- Backwards compatibility maintained
-
-## Migration Optional
-
-This update maintains backwards compatibility while adding new features:
-
-1. Existing projects continue to work with `config.py`
-2. New projects can use `.modelchecker` marker for cleaner imports
-3. Both formats are supported simultaneously
-4. Error handling improvements benefit all users
-
-## Performance Impact
-
-- No performance regression in module loading
-- Test suite passes completely
-- Better error messages aid debugging
-
-## Links
-
+### Links
 - [Issue #73](https://github.com/benbrastmckie/ModelChecker/issues/73)
-- [Implementation Plan](specs/plans/issue_73_package_loading_refactor.md)
-- [Migration Guide](docs/migration/package_loading_v2.md)
