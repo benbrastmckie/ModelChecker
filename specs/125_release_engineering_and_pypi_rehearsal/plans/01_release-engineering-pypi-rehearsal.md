@@ -1,7 +1,7 @@
 # Implementation Plan: Task #125
 
 - **Task**: 125 - release_engineering_and_pypi_rehearsal
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: Tasks 123 (Nix-verified build), 124 (docs/CHANGELOG refresh) — both complete
 - **Research Inputs**: specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md; parent plan phase 13 (specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md)
@@ -243,23 +243,24 @@ diff against the last published release, recording all evidence under the task d
 
 ---
 
-### Phase 5: User-Gated Publish Checklist [NOT STARTED]
+### Phase 5: User-Gated Publish Checklist [COMPLETED]
 
 **Goal**: Confirm the final version and hand the user a step-by-step publish checklist that ends in
 the user-only actions, with publish and push explicitly marked user-gated.
 
 **Tasks**:
-- [ ] Confirm the final version is `1.3.0` (matches `code/pyproject.toml` and the `## [1.3.0]`
-      CHANGELOG entry); note the confirmation in the checklist.
-- [ ] Write `specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md` covering:
+- [x] Confirm the final version is `1.3.0` (matches `code/pyproject.toml` and the `## [1.3.0]`
+      CHANGELOG entry); note the confirmation in the checklist. *(completed)*
+- [x] Write `specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md` covering:
       pre-flight (green tests / `nix build` / `nix flake check` / rehearsal reviewed), one-time OIDC
-      setup pointer to RELEASE_SETUP.md, and the ordered release steps.
-- [ ] Mark every remote/irreversible step as **USER-ONLY**: the user pushes the branch, the user
+      setup pointer to RELEASE_SETUP.md, and the ordered release steps. *(completed)*
+- [x] Mark every remote/irreversible step as **USER-ONLY**: the user pushes the branch, the user
       creates and pushes the `v1.3.0` tag (or invokes `/merge`), the user triggers/monitors the
       release workflow, the user performs any TestPyPI upload requiring credentials, and PyPI
       publish happens via OIDC on the user-pushed tag. State plainly that the agent performs none of
-      these.
-- [ ] Cross-reference the Phase 4 rehearsal evidence and RELEASE_SETUP.md from the checklist.
+      these. *(completed)*
+- [x] Cross-reference the Phase 4 rehearsal evidence and RELEASE_SETUP.md from the checklist.
+      *(completed)*
 
 **Timing**: 0.25 hours
 

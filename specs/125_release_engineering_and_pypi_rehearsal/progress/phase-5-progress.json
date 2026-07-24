@@ -1,0 +1,15 @@
+{
+  "phase": 5,
+  "phase_name": "User-Gated Publish Checklist",
+  "started_at": "2026-07-24T01:50:00Z",
+  "last_updated": "2026-07-24T02:00:00Z",
+  "objectives": [
+    {"id": 1, "description": "Confirm final version is 1.3.0 (pyproject.toml and CHANGELOG agree)", "status": "done", "files_touched": []},
+    {"id": 2, "description": "Write PUBLISH-CHECKLIST.md: pre-flight, OIDC setup pointer, ordered release steps", "status": "done", "files_touched": ["specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md"]},
+    {"id": 3, "description": "Mark every remote/irreversible step USER-ONLY", "status": "done", "files_touched": ["specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md"]},
+    {"id": 4, "description": "Cross-reference Phase 4 rehearsal evidence and RELEASE_SETUP.md", "status": "done", "files_touched": ["specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0
+}
