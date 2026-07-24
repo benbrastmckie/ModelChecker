@@ -1,7 +1,7 @@
 # Implementation Plan: Bootstrap — Branch, Baseline Capture, and Oracle Relocation
 
 - **Task**: 118 - bootstrap_branch_baseline_capture_and_oracle_reloc
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3 hours (plus background test wall-clock)
 - **Dependencies**: None
 - **Research Inputs**: specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md
@@ -249,40 +249,59 @@ Phases within the same wave can execute in parallel.
   - [x] `grep -rl bimodal_logic code/src/model_checker/` returns no results.
   - [x] The summary documents the move-vs-fix-forward decision for each of the 8 files.
 
-### Phase 6: Oracle Standalone Dev Setup and Final Gate [NOT STARTED]
+### Phase 6: Oracle Standalone Dev Setup and Final Gate [COMPLETED]
 
 - **Goal:** Give the relocated oracle an independent dev setup and prove both trees collect
   cleanly.
 - **Tasks:**
-  - [ ] Add a minimal dev setup for the oracle: either `oracle/bimodal_logic/pyproject.toml` or a
+  - [x] Add a minimal dev setup for the oracle: either `oracle/bimodal_logic/pyproject.toml` or a
         `oracle/bimodal_logic/README.md` documenting `PYTHONPATH`-based standalone development and
         the `bimodal_harness.oracle_providers` entry point, so the oracle builds/tests independently
-        of the model-checker package.
-  - [ ] Verify the oracle's own tests collect from the new location, e.g.
-        `PYTHONPATH=oracle pytest oracle/bimodal_logic/tests --collect-only -q`.
-  - [ ] Verify the in-package bimodal suite still collects without the external harness:
+        of the model-checker package. **Deviation**: chose `README.md` over `pyproject.toml`
+        because `code/pyproject.toml` still declares the `bimodal-logic` project (name, console
+        script, `bimodal_harness.oracle_providers` entry point) pointing at the old import path —
+        editing `pyproject.toml`/`MANIFEST.in` is an explicit Non-Goal of this task (New Task 4's
+        scope), so a second, competing `pyproject.toml` under `oracle/` was avoided to prevent
+        packaging ambiguity. The README documents the existing entry-point declaration's location
+        and the `PYTHONPATH=oracle:code/src` requirement (not `oracle` alone — see Phase 4/5
+        findings on `__init__.py`'s eager import chain).
+  - [x] Verify the oracle's own tests collect from the new location, e.g.
+        `PYTHONPATH=oracle pytest oracle/bimodal_logic/tests --collect-only -q`. **Deviation**:
+        `PYTHONPATH=oracle` alone fails (`ModuleNotFoundError: No module named 'model_checker'`,
+        9 collection errors) because `bimodal_logic/__init__.py` eagerly imports `provider.py` ->
+        `serialization.py` -> `model_checker.solver`. Verified instead with
+        `PYTHONPATH=oracle:code/src pytest oracle/bimodal_logic/tests --collect-only -q`:
+        **550 tests collected**, 0 errors (only pre-existing `PytestUnknownMarkWarning` for
+        `slow`/`differential` marks, unrelated to the move — those markers are registered in
+        `code/pyproject.toml`'s `[tool.pytest.ini_options]`, not visible when pytest's rootdir is
+        the repo root).
+  - [x] Verify the in-package bimodal suite still collects without the external harness:
         `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests --collect-only -q`.
-  - [ ] Confirm `grep -rl bimodal_logic code/src/model_checker/` remains empty (final gate).
+        Result: **286 tests collected**, 0 errors.
+  - [x] Confirm `grep -rl bimodal_logic code/src/model_checker/` remains empty (final gate).
+        Confirmed empty.
 - **Timing:** 30 minutes
 - **Depends on:** 5
 - **Files to modify:**
   - `oracle/bimodal_logic/pyproject.toml` or `oracle/bimodal_logic/README.md` - new dev-setup file.
 - **Verification:**
-  - Oracle tests collect from `oracle/bimodal_logic/tests`.
-  - In-package bimodal tests collect with no `bimodal_logic` import errors.
-  - `grep -rl bimodal_logic code/src/model_checker/` is empty.
+  - [x] Oracle tests collect from `oracle/bimodal_logic/tests` (550 tests, `PYTHONPATH=oracle:code/src`).
+  - [x] In-package bimodal tests collect with no `bimodal_logic` import errors (286 tests).
+  - [x] `grep -rl bimodal_logic code/src/model_checker/` is empty.
 
 ## Testing & Validation
 
 - [x] `git branch --show-current` shows the task branch; nothing was pushed.
 - [x] Baseline artifacts (bimodal suite result/timing, `collect-only-before.txt`,
       `help-before.txt`, `restore-inventory.md`) exist and are non-empty under the task directory.
-- [ ] `oracle/bimodal_logic/` exists with its five modules, `tests/`, and a dev-setup file.
-- [ ] `code/src/bimodal_logic/` and `code/src/bimodal_logic.egg-info/` no longer exist.
-- [ ] `PYTHONPATH=oracle pytest oracle/bimodal_logic/tests --collect-only -q` collects successfully.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests --collect-only -q`
+- [x] `oracle/bimodal_logic/` exists with its five modules, `tests/`, and a dev-setup file.
+- [x] `code/src/bimodal_logic/` and `code/src/bimodal_logic.egg-info/` no longer exist.
+- [x] `PYTHONPATH=oracle pytest oracle/bimodal_logic/tests --collect-only -q` collects successfully.
+      **Deviation**: requires `PYTHONPATH=oracle:code/src` in practice (see Phase 6 notes above);
+      `PYTHONPATH=oracle` alone fails collection.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests --collect-only -q`
       collects with no `bimodal_logic` import errors.
-- [ ] `grep -rl bimodal_logic code/src/model_checker/` returns nothing.
+- [x] `grep -rl bimodal_logic code/src/model_checker/` returns nothing.
 
 ## Artifacts & Outputs
 
