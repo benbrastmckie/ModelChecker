@@ -50,15 +50,17 @@ import os
 from typing import Dict, List, Optional, Any
 
 from ..utils import get_license_template
+from .. import registry as _core_registry
 
 
 
 
 
-
-
-# Registry of available theories - add new theories here
-AVAILABLE_THEORIES = [
+# Catalog of theories this package registers with the core registry (`..registry`). This is
+# the ONE place theory names are enumerated as literals -- theory_lib is permitted to name
+# theories; core is not (see `..registry`'s module docstring and
+# `docs/THEORY_ARCHITECTURE.md`'s Layering section).
+_THEORY_NAMES = [
     'bimodal',      # Bimodal semantics for counterfactuals
     'logos',        # Modular hyperintensional semantics (extensional, modal, constitutive,
                     # counterfactual, relevance subtheories)
@@ -165,14 +167,20 @@ def get_semantic_theories(theory_name: str) -> Dict[str, Any]:
         raise ValueError(f"Could not load semantic theories for theory '{theory_name}': {str(e)}")
 
 def discover_theories() -> List[str]:
-    """Discover available theories by scanning the directory structure.
+    """Scan the directory structure for candidate theory directories.
+
+    This is a development-only lint, not a source of truth: the registry
+    (`AVAILABLE_THEORIES`, backed by `..registry`) is authoritative for which
+    theories are actually registered. `discover_theories()` exists to catch drift
+    -- a directory that looks like a theory but was never registered -- via
+    `check_registry_drift()` below, not to compete with the registry as a second
+    place theory membership is decided.
 
     Identifies directories that have the required files to be considered a theory
-    implementation (examples.py and operators.py). Used primarily for development
-    to find unregistered theories.
+    implementation (examples.py and operators.py).
 
     Returns:
-        Alphabetically sorted list of discovered theory names
+        Alphabetically sorted list of discovered theory directory names
 
     Example:
         >>> from model_checker.theory_lib import discover_theories, AVAILABLE_THEORIES
@@ -182,7 +190,7 @@ def discover_theories() -> List[str]:
     """
     current_dir = os.path.dirname(os.path.abspath(__file__))
     theories = []
-    
+
     # Find directories containing both examples.py and operators.py
     for item in os.listdir(current_dir):
         if os.path.isdir(os.path.join(current_dir, item)) and not item.startswith('__'):
@@ -190,8 +198,32 @@ def discover_theories() -> List[str]:
             operators_path = os.path.join(current_dir, item, 'operators.py')
             if os.path.exists(examples_path) and os.path.exists(operators_path):
                 theories.append(item)
-    
+
     return sorted(theories)
+
+
+def check_registry_drift() -> Dict[str, List[str]]:
+    """Compare the filesystem scan (`discover_theories()`) against the registry
+    (`AVAILABLE_THEORIES`) and report any drift between the two.
+
+    Returns:
+        A dict with two keys:
+            'unregistered': directories that look like theories but are not
+                registered (present on disk, missing from the registry).
+            'missing_on_disk': registered theory names whose directory no longer
+                has the minimal examples.py/operators.py file pair.
+
+    Example:
+        >>> from model_checker.theory_lib import check_registry_drift
+        >>> drift = check_registry_drift()
+        >>> assert not drift['unregistered'] and not drift['missing_on_disk']
+    """
+    discovered = set(discover_theories())
+    registered = set(AVAILABLE_THEORIES)
+    return {
+        'unregistered': sorted(discovered - registered),
+        'missing_on_disk': sorted(registered - discovered),
+    }
 
 # Version and License utility functions
 def get_theory_version_registry() -> Dict[str, str]:
@@ -353,6 +385,7 @@ __all__ = [
     'get_test_examples',
     'get_semantic_theories',
     'discover_theories',
+    'check_registry_drift',
     'get_theory_version_registry',
     'get_theory_license_info',
     'create_license_file',
@@ -380,7 +413,7 @@ def __getattr__(name: str) -> Any:
     Example:
         # This triggers __getattr__('logos')
     """
-    if name in AVAILABLE_THEORIES:
+    if name in _THEORY_NAMES:
         # Load and cache the module if not already loaded
         if name not in _theory_modules:
             try:
@@ -389,5 +422,61 @@ def __getattr__(name: str) -> Any:
             except ImportError as e:
                 raise AttributeError(f"Failed to import theory '{name}': {str(e)}")
         return _theory_modules[name]
-    
+
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
+
+
+# --- Core registry registration ---
+#
+# Register every theory into the core registry (`..registry`) so core consumers can query
+# `registry.get_registered()` / `registry.get_theory_entry(name)` without ever importing
+# theory_lib directly (theory_lib -> core stays one-way). Registration itself is cheap: each
+# component (semantics/proposition/model/operators) is registered as a lazy thunk that defers
+# to this module's own `__getattr__` lazy-loading machinery, so no theory module is actually
+# imported until a caller reads e.g. `entry.semantics` for the first time.
+
+def _make_component_loader(theory_name: str, key: str, cache: Dict[str, Any]):
+    """Build a zero-arg loader for one get_theory() component, sharing `cache` across the
+    four components of a single theory so get_theory() is invoked at most once per theory,
+    not once per component."""
+
+    def _load() -> Any:
+        if not cache:
+            theory_module = __getattr__(theory_name)
+            cache.update(theory_module.get_theory())
+        return cache[key]
+
+    return _load
+
+
+def _register_theories() -> None:
+    # Guard against re-registration rather than assuming this module body runs exactly once
+    # per process. `model_checker.registry`'s module-level state is normally sufficient on its
+    # own (a second `import theory_lib` is a sys.modules cache hit, so this function body would
+    # not re-run at all) -- but some test-collection import strategies (observed with pytest's
+    # `--import-mode=importlib` walking a package's ancestor chain) can re-execute this
+    # module's top-level code against an *already-populated* `_core_registry` that was not
+    # itself reloaded. That is not a genuine duplicate-registration bug (the fail-fast check in
+    # `registry.register_theory()` still protects every other caller); it is this specific
+    # re-entrant call site choosing to be idempotent rather than crash on its own re-execution.
+    already_registered = set(_core_registry.get_registered())
+    for theory_name in _THEORY_NAMES:
+        if theory_name in already_registered:
+            continue
+        cache: Dict[str, Any] = {}
+        _core_registry.register_theory(
+            theory_name,
+            module_path=f"model_checker.theory_lib.{theory_name}",
+            semantics=_make_component_loader(theory_name, 'semantics', cache),
+            proposition=_make_component_loader(theory_name, 'proposition', cache),
+            model=_make_component_loader(theory_name, 'model', cache),
+            operators=_make_component_loader(theory_name, 'operators', cache),
+        )
+
+
+_register_theories()
+
+# AVAILABLE_THEORIES is a VIEW over the registry, not an independent literal: it is computed
+# from the registration above, preserving both its public name (widely imported elsewhere) and
+# its original iteration order. Do not reintroduce a separate literal list here.
+AVAILABLE_THEORIES = _core_registry.get_registered()

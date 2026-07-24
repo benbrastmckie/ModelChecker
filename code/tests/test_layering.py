@@ -54,7 +54,7 @@ MODEL_CHECKER_ROOT = os.path.join(
 CORE_PACKAGE_DIRS = [
     'models', 'syntactic', 'solver', 'utils', 'iterate', 'builder', 'settings', 'output',
 ]
-CORE_SINGLE_FILES = ['z3_shim.py']
+CORE_SINGLE_FILES = ['z3_shim.py', 'registry.py']
 
 # Upper layer: permitted to import theory_lib (rule 1), but still subject to the
 # hardcoded-theory-name rule (rule 2) -- see module docstring.
@@ -234,6 +234,7 @@ def test_upper_layer_classification_has_no_false_positives():
     assert _classify('__main__.py') == 'upper'
     assert _classify(os.path.join('jupyter', 'display.py')) == 'upper'
     assert _classify('z3_shim.py') == 'core'
+    assert _classify('registry.py') == 'core'
     assert _classify(os.path.join('utils', 'api.py')) == 'core'
     assert _classify(os.path.join('builder', 'tests', 'unit', 'test_project.py')) is None
 

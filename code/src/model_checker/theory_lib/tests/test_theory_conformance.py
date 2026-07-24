@@ -18,8 +18,14 @@ import os
 
 import pytest
 
-from model_checker.theory_lib import AVAILABLE_THEORIES, get_test_examples
+from model_checker import registry
+from model_checker.theory_lib import get_test_examples
 from model_checker.theory_lib.logos.subtheories import AVAILABLE_SUBTHEORIES
+
+# Parametrize over the registry (the single source of truth as of the Phase 10 registry
+# introduction), not a standalone literal -- `AVAILABLE_THEORIES` itself is now just a view over
+# this same registry (see `theory_lib/__init__.py`), so this is the authoritative form.
+AVAILABLE_THEORIES = registry.get_registered()
 
 THEORY_LIB_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LOGOS_SUBTHEORIES_ROOT = os.path.join(THEORY_LIB_ROOT, 'logos', 'subtheories')

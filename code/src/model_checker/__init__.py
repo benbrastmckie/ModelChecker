@@ -50,3 +50,13 @@ from .utils import (
     run_test,
 )
 
+# Bootstrap the core theory registry (upper layer -> theory_lib, the one direction the
+# layering contract permits outside theory_lib itself; see
+# theory_lib/docs/THEORY_ARCHITECTURE.md's Layering section). Importing theory_lib here runs
+# its registration of all theories into `model_checker.registry` as a side effect, so core
+# consumers that query the registry get correct results even if nothing else has imported
+# theory_lib yet. This performs no eager per-theory loading: each theory's
+# semantics/proposition/model/operators are registered as lazy thunks resolved only on first
+# actual access (see theory_lib/__init__.py's `_register_theories()`).
+from . import theory_lib as _theory_lib  # noqa: F401
+

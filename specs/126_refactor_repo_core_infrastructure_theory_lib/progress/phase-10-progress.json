@@ -1,0 +1,36 @@
+{
+  "phase": 10,
+  "phase_name": "Introduce the Core Theory Registry",
+  "started_at": "2026-07-24T22:33:00Z",
+  "last_updated": "2026-07-24T22:40:37Z",
+  "objectives": [
+    {"id": 1, "description": "Create registry.py with register_theory/get_registered/get_theory_entry/iter_theories", "status": "done", "files_touched": ["code/src/model_checker/registry.py"]},
+    {"id": 2, "description": "theory_lib/__init__.py registers theories lazily at import time", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/__init__.py"]},
+    {"id": 3, "description": "AVAILABLE_THEORIES becomes a registry view", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/__init__.py"]},
+    {"id": 4, "description": "discover_theories demoted to dev lint; check_registry_drift added", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/__init__.py"]},
+    {"id": 5, "description": "Bootstrap registration from model_checker/__init__.py", "status": "done", "files_touched": ["code/src/model_checker/__init__.py"]},
+    {"id": 6, "description": "Unit tests for registry", "status": "done", "files_touched": ["code/tests/unit/test_registry.py"]},
+    {"id": 7, "description": "Repoint conformance test to registry", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/tests/test_theory_conformance.py"]}
+  ],
+  "current_objective": 7,
+  "approaches_tried": [
+    {"approach": "eager get_theory() call per component lambda", "result": "rejected", "reason": "would call get_theory() up to 4x per theory; switched to a shared per-theory cache dict across the four component loaders"}
+  ],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "10.2",
+      "description": "theory_lib/__init__.py registers all four theories into the registry at import time",
+      "type": "altered",
+      "reason": "Made _register_theories() idempotent (skip already-registered names) after observing pytest --import-mode=importlib re-execute theory_lib/__init__.py's top-level code in isolation while the registry module instance was not itself reloaded, which the registry's fail-fast duplicate check correctly rejected as a hard collection error for a single-file conformance test run.",
+      "annotation": "*(deviation, not in original task list)*"
+    },
+    {
+      "task_id": "10.extra",
+      "description": "Added registry.py to test_layering.py's CORE_SINGLE_FILES inventory",
+      "type": "altered",
+      "reason": "registry.py is explicitly described as living in the core layer; including it in the layering test's file inventory keeps the test's own coverage accurate (zero-impact on violation counts).",
+      "annotation": "*(deviation, not in original task list)*"
+    }
+  ]
+}

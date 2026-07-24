@@ -693,28 +693,64 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 10: Introduce the Core Theory Registry [NOT STARTED]
+### Phase 10: Introduce the Core Theory Registry [COMPLETED]
 
 - **Goal:** Create one registration-based registry that core can query without ever hardcoding theory
   names or the `theory_lib` import path — the mechanism that makes the one-way dependency achievable.
 - **Tasks:**
-  - [ ] Create `code/src/model_checker/registry.py` in the core layer: an initially **empty**
+  - [x] Create `code/src/model_checker/registry.py` in the core layer: an initially **empty**
         registry with `register_theory(name, *, module_path, semantics, proposition, model,
         operators, adapter=None)`, `get_registered()`, `get_theory_entry(name)`, and
-        `iter_theories()`. Core owns the mechanism; core never owns the names.
-  - [ ] Have `theory_lib/__init__.py` register all four theories into it at import time, deriving
+        `iter_theories()`. Core owns the mechanism; core never owns the names. *(completed:
+        semantics/proposition/model/operators accept either a direct value or a zero-arg
+        callable, resolved lazily and cached on first access via `TheoryEntry`)*
+  - [x] Have `theory_lib/__init__.py` register all four theories into it at import time, deriving
         entries from the existing lazy `__getattr__` machinery so nothing loads eagerly. Direction
-        stays one-way: `theory_lib` imports core.
-  - [ ] Redefine `AVAILABLE_THEORIES` as a view over the registry rather than an independent literal
-        list, preserving its public name and iteration order (it is public API).
-  - [ ] Demote `discover_theories()` to a development-only lint that compares the filesystem scan
+        stays one-way: `theory_lib` imports core. *(completed: `_register_theories()` registers
+        each theory with a shared-cache lazy loader that calls `__getattr__(name)` +
+        `get_theory()` only on first actual attribute access, not at registration time; verified
+        via `test_lazy_thunk_resolved_once_and_cached`)*
+  - [x] Redefine `AVAILABLE_THEORIES` as a view over the registry rather than an independent literal
+        list, preserving its public name and iteration order (it is public API). *(completed:
+        `AVAILABLE_THEORIES = _core_registry.get_registered()`; the literal name list moved to
+        private `_THEORY_NAMES`, used only for registration and the `__getattr__` membership
+        check)*
+  - [x] Demote `discover_theories()` to a development-only lint that compares the filesystem scan
         against the registry and reports drift, rather than acting as a second source of truth.
-  - [ ] Add a bootstrap point in the upper layer so core consumers that need "all theories" get them:
+        *(completed: docstring reframed; added `check_registry_drift()` returning
+        `unregistered`/`missing_on_disk` sets)*
+  - [x] Add a bootstrap point in the upper layer so core consumers that need "all theories" get them:
         `model_checker/__init__.py` (or a new thin `model_checker/api.py`) imports `theory_lib` to
         trigger registration. Core modules query the registry; they never import `theory_lib`.
-  - [ ] Add unit tests for the registry: registration, duplicate-name rejection (fail-fast),
-        unknown-name lookup raising with the available list in the message.
-  - [ ] Repoint the Phase 8 conformance test to parametrize over the registry instead of the literal.
+        *(completed: `model_checker/__init__.py` now does `from . import theory_lib as
+        _theory_lib` after its existing core imports; verified this performs no eager
+        per-theory loading and populates the registry as a side effect)*
+  - [x] Add unit tests for the registry: registration, duplicate-name rejection (fail-fast),
+        unknown-name lookup raising with the available list in the message. *(completed:
+        `code/tests/unit/test_registry.py`, 7 tests — registration/retrieval, order
+        preservation, duplicate rejection, unknown-name message content, lazy-thunk
+        caching, iteration order, and a sanity check on the real bootstrap-registered
+        theories, all isolated via an autouse fixture that snapshots/restores registry state)*
+  - [x] Repoint the Phase 8 conformance test to parametrize over the registry instead of the
+        literal. *(completed: `test_theory_conformance.py` now derives
+        `AVAILABLE_THEORIES = registry.get_registered()` instead of importing the theory_lib
+        literal)*
+  - [x] *(deviation, not in original task list)* `theory_lib/__init__.py`'s `_register_theories()`
+        made idempotent (skips already-registered names) rather than assuming its module body
+        executes exactly once per process. Reason: under pytest's `--import-mode=importlib`,
+        collecting `theory_lib/tests/test_theory_conformance.py` in isolation was observed to
+        re-execute `theory_lib/__init__.py`'s top-level code against an already-populated
+        `registry` module instance (registry itself was not reloaded), which the registry's
+        fail-fast duplicate check correctly rejected as a hard collection error. This is not a
+        real duplicate-registration bug — it is this specific re-entrant call site tolerating
+        its own re-execution; `registry.register_theory()` remains strict for every other
+        caller. Verified fixed: the conformance test file now collects correctly both alone and
+        alongside other test files.
+  - [x] *(deviation, not in original task list)* Added `'registry.py'` to
+        `code/tests/test_layering.py`'s `CORE_SINGLE_FILES` (alongside `z3_shim.py`) so the new
+        core module is included in the layering test's file inventory, plus a matching
+        sanity-check assertion. Zero-impact on the RED/GREEN violation counts since
+        `registry.py` contains no theory_lib references or theory-name literals.
 - **Timing:** 1.5 hours
 - **Depends on:** 9
 - **Files to modify:**
