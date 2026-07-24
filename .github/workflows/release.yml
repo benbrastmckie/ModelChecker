@@ -43,7 +43,7 @@ jobs:
     - name: Install and test package
       shell: bash
       run: |
-        cd Code
+        cd code
 
         # Install build dependencies
         python -m pip install --upgrade pip
@@ -92,7 +92,7 @@ jobs:
 
     - name: Build package
       run: |
-        cd Code
+        cd code
         pip install --upgrade pip build
         python -m build
         ls -la dist/
@@ -102,7 +102,7 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
       run: |
-        cd Code
+        cd code
         pip install twine
 
         if [ -z "$TWINE_PASSWORD" ]; then
@@ -162,7 +162,7 @@ jobs:
         \`\`\`
 
         ### What's Changed
-        See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for details."
+        See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/master/code/CHANGELOG.md) for details."
 
         # Check if release already exists
         if gh release view "${VERSION}" > /dev/null 2>&1; then

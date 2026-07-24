@@ -1,0 +1,14 @@
+{
+  "status": "planned",
+  "summary": "Created a 5-phase implementation plan (2.5h) for task 125 covering parent plan phase 13. Phases: (1) fix release.yml `cd Code`->`cd code` casing in both jobs; (2) migrate publishing to OIDC Trusted Publishing via pypa/gh-action-pypi-publish@release/v1 in environment-gated pypi/testpypi jobs with id-token: write, dropping PYPI_API_TOKEN, adding twine check --strict and a TestPyPI rehearsal step; (3) reconcile RELEASE_SETUP.md to the single real release.yml and OIDC model; (4) NixOS-safe local rehearsal (venv inside nix develop) running python -m build, check-wheel-contents, twine check --strict, and a wheel-content/hash parity diff vs model-checker==1.2.12, confirming model_checker-1.3.0 with oracle excluded; (5) user-gated PUBLISH-CHECKLIST.md ending in user-only push/publish actions. Key finding: the flake devShell lacks build/twine/check-wheel-contents and flake.nix is out of scope, so the rehearsal must use an isolated venv.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "Run /implement 125 to execute the plan.",
+  "artifacts": [
+    {
+      "path": "specs/125_release_engineering_and_pypi_rehearsal/plans/01_release-engineering-pypi-rehearsal.md",
+      "type": "plan",
+      "summary": "5-phase release-engineering and PyPI-rehearsal plan; ends in a user-gated publish checklist per pr-prohibition.md."
+    }
+  ]
+}
