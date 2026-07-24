@@ -1,7 +1,7 @@
 # Implementation Plan: Restore and Port the exclusion and imposition Theories
 
 - **Task**: 120 - restore_and_port_the_exclusion_and_imposition_theo
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: 119 (COMPLETED — core infra + logos restored and green), 118 (COMPLETED — restore-point SHA inventory)
 - **Research Inputs**: specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md
@@ -245,20 +245,31 @@ which the imposition port (Phases 3-4) reuses and appends to.
 
 ---
 
-### Phase 5: Consolidated verification and regression check [NOT STARTED]
+### Phase 5: Consolidated verification and regression check [COMPLETED]
 
 - **Goal:** Confirm both theories are green together, both registered, and no regression to the
   existing `bimodal`/`logos` suites or the `theory_lib` public API.
 - **Tasks:**
-  - [ ] Run both suites in one invocation:
+  - [x] Run both suites in one invocation:
         `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion code/src/model_checker/theory_lib/imposition -q`.
-  - [ ] Regression guard: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos code/src/model_checker/theory_lib/bimodal -q` still green (registration edits touched shared `__init__.py`).
-  - [ ] Confirm `AVAILABLE_THEORIES == ['bimodal', 'logos', 'exclusion', 'imposition']` (or the
+        **Result**: 253 passed in 22.09s (no cross-registration interference).
+  - [x] Regression guard: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos code/src/model_checker/theory_lib/bimodal -q` still green (registration edits touched shared `__init__.py`).
+        **Result**: 732 passed in 154.16s (0:02:34) — no regression from the `AVAILABLE_THEORIES`
+        edits.
+  - [x] Confirm `AVAILABLE_THEORIES == ['bimodal', 'logos', 'exclusion', 'imposition']` (or the
         existing order with the two new entries appended) and `discover_theories()` reports no
         unregistered/orphaned theories.
-  - [ ] Confirm no direct-z3 residue across both theories (final grep sweep, both dirs).
-  - [ ] Final commit if any consolidation fixes were needed:
+        **Result**: `AVAILABLE_THEORIES == ['bimodal', 'logos', 'exclusion', 'imposition']`;
+        `discover_theories() == ['bimodal', 'exclusion', 'imposition', 'logos']` (alphabetical);
+        zero unregistered/orphaned theories.
+  - [x] Confirm no direct-z3 residue across both theories (final grep sweep, both dirs).
+        **Result**: `grep -rn "^import z3$"` and `grep -rn "z3\.is_true\|z3\.is_false"` across
+        both `exclusion/` and `imposition/` return zero matches.
+  - [x] Final commit if any consolidation fixes were needed:
         `task 120: verify exclusion + imposition restoration green`.
+        N/A — no consolidation fixes were needed; all Phase 5 checks passed on the first run.
+        Phase 5 verification itself is committed under the standard
+        `task 120 phase 5: consolidated verification and regression check` convention.
 - **Timing:** 0.5 hours
 - **Depends on:** 2, 4
 
@@ -272,13 +283,13 @@ which the imposition port (Phases 3-4) reuses and appends to.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion -q` — green.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/imposition -q` — green.
-- [ ] Combined exclusion+imposition run — green (no cross-registration interference).
-- [ ] logos+bimodal regression run — still green after `__init__.py` edits.
-- [ ] Resolve-imports smoke tests for both theories exit 0.
-- [ ] Zero `import z3` / `z3.is_true` / `z3.is_false` occurrences in either theory dir.
-- [ ] Both theories present in `AVAILABLE_THEORIES`; `discover_theories()` consistent.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion -q` — green (143 passed).
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/imposition -q` — green (110 passed).
+- [x] Combined exclusion+imposition run — green (253 passed, no cross-registration interference).
+- [x] logos+bimodal regression run — still green after `__init__.py` edits (732 passed).
+- [x] Resolve-imports smoke tests for both theories exit 0.
+- [x] Zero `import z3` / `z3.is_true` / `z3.is_false` occurrences in either theory dir.
+- [x] Both theories present in `AVAILABLE_THEORIES`; `discover_theories()` consistent.
 
 ## Artifacts & Outputs
 
