@@ -200,30 +200,45 @@ Phases within the same wave can execute in parallel.
   - [x] `oracle/bimodal_logic/` exists with the five modules plus `tests/`.
   - [x] `code/src/bimodal_logic/` and `code/src/bimodal_logic.egg-info/` no longer exist.
 
-### Phase 5: Reconcile In-Package Oracle-Dependent Tests [NOT STARTED]
+### Phase 5: Reconcile In-Package Oracle-Dependent Tests [COMPLETED]
 
 - **Goal:** Ensure no file under `code/src/model_checker/` references `bimodal_logic`, by moving
   oracle-dependent tests alongside the oracle and fixing forward the rest.
 - **Tasks:**
-  - [ ] Enumerate all in-package references:
-        `grep -rl bimodal_logic code/src/model_checker/`. Confirmed at plan time to be 8 files
-        under `theory_lib/bimodal/tests/unit/`.
-  - [ ] Classify each of the 8 files:
-    - Files whose purpose is cross-oracle differential/soundness/boundary checking that depend on
-      importing `Z3OracleProvider`/`bimodal_logic.translation` (e.g.
-      `test_cross_oracle_differential.py`, `test_soundness_regression.py`,
-      `test_boundary_regression.py`, `test_oracle_provider.py`, `test_oracle_interface.py`,
-      `test_json_translation.py`, `test_fold_unfold.py`) -> **move** to the oracle's test tree
-      (e.g. `oracle/bimodal_logic/tests/`) so the in-package suite no longer depends on the
-      external harness.
-    - Files with only docstring/comment mentions of `bimodal_logic` and no runtime import ->
-      **fix forward** by rewording the reference in place (verify with a fresh grep that no import
-      remains).
-    - `test_frame_class_mapping.py` has both a real import (`from bimodal_logic.provider import
-      Z3OracleProvider`) and docstring mentions -> treat as oracle-dependent (move) unless the
-      import is trivially removable without losing coverage; record the decision.
-  - [ ] Move any oracle-only helper modules/fixtures the relocated tests depend on alongside them.
-  - [ ] After moving, re-run `grep -rl bimodal_logic code/src/model_checker/` and confirm empty.
+  - [x] Enumerate all in-package references:
+        `grep -rl bimodal_logic code/src/model_checker/`. Confirmed 8 files under
+        `theory_lib/bimodal/tests/unit/` (matches plan-time finding exactly).
+  - [x] Classify each of the 8 files. Verified each of the 7 non-`test_frame_class_mapping.py`
+        files has a genuine module-level import (not docstring-only) of `bimodal_logic` or
+        `bimodal_logic.translation`, confirming the plan's pre-classification:
+    - **Moved** (via `git mv`) to `oracle/bimodal_logic/tests/`: `test_cross_oracle_differential.py`,
+      `test_soundness_regression.py`, `test_boundary_regression.py`, `test_oracle_provider.py`,
+      `test_oracle_interface.py`, `test_json_translation.py`, `test_fold_unfold.py`. Several of
+      these (`test_boundary_regression.py`, `test_oracle_interface.py`, `test_oracle_provider.py`,
+      `test_soundness_regression.py`) also import `model_checker` directly (genuine cross-oracle
+      differential tests), so they require `PYTHONPATH=oracle:code/src` (both entries) to run from
+      the new location — consistent with the Phase 4 finding about `provider.py`/`serialization.py`.
+    - **No files were docstring-only** — all 8 grep hits had at least one real import.
+    - `test_frame_class_mapping.py`: **split decision**, finer-grained than a whole-file
+      move/fix-forward. The file's `TestFrameClassDeclarationConsistency` class had two methods:
+      `test_base_means_taskframe_axioms_not_frameclassbase` (imports
+      `bimodal_logic.provider.Z3OracleProvider` locally, checks only a class attribute — no
+      dependency on the `semantics` fixture body) and
+      `test_three_taskframe_axioms_present_in_frame_constraints` (pure in-package, uses
+      `BimodalSemantics.frame_constraints` + `z3.Solver`, no oracle import). Extracted only the
+      first method to a new file, `oracle/bimodal_logic/tests/test_frame_class_declaration.py`;
+      left the class's other three methods (`test_three_taskframe_axioms_present_in_frame_constraints`,
+      `test_nullity_axiom_enforced_in_frame`, `test_converse_axiom_enforced_in_frame`) in place.
+      Two docstring/comment prose mentions of the literal string `bimodal_logic` in the same file
+      (module docstring line 15, class docstring) were reworded to remove the literal substring
+      entirely (the plan's literal `grep -rl bimodal_logic` gate matches text, not just imports)
+      while preserving the cross-reference to the oracle's test suite.
+  - [x] Move any oracle-only helper modules/fixtures the relocated tests depend on alongside them.
+        Checked: no `conftest.py` or relative-import helper modules exist under
+        `theory_lib/bimodal/tests/unit/`; each of the 7 moved files is self-contained, so nothing
+        additional needed to move.
+  - [x] After moving, re-run `grep -rl bimodal_logic code/src/model_checker/` and confirm empty.
+        Confirmed empty after the `test_frame_class_mapping.py` reword.
 - **Timing:** 40 minutes
 - **Depends on:** 4
 - **Files to modify:**
@@ -231,8 +246,8 @@ Phases within the same wave can execute in parallel.
     the other oracle-dependent tests -> moved to `oracle/bimodal_logic/tests/` (or reworded).
   - Any oracle-only helper/fixture files -> moved alongside.
 - **Verification:**
-  - `grep -rl bimodal_logic code/src/model_checker/` returns no results.
-  - The summary documents the move-vs-fix-forward decision for each of the 8 files.
+  - [x] `grep -rl bimodal_logic code/src/model_checker/` returns no results.
+  - [x] The summary documents the move-vs-fix-forward decision for each of the 8 files.
 
 ### Phase 6: Oracle Standalone Dev Setup and Final Gate [NOT STARTED]
 

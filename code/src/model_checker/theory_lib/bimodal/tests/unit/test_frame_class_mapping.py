@@ -12,7 +12,9 @@ The Z3 oracle declares `supported_frame_classes = frozenset({"Base"})`, meaning
 the oracle's frame satisfies the three TaskFrame axioms. This test suite performs
 post-hoc validation: after extracting a satisfying assignment (countermodel) from
 the Z3 solver, it enumerates all task_rel pairs in the model and checks that the
-TaskFrame axioms hold exactly as documented in bimodal_logic/provider.py.
+TaskFrame axioms hold exactly as documented for the external Z3 oracle provider
+(see the standalone oracle package's own test suite under the top-level `oracle/`
+directory for the provider-side "Base" frame-class declaration check).
 
 Test Strategy:
 --------------
@@ -448,33 +450,17 @@ class TestFrameClassDeclarationConsistency:
     """Tests verifying the oracle's 'Base' frame class claim is justified.
 
     The oracle declares supported_frame_classes = frozenset({"Base"}), meaning
-    the Z3 frame satisfies the three TaskFrame axioms. This class documents
-    what 'Base' means in this context and verifies the axioms hold.
+    the Z3 frame satisfies the three TaskFrame axioms. This class verifies the
+    axioms hold against the in-package `BimodalSemantics.frame_constraints`.
 
-    See bimodal_logic/provider.py module docstring for the full terminology
-    disambiguation and axiom mapping.
+    Note: the sibling test that verifies the oracle class itself declares
+    `supported_frame_classes == frozenset({"Base"})` requires importing the
+    external oracle provider module and has moved to
+    `test_frame_class_declaration.py` in the standalone oracle package's own
+    test suite (top-level `oracle/` directory), to keep this in-package module
+    free of external-package references. See that file's docstring for the
+    "Base" terminology disambiguation.
     """
-
-    def test_base_means_taskframe_axioms_not_frameclassbase(self, semantics):
-        """Document that 'Base' refers to TaskFrame axioms, not FrameClass.Base.
-
-        The oracle's supported_frame_classes = frozenset({"Base"}) uses 'Base'
-        to mean "satisfies TaskFrame axioms" (three axioms: nullity, converse,
-        compose). This is NOT the same as BimodalLogic's proof-system
-        FrameClass.Base (which encompasses 37 axioms across the proof theory).
-
-        This test documents the mapping by verifying the oracle class declares
-        supported_frame_classes and that the Z3 frame constraints implement
-        exactly the three TaskFrame axioms.
-        """
-        # Verify the provider module has the supported_frame_classes attribute
-        from bimodal_logic.provider import Z3OracleProvider
-        assert hasattr(Z3OracleProvider, 'supported_frame_classes'), (
-            "Z3OracleProvider should declare supported_frame_classes"
-        )
-        assert Z3OracleProvider.supported_frame_classes == frozenset({"Base"}), (
-            "Z3OracleProvider.supported_frame_classes should be frozenset({'Base'})"
-        )
 
     def test_three_taskframe_axioms_present_in_frame_constraints(self, semantics):
         """The frame constraints should include all three TaskFrame axioms.
