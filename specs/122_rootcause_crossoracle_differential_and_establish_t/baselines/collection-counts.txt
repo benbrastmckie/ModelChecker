@@ -1,0 +1,70 @@
+=== in-package bimodal collect-only (from repo root, explicit path) ===
+                <Class TestClear>
+                  <Function test_clear_empties_all_structures>
+                  <Function test_clear_allows_reregistration>
+
+========================= 286 tests collected in 0.53s =========================
+
+=== full suite collect-only (cd code, matching task-121 testpaths methodology) ===
+              <Class TestExists>
+                <Function test_exists_single_variable>
+                <Function test_exists_no_solution>
+                <Function test_exists_multiple_variables>
+              <Class TestMixedQuantifiers>
+                <Function test_forall_exists_nesting>
+
+======================== 2095 tests collected in 1.00s =========================
+
+=== NOTE: a bare 'pytest --collect-only -q' invoked from the repo root (no cd into code/) ===
+=== does NOT pick up code/pyproject.toml's testpaths=[tests, src/model_checker] and instead ===
+=== walks the whole repo (incl. code/boneyard/), yielding 2516 tests / 26 errors. The ===
+=== task-121 baseline of 2095/0-errors was produced by running pytest from within code/ ===
+=== (or scoping args to 'code/tests/ code/src/model_checker' from root); reproduced below. ===
+
+=== full suite collect-only (root-scoped explicit paths, equivalent invocation) ===
+                <Function test_exists_multiple_variables>
+              <Class TestMixedQuantifiers>
+                <Function test_forall_exists_nesting>
+
+======================== 2095 tests collected in 1.02s =========================
+
+=== oracle suite collect-only ===
+    @pytest.mark.differential
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1295
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1295: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+550 tests collected in 0.48s
+--- grep in-package for differential file ---
+(no match = confirmed relocated out, expected)
+
+--- grep oracle tree for differential file ---
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFormulaEnumerator::test_complexity_1_atoms_and_bot
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFormulaEnumerator::test_complexity_1_two_atoms
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFormulaEnumerator::test_complexity_counts_1_atom
+
+
+--- Summary ---
+in-package bimodal: 286 tests collected, 0 errors (down from task-118's 818 baseline; task 118
+  phase 5 relocated 7 oracle-dependent files out of in-package tests: test_boundary_regression.py,
+  test_cross_oracle_differential.py, test_fold_unfold.py, test_json_translation.py,
+  test_oracle_interface.py, test_oracle_provider.py, test_soundness_regression.py -- confirmed via
+  `git show --stat 31b69077`. The 286 count is expected, not a regression.)
+full suite (code/tests/ + code/src/model_checker, matching task-121 methodology): 2095 tests
+  collected, 0 errors -- matches task-121 baseline exactly.
+  CORRECTION vs plan literal text: a bare `pytest --collect-only -q` run from the repo root
+  (rather than from `code/` or with explicit `code/tests/ code/src/model_checker` args) does NOT
+  pick up code/pyproject.toml's testpaths=["tests","src/model_checker"] and instead walks the
+  whole repository including code/boneyard/, yielding 2516 tests / 26 errors from stale/legacy
+  files never in scope. All subsequent full-suite runs in this task use the root-scoped explicit
+  paths (`code/tests/ code/src/model_checker`) or `cd code/`, matching task-121's actual
+  invocation and its 2095/0-errors baseline.
+oracle suite: 550 tests collected, 0 errors; test_cross_oracle_differential.py confirmed present.
+pytest-xdist: not present in the base environment; installed pytest-xdist 3.8.0 + execnet 2.1.2
+  via `pip install --no-user --no-deps --target=<scratchpad>/pylibs pytest-xdist execnet` (system
+  pytest 9.0.3 kept authoritative; only the two missing packages were added to avoid shadowing
+  the installed pytest with a newer transitive version). Added to PYTHONPATH for all runs in this
+  task via `PYTHONPATH="code/src:<scratchpad>/pylibs"`. `pytest -n auto` smoke-verified against
+  bimodal/tests/unit (254 passed in 23.04s).

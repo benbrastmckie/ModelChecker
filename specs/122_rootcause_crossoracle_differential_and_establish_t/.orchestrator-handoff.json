@@ -1,0 +1,21 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "plan",
+  "status": "planned",
+  "summary": "Created a 7-phase plan for phases 9-10 of the parent restore: fix the flagged stale builder/module.py import of deleted output components + CLI smoke tests; root-cause the 5 relocated cross-oracle differential failures (3 self-contained semantic-divergence cases, 2 BimodalHarness-dependent skips); confirm in-package bimodal green sans harness; establish a full-suite green gate under pytest-xdist. Wall-clock is handled by backgrounding each heavy run once with --junitxml and composing the full tally (bimodal run + everything-else run) so the ~70-min bimodal suite is never re-run.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/122_rootcause_crossoracle_differential_and_establish_t/plans/01_rootcause-differential-green-gate.md"
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "implement",
+  "files_modified": [],
+  "decisions_made": [
+    "Missing SequentialSaveManager/ConsoleInputProvider were intentionally deleted (commit 71ef79a1); fix prunes the dead module.py sequential-save path rather than restoring them.",
+    "Full-suite gate is composed from a dedicated bimodal run plus an --ignore-bimodal remainder run to avoid re-running the ~70-min bimodal suite.",
+    "Heavy pytest-xdist runs are serialized into separate waves to avoid core oversubscription; all source edits land before any backgrounded run."
+  ],
+  "dead_ends": []
+}
