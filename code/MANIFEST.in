@@ -5,8 +5,16 @@ include MANIFEST.in
 # Include all Python files
 recursive-include src *.py
 
-# Include all package documentation and notebooks
-recursive-include src *.md
+# Package documentation: explicit allowlist mirroring
+# theory_lib/docs/THEORY_ARCHITECTURE.md's Theory Contract, not a blanket "*.md"/"*.ipynb" sweep.
+# A blanket recursive-include picks up any markdown file that happens to sit in a package
+# directory (TODO.md, history/*.md, reports/*.md) regardless of whether it is intentional,
+# contract-conforming content -- this list keeps the sdist in sync with the wheel's
+# [tool.setuptools.package-data] allowlist in pyproject.toml.
+recursive-include src README.md
+recursive-include src CITATION.md
+recursive-include src LICENSE.md
+recursive-include src VERSION
 recursive-include src *.ipynb
 
 # Specifically include theory README files
@@ -22,3 +30,13 @@ recursive-include src/model_checker/jupyter/debug README.md DEBUGGING.md
 
 # Include any other important documentation
 recursive-include src/model_checker README.md
+
+# Explicit excludes (defense-in-depth): these must never ship even if reintroduced into a
+# theory's source directory. Mirrors builder/project.py's REQUIRED_COPY_ITEMS /
+# OPTIONAL_COPY_ITEMS scaffolding allowlist, applied here to the packaged distribution itself.
+global-exclude TODO.md
+prune */theory_lib/*/history
+prune */theory_lib/*/reports
+prune */theory_lib/*/examples_refactored
+global-exclude __pycache__
+global-exclude *.pyc

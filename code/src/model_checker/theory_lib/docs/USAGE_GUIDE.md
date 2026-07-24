@@ -9,6 +9,11 @@
 3. [Theory Selection and Configuration](#theory-selection-and-configuration)
 4. [Comparing Theories](#comparing-theories)
 5. [Advanced Usage Patterns](#advanced-usage-patterns)
+6. [Error Handling](#error-handling)
+7. [Working with Logos States](#working-with-logos-states)
+8. [Performance Optimization](#performance-optimization)
+9. [Testing and Validation](#testing-and-validation)
+10. [Troubleshooting](#troubleshooting)
 
 ## Import Strategies
 
@@ -320,6 +325,160 @@ for conclusion in conclusions:
     result = model.check_formula(conclusion)
     print(f"{conclusion}: {'Valid' if result else 'Invalid'}")
 ```
+
+## Error Handling
+
+The library uses a standardized error hierarchy with contextual information:
+
+```python
+from model_checker.theory_lib.errors import (
+    TheoryError,
+    TheoryLoadError,
+    TheoryNotFoundError
+)
+
+try:
+    # Operations that might fail
+    theory = get_theory(['invalid_subtheory'])
+except TheoryError as e:
+    print(f"Theory error: {e}")
+    print(f"Context: {e.context}")
+    print(f"Suggestion: {e.suggestion}")
+```
+
+## Working with Logos States
+
+Logos exposes low-level state operations directly on the semantics instance, useful when
+working below the level of full example-checking:
+
+```python
+import z3
+from model_checker.theory_lib.logos.semantic import LogosSemantics
+
+# Create semantics
+semantics = LogosSemantics({'N': 3})
+
+# State operations
+state1 = z3.BitVecVal(1, 3)
+state2 = z3.BitVecVal(2, 3)
+
+# Check compatibility
+compatibility = semantics.compatible(state1, state2)
+
+# Compute fusion
+fusion_result = semantics.fusion(state1, state2)
+
+# Check if state is possible
+is_possible = semantics.possible(state1)
+
+# Check if state is a world
+is_world = semantics.is_world(state1)
+```
+
+## Performance Optimization
+
+### Best Practices
+
+1. **Reuse semantics instances** - Initialization is expensive
+2. **Use appropriate N values** - Smaller N means faster solving
+3. **Set reasonable timeouts** - Balance completeness vs. performance
+
+```python
+# Good: Reuse semantics
+semantics = LogosSemantics(settings)
+for formula in formulas:
+    # ... process formula with same semantics
+    pass
+```
+
+### Performance Tips
+
+```python
+# Use smaller N for faster solving
+settings['N'] = 3  # Instead of 4 or higher
+
+# Set reasonable timeout
+settings['max_time'] = 10
+```
+
+## Testing and Validation
+
+### Unit Testing
+
+```bash
+# Run all theory tests
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/tests/ -v
+
+# Run specific theory tests
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/ -v
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v
+
+# Run error handling tests
+PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/tests/unit/test_error_handling.py -v
+```
+
+### Validation Examples
+
+```python
+# Validate theory setup
+try:
+    from model_checker.theory_lib.logos import get_theory
+    theory = get_theory(['extensional'])
+    print("Logos theory loaded successfully")
+
+except Exception as e:
+    print(f"Setup failed: {e}")
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Z3 Timeout Errors**
+   ```python
+   # Increase timeout or reduce problem size
+   settings['max_time'] = 30  # Increase timeout
+   settings['N'] = 2         # Reduce state space
+   ```
+
+2. **Memory Issues with Large N**
+   ```python
+   # Use smaller N values
+   settings['N'] = 3  # Instead of 4 or higher
+   ```
+
+3. **Import Errors**
+   ```python
+   # Use absolute imports
+   from model_checker.theory_lib.logos import get_theory
+   ```
+
+### Debugging Tips
+
+1. **Enable detailed error context**
+   ```python
+   try:
+       operation()
+   except TheoryError as e:
+       print(f"Error: {e}")
+       print(f"Context: {e.context}")
+       print(f"Suggestion: {e.suggestion}")
+   ```
+
+2. **Check theory initialization**
+   ```python
+   # Verify settings are complete
+   required_keys = ['N', 'max_time', 'iterate']
+   missing = [k for k in required_keys if k not in settings]
+   if missing:
+       print(f"Missing required settings: {missing}")
+   ```
+
+## References
+
+- Truthmaker semantics literature
+- Z3 Theorem Prover documentation
+- ModelChecker framework documentation
 
 ---
 

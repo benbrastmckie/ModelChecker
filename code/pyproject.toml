@@ -63,7 +63,19 @@ include-package-data = true
 where = ["src"]
 
 [tool.setuptools.package-data]
-"*" = ["README.md", "*.md", "*.ipynb"]
+# Explicit allowlist, not a blanket "*.md" -- a bare "*.md" glob sweeps in any markdown file
+# that happens to sit in a package directory (TODO.md, history/*.md, reports/*.md), regardless
+# of whether it is an intentional, contract-conforming doc. See
+# theory_lib/docs/THEORY_ARCHITECTURE.md's Theory Contract for the doc file set this mirrors:
+# root-level README.md/CITATION.md/LICENSE.md/VERSION, the six-file docs/ set, and notebooks/.
+"*" = [
+    "README.md",
+    "CITATION.md",
+    "LICENSE.md",
+    "VERSION",
+    "docs/*.md",
+    "notebooks/*.ipynb",
+]
 
 [tool.pytest.ini_options]
 pythonpath = "src"

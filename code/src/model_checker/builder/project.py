@@ -22,6 +22,63 @@ from typing import Union, Optional, List, Tuple, Dict, Any
 from pathlib import Path
 from datetime import datetime
 
+# Explicit copy manifest for theory project scaffolding.
+#
+# Enumerates the canonical theory file set from
+# theory_lib/docs/THEORY_ARCHITECTURE.md's Theory Contract, so scaffolded projects only ever
+# receive intentional, contract-conforming items -- never accumulated cruft (history/, reports/,
+# examples_refactored/, TODO.md, etc.) that happens to be sitting in a theory's source directory.
+#
+# REQUIRED items must exist in the source theory directory; a missing required item is a
+# fail-fast error (the theory itself is non-conforming, not something scaffolding should paper
+# over). OPTIONAL items are copied if present and silently skipped otherwise. Items not on
+# either list are skipped with a warning log line rather than copied.
+#
+# `semantic.py` and `semantic/` are both accepted, and -- unlike a normal either/or alternative
+# -- BOTH may legitimately be present simultaneously: THEORY_ARCHITECTURE.md's contract requires
+# the `semantic/` package form, but bimodal and logos have not yet been normalized onto it, so
+# their flat `semantic.py` is still the live implementation. Bimodal additionally keeps a
+# `semantic/` package alongside its `semantic.py` as a deliberate dynamic-loader shim (registers
+# a `bimodal_semantic_module` module under `sys.modules` so its classes are picklable for
+# `ProcessPoolExecutor`, which the `--maximize` CLI path depends on) -- both must be copied
+# together for a scaffolded bimodal project to support `--maximize`. At least one of the two
+# forms must be present; having both is valid, not an error.
+REQUIRED_COPY_ITEMS = [
+    '__init__.py',
+    'operators.py',
+    'examples.py',
+    'tests',
+    'docs',
+    'README.md',
+    'CITATION.md',
+    'LICENSE.md',
+    'VERSION',
+]
+
+# At least one must be present (see comment above); both may be present together.
+SEMANTIC_ALTERNATIVES = ['semantic', 'semantic.py']
+
+# Present in some theories, valid, but not required by every theory.
+OPTIONAL_COPY_ITEMS = [
+    # `iterate.py` is REQUIRED by THEORY_ARCHITECTURE.md's Theory Contract -- every theory's
+    # DEFAULT_EXAMPLE_SETTINGS declares an `iterate` setting, so a theory lacking it has a live,
+    # reachable ImportError under `iterate: 2`. It is listed here rather than in
+    # REQUIRED_COPY_ITEMS only because bimodal does not yet have one (a known, tracked contract
+    # gap; the theory-conformance test flags it with a narrowly-scoped xfail rather than this
+    # scaffolding step hard-failing bimodal project generation). Copied when present; its
+    # absence for a given theory is a conformance defect to fix in that theory (tracked by
+    # `test_theory_conformance.py`), not something this scaffolding step should hard-fail on.
+    'iterate.py',
+    'notebooks',       # Jupyter demonstrations (exclusion, imposition)
+    'protocols.py',    # logos-specific protocol definitions
+    'subtheories',     # logos-specific subtheory packages
+]
+
+# Directories skipped even when copying an allowed directory item (build/cache artifacts, never
+# intentional content).
+COPY_IGNORE_PATTERNS = ['__pycache__', '.ipynb_checkpoints']
+
+
 class BuildProject:
     """Creates a new theory implementation project from templates.
     
@@ -154,10 +211,16 @@ class BuildProject:
     
     def _copy_files(self, project_dir: str) -> None:
         """Copy all files and transform into a package.
-        
+
+        Uses the explicit copy manifest (REQUIRED_COPY_ITEMS / SEMANTIC_ALTERNATIVES /
+        OPTIONAL_COPY_ITEMS module-level constants) rather than a verbatim directory copy, so
+        only canonical theory-contract items are ever scaffolded into a new project -- stray
+        cruft sitting alongside a theory's source (history/, reports/, TODO.md, and similar) is
+        never copied, even if it is reintroduced into the source tree later.
+
         Args:
             project_dir: Path to the destination project directory
-            
+
         Raises:
             FileNotFoundError: If source files don't exist
             PermissionError: If files can't be written
@@ -167,26 +230,49 @@ class BuildProject:
             raise FileNotFoundError(
                 f"Source theory directory not found: {self.source_dir}"
             )
-        
-        # Directories to ignore
-        ignore_dirs = ['__pycache__', '.ipynb_checkpoints']
-        
-        # Copy all files from source to destination
-        for item in os.listdir(self.source_dir):
-            # Skip ignored directories
-            if item in ignore_dirs:
+
+        available = set(os.listdir(self.source_dir))
+
+        # Resolve which semantic implementation form(s) are present. At least one is required;
+        # both `semantic.py` and `semantic/` may legitimately coexist (see SEMANTIC_ALTERNATIVES
+        # comment above -- this is bimodal's deliberate pickling-compatibility shim, not drift).
+        semantic_present = [item for item in SEMANTIC_ALTERNATIVES if item in available]
+        if len(semantic_present) == 0:
+            raise FileNotFoundError(
+                f"Theory '{self.theory}' is missing a semantic implementation: expected at "
+                f"least one of {SEMANTIC_ALTERNATIVES} in {self.source_dir}"
+            )
+
+        # Fail-fast: every required item (other than the semantic alternative, already checked
+        # above) must be present in the source theory directory.
+        missing_required = [
+            item for item in REQUIRED_COPY_ITEMS if item not in available
+        ]
+        if missing_required:
+            raise FileNotFoundError(
+                f"Theory '{self.theory}' is missing required item(s) {missing_required} in "
+                f"{self.source_dir}; scaffolding requires a contract-conforming theory "
+                f"(see theory_lib/docs/THEORY_ARCHITECTURE.md)"
+            )
+
+        allowed_items = set(REQUIRED_COPY_ITEMS) | set(semantic_present) | set(OPTIONAL_COPY_ITEMS)
+
+        # Copy only manifest-allowed items from source to destination
+        for item in sorted(available):
+            if item not in allowed_items:
+                self.log(f"Skipped non-manifest item: {item}", "WARNING")
                 continue
-                
+
             source_item = os.path.join(self.source_dir, item)
             dest_item = os.path.join(project_dir, item)
-            
+
             try:
                 if os.path.isdir(source_item):
-                    # Copy directories recursively, but ignore __pycache__ and .ipynb_checkpoints
+                    # Copy directories recursively, ignoring build/cache artifacts
                     shutil.copytree(
-                        source_item, 
+                        source_item,
                         dest_item,
-                        ignore=shutil.ignore_patterns(*ignore_dirs)
+                        ignore=shutil.ignore_patterns(*COPY_IGNORE_PATTERNS)
                     )
                     self.log(f"Copied directory: {item}")
                 else:
@@ -195,7 +281,7 @@ class BuildProject:
                     self.log(f"Copied file: {item}")
             except Exception as e:
                 self.log(f"Error copying {item}: {str(e)}", "ERROR")
-                
+
         # 2. Create package marker file (fail-fast philosophy)
         self._create_package_marker(project_dir)
         

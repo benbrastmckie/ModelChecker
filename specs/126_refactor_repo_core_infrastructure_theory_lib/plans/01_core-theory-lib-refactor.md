@@ -473,28 +473,59 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 7: Wheel and Scaffolding Hygiene [IN PROGRESS]
+### Phase 7: Wheel and Scaffolding Hygiene [COMPLETED]
 
 - **Goal:** Stop cruft from re-entering the wheel and user-scaffolded projects, and fix the
   case-collision install defect.
 - **Tasks:**
-  - [ ] Resolve the case-colliding pair `theory_lib/docs/usage_guide.md` (280 lines) vs
+  - [x] Resolve the case-colliding pair `theory_lib/docs/usage_guide.md` (280 lines) vs
         `USAGE_GUIDE.md` (325 lines). Both currently ship in the wheel — a genuine install defect on
         case-insensitive filesystems (macOS default). Merge the unique content of the lowercase file
-        into `USAGE_GUIDE.md` and delete `usage_guide.md`; update inbound links.
-  - [ ] Replace `builder/project.py`'s verbatim copy at `:172` with an explicit **copy manifest**.
+        into `USAGE_GUIDE.md` and delete `usage_guide.md`; update inbound links. *(completed: merged
+        Error Handling, Working with Logos States, Performance Optimization, Testing and
+        Validation, and Troubleshooting sections into `USAGE_GUIDE.md`; dropped the lowercase
+        file's stale "Architecture Overview"/"Available Theories" sections, superseded by
+        THEORY_ARCHITECTURE.md's contract and inaccurate — they omitted exclusion/imposition and
+        named a non-existent "intensional" subtheory. Zero inbound links to the lowercase
+        filename found repo-wide, so nothing needed redirecting.)*
+  - [x] Replace `builder/project.py`'s verbatim copy at `:172` with an explicit **copy manifest**.
         Today only `__pycache__` and `.ipynb_checkpoints` are ignored, so every stray directory in a
         theory tree is copied into user projects. Enumerate the allowed items from the canonical
         theory contract (Phase 3) and copy only those; unknown items are skipped with a warning.
-        Fail-fast if a required item is missing.
-  - [ ] Tighten `code/pyproject.toml` `[tool.setuptools.package-data]` (currently `"*" = ["README.md",
+        Fail-fast if a required item is missing. *(completed: added `REQUIRED_COPY_ITEMS` /
+        `SEMANTIC_ALTERNATIVES` / `OPTIONAL_COPY_ITEMS` module-level manifest constants and
+        rewrote `_copy_files` to use them. Two deviations from a literal reading, both required
+        to avoid regressing current scaffolding: (1) `semantic.py` and `semantic/` are BOTH
+        accepted, and may coexist — bimodal keeps `semantic/` as a deliberate `sys.modules`
+        pickling shim alongside its live `semantic.py`, needed for `--maximize` to keep working;
+        (2) `iterate.py` is listed as optional, not hard-required, because bimodal does not yet
+        have one (the exact gap Phase 3 already documents as pending for a later phase) — hard-
+        requiring it here would make `BuildProject('bimodal')` raise unconditionally, a
+        functional regression this hygiene phase must not introduce.)*
+  - [x] Tighten `code/pyproject.toml` `[tool.setuptools.package-data]` (currently `"*" = ["README.md",
         "*.md", "*.ipynb"]`, which sweeps in every markdown file) and `code/MANIFEST.in` so
         `TODO.md`, `history/`, `reports/`, and `examples_refactored/`-style directories cannot ship
-        even if reintroduced.
-  - [ ] Rebuild the wheel and diff its contents against the Phase 2 pre-refactor manifest. Confirm
+        even if reintroduced. *(completed: package-data now lists an explicit allowlist
+        (README.md, CITATION.md, LICENSE.md, VERSION, docs/*.md, notebooks/*.ipynb) instead of a
+        blanket `*.md`/`*.ipynb`; MANIFEST.in mirrors the same allowlist plus explicit
+        `global-exclude`/`prune` defense-in-depth entries for TODO.md, history/, reports/,
+        examples_refactored/, and pycache artifacts)*
+  - [x] Rebuild the wheel and diff its contents against the Phase 2 pre-refactor manifest. Confirm
         the deltas are exactly the 16 cruft entries removed in Phases 4-6 plus the relocated
-        benchmark, and nothing else.
-  - [ ] Scaffold a project with each of the four theories and confirm no cruft is copied.
+        benchmark, and nothing else. *(completed with one additional, intentional delta beyond
+        the plan's estimate: 19 total removals — the predicted cruft set plus `usage_guide.md`
+        itself, all git-history-recoverable — and 4 additions, one `VERSION` file per theory.
+        The VERSION files are new because the OLD package-data glob (`"*.md"`/`"*.ipynb"`) never
+        matched an extension-less `VERSION` file at all — it was never shipped despite being a
+        contract-required root file. The new explicit allowlist includes `VERSION` deliberately,
+        per THEORY_ARCHITECTURE.md's Theory Contract, so this is a correctness fix, not scope
+        creep.)*
+  - [x] Scaffold a project with each of the four theories and confirm no cruft is copied.
+        *(completed: verified via direct `BuildProject` smoke test for all four theories; also
+        caught and removed a leftover `imposition/examples_refactored/__pycache__/` on-disk
+        remnant of Phase 5's deletion — gitignored, never tracked, but the manifest correctly
+        skipped it with a WARNING log line rather than copying it, which is exactly the
+        defense-in-depth behavior this phase adds)*
 - **Timing:** 1.5 hours
 - **Depends on:** 4, 5, 6
 - **Files to modify:**
