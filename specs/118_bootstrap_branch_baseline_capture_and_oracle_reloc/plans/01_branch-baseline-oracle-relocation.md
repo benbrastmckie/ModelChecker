@@ -114,7 +114,7 @@ Phases within the same wave can execute in parallel.
   - `git branch --show-current` reports the new task branch name.
   - No remote push occurred.
 
-### Phase 2: Capture Pre-Change Baseline [NOT STARTED]
+### Phase 2: Capture Pre-Change Baseline [IN PROGRESS]
 
 - **Goal:** Record the before-state so regressions introduced by later tasks are detectable.
 - **Tasks:**
@@ -138,18 +138,18 @@ Phases within the same wave can execute in parallel.
   - All three baseline files exist and are non-empty under the task directory.
   - The bimodal-suite file records a pass/fail count and elapsed time.
 
-### Phase 3: Inventory and Confirm Restore-Point SHAs [NOT STARTED]
+### Phase 3: Inventory and Confirm Restore-Point SHAs [COMPLETED]
 
 - **Goal:** Confirm each restore source path exists at its recorded SHA so later tasks can
   `git checkout <sha>^ -- <path>` without re-deriving SHAs.
 - **Tasks:**
-  - [ ] For each restore target, confirm the source path exists at the parent commit via
+  - [x] For each restore target, confirm the source path exists at the parent commit via
         `git ls-tree <sha>^ -- <path>`:
     - `013a486c^` -- `code/src/model_checker/builder/`
     - `c21b3709^` -- `code/src/model_checker/iterate/` and the `jupyter/` path
     - `71ef79a1^` -- `code/src/model_checker/output/manager.py` and `output/progress/`
     - `abb3bf7d^` -- `exclusion/` and `imposition/` theory paths
-  - [ ] Record each confirmed SHA -> path mapping (and any miss) in
+  - [x] Record each confirmed SHA -> path mapping (and any miss) in
         `baselines/restore-inventory.md` for the consuming tasks (New Task 2, New Task 3).
 - **Timing:** 20 minutes
 - **Depends on:** 1
