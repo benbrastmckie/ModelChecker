@@ -33,7 +33,10 @@ class TestExclusionProjectGeneration(unittest.TestCase):
             # Verify essential files exist
             self.assertTrue(os.path.exists(os.path.join(project_dir, '__init__.py')))
             self.assertTrue(os.path.exists(os.path.join(project_dir, '.modelchecker')))
-            self.assertTrue(os.path.exists(os.path.join(project_dir, 'semantic.py')))
+            # semantic is a package (directory), not a bare semantic.py module -- see
+            # THEORY_ARCHITECTURE.md's Theory Contract.
+            self.assertTrue(os.path.isdir(os.path.join(project_dir, 'semantic')))
+            self.assertTrue(os.path.exists(os.path.join(project_dir, 'semantic', '__init__.py')))
             self.assertTrue(os.path.exists(os.path.join(project_dir, 'operators.py')))
             self.assertTrue(os.path.exists(os.path.join(project_dir, 'examples.py')))
             
@@ -49,13 +52,24 @@ class TestExclusionProjectGeneration(unittest.TestCase):
         theory_dir = os.path.join(src_dir, 'model_checker', 'theory_lib', 'exclusion')
         
         # Check required files exist
-        required_files = ['__init__.py', 'semantic.py', 'operators.py', 'examples.py']
+        required_files = ['__init__.py', 'operators.py', 'examples.py']
         for file_name in required_files:
             file_path = os.path.join(theory_dir, file_name)
             self.assertTrue(
                 os.path.exists(file_path),
                 f"Required file {file_name} missing in exclusion theory"
             )
+        # semantic is a package (directory), not a bare semantic.py module -- see
+        # THEORY_ARCHITECTURE.md's Theory Contract.
+        semantic_dir = os.path.join(theory_dir, 'semantic')
+        self.assertTrue(
+            os.path.isdir(semantic_dir),
+            "Required package semantic/ missing in exclusion theory"
+        )
+        self.assertTrue(
+            os.path.exists(os.path.join(semantic_dir, '__init__.py')),
+            "semantic/__init__.py missing in exclusion theory"
+        )
     
     def test_exclusion_project_structure(self):
         """Test that generated exclusion projects have correct structure."""

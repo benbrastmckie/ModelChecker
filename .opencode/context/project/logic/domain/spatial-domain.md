@@ -2,6 +2,11 @@
 
 ## Overview
 
+**Status**: Spatial logic is not implemented in the theory library (`theory_lib/`) — the
+logos `spatial` subtheory was a README-only stub with no operators or semantics and has been
+removed. This file is retained as domain background only, for any future spatial-logic work,
+not as documentation of an existing feature.
+
 Spatial logic extends modal logic with operators for spatial reasoning. It combines mereological and topological concepts with logical formalism.
 
 ## Basic Concepts

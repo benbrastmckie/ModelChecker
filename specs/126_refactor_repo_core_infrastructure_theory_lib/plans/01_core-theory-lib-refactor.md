@@ -312,29 +312,38 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Remove the Spatial Subtheory and the Dead Semantic Wrappers [IN PROGRESS]
+### Phase 4: Remove the Spatial Subtheory and the Dead Semantic Wrappers [COMPLETED]
 
 - **Goal:** Clean break deletions that remove genuinely unreachable code, with no behavior change.
 - **Tasks:**
-  - [ ] Delete `code/src/model_checker/theory_lib/logos/subtheories/spatial/` (a README-only stub;
+  - [x] Delete `code/src/model_checker/theory_lib/logos/subtheories/spatial/` (a README-only stub;
         `README.md` is its sole file). No archival copy — git history preserves it, and CLAUDE.md
-        mandates clean breaks with no backwards-compatibility layers.
-  - [ ] Remove the two dangling spatial comment references at
-        `theory_lib/__init__.py:16` and `theory_lib/__init__.py:63-64`.
-  - [ ] Confirm spatial is absent from `AVAILABLE_SUBTHEORIES`
+        mandates clean breaks with no backwards-compatibility layers. *(completed)*
+  - [x] Remove the two dangling spatial comment references at
+        `theory_lib/__init__.py:16` and `theory_lib/__init__.py:63-64`. *(completed)*
+  - [x] Confirm spatial is absent from `AVAILABLE_SUBTHEORIES`
         (`logos/subtheories/__init__.py:19-25`) and `SUBTHEORY_DESCRIPTIONS` — it already is; assert
-        rather than assume.
-  - [ ] Delete `theory_lib/exclusion/semantic.py` (32 lines) and `theory_lib/imposition/semantic.py`
+        rather than assume. *(completed: verified via python -c import assertion, confirmed absent)*
+  - [x] Delete `theory_lib/exclusion/semantic.py` (32 lines) and `theory_lib/imposition/semantic.py`
         (31 lines). Both are self-described backward-compatibility re-exports and both are
-        unreachable, since Python resolves the sibling `semantic/` package first.
-  - [ ] Do **not** touch `theory_lib/bimodal/semantic.py` in this phase — it is live (the package
-        re-executes it). It is handled in Phase 20.
-  - [ ] Update `.claude/context/project/logic/domain/spatial-domain.md`: it is a deliverable outside
+        unreachable, since Python resolves the sibling `semantic/` package first. *(completed)*
+  - [x] Do **not** touch `theory_lib/bimodal/semantic.py` in this phase — it is live (the package
+        re-executes it). It is handled in Phase 20. *(confirmed untouched)*
+  - [x] Update `.claude/context/project/logic/domain/spatial-domain.md`: it is a deliverable outside
         `specs/**` that will dangle. Rewrite its opening to state that spatial is not implemented in
         the theory library and that the file is retained as domain background only, or delete it if
-        it has no standalone value. Decide and act; do not leave it dangling.
-  - [ ] Grep the whole repo (including `docs/`, `code/docs/`, `oracle/`) for remaining `spatial`
-        references and resolve each.
+        it has no standalone value. Decide and act; do not leave it dangling. *(completed: also
+        updated the duplicate .opencode/context/ copy of the same file for consistency)*
+  - [x] Grep the whole repo (including `docs/`, `code/docs/`, `oracle/`) for remaining `spatial`
+        references and resolve each. *(completed: zero code/oracle/docs references remain; the
+        two agent-system index.json/README.md entries cataloging spatial-domain.md as a topic doc
+        are legitimate and untouched)*
+  - [x] *(deviation, not in original task list)* Fixed
+        `exclusion/tests/integration/test_project_generation.py`, which asserted the now-deleted
+        flat `semantic.py` file as a required file / generated-project artifact. Updated both
+        assertions to check for the `semantic/` package (directory + `__init__.py`) per the Phase 3
+        contract. Reason: the test encoded the pre-refactor (bare-module) contract, not a
+        regression from this phase's deletion.
 - **Timing:** 1 hour
 - **Depends on:** 2
 - **Files to modify:**
