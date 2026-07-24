@@ -1,14 +1,21 @@
 {
-  "status": "planned",
-  "summary": "Created a 4-phase implementation plan for the multi-system Nix flake rewrite (task 123, covers parent plan phase 11). Phases: (1) multi-system scaffold + packages.default via nixpkgs-native buildPythonPackage against python3Packages.z3 rooted at ./code; (2) devShell subsuming code/shell.nix with optional BimodalHarness; (3) checks.default scoped to the task-122 green in-package bimodal suite at -n 6; (4) delete code/shell.nix, commit flake.lock, final verification. Effort 2.5h.",
+  "status": "implemented",
+  "summary": "Implemented all 4 phases of the multi-system Nix flake rewrite. flake.nix now uses flake-utils.lib.eachDefaultSystem, exposing packages.default (buildPythonPackage rooted at ./code against the nixpkgs-native z3-solver attribute -- current nixpkgs' renamed spelling of the source-built Z3 Python bindings the plan calls 'python3Packages.z3' -- plus networkx, with pythonRemoveDeps stripping the unsatisfiable PyPI z3-solver runtime-dep check), devShells.default (subsumes code/shell.nix, optional BimodalHarness sibling with no warning branch), and checks.default (hermetic pytest gate scoped to the known-green in-package theory_lib/bimodal suite, 286/286 passed in 42.56s at -n 6, matching the task-122 RELEASE-BASELINE.md). code/shell.nix deleted; flake.lock regenerated and committed with the new flake-utils input. nix build, nix flake check, nix develop (both with and without a BimodalHarness sibling), and nix flake show were all verified locally and pass.",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "Run /implement 123 to execute the plan.",
+  "next_action_hint": "Task complete; ready for PR/merge review per project workflow (see .claude/rules/pr-prohibition.md -- only the user invokes /merge).",
+  "phases_completed": 4,
+  "phases_total": 4,
   "artifacts": [
     {
       "path": "specs/123_rewrite_the_nix_flake_for_multisystem_build_and_te/plans/01_nix-flake-multisystem-rewrite.md",
       "type": "plan",
-      "summary": "4-phase multi-system Nix flake rewrite plan: packages.default (nixpkgs z3), checks.default (scoped green gate), devShell replacing code/shell.nix, and lock/cleanup."
+      "summary": "4-phase multi-system Nix flake rewrite plan, all phases checked off complete."
+    },
+    {
+      "path": "specs/123_rewrite_the_nix_flake_for_multisystem_build_and_te/summaries/01_nix-flake-multisystem-rewrite-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary: multi-system flake.nix rewrite complete, nix build and nix flake check both green, code/shell.nix deleted, flake.lock committed."
     }
   ]
 }
