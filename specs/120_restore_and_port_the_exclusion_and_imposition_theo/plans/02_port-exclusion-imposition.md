@@ -169,23 +169,44 @@ which the imposition port (Phases 3-4) reuses and appends to.
 
 ---
 
-### Phase 3: Restore imposition and apply the porting recipe [NOT STARTED]
+### Phase 3: Restore imposition and apply the porting recipe [COMPLETED]
 
 - **Goal:** Restore `imposition` from history and apply the Phase 1 recipe, plus verify its
   `logos`-dependent imports against the restored logos package.
 - **Tasks:**
-  - [ ] `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/imposition`
-  - [ ] Apply the Phase 1 recipe: `import z3` -> `from model_checker import z3_shim as z3`;
+  - [x] `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/imposition`
+  - [x] Apply the Phase 1 recipe: `import z3` -> `from model_checker import z3_shim as z3`;
         `z3.is_true`/`z3.is_false` -> `is_true`/`is_false` with the `model_checker.solver` import.
-  - [ ] Verify `imposition`'s `logos` dependencies resolve against the restored logos:
+        Applied to all production files plus `tests/unit/test_model.py`, whose local
+        `evaluate_z3_boolean` test closures and `unittest.mock.patch('z3.is_true'/'z3.is_false')`
+        targets also referenced the moved symbols; patch targets were repointed at the test
+        module's own imported names (moved-symbol test adjustment, not a behavior-masking rewrite).
+  - [x] Verify `imposition`'s `logos` dependencies resolve against the restored logos:
         `logos.subtheories.extensional.operators`, `...modal.operators`,
         `...counterfactual.operators`, and `logos.semantic.LogosProposition`
         (used as `Proposition` in `imposition/__init__.py` and `operators.py`).
-  - [ ] Verify iterate imports resolve: `from model_checker.iterate.core import BaseModelIterator`
-        and `from model_checker.utils import bitvec_to_substates, pretty_set_print`.
-  - [ ] Handle `examples_refactored/` the same as production modules (port or confirm clean).
-  - [ ] Resolve-imports smoke test:
+        Verified via direct `python -c` import of every exact import statement — all resolve
+        unchanged against the current logos API.
+  - [x] Verify iterate imports resolve: `from model_checker.iterate.core import BaseModelIterator`
+        and `from model_checker.utils import bitvec_to_substates, pretty_set_print`. Verified.
+  - [x] Handle `examples_refactored/` the same as production modules (port or confirm clean).
+        Confirmed clean: no `import z3` or theory_lib.errors usage in `examples_refactored/`.
+  - [x] Resolve-imports smoke test:
         `PYTHONPATH=code/src python -c "import model_checker.theory_lib.imposition"` succeeds.
+        **Deviations found and fixed (hidden API drift, same risk category as Phase 1's
+        `WitnessSemanticError`, both beyond the anticipated solver-abstraction gap)**:
+        1. `semantic/core.py` and `semantic/helpers.py` imported `ImpositionSemanticError`,
+           `ImpositionOperationError`, and `ImpositionHelperError` from `theory_lib.errors`;
+           unlike the `Witness*` hierarchy, these were removed entirely (not reparented) in
+           the current shared `errors.py`. Fixed by importing/raising the existing `SemanticError`
+           base class at each site instead, passing `theory="imposition"` explicitly (matching
+           the removed subclasses' behavior) and inlining the previously auto-generated messages
+           for the two `ImpositionHelperError` call sites (which took a bare function-name
+           argument). `theory_lib/errors.py` itself was left untouched (out of `file_scope`).
+        2. `semantic/core.py` imported the `ImpositionSemantics` protocol from `theory_lib.types`
+           (aliased `ImpositionSemanticsProtocol`), which was also removed from the current
+           `types.py`. The alias was unused anywhere in the file (dead import), so it was simply
+           dropped from the import line rather than substituted.
 - **Timing:** 1 hour
 - **Depends on:** 2
 

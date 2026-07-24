@@ -1,0 +1,53 @@
+{
+  "example_name": "IM_CM_27",
+  "semantic_theory": "Fine",
+  "atomic_states": 2,
+  "model_found": true,
+  "runtime": 0.0029,
+  "evaluation_world": "a",
+  "states": {
+    "#b00": "\u25a1",
+    "#b01": "a (world)",
+    "#b10": "b (world)"
+  },
+  "imposition_relations": [
+    {
+      "world": "a",
+      "state": "\u25a1",
+      "outcome": "a"
+    },
+    {
+      "world": "a",
+      "state": "\u25a1",
+      "outcome": "b"
+    },
+    {
+      "world": "a",
+      "state": "a",
+      "outcome": "a"
+    },
+    {
+      "world": "a",
+      "state": "b",
+      "outcome": "b"
+    },
+    {
+      "world": "b",
+      "state": "\u25a1",
+      "outcome": "b"
+    },
+    {
+      "world": "b",
+      "state": "b",
+      "outcome": "b"
+    }
+  ],
+  "premise": "(A \\boxrightlogos B)",
+  "conclusion": "(A \\boxright B)",
+  "interpretation": {
+    "premise_truth": true,
+    "premise_detail": "|(A \\boxrightlogos B)| = < {a}, {b} > (True in a)",
+    "conclusion_truth": false,
+    "conclusion_detail": "|(A \\boxright B)| = < \u2205, {a, b} > (False in a)"
+  }
+}

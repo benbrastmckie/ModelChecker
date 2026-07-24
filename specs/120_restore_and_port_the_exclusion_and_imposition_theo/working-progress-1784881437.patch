@@ -1,0 +1,307 @@
+diff --git a/.gitignore b/.gitignore
+index 46cb661e..b1252ecc 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -32,3 +32,4 @@ code/scaling_results.json
+ **/.postflight-pending
+ **/.return-meta.json
+ **/specs/tmp/
++/.claude
+diff --git a/code/specs/state.json b/code/specs/state.json
+deleted file mode 100644
+index e69de29b..00000000
+diff --git a/specs/116_draft_email_modelchecker_architecture/email-draft.md b/specs/116_draft_email_modelchecker_architecture/email-draft.md
+index 6858371f..69eb156e 100644
+--- a/specs/116_draft_email_modelchecker_architecture/email-draft.md
++++ b/specs/116_draft_email_modelchecker_architecture/email-draft.md
+@@ -1,69 +1,20 @@
+-Subject: How ModelChecker's modular architecture works
++Subject: ModelChecker
+ 
+-Hi [Name],
++Hi Joel,
+ 
+-I wanted to give you a quick tour of ModelChecker's architecture, since I think you'll appreciate
+-how the extension mechanism is put together. ModelChecker is a Python framework for automating
+-Z3-backed model/countermodel search across several modal, counterfactual, and hyperintensional
+-semantic theories, built so a new theory or a new logical operator can be added without touching
+-the shared engine.
++Thanks for interviewing me last week. I'm sorry I was not better prepared. It's honestly been a while since I have been working in python, but wanted to give you a quick tour of the ModelChecker's architecture which was written in Python, importing Z3. 
+ 
+-**Layered architecture.** There's a shared, theory-agnostic core: `models/` holds the semantics
+-base class, the bridge that turns parsed formulas into Z3 constraints, and the solver-facing
+-model structure and proposition classes; `syntactic/` holds parsing and the operator base
+-classes; `solver/` is a thin Z3/cvc5 backend abstraction. On top of that, each theory
+-(`theory_lib/logos`, `exclusion`, `imposition`, `bimodal`) supplies its own semantic primitives
+-and its own operator set. Logos further splits its 20+ operators into subtheories (extensional,
+-modal, constitutive, counterfactual, relevance, first-order) that get loaded à la carte.
++The ModelChecker automates Z3-backed model search for in an extensible language with Boolean, modal, counterfactual conditional, and constitutive explanatory operators. The version on https://pypi.org/project/model-checker/ is in good shape, though the CLI I have on GitHub is mid-refactor, so best to pip install if you wanted to test it.
+ 
+-**The pipeline.** This is the live, currently-exercised path — it's exactly what every theory's
+-pytest suite runs, via `Syntax` → `Semantics` → `ModelConstraints` → `ModelStructure`, not a CLI
+-tool (worth flagging: the `model-checker` command-line entry point is mid-refactor and not
+-functional right now, so I'm describing the programmatic API, which is stable). Concretely: a
+-formula string is parsed by `Syntax` into a `Sentence` tree, resolving operator symbols against
+-the theory's operator collection. `Semantics` then declares the theory's Z3 primitives (for
+-logos: `verify`, `falsify`, `possible`, as Z3 uninterpreted functions) plus frame constraints.
+-`ModelConstraints` is the bridge: it binds one instance of each operator to that semantics
+-object, walks the sentence tree, and assembles everything — frame constraints, per-letter model
+-constraints, premise and conclusion constraints — into a single list of Z3 `BoolRef` assertions,
+-i.e. compiled into SMT-level constraints. `ModelStructure.solve()` hands those to Z3 (via the
+-`solver/` abstraction) and gets back sat/unsat plus a model. Finally `interpret()`/`print_all()`
+-walk the same `Sentence` tree again, calling back into each operator's own
+-`find_verifiers_and_falsifiers()` and `print_method()` to turn the solved Z3 model into a
+-human-readable countermodel or proof.
++There's a shared, theory-agnostic core: `models/` holds the semantics base class, the bridge that turns parsed formulas into Z3 constraints, and the solver-facing model structure and proposition classes; `syntactic/` holds parsing and the operator base classes; `solver/` is a thin Z3/cvc5 backend abstraction. On top of that, each theory in `theory_lib/` supplies its own semantic primitives and its own operator set. The `logos/` theory further splits its operators into subtheories (extensional, modal, constitutive, counterfactual, relevance) that get loaded à la carte.
+ 
+-**The operator abstraction.** This is the actual extension point. Every operator is a small
+-Python class subclassing `syntactic.Operator` (or `syntactic.DefinedOperator`, for operators
+-defined in terms of others) that implements a fixed contract: `true_at`, `false_at`,
+-`extended_verify`, `extended_falsify`, `find_verifiers_and_falsifiers`, and `print_method`. The
+-shared semantics and model-structure code dispatches *into* these methods rather than the other
+-way around — an operator is free to call back into the shared semantics object's own primitives
+-(`is_part_of`, `fusion`, `compatible`, or theory-specific relations) to state its truth
+-conditions in terms of that theory's resources.
++The pipeline is what every theory's pytest suite runs, via `Syntax` → `Semantics` → `ModelConstraints` → `ModelStructure`. Concretely, a formula string is parsed by `Syntax` into a `Sentence` tree, resolving operator symbols against the theory's operator collection. `Semantics` then declares the theory's Z3 primitives (for logos: `verify`, `falsify`, `possible`, as Z3 uninterpreted functions) plus frame constraints. `ModelConstraints` is the bridge: it binds one instance of each operator to that semantics object, walks the sentence tree, and assembles everything — frame constraints, per-letter model constraints, premise and conclusion constraints — into a single list of Z3 `BoolRef` assertions to satisfy. `ModelStructure.solve()` hands those to Z3 (via the `solver/` abstraction) and gets back sat/unsat plus a model. Finally `interpret()`/`print_all()` walk the same `Sentence` tree again, calling back into each operator's own `find_verifiers_and_falsifiers()` and `print_method()` to turn the solved Z3 model into a human-readable countermodel or proof.
+ 
+-**Worked example.** `theory_lib/logos/subtheories/counterfactual/operators.py` is a clean,
+-self-contained illustration. `CounterfactualOperator` (the primitive `\boxright`, "if A were the
+-case, B would be the case") implements `true_at` as a quantified Z3 formula — `ForAll([x, u],
+-Implies(And(extended_verify(x, A, eval_point), is_alternative(u, x, world)), true_at(B,
+-with_world(eval_point, u))))` — using two fresh Z3 bitvectors and the shared `is_alternative`
+-relation (a world-shifting helper built from `is_world`/`is_part_of`/`max_compatible_part`).
+-`extended_verify` uses a neat "world-identity" trick: a state verifies the whole conditional iff
+-that state *is* the evaluation world and the conditional is true there. `find_verifiers_and_falsifiers`
+-is pure post-solve logic — it reads the solved Z3 model directly and classifies each world as a
+-verifier or falsifier by checking whether all of the antecedent's alternative worlds satisfy the
+-consequent. And `print_method` doesn't reinvent rendering — it just delegates to the inherited
+-`print_over_worlds` helper from the `Operator` base class, showing the antecedent in the
+-evaluation world and the consequent in each alternative world. `MightCounterfactualOperator`
+-(`\diamondright`) is the `DefinedOperator` counterpart: `A ◇→ B := ¬(A □→ ¬B)`, built by
+-instantiating `CounterfactualOperator` internally rather than duplicating its logic.
++I was careful to design the architecture for modularity and extensibility so that every operator is a small Python class that implements a fixed contract: `true_at`, `false_at`, `extended_verify`, `extended_falsify`, `find_verifiers_and_falsifiers`, and `print_method`. The shared semantics and model-structure code dispatches into these methods rather than the other way around — an operator is free to call back into the shared semantics object's own primitives (`is_part_of`, `fusion`, `compatible`, or theory-specific relations) to state its truth conditions in terms of that theory's resources. You can find a self-contained example in `theory_lib/logos/subtheories/counterfactual/operators.py`.
+ 
+-That one file touches every stage of the pipeline — quantified constraint-building, the
+-verifier/falsifier trick, post-solve interpretation, and printing — while staying under 320
+-lines. New theories and operators get added the same way: subclass the same handful of base
+-classes and supply those six methods. Right now that's 4 theories and 25+ operators sharing one
+-engine.
++That one file touches every stage of the pipeline — quantified constraint-building, the verifier/falsifier trick, post-solve interpretation, and printing — while staying under 320 lines. New theories and operators get added the same way: subclass the same handful of base classes and supply those six methods. Right now that's four theories and around twenty operators sharing one engine.
+ 
+ Happy to walk through the Z3 side in more depth if useful.
+ 
+ Best,
+-[Your name]
++Ben
+diff --git a/specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md b/specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md
+index 24d993f1..8261be24 100644
+--- a/specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md
++++ b/specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md
+@@ -169,7 +169,7 @@ which the imposition port (Phases 3-4) reuses and appends to.
+ 
+ ---
+ 
+-### Phase 3: Restore imposition and apply the porting recipe [NOT STARTED]
++### Phase 3: Restore imposition and apply the porting recipe [IN PROGRESS]
+ 
+ - **Goal:** Restore `imposition` from history and apply the Phase 1 recipe, plus verify its
+   `logos`-dependent imports against the restored logos package.
+diff --git a/specs/TODO.md b/specs/TODO.md
+index f259d2d6..9e477ac6 100644
+--- a/specs/TODO.md
++++ b/specs/TODO.md
+@@ -11,29 +11,25 @@ next_project_number: 126
+ **Dependency Waves**:
+ | Wave | Tasks | Blocked by | Topics |
+ |------|-------|------------|--------|
+-| 1 | 118 | -- | packaging |
+-| 2 | 119 | 118 | packaging |
+-| 3 | 120 | 119 | packaging |
+-| 4 | 121 | 120 | packaging |
+-| 5 | 122 | 121 | packaging |
+-| 6 | 123,124 | 122 | packaging |
+-| 7 | 125 | 123,124 | packaging |
+-| 8 | 117 | 125 | packaging |
++| 1 | 120 | -- | packaging |
++| 2 | 121 | 120 | packaging |
++| 3 | 122 | 121 | packaging |
++| 4 | 123,124 | 122 | packaging |
++| 5 | 125 | 123,124 | packaging |
++| 6 | 117 | 125 | packaging |
+ 
+ **Grouped by Topic** (indented = depends on parent):
+ 
+ ### Packaging
+ 
+-118 [RESEARCHED] — Covers plan phases 1-2 of specs/117_review_cli_pypi_parity_nix_fl
+-  └─ 119 [RESEARCHED] — Covers plan phases 3-4 of specs/117_review_cli_pypi_parity_nix_fl
+-    └─ 120 [RESEARCHED] — Covers plan phases 5-6 of specs/117_review_cli_pypi_parity_nix_fl
+-      └─ 121 [RESEARCHED] — Covers plan phases 7-8 of specs/117_review_cli_pypi_parity_nix_fl
+-        └─ 122 [RESEARCHED] — Covers plan phases 9-10 of specs/117_review_cli_pypi_parity_nix_f
+-          └─ 123 [RESEARCHED] — Covers plan phase 11 of specs/117_review_cli_pypi_parity_nix_flak
+-            └─ 125 [RESEARCHED] — Covers plan phase 13 of specs/117_review_cli_pypi_parity_nix_flak
+-              └─ 117 [BLOCKED] — Review and stabilize the repo after recent revisions: verify the 
+-          └─ 124 [RESEARCHED] — Covers plan phase 12 of specs/117_review_cli_pypi_parity_nix_flak
+-            └─ 125 [RESEARCHED] — Covers plan phase 13 of specs/117_review_cli_pypi_parity_nix_flak (see above)
++120 [IMPLEMENTING] — Covers plan phases 5-6 of specs/117_review_cli_pypi_parity_nix_fl
++  └─ 121 [RESEARCHED] — Covers plan phases 7-8 of specs/117_review_cli_pypi_parity_nix_fl
++    └─ 122 [RESEARCHED] — Covers plan phases 9-10 of specs/117_review_cli_pypi_parity_nix_f
++      └─ 123 [RESEARCHED] — Covers plan phase 11 of specs/117_review_cli_pypi_parity_nix_flak
++        └─ 125 [RESEARCHED] — Covers plan phase 13 of specs/117_review_cli_pypi_parity_nix_flak
++          └─ 117 [BLOCKED] — Review and stabilize the repo after recent revisions: verify the 
++      └─ 124 [RESEARCHED] — Covers plan phase 12 of specs/117_review_cli_pypi_parity_nix_flak
++        └─ 125 [RESEARCHED] — Covers plan phase 13 of specs/117_review_cli_pypi_parity_nix_flak (see above)
+ 
+ ## Tasks
+ 
+@@ -99,11 +95,12 @@ next_project_number: 126
+ 
+ ### 120. Restore and port the exclusion and imposition theo
+ - **Effort**: 6 hours
+-- **Status**: [RESEARCHED]
++- **Status**: [IMPLEMENTING]
+ - **Task Type**: python
+ - **Topic**: packaging
+ - **Dependencies**: Task 119
+ - **Research**: [117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md]
++- **Plan**: [120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md]
+ 
+ **Description**: Covers plan phases 5-6 of specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md ('Restore and Port the exclusion Theory' and 'Restore and Port the imposition Theory'). This is the highest-risk work in the plan: both theories restore from a PRE-solver-migration commit (abb3bf7d^), predating z3_shim, model_checker.solver, and the modular models.semantic/models.proposition/models.structure package structure, and must be ported to the current API. Use the already-current-API bimodal and logos theories (from the prior task) as the concrete reference pattern for the port. Goal (exclusion): `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/exclusion`; port imports/APIs from pre-migration to current: model_checker.z3_shim, model_checker.solver (is_true/is_false), models.semantic.SemanticDefaults, models.proposition.PropositionDefaults, models.structure.ModelDefaults, syntactic.atoms.get_atom_sort, and bimodal witness modules; register exclusion in AVAILABLE_THEORIES; get theory_lib/exclusion/tests/ to collect and pass; commit per green sub-step. Goal (imposition): `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/imposition`; apply the same import/API porting recipe established for exclusion; register imposition in AVAILABLE_THEORIES; get theory_lib/imposition/tests/ to collect and pass; commit per green sub-step. If porting exceeds budget, the plan's documented fallback is to ship with logos+bimodal registered and follow up on exclusion/imposition separately -- but the goal is full restoration; treat the fallback as a last resort. Verification: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion -q` and `.../imposition -q` both green; both registered in AVAILABLE_THEORIES; no import errors against current z3_shim/solver/models.* API.
+ 
+@@ -111,11 +108,13 @@ next_project_number: 126
+ 
+ ### 119. Restore core infrastructure and reconcile the logo
+ - **Effort**: 4.5 hours
+-- **Status**: [RESEARCHED]
++- **Status**: [COMPLETED]
+ - **Task Type**: python
+ - **Topic**: packaging
+ - **Dependencies**: Task 118
+ - **Research**: [117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md]
++- **Plan**: [119_restore_core_infrastructure_and_reconcile_the_logo/plans/01_restore-core-infra-logos.md]
++- **Summary**: [119_restore_core_infrastructure_and_reconcile_the_logo/summaries/01_restore-core-infra-logos-summary.md]
+ 
+ **Description**: Covers plan phases 3-4 of specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md ('Restore Core Infrastructure (builder, iterate, jupyter, output)' and 'Reconcile and Register the logos Theory'). Requires task branch and confirmed restore-point SHAs from the bootstrap task. Goal: restore deleted general-purpose infrastructure via `git checkout 013a486c^ -- code/src/model_checker/builder`, `git checkout c21b3709^ -- code/src/model_checker/iterate code/src/model_checker/jupyter`, and `git checkout 71ef79a1^ -- code/src/model_checker/output/manager.py code/src/model_checker/output/progress`; reconcile imports via smoke tests for model_checker.builder, model_checker.iterate, model_checker.output.manager, fixing any references broken since the (post-solver-migration) restore point; verify `PYTHONPATH=code/src python -m model_checker --help` and `python code/dev_cli.py --help` both run without ModuleNotFoundError; commit per green sub-step. Then reconcile theory_lib/logos/: confirm its `from .iterate import ...`/`model_checker.iterate` imports now resolve (iterate just restored), fix any residual import paths; verify the first-order subtheory removal (commit e9734a27) is intact with no dangling references; register logos (and its retained subtheories) in theory_lib's AVAILABLE_THEORIES; get theory_lib/logos/tests/ to collect and pass via `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos -q`. Verification: builder/iterate/jupyter/output.manager import cleanly; CLI --help commands work; logos registered in AVAILABLE_THEORIES; logos test suite green.
+ 
+@@ -123,11 +122,13 @@ next_project_number: 126
+ 
+ ### 118. Bootstrap branch baseline capture and oracle reloc
+ - **Effort**: 3 hours
+-- **Status**: [RESEARCHED]
++- **Status**: [COMPLETED]
+ - **Task Type**: python
+ - **Topic**: packaging
+ - **Dependencies**: None
+ - **Research**: [117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md]
++- **Plan**: [118_bootstrap_branch_baseline_capture_and_oracle_reloc/plans/01_branch-baseline-oracle-relocation.md]
++- **Summary**: [118_bootstrap_branch_baseline_capture_and_oracle_reloc/summaries/01_branch-baseline-oracle-relocation-summary.md]
+ 
+ **Description**: Covers plan phases 1-2 of specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md ('Branch, Inventory, and Baseline Capture' and 'Separate the Bimodal-Oracle/Harness Layer'). Goal: create a task branch (e.g. task-117-restore-model-checker) off master (do not push); record a pre-change baseline (run the live bimodal suite once for pass/fail + timing, snapshot the currently-failing `PYTHONPATH=code/src pytest code/tests/ --collect-only -q` and `python -m model_checker --help` output, both saved under the task directory); inventory the restore-point SHAs from the plan's git-restore table and confirm each restore source path exists via `git ls-tree <sha>^ -- <path>` (013a486c^ for builder/, c21b3709^ for iterate/jupyter, 71ef79a1^ for output/manager.py+progress/, abb3bf7d^ for exclusion/imposition). Then relocate the bimodal-oracle/harness layer: move code/src/bimodal_logic/ (cli.py, provider.py, serialization.py, translation.py, __init__.py, tests/) to a new top-level oracle/bimodal_logic/ directory at repo root; delete the stale code/src/bimodal_logic.egg-info/; move the cross-oracle differential harness/tests that depend on BimodalHarness (theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py and any oracle-only helpers) alongside the oracle; give the oracle its own minimal dev setup (own pyproject.toml or a README documenting PYTHONPATH-based standalone development and the bimodal_harness.oracle_providers entry point); confirm nothing under code/src/model_checker/ imports bimodal_logic (fix-forward any residual references); verify the oracle's own tests still collect from its new location. Verification: branch exists; baseline artifacts saved under the task directory; oracle/bimodal_logic/ exists with its own tests collecting; code/src/model_checker/ has zero references to bimodal_logic. This is the foundational task all others build on.
+ 
+diff --git a/specs/state.json b/specs/state.json
+index 5c4c801d..6222ab73 100644
+--- a/specs/state.json
++++ b/specs/state.json
+@@ -52,7 +52,7 @@
+     {
+       "project_number": 118,
+       "project_name": "bootstrap_branch_baseline_capture_and_oracle_reloc",
+-      "status": "researched",
++      "status": "completed",
+       "task_type": "python",
+       "description": "Covers plan phases 1-2 of specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md ('Branch, Inventory, and Baseline Capture' and 'Separate the Bimodal-Oracle/Harness Layer'). Goal: create a task branch (e.g. task-117-restore-model-checker) off master (do not push); record a pre-change baseline (run the live bimodal suite once for pass/fail + timing, snapshot the currently-failing `PYTHONPATH=code/src pytest code/tests/ --collect-only -q` and `python -m model_checker --help` output, both saved under the task directory); inventory the restore-point SHAs from the plan's git-restore table and confirm each restore source path exists via `git ls-tree <sha>^ -- <path>` (013a486c^ for builder/, c21b3709^ for iterate/jupyter, 71ef79a1^ for output/manager.py+progress/, abb3bf7d^ for exclusion/imposition). Then relocate the bimodal-oracle/harness layer: move code/src/bimodal_logic/ (cli.py, provider.py, serialization.py, translation.py, __init__.py, tests/) to a new top-level oracle/bimodal_logic/ directory at repo root; delete the stale code/src/bimodal_logic.egg-info/; move the cross-oracle differential harness/tests that depend on BimodalHarness (theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py and any oracle-only helpers) alongside the oracle; give the oracle its own minimal dev setup (own pyproject.toml or a README documenting PYTHONPATH-based standalone development and the bimodal_harness.oracle_providers entry point); confirm nothing under code/src/model_checker/ imports bimodal_logic (fix-forward any residual references); verify the oracle's own tests still collect from its new location. Verification: branch exists; baseline artifacts saved under the task directory; oracle/bimodal_logic/ exists with its own tests collecting; code/src/model_checker/ has zero references to bimodal_logic. This is the foundational task all others build on.",
+       "effort": "3 hours",
+@@ -66,20 +66,31 @@
+         "code/src/bimodal_logic.egg-info"
+       ],
+       "created": "2026-07-24T02:23:00Z",
+-      "last_updated": "2026-07-24T02:23:00Z",
++      "last_updated": "2026-07-24T08:00:15Z",
+       "next_artifact_number": 2,
+       "artifacts": [
+         {
+           "type": "research",
+           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md",
+           "summary": "Spawn analysis from parent task 117"
++        },
++        {
++          "path": "specs/118_bootstrap_branch_baseline_capture_and_oracle_reloc/plans/01_branch-baseline-oracle-relocation.md",
++          "type": "plan",
++          "summary": "Phased bootstrap plan: branch, baseline, SHA inventory, oracle relocation"
++        },
++        {
++          "path": "specs/118_bootstrap_branch_baseline_capture_and_oracle_reloc/summaries/01_branch-baseline-oracle-relocation-summary.md",
++          "type": "summary",
++          "summary": ""
+         }
+-      ]
++      ],
++      "session_id": "sess_1784861238_c08d5c_118"
+     },
+     {
+       "project_number": 119,
+       "project_name": "restore_core_infrastructure_and_reconcile_the_logo",
+-      "status": "researched",
++      "status": "completed",
+       "task_type": "python",
+       "description": "Covers plan phases 3-4 of specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md ('Restore Core Infrastructure (builder, iterate, jupyter, output)' and 'Reconcile and Register the logos Theory'). Requires task branch and confirmed restore-point SHAs from the bootstrap task. Goal: restore deleted general-purpose infrastructure via `git checkout 013a486c^ -- code/src/model_checker/builder`, `git checkout c21b3709^ -- code/src/model_checker/iterate code/src/model_checker/jupyter`, and `git checkout 71ef79a1^ -- code/src/model_checker/output/manager.py code/src/model_checker/output/progress`; reconcile imports via smoke tests for model_checker.builder, model_checker.iterate, model_checker.output.manager, fixing any references broken since the (post-solver-migration) restore point; verify `PYTHONPATH=code/src python -m model_checker --help` and `python code/dev_cli.py --help` both run without ModuleNotFoundError; commit per green sub-step. Then reconcile theory_lib/logos/: confirm its `from .iterate import ...`/`model_checker.iterate` imports now resolve (iterate just restored), fix any residual import paths; verify the first-order subtheory removal (commit e9734a27) is intact with no dangling references; register logos (and its retained subtheories) in theory_lib's AVAILABLE_THEORIES; get theory_lib/logos/tests/ to collect and pass via `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos -q`. Verification: builder/iterate/jupyter/output.manager import cleanly; CLI --help commands work; logos registered in AVAILABLE_THEORIES; logos test suite green.",
+       "effort": "4.5 hours",
+@@ -98,20 +109,31 @@
+         "code/src/model_checker/theory_lib/__init__.py"
+       ],
+       "created": "2026-07-24T02:23:00Z",
+-      "last_updated": "2026-07-24T02:23:00Z",
++      "last_updated": "2026-07-24T08:14:19Z",
+       "next_artifact_number": 2,
+       "artifacts": [
+         {
+           "type": "research",
+           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md",
+           "summary": "Spawn analysis from parent task 117"
++        },
++        {
++          "path": "specs/119_restore_core_infrastructure_and_reconcile_the_logo/plans/01_restore-core-infra-logos.md",
++          "type": "plan",
++          "summary": ""
++        },
++        {
++          "path": "specs/119_restore_core_infrastructure_and_reconcile_the_logo/summaries/01_restore-core-infra-logos-summary.md",
++          "type": "summary",
++          "summary": "4-phase restore of model_checker builder/iterate/jupyter/output infrastructure plus logos theory reconciliation and registration; all definition-of-done checks green (imports, CLI --help, 446 logos tests passing)."
+         }
+-      ]
++      ],
++      "session_id": "sess_1784861238_c08d5c_119"
+     },
+     {
+       "project_number": 120,
+       "project_name": "restore_and_port_the_exclusion_and_imposition_theo",
+-      "status": "researched",
++      "status": "implementing",
+       "task_type": "python",
+       "description": "Covers plan phases 5-6 of specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md ('Restore and Port the exclusion Theory' and 'Restore and Port the imposition Theory'). This is the highest-risk work in the plan: both theories restore from a PRE-solver-migration commit (abb3bf7d^), predating z3_shim, model_checker.solver, and the modular models.semantic/models.proposition/models.structure package structure, and must be ported to the current API. Use the already-current-API bimodal and logos theories (from the prior task) as the concrete reference pattern for the port. Goal (exclusion): `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/exclusion`; port imports/APIs from pre-migration to current: model_checker.z3_shim, model_checker.solver (is_true/is_false), models.semantic.SemanticDefaults, models.proposition.PropositionDefaults, models.structure.ModelDefaults, syntactic.atoms.get_atom_sort, and bimodal witness modules; register exclusion in AVAILABLE_THEORIES; get theory_lib/exclusion/tests/ to collect and pass; commit per green sub-step. Goal (imposition): `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/imposition`; apply the same import/API porting recipe established for exclusion; register imposition in AVAILABLE_THEORIES; get theory_lib/imposition/tests/ to collect and pass; commit per green sub-step. If porting exceeds budget, the plan's documented fallback is to ship with logos+bimodal registered and follow up on exclusion/imposition separately -- but the goal is full restoration; treat the fallback as a last resort. Verification: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion -q` and `.../imposition -q` both green; both registered in AVAILABLE_THEORIES; no import errors against current z3_shim/solver/models.* API.",
+       "effort": "6 hours",
+@@ -126,15 +148,21 @@
+         "code/src/model_checker/theory_lib/__init__.py"
+       ],
+       "created": "2026-07-24T02:23:00Z",
+-      "last_updated": "2026-07-24T02:23:00Z",
++      "last_updated": "2026-07-24T08:18:42Z",
+       "next_artifact_number": 2,
+       "artifacts": [
+         {
+           "type": "research",
+           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md",
+           "summary": "Spawn analysis from parent task 117"
++        },
++        {
++          "path": "specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md",
++          "type": "plan",
++          "summary": "5-phase implementation plan for restoring and porting the exclusion and imposition theories to the current z3_shim/solver/models.* API."
+         }
+-      ]
++      ],
++      "session_id": "sess_1784861238_c08d5c_120"
+     },
+     {
+       "project_number": 121,
