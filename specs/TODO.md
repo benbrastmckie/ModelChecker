@@ -11,13 +11,9 @@ next_project_number: 127
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 117,126 | -- | packaging, architecture |
+| 1 | 126 | -- | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
-
-### Packaging
-
-117 [IMPLEMENTING] — Review and stabilize the repo after recent revisions: verify the 
 
 ### Architecture
 
@@ -148,7 +144,7 @@ next_project_number: 127
 ---
 
 ### 117. Review cli pypi parity nix flake release
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 118, Task 119, Task 120, Task 121, Task 122, Task 123, Task 124, Task 125
@@ -156,6 +152,7 @@ next_project_number: 127
   - [117_review_cli_pypi_parity_nix_flake_release/reports/01_team-research.md]
   - [117_review_cli_pypi_parity_nix_flake_release/reports/03_team-research.md]
 - **Plan**: [117_review_cli_pypi_parity_nix_flake_release/plans/03_stabilize-and-release-closeout.md]
+- **Summary**: [117_review_cli_pypi_parity_nix_flake_release/summaries/03_stabilize-and-release-closeout-summary.md]
 
 **Description**: Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI
 

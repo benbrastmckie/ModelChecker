@@ -24,13 +24,13 @@
     {
       "project_number": 117,
       "project_name": "review_cli_pypi_parity_nix_flake_release",
-      "status": "implementing",
+      "status": "completed",
       "task_type": "python",
       "description": "Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI",
       "topic": "packaging",
       "created": "2026-07-23T17:05:44Z",
-      "last_updated": "2026-07-24T16:21:38Z",
-      "session_id": "sess_1784910073_5474fc",
+      "last_updated": "2026-07-24T18:32:38Z",
+      "session_id": "sess_1784916137_a212ff",
       "researched": "2026-07-24T16:00:40Z",
       "next_artifact_number": 4,
       "artifacts": [
@@ -48,6 +48,11 @@
           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/plans/03_stabilize-and-release-closeout.md",
           "type": "plan",
           "summary": "9-phase close-out plan: P0 release blockers, P1 quality fixes, P2 handoff (11h, 3 waves)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/summaries/03_stabilize-and-release-closeout-summary.md",
+          "type": "summary",
+          "summary": "Phase 5 classification findings, Phase 9 close-out record, and user handoff note"
         }
       ],
       "previous_status": "planned",
@@ -60,7 +65,8 @@
         123,
         124,
         125
-      ]
+      ],
+      "completion_summary": "Root-caused the two full-suite anomalies from the team review as environment-dependent (a pytest-xdist JUnit-header counting artifact, not a real 71-test collection gap; and a timing-threshold flake in test_performance_improvement) rather than regressions. Completed release close-out: marked PUBLISH-CHECKLIST.md pre-flight boxes (with a documented host-contention caveat for a related, previously undocumented Z3-timing flake observed on this shared dev machine, confirmed load-dependent and not a code regression), verified ROADMAP.md Phase 1 seeding, ran final verification (bimodal 289/289 at normal load, new Phase 1/4 tests green), and prepared the user handoff note. No source code was changed; the task is ready for the user's USER-ONLY sign-off, /merge, tag, and publish steps."
     },
     {
       "project_number": 116,

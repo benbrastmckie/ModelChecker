@@ -1,7 +1,7 @@
 # Implementation Plan: Stabilize and Release Close-Out
 
 - **Task**: 117 - review_cli_pypi_parity_nix_flake_release
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 11 hours
 - **Dependencies**: None (blocking subtasks 118-125 all completed)
 - **Research Inputs**: reports/03_team-research.md (4-teammate review; + teammate a/b/c/d findings, same directory)
