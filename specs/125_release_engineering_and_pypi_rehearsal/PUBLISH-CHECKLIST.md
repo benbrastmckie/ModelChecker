@@ -15,16 +15,29 @@ agent, but nothing in this checklist authorizes an agent to perform the USER-ONL
 
 ## 1. Pre-Flight Checks (verify before tagging)
 
-- [ ] Tests are green. Re-run the project's test suite (or at minimum the Nix-gated subset) and
+- [x] Tests are green. Re-run the project's test suite (or at minimum the Nix-gated subset) and
       confirm no regressions:
       ```bash
       nix flake check
       ```
-- [ ] `nix build` succeeds and produces `packages.default`:
+      **Verified this review round** with a caveat: no `flake.nix`/`flake.lock` file was modified
+      by this round of fixes, so the check derivation's content is unchanged from prior
+      verification. A fresh plain-`pytest` run of the exact suite `checks.default` executes
+      (`code/src/model_checker/theory_lib/bimodal/`) passed **289/289** (286 baseline + 3 new
+      regression tests added this round) at normal host load. Repeated `nix flake check` attempts
+      on this specific shared, multi-tenant development host intermittently reproduced a
+      Z3-timing/CPU-contention-sensitive flake (`test_bimodal.py::test_example_cases[BM_CM_1-example_case7]`,
+      already documented in `specs/122_*/baselines/bimodal-tally.md`) when concurrent unrelated
+      builds spiked host CPU load; the same test passes cleanly (~9.5s vs its 15s budget) at
+      normal load. **Re-run `nix flake check` on a quiet/CI host immediately before tagging** to
+      get a clean confirmation free of this host's shared-tenancy contention.
+- [x] `nix build` succeeds and produces `packages.default`:
       ```bash
       nix build
       ```
-- [ ] Review the Phase 4 local rehearsal evidence in
+      Verified in a prior rehearsal round (Phase 4 rehearsal evidence below); no flake or
+      packaging file changed in this round, so this box relies on that prior verification.
+- [x] Review the Phase 4 local rehearsal evidence in
       `specs/125_release_engineering_and_pypi_rehearsal/rehearsal/`:
       - `parity-diff.md` — artifact identity (`model_checker-1.3.0`, no `oracle/`), clean
         `check-wheel-contents`, `twine check --strict` PASSED on both wheel and sdist, and the
@@ -33,10 +46,11 @@ agent, but nothing in this checklist authorizes an agent to perform the USER-ONL
         summary above.
   - If anything in the rehearsal evidence looks wrong (unexpected files, wrong package name,
     failed checks), stop and investigate before tagging — do not proceed to step 2.
-- [ ] Confirm `.github/workflows/release.yml` and `.github/RELEASE_SETUP.md` reflect the current
+- [x] Confirm `.github/workflows/release.yml` and `.github/RELEASE_SETUP.md` reflect the current
       state (Phases 1-3 of this task): no `cd Code` casing bug, no `PYPI_API_TOKEN` references,
       OIDC Trusted Publishing job graph (`build` -> `publish-testpypi` -> `publish-pypi` ->
-      `github-release`).
+      `github-release`). Confirmed: `release.yml`'s Python matrix is now `['3.10', '3.11', '3.12']`
+      (consistent with `requires-python = ">=3.10"`), no `3.8`/`3.9` references remain.
 
 ## 2. One-Time OIDC Setup (skip if already configured)
 
