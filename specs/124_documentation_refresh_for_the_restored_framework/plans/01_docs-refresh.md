@@ -230,18 +230,26 @@ Phases within the same wave can execute in parallel.
   relocation / first-order removal with no task-number citations; ROADMAP records the identity
   decision.
 
-### Phase 6: Cross-reference and link validation [NOT STARTED]
+### Phase 6: Cross-reference and link validation [COMPLETED]
 
 - **Goal:** Confirm consistency across all edited files and that no dead link or task-number
   citation was introduced.
 - **Tasks:**
-  - [ ] Grep every edited file outside `specs/**` for `task \d` / `task-\d` citation patterns;
+  - [x] Grep every edited file outside `specs/**` for `task \d` / `task-\d` citation patterns;
         replace any with durable anchors. (`specs/ROADMAP.md` is under `specs/` but should still
-        avoid task numbers for durability.)
-  - [ ] Validate every relative link touched or referenced resolves to a real file on disk
-        (jupyter link, QUANTIFIER_SOLVERS removal, any component links).
-  - [ ] Confirm the theory list and component descriptions agree across README.md,
-        code/README.md, and CLAUDE.md.
+        avoid task numbers for durability.) *(completed: zero matches across all seven files)*
+  - [x] Validate every relative link touched or referenced resolves to a real file on disk
+        (jupyter link, QUANTIFIER_SOLVERS removal, any component links). *(completed: automated
+        link-scan across all seven scoped files. All links touched by this task resolve. One
+        pre-existing, unrelated dead-link pair was found in `code/CHANGELOG.md`'s historical
+        Issue #73 `## Links` section — `specs/plans/issue_73_package_loading_refactor.md` and
+        `docs/migration/package_loading_v2.md` — from an older, already-merged change entry
+        unrelated to this task's release notes; left as-is per the non-goal against
+        restructuring beyond this task's accuracy corrections, and flagged in the summary as a
+        pre-existing defect for a future pass)*
+  - [x] Confirm the theory list and component descriptions agree across README.md,
+        code/README.md, and CLAUDE.md. *(completed: all three list logos/exclusion/imposition/
+        bimodal consistently and match `AVAILABLE_THEORIES`)*
 - **Timing:** 20 minutes
 - **Depends on:** 2, 3, 4, 5
 - **Files to modify:** minor corrections only in already-touched files, if inconsistencies found
@@ -250,18 +258,19 @@ Phases within the same wave can execute in parallel.
 
 ## Testing & Validation
 
-- [ ] No `cd Code` or `cd ModelChecker/Code` string remains in `CLAUDE.md` or `code/README.md`.
-- [ ] The dead `docs/theory/QUANTIFIER_SOLVERS.md` link is removed/repointed in
-      `code/scripts/README.md`; the target of any replacement exists.
-- [ ] The root README jupyter quick-start and jupyter link are corrected (link resolves or is
-      removed).
-- [ ] Theory list (logos, exclusion, imposition, bimodal) is consistent across README.md,
+- [x] No `cd Code` or `cd ModelChecker/Code` string remains in `CLAUDE.md` or `code/README.md`.
+- [x] The dead `docs/theory/QUANTIFIER_SOLVERS.md` link is removed/repointed in
+      `code/scripts/README.md`; the target of any replacement exists. *(verified already-live,
+      no edit needed — see Phase 3 deviation)*
+- [x] The root README jupyter quick-start and jupyter link are corrected (link resolves or is
+      removed). *(verified already correct, no edit needed)*
+- [x] Theory list (logos, exclusion, imposition, bimodal) is consistent across README.md,
       code/README.md, and CLAUDE.md and matches `AVAILABLE_THEORIES`.
-- [ ] `code/CHANGELOG.md` has an honest release entry covering identity restore, theory set,
+- [x] `code/CHANGELOG.md` has an honest release entry covering identity restore, theory set,
       first-order removal, and oracle relocation.
-- [ ] `specs/ROADMAP.md` records the durable package-identity decision.
-- [ ] `grep -rnE 'task[ -][0-9]+' README.md code/README.md CLAUDE.md code/CHANGELOG.md docs/usage/SEMANTICS.md code/scripts/README.md` returns no citation-style matches.
-- [ ] `code/MANIFEST.in` was not modified by this task.
+- [x] `specs/ROADMAP.md` records the durable package-identity decision.
+- [x] `grep -rnE 'task[ -][0-9]+' README.md code/README.md CLAUDE.md code/CHANGELOG.md docs/usage/SEMANTICS.md code/scripts/README.md` returns no citation-style matches.
+- [x] `code/MANIFEST.in` was not modified by this task.
 
 ## Artifacts & Outputs
 
