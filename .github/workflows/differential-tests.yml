@@ -3,11 +3,11 @@ name: Differential Oracle Tests
 on:
   push:
     paths:
-      - 'code/src/bimodal_logic/**'
+      - 'oracle/bimodal_logic/**'
       - 'code/src/model_checker/theory_lib/bimodal/**'
   pull_request:
     paths:
-      - 'code/src/bimodal_logic/**'
+      - 'oracle/bimodal_logic/**'
       - 'code/src/model_checker/theory_lib/bimodal/**'
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
       - name: Run differential tests (non-slow, no BimodalHarness)
         run: |
           PYTHONPATH=code/src pytest \
-            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py \
+            oracle/bimodal_logic/tests/test_cross_oracle_differential.py \
             -v \
             -m "not slow and not differential" \
             --timeout=300
@@ -41,12 +41,12 @@ jobs:
       - name: Run CI gate tests explicitly
         run: |
           PYTHONPATH=code/src pytest \
-            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestCIGate \
-            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestFormulaEnumerator \
-            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestDifferentialInfrastructure \
-            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestKnownFormulaBaseline \
-            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestDifferentialComparison \
-            code/src/model_checker/theory_lib/bimodal/tests/unit/test_cross_oracle_differential.py::TestDifferentialReport \
+            oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestCIGate \
+            oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFormulaEnumerator \
+            oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestDifferentialInfrastructure \
+            oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestKnownFormulaBaseline \
+            oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestDifferentialComparison \
+            oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestDifferentialReport \
             -v \
             --timeout=300
         env:
