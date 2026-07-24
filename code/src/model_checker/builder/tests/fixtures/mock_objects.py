@@ -187,11 +187,17 @@ class MockObjectFactory:
         defaults = {
             "file_path": "/tmp/test.py",
             "comparison": False,
-            "interactive": False, 
+            "interactive": False,
             "iterations": False,
             "quiet": False,
             "output": None,  # None means use all formats by default
-            "save": None  # None means --save flag not used
+            "save": None,  # None means --save flag not used
+            "sequential": False,  # Matches the real --sequential/-q CLI flag's
+                                   # argparse default; without an explicit default
+                                   # here, Mock(**defaults) auto-creates a truthy
+                                   # `sequential` attribute on first access, which
+                                   # create_output_config() reads as "sequential
+                                   # mode requested" (see output/config.py).
         }
         
         if isinstance(options, dict):

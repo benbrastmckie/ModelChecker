@@ -31,7 +31,11 @@ class TestBuildModule(unittest.TestCase):
         self.mock_flags.output = None  # None means use all formats by default
         # Add save attribute for new --save flag
         self.mock_flags.save = None  # None means flag not used
-        
+        # Matches the real --sequential/-q CLI flag's argparse default; a bare
+        # Mock() auto-creates a truthy `sequential` attribute otherwise, which
+        # create_output_config() reads as "sequential mode requested".
+        self.mock_flags.sequential = False
+
         # Create a basic example module file
         self.create_test_module_file()
     
@@ -339,6 +343,7 @@ except ImportError:
         mock_flags.output = None
         mock_flags._parsed_args = []
         mock_flags.save = None  # No saving requested
+        mock_flags.sequential = False  # See setUp() comment on the Mock() default trap
 
         try:
             build_module = BuildModule(mock_flags)

@@ -1,0 +1,62 @@
+=== representative example run: bimodal/examples.py ===
+
+Solver Run Time: 1.8128 seconds
+
+========================================
+World Histories:
+  [37mW_0: (-1:d) ⟹₁ (0:a)[0m
+  [37mW_1:           (0:d) ⟹₁ (+1:a)[0m
+
+Evaluation Point:
+  [34mWorld History W_0: d ⟹₁ a[0m
+  [34mTime: 0[0m
+  [34mWorld State: a[0m
+
+INTERPRETED PREMISE:
+
+1.  [32m|\Box A| = < {a, d}, {} >[0m  [32m(True in W_0 at time 0)[0m
+      [37m|A| = < {a, d}, {} >[0m  [33m(True in W_0 at time 0)[0m
+      [37m|A| = < {a, d}, {} >[0m  [33m(True in W_1 at time 0)[0m
+
+INTERPRETED CONCLUSION:
+
+2.  [31m|\Future \Box A| = < {d}, {a} >[0m  [31m(False in W_0 at time 0)[0m
+      [37m|\Box A| = < {a, d}, {} >[0m  [33m(True in W_0 at time -1)[0m
+        [37m|A| = < {a, d}, {} >[0m  [33m(True in W_0 at time -1)[0m
+        [37m|A| = < {a, d}, {} >[0m  [33m(False in W_1 at time -1)[0m
+      [37m|\Box A| = < {a, d}, {} >[0m  [33m(True in W_0 at time 0)[0m
+        [37m|A| = < {a, d}, {} >[0m  [33m(True in W_0 at time 0)[0m
+        [37m|A| = < {a, d}, {} >[0m  [33m(True in W_1 at time 0)[0m
+
+Total Run Time: 1.8538 seconds
+
+
+========================================
+
+================================================================================
+BIMODAL THEORY EXAMPLE REPORT
+================================================================================
+
+Active Examples: 22 of 52 available
+  Countermodels: 13
+    Extensional: EX_CM_1
+    Modal: MD_CM_1, MD_CM_2, MD_CM_3, MD_CM_4, MD_CM_5, MD_CM_6
+    Tense: TN_CM_1, TN_CM_2
+    Bimodal: BM_CM_1, BM_CM_2, BM_CM_3, BM_CM_4
+  Theorems: 9
+    Extensional: EX_TH_1
+    Modal: MD_TH_1, MD_TH_2
+    Tense: TN_TH_2
+    Bimodal: BM_TH_1, BM_TH_2, BM_TH_3, BM_TH_4, BM_TH_5
+
+--------------------------------------------------------------------------------
+Theory: Bimodal (Two Orthogonal S5 Modalities)
+Authors: Benjamin Brast-McKie
+Implementation: Benjamin Brast-McKie, Miguel Buitrago
+--------------------------------------------------------------------------------
+
+For more information, see:
+  - Theory documentation: src/model_checker/theory_lib/bimodal/README.md
+  - General usage guide: docs/usage/README.md
+================================================================================
+EXIT CODE: 0

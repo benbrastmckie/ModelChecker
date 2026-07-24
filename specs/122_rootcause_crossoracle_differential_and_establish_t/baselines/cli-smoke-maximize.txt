@@ -1,0 +1,41 @@
+
+========================================
+
+EXAMPLE EXT_CM_2:
+  Premises: ['B', '(A \\rightarrow B)']
+  Conclusions: ['A']
+
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.0064, MAX TIME = 1, N = 4.[0m
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.0218, MAX TIME = 1, N = 5.[0m
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.0722, MAX TIME = 1, N = 6.[0m
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.3188, MAX TIME = 1, N = 7.[0m
+[31mLogosSemantics (Brast-McKie): TIMED OUT
+  RUN TIME = 1.0982, MAX TIME = 1, N = 8.[0m
+Comparison Results:
+  Brast-McKie: Maximum N = 7
+
+========================================
+
+EXAMPLE EXT_TH_5:
+  Premises: ['\\neg \\neg A']
+  Conclusions: ['A']
+
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.0021, MAX TIME = 1, N = 3.[0m
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.005, MAX TIME = 1, N = 4.[0m
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.021, MAX TIME = 1, N = 5.[0m
+[32mLogosSemantics (Brast-McKie):
+  RUN TIME = 0.127, MAX TIME = 1, N = 6.[0m
+[31mLogosSemantics (Brast-McKie): TIMED OUT
+  RUN TIME = 1.001, MAX TIME = 1, N = 7.[0m
+Comparison Results:
+  Brast-McKie: Maximum N = 6
+
+========================================
+

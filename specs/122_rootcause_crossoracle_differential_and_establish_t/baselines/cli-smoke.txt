@@ -1,0 +1,152 @@
+=== python -m model_checker --help ===
+usage: model-checker [options] [file_path]
+
+            ModelChecker: Automated semantic theory validation and countermodel generation.
+            Running without arguments starts interactive project creation mode.
+
+positional arguments:
+  file_path             Path to Python examples file to analyze
+
+options:
+  -h, --help            show this help message and exit
+
+theory selection:
+  Choose semantic frameworks
+
+  --load_theory, -l THEORY
+                        Load semantic theory: bimodal.
+
+model constraints:
+  Control proposition behavior
+
+  --contingent, -c      Require all propositions to be neither necessary nor
+                        impossible
+  --non_null, -n        Require all propositions to have non-empty verifier
+                        sets
+  --non_empty, -e       Require all propositions to have non-empty subject
+                        matter
+  --disjoint, -d        Require propositions to have disjoint subject matters
+  --maximize, -m        Compare multiple semantic theories on same examples
+
+output control:
+  Save and display options
+
+  --save, -s [{markdown,json,jupyter} ...]
+                        Save results. Formats: markdown, json, jupyter. No
+                        args = all formats. With args = specified only
+  --sequential, -q      Prompt to save each model individually (interactive
+                        mode)
+  --align_vertically, -a
+                        Display temporal models vertically (top-to-bottom time
+                        flow)
+
+solver:
+  SMT solver backend selection
+
+  --z3                  Use Z3 solver (default)
+  --cvc5                Use cvc5 solver (requires pip install cvc5)
+
+debugging:
+  Advanced analysis and troubleshooting
+
+  --print_constraints, -p
+                        Show internal solver constraints (for debugging)
+  --print_z3, -z        Show raw Z3 solver output (very technical)
+  --print_impossible, -i
+                        Include impossible states in model display
+
+utility:
+  Version, upgrade, and help
+
+  --version, -v         Show version and exit
+  --upgrade, -u         Upgrade ModelChecker package
+
+examples:
+  model-checker                          # Interactive project creation
+  model-checker examples.py             # Run examples file
+  model-checker -l bimodal examples.py  # Use bimodal theory
+  model-checker --save markdown         # Save output as markdown
+  model-checker -c -n examples.py       # Force contingent, non-null propositions
+
+documentation: https://github.com/benbrastmckie/ModelChecker/tree/main/Docs
+repository: https://github.com/benbrastmckie/ModelChecker/
+EXIT CODE: 0
+
+=== representative example run (bimodal/examples.py) ===
+See cli-smoke-example-run.txt: exit 0, ran to completion, printed BIMODAL THEORY EXAMPLE REPORT summary.
+
+=== --save markdown json (batch mode, logos extensional examples) ===
+See cli-smoke-save.txt: exit 0 after also fixing a second stale-import discovered during this
+smoke test (see below); MODELS.json + EXAMPLES.md written to the output directory.
+
+**Second stale import discovered and fixed**: `builder/module.py:283` (`_prepare_model_data`)
+imports `ModelDataCollector` from `model_checker.output`, which -- like
+SequentialSaveManager/ConsoleInputProvider -- was deleted in commit 71ef79a1 ("task 104 phase 2:
+remove dead output components") and never restored by task 119's partial output/ restoration
+(task 119 restored manager.py/config.py/constants.py/helpers.py/errors.py/progress/ but not
+collectors.py). Unlike the interactive sequential-save components, ModelDataCollector is required
+by the still-supported `--save json` code path (not the removed-and-not-restored interactive
+sequential mode), is a small, self-contained, non-interactive data-shaping helper (reflects
+`extract_states`/`extract_evaluation_world`/`extract_relations`/`extract_propositions` methods
+still present on all three theories' model-structure classes), and is not covered by this plan's
+non-goal (which names only SequentialSaveManager/ConsoleInputProvider). Restored verbatim from
+`git show 71ef79a1^:code/src/model_checker/output/collectors.py` as
+`code/src/model_checker/output/collectors.py`, exported from `output/__init__.py`. Verified the
+`--save json` path now completes (exit 0) and produces a well-formed MODELS.json.
+
+=== --maximize (logos extensional examples) ===
+See cli-smoke-maximize.txt: exit 0. TIMED OUT lines are expected --maximize behavior (theory
+comparison mode increments N until the solver times out at MAX TIME=1, then reports the maximum
+successfully-solved N per theory).
+
+=== builder/ test suite regression check (not literally required by Phase 2, but exercised as
+=== part of validating the module.py/output fix did not regress builder-adjacent tests) ===
+Before any task-122 source edits: 60 failed, 199 passed, 1 skipped (PYTHONPATH=code/src pytest
+  code/src/model_checker/builder -q). All 60 failures traced to the *unconditional* ImportError
+  in _initialize_output_management (raised regardless of whether sequential mode was requested),
+  which broke essentially every BuildModule construction that reached that method.
+After the module.py/output/__init__.py fix + a mechanical test-fixture correction (see below):
+  6 failed, 249 passed. Zero new failures relative to the pre-task-122 baseline (confirmed via
+  `comm -23` on sorted FAILED-line sets); net improvement of 54 tests (60->6 failed).
+Mechanical test-fixture fix (in file_scope's spirit -- exposed directly by removing the stale
+  import, not a new/unrelated bug): MockObjectFactory.create_flags() and several inline
+  `Mock(...)`/`Mock()` flags objects across builder/tests never set a `sequential` attribute;
+  Python's unittest.mock.Mock auto-creates a truthy attribute on first access, so
+  create_output_config() read every one of these mocks as "sequential mode requested" once the
+  ImportError stopped masking it. Added an explicit `sequential=False` default matching the real
+  --sequential/-q argparse default (default False) to:
+    code/src/model_checker/builder/tests/fixtures/mock_objects.py (MockObjectFactory.create_flags)
+    code/src/model_checker/builder/tests/integration/test_build_module_theories.py (2 Mock() sites)
+    code/src/model_checker/builder/tests/unit/test_example.py (7 Mock() sites)
+    code/src/model_checker/builder/tests/integration/test_performance.py (7 Mock() sites)
+  Also updated code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py
+  ::TestInteractiveOutputDirectoryIntegration::test_interactive_mode_integrates_output_directory_prompts_correctly,
+  which patched the now-nonexistent `model_checker.output.ConsoleInputProvider` -- rewritten to
+  assert the new fail-fast NotImplementedError contract instead of mocking a deleted class.
+
+**Remaining 6 pre-existing builder-suite failures (NOT caused by, or fixable via, this task's
+scope; confirmed present in the pre-task-122 baseline too; documented here as a known gap for a
+follow-up task, not masked as green)**:
+  - test_full_pipeline.py::TestFullPipeline::test_theory_library_execution -- CLI text output
+    missing a "State Space" heading the test expects (display-formatting drift, unrelated to
+    output/sequential imports).
+  - test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently and
+    ::test_small_model_generation_completes_quickly -- hardcoded <500ms timing assertions exceeded
+    (1.08s/1.19s) on this machine; environment/timing-dependent, not an import or logic defect.
+  - test_example.py::TestBuildExampleIntegration::test_find_next_model_basic -- asserts a
+    `BuildExample.find_next_model` method that does not exist on the current class; unrelated API
+    surface gap.
+  - test_project.py::TestBuildProjectCore::test_project_initialization_default -- expects default
+    `builder.theory == 'logos'`, actual is 'bimodal'; unrelated BuildProject default-theory change.
+  - test_serialize.py::TestRealTheoryIntegration::test_serialize_real_bimodal_theory_preserves_structure
+    -- expects `module_name` to contain "model_checker.theory_lib.bimodal", actual is
+    "bimodal_semantic_module"; unrelated serialization format drift.
+  Full per-test tracebacks captured in builder-suite-pre-existing-failures.txt.
+
+**Flaky pre-existing test noted (not counted as a stable 7th failure)**:
+  test_example.py::TestBuildExampleIntegration::test_logos_extensional_theory intermittently
+  fails ("AssertionError: False is not true : Should find countermodel...") in ~1 of 4 observed
+  full-suite runs, both standalone and within the full builder suite; unrelated to output/module.py
+  imports (no ImportError involved, purely a Z3 model-existence assertion). Consistent with the
+  pre-existing Z3-context-isolation concerns the suite already carries its own dedicated tests for
+  (test_z3_isolation.py). Not fixed in this task; documented as a known pre-existing flake.

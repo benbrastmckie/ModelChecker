@@ -128,20 +128,28 @@ class BuildModule:
     
     def _initialize_output_management(self) -> None:
         """Initialize output and sequential managers."""
-        from model_checker.output import OutputManager, SequentialSaveManager, ConsoleInputProvider, OutputConfig, create_output_config
-        
+        from model_checker.output import OutputManager, create_output_config
+
         # Create output configuration from CLI arguments and settings
         config = create_output_config(self.module_flags, self.general_settings)
-        
+
         # Set save_output flag
         self.save_output = config.save_output
 
-        # Create prompt manager if prompting is enabled
+        # Interactive sequential-save prompting has no supported implementation:
+        # SequentialSaveManager/ConsoleInputProvider were intentionally deleted
+        # (task 104 phase 2, commit 71ef79a1) and are not being restored. Fail
+        # fast with a clear error rather than referencing the deleted classes;
+        # batch mode (the default) and --save remain fully supported.
         self.prompt_manager = None
         if config.sequential:
-            # Sequential mode is enabled - create sequential manager
-            input_provider = ConsoleInputProvider()
-            self.prompt_manager = SequentialSaveManager(input_provider)
+            raise NotImplementedError(
+                "Interactive sequential-save mode (--sequential / settings "
+                "'sequential') is not supported: SequentialSaveManager and "
+                "ConsoleInputProvider were removed from model_checker.output "
+                "and are not being restored. Use the default batch mode with "
+                "--save instead."
+            )
 
         # Create output manager with configuration
         self.output_manager = OutputManager(config, self.prompt_manager)

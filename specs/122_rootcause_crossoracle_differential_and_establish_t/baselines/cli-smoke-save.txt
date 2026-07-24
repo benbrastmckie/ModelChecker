@@ -1,0 +1,311 @@
+
+Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 1/3 0.0s                                                              Finding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 1/3 0.1s
+
+========================================
+
+EXAMPLE EXT_CM_2: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. B
+2. (A \rightarrow B)
+
+Conclusion:
+3. A
+
+Solver Run Time: 0.0063 seconds
+
+========================================
+
+State Space:
+  #b0000 = □
+  #b0001 = a
+  #b0010 = b
+  #b0011 = a.b
+  #b0100 = c
+  #b0101 = a.c
+  #b0110 = b.c
+  #b0111 = a.b.c (world)
+  #b1000 = d (world)
+  #b1001 = a.d (impossible)
+  #b1010 = b.d (impossible)
+  #b1011 = a.b.d (impossible)
+  #b1100 = c.d (impossible)
+  #b1101 = a.c.d (impossible)
+  #b1110 = b.c.d (impossible)
+  #b1111 = a.b.c.d (impossible)
+
+The evaluation world is: a.b.c
+
+INTERPRETED PREMISES:
+
+1.  |B| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {d} >  (True in a.b.c)
+
+2.  |(A \rightarrow B)| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, c}, {d} >  (True in a.b.c)
+      |A| = < {d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, c} >  (False in a.b.c)
+      |B| = < {a, a.b, a.b.c, a.c, b, b.c, c}, {d} >  (True in a.b.c)
+
+INTERPRETED CONCLUSION:
+
+3.  |A| = < {d}, {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, b, b.c, b.c.d, c} >  (False in a.b.c)
+
+
+========================================
+
+Finding non-isomorphic models: [░░░░░░░░░░░░░░░░░░░░] 2/3 0.0sFinding non-isomorphic models: [██░░░░░░░░░░░░░░░░░░] 2/3 (1 skipped) 0.1sFinding non-isomorphic models: [████░░░░░░░░░░░░░░░░] 2/3 (2 skipped) 0.2s                                                                          Finding non-isomorphic models: [████░░░░░░░░░░░░░░░░] 2/3 (2 skipped) 0.2s
+
+
+[33m=== DIFFERENCES FROM PREVIOUS MODEL ===[0m
+
+[34mWorld Changes:[0m
+  [32m+ a.d (now a world)[0m
+  [32m+ b.d (now a world)[0m
+  [31m- d (no longer a world)[0m
+
+[34mPossible State Changes:[0m
+  [32m+ a.d (now possible)[0m
+  [32m+ b.d (now possible)[0m
+
+[34mVerification Changes:[0m
+  Letter B:
+    [31m- a no longer verifies B[0m
+    [31m- b no longer verifies B[0m
+    [31m- a.b no longer verifies B[0m
+    [31m- c no longer verifies B[0m
+    [31m- a.c no longer verifies B[0m
+    [31m- b.c no longer verifies B[0m
+    [31m- a.b.c no longer verifies B[0m
+    [32m+ d now verifies B[0m
+    [32m+ a.d now verifies B[0m
+  Letter A:
+    [32m+ b now verifies A[0m
+    [32m+ c now verifies A[0m
+    [32m+ b.c now verifies A[0m
+    [32m+ a.b.c now verifies A[0m
+    [31m- d no longer verifies A[0m
+    [32m+ b.d now verifies A[0m
+    [32m+ b.c.d now verifies A[0m
+    [32m+ a.b.c.d now verifies A[0m
+
+[34mFalsification Changes:[0m
+  Letter B:
+    [32m+ a.b now falsifies B[0m
+    [32m+ c now falsifies B[0m
+    [32m+ a.c now falsifies B[0m
+    [32m+ b.c now falsifies B[0m
+    [32m+ a.b.c now falsifies B[0m
+    [31m- d no longer falsifies B[0m
+  Letter A:
+    [31m- a no longer falsifies A[0m
+    [31m- b no longer falsifies A[0m
+    [31m- a.b no longer falsifies A[0m
+    [31m- c no longer falsifies A[0m
+    [31m- a.c no longer falsifies A[0m
+    [31m- b.c no longer falsifies A[0m
+    [31m- a.b.c no longer falsifies A[0m
+    [32m+ a.d now falsifies A[0m
+    [31m- a.b.d no longer falsifies A[0m
+    [32m+ c.d now falsifies A[0m
+    [31m- b.c.d no longer falsifies A[0m
+    [31m- a.b.c.d no longer falsifies A[0m
+
+MODEL 2/3
+========================================
+
+EXAMPLE EXT_CM_2: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. B
+2. (A \rightarrow B)
+
+Conclusion:
+3. A
+
+Solver Run Time: 0.0054 seconds
+
+========================================
+
+State Space:
+  #b0000 = □
+  #b0001 = a
+  #b0010 = b
+  #b0011 = a.b
+  #b0100 = c
+  #b0101 = a.c
+  #b0110 = b.c
+  #b0111 = a.b.c (world)
+  #b1000 = d
+  #b1001 = a.d (world)
+  #b1010 = b.d (world)
+  #b1011 = a.b.d (impossible)
+  #b1100 = c.d (impossible)
+  #b1101 = a.c.d (impossible)
+  #b1110 = b.c.d (impossible)
+  #b1111 = a.b.c.d (impossible)
+
+The evaluation world is: a.d
+
+INTERPRETED PREMISES:
+
+1.  |B| = < {a.d, d}, {a.b, a.b.c, a.c, b.c, c} >  (True in a.d)
+
+2.  |(A \rightarrow B)| = < {a.c.d, a.d, c.d, d}, {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b.c, b.c.d, c} >  (True in a.d)
+      |A| = < {a.b.c, a.b.c.d, b, b.c, b.c.d, b.d, c}, {a.c.d, a.d, c.d} >  (False in a.d)
+      |B| = < {a.d, d}, {a.b, a.b.c, a.c, b.c, c} >  (True in a.d)
+
+INTERPRETED CONCLUSION:
+
+3.  |A| = < {a.b.c, a.b.c.d, b, b.c, b.c.d, b.d, c}, {a.c.d, a.d, c.d} >  (False in a.d)
+
+
+========================================
+Finding non-isomorphic models: [█░░░░░░░░░░░░░░░░░░░] 3/3 0.1sFinding non-isomorphic models: [███░░░░░░░░░░░░░░░░░] 3/3 (1 skipped) 0.2sFinding non-isomorphic models: [█████░░░░░░░░░░░░░░░] 3/3 (2 skipped) 0.3sFinding non-isomorphic models: [███████░░░░░░░░░░░░░] 3/3 (3 skipped) 0.4s                                                                          Finding non-isomorphic models: [███████░░░░░░░░░░░░░] 3/3 (3 skipped) 0.4s
+
+
+[33m=== DIFFERENCES FROM PREVIOUS MODEL ===[0m
+
+[34mWorld Changes:[0m
+  [32m+ c.d (now a world)[0m
+  [32m+ b.c (now a world)[0m
+  [32m+ a.b (now a world)[0m
+  [32m+ a.c (now a world)[0m
+  [31m- a.d (no longer a world)[0m
+  [31m- a.b.c (no longer a world)[0m
+
+[34mPossible State Changes:[0m
+  [32m+ c.d (now possible)[0m
+  [31m- a.d (now impossible)[0m
+  [31m- a.b.c (now impossible)[0m
+
+[34mVerification Changes:[0m
+  Letter B:
+    [32m+ b now verifies B[0m
+    [32m+ a.b now verifies B[0m
+    [32m+ a.c now verifies B[0m
+    [32m+ b.c now verifies B[0m
+    [32m+ a.b.c now verifies B[0m
+    [31m- d no longer verifies B[0m
+    [31m- a.d no longer verifies B[0m
+    [32m+ b.d now verifies B[0m
+    [32m+ a.b.d now verifies B[0m
+    [32m+ b.c.d now verifies B[0m
+    [32m+ a.b.c.d now verifies B[0m
+  Letter A:
+    [32m+ a now verifies A[0m
+    [31m- b no longer verifies A[0m
+    [32m+ a.b now verifies A[0m
+    [31m- c no longer verifies A[0m
+    [32m+ a.c now verifies A[0m
+    [31m- b.c no longer verifies A[0m
+    [32m+ a.d now verifies A[0m
+    [31m- b.d no longer verifies A[0m
+    [32m+ a.b.d now verifies A[0m
+    [32m+ c.d now verifies A[0m
+    [32m+ a.c.d now verifies A[0m
+
+[34mFalsification Changes:[0m
+  Letter B:
+    [31m- a.b no longer falsifies B[0m
+    [31m- c no longer falsifies B[0m
+    [31m- a.c no longer falsifies B[0m
+    [31m- b.c no longer falsifies B[0m
+    [32m+ a.b.d now falsifies B[0m
+    [32m+ c.d now falsifies B[0m
+    [32m+ a.b.c.d now falsifies B[0m
+  Letter A:
+    [32m+ b.c now falsifies A[0m
+    [31m- a.d no longer falsifies A[0m
+    [32m+ b.d now falsifies A[0m
+    [31m- c.d no longer falsifies A[0m
+    [31m- a.c.d no longer falsifies A[0m
+    [32m+ b.c.d now falsifies A[0m
+
+MODEL 3/3
+========================================
+
+EXAMPLE EXT_CM_2: there is a countermodel.
+
+Atomic States: 4
+
+Semantic Theory: Brast-McKie
+
+Premises:
+1. B
+2. (A \rightarrow B)
+
+Conclusion:
+3. A
+
+Solver Run Time: 0.0051 seconds
+
+========================================
+
+State Space:
+  #b0000 = □
+  #b0001 = a
+  #b0010 = b
+  #b0011 = a.b (world)
+  #b0100 = c
+  #b0101 = a.c (world)
+  #b0110 = b.c (world)
+  #b0111 = a.b.c (impossible)
+  #b1000 = d
+  #b1001 = a.d (impossible)
+  #b1010 = b.d (world)
+  #b1011 = a.b.d (impossible)
+  #b1100 = c.d (world)
+  #b1101 = a.c.d (impossible)
+  #b1110 = b.c.d (impossible)
+  #b1111 = a.b.c.d (impossible)
+
+The evaluation world is: b.d
+
+INTERPRETED PREMISES:
+
+1.  |B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b, b.c, b.c.d, b.d}, {a.b.c, a.b.c.d, a.b.d, c.d} >  (True in b.d)
+
+2.  |(A \rightarrow B)| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b, b.c, b.c.d, b.d}, {a.b.c, a.b.c.d, a.b.d, a.c.d, b.c.d, c.d} >  (True in b.d)
+      |A| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b.c.d, c.d}, {b.c, b.c.d, b.d} >  (False in b.d)
+      |B| = < {a.b, a.b.c, a.b.c.d, a.b.d, a.c, b, b.c, b.c.d, b.d}, {a.b.c, a.b.c.d, a.b.d, c.d} >  (True in b.d)
+
+INTERPRETED CONCLUSION:
+
+3.  |A| = < {a, a.b, a.b.c, a.b.c.d, a.b.d, a.c, a.c.d, a.d, b.c.d, c.d}, {b.c, b.c.d, b.d} >  (False in b.d)
+
+
+========================================
+
+ITERATION REPORT
+    Model 1: Initial model (0.01s)
+    Model 2: Found after skipping 2 isomorphic models (0.24s)
+    Model 3: Found after skipping 3 isomorphic models (0.39s)
+
+Total: 3/3 models found, 5 isomorphic models skipped, 0.76s elapsed
+
+========================================
+========================================
+
+EXAMPLE EXT_TH_5: there is no countermodel.
+
+Atomic States: 3
+
+Semantic Theory: Brast-McKie
+
+Premise:
+1. \neg \neg A
+
+Conclusion:
+2. A
+
+Solver Run Time: 0.0015 seconds
+
+========================================
+
+Output saved to: /tmp/claude-1000/-home-benjamin-Projects-ModelChecker/324bc632-4923-44c1-ae5e-b2f7a0399756/scratchpad/cli-smoke-out/output_20260724_021418

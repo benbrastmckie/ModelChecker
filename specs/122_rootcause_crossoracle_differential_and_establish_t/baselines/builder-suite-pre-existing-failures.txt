@@ -1,0 +1,290 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: xdist-3.8.0, anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collected 255 items
+
+code/src/model_checker/builder/tests/e2e/test_full_pipeline.py ..F       [  1%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py .... [  2%]
+......                                                                   [  5%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py . [  5%]
+..........                                                               [  9%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py . [  9%]
+........                                                                 [ 12%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py . [ 13%]
+........                                                                 [ 16%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py . [ 16%]
+.........                                                                [ 20%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py . [ 20%]
+.......                                                                  [ 23%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py . [ 23%]
+......                                                                   [ 26%]
+code/src/model_checker/builder/tests/integration/test_package_imports.py . [ 26%]
+..                                                                       [ 27%]
+code/src/model_checker/builder/tests/integration/test_performance.py ... [ 28%]
+..F.F..                                                                  [ 31%]
+code/src/model_checker/builder/tests/integration/test_workflow.py ...... [ 33%]
+.                                                                        [ 34%]
+code/src/model_checker/builder/tests/test_issue_73_fix.py ....           [ 35%]
+code/src/model_checker/builder/tests/test_package_loading.py .......     [ 38%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py . [ 38%]
+.............                                                            [ 43%]
+code/src/model_checker/builder/tests/unit/test_comparison.py ..........  [ 47%]
+code/src/model_checker/builder/tests/unit/test_example.py ........FF     [ 51%]
+code/src/model_checker/builder/tests/unit/test_loader.py ............    [ 56%]
+code/src/model_checker/builder/tests/unit/test_package_marker.py ...     [ 57%]
+code/src/model_checker/builder/tests/unit/test_package_structure.py ...  [ 58%]
+code/src/model_checker/builder/tests/unit/test_progress.py ...           [ 60%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py . [ 60%]
+.........                                                                [ 63%]
+code/src/model_checker/builder/tests/unit/test_project.py ......F....... [ 69%]
+                                                                         [ 69%]
+code/src/model_checker/builder/tests/unit/test_project_version.py ...... [ 71%]
+                                                                         [ 71%]
+code/src/model_checker/builder/tests/unit/test_runner.py .........       [ 75%]
+code/src/model_checker/builder/tests/unit/test_serialize.py ............ [ 80%]
+F.....                                                                   [ 82%]
+code/src/model_checker/builder/tests/unit/test_translation.py .......... [ 86%]
+..                                                                       [ 87%]
+code/src/model_checker/builder/tests/unit/test_validation.py ........... [ 91%]
+...                                                                      [ 92%]
+code/src/model_checker/builder/tests/unit/test_z3_isolation.py ......    [ 94%]
+code/src/model_checker/builder/tests/unit/test_z3_utils.py ............. [100%]
+
+=================================== FAILURES ===================================
+________________ TestFullPipeline.test_theory_library_execution ________________
+code/src/model_checker/builder/tests/e2e/test_full_pipeline.py:78: in test_theory_library_execution
+    self.assertIn("State Space", result.stdout)
+E   AssertionError: 'State Space' not found in '========================================\n\nEXAMPLE TEST: there is a countermodel.\n\nAtomic States: 2\n\nSemantic Theory: Test\n\nPremise:\n\nConclusion:\n1. A\n\nSolver Run Time: 0.3166 seconds\n\n========================================\nWorld Histories:\n  \x1b[37mTime   | W_0    | W_1   \x1b[0m\n  \x1b[37m=======|========|=======\x1b[0m\n  \x1b[37m-1     |        | (-1:a)\x1b[0m\n  \x1b[37m       |        |   ↓   \x1b[0m\n  \x1b[1;33m0      | (0:a)  | (0:b) \x1b[0m\n  \x1b[37m       |   ↓    |       \x1b[0m\n  \x1b[37m+1     | (+1:b) |       \x1b[0m\n\nEvaluation Point:\n  \x1b[34mWorld History W_0: a ⟹₁ b\x1b[0m\n  \x1b[34mTime: 0\x1b[0m\n  \x1b[34mWorld State: a\x1b[0m\n\nINTERPRETED CONCLUSION:\n\n1.  \x1b[31m|A| = < {}, {a, b} >\x1b[0m  \x1b[31m(False in W_0 at time 0)\x1b[0m\n\nTotal Run Time: 0.3522 seconds\n\n\n========================================\n'
+______ TestBuilderPerformance.test_multiple_examples_process_efficiently _______
+code/src/model_checker/builder/tests/integration/test_performance.py:210: in test_multiple_examples_process_efficiently
+    self.assertLess(avg_time, 0.5,
+E   AssertionError: 1.0615824699401855 not less than 0.5 : Average time per example should be <500ms, was 1.062s
+----------------------------- Captured stdout call -----------------------------
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX1 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX1: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. A
+
+Conclusion:
+2. B
+
+Solver Run Time: 1.0009 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX2 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX2: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. C
+
+Conclusion:
+2. D
+
+Solver Run Time: 1.0009 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX3 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX3: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. E
+
+Conclusion:
+2. F
+
+Solver Run Time: 1.0009 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX4 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX4: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. G
+
+Conclusion:
+2. H
+
+Solver Run Time: 1.0021 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX5 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX5: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. I
+
+Conclusion:
+2. J
+
+Solver Run Time: 1.0005 seconds
+
+========================================
+_____ TestBuilderPerformance.test_small_model_generation_completes_quickly _____
+code/src/model_checker/builder/tests/integration/test_performance.py:76: in test_small_model_generation_completes_quickly
+    self.assertLess(elapsed_time, 0.5,
+E   AssertionError: 1.0662922859191895 not less than 0.5 : Small model should complete in <500ms, took 1.066s
+----------------------------- Captured stdout call -----------------------------
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example SMALL found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE SMALL: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. A
+
+Conclusion:
+2. B
+
+Solver Run Time: 1.0007 seconds
+
+========================================
+____________ TestBuildExampleIntegration.test_find_next_model_basic ____________
+code/src/model_checker/builder/tests/unit/test_example.py:392: in test_find_next_model_basic
+    self.assertTrue(result["model_found"],
+E   AssertionError: False is not true : Should find initial model for A
+__________ TestBuildExampleIntegration.test_logos_extensional_theory ___________
+code/src/model_checker/builder/tests/unit/test_example.py:351: in test_logos_extensional_theory
+    self.assertTrue(result["model_found"],
+E   AssertionError: False is not true : Should find countermodel where A is true but B is false
+___________ TestBuildProjectCore.test_project_initialization_default ___________
+code/src/model_checker/builder/tests/unit/test_project.py:52: in test_project_initialization_default
+    self.assertEqual(builder.theory, 'logos')
+E   AssertionError: 'bimodal' != 'logos'
+E   - bimodal
+E   + logos
+_ TestRealTheoryIntegration.test_serialize_real_bimodal_theory_preserves_structure _
+code/src/model_checker/builder/tests/unit/test_serialize.py:299: in test_serialize_real_bimodal_theory_preserves_structure
+    self.assertIn("model_checker.theory_lib.bimodal", result["semantics"]["module_name"],
+E   AssertionError: 'model_checker.theory_lib.bimodal' not found in 'bimodal_semantic_module' : Should preserve module path information
+============================== slowest durations ===============================
+5.31s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+3.51s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_constraint_generation_scales_linearly
+1.08s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+1.07s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+1.06s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+1.06s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_large_model_generation_completes_within_timeout
+1.06s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+1.06s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_generation_completes_within_timeout
+1.05s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_logos_extensional_theory
+0.70s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_freeze_complete_time_consistency
+0.67s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+0.61s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_multiple_bars_maintain_independent_frozen_state
+0.58s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow
+0.53s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+0.50s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_deferred_completion_preserves_frozen_state
+0.31s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.30s call     src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_output
+0.30s call     src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_start_stop
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_stop_animation_without_printing
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_complete_handles_already_stopped_thread
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_progress_bar_animation_during_z3_search
+0.17s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+0.15s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.11s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_handles_example_processing_correctly
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_executes_model_check_successfully
+0.10s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_run_model_check_bimodal
+0.10s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_manual_thread_stop_then_complete
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_empty_example_cases_appropriately
+0.06s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_discovers_theory_module_successfully
+0.05s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.03s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.02s call     src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_init_file_creation
+0.02s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.02s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_loader_handles_generated_packages
+0.02s call     src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_multiple_project_creation_workflow_handles_conflicts
+0.02s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_multiple_project_generation_completes_within_reasonable_time
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_both_execution_paths_work
+0.02s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_buildmodule_with_package
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_project_creation_and_example_execution
+0.02s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance
+0.01s call     src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_relative_imports_now_work_with_package
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.01s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_example_method
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_conflicting_constraints
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_existing_name_handles_appropriately
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds
+0.01s call     src/model_checker/builder/tests/unit/test_z3_utils.py::TestZ3UtilsEdgeCases::test_extract_model_values_handles_large_variable_count
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_isolation
+
+(783 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED code/src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+FAILED code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+FAILED code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+FAILED code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+FAILED code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_logos_extensional_theory
+FAILED code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default
+FAILED code/src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_real_bimodal_theory_preserves_structure
+======================== 7 failed, 248 passed in 23.61s ========================

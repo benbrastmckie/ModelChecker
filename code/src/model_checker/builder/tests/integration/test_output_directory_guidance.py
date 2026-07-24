@@ -159,39 +159,28 @@ class TestInteractiveOutputDirectoryIntegration(unittest.TestCase):
         self.output_dir = self.cleanup.create_temp_dir()
     
     def test_interactive_mode_integrates_output_directory_prompts_correctly(self):
-        """Test interactive mode integrates output directory prompts correctly."""
+        """Test that requesting sequential (interactive prompt-based) save mode
+        fails fast with a clear error.
+
+        SequentialSaveManager/ConsoleInputProvider were intentionally deleted
+        (task 104 phase 2, commit 71ef79a1) and are not being restored; the
+        `--sequential` code path in BuildModule now raises NotImplementedError
+        rather than referencing the deleted classes. This test was previously
+        written against the (now-removed) interactive prompting layer and is
+        updated to assert the fail-fast contract instead of mocking dead
+        classes.
+        """
         flags = MockObjectFactory.create_flags({
             'file_path': self.module_path,
             'save_output': True,
             'output_dir': self.output_dir,
-            'interactive': True
+            'interactive': True,
+            'sequential': True,
         })
-        
-        # Mock interactive input if console input is used
-        with patch('model_checker.output.ConsoleInputProvider') as mock_provider_class:
-            mock_provider = MockObjectFactory.create_mock_input_provider('s')
-            mock_provider_class.return_value = mock_provider
-            
-            with patch('builtins.input', return_value='s'):
-                build_module = assert_no_exceptions_during_execution(
-                    self,
-                    lambda: BuildModule(flags),
-                    operation_name="Interactive BuildModule with output directory"
-                )
-            
-            # Verify interactive components are integrated
-            if hasattr(build_module, 'output_manager'):
-                output_manager = build_module.output_manager
-                
-                # Interactive manager should be available
-                if hasattr(output_manager, 'interactive_manager'):
-                    interactive_manager = output_manager.interactive_manager
-                    
-                    # Should be able to handle directory operations
-                    if hasattr(interactive_manager, 'prompt_change_directory'):
-                        # Interactive directory prompting is available
-                        self.assertTrue(callable(interactive_manager.prompt_change_directory),
-                                      "Interactive directory prompting should be callable")
+
+        with patch('builtins.input', return_value='s'):
+            with self.assertRaises(NotImplementedError):
+                BuildModule(flags)
     
     def test_output_directory_guidance_adapts_to_user_preferences(self):
         """Test output directory guidance adapts to different user interaction preferences."""

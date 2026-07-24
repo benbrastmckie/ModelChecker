@@ -60,6 +60,9 @@ general_settings = {}
             quiet=True,
             output=None,
             save=None,  # No saving
+            sequential=False,  # Matches real --sequential/-q argparse default;
+                                # a bare Mock() auto-creates a truthy attribute
+                                # otherwise (see output/config.py sequential logic).
             _parsed_args=[]
         )
         
@@ -97,6 +100,9 @@ general_settings = {}
             quiet=True,
             output=None,
             save=None,  # No saving
+            sequential=False,  # Matches real --sequential/-q argparse default;
+                                # a bare Mock() auto-creates a truthy attribute
+                                # otherwise (see output/config.py sequential logic).
             _parsed_args=[]
         )
         
@@ -134,6 +140,9 @@ general_settings = {}
             quiet=True,
             output=None,
             save=None,  # No saving
+            sequential=False,  # Matches real --sequential/-q argparse default;
+                                # a bare Mock() auto-creates a truthy attribute
+                                # otherwise (see output/config.py sequential logic).
             _parsed_args=[]
         )
         
@@ -181,6 +190,9 @@ general_settings = {}
             quiet=True,
             output=None,
             save=None,  # No saving
+            sequential=False,  # Matches real --sequential/-q argparse default;
+                                # a bare Mock() auto-creates a truthy attribute
+                                # otherwise (see output/config.py sequential logic).
             _parsed_args=[]
         )
         
@@ -225,6 +237,9 @@ general_settings = {}
             quiet=True,
             output=None,
             save=None,  # No saving
+            sequential=False,  # Matches real --sequential/-q argparse default;
+                                # a bare Mock() auto-creates a truthy attribute
+                                # otherwise (see output/config.py sequential logic).
             _parsed_args=[]
         )
         
@@ -255,6 +270,9 @@ general_settings = {}
             quiet=True,
             output=None,
             save=None,  # No saving
+            sequential=False,  # Matches real --sequential/-q argparse default;
+                                # a bare Mock() auto-creates a truthy attribute
+                                # otherwise (see output/config.py sequential logic).
             _parsed_args=[]
         )
         
@@ -325,6 +343,7 @@ general_settings = {{}}
                 quiet=True,
                 output=None,
                 save=None,  # No saving
+                sequential=False,  # See earlier Mock() flags comment on the argparse-default trap
                 _parsed_args=[]
             )
             
