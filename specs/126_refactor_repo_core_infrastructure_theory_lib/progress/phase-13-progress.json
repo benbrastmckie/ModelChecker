@@ -1,0 +1,42 @@
+{
+  "phase": 13,
+  "phase_name": "Derive builder Theory Identity from the Registry",
+  "started_at": "2026-07-24T23:06:00Z",
+  "last_updated": "2026-07-24T23:20:00Z",
+  "objectives": [
+    {"id": 1, "description": "fix prop_to_theory/theory_patterns drift via registry iteration", "status": "done", "files_touched": ["code/src/model_checker/builder/loader.py"]},
+    {"id": 2, "description": "replace path-substring sniff (_is_theory_lib_file) with registry-derived root", "status": "done", "files_touched": ["code/src/model_checker/builder/loader.py"]},
+    {"id": 3, "description": "strategies.py error-message literal reworded", "status": "done", "files_touched": ["code/src/model_checker/builder/strategies.py"]},
+    {"id": 4, "description": "runner.py dynamic import via registry module_path", "status": "done", "files_touched": ["code/src/model_checker/builder/runner.py"]},
+    {"id": 5, "description": "fix builder/project.py:99 hardcoded default theory literal", "status": "done", "files_touched": ["code/src/model_checker/builder/project.py"]},
+    {"id": 6, "description": "add regression test for discover_theory_module across all four theories", "status": "done", "files_touched": ["code/src/model_checker/builder/tests/unit/test_loader.py"]}
+  ],
+  "current_objective": 6,
+  "approaches_tried": [
+    {"approach": "_theory_lib_root() as a ModuleLoader static method", "result": "rejected", "reason": "pushed ModuleLoader's method count from 7 to 8, tripping test_refactoring_target_behavior.py's <=7-methods structural budget assertion; moved to a module-level function instead"}
+  ],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "13.extra1",
+      "description": "Fix builder/project.py:99's hardcoded default theory literal",
+      "type": "altered",
+      "reason": "Not named in the phase's task list, but flagged by the layering test as a builder/ violation and covered by the phase's own zero-violations-under-builder/ verification bullet.",
+      "annotation": "*(deviation, not in original task list)*"
+    },
+    {
+      "task_id": "13.extra2",
+      "description": "Add module-level _resolve_theory_lib_root() helper instead of a ModuleLoader method",
+      "type": "altered",
+      "reason": "Avoids tripping the ModuleLoader <=7-methods structural budget test.",
+      "annotation": "*(deviation, not in original task list)*"
+    },
+    {
+      "task_id": "13.extra3",
+      "description": "Add TestDiscoverTheoryModuleRegression covering all four theories",
+      "type": "altered",
+      "reason": "Directly addresses this phase's own verification bullet requiring a regression test for the three previously-silently-broken theories.",
+      "annotation": "*(deviation, not in original task list)*"
+    }
+  ]
+}

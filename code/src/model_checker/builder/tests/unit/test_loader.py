@@ -21,7 +21,7 @@ from model_checker.builder.tests.fixtures.assertions import (
     assert_no_exceptions_during_execution
 )
 
-from model_checker.builder.loader import ModuleLoader
+from model_checker.builder.loader import ModuleLoader, discover_theory_module
 
 
 class TestModuleLoaderCore(unittest.TestCase):
@@ -193,6 +193,42 @@ class TestModuleLoaderTheoryDiscovery(unittest.TestCase):
             self, context.exception, "nonexistent_theory",
             "Unknown theory discovery error"
         )
+
+
+class TestDiscoverTheoryModuleRegression(unittest.TestCase):
+    """Regression coverage for the module-level discover_theory_module() function.
+
+    Prior to the registry-based rewrite, discover_theory_module()'s Method 2/3 fallback dicts
+    (prop_to_theory / theory_patterns) only ever named 'bimodal' -- exclusion, imposition, and
+    logos were silently never restored to them after the theory restoration, so identification
+    for those three theories fell through to Method 4's less-precise theory-name-string
+    fallback instead of matching on the actual proposition/model class. This test exercises all
+    four theories' REAL semantic_theory dicts (via get_theory()) so the fix cannot regress
+    unnoticed for any one theory.
+    """
+
+    def test_discovers_correct_theory_for_all_four_theories_via_real_classes(self):
+        from model_checker.theory_lib import bimodal, exclusion, imposition, logos
+
+        theories = {
+            'bimodal': bimodal.get_theory(),
+            'exclusion': exclusion.get_theory(),
+            'imposition': imposition.get_theory(),
+            'logos': logos.get_theory(),
+        }
+        for expected_name, semantic_theory in theories.items():
+            with self.subTest(theory=expected_name):
+                # Pass a deliberately wrong/empty theory_name so Method 4's fallback cannot
+                # mask a Method 1/2/3 failure -- only a genuine class-based match should
+                # succeed here (Method 1's __module__ string check covers the package-path
+                # cases directly; Methods 2/3 are exercised whenever Method 1 doesn't match,
+                # e.g. bimodal's `bimodal_semantic_module` pickling shim __module__ value).
+                discovered = discover_theory_module("", semantic_theory)
+                self.assertEqual(
+                    discovered, expected_name,
+                    f"discover_theory_module() should identify '{expected_name}' from its own "
+                    f"real semantic_theory dict, got {discovered!r}"
+                )
 
 
 class TestModuleLoaderEdgeCases(unittest.TestCase):

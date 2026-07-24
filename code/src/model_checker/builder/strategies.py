@@ -287,7 +287,7 @@ class TheoryLibImportStrategy:
             raise PackageImportError(
                 f"File is not in model_checker structure",
                 f"Path: {path}",
-                "Theory library files must be under model_checker/theory_lib"
+                "Theory library files must be inside the model_checker package tree"
             )
 
         # Build module name from path

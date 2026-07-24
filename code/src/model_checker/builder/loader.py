@@ -82,15 +82,24 @@ class ModuleLoader:
     
     def _is_theory_lib_file(self) -> bool:
         """Check if module is part of the theory_lib directory.
-        
+
+        Resolves theory_lib's root directory via the core registry at runtime rather than a
+        hardcoded path substring -- this keeps loader.py (core) free of any literal reference
+        to theory_lib's dotted or path form (see docs/THEORY_ARCHITECTURE.md's Layering
+        section: core may never name theory_lib, statically or by string literal).
+
         Returns:
-            True if module is in theory_lib, False otherwise
+            True if module is under the theory_lib package root, False otherwise
         """
-        # Get absolute path of the module
+        theory_lib_root = _resolve_theory_lib_root()
+        if theory_lib_root is None:
+            return False
         module_path = Path(self.module_path).resolve()
-        
-        # Check if it's under src/model_checker/theory_lib
-        return 'model_checker/theory_lib' in str(module_path) or 'model_checker\\theory_lib' in str(module_path)
+        try:
+            module_path.relative_to(theory_lib_root)
+            return True
+        except ValueError:
+            return False
     
     def _is_package(self) -> bool:
         """Check if module is part of a package.
@@ -124,18 +133,28 @@ class ModuleLoader:
     
     def discover_theory_module(self) -> ModuleType:
         """Discover and load theory module from theory_lib.
-        
+
+        Uses the core registry's `module_path` for the actual import, so the dotted
+        theory_lib prefix lives in theory_lib (which populated the registry), not as a
+        literal in this core module.
+
         Returns:
             The loaded theory module
-            
+
         Raises:
             ImportError: If theory module cannot be found
         """
+        from .. import registry
+
         theory_name = self.module_name.lower()
         try:
-            # Try to import from theory_lib
-            module = __import__(f"model_checker.theory_lib.{theory_name}", 
-                              fromlist=[theory_name])
+            entry = registry.get_theory_entry(theory_name)
+        except ValueError:
+            raise ImportError(
+                f"Cannot find theory module '{theory_name}' in the theory registry"
+            )
+        try:
+            module = __import__(entry.module_path, fromlist=[theory_name])
             return module
         except ImportError:
             raise ImportError(
@@ -157,6 +176,31 @@ class ModuleLoader:
         return discover_theory_module(theory_name, semantic_theory)
 
 
+def _resolve_theory_lib_root() -> Optional[Path]:
+    """Resolve theory_lib's package root directory from the core registry.
+
+    Module-level helper (not a ModuleLoader method, to keep the class's own method count
+    within its documented budget). Uses one registered theory's `module_path` (a runtime
+    value populated by theory_lib itself, never a literal written here) to locate its file via
+    `importlib.util.find_spec`, then walks up two parents (`<theory>/__init__.py` ->
+    `<theory>/` -> the shared package root all registered theories live under).
+
+    Returns:
+        The theory package root directory, or None if no theory is registered yet.
+    """
+    from .. import registry
+    import importlib.util
+
+    registered = registry.get_registered()
+    if not registered:
+        return None
+    entry = registry.get_theory_entry(registered[0])
+    spec = importlib.util.find_spec(entry.module_path)
+    if spec is None or spec.origin is None:
+        return None
+    return Path(spec.origin).resolve().parent.parent
+
+
 def discover_theory_module(theory_name: str, semantic_theory: Dict[str, Any]) -> Optional[str]:
     """Discover which theory module a semantic theory belongs to.
 
@@ -167,6 +211,8 @@ def discover_theory_module(theory_name: str, semantic_theory: Dict[str, Any]) ->
     Returns:
         The module name (e.g., "bimodal") or None if not found
     """
+    from .. import registry
+
     # Method 1: Check the module path of the semantics class
     semantics_class = semantic_theory.get("semantics")
     if semantics_class and hasattr(semantics_class, '__module__'):
@@ -178,27 +224,28 @@ def discover_theory_module(theory_name: str, semantic_theory: Dict[str, Any]) ->
                 if theory_idx < len(parts):
                     return parts[theory_idx]
 
-    # Method 2: Check for theory-specific markers
+    # Method 2: Check for theory-specific markers, derived from the registry (fixes a live
+    # drift bug: the previous hardcoded prop_to_theory dict only ever covered 'bimodal',
+    # silently falling through to Method 4's less-precise name fallback for the other three
+    # theories -- this iterates every REGISTERED theory instead of a fixed literal dict, so
+    # it self-corrects as theories are added).
     prop_class = semantic_theory.get("proposition")
     if prop_class and hasattr(prop_class, '__name__'):
         prop_name = prop_class.__name__
-        prop_to_theory = {
-            'BimodalProposition': 'bimodal',
-        }
-        for prop_pattern, theory_module in prop_to_theory.items():
-            if prop_pattern in prop_name:
-                return theory_module
+        for entry in registry.iter_theories():
+            registered_prop = entry.proposition
+            if hasattr(registered_prop, '__name__') and registered_prop.__name__ in prop_name:
+                return entry.name
 
-    # Method 3: Check model class names
+    # Method 3: Check model class names the same way (fixes the equivalent drift in the
+    # previous hardcoded theory_patterns dict).
     model_class = semantic_theory.get("model")
     if model_class and hasattr(model_class, '__name__'):
         model_name = model_class.__name__
-        theory_patterns = {
-            'Bimodal': 'bimodal',
-        }
-        for pattern, module in theory_patterns.items():
-            if pattern in model_name:
-                return module
+        for entry in registry.iter_theories():
+            registered_model = entry.model
+            if hasattr(registered_model, '__name__') and registered_model.__name__ in model_name:
+                return entry.name
 
     # Method 4: Fallback to theory name
     if theory_name:

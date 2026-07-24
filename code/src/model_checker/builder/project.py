@@ -96,16 +96,29 @@ class BuildProject:
 
     # No longer enforcing essential files to allow for flexible project structures
 
-    def __init__(self, theory: str = 'bimodal', subtheories: Optional[List[str]] = None) -> None:
+    def __init__(self, theory: Optional[str] = None, subtheories: Optional[List[str]] = None) -> None:
         """Initialize project builder with specified theory.
 
         Args:
-            theory: Name of the source theory to use as template
+            theory: Name of the source theory to use as template. Defaults to the first
+                registered theory (see `model_checker.registry`) rather than a hardcoded
+                name, so this core module names no theory as a string literal (see
+                docs/THEORY_ARCHITECTURE.md's Layering section).
             subtheories: List of subtheories to load (unused, kept for API compatibility)
 
         Raises:
             FileNotFoundError: If the source theory directory doesn't exist
+            ValueError: If `theory` is None and no theory is registered yet
         """
+        if theory is None:
+            from .. import registry
+            registered = registry.get_registered()
+            if not registered:
+                raise ValueError(
+                    "No theory specified and no theory is registered yet; pass an "
+                    "explicit theory name"
+                )
+            theory = registered[0]
         self.theory: str = theory
         self.subtheories: Optional[List[str]] = subtheories
         self.source_dir: str = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'theory_lib', theory)

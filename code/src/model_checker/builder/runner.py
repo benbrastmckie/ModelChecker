@@ -853,18 +853,27 @@ class ModelRunner:
             ImportError: If the theory module or iteration function cannot be found
         """
         import importlib
-        
+        from .. import registry
+
         # Dynamically discover the theory module from the semantic theory
         module_name = self.build_module.loader.discover_theory_module_for_iteration(
             theory_name, semantic_theory
         )
-        
+
         if not module_name:
             # Fallback: try theory_name as module name directly
             module_name = theory_name.lower()
-        
-        # Import the theory module to access its iterate function
-        theory_module = importlib.import_module(f"model_checker.theory_lib.{module_name}")
+
+        # Import the theory module to access its iterate function. Resolve the dotted import
+        # path via the core registry rather than hardcoding the theory_lib prefix here -- the
+        # registry is populated by theory_lib itself (see registry.py's module docstring).
+        try:
+            theory_module_path = registry.get_theory_entry(module_name).module_path
+        except ValueError:
+            raise ImportError(
+                f"Theory module '{module_name}' is not registered"
+            )
+        theory_module = importlib.import_module(theory_module_path)
         
         # Check for generator version first
         if hasattr(theory_module, 'iterate_example_generator'):

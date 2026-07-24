@@ -870,31 +870,69 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 13: Derive builder Theory Identity from the Registry [NOT STARTED]
+### Phase 13: Derive builder Theory Identity from the Registry [COMPLETED]
 
 - **Goal:** Remove builder's hardcoded theory knowledge and path sniffing — including a live drift bug.
 - **Tasks:**
-  - [ ] Fix the live drift at `builder/loader.py:185-201`: `prop_to_theory` maps only
+  - [x] Fix the live drift at `builder/loader.py:185-201`: `prop_to_theory` maps only
         `{'BimodalProposition': 'bimodal'}` and `theory_patterns` only `{'Bimodal': 'bimodal'}`.
         Exclusion, imposition, and logos were never restored to these dicts after the theory
         restoration, so theory identification silently falls through to the Method-4 name fallback
         for three of four theories. Replace both dicts with registry queries over the registered
         `proposition` and `model` classes, which fixes the drift structurally rather than by adding
-        three more literals.
-  - [ ] Replace the path-substring sniff at `builder/loader.py:93`
+        three more literals. *(completed: both dicts replaced with `registry.iter_theories()`
+        loops matching class-name patterns; self-corrects for any future theory, no drift
+        possible)*
+  - [x] Replace the path-substring sniff at `builder/loader.py:93`
         (`'model_checker/theory_lib' in str(module_path) or 'model_checker\\theory_lib' in ...`,
         including the Windows backslash variant) with a registry lookup keyed on the resolved module
-        name.
-  - [ ] Replace the equivalent path assumption at `builder/strategies.py:285-295` the same way.
-  - [ ] Replace the string-literal dynamic imports at `builder/loader.py:137`
+        name. *(completed: new module-level `_resolve_theory_lib_root()` helper resolves
+        theory_lib's directory via `importlib.util.find_spec()` on one registered theory's
+        `module_path`, then `Path.relative_to()` replaces the substring check)*
+  - [x] Replace the equivalent path assumption at `builder/strategies.py:285-295` the same way.
+        *(completed with a narrower fix than literally "the same way": this code
+        (`TheoryLibImportStrategy`) is not actually theory_lib-specific -- it generically
+        converts any file path under a `model_checker` tree to a dotted module name via
+        `path_parts.index('model_checker')`; the only real violation was the human-readable
+        error message string containing the flagged `model_checker/theory_lib` substring,
+        reworded to "Theory library files must be inside the model_checker package tree" (no
+        registry lookup needed since there was no actual path-sniffing logic to replace here,
+        only prose))*
+  - [x] Replace the string-literal dynamic imports at `builder/loader.py:137`
         (`__import__(f"model_checker.theory_lib.{theory_name}")`) and `builder/runner.py:867`
         (`importlib.import_module(f"model_checker.theory_lib.{module_name}")`) with the registry's
-        `module_path` entry, so the dotted prefix lives in `theory_lib`, not in core.
-  - [ ] Leave `builder/serialize.py` alone: it serializes by `__module__` string (`:49`, `:118-126`)
+        `module_path` entry, so the dotted prefix lives in `theory_lib`, not in core. *(completed
+        for both sites)*
+  - [x] Leave `builder/serialize.py` alone: it serializes by `__module__` string (`:49`, `:118-126`)
         and rehydrates via `importlib` (`:71,145,173,195`). Because no packages are renamed, its
         behavior is unaffected — but run `builder/tests/unit/test_serialize.py` as a phase gate to
-        prove it.
-  - [ ] Re-run the layering test: `builder/` violations should be gone.
+        prove it. *(confirmed untouched; `test_serialize.py` passes at the same pre-existing
+        baseline -- one known-failing test unrelated to this phase, `test_serialize_real_bimodal_theory_preserves_structure`,
+        already tracked in the Phase 1-9 baseline)*
+  - [x] Re-run the layering test: `builder/` violations should be gone. *(completed: both
+        theory_lib-dependency violations under builder/ (loader.py:93,137; runner.py:867;
+        strategies.py:290) and hardcoded-theory-name violations under builder/ (loader.py:186,197;
+        project.py:99) are now zero; only jupyter/ violations remain, exactly matching Phase 15's
+        remaining scope)*
+  - [x] *(deviation, not in original task list)* Fixed `builder/project.py:99`'s hardcoded
+        `theory: str = 'bimodal'` default parameter -- not explicitly named in this phase's task
+        list, but flagged by the layering test as a `builder/` violation and covered by this
+        phase's own verification bullet ("zero violations under `builder/`"). Changed to
+        `theory: Optional[str] = None`, resolved at call time to
+        `registry.get_registered()[0]` (still 'bimodal', since it registers first -- the
+        pre-existing `test_project_initialization_default` failure, which expects 'logos', is
+        unaffected either way and remains the same known pre-existing failure).
+  - [x] *(deviation, not in original task list)* Added a new module-level helper function
+        `_resolve_theory_lib_root()` in `loader.py` rather than a `ModuleLoader` instance/static
+        method, specifically to avoid pushing `ModuleLoader`'s method count from 7 to 8 and
+        tripping `builder/tests/test_refactoring_target_behavior.py`'s `≤7 methods` structural
+        budget assertion (caught by running the full builder suite, not anticipated in advance).
+  - [x] *(deviation, not in original task list — addresses this phase's own verification bullet
+        "add a regression test covering the three that were silently broken")* Added
+        `TestDiscoverTheoryModuleRegression` to `builder/tests/unit/test_loader.py`, exercising
+        `discover_theory_module()` against all four theories' real `get_theory()` dicts with a
+        deliberately-blank `theory_name` so Method 4's name fallback cannot mask a Method 1/2/3
+        regression.
 - **Timing:** 2 hours
 - **Depends on:** 10
 - **Files to modify:**
