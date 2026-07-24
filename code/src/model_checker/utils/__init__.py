@@ -22,9 +22,12 @@ from .z3_helpers import ForAll, Exists
 # Phase 2.6 - Additional Utilities
 from .formatting import pretty_set_print, not_implemented_string, flatten
 from .version import (
-    get_model_checker_version, get_theory_version,
-    check_theory_compatibility, get_license_template
+    get_model_checker_version, get_license_template
 )
+# NOTE: get_theory_version() and check_theory_compatibility() moved to
+# model_checker.theory_lib.meta_data -- they are theory-aware (import a specific theory
+# module by name), which makes them a theory_lib concern, not a core one. No re-export shim
+# here; import them from theory_lib.meta_data directly.
 from .api import get_example, get_theory
 from .testing import (
     run_test, run_enhanced_test, TestResultData
@@ -51,8 +54,6 @@ __all__ = [
     'flatten',
     # Version Management
     'get_model_checker_version',
-    'get_theory_version',
-    'check_theory_compatibility',
     'get_license_template',
     # API Functions
     'get_example',

@@ -20,10 +20,8 @@ from model_checker.theory_lib.meta_data import (
     print_metadata_report
 )
 
-from model_checker.utils import (
-    get_model_checker_version,
-    get_theory_version
-)
+from model_checker.utils import get_model_checker_version
+from model_checker.theory_lib.meta_data import get_theory_version
 
 class TestMetadataSystem:
     """Test suite for the metadata management system."""

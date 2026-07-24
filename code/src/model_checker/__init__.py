@@ -45,10 +45,15 @@ from .utils import (
     ForAll,
     Exists,
     bitvec_to_substates,
-    get_theory,
     get_example,
     run_test,
 )
+
+# get_theory is the theory-aware entry point (auto-loads a theory's semantic_theories mapping
+# from theory_lib by name); it lives in the upper-layer model_checker/api.py, not utils/, since
+# utils/ is core and must never import theory_lib. This keeps the top-level model_checker.get_theory
+# public surface byte-identical to before the split -- only its implementation module moved.
+from .api import get_theory
 
 # Bootstrap the core theory registry (upper layer -> theory_lib, the one direction the
 # layering contract permits outside theory_lib itself; see

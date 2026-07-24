@@ -8,9 +8,9 @@ theories directly) and classifies each into one of three layers declared in
 - **core**: models, syntactic, solver, utils, iterate, builder, settings, output, z3_shim.
 - **theory_lib**: may import core freely; may never be imported by core. Excluded from this
   walk entirely -- governed by its own contract (theory conformance), not this boundary check.
-- **upper**: `model_checker/__init__.py`, `model_checker/__main__.py`, and everything under
-  `jupyter/`. Recorded here as the named UPPER_LAYER_SINGLE_FILES / UPPER_LAYER_DIR_PREFIXES
-  constants rather than a scattered exemption.
+- **upper**: `model_checker/__init__.py`, `model_checker/__main__.py`, `model_checker/api.py`,
+  and everything under `jupyter/`. Recorded here as the named UPPER_LAYER_SINGLE_FILES /
+  UPPER_LAYER_DIR_PREFIXES constants rather than a scattered exemption.
 
 Two independently-scoped rules, not one blanket "core vs. everything else" split:
 
@@ -37,10 +37,10 @@ docstring is not a functional reference and would otherwise produce false positi
 against `builder/serialize.py` and `builder/strategies.py`, both of which only mention
 theory_lib in docstring prose).
 
-`model_checker/api.py` is named in the Layering section as the eventual upper-layer home for
-theory-aware helpers currently living in `utils/api.py`; until that relocation happens,
-`utils/api.py` is still physically inside the `utils` core package and is correctly treated as a
-core-layer violation site by this test, not an upper-layer exemption.
+`model_checker/api.py` is the upper-layer home the Layering section named in advance for
+theory-aware helpers that were previously in `utils/api.py`; that relocation has happened (see
+`utils/api.py`'s docstring), so `utils/api.py` is now theory_lib-free and `model_checker/api.py`
+is classified as upper layer here, not core.
 """
 
 import ast
@@ -57,8 +57,11 @@ CORE_PACKAGE_DIRS = [
 CORE_SINGLE_FILES = ['z3_shim.py', 'registry.py']
 
 # Upper layer: permitted to import theory_lib (rule 1), but still subject to the
-# hardcoded-theory-name rule (rule 2) -- see module docstring.
-UPPER_LAYER_SINGLE_FILES = ['__init__.py', '__main__.py']
+# hardcoded-theory-name rule (rule 2) -- see module docstring. `api.py` is the thin
+# upper-layer module the plan's registry/layering phases relocate theory-aware helpers into
+# (see `utils/api.py`'s docstring and `model_checker/api.py` itself); it now exists and is
+# classified here accordingly.
+UPPER_LAYER_SINGLE_FILES = ['__init__.py', '__main__.py', 'api.py']
 UPPER_LAYER_DIR_PREFIXES = ['jupyter']
 
 # Directories excluded from the walk entirely: theory_lib itself (governed by its own contract,
@@ -235,6 +238,7 @@ def test_upper_layer_classification_has_no_false_positives():
     assert _classify(os.path.join('jupyter', 'display.py')) == 'upper'
     assert _classify('z3_shim.py') == 'core'
     assert _classify('registry.py') == 'core'
+    assert _classify('api.py') == 'upper'
     assert _classify(os.path.join('utils', 'api.py')) == 'core'
     assert _classify(os.path.join('builder', 'tests', 'unit', 'test_project.py')) is None
 

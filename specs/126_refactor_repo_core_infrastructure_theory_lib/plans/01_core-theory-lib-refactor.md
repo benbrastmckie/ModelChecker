@@ -818,24 +818,44 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 12: Move Theory-Aware Core Helpers to the Upper Layer [NOT STARTED]
+### Phase 12: Move Theory-Aware Core Helpers to the Upper Layer [COMPLETED]
 
 - **Goal:** Eliminate the `utils/` half of the layering inversions.
 - **Tasks:**
-  - [ ] `utils/api.py:48-64`: the `get_theory`-style helper falls back to
+  - [x] `utils/api.py:48-64`: the `get_theory`-style helper falls back to
         `from model_checker.theory_lib import get_semantic_theories` (`:52`) and
         `AVAILABLE_THEORIES` (`:57`). Move the theory-aware fallback into a new thin upper-layer
         `model_checker/api.py`; leave in `utils/api.py` only the pure lookup that operates on an
-        already-supplied `semantic_theories` mapping.
-  - [ ] `utils/version.py`: `get_theory_version` (`:37`) and `check_theory_compatibility` (`:57,63`)
+        already-supplied `semantic_theories` mapping. *(completed: `utils.api.get_theory(name,
+        semantic_theories)` now requires the mapping, no default/fallback; new
+        `model_checker/api.py` holds the auto-loading `get_theory(name, semantic_theories=None)`
+        that delegates to it)*
+  - [x] `utils/version.py`: `get_theory_version` (`:37`) and `check_theory_compatibility` (`:57,63`)
         both reach into `theory_lib`, the latter via both a static import and a string-literal
         `importlib`. Move both into `theory_lib/meta_data.py`, which already owns per-theory version
         and metadata concerns and already imports from `theory_lib` (`:22`, `:258`). Leave
-        `get_model_checker_version()` in `utils/version.py` — it is genuinely core.
-  - [ ] Update all importers of the moved functions; no re-export shims.
-  - [ ] Confirm `model_checker/__init__.py`'s public surface is unchanged for anything users import.
-  - [ ] Re-run the layering test: `utils/` violations should be gone; `jupyter/` and `builder/`
-        violations remain (Phases 13 and 15).
+        `get_model_checker_version()` in `utils/version.py` — it is genuinely core. *(completed)*
+  - [x] Update all importers of the moved functions; no re-export shims. *(completed:
+        `utils/__init__.py` drops `get_theory_version`/`check_theory_compatibility` from its
+        imports and `__all__`; `theory_lib/tests/test_meta_data.py` repointed to import
+        `get_theory_version` from `model_checker.theory_lib.meta_data`; grepped the repo for any
+        other importer of the moved functions or of `utils.api.get_theory`/`utils.get_theory`
+        with the auto-load calling convention -- none found outside `model_checker/__init__.py`'s
+        own re-export, which is the one updated below)*
+  - [x] Confirm `model_checker/__init__.py`'s public surface is unchanged for anything users
+        import. *(completed: `model_checker.get_theory` now sources from the new `.api` module
+        instead of `.utils`, preserving identical calling convention and behavior -- verified
+        `model_checker.get_theory('bimodal')` still auto-loads and returns the expected dict)*
+  - [x] Re-run the layering test: `utils/` violations should be gone; `jupyter/` and `builder/`
+        violations remain (Phases 13 and 15). *(completed: theory_lib-dependency violations
+        dropped from 9 to 4 -- the 3 remaining `utils/api.py`/`utils/version.py` sites are gone;
+        the 4 remaining are all `builder/` (Phase 13); hardcoded-theory-name violations unchanged
+        at 17, all in `builder/`/`jupyter/` (Phases 13, 15))*
+  - [x] *(deviation, not in original task list)* Added `'api.py'` to `test_layering.py`'s
+        `UPPER_LAYER_SINGLE_FILES` (the plan's own module docstring already named
+        `model_checker/api.py` as the eventual upper-layer home in advance; now that the file
+        exists, it is classified as upper layer accordingly, plus a matching sanity-check
+        assertion and docstring update).
 - **Timing:** 1.5 hours
 - **Depends on:** 10
 - **Files to modify:**

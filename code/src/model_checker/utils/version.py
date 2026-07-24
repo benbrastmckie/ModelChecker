@@ -1,19 +1,21 @@
 """
-Version and compatibility functions for the model checker.
+Version and license functions for the model checker.
 
-This module provides functions for version management, theory compatibility checking,
-and license generation.
+This module provides functions for core version management and license generation.
+Theory-aware version/compatibility helpers (`get_theory_version`, `check_theory_compatibility`)
+live in `theory_lib/meta_data.py` instead -- they import a specific theory module by name,
+which makes them a `theory_lib` concern, not a core one (`utils/` must never import
+`theory_lib`; see `docs/THEORY_ARCHITECTURE.md`'s Layering section).
 """
 
 import datetime
-import importlib
 from importlib.metadata import version
 from typing import Dict, Optional, Any
 
 
 def get_model_checker_version() -> str:
     """Get the current version of the model_checker package.
-    
+
     Returns:
         str: Version string (e.g., '1.0.0')
     """
@@ -22,60 +24,6 @@ def get_model_checker_version() -> str:
     except:
         # If package is not installed, return development version
         return "0.0.0-dev"
-
-
-def get_theory_version(theory_name: str) -> str:
-    """Get the version of a specific theory implementation.
-    
-    Args:
-        theory_name (str): Name of the theory (e.g., 'logos', 'exclusion')
-        
-    Returns:
-        str: Version string if available, '0.0.0' if not versioned
-    """
-    try:
-        theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
-        return getattr(theory_module, '__version__', '0.0.0')
-    except ImportError:
-        return '0.0.0'
-
-
-def check_theory_compatibility(theory_name: str) -> bool:
-    """Check if a theory is compatible with the current model_checker version.
-    
-    Args:
-        theory_name (str): Name of the theory
-        
-    Returns:
-        bool: True if compatible, False otherwise
-        
-    Raises:
-        ValueError: If theory_name is not a valid registered theory
-    """
-    try:
-        # Import theory_lib
-        from model_checker.theory_lib import AVAILABLE_THEORIES
-        
-        if theory_name not in AVAILABLE_THEORIES:
-            raise ValueError(f"Theory '{theory_name}' not found. Available theories: {AVAILABLE_THEORIES}")
-        
-        # Import the theory module
-        theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
-        
-        # Check if the theory has model_checker version info
-        if hasattr(theory_module, "__model_checker_version__"):
-            theory_mc_version = theory_module.__model_checker_version__
-            current_mc_version = get_model_checker_version()
-            
-            # Simple version comparison for now
-            # Could be enhanced with more sophisticated version comparison logic
-            return theory_mc_version == current_mc_version
-        
-        # If no version info is available, assume compatible
-        return True
-    except ImportError:
-        # If we can't import the theory, it's not compatible
-        return False
 
 
 def get_license_template(

@@ -1,0 +1,24 @@
+{
+  "phase": 12,
+  "phase_name": "Move Theory-Aware Core Helpers to the Upper Layer",
+  "started_at": "2026-07-24T22:56:00Z",
+  "last_updated": "2026-07-24T23:05:00Z",
+  "objectives": [
+    {"id": 1, "description": "utils/api.py becomes pure lookup; new model_checker/api.py holds theory-aware fallback", "status": "done", "files_touched": ["code/src/model_checker/utils/api.py", "code/src/model_checker/api.py"]},
+    {"id": 2, "description": "move get_theory_version/check_theory_compatibility to theory_lib/meta_data.py", "status": "done", "files_touched": ["code/src/model_checker/utils/version.py", "code/src/model_checker/theory_lib/meta_data.py"]},
+    {"id": 3, "description": "update importers (utils/__init__.py, test_meta_data.py, model_checker/__init__.py)", "status": "done", "files_touched": ["code/src/model_checker/utils/__init__.py", "code/src/model_checker/theory_lib/tests/test_meta_data.py", "code/src/model_checker/__init__.py"]},
+    {"id": 4, "description": "layering test updated for new api.py upper-layer classification", "status": "done", "files_touched": ["code/tests/test_layering.py"]}
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "12.extra",
+      "description": "Add api.py to test_layering.py's UPPER_LAYER_SINGLE_FILES",
+      "type": "altered",
+      "reason": "The layering test's own module docstring already named model_checker/api.py as the eventual upper-layer home in advance of this phase; now that the file exists, classifying it as upper layer (rather than leaving it unclassified/unscanned) keeps the test's coverage accurate.",
+      "annotation": "*(deviation, not in original task list)*"
+    }
+  ]
+}

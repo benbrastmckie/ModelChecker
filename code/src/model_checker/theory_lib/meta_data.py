@@ -27,6 +27,67 @@ from model_checker.theory_lib import (
     create_citation_file
 )
 
+def get_theory_version(theory_name: str) -> str:
+    """Get the version of a specific theory implementation.
+
+    Args:
+        theory_name (str): Name of the theory (e.g., 'logos', 'exclusion')
+
+    Returns:
+        str: Version string if available, '0.0.0' if not versioned
+
+    Note:
+        Moved here from `utils/version.py`: version lookup is theory-aware (it imports a
+        specific theory module by name), which makes it a `theory_lib` concern, not a core
+        one -- see `docs/THEORY_ARCHITECTURE.md`'s Layering section. `utils/version.py` keeps
+        only `get_model_checker_version()`, which is genuinely core (no theory awareness).
+    """
+    try:
+        theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
+        return getattr(theory_module, '__version__', '0.0.0')
+    except ImportError:
+        return '0.0.0'
+
+
+def check_theory_compatibility(theory_name: str) -> bool:
+    """Check if a theory is compatible with the current model_checker version.
+
+    Args:
+        theory_name (str): Name of the theory
+
+    Returns:
+        bool: True if compatible, False otherwise
+
+    Raises:
+        ValueError: If theory_name is not a valid registered theory
+
+    Note:
+        Moved here from `utils/version.py` alongside `get_theory_version()` -- same
+        core/theory_lib layering rationale.
+    """
+    try:
+        if theory_name not in AVAILABLE_THEORIES:
+            raise ValueError(f"Theory '{theory_name}' not found. Available theories: {AVAILABLE_THEORIES}")
+
+        # Import the theory module
+        theory_module = importlib.import_module(f"model_checker.theory_lib.{theory_name}")
+
+        # Check if the theory has model_checker version info
+        if hasattr(theory_module, "__model_checker_version__"):
+            theory_mc_version = theory_module.__model_checker_version__
+            current_mc_version = get_model_checker_version()
+
+            # Simple version comparison for now
+            # Could be enhanced with more sophisticated version comparison logic
+            return theory_mc_version == current_mc_version
+
+        # If no version info is available, assume compatible
+        return True
+    except ImportError:
+        # If we can't import the theory, it's not compatible
+        return False
+
+
 def update_all_theory_versions(new_version: Optional[str] = None) -> Dict[str, str]:
     """Update version information for all theories.
     
