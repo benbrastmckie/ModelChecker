@@ -182,17 +182,22 @@ Phases within the same wave can execute in parallel.
   repointed to an existing file; component table lists restored `builder`/`iterate` and the
   standalone oracle.
 
-### Phase 4: Refresh semantics usage doc (docs/usage/SEMANTICS.md) [NOT STARTED]
+### Phase 4: Refresh semantics usage doc (docs/usage/SEMANTICS.md) [COMPLETED]
 
 - **Goal:** Remove stale first-order / quantifier references that no longer describe logos, while
   preserving legitimate Z3-constraint "first-order formula" language.
 - **Tasks:**
-  - [ ] Enumerate every first-order / quantifier / `forall` / `exists` reference in
-        `docs/usage/SEMANTICS.md`.
-  - [ ] Classify each: Z3-constraint-language usage (keep) vs. removed-logos first-order
-        quantification (remove or correct).
-  - [ ] Edit only the stale removed-logos references; leave accurate Z3-constraint descriptions
-        intact.
+  - [x] Enumerate every first-order / quantifier / `forall` / `exists` reference in
+        `docs/usage/SEMANTICS.md`. *(completed: 18 hits — one prose "Z3 first-order formulas"
+        and seventeen code-block `ForAll(...)`/`Exists(...)` Z3 API calls)*
+  - [x] Classify each: Z3-constraint-language usage (keep) vs. removed-logos first-order
+        quantification (remove or correct). *(completed: all 18 hits are legitimate
+        Z3-constraint-language usage — none assert or imply logos itself exposes a first-order
+        quantifier operator)*
+  - [x] Edit only the stale removed-logos references; leave accurate Z3-constraint descriptions
+        intact. *(deviation: skipped — no stale removed-logos references were found; the file
+        required no edits. Also verified all internal `.md` links and the two referenced source
+        files resolve — zero dead links.)*
 - **Timing:** 20 minutes
 - **Depends on:** 1
 - **Files to modify:**
