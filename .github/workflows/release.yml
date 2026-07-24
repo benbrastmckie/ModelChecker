@@ -6,11 +6,12 @@ on:
     tags:
       - 'v[0-9]+.[0-9]+.[0-9]+'  # v1.0.0, v1.2.3, v1.0.1, etc.
 
-# Required permissions for creating releases
+# Default permissions are read-only; each job below grants only what it needs
+# (id-token: write for OIDC-based PyPI publishing, contents: write for the
+# GitHub Release step). See .github/RELEASE_SETUP.md for the Trusted
+# Publishing (OIDC) setup this relies on.
 permissions:
-  contents: write  # Needed to create releases
-  actions: read
-  checks: read
+  contents: read
 
 jobs:
   test-and-release:
@@ -75,11 +76,12 @@ jobs:
 
         echo "✓ All basic tests passed"
 
-  publish:
-    name: Publish to PyPI
+  build:
+    name: Build distribution
     needs: test-and-release
     runs-on: ubuntu-latest
-    # Only run after ALL test jobs succeed
+    permissions:
+      contents: read
 
     steps:
     - name: Checkout repository
@@ -93,59 +95,79 @@ jobs:
     - name: Build package
       run: |
         cd code
-        pip install --upgrade pip build
+        python -m pip install --upgrade pip
+        pip install build twine
         python -m build
         ls -la dist/
 
-    - name: Publish to PyPI
-      env:
-        TWINE_USERNAME: __token__
-        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+    - name: Check package with twine
       run: |
         cd code
-        pip install twine
+        twine check --strict dist/*
 
-        if [ -z "$TWINE_PASSWORD" ]; then
-          echo "::error::PYPI_API_TOKEN not configured in GitHub Secrets!"
-          echo "## ⚠️ PyPI Upload Failed - Missing Token" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### To fix this:" >> $GITHUB_STEP_SUMMARY
-          echo "1. Go to https://pypi.org/manage/account/token/" >> $GITHUB_STEP_SUMMARY
-          echo "2. Create an API token for project 'model-checker'" >> $GITHUB_STEP_SUMMARY
-          echo "3. Add it to https://github.com/${{ github.repository }}/settings/secrets/actions" >> $GITHUB_STEP_SUMMARY
-          echo "4. Name it: PYPI_API_TOKEN" >> $GITHUB_STEP_SUMMARY
-          exit 1
-        fi
+    - name: Upload distribution artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist
+        path: code/dist/
+        if-no-files-found: error
 
-        # Check package with twine
-        twine check dist/*
+  publish-testpypi:
+    name: Publish to TestPyPI
+    needs: [test-and-release, build]
+    runs-on: ubuntu-latest
+    environment: testpypi
+    permissions:
+      id-token: write  # Required for OIDC Trusted Publishing
+    # Non-fatal: this job is a rehearsal step. It is skipped/failed softly if
+    # the TestPyPI trusted publisher + "testpypi" GitHub Environment are not
+    # yet configured (see .github/RELEASE_SETUP.md), so an unconfigured
+    # TestPyPI rehearsal never blocks the production PyPI publish below.
+    continue-on-error: true
 
-        # Upload to PyPI (skip if version already exists)
-        if twine upload dist/* --skip-existing 2>&1 | tee upload.log; then
-          VERSION=${GITHUB_REF#refs/tags/v}
-          if grep -q "Uploading distributions" upload.log; then
-            echo "## ✅ Successfully Published!" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Version $VERSION is now available on PyPI" >> $GITHUB_STEP_SUMMARY
-          elif grep -q "File already exists" upload.log || grep -q "Skipping" upload.log; then
-            echo "## ℹ️ Package Already Published" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Version $VERSION already exists on PyPI" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "## ✅ Upload Complete" >> $GITHUB_STEP_SUMMARY
-            echo "" >> $GITHUB_STEP_SUMMARY
-            echo "Version $VERSION processing complete" >> $GITHUB_STEP_SUMMARY
-          fi
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Install with:" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
-          echo "pip install model-checker==$VERSION" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
-        else
-          echo "## ❌ Upload Failed" >> $GITHUB_STEP_SUMMARY
-          cat upload.log
-          exit 1
-        fi
+    steps:
+    - name: Download distribution artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+
+    - name: Publish to TestPyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        repository-url: https://test.pypi.org/legacy/
+        skip-existing: true
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: [build, publish-testpypi]
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write  # Required for OIDC Trusted Publishing
+
+    steps:
+    - name: Download distribution artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: dist
+        path: dist/
+
+    - name: Publish to PyPI
+      uses: pypa/gh-action-pypi-publish@release/v1
+      with:
+        skip-existing: true
+
+  github-release:
+    name: Create GitHub Release
+    needs: publish-pypi
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # Needed to create releases
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
 
     - name: Create GitHub Release
       env:

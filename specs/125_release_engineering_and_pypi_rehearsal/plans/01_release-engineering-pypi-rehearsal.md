@@ -117,32 +117,35 @@ steps operate in the real package directory.
 
 ---
 
-### Phase 2: Migrate Publishing to OIDC Trusted Publishing [NOT STARTED]
+### Phase 2: Migrate Publishing to OIDC Trusted Publishing [COMPLETED]
 
 **Goal**: Replace the long-lived-token publish job with a build-once / publish-via-OIDC job graph
 using `pypa/gh-action-pypi-publish@release/v1`, add `twine check --strict`, and add a TestPyPI
 rehearsal step.
 
 **Tasks**:
-- [ ] Restructure the workflow into a build stage and separate publish stages:
+- [x] Restructure the workflow into a build stage and separate publish stages:
       - Keep/refit `test-and-release` as the cross-platform test matrix (unchanged intent).
       - Add a `build` job (runs once on ubuntu) that: `cd code`, `python -m build`,
         `twine check --strict dist/*`, then `actions/upload-artifact` the `dist/` contents.
-- [ ] Add a `publish-testpypi` job: `needs: [test-and-release, build]`, `environment: testpypi`,
+      *(completed)*
+- [x] Add a `publish-testpypi` job: `needs: [test-and-release, build]`, `environment: testpypi`,
       `permissions: id-token: write`, `actions/download-artifact` the dist, then
       `pypa/gh-action-pypi-publish@release/v1` with
       `repository-url: https://test.pypi.org/legacy/`. Make it non-fatal/skippable if the TestPyPI
       trusted publisher is not yet configured (document the dependency; do not hard-block prod on it
-      unless desired).
-- [ ] Add a `publish-pypi` job: `needs: [build, publish-testpypi]` (or `[test-and-release, build]`),
+      unless desired). *(completed: used `continue-on-error: true` on the job)*
+- [x] Add a `publish-pypi` job: `needs: [build, publish-testpypi]` (or `[test-and-release, build]`),
       `environment: pypi`, `permissions: id-token: write`, download the same artifact, then
       `pypa/gh-action-pypi-publish@release/v1` (default PyPI). No `TWINE_USERNAME`/`TWINE_PASSWORD`,
-      no `PYPI_API_TOKEN`.
-- [ ] Remove the entire `PYPI_API_TOKEN` env/secret block and its "missing token" error handling.
-- [ ] Preserve the `Create GitHub Release` step (needs `contents: write`), attached to the publish
-      job or a final release job.
-- [ ] Confirm top-level/job-level `permissions` grant `id-token: write` only where needed and retain
-      `contents: write` for the release step.
+      no `PYPI_API_TOKEN`. *(completed)*
+- [x] Remove the entire `PYPI_API_TOKEN` env/secret block and its "missing token" error handling.
+      *(completed)*
+- [x] Preserve the `Create GitHub Release` step (needs `contents: write`), attached to the publish
+      job or a final release job. *(completed: new `github-release` job, needs: publish-pypi)*
+- [x] Confirm top-level/job-level `permissions` grant `id-token: write` only where needed and retain
+      `contents: write` for the release step. *(completed: top-level scoped to `contents: read`,
+      job-level grants add only what each job needs)*
 
 **Timing**: 0.75 hours
 

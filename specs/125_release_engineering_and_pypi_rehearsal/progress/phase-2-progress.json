@@ -1,0 +1,17 @@
+{
+  "phase": 2,
+  "phase_name": "Migrate Publishing to OIDC Trusted Publishing",
+  "started_at": "2026-07-24T00:20:00Z",
+  "last_updated": "2026-07-24T00:40:00Z",
+  "objectives": [
+    {"id": 1, "description": "Restructure workflow: keep test-and-release, add build job (twine check --strict, upload-artifact)", "status": "done", "files_touched": [".github/workflows/release.yml"]},
+    {"id": 2, "description": "Add publish-testpypi job with OIDC id-token: write", "status": "done", "files_touched": [".github/workflows/release.yml"]},
+    {"id": 3, "description": "Add publish-pypi job with OIDC id-token: write", "status": "done", "files_touched": [".github/workflows/release.yml"]},
+    {"id": 4, "description": "Remove PYPI_API_TOKEN env/secret block and missing-token error handling", "status": "done", "files_touched": [".github/workflows/release.yml"]},
+    {"id": 5, "description": "Preserve Create GitHub Release step attached to publish/release job", "status": "done", "files_touched": [".github/workflows/release.yml"]},
+    {"id": 6, "description": "Confirm permissions grant id-token: write only where needed, retain contents: write", "status": "done", "files_touched": [".github/workflows/release.yml"]}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0
+}
