@@ -25,14 +25,9 @@
           "summary": "26-phase, 14-wave plan to decouple and standardize the ModelChecker core/theory_lib boundary in place. theory_lib does not move; instead the plan enforces a strictly one-way dependency via an executable layering test, replaces the triplicated theory registry with one registration-based registry, standardizes all four theories onto a canonical module set enforced by a parametrized conformance test, deletes the spatial subtheory and accumulated cruft, and fixes the live contract bugs found en route. Includes ROADMAP snapshot/update phases recording the extraction-rejected decision and its revisit trigger."
         },
         {
-          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md",
-          "type": "summary",
-          "summary": "Phases 2-6 of 26: baselines pinned, canonical theory contract, spatial subtheory removed, cruft swept, logos benchmark relocated"
-        },
-        {
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md",
           "type": "summary",
-          "summary": "Phases 1-9 of 26 (waves 1-3) complete: ROADMAP snapshot, baselines (oracle partial), canonical theory contract, spatial/dead-wrapper removal, cruft sweep, logos benchmark relocation, wheel/scaffolding hygiene, RED theory-conformance test, RED layering test."
+          "summary": "Phases 1-9 of 26: baselines, canonical theory contract, spatial subtheory removed, cruft swept, benchmark relocated, wheel hygiene, RED conformance and layering tests"
         }
       ],
       "plan_metadata": {
@@ -166,7 +161,7 @@
       "created": "2026-07-18T19:30:01Z",
       "last_updated": "2026-07-18T19:47:25Z",
       "session_id": "sess_1784403302_7c03a0",
-      "completion_summary": "Drafted a 666-word email for a Python expert explaining ModelChecker's modular architecture, the live Syntax\u2192ModelConstraints\u2192ModelStructure\u2192Z3\u2192print pipeline, and the operator abstraction, culminating in the counterfactual/operators.py worked example. Source-verified against actual files."
+      "completion_summary": "Drafted a 666-word email for a Python expert explaining ModelChecker's modular architecture, the live Syntax→ModelConstraints→ModelStructure→Z3→print pipeline, and the operator abstraction, culminating in the counterfactual/operators.py worked example. Source-verified against actual files."
     },
     {
       "project_number": 118,
