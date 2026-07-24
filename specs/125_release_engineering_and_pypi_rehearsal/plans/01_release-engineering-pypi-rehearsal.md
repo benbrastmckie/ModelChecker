@@ -197,27 +197,36 @@ workflow filenames.
 
 ---
 
-### Phase 4: NixOS-Safe Local Build Rehearsal and Parity Diff [NOT STARTED]
+### Phase 4: NixOS-Safe Local Build Rehearsal and Parity Diff [COMPLETED]
 
 **Goal**: Rehearse the exact build the workflow will run, verify artifact identity/contents, and
 diff against the last published release, recording all evidence under the task directory.
 
 **Tasks**:
-- [ ] Enter `nix develop`; create an isolated venv (`python -m venv "$TMPDIR/rehearsal-venv"`,
+- [x] Enter `nix develop`; create an isolated venv (`python -m venv "$TMPDIR/rehearsal-venv"`,
       activate) so `flake.nix` is never modified; `pip install build twine check-wheel-contents`
-      into the venv.
-- [ ] `cd code && python -m build`; capture `dist/` listing. Confirm the artifacts are
+      into the venv. *(completed: required `PIP_USER=0`/`--no-user` because
+      `~/.config/pip/pip.conf` sets `install.user=true` globally on this NixOS host; also required
+      running the entire venv+build+check+diff sequence in a single `nix develop` invocation
+      since each invocation gets a fresh, non-persisting `TMPDIR`)*
+- [x] `cd code && python -m build`; capture `dist/` listing. Confirm the artifacts are
       `model_checker-1.3.0-*.whl` and `model_checker-1.3.0.tar.gz` — **not** `bimodal_logic`.
-- [ ] `check-wheel-contents dist/*.whl` — expect clean; explicitly confirm the relocated top-level
-      `oracle/` tree is absent from the wheel.
-- [ ] `twine check --strict dist/*` — expect PASS.
-- [ ] `pip download --no-deps model-checker==1.2.12 -d "$TMPDIR/ref"`; unzip both wheels and diff the
+      *(completed: confirmed)*
+- [x] `check-wheel-contents dist/*.whl` — expect clean; explicitly confirm the relocated top-level
+      `oracle/` tree is absent from the wheel. *(completed: `OK`, no oracle path found in wheel
+      or sdist)*
+- [x] `twine check --strict dist/*` — expect PASS. *(completed: PASSED for wheel and sdist)*
+- [x] `pip download --no-deps model-checker==1.2.12 -d "$TMPDIR/ref"`; unzip both wheels and diff the
       `RECORD`/file listings; compute `sha256` of each artifact. Classify differences against the
       expected deltas (restored `builder`/`iterate`/`jupyter`/`output`, restored
       `exclusion`/`imposition`, removed first-order subtheory, relocated/excluded oracle).
-- [ ] Write the evidence to `specs/125_release_engineering_and_pypi_rehearsal/rehearsal/`:
+      *(completed: see parity-diff.md — those four items are already true of 1.2.12 itself, so
+      they show no delta against this baseline; actual deltas found were a new `solver/` module
+      and removed dead `cli.py`, both intended)*
+- [x] Write the evidence to `specs/125_release_engineering_and_pypi_rehearsal/rehearsal/`:
       `build.log`, `wheel-contents.txt`, `twine-check.txt`, `parity-diff.md` (with hashes and the
-      classified delta table).
+      classified delta table). *(completed, plus sha256sums.txt, new/ref wheel file listings,
+      top-level-dir-diff.txt, wheel-files-diff.txt, pip-download-1.2.12.log)*
 
 **Timing**: 0.75 hours
 
