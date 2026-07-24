@@ -351,7 +351,7 @@ The Logos theory integrates with ModelChecker's BuildExample:
 from model_checker.theory_lib import logos
 
 # Load theory with specific subtheories
-theory = logos.get_theory(['modal', 'constitutive'])
+theory = logos.get_theory(subtheories=['modal', 'constitutive'])
 
 # Use theory in examples.py file following standard format
 # See the Examples Standard documentation for details

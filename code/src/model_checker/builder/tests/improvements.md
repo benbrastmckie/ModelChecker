@@ -73,7 +73,7 @@ def temp_module(tmp_path):
     module_path.write_text('''
 from model_checker.theory_lib import logos
 
-semantic_theories = {"Test": logos.get_theory(['extensional'])}
+semantic_theories = {"Test": logos.get_theory(subtheories=['extensional'])}
 example_range = {"TEST": [[], ["A"], {"N": 2}]}
 general_settings = {}
 ''')

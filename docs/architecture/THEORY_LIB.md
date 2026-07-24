@@ -112,7 +112,7 @@ graph TD
     end
     
     subgraph "Selective Loading"
-        LoadRequest["logos.get_theory(['modal', 'extensional'])"]
+        LoadRequest["logos.get_theory(subtheories=['modal', 'extensional'])"]
         ModuleSelector[Module Selector]
         CombinedTheory[Combined Theory]
     end

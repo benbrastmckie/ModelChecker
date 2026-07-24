@@ -93,7 +93,7 @@ Subtheories automatically resolve their dependencies.
 from model_checker.theory_lib import logos
 
 # Load only what you need - modal logic
-theory = logos.get_theory(['extensional', 'modal'])
+theory = logos.get_theory(subtheories=['extensional', 'modal'])
 
 # Example: Modal K Axiom
 # MOD_TH_5: MODAL K AXIOM
@@ -112,7 +112,7 @@ MOD_TH_5_settings = {
 MOD_TH_5_example = [MOD_TH_5_premises, MOD_TH_5_conclusions, MOD_TH_5_settings]
 
 # Hyperintensional content relationships
-theory = logos.get_theory(['constitutive'])  # Auto-loads extensional
+theory = logos.get_theory(subtheories=['constitutive'])  # Auto-loads extensional
 
 # Example: Grounding Anti-symmetry
 # CON_TH_16: GROUNDING ANTI-SYMMETRY
@@ -138,11 +138,11 @@ theory = logos.get_theory()  # Loads extensional, modal, constitutive, counterfa
 
 ```python
 # Requesting modal automatically includes extensional
-theory = logos.get_theory(['modal'])
+theory = logos.get_theory(subtheories=['modal'])
 print(len(theory['operators'].operator_dictionary))  # 11 operators (7 + 4)
 
 # Requesting relevance loads full dependency chain
-theory = logos.get_theory(['relevance'])
+theory = logos.get_theory(subtheories=['relevance'])
 # Loads: extensional → constitutive → relevance
 
 # Dependency visualization:
@@ -171,7 +171,7 @@ theory = logos.get_theory(['relevance'])
 
 #### Combining Modal and Constitutive Logic
 ```python
-theory = logos.get_theory(['modal', 'constitutive'])
+theory = logos.get_theory(subtheories=['modal', 'constitutive'])
 
 # Example: Modal and Constitutive Interaction
 # MOD_CON_1: GROUNDING AND NECESSITY
@@ -195,7 +195,7 @@ MOD_CON_1_example = [MOD_CON_1_premises, MOD_CON_1_conclusions, MOD_CON_1_settin
 #### Cross-Subtheory Reasoning
 ```python
 # Counterfactual and modal interaction
-theory = logos.get_theory(['modal', 'counterfactual'])
+theory = logos.get_theory(subtheories=['modal', 'counterfactual'])
 
 # Example: Modal and Counterfactual Interaction
 # MOD_CF_1: NECESSITY AND COUNTERFACTUALS

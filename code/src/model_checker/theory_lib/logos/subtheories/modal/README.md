@@ -404,7 +404,7 @@ The modal subtheory depends on:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['modal'])  # Also loads extensional and counterfactual
+theory = logos.get_theory(subtheories=['modal'])  # Also loads extensional and counterfactual
 ```
 
 ### Usage with Other Subtheories
@@ -572,7 +572,7 @@ The modal subtheory depends on:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['modal'])  # Also loads extensional and counterfactual
+theory = logos.get_theory(subtheories=['modal'])  # Also loads extensional and counterfactual
 ```
 
 ## Testing

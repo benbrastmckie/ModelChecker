@@ -97,34 +97,20 @@ ITERATE_MODULE_XFAIL_REASON = {
     ),
 }
 
-GET_THEORY_SIGNATURE_XFAIL_REASON = {
-    'logos': (
-        "logos.get_theory() takes a 'subtheories' parameter instead of the uniform "
-        "'config' parameter name every other theory uses"
-    ),
-}
+# Fixed in the phase that unified get_theory() signatures: logos now uses get_theory(config=None,
+# *, subtheories=None), matching the other three theories' get_theory(config=None). Kept as an
+# empty dict (rather than deleted) so _xfail_params()'s call site below needs no further edit.
+GET_THEORY_SIGNATURE_XFAIL_REASON = {}
 
-GET_TEST_EXAMPLES_XFAIL_REASON = {
-    'bimodal': (
-        "bimodal.examples.py defines unit_tests but not test_example_range, so "
-        "get_test_examples('bimodal') raises ValueError instead of returning a dict"
-    ),
-}
+# Fixed in the phase that added bimodal's test_example_range = unit_tests.
+GET_TEST_EXAMPLES_XFAIL_REASON = {}
 
-MISSING_EXAMPLES_ATTR_XFAIL_REASON = {
-    'bimodal': (
-        "bimodal.examples.py defines unit_tests but never assigns test_example_range "
-        "at module level (same root cause as the get_test_examples() failure above)"
-    ),
-}
+# Fixed alongside GET_TEST_EXAMPLES_XFAIL_REASON above (same root cause).
+MISSING_EXAMPLES_ATTR_XFAIL_REASON = {}
 
-DUPLICATE_EXAMPLE_RANGE_XFAIL_REASON = {
-    'logos': (
-        "logos.examples.py assigns example_range twice (once aliasing unit_tests, "
-        "once as the real definition later in the file); the second assignment "
-        "silently shadows the first with no error"
-    ),
-}
+# Fixed in the phase that removed logos's duplicate example_range assignment (kept the one
+# assigned after unit_tests is final, near semantic_theories).
+DUPLICATE_EXAMPLE_RANGE_XFAIL_REASON = {}
 
 RELEVANCE_EMPTY_OPERATORS_XFAIL_REASON = (
     "relevance.operators.py's get_operators() returns {} -- the \\preceq operator it "
@@ -264,11 +250,36 @@ class TestGetTheoryContract:
             f'model_checker.theory_lib.{theory}', fromlist=['get_theory']
         )
         sig = inspect.signature(module.get_theory)
-        params = list(sig.parameters.keys())
-        assert params == ['config'], (
-            f"{theory}.get_theory() has parameter(s) {params}, expected exactly ['config'] "
-            f"for a uniform signature across all theories"
+        params = list(sig.parameters.values())
+        assert params, f"{theory}.get_theory() must accept at least a 'config' parameter"
+        first = params[0]
+        assert first.name == 'config' and first.kind in (
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+            inspect.Parameter.POSITIONAL_ONLY,
+        ), (
+            f"{theory}.get_theory()'s first parameter is {first.name!r} (kind={first.kind}), "
+            f"expected a leading 'config' parameter for a uniform signature across all theories"
         )
+        # Every theory takes exactly 'config'; logos is the sole documented exception, which may
+        # additionally accept 'subtheories' as a keyword-only parameter (see
+        # THEORY_ARCHITECTURE.md's Theory Contract and logos/__init__.py's get_theory()
+        # docstring) -- any other extra parameter, or a non-keyword-only 'subtheories', is not
+        # part of the uniform contract and must fail here.
+        extra = params[1:]
+        if theory == 'logos':
+            assert [p.name for p in extra] == ['subtheories'], (
+                f"logos.get_theory() has extra parameter(s) {[p.name for p in extra]}, "
+                f"expected exactly one additional 'subtheories' parameter"
+            )
+            assert extra[0].kind == inspect.Parameter.KEYWORD_ONLY, (
+                f"logos.get_theory()'s 'subtheories' parameter must be keyword-only, "
+                f"got kind={extra[0].kind}"
+            )
+        else:
+            assert not extra, (
+                f"{theory}.get_theory() has unexpected extra parameter(s) "
+                f"{[p.name for p in extra]}; only 'config' is part of the uniform contract"
+            )
 
 
 class TestGetTestExamplesContract:

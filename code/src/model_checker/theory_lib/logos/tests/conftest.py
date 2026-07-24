@@ -17,31 +17,31 @@ def logos_theory():
 @pytest.fixture  
 def extensional_theory():
     """Logos theory with only extensional subtheory."""
-    return logos.get_theory(['extensional'])
+    return logos.get_theory(subtheories=['extensional'])
 
 
 @pytest.fixture
 def modal_theory():
     """Logos theory with extensional and modal subtheories."""
-    return logos.get_theory(['extensional', 'modal'])
+    return logos.get_theory(subtheories=['extensional', 'modal'])
 
 
 @pytest.fixture
 def constitutive_theory():
     """Logos theory with extensional, modal, and constitutive subtheories."""
-    return logos.get_theory(['extensional', 'modal', 'constitutive'])
+    return logos.get_theory(subtheories=['extensional', 'modal', 'constitutive'])
 
 
 @pytest.fixture
 def counterfactual_theory():
     """Logos theory with extensional, modal, and counterfactual subtheories."""
-    return logos.get_theory(['extensional', 'modal', 'counterfactual'])
+    return logos.get_theory(subtheories=['extensional', 'modal', 'counterfactual'])
 
 
 @pytest.fixture
 def relevance_theory():
     """Logos theory with extensional, modal, constitutive, and relevance subtheories."""
-    return logos.get_theory(['extensional', 'modal', 'constitutive', 'relevance'])
+    return logos.get_theory(subtheories=['extensional', 'modal', 'constitutive', 'relevance'])
 
 
 @pytest.fixture

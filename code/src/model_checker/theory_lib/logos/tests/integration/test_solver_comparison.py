@@ -237,7 +237,7 @@ def test_example_with_solver(solver, subtheory, example_name, example_case):
     # Run inside isolated Z3 context to prevent cross-test state contamination
     with isolated_z3_context():
         # Load theory with correct subtheories
-        theory = get_theory(required_subs)
+        theory = get_theory(subtheories=required_subs)
 
         # Run with timing
         passed, elapsed, error = run_example_with_timing(example_case, theory)

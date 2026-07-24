@@ -1,0 +1,65 @@
+{
+  "phase": 11,
+  "phase_name": "Fix the Examples Contract Bugs and Unify get_theory Signatures",
+  "started_at": "2026-07-24T22:41:00Z",
+  "last_updated": "2026-07-24T22:55:00Z",
+  "objectives": [
+    {"id": 1, "description": "bimodal test_example_range added", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/bimodal/examples.py"]},
+    {"id": 2, "description": "logos duplicate example_range removed", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/logos/examples.py"]},
+    {"id": 3, "description": "get_theory signatures unified (logos config + keyword-only subtheories)", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/logos/__init__.py"]},
+    {"id": 4, "description": "all get_theory( call sites updated across code/ and docs/", "status": "done", "files_touched": [
+      "code/docs/core/DOCUMENTATION.md",
+      "code/docs/standards/documentation/DOCUMENTATION_STANDARDS.md",
+      "code/src/model_checker/theory_lib/logos/docs/API_REFERENCE.md",
+      "code/src/model_checker/theory_lib/logos/tests/integration/test_semantic_coverage.py",
+      "code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md",
+      "code/src/model_checker/theory_lib/logos/subtheories/README.md",
+      "code/src/model_checker/theory_lib/README.md",
+      "code/src/model_checker/theory_lib/logos/subtheories/relevance/README.md",
+      "code/src/model_checker/theory_lib/logos/tests/conftest.py",
+      "code/src/model_checker/theory_lib/logos/docs/ARCHITECTURE.md",
+      "code/src/model_checker/theory_lib/logos/docs/README.md",
+      "code/src/model_checker/theory_lib/logos/docs/USER_GUIDE.md",
+      "code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md",
+      "code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md",
+      "code/src/model_checker/theory_lib/logos/subtheories/modal/README.md",
+      "code/src/model_checker/builder/README.md",
+      "code/src/model_checker/builder/tests/improvements.md",
+      "docs/usage/EXAMPLES.md",
+      "docs/architecture/THEORY_LIB.md",
+      "code/src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py",
+      "code/scripts/quantifier_benchmark.py",
+      "code/scripts/test_cvc5_stability.py",
+      "code/scripts/logos_solver_benchmark.py"
+    ]},
+    {"id": 5, "description": "revert incorrectly-touched bimodal-import builder test fixtures", "status": "done", "files_touched": [
+      "code/src/model_checker/builder/tests/unit/test_example.py",
+      "code/src/model_checker/builder/tests/fixtures/temp_resources.py",
+      "code/src/model_checker/builder/tests/fixtures/test_data.py",
+      "code/src/model_checker/builder/tests/e2e/test_full_pipeline.py",
+      "code/src/model_checker/builder/tests/integration/test_performance.py"
+    ]},
+    {"id": 6, "description": "remove xfail markers from conformance test; rewrite signature-uniformity test", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/tests/test_theory_conformance.py"]}
+  ],
+  "current_objective": 6,
+  "approaches_tried": [
+    {"approach": "blanket sed get_theory([ -> get_theory(subtheories=[ across all matching files", "result": "partially wrong", "reason": "incorrectly rewrote 5 builder test fixture files that call bimodal's config-only get_theory with a harmless placeholder positional list arg; reverted those 5 files back to plain positional form after the builder suite regressed from 249/6-known to 222/38 failing"}
+  ],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "11.4",
+      "description": "Grep for and update every get_theory( call site across code/, oracle/, and docs/",
+      "type": "altered",
+      "reason": "Initial bulk substitution over-matched 5 builder/tests fixture files that call bimodal.get_theory(config=None) (unrelated to the logos signature change) with a harmless unused positional list placeholder; reverted those 5 files to their original form and re-verified the builder suite returns to its exact documented 249 passed / 6 pre-existing-failure baseline.",
+      "annotation": "*(deviation, recorded inline in Phase 11's task checklist)*"
+    },
+    {
+      "task_id": "11.5",
+      "description": "Remove the corresponding xfail markers from the conformance test",
+      "type": "altered",
+      "reason": "test_get_theory_uses_uniform_config_parameter previously asserted params == ['config'] exactly, which would incorrectly fail logos's legitimate keyword-only 'subtheories' extra parameter documented in the plan's own task 11.3. Rewrote the assertion to check for a leading 'config' plus logos's single documented keyword-only exception.",
+      "annotation": "*(deviation, recorded inline in Phase 11's task checklist)*"
+    }
+  ]
+}

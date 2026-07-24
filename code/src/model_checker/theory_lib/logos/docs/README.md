@@ -31,8 +31,8 @@ from model_checker.theory_lib import logos
 theory = logos.get_theory()
 
 # Load specific subtheories
-modal_theory = logos.get_theory(['modal'])
-constitutive_theory = logos.get_theory(['constitutive'])
+modal_theory = logos.get_theory(subtheories=['modal'])
+constitutive_theory = logos.get_theory(subtheories=['constitutive'])
 ```
 
 ### Operator Categories

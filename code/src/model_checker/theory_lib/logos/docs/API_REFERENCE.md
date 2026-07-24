@@ -77,7 +77,7 @@ from model_checker.theory_lib.logos import get_theory
 theory = get_theory()
 
 # Load only specific subtheories
-theory = get_theory(['extensional', 'modal'])
+theory = get_theory(subtheories=['extensional', 'modal'])
 
 # Access components
 semantics_class = theory['semantics']
@@ -380,7 +380,7 @@ from model_checker.theory_lib.logos import get_theory
 from model_checker import parse
 
 # Load theory with specific operators
-theory = get_theory(['extensional', 'modal'])
+theory = get_theory(subtheories=['extensional', 'modal'])
 operators = theory['operators']
 
 # Parse formulas using LaTeX notation
@@ -489,7 +489,7 @@ formula = "\\Box p \\rightarrow p"
 
 ```python
 # Load only extensional and modal operators
-theory = get_theory(['extensional', 'modal'])
+theory = get_theory(subtheories=['extensional', 'modal'])
 
 # Example formula with limited operators
 formula = "p \\wedge \\Box q"
@@ -520,7 +520,7 @@ Proposition = theory['proposition']
 from model_checker.theory_lib.logos import get_theory, iterate_example
 
 # Load extensional subtheory
-theory = get_theory(['extensional'])
+theory = get_theory(subtheories=['extensional'])
 
 # Example formula: Disjunction
 formula = "p \\vee q"
@@ -563,7 +563,7 @@ formula = "\\Box (p \\rightarrow q)"
 ```python
 try:
     # Invalid subtheory name
-    theory = get_theory(['invalid_subtheory'])
+    theory = get_theory(subtheories=['invalid_subtheory'])
 except ValueError as e:
     print(f"Error: {e}")
 

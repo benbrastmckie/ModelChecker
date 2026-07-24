@@ -970,7 +970,7 @@ conclusions = ["\\Box B"]
 2. Choose your logical theory:
 ```python
 from model_checker.theory_lib import logos
-theory = logos.get_theory(['modal'])
+theory = logos.get_theory(subtheories=['modal'])
 ```
 
 3. Check validity:

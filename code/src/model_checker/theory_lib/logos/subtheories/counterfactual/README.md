@@ -386,14 +386,14 @@ The counterfactual subtheory depends on the **extensional subtheory** for:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['counterfactual'])  # Also loads extensional
+theory = logos.get_theory(subtheories=['counterfactual'])  # Also loads extensional
 ```
 
 ### Usage with Other Subtheories
 
 ```python
 # Combined with modal logic
-theory = logos.get_theory(['counterfactual', 'modal'])
+theory = logos.get_theory(subtheories=['counterfactual', 'modal'])
 
 # Mixed reasoning example
 MIXED_MOD_premises = ["\\Box P", "(P \\boxright Q)"]
@@ -402,7 +402,7 @@ MIXED_MOD_settings = {'N': 3, 'expectation': False}  # Expecting validity
 MIXED_MOD_example = [MIXED_MOD_premises, MIXED_MOD_conclusions, MIXED_MOD_settings]
 
 # Combined with constitutive operators
-theory = logos.get_theory(['counterfactual', 'constitutive'])
+theory = logos.get_theory(subtheories=['counterfactual', 'constitutive'])
 
 # Ground and counterfactual interaction example
 MIXED_CON_premises = ["(P \\leq Q)", "(P \\boxright R)"]
@@ -513,7 +513,7 @@ The counterfactual subtheory depends on the **extensional subtheory** for:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['counterfactual'])  # Also loads extensional
+theory = logos.get_theory(subtheories=['counterfactual'])  # Also loads extensional
 ```
 
 ## Testing

@@ -190,7 +190,7 @@ For theories with modular architecture (like Logos):
 from model_checker.theory_lib import logos
 
 # Load specific subtheories only
-theory = logos.get_theory(['extensional', 'counterfactual'])  # Only load specific subtheories
+theory = logos.get_theory(subtheories=['extensional', 'counterfactual'])  # Only load specific subtheories
 
 # Full theory (all subtheories)
 full_theory = logos.get_theory()  # All available subtheories
@@ -339,7 +339,7 @@ from model_checker.theory_lib.errors import (
 
 try:
     # Operations that might fail
-    theory = get_theory(['invalid_subtheory'])
+    theory = get_theory(subtheories=['invalid_subtheory'])
 except TheoryError as e:
     print(f"Theory error: {e}")
     print(f"Context: {e.context}")
@@ -423,7 +423,7 @@ PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/tests/unit/test_err
 # Validate theory setup
 try:
     from model_checker.theory_lib.logos import get_theory
-    theory = get_theory(['extensional'])
+    theory = get_theory(subtheories=['extensional'])
     print("Logos theory loaded successfully")
 
 except Exception as e:

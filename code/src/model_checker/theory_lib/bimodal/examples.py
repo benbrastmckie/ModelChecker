@@ -1356,6 +1356,10 @@ theorem_examples = {
 # Combine for unit_tests (used by test framework)
 unit_tests = {**countermodel_examples, **theorem_examples}
 
+# Required by theory_lib.get_test_examples('bimodal') -- see THEORY_ARCHITECTURE.md's Examples
+# Contract; the other three theories assign this the same way (aliasing unit_tests).
+test_example_range = unit_tests
+
 # NOTE: at least one theory is required, multiple are permitted for comparison
 semantic_theories = {
     "Bimodal" : bimodal_theory,

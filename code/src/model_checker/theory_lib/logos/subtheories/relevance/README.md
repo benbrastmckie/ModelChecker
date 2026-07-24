@@ -367,7 +367,7 @@ The relevance subtheory depends on:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['relevance'])  # Loads constitutive and extensional
+theory = logos.get_theory(subtheories=['relevance'])  # Loads constitutive and extensional
 ```
 
 ### Usage with Other Subtheories
@@ -488,7 +488,7 @@ The relevance subtheory depends on the **constitutive subtheory** for:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['relevance'])  # Also loads constitutive and extensional
+theory = logos.get_theory(subtheories=['relevance'])  # Also loads constitutive and extensional
 ```
 
 ## Testing

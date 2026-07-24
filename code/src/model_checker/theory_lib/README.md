@@ -46,7 +46,7 @@ The theory library provides four semantic theories implementing different approa
 - **Papers**:
   - Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). _Journal of Philosophical Logic_, 50, 1471-1503.
   - Brast-McKie, B. (2025). ["Counterfactual Worlds"](https://link.springer.com/article/10.1007/s10992-025-09793-8). _Journal of Philosophical Logic_.
-- **Usage**: `logos.get_theory(['extensional', 'modal'])` for selective subtheory loading
+- **Usage**: `logos.get_theory(subtheories=['extensional', 'modal'])` for selective subtheory loading
 
 #### Logos Subtheories
 

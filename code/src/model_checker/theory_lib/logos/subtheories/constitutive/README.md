@@ -548,7 +548,7 @@ The constitutive subtheory depends on the **extensional subtheory** for:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['constitutive'])  # Also loads extensional
+theory = logos.get_theory(subtheories=['constitutive'])  # Also loads extensional
 ```
 
 ### Usage with Other Subtheories
@@ -726,7 +726,7 @@ The constitutive subtheory depends on the **extensional subtheory** for:
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(['constitutive'])  # Also loads extensional
+theory = logos.get_theory(subtheories=['constitutive'])  # Also loads extensional
 ```
 
 ## Testing

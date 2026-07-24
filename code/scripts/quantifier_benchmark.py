@@ -280,7 +280,7 @@ def get_theory_and_examples() -> tuple[Dict[str, Any], Dict[str, List[Any]]]:
 
     # Get theory with required subtheories for counterfactual examples
     subtheories = ["extensional", "modal", "counterfactual"]
-    theory = get_theory(subtheories)
+    theory = get_theory(subtheories=subtheories)
 
     # Get counterfactual examples
     cf_examples = all_subtheory_examples.get("counterfactual", {})

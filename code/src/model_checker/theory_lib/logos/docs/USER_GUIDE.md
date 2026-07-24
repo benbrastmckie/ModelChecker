@@ -195,13 +195,13 @@ You don't always need all 20 operators. Load only what you need:
 
 ```python
 # Just modal logic
-modal_theory = logos.get_theory(['extensional', 'modal'])
+modal_theory = logos.get_theory(subtheories=['extensional', 'modal'])
 
 # Constitutive logic
-constitutive_theory = logos.get_theory(['extensional', 'constitutive'])
+constitutive_theory = logos.get_theory(subtheories=['extensional', 'constitutive'])
 
 # Everything except relevance
-most_theory = logos.get_theory(['extensional', 'modal', 
+most_theory = logos.get_theory(subtheories=['extensional', 'modal', 
                                 'constitutive', 'counterfactual'])
 ```
 
@@ -778,7 +778,7 @@ my_example = [
 ]
 
 # Load only needed subtheories:
-# theory = logos.get_theory(['extensional', 'modal'])
+# theory = logos.get_theory(subtheories=['extensional', 'modal'])
 ```
 
 ### Getting Help

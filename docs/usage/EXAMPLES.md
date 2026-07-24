@@ -39,8 +39,8 @@ from model_checker.theory_lib.logos import get_theory
 theory = get_theory()
 
 # Or load specific subtheories for logos
-# theory = get_theory(['modal', 'counterfactual'])  # Just modal and counterfactual
-# theory = get_theory(['extensional'])  # Just extensional operators
+# theory = get_theory(subtheories=['modal', 'counterfactual'])  # Just modal and counterfactual
+# theory = get_theory(subtheories=['extensional'])  # Just extensional operators
 
 # Define the example
 MY_EXAMPLE_premises = ["A", "A \\rightarrow B"]
@@ -76,7 +76,7 @@ exclusion_theory = get_exclusion()
 
 # Theory with specific subtheories (logos)
 from model_checker.theory_lib.logos import get_theory
-theory = get_theory(['extensional', 'modal'])
+theory = get_theory(subtheories=['extensional', 'modal'])
 ```
 
 ### 2. Example Definition
@@ -162,7 +162,7 @@ Testing several inferences in one file:
 ```python
 from model_checker.theory_lib.logos import get_theory
 
-theory = get_theory(['extensional', 'modal'])
+theory = get_theory(subtheories=['extensional', 'modal'])
 
 # Example 1: Conjunction Elimination
 CONJ_ELIM_premises = ["A \\wedge B"]
@@ -234,7 +234,7 @@ Generate examples programmatically:
 ```python
 from model_checker.theory_lib.logos import get_theory
 
-theory = get_theory(['extensional', 'modal'])
+theory = get_theory(subtheories=['extensional', 'modal'])
 
 # Generate chain of implications
 def create_implication_chain(length):

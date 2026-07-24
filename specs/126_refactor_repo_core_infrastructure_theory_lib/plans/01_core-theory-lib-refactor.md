@@ -766,23 +766,44 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 11: Fix the Examples Contract Bugs and Unify get_theory Signatures [NOT STARTED]
+### Phase 11: Fix the Examples Contract Bugs and Unify get_theory Signatures [COMPLETED]
 
 - **Goal:** Flip the first group of conformance xfails green by fixing live defects.
 - **Tasks:**
-  - [ ] `theory_lib/bimodal/examples.py`: add `test_example_range` (the other three theories assign
+  - [x] `theory_lib/bimodal/examples.py`: add `test_example_range` (the other three theories assign
         `test_example_range = unit_tests` — exclusion at `:957`, imposition at `:952`, logos at
         `:140`). This fixes `theory_lib.get_test_examples('bimodal')`, which currently raises.
-  - [ ] `theory_lib/logos/examples.py`: remove the duplicate `example_range` assignment. It is set at
+        *(completed: `test_example_range = unit_tests` added immediately after `unit_tests`;
+        verified `get_test_examples('bimodal')` now returns 52 entries)*
+  - [x] `theory_lib/logos/examples.py`: remove the duplicate `example_range` assignment. It is set at
         `:142` (with the comment "Required by `get_examples()`") and again at `:191`. Keep one,
         placed after `unit_tests` is final, and confirm the surviving value is the intended one.
-  - [ ] Unify `get_theory` signatures: `logos/__init__.py:31` uses `get_theory(subtheories=None)`
+        *(completed: removed the earlier assignment at the old line 142, kept the one near
+        `semantic_theories` at the old line 191; both assigned the identical `unit_tests` value
+        so behavior is unchanged)*
+  - [x] Unify `get_theory` signatures: `logos/__init__.py:31` uses `get_theory(subtheories=None)`
         while bimodal (`:70`), exclusion (`:48`), and imposition (`:80`) use `get_theory(config=None)`.
         Adopt `get_theory(config=None)` everywhere; logos additionally accepts `subtheories=None` as
         a keyword-only argument. No compatibility shim — update all call sites in the same commit
-        per the no-backwards-compatibility policy.
-  - [ ] Grep for and update every `get_theory(` call site across `code/`, `oracle/`, and `docs/`.
-  - [ ] Remove the corresponding xfail markers from the conformance test.
+        per the no-backwards-compatibility policy. *(completed: `def get_theory(config=None, *,
+        subtheories=None)`)*
+  - [x] Grep for and update every `get_theory(` call site across `code/`, `oracle/`, and `docs/`.
+        *(completed: 73 call sites across ~24 files updated to `get_theory(subtheories=[...])`
+        or `get_theory(subtheories=<var>)` for genuine logos calls; oracle/ has zero call sites.
+        Deviation: an initial broad substitution also touched 5 `code/src/model_checker/builder/tests/`
+        fixture files whose generated-module templates import **bimodal's** `get_theory`
+        (config-only, ignores its argument) and pass a placeholder list positionally purely as
+        harmless filler — these were reverted to their original plain-positional form since
+        bimodal's signature was never divergent and needed no update; caught via the builder
+        suite regressing from 249/6-known-failures to 222/38-failures, then fixed and
+        re-verified back to the exact pre-existing 249 passed / 6 failed baseline)*
+  - [x] Remove the corresponding xfail markers from the conformance test. *(completed: the four
+        xfail-reason dicts — `GET_THEORY_SIGNATURE_XFAIL_REASON`, `GET_TEST_EXAMPLES_XFAIL_REASON`,
+        `MISSING_EXAMPLES_ATTR_XFAIL_REASON`, `DUPLICATE_EXAMPLE_RANGE_XFAIL_REASON` — emptied to
+        `{}`; `test_get_theory_uses_uniform_config_parameter` rewritten to assert a leading
+        `config` parameter for every theory plus logos's single documented keyword-only
+        `subtheories` exception, rather than a literal `params == ['config']` equality that would
+        wrongly reject logos's legitimate extra parameter)*
 - **Timing:** 1 hour
 - **Depends on:** 8
 - **Files to modify:**

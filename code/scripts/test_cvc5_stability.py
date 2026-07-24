@@ -61,7 +61,7 @@ def run_z3_baseline(example_name: str) -> Tuple[float, str]:
             get_required_subtheories,
         )
         required = get_required_subtheories(subtheory)
-        theory = get_theory(required)
+        theory = get_theory(subtheories=required)
         mock_module = create_test_module(theory)
 
         start_time = time.perf_counter()
@@ -136,7 +136,7 @@ def run_cvc5_with_options(example_name: str, options: Dict[str, str]) -> Tuple[f
             get_required_subtheories,
         )
         required = get_required_subtheories(subtheory)
-        theory = get_theory(required)
+        theory = get_theory(subtheories=required)
         mock_module = create_test_module(theory)
 
         start_time = time.perf_counter()

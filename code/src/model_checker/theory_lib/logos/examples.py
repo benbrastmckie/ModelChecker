@@ -139,7 +139,8 @@ unit_tests = {
 # Aliases for main dictionary
 test_example_range = unit_tests
 all_logos_examples = unit_tests
-example_range = unit_tests  # Required by get_examples() in theory_lib/__init__.py
+# example_range is assigned once, below (near semantic_theories), after unit_tests is final --
+# see THEORY_ARCHITECTURE.md's Examples Contract: each required attribute assigned exactly once.
 
 # Organize examples by category
 countermodel_examples = {}

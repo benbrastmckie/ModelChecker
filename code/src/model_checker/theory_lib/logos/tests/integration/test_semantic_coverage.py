@@ -15,7 +15,7 @@ class TestLogosSemanticsMethods:
     
     def setup_method(self):
         """Set up test fixtures before each test method."""
-        self.theory = logos.get_theory(['extensional'])
+        self.theory = logos.get_theory(subtheories=['extensional'])
         self.semantics_class = self.theory['semantics']
         
     def test_semantics_method_availability(self):
@@ -86,7 +86,7 @@ class TestLogosSemanticsCalls:
     
     def setup_method(self):
         """Set up test fixtures before each test method."""
-        self.theory = logos.get_theory(['extensional'])
+        self.theory = logos.get_theory(subtheories=['extensional'])
         self.semantics_class = self.theory['semantics']
         
     def test_semantic_method_calls_dont_crash(self):
@@ -138,7 +138,7 @@ class TestLogosOperatorRegistryMethods:
     
     def setup_method(self):
         """Set up test fixtures before each test method."""
-        self.theory = logos.get_theory(['extensional'])
+        self.theory = logos.get_theory(subtheories=['extensional'])
         self.operators = self.theory['operators']
         
     def test_registry_management_methods(self):

@@ -115,7 +115,7 @@ The conjunction operator `\\wedge` (displayed as ∧) combines two propositions.
 from model_checker.theory_lib import logos
 
 # Show complete, runnable examples
-theory = logos.get_theory(['modal'])
+theory = logos.get_theory(subtheories=['modal'])
 result = theory.check_validity(premises, conclusions)
 
 # Include expected output where helpful

@@ -28,24 +28,28 @@ __version__ = "1.0.0"
 __model_checker_version__ = "0.9.20"  # ModelChecker version this was built with
 
 
-def get_theory(subtheories=None):
+def get_theory(config=None, *, subtheories=None):
     """
     Get a logos theory instance with specified subtheories.
-    
+
     Args:
+        config: Optional configuration (currently unused; present for signature uniformity
+                with the other three theories' get_theory(config=None)).
         subtheories: List of subtheory names to load, or None for default set
                     Available: ['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance']
-    
+                    Keyword-only: logos is the one theory that additionally accepts this
+                    parameter, so it must be passed by name to avoid ambiguity with `config`.
+
     Returns:
         Dict with 'semantics', 'proposition', 'model' classes and 'operators' collection
-        
+
     Examples:
         # Load all default subtheories
         theory = get_theory()
-        
-        # Load only specific subtheories  
-        theory = get_theory(['extensional', 'modal'])
-        
+
+        # Load only specific subtheories
+        theory = get_theory(subtheories=['extensional', 'modal'])
+
         # Access components
         semantics_class = theory['semantics']
         operators = theory['operators']

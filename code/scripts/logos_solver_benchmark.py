@@ -663,7 +663,7 @@ def run_benchmarks(
 
         for solver in ["z3", "cvc5"]:
             switch_solver(solver)
-            theory = get_theory(get_required_subtheories(subtheory))
+            theory = get_theory(subtheories=get_required_subtheories(subtheory))
             result, passed, elapsed, error, timed_out = run_example_with_timing(
                 example_case, theory, timeout=timeout
             )

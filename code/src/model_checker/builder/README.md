@@ -178,7 +178,7 @@ project.ask_generate()
 # my_examples.py
 from model_checker.theory_lib.logos import get_theory
 
-theory = get_theory(['modal', 'counterfactual'])
+theory = get_theory(subtheories=['modal', 'counterfactual'])
 
 semantic_theories = {
     "Logos": {
