@@ -102,16 +102,16 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
   - All five restore targets present on disk and staged; `git status --short` shows only the intended restored paths.
   - Entry counts match `restore-inventory.md`.
 
-### Phase 2: Reconcile Core Infrastructure Imports and Verify CLI [NOT STARTED]
+### Phase 2: Reconcile Core Infrastructure Imports and Verify CLI [COMPLETED]
 
 - **Goal:** Make the restored infrastructure import cleanly against the current post-solver-migration API and get both `model-checker` CLI entry points running without `ModuleNotFoundError`.
 - **Tasks:**
-  - [ ] Run import smoke tests: `PYTHONPATH=code/src python -c "import model_checker.builder"`, `... import model_checker.iterate`, `... import model_checker.output.manager` (and `model_checker.output.progress`).
-  - [ ] For each `ModuleNotFoundError`/`ImportError`, fix-forward the reference against the current module layout (e.g. `z3_shim`, `model_checker.solver`, modular `models.*` package) — do not revert unrelated post-restore improvements.
-  - [ ] Grep the restored modules for any `bimodal_logic` (relocated oracle) references; repoint or remove them so no restored module imports the moved oracle.
-  - [ ] Verify `PYTHONPATH=code/src python -m model_checker --help` runs cleanly.
-  - [ ] Verify `python code/dev_cli.py --help` runs cleanly.
-  - [ ] Commit per green sub-step (each module importing cleanly / each CLI entry point running is a green milestone): `task 119 phase 2: reconcile infrastructure imports, CLI --help green`.
+  - [x] Run import smoke tests: `PYTHONPATH=code/src python -c "import model_checker.builder"`, `... import model_checker.iterate`, `... import model_checker.output.manager` (and `model_checker.output.progress`). **Result**: `builder`/`iterate`/`output.progress` imported cleanly immediately; `output.manager` initially raised `ModuleNotFoundError: No module named 'model_checker.output.config'`.
+  - [x] For each `ModuleNotFoundError`/`ImportError`, fix-forward the reference against the current module layout (e.g. `z3_shim`, `model_checker.solver`, modular `models.*` package) — do not revert unrelated post-restore improvements. **Deviation**: the root cause was not an API-name drift but four additional dependency files (`config.py`, `constants.py`, `helpers.py`, `errors.py`) deleted in the exact same commit (`71ef79a1`) as `manager.py`, which the plan's restore-points table did not list. Restored all four from the same restore point `71ef79a1^` (not a rewrite — a same-source restore extension), after which `manager.py` imports cleanly with no further code changes needed.
+  - [x] Grep the restored modules for any `bimodal_logic` (relocated oracle) references; repoint or remove them so no restored module imports the moved oracle. Grep was clean (no matches) across `builder/`, `iterate/`, `jupyter/`, `output/`.
+  - [x] Verify `PYTHONPATH=code/src python -m model_checker --help` runs cleanly. Confirmed, exit 0.
+  - [x] Verify `python code/dev_cli.py --help` runs cleanly. Confirmed, exit 0.
+  - [x] Commit per green sub-step (each module importing cleanly / each CLI entry point running is a green milestone): `task 119 phase 2: reconcile infrastructure imports, CLI --help green`.
 - **Timing:** 1.5 hours
 - **Depends on:** 1
 - **Files to modify:**
