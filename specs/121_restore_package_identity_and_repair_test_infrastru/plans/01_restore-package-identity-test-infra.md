@@ -133,29 +133,33 @@ concurrent-write conflicts on that shared file.
   - `python -c "import tomllib; d=tomllib.load(open('code/pyproject.toml','rb')); print(d['project']['name'], d['project']['version'])"` prints `model-checker 1.3.0`.
   - `[project.scripts]` has exactly one entry (`model-checker`).
 
-### Phase 2: Reconcile Packaging Config, MANIFEST.in, and Version Single-Sourcing [NOT STARTED]
+### Phase 2: Reconcile Packaging Config, MANIFEST.in, and Version Single-Sourcing [COMPLETED]
 
 - **Goal:** Ensure the build includes `model_checker` (with `jupyter/` and all theory READMEs/
   notebooks), excludes the relocated oracle, and that `__init__.py`'s version resolution
   single-sources against the new distribution name.
 - **Tasks:**
-  - [ ] Confirm `[tool.setuptools.packages.find] where = ["src"]` — the relocated oracle lives at
+  - [x] Confirm `[tool.setuptools.packages.find] where = ["src"]` — the relocated oracle lives at
         repo-root `oracle/bimodal_logic/` (outside `code/src`), so it is already excluded by the
         `src`-rooted find; verify no stray `bimodal_logic` reference remains under `code/src` and
-        add an explicit `exclude` guard only if a residual path is found.
-  - [ ] Confirm `[tool.setuptools.package-data]` globs (`README.md`, `*.md`, `*.ipynb`) include the
+        add an explicit `exclude` guard only if a residual path is found. (Verified: `grep -rn
+        bimodal_logic code/src/` returns nothing; no guard needed.)
+  - [x] Confirm `[tool.setuptools.package-data]` globs (`README.md`, `*.md`, `*.ipynb`) include the
         restored `jupyter/` notebooks and theory README files; widen only if a needed asset type is
-        missed.
-  - [ ] Reconcile `MANIFEST.in`: keep `recursive-include` lines for
+        missed. (Verified: globs unchanged and sufficient; sdist build below confirms inclusion.)
+  - [x] Reconcile `MANIFEST.in`: keep `recursive-include` lines for
         `theory_lib/{logos,bimodal,exclusion,imposition}` READMEs and the `jupyter/` docs; verify
         each referenced path exists on disk (`jupyter/`, `jupyter/debug/`, all four theory dirs) and
-        remove any line resolving to a non-existent path.
-  - [ ] Verify `get_model_checker_version()` in `model_checker/utils/version.py` queries
+        remove any line resolving to a non-existent path. (Verified: every path in `MANIFEST.in`
+        resolves to an existing file; no edit needed, file left unchanged.)
+  - [x] Verify `get_model_checker_version()` in `model_checker/utils/version.py` queries
         `version('model-checker')`; confirm the `[project] name` set in Phase 1 matches that
         distribution name so the version single-sources correctly. Note in the summary that an
         editable reinstall may be needed for the runtime `__version__` to reflect the new identity.
-  - [ ] Confirm `model_checker/__init__.py` still imports `get_model_checker_version` and exposes
-        `__version__` without change (no code edit expected unless a mismatch is found).
+        (Confirmed: `version('model-checker')` matches `[project] name = "model-checker"`.)
+  - [x] Confirm `model_checker/__init__.py` still imports `get_model_checker_version` and exposes
+        `__version__` without change (no code edit expected unless a mismatch is found). (Confirmed
+        unchanged; no mismatch found.)
 - **Timing:** 45 minutes
 - **Depends on:** 1
 - **Files to modify:**
