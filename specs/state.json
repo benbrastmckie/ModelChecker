@@ -9,10 +9,10 @@
       "description": "Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.",
       "topic": "architecture",
       "created": "2026-07-24T16:04:19Z",
-      "last_updated": "2026-07-24T20:16:15Z",
+      "last_updated": "2026-07-24T21:53:00Z",
       "session_id": "sess_1784924153_0845e6",
       "researched": "2026-07-24T16:13:05Z",
-      "next_artifact_number": 2,
+      "next_artifact_number": 3,
       "artifacts": [
         {
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md",
@@ -28,6 +28,11 @@
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md",
           "type": "summary",
           "summary": "Phases 2-6 of 26: baselines pinned, canonical theory contract, spatial subtheory removed, cruft swept, logos benchmark relocated"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md",
+          "type": "summary",
+          "summary": "Phases 1-9 of 26 (waves 1-3) complete: ROADMAP snapshot, baselines (oracle partial), canonical theory contract, spatial/dead-wrapper removal, cruft sweep, logos benchmark relocation, wheel/scaffolding hygiene, RED theory-conformance test, RED layering test."
         }
       ],
       "plan_metadata": {
@@ -100,7 +105,8 @@
           }
         ],
         "skeleton": false,
-        "follow_up_tasks": []
+        "follow_up_tasks": [],
+        "phases_completed": 9
       }
     },
     {
@@ -160,7 +166,7 @@
       "created": "2026-07-18T19:30:01Z",
       "last_updated": "2026-07-18T19:47:25Z",
       "session_id": "sess_1784403302_7c03a0",
-      "completion_summary": "Drafted a 666-word email for a Python expert explaining ModelChecker's modular architecture, the live Syntax→ModelConstraints→ModelStructure→Z3→print pipeline, and the operator abstraction, culminating in the counterfactual/operators.py worked example. Source-verified against actual files."
+      "completion_summary": "Drafted a 666-word email for a Python expert explaining ModelChecker's modular architecture, the live Syntax\u2192ModelConstraints\u2192ModelStructure\u2192Z3\u2192print pipeline, and the operator abstraction, culminating in the counterfactual/operators.py worked example. Source-verified against actual files."
     },
     {
       "project_number": 118,

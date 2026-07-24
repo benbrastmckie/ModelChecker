@@ -28,7 +28,9 @@ next_project_number: 127
 - **Dependencies**: None
 - **Research**: [126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md]
 - **Plan**: [126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md]
-- **Summary**: [126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md]
+- **Summary**:
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md]
 
 **Description**: Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.
 
