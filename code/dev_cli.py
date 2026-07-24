@@ -16,10 +16,15 @@ logging.basicConfig(
 src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), 'src'))
 sys.path.insert(0, src_path)
 
-# Import all necessary modules explicitly from local source
+# Import all necessary modules explicitly from local source. This imports
+# `model_checker` (not `src.model_checker`) because src_path above is anchored
+# to this script's own directory and inserted at the front of sys.path, so the
+# import resolves correctly regardless of the caller's current working
+# directory. The previous `from src.model_checker...` form only worked when
+# the process cwd happened to be `code/` (so `src` itself was importable).
 try:
     # Try to import the main function from local source
-    from src.model_checker.__main__ import main
+    from model_checker.__main__ import main
 except ImportError as e:
     print(f"Error importing from local source: {e}")
     print(f"Current sys.path: {sys.path}")

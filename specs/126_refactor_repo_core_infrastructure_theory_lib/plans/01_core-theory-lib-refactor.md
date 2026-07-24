@@ -360,33 +360,58 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 5: Cruft Sweep [NOT STARTED]
+### Phase 5: Cruft Sweep [COMPLETED]
 
 - **Goal:** Remove accumulated dead trees and root strays, archiving anything of lasting value first.
 - **Tasks:**
-  - [ ] `code/src/model_checker/theory_lib/exclusion/history/` (4 files, 52 KB): the content is
+  - [x] `code/src/model_checker/theory_lib/exclusion/history/` (4 files, 52 KB): the content is
         narrative implementation history (`IMPLEMENTATION_STORY.md`, `LESSONS_LEARNED.md`,
         `STRATEGIES.md`, `README.md`). Move it to `docs/` (project documentation, outside the wheel)
         rather than deleting — it has standalone value — then remove it from the package tree.
-  - [ ] `code/src/model_checker/theory_lib/imposition/examples_refactored/` (10 files, 80 KB):
+        *(completed: moved to `docs/theory/exclusion/history/` via `git mv`)*
+  - [x] `code/src/model_checker/theory_lib/imposition/examples_refactored/` (10 files, 80 KB):
         delete. It is a superseded parallel copy of `examples.py`; `__init__.py:15` and
         `test_suite.py:16` import back into the live modules, so nothing depends on it in the other
-        direction.
-  - [ ] `code/src/model_checker/theory_lib/imposition/reports/` (7 files, 80 KB): the
+        direction. *(completed: confirmed zero remaining references before deletion)*
+  - [x] `code/src/model_checker/theory_lib/imposition/reports/` (7 files, 80 KB): the
         `imposition_comparison/` content is theoretical comparison material. Move to `docs/`, then
-        remove from the package tree.
-  - [ ] `code/boneyard/` (117 files, 1.7 MB): delete. It is also the reason a bare root-level
+        remove from the package tree. *(completed: moved to `docs/theory/imposition/reports/`)*
+  - [x] `code/boneyard/` (117 files, 1.7 MB): delete. It is also the reason a bare root-level
         `pytest --collect-only` reports 2516 tests / 26 errors instead of the real inventory, so
-        removing it fixes a live developer-experience trap.
-  - [ ] Root strays: delete `code/dist/`, `code/output.md`, `code/test_update.py`,
+        removing it fixes a live developer-experience trap. *(completed; see deviation note below —
+        boneyard removal reduces but does not fully eliminate bare-root collection errors)*
+  - [x] Root strays: delete `code/dist/`, `code/output.md`, `code/test_update.py`,
         `code/run_update.py`, `code/scaling_benchmark.py`, and repo-root `output.md` / `output.json`.
         Check each for unique value first; archive to `docs/` or `specs/` if any exists.
-  - [ ] Delete `theory_lib/exclusion/TODO.md` and `theory_lib/logos/TODO.md` from the package tree
+        *(completed: none carried unique value beyond what git history retains; `code/dist/` was
+        gitignored build output, deleted from disk only, no git action needed)*
+  - [x] Delete `theory_lib/exclusion/TODO.md` and `theory_lib/logos/TODO.md` from the package tree
         (both currently ship in the wheel); fold any live items into `specs/ROADMAP.md` content
-        drafted for Phase 26.
-  - [ ] Fix `code/dev_cli.py:22`: `from src.model_checker.__main__ import main` is fragile and
+        drafted for Phase 26. *(completed: deleted; content preserved in git history for Phase 26
+        to fold forward — both were stale planning notes, not live blockers)*
+  - [x] Fix `code/dev_cli.py:22`: `from src.model_checker.__main__ import main` is fragile and
         depends on cwd. Replace with a path-anchored import relative to the script's own location.
-  - [ ] Re-run the collection inventory and record the new, correct root-level count.
+        *(completed: now imports `model_checker.__main__` directly, relying on the already-anchored
+        `src_path` sys.path insertion; verified working from repo root, `code/`, and `/tmp`)*
+  - [x] Re-run the collection inventory and record the new, correct root-level count. *(completed
+        with a finding: bare root-level `pytest --collect-only -q` drops from 2516/26-errors to
+        2498/17-errors after boneyard removal — see deviation note below)*
+  - [x] *(deviation, discovered during verification)* The plan's Phase 5 goal text attributed the
+        entire bare-root collection-error trap to `code/boneyard/`. After boneyard's removal, 17
+        collection errors remain (`import file mismatch` on duplicate test-module basenames —
+        e.g. `test_operators.py` colliding between `exclusion/tests/unit/` and
+        `logos/tests/unit/`, `test_validation.py` between `iterate/tests/unit/` and
+        `builder/tests/unit/`), spanning `iterate/`, `models/`, `settings/`, `theory_lib/`
+        top-level, and all three of `exclusion/`, `imposition/`, `logos/`. This is a genuine,
+        pre-existing structural issue (missing package-level disambiguation for same-named test
+        files under pytest's default `prepend` import mode) independent of boneyard and of this
+        phase's stated scope. Not fixed here — fixing it would mean adding `__init__.py` to every
+        affected `tests/unit/`/`tests/integration/` directory across 8 packages, or switching
+        `pyproject.toml` to `--import-mode=importlib`, either of which is a cross-cutting change
+        warranting its own phase. Flagged for a follow-up (Phase 26 ROADMAP note or a new phase)
+        rather than silently left unrecorded. The properly-scoped invocation
+        (`cd code && pytest --collect-only`, what `verify-refactor.sh` actually checks) is
+        unaffected and still reports the correct 2100.
 - **Timing:** 1.5 hours
 - **Depends on:** 2
 - **Files to modify:**
