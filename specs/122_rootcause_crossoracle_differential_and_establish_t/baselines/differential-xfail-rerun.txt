@@ -1,0 +1,33 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/bin/python3.13
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collecting ... collected 54 items / 49 deselected / 5 selected
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestKnownFormulaBaseline::test_known_invalid_return_countermodel XFAIL [ 20%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestBimodalHarnessIntegration::test_temporal_only_agreement_complexity_3 XFAIL [ 40%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestBimodalHarnessIntegration::test_temporal_only_agreement_complexity_5 XFAIL [ 60%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestMockOracleSpotCheck::test_spot_check_all XFAIL [ 80%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestCIGate::test_oracle_baseline_agreement XFAIL [100%]
+
+=============================== warnings summary ===============================
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906: PytestUnknownMarkWarning: Unknown pytest.mark.differential - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.differential
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115: PytestUnknownMarkWarning: Unknown pytest.mark.differential - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.differential
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+========== 49 deselected, 5 xfailed, 4 warnings in 696.79s (0:11:36) ===========
