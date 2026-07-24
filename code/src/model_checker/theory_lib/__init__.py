@@ -62,6 +62,7 @@ AVAILABLE_THEORIES = [
     'bimodal',      # Bimodal semantics for counterfactuals
     'logos',        # Modular hyperintensional semantics (extensional, modal, constitutive,
                     # counterfactual, relevance, spatial subtheories)
+    'exclusion',    # Witness-predicate unilateral negation/exclusion semantics
 ]
 
 # Dictionary to cache loaded theory modules

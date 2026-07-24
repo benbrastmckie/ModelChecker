@@ -139,19 +139,23 @@ which the imposition port (Phases 3-4) reuses and appends to.
 
 ---
 
-### Phase 2: Register exclusion and green its test suite [NOT STARTED]
+### Phase 2: Register exclusion and green its test suite [COMPLETED]
 
 - **Goal:** Register `exclusion` in `AVAILABLE_THEORIES` and make its full test suite collect and pass.
 - **Tasks:**
-  - [ ] Add `'exclusion',` to `AVAILABLE_THEORIES` in `code/src/model_checker/theory_lib/__init__.py`
+  - [x] Add `'exclusion',` to `AVAILABLE_THEORIES` in `code/src/model_checker/theory_lib/__init__.py`
         (with a short inline comment, matching the existing entries' style).
-  - [ ] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion -q`; triage
+  - [x] Run `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion -q`; triage
         collection errors first (import/symbol moves), then runtime failures.
-  - [ ] For each failure, diff the failing call site against the equivalent `bimodal`/`logos`
+        **Result**: all 143 tests passed on first run (13.93s) — no failures to triage, the
+        Phase 1 port left no runtime API drift beyond the one already fixed.
+  - [x] For each failure, diff the failing call site against the equivalent `bimodal`/`logos`
         current-API usage; fix the theory code (not the test) unless a test imports a moved symbol.
-  - [ ] Confirm `discover_theories()`/registration consistency: `exclusion` loads via the
+        N/A — zero failures.
+  - [x] Confirm `discover_theories()`/registration consistency: `exclusion` loads via the
         `theory_lib` public API without warnings.
-  - [ ] Commit: `task 120: restore and port exclusion theory (green)`.
+  - [x] Commit: `task 120: restore and port exclusion theory (green)` (commit message adapted to
+        the phase-commit convention: `task 120 phase 2: register exclusion and green its test suite`).
 - **Timing:** 1.5 hours
 - **Depends on:** 1
 
