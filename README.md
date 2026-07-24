@@ -33,7 +33,7 @@ cd ModelChecker/code
 ./dev_cli.py examples/my_example.py
 ```
 
-For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Development Guide](code/docs/DEVELOPMENT.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
+For comprehensive development setup instructions, including virtual environments and platform-specific guidance, see the [Developer Setup Guide](docs/installation/DEVELOPER_SETUP.md). NixOS users can use the provided `shell.nix` configuration for automatic environment setup.
 
 ### Installation Guides
 
@@ -211,7 +211,7 @@ ModelChecker/
 - **[Installation Guide](docs/installation/README.md)** - Setup instructions for all platforms
 - **[Getting Started Guide](docs/installation/GETTING_STARTED.md)** - Create your first project
 - **[User Guide](code/src/model_checker/theory_lib/docs/USAGE_GUIDE.md)** - Basic usage patterns
-- **[Interactive Notebooks](code/src/model_checker/theory_lib/logos/notebooks/README.md)** - Hands-on tutorials
+- **[Interactive Notebooks](code/src/model_checker/theory_lib/README.md)** - Hands-on tutorials
 
 ### For Researchers
 
@@ -221,15 +221,15 @@ ModelChecker/
 
 ### For Developers
 
-- **[Development Guide](docs/DEVELOPMENT.md)** - Comprehensive development workflow
-- **[Architecture Documentation](docs/architecture/ARCHITECTURE.md)** - System design patterns
-- **[Contributing Guidelines](code/MAINTENANCE.md)** - Coding and documentation standards
+- **[Development Guide](code/docs/development/README.md)** - Comprehensive development workflow
+- **[Architecture Documentation](code/docs/core/ARCHITECTURE.md)** - System design patterns
+- **[Contributing Guidelines](code/docs/core/CODE_STANDARDS.md)** - Coding and documentation standards
 
 ## Key Features
 
 ### 1. Modular Semantic Theories
 
-- **Hyperintensional Bilateral Semantics** (Logos): 19 operators across 5 subtheories
+- **Hyperintensional Bilateral Semantics** (Logos): 18 operators across 5 subtheories
 - **Unilateral Exclusion Semantics**: Solving the False Premise Problem
 - **Fine's Counterfactual Semantics**: Imposition semantics for counterfactuals
 - **Bimodal Logic**: Intensional semantics for reasoning with both tense and modal operators
@@ -252,7 +252,7 @@ ModelChecker/
 
 ### Logos: Hyperintensional Truthmaker Semantics
 
-- 19 operators across 5 modular subtheories
+- 18 operators across 5 modular subtheories
 - Sensitive to differences in subject-matter via verifier/falsifier sets
 - Distinguishes necessarily equivalent propositions
 - Supports modal, counterfactual, constitutive, and relevance reasoning
@@ -278,11 +278,11 @@ ModelChecker/
 
 We welcome contributions! Please:
 
-1. Follow the [Development Guide](docs/DEVELOPMENT.md) for workflow
+1. Follow the [Development Guide](code/docs/development/README.md) for workflow
 2. Use the standard `examples.py` structure for examples
 3. Ensure all tests pass before submitting PRs
 4. Include documentation for new features
-5. Read [code/MAINTENANCE.md](code/MAINTENANCE.md) for standards
+5. Read [code/docs/core/CODE_STANDARDS.md](code/docs/core/CODE_STANDARDS.md) for standards
 
 ## Academic References
 

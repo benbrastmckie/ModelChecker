@@ -1,0 +1,16 @@
+{
+  "phase": 2,
+  "phase_name": "Refresh root entry docs (README.md, CLAUDE.md)",
+  "started_at": "2026-07-24T00:30:00Z",
+  "last_updated": "2026-07-24T01:00:00Z",
+  "objectives": [
+    {"id": 1, "description": "Fix README.md jupyter quick-start/link and theory framing", "status": "done", "files_touched": ["README.md"]},
+    {"id": 2, "description": "Verify README.md theory bullets", "status": "done", "files_touched": ["README.md"]},
+    {"id": 3, "description": "Fix CLAUDE.md cd Code casing and architecture description", "status": "done", "files_touched": ["CLAUDE.md"]},
+    {"id": 4, "description": "Durable-anchor provenance check", "status": "done", "files_touched": []}
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": []
+}

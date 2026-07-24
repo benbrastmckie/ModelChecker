@@ -1,0 +1,14 @@
+{
+  "status": "planned",
+  "summary": "Created a 6-phase documentation-refresh plan (2.25h, 3 dependency waves) covering README.md, CLAUDE.md, code/README.md, code/scripts/README.md, docs/usage/SEMANTICS.md, code/CHANGELOG.md, and specs/ROADMAP.md. Phase 1 grounds the definitive framework facts (four registered theories, restored builder/iterate, standalone oracle, first-order removal); Wave 2 refreshes the docs in parallel; Phase 6 validates links and enforces the no-task-number deliverables rule.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "Run /implement 124 to execute the documentation refresh plan.",
+  "artifacts": [
+    {
+      "path": "specs/124_documentation_refresh_for_the_restored_framework/plans/01_docs-refresh.md",
+      "type": "plan",
+      "summary": "6-phase documentation refresh plan aligning seven docs with the restored, green-gated framework state"
+    }
+  ]
+}
