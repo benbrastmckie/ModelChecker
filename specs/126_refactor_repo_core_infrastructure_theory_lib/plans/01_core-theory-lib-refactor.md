@@ -541,34 +541,58 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 8: Write the RED Theory-Conformance Test [NOT STARTED]
+### Phase 8: Write the RED Theory-Conformance Test [COMPLETED]
 
 - **Goal:** Encode the Phase 3 contract as an executable, parametrized test that fails now on every
   known gap — the RED baseline the per-theory phases flip green.
 - **Tasks:**
-  - [ ] Create `code/src/model_checker/theory_lib/tests/test_theory_conformance.py`, parametrized
-        over `AVAILABLE_THEORIES` (later, over the Phase 10 registry).
-  - [ ] Assert the canonical file set from Phase 3 exists for each theory, and that `semantic` is a
-        package (a directory with `__init__.py`), not a module.
-  - [ ] Assert `examples.py` defines `example_range`, `test_example_range`, `semantic_theories`, and
+  - [x] Create `code/src/model_checker/theory_lib/tests/test_theory_conformance.py`, parametrized
+        over `AVAILABLE_THEORIES` (later, over the Phase 10 registry). *(completed)*
+  - [x] Assert the canonical file set from Phase 3 exists for each theory, and that `semantic` is a
+        package (a directory with `__init__.py`), not a module. *(completed: also strengthened
+        the package check to require `semantic/core.py` — a bare directory-with-`__init__.py`
+        check alone XPASSed for bimodal, since its `semantic/` is a real directory with a real
+        `__init__.py` that is nonetheless not the canonical package, just a `sys.modules`
+        pickling shim with no `core.py`)*
+  - [x] Assert `examples.py` defines `example_range`, `test_example_range`, `semantic_theories`, and
         `unit_tests` — and that each is assigned **exactly once** (parse the module AST; a plain
         `hasattr` check cannot catch logos's duplicate `example_range` at `:142` and `:191`).
-  - [ ] Assert `get_theory()` has a uniform signature and returns the expected dict shape
-        (`semantics`, `proposition`, `model`, `operators`).
-  - [ ] Assert `theory_lib.get_test_examples(name)` succeeds for every theory — this currently
+        *(completed: two separate assertions — attribute presence and exactly-once assignment —
+        both via AST parsing; verified logos's duplicate is at exactly lines 142 and 191 as the
+        plan predicted)*
+  - [x] Assert `get_theory()` has a uniform signature and returns the expected dict shape
+        (`semantics`, `proposition`, `model`, `operators`). *(completed; also caught and xfailed
+        logos's divergent `subtheories=` parameter name, mentioned in the plan's Overview but not
+        explicitly listed as a Phase 8 task item)*
+  - [x] Assert `theory_lib.get_test_examples(name)` succeeds for every theory — this currently
         **raises** for bimodal, whose `examples.py` defines `unit_tests` (`:1357`) but not
-        `test_example_range`, against the contract at `theory_lib/__init__.py:135`.
-  - [ ] Assert `iterate.py` exists and exposes `{Theory}ModelIterator`, `iterate_example`, and
+        `test_example_range`, against the contract at `theory_lib/__init__.py:135`. *(completed:
+        verified bimodal raises ValueError exactly as predicted; live-checked against the actual
+        theory_lib/__init__.py:135 contract before writing the xfail)*
+  - [x] Assert `iterate.py` exists and exposes `{Theory}ModelIterator`, `iterate_example`, and
         `iterate_example_generator` — this currently fails for bimodal, which has no `iterate.py`
-        (Phase 22).
-  - [ ] Add a parallel parametrized conformance test over `AVAILABLE_SUBTHEORIES` asserting the
+        (deferred to a later phase, out of this plan's current scope). *(completed: two
+        assertions — module existence and interface completeness (class name,
+        `.returns_generator`, `.__wrapped__`) — both xfailed for bimodal)*
+  - [x] Add a parallel parametrized conformance test over `AVAILABLE_SUBTHEORIES` asserting the
         subtheory file set and that `get_operators()` returns a **non-empty** dict — this currently
-        fails for relevance, whose `operators.py:27-29` returns `{}`. After Phase 19 folds relevance
-        the parametrization covers four subtheories, all green.
-  - [ ] Mark each currently-failing assertion with a narrowly-scoped `xfail` carrying a reason string
-        naming the specific defect. Do not use broad module-level skips.
-  - [ ] Run the suite and confirm the xfail set exactly matches the enumerated known gaps — no
-        unexpected passes, no unexpected failures.
+        fails for relevance, whose `operators.py:27-29` returns `{}`. After a later phase folds
+        relevance into constitutive the parametrization will cover four subtheories, all green.
+        *(completed: verified relevance's get_operators() returns {} exactly as predicted)*
+  - [x] Mark each currently-failing assertion with a narrowly-scoped `xfail` carrying a reason string
+        naming the specific defect. Do not use broad module-level skips. *(completed: 9 total
+        xfail(strict=True) markers, one per specific defect, each with its own reason string —
+        see the Verification note below for the full enumerated list)*
+  - [x] Run the suite and confirm the xfail set exactly matches the enumerated known gaps — no
+        unexpected passes, no unexpected failures. *(completed: `41 passed, 9 xfailed` — zero
+        XPASS, zero unexpected failures. The 9 xfails: bimodal & logos semantic-package
+        non-conformance; bimodal missing `test_example_range` (both the attribute-presence and
+        `get_test_examples()` assertions); logos duplicate `example_range`; logos non-uniform
+        `get_theory()` signature; bimodal missing `iterate.py` (both the existence and
+        interface-completeness assertions); relevance's empty `get_operators()`. Proved the
+        xfail markers have teeth by deliberately breaking the `RELEVANCE_EMPTY_OPERATORS_XFAIL_REASON`
+        binding on a scratch copy — collection failed loudly (`NameError`) rather than silently
+        passing; restored via diff-verified copy before committing.)*
 - **Timing:** 2 hours
 - **Depends on:** 3
 - **Files to modify:**
