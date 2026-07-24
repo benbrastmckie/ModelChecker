@@ -26,11 +26,6 @@ from .validation import (
     validate_semantic_theory,
     validate_example_case,
 )
-from .z3_utils import (
-    create_difference_constraint,
-    extract_model_values,
-    find_next_model as find_next_z3_model
-)
 
 class BuildExample:
     """Handles the creation and evaluation of a single model checking example.

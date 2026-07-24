@@ -1,0 +1,24 @@
+{
+  "phase": 16,
+  "phase_name": "Relocate builder/z3_utils.py into iterate/",
+  "started_at": "2026-07-24T23:56:00Z",
+  "last_updated": "2026-07-25T00:05:00Z",
+  "objectives": [
+    {"id": 1, "description": "delete dead import block in builder/example.py", "status": "done", "files_touched": ["code/src/model_checker/builder/example.py"]},
+    {"id": 2, "description": "move z3_utils.py to iterate/", "status": "done", "files_touched": ["code/src/model_checker/iterate/z3_utils.py"]},
+    {"id": 3, "description": "move and fix test_z3_utils.py", "status": "done", "files_touched": ["code/src/model_checker/iterate/tests/unit/test_z3_utils.py"]},
+    {"id": 4, "description": "update stale doc references", "status": "done", "files_touched": ["code/src/model_checker/builder/README.md", "code/src/model_checker/builder/tests/README.md", "code/src/model_checker/builder/tests/unit/README.md", "code/src/model_checker/iterate/tests/unit/README.md"]}
+  ],
+  "current_objective": 4,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "16.extra",
+      "description": "Update stale doc references to builder/z3_utils.py",
+      "type": "altered",
+      "reason": "The phase's own verification bullet requires grep -rn z3_utils code/src/model_checker/builder/ to return nothing; three README files still named the old location.",
+      "annotation": "*(deviation, not in original task list)*"
+    }
+  ]
+}

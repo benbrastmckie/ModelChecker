@@ -27,8 +27,7 @@ tests/
 │   ├── test_serialize.py                   # Serialization utilities (8 tests)
 │   ├── test_translation.py                 # OperatorTranslation (4 tests)
 │   ├── test_validation.py                  # Input validation logic (5 tests)
-│   ├── test_z3_isolation.py                # Z3 context isolation (3 tests)
-│   └── test_z3_utils.py                    # Z3 utility functions (4 tests)
+│   └── test_z3_isolation.py                # Z3 context isolation (3 tests)
 │
 ├── integration/                            # Component interaction tests (96 tests)
 │   ├── test_build_module_theories.py       # Theory loading integration (15 tests)

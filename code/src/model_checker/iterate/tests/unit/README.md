@@ -100,6 +100,18 @@ This directory contains unit tests for the iterate package, which provides the i
 **Dependencies**: `pytest`, `iterate.validation`
 **Used By**: Input validation system
 
+### test_z3_utils.py
+**Purpose**: Tests Z3 model-difference utility functions (relocated from `builder/`, since
+"find a model differing from the previous one" is the core iteration primitive, not a builder
+concern)
+**Key Classes**:
+- `TestZ3ConstraintCreation` - Tests for the difference-constraint builder
+- `TestZ3ModelValueExtraction` - Tests for extracting variable assignments from a Z3 model
+- `TestZ3NextModelFinding` - Tests for finding a new model distinct from a previous one
+- `TestZ3UtilsEdgeCases` - Edge case coverage across all three utilities
+**Dependencies**: `pytest`, `iterate.z3_utils`, `model_checker.z3_shim`
+**Used By**: Iteration model-difference validation
+
 ## Usage
 
 ### Running All Unit Tests

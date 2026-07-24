@@ -19,7 +19,6 @@ builder/
 ├── loader.py                           # Module loading and discovery
 ├── example.py                          # Individual example processing
 ├── validation.py                       # Parameter validation with detailed errors
-├── z3_utils.py                         # Z3 solver utilities and helpers
 ├── serialize.py                        # Theory serialization for multiprocessing
 ├── project.py                          # Theory project generation
 └── tests/                              # Comprehensive test suite

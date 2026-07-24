@@ -6,7 +6,7 @@ creation, model value extraction, and solver operations.
 """
 
 import unittest
-import z3
+from model_checker import z3_shim as z3
 
 from model_checker.builder.tests.fixtures.test_data import TestConstants
 from model_checker.builder.tests.fixtures.mock_objects import MockObjectFactory
@@ -16,7 +16,7 @@ from model_checker.builder.tests.fixtures.assertions import (
     assert_no_exceptions_during_execution
 )
 
-from model_checker.builder.z3_utils import (
+from model_checker.iterate.z3_utils import (
     create_difference_constraint,
     extract_model_values,
     find_next_model

@@ -1071,27 +1071,40 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 16: Relocate builder/z3_utils.py into iterate/ [NOT STARTED]
+### Phase 16: Relocate builder/z3_utils.py into iterate/ [COMPLETED]
 
 - **Goal:** Move iteration-domain logic out of the orchestration package, and remove dead imports.
 - **Tasks:**
-  - [ ] First, delete the dead import block at `builder/example.py:29-32`
+  - [x] First, delete the dead import block at `builder/example.py:29-32`
         (`create_difference_constraint`, `extract_model_values`, `find_next_model as
         find_next_z3_model`). All three are unused — residue from the removal of
         `BuildExample.find_next_model`; grep confirms no call sites remain in the file. This is a
-        zero-risk change that leaves `z3_utils` with only its own test as a consumer.
-  - [ ] Move `builder/z3_utils.py` (116 lines: `create_difference_constraint` `:10`,
+        zero-risk change that leaves `z3_utils` with only its own test as a consumer. *(completed:
+        confirmed zero other usages of the three names in example.py before deleting)*
+  - [x] Move `builder/z3_utils.py` (116 lines: `create_difference_constraint` `:10`,
         `extract_model_values` `:48`, `find_next_model` `:78`) to `iterate/z3_utils.py`. "Find a
         model differing from the previous one" is the core iteration primitive and has zero remaining
         builder-side callers. No import cycle results: `iterate/constraints.py` already imports
-        `z3_shim` the same way.
-  - [ ] Move `builder/tests/unit/test_z3_utils.py` (12 tests) to `iterate/tests/unit/`. Fix its
-        import of raw `z3` at `:9` to use `z3_shim`, matching the module under test.
-  - [ ] Note but do **not** act on the functional overlap with
+        `z3_shim` the same way. *(completed via `git mv`; module content unchanged -- it already
+        used `from model_checker import z3_shim as z3`, so no internal import fix was needed)*
+  - [x] Move `builder/tests/unit/test_z3_utils.py` (12 tests) to `iterate/tests/unit/`. Fix its
+        import of raw `z3` at `:9` to use `z3_shim`, matching the module under test. *(completed:
+        13 tests, not 12 -- the plan's estimate was close but not exact; `import z3` ->
+        `from model_checker import z3_shim as z3`, and the module-under-test import repointed
+        from `model_checker.builder.z3_utils` to `model_checker.iterate.z3_utils`)*
+  - [x] Note but do **not** act on the functional overlap with
         `iterate/constraints.py:149` (`ConstraintGenerator._create_difference_constraint`), which
         operates on a list of *models* rather than a flat variable list. Folding the two requires
         reconciling a `List[ExprRef]` vs `List[ModelRef]` signature mismatch; record it as a
-        follow-up in the Phase 26 ROADMAP update rather than doing it here.
+        follow-up in the Phase 26 ROADMAP update rather than doing it here. *(confirmed: left
+        untouched, flagged for Phase 26)*
+  - [x] *(deviation, not in original task list)* Updated three stale doc references to
+        `builder/z3_utils.py` that the plan's own verification bullet
+        (`grep -rn "z3_utils" code/src/model_checker/builder/` returns nothing) requires be
+        cleared: `builder/README.md`'s directory listing, `builder/tests/README.md`'s test-file
+        listing, and `builder/tests/unit/README.md`'s per-file entry (replaced with a pointer to
+        the new location). Also added a corresponding entry to
+        `iterate/tests/unit/README.md` for the relocated test file.
 - **Timing:** 1 hour
 - **Depends on:** 13
 - **Files to modify:**

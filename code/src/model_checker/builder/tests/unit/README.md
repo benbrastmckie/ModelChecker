@@ -109,13 +109,10 @@ This directory contains unit tests for the builder package, providing comprehens
 **Dependencies**: `pytest`, `builder.z3_isolation`, `z3`
 **Used By**: Solver isolation validation
 
-### test_z3_utils.py
-**Purpose**: Tests Z3 utility functions and helpers
-**Key Classes**: 
-- `TestZ3Utils` - Tests for Z3-specific utility functions
-**Key Functions**: Tests constraint building, solver configuration, result extraction
-**Dependencies**: `pytest`, `builder.z3_utils`, `z3`
-**Used By**: Z3 integration validation
+Note: `test_z3_utils.py` (Z3 utility function tests) moved to
+`iterate/tests/unit/test_z3_utils.py` alongside the relocated `iterate/z3_utils.py` module --
+"find a model differing from the previous one" is an iteration-domain primitive, not a builder
+concern.
 
 ## Usage
 
