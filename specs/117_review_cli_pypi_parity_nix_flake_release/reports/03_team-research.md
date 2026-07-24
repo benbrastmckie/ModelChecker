@@ -208,6 +208,24 @@ available; widen `checks.default` or document the narrowed CI gate explicitly; i
 `--maximize` memory investigation; second-party check of `SEMANTICS.md` and
 `code/scripts/README.md` link.
 
+## Addendum: Late Full-Suite Result (Teammate A, post-synthesis)
+
+Teammate A's single-threaded "everything-else" rerun completed after initial synthesis:
+**29 failed / 1780 passed / 1809 collected** vs task 122's baseline of 28 / 1852 / 1880.
+
+- **Good news**: all 28 documented baseline failures reproduced exactly, test-for-test, matching
+  every category in `rest-suite-disposition.md`.
+- **NEW failure** not in any prior baseline:
+  `code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_performance_improvement`.
+- **Collection gap**: 71 fewer tests collected (1809 vs 1880) for the identical pytest
+  invocation on the same commit. cvc5 availability ruled out as the cause; not yet root-caused.
+
+**This upgrades Recommendation P2/optional item "full fresh re-run" to an actionable P1 item**:
+diff collected test IDs against task 122's committed `baselines/junit-rest.xml` to determine
+whether the 71-test collection gap and the new `test_performance_improvement` failure are
+environment-dependent (e.g. perf-timing flake, missing optional dep) or a real regression,
+before treating the "everything-else" baseline as still fully green.
+
 ## Teammate Contributions
 
 | Teammate | Angle | Status | Confidence |
