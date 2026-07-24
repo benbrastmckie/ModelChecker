@@ -163,25 +163,25 @@ rehearsal step.
 
 ---
 
-### Phase 3: Reconcile RELEASE_SETUP.md with Reality [NOT STARTED]
+### Phase 3: Reconcile RELEASE_SETUP.md with Reality [COMPLETED]
 
 **Goal**: Rewrite `.github/RELEASE_SETUP.md` to describe the single actual `release.yml` workflow and
 the OIDC Trusted Publishing model, removing the obsolete token-based instructions and nonexistent
 workflow filenames.
 
 **Tasks**:
-- [ ] Replace the "Required Secrets / PYPI_API_TOKEN" section with a "Trusted Publishing (OIDC)
+- [x] Replace the "Required Secrets / PYPI_API_TOKEN" section with a "Trusted Publishing (OIDC)
       Setup" section: register a PyPI trusted publisher (repo `benbrastmckie/ModelChecker`, workflow
       `release.yml`, environment `pypi`) and, optionally, a TestPyPI trusted publisher (environment
       `testpypi`); create the matching GitHub Environments (`pypi`, `testpypi`) with any desired
-      protection rules. No long-lived secrets required.
-- [ ] Replace the "Workflow Overview" section's references to `test-package.yml` /
+      protection rules. No long-lived secrets required. *(completed)*
+- [x] Replace the "Workflow Overview" section's references to `test-package.yml` /
       `pypi-release.yml` with an accurate description of the single `release.yml` (test matrix ->
-      build+twine-check -> TestPyPI -> PyPI -> GitHub Release).
-- [ ] Update "Common Issues" and "Testing the Setup" to match OIDC (no `gh secret` for PyPI token;
-      instead verify the trusted-publisher + environment configuration).
-- [ ] Keep the release-process (tag `vX.Y.Z`) narrative but align it with the user-gated checklist
-      from Phase 5.
+      build+twine-check -> TestPyPI -> PyPI -> GitHub Release). *(completed)*
+- [x] Update "Common Issues" and "Testing the Setup" to match OIDC (no `gh secret` for PyPI token;
+      instead verify the trusted-publisher + environment configuration). *(completed)*
+- [x] Keep the release-process (tag `vX.Y.Z`) narrative but align it with the user-gated checklist
+      from Phase 5. *(completed: cross-references PUBLISH-CHECKLIST.md and pr-prohibition.md)*
 
 **Timing**: 0.5 hours
 
