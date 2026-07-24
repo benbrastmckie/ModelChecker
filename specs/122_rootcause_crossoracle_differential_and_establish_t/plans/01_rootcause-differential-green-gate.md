@@ -195,14 +195,14 @@ Phases within the same wave can execute in parallel. Heavy suite runs (4, 5, 6) 
 
 ---
 
-### Phase 6: Full green test gate via pytest-xdist (heavy, backgrounded, composed) [NOT STARTED]
+### Phase 6: Full green test gate via pytest-xdist (heavy, backgrounded, composed) [COMPLETED]
 
 **Goal**: Run the remainder of the `model_checker` suite (all theories + top-level tests, excluding the already-measured in-package bimodal tests) to completion under `pytest-xdist`, and compose the full-suite release tally without re-running bimodal.
 
 **Tasks**:
-- [ ] Launch, backgrounded with a monitor, a single run of the full suite excluding the bimodal tests already measured in Phase 4: `PYTHONPATH=code/src pytest --ignore=code/src/model_checker/theory_lib/bimodal/tests -n auto --junitxml=specs/122_.../baselines/junit-rest.xml -q` teed to `baselines/rest-run.txt`. (If the implementer prefers a single authoritative full-suite number and has wall-clock budget, a unified `PYTHONPATH=code/src pytest -n auto` run may replace both this and Phase 4's number — record which composition was used.)
-- [ ] On completion, derive the everything-else tally from `junit-rest.xml`; confirm green or documented/justified skips/xfails only (cross-check against task-121's 0-error collection and the known pre-existing conditions from the task-118 baseline).
-- [ ] Compose the full-suite release baseline: sum the Phase 4 bimodal tally and this everything-else tally (passed/failed/skipped/xfailed) and total wall-clock; document the composition explicitly so the number is auditable.
+- [x] Launch, backgrounded with a monitor, a single run of the full suite excluding the bimodal tests already measured in Phase 4: `PYTHONPATH=code/src pytest --ignore=code/src/model_checker/theory_lib/bimodal/tests -n auto --junitxml=specs/122_.../baselines/junit-rest.xml -q` teed to `baselines/rest-run.txt`. **Deviation**: used `-n 6` (consistent with Phases 4-5) and root-scoped args `code/tests/ code/src/model_checker --ignore=code/src/model_checker/theory_lib/bimodal/tests` (per Phase 1's collection-scoping finding). Result: 1880 tests, 1852 passed, 28 failed, 0 errors, 47.4s -- fast enough to run in the foreground rather than backgrounded.
+- [x] On completion, derive the everything-else tally from `junit-rest.xml`; confirm green or documented/justified skips/xfails only (cross-check against task-121's 0-error collection and the known pre-existing conditions from the task-118 baseline). **All 28 failures re-run serially (`-n 0`) to rule out contention**: all 28 reproduced identically (`28 failed in 14.27s`, `baselines/rest-failures-serial-rerun.txt`) -- deterministic, pre-existing, none traced to task 122's source edits. Full root-cause and categorization (8 categories, A-H): `baselines/rest-suite-disposition.md`. 6 of the 28 exactly match Phase 2's already-documented `builder/`-suite pre-existing failures; the remaining 22 are newly-documented (largest cluster: 10+2 tests trace to a shared malformed `"A[]"` test-formula literal in `code/tests/utils/helpers.py::create_test_model()`, pre-dating this task). None fixed here (out of scope: unrelated to the differential/oracle gate this task targets); a follow-up task is recommended.
+- [x] Compose the full-suite release baseline: sum the Phase 4 bimodal tally and this everything-else tally (passed/failed/skipped/xfailed) and total wall-clock; document the composition explicitly so the number is auditable. Composed in Phase 7's `RELEASE-BASELINE.md`.
 
 **Timing**: 20 minutes active + backgrounded wall-clock.
 
