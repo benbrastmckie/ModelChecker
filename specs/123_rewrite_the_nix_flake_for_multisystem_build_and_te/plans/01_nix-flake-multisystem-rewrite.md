@@ -1,7 +1,7 @@
 # Implementation Plan: Nix Flake Multi-System Rewrite
 
 - **Task**: 123 - rewrite_the_nix_flake_for_multisystem_build_and_te
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 2.5 hours
 - **Dependencies**: Green test gate established (task 122 RELEASE-BASELINE.md); final package identity in `code/pyproject.toml` (task 121)
 - **Research Inputs**: specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md; parent plan phase 11 (specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md)
@@ -173,18 +173,20 @@ reflects their shared logical dependency on Phase 1, not independent file owners
   - The check's pytest scope matches a green subset of the task-122 baseline (no reliance on the 28
     documented pre-existing failures being absent).
 
-### Phase 4: Retire `shell.nix`, Commit `flake.lock`, Final Verification [NOT STARTED]
+### Phase 4: Retire `shell.nix`, Commit `flake.lock`, Final Verification [COMPLETED]
 
 - **Goal:** Remove the legacy dev shell, lock and commit inputs, and verify the full multi-system
   flake end to end.
 - **Tasks:**
-  - [ ] Delete `code/shell.nix` (no backwards-compat layer, per project policy).
-  - [ ] Regenerate `flake.lock` (`nix flake lock`) so it reflects the new inputs (e.g. `flake-utils`);
-        stage it for commit.
-  - [ ] Run `nix build` and `nix flake check` a final time to confirm both succeed against the
-        committed lock.
-  - [ ] Confirm `nix flake show` lists `packages.default`, `devShells.default`, and `checks.default`
-        for the default systems.
+  - [x] Delete `code/shell.nix` (no backwards-compat layer, per project policy). *(completed)*
+  - [x] Regenerate `flake.lock` (`nix flake lock`) so it reflects the new inputs (e.g. `flake-utils`);
+        stage it for commit. *(completed: flake.lock already reflected flake-utils/systems from
+        Phase 1's build; `nix flake lock` confirmed idempotent)*
+  - [x] Run `nix build` and `nix flake check` a final time to confirm both succeed against the
+        committed lock. *(completed: build succeeds; check reports 286 passed in 42.56s, all checks
+        passed)*
+  - [x] Confirm `nix flake show` lists `packages.default`, `devShells.default`, and `checks.default`
+        for the default systems. *(completed: all three listed for all 4 default systems)*
 - **Timing:** 0.5 hours
 - **Depends on:** 2, 3
 - **Files to modify:**
@@ -198,15 +200,17 @@ reflects their shared logical dependency on Phase 1, not independent file owners
 
 ## Testing & Validation
 
-- [ ] `nix build` succeeds and the built output exposes an importable `model_checker` with a working
-      `import z3` (nixpkgs `python3Packages.z3`, not `z3-solver`).
-- [ ] `nix flake check` exits 0 with the scoped, known-green pytest check.
-- [ ] `nix develop` enters a shell with `pytest`/`pytest-xdist`/`networkx`/`z3` available and
+- [x] `nix build` succeeds and the built output exposes an importable `model_checker` with a working
+      `import z3` (nixpkgs `python3Packages.z3`, not `z3-solver`). *(completed: current nixpkgs pin
+      exposes this as attribute `python3Packages.z3-solver`, see Phase 1 note)*
+- [x] `nix flake check` exits 0 with the scoped, known-green pytest check. *(completed: 286 passed
+      in 42.56s)*
+- [x] `nix develop` enters a shell with `pytest`/`pytest-xdist`/`networkx`/`z3` available and
       `import model_checker` working, in a standalone checkout with no BimodalHarness present and no
-      warning emitted.
-- [ ] `nix flake show` lists `packages.default`, `devShells.default`, `checks.default` for the
-      default systems (multi-system evaluation succeeds).
-- [ ] `code/shell.nix` is deleted; `flake.lock` is committed.
+      warning emitted. *(completed, verified both with and without a BimodalHarness sibling)*
+- [x] `nix flake show` lists `packages.default`, `devShells.default`, `checks.default` for the
+      default systems (multi-system evaluation succeeds). *(completed)*
+- [x] `code/shell.nix` is deleted; `flake.lock` is committed. *(completed)*
 
 ## Artifacts & Outputs
 
