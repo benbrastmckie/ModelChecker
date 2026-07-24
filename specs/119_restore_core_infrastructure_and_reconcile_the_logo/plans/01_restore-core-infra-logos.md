@@ -1,7 +1,7 @@
 # Implementation Plan: Restore Core Infrastructure and Reconcile the logos Theory
 
 - **Task**: 119 - restore_core_infrastructure_and_reconcile_the_logos
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 4.5 hours
 - **Dependencies**: 118 (COMPLETED) — task branch `task-117-restore-model-checker` exists and is checked out; restore-point SHAs confirmed in `specs/118_bootstrap_branch_baseline_capture_and_oracle_reloc/baselines/restore-inventory.md`; the `bimodal_logic` oracle has been relocated to top-level `oracle/bimodal_logic/`.
 - **Research Inputs**: specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md
@@ -140,15 +140,15 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
   - `import model_checker.theory_lib.logos` succeeds with no error.
   - No reference to the removed first-order subtheory remains (grep is clean); the `e9734a27` removal is confirmed intact.
 
-### Phase 4: Register logos and Green Its Test Suite [NOT STARTED]
+### Phase 4: Register logos and Green Its Test Suite [COMPLETED]
 
 - **Goal:** Register `logos` and its retained subtheories in `AVAILABLE_THEORIES` and get the `logos` test suite to collect and pass.
 - **Tasks:**
-  - [ ] Register `logos` (and its retained subtheories) in `theory_lib` `AVAILABLE_THEORIES` (`code/src/model_checker/theory_lib/__init__.py`), following the existing `bimodal` registration as the pattern.
-  - [ ] Re-run the `logos` import smoke test after editing `theory_lib/__init__.py` to catch any coupling surfaced by registration.
-  - [ ] Get `theory_lib/logos/tests/` to collect: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos --collect-only -q` reports zero collection errors.
-  - [ ] Run the suite to green: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos -q`; fix-forward any residual failures within `logos`'s scope.
-  - [ ] Commit per green sub-step: `task 119 phase 4: register logos, logos test suite green`.
+  - [x] Register `logos` (and its retained subtheories) in `theory_lib` `AVAILABLE_THEORIES` (`code/src/model_checker/theory_lib/__init__.py`), following the existing `bimodal` registration as the pattern. (Subtheories are loaded via `logos`'s own internal subtheory registry, not `AVAILABLE_THEORIES` directly — only `logos` itself is a top-level theory-lib entry; also updated the module docstring's theory list for consistency.)
+  - [x] Re-run the `logos` import smoke test after editing `theory_lib/__init__.py` to catch any coupling surfaced by registration. `from model_checker.theory_lib import AVAILABLE_THEORIES, logos` resolves cleanly via `__getattr__`; no coupling issues surfaced.
+  - [x] Get `theory_lib/logos/tests/` to collect: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos --collect-only -q` reports zero collection errors. Confirmed: 446 tests collected, 0 errors.
+  - [x] Run the suite to green: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos -q`; fix-forward any residual failures within `logos`'s scope. Confirmed: 446 passed in 85.74s, 0 failures, 0 skips, 0 xfails — no fix-forward needed.
+  - [x] Commit per green sub-step: `task 119 phase 4: register logos, logos test suite green`.
 - **Timing:** 1 hour
 - **Depends on:** 3
 - **Files to modify:**
@@ -160,15 +160,15 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src python -c "import model_checker.builder"` succeeds.
-- [ ] `PYTHONPATH=code/src python -c "import model_checker.iterate"` succeeds.
-- [ ] `PYTHONPATH=code/src python -c "import model_checker.output.manager"` succeeds.
-- [ ] `PYTHONPATH=code/src python -m model_checker --help` runs without `ModuleNotFoundError`.
-- [ ] `python code/dev_cli.py --help` runs without `ModuleNotFoundError`.
-- [ ] `PYTHONPATH=code/src python -c "import model_checker.theory_lib.logos"` succeeds.
-- [ ] `logos` is registered in `AVAILABLE_THEORIES`.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos -q` collects and passes.
-- [ ] No restored module imports the relocated `bimodal_logic` oracle; no `logos` reference to the removed first-order subtheory remains.
+- [x] `PYTHONPATH=code/src python -c "import model_checker.builder"` succeeds.
+- [x] `PYTHONPATH=code/src python -c "import model_checker.iterate"` succeeds.
+- [x] `PYTHONPATH=code/src python -c "import model_checker.output.manager"` succeeds.
+- [x] `PYTHONPATH=code/src python -m model_checker --help` runs without `ModuleNotFoundError`.
+- [x] `python code/dev_cli.py --help` runs without `ModuleNotFoundError`.
+- [x] `PYTHONPATH=code/src python -c "import model_checker.theory_lib.logos"` succeeds.
+- [x] `logos` is registered in `AVAILABLE_THEORIES`.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos -q` collects and passes. (446 passed, 0 failures/skips/xfails)
+- [x] No restored module imports the relocated `bimodal_logic` oracle; no `logos` reference to the removed first-order subtheory remains.
 
 ## Artifacts & Outputs
 
