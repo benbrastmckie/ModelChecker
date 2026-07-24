@@ -205,18 +205,22 @@ Phases within the same wave can execute in parallel.
 - **Verification:** No reference implies logos still supports first-order quantification;
   Z3-constraint first-order language preserved where accurate.
 
-### Phase 5: Add CHANGELOG release entry and seed ROADMAP [NOT STARTED]
+### Phase 5: Add CHANGELOG release entry and seed ROADMAP [COMPLETED]
 
 - **Goal:** Record the release honestly in the changelog and capture the durable identity
   decision in the roadmap.
 - **Tasks:**
-  - [ ] `code/CHANGELOG.md`: add an honest entry for this release covering the package-identity
+  - [x] `code/CHANGELOG.md`: add an honest entry for this release covering the package-identity
         restore, the four-theory set, the first-order removal from logos, and the oracle
         relocation to a standalone tree. Follow the existing Keep-a-Changelog structure. Reference
-        durable anchors, not task numbers.
-  - [ ] `specs/ROADMAP.md`: seed the durable package-identity decision (framework ships as
+        durable anchors, not task numbers. *(completed: added `## [1.3.0] - 2026-07-24` with a
+        "Framework Restoration" subsection under Changed, ahead of the pre-existing Issue #73
+        package-loading entries, which now nest under the same release)*
+  - [x] `specs/ROADMAP.md`: seed the durable package-identity decision (framework ships as
         `model_checker` with the four registered theories; oracle kept standalone/unpacked),
-        replacing the placeholder items. This is a non-blocking addition.
+        replacing the placeholder items. This is a non-blocking addition. *(completed: added a
+        "Durable Decisions" section above the existing Phase 1/Success Metrics placeholders,
+        which are left intact for future population)*
 - **Timing:** 20 minutes
 - **Depends on:** 1
 - **Files to modify:**

@@ -6,12 +6,24 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
-### Fixed
-- **Issue #73**: Fixed ModuleNotFoundError when testing generated project examples
-  - Complete refactor of package loading system
-  - Clear, actionable error messages for package issues
+## [1.3.0] - 2026-07-24
 
 ### Changed
+
+#### Framework Restoration
+- **Package identity restored**: the project ships again as the `model_checker` package with a
+  clean `[tool.setuptools.packages.find] where = ["src"]` layout; the four semantic theories
+  (`logos`, `exclusion`, `imposition`, `bimodal`) are the complete registered theory set exposed
+  via `AVAILABLE_THEORIES`.
+- **First-order quantification removed from Logos**: the Logos theory's subtheory set is now
+  `extensional`, `modal`, `constitutive`, `counterfactual`, `relevance` (18 operators total); no
+  subtheory exposes first-order quantifier operators. Z3-level `ForAll`/`Exists` constraint
+  encodings used internally by the solver backend are unaffected by this change.
+- **Differential oracle relocated**: the cross-solver differential oracle now lives in a
+  standalone top-level `oracle/` tree, outside `code/src/`, and is excluded from the built wheel.
+- **`builder`/`iterate` infrastructure restored**: project generation (`model_checker.builder`)
+  and model iteration (`model_checker.iterate`) are back to full working order alongside the
+  rest of the package.
 
 #### Package Loading Improvements
 - Added `_load_as_package_module()` method for better package handling
@@ -31,6 +43,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
   - `PackageFormatError`: Invalid .modelchecker marker
   - `PackageImportError`: Package cannot be imported
   - `PackageNotImportableError`: Package not in importable state and context
+
+### Fixed
+- **Issue #73**: Fixed ModuleNotFoundError when testing generated project examples
+  - Complete refactor of package loading system
+  - Clear, actionable error messages for package issues
 
 ### Added
 - Comprehensive test suite for package loading (`test_package_loading.py`, `test_issue_73_fix.py`)
