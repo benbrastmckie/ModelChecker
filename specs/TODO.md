@@ -17,16 +17,16 @@ next_project_number: 127
 
 ### Packaging
 
-117 [PLANNING] — Review and stabilize the repo after recent revisions: verify the 
+117 [PLANNED] — Review and stabilize the repo after recent revisions: verify the 
 
 ### Architecture
 
-126 [NOT STARTED] — Systematically refactor the repo into: 1) the core codebase conta
+126 [RESEARCHING] — Systematically refactor the repo into: 1) the core codebase conta
 
 ## Tasks
 
 ### 126. Refactor repo core infrastructure theory lib
-- **Status**: [NOT STARTED]
+- **Status**: [RESEARCHING]
 - **Task Type**: general
 - **Topic**: architecture
 - **Dependencies**: None
@@ -147,14 +147,14 @@ next_project_number: 127
 ---
 
 ### 117. Review cli pypi parity nix flake release
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 118, Task 119, Task 120, Task 121, Task 122, Task 123, Task 124, Task 125
 - **Research**:
   - [117_review_cli_pypi_parity_nix_flake_release/reports/01_team-research.md]
   - [117_review_cli_pypi_parity_nix_flake_release/reports/03_team-research.md]
-- **Plan**: [117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md]
+- **Plan**: [117_review_cli_pypi_parity_nix_flake_release/plans/03_stabilize-and-release-closeout.md]
 
 **Description**: Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI
 

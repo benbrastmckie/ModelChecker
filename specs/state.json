@@ -4,22 +4,23 @@
     {
       "project_number": 126,
       "project_name": "refactor_repo_core_infrastructure_theory_lib",
-      "status": "not_started",
+      "status": "researching",
       "task_type": "general",
       "description": "Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.",
       "topic": "architecture",
       "created": "2026-07-24T16:04:19Z",
-      "last_updated": "2026-07-24T16:04:19Z"
+      "last_updated": "2026-07-24T16:05:56Z",
+      "session_id": "sess_1784909138_bee998"
     },
     {
       "project_number": 117,
       "project_name": "review_cli_pypi_parity_nix_flake_release",
-      "status": "planning",
+      "status": "planned",
       "task_type": "python",
       "description": "Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI",
       "topic": "packaging",
       "created": "2026-07-23T17:05:44Z",
-      "last_updated": "2026-07-24T16:04:20Z",
+      "last_updated": "2026-07-24T16:09:03Z",
       "session_id": "sess_1784909040_1d5dd5",
       "researched": "2026-07-24T16:00:40Z",
       "next_artifact_number": 4,
@@ -30,14 +31,14 @@
           "summary": "Team research with 4 teammates: CLI broken, package identity fork (model-checker vs bimodal-logic), Nix flake gaps, release workflow issues"
         },
         {
-          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md",
-          "type": "plan",
-          "summary": "13-phase plan: branch/baseline, oracle separation, git-history infra restore, theory reconciliation (logos/exclusion/imposition), pyproject identity, test repair, differential root-cause, full green gate, Nix flake rewrite, docs, release engineering."
-        },
-        {
           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/03_team-research.md",
           "type": "research",
           "summary": "Team research (4 teammates): systematic review of completed tasks 118-125; 3 release-blocking defects found"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/plans/03_stabilize-and-release-closeout.md",
+          "type": "plan",
+          "summary": "9-phase close-out plan: P0 release blockers, P1 quality fixes, P2 handoff (11h, 3 waves)"
         }
       ],
       "previous_status": "planned",
