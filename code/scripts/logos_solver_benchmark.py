@@ -39,7 +39,6 @@ import platform
 import signal
 import sys
 import time
-from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -75,107 +74,6 @@ COMPARISON_EXAMPLES = {
     "counterfactual": ["CF_TH_1", "CF_TH_2", "CF_CM_1", "CF_CM_7"],
     "relevance": ["REL_TH_1", "REL_TH_7", "REL_CM_1", "REL_CM_3"],
 }
-
-
-@dataclass
-class SolverResult:
-    """Result from running an example with a specific solver."""
-
-    result: Optional[bool]  # True=SAT, False=UNSAT, None=error
-    passed: bool  # Did result match expectation?
-    time_seconds: float
-    error: Optional[str] = None
-
-
-@dataclass
-class ExampleResult:
-    """Combined results for an example across both solvers."""
-
-    subtheory: str
-    example_name: str
-    expectation: Optional[bool]  # True=expect SAT, False=expect UNSAT
-    z3: Optional[SolverResult] = None
-    cvc5: Optional[SolverResult] = None
-
-
-@dataclass
-class SolverSummary:
-    """Summary statistics for a single solver."""
-
-    total_examples: int = 0
-    passed: int = 0
-    failed: int = 0
-    errors: int = 0
-    timeouts: int = 0
-    total_time_seconds: float = 0.0
-    avg_time_seconds: float = 0.0
-
-
-@dataclass
-class SubtheorySummary:
-    """Summary statistics for a subtheory."""
-
-    z3: Dict[str, Any] = field(default_factory=dict)
-    cvc5: Dict[str, Any] = field(default_factory=dict)
-
-
-@dataclass
-class Disagreement:
-    """Record of a solver disagreement."""
-
-    example_name: str
-    subtheory: str
-    z3_result: Optional[bool]
-    cvc5_result: Optional[bool]
-    expectation: Optional[bool]
-
-
-@dataclass
-class BenchmarkMetadata:
-    """Metadata about the benchmark run."""
-
-    timestamp: str
-    z3_version: str
-    cvc5_version: str
-    platform: str
-    python_version: str
-    total_examples: int
-    total_runtime_seconds: float
-
-
-@dataclass
-class BenchmarkOutput:
-    """Complete benchmark output structure."""
-
-    metadata: BenchmarkMetadata
-    summary: Dict[str, SolverSummary]
-    by_subtheory: Dict[str, SubtheorySummary]
-    results: List[Dict[str, Any]]
-    disagreements: List[Dict[str, Any]]
-
-
-@dataclass
-class TimingSummary:
-    """Timing-focused summary for a single solver."""
-
-    total_time_seconds: float = 0.0
-    avg_time_seconds: float = 0.0
-    fastest_example: str = ""
-    fastest_time: float = 0.0
-    slowest_example: str = ""
-    slowest_time: float = 0.0
-
-
-@dataclass
-class ComparisonStats:
-    """Statistics comparing the two solvers."""
-
-    agreements: int = 0
-    disagreements: int = 0
-    z3_faster_count: int = 0
-    cvc5_faster_count: int = 0
-    ties: int = 0
-    avg_time_ratio: float = 0.0  # slower/faster ratio average
 
 
 def format_as_table(results: Dict[str, Any]) -> str:

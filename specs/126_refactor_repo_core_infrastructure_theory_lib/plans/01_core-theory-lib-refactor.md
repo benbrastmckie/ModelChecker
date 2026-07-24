@@ -428,30 +428,38 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 6: Relocate the Logos Solver Benchmark Out of the Package [NOT STARTED]
+### Phase 6: Relocate the Logos Solver Benchmark Out of the Package [COMPLETED]
 
 - **Goal:** Remove the sole theory -> builder import inversion and drop a 37.5 KB CLI benchmark
   script from the shipped wheel.
 - **Tasks:**
-  - [ ] `git mv code/src/model_checker/theory_lib/logos/comparison.py
+  - [x] `git mv code/src/model_checker/theory_lib/logos/comparison.py
         code/scripts/logos_solver_benchmark.py`. The rename also removes the misleading basename
         collision with `builder/comparison.py`, which is an unrelated runtime component
-        (`--maximize` theory comparison) sharing zero symbols with it.
-  - [ ] This eliminates `logos/comparison.py:62-64` — the theory -> builder import
+        (`--maximize` theory comparison) sharing zero symbols with it. *(completed)*
+  - [x] This eliminates `logos/comparison.py:62-64` — the theory -> builder import
         (`from model_checker.builder.example import BuildExample`, used once at `:618`) — by
         construction, and removes `unittest.mock` (imported at `:66`) from shipped library code.
-  - [ ] Delete the nine unused dataclasses at `:80-178` (`SolverResult`, `ExampleResult`,
+        *(completed: file now lives in code/scripts/, outside the wheel, so its Mock usage no
+        longer ships in library code by construction of the move)*
+  - [x] Delete the nine unused dataclasses at `:80-178` (`SolverResult`, `ExampleResult`,
         `SolverSummary`, `SubtheorySummary`, `Disagreement`, `BenchmarkMetadata`, `BenchmarkOutput`,
         `TimingSummary`, `ComparisonStats`). None is ever instantiated; `run_benchmarks` builds plain
-        dicts at `:757`, `:773`, `:905`. That is ~100 lines of drift risk.
-  - [ ] Update the two live importers: `code/scripts/comparison.py:24`
+        dicts at `:757`, `:773`, `:905`. That is ~100 lines of drift risk. *(completed: confirmed
+        zero instantiation sites before deletion via grep; also removed the now-unused
+        `from dataclasses import dataclass, field, asdict` import)*
+  - [x] Update the two live importers: `code/scripts/comparison.py:24`
         (`from model_checker.theory_lib.logos.comparison import main`) and
         `code/scripts/test_cvc5_stability.py:55,130` (`create_test_module`,
         `get_required_subtheories`). Both already perform `sys.path` surgery, so a sibling-script
-        import is consistent with their existing style.
-  - [ ] Confirm nothing under `code/src/`, `oracle/`, or any test suite imports it.
-        `logos/__init__.py` does not reference it.
-  - [ ] Leave `builder/comparison.py` untouched.
+        import is consistent with their existing style. *(completed: both now import
+        `logos_solver_benchmark` as a sibling script; verified working via `comparison.py --help`
+        and a direct import smoke test)*
+  - [x] Confirm nothing under `code/src/`, `oracle/`, or any test suite imports it.
+        `logos/__init__.py` does not reference it. *(completed: grep confirms zero references
+        under code/src/, oracle/, or any test suite; the only remaining hit is the auto-generated,
+        gitignored `code/src/model_checker.egg-info/SOURCES.txt`, regenerated on next build)*
+  - [x] Leave `builder/comparison.py` untouched. *(confirmed untouched)*
 - **Timing:** 1.5 hours
 - **Depends on:** 2
 - **Files to modify:**

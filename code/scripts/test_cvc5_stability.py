@@ -24,6 +24,10 @@ import statistics
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
+# Ensure this script's own directory (where logos_solver_benchmark.py lives)
+# is on sys.path -- consistent with comparison.py's existing sys.path surgery.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
 
 def run_z3_baseline(example_name: str) -> Tuple[float, str]:
     """Run example with Z3 for baseline comparison."""
@@ -52,7 +56,7 @@ def run_z3_baseline(example_name: str) -> Tuple[float, str]:
     set_cli_backend("z3")
 
     try:
-        from model_checker.theory_lib.logos.comparison import (
+        from logos_solver_benchmark import (
             create_test_module,
             get_required_subtheories,
         )
@@ -127,7 +131,7 @@ def run_cvc5_with_options(example_name: str, options: Dict[str, str]) -> Tuple[f
     try:
         cvc5_adapter.CVC5SolverAdapter.__init__ = patched_init
 
-        from model_checker.theory_lib.logos.comparison import (
+        from logos_solver_benchmark import (
             create_test_module,
             get_required_subtheories,
         )

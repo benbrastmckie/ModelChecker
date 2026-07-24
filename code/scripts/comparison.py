@@ -11,7 +11,7 @@ Usage:
     ./comparison.py --verbose                # Show per-example output
     ./comparison.py --timeout 60             # Custom timeout per example
 
-For full documentation, see: model_checker.theory_lib.logos.comparison
+For full documentation, see: code/scripts/logos_solver_benchmark.py
 """
 
 import os
@@ -21,7 +21,11 @@ import sys
 src_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'src'))
 sys.path.insert(0, src_path)
 
-from model_checker.theory_lib.logos.comparison import main
+# Ensure this script's own directory (where logos_solver_benchmark.py lives)
+# is on sys.path -- consistent with this script's existing sys.path surgery.
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+
+from logos_solver_benchmark import main
 
 if __name__ == "__main__":
     sys.exit(main())
