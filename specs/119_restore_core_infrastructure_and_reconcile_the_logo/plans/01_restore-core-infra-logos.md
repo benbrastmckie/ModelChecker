@@ -124,14 +124,14 @@ Phases within the same wave can execute in parallel. This plan is fully sequenti
   - Both `python -m model_checker --help` and `python code/dev_cli.py --help` exit 0 with no `ModuleNotFoundError`.
   - No restored module imports `bimodal_logic`.
 
-### Phase 3: Reconcile the logos Theory Imports [NOT STARTED]
+### Phase 3: Reconcile the logos Theory Imports [COMPLETED]
 
 - **Goal:** Make `theory_lib/logos/` import cleanly now that `model_checker.iterate` is restored, and confirm the first-order removal is intact with no dangling references.
 - **Tasks:**
-  - [ ] Confirm `theory_lib/logos/__init__.py`'s `from .iterate import ...` / `model_checker.iterate` imports now resolve; run `PYTHONPATH=code/src python -c "import model_checker.theory_lib.logos"`.
-  - [ ] Fix any residual `logos` import paths that break against the current API (fix-forward).
-  - [ ] Grep `theory_lib/logos/` for references to the removed first-order subtheory; confirm the `e9734a27` removal is intact and no import resolves to a deleted first-order module. Remove any dangling reference found.
-  - [ ] Commit per green sub-step: `task 119 phase 3: reconcile logos imports, first-order removal verified`.
+  - [x] Confirm `theory_lib/logos/__init__.py`'s `from .iterate import ...` / `model_checker.iterate` imports now resolve; run `PYTHONPATH=code/src python -c "import model_checker.theory_lib.logos"`. **Result**: succeeded immediately, zero code changes needed — phase 2's `iterate` restore was sufficient.
+  - [x] Fix any residual `logos` import paths that break against the current API (fix-forward). **Deviation**: no fix-forward was needed; `logos` had no residual import breakage against current HEAD's API.
+  - [x] Grep `theory_lib/logos/` for references to the removed first-order subtheory; confirm the `e9734a27` removal is intact and no import resolves to a deleted first-order module. Remove any dangling reference found. Grep for `first_order`/`first-order`/`firstorder` (case-insensitive) across `theory_lib/logos/` returned zero matches; `subtheories/` contains only `constitutive`, `counterfactual`, `extensional`, `modal`, `relevance`, `spatial` (no `first_order` directory). `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos --collect-only -q` collects 446 tests with zero errors, confirming no dangling reference at test-collection time either.
+  - [x] Commit per green sub-step: `task 119 phase 3: reconcile logos imports, first-order removal verified`.
 - **Timing:** 1 hour
 - **Depends on:** 2
 - **Files to modify:**
