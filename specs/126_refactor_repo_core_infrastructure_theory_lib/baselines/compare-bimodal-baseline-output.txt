@@ -1,0 +1,7 @@
+Running bimodal test suite...
+
+=== Baseline Comparison ===
+Baseline: 43 passed
+Current:  43 passed, 0 failed, total=43
+
+OK: 0 regressions (matches baseline)

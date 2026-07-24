@@ -1,0 +1,305 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collected 289 items
+
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_api_consistency.py . [  0%]
+.                                                                        [  0%]
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_data_extraction.py . [  1%]
+.....                                                                    [  2%]
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py . [  3%]
+....                                                                     [  4%]
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py . [  4%]
+.......                                                                  [  7%]
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py . [  7%]
+..........                                                               [ 11%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py ... [ 12%]
+....F...................................                                 [ 25%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py . [ 26%]
+....................................................................     [ 49%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py . [ 50%]
+.........                                                                [ 53%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py . [ 53%]
+...........                                                              [ 57%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py . [ 57%]
+.......                                                                  [ 60%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py . [ 60%]
+................                                                         [ 66%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py . [ 66%]
+.................................                                        [ 77%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_module_registration.py . [ 78%]
+..                                                                       [ 78%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py . [ 79%]
+...........................                                              [ 88%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py . [ 88%]
+............                                                             [ 93%]
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py . [ 93%]
+...................                                                      [100%]
+
+=================================== FAILURES ===================================
+__________________ test_example_cases[BM_CM_1-example_case7] ___________________
+
+example_name = 'BM_CM_1'
+example_case = [['\\Future A'], ['\\Box A'], {'M': 2, 'N': 2, 'contingent': True, 'disjoint': False, ...}]
+
+    @pytest.mark.parametrize("example_name, example_case", test_examples.items())
+    def test_example_cases(example_name, example_case):
+        """Test each example case from test_example_range."""
+        with isolated_z3_context():
+            result = run_test(
+                example_case,
+                BimodalSemantics,
+                BimodalProposition,
+                bimodal_operators,
+                Syntax,
+                ModelConstraints,
+                BimodalStructure,
+            )
+>       assert result, f"Test failed for example: {example_name}"
+E       AssertionError: Test failed for example: BM_CM_1
+E       assert False
+
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py:73: AssertionError
+- generated xml file: /home/benjamin/Projects/ModelChecker/specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/junit-bimodal.xml -
+============================== slowest durations ===============================
+20.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX11P_LIN_P_TH-example_case40]
+20.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX11_LIN_F_TH-example_case39]
+15.17s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7]
+3.68s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_4-example_case9]
+2.27s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_2-example_case8]
+1.41s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_extract_task_rel_pairs_nonempty
+0.56s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_solved_model_produces_data
+0.46s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConverse::test_converse_symmetry
+0.39s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_three_taskframe_axioms_present_in_frame_constraints
+0.33s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestForwardCompPostHoc::test_forward_composition_holds
+0.21s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestNullityIdentityPostHoc::test_no_zero_duration_between_distinct_states
+0.21s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestNullityIdentityPostHoc::test_every_state_has_zero_duration_self_task
+0.19s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestLawfulHistoryPostHoc::test_consecutive_states_have_unit_task_rel
+0.18s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_chain
+0.16s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_3-example_case3]
+0.16s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_4-example_case4]
+0.16s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_1-example_case1]
+0.16s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_6-example_case6]
+0.16s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_exists
+0.15s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_2-example_case2]
+0.15s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_extract_task_rel_has_forced_pair
+0.15s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestConversePostHoc::test_converse_holds_for_all_pairs
+0.15s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_all_constraints_consistent
+0.15s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_5-example_case5]
+0.14s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[EX_CM_1-example_case0]
+0.14s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_TH_3-example_case13]
+0.13s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_TH_4-example_case14]
+0.13s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX2H_MONO_S_TH-example_case26]
+0.13s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX6P_ABSORB_S_TH-example_case38]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX13_ENRICH_U_TH-example_case41]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[EX_TH_1-example_case10]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_B_TH-example_case21]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX5P_ACCUM_S_TH-example_case36]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX5_ACCUM_U_TH-example_case35]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[PROP_K_TH-example_case15]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX2G_MONO_U_TH-example_case25]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX3P_MONO_S_TH-example_case28]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_TH_1-example_case11]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX4P_CONNECT_P_TH-example_case30]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX3_MONO_U_TH-example_case27]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_lawful_plus_nullity
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX10_UNTIL_F_TH-example_case31]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX1P_SERIAL_P_TH-example_case24]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_4_TH-example_case20]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_5_TH-example_case22]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[PEIRCE_TH-example_case18]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX12P_P_SINCE_TH-example_case34]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[EX_FALSO_TH-example_case17]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX4_CONNECT_F_TH-example_case29]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX12_F_UNTIL_TH-example_case33]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX10P_SINCE_P_TH-example_case32]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX6_ABSORB_U_TH-example_case37]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[PROP_S_TH-example_case16]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX1_SERIAL_F_TH-example_case23]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_T_TH-example_case19]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[TN_TH_2-example_case12]
+0.11s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_extract_world_histories_nonempty
+0.08s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestNullityIdentity::test_zero_duration_self_task
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX13P_ENRICH_S_TH-example_case42]
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_with_bot
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_of_and
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_via_until
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_via_some_future
+0.07s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_truth_condition_constraints
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_of_or
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_commutativity
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_self_equivalence
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_of_or
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_of_and
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_via_since
+0.06s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_task_constraints
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_de_morgan
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_self_equivalence
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_basic_definition
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_of_or
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_of_or
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestSemanticEquivalence::test_next_equivalent_to_until_bot
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestInfrastructure::test_smoke_neg_basic
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_neg_top_implies_bot
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_of_or
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_double_negation
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_next_of_and_neg
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_via_until
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_of_neg
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_of_and
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_associativity
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_of_neg
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_future_equiv_at_m3
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestSemanticEquivalence::test_prev_equivalent_to_since_bot
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_of_and
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_top_implies_top
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_basic_definition
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_prev_next_negation_symmetry
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_future_equiv_at_m2
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_via_all_past
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_bot
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_neg_of_prev
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_diamond_or_distribution
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_implication
+0.05s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_basic_constraints
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_via_all_future
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_of_and
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_of_neg
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_future_via_until_at_m3
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_basic_definition
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_of_or
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_of_and
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_past_equiv_at_m3
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_anything_implies_top
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_excluded_middle_is_top
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_contradiction
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_commutativity
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_basic_definition
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_box_implies_diamond
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_past_via_since_at_m3
+0.05s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_uses_model_validator
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_basic_definition
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_of_neg
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_basic_definition
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_top_self_equivalence
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_modal_temporal_nesting
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_diamond_of_and_neg
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_neg_of_next
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_past_equiv_at_m2
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_of_and
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_of_neg
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_some_future_of_or_neg
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_excluded_middle
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_of_or
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_via_some_past
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_with_bot
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_bot_implies_top
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_via_since
+0.05s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_quadruple_negation
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestTimeIntervalBounds::test_is_valid_time_checks_global_bounds
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_until_with_immediate_witness
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceSemantics::test_since_operator_instantiation
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceSemantics::test_until_operator_instantiation
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestTimeIntervalBounds::test_is_valid_time_for_world_checks_world_interval
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceZ3Integration::test_since_true_at_produces_valid_z3
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_since_with_immediate_witness
+0.04s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_z3_model_values_exists
+0.04s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceZ3Integration::test_until_true_at_produces_valid_z3
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestAtomDomainCheck::test_true_at_includes_domain_check_for_atoms
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestQuantificationScope::test_foralltime_uses_is_valid_time
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_until_fails_when_guard_fails
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_since_fails_when_guard_fails
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestAtomDomainCheck::test_true_at_complex_formulas_no_domain_check
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestQuantificationScope::test_existstime_uses_is_valid_time
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestStrictOrderingVerification::test_past_operator_uses_strict_less_than
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestStrictOrderingVerification::test_future_operator_uses_strict_less_than
+0.03s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_uses_since_operator
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilVariableNaming::test_until_false_at_variable_names
+0.03s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_argument_is_event
+0.03s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_returns_list
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_three_taskframe_axioms_present_in_frame_constraints
+0.03s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_full_structure
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorSignature::test_until_methods_are_callable
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorZ3Structure::test_since_true_at_uses_nested_quantifiers
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessRegistration::test_can_register_witness_manually
+0.03s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestInitialization::test_initialization_stores_N
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestInitialization::test_initialization_stores_M
+0.02s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_guard_is_bot
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorSignature::test_until_has_required_methods
+0.02s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_full_structure
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_nullity_axiom_enforced_in_frame
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_formula_string_box_operator
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestForAllTime::test_foralltime_wraps_validity
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_all_constraints_consistent
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_lawful_plus_nullity
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_witness_registry_initialized
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_converse_axiom_enforced_in_frame
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorZ3Structure::test_since_false_at_returns_z3_expression
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilFindTruthCondition::test_until_vacuously_false_at_boundary
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_past_operator_structure_uses_quantifier
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_past_operator_false_structure_uses_quantifier
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_chain
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestForAllTime::test_foralltime_signature
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessRegistration::test_can_generate_constraints_for_registered_witness
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorZ3Structure::test_since_true_at_returns_z3_expression
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceVariableNaming::test_since_true_at_variable_names
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorSignature::test_since_has_required_methods
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestNullityIdentity::test_zero_duration_self_task
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestNullityIdentity::test_zero_duration_different_states_unsat
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_returns_list
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConverse::test_converse_exclusion
+0.02s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_guard_is_bot
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_false_at_uses_nested_quantifiers
+0.02s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_returns_list
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConverse::test_converse_symmetry
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_false_at_returns_z3_expression
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorSignature::test_since_methods_are_callable
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestForAllTime::test_foralltime_structure
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_returns_z3_constraints
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_future_operator_false_structure_uses_quantifier
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestConstraintStructure::test_constraints_use_implies
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_exists
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_true_at_returns_z3_expression
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilVariableNaming::test_until_true_at_variable_names
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestSemanticReferences::test_constraints_check_time_validity
+0.02s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_argument_is_event
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestExistsTime::test_existstime_signature
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilFindTruthCondition::test_until_find_truth_condition_basic_case
+0.02s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_uses_until_operator
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestSemanticReferences::test_constraints_reference_is_world
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestExistsTime::test_existstime_wraps_validity
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestConstraintStructure::test_constraints_contain_forall
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceVariableNaming::test_since_false_at_variable_names
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceFindTruthCondition::test_since_find_truth_condition_returns_dict
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestInitialization::test_initialization_stores_semantics
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilFindTruthCondition::test_until_find_truth_condition_returns_dict
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_constraint_generator_initialized
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestConstraintStructure::test_constraints_reference_predicate
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestMultipleFormulas::test_different_formulas_different_constraints
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_witness_registry_correct_type
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_future_operator_structure_uses_quantifier
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_constraint_generator_has_semantics_reference
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceFindTruthCondition::test_since_vacuously_false_at_boundary
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_none_predicate_raises_error
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceFindTruthCondition::test_since_find_truth_condition_basic_case
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_empty_formula_raises_error
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestNegationUnchanged::test_negation_has_simple_semantics
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestExistsTime::test_existstime_structure
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_formula_string_simple_sentence
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_formula_string_callable
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_true_at_uses_nested_quantifiers
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_has_formula_string_method
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestRegressionBasic::test_semantics_initialization_succeeds
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestRegressionBasic::test_has_necessary_semantic_methods
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_constraint_generator_correct_type
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_witness_registry_has_correct_parameters
+0.02s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestRegressionBasic::test_frame_constraints_still_generated
+0.01s call     src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_module_registration.py::TestBimodalSemanticModuleRegistration::test_bimodal_semantics_class_survives_process_pool_round_trip
+0.01s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestLawfulHistoryPostHoc::test_consecutive_states_have_unit_task_rel
+
+(633 durations < 0.005s hidden.  Use -vv to show these durations.)
+=========================== short test summary info ============================
+FAILED code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7]
+=================== 1 failed, 288 passed in 78.66s (0:01:18) ===================

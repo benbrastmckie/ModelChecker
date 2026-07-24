@@ -1,0 +1,25 @@
+# Task 126 Phase 2 baseline: pre-refactor collection counts
+# Methodology matches task-122's collection-counts.txt (run from code/, or with
+# explicit code/tests/ code/src/model_checker paths, so pyproject.toml testpaths applies).
+
+=== in-package bimodal collect-only ===
+$ PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q
+289 tests collected in 0.54s
+(task-122 baseline: 286; +3 tests added since)
+
+=== full in-package suite collect-only (cd code) ===
+$ cd code && PYTHONPATH=src pytest --collect-only -q
+2100 tests collected in 1.05s
+(task-122 baseline: 2095; +5 tests added since)
+
+=== oracle suite collect-only ===
+$ PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/ --collect-only -q
+550 tests collected in 0.56s
+(task-122 baseline: 550; unchanged)
+
+=== NOTE ===
+A bare root-level `pytest --collect-only -q` (no cd into code/, no explicit path scoping) does
+NOT apply code/pyproject.toml's testpaths and instead walks the whole repo including
+code/boneyard/, producing a misleading inflated count with collection errors. Phase 5 of this
+plan deletes code/boneyard/, which is the correct fix for that trap (see task-122's
+collection-counts.txt for the historical reproduction of the same issue).

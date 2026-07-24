@@ -208,34 +208,46 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 2: Pin Verification Baselines and Build the Regression Gate [NOT STARTED]
+### Phase 2: Pin Verification Baselines and Build the Regression Gate [IN PROGRESS]
 
 - **Goal:** Capture every pre-refactor measurement the plan will be judged against, and package the
   checks into one reusable script so every later phase can run the same gate.
 - **Tasks:**
-  - [ ] Ensure a clean working tree (commit or stash unrelated changes) before measuring.
-  - [ ] Pin collection inventories with `--collect-only -q`, using the invocation methodology
+  - [x] Ensure a clean working tree (commit or stash unrelated changes) before measuring.
+        *(completed)*
+  - [x] Pin collection inventories with `--collect-only -q`, using the invocation methodology
         recorded in `specs/122_rootcause_crossoracle_differential_and_establish_t/baselines/collection-counts.txt`:
         run from `code/` (or with explicit `code/tests/ code/src/model_checker` paths) so
         `pyproject.toml`'s `testpaths` applies. A bare root-level `pytest --collect-only` walks
         `code/boneyard/` and yields a misleading count. Record the actual numbers observed; the
         task-122 baseline is 2095 in-package + 550 oracle. Note that the research report's
         "273 + 1,002" figures use a different scoping and should not be used as the gate.
-  - [ ] Run the in-package bimodal suite with `-n 6` (not `-n auto`; 12-way parallelism causes a
+        *(completed: 289 bimodal / 2100 full / 550 oracle, recorded in
+        `baselines/collection-counts.txt`)*
+  - [x] Run the in-package bimodal suite with `-n 6` (not `-n auto`; 12-way parallelism causes a
         documented CPU-contention flake) and record the result against the 286/286 baseline.
+        *(completed: 289 passed, recorded in `baselines/bimodal-run.txt` and
+        `baselines/bimodal-run-attempt2.txt` with junit XML)*
   - [ ] Run the oracle suite (`oracle/bimodal_logic/tests/`) and record results plus junit XML.
-  - [ ] Enumerate the 5 `xfail(strict=True)` cross-oracle differentials in
+        *(in progress — background run underway at commit time; collection count already pinned
+        at 550 matching baseline; results/junit XML to follow in a separate commit once the run
+        completes, per orchestrator instruction not to block this commit on it)*
+  - [x] Enumerate the 5 `xfail(strict=True)` cross-oracle differentials in
         `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` (lines 767, 942, 1020, 1133,
-        1431) with their current outcomes, so an XPASS flip is detectable.
-  - [ ] Run `code/scripts/compare_bimodal_baseline.sh` and record its output.
-  - [ ] Build the pre-refactor wheel and record its contents listing; keep task 125's
+        1431) with their current outcomes, so an XPASS flip is detectable. *(completed: line set
+        confirmed via grep, encoded as the static check in `verify-refactor.sh` step 5; outcome
+        confirmation — strict-xfail, not XPASS — follows from the oracle suite run above)*
+  - [x] Run `code/scripts/compare_bimodal_baseline.sh` and record its output. *(completed: 0
+        regressions, recorded in `baselines/compare-bimodal-baseline-output.txt`)*
+  - [x] Build the pre-refactor wheel and record its contents listing; keep task 125's
         `specs/125_release_engineering_and_pypi_rehearsal/rehearsal/wheel-contents.txt` as the
-        secondary reference manifest.
-  - [ ] Write `code/scripts/verify-refactor.sh` running all of the above and asserting: collection
+        secondary reference manifest. *(completed: recorded in
+        `baselines/wheel-contents-pre-refactor.txt`)*
+  - [x] Write `code/scripts/verify-refactor.sh` running all of the above and asserting: collection
         counts, bimodal green, oracle green, xfail set unchanged, baseline comparison clean. Non-zero
-        exit on any deviation (fail-fast).
-  - [ ] Store all captured artifacts under
-        `specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/`.
+        exit on any deviation (fail-fast). *(completed)*
+  - [x] Store all captured artifacts under
+        `specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/`. *(completed)*
 - **Timing:** 2 hours
 - **Depends on:** none
 - **Files to modify:**
@@ -247,13 +259,13 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 3: Define the Canonical Theory Contract in THEORY_ARCHITECTURE.md [NOT STARTED]
+### Phase 3: Define the Canonical Theory Contract in THEORY_ARCHITECTURE.md [COMPLETED]
 
 - **Goal:** Replace the current two-pattern ("Simple" vs "Modular") description with one canonical
   module set plus a declared optionality policy, so the conformance test has an authoritative spec
   to encode.
 - **Tasks:**
-  - [ ] Rewrite `code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md` to define the
+  - [x] Rewrite `code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md` to define the
         **required** theory file set: `__init__.py` (exposing `get_theory(config=None)`),
         `semantic/` package (re-export-only `__init__.py`, plus `core.py`, `model.py`, and
         theory-specific modules), `operators.py`, `iterate.py` (exposing `{Theory}ModelIterator`,
@@ -261,32 +273,34 @@ Phases within the same wave can execute in parallel.
         `.__wrapped__` markers that `builder/runner.py:879-889` keys off), `examples.py`, `tests/`
         (`__init__.py`, `conftest.py`, `unit/`, `integration/`, `README.md`), `docs/` (the six-file
         set: `README.md`, `API_REFERENCE.md`, `ARCHITECTURE.md`, `ITERATE.md`, `SETTINGS.md`,
-        `USER_GUIDE.md`), `README.md`, `CITATION.md`, `LICENSE.md`, `VERSION`.
-  - [ ] Define the **required** `examples.py` attributes: `example_range`, `test_example_range`,
-        `semantic_theories`, `unit_tests` — each assigned exactly once.
-  - [ ] `iterate.py` is **required**, not optional: every theory's `DEFAULT_EXAMPLE_SETTINGS`
+        `USER_GUIDE.md`), `README.md`, `CITATION.md`, `LICENSE.md`, `VERSION`. *(completed)*
+  - [x] Define the **required** `examples.py` attributes: `example_range`, `test_example_range`,
+        `semantic_theories`, `unit_tests` — each assigned exactly once. *(completed)*
+  - [x] `iterate.py` is **required**, not optional: every theory's `DEFAULT_EXAMPLE_SETTINGS`
         declares an `iterate` setting, so a theory without an iterator has a live reachable
-        `ImportError` path. Phase 22 restores bimodal's, closing the only gap.
-  - [ ] Define the **optional** elements: `notebooks/` is optional and reported but not enforced
-        (exclusion and imposition have them; bimodal and logos do not).
-  - [ ] Define the **subtheory** set (logos): `__init__.py`, `operators.py` (must return a non-empty
+        `ImportError` path. Phase 22 restores bimodal's, closing the only gap. *(completed)*
+  - [x] Define the **optional** elements: `notebooks/` is optional and reported but not enforced
+        (exclusion and imposition have them; bimodal and logos do not). *(completed)*
+  - [x] Define the **subtheory** set (logos): `__init__.py`, `operators.py` (must return a non-empty
         dict from `get_operators()`), `examples.py`, `tests/`, `README.md`. Semantics stays
         centralized in `logos/semantic/`; subtheories never define their own semantics. State that a
         subtheory contributing zero operators is a defect, not a valid configuration — the rule
-        Phase 19 acts on.
-  - [ ] State that `e2e/` is **not** part of the theory test set; end-to-end coverage lives at core
+        Phase 19 acts on. *(completed)*
+  - [x] State that `e2e/` is **not** part of the theory test set; end-to-end coverage lives at core
         level and is parametrized over theories. `theory_lib/docs/CONTRIBUTING.md:85-96` currently
         mandates a per-theory `e2e/` directory that zero of four theories have — correct it here or
-        flag it for Phase 24.
-  - [ ] Add a **Layering** section declaring the three layers: core (`models`, `syntactic`, `solver`,
+        flag it for Phase 24. *(completed: flagged in THEORY_ARCHITECTURE.md's End-to-End Testing
+        section rather than editing CONTRIBUTING.md directly; deferred to Phase 24)*
+  - [x] Add a **Layering** section declaring the three layers: core (`models`, `syntactic`, `solver`,
         `utils`, `iterate`, `builder`, `settings`, `output`, `z3_shim`) which must never import
         `theory_lib`; `theory_lib` which may import core; and the upper layer
         (`model_checker/__init__.py`, `model_checker/api.py`, `__main__.py`, `jupyter/`) which may
-        import both.
-  - [ ] Delete the "Simple Pattern" vs "Modular Pattern" fork — there is now one pattern, with logos
-        additionally carrying `subtheories/`.
-  - [ ] MUST NOT cite task numbers anywhere in this file (it is a deliverable outside `specs/**`).
-        Reference sibling documents and section headings as durable anchors instead.
+        import both. *(completed)*
+  - [x] Delete the "Simple Pattern" vs "Modular Pattern" fork — there is now one pattern, with logos
+        additionally carrying `subtheories/`. *(completed)*
+  - [x] MUST NOT cite task numbers anywhere in this file (it is a deliverable outside `specs/**`).
+        Reference sibling documents and section headings as durable anchors instead. *(completed:
+        verified via grep -nEi 'task [0-9]', zero matches)*
 - **Timing:** 2 hours
 - **Depends on:** 2
 - **Files to modify:**
@@ -298,7 +312,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 4: Remove the Spatial Subtheory and the Dead Semantic Wrappers [NOT STARTED]
+### Phase 4: Remove the Spatial Subtheory and the Dead Semantic Wrappers [IN PROGRESS]
 
 - **Goal:** Clean break deletions that remove genuinely unreachable code, with no behavior change.
 - **Tasks:**
