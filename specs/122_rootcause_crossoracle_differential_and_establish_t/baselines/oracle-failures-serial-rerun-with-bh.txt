@@ -1,0 +1,123 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/bin/python3.13
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: xdist-3.8.0, anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collecting ... collected 12 items
+
+oracle/bimodal_logic/tests/test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7] PASSED [  8%]
+oracle/bimodal_logic/tests/test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past] PASSED [ 16%]
+oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_entry_point_registered FAILED [ 25%]
+oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_entry_point_loads_correct_class FAILED [ 33%]
+oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_oracle_registry_discover FAILED [ 41%]
+oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_discovered_provider_is_correct_type FAILED [ 50%]
+oracle/bimodal_logic/tests/test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths PASSED [ 58%]
+oracle/bimodal_logic/tests/test_soundness_regression.py::TestGuardedCompositionality::test_nullity_with_temporal_formula_output PASSED [ 66%]
+oracle/bimodal_logic/tests/test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability PASSED [ 75%]
+oracle/bimodal_logic/tests/test_soundness_regression.py::TestStateIsolationRegression::test_temporal_propositional_interleaving PASSED [ 83%]
+oracle/bimodal_logic/tests/test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe PASSED [ 91%]
+oracle/bimodal_logic/tests/test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________ TestEntryPointDiscovery.test_entry_point_registered ______________
+
+self = <bimodal_logic.tests.test_oracle_interface.TestEntryPointDiscovery object at 0x7d703ddb8a50>
+
+    def test_entry_point_registered(self):
+        """z3_base entry point is registered in bimodal_harness.oracle_providers group."""
+        import importlib.metadata
+        eps = importlib.metadata.entry_points(
+            group="bimodal_harness.oracle_providers"
+        )
+        ep_names = [ep.name for ep in eps]
+>       assert "z3_base" in ep_names, (
+            f"z3_base not found in entry points. Found: {ep_names}"
+        )
+E       AssertionError: z3_base not found in entry points. Found: []
+E       assert 'z3_base' in []
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:1140: AssertionError
+_________ TestEntryPointDiscovery.test_entry_point_loads_correct_class _________
+
+self = <bimodal_logic.tests.test_oracle_interface.TestEntryPointDiscovery object at 0x7d703ddb8b90>
+
+    def test_entry_point_loads_correct_class(self):
+        """Loading z3_base entry point yields Z3OracleProvider class."""
+        import importlib.metadata
+        eps = importlib.metadata.entry_points(
+            group="bimodal_harness.oracle_providers"
+        )
+        z3_eps = [ep for ep in eps if ep.name == "z3_base"]
+>       assert z3_eps, "z3_base entry point not found"
+E       AssertionError: z3_base entry point not found
+E       assert []
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:1151: AssertionError
+____________ TestEntryPointDiscovery.test_oracle_registry_discover _____________
+
+self = <bimodal_logic.tests.test_oracle_interface.TestEntryPointDiscovery object at 0x7d703ddde780>
+
+    def test_oracle_registry_discover(self):
+        """OracleRegistry.discover() finds z3_base provider."""
+        registry = OracleRegistry()
+        registry.discover()
+        provider_ids = registry.list_providers()
+>       assert "bmlogic_z3_base_v1" in provider_ids, (
+            f"z3_base not discovered. Found: {provider_ids}"
+        )
+E       AssertionError: z3_base not discovered. Found: []
+E       assert 'bmlogic_z3_base_v1' in []
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:1162: AssertionError
+_______ TestEntryPointDiscovery.test_discovered_provider_is_correct_type _______
+
+self = <bimodal_logic.tests.test_oracle_interface.TestEntryPointDiscovery object at 0x7d703ddde8b0>
+
+    def test_discovered_provider_is_correct_type(self):
+        """Discovered provider is Z3OracleProvider instance."""
+        registry = OracleRegistry()
+        registry.discover()
+>       provider = registry.get("bmlogic_z3_base_v1")
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:1170: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = OracleRegistry([]), provider_id = 'bmlogic_z3_base_v1'
+
+    def get(self, provider_id: str) -> OracleProvider:
+        """Retrieve a registered provider by ID.
+    
+        Parameters
+        ----------
+        provider_id:
+            The stable provider identifier (e.g. ``"bmlogic_z3_base_v1"``).
+    
+        Returns
+        -------
+        OracleProvider
+            The registered provider.
+    
+        Raises
+        ------
+        KeyError
+            If no provider with the given ID is registered.
+        """
+        try:
+            return self._providers[provider_id]
+        except KeyError:
+            available = self.list_providers()
+>           raise KeyError(
+                f"No oracle provider with id {provider_id!r} is registered.  "
+                f"Available providers: {available}"
+            ) from None
+E           KeyError: "No oracle provider with id 'bmlogic_z3_base_v1' is registered.  Available providers: []"
+
+../BimodalHarness/src/bimodal_harness/oracle/registry.py:181: KeyError
+=========================== short test summary info ============================
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_entry_point_registered
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_entry_point_loads_correct_class
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_oracle_registry_discover
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestEntryPointDiscovery::test_discovered_provider_is_correct_type
+=================== 4 failed, 8 passed in 282.61s (0:04:42) ====================
