@@ -1,0 +1,8 @@
+{
+  "session_id": "sess_1784888436_d0273f_123",
+  "task_number": 123,
+  "operation": "implement",
+  "acquired_at": "2026-07-24T15:02:53Z",
+  "heartbeat_at": "2026-07-24T15:02:53Z",
+  "command": "/orchestrate (multi-task)"
+}
