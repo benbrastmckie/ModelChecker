@@ -1,14 +1,31 @@
 {
-  "status": "planned",
-  "summary": "Created a 5-phase implementation plan (2.5h) for task 125 covering parent plan phase 13. Phases: (1) fix release.yml `cd Code`->`cd code` casing in both jobs; (2) migrate publishing to OIDC Trusted Publishing via pypa/gh-action-pypi-publish@release/v1 in environment-gated pypi/testpypi jobs with id-token: write, dropping PYPI_API_TOKEN, adding twine check --strict and a TestPyPI rehearsal step; (3) reconcile RELEASE_SETUP.md to the single real release.yml and OIDC model; (4) NixOS-safe local rehearsal (venv inside nix develop) running python -m build, check-wheel-contents, twine check --strict, and a wheel-content/hash parity diff vs model-checker==1.2.12, confirming model_checker-1.3.0 with oracle excluded; (5) user-gated PUBLISH-CHECKLIST.md ending in user-only push/publish actions. Key finding: the flake devShell lacks build/twine/check-wheel-contents and flake.nix is out of scope, so the rehearsal must use an isolated venv.",
+  "status": "implemented",
+  "summary": "Implemented all 5 phases of the release-engineering-and-PyPI-rehearsal plan. Fixed the `cd Code` -> `cd code` casing bug in `.github/workflows/release.yml` (3 occurrences) plus the CHANGELOG link path. Migrated publishing to PyPI Trusted Publishing (OIDC): removed the long-lived PYPI_API_TOKEN, restructured the workflow into a `build` job (python -m build, twine check --strict, upload-artifact) feeding `publish-testpypi` (continue-on-error: true) and `publish-pypi` (both environment-gated, id-token: write, pypa/gh-action-pypi-publish@release/v1), plus a `github-release` job. Rewrote `.github/RELEASE_SETUP.md` to describe the single real workflow and the OIDC setup (trusted publishers + GitHub Environments), removing references to the two nonexistent workflow files. Ran a NixOS-safe local rehearsal (isolated venv created inside `nix develop`, `flake.nix` untouched): python -m build, check-wheel-contents (clean), twine check --strict (PASSED on wheel and sdist), and a parity diff against the last published model-checker==1.2.12 (confirmed model_checker-1.3.0 naming, no oracle path, and classified all observed deltas as intended). Wrote a user-gated PUBLISH-CHECKLIST.md ending in explicit USER-ONLY push/tag/publish steps. No PyPI/TestPyPI upload, git push, tag push, or PR/merge was performed by the agent, per pr-prohibition.md.",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "Run /implement 125 to execute the plan.",
+  "next_action_hint": "Task complete. User should review specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md and, when ready, perform the USER-ONLY push/tag/publish steps described there.",
+  "phases_completed": 5,
+  "phases_total": 5,
   "artifacts": [
     {
       "path": "specs/125_release_engineering_and_pypi_rehearsal/plans/01_release-engineering-pypi-rehearsal.md",
       "type": "plan",
-      "summary": "5-phase release-engineering and PyPI-rehearsal plan; ends in a user-gated publish checklist per pr-prohibition.md."
+      "summary": "5-phase release-engineering and PyPI-rehearsal plan; all phases marked [COMPLETED]."
+    },
+    {
+      "path": "specs/125_release_engineering_and_pypi_rehearsal/rehearsal/parity-diff.md",
+      "type": "other",
+      "summary": "Local NixOS-safe build rehearsal evidence and classified parity diff of model_checker-1.3.0 against model-checker==1.2.12."
+    },
+    {
+      "path": "specs/125_release_engineering_and_pypi_rehearsal/PUBLISH-CHECKLIST.md",
+      "type": "other",
+      "summary": "User-gated step-by-step publish checklist for model-checker 1.3.0."
+    },
+    {
+      "path": "specs/125_release_engineering_and_pypi_rehearsal/summaries/01_release-engineering-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary for task 125."
     }
   ]
 }
