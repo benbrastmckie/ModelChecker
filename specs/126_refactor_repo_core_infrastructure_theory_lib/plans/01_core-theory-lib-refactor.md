@@ -1118,26 +1118,51 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 17: Normalize exclusion [NOT STARTED]
+### Phase 17: Normalize exclusion [COMPLETED]
 
 - **Goal:** Bring exclusion onto the canonical contract; its `semantic/__init__.py` carries inline
   class bodies that belong in named modules.
 - **Tasks:**
-  - [ ] `exclusion/semantic/__init__.py` is 600 lines — far more than a re-export shim — alongside
+  - [x] `exclusion/semantic/__init__.py` is 600 lines — far more than a re-export shim — alongside
         `core.py` (566), `constraints.py` (174), `model.py` (78), and `registry.py` (125). Move the
         inline class bodies out of `__init__.py` into the appropriate named modules, leaving
-        `__init__.py` as re-export-only per the contract.
-  - [ ] Preserve the public import path exactly: `from model_checker.theory_lib.exclusion.semantic
+        `__init__.py` as re-export-only per the contract. *(completed: `WitnessModelAdapter` and
+        `WitnessStructure` moved into `model.py` alongside the existing `WitnessAwareModel`
+        (all three are model-layer classes); `WitnessProposition` moved into a new
+        `proposition.py`, mirroring the `core.py`/`model.py`/`proposition.py` split Phase 18
+        will use for logos. `__init__.py` is now 27 lines, pure imports + `__all__`.)*
+  - [x] Preserve the public import path exactly: `from model_checker.theory_lib.exclusion.semantic
         import WitnessSemantics, WitnessStructure, WitnessRegistry, WitnessProposition` must keep
         working unchanged — `tests/integration/test_semantic_coverage.py` alone exercises it at
-        `:12,17,22,27,36,46,61,76,93,111`.
-  - [ ] Verify `__module__` values for classes reachable through `builder/serialize.py` remain
+        `:12,17,22,27,36,46,61,76,93,111`. *(confirmed: all 143 exclusion tests pass, including
+        the full `test_semantic_coverage.py` suite)*
+  - [x] Verify `__module__` values for classes reachable through `builder/serialize.py` remain
         resolvable after the move; run `builder/tests/unit/test_serialize.py` as a gate.
-  - [ ] Align internal module names with imposition's set where the concepts match (`core.py`,
+        *(completed: 17 passed, 1 failed -- the failure is the pre-existing, already-documented
+        `test_serialize_real_bimodal_theory_preserves_structure` baseline failure, unrelated to
+        exclusion; no exclusion-related serialize regression)*
+  - [x] Align internal module names with imposition's set where the concepts match (`core.py`,
         `model.py`), keeping theory-specific modules (`constraints.py`, `registry.py`) as extras.
-  - [ ] Close remaining contract gaps; `docs/` already has the six-file set plus `DATA.md`, which is
-        a permitted theory-specific extra.
-  - [ ] Remove exclusion's conformance xfails.
+        *(completed: `core.py`/`model.py` now match imposition's naming; `proposition.py` added
+        as a third canonical name matching what Phase 18 introduces for logos;
+        `constraints.py`/`registry.py` retained as exclusion-specific extras)*
+  - [x] Close remaining contract gaps; `docs/` already has the six-file set plus `DATA.md`, which is
+        a permitted theory-specific extra. *(confirmed: no further gaps found)*
+  - [x] Remove exclusion's conformance xfails. *(confirmed: exclusion had zero conformance xfails
+        both before and after this phase -- it was never in the RED-baseline gap set; all 10
+        exclusion-parametrized conformance assertions pass)*
+  - [x] *(deviation, not in original task list)* Broke a module-level circular import
+        (`core.py` imports `WitnessAwareModel` from `.model`; `model.py`'s newly-moved
+        `WitnessModelAdapter.__init__` needs `WitnessSemantics` from `.core`) by making
+        `model.py`'s `WitnessSemantics` import function-local (inside
+        `WitnessModelAdapter.__init__`) rather than module-level, with an inline comment
+        explaining why. Not anticipated by the plan's task list; discovered via the first
+        post-move import smoke test.
+  - [x] *(deviation, not in original task list)* Dropped four imports from `semantic/__init__.py`
+        that were dead even before this phase (`from model_checker import syntactic`, `Exists`,
+        `ForAll` from utils, and a duplicate `from ...logos.semantic import LogosSemantics` --
+        `core.py` already imports `LogosSemantics` itself). Confirmed via grep that none of the
+        moved class bodies, nor anything else in the file, referenced these names.
 - **Timing:** 2 hours
 - **Depends on:** 14
 - **Files to modify:**

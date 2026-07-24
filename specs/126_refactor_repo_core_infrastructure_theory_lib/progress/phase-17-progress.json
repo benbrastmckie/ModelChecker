@@ -1,0 +1,34 @@
+{
+  "phase": 17,
+  "phase_name": "Normalize exclusion",
+  "started_at": "2026-07-25T00:06:00Z",
+  "last_updated": "2026-07-25T00:20:00Z",
+  "objectives": [
+    {"id": 1, "description": "move WitnessModelAdapter/WitnessStructure into model.py", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/exclusion/semantic/model.py"]},
+    {"id": 2, "description": "move WitnessProposition into new proposition.py", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/exclusion/semantic/proposition.py"]},
+    {"id": 3, "description": "rewrite __init__.py as pure re-exports", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/exclusion/semantic/__init__.py"]},
+    {"id": 4, "description": "fix circular import (function-local WitnessSemantics import in model.py)", "status": "done", "files_touched": ["code/src/model_checker/theory_lib/exclusion/semantic/model.py"]},
+    {"id": 5, "description": "verify test_semantic_coverage.py, test_serialize.py, conformance test all pass", "status": "done", "files_touched": []}
+  ],
+  "current_objective": 5,
+  "approaches_tried": [
+    {"approach": "module-level 'from .core import WitnessSemantics' in model.py", "result": "rejected", "reason": "creates circular import core.py -> model.py -> core.py; moved to a function-local import inside WitnessModelAdapter.__init__ instead"}
+  ],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "17.extra1",
+      "description": "Fix core<->model circular import via function-local WitnessSemantics import",
+      "type": "altered",
+      "reason": "Discovered via the first post-move import smoke test; not anticipated by the plan.",
+      "annotation": "*(deviation, not in original task list)*"
+    },
+    {
+      "task_id": "17.extra2",
+      "description": "Drop four already-dead imports from semantic/__init__.py (syntactic, Exists, ForAll, duplicate LogosSemantics)",
+      "type": "altered",
+      "reason": "Confirmed unused by grep before dropping; core.py already imports LogosSemantics itself.",
+      "annotation": "*(deviation, not in original task list)*"
+    }
+  ]
+}
