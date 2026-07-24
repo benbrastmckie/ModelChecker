@@ -4,13 +4,13 @@
     {
       "project_number": 126,
       "project_name": "refactor_repo_core_infrastructure_theory_lib",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "general",
       "description": "Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.",
       "topic": "architecture",
       "created": "2026-07-24T16:04:19Z",
-      "last_updated": "2026-07-24T19:53:52Z",
-      "session_id": "sess_1784921778_5ba3c4",
+      "last_updated": "2026-07-24T20:16:15Z",
+      "session_id": "sess_1784924153_0845e6",
       "researched": "2026-07-24T16:13:05Z",
       "next_artifact_number": 2,
       "artifacts": [
@@ -23,6 +23,11 @@
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md",
           "type": "plan",
           "summary": "26-phase, 14-wave plan to decouple and standardize the ModelChecker core/theory_lib boundary in place. theory_lib does not move; instead the plan enforces a strictly one-way dependency via an executable layering test, replaces the triplicated theory registry with one registration-based registry, standardizes all four theories onto a canonical module set enforced by a parametrized conformance test, deletes the spatial subtheory and accumulated cruft, and fixes the live contract bugs found en route. Includes ROADMAP snapshot/update phases recording the extraction-rejected decision and its revisit trigger."
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md",
+          "type": "summary",
+          "summary": "Phases 2-6 of 26: baselines pinned, canonical theory contract, spatial subtheory removed, cruft swept, logos benchmark relocated"
         }
       ],
       "plan_metadata": {

@@ -473,7 +473,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 7: Wheel and Scaffolding Hygiene [NOT STARTED]
+### Phase 7: Wheel and Scaffolding Hygiene [IN PROGRESS]
 
 - **Goal:** Stop cruft from re-entering the wheel and user-scaffolded projects, and fix the
   case-collision install defect.

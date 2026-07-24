@@ -1,0 +1,48 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "partial",
+  "summary": "Completed phases 2-6 of 26 (explicit scope for this dispatch), each committed separately. Pinned regression baselines, rewrote THEORY_ARCHITECTURE.md as the canonical theory contract, removed the spatial subtheory and dead semantic wrappers, swept cruft (boneyard/examples_refactored/root strays/stale TODOs), and relocated the logos benchmark script. IMPORTANT: a second concurrent agent instance was independently active on this same task's working tree throughout this dispatch and has since progressed into phase 7 (outside this dispatch's scope) -- see blockers.",
+  "artifacts": [
+    {"type": "summary", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md"}
+  ],
+  "blockers": [
+    {
+      "description": "A second, independent agent instance was actively editing the same working tree concurrently during this dispatch (evidence: unprompted edits to theory_lib/__init__.py, spatial-domain.md mirrors, test_project_generation.py, verify-refactor.sh; running pytest PIDs this agent did not start; one direct same-file edit collision on test_cvc5_stability.py, non-corrupting). It has now progressed into Phase 7, outside this dispatch's phases-2-6 scope. Likely cause: a duplicate implementer dispatch triggered during this agent's ~45-minute background oracle-suite wait. Orchestrator should confirm only one active implementer runs on task 126 before the next dispatch, to avoid a third collision.",
+      "phase": "phase-6",
+      "severity": "soft"
+    },
+    {
+      "description": "The oracle suite baseline run (oracle/bimodal_logic/tests/, 550 tests, part of Phase 2) was still running in the background at handoff time (~48+ min elapsed) and had not written baselines/oracle-run.txt or baselines/junit-oracle.xml to completion. Its dot-stream showed at least one non-xfail 'F' failure marker around the 26% mark that was not yet resolved to a named test at handoff time. A future dispatch should check for a completed run and either commit the results or re-run oracle/bimodal_logic/tests/ -q --junit-xml=... and investigate the F before treating Phase 2 as fully closed.",
+      "phase": "phase-2",
+      "severity": "soft"
+    }
+  ],
+  "next_action_hint": "implement",
+  "files_modified": [
+    "code/scripts/verify-refactor.sh",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/",
+    "code/src/model_checker/theory_lib/docs/THEORY_ARCHITECTURE.md",
+    "code/src/model_checker/theory_lib/logos/subtheories/spatial/ (deleted)",
+    "code/src/model_checker/theory_lib/{exclusion,imposition}/semantic.py (deleted)",
+    "code/src/model_checker/theory_lib/__init__.py",
+    "code/boneyard/ (deleted)",
+    "docs/theory/{exclusion,imposition}/ (new, moved from theory_lib)",
+    "code/dev_cli.py",
+    "code/src/model_checker/theory_lib/logos/comparison.py -> code/scripts/logos_solver_benchmark.py",
+    "code/scripts/comparison.py",
+    "code/scripts/test_cvc5_stability.py"
+  ],
+  "decisions_made": [
+    "Cruft archival destination is docs/theory/{exclusion,imposition}/, matching the existing docs/theory/ convention",
+    "spatial-domain.md retained with a status note rather than deleted -- has standalone domain-background value"
+  ],
+  "dead_ends": [
+    "Re-ran verify-refactor.sh --skip-oracle near handoff time to sanity-check; result was unreliable due to 3+ concurrent pytest processes (CPU contention) and hardcoded /tmp output paths colliding with the other agent's simultaneous verify-refactor.sh invocation -- not a real regression, do not re-trust that specific run's FAIL output without re-running under low contention"
+  ],
+  "continuation_context": {
+    "phases_completed": 6,
+    "phases_total": 26,
+    "orchestrator_mode": true
+  }
+}
