@@ -1,0 +1,43 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "All 4 phases complete. Restored builder/, iterate/, jupyter/, and output/manager.py+progress/ from confirmed git-history restore points (plus manager.py's own dependency files config.py/constants.py/helpers.py/errors.py, deleted at the same commit). All four import cleanly; both CLI entry points (-m model_checker --help, dev_cli.py --help) exit 0. logos theory already imported cleanly once iterate was restored, and its first-order-removal (e9734a27) is confirmed intact. Registered logos in AVAILABLE_THEORIES; full logos test suite (446 tests) collects and passes with 0 failures.",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/119_restore_core_infrastructure_and_reconcile_the_logo/summaries/01_restore-core-infra-logos-summary.md",
+      "summary": "4-phase restore of model_checker builder/iterate/jupyter/output infrastructure plus logos theory reconciliation and registration; all definition-of-done checks green (imports, CLI --help, 446 logos tests passing)."
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "none",
+  "files_modified": [
+    "code/src/model_checker/builder/",
+    "code/src/model_checker/iterate/",
+    "code/src/model_checker/jupyter/",
+    "code/src/model_checker/output/manager.py",
+    "code/src/model_checker/output/progress/",
+    "code/src/model_checker/output/config.py",
+    "code/src/model_checker/output/constants.py",
+    "code/src/model_checker/output/helpers.py",
+    "code/src/model_checker/output/errors.py",
+    "code/src/model_checker/theory_lib/__init__.py",
+    "specs/119_restore_core_infrastructure_and_reconcile_the_logo/plans/01_restore-core-infra-logos.md",
+    "specs/119_restore_core_infrastructure_and_reconcile_the_logo/handoffs/phase-1-handoff-20260724.md",
+    "specs/119_restore_core_infrastructure_and_reconcile_the_logo/handoffs/phase-2-handoff-20260724.md",
+    "specs/119_restore_core_infrastructure_and_reconcile_the_logo/handoffs/phase-3-handoff-20260724.md",
+    "specs/119_restore_core_infrastructure_and_reconcile_the_logo/handoffs/phase-4-handoff-20260724.md",
+    "specs/119_restore_core_infrastructure_and_reconcile_the_logo/summaries/01_restore-core-infra-logos-summary.md"
+  ],
+  "decisions_made": [
+    "Restored output/manager.py's direct dependencies (config.py, constants.py, helpers.py, errors.py) from the same restore-point SHA (71ef79a1^) rather than rewriting manager.py, since all were deleted in the identical original commit.",
+    "Registered only 'logos' in AVAILABLE_THEORIES, not its subtheories individually — subtheories are loaded through logos's own internal subtheory registry, consistent with existing architecture."
+  ],
+  "dead_ends": [],
+  "continuation_context": {
+    "phases_completed": 4,
+    "phases_total": 4
+  },
+  "plan_markers_verified": true
+}

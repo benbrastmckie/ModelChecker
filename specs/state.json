@@ -24,13 +24,13 @@
     {
       "project_number": 117,
       "project_name": "review_cli_pypi_parity_nix_flake_release",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "python",
       "description": "Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI",
       "topic": "packaging",
       "created": "2026-07-23T17:05:44Z",
-      "last_updated": "2026-07-24T16:09:03Z",
-      "session_id": "sess_1784909040_1d5dd5",
+      "last_updated": "2026-07-24T16:21:38Z",
+      "session_id": "sess_1784910073_5474fc",
       "researched": "2026-07-24T16:00:40Z",
       "next_artifact_number": 4,
       "artifacts": [

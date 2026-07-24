@@ -1,0 +1,30 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "Implemented all 4 phases. Restored model-checker package identity in code/pyproject.toml (name/version 1.3.0/deps/jupyter+all extras/single console script; removed bimodal-logic script and oracle entry-points). Verified MANIFEST.in and version single-sourcing need no edits. Widened testpaths and repaired all live collection errors (deleted 2 unrepairable stale tests, repaired theory_lib error-handling test); collect-only now reports 2095 tests, 0 errors. Added pytest-xdist dev extra with -n auto documented in code/tests/README.md. Console entry point smoke-checked (exit 0).",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/121_restore_package_identity_and_repair_test_infrastru/summaries/01_restore-package-identity-test-infra-summary.md",
+      "summary": "Full phase-by-phase implementation record, deviations, and verification results"
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "none",
+  "files_modified": [
+    "code/pyproject.toml",
+    "code/tests/README.md",
+    "code/src/model_checker/theory_lib/tests/unit/test_error_handling.py",
+    "code/tests/e2e/test_simple_output_verify.py",
+    "code/src/model_checker/builder/tests/integration/test_interactive.py"
+  ],
+  "decisions_made": [
+    "Deleted test_simple_output_verify.py and test_interactive.py: referenced classes (ModelDataCollector, SequentialSaveManager, ConsoleInputProvider) genuinely absent, no restored equivalent.",
+    "Repaired test_error_handling.py beyond the plan's single flagged import: re-collection surfaced 4 more absent names (ImpositionSemanticError, ImpositionOperationError, ImpositionHelperError, LogosSubtheoryError, LogosProtocolError); rewrote against real SemanticError base, deleted unrepairable LogosErrorHandling class.",
+    "networkx kept as a hard dependency (not an extra): iterate/graph.py imports it unconditionally.",
+    "pytest-xdist declared in a new [project.optional-dependencies] dev extra (no prior dev-dependency mechanism existed)."
+  ],
+  "dead_ends": [],
+  "plan_markers_verified": true
+}

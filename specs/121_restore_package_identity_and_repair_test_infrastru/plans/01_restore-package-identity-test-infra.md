@@ -1,7 +1,7 @@
 # Implementation Plan: Restore Package Identity and Repair Test Infrastructure
 
 - **Task**: 121 - restore_package_identity_and_repair_test_infrastru
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3.5 hours
 - **Dependencies**: 118, 119, 120 (all COMPLETED on branch task-117-restore-model-checker)
 - **Research Inputs**: specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md; parent plan specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md (phases 7-8)

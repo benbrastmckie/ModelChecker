@@ -31,4 +31,8 @@ code/scaling_results.json
 **/__pycache__/
 **/.postflight-pending
 **/.return-meta.json
+**/.return-meta-multi.json
 **/specs/tmp/
+/.claude
+/.claude-extensions.json
+specs/.events.lock

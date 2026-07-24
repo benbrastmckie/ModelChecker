@@ -1,0 +1,27 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "Completed all 6 plan phases on branch task-117-restore-model-checker. Captured before-state baseline (818 tests, 813 passed, 5 pre-existing oracle-differential failures), relocated code/src/bimodal_logic to oracle/bimodal_logic, and moved/split the 8 in-package test files referencing it so code/src/model_checker/ has zero bimodal_logic references. Final collection gates all pass.",
+  "artifacts": [
+    {"type": "summary", "path": "specs/118_bootstrap_branch_baseline_capture_and_oracle_reloc/summaries/01_branch-baseline-oracle-relocation-summary.md"}
+  ],
+  "blockers": [],
+  "next_action_hint": "none",
+  "files_modified": [
+    "specs/118_bootstrap_branch_baseline_capture_and_oracle_reloc/baselines/README.md",
+    "specs/118_bootstrap_branch_baseline_capture_and_oracle_reloc/plans/01_branch-baseline-oracle-relocation.md",
+    "oracle/bimodal_logic/README.md",
+    "oracle/bimodal_logic/tests/test_frame_class_declaration.py",
+    "oracle/bimodal_logic/ (moved from code/src/bimodal_logic/, plus 7 test files moved from code/src/model_checker/theory_lib/bimodal/tests/unit/)",
+    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py"
+  ],
+  "decisions_made": [
+    "Oracle package is not fully self-contained: provider.py/serialization.py legitimately import model_checker (cross-oracle differential harness); documented rather than treated as a defect",
+    "PYTHONPATH=oracle:code/src (both entries) required for oracle tests to collect, not oracle alone",
+    "Chose oracle/bimodal_logic/README.md over a new pyproject.toml to avoid conflicting with code/pyproject.toml's existing bimodal-logic project declaration (out of scope to fix here; flagged for New Task 4)",
+    "test_frame_class_mapping.py split at method granularity: one oracle-dependent test method moved to oracle/bimodal_logic/tests/test_frame_class_declaration.py, three in-package-only methods stayed"
+  ],
+  "dead_ends": [],
+  "plan_markers_verified": true
+}

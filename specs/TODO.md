@@ -17,7 +17,7 @@ next_project_number: 127
 
 ### Packaging
 
-117 [PLANNED] — Review and stabilize the repo after recent revisions: verify the 
+117 [IMPLEMENTING] — Review and stabilize the repo after recent revisions: verify the 
 
 ### Architecture
 
@@ -148,7 +148,7 @@ next_project_number: 127
 ---
 
 ### 117. Review cli pypi parity nix flake release
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: packaging
 - **Dependencies**: Task 118, Task 119, Task 120, Task 121, Task 122, Task 123, Task 124, Task 125
