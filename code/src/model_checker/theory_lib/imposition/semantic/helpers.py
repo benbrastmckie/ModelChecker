@@ -7,7 +7,13 @@ semantic classes.
 
 from typing import Any, List, Dict, Optional, Set
 from model_checker import z3_shim as z3
-from ...errors import SemanticError
+# Absolute import (not 3-dot relative): a 3-dot relative import from
+# theory_lib/imposition/semantic/helpers.py only resolves at the exact nesting depth
+# theory_lib.imposition.semantic.helpers. A project scaffolded by BuildProject is one level
+# shallower (<project>.semantic.helpers), where a 3-dot import raises "attempted relative
+# import beyond top-level package". Mirrors the fix already applied to bimodal's witness
+# files and exclusion's semantic/ modules for the identical defect.
+from model_checker.theory_lib.errors import SemanticError
 
 
 def safe_bitvec_as_long(bitvec: z3.BitVecRef) -> int:

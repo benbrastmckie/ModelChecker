@@ -13,7 +13,8 @@ from typing import Any, List, Dict
 from model_checker import z3_shim as z3
 
 # Local imports
-from ...errors import WitnessConstraintError
+# Absolute import: see core.py's comment on the identical scaffolded-project depth defect.
+from model_checker.theory_lib.errors import WitnessConstraintError
 
 
 class WitnessConstraintGenerator:

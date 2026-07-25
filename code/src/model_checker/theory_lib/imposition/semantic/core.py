@@ -10,8 +10,9 @@ from model_checker import z3_shim as z3
 from model_checker.theory_lib.logos import LogosSemantics
 from model_checker.utils import ForAll, Exists
 from typing import Dict, Any, List, Optional, Set, Union
-from ...types import StateId
-from ...errors import SemanticError
+# Absolute imports: see semantic/helpers.py's comment on the scaffolded-project depth defect.
+from model_checker.theory_lib.types import StateId
+from model_checker.theory_lib.errors import SemanticError
 
 
 class ImpositionSemantics(LogosSemantics):

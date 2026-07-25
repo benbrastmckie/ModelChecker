@@ -22,7 +22,8 @@ from model_checker.models.structure import ModelDefaults
 from model_checker.utils import bitvec_to_substates, int_to_binary
 
 # Local imports
-from ...types import StateId
+# Absolute import: see core.py's comment on the identical scaffolded-project depth defect.
+from model_checker.theory_lib.types import StateId
 # NOTE: WitnessSemantics is intentionally NOT imported at module level here -- core.py imports
 # WitnessAwareModel from this module, so a top-level "from .core import WitnessSemantics"
 # would create a circular import (core -> model -> core). WitnessModelAdapter.__init__ below

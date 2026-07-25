@@ -12,7 +12,8 @@ from typing import Dict, Set, Tuple
 from model_checker import z3_shim as z3
 
 # Local imports
-from ...errors import WitnessRegistryError, WitnessPredicateError
+# Absolute import: see core.py's comment on the identical scaffolded-project depth defect.
+from model_checker.theory_lib.errors import WitnessRegistryError, WitnessPredicateError
 
 
 class WitnessRegistry:

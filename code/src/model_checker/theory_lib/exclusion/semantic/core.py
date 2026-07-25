@@ -17,9 +17,15 @@ from model_checker.solver import is_true, is_false
 from model_checker.utils import Exists, ForAll
 
 # Local imports
-from ...logos.semantic import LogosSemantics
-from ...types import StateId, WitnessSemantics as WitnessSemanticsProtocol
-from ...errors import WitnessError, WitnessRegistryError, WitnessConstraintError
+# Absolute imports (not 3-dot relative): a 3-dot relative import from
+# theory_lib/exclusion/semantic/core.py only resolves at the exact nesting depth
+# theory_lib.exclusion.semantic.core. A project scaffolded by BuildProject is one level
+# shallower (<project>.semantic.core), where a 3-dot import raises "attempted relative
+# import beyond top-level package". Mirrors the fix already applied to bimodal's witness
+# files for the identical defect.
+from model_checker.theory_lib.logos.semantic import LogosSemantics
+from model_checker.theory_lib.types import StateId, WitnessSemantics as WitnessSemanticsProtocol
+from model_checker.theory_lib.errors import WitnessError, WitnessRegistryError, WitnessConstraintError
 from .constraints import WitnessConstraintGenerator
 from .model import WitnessAwareModel
 from .registry import WitnessRegistry
