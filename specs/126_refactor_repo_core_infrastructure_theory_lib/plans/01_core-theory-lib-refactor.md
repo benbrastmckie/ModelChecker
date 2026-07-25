@@ -1,7 +1,12 @@
 # Implementation Plan: Refactor Core Infrastructure and theory_lib
 
 - **Task**: 126 - Systematically refactor the repo into core infrastructure and theory_lib; remove the logos spatial subtheory; standardize the per-theory module set
-- **Status**: [IMPLEMENTING]
+- **Status**: [PARTIAL] (25/26 phases COMPLETED; Phase 2 is PARTIAL -- the full serial 550-test
+  oracle suite run could not complete in this sandbox, no `pytest-xdist` available, resource
+  contention on repeated attempts. All other Phase 2 acceptance evidence -- collection counts,
+  xfail(strict=True) line locations, `compare_bimodal_baseline.sh` -- is pinned and re-verified
+  clean at every wave boundary through Phase 25. Every other phase, including the full theory
+  contract, the enforced layering boundary, and the wheel parity diff, is COMPLETED.)
 - **Effort**: 41 hours
 - **Dependencies**: None (proceeds on branch `task-117-restore-model-checker`; see Non-Goals for merge/release sequencing)
 - **Research Inputs**: `specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md` (4-teammate synthesis; teammate findings `01_teammate-{a,b,c,d}-findings.md`)
@@ -1756,42 +1761,46 @@ masked the real `ImportError` during debugging (merged the two context strings i
 
 ---
 
-### Phase 26: Update ROADMAP.md [NOT STARTED]
+### Phase 26: Update ROADMAP.md [COMPLETED]
 
 - **Goal:** Record the durable decisions this refactor settles, so a future reader does not
   re-litigate them.
 - **Tasks:**
-  - [ ] Add a **Durable Decisions** entry: *Extract `theory_lib` into its own distribution —
-        **REJECTED (for now)***. Record the rationale: directory position does not create modularity,
-        dependency direction does; the graph is 88 imports one way and (now) zero the other;
-        `where = ["src"]` would auto-discover a `src/theory_lib/` sibling into the same wheel, giving
-        all the breakage and none of the separate-distribution benefit; renaming
-        `model_checker.theory_lib.*` to `theory_lib.*` breaks every user notebook and script plus
-        serialization-by-module-string; and `theory_lib` is too generic a name to claim in
-        site-packages.
-  - [ ] Record the **revisit trigger** explicitly: reconsider when externally-authored third-party
-        theories become a real requirement, **or** when `theory_lib`'s core imports narrow to a
-        stable published surface rather than reaching into `solver`/`models` internals. Note that the
-        right mechanism at that point is entry-point registration into the consolidated registry, not
-        a directory move — and that the boundary work completed here (one-way dependency, enforced
-        layering test, single-source registry, typed conformance contract) is a prerequisite for any
-        clean extraction, so nothing is foreclosed.
-  - [ ] Add a **Durable Decisions** entry recording the enforced three-layer model (core /
-        `theory_lib` / upper) and that it is enforced by an executable layering test rather than by
-        directory placement.
-  - [ ] Rewrite the Phase 1 priority "Merge and publish 1.3.0": it is superseded by the settled
-        refactor-first sequencing. The refactor lands first, the release rehearsal is redone once
-        afterward, and a single release follows. Keep the [USER-ONLY] marking — merge, tag, push, and
-        PyPI upload remain user-only.
-  - [ ] Add deferred items surfaced during the refactor: core-package internal reorganization; fold
-        `iterate/z3_utils.py` into `iterate/constraints.py` once the `List[ExprRef]` vs
-        `List[ModelRef]` signature mismatch is reconciled; add `notebooks/` for bimodal and logos;
-        revisit `builder/comparison.py`'s status as `--maximize`-only code.
-  - [ ] Add **Success Metrics**, replacing the current placeholder: conformance and layering tests
-        green with zero xfails; zero core-to-`theory_lib` dependencies; one registry.
-  - [ ] Diff the result against `roadmap-before.md` from Phase 1 to show a clean before/after.
-  - [ ] Keep the record readable without tracker access. `specs/ROADMAP.md` is under `specs/` so task
-        numbers are technically permitted, but write the rationale so it stands alone.
+  - [x] Add a **Durable Decisions** entry: *Extract `theory_lib` into its own distribution —
+        **REJECTED (for now)***. *(completed: full rationale recorded -- directory position vs.
+        dependency direction, the ~90-imports-one-way/zero-the-other graph, the
+        `where = ["src"]` auto-discovery problem, the renamed-import-path breakage, and the
+        generic-name concern)*
+  - [x] Record the **revisit trigger** explicitly. *(completed: both conditions recorded --
+        third-party theories becoming a real requirement, or `theory_lib`'s core imports
+        narrowing to a stable surface -- plus the entry-point-registration note and the
+        "forecloses nothing" framing)*
+  - [x] Add a **Durable Decisions** entry recording the enforced three-layer model. *(completed:
+        recorded alongside the specific enforcement mechanisms -- the layering test's AST walk,
+        the registry's replacement of three drifting sources of theory identity, and the
+        conformance test's canonical module set)*
+  - [x] Rewrite the Phase 1 priority "Merge and publish 1.3.0". *(completed: rewritten, not
+        merely checked off -- records the settled refactor-first sequencing, what specifically
+        landed first, and that the release rehearsal must be redone against the post-refactor
+        tree. [USER-ONLY] marking and the push/tag/`/merge`/PyPI-upload prohibition preserved.)*
+  - [x] Add deferred items. *(completed: all four named items recorded -- core-package internal
+        reorganization (scoped to note what WAS relocated: the api.py split and
+        builder/z3_utils.py -> iterate/z3_utils.py move); the iterate/z3_utils.py ->
+        constraints.py fold, confirmed still blocked on the List[ExprRef] vs List[ModelRef]
+        mismatch via direct inspection; notebooks/ for bimodal and logos; and
+        builder/comparison.py's status, distinguished explicitly from the unrelated, already-
+        relocated logos/comparison.py benchmark script)*
+  - [x] Add **Success Metrics**, replacing the placeholder. *(completed: records the zero-xfail/
+        zero-violation conformance-and-layering state, the guard test, and the single registry
+        with zero discovery drift)*
+  - [x] Diff the result against `roadmap-before.md` from Phase 1. *(completed: `diff` shows only
+        the two new Durable Decisions entries, the Deferred Items section, the rewritten Success
+        Metrics section, and the one intended "Merge and publish 1.3.0" rewrite -- confirmed via
+        the `13,16c51,60`-style diff hunk, not a pure append)*
+  - [x] Keep the record readable without tracker access. *(completed: verified via
+        `grep -nEi 'task [0-9]' specs/ROADMAP.md` -- zero hits; every reference uses durable
+        anchors -- test file names, plan section concepts, module paths -- not task numbers,
+        even though `specs/ROADMAP.md` is technically exempt from the no-task-references rule)*
 - **Timing:** 1 hour
 - **Depends on:** 25
 - **Files to modify:**
