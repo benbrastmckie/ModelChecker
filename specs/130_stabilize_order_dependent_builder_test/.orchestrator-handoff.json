@@ -1,20 +1,29 @@
 {
-  "status": "planned",
-  "summary": "Four-phase sequential plan confined to code/src/model_checker/builder/tests/unit/test_example.py: baseline the current three-invocation behavior, rename the misnamed test and correct its bimodal framing, give its SIMPLE example explicit max_time headroom to remove the ~1.7s-solve-vs-1s-budget race, then verify identical results in isolated, file-scope, and full-builder-suite runs.",
+  "status": "implemented",
+  "summary": "Renamed test_logos_extensional_theory to test_build_example_bimodal_theory_countermodel, corrected its bimodal framing, and gave its SIMPLE example an explicit max_time (raised from the plan's initial 10 to 30 after a full-suite run at 10 still timed out) -- the target test now passes identically across 2 isolated runs, 1 file-scope run, and 3 full-suite runs with zero new FAILED lines.",
   "blockers": [],
   "continuation_context": null,
-  "next_action_hint": "Run /implement 130. Execute phases sequentially (1 -> 2 -> 3 -> 4); Phase 1's captured FAILED set is required input for Phase 4's regression diff. The only code/ file to touch is builder/tests/unit/test_example.py; baseline captures go under specs/130_stabilize_order_dependent_builder_test/baselines/. Success is the target test passing identically in all three invocations with zero new FAILED lines elsewhere -- not an all-green builder suite, which has 6 documented pre-existing failures including the out-of-scope test_find_next_model_basic.",
+  "next_action_hint": "Task complete. No further action required. The pre-existing, explicitly out-of-scope test_find_next_model_basic failure in the same file remains unfixed as directed.",
   "artifacts": [
     {
       "path": "specs/130_stabilize_order_dependent_builder_test/reports/01_order-dependent-test-diagnosis.md",
       "type": "report",
-      "summary": "Reproduces the test in isolated/file-scope/full-suite invocations (all FAIL deterministically on this branch), identifies the root cause as a Z3 solve (~1.7s) exceeding the inherited 1s max_time default with no state-leakage mechanism, shows get_theory(['extensional']) from bimodal ignores its config arg and returns the full theory (making the model_found=True expectation semantically sound once given enough time), proposes the rename test_build_example_bimodal_theory_countermodel, and confirms the fix is fully containable within test_example.py."
+      "summary": "Reproduces the test in isolated/file-scope/full-suite invocations, identifies the root cause as a Z3 solve (~1.7s) exceeding the inherited 1s max_time default with no state-leakage mechanism, shows get_theory(['extensional']) from bimodal ignores its config arg and returns the full theory, proposes the rename test_build_example_bimodal_theory_countermodel, and confirms the fix is fully containable within test_example.py."
     },
     {
       "path": "specs/130_stabilize_order_dependent_builder_test/plans/01_deterministic-bimodal-builder-test.md",
       "type": "plan",
-      "summary": "Phases: (1) capture pre-change baseline across isolated/file-scope/full-suite plus sorted FAILED set; (2) rename test_logos_extensional_theory -> test_build_example_bimodal_theory_countermodel and correct docstring/comments to describe bimodal rather than logos/extensional; (3) add \"max_time\": 10 to the SIMPLE example settings dict with a comment explaining the 1s default vs ~1.7s solve; (4) verify determinism in all three invocations, confirm the pass is a genuine solve rather than a coincidence, and diff the FAILED set against the Phase 1 baseline. Includes verification commands using PYTHONPATH=code/src pytest, and records bimodal get_theory's ignored config argument and test_find_next_model_basic as follow-up candidates only."
+      "summary": "Four-phase plan (all COMPLETED): capture pre-change baseline, rename and correct bimodal framing, add max_time headroom, verify determinism across all three invocations. Contains deviation notes for the observed pre-change polarity (target test actually passed in the pre-change full-suite run, contradicting the plan's stated assumption) and the max_time escalation from 10 to 30 via the plan's own contingency clause."
+    },
+    {
+      "path": "specs/130_stabilize_order_dependent_builder_test/summaries/01_deterministic-bimodal-builder-test-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary: what changed, full three-invocation verification table with observed timings, FAILED-set regression check (zero regressions), honest note on test_find_next_model_basic's continuing out-of-scope failure, and full plan-deviation account."
     }
   ],
-  "phases_total": 4
+  "phases_completed": 4,
+  "phases_total": 4,
+  "modified_files": [
+    "code/src/model_checker/builder/tests/unit/test_example.py"
+  ]
 }
