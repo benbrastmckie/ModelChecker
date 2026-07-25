@@ -126,7 +126,7 @@ class PackageImportStrategy:
                 except Exception as exec_error:
                     raise PackageImportError(
                         f"Cannot import {full_module_name}",
-                        f"Package root: {package_root}, Error: {str(e)}",
+                        f"Package root: {package_root}, Error: {str(e)}; "
                         f"Exec fallback also failed: {str(exec_error)}",
                         "Ensure package has __init__.py and valid structure"
                     )

@@ -34,14 +34,11 @@ from datetime import datetime
 # over). OPTIONAL items are copied if present and silently skipped otherwise. Items not on
 # either list are skipped with a warning log line rather than copied.
 #
-# `semantic.py` and `semantic/` are both accepted, and -- unlike a normal either/or alternative
-# -- BOTH may legitimately be present simultaneously: THEORY_ARCHITECTURE.md's contract requires
-# the `semantic/` package form, but bimodal and logos have not yet been normalized onto it, so
-# their flat `semantic.py` is still the live implementation. Bimodal additionally keeps a
-# `semantic/` package alongside its `semantic.py` as a deliberate dynamic-loader shim (registers
-# a `bimodal_semantic_module` module under `sys.modules` so its classes are picklable for
-# `ProcessPoolExecutor`, which the `--maximize` CLI path depends on) -- both must be copied
-# together for a scaffolded bimodal project to support `--maximize`. At least one of the two
+# `semantic.py` and `semantic/` are both accepted. All four in-tree theories (bimodal, exclusion,
+# imposition, logos) are now normalized onto THEORY_ARCHITECTURE.md's contractual `semantic/`
+# package form (core.py/model.py/proposition.py, or bimodal's core.py alone) -- the flat
+# `semantic.py` alternative remains accepted here only so a hand-authored or third-party theory
+# project may still use a single-file layout without failing scaffolding. At least one of the two
 # forms must be present; having both is valid, not an error.
 REQUIRED_COPY_ITEMS = [
     '__init__.py',

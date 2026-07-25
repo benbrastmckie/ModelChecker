@@ -56,8 +56,12 @@ class TestGeneratedProjectImports(unittest.TestCase):
         # Verify other expected files exist
         init_path = os.path.join(project_dir, '__init__.py')
         self.assertTrue(os.path.exists(init_path), "__init__.py should exist")
-        semantic_path = os.path.join(project_dir, 'semantic.py')
-        self.assertTrue(os.path.exists(semantic_path), "semantic.py should exist")
+        # bimodal is normalized onto the semantic/ package form (core.py, matching
+        # THEORY_ARCHITECTURE.md's contract) rather than a flat semantic.py.
+        semantic_init_path = os.path.join(project_dir, 'semantic', '__init__.py')
+        self.assertTrue(os.path.exists(semantic_init_path), "semantic/__init__.py should exist")
+        semantic_core_path = os.path.join(project_dir, 'semantic', 'core.py')
+        self.assertTrue(os.path.exists(semantic_core_path), "semantic/core.py should exist")
         
         # Note: Generated projects with relative imports cannot be loaded standalone.
         # This is a known architectural limitation. The project structure is created

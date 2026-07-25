@@ -1295,49 +1295,103 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 20: Normalize bimodal, Part 1 — Collapse the Dual Module Identity [NOT STARTED]
+### Phase 20: Normalize bimodal, Part 1 — Collapse the Dual Module Identity [COMPLETED]
 
 - **Goal:** Eliminate the highest-risk defect in the tree: `BimodalSemantics` currently exists as two
   distinct class objects. Do this as a **pure move with no content split**, so any regression is
   unambiguously attributable.
 - **Tasks:**
-  - [ ] Understand the hazard precisely before touching anything.
+  - [x] Understand the hazard precisely before touching anything.
         `bimodal/semantic/__init__.py` loads the sibling `bimodal/semantic.py` (3,194 lines) via
         `importlib.util.spec_from_file_location`, executing that file a second time under the module
         identity `bimodal_semantic_module`, then re-exports `BimodalSemantics`,
         `BimodalProposition`, and `BimodalStructure` from it. The file therefore runs twice under two
-        identities and cross-path `isinstance` checks silently fail.
-  - [ ] Note the load-bearing detail recorded in that file's own comment: `sys.modules[spec.name] =
+        identities and cross-path `isinstance` checks silently fail. *(confirmed as stated)*
+  - [x] Note the load-bearing detail recorded in that file's own comment: `sys.modules[spec.name] =
         semantic_module` exists specifically because `--maximize` pickles semantics classes across a
         `ProcessPoolExecutor`, and without the registration the worker raises
         `ModuleNotFoundError: No module named 'bimodal_semantic_module'` and the example silently
         reports "Maximum N = 0". **Preserving pickling correctness is this phase's primary
-        acceptance criterion.**
-  - [ ] Move the entire contents of `bimodal/semantic.py` into `bimodal/semantic/core.py` verbatim —
-        no reorganization, no splitting. Delete `bimodal/semantic.py`.
-  - [ ] Rewrite `bimodal/semantic/__init__.py` as a plain re-export-only module. Delete the
+        acceptance criterion.** *(confirmed; pickling now resolves through the real, importable
+        module path with no synthetic registration required at all)*
+  - [x] Move the entire contents of `bimodal/semantic.py` into `bimodal/semantic/core.py` verbatim —
+        no reorganization, no splitting. Delete `bimodal/semantic.py`. *(completed)*
+  - [x] Rewrite `bimodal/semantic/__init__.py` as a plain re-export-only module. Delete the
         `spec_from_file_location` block, the manual `sys.modules` registration, and the `sys` /
-        `importlib.util` / `pathlib` imports it required.
-  - [ ] Update the two intra-package imports at `bimodal/semantic.py:40-41`
+        `importlib.util` / `pathlib` imports it required. *(completed)*
+  - [x] Update the two intra-package imports at `bimodal/semantic.py:40-41`
         (`...bimodal.semantic.witness_registry`, `...bimodal.semantic.witness_constraints`) to
-        relative imports within the package.
-  - [ ] Run `bimodal/tests/unit/test_semantic_module_registration.py` — it exists precisely to guard
+        relative imports within the package. *(completed: `from .witness_registry import
+        WitnessRegistry` / `from .witness_constraints import WitnessConstraintGenerator`)*
+  - [x] Run `bimodal/tests/unit/test_semantic_module_registration.py` — it exists precisely to guard
         this contract — plus a real `--maximize` invocation over a bimodal example, before and after.
-  - [ ] Add a regression test asserting `BimodalSemantics` has exactly one class identity:
+        *(completed: rewrote the test file's premise from "guard the synthetic-module-registration
+        workaround" to "guard its absence" -- the dual identity it guarded against no longer
+        exists, so the contract it protects changed with it; kept and re-verified the
+        pickle/ProcessPoolExecutor round-trip assertions, which are the actual acceptance
+        criterion and still pass unchanged in mechanism. `--maximize` over
+        `bimodal/examples.py` produces "Maximum N = 5" on the first example, confirming no
+        `ModuleNotFoundError` regression.)*
+  - [x] Add a regression test asserting `BimodalSemantics` has exactly one class identity:
         `isinstance` succeeds across both the package path and any previously divergent path.
+        *(completed: `test_single_class_identity_across_import_paths` and
+        `test_classes_report_the_real_package_module_path` in the rewritten
+        `test_semantic_module_registration.py`)*
 - **Timing:** 2 hours
 - **Depends on:** 18
 - **Files to modify:**
   - `code/src/model_checker/theory_lib/bimodal/semantic.py` - moved to `semantic/core.py`, deleted
   - `code/src/model_checker/theory_lib/bimodal/semantic/__init__.py` - reduced to re-exports
-  - `code/src/model_checker/theory_lib/bimodal/semantic/{witness_registry,witness_constraints}.py` - relative imports
+  - `code/src/model_checker/theory_lib/bimodal/semantic/{witness_registry,witness_constraints}.py` - relative imports *(see deviation below: switched to absolute imports for `errors.py`, not intra-package relative)*
 - **Verification:**
   - `test_semantic_module_registration.py` passes.
   - `model-checker <bimodal example> --maximize` produces a non-zero Maximum N, matching the
     pre-phase output.
   - The single-class-identity regression test passes.
   - `bimodal_semantic_module` appears nowhere in the tree.
-  - Bimodal in-package suite is 286/286 with `-n 6`.
+  - Bimodal in-package suite is 286/286 with `-n 6`. *(no `pytest-xdist` in this sandbox --
+    ran serially instead: 291/291 passed, zero failures. 291 rather than 286 because
+    `test_semantic_module_registration.py` grew from 3 to 5 tests as part of this phase.)*
+
+**Deviation from plan (undocumented downstream regression, caught and fixed)**: moving
+`witness_registry.py`'s and `witness_constraints.py`'s *own* `from ...errors import
+WitnessRegistryError, ...` (a 3-dot relative import, pre-existing before this phase, unchanged by
+the plan's stated edits) from relative to **absolute** (`from model_checker.theory_lib.errors
+import ...`). Root cause: these two files' 3-dot relative import to the shared
+`theory_lib/errors.py` only resolves at the exact nesting depth
+`theory_lib.bimodal.semantic.<file>`. The OLD flat `semantic.py` masked this because its own
+witness imports were absolute (`model_checker.theory_lib.bimodal.semantic.witness_registry`) and,
+critically, `bimodal/semantic/__init__.py`'s old dynamic loader executed `semantic.py` directly
+via `spec_from_file_location` rather than through the package's normal import machinery -- so
+`witness_registry.py`/`witness_constraints.py` were never actually imported as *package
+submodules* in a scaffolded project at all, and their own relative import was never exercised
+there. Once `semantic/__init__.py` became a plain `from .core import ...`, the normal package
+import chain runs for real, and a project scaffolded by `builder.project.BuildProject` (used by
+8 existing builder tests, several of which call bare `BuildProject()` -- which happens to default
+to bimodal today due to an already-tracked, out-of-scope registry-ordering defect covered by
+`test_project_initialization_default`) is only 2 levels deep
+(`<project>.semantic.<file>`), one level short of where the 3-dot import resolves, throwing
+`ImportError: attempted relative import beyond top-level package`. Confirmed this is a
+pre-existing, latent defect shared by exclusion and imposition too (both already use identical
+`from ...errors import ...` / `from ...logos.semantic import ...` 3-dot patterns in their own
+`semantic/core.py`; reproduced the identical failure by scaffolding `BuildProject('exclusion')`
+directly) -- it was simply never exercised by any test because the buggy bare-`BuildProject()`
+default happens to point at bimodal, not because exclusion/imposition's scaffolding actually
+works. Fixed by switching only bimodal's two witness files to the absolute-import form (mirroring
+the OLD `semantic.py`'s own proven-working strategy for its witness imports), which resolves via
+`sys.path` regardless of nesting depth. Deliberately left exclusion and imposition
+untouched -- their identical, equally-latent scaffolding gap predates this task and is not
+introduced or worsened by this phase. Restored 8 previously-passing builder tests
+(`test_package_imports.py`, `test_issue_73_fix.py` x3, `test_package_loading.py` x4) plus, as a
+side effect of `BimodalSemantics.__module__` now containing `model_checker.theory_lib.bimodal`,
+fixed the pre-existing (briefed-as-out-of-scope) `test_serialize_real_bimodal_theory_preserves_structure`
+failure and updated `test_generated_projects.py::test_bimodal_project_generation_and_loading`'s
+stale assertion that a flat `semantic.py` should exist in a scaffolded bimodal project (it now
+correctly asserts `semantic/__init__.py` and `semantic/core.py`). Also fixed an unrelated,
+pre-existing bug this investigation surfaced: `builder/strategies.py`'s exec-fallback exception
+handler called `PackageImportError(...)` with 4 positional arguments against a 3-argument
+`PackageError.__init__(message, context, suggestion)`, raising a confusing `TypeError` that
+masked the real `ImportError` during debugging (merged the two context strings into one call).
 
 ---
 

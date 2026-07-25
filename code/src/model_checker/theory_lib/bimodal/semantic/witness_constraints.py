@@ -16,7 +16,11 @@ from typing import Any, List
 from model_checker import z3_shim as z3
 
 # Local imports
-from ...errors import WitnessConstraintError
+# Absolute (not relative) import -- see witness_registry.py's identical comment:
+# a 3-dot relative import to theory_lib/errors.py overflows the top-level
+# package when this file is copied into a flat scaffolded project by
+# `builder.project.BuildProject`.
+from model_checker.theory_lib.errors import WitnessConstraintError
 
 
 class WitnessConstraintGenerator:

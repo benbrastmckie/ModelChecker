@@ -1,37 +1,16 @@
-"""Bimodal semantic components for witness predicates.
+"""Bimodal semantic package.
 
-This package provides witness predicate infrastructure as a submodule.
-It re-exports the main semantic classes from the parent module for backward compatibility.
+Re-exports the semantic classes implemented in `core.py`. This package
+previously shadowed a sibling `semantic.py` and loaded it a second time
+under a synthetic module identity (`bimodal_semantic_module`) via
+`importlib.util.spec_from_file_location`, purely to work around the
+`semantic/` directory name colliding with `semantic.py`. That flat file has
+been moved into `core.py` (verbatim), so `BimodalSemantics`,
+`BimodalProposition`, and `BimodalStructure` now have exactly one class
+identity, importable and picklable via this package's real module path --
+no dynamic loader or `sys.modules` registration required.
 """
 
-# Re-export main semantic classes from parent semantic.py module
-# This maintains backward compatibility when semantic/ directory shadows semantic.py
-import sys
-import importlib.util
-from pathlib import Path
-
-# Load the parent semantic.py module directly
-parent_dir = Path(__file__).parent.parent
-semantic_py_path = parent_dir / "semantic.py"
-
-spec = importlib.util.spec_from_file_location("bimodal_semantic_module", semantic_py_path)
-semantic_module = importlib.util.module_from_spec(spec)
-# Register in sys.modules BEFORE exec_module. Without this, the module is
-# fully usable in-process (classes defined here have __module__ ==
-# "bimodal_semantic_module" and work fine for normal attribute access), but
-# it does not exist as an importable name anywhere. That breaks pickling
-# under ProcessPoolExecutor (used by --maximize theory comparison): pickle
-# serializes an instance's class by module name + qualname and the
-# unpickling worker process looks up "bimodal_semantic_module" in
-# sys.modules to resolve it, raising
-# `ModuleNotFoundError: No module named 'bimodal_semantic_module'` and
-# silently failing the whole example (reported as "Maximum N = 0").
-sys.modules[spec.name] = semantic_module
-spec.loader.exec_module(semantic_module)
-
-# Export the classes from semantic.py
-BimodalSemantics = semantic_module.BimodalSemantics
-BimodalProposition = semantic_module.BimodalProposition
-BimodalStructure = semantic_module.BimodalStructure
+from .core import BimodalSemantics, BimodalProposition, BimodalStructure
 
 __all__ = ['BimodalSemantics', 'BimodalProposition', 'BimodalStructure']

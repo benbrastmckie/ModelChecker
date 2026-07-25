@@ -220,9 +220,12 @@ class TestDiscoverTheoryModuleRegression(unittest.TestCase):
             with self.subTest(theory=expected_name):
                 # Pass a deliberately wrong/empty theory_name so Method 4's fallback cannot
                 # mask a Method 1/2/3 failure -- only a genuine class-based match should
-                # succeed here (Method 1's __module__ string check covers the package-path
-                # cases directly; Methods 2/3 are exercised whenever Method 1 doesn't match,
-                # e.g. bimodal's `bimodal_semantic_module` pickling shim __module__ value).
+                # succeed here. Method 1's __module__ string check now covers all four
+                # theories directly (bimodal's semantic classes used to report the synthetic
+                # `bimodal_semantic_module` __module__ value from a dynamic-loader pickling
+                # shim, which contained no 'theory_lib' segment and fell through to Methods
+                # 2/3; that shim is gone and bimodal's classes now report the real package
+                # path like every other theory).
                 discovered = discover_theory_module("", semantic_theory)
                 self.assertEqual(
                     discovered, expected_name,

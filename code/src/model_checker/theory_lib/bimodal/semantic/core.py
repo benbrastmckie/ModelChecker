@@ -35,10 +35,8 @@ from model_checker import syntactic
 from model_checker.syntactic.atoms import get_atom_sort
 
 # Witness predicate components (Phase 4 integration)
-# Note: These imports use fully qualified paths because semantic.py is being
-# loaded via importlib by semantic/__init__.py, which makes relative imports ambiguous
-from model_checker.theory_lib.bimodal.semantic.witness_registry import WitnessRegistry
-from model_checker.theory_lib.bimodal.semantic.witness_constraints import WitnessConstraintGenerator
+from .witness_registry import WitnessRegistry
+from .witness_constraints import WitnessConstraintGenerator
 
 
 
