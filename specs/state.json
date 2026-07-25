@@ -4,7 +4,7 @@
     {
       "project_number": 127,
       "project_name": "close_oracle_suite_regression_baseline",
-      "status": "partial",
+      "status": "blocked",
       "task_type": "python",
       "topic": "testing",
       "description": "Complete the oracle differential-suite regression baseline that the core/theory_lib refactor could not finish. The 550-test suite in oracle/bimodal_logic/tests/ has never completed a full run in the development sandbox: pytest-xdist is unavailable (package index unreachable), forcing a fully serial run of roughly 90 minutes, and serial attempts were killed by resource contention from concurrent sessions at about 91% through. Collection count (550) and the 5 xfail(strict=True) marker line locations are already pinned and verified clean. Install or vendor pytest-xdist, or run on dedicated/isolated resources, then commit baselines/oracle-run.txt and baselines/junit-oracle.xml, flip the refactor plan's Phase 2 heading from [PARTIAL] to [COMPLETED], and re-run code/scripts/verify-refactor.sh without --skip-oracle so Step 6 exercises the full suite. Completing this is the sole remaining blocker to marking the core/theory_lib refactor task COMPLETED.",
@@ -14,7 +14,9 @@
         "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/"
       ],
       "dependencies": [
-        131
+        131,
+        132,
+        133
       ],
       "next_artifact_number": 1,
       "artifacts": [
@@ -35,8 +37,8 @@
         }
       ],
       "created": "2026-07-25T05:52:48Z",
-      "last_updated": "2026-07-25T14:37:33Z",
-      "session_id": "sess_1784959703_c3da6e_127"
+      "last_updated": "2026-07-25T18:30:09Z",
+      "session_id": "sess_1784998815_1581ee_127"
     },
     {
       "project_number": 128,
@@ -634,7 +636,7 @@
     {
       "project_number": 131,
       "project_name": "fix_oracle_ternary_sat_regression",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "topic": "testing",
       "description": "Fix the refactor-introduced regression in the oracle differential suite. oracle/bimodal_logic/tests/test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary PASSES at pre-refactor commit 6cfb7f48 and FAILS on the current branch with AssertionError: Expected SAT for next_A (assert None is not None) at test_oracle_interface.py:1050 -- find_countermodel returns no model for a next_A formula that is expected to be satisfiable. The bisect endpoints are already established (green at 6cfb7f48, red at HEAD), so the work is to locate the responsible change in the core/theory_lib refactor and repair it. Note that a max_time overrun in this codebase surfaces as a wrong-answer result rather than an error, and Z3 solve times vary roughly 20x run-to-run on this machine (see code/docs/core/TESTING_GUIDE.md section 8.6), so rule out a timeout budget before concluding the semantics are wrong -- but the fact that the same test passes at the baseline commit under the same conditions points at a genuine behavioral change rather than timing. This regression is the sole remaining blocker on completing the core/theory_lib refactor.",
@@ -643,11 +645,28 @@
         "oracle/bimodal_logic/",
         "code/src/model_checker/theory_lib/bimodal/"
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "type": "report",
+          "path": "specs/131_fix_oracle_ternary_sat_regression/reports/01_oracle-ternary-sat-regression.md",
+          "summary": "Diff audit and timing reproduction showing the ternary SAT test failure is a near-60s timeout boundary issue present identically at both the baseline and HEAD commits, not a refactor-introduced semantic regression; recommends widening the test's own timeout budget."
+        },
+        {
+          "type": "plan",
+          "path": "specs/131_fix_oracle_ternary_sat_regression/plans/01_fix-oracle-ternary-timeout.md",
+          "summary": "3-phase, 2-hour plan widening the oracle ternary-SAT timeout budget behind a named constant, with nix-develop-wrapped verification commands and a sibling-site audit."
+        },
+        {
+          "type": "summary",
+          "path": "specs/131_fix_oracle_ternary_sat_regression/summaries/01_fix-oracle-ternary-timeout-summary.md",
+          "summary": "Implementation summary: timeout-flake finding, widened-site measurements, sibling audit, all_future finding, and the verified full-suite handoff invocation."
+        }
+      ],
       "created": "2026-07-25T16:19:08Z",
-      "last_updated": "2026-07-25T16:19:08Z",
+      "last_updated": "2026-07-25T18:16:36Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1784959703_c3da6e"
+      "session_id": "sess_1784998815_1581ee_131",
+      "completion_summary": "Corrected from the original mislabel of a refactor-introduced semantic regression: five isolated runs (3 at HEAD, 2 at pre-refactor baseline 6cfb7f48) all landed at 52.8-58.9s wall clock against a 60000ms budget with byte-identical constraint-building code at both commits -- a timeout-budget boundary flake, not a semantic defect. Fix: widened the depth>0 solver budget behind a named TEMPORAL_SOLVE_TIMEOUT_MS=180000ms constant (was a bare 60000ms literal) at oracle/bimodal_logic/tests/test_oracle_interface.py, verified with 5 isolated runs of the target test (50.79-63.55s, well under the 120s escalation bar), and applied the same constant to 3 sibling depth>0 call sites found boundary-exposed during audit (lines 739, 815, 959). No changes were made under code/src/model_checker/** or to oracle provider/operator/semantic sources -- research proved no semantic defect exists there. One new finding for the downstream full-suite task: the all_future enriched/primitive pair in test_enriched_vs_primitive_sat_agreement genuinely exceeds even the widened 180000ms budget (measured 195.47s / 187.63s in isolation, both timing out) -- a real slow-solver-path finding, not fixed here per this task's own anti-scope-creep guardrail against solver-performance work."
     },
     {
       "project_number": 132,

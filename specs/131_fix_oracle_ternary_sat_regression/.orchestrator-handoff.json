@@ -1,0 +1,31 @@
+{
+  "status": "implemented",
+  "summary": "Widened the depth>0 solver budget at oracle/bimodal_logic/tests/test_oracle_interface.py behind a named TEMPORAL_SOLVE_TIMEOUT_MS=180000ms constant (was a bare 60000ms literal), verified with 5 isolated runs of the primary target (50.79-63.55s, well under the 120s escalation bar), widened 3 boundary-exposed sibling call sites found during audit, and corrected the task's own record from 'semantic regression' to 'timeout flake'. Recorded (not fixed, per Non-Goals) a new finding: the all_future enriched/primitive pair genuinely exceeds even 180000ms (195.47s / 187.63s isolated). Full oracle/ suite collects 550 tests under -n 6, confirming pytest-xdist is live for the downstream baseline task.",
+  "artifacts": [
+    {
+      "path": "specs/131_fix_oracle_ternary_sat_regression/plans/01_fix-oracle-ternary-timeout.md",
+      "type": "plan",
+      "summary": "3-phase plan, all phases marked COMPLETED with measurement tables and deviation notes filled in."
+    },
+    {
+      "path": "specs/131_fix_oracle_ternary_sat_regression/summaries/01_fix-oracle-ternary-timeout-summary.md",
+      "type": "summary",
+      "summary": "Full measurement table, sibling audit disposition, all_future finding, and the verified full-suite handoff invocation (-n 6) for the downstream baseline task."
+    }
+  ],
+  "modified_files": [
+    "oracle/bimodal_logic/tests/test_oracle_interface.py",
+    "specs/state.json",
+    "specs/TODO.md",
+    "specs/131_fix_oracle_ternary_sat_regression/plans/01_fix-oracle-ternary-timeout.md",
+    "specs/131_fix_oracle_ternary_sat_regression/summaries/01_fix-oracle-ternary-timeout-summary.md",
+    "specs/131_fix_oracle_ternary_sat_regression/handoffs/phase-1-handoff-1785000005.md",
+    "specs/131_fix_oracle_ternary_sat_regression/handoffs/phase-2-handoff-1785000900.md",
+    "specs/131_fix_oracle_ternary_sat_regression/handoffs/phase-3-handoff-1785001500.md"
+  ],
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "complete",
+  "phases_completed": 3,
+  "phases_total": 3
+}

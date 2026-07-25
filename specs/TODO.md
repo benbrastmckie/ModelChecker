@@ -11,8 +11,8 @@ next_project_number: 134
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 129,131,132,133 | -- | testing |
-| 2 | 127 | 131 | testing |
+| 1 | 129,132,133 | -- | testing |
+| 2 | 127 | 132,133 | testing |
 | 3 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -24,10 +24,10 @@ next_project_number: 134
 ### Testing
 
 129 [IMPLEMENTING] — Triage and document the pre-existing test failure backlog so futu
-131 [NOT STARTED] — Fix the refactor-introduced regression in the oracle differential
-  └─ 127 [PARTIAL] — Complete the oracle differential-suite regression baseline that t
 132 [NOT STARTED] — Make the oracle differential suite safe to run under pytest-xdist
+  └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
 133 [NOT STARTED] — Fix the pre-existing self-consistency failure in the oracle full-
+  └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t (see above)
 
 ## Tasks
 
@@ -52,10 +52,13 @@ next_project_number: 134
 ---
 
 ### 131. Fix oracle ternary sat regression
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [131_fix_oracle_ternary_sat_regression/reports/01_oracle-ternary-sat-regression.md]
+- **Plan**: [131_fix_oracle_ternary_sat_regression/plans/01_fix-oracle-ternary-timeout.md]
+- **Summary**: [131_fix_oracle_ternary_sat_regression/summaries/01_fix-oracle-ternary-timeout-summary.md]
 
 **Description**: Fix the refactor-introduced regression in the oracle differential suite. oracle/bimodal_logic/tests/test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary PASSES at pre-refactor commit 6cfb7f48 and FAILS on the current branch with AssertionError: Expected SAT for next_A (assert None is not None) at test_oracle_interface.py:1050 -- find_countermodel returns no model for a next_A formula that is expected to be satisfiable. The bisect endpoints are already established (green at 6cfb7f48, red at HEAD), so the work is to locate the responsible change in the core/theory_lib refactor and repair it. Note that a max_time overrun in this codebase surfaces as a wrong-answer result rather than an error, and Z3 solve times vary roughly 20x run-to-run on this machine (see code/docs/core/TESTING_GUIDE.md section 8.6), so rule out a timeout budget before concluding the semantics are wrong -- but the fact that the same test passes at the baseline commit under the same conditions points at a genuine behavioral change rather than timing. This regression is the sole remaining blocker on completing the core/theory_lib refactor.
 
@@ -100,10 +103,10 @@ next_project_number: 134
 ---
 
 ### 127. Close oracle suite regression baseline
-- **Status**: [PARTIAL]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: testing
-- **Dependencies**: Task 131
+- **Dependencies**: Task 131, Task 132, Task 133
 - **Research**: [127_close_oracle_suite_regression_baseline/reports/01_oracle-baseline-environment.md]
 - **Plan**: [127_close_oracle_suite_regression_baseline/plans/01_close-oracle-regression-baseline.md]
 - **Summary**: [127_close_oracle_suite_regression_baseline/summaries/01_close-oracle-regression-baseline-summary.md]

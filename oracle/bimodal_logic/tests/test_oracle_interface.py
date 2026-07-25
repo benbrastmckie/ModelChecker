@@ -107,6 +107,14 @@ D = _atom("D")
 BOT = _bot()
 TOP = _top()
 
+# Solver budget for formulas with temporal_depth > 0. These force M = max(depth+2, 3) >= 3,
+# which dispatches to the expensive MBQI-avoidance constraint path; measured solve times
+# cluster at 53-59s. Set generously rather than at measured-time-plus-margin, per
+# code/docs/core/TESTING_GUIDE.md section 8.6 -- a tight ceiling here produces wall-clock
+# boundary flakes, not signal.
+TEMPORAL_SOLVE_TIMEOUT_MS = 180000
+ATEMPORAL_SOLVE_TIMEOUT_MS = 10000
+
 
 ##############################################################################
 # Simple test formulas
@@ -728,7 +736,7 @@ class TestEnrichedRoundTrip:
         """Enriched and primitive forms produce identical SAT/UNSAT results."""
         depth = max(temporal_depth(enriched_json), temporal_depth(primitive_json))
         # Primitive forms are structurally larger and may need more solver time
-        timeout = 60000 if depth > 0 else 10000
+        timeout = TEMPORAL_SOLVE_TIMEOUT_MS if depth > 0 else ATEMPORAL_SOLVE_TIMEOUT_MS
         enriched_result = self.provider.find_countermodel(enriched_json, timeout_ms=timeout)
         primitive_result = self.provider.find_countermodel(primitive_json, timeout_ms=timeout)
         enriched_sat = enriched_result is not None
@@ -804,7 +812,7 @@ class TestMixedFormulas:
     def test_mixed_and_neg_some_future(self):
         """and(neg(A), some_future(B)) -- L1 neg + L2 and + L2 some_future."""
         formula = _and(_neg(A), _some_future(B))
-        result = self.provider.find_countermodel(formula, timeout_ms=60000)
+        result = self.provider.find_countermodel(formula, timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS)
         # SAT: countermodel where A=true (neg(A) false) or B never future-true
         assert result is not None
         assert isinstance(result, dict)
@@ -948,7 +956,7 @@ class TestSpotCheckCrossSignal:
 
         # F5 is the only temporal-only SPOT_CHECK that is invalid
         f5 = _imp(_snce(p, q), _untl(q, p))
-        result = self.provider.find_countermodel(f5, timeout_ms=60000)
+        result = self.provider.find_countermodel(f5, timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS)
         assert result is not None, (
             "Expected countermodel for F5 (p S q -> q U p)"
         )
@@ -1045,7 +1053,7 @@ class TestTernarySerializationAll:
         ]
         for name, formula in sat_formulas:
             depth = temporal_depth(formula)
-            timeout = 60000 if depth > 0 else 10000
+            timeout = TEMPORAL_SOLVE_TIMEOUT_MS if depth > 0 else ATEMPORAL_SOLVE_TIMEOUT_MS
             result = self.provider.find_countermodel(formula, timeout_ms=timeout)
             assert result is not None, f"Expected SAT for {name}"
             task_rel = result["task_relation"]
