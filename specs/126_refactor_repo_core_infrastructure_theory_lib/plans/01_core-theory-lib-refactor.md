@@ -1217,12 +1217,12 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 19: Fold the relevance Subtheory into constitutive [IN PROGRESS]
+### Phase 19: Fold the relevance Subtheory into constitutive [COMPLETED]
 
 - **Goal:** Remove a subtheory that contributes zero operators, without losing its example corpus or
   documentation.
 - **Tasks:**
-  - [ ] Confirm the evidence before acting. `relevance/operators.py:27-29` returns `{}`; its only
+  - [x] Confirm the evidence before acting. `relevance/operators.py:27-29` returns `{}`; its only
         real content is `from ..constitutive.operators import RelevanceOperator` at `:9`, kept alive
         solely so `__init__.py:15` can re-export it. The sole class definition is
         `constitutive/operators.py:376`, registered under `"\\preceq"` at
@@ -1230,31 +1230,55 @@ Phases within the same wave can execute in parallel.
         `'relevance': ['constitutive']` dependency edge at `logos/operators.py:38`. Decisively:
         `relevance/examples.py`'s own registry loads `['extensional', 'constitutive', 'modal']` and
         not `'relevance'`, and removing `'relevance'` from `test_relevance_examples.py:35` leaves all
-        20 tests passing. Loading the subtheory is a no-op.
-  - [ ] Move the 20 examples (11 countermodels `REL_CM_1`-`REL_CM_11` at
+        20 tests passing. Loading the subtheory is a no-op. *(confirmed as stated)*
+  - [x] Move the 20 examples (11 countermodels `REL_CM_1`-`REL_CM_11` at
         `relevance/examples.py:56-258`, 9 theorems `REL_TH_1`-`REL_TH_9` at `:265-435`) into
         `constitutive/examples.py`, retaining the `REL_` prefixes so their provenance stays legible.
         Note that only 4 of 20 are uncommented in `example_range` at `:496`; preserve that state
-        rather than silently enabling 16 untested examples.
-  - [ ] Move `relevance/tests/test_relevance_examples.py` into `constitutive/tests/` (or merge its
+        rather than silently enabling 16 untested examples. *(completed: REL_CM_1, REL_CM_2,
+        REL_TH_1, REL_TH_2 are the 4 active entries, matching the prior state exactly)*
+  - [x] Move `relevance/tests/test_relevance_examples.py` into `constitutive/tests/` (or merge its
         parametrize source). Net collection across the two directories should stay at 54.
-  - [ ] Preserve the documentation: `relevance/README.md` (~20 KB of substantive relevance-logic
+        *(completed: merged via `unit_tests` combination in `constitutive/examples.py`; the
+        standalone relevance test file was deleted since `test_constitutive_examples.py` already
+        parametrizes over the combined `unit_tests` dict — collection confirmed at 54)*
+  - [x] Preserve the documentation: `relevance/README.md` (~20 KB of substantive relevance-logic
         exposition) and `relevance/notebooks/` move under `constitutive/`. Do not delete them — the
-        operator's home changes, the scholarship does not.
-  - [ ] Delete `relevance/operators.py` and `relevance/__init__.py`; remove the `'relevance'` entries
+        operator's home changes, the scholarship does not. *(completed: `relevance/README.md` ->
+        `constitutive/RELEVANCE.md` with links/counts updated for its new home;
+        `relevance/notebooks/relevance_examples.ipynb` -> `constitutive/notebooks/`, referenced
+        from `constitutive/notebooks/README.md`. The notebook's own template.json and
+        notebooks/README.md were superseded by constitutive's equivalents rather than duplicated,
+        since neither is referenced anywhere in code and their content was strictly boilerplate.)*
+  - [x] Delete `relevance/operators.py` and `relevance/__init__.py`; remove the `'relevance'` entries
         at `subtheories/__init__.py:24` and `:32`, and the dependency edge at `logos/operators.py:38`.
-  - [ ] Update `SUBTHEORY_DESCRIPTIONS` for constitutive at `subtheories/__init__.py:30` to name
-        `≼` explicitly alongside `≡`, `≤`, `⊑`.
-  - [ ] Remove `'relevance'` from **every** call site that names it as a loadable subtheory. Remove
+        *(completed)*
+  - [x] Update `SUBTHEORY_DESCRIPTIONS` for constitutive at `subtheories/__init__.py:30` to name
+        `≼` explicitly alongside `≡`, `≤`, `⊑`. *(already present pre-phase; description text
+        expanded from "Ground, essence, and identity operators" to "Ground, essence, identity,
+        and relevance operators" for clarity)*
+  - [x] Remove `'relevance'` from **every** call site that names it as a loadable subtheory. Remove
         it from `AVAILABLE_SUBTHEORIES` first so any missed site fails fast at load time. Known
         sites: `logos/__init__.py:37,152`; `logos/examples.py:117,175,201,210`;
         `logos/tests/integration/test_subtheory_orchestration.py:32`;
         `logos/tests/integration/test_solver_comparison.py:102`; `code/run_tests.py:327,508`. Two
         further sites are already handled by earlier phases: `code/scaling_benchmark.py:184,204,231,642`
         is deleted in Phase 5, and `logos/comparison.py:76,492,997` is relocated in Phase 6 — verify
-        both, and update the relocated benchmark script.
-  - [ ] Remove the subtheory-conformance xfail for relevance; the parametrization now covers four
-        subtheories.
+        both, and update the relocated benchmark script. *(completed: all listed sites updated,
+        plus `logos/tests/conftest.py`'s `relevance_theory` fixture and
+        `logos/tests/unit/test_registry.py`'s dependency-chain test, both discovered via
+        repo-wide grep; `code/scaling_benchmark.py` confirmed absent (deleted Phase 5),
+        `code/scripts/logos_solver_benchmark.py` (the Phase 6 relocation target) updated: its
+        `COMPARISON_EXAMPLES`/`get_required_subtheories`/`--subtheory` choices all folded
+        relevance's 4 curated examples into constitutive rather than dropping them. Also swept
+        and fixed dangling `subtheories/relevance/` doc links across `code/README.md`,
+        `theory_lib/README.md`, `theory_lib/tests/README.md`, `logos/README.md`,
+        `logos/tests/README.md`, `logos/subtheories/README.md`,
+        `logos/docs/API_REFERENCE.md`, and `code/docs/quality/MANUAL_TESTING.md`.)*
+  - [x] Remove the subtheory-conformance xfail for relevance; the parametrization now covers four
+        subtheories. *(completed: `RELEVANCE_EMPTY_OPERATORS_XFAIL_REASON` and its conditional
+        xfail branch removed from `test_theory_conformance.py`; `test_get_operators_non_empty`
+        parametrizes plainly over `AVAILABLE_SUBTHEORIES`, now 4 entries, zero xfails)*
 - **Timing:** 2 hours
 - **Depends on:** 18
 - **Files to modify:**

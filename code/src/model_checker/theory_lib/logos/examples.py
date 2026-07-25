@@ -7,9 +7,12 @@ This module aggregates examples from all logos subtheories into a unified
 The logos theory is modular, with examples distributed across subtheories:
 - Extensional: Extensional operators (¬,∧,∨,→,↔,⊤,⊥)
 - Modal: Necessity and possibility operators (□,◇,CFBox,CFDiamond)
-- Constitutive: Ground, essence, and identity operators (≡,≤,⊑,≼,⊓)
+- Constitutive: Ground, essence, identity, and relevance operators (≡,≤,⊑,≼,⊓)
 - Counterfactual: Counterfactual conditional operators (□→,◇→,⊙,♦)
-- Relevance: Content-sensitive relevance operators (≺)
+
+Note: the relevance operator (≼, REL_* examples) is defined and exemplified
+within the constitutive subtheory -- it contributed no operators of its own
+and was folded in rather than kept as a separate subtheory.
 
 This module imports and combines all subtheory examples with prefixed names
 to avoid conflicts and maintain traceability back to the originating subtheory.
@@ -51,9 +54,9 @@ from .subtheories.extensional.examples import unit_tests as extensional_all_exam
 from .subtheories.modal import examples as mod_module
 from .subtheories.modal.examples import example_range as modal_examples
 from .subtheories.modal.examples import unit_tests as modal_all_examples
-from .subtheories.relevance import examples as rel_module
-from .subtheories.relevance.examples import example_range as relevance_examples
-from .subtheories.relevance.examples import unit_tests as relevance_all_examples
+# Note: the former relevance subtheory contributed zero operators; its REL_*
+# examples are folded into constitutive_examples/constitutive_all_examples
+# above (RelevanceOperator is defined in constitutive/operators.py).
 
 
 
@@ -111,15 +114,6 @@ try:
 except ImportError:
     counterfactual_examples = {}
 
-try:
-    for key in relevance_examples:
-        example_metadata[key] = {
-            'subtheory': 'relevance',
-            'path': os.path.abspath(rel_module.__file__)
-        }
-except ImportError:
-    relevance_examples = {}
-
 # Note: Basic examples removed as they are redundant with subtheory examples
 # Modus ponens -> EXT_TH_1, Conjunction -> EXT_TH_3, etc.
 # Modal logic K -> MOD_TH_*, Identity reflexive -> CON_TH_*
@@ -129,9 +123,10 @@ except ImportError:
 unit_tests = {
     **extensional_examples,  # Already has EXT_ prefix
     **modal_examples,        # Already has MOD_ prefix
-    **{k.replace('CL_', 'CON_'): v for k, v in constitutive_examples.items()},  # Convert CL_* to CON_*
+    # Convert CL_* to CON_*; REL_* keys (relevance, folded into constitutive)
+    # pass through unchanged since they don't match the CL_ prefix.
+    **{k.replace('CL_', 'CON_'): v for k, v in constitutive_examples.items()},
     **counterfactual_examples,  # Already has CF_ prefix
-    **relevance_examples,       # Already has REL_ prefix
 }
 
 # Basic examples removed - see subtheory examples instead
@@ -173,7 +168,7 @@ general_settings = {
 
 # Create operator registry for full logos theory
 logos_registry = LogosOperatorRegistry()
-logos_registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance'])
+logos_registry.load_subtheories(['extensional', 'modal', 'constitutive', 'counterfactual'])
 
 # Define the semantic theory
 logos_theory = {
@@ -199,7 +194,6 @@ subtheory_examples = {
     'modal': modal_examples,
     'constitutive': constitutive_examples,
     'counterfactual': counterfactual_examples,
-    'relevance': relevance_examples,
 }
 
 # All examples from all subtheories (for testing frameworks that need full access)
@@ -208,7 +202,6 @@ all_subtheory_examples = {
     'modal': modal_all_examples,
     'constitutive': constitutive_all_examples,
     'counterfactual': counterfactual_all_examples,
-    'relevance': relevance_all_examples,
 }
 
 # The report will be printed by ModelRunner after all examples complete

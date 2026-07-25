@@ -29,9 +29,8 @@ logos/
     ├── README.md                # Subtheory coordination and overview
     ├── extensional/             # Extensional operators (7 operators, 25 examples)
     ├── modal/                   # Necessity and possibility (4 operators, 21 examples)
-    ├── constitutive/            # Content relations (5 operators, 40 examples)
-    ├── counterfactual/          # Counterfactual conditionals (2 operators, 74 examples)
-    └── relevance/               # Relevance logic (1 operator, 17 examples)
+    ├── constitutive/            # Content relations incl. relevance (5 operators, 54 examples)
+    └── counterfactual/          # Counterfactual conditionals (2 operators, 74 examples)
 ```
 
 ## Overview
@@ -46,9 +45,8 @@ Logos provides the following subtheories, which can be loaded individually or in
 
 - **extensional**: Basic logical operators (∧, ∨, ¬, →, ↔, ⊤, ⊥)
 - **modal**: Necessity and possibility operators (□, ◇, CFBox, CFDiamond)  
-- **constitutive**: Content relation operators (≡, ≤, ⊑, ≼, ⊓)
+- **constitutive**: Content relation operators, including relevance (≡, ≤, ⊑, ≼, ⊓)
 - **counterfactual**: Counterfactual conditionals (□→, ◇→)
-- **relevance**: Relevance logic operator (≼)
 
 When creating a project, you can select specific subtheories:
 ```bash
@@ -135,9 +133,6 @@ The complete Logos theory includes the following operators organized by subtheor
 - Must Counterfactual (□→) - Would be the case
 - Could Counterfactual (◇→) - Could be the case
 
-**Relevance** (1):
-- Relevance (≺) - Imported from constitutive
-
 ## Semantic Theory
 
 ### Bilateral Truthmaker Semantics
@@ -174,9 +169,10 @@ Each subtheory includes comprehensive examples testing valid and invalid inferen
 
 - **Extensional**: 14 examples (7 countermodels, 7 theorems)
 - **Modal**: 18 examples (4 countermodels, 14 theorems)
-- **Constitutive**: 33 examples (18 countermodels, 15 theorems)
+- **Constitutive**: 54 examples (25 countermodels, 29 theorems) -- 34 constitutive
+  (14 countermodels, 20 theorems) plus 20 relevance-operator examples (11 countermodels,
+  9 theorems), absorbed from a former standalone `relevance` subtheory
 - **Counterfactual**: 33 examples (21 countermodels, 12 theorems)
-- **Relevance**: 20 examples (11 countermodels, 9 theorems)
 
 When loading specific subtheories, only the relevant examples are included.
 
@@ -238,7 +234,7 @@ The `LogosModelIterator` class in `iterate.py` extends the base iteration framew
 - Comprehensive `_calculate_logos_differences()` method tracking all semantic changes
 - `iterate_generator()` override that merges theory-specific differences with generic ones
 - Data structure transformation to match display expectations
-- Support for all logos subtheories (modal, counterfactual, constitutive, relevance, extensional)
+- Support for all logos subtheories (modal, counterfactual, constitutive, extensional)
 
 ## Testing
 
@@ -265,9 +261,8 @@ Interactive Jupyter notebooks are available for each subtheory, providing hands-
 
 - [Modal Notebooks](subtheories/modal/notebooks/README.md) - Modal logic examples (□, ◇)
 - [Extensional Notebooks](subtheories/extensional/notebooks/README.md) - Classical logical operators (∧, ∨, ¬, →)
-- [Constitutive Notebooks](subtheories/constitutive/notebooks/README.md) - Identity and essence operators
+- [Constitutive Notebooks](subtheories/constitutive/notebooks/README.md) - Identity, essence, and relevance operators
 - [Counterfactual Notebooks](subtheories/counterfactual/notebooks/README.md) - Counterfactual conditionals
-- [Relevance Notebooks](subtheories/relevance/notebooks/README.md) - Relevance logic operators
 
 ### Running Notebooks
 

@@ -32,7 +32,6 @@ class TestRegistryBasics:
         assert 'modal' in registry.dependencies
         assert 'constitutive' in registry.dependencies
         assert 'counterfactual' in registry.dependencies
-        assert 'relevance' in registry.dependencies
 
 
 class TestSubtheoryLoading:
@@ -110,13 +109,15 @@ class TestDependencyResolution:
     def test_dependency_chain_resolution(self):
         """Test complex dependency chains are resolved."""
         registry = LogosOperatorRegistry()
-        
-        # Load relevance, which depends on constitutive
-        registry.load_subtheory('relevance')
-        
-        # Both should be loaded
-        assert 'relevance' in registry.loaded_subtheories
-        assert 'constitutive' in registry.loaded_subtheories
+
+        # Load modal, which depends on both extensional and counterfactual,
+        # and counterfactual itself depends on extensional -- a two-level chain.
+        registry.load_subtheory('modal')
+
+        # All three should be loaded
+        assert 'modal' in registry.loaded_subtheories
+        assert 'counterfactual' in registry.loaded_subtheories
+        assert 'extensional' in registry.loaded_subtheories
 
 
 class TestOperatorAccess:

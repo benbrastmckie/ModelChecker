@@ -23,7 +23,6 @@
    - [Modal Operators](#modal-operators)
    - [Constitutive Operators](#constitutive-operators)
    - [Counterfactual Operators](#counterfactual-operators)
-   - [Relevance Operators](#relevance-operators)
 5. [Model Iteration](#model-iteration)
    - [LogosModelIterator](#logosmodeliterator)
    - [iterate_example()](#iterate_exampleexample-max_iterationsnone)
@@ -44,7 +43,7 @@
 
 ## Overview
 
-The Logos Theory provides a modular implementation of hyperintensional truthmaker semantics with support for extensional, modal, constitutive, counterfactual, and relevance operators. This API reference documents all public functions, classes, and operators available in the logos theory.
+The Logos Theory provides a modular implementation of hyperintensional truthmaker semantics with support for extensional, modal, constitutive (including relevance), and counterfactual operators. This API reference documents all public functions, classes, and operators available in the logos theory.
 
 ## Core Functions
 
@@ -58,8 +57,7 @@ Get a logos theory instance with specified subtheories.
   - `'modal'` - Necessity and possibility operators
   - `'constitutive'` - Identity, ground, essence, and relevance operators
   - `'counterfactual'` - Counterfactual conditional operators
-  - `'relevance'` - Content relevance operators (loads from constitutive)
-  
+
   If None, loads default set: ['extensional', 'modal', 'constitutive', 'counterfactual']
 
 **Returns:**
@@ -370,10 +368,6 @@ The logos theory provides operators through its modular subtheory system. Below 
 - **Counterfactual Conditional** (`\\boxright`): Would counterfactual
 - **Might Counterfactual** (`\\diamondright`): Might counterfactual
 
-### Relevance Operators
-
-The relevance operator (`\\preceq`) is imported from the constitutive subtheory and explored in depth with specialized examples.
-
 **Example Usage:**
 ```python
 from model_checker.theory_lib.logos import get_theory
@@ -444,7 +438,6 @@ AVAILABLE_SUBTHEORIES = [
     'modal', 
     'constitutive',
     'counterfactual',
-    'relevance'
 ]
 ```
 

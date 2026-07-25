@@ -39,12 +39,6 @@ def counterfactual_theory():
 
 
 @pytest.fixture
-def relevance_theory():
-    """Logos theory with extensional, modal, constitutive, and relevance subtheories."""
-    return logos.get_theory(subtheories=['extensional', 'modal', 'constitutive', 'relevance'])
-
-
-@pytest.fixture
 def basic_settings():
     """Standard settings for most tests."""
     return {

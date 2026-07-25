@@ -41,7 +41,6 @@ Test each main theory and all subtheories:
 ./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/modal/examples.py
 ./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/counterfactual/examples.py
 ./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
-./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
 ./code/dev_cli.py src/model_checker/theory_lib/logos/subtheories/extensional/examples.py
 ```
 

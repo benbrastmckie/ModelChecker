@@ -19,31 +19,26 @@ subtheories/
 │   ├── operators.py       # Operator implementations
 │   ├── examples.py        # Test examples (21 examples)
 │   └── tests/             # Test suite
-├── constitutive/          # Content relationships (5 operators)
+├── constitutive/          # Content relationships incl. relevance (5 operators)
 │   ├── README.md          # Constitutive documentation
+│   ├── RELEVANCE.md       # Relevance operator theoretical background
 │   ├── __init__.py        # Public API exports
 │   ├── operators.py       # Operator implementations
-│   ├── examples.py        # Test examples (33 examples)
+│   ├── examples.py        # Test examples (54 examples, 34 constitutive + 20 relevance)
 │   └── tests/             # Test suite
-├── counterfactual/        # Counterfactual reasoning (2 operators)
-│   ├── README.md          # Counterfactual documentation
-│   ├── __init__.py        # Public API exports
-│   ├── operators.py       # Operator implementations
-│   ├── examples.py        # Test examples (2 examples)
-│   └── tests/             # Test suite
-└── relevance/             # Content-sensitive relevance (1 operator)
-    ├── README.md          # Relevance documentation
+└── counterfactual/        # Counterfactual reasoning (2 operators)
+    ├── README.md          # Counterfactual documentation
     ├── __init__.py        # Public API exports
     ├── operators.py       # Operator implementations
-    ├── examples.py        # Test examples (3 examples)
+    ├── examples.py        # Test examples (2 examples)
     └── tests/             # Test suite
 ```
 
 ## Overview
 
-The **Logos Subtheories** implement a modular approach to hyperintensional logic, organizing 19 logical operators into 5 domain-specific modules. This architecture enables selective loading of logical capabilities, clean separation of concerns, and efficient memory usage while maintaining semantic coherence across all operators.
+The **Logos Subtheories** implement a modular approach to hyperintensional logic, organizing 18 logical operators into 4 domain-specific modules. This architecture enables selective loading of logical capabilities, clean separation of concerns, and efficient memory usage while maintaining semantic coherence across all operators.
 
-Each subtheory provides a self-contained logical system with its own operators, examples, and tests. Subtheories automatically resolve dependencies—requesting modal logic includes extensional operators, while relevance logic brings in the full constitutive framework. This modular design supports both theoretical exploration and practical applications.
+Each subtheory provides a self-contained logical system with its own operators, examples, and tests. Subtheories automatically resolve dependencies—requesting modal logic includes extensional operators. The relevance operator (⪯) is defined directly within the constitutive subtheory (a former standalone `relevance` subtheory that defined no operators of its own was folded in; see [constitutive/RELEVANCE.md](constitutive/RELEVANCE.md)). This modular design supports both theoretical exploration and practical applications.
 
 The subtheory system exemplifies the Logos framework's commitment to **hyperintensional semantics**, where even necessarily equivalent formulas can have different content. By organizing operators into coherent modules, researchers can focus on specific logical phenomena while maintaining access to the full power of truthmaker semantics when needed.
 
@@ -57,13 +52,10 @@ Foundation of extensional logic with 7 operators (¬, ∧, ∨, →, ↔, ⊤, �
 Hyperintensional modal logic with 4 operators (□, ◇, CFBox, CFDiamond). Goes beyond S5 semantics to distinguish necessarily equivalent modal formulas. Includes 21 examples exploring modal axioms and hyperintensional phenomena. Depends on extensional subtheory. See [modal/README.md](modal/README.md) for modal semantics.
 
 ### [constitutive/](constitutive/)
-Content relationship operators with 5 operators (≡, ≤, ⊑, ⪯, ⇒) for identity, ground, essence, relevance, and reduction. Enables fine-grained analysis of propositional content and dependencies. Includes 33 examples validating hyperintensional principles. See [constitutive/README.md](constitutive/README.md) for truth conditions.
+Content relationship operators with 5 operators (≡, ≤, ⊑, ⪯, ⇒) for identity, ground, essence, relevance, and reduction. Enables fine-grained analysis of propositional content and dependencies. Includes 54 examples validating hyperintensional principles (34 constitutive + 20 for the relevance operator, absorbed from a former standalone `relevance` subtheory -- see [constitutive/RELEVANCE.md](constitutive/RELEVANCE.md)). See [constitutive/README.md](constitutive/README.md) for truth conditions.
 
 ### [counterfactual/](counterfactual/)
 Counterfactual conditionals with 2 operators (□→, ◇→) implementing alternative world-state semantics. Validates key counterfactual principles while avoiding problematic inferences. Includes focused test examples. See [counterfactual/README.md](counterfactual/README.md) for counterfactual reasoning.
-
-### [relevance/](relevance/)
-Experimental relevance logic with 1 operator (⪯) imported from constitutive subtheory. Provides content-sensitive relevance without additional operators. Includes 3 test examples. See [relevance/README.md](relevance/README.md) for relevance semantics.
 
 ## Documentation
 
@@ -141,16 +133,16 @@ theory = logos.get_theory()  # Loads extensional, modal, constitutive, counterfa
 theory = logos.get_theory(subtheories=['modal'])
 print(len(theory['operators'].operator_dictionary))  # 11 operators (7 + 4)
 
-# Requesting relevance loads full dependency chain
-theory = logos.get_theory(subtheories=['relevance'])
-# Loads: extensional → constitutive → relevance
+# Requesting constitutive also brings in the relevance operator (⪯),
+# defined directly in constitutive/operators.py
+theory = logos.get_theory(subtheories=['constitutive'])
+# Loads: extensional → constitutive (incl. relevance)
 
 # Dependency visualization:
 # extensional (base - required by all)
 #   ├── modal (needs negation for possibility)
 #   ├── counterfactual (needs basic connectives)
-#   └── constitutive (needs conjunction for reduction)
-#       └── relevance (imports from constitutive)
+#   └── constitutive (needs conjunction for reduction; also defines relevance)
 ```
 
 ### Running Examples

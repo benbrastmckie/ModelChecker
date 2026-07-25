@@ -4,9 +4,8 @@ Logos Theory: Modular Implementation of Hyperintensional Truthmaker Semantics
 This theory provides a modular approach to logical operators organized by domain:
 - Extensional: Extensional operators (¬,∧,∨,→,↔,⊤,⊥)
 - Modal: Necessity and possibility operators (□,◇)
-- Constitutive: Ground, essence, and identity operators (≡,≤,⊑,≼)
+- Constitutive: Ground, essence, identity, and relevance operators (≡,≤,⊑,≼)
 - Counterfactual: Counterfactual conditional operators (□→,◇→)
-- Relevance: Content-sensitive relevance operators
 
 API:
     get_theory(subtheories=None): Get theory instance with specified subtheories
@@ -36,7 +35,7 @@ def get_theory(config=None, *, subtheories=None):
         config: Optional configuration (currently unused; present for signature uniformity
                 with the other three theories' get_theory(config=None)).
         subtheories: List of subtheory names to load, or None for default set
-                    Available: ['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance']
+                    Available: ['extensional', 'modal', 'constitutive', 'counterfactual']
                     Keyword-only: logos is the one theory that additionally accepts this
                     parameter, so it must be passed by name to avoid ambiguity with `config`.
 
@@ -145,15 +144,14 @@ def get_example_stats():
     # Get all example collections
     from .examples import (
         extensional_examples, modal_examples, constitutive_examples,
-        counterfactual_examples, relevance_examples, unit_tests
+        counterfactual_examples, unit_tests
     )
-    
+
     stats = {
         'extensional': len(extensional_examples),
         'modal': len(modal_examples),
         'constitutive': len(constitutive_examples),
         'counterfactual': len(counterfactual_examples),
-        'relevance': len(relevance_examples),
         'basic': 0,
         'total': len(unit_tests)
     }

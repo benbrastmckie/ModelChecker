@@ -41,7 +41,7 @@ The theory library provides four semantic theories implementing different approa
 **Theory Metadata**:
 - **Author**: Benjamin Brast-McKie
 - **Implementation**: Benjamin Brast-McKie, Miguel Buitrago
-- **Architecture**: Modular (5 subtheories with selective loading)
+- **Architecture**: Modular (4 subtheories with selective loading)
 - **Key Features**: Bilateral truthmaker semantics, selective subtheory loading, comprehensive operator coverage
 - **Papers**:
   - Brast-McKie, B. (2021). ["Identity and Aboutness"](https://link.springer.com/article/10.1007/s10992-021-09612-w). _Journal of Philosophical Logic_, 50, 1471-1503.
@@ -74,10 +74,10 @@ The theory library provides four semantic theories implementing different approa
 
 **Content relationship operators** (`≡`, `≤`, `⊑`, `⪯`, `⇒`) for identity, grounding, essence, relevance, and reduction, enabling fine-grained analysis of propositional content and dependencies.
 
-**Documentation**: [logos/subtheories/constitutive/README.md](logos/subtheories/constitutive/README.md) | [Examples](logos/subtheories/constitutive/examples.py) | [Notebooks](logos/subtheories/constitutive/notebooks/README.md)
+**Documentation**: [logos/subtheories/constitutive/README.md](logos/subtheories/constitutive/README.md) | [Relevance operator](logos/subtheories/constitutive/RELEVANCE.md) | [Examples](logos/subtheories/constitutive/examples.py) | [Notebooks](logos/subtheories/constitutive/notebooks/README.md)
 
 - **Operators**: 5 (4 primitive, 1 defined)
-- **Examples**: 33 test cases
+- **Examples**: 54 test cases (34 constitutive + 20 relevance, absorbed from a former standalone `relevance` subtheory that contributed no operators of its own)
 - **Key Feature**: Hyperintensional content relationships and grounding semantics
 - **Primary Source**: Brast-McKie, B. (2021). "Identity and Aboutness"
 
@@ -91,16 +91,6 @@ The theory library provides four semantic theories implementing different approa
 - **Examples**: 37 test cases
 - **Key Feature**: Alternative worlds semantics without primitive imposition relations
 - **Primary Source**: Brast-McKie, B. (2025). "Counterfactual Worlds"
-
-##### 5. Relevance Subtheory
-
-**Relevance operator** (`⪯`) imported from constitutive subtheory, providing content-sensitive relevance logic avoiding paradoxes of classical implication.
-
-**Documentation**: [logos/subtheories/relevance/README.md](logos/subtheories/relevance/README.md) | [Examples](logos/subtheories/relevance/examples.py) | [Notebooks](logos/subtheories/relevance/notebooks/README.md)
-
-- **Operators**: 1 (imported from constitutive)
-- **Examples**: 20 test cases
-- **Key Feature**: Relevance logic through fusion closure conditions
 
 ---
 

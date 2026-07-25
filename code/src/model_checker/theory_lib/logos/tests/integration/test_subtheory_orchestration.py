@@ -29,7 +29,7 @@ class TestSubtheoryOrchestration:
     @pytest.fixture
     def subtheory_names(self) -> List[str]:
         """Get list of all subtheory names."""
-        return ['extensional', 'modal', 'constitutive', 'counterfactual', 'relevance']
+        return ['extensional', 'modal', 'constitutive', 'counterfactual']
 
     @pytest.fixture
     def registry(self) -> LogosOperatorRegistry:

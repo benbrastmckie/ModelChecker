@@ -7,16 +7,20 @@
 ```
 constitutive/
 ├── README.md                          # This file - constitutive subtheory overview
+├── RELEVANCE.md                       # Relevance operator (⪯) theoretical exposition
+├── CITATION.md                        # Citation information
 ├── __init__.py                        # Module initialization and public API
-├── examples.py                        # Example formulas and test cases (33 examples)
+├── examples.py                        # Example formulas and test cases (54 examples,
+│                                       #   34 constitutive (CL_*) + 20 relevance (REL_*))
 ├── operators.py                       # Content relationship operator definitions (5 operators)
 ├── notebooks/                         # Interactive Jupyter notebooks (see notebooks/README.md)
 │   ├── README.md                      # Notebook documentation and usage guide
-│   └── constitutive_examples.ipynb    # Interactive examples with countermodels and theorems
+│   ├── constitutive_examples.ipynb    # Interactive examples with countermodels and theorems
+│   └── relevance_examples.ipynb       # Interactive relevance-operator examples
 └── tests/                             # Test suite (see tests/README.md)
     ├── README.md                      # Test documentation and methodology
     ├── __init__.py                    # Test module initialization
-    └── test_constitutive_examples.py  # Integration tests with 33 examples
+    └── test_constitutive_examples.py  # Integration tests with 54 examples
 ```
 
 ## Overview
@@ -25,15 +29,19 @@ The **Constitutive Subtheory** implements hyperintensional semantics for identit
 
 This subtheory serves as the foundation for hyperintensional reasoning within the Logos framework, implementing the semantic theory developed in Brast-McKie (2021) and providing essential operators for expressing content relationships while maintaining integration with modal, extensional, and counterfactual reasoning which are also included in the Logos.
 
+The relevance operator's examples and tests (`REL_CM_*`/`REL_TH_*`) were absorbed here from a
+former standalone `relevance` subtheory, which defined no operators of its own -- see
+[RELEVANCE.md](RELEVANCE.md) for its dedicated theoretical background.
+
 ## Subdirectories
 
 ### [notebooks/](notebooks/)
 
-Interactive Jupyter notebooks demonstrating constitutive operators through hands-on examples. Features countermodels showing invalid principles (e.g., non-identity of tautologies, strict implication vs grounding) and theorems proving valid relationships (e.g., ground-essence duality, essence absorption). Ideal for exploring hyperintensional distinctions interactively. See [notebooks/README.md](notebooks/README.md) for usage guide.
+Interactive Jupyter notebooks demonstrating constitutive operators through hands-on examples. Features countermodels showing invalid principles (e.g., non-identity of tautologies, strict implication vs grounding) and theorems proving valid relationships (e.g., ground-essence duality, essence absorption), plus a dedicated relevance-operator notebook. Ideal for exploring hyperintensional distinctions interactively. See [notebooks/README.md](notebooks/README.md) for usage guide.
 
 ### [tests/](tests/)
 
-Comprehensive test suite with 33 integration examples covering all five content operators. Includes countermodel examples (invalid intensional principles), theorem examples (valid hyperintensional principles), and exploration of reasoning that is sensitive to differences in subject-matter. Tests validate hyperintensional distinctions that intensional logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
+Comprehensive test suite with 54 integration examples covering all five content operators. Includes countermodel examples (invalid intensional principles), theorem examples (valid hyperintensional principles), and exploration of reasoning that is sensitive to differences in subject-matter. Tests validate hyperintensional distinctions that intensional logic cannot capture. See [tests/README.md](tests/README.md) for complete testing methodology.
 
 ## Documentation
 
@@ -53,7 +61,7 @@ Comprehensive test suite with 33 integration examples covering all five content 
 ### For Developers
 
 - **[Implementation Details](operators.py)** - Content operator definitions and truthmaker semantics
-- **[Examples Module](examples.py)** - Test cases and example formulas (33 examples)
+- **[Examples Module](examples.py)** - Test cases and example formulas (54 examples)
 - **[Integration Testing](tests/test_constitutive_examples.py)** - Complete test implementation
 
 ## Operator Reference
@@ -239,7 +247,7 @@ The constitutive subtheory provides five operators: four primitive operators tha
 
 ### Example Categories
 
-The constitutive subtheory includes **33 comprehensive examples** organized into two main categories, testing both primitive operators (identity, ground, essence, relevance) and the defined reduction operator:
+The constitutive subtheory includes **54 comprehensive examples** organized into two main categories, testing both primitive operators (identity, ground, essence, relevance) and the defined reduction operator:
 
 #### Countermodels (CL_CM_*): 14 Examples
 
@@ -293,7 +301,7 @@ model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/exampl
 
 #### Running Tests
 
-The constitutive subtheory includes **33 comprehensive test examples** covering all five operators through both countermodel and theorem examples. Tests validate hyperintensional content relationships and demonstrate where intensional principles fail.
+The constitutive subtheory includes **54 comprehensive test examples** covering all five operators through both countermodel and theorem examples. Tests validate hyperintensional content relationships and demonstrate where intensional principles fail.
 
 ```bash
 # Run all constitutive tests
@@ -625,7 +633,7 @@ operators = get_operators()
 from model_checker.theory_lib.logos.subtheories.constitutive.examples import (
     constitutive_cm_examples,     # 14 countermodel examples
     constitutive_th_examples,     # 19 theorem examples
-    constitutive_examples,        # Combined 33 examples
+    constitutive_examples,        # Combined 54 examples
 )
 ```
 
@@ -731,7 +739,7 @@ theory = logos.get_theory(subtheories=['constitutive'])  # Also loads extensiona
 
 ## Testing
 
-The constitutive subtheory includes **33 comprehensive test examples** covering all five content operators through countermodel examples (invalid intensional principles) and theorem examples (valid hyperintensional principles).
+The constitutive subtheory includes **54 comprehensive test examples** covering all five content operators through countermodel examples (invalid intensional principles) and theorem examples (valid hyperintensional principles).
 
 ```bash
 # Run all constitutive tests

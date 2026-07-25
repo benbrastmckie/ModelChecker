@@ -11,8 +11,12 @@ Example Categories:
    - Ground/essence operators and identity relations
 
 2. Constitutive Logic Theorems (CL_TH_*):
-   - Tests for valid constitutive arguments  
+   - Tests for valid constitutive arguments
    - Relationships between ground, essence and identity
+
+3. Relevance Logic Countermodels/Theorems (REL_CM_*/REL_TH_*):
+   - Absorbed from the former relevance subtheory, which contributed no
+     operators of its own -- RelevanceOperator (\\preceq) is defined here.
 
 Usage:
 ------
@@ -709,7 +713,394 @@ CL_TH_20_example = [
     CL_TH_20_settings,
 ]
 
+#####################
+### RELEVANCE (\\preceq)
+#####################
+#
+# Absorbed from the former relevance subtheory: RelevanceOperator (\\preceq) is
+# defined and registered in this module (see RelevanceOperator above), so its
+# examples live alongside the other constitutive-family examples rather than
+# in a separate subtheory that contributed zero operators of its own.
 
+# REL_CM_1: ANTECEDENT STRENGTHENING
+REL_CM_1_premises = []
+REL_CM_1_conclusions = ['((A \\wedge B) \\preceq A)']
+REL_CM_1_settings = {
+    'N': 4,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 2,
+    'expectation': True,
+}
+REL_CM_1_example = [
+    REL_CM_1_premises,
+    REL_CM_1_conclusions,
+    REL_CM_1_settings,
+]
+
+# REL_CM_2: ANTECEDENT WEAKENING
+REL_CM_2_premises = []
+REL_CM_2_conclusions = ['((A \\vee B) \\preceq A)']
+REL_CM_2_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_2_example = [
+    REL_CM_2_premises,
+    REL_CM_2_conclusions,
+    REL_CM_2_settings,
+]
+
+# REL_CM_3: RELEVANCE TRANSITIVITY
+REL_CM_3_premises = ['(A \\preceq B)', '(B \\preceq C)']
+REL_CM_3_conclusions = ['(A \\preceq C)']
+REL_CM_3_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_3_example = [
+    REL_CM_3_premises,
+    REL_CM_3_conclusions,
+    REL_CM_3_settings,
+]
+
+# REL_CM_4: RELEVANT IMPLICATION: GROUND
+REL_CM_4_premises = ['\\Box (A \\rightarrow B)', '(A \\preceq B)']
+REL_CM_4_conclusions = ['(A \\leq B)']
+REL_CM_4_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_4_example = [
+    REL_CM_4_premises,
+    REL_CM_4_conclusions,
+    REL_CM_4_settings,
+]
+
+# REL_CM_5: RELEVANT IMPLICATION: ESSENCE
+REL_CM_5_premises = ['\\Box (B \\rightarrow A)', '(A \\preceq B)']
+REL_CM_5_conclusions = ['(A \\sqsubseteq B)']
+REL_CM_5_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_5_example = [
+    REL_CM_5_premises,
+    REL_CM_5_conclusions,
+    REL_CM_5_settings,
+]
+
+# REL_CM_6: RELEVANT IMPLICATION: IDENTITY
+REL_CM_6_premises = ['\\Box (A \\leftrightarrow B)', '(A \\preceq B)', '(B \\preceq A)']
+REL_CM_6_conclusions = ['(A \\equiv B)']
+REL_CM_6_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_6_example = [
+    REL_CM_6_premises,
+    REL_CM_6_conclusions,
+    REL_CM_6_settings,
+]
+
+# REL_CM_7: STRICT IMPLICATION
+REL_CM_7_premises = ['\\Box (A \\rightarrow B)']
+REL_CM_7_conclusions = ['(A \\preceq B)']
+REL_CM_7_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_7_example = [
+    REL_CM_7_premises,
+    REL_CM_7_conclusions,
+    REL_CM_7_settings,
+]
+
+# REL_CM_8: REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+REL_CM_8_premises = []
+REL_CM_8_conclusions = ['(((A \\vee B) \\wedge (A \\vee C)) \\preceq (A \\vee (B \\wedge C)))']
+REL_CM_8_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_8_example = [
+    REL_CM_8_premises,
+    REL_CM_8_conclusions,
+    REL_CM_8_settings,
+]
+
+# REL_CM_9: REVERSE DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
+REL_CM_9_premises = []
+REL_CM_9_conclusions = ['(((A \\wedge B) \\vee (A \\wedge C)) \\preceq (A \\wedge (B \\vee C)))']
+REL_CM_9_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_9_example = [
+    REL_CM_9_premises,
+    REL_CM_9_conclusions,
+    REL_CM_9_settings,
+]
+
+# REL_CM_10: CONJUNCTION INTRODUCTION
+REL_CM_10_premises = ['(A \\preceq B)']
+REL_CM_10_conclusions = ['(A \\preceq (B \\wedge C))']
+REL_CM_10_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_10_example = [
+    REL_CM_10_premises,
+    REL_CM_10_conclusions,
+    REL_CM_10_settings,
+]
+
+# REL_CM_11: DISJUNCTION INTRODUCTION
+REL_CM_11_premises = ['(A \\preceq B)']
+REL_CM_11_conclusions = ['(A \\preceq (B \\vee C))']
+REL_CM_11_settings = {
+    'N': 3,
+    'contingent': True,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': True,
+}
+REL_CM_11_example = [
+    REL_CM_11_premises,
+    REL_CM_11_conclusions,
+    REL_CM_11_settings,
+]
+
+# REL_TH_1: RELEVANCE TO CONJUNCTION
+REL_TH_1_premises = ['(A \\preceq B)']
+REL_TH_1_conclusions = ['((A \\wedge B) \\leq B)']
+REL_TH_1_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_1_example = [
+    REL_TH_1_premises,
+    REL_TH_1_conclusions,
+    REL_TH_1_settings,
+]
+
+# REL_TH_2: RELEVANCE TO DISJUNCTION
+REL_TH_2_premises = ['(A \\preceq B)']
+REL_TH_2_conclusions = ['((A \\vee B) \\sqsubseteq B)']
+REL_TH_2_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_2_example = [
+    REL_TH_2_premises,
+    REL_TH_2_conclusions,
+    REL_TH_2_settings,
+]
+
+# REL_TH_3: CONJUNCTION TO RELEVANCE
+REL_TH_3_premises = ['((A \\wedge B) \\leq B)']
+REL_TH_3_conclusions = ['(A \\preceq B)']
+REL_TH_3_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_3_example = [
+    REL_TH_3_premises,
+    REL_TH_3_conclusions,
+    REL_TH_3_settings,
+]
+
+# REL_TH_4: DISJUNCTION TO RELEVANCE
+REL_TH_4_premises = ['((A \\vee B) \\sqsubseteq B)']
+REL_TH_4_conclusions = ['(A \\preceq B)']
+REL_TH_4_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_4_example = [
+    REL_TH_4_premises,
+    REL_TH_4_conclusions,
+    REL_TH_4_settings,
+]
+
+# REL_TH_5: CONJUNCTION INTRODUCTION
+REL_TH_5_premises = []
+REL_TH_5_conclusions = ['(A \\preceq (A \\wedge B))']
+REL_TH_5_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_5_example = [
+    REL_TH_5_premises,
+    REL_TH_5_conclusions,
+    REL_TH_5_settings,
+]
+
+# REL_TH_6: DISJUNCTION INTRODUCTION
+REL_TH_6_premises = []
+REL_TH_6_conclusions = ['(A \\preceq (A \\vee B))']
+REL_TH_6_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_6_example = [
+    REL_TH_6_premises,
+    REL_TH_6_conclusions,
+    REL_TH_6_settings,
+]
+
+# REL_TH_7: GROUNDING RELEVANCE
+REL_TH_7_premises = ['(A \\leq B)']
+REL_TH_7_conclusions = ['(A \\preceq B)']
+REL_TH_7_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_7_example = [
+    REL_TH_7_premises,
+    REL_TH_7_conclusions,
+    REL_TH_7_settings,
+]
+
+# REL_TH_8: ESSENCE RELEVANCE
+REL_TH_8_premises = ['(A \\sqsubseteq B)']
+REL_TH_8_conclusions = ['(A \\preceq B)']
+REL_TH_8_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_8_example = [
+    REL_TH_8_premises,
+    REL_TH_8_conclusions,
+    REL_TH_8_settings,
+]
+
+# REL_TH_9: IDENTITY RELEVANCE
+REL_TH_9_premises = ['(A \\equiv B)']
+REL_TH_9_conclusions = ['(A \\preceq B)']
+REL_TH_9_settings = {
+    'N': 3,
+    'contingent': False,
+    'non_null': True,
+    'non_empty': True,
+    'disjoint': False,
+    'max_time': 1,
+    'iterate': 1,
+    'expectation': False,
+}
+REL_TH_9_example = [
+    REL_TH_9_premises,
+    REL_TH_9_conclusions,
+    REL_TH_9_settings,
+]
 
 
 
@@ -755,8 +1146,43 @@ constitutive_th_examples = {
     "CL_TH_20": CL_TH_20_example, # ABSORPTION DUALITY
 }
 
-# Combined collection of all constitutive examples
-unit_tests = {**constitutive_cm_examples, **constitutive_th_examples}
+# Relevance countermodels and theorems, absorbed from the former relevance
+# subtheory (see the RELEVANCE section above). Kept in separate dicts, with
+# their REL_ prefixes intact, so their provenance stays legible.
+relevance_cm_examples = {
+    "REL_CM_1": REL_CM_1_example,
+    "REL_CM_2": REL_CM_2_example,
+    "REL_CM_3": REL_CM_3_example,
+    "REL_CM_4": REL_CM_4_example,
+    "REL_CM_5": REL_CM_5_example,
+    "REL_CM_6": REL_CM_6_example,
+    "REL_CM_7": REL_CM_7_example,
+    "REL_CM_8": REL_CM_8_example,
+    "REL_CM_9": REL_CM_9_example,
+    "REL_CM_10": REL_CM_10_example,
+    "REL_CM_11": REL_CM_11_example,
+}
+
+relevance_th_examples = {
+    "REL_TH_1": REL_TH_1_example,
+    "REL_TH_2": REL_TH_2_example,
+    "REL_TH_3": REL_TH_3_example,
+    "REL_TH_4": REL_TH_4_example,
+    "REL_TH_5": REL_TH_5_example,
+    "REL_TH_6": REL_TH_6_example,
+    "REL_TH_7": REL_TH_7_example,
+    "REL_TH_8": REL_TH_8_example,
+    "REL_TH_9": REL_TH_9_example,
+}
+
+# Combined collection of all constitutive examples (including the absorbed
+# relevance examples)
+unit_tests = {
+    **constitutive_cm_examples,
+    **constitutive_th_examples,
+    **relevance_cm_examples,
+    **relevance_th_examples,
+}
 
 # Default settings
 general_settings = {
@@ -828,7 +1254,31 @@ example_range = {
     # "CL_TH_18": CL_TH_18_example, # GROUNDING TRANSITIVITY
     # "CL_TH_19": CL_TH_19_example, # ESSENCE TRANSITIVITY
     # "CL_TH_20": CL_TH_20_example, # ABSORPTION DUALITY
-    
+
+    # RELEVANCE COUNTERMODELS (absorbed from the former relevance subtheory)
+    "REL_CM_1": REL_CM_1_example,  # ANTECEDENT STRENGTHENING
+    "REL_CM_2": REL_CM_2_example,  # ANTECEDENT WEAKENING
+    # "REL_CM_3": REL_CM_3_example,  # RELEVANCE TRANSITIVITY
+    # "REL_CM_4": REL_CM_4_example,  # RELEVANT IMPLICATION: GROUND
+    # "REL_CM_5": REL_CM_5_example,  # RELEVANT IMPLICATION: ESSENCE
+    # "REL_CM_6": REL_CM_6_example,  # RELEVANT IMPLICATION: IDENTITY
+    # "REL_CM_7": REL_CM_7_example,  # STRICT IMPLICATION
+    # "REL_CM_8": REL_CM_8_example,  # REVERSE DISTRIBUTION: DISJUNCTION OVER CONJUNCTION
+    # "REL_CM_9": REL_CM_9_example,  # REVERSE DISTRIBUTION: CONJUNCTION OVER DISJUNCTION
+    # "REL_CM_10": REL_CM_10_example,  # CONJUNCTION INTRODUCTION
+    # "REL_CM_11": REL_CM_11_example,  # DISJUNCTION INTRODUCTION
+
+    # RELEVANCE THEOREMS (absorbed from the former relevance subtheory)
+    "REL_TH_1": REL_TH_1_example,  # RELEVANCE TO CONJUNCTION
+    "REL_TH_2": REL_TH_2_example,  # RELEVANCE TO DISJUNCTION
+    # "REL_TH_3": REL_TH_3_example,  # CONJUNCTION TO RELEVANCE
+    # "REL_TH_4": REL_TH_4_example,  # DISJUNCTION TO RELEVANCE
+    # "REL_TH_5": REL_TH_5_example,  # CONJUNCTION INTRODUCTION
+    # "REL_TH_6": REL_TH_6_example,  # DISJUNCTION INTRODUCTION
+    # "REL_TH_7": REL_TH_7_example,  # GROUNDING RELEVANCE
+    # "REL_TH_8": REL_TH_8_example,  # ESSENCE RELEVANCE
+    # "REL_TH_9": REL_TH_9_example,  # IDENTITY RELEVANCE
+
 }
 
 # Make this module runnable from the command line

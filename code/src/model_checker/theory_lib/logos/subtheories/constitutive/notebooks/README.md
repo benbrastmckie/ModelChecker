@@ -15,6 +15,16 @@ This directory contains notebooks that explore **constitutive logic** - the stud
 - Strict implication vs grounding (countermodel) 
 - Essence-identity connection through conjunction (theorem)
 
+### relevance_examples.ipynb
+**Comprehensive introduction to the relevance operator** (⪯), absorbed here from the former
+standalone relevance subtheory, with interactive examples demonstrating:
+- Antecedent strengthening failure (countermodel)
+- Relevance to ground connection through conjunction (theorem)
+- Strict implication vs relevance (countermodel)
+- Grounding implies relevance (theorem)
+
+See [../RELEVANCE.md](../RELEVANCE.md) for the full theoretical background.
+
 ## Key Concepts
 
 ### Constitutive Operators

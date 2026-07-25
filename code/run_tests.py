@@ -324,7 +324,7 @@ class ExampleTestRunner:
         overall_exit_code = 0
         
         # Determine which subtheories to test
-        target_subtheories = subtheories if subtheories else ['modal', 'counterfactual', 'extensional', 'constitutive', 'relevance']
+        target_subtheories = subtheories if subtheories else ['modal', 'counterfactual', 'extensional', 'constitutive']
         
         for subtheory in target_subtheories:
             subtheory_test_dir = self.src_dir / "model_checker" / "theory_lib" / "logos" / "subtheories" / subtheory / "tests"
@@ -504,8 +504,9 @@ class UnitTestRunner:
                 'modal': '(modal or MOD_)',
                 'counterfactual': '(counterfactual or CF_)',
                 'extensional': '(extensional or EXT_)',
-                'constitutive': '(constitutive or CON_ or CL_)',
-                'relevance': '(relevance or REL_)',
+                # REL_ examples (the former relevance subtheory) were folded
+                # into constitutive/examples.py; matched here too.
+                'constitutive': '(constitutive or CON_ or CL_ or REL_)',
             }
 
             patterns = [subtheory_patterns[sub] for sub in subtheories if sub in subtheory_patterns]

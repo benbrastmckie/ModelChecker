@@ -15,7 +15,7 @@ Usage:
     python comparison.py --timeout 60            # Custom timeout per example
 
 Flags:
-    --curated, -c    Run curated 24 examples (4 per subtheory) for quick comparison
+    --curated, -c    Run curated 24 examples (4 per subtheory, 8 for constitutive) for quick comparison
     --format, -f     Output format: 'full' (default) or 'timing' (simplified)
     --table          Print ASCII table to console
     --verbose, -v    Show detailed per-example output
@@ -66,13 +66,18 @@ from unittest.mock import Mock
 
 
 # Curated example selection for focused comparison testing
-# 24 examples total: 4 per subtheory (2 theorems + 2 countermodels)
+# 24 examples total: 4 per subtheory (2 theorems + 2 countermodels), except
+# constitutive, which carries an extra 4 for the relevance operator (REL_*)
+# folded into it -- the former relevance subtheory contributed zero operators
+# of its own, so its curated examples moved here rather than being dropped.
 COMPARISON_EXAMPLES = {
     "extensional": ["EXT_TH_1", "EXT_TH_7", "EXT_CM_1", "EXT_CM_2"],
     "modal": ["MOD_TH_5", "MOD_TH_3", "MOD_CM_1", "MOD_CM_3"],
-    "constitutive": ["CL_TH_1", "CL_TH_16", "CL_CM_1", "CL_CM_7"],
+    "constitutive": [
+        "CL_TH_1", "CL_TH_16", "CL_CM_1", "CL_CM_7",
+        "REL_TH_1", "REL_TH_7", "REL_CM_1", "REL_CM_3",
+    ],
     "counterfactual": ["CF_TH_1", "CF_TH_2", "CF_CM_1", "CF_CM_7"],
-    "relevance": ["REL_TH_1", "REL_TH_7", "REL_CM_1", "REL_CM_3"],
 }
 
 
@@ -372,9 +377,9 @@ def get_required_subtheories(subtheory: str) -> List[str]:
     Different subtheories have different dependency requirements:
     - extensional: just extensional
     - modal: extensional + modal
-    - constitutive: extensional + modal + constitutive
+    - constitutive: extensional + modal + constitutive (includes the
+      relevance operator, folded into constitutive)
     - counterfactual: extensional + modal + counterfactual
-    - relevance: extensional + modal + constitutive + relevance
 
     Args:
         subtheory: Name of the target subtheory
@@ -387,7 +392,6 @@ def get_required_subtheories(subtheory: str) -> List[str]:
         "modal": ["extensional", "modal"],
         "constitutive": ["extensional", "modal", "constitutive"],
         "counterfactual": ["extensional", "modal", "counterfactual"],
-        "relevance": ["extensional", "modal", "constitutive", "relevance"],
     }
     return subtheory_deps.get(subtheory, ["extensional", subtheory])
 
@@ -458,7 +462,8 @@ def get_curated_examples(
 ) -> List[tuple[str, str, List[Any]]]:
     """Get curated examples for focused comparison testing.
 
-    Returns a subset of 24 examples (4 per subtheory: 2 theorems + 2 countermodels)
+    Returns a subset of 24 examples (4 per subtheory: 2 theorems + 2 countermodels;
+    constitutive carries 8, folding in the relevance operator's 4)
     selected to provide coverage across all operators while keeping runtime low.
 
     Args:
@@ -892,7 +897,6 @@ def parse_args() -> argparse.Namespace:
             "modal",
             "constitutive",
             "counterfactual",
-            "relevance",
         ],
         help="Run only examples from this subtheory",
     )
@@ -913,7 +917,7 @@ def parse_args() -> argparse.Namespace:
         "--curated",
         "-c",
         action="store_true",
-        help="Run only curated 24 examples (4 per subtheory) instead of all examples",
+        help="Run only curated 24 examples (4 per subtheory, 8 for constitutive) instead of all examples",
     )
     parser.add_argument(
         "--format",

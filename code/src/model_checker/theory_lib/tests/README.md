@@ -70,9 +70,8 @@ For tests that focus on individual semantic theories and their logical propertie
 **Subtheory Tests:**
 - [logos/subtheories/extensional/tests/README.md](../logos/subtheories/extensional/tests/README.md) - Extensional operators
 - [logos/subtheories/modal/tests/README.md](../logos/subtheories/modal/tests/README.md) - Necessity and possibility operators  
-- [logos/subtheories/constitutive/tests/README.md](../logos/subtheories/constitutive/tests/README.md) - Content relations (ground, essence, identity)
+- [logos/subtheories/constitutive/tests/README.md](../logos/subtheories/constitutive/tests/README.md) - Content relations (ground, essence, identity, relevance)
 - [logos/subtheories/counterfactual/tests/README.md](../logos/subtheories/counterfactual/tests/README.md) - Counterfactual conditionals
-- [logos/subtheories/relevance/tests/README.md](../logos/subtheories/relevance/tests/README.md) - Relevance logic
 
 ### Other Theory Tests
 

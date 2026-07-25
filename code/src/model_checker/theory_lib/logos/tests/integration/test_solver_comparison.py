@@ -90,16 +90,15 @@ def get_required_subtheories(subtheory: str) -> List[str]:
     Different subtheories have different dependency requirements:
     - extensional: just extensional
     - modal: extensional + modal
-    - constitutive: extensional + modal + constitutive
+    - constitutive: extensional + modal + constitutive (includes the
+      relevance operator, folded into constitutive)
     - counterfactual: extensional + modal + counterfactual
-    - relevance: extensional + modal + constitutive + relevance
     """
     subtheory_deps = {
         'extensional': ['extensional'],
         'modal': ['extensional', 'modal'],
         'constitutive': ['extensional', 'modal', 'constitutive'],
         'counterfactual': ['extensional', 'modal', 'counterfactual'],
-        'relevance': ['extensional', 'modal', 'constitutive', 'relevance'],
     }
     return subtheory_deps.get(subtheory, ['extensional', subtheory])
 

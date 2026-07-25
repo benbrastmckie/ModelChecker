@@ -70,9 +70,8 @@ tests/
 **Coverage**: Systematic testing of all 20+ operators in the Logos theory
 - **Extensional**: ¬, ∧, ∨, →, ↔, ⊤, ⊥ (7 operators)
 - **Modal**: □, ◇, CFBox, CFDiamond (4 operators)
-- **Constitutive**: ≡, ≤, ⊑, ≼, reduction (5 operators)
+- **Constitutive**: ≡, ≤, ⊑, ≼, reduction (5 operators, including relevance)
 - **Counterfactual**: □→, ◇→, imposition, could (4 operators)
-- **Relevance**: All relevance-sensitive operators
 
 **Key Test Areas**:
 - **Operator Construction**: Proper instantiation and configuration
@@ -261,7 +260,6 @@ For related testing documentation:
   - [../subtheories/modal/tests/README.md](../subtheories/modal/tests/README.md)
   - [../subtheories/constitutive/tests/README.md](../subtheories/constitutive/tests/README.md)
   - [../subtheories/counterfactual/tests/README.md](../subtheories/counterfactual/tests/README.md)
-  - [../subtheories/relevance/tests/README.md](../subtheories/relevance/tests/README.md)
 
 ## Contributing to Tests
 

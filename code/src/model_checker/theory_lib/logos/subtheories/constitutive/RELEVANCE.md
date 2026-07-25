@@ -1,39 +1,42 @@
-# Relevance Subtheory: Content Relevance Operator
+# Relevance: Content Relevance Operator
 
 [← Back to Subtheories](../README.md) | [Tests →](tests/README.md) | [Examples →](examples.py)
 
-## Directory Structure
-
-```
-relevance/
-├── README.md                         # This file - relevance subtheory overview
-├── __init__.py                       # Module initialization and public API
-├── examples.py                       # Example formulas and test cases (20 examples)
-├── operators.py                      # Relevance operator import (1 operator)
-├── notebooks/                        # Interactive Jupyter notebooks (see notebooks/README.md)
-│   ├── README.md                     # Notebook documentation and usage guide
-│   └── relevance_examples.ipynb      # Interactive examples with countermodels and theorems
-└── tests/                            # Test suite (see tests/README.md)
-    ├── README.md                     # Test documentation and methodology
-    ├── __init__.py                   # Test module initialization
-    └── test_relevance_examples.py    # Integration tests with 20 examples
-```
+> **Note on provenance**: this document was formerly `relevance/README.md`, the overview of a
+> standalone `relevance` subtheory. That subtheory contributed no operators of its own -- its
+> sole class, `RelevanceOperator` (⪯), was always defined in `constitutive/operators.py` -- so it
+> was folded into the constitutive subtheory rather than kept as a separate, operator-free
+> directory. This file is preserved here as the relevance operator's theoretical exposition; its
+> 20 examples (`REL_CM_*`/`REL_TH_*`) now live in `constitutive/examples.py` and its tests in
+> `constitutive/tests/test_constitutive_examples.py`.
 
 ## Overview
 
-The **Relevance Subtheory** implements hyperintensional semantics for the relevance operator (⪯). All operators follow hyperintensional truthmaker semantics based on verifier and falsifier sets, allowing fine-grained distinctions between propositional contents that goes beyond extensional equivalence or necessary equivalence.
+The **relevance operator** (⪯) implements hyperintensional semantics for content relevance,
+following the same truthmaker semantics based on verifier and falsifier sets as the rest of the
+constitutive subtheory -- allowing fine-grained distinctions between propositional contents that
+go beyond extensional equivalence or necessary equivalence.
 
-Within the Logos framework, the relevance subtheory provides specialized exploration of relevance logic through the relevance operator, which is imported from the constitutive subtheory where it is defined alongside other content relationship operators. The relevance relation captures content relationships between propositions through fusion closure conditions on verifiers and falsifiers, enabling formal analysis of when propositions are appropriately connected by content. This subtheory's 20 examples demonstrate valid and invalid relevance principles while maintaining integration with all other hyperintensional operators.
+The relevance operator, `RelevanceOperator` (`\\preceq`), is defined and registered directly in
+`constitutive/operators.py` alongside the other content relationship operators (ground, essence,
+identity). The relevance relation captures content relationships between propositions through
+fusion closure conditions on verifiers and falsifiers, enabling formal analysis of when
+propositions are appropriately connected by content. The 20 examples described below (11
+countermodels, 9 theorems) demonstrate valid and invalid relevance principles while maintaining
+integration with all other hyperintensional operators.
 
-## Subdirectories
+## Related Material
 
-### [notebooks/](notebooks/)
-
-Interactive Jupyter notebooks demonstrating the relevance operator through hands-on examples. Features countermodels showing invalid principles (e.g., antecedent strengthening failure, strict implication vs relevance) and theorems proving valid relationships (e.g., relevance to ground connection, grounding implies relevance). Ideal for exploring how relevance avoids paradoxes of classical implication. See [notebooks/README.md](notebooks/README.md) for usage guide.
-
-### [tests/](tests/)
-
-Comprehensive test suite with 20 integration examples focusing exclusively on the relevance operator. Includes countermodel examples (invalid relevance principles like antecedent strengthening, transitivity failure) and theorem examples (valid relevance principles like connections to grounding and essence). Tests demonstrate the hyperintensional nature of relevance logic and validate fusion closure conditions. See [tests/README.md](tests/README.md) for complete testing methodology.
+- [Interactive Notebook](notebooks/relevance_examples.ipynb) -- hands-on exploration of the
+  relevance operator. Features countermodels showing invalid principles (e.g., antecedent
+  strengthening failure, strict implication vs relevance) and theorems proving valid
+  relationships (e.g., relevance to ground connection, grounding implies relevance). See
+  [notebooks/README.md](notebooks/README.md) for the full notebook index.
+- [Tests](tests/README.md) -- the 20 relevance examples run as part of the constitutive
+  subtheory's integration test suite. Includes countermodel examples (invalid relevance
+  principles like antecedent strengthening, transitivity failure) and theorem examples (valid
+  relevance principles like connections to grounding and essence). Tests demonstrate the
+  hyperintensional nature of relevance logic and validate fusion closure conditions.
 
 ## Documentation
 
@@ -52,16 +55,15 @@ Comprehensive test suite with 20 integration examples focusing exclusively on th
 
 ### For Developers
 
-- **[Implementation Details](#implementation-note)** - Relevance operator import structure
-- **[Examples Module](examples.py)** - Test cases and example formulas (20 examples)
-- **[Integration Testing](tests/test_relevance_examples.py)** - Complete test implementation
+- **[Implementation Details](#implementation-note)** - Relevance operator definition
+- **[Examples Module](examples.py)** - Test cases and example formulas (20 relevance examples,
+  alongside the constitutive subtheory's own)
+- **[Integration Testing](tests/test_constitutive_examples.py)** - Complete test implementation
 
 ## Operator Reference
 
-The relevance subtheory provides one operator imported from the constitutive subtheory:
-
-**Imported Operator:**
-- Relevance (⪯) - Content relevance relation
+**Operator:**
+- Relevance (⪯) - Content relevance relation, defined in `operators.py`
 
 ### Relevance
 
@@ -106,7 +108,7 @@ The relevance subtheory provides one operator imported from the constitutive sub
 
 ### Example Categories
 
-The relevance subtheory includes **20 comprehensive examples** organized into two main categories:
+The relevance operator has **20 comprehensive examples** organized into two main categories:
 
 #### Countermodels (REL_CM_*): 11 Examples
 
@@ -143,26 +145,26 @@ Tests for **valid** relevance arguments, confirming valid principles:
 #### Command Line Execution
 
 ```bash
-# Run all examples
-model-checker src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
+# Run all constitutive examples (including the relevance examples)
+model-checker src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
 
 # Run with debugging output
-./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/relevance/examples.py
+./dev_cli.py -p -z src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py
 ```
 
 #### Running Tests
 
-The relevance subtheory includes **20 comprehensive test examples** focusing exclusively on relevance logic principles through countermodel and theorem examples. Tests validate content-based reasoning and demonstrate where classical logic fails in relevance-sensitive contexts.
+The relevance operator has **20 comprehensive test examples** focusing exclusively on relevance logic principles through countermodel and theorem examples, run as part of the constitutive subtheory's test suite. Tests validate content-based reasoning and demonstrate where classical logic fails in relevance-sensitive contexts.
 
 ```bash
-# Run all relevance tests
-pytest src/model_checker/theory_lib/logos/subtheories/relevance/tests/
+# Run all constitutive tests, including the relevance examples
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/
 
-# Run specific example
-pytest src/model_checker/theory_lib/logos/subtheories/relevance/tests/test_relevance_examples.py -k "REL_CM_1"
+# Run just the relevance examples
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/ -k "REL_CM_1"
 
 # Run via project test runner
-python test_theories.py --theories logos --relevance --examples
+python test_theories.py --theories logos --constitutive --examples
 ```
 
 **For detailed test documentation, examples, and debugging guidance, see [tests/README.md](tests/README.md)**
@@ -197,7 +199,7 @@ REL_CM_1_example = [
 
 ### Theoretical Background
 
-The relevance subtheory implements relevance logic within the hyperintensional truthmaker semantic framework. The relevance relation captures content connections between propositions through fusion closure conditions.
+The relevance operator implements relevance logic within the hyperintensional truthmaker semantic framework. The relevance relation captures content connections between propositions through fusion closure conditions.
 
 **Key Features**:
 
@@ -361,13 +363,13 @@ def extended_falsify(self, state, leftarg, rightarg, eval_point):
 
 ### Dependencies
 
-The relevance subtheory depends on:
-- **Constitutive subtheory**: Imports the `RelevanceOperator` from constitutive operators
+The relevance operator depends on:
+- **Constitutive subtheory**: `RelevanceOperator` is defined directly in constitutive operators
 - **Extensional subtheory**: Required by constitutive for basic logical operators
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(subtheories=['relevance'])  # Loads constitutive and extensional
+theory = logos.get_theory(subtheories=['constitutive'])  # Loads extensional too
 ```
 
 ### Usage with Other Subtheories
@@ -375,7 +377,7 @@ theory = logos.get_theory(subtheories=['relevance'])  # Loads constitutive and e
 ```python
 # Combined with modal logic
 logos_registry = LogosOperatorRegistry()
-logos_registry.load_subtheories(['relevance', 'modal'])
+logos_registry.load_subtheories(['constitutive', 'modal'])
 
 # REL_MOD_1: RELEVANCE IN MODAL CONTEXTS
 REL_MOD_1_premises = ["\\Box (A \\rightarrow B)"]
@@ -398,7 +400,7 @@ REL_MOD_1_example = [
 
 # Combined with counterfactual logic
 logos_registry2 = LogosOperatorRegistry()
-logos_registry2.load_subtheories(['relevance', 'counterfactual'])
+logos_registry2.load_subtheories(['constitutive', 'counterfactual'])
 
 # REL_CF_1: RELEVANCE AND COUNTERFACTUALS
 REL_CF_1_premises = ["(A \\preceq B)", "(B \\boxright C)"]
@@ -457,9 +459,16 @@ from model_checker.theory_lib.logos.subtheories.relevance.operators import (
 
 ### Implementation Note
 
-The relevance operator is implemented in the constitutive subtheory alongside other content relationship operators (ground, essence, identity). The relevance subtheory imports this operator to provide focused exploration of relevance logic principles.
+The relevance operator is implemented directly in the constitutive subtheory alongside the other
+content relationship operators (ground, essence, identity), rather than in a separate subtheory
+that would import it. A prior design kept relevance as its own subtheory whose `operators.py`
+merely re-exported `RelevanceOperator` from constitutive and contributed zero operators of its
+own; that indirection was removed, and this document -- along with the relevance examples and
+tests -- was absorbed into constitutive directly.
 
-This design choice reflects the theoretical connections between relevance and other hyperintensional relations while allowing specialized study of relevance logic through dedicated examples and tests.
+This design reflects the theoretical connections between relevance and the other hyperintensional
+relations while keeping dedicated examples and tests (`REL_CM_*`/`REL_TH_*`) available for
+focused study of relevance logic principles.
 
 ### Fusion Closure Conditions
 
@@ -472,7 +481,7 @@ These conditions capture the intuition that A is relevant to B when A's content 
 
 ### Relevance Logic Applications
 
-The relevance subtheory is particularly useful for:
+The relevance operator is particularly useful for:
 
 - Analyzing relationships between hyperintensional propositions
 - Testing logical principles in relevance logic
@@ -481,29 +490,29 @@ The relevance subtheory is particularly useful for:
 
 ## Dependencies
 
-The relevance subtheory depends on the **constitutive subtheory** for:
-
-- `RelevanceOperator`: The core relevance operator implementation
-- Indirect dependency on extensional operators through constitutive
+`RelevanceOperator` is defined directly in the constitutive subtheory, which in turn depends on
+the extensional subtheory for its foundation.
 
 ```python
 # Automatic dependency loading
-theory = logos.get_theory(subtheories=['relevance'])  # Also loads constitutive and extensional
+theory = logos.get_theory(subtheories=['constitutive'])  # Also loads extensional
 ```
 
 ## Testing
 
-The relevance subtheory includes **20 comprehensive test examples** focusing exclusively on relevance logic principles through countermodel examples (invalid relevance inferences) and theorem examples (valid relevance principles).
+The relevance operator has **20 comprehensive test examples** (11 countermodels, 9 theorems)
+focusing exclusively on relevance logic principles, run as part of the constitutive subtheory's
+integration test suite.
 
 ```bash
-# Run all relevance tests
-pytest src/model_checker/theory_lib/logos/subtheories/relevance/tests/
+# Run all constitutive tests, including the relevance examples
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/
 
-# Run specific example
-pytest src/model_checker/theory_lib/logos/subtheories/relevance/tests/test_relevance_examples.py -k "REL_CM_1"
+# Run just the relevance examples
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/ -k "REL_CM_1"
 
 # Run via project test runner
-python test_theories.py --theories logos --relevance --examples
+python test_theories.py --theories logos --constitutive --examples
 ```
 
 ## References
@@ -514,7 +523,8 @@ python test_theories.py --theories logos --relevance --examples
 
 ### Related Resources
 
-- **[Constitutive Subtheory](../constitutive/)** - Where the relevance operator is defined
+- **[Constitutive Subtheory](README.md)** - Where the relevance operator is defined, alongside
+  ground, essence, and identity
 - **[Extensional Subtheory](../extensional/)** - Extensional foundation
 - **[Logos Theory](../../README.md)** - Complete hyperintensional framework documentation
 

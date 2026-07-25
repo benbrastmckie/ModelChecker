@@ -35,7 +35,6 @@ class LogosOperatorRegistry:
             'modal': ['extensional', 'counterfactual'],
             'counterfactual': ['extensional'],
             'constitutive': [],
-            'relevance': ['constitutive'],
             'extensional': [],
         }
     

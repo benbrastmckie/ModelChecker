@@ -78,14 +78,13 @@ The ModelChecker is a theory-agnostic framework that allows researchers to imple
 
 ### Logos: A Formal Language of Thought
 
-The semantics for the **[Logos](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/semantic.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions with verifier and falsifier sets of states. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
+The semantics for the **[Logos](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/semantic/core.py)** provides a bilateral semantics for a formal language of thought, implementing hyperintensional distinctions with verifier and falsifier sets of states. This approach enables the framework to distinguish between propositions that are necessarily equivalent but differ in content which is critical for modeling fine-grained reasoning about counterfactuals and explanatory operators.
 
 The Logos currently includes operators organized into modular subtheories:
 - **[Extensional operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/extensional/README.md)**: Classical logical connectives (`∧`, `∨`, `¬`, `→`, `↔`, `⊤`, `⊥`)
 - **[Modal operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/modal/README.md)**: Necessity and possibility (`□`, `◇`)
 - **[Counterfactual operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/counterfactual/README.md)**: Would and might counterfactuals (`□→`, `◇→`)
-- **[Constitutive operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md)**: Grounding, essence, and identity (`≤`, `⊑`, `≡`)
-- **[Relevance operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/relevance/README.md)**: Content connection and relevance (`≼`)
+- **[Constitutive operators](https://github.com/benbrastmckie/ModelChecker/blob/master/code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md)**: Grounding, essence, identity, and relevance (`≤`, `⊑`, `≡`, `≼`)
 
 The modular architecture allows users to load only the operators needed for their analysis, with automatic dependency resolution ensuring semantic coherence. Additional operators are actively being developed, expanding the theory's expressiveness for new applications in philosophy, logic, linguistics, and AI reasoning.
 
@@ -336,10 +335,10 @@ To run specific examples from a theory:
 
 ### Logos: Hyperintensional Truthmaker Semantics
 
-- 18 operators across 5 modular subtheories
+- 18 operators across 4 modular subtheories
 - Sensitive to differences in subject-matter via verifier/falsifier sets
 - Distinguishes necessarily equivalent propositions
-- Supports modal, counterfactual, constitutive, and relevance reasoning
+- Supports modal, counterfactual, and constitutive reasoning (including relevance)
 
 ### Exclusion: Unilateral Semantics
 

@@ -8,14 +8,14 @@
 tests/
 ├── README.md                       # This file - constitutive test documentation
 ├── __init__.py                     # Test module initialization
-└── test_constitutive_examples.py   # Integration tests with 33 comprehensive examples
+└── test_constitutive_examples.py   # Integration tests with 54 comprehensive examples
 ```
 
 ## Overview
 
 This directory contains comprehensive tests for the Constitutive Subtheory of the Logos theory, covering all five constitutive operators: identity (`\\equiv`), ground (`\\leq`), essence (`\\sqsubseteq`), relevance (`\\preceq`), and reduction (`\\Rightarrow`).
 
-The test suite validates hyperintensional content relationships through **33 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid hyperintensional principles). These tests demonstrate the key distinction between classical extensional logic and hyperintensional content-sensitive logic.
+The test suite validates hyperintensional content relationships through **54 integration examples** organized into countermodel examples (invalid classical principles) and theorem examples (valid hyperintensional principles) -- 34 constitutive examples (`CL_*`) plus 20 relevance-operator examples (`REL_*`, absorbed from a former standalone `relevance` subtheory that defined no operators of its own; see [../RELEVANCE.md](../RELEVANCE.md)). These tests demonstrate the key distinction between classical extensional logic and hyperintensional content-sensitive logic.
 
 All tests use the ModelChecker framework's constraint-based validation approach with truthmaker semantics, verifying content relationships based on verifier and falsifier sets rather than mere truth conditions.
 
@@ -25,10 +25,12 @@ All tests use the ModelChecker framework's constraint-based validation approach 
 
 **Purpose**: Integration tests that validate constitutive operators using realistic logical examples
 
-**Coverage**: 33 comprehensive examples testing constitutive relationships
+**Coverage**: 54 comprehensive examples testing constitutive relationships
 
 - **14 Countermodel Examples** (CL_CM): Invalid arguments demonstrating where classical principles fail
-- **19 Theorem Examples** (CL_TH): Valid arguments confirming hyperintensional principles
+- **20 Theorem Examples** (CL_TH): Valid arguments confirming hyperintensional principles
+- **11 Relevance Countermodel Examples** (REL_CM): Invalid relevance-logic principles
+- **9 Relevance Theorem Examples** (REL_TH): Valid relevance-logic principles
 
 **Test Framework**: Uses parametrized testing with pytest to run all examples systematically
 
@@ -102,6 +104,19 @@ These tests validate that hyperintensional principles are **valid**:
 | CL_TH_14-15 | Strict Implication                 | Ground/essence imply strict implication |
 | CL_TH_16-17 | Anti-symmetry Principles           | Ground/essence anti-symmetry            |
 | CL_TH_18-19 | Transitivity Principles            | Transitivity of content relations       |
+
+### Relevance Examples (REL_CM / REL_TH)
+
+Absorbed from a former standalone `relevance` subtheory (see [../RELEVANCE.md](../RELEVANCE.md)
+for the full theoretical background). 11 countermodels test invalid relevance principles
+(antecedent strengthening/weakening, transitivity, strict implication vs. relevance,
+distribution); 9 theorems test valid ones (relevance's connections to ground, essence, and
+identity).
+
+```bash
+# Run just the relevance examples
+pytest src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py -k "REL_"
+```
 
 ## Test Structure
 

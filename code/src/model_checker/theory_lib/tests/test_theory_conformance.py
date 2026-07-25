@@ -111,12 +111,6 @@ MISSING_EXAMPLES_ATTR_XFAIL_REASON = {}
 # assigned after unit_tests is final, near semantic_theories).
 DUPLICATE_EXAMPLE_RANGE_XFAIL_REASON = {}
 
-RELEVANCE_EMPTY_OPERATORS_XFAIL_REASON = (
-    "relevance.operators.py's get_operators() returns {} -- the \\preceq operator it "
-    "documents actually lives in constitutive/operators.py; relevance contributes zero "
-    "operators of its own"
-)
-
 
 def _xfail_params(xfail_reasons):
     """Build pytest.param list over AVAILABLE_THEORIES, marking known-gap theories xfail."""
@@ -347,21 +341,7 @@ class TestSubtheoryConformance:
         ]
         assert not missing, f"subtheory '{subtheory}' is missing required item(s): {missing}"
 
-    @pytest.mark.parametrize(
-        'subtheory',
-        [
-            pytest.param(
-                s,
-                marks=pytest.mark.xfail(
-                    strict=True, reason=RELEVANCE_EMPTY_OPERATORS_XFAIL_REASON
-                ),
-                id=s,
-            )
-            if s == 'relevance'
-            else pytest.param(s, id=s)
-            for s in AVAILABLE_SUBTHEORIES
-        ],
-    )
+    @pytest.mark.parametrize('subtheory', AVAILABLE_SUBTHEORIES)
     def test_get_operators_non_empty(self, subtheory):
         module = __import__(
             f'model_checker.theory_lib.logos.subtheories.{subtheory}.operators',

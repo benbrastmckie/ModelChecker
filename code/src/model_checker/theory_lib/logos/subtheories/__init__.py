@@ -21,15 +21,13 @@ AVAILABLE_SUBTHEORIES = [
     'modal',
     'constitutive',
     'counterfactual',
-    'relevance',
 ]
 
 SUBTHEORY_DESCRIPTIONS = {
     'extensional': 'Extensional operators (¬,∧,∨,→,↔,⊤,⊥)',
     'modal': 'Necessity and possibility operators (□,◇)',
-    'constitutive': 'Ground, essence, and identity operators (≡,≤,⊑,≼)',
+    'constitutive': 'Ground, essence, identity, and relevance operators (≡,≤,⊑,≼)',
     'counterfactual': 'Counterfactual conditional operators (□→,◇→)',
-    'relevance': 'Content-sensitive relevance operators',
 }
 
 def get_subtheory_module(name):
