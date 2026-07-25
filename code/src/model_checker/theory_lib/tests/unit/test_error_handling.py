@@ -57,7 +57,14 @@ class TestTheoryErrorHierarchy:
 
 
 class TestWitnessErrorHandling:
-    """Test witness theory (exclusion) error handling."""
+    """Test witness error handling.
+
+    The witness error hierarchy (WitnessError and its subclasses) is shared by
+    the exclusion and bimodal theories, both of which raise these classes from
+    their own witness-registry and witness-constraint modules. It carries no
+    default theory tag; callers that know their theory pass it explicitly via
+    the `theory=` keyword.
+    """
 
     def test_witness_error_construction(self):
         """Test that WitnessError (the base witness exception) can be constructed
@@ -75,14 +82,28 @@ class TestWitnessErrorHandling:
         assert error.context['operation'] == "registration"
 
     def test_witness_registry_error_basic(self):
-        """Test basic WitnessRegistryError."""
-        error = WitnessRegistryError("Registry operation failed")
+        """Test WitnessRegistryError constructed with an explicit theory.
+
+        The class itself deliberately sets no theory default: it is shared by
+        the exclusion and bimodal theories, both of which raise it from their
+        own witness-registry modules (exclusion's `registry.py` and bimodal's
+        `witness_registry.py`), so a baked-in theory label would mislabel one
+        of them. Callers that know their theory pass it in.
+        """
+        error = WitnessRegistryError("Registry operation failed", theory="exclusion")
         assert error.theory == "exclusion"
         assert "Registry operation failed" in str(error)
 
     def test_witness_constraint_error_basic(self):
-        """Test basic WitnessConstraintError."""
-        error = WitnessConstraintError("Constraint generation failed")
+        """Test WitnessConstraintError constructed with an explicit theory.
+
+        The class itself deliberately sets no theory default: it is shared by
+        the exclusion and bimodal theories, both of which raise it from their
+        own witness-constraint modules (exclusion's `constraints.py` and
+        bimodal's `witness_constraints.py`), so a baked-in theory label would
+        mislabel one of them. Callers that know their theory pass it in.
+        """
+        error = WitnessConstraintError("Constraint generation failed", theory="exclusion")
         assert error.theory == "exclusion"
         assert "Constraint generation failed" in str(error)
 

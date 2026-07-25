@@ -1,0 +1,19 @@
+{
+  "status": "implemented",
+  "summary": "Fixed the two failing witness error .theory tests by constructing with an explicit theory= kwarg, matching the theory-agnostic contract already in errors.py.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "Task 128 implementation complete; ready for PR/completion workflow.",
+  "artifacts": [
+    {
+      "path": "specs/128_fix_witness_error_theory_attribute/summaries/01_fix-witness-theory-tests-summary.md",
+      "type": "summary",
+      "summary": "Implementation summary documenting the test fix, verification output for all 3 phases, and the theory-agnostic contract decision."
+    }
+  ],
+  "phases_completed": 3,
+  "phases_total": 3,
+  "modified_files": [
+    "code/src/model_checker/theory_lib/tests/unit/test_error_handling.py"
+  ]
+}
