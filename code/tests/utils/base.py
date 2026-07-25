@@ -28,14 +28,14 @@ class BaseTheoryTest(ABC):
     
     def test_theory_loads(self):
         """Test theory can be loaded."""
-        from model_checker.utils.api import get_theory
+        from model_checker.api import get_theory
         
         theory = get_theory(self.get_theory_name())
         assert theory is not None, f"Theory '{self.get_theory_name()}' could not be loaded"
     
     def test_theory_has_required_components(self):
         """Test theory has all required components."""
-        from model_checker.utils.api import get_theory
+        from model_checker.api import get_theory
         from tests.utils.assertions import assert_theory_components
         
         theory = get_theory(self.get_theory_name())
@@ -43,7 +43,7 @@ class BaseTheoryTest(ABC):
     
     def test_theory_semantics(self):
         """Test theory semantics has required attributes."""
-        from model_checker.utils.api import get_theory
+        from model_checker.api import get_theory
         
         theory = get_theory(self.get_theory_name())
         semantics = theory['semantics']
@@ -58,7 +58,7 @@ class BaseTheoryTest(ABC):
     
     def test_theory_operators(self):
         """Test theory operators are properly defined."""
-        from model_checker.utils.api import get_theory
+        from model_checker.api import get_theory
         
         theory = get_theory(self.get_theory_name())
         operators = theory['operators']

@@ -58,7 +58,7 @@ def assert_theory_valid(theory_name: str) -> None:
     Raises:
         AssertionError: If theory is invalid or missing components
     """
-    from model_checker.utils.api import get_theory
+    from model_checker.api import get_theory
     
     theory = get_theory(theory_name)
     assert theory is not None, f"Theory '{theory_name}' could not be loaded"
@@ -111,7 +111,7 @@ def capture_model_output(example_data: List, theory_name: str = 'bimodal',
     
     # Import required components
     from model_checker.builder import BuildModule
-    from model_checker.utils.api import get_theory
+    from model_checker.api import get_theory
     
     # Get theory
     theory = get_theory(theory_name)

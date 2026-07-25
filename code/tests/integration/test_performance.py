@@ -305,7 +305,10 @@ class TestCachingPerformance:
     
     def test_theory_loading_performance(self):
         """Test theory loading doesn't degrade."""
-        from model_checker.utils.api import get_theory
+        # model_checker.api.get_theory (not utils.api.get_theory) is the theory-aware
+        # entry point that auto-loads semantic_theories by name; utils.api.get_theory is
+        # a pure lookup requiring the caller to supply an already-loaded mapping.
+        from model_checker.api import get_theory
         
         # First load
         start = time.time()
