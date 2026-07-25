@@ -309,18 +309,23 @@ class TestBuildExampleIntegration(unittest.TestCase):
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
     
-    def test_logos_extensional_theory(self):
-        """Test BuildExample with logos extensional theory."""
+    def test_build_example_bimodal_theory_countermodel(self):
+        """Test BuildExample with the bimodal theory, asserting a countermodel is found.
+
+        `get_theory(config=None)` in the bimodal theory accepts but entirely ignores its
+        `config` argument, so it always returns the full bimodal theory regardless of the
+        value supplied -- no operator-restricted fragment is being loaded here.
+        """
         content = """
 from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
-semantic_theories = {"Extensional": theory}
-# Simple test without complex operators
+semantic_theories = {"Bimodal": theory}
+# Simple premise/conclusion pair over the full bimodal operator set
 example_range = {"SIMPLE": [["A"], ["B"], {"N": 2}]}
 general_settings = {}
 """
-        test_file = os.path.join(self.temp_dir, "logos_test.py")
+        test_file = os.path.join(self.temp_dir, "bimodal_test.py")
         with open(test_file, 'w') as f:
             f.write(content)
         
@@ -339,15 +344,16 @@ general_settings = {}
         )
         
         build_module = BuildModule(flags)
-        
+
         # Run the example
-        theory = build_module.semantic_theories["Extensional"]
+        theory = build_module.semantic_theories["Bimodal"]
         example = list(build_module.example_range.values())[0]
-        
-        build_example = BuildExample(build_module, theory, example, "Extensional")
+
+        build_example = BuildExample(build_module, theory, example, "Bimodal")
         result = build_example.get_result()
-        
-        # Simple example A premises, B conclusion - should find a countermodel
+
+        # Simple example: A as premise, B as conclusion over the full bimodal theory -
+        # should find a countermodel (A does not entail B under bimodal semantics)
         self.assertTrue(result["model_found"],
                        "Should find countermodel where A is true but B is false")
     

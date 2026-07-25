@@ -149,29 +149,42 @@ baseline from `specs/122_.../baselines/`); the 5 failures are unrelated pre-exis
 
 ---
 
-### Phase 2: Rename the test and correct its bimodal framing [NOT STARTED]
+### Phase 2: Rename the test and correct its bimodal framing [COMPLETED]
 
 **Goal**: The test's name, docstring, and comments accurately describe what the body does — build a
 `BuildExample` over the full bimodal theory and assert a countermodel is found.
 
 **Tasks**:
-- [ ] Rename `def test_logos_extensional_theory` to
+- [x] Rename `def test_logos_extensional_theory` to
       `def test_build_example_bimodal_theory_countermodel`.
-- [ ] Replace the docstring `"""Test BuildExample with logos extensional theory."""` with wording
+- [x] Replace the docstring `"""Test BuildExample with logos extensional theory."""` with wording
       that names the bimodal theory and the countermodel assertion, and notes that
       `get_theory`'s config argument has no effect (so the loaded theory is the full bimodal one).
-- [ ] Update the misleading in-body comment `# Simple test without complex operators` — the loaded
+- [x] Update the misleading in-body comment `# Simple test without complex operators` — the loaded
       theory has the full bimodal operator set; describe the example as a simple premise/conclusion
       pair instead.
-- [ ] Update the `# Simple example A premises, B conclusion - should find a countermodel` comment to
+- [x] Update the `# Simple example A premises, B conclusion - should find a countermodel` comment to
       drop any logos/extensional framing and state the bimodal expectation.
-- [ ] Leave the `assertTrue(result["model_found"], ...)` assertion and its message semantically
+- [x] Leave the `assertTrue(result["model_found"], ...)` assertion and its message semantically
       intact (the research established the expectation is sound); reword only if the message itself
       implies logos/extensional.
-- [ ] Consider renaming the local temp file `logos_test.py` written by the test to a bimodal-accurate
-      name for consistency (cosmetic, same file, no external dependency).
-- [ ] Re-grep the repository for `test_logos_extensional_theory` and confirm no remaining reference
+- [x] Consider renaming the local temp file `logos_test.py` written by the test to a bimodal-accurate
+      name for consistency (cosmetic, same file, no external dependency). Renamed to
+      `bimodal_test.py`.
+- [x] Re-grep the repository for `test_logos_extensional_theory` and confirm no remaining reference
       outside `specs/**`.
+
+**Deviation (additional edits beyond the plan's explicit list)**: the `semantic_theories` dict key
+and the two downstream `build_module.semantic_theories["Extensional"]` /
+`BuildExample(..., "Extensional")` references were also renamed to `"Bimodal"` for internal
+consistency with the new test name and docstring — the plan's task list did not call this out
+explicitly, but leaving the old `"Extensional"` key/label in place after the rename would have
+reintroduced the same misleading framing the rename is meant to fix. The docstring's initial
+draft literally quoted `extensional` (from `get_theory(['extensional'])`) to explain the ignored
+`config` argument; reworded to describe the argument generically without repeating the word, to
+satisfy the "no occurrence of `logos`/`extensional`" verification bullet below. The literal
+`get_theory(['extensional'])` call inside the test's inline module-content string is unchanged
+(it is the real API call under test, not comment/docstring framing).
 
 **Timing**: 15 minutes
 
