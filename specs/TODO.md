@@ -11,8 +11,8 @@ next_project_number: 131
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 126,127,128,130 | -- | architecture, testing |
-| 2 | 129 | 128,130 | testing |
+| 1 | 127,128,130 | -- | testing |
+| 2 | 126,129 | 127,128,130 | architecture, testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -74,7 +74,7 @@ next_project_number: 131
 - **Status**: [PARTIAL]
 - **Task Type**: general
 - **Topic**: architecture
-- **Dependencies**: None
+- **Dependencies**: Task 127
 - **Research**: [126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md]
 - **Plan**: [126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md]
 - **Summary**: [126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md]

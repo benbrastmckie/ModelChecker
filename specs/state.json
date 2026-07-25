@@ -176,7 +176,10 @@
         "skeleton": false,
         "follow_up_tasks": [],
         "phases_completed": 25
-      }
+      },
+      "dependencies": [
+        127
+      ]
     },
     {
       "project_number": 117,
