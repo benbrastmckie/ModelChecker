@@ -1,5 +1,5 @@
 ---
-next_project_number: 127
+next_project_number: 131
 ---
 
 # TODO
@@ -11,7 +11,8 @@ next_project_number: 127
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 126 | -- | architecture |
+| 1 | 126,127,128,130 | -- | architecture, testing |
+| 2 | 129 | 128,130 | testing |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -19,7 +20,55 @@ next_project_number: 127
 
 126 [PARTIAL] — Systematically refactor the repo into: 1) the core codebase conta
 
+### Testing
+
+127 [NOT STARTED] — Complete the oracle differential-suite regression baseline that t
+128 [NOT STARTED] — Resolve the contradiction between the witness error classes and t
+  └─ 129 [NOT STARTED] — Triage and document the pre-existing test failure backlog so futu
+130 [NOT STARTED] — Make builder/tests/unit/test_example.py::TestBuildExampleIntegrat
+  └─ 129 [NOT STARTED] — Triage and document the pre-existing test failure backlog so futu (see above)
+
 ## Tasks
+
+### 130. Stabilize order dependent builder test
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Make builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_logos_extensional_theory deterministic and correctly named. The test is order-dependent: at the pre-refactor baseline it fails when run in isolation and at file scope but passes within the full builder suite, and its outcome inverts depending on which modules are already imported, so it reports differently under different invocations. It is also misnamed: despite being called test_logos_extensional_theory, its body imports get_theory from theory_lib.bimodal and calls get_theory(['extensional']), exercising bimodal rather than logos. Establish what the test is actually meant to assert, rename it accordingly, and remove the hidden dependence on import or solver state so the outcome is identical in isolation, at file scope, and in a full-suite run. Its assertion on result['model_found'] depends on a Z3 solving outcome, so verify whether the countermodel expectation itself is sound for the theory the body actually loads.
+
+---
+
+### 129. Triage preexisting test failure backlog
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: Task 128, Task 130
+
+**Description**: Triage and document the pre-existing test failure backlog so future refactors can diff cleanly against a known-good baseline. A full sweep (PYTHONPATH=code/src pytest code/src/model_checker/ code/tests/) currently reports 27 failures against 2148 passing, all of which reproduce at the pre-refactor baseline commit 6cfb7f48 and are therefore unrelated to the core/theory_lib refactor. They fall into two groups. The larger group is environment-sensitive: roughly 16 timing and resource tests across tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and builder/tests/integration/test_performance.py, whose pass/fail state flips with machine load (a repeat sweep varied between 27 and 30 failures). These should either be marked resource-dependent, given explicit tolerances, or moved behind an opt-in marker so that a default run is deterministic. The smaller group is genuine defects worth fixing: a ModuleNotFoundError for a missing tests.fixtures.example_data module, an AttributeError from mock-spec misuse ('assert_and_track' is not a valid assertion), and ValueError expectation drift in error-handling tests ('Empty token list' and 'The expression [] is incomplete'). Deliver a categorized known-failures baseline document plus fixes for the genuine defects.
+
+---
+
+### 128. Fix witness error theory attribute
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Resolve the contradiction between the witness error classes and their tests. theory_lib/tests/unit/test_error_handling.py asserts that WitnessRegistryError(...).theory equals 'exclusion' and WitnessConstraintError(...).theory equals 'exclusion', but both classes inherit WitnessError -> TheoryError without setting any theory default, so .theory is None and both tests fail. These failures predate the core/theory_lib refactor: theory_lib/errors.py carries no commit from it. Decide the correct contract and implement it: either the witness error hierarchy should bind a theory identifier (noting that the refactor deliberately eliminated hardcoded theory-name literals from the core and upper layers, so a hardcoded 'exclusion' default would need justification, most likely via a constructor argument supplied at the raise sites), or the tests encode a stale expectation and should assert the actual contract. Whichever way it resolves, the two failing tests must end up passing and the reasoning recorded.
+
+---
+
+### 127. Close oracle suite regression baseline
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Complete the oracle differential-suite regression baseline that the core/theory_lib refactor could not finish. The 550-test suite in oracle/bimodal_logic/tests/ has never completed a full run in the development sandbox: pytest-xdist is unavailable (package index unreachable), forcing a fully serial run of roughly 90 minutes, and serial attempts were killed by resource contention from concurrent sessions at about 91% through. Collection count (550) and the 5 xfail(strict=True) marker line locations are already pinned and verified clean. Install or vendor pytest-xdist, or run on dedicated/isolated resources, then commit baselines/oracle-run.txt and baselines/junit-oracle.xml, flip the refactor plan's Phase 2 heading from [PARTIAL] to [COMPLETED], and re-run code/scripts/verify-refactor.sh without --skip-oracle so Step 6 exercises the full suite. Completing this is the sole remaining blocker to marking the core/theory_lib refactor task COMPLETED.
+
+---
 
 ### 126. Refactor repo core infrastructure theory lib
 - **Status**: [PARTIAL]
