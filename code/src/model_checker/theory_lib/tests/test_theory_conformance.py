@@ -79,14 +79,11 @@ ITERATE_REQUIRED_ATTRS = [
 
 # logos's entry was removed in the phase that split its monolithic semantic.py into a
 # semantic/ package (core.py + proposition.py + model.py behind a re-export-only __init__.py),
-# matching the form exclusion was normalized onto.
-SEMANTIC_PACKAGE_XFAIL_REASON = {
-    'bimodal': (
-        "bimodal has not been normalized onto the semantic/ package contract yet: "
-        "semantic.py is still its live implementation (semantic/ exists only as a "
-        "sys.modules pickling-compatibility shim for --maximize, not the canonical form)"
-    ),
-}
+# matching the form exclusion was normalized onto. bimodal's entry was removed the same way:
+# semantic.py was moved into semantic/core.py and then split into core.py/model.py/proposition.py.
+# Kept as an empty dict (rather than deleted) so _xfail_params()'s call site below needs no
+# further edit.
+SEMANTIC_PACKAGE_XFAIL_REASON = {}
 
 ITERATE_MODULE_XFAIL_REASON = {
     'bimodal': (
@@ -176,9 +173,10 @@ class TestTheoryFileSet:
         )
         # A directory alone is not sufficient: THEORY_ARCHITECTURE.md's contract requires
         # semantic/ to actually hold the semantics implementation (core.py), not merely exist as
-        # a re-export or compatibility shim (bimodal's semantic/ is exactly this trap -- it is a
-        # real directory with a real __init__.py, but contains no core.py; it dynamically
-        # re-executes the sibling semantic.py purely for sys.modules pickling compatibility).
+        # a re-export or compatibility shim. bimodal's semantic/ used to be exactly this trap --
+        # a real directory with a real __init__.py, but no core.py; it dynamically re-executed a
+        # sibling semantic.py purely for sys.modules pickling compatibility. That shim is gone;
+        # bimodal now has a real core.py like the other three theories.
         assert os.path.exists(os.path.join(semantic_path, 'core.py')), (
             f"{theory}/semantic/ exists but has no core.py -- it is not the canonical "
             f"semantic package (the required semantics implementation module), just a "

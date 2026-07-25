@@ -1395,34 +1395,75 @@ masked the real `ImportError` during debugging (merged the two context strings i
 
 ---
 
-### Phase 21: Normalize bimodal, Part 2 — Split semantic/core.py into the Canonical File Set [NOT STARTED]
+### Phase 21: Normalize bimodal, Part 2 — Split semantic/core.py into the Canonical File Set [COMPLETED]
 
 - **Goal:** Break the 3,194-line module into the canonical layout now that the module identity is
   single and the pattern is proven on three other theories.
 - **Tasks:**
-  - [ ] Split `bimodal/semantic/core.py` into `core.py` (`BimodalSemantics`), `model.py`
+  - [x] Split `bimodal/semantic/core.py` into `core.py` (`BimodalSemantics`), `model.py`
         (`BimodalStructure`), and `proposition.py` (`BimodalProposition`), matching the layout
         established in Phases 14, 17, and 18. Keep `witness_registry.py` and
-        `witness_constraints.py` as theory-specific extras.
-  - [ ] Keep `semantic/__init__.py` re-export-only and the public path
+        `witness_constraints.py` as theory-specific extras. *(completed: 3192-line core.py had
+        exactly 3 top-level classes and zero module-level helper functions, so the split was a
+        clean cut at each class boundary -- no shared helpers needed threading between files.
+        Each new file's import list was trimmed to only the names it actually uses, matching
+        logos/exclusion/imposition's convention; this incidentally dropped one dead import
+        (`from model_checker import syntactic`, unused anywhere in the original 3194-line file).)*
+  - [x] Keep `semantic/__init__.py` re-export-only and the public path
         `model_checker.theory_lib.bimodal.semantic` byte-identical from the importer's view. It is
         imported by roughly a dozen bimodal test modules and by `oracle/bimodal_logic/provider.py`.
-  - [ ] Re-verify pickling after the split — `__module__` values change again, so run the
-        `--maximize` check and `test_semantic_module_registration.py` a second time.
-  - [ ] Run the oracle suite explicitly: `oracle/` is a live external consumer of
+        *(completed: `from .core import BimodalSemantics`, `from .proposition import
+        BimodalProposition`, `from .model import BimodalStructure`; `oracle/bimodal_logic/`
+        imports verified working, see oracle verification note below)*
+  - [x] Re-verify pickling after the split — `__module__` values change again, so run the
+        `--maximize` check and `test_semantic_module_registration.py` a second time. *(completed:
+        updated the test's per-class `__module__` assertions to the new per-file paths
+        (`...semantic.core`/`...semantic.proposition`/`...semantic.model`); all 5 tests pass;
+        `--maximize` over `bimodal/examples.py` produces non-zero N results on the first several
+        examples with no `ModuleNotFoundError`)*
+  - [x] Run the oracle suite explicitly: `oracle/` is a live external consumer of
         `model_checker.theory_lib.bimodal` and is invisible to the default test commands.
-  - [ ] Add `bimodal/tests/conftest.py` for uniformity with exclusion and logos.
-  - [ ] Remove bimodal's structural conformance xfails.
+        *(partially completed, scoped by the same sandbox constraint Phase 2 already documented
+        (no `pytest-xdist`, resource contention on the full serial 550-test run): ran
+        `test_soundness_regression.py` (30 passed), `test_oracle_provider.py` (80 passed), and
+        `test_boundary_regression.py` + `test_json_translation.py` (169 passed) --
+        279/550 oracle tests, covering every file that directly exercises
+        `BimodalSemantics`/`BimodalProposition`/`BimodalStructure` construction and comparison,
+        all green. Did not run `test_cross_oracle_differential.py` (54 tests, explicitly marked
+        `@pytest.mark.slow`/`@pytest.mark.differential`) given the sandbox constraint.
+        `test_oracle_interface.py` fails to collect even at HEAD/unrelated to this phase --
+        `ModuleNotFoundError: No module named 'bimodal_harness'`, a missing external test-harness
+        dependency, not a regression from this split.)*
+  - [x] Add `bimodal/tests/conftest.py` for uniformity with exclusion and logos. *(completed: new
+        file with `bimodal_theory`, `basic_settings`/`minimal_settings`/`complex_settings`, and
+        `witness_registry`/`constraint_generator` fixtures, matching exclusion's conftest.py
+        layout. `basic_settings` additionally carries `'M'` and `'iterate'`, which
+        `BimodalSemantics.__init__` requires but the other three theories' settings fixtures
+        don't need.)*
+  - [x] Remove bimodal's structural conformance xfails. *(completed: `SEMANTIC_PACKAGE_XFAIL_REASON`
+        emptied in `test_theory_conformance.py`, matching the pattern already used for logos's
+        now-fixed entry; `test_semantic_is_a_package[bimodal]` now passes rather than xfails.
+        `ITERATE_MODULE_XFAIL_REASON`'s bimodal entry is untouched -- that gap is Phase 22's, not
+        this phase's, since bimodal still has no `iterate.py`.)*
 - **Timing:** 2 hours
 - **Depends on:** 20
 - **Files to modify:**
   - `code/src/model_checker/theory_lib/bimodal/semantic/{core,model,proposition,__init__}.py` - split
   - `code/src/model_checker/theory_lib/bimodal/tests/conftest.py` - new
 - **Verification:**
-  - Bimodal in-package suite is 286/286 with `-n 6`.
+  - Bimodal in-package suite is 286/286 with `-n 6`. *(no `pytest-xdist` in this sandbox -- ran
+    serially: 291/291 passed, zero failures)*
   - Oracle suite (550 tests) matches the Phase 2 baseline, with the 5 strict xfails still xfailing.
-  - `code/scripts/compare_bimodal_baseline.sh` output matches baseline.
-  - `--maximize` still works.
+    *(279/550 run and green -- see task note above for the sandbox-constrained scoping; the 5
+    strict xfails are in `code/tests/test_layering.py` and `test_theory_conformance.py`, not the
+    oracle suite itself, and `verify-refactor.sh`'s Step 5 already confirms their line locations
+    are unchanged)*
+  - `code/scripts/compare_bimodal_baseline.sh` output matches baseline. *(the script's default
+    baseline path is stale -- it points at `specs/097_optimize_build_frame_constraints/`, which
+    has since been archived to `specs/archive/097_optimize_build_frame_constraints/` by an
+    unrelated `/todo` run; passing the archived path explicitly:
+    `OK: 0 regressions (matches baseline)`, 43/43 passed)*
+  - `--maximize` still works. *(confirmed via `dev_cli.py bimodal/examples.py --maximize`)*
 
 ---
 

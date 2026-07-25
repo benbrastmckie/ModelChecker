@@ -15,12 +15,14 @@ manually registered in `sys.modules` -- without that registration,
 `ModuleNotFoundError: No module named 'bimodal_semantic_module'`, silently
 reported upstream as "Maximum N = 0" for every bimodal example.
 
-The flat `semantic.py` has been moved into `semantic/core.py` verbatim and
-`semantic/__init__.py` reduced to a plain re-export. There is now exactly
-one class identity, reachable at the real module path
-`model_checker.theory_lib.bimodal.semantic.core`, and pickling works
-through the normal import mechanism with no dynamic loader or `sys.modules`
-registration required.
+The flat `semantic.py` was first moved into `semantic/core.py` verbatim, then split
+into the canonical three-file layout (`core.py` for `BimodalSemantics`, `model.py`
+for `BimodalStructure`, `proposition.py` for `BimodalProposition`) matching
+exclusion, imposition, and logos. `semantic/__init__.py` re-exports all three from
+their respective submodules. There is now exactly one class identity per class,
+each reachable at its own real, importable module path, and pickling works through
+the normal import mechanism with no dynamic loader or `sys.modules` registration
+required.
 """
 
 import pickle
@@ -34,6 +36,8 @@ from model_checker.theory_lib.bimodal.semantic import (
     BimodalStructure,
 )
 from model_checker.theory_lib.bimodal.semantic import core as bimodal_semantic_core
+from model_checker.theory_lib.bimodal.semantic import model as bimodal_semantic_model
+from model_checker.theory_lib.bimodal.semantic import proposition as bimodal_semantic_proposition
 
 
 def _echo_class_name(cls: type) -> str:
@@ -60,25 +64,25 @@ class TestBimodalSemanticSingleClassIdentity(unittest.TestCase):
         )
 
     def test_classes_report_the_real_package_module_path(self):
-        """__module__ resolves to the real, importable package path."""
+        """__module__ resolves to each class's own real, importable submodule path."""
         self.assertEqual(
             BimodalSemantics.__module__,
             'model_checker.theory_lib.bimodal.semantic.core',
         )
         self.assertEqual(
             BimodalProposition.__module__,
-            'model_checker.theory_lib.bimodal.semantic.core',
+            'model_checker.theory_lib.bimodal.semantic.proposition',
         )
         self.assertEqual(
             BimodalStructure.__module__,
-            'model_checker.theory_lib.bimodal.semantic.core',
+            'model_checker.theory_lib.bimodal.semantic.model',
         )
 
     def test_single_class_identity_across_import_paths(self):
         """Importing via the package and via the submodule yield the identical object."""
         self.assertIs(bimodal_semantic_core.BimodalSemantics, BimodalSemantics)
-        self.assertIs(bimodal_semantic_core.BimodalProposition, BimodalProposition)
-        self.assertIs(bimodal_semantic_core.BimodalStructure, BimodalStructure)
+        self.assertIs(bimodal_semantic_proposition.BimodalProposition, BimodalProposition)
+        self.assertIs(bimodal_semantic_model.BimodalStructure, BimodalStructure)
         self.assertIsInstance(BimodalSemantics, type)
         # A trivial isinstance check across both paths must succeed -- this
         # is the exact failure mode the dual identity produced (an instance
