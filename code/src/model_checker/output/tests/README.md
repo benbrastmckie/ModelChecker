@@ -13,11 +13,13 @@ tests/
 │   ├── formatters/                # Formatter-specific tests
 │   ├── strategies/                # Strategy-specific tests
 │   └── progress/                  # Progress indicator tests
-├── integration/                   # Integration tests for component interactions
-│   ├── builder/                   # Builder integration tests
-│   ├── modes/                     # Output mode tests
-│   └── interactive/               # Interactive mode tests
-└── e2e/                           # End-to-end workflow tests
+└── integration/                   # Integration tests for component interactions
+    ├── builder/                   # Builder integration tests
+    ├── modes/                     # Output mode tests
+    └── interactive/               # Interactive mode tests
+# No e2e/ here: end-to-end coverage lives at core level (code/tests/e2e/,
+# builder/tests/e2e/, iterate/tests/e2e/) -- see
+# theory_lib/docs/THEORY_ARCHITECTURE.md's End-to-End Testing section.
 ```
 
 ## Overview
@@ -86,11 +88,10 @@ Test component interactions:
 - `test_markdown_relations.py` - Relation formatting in Markdown
 - `test_output_integration.py` - Complete output generation
 
-### End-to-End Tests (`e2e/`)
+### End-to-End Tests
 
-Complete workflow validation:
-
-- `test_end_to_end_save.py` - Full save workflow from example to files
+This package does not carry its own `e2e/` directory. Full save-workflow coverage lives at
+core level (`code/tests/e2e/`), parametrized over theories, not here.
 
 ## Test Fixtures
 
@@ -164,8 +165,8 @@ pytest src/model_checker/output/tests/unit/
 # Integration tests
 pytest src/model_checker/output/tests/integration/
 
-# End-to-end tests
-pytest src/model_checker/output/tests/e2e/
+# End-to-end tests for output workflows live at core level, not in this package
+pytest code/tests/e2e/
 ```
 
 ### Individual Tests
@@ -185,7 +186,7 @@ pytest src/model_checker/output/tests/ -k "interactive"
 
 ### Adding New Tests
 
-1. **Identify Category**: Unit, integration, or e2e
+1. **Identify Category**: Unit or integration (this package has no e2e/; see above)
 2. **Create Test File**: Follow naming convention `test_*.py`
 3. **Use Fixtures**: Leverage existing fixtures when possible
 4. **Mock Dependencies**: Isolate the component under test

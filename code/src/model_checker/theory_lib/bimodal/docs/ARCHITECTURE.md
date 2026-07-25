@@ -21,14 +21,21 @@ The Bimodal theory implements temporal-modal logic through a modular architectur
 ```
 bimodal/
 ├── __init__.py          # Public API and theory configuration
-├── semantic.py          # BimodalSemantics implementation
-├── operators.py         # Operator collection with temporal-modal operators
-├── examples.py          # Comprehensive example collection
-├── iterate.py           # Model iteration support
-├── docs/               # Documentation (this file and others)
-├── tests/              # Unit and integration tests
-└── notebooks/          # Interactive tutorials
+├── semantic/             # Package (not a bare semantic.py module), re-export-only __init__.py
+│   ├── core.py           # BimodalSemantics implementation
+│   ├── model.py           # BimodalStructure
+│   ├── proposition.py     # BimodalProposition
+│   ├── witness_registry.py
+│   └── witness_constraints.py
+├── operators.py          # Operator collection with temporal-modal operators
+├── examples.py           # Comprehensive example collection
+├── iterate.py            # Model iteration support
+├── docs/                 # Documentation (this file and others)
+└── tests/                # Unit and integration tests
 ```
+
+Note: bimodal does not currently ship a `notebooks/` directory (exclusion and imposition do); this
+is a recorded, deliberate gap tracked in `specs/ROADMAP.md`, not an oversight in this listing.
 
 ### Class Hierarchy
 

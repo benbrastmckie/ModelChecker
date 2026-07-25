@@ -40,7 +40,7 @@ tests/
 │   ├── test_performance.py                 # Performance tests (11 tests)
 │   └── test_workflow.py                    # Complete workflows (5 tests)
 │
-├── e2e/                                    # End-to-end tests (17 tests)
+├── e2e/                                    # End-to-end tests (13 tests)
 │   ├── test_full_pipeline.py               # Complete execution pipeline (12 tests)
 │   └── test_project_edge_cases.py          # Project generation edge cases (5 tests)
 │

@@ -16,7 +16,10 @@ Integration tests for component interactions:
 - `test_collection.py` - Collection and traversal tests
 
 ### e2e/
-End-to-end tests for complete workflows (to be added as needed)
+Not present here by design: end-to-end coverage exercises the CLI and project-generation
+pipeline, not individual package internals, and lives at core level (`code/tests/e2e/`,
+`builder/tests/e2e/`, `iterate/tests/e2e/`), parametrized over all four theories -- see
+`theory_lib/docs/THEORY_ARCHITECTURE.md`'s End-to-End Testing section.
 
 ### fixtures/
 Shared test data and mock objects (to be populated as needed)

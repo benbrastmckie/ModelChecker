@@ -273,7 +273,7 @@ class LogosSemantics(SemanticDefaults):
     }
 ```
 
-*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../code/src/model_checker/theory_lib/logos/semantic.py)*
+*Full implementation: [`model_checker/theory_lib/logos/semantic/core.py`](../../code/src/model_checker/theory_lib/logos/semantic/core.py)*
 
 These default settings embody key semantic commitments: contingency prevents trivial models, non-emptiness ensures every proposition has genuine truthmakers/falsemakers, non-null excludes the null state from verification (making it semantically inert), and disjointness enforces classical two-valued logic at the propositional level.
 
@@ -408,7 +408,7 @@ class LogosProposition(PropositionDefaults):
         self.verifiers, self.falsifiers = self.find_proposition()  # Compute truth-makers
 ```
 
-*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../code/src/model_checker/theory_lib/logos/semantic.py)*
+*Full implementation: [`model_checker/theory_lib/logos/semantic/core.py`](../../code/src/model_checker/theory_lib/logos/semantic/core.py)*
 
 LogosProposition initialization demonstrates the evaluation context mechanism. The `eval_world` parameter allows propositions to be evaluated at different worlds - defaulting to the main world for premises/conclusions, but supporting evaluation at alternative worlds for modal operators. The immediate computation of verifier/falsifier sets during initialization enables efficient caching - each proposition's truthmakers are calculated once and reused throughout the semantic evaluation.
 
@@ -501,7 +501,7 @@ Each constraint type serves a specific purpose:
 └──────────────────┴──────────────────────────────────┴─────────────────────────┘
 ```
 
-*Implementation of constraint generators: [`model_checker/theory_lib/logos/semantic.py#proposition_constraints`](../../code/src/model_checker/theory_lib/logos/semantic.py)*
+*Implementation of constraint generators: [`model_checker/theory_lib/logos/semantic/core.py#proposition_constraints`](../../code/src/model_checker/theory_lib/logos/semantic/core.py)*
 
 ## Operator Implementation Pattern
 
@@ -1327,7 +1327,7 @@ This example shows the complete constraint generation pipeline. ModelConstraints
 - [`model_checker/syntactic.py`](../../code/src/model_checker/syntactic.py) - Operator base class and interfaces
 
 **Logos Theory Implementation:**
-- [`model_checker/theory_lib/logos/semantic.py`](../../code/src/model_checker/theory_lib/logos/semantic.py) - LogosSemantics class
+- [`model_checker/theory_lib/logos/semantic/core.py`](../../code/src/model_checker/theory_lib/logos/semantic/core.py) - LogosSemantics class
 - [`model_checker/theory_lib/logos/proposition.py`](../../code/src/model_checker/theory_lib/logos/proposition.py) - LogosProposition class
 - [`model_checker/theory_lib/logos/registry.py`](../../code/src/model_checker/theory_lib/logos/registry.py) - Operator registry system
 

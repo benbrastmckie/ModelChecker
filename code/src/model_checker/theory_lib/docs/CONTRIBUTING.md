@@ -58,8 +58,13 @@ This creates a local project with all necessary files based on the chosen theory
 
 Modify the generated files to implement your semantic framework:
 
-- `semantic.py`: Define your semantic classes and relations
+- `semantic/`: A package (directory with `__init__.py`), not a bare `semantic.py` module --
+  `__init__.py` re-exports the semantics, proposition, and model classes from `core.py`/`model.py`
+  (plus any theory-specific modules); see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md) for
+  the full canonical file set
 - `operators.py`: Implement your logical operators
+- `iterate.py`: Required for every theory -- exposes `{Theory}ModelIterator`, `iterate_example`,
+  and `iterate_example_generator`
 - `examples.py`: Create test cases specific to your theory
 - `__init__.py`: Update exports with your theory's classes
 - `README.md`: Document your theory's features and usage
@@ -86,15 +91,20 @@ Create a `tests/` directory in your theory with the following structure:
 my_theory/tests/
 ├── __init__.py
 ├── conftest.py           # pytest configuration and fixtures
+├── README.md
 ├── unit/                 # Unit tests for individual components
 │   ├── test_semantic.py  # Test semantic classes
 │   ├── test_operators.py # Test operator implementations
 │   └── test_project_generation.py  # Test project generation works
-├── integration/          # Integration tests
-│   └── test_examples.py  # Test example files run correctly
-└── e2e/                  # End-to-end tests
-    └── test_workflow.py  # Test complete workflows
+└── integration/          # Integration tests
+    └── test_examples.py  # Test example files run correctly
 ```
+
+**No per-theory `e2e/`**: end-to-end coverage exercises the CLI and project-generation pipeline,
+not theory semantics, and lives at core level (`code/tests/e2e/`, `builder/tests/e2e/`,
+`iterate/tests/e2e/`), parametrized over all four theories -- see
+[THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md#end-to-end-testing). Do not add a `tests/e2e/`
+directory to your theory.
 
 **Required Test: Project Generation**
 
@@ -116,7 +126,9 @@ def test_my_theory_project_generation():
         # Verify essential files exist
         assert os.path.exists(os.path.join(project_dir, '__init__.py'))
         assert os.path.exists(os.path.join(project_dir, '.modelchecker'))
-        assert os.path.exists(os.path.join(project_dir, 'semantic.py'))
+        assert os.path.isdir(os.path.join(project_dir, 'semantic'))
+        assert os.path.exists(os.path.join(project_dir, 'semantic', '__init__.py'))
+        assert os.path.exists(os.path.join(project_dir, 'semantic', 'core.py'))
         assert os.path.exists(os.path.join(project_dir, 'operators.py'))
         assert os.path.exists(os.path.join(project_dir, 'examples.py'))
         
@@ -146,17 +158,23 @@ mv project_theory_name/* code/src/model_checker/theory_lib/my_theory/
 
 ### 7. Register Your Theory
 
-Add your theory to the `__all__` list in `code/src/model_checker/theory_lib/__init__.py`:
+Add your theory's name to `_THEORY_NAMES` in
+`code/src/model_checker/theory_lib/__init__.py` -- this is the single source-of-truth catalog
+that `theory_lib` registers into the core registry (`model_checker.registry`) at import time;
+adding a name only to `__all__` does not register it:
 
 ```python
-__all__ = [
-    "logos",
-    "exclusion",
-    "imposition",
-    "bimodal",
-    "my_theory"  # Add your theory here
+_THEORY_NAMES = [
+    'bimodal',
+    'logos',
+    'exclusion',
+    'imposition',
+    'my_theory',    # Add your theory here
 ]
 ```
+
+Also add `"my_theory"` to the `__all__` list in the same file, which controls what
+`from model_checker.theory_lib import *` exposes.
 
 ### 8. Submit a Pull Request
 
@@ -195,7 +213,7 @@ Each theory in the ModelChecker framework defines its own settings based on the 
 These settings control the behavior of specific examples:
 
 ```python
-# In your semantic.py file
+# In your semantic/core.py file
 class MySemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {
         # Core settings included by most theories
@@ -213,7 +231,7 @@ class MySemantics(SemanticDefaults):
 These settings control global behavior and output format:
 
 ```python
-# In your semantic.py file
+# In your semantic/core.py file
 class MySemantics(SemanticDefaults):
     DEFAULT_GENERAL_SETTINGS = {
         # Common output settings
@@ -282,9 +300,12 @@ Following these constraints ensures proper parsing and evaluation of logical for
 
 Each theory must include these core files:
 
-### semantic.py
+### semantic/
 
-Define your semantic framework with the core classes:
+A package (directory with `__init__.py`), not a bare `semantic.py` module. Define your
+semantic framework's core classes in `semantic/core.py`, re-exported by a plain
+`semantic/__init__.py` -- see [THEORY_ARCHITECTURE.md](THEORY_ARCHITECTURE.md) for the full
+contract.
 
 ```python
 from model_checker.models.semantic import SemanticDefaults

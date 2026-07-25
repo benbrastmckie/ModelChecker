@@ -64,7 +64,7 @@ The Logos theory implements a **three-layer modular architecture** that provides
 
 ### 1. Modularity First
 
-Each subtheory (extensional, modal, constitutive, counterfactual, relevance) is completely self-contained:
+Each subtheory (extensional, modal, constitutive, counterfactual) is completely self-contained:
 - Independent operator definitions
 - Isolated test suites
 - Separate documentation
@@ -100,10 +100,11 @@ Architecture designed for efficiency:
 
 ```
 logos/
-├── semantic.py          # LogosSemantics base class
-├── operators.py         # LogosOperatorRegistry
-├── proposition.py       # (inherited from semantic.py)
-└── model_structure.py   # (inherited from semantic.py)
+├── semantic/             # Package (not a bare semantic.py module), re-export-only __init__.py
+│   ├── core.py           # LogosSemantics base class
+│   ├── proposition.py    # LogosProposition
+│   └── model.py          # LogosModelStructure
+└── operators.py          # LogosOperatorRegistry
 ```
 
 **LogosSemantics** provides:
@@ -128,9 +129,10 @@ subtheories/
 │   ├── examples.py      # Test examples
 │   └── README.md        # Documentation
 ├── modal/
-├── constitutive/
-├── counterfactual/
-└── relevance/
+├── constitutive/     # Also carries the \preceq relevance operator and the REL_* examples,
+                       # absorbed from a former standalone relevance subtheory that contributed
+                       # no operators of its own
+└── counterfactual/
 ```
 
 Each subtheory is structured identically:

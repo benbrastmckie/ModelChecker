@@ -348,7 +348,7 @@ class LogosSemantics(SemanticDefaults):
         self.N = combined_settings['N']
         # ... excerpt showing key initialization ...
 ```
-*Full implementation: [`model_checker/theory_lib/logos/semantic.py`](../../src/model_checker/theory_lib/logos/semantic.py)*
+*Full implementation: [`model_checker/theory_lib/logos/semantic/core.py`](../../src/model_checker/theory_lib/logos/semantic/core.py)*
 
 For operator examples:
 ```python

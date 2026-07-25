@@ -1543,19 +1543,38 @@ masked the real `ImportError` during debugging (merged the two context strings i
 
 ---
 
-### Phase 23: Flip the Conformance and Layering Tests Fully Green [NOT STARTED]
+### Phase 23: Flip the Conformance and Layering Tests Fully Green [COMPLETED]
 
 - **Goal:** Prove the contract and the boundary are fully enforced, with no carried exceptions.
 - **Tasks:**
-  - [ ] Remove every remaining `xfail` marker from the conformance test and confirm all
-        parametrizations pass for all four theories and all five subtheories.
-  - [ ] Confirm the layering test passes with zero violations: no core module imports `theory_lib`
-        statically, no core module contains a `model_checker.theory_lib` string literal, and no core
-        module contains a theory-name string literal.
-  - [ ] Add a guard test asserting the conformance suite contains **zero** `xfail` markers, so a
-        future gap cannot be quietly re-admitted.
-  - [ ] Verify `discover_theories()` (now a dev lint) reports zero drift against the registry.
-  - [ ] Run the full in-package suite, the oracle suite, and the baseline comparison together.
+  - [x] Remove every remaining `xfail` marker from the conformance test and confirm all
+        parametrizations pass for all four theories and all five subtheories. *(completed: all
+        six XFAIL_REASON dicts emptied across phases 18-22; note the subtheory count is now
+        four, not five -- Phase 19 folded the hollow relevance subtheory into constitutive.
+        50 tests pass, zero xfail, zero skip.)*
+  - [x] Confirm the layering test passes with zero violations. *(completed: `code/tests/test_layering.py`
+        was already fully green going into this phase -- Phases 12/15/16 cleared the
+        theory_lib-dependency and hardcoded-theory-name violations; 4/4 tests pass here.)*
+  - [x] Add a guard test asserting the conformance suite contains **zero** `xfail` markers.
+        *(completed: `TestZeroXfailGuard.test_no_xfail_reason_dicts_are_populated` asserts none
+        of the six `XFAIL_REASON` dicts are populated.)*
+  - [x] Verify `discover_theories()` (now a dev lint) reports zero drift against the registry.
+        *(completed: `TestZeroXfailGuard.test_registry_has_no_discovery_drift` calls
+        `check_registry_drift()` and asserts both `unregistered` and `missing_on_disk` are empty;
+        passes.)*
+  - [x] Run the full in-package suite, the oracle suite, and the baseline comparison together.
+        *(completed with the same sandbox-documented oracle scoping as Phases 2/21 --
+        `verify-refactor.sh --skip-oracle` passes all other steps (collection counts, bimodal
+        suite, xfail line locations, baseline comparison: 0 regressions); the 550-test oracle
+        collection count itself is independently re-verified matching baseline via
+        verify-refactor.sh's Step 3. A full serial oracle run remains the Phase 2 PARTIAL gap,
+        not attempted here per the orchestrator's explicit instruction not to. The broader
+        theory_lib/+layering/+builder/+e2e sweep (1310 passed) shows 8 of the 9 documented
+        pre-existing failures plus one newly-discovered-but-confirmed-pre-existing failure
+        (`test_batch_output_real.py::test_bimodal_batch_output`, a malformed formula literal in
+        the test's own fixture, unrelated to task 126 per an empty `git diff` over
+        `syntactic/`/`utils/parsing.py` across the whole task-126 commit range) -- zero
+        regressions introduced by this phase.)*
 - **Timing:** 1.5 hours
 - **Depends on:** 12, 15, 16, 22
 - **Files to modify:**
@@ -1569,39 +1588,83 @@ masked the real `ImportError` during debugging (merged the two context strings i
 
 ---
 
-### Phase 24: Documentation Reconciliation [NOT STARTED]
+### Phase 24: Documentation Reconciliation [COMPLETED]
 
 - **Goal:** Bring the docs into agreement with the enforced reality. Paths did not change, so the
   blast radius is limited to files whose *claims* changed.
 - **Tasks:**
-  - [ ] `THEORY_ARCHITECTURE.md`: final pass confirming it matches what the conformance test actually
-        enforces, including the layering section and the iteration declaration.
-  - [ ] `CLAUDE.md`: fix two stale claims — "All theories follow standard structure (semantic.py,
-        operators.py, examples.py)" is now false (it is `semantic/`, and the required set is larger),
-        and the Specs Directory Protocol section lists `specs/baselines/` for test regression
-        baselines when they actually live in the per-task directories `specs/118_*/baselines/` and
-        `specs/122_*/baselines/`. Correct both.
-  - [ ] `theory_lib/docs/CONTRIBUTING.md:85-96` mandates a per-theory `e2e/` directory that zero of
-        four theories have. Correct it to describe the actual policy: e2e lives at core level,
-        parametrized over theories.
-  - [ ] Six module test READMEs document `e2e/` sections that do not exist: `iterate/tests/README.md:29`,
-        `settings/tests/README.md:15`, `models/tests/README.md:27`, `output/tests/README.md:20,89`,
-        `syntactic/tests/README.md:18`, `utils/tests/README.md:17`. `builder/tests/README.md:44`
-        claims 17 e2e tests where 13 collect. Correct each to match reality.
-  - [ ] Update `theory_lib/README.md` and `theory_lib/docs/README.md` for the removed spatial
-        subtheory, the folded relevance subtheory (four subtheories now, not five), and the canonical
-        module set.
-  - [ ] Update the affected per-theory `docs/ARCHITECTURE.md` files for logos and bimodal (semantic
-        package splits) and exclusion (module reorganization); update `logos/docs/` for the
-        subtheory-count change.
-  - [ ] Update `builder/README.md` if the registry change alters described behavior; update
-        `docs/` references to the relocated solver benchmark.
-  - [ ] Sweep `docs/` and `code/docs/` for references to deleted paths (`spatial/`, `boneyard/`,
-        `history/`, `examples_refactored/`, `reports/`, `usage_guide.md`, `logos/comparison.py`) and
-        fix each.
-  - [ ] **MUST NOT** cite task numbers in any file outside `specs/**` — this includes `CLAUDE.md`,
-        `THEORY_ARCHITECTURE.md`, all theory docs, and all `docs/` content. Use durable anchors:
-        sibling document names, section headings, and verified facts.
+  - [x] `THEORY_ARCHITECTURE.md`: final pass confirming it matches what the conformance test
+        actually enforces. *(completed: verified accurate as-is -- required file set, iteration
+        declaration (including the `__wrapped__.returns_generator` detection mechanism, confirmed
+        against `builder/runner.py`'s actual `_is_generator_interface`), and the layering section
+        all already match reality; no edits needed here)*
+  - [x] `CLAUDE.md`: fix two stale claims. *(completed: "semantic.py" claim rewritten to describe
+        the `semantic/` package and point to THEORY_ARCHITECTURE.md; `specs/baselines/` corrected
+        to `specs/{NNN}_{SLUG}/baselines/`. Note: `CLAUDE.md` at the repo root is `**/CLAUDE.md`
+        gitignored -- the fix is applied on disk but is not a git-tracked change.)*
+  - [x] `theory_lib/docs/CONTRIBUTING.md:85-96` mandates a per-theory `e2e/` directory.
+        *(completed: rewrote the test-structure tree to drop `e2e/`, added an explicit "No
+        per-theory e2e/" note citing THEORY_ARCHITECTURE.md's End-to-End Testing section. Also
+        fixed CONTRIBUTING.md's four other stale `semantic.py` references -- the required-files
+        list, two settings-example code comments, the "### semantic.py" section heading, the
+        project-generation test's file-existence assertions, and the "Register Your Theory"
+        section, which described adding a theory only to `__all__` and did not mention
+        `_THEORY_NAMES` at all -- an incomplete instruction under the Phase 10 registry, not
+        merely a stale path.)*
+  - [x] Six module test READMEs document `e2e/` sections. *(completed: `iterate/tests/README.md`
+        left as-is -- it has a REAL `e2e/test_edge_cases.py`, so its section was already
+        accurate. Rewrote the identical "e2e/ (to be added as needed)" stub in
+        `settings/tests/README.md`, `models/tests/README.md`, `syntactic/tests/README.md`, and
+        `utils/tests/README.md` to state e2e coverage lives at core level by design. Rewrote
+        `output/tests/README.md`'s more elaborate e2e section (directory tree entry, "End-to-End
+        Tests (e2e/)" section naming a nonexistent `test_end_to_end_save.py`, the `pytest .../e2e/`
+        run command, and the "Unit, integration, or e2e" category list) the same way -- confirmed
+        via `find` that no such file exists anywhere in `output/`. Corrected
+        `builder/tests/README.md:44`'s "17 tests" to the actual collected count of 13.)*
+  - [x] Update `theory_lib/README.md` and `theory_lib/docs/README.md` for spatial/relevance.
+        *(completed: verified both already accurate -- `theory_lib/README.md:80` already
+        documents the relevance fold ("absorbed from a former standalone relevance subtheory");
+        zero spatial references remain in either file)*
+  - [x] Update the affected per-theory `docs/ARCHITECTURE.md` files. *(completed for logos,
+        bimodal, exclusion as named, plus imposition for consistency -- all four had stale
+        `semantic.py`-as-bare-module tree listings and prose; rewrote each to describe the actual
+        `semantic/` package contents. logos's subtheory list and prose corrected from five
+        subtheories to four, with the constitutive entry noting the absorbed `\preceq` relevance
+        operator and REL_* examples. bimodal's tree also corrected to note it has no `notebooks/`
+        (a recorded, deliberate gap, not an oversight in the listing).)*
+  - [x] Update `builder/README.md` if the registry change alters described behavior; update
+        `docs/` references to the relocated solver benchmark. *(completed: reviewed
+        `builder/README.md` -- its `comparison.py` references describe `builder/comparison.py`,
+        the unrelated `--maximize` comparator that Phase 6 explicitly left untouched, not the
+        relocated `logos/comparison.py` -> `code/scripts/logos_solver_benchmark.py`; no changes
+        needed. `docs/` references to the relocated benchmark: none found via grep -- nothing to
+        fix.)*
+  - [x] Sweep `docs/` and `code/docs/` for references to deleted paths. *(completed: zero
+        remaining references to `spatial/`, `boneyard/`, `exclusion/history/` (old location),
+        `examples_refactored/`, the lowercase `usage_guide.md`, or `logos/comparison.py` (old
+        location). Found and fixed two genuinely broken links from the Phase 5 `imposition/reports/`
+        relocation and Phase 7 `usage_guide.md` merge that the plan's own enumeration didn't name
+        by file: `docs/usage/SEMANTICS.md`'s imposition-comparison-reports link (pointed at the
+        pre-move package path) and its `imposition/semantic.py` link. Also swept for the broader
+        `theory_lib/{theory}/semantic.py`-as-bare-file staleness pattern beyond the plan's named
+        files, since it is the same underlying defect: fixed genuine broken markdown links in
+        `code/docs/standards/AUDIENCE.md` and 4 in `docs/architecture/SEMANTICS.md`, plus two
+        illustrative code-comment headers in `docs/architecture/SETTINGS.md`. Left
+        `code/docs/core/CODE_STANDARDS.md`, `USAGE_GUIDE.md`, `theory_lib/README.md`, `WORKFLOW.md`,
+        and `TEST_TEMPLATE.py`'s `from ...logos.semantic import X` statements untouched -- these
+        are Python import statements, not file-path links, and remain syntactically valid whether
+        `semantic` is a package or a module. Confirmed via a relative-link resolution check that
+        every link *I* edited in this phase resolves; pre-existing, unrelated broken links
+        elsewhere in `docs/architecture/SEMANTICS.md` and `AUDIENCE.md` (`model.py`,
+        `syntactic.py`, `logos/registry.py`, etc. -- artifacts of a pre-src-layout repo structure,
+        unrelated to task 126) were identified but are out of this phase's scope and left
+        unfixed.)*
+  - [x] **MUST NOT** cite task numbers in any file outside `specs/**`. *(completed: verified via
+        `grep -rnEi 'task [0-9]+' --include=*.md docs/ code/docs/ code/src/model_checker/
+        code/README.md README.md CLAUDE.md` -- the only two hits
+        (`code/docs/implementation/DEVELOPMENT_WORKFLOW.md`) are generic template placeholders
+        "Task 1"/"Task 2" in a checklist example, not citations of this task-tracking system's
+        ephemeral task numbers; left as-is)*
 - **Timing:** 2 hours
 - **Depends on:** 23
 - **Files to modify:**

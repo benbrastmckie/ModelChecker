@@ -101,7 +101,7 @@ Personal preferences in `~/.model-checker/config.json`:
 ### 4. Theory Defaults
 Theory-specific example settings and optional general settings:
 ```python
-# theory_lib/logos/semantic.py
+# theory_lib/logos/semantic/core.py
 class LogosSemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {
         'N': 16,
@@ -114,7 +114,7 @@ class LogosSemantics(SemanticDefaults):
     }
     # No additional general settings needed
 
-# theory_lib/bimodal/semantic.py  
+# theory_lib/bimodal/semantic/core.py
 class BimodalSemantics(SemanticDefaults):
     DEFAULT_EXAMPLE_SETTINGS = {
         'N': 2,

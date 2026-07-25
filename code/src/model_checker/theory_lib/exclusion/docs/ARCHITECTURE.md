@@ -434,7 +434,13 @@ def compute_verifiers(self, argument, model, eval_point):
 
 ```
 exclusion/
-├── semantic.py           # Orchestration (WitnessSemantics, WitnessRegistry)
+├── semantic/             # Package (not a bare semantic.py module), re-export-only
+│   │                     # __init__.py
+│   ├── core.py           # WitnessSemantics (orchestrator)
+│   ├── registry.py       # WitnessRegistry (consistency)
+│   ├── constraints.py    # WitnessConstraintGenerator
+│   ├── model.py          # WitnessAwareModel, WitnessModelAdapter, WitnessStructure
+│   └── proposition.py    # WitnessProposition
 ├── operators.py          # Consumers (UniNegationOperator, etc.)
 ├── examples.py           # Test cases and demonstrations
 └── docs/                 # Documentation
@@ -446,8 +452,8 @@ exclusion/
 ### Module Dependencies and Information Flow
 
 ```
-semantic.py (Core Architecture)
-├── WitnessSemantics (Orchestrator)
+semantic/ package (Core Architecture)
+├── WitnessSemantics (Orchestrator, core.py)
 │   ├── WitnessRegistry (Consistency)
 │   ├── WitnessConstraintGenerator (Constraints)  
 │   └── WitnessAwareModel (Access)
@@ -458,14 +464,14 @@ operators.py (Consumers)
 ├── UniDisjunctionOperator
 └── UniIdentityOperator
     ↑
-    └── Imports WitnessAwareModel from semantic.py
+    └── Imports WitnessAwareModel from semantic/model.py (re-exported via semantic/__init__.py)
     
 examples.py (Demonstrations)
 ├── 22 countermodel examples
 ├── 16 theorem examples
 └── Test infrastructure
     ↑
-    └── Imports all components from semantic.py and operators.py
+    └── Imports all components from semantic/ (via its re-export __init__.py) and operators.py
 ```
 
 **Design Principles**:
@@ -478,7 +484,7 @@ examples.py (Demonstrations)
 The architecture provides clean integration with the ModelChecker framework:
 
 ```python
-# Framework Integration (semantic.py)
+# Framework Integration (semantic/core.py)
 class WitnessSemantics(SemanticDefaults):
     """Proper framework inheritance."""
     
@@ -695,7 +701,7 @@ The witness predicate architecture provides a foundation for:
 
 ### Implementation Files
 
-- **[Semantic Module](../semantic.py)** - Core architectural components
+- **[Semantic Package](../semantic/)** - Core architectural components
 - **[Operators Module](../operators.py)** - Witness predicate consumers
 - **[Examples Module](../examples.py)** - Architectural validation
 

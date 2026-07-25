@@ -59,13 +59,16 @@ operators = imposition_operators.get_all_operators()  # 11 total
 ```
 imposition/
 ├── __init__.py          # Public API and theory configuration
-├── semantic.py          # ImpositionSemantics implementation
-├── operators.py         # Operator collection with imposition-specific operators
-├── examples.py          # Comprehensive example collection
-├── iterate.py           # Model iteration support
-├── docs/               # Documentation (this file and others)
-├── tests/              # Unit and integration tests
-└── notebooks/          # Interactive tutorials
+├── semantic/             # Package (not a bare semantic.py module), re-export-only __init__.py
+│   ├── core.py            # ImpositionSemantics implementation
+│   ├── model.py            # ImpositionModelStructure
+│   └── helpers.py          # Imposition-relation formatting/validation helpers
+├── operators.py          # Operator collection with imposition-specific operators
+├── examples.py           # Comprehensive example collection
+├── iterate.py            # Model iteration support
+├── docs/                 # Documentation (this file and others)
+├── tests/                # Unit and integration tests
+└── notebooks/            # Interactive tutorials
 ```
 
 ### Class Hierarchy
@@ -576,7 +579,7 @@ def test_operator_behavior():
 
 ### Implementation Files
 
-- **[Semantic Module](../semantic.py)** - ImpositionSemantics implementation
+- **[Semantic Package](../semantic/)** - ImpositionSemantics implementation
 - **[Operators Module](../operators.py)** - Counterfactual operators
 - **[Examples Module](../examples.py)** - 32 test cases
 
