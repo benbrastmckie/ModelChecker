@@ -322,7 +322,9 @@ from model_checker.theory_lib.bimodal import get_theory
 theory = get_theory(['extensional'])
 semantic_theories = {"Bimodal": theory}
 # Simple premise/conclusion pair over the full bimodal operator set
-example_range = {"SIMPLE": [["A"], ["B"], {"N": 2}]}
+# max_time is explicit: the bimodal default is 1s, but the real solve takes ~1.7s, so an
+# inherited default makes the outcome depend on machine timing rather than on the search itself.
+example_range = {"SIMPLE": [["A"], ["B"], {"N": 2, "max_time": 10}]}
 general_settings = {}
 """
         test_file = os.path.join(self.temp_dir, "bimodal_test.py")

@@ -204,22 +204,25 @@ satisfy the "no occurrence of `logos`/`extensional`" verification bullet below. 
 
 ---
 
-### Phase 3: Give the SIMPLE example explicit max_time headroom [NOT STARTED]
+### Phase 3: Give the SIMPLE example explicit max_time headroom [COMPLETED]
 
 **Goal**: Remove the timing race by setting `max_time` explicitly instead of inheriting the 1s
 bimodal default, so the ~1.7s solve always completes.
 
 **Tasks**:
-- [ ] In the renamed test's inline module content, change
+- [x] In the renamed test's inline module content, change
       `example_range = {"SIMPLE": [["A"], ["B"], {"N": 2}]}` to include `"max_time": 10` in the
       settings dict.
-- [ ] Add a short comment on that line explaining why the explicit budget exists: the bimodal
+- [x] Add a short comment on that line explaining why the explicit budget exists: the bimodal
       default is 1s, the real solve is ~1.7s, so an inherited default makes the outcome
       machine-timing-dependent.
-- [ ] Do not change `N` (or add `M`) — the research measured ~1.7s at the existing `N=2` / default
+- [x] Do not change `N` (or add `M`) — the research measured ~1.7s at the existing `N=2` / default
       `M=2`, and changing the search space would invalidate that measurement.
-- [ ] Confirm the change is confined to the renamed test's module content string; the other
+- [x] Confirm the change is confined to the renamed test's module content string; the other
       `example_range` literals in this file belong to out-of-scope tests and stay untouched.
+
+Verified: isolated invocation now PASSES (call time 2.14s, well under the 10s budget), and
+`git diff` on the test file shows exactly the one settings-dict change plus a new comment line.
 
 **Timing**: 10 minutes
 
