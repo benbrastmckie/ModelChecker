@@ -1,0 +1,29 @@
+F                                                                        [100%]
+=================================== FAILURES ===================================
+________ TestTernarySerializationAll.test_all_sat_task_relation_ternary ________
+
+self = <bimodal_logic.tests.test_oracle_interface.TestTernarySerializationAll object at 0x7ffff50923c0>
+
+    def test_all_sat_task_relation_ternary(self):
+        """Every task_relation entry is a dict with {source, duration, target} keys
+        and integer values.
+        """
+        sat_formulas = [
+            ("atom_A", A),
+            ("imp_A_B", _imp(A, B)),
+            ("and_A_B", _and(A, B)),
+            ("diamond_A", _diamond(A)),
+            ("next_A", _next(A)),
+        ]
+        for name, formula in sat_formulas:
+            depth = temporal_depth(formula)
+            timeout = 60000 if depth > 0 else 10000
+            result = self.provider.find_countermodel(formula, timeout_ms=timeout)
+>           assert result is not None, f"Expected SAT for {name}"
+E           AssertionError: Expected SAT for next_A
+E           assert None is not None
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:1050: AssertionError
+=========================== short test summary info ============================
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary
+1 failed in 60.82s (0:01:00)

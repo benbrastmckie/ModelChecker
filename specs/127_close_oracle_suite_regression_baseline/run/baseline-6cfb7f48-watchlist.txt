@@ -1,0 +1,50 @@
+F.                                                                       [100%]
+=================================== FAILURES ===================================
+__________ TestFullScanReport.test_complexity_5_scan_self_consistent ___________
+
+self = <bimodal_logic.tests.test_cross_oracle_differential.TestFullScanReport object at 0x7ffff586fd70>
+
+    def test_complexity_5_scan_self_consistent(self):
+        """Enumerate all primitive formulas at complexity<=5, verify zero self-disagreements."""
+        all_formulas = _enumerate_primitive_formulas(5, ["p"])
+    
+        # Self-comparison: oracle vs oracle
+        def ref_fn(f):
+            result = self.oracle.find_countermodel(f)
+            return "SAT" if result is not None else "UNSAT"
+    
+        report = _generate_differential_report(
+            self.oracle,
+            all_formulas,
+            ref_fn,
+            {"mc": "mc_oracle", "ref": "mc_oracle_self"},
+        )
+    
+>       assert report["disagreements"] == 0, (
+            f"Self-comparison produced {report['disagreements']} disagreements at complexity<=5"
+        )
+E       AssertionError: Self-comparison produced 1 disagreements at complexity<=5
+E       assert 1 == 0
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1381: AssertionError
+=============================== warnings summary ===============================
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+  /tmp/claude-1000/-home-benjamin-Projects-ModelChecker/5bc36ed5-6832-4270-a680-6acecb662eee/scratchpad/baseline-6cfb7f48/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906: PytestUnknownMarkWarning: Unknown pytest.mark.differential - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.differential
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+  /tmp/claude-1000/-home-benjamin-Projects-ModelChecker/5bc36ed5-6832-4270-a680-6acecb662eee/scratchpad/baseline-6cfb7f48/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+  /tmp/claude-1000/-home-benjamin-Projects-ModelChecker/5bc36ed5-6832-4270-a680-6acecb662eee/scratchpad/baseline-6cfb7f48/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115: PytestUnknownMarkWarning: Unknown pytest.mark.differential - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.differential
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+  /tmp/claude-1000/-home-benjamin-Projects-ModelChecker/5bc36ed5-6832-4270-a680-6acecb662eee/scratchpad/baseline-6cfb7f48/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent
+1 failed, 1 passed, 4 warnings in 1928.38s (0:32:08)

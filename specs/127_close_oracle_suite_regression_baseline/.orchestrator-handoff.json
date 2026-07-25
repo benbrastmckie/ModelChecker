@@ -1,0 +1,76 @@
+{
+  "status": "partial",
+  "summary": "Phases 1-2 completed cleanly: full 550-test oracle suite run under -n 6 finished in 44:33 (2673.06s), yielding 7 failed, 534 passed, 9 xfailed. Phase 3 triage is DONE and reached rubric category (c) -- a genuine, refactor-introduced regression -- so the task cannot close. Systematic isolated re-runs (5 pytest invocations total) found: (1) the 5 failures NOT on the plan's watch list are benign -n 6 parallel-execution artifacts (all pass together in one serial re-run, 2:59); (2) BOTH plan-designated 'known contention flake' watch-list tests fail deterministically in isolation, falsifying that classification entirely; (3) a baseline-commit check at pre-refactor commit 6cfb7f48 (read-only git worktree) shows test_all_sat_task_relation_ternary passes there but fails on the current branch -- a refactor-introduced regression -- while test_complexity_5_scan_self_consistent fails at both commits (pre-existing, refactor not implicated, though the disagreement count differs 1-vs-3 across a single sample each and is left as an open question). No baseline was promoted, no Phase 2 marker was flipped in the refactor plan, and Phases 4-6 did not run, per the rubric's category (c) action. -n 6 is now demonstrated unsound for this suite's baseline generation (5 false failures); recommendation is a serial baseline run or xdist_group serialization markers on the affected test classes.",
+  "blockers": [
+    {
+      "description": "test_all_sat_task_relation_ternary (test_oracle_interface.py::TestTernarySerializationAll) is a refactor-introduced regression: PASSES at pre-refactor commit 6cfb7f48, FAILS on the current branch with AssertionError 'Expected SAT for next_A' (assert None is not None) -- find_countermodel returns no model for a next_A (temporal diamond over atom A) formula expected SAT. This is rubric category (c): a hard stop. No baseline can be promoted and the refactor plan's Phase 2 markers cannot be flipped until this is fixed.",
+      "status": "confirmed genuine regression, unresolved",
+      "next_step": "Requires a follow-up task to diagnose and fix the oracle-facing regression in the current branch (likely introduced by the core/theory_lib refactor). Once fixed, re-run this task's Phase 2 (full suite) and Phase 3 (triage) from scratch -- the existing run/ artifacts predate the fix and are not valid evidence of a clean state afterward."
+    },
+    {
+      "description": "test_complexity_5_scan_self_consistent (test_cross_oracle_differential.py::TestFullScanReport) fails at BOTH the current branch (3 disagreements, 31:31) and pre-refactor commit 6cfb7f48 (1 disagreement, 32:08) -- a pre-existing defect, refactor not implicated. The differing disagreement count (1 vs 3) is a single sample at each commit on a suite already shown to be Z3-timing-sensitive; this is an open question, NOT reported as evidence of degradation or of stability.",
+      "status": "confirmed pre-existing, not blocking on its own but prevents a clean baseline",
+      "next_step": "Non-blocking relative to the refactor, but still a genuine failure that must be resolved (or explicitly carved out with owner sign-off) before any baseline in this suite can be called clean. If cheap resolution is wanted: 3-5 repeated samples at both commits to determine whether the disagreement count is stable or load-dependent."
+    },
+    {
+      "description": "RESOLVED: five failures outside the plan's known-flake watch list occurred under -n 6 (test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7], test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths, test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability, test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe, test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past]). Re-run together in one combined serial (no -n) invocation: 5 passed in 179.26s (2:59). All five are -n 6 parallel-execution artifacts (state-isolation/interleaving tests are not xdist-safe), not genuine regressions.",
+      "status": "resolved",
+      "next_step": "None -- confirmed as xdist-parallelism artifacts, not regressions. Feeds the methodology finding that -n 6 is unsound for this suite's baseline generation; a future baseline attempt should run serially or add xdist_group serialization markers to the affected test classes."
+    }
+  ],
+  "continuation_context": null,
+  "next_action_hint": "Task 127 cannot proceed further on its own. Spawn a follow-up task to diagnose/fix test_all_sat_task_relation_ternary's regression (find_countermodel returns None for next_A where 6cfb7f48 returned a model). Once that fix lands, re-dispatch /implement 127 to redo Phase 2 (full -n 6 or serial run) and Phase 3 (triage) from scratch -- do not reuse the existing run/ artifacts as evidence of a post-fix clean state. Separately, decide on the -n 6 soundness methodology fix (serial baseline vs. xdist_group markers) before the next attempt.",
+  "artifacts": [
+    {
+      "path": "specs/127_close_oracle_suite_regression_baseline/summaries/01_close-oracle-regression-baseline-summary.md",
+      "type": "summary",
+      "summary": "Full implementation summary: per-test verdicts, methodology findings (watch-list inversion, -n 6 unsoundness), decisions, and follow-ups."
+    },
+    {
+      "path": "specs/127_close_oracle_suite_regression_baseline/run/oracle-run.txt",
+      "type": "summary",
+      "summary": "Full -n 6 oracle suite run output: 7 failed, 534 passed, 9 xfailed in 2673.06s (0:44:33). NOT a clean baseline -- staged only, not promoted, preserved as triage evidence."
+    },
+    {
+      "path": "specs/127_close_oracle_suite_regression_baseline/run/junit-oracle.xml",
+      "type": "summary",
+      "summary": "JUnit XML for the same -n 6 run: tests=550, failures=7, errors=0. Staged only, not promoted into baselines/."
+    },
+    {
+      "path": "specs/127_close_oracle_suite_regression_baseline/run/isolated-complexity5-scan.txt",
+      "type": "summary",
+      "summary": "Isolated serial re-run of test_complexity_5_scan_self_consistent: still fails after 31:31, 'Self-comparison produced 3 disagreements at complexity<=5' (assert 3 == 0)."
+    },
+    {
+      "path": "specs/127_close_oracle_suite_regression_baseline/run/isolated-nonwatchlist-combined.txt",
+      "type": "summary",
+      "summary": "Combined serial re-run of the 5 non-watchlist failures: 5 passed in 179.26s (2:59) -- confirmed xdist-parallelism artifacts."
+    },
+    {
+      "path": "specs/127_close_oracle_suite_regression_baseline/run/isolated-ternary-sat.txt",
+      "type": "summary",
+      "summary": "Isolated serial re-run of test_all_sat_task_relation_ternary: fails in 60.82s, 'Expected SAT for next_A' (assert None is not None)."
+    },
+    {
+      "path": "specs/127_close_oracle_suite_regression_baseline/run/baseline-6cfb7f48-watchlist.txt",
+      "type": "summary",
+      "summary": "Both watch-list tests re-run together, serially, at pre-refactor commit 6cfb7f48 (read-only git worktree, since removed): 1 failed, 1 passed in 1928.38s (32:08). Decisive per-test attribution: ternary test is refactor-introduced; complexity-5 test is pre-existing."
+    }
+  ],
+  "phases_completed": 2,
+  "phases_total": 6,
+  "modified_files": [
+    "specs/127_close_oracle_suite_regression_baseline/plans/01_close-oracle-regression-baseline.md",
+    "specs/127_close_oracle_suite_regression_baseline/summaries/01_close-oracle-regression-baseline-summary.md",
+    "specs/127_close_oracle_suite_regression_baseline/run/oracle-run.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/junit-oracle.xml",
+    "specs/127_close_oracle_suite_regression_baseline/run/exit-code.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/isolated-complexity5-scan.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/isolated-nonwatchlist-combined.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/isolated-nonwatchlist-combined-exit.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/isolated-ternary-sat.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/isolated-ternary-sat-exit.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/baseline-6cfb7f48-watchlist.txt",
+    "specs/127_close_oracle_suite_regression_baseline/run/baseline-6cfb7f48-watchlist-exit.txt"
+  ]
+}

@@ -1,0 +1,234 @@
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [ 13%]
+........................................................................ [ 26%]
+........................................................................ [ 39%]
+........................................................................ [ 52%]
+..........F....................x............................x........... [ 65%]
+..............xxxx...................................................... [ 78%]
+........................................................................ [ 91%]
+....F...FFF.........F.........x..x........F..x                           [100%]
+=================================== FAILURES ===================================
+_ TestExampleRegression.test_regression_all_active_examples[BM_CM_1-example_case7] _
+[gw0] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_boundary_regression.TestExampleRegression object at 0x7ffff4237380>
+example_name = 'BM_CM_1'
+example_case = [['\\Future A'], ['\\Box A'], {'M': 2, 'N': 2, 'contingent': True, 'disjoint': False, ...}]
+
+    @pytest.mark.parametrize("example_name, example_case", regression_examples.items())
+    def test_regression_all_active_examples(self, example_name, example_case):
+        """Verify each active example produces the correct SAT/UNSAT result.
+    
+        This test is parametrized so individual failures are clearly identified
+        by example name, enabling targeted debugging.
+        """
+        with isolated_z3_context():
+            result = run_test(
+                example_case,
+                BimodalSemantics,
+                BimodalProposition,
+                bimodal_operators,
+                Syntax,
+                ModelConstraints,
+                BimodalStructure,
+            )
+>       assert result, (
+            f"Regression failure for example '{example_name}': "
+            f"expected={'countermodel' if example_case[2]['expectation'] else 'theorem/no-countermodel'}"
+        )
+E       AssertionError: Regression failure for example 'BM_CM_1': expected=countermodel
+E       assert False
+
+oracle/bimodal_logic/tests/test_boundary_regression.py:464: AssertionError
+______ TestStateIsolationRegression.test_100_calls_mixed_temporal_depths _______
+[gw3] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_soundness_regression.TestStateIsolationRegression object at 0x7fffedf3da00>
+
+    def test_100_calls_mixed_temporal_depths(self):
+        """100 sequential calls cycling through 4-formula rotation (25 cycles) produce consistent results.
+    
+        Each call must return the expected SAT (non-None) or UNSAT (None) result,
+        with no state leakage between calls.
+        """
+        for cycle in range(25):  # 25 cycles * 4 formulas = 100 total calls
+            for formula, expected_sat in self.ROTATION:
+                result = self.provider.find_countermodel(formula)
+                if expected_sat:
+>                   assert result is not None, (
+                        f"Cycle {cycle}: Expected non-None (SAT) for {formula}, got None. "
+                        "Possible state leakage from previous call."
+                    )
+E                   AssertionError: Cycle 20: Expected non-None (SAT) for {'tag': 'some_future', 'arg': {'tag': 'atom', 'name': 'p'}}, got None. Possible state leakage from previous call.
+E                   assert None is not None
+
+oracle/bimodal_logic/tests/test_soundness_regression.py:680: AssertionError
+__ TestOracleMFormulaBoundarySafe.test_oracle_m_formula_depth1_boundary_safe ___
+[gw1] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_soundness_regression.TestOracleMFormulaBoundarySafe object at 0x7fffedf3eae0>
+
+    def test_oracle_m_formula_depth1_boundary_safe(self):
+        """depth=1 formula: oracle uses M=max(1+2,3)=3, boundary_safe=True."""
+        result = self.provider.find_countermodel(F_P)
+>       assert result is not None, "F(p) should have a countermodel"
+E       AssertionError: F(p) should have a countermodel
+E       assert None is not None
+
+oracle/bimodal_logic/tests/test_soundness_regression.py:1033: AssertionError
+__ TestEnrichedRoundTrip.test_enriched_vs_primitive_sat_agreement[some_past] ___
+[gw0] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_oracle_interface.TestEnrichedRoundTrip object at 0x7ffff409e7e0>
+operator_name = 'some_past'
+enriched_json = {'arg': {'name': 'A', 'tag': 'atom'}, 'tag': 'some_past'}
+primitive_json = {'event': {'name': 'A', 'tag': 'atom'}, 'guard': {'left': {'tag': 'bot'}, 'right': {'tag': 'bot'}, 'tag': 'imp'}, 'tag': 'snce'}
+
+    @pytest.mark.parametrize(
+        "operator_name, enriched_json, primitive_json",
+        ENRICHED_PRIMITIVE_PAIRS,
+        ids=[p[0] for p in ENRICHED_PRIMITIVE_PAIRS],
+    )
+    def test_enriched_vs_primitive_sat_agreement(
+        self, operator_name, enriched_json, primitive_json
+    ):
+        """Enriched and primitive forms produce identical SAT/UNSAT results."""
+        depth = max(temporal_depth(enriched_json), temporal_depth(primitive_json))
+        # Primitive forms are structurally larger and may need more solver time
+        timeout = 60000 if depth > 0 else 10000
+        enriched_result = self.provider.find_countermodel(enriched_json, timeout_ms=timeout)
+        primitive_result = self.provider.find_countermodel(primitive_json, timeout_ms=timeout)
+        enriched_sat = enriched_result is not None
+        primitive_sat = primitive_result is not None
+>       assert enriched_sat == primitive_sat, (
+            f"SAT/UNSAT mismatch for '{operator_name}': "
+            f"enriched={enriched_sat}, primitive={primitive_sat}"
+        )
+E       AssertionError: SAT/UNSAT mismatch for 'some_past': enriched=True, primitive=False
+E       assert True == False
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:736: AssertionError
+______ TestStateIsolationRegression.test_sat_unsat_interleaving_stability ______
+[gw3] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_soundness_regression.TestStateIsolationRegression object at 0x7fffedf0ba40>
+
+    def test_sat_unsat_interleaving_stability(self):
+        """50 alternating pairs of depth-1 SAT and depth-0 UNSAT produce correct results.
+    
+        Task 114: Changed from G(F(p)) (depth-2, returns None at M=4) to F(p) (depth-1).
+        F(p) alternated with A->A (depth-0 UNSAT).
+        Every SAT call must return non-None, every UNSAT call must return None.
+        """
+        for i in range(50):
+            sat_result = self.provider.find_countermodel(F_P)
+>           assert sat_result is not None, (
+                f"Pair {i}: F(p) should return non-None (depth-1 SAT). "
+                "Got None -- possible state contamination from depth-0 UNSAT formula."
+            )
+E           AssertionError: Pair 1: F(p) should return non-None (depth-1 SAT). Got None -- possible state contamination from depth-0 UNSAT formula.
+E           assert None is not None
+
+oracle/bimodal_logic/tests/test_soundness_regression.py:699: AssertionError
+________ TestTernarySerializationAll.test_all_sat_task_relation_ternary ________
+[gw4] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_oracle_interface.TestTernarySerializationAll object at 0x7ffff40cb290>
+
+    def test_all_sat_task_relation_ternary(self):
+        """Every task_relation entry is a dict with {source, duration, target} keys
+        and integer values.
+        """
+        sat_formulas = [
+            ("atom_A", A),
+            ("imp_A_B", _imp(A, B)),
+            ("and_A_B", _and(A, B)),
+            ("diamond_A", _diamond(A)),
+            ("next_A", _next(A)),
+        ]
+        for name, formula in sat_formulas:
+            depth = temporal_depth(formula)
+            timeout = 60000 if depth > 0 else 10000
+            result = self.provider.find_countermodel(formula, timeout_ms=timeout)
+>           assert result is not None, f"Expected SAT for {name}"
+E           AssertionError: Expected SAT for next_A
+E           assert None is not None
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:1050: AssertionError
+__________ TestFullScanReport.test_complexity_5_scan_self_consistent ___________
+[gw5] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_cross_oracle_differential.TestFullScanReport object at 0x7ffff42e58e0>
+
+    def test_complexity_5_scan_self_consistent(self):
+        """Enumerate all primitive formulas at complexity<=5, verify zero self-disagreements."""
+        all_formulas = _enumerate_primitive_formulas(5, ["p"])
+    
+        # Self-comparison: oracle vs oracle
+        def ref_fn(f):
+            result = self.oracle.find_countermodel(f)
+            return "SAT" if result is not None else "UNSAT"
+    
+        report = _generate_differential_report(
+            self.oracle,
+            all_formulas,
+            ref_fn,
+            {"mc": "mc_oracle", "ref": "mc_oracle_self"},
+        )
+    
+>       assert report["disagreements"] == 0, (
+            f"Self-comparison produced {report['disagreements']} disagreements at complexity<=5"
+        )
+E       AssertionError: Self-comparison produced 1 disagreements at complexity<=5
+E       assert 1 == 0
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1381: AssertionError
+=============================== warnings summary ===============================
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:906: PytestUnknownMarkWarning: Unknown pytest.mark.differential - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.differential
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1019: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1115: PytestUnknownMarkWarning: Unknown pytest.mark.differential - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.differential
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357
+  /home/benjamin/Projects/ModelChecker/oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1357: PytestUnknownMarkWarning: Unknown pytest.mark.slow - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.slow
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED oracle/bimodal_logic/tests/test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7]
+FAILED oracle/bimodal_logic/tests/test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths
+FAILED oracle/bimodal_logic/tests/test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past]
+FAILED oracle/bimodal_logic/tests/test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary
+FAILED oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent
+7 failed, 534 passed, 9 xfailed, 24 warnings in 2673.06s (0:44:33)
