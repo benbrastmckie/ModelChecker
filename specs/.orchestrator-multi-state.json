@@ -1,0 +1,74 @@
+{
+  "session_id": "sess_1784959703_c3da6e",
+  "task_numbers": [
+    127,
+    128,
+    130,
+    126,
+    129
+  ],
+  "waves": [
+    [
+      127,
+      128,
+      130
+    ],
+    [
+      126
+    ],
+    [
+      129
+    ]
+  ],
+  "max_cycles": 25,
+  "cycle_count": 9,
+  "failed_tasks": [
+    {
+      "task": 127,
+      "reason": "partial: refactor-introduced oracle regression (ternary SAT test); no clean baseline achievable"
+    },
+    {
+      "task": 126,
+      "reason": "blocked: predecessor 127 did not complete"
+    }
+  ],
+  "completed_tasks": [
+    128,
+    130
+  ],
+  "current_statuses": {
+    "127": "partial",
+    "128": "completed",
+    "130": "completed",
+    "126": "blocked",
+    "129": "not_started"
+  },
+  "task_dirs": {
+    "127": "specs/127_close_oracle_suite_regression_baseline",
+    "128": "specs/128_fix_witness_error_theory_attribute",
+    "130": "specs/130_stabilize_order_dependent_builder_test",
+    "126": "specs/126_refactor_repo_core_infrastructure_theory_lib",
+    "129": "specs/129_triage_preexisting_test_failure_backlog"
+  },
+  "research_agents": {
+    "127": "python-research-agent",
+    "128": "python-research-agent",
+    "130": "python-research-agent",
+    "126": "general-research-agent",
+    "129": "python-research-agent"
+  },
+  "implement_agents": {
+    "127": "python-implementation-agent",
+    "128": "python-implementation-agent",
+    "130": "python-implementation-agent",
+    "126": "general-implementation-agent",
+    "129": "python-implementation-agent"
+  },
+  "task_types": {
+    "127": "python",
+    "128": "python",
+    "130": "python",
+    "126": "general",
+    "129": "python"
+  }
+}
