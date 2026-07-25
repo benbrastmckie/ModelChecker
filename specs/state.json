@@ -671,7 +671,7 @@
     {
       "project_number": 132,
       "project_name": "make_oracle_suite_xdist_safe",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "topic": "testing",
       "description": "Make the oracle differential suite safe to run under pytest-xdist, or mark the unsafe parts serial-only. A full run under -n 6 produced seven failures where a serial run of the same tests produces two: the five extra failures were parallel-execution artifacts that all pass when re-run together serially in under three minutes. The affected tests are test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7], test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths, test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability, test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe, and test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past]. Because these tests assert on state isolation and call-sequence stability, distributing them across workers breaks the property under test. Add xdist_group markers (or an equivalent serialization mechanism) so the suite can be run in parallel without manufacturing false failures, and register the currently-unknown custom marks (differential, slow) which emit PytestUnknownMarkWarning on every run. Until this lands, any regression baseline for this suite must be generated serially, which takes roughly 90 minutes versus 45 under -n 6.",
@@ -681,11 +681,27 @@
         "oracle/pytest.ini",
         "oracle/pyproject.toml"
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "type": "report",
+          "path": "specs/132_make_oracle_suite_xdist_safe/reports/01_oracle-xdist-safety.md",
+          "summary": "Diagnoses the xdist failures as CPU-contention-induced Z3 timeout misclassification (not shared process state), rules out xdist_group as the primary fix, identifies the ini-discovery gap behind the unregistered marks, and specifies the minimal xdist_serial-marked test set plus a two-pass invocation strategy."
+        },
+        {
+          "type": "plan",
+          "path": "specs/132_make_oracle_suite_xdist_safe/plans/01_oracle-xdist-safety.md",
+          "summary": "Phased plan for conftest marker registration, xdist_serial marking, the two-pass runner script, and validation against the known-failing set."
+        },
+        {
+          "type": "summary",
+          "path": "specs/132_make_oracle_suite_xdist_safe/summaries/01_oracle-xdist-safety-summary.md",
+          "summary": "Two-pass validation: 7->1 failures across 550 tests; serial 6:14 + parallel 46:19."
+        }
+      ],
       "created": "2026-07-25T16:19:08Z",
-      "last_updated": "2026-07-25T16:19:08Z",
+      "last_updated": "2026-07-25T21:10:25Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1784959703_c3da6e"
+      "session_id": "sess_1785007932_01dd91_132"
     },
     {
       "project_number": 133,

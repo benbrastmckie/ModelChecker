@@ -70,6 +70,34 @@ python -m bimodal_logic.cli check '{"tag": "atom", "name": "p"}'
 `ModuleNotFoundError: No module named 'model_checker'` (verified during task 118 Phase 6),
 because of the `__init__.py` import chain described above.
 
+## Running the Test Suite
+
+Run the full `oracle/` suite with the two-pass runner rather than a single `pytest oracle/ -n 6`
+invocation:
+
+```bash
+nix develop --command bash oracle/run-oracle-suite.sh
+```
+
+The suite is split into two passes because a handful of tests have a Z3 solve budget with under
+~2x headroom over their typical solo wall-clock time, and CPU contention from running six pytest
+workers in parallel can inflate solve times enough to trip that budget — reported as
+"no countermodel" rather than as an error (see `code/docs/core/TESTING_GUIDE.md` section 8.6). The
+script runs `pytest oracle/ -n 6 -m "not xdist_serial"` first, then a serial
+`pytest oracle/ -m "xdist_serial"` pass with no `-n` at all. Extra arguments (e.g. `-q`,
+`--collect-only`) are forwarded to both passes.
+
+Marks are registered in `oracle/conftest.py`, which is also where `differential` and `slow` are
+registered for `oracle/`-rooted invocations (they are already declared in `code/pyproject.toml`,
+but that file sits outside pytest's ini-discovery path when `oracle/` is invoked from the repo
+root).
+
+When adding a new test whose Z3 solve budget has under ~2x headroom over its typical solo
+wall-clock time, mark it `@pytest.mark.xdist_serial` (or, for a single case inside a shared
+`parametrize` list, add its node-id fragment to `oracle/conftest.py`'s
+`pytest_collection_modifyitems` hook) so it runs in the serial pass instead of risking a
+contention-induced spurious failure under `-n 6`.
+
 ## Relationship to the In-Package Bimodal Suite
 
 `code/src/model_checker/theory_lib/bimodal/tests/` contains the in-package bimodal test suite,

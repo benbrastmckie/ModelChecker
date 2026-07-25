@@ -638,6 +638,11 @@ class TestGuardedCompositionality:
 # Phase 4: State Isolation with Temporal Depth-2 Formulas
 ##############################################################################
 
+@pytest.mark.xdist_serial
+# All four methods share this class's setup_method and its unmodified
+# timeout_ms=5000 default, so all four sit in the same CPU-contention-timeout
+# risk band (see code/docs/core/TESTING_GUIDE.md section 8.6): run serially,
+# never under -n (oracle/run-oracle-suite.sh's second pass).
 class TestStateIsolationRegression:
     """State isolation tests with mixed temporal depths.
 
@@ -1027,6 +1032,11 @@ class TestOracleMFormulaBoundarySafe:
             f"got {result['time_bound']}"
         )
 
+    @pytest.mark.xdist_serial
+    # ~3.2x measured headroom over the default timeout_ms=5000, but CPU
+    # contention under pytest-xdist can still erode that margin (see
+    # code/docs/core/TESTING_GUIDE.md section 8.6): run serially, never
+    # under -n (oracle/run-oracle-suite.sh's second pass).
     def test_oracle_m_formula_depth1_boundary_safe(self):
         """depth=1 formula: oracle uses M=max(1+2,3)=3, boundary_safe=True."""
         result = self.provider.find_countermodel(F_P)

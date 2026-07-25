@@ -11,8 +11,8 @@ next_project_number: 134
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 129,132,133 | -- | testing |
-| 2 | 127 | 132,133 | testing |
+| 1 | 129,133 | -- | testing |
+| 2 | 127 | 133 | testing |
 | 3 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -24,10 +24,8 @@ next_project_number: 134
 ### Testing
 
 129 [IMPLEMENTING] — Triage and document the pre-existing test failure backlog so futu
-132 [NOT STARTED] — Make the oracle differential suite safe to run under pytest-xdist
-  └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
 133 [NOT STARTED] — Fix the pre-existing self-consistency failure in the oracle full-
-  └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t (see above)
+  └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
 
 ## Tasks
 
@@ -42,10 +40,12 @@ next_project_number: 134
 ---
 
 ### 132. Make oracle suite xdist safe
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [132_make_oracle_suite_xdist_safe/reports/01_oracle-xdist-safety.md]
+- **Plan**: [132_make_oracle_suite_xdist_safe/plans/01_oracle-xdist-safety.md]
 
 **Description**: Make the oracle differential suite safe to run under pytest-xdist, or mark the unsafe parts serial-only. A full run under -n 6 produced seven failures where a serial run of the same tests produces two: the five extra failures were parallel-execution artifacts that all pass when re-run together serially in under three minutes. The affected tests are test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7], test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths, test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability, test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe, and test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past]. Because these tests assert on state isolation and call-sequence stability, distributing them across workers breaks the property under test. Add xdist_group markers (or an equivalent serialization mechanism) so the suite can be run in parallel without manufacturing false failures, and register the currently-unknown custom marks (differential, slow) which emit PytestUnknownMarkWarning on every run. Until this lands, any regression baseline for this suite must be generated serially, which takes roughly 90 minutes versus 45 under -n 6.
 
