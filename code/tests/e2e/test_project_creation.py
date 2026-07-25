@@ -115,7 +115,10 @@ class TestProjectCreation:
             pytest.fail(f"Generated examples.py has syntax error: {e}")
     
     @pytest.mark.parametrize("theory_name", [
-        'bimodal'
+        'bimodal',
+        'exclusion',
+        'imposition',
+        'logos',
     ])
     def test_project_creation_all_theories(self, theory_name, tmp_path):
         """Test project creation works for all supported theories."""

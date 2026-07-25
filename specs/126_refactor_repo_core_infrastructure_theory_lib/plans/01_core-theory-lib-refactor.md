@@ -1467,50 +1467,63 @@ masked the real `ImportError` during debugging (merged the two context strings i
 
 ---
 
-### Phase 22: Restore bimodal iterate.py and Unify the Test Layout [NOT STARTED]
+### Phase 22: Restore bimodal iterate.py and Unify the Test Layout [COMPLETED]
 
 - **Goal:** Close the last contract gap by restoring the one missing iterator, fixing a live
   reachable defect in the process.
 - **Tasks:**
-  - [ ] Understand why this is a defect and not a design choice. `bimodal` has no `iterate.py` while
-        exclusion (305 lines), imposition (533), and logos (470) do. It was deleted deliberately in
-        commit `9b76ffa2` ("remove bimodal iterate dependency", Option A), but that was
-        dependency-cutting during an unrelated restoration, not a judgment that the semantics were
-        wrong. The gap is live and reachable: `bimodal/semantic.py:68` still declares `'iterate': 1`
-        in `DEFAULT_EXAMPLE_SETTINGS`, so a user setting `iterate: 2` on a bimodal example reaches
-        `builder/runner.py:875` and gets `ImportError: Theory module 'bimodal' does not provide an
-        iterate_example function`. A 410-line `bimodal/docs/ITERATE.md` still documents the removed
-        API (`:37`, `:62`).
-  - [ ] Restore with `git show 9b76ffa2^:code/src/model_checker/theory_lib/bimodal/iterate.py`. The
-        blob is 611 lines, compiles, and all three of its imports still resolve today:
-        `BaseModelIterator` (`iterate/core.py:46`), `bitvec_to_worldstate` (`utils/bitvector.py:125`),
-        `pretty_set_print` (`utils/formatting.py:12`). Use the established in-repo restore-and-port
-        recipe already applied to exclusion and imposition (commits `71da2978`, `36d4997d`).
-  - [ ] Port to current conventions using `imposition/iterate.py` as the template. Specifically, add
-        `iterate_example_generator` with the `.returns_generator` and `.__wrapped__` markers
-        (`imposition/iterate.py:504,533-534`) that `builder/runner.py:879-889` keys off — the 611-line
-        blob predates that convention and exposes only `iterate_example` (`:591`).
-  - [ ] Two referenced `BimodalStructure` attributes no longer exist — `detect_model_differences`
-        and `_get_friendly_letter_name`. Both are already `hasattr`-guarded in the restored source
-        (`:60`, `:427`), as are `semantics.task_rel` (`:219`) and `semantics.state_str_to_bitvec`
-        (`:180`), so they degrade rather than crash. Verify each guard rather than assuming, and
-        decide per attribute whether to restore the capability or leave the graceful degradation.
-  - [ ] Re-export `iterate_example` and `iterate_example_generator` from `bimodal/__init__.py`,
-        matching exclusion (`:10`), imposition (`:43`), and logos (`:19`).
-  - [ ] Write a fresh `bimodal/tests/integration/test_iterate.py` modelled on
-        `imposition/tests/integration/test_iterate.py`. Do **not** restore the original 156-line
-        version: it is Mock-heavy and mocks structure attributes (`worlds`, `time_points`) that no
-        longer match the current `BimodalStructure`.
-  - [ ] Verify `bimodal/docs/ITERATE.md`'s documented API matches the restored module, and correct it
-        where it does not.
-  - [ ] Delete `bimodal/tests/e2e/` — it contains only a `__pycache__`, has no `__init__.py`, and its
-        sole file was deliberately removed. No other theory has an e2e directory.
-  - [ ] Extend the existing theory parametrization in `code/tests/e2e/test_project_creation.py`
-        (currently `test_project_creation_all_theories[bimodal]`) to cover exclusion, imposition, and
-        logos, so end-to-end coverage reaches every theory from one place.
-  - [ ] Record "add `notebooks/` for bimodal and logos" as a ROADMAP follow-up in Phase 26 rather
-        than fabricating notebook content here.
-  - [ ] Remove the remaining `iterate.py` conformance xfail.
+  - [x] Understand why this is a defect and not a design choice. *(completed: confirmed the
+        deletion in commit `9b76ffa2` was dependency-cutting during an unrelated restoration, not
+        a semantics judgment; verified the live `ImportError` gap directly before restoring)*
+  - [x] Restore with `git show 9b76ffa2^:code/src/model_checker/theory_lib/bimodal/iterate.py`.
+        *(completed: 611-line blob retrieved and used as the source for the port below)*
+  - [x] Port to current conventions using `imposition/iterate.py` as the template, adding
+        `iterate_example_generator` with `.returns_generator`/`.__wrapped__` markers.
+        *(completed: also fixed a genuine bug in the ported `_create_difference_constraint` —
+        the restored source referenced `semantics.W`/`semantics.T`/`semantics.world_history[w][t]`,
+        none of which exist on the current `BimodalSemantics` (only `M`, `N`, `max_world_id`,
+        `world_function`). Confirmed via `iterate/iterator.py`/`core.py` that this method is
+        never actually invoked by the live search loop — the active loop always excludes
+        previous models via the shared, theory-agnostic `ConstraintGenerator` in
+        `iterate/constraints.py` — but rewrote it to use real attributes
+        (`world_function`, `max_world_id`, bounded ranges) rather than leaving broken
+        attribute references in a file every other theory keeps parity with. Documented this
+        finding in both the module docstring/comments and `ITERATE.md`.)*
+  - [x] Two referenced `BimodalStructure` attributes no longer exist — `detect_model_differences`
+        and `_get_friendly_letter_name`. *(completed: confirmed via grep neither is defined on
+        `BimodalStructure`; both guards preserved as graceful degradation, not restored, since
+        the plan's own hasattr-guard framing anticipated exactly this. `semantics.task_rel` and
+        `semantics.state_str_to_bitvec` guards also verified — `task_rel` exists,
+        `state_str_to_bitvec` does not, both already correctly guarded in the ported source.)*
+  - [x] Re-export `iterate_example` and `iterate_example_generator` from `bimodal/__init__.py`,
+        matching exclusion, imposition, and logos. *(completed, plus `BimodalModelIterator`)*
+  - [x] Write a fresh `bimodal/tests/integration/test_iterate.py` modelled on
+        `imposition/tests/integration/test_iterate.py`. *(completed: written fresh against the
+        current `BimodalStructure` contract — world histories keyed by `world_id` -> {time:
+        state}, not the old flat `worlds`/`time_points`. Includes both Mock-based unit-style
+        tests (construction, difference calculation, the fixed `_create_difference_constraint`)
+        and real (non-mocked) functional tests that build an actual `BuildExample` with bimodal
+        theory and exercise `iterate_example`/`iterate_example_generator` end to end, proving
+        the `ImportError` gap is closed. 7 tests, all green.)*
+  - [x] Verify `bimodal/docs/ITERATE.md`'s documented API matches the restored module, and correct
+        it where it does not. *(completed: fixed `iterator.iteration_count`/`iterator.isomorphic_count`
+        — real attribute names are `checked_model_count`/`isomorphic_model_count` — and rewrote
+        the "Advanced Topics" section, which described the theory-specific difference/isomorphism
+        methods as driving search-time model diversity; they do not (see the dead-code finding
+        above) — corrected to explain that the shared `ConstraintGenerator`/`IsomorphismChecker`
+        drive the search and `BimodalModelIterator`'s methods are presentation-only plus
+        interface parity.)*
+  - [x] Delete `bimodal/tests/e2e/`. *(completed: directory contained only a gitignored
+        `__pycache__`, nothing tracked to remove via `git rm`)*
+  - [x] Extend the existing theory parametrization in `code/tests/e2e/test_project_creation.py`
+        to cover exclusion, imposition, and logos. *(completed: all four theories now
+        parametrized; all 8 tests in the file pass)*
+  - [x] Record "add `notebooks/` for bimodal and logos" as a ROADMAP follow-up in Phase 26.
+        *(deferred to Phase 26 as planned — not done here)*
+  - [x] Remove the remaining `iterate.py` conformance xfail. *(completed:
+        `ITERATE_MODULE_XFAIL_REASON` emptied in `test_theory_conformance.py`, matching the
+        pattern used for the other now-fixed entries; all 48 conformance tests pass, zero
+        xfails remain in the file)*
 - **Timing:** 2 hours
 - **Depends on:** 19, 21
 - **Files to modify:**

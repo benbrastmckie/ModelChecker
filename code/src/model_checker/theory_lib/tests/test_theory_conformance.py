@@ -348,3 +348,50 @@ class TestSubtheoryConformance:
             f"subtheory '{subtheory}'s get_operators() must return a non-empty dict; "
             f"a subtheory contributing zero operators is a defect, not a valid configuration"
         )
+
+
+# All six per-defect XFAIL_REASON dicts above are now empty -- every contract gap this file
+# was written to track has been fixed. They are kept as empty dicts (rather than deleted)
+# so _xfail_params()'s call sites need no further edit if a future regression needs to be
+# tracked again. The guard below makes sure a future contributor cannot quietly re-populate
+# one of them (or add a new xfail marker elsewhere in this file) without the suite noticing.
+ALL_XFAIL_REASON_DICTS = {
+    'SEMANTIC_PACKAGE_XFAIL_REASON': SEMANTIC_PACKAGE_XFAIL_REASON,
+    'ITERATE_MODULE_XFAIL_REASON': ITERATE_MODULE_XFAIL_REASON,
+    'GET_THEORY_SIGNATURE_XFAIL_REASON': GET_THEORY_SIGNATURE_XFAIL_REASON,
+    'GET_TEST_EXAMPLES_XFAIL_REASON': GET_TEST_EXAMPLES_XFAIL_REASON,
+    'MISSING_EXAMPLES_ATTR_XFAIL_REASON': MISSING_EXAMPLES_ATTR_XFAIL_REASON,
+    'DUPLICATE_EXAMPLE_RANGE_XFAIL_REASON': DUPLICATE_EXAMPLE_RANGE_XFAIL_REASON,
+}
+
+
+class TestZeroXfailGuard:
+    """Guards against a known-gap tracker quietly regaining tenants.
+
+    This is the "no carried exceptions" proof the core/theory_lib refactor's contract and
+    boundary work is judged against: the conformance suite tracks known gaps as narrowly-scoped
+    xfail(strict=True) markers keyed off the XFAIL_REASON dicts above, and every one of them is
+    empty as of this test. If a future change (re-)populates one, this test fails loudly instead
+    of the gap being silently re-admitted.
+    """
+
+    def test_no_xfail_reason_dicts_are_populated(self):
+        populated = {name: dict_ for name, dict_ in ALL_XFAIL_REASON_DICTS.items() if dict_}
+        assert not populated, (
+            f"The theory conformance suite must carry zero known-gap xfails, but the "
+            f"following XFAIL_REASON dict(s) are non-empty: {populated}. If this is an "
+            f"intentional new gap, that is a real regression against the refactor's "
+            f"definition of done (zero xfail markers) and should be treated as such, not "
+            f"silently accepted."
+        )
+
+    def test_registry_has_no_discovery_drift(self):
+        from model_checker.theory_lib import check_registry_drift
+
+        drift = check_registry_drift()
+        assert not drift['unregistered'] and not drift['missing_on_disk'], (
+            f"discover_theories() (the dev-only filesystem lint) disagrees with the "
+            f"registry: {drift}. 'unregistered' means a directory looks like a theory "
+            f"but was never registered; 'missing_on_disk' means a registered theory's "
+            f"directory no longer has the minimal examples.py/operators.py pair."
+        )

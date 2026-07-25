@@ -71,8 +71,8 @@ iterator.max_iterations = 5
 models = iterator.iterate()
 
 # Access iteration statistics
-print(f"Total attempts: {iterator.iteration_count}")
-print(f"Isomorphic models found: {iterator.isomorphic_count}")
+print(f"Total models checked: {iterator.checked_model_count}")
+print(f"Isomorphic models skipped: {iterator.isomorphic_model_count}")
 ```
 
 ## Configuration
@@ -353,30 +353,36 @@ for config in configs:
 
 ## Advanced Topics
 
-### Custom Difference Constraints
+### How Model Diversity Is Actually Enforced
 
-The bimodal iterator uses sophisticated constraints to ensure model diversity:
+The search for each additional model is driven by the theory-agnostic
+`ConstraintGenerator` in `model_checker.iterate.constraints`, shared by all
+four theories: it excludes each previously-found model by requiring at
+least one `is_world(world_id)` assignment to flip, for a bounded range of
+world IDs. `BimodalModelIterator` does not override this at search time --
+its `_create_difference_constraint` / `_create_non_isomorphic_constraint` /
+`_create_stronger_constraint` methods exist for interface parity with the
+other three theories and for direct programmatic use, but are not invoked
+by the active search loop.
 
-1. **Truth Condition Variation**: Forces different truth values for atomic propositions
-2. **Task Relation Modification**: Changes allowed state transitions
-3. **World Count Variation**: Generates models with different numbers of worlds
-4. **Interval Shifting**: Creates worlds with different temporal extents
-5. **History Permutation**: Rearranges state sequences while preserving task constraints
+What `BimodalModelIterator` **does** own is presentation: once a new model
+is found, `_calculate_bimodal_differences` computes a bimodal-specific
+difference report (world histories, truth conditions, task relations, time
+intervals, time-shift relations) purely for display via
+`display_model_differences` / `print_model_differences` -- it does not
+influence which model Z3 returns.
+
+Because bimodal's frame constraints (task relation transitivity, lawful
+world-function definedness) are heavier than the flatter state-based
+theories, the generic `is_world`-based search can take noticeably longer to
+find a second, non-isomorphic model for the same `max_time` budget. If
+iteration stalls, see "No Additional Models Found" below.
 
 ### Isomorphism Detection
 
-The iterator detects and skips isomorphic models based on:
-- Bijective world mappings preserving all relations
-- Time-shift equivalence
-- Truth condition permutations
-
-### Escape Strategies
-
-When stuck in isomorphic model loops, the iterator employs:
-1. Dramatically different world counts
-2. Interval mirroring (negative to positive)
-3. Truth condition inversion
-4. Task relation reversal
+Isomorphic models are detected and skipped by the shared
+`IsomorphismChecker` in `model_checker.iterate.graph` (NetworkX-backed when
+available), not by bimodal-specific logic.
 
 ## Troubleshooting
 
