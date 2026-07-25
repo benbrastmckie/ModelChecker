@@ -1,5 +1,5 @@
 ---
-next_project_number: 131
+next_project_number: 134
 ---
 
 # TODO
@@ -11,8 +11,9 @@ next_project_number: 131
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 127,129 | -- | testing |
-| 2 | 126 | 127 | architecture |
+| 1 | 129,131,132,133 | -- | testing |
+| 2 | 127 | 131 | testing |
+| 3 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -22,10 +23,43 @@ next_project_number: 131
 
 ### Testing
 
-127 [PARTIAL] — Complete the oracle differential-suite regression baseline that t
-129 [RESEARCHING] — Triage and document the pre-existing test failure backlog so futu
+129 [IMPLEMENTING] — Triage and document the pre-existing test failure backlog so futu
+131 [NOT STARTED] — Fix the refactor-introduced regression in the oracle differential
+  └─ 127 [PARTIAL] — Complete the oracle differential-suite regression baseline that t
+132 [NOT STARTED] — Make the oracle differential suite safe to run under pytest-xdist
+133 [NOT STARTED] — Fix the pre-existing self-consistency failure in the oracle full-
 
 ## Tasks
+
+### 133. Fix oracle self consistency disagreements
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Fix the pre-existing self-consistency failure in the oracle full-scan report. oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent fails with AssertionError: Self-comparison produced N disagreements at complexity<=5 (assert N == 0) at test_cross_oracle_differential.py:1381. A self-comparison producing any disagreement means the oracle does not agree with itself on the same input, which is a correctness defect independent of any refactor. This failure is confirmed pre-existing: it reproduces at pre-refactor commit 6cfb7f48. It is NOT a resource or contention artifact -- it fails deterministically in a serial isolated run (which takes about 31 minutes). One open question to resolve as part of this work: the run at 6cfb7f48 reported 1 disagreement while the run at HEAD reported 3. With a single sample from each commit on a suite already known to be timing-sensitive, it is unresolved whether the disagreement count is stable, load-dependent, or genuinely worse post-refactor. Take repeat samples at both commits before drawing a conclusion. A prior disposition document incorrectly classified this test as a contention flake that passes in isolation; that classification is false and should be corrected wherever it is recorded.
+
+---
+
+### 132. Make oracle suite xdist safe
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Make the oracle differential suite safe to run under pytest-xdist, or mark the unsafe parts serial-only. A full run under -n 6 produced seven failures where a serial run of the same tests produces two: the five extra failures were parallel-execution artifacts that all pass when re-run together serially in under three minutes. The affected tests are test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7], test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths, test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability, test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe, and test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past]. Because these tests assert on state isolation and call-sequence stability, distributing them across workers breaks the property under test. Add xdist_group markers (or an equivalent serialization mechanism) so the suite can be run in parallel without manufacturing false failures, and register the currently-unknown custom marks (differential, slow) which emit PytestUnknownMarkWarning on every run. Until this lands, any regression baseline for this suite must be generated serially, which takes roughly 90 minutes versus 45 under -n 6.
+
+---
+
+### 131. Fix oracle ternary sat regression
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+
+**Description**: Fix the refactor-introduced regression in the oracle differential suite. oracle/bimodal_logic/tests/test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary PASSES at pre-refactor commit 6cfb7f48 and FAILS on the current branch with AssertionError: Expected SAT for next_A (assert None is not None) at test_oracle_interface.py:1050 -- find_countermodel returns no model for a next_A formula that is expected to be satisfiable. The bisect endpoints are already established (green at 6cfb7f48, red at HEAD), so the work is to locate the responsible change in the core/theory_lib refactor and repair it. Note that a max_time overrun in this codebase surfaces as a wrong-answer result rather than an error, and Z3 solve times vary roughly 20x run-to-run on this machine (see code/docs/core/TESTING_GUIDE.md section 8.6), so rule out a timeout budget before concluding the semantics are wrong -- but the fact that the same test passes at the baseline commit under the same conditions points at a genuine behavioral change rather than timing. This regression is the sole remaining blocker on completing the core/theory_lib refactor.
+
+---
 
 ### 130. Stabilize order dependent builder test
 - **Status**: [COMPLETED]
@@ -41,10 +75,12 @@ next_project_number: 131
 ---
 
 ### 129. Triage preexisting test failure backlog
-- **Status**: [RESEARCHING]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 128, Task 130
+- **Research**: [129_triage_preexisting_test_failure_backlog/reports/01_known-failures-baseline.md]
+- **Plan**: [129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md]
 
 **Description**: Triage and document the pre-existing test failure backlog so future refactors can diff cleanly against a known-good baseline. A full sweep (PYTHONPATH=code/src pytest code/src/model_checker/ code/tests/) currently reports 27 failures against 2148 passing, all of which reproduce at the pre-refactor baseline commit 6cfb7f48 and are therefore unrelated to the core/theory_lib refactor. They fall into two groups. The larger group is environment-sensitive: roughly 16 timing and resource tests across tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and builder/tests/integration/test_performance.py, whose pass/fail state flips with machine load (a repeat sweep varied between 27 and 30 failures). These should either be marked resource-dependent, given explicit tolerances, or moved behind an opt-in marker so that a default run is deterministic. The smaller group is genuine defects worth fixing: a ModuleNotFoundError for a missing tests.fixtures.example_data module, an AttributeError from mock-spec misuse ('assert_and_track' is not a valid assertion), and ValueError expectation drift in error-handling tests ('Empty token list' and 'The expression [] is incomplete'). Deliver a categorized known-failures baseline document plus fixes for the genuine defects.
 
@@ -67,7 +103,7 @@ next_project_number: 131
 - **Status**: [PARTIAL]
 - **Task Type**: python
 - **Topic**: testing
-- **Dependencies**: None
+- **Dependencies**: Task 131
 - **Research**: [127_close_oracle_suite_regression_baseline/reports/01_oracle-baseline-environment.md]
 - **Plan**: [127_close_oracle_suite_regression_baseline/plans/01_close-oracle-regression-baseline.md]
 - **Summary**: [127_close_oracle_suite_regression_baseline/summaries/01_close-oracle-regression-baseline-summary.md]

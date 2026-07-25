@@ -1,5 +1,5 @@
 {
-  "next_project_number": 131,
+  "next_project_number": 134,
   "active_projects": [
     {
       "project_number": 127,
@@ -13,7 +13,9 @@
         "code/scripts/verify-refactor.sh",
         "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/"
       ],
-      "dependencies": [],
+      "dependencies": [
+        131
+      ],
       "next_artifact_number": 1,
       "artifacts": [
         {
@@ -74,7 +76,7 @@
     {
       "project_number": 129,
       "project_name": "triage_preexisting_test_failure_backlog",
-      "status": "researching",
+      "status": "implementing",
       "task_type": "python",
       "topic": "testing",
       "description": "Triage and document the pre-existing test failure backlog so future refactors can diff cleanly against a known-good baseline. A full sweep (PYTHONPATH=code/src pytest code/src/model_checker/ code/tests/) currently reports 27 failures against 2148 passing, all of which reproduce at the pre-refactor baseline commit 6cfb7f48 and are therefore unrelated to the core/theory_lib refactor. They fall into two groups. The larger group is environment-sensitive: roughly 16 timing and resource tests across tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and builder/tests/integration/test_performance.py, whose pass/fail state flips with machine load (a repeat sweep varied between 27 and 30 failures). These should either be marked resource-dependent, given explicit tolerances, or moved behind an opt-in marker so that a default run is deterministic. The smaller group is genuine defects worth fixing: a ModuleNotFoundError for a missing tests.fixtures.example_data module, an AttributeError from mock-spec misuse ('assert_and_track' is not a valid assertion), and ValueError expectation drift in error-handling tests ('Empty token list' and 'The expression [] is incomplete'). Deliver a categorized known-failures baseline document plus fixes for the genuine defects.",
@@ -83,16 +85,29 @@
         "code/tests/e2e/",
         "code/tests/fixtures/",
         "code/src/model_checker/builder/tests/",
-        "code/src/model_checker/models/tests/"
+        "code/src/model_checker/models/tests/",
+        "code/tests/utils/helpers.py",
+        "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py"
       ],
       "dependencies": [
         128,
         130
       ],
       "next_artifact_number": 1,
-      "artifacts": [],
+      "artifacts": [
+        {
+          "path": "specs/129_triage_preexisting_test_failure_backlog/reports/01_known-failures-baseline.md",
+          "type": "report",
+          "summary": "Triaged all 27 failures at HEAD; root-caused to a broken create_test_model helper and stale bracket-suffix sentence-letter syntax. 22 fixes applied but unverified (verification run timed out)."
+        },
+        {
+          "path": "specs/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md",
+          "type": "plan",
+          "summary": "6-phase verification-and-completion plan: timeout-hardened per-file verification of the 22 existing fixes, residual-failure fixes under an explicit max_time-vs-wall-clock-vs-defanged classification rule, completion of the slow-marker determinism mechanism via addopts, resolution of test_find_next_model_basic, post-fix full sweep with node-id failed-set diff, and publication of code/docs/core/KNOWN_TEST_FAILURES.md."
+        }
+      ],
       "created": "2026-07-25T05:52:48Z",
-      "last_updated": "2026-07-25T14:38:01Z",
+      "last_updated": "2026-07-25T15:21:02Z",
       "session_id": "sess_1784959703_c3da6e_129"
     },
     {
@@ -615,6 +630,60 @@
       ],
       "session_id": "sess_1784888436_d0273f_125",
       "completion_summary": "Implemented all 5 phases of the release-engineering-and-PyPI-rehearsal plan. Fixed the `cd Code` -> `cd code` casing bug in `.github/workflows/release.yml` (3 occurrences) plus the CHANGELOG link path. Migrated publishing to PyPI Trusted Publishing (OIDC): removed the long-lived PYPI_API_TOKEN, restructured the workflow into a `build` job (python -m build, twine check --strict, upload-artifact) fe"
+    },
+    {
+      "project_number": 131,
+      "project_name": "fix_oracle_ternary_sat_regression",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "testing",
+      "description": "Fix the refactor-introduced regression in the oracle differential suite. oracle/bimodal_logic/tests/test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary PASSES at pre-refactor commit 6cfb7f48 and FAILS on the current branch with AssertionError: Expected SAT for next_A (assert None is not None) at test_oracle_interface.py:1050 -- find_countermodel returns no model for a next_A formula that is expected to be satisfiable. The bisect endpoints are already established (green at 6cfb7f48, red at HEAD), so the work is to locate the responsible change in the core/theory_lib refactor and repair it. Note that a max_time overrun in this codebase surfaces as a wrong-answer result rather than an error, and Z3 solve times vary roughly 20x run-to-run on this machine (see code/docs/core/TESTING_GUIDE.md section 8.6), so rule out a timeout budget before concluding the semantics are wrong -- but the fact that the same test passes at the baseline commit under the same conditions points at a genuine behavioral change rather than timing. This regression is the sole remaining blocker on completing the core/theory_lib refactor.",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/bimodal_logic/",
+        "code/src/model_checker/theory_lib/bimodal/"
+      ],
+      "artifacts": [],
+      "created": "2026-07-25T16:19:08Z",
+      "last_updated": "2026-07-25T16:19:08Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1784959703_c3da6e"
+    },
+    {
+      "project_number": 132,
+      "project_name": "make_oracle_suite_xdist_safe",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "testing",
+      "description": "Make the oracle differential suite safe to run under pytest-xdist, or mark the unsafe parts serial-only. A full run under -n 6 produced seven failures where a serial run of the same tests produces two: the five extra failures were parallel-execution artifacts that all pass when re-run together serially in under three minutes. The affected tests are test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7], test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths, test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability, test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe, and test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past]. Because these tests assert on state isolation and call-sequence stability, distributing them across workers breaks the property under test. Add xdist_group markers (or an equivalent serialization mechanism) so the suite can be run in parallel without manufacturing false failures, and register the currently-unknown custom marks (differential, slow) which emit PytestUnknownMarkWarning on every run. Until this lands, any regression baseline for this suite must be generated serially, which takes roughly 90 minutes versus 45 under -n 6.",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/bimodal_logic/tests/",
+        "oracle/pytest.ini",
+        "oracle/pyproject.toml"
+      ],
+      "artifacts": [],
+      "created": "2026-07-25T16:19:08Z",
+      "last_updated": "2026-07-25T16:19:08Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1784959703_c3da6e"
+    },
+    {
+      "project_number": 133,
+      "project_name": "fix_oracle_self_consistency_disagreements",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "testing",
+      "description": "Fix the pre-existing self-consistency failure in the oracle full-scan report. oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent fails with AssertionError: Self-comparison produced N disagreements at complexity<=5 (assert N == 0) at test_cross_oracle_differential.py:1381. A self-comparison producing any disagreement means the oracle does not agree with itself on the same input, which is a correctness defect independent of any refactor. This failure is confirmed pre-existing: it reproduces at pre-refactor commit 6cfb7f48. It is NOT a resource or contention artifact -- it fails deterministically in a serial isolated run (which takes about 31 minutes). One open question to resolve as part of this work: the run at 6cfb7f48 reported 1 disagreement while the run at HEAD reported 3. With a single sample from each commit on a suite already known to be timing-sensitive, it is unresolved whether the disagreement count is stable, load-dependent, or genuinely worse post-refactor. Take repeat samples at both commits before drawing a conclusion. A prior disposition document incorrectly classified this test as a contention flake that passes in isolation; that classification is false and should be corrected wherever it is recorded.",
+      "dependencies": [],
+      "file_scope": [
+        "oracle/bimodal_logic/"
+      ],
+      "artifacts": [],
+      "created": "2026-07-25T16:19:08Z",
+      "last_updated": "2026-07-25T16:19:08Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1784959703_c3da6e"
     }
   ],
   "repository_health": {
