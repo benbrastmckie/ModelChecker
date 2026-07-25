@@ -584,7 +584,55 @@ def test_iteration_completes_within_time_limit():
     assert duration < 5.0, f"Iteration took {duration}s, should complete in <5s"
 ```
 
-### 8.6 Regression Testing
+### 8.6 Solver Timing Budgets and Machine Variance
+
+Z3 solve times for the *same* formula vary widely between runs on the same machine. Measured on a
+single unchanged test exercising one bimodal countermodel, the reported call time across repeated
+invocations was 0.69s, 1.37s, 1.85s, 1.98s, and 15.08s — roughly a 20x spread with no change to
+the code under test. The variance tracks machine load, not test order.
+
+**Why this matters more than ordinary slowness**: when a solve exceeds `max_time`, the result is
+reported as `model_found == False` rather than as an error. A timeout is therefore
+indistinguishable from a genuine "no countermodel exists" outcome at the assertion site. A test
+whose `max_time` sits near its typical solve time does not fail loudly — it silently inverts its
+semantic conclusion under load.
+
+**Set budgets generously, not tightly.** Do not derive `max_time` from a measured solve time plus a
+small margin. An observed ~1.7s solve was given a 10s budget — an ~6x margin — and still failed at
+10.11s call time inside a full-suite run. Prefer the 30s convention used by the sibling bimodal
+examples:
+
+```python
+# Good: headroom well beyond the observed solve time, so load spikes cannot
+# turn a timeout into a false "no countermodel" result.
+SIMPLE_EXAMPLE = [premises, conclusions, {'N': 2, 'max_time': 30}]
+
+# Bad: omitting max_time inherits the theory's DEFAULT_EXAMPLE_SETTINGS value
+# (1s for BimodalSemantics), which is below the actual solve time for many
+# non-trivial formulas.
+SIMPLE_EXAMPLE = [premises, conclusions, {'N': 2}]
+```
+
+**Suspect the budget before suspecting state leakage.** When a test's outcome changes depending on
+how it is invoked, the timeout budget is the more likely cause. Solver isolation is already
+deliberate and verified: `models/structure.py` builds a fresh solver context per solve
+(documented there as ensuring "deterministic behavior regardless of which examples were run
+previously"), `settings/settings.py` copies default dicts before merging rather than mutating
+shared state, and there is no memoization in the settings or model layers. Confirm the budget
+first; only then look for shared state.
+
+**Wall-clock assertions are load-sensitive.** The timing assertions shown in 8.5 above inherit this
+same variance: repeat full sweeps of the suite have differed from each other by several failures
+with no intervening code change. Give such assertions generous tolerances, or move them behind an
+opt-in marker, so that a default run is deterministic.
+
+**Concurrent test sessions contend.** Two test runs in the same sandbox measurably affect each
+other's timing-sensitive outcomes, and a long suite can be killed outright by resource pressure
+from a competing run. Before launching a long or timing-sensitive suite, check for competing
+processes (`ps aux | grep pytest`), and prefer `pytest -n <N>` to shorten the window during which
+a collision can occur.
+
+### 8.7 Regression Testing
 
 For bug fixes, always add regression tests:
 

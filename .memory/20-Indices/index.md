@@ -7,7 +7,7 @@
 
 ## Recent Memories
 
-<!-- New memories will be added here automatically -->
+- 2026-07-24 — [MEM-solver-timing-z3-timing-variance](../10-Memories/MEM-solver-timing-z3-timing-variance.md) — Z3 timing variance dictates generous max_time budgets
 
 ## By Category
 
@@ -24,7 +24,7 @@
 <!-- Workflow memories -->
 
 ### [INSIGHT]
-<!-- Insight memories -->
+- [MEM-solver-timing-z3-timing-variance](../10-Memories/MEM-solver-timing-z3-timing-variance.md) — Z3 timing variance dictates generous max_time budgets
 
 ## By Topic
 
@@ -39,9 +39,12 @@ Topics use slash-separated hierarchical paths (e.g., `neovim/plugins/telescope`,
 ### general/
 <!-- General programming knowledge -->
 
+### modelchecker/
+- `modelchecker/testing/solver-timing` — [MEM-solver-timing-z3-timing-variance](../10-Memories/MEM-solver-timing-z3-timing-variance.md)
+
 <!-- Additional topic hierarchies will be added as memories are created -->
 
 ## Statistics
-- Total memories: 0
-- Topics: 0
-- Last updated: (not yet updated)
+- Total memories: 1
+- Topics: 1
+- Last updated: 2026-07-24

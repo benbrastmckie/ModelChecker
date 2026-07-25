@@ -1,0 +1,29 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-07-24",
+  "entry_count": 1,
+  "total_tokens": 551,
+  "entries": [
+    {
+      "id": "MEM-solver-timing-z3-timing-variance",
+      "path": ".memory/10-Memories/MEM-solver-timing-z3-timing-variance.md",
+      "title": "Z3 timing variance dictates generous max_time budgets",
+      "summary": "Z3 solve times vary ~20x run-to-run in ModelChecker; because a timeout is reported as model_found == False rather than an error, tight max_time budgets silently invert test conclusions.",
+      "topic": "modelchecker/testing/solver-timing",
+      "category": "INSIGHT",
+      "keywords": [
+        "max_time",
+        "z3",
+        "timeout",
+        "timing-variance",
+        "pytest"
+      ],
+      "token_count": 551,
+      "created": "2026-07-24",
+      "modified": "2026-07-24",
+      "last_retrieved": null,
+      "retrieval_count": 0,
+      "status": "active"
+    }
+  ]
+}
