@@ -1,0 +1,15 @@
+[verify-refactor] === Step 1: in-package bimodal collection count ===
+[verify-refactor] OK: 298 tests collected (baseline 289)
+[verify-refactor] === Step 2: full in-package suite collection count ===
+[verify-refactor] OK: 2175 tests collected (baseline 2100)
+[verify-refactor] === Step 3: oracle suite collection count ===
+[verify-refactor] OK: 550 tests collected (baseline 550)
+[verify-refactor] === Step 4: bimodal in-package suite (one retry allowed for documented flake) ===
+[verify-refactor] OK: bimodal suite green on first attempt
+[verify-refactor] === Step 5: xfail(strict=True) line locations unchanged ===
+[verify-refactor] OK: xfail(strict=True) markers at unchanged lines: 767 942 1020 1133 1431 
+[verify-refactor] === Step 6: oracle suite run SKIPPED (--skip-oracle) ===
+[verify-refactor] === Step 7: compare_bimodal_baseline.sh ===
+[verify-refactor] OK: OK: 0 regressions (matches baseline)
+
+[verify-refactor] All checks passed

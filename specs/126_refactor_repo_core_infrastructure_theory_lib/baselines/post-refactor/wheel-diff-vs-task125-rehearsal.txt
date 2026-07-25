@@ -1,0 +1,88 @@
+6a7
+> model_checker/api.py
+64d64
+< model_checker/builder/tests/unit/test_z3_utils.py
+72d71
+< model_checker/builder/z3_utils.py
+116a116
+> model_checker/iterate/tests/unit/test_z3_utils.py
+117a118
+> model_checker/iterate/z3_utils.py
+204a206
+> model_checker/registry.py
+265a268
+> model_checker/theory_lib/bimodal/iterate.py
+268a272
+> model_checker/theory_lib/bimodal/semantic/core.py
+270c274,275
+< model_checker/theory_lib/bimodal/semantic.py
+---
+> model_checker/theory_lib/bimodal/semantic/model.py
+> model_checker/theory_lib/bimodal/semantic/proposition.py
+272a278
+> model_checker/theory_lib/bimodal/tests/conftest.py
+276a283
+> model_checker/theory_lib/bimodal/tests/integration/test_iterate.py
+286a294
+> model_checker/theory_lib/bimodal/tests/unit/test_semantic_module_registration.py
+289a298
+> model_checker/theory_lib/bimodal/VERSION
+295d303
+< model_checker/theory_lib/docs/usage_guide.md
+307,310d314
+< model_checker/theory_lib/exclusion/history/IMPLEMENTATION_STORY.md
+< model_checker/theory_lib/exclusion/history/LESSONS_LEARNED.md
+< model_checker/theory_lib/exclusion/history/README.md
+< model_checker/theory_lib/exclusion/history/STRATEGIES.md
+322c326
+< model_checker/theory_lib/exclusion/semantic.py
+---
+> model_checker/theory_lib/exclusion/semantic/proposition.py
+338c342
+< model_checker/theory_lib/exclusion/TODO.md
+---
+> model_checker/theory_lib/exclusion/VERSION
+347,351d350
+< model_checker/theory_lib/imposition/examples_refactored/basic.py
+< model_checker/theory_lib/imposition/examples_refactored/complex.py
+< model_checker/theory_lib/imposition/examples_refactored/edge_cases.py
+< model_checker/theory_lib/imposition/examples_refactored/__init__.py
+< model_checker/theory_lib/imposition/examples_refactored/test_suite.py
+359,361d357
+< model_checker/theory_lib/imposition/reports/imposition_comparison/frame_constraints.md
+< model_checker/theory_lib/imposition/reports/imposition_comparison/modals_defined.md
+< model_checker/theory_lib/imposition/reports/imposition_comparison/README.md
+366c362
+< model_checker/theory_lib/imposition/semantic.py
+---
+> model_checker/theory_lib/imposition/tests/conftest.py
+375a372
+> model_checker/theory_lib/imposition/VERSION
+379d375
+< model_checker/theory_lib/logos/comparison.py
+393c389,392
+< model_checker/theory_lib/logos/semantic.py
+---
+> model_checker/theory_lib/logos/semantic/core.py
+> model_checker/theory_lib/logos/semantic/__init__.py
+> model_checker/theory_lib/logos/semantic/model.py
+> model_checker/theory_lib/logos/semantic/proposition.py
+398a398
+> model_checker/theory_lib/logos/subtheories/constitutive/notebooks/relevance_examples.ipynb
+435,444d434
+< model_checker/theory_lib/logos/subtheories/relevance/examples.py
+< model_checker/theory_lib/logos/subtheories/relevance/__init__.py
+< model_checker/theory_lib/logos/subtheories/relevance/notebooks/README.md
+< model_checker/theory_lib/logos/subtheories/relevance/notebooks/relevance_examples.ipynb
+< model_checker/theory_lib/logos/subtheories/relevance/operators.py
+< model_checker/theory_lib/logos/subtheories/relevance/README.md
+< model_checker/theory_lib/logos/subtheories/relevance/tests/__init__.py
+< model_checker/theory_lib/logos/subtheories/relevance/tests/README.md
+< model_checker/theory_lib/logos/subtheories/relevance/tests/test_relevance_examples.py
+< model_checker/theory_lib/logos/subtheories/spatial/README.md
+458c448
+< model_checker/theory_lib/logos/TODO.md
+---
+> model_checker/theory_lib/logos/VERSION
+463a454
+> model_checker/theory_lib/tests/test_theory_conformance.py

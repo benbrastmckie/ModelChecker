@@ -1,0 +1,28 @@
+# Task 126 Phase 25: post-refactor collection counts vs Phase 2 baseline
+
+=== in-package bimodal collect-only ===
+$ PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ --collect-only -q
+298 tests collected
+(Phase 2 baseline: 289; +9 net: +7 new bimodal/tests/integration/test_iterate.py tests
++2 test_semantic_module_registration.py growth (3->5, phase 20/21 pickling-contract tests)
+No removals: bimodal/tests/e2e/ contained no tracked test files.)
+
+=== full in-package suite collect-only (cd code) ===
+$ cd code && PYTHONPATH=src pytest --collect-only -q
+2175 tests collected
+(Phase 2 baseline: 2100; +75 net across phases 8-25. Additions include (non-exhaustive,
+see per-phase plan checkboxes and summaries/*.md for full detail): theory_lib/tests/
+test_theory_conformance.py (Phase 8, now 50 tests incl. Phase 23's TestZeroXfailGuard),
+code/tests/unit/test_registry.py (Phase 10, 7 tests -- not wheel-shipped, still collected
+by the full in-package run), builder/tests/unit/test_serialize.py's logos round-trip test
+(Phase 18), bimodal's +9 net above (Phase 20-22), code/tests/e2e/test_project_creation.py's
+theory parametrization extended from 1 to 4 (Phase 22, +3). Removals: relevance subtheory's
+own tests/test_relevance_examples.py folded into constitutive (Phase 19) without changing
+the 54-example constitutive test count (34 constitutive + 20 absorbed relevance, already
+counted under constitutive both before and after). No unexplained deltas.)
+
+=== oracle suite collect-only ===
+$ PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/ --collect-only -q
+550 tests collected
+(Phase 2 baseline: 550; unchanged, confirmed by verify-refactor.sh Step 3 at every wave
+boundary throughout the refactor)

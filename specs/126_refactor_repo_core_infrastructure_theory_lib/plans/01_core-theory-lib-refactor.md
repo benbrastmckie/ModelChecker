@@ -1679,29 +1679,73 @@ masked the real `ImportError` during debugging (merged the two context strings i
 
 ---
 
-### Phase 25: Full Regression Gate and Wheel Parity Diff [NOT STARTED]
+### Phase 25: Full Regression Gate and Wheel Parity Diff [COMPLETED]
 
 - **Goal:** Final acceptance. Because no 1.3.0 was published before the refactor, the gate is local
   evidence rather than a published-artifact diff.
 - **Tasks:**
-  - [ ] Run `bash code/scripts/verify-refactor.sh` in full and confirm exit 0.
-  - [ ] Run the complete in-package suite from `code/` and compare against the Phase 2 pinned
-        inventory. Enumerate every count delta with its cause (tests added by this refactor, tests
-        removed with cruft); no unexplained deltas.
-  - [ ] Run the oracle suite (550 tests) and confirm the 5 `xfail(strict=True)` cross-oracle
-        differentials are still xfailing — an XPASS flip is a failure, not an improvement, and must
-        be investigated before proceeding.
-  - [ ] Run `code/scripts/compare_bimodal_baseline.sh` and confirm it matches.
-  - [ ] Build the wheel and diff its contents against **both** the Phase 2 pre-refactor manifest and
-        `specs/125_release_engineering_and_pypi_rehearsal/rehearsal/wheel-contents.txt`. Produce an
-        enumerated delta list; every entry must be an intended removal (cruft, spatial, dead
-        wrappers, relocated benchmark, case-collision duplicate) or an intended addition (new
-        semantic package modules, registry, conformance tests). Any unexplained entry blocks
-        acceptance.
-  - [ ] Scaffold a project for each theory and run its examples end to end.
-  - [ ] Run `model-checker` CLI smoke checks including `--maximize` and `--save`.
-  - [ ] Record all results under
-        `specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/post-refactor/`.
+  - [x] Run `bash code/scripts/verify-refactor.sh` in full and confirm exit 0. *(completed with
+        the same sandbox-documented deviation as Phases 2/21/23: run as
+        `verify-refactor.sh --skip-oracle` (no `pytest-xdist` available, resource contention on
+        the full 550-test serial run per Phase 2's PARTIAL status). All other steps pass: exit 0,
+        collection counts (298/2175/550), bimodal suite green, xfail line locations unchanged,
+        baseline comparison 0 regressions. Final run recorded in
+        `baselines/post-refactor/verify-refactor-final-run.txt`.)*
+  - [x] Run the complete in-package suite from `code/` and compare against the Phase 2 pinned
+        inventory. *(completed: 2175 vs 2100 baseline, +75; bimodal sub-suite 298 vs 289, +9.
+        Every delta enumerated with cause in
+        `baselines/post-refactor/collection-counts-post-refactor.txt` -- new conformance/layering/
+        registry/iterate/guard tests added across phases 8-23, e2e parametrization extended
+        Phase 22, zero unexplained deltas.)*
+  - [x] Run the oracle suite (550 tests) and confirm the 5 xfail(strict=True) differentials are
+        still xfailing. *(deviation, same as Phase 2/21/23: the full serial 550-test run is not
+        attempted in this sandbox per the orchestrator's explicit instruction and the
+        documented `pytest-xdist`/resource-contention constraint. The 550-test collection count
+        itself is independently re-verified matching baseline via `verify-refactor.sh` Step 3,
+        and the 5 xfail(strict=True) line locations are independently re-verified unchanged via
+        Step 5, at this final wave boundary as at every prior one. A full clean run remains the
+        Phase 2 PARTIAL gap, unchanged by this phase.)*
+  - [x] Run `code/scripts/compare_bimodal_baseline.sh` and confirm it matches. *(completed via
+        `verify-refactor.sh`'s Step 7: "OK: 0 regressions (matches baseline)")*
+  - [x] Build the wheel and diff its contents against both manifests. *(completed: wheel built
+        with `python -m build --wheel --no-isolation` (network-isolated `build` fails in this
+        sandbox without `--no-isolation`, since the isolated env can't fetch setuptools/wheel).
+        Diffed against both the Phase 2 pre-refactor manifest (32 removed / 22 added) and task
+        125's rehearsal manifest (32 removed / 23 added, one extra addition explained by
+        task-125's manifest predating an already-existing pre-Phase-2 bimodal test file).
+        Every single entry in both directions is a specific, already-documented phase action:
+        removed = the enumerated cruft/spatial/dead-wrapper/relocated-benchmark/relevance/
+        TODO.md deletions from Phases 4-7 and 19; added = `api.py`/`registry.py` (Phase 10/12),
+        the four theories' semantic/ package splits, `iterate/z3_utils.py` (a Phase 12/16
+        relocation from `builder/`), bimodal's `iterate.py` and `test_iterate.py` (Phase 22),
+        VERSION files for all four theories (Phase 7's package-data fix, previously never
+        shipped due to the old blanket glob), and `test_theory_conformance.py` (Phase 8). Zero
+        unexplained entries in either diff. Full lists in `baselines/post-refactor/
+        wheel-diff-vs-phase2-baseline.txt` and `wheel-diff-vs-task125-rehearsal.txt`.)*
+  - [x] Scaffold a project for each theory and run its examples end to end. *(completed, with a
+        genuine defect found and fixed along the way: the first scaffold-and-run pass succeeded
+        for bimodal and logos but exclusion and imposition both failed with
+        `PackageImportError: attempted relative import beyond top-level package` -- the exact
+        latent scaffolded-project relative-import defect Phase 20's summary already identified
+        and deliberately deferred as out of that phase's scope. Since this phase's own
+        verification bullet requires all four to succeed, fixed it here by converting each
+        offending 3-dot relative import (`from ...errors`, `from ...types`,
+        `from ...logos.semantic`) to its absolute form in
+        `exclusion/semantic/{core,constraints,registry,model}.py` and
+        `imposition/semantic/{core,helpers}.py`, mirroring bimodal's own Phase 20 fix. Re-ran:
+        all four theories now scaffold and run their `examples.py` to completion (exit 0).
+        Verified zero regressions: exclusion + imposition + `test_generated_projects.py`
+        together, 261 passed. Full results in
+        `baselines/post-refactor/scaffold-and-cli-smoke-results.txt`.)*
+  - [x] Run `model-checker` CLI smoke checks including `--maximize` and `--save`. *(completed:
+        `--save markdown` on a logos example wrote `EXAMPLES.md` successfully; `--maximize` on
+        `bimodal/examples.py` produced non-zero "Maximum N" results (e.g. `EX_CM_1: Maximum N =
+        6`) with no `ModuleNotFoundError`, confirming the Phase 20/21 pickling contract survived
+        Phase 22's iterate.py restoration and this phase's import fix.)*
+  - [x] Record all results under `baselines/post-refactor/`. *(completed: six files --
+        `collection-counts-post-refactor.txt`, `scaffold-and-cli-smoke-results.txt`,
+        `verify-refactor-final-run.txt`, `wheel-contents-post-refactor.txt`, and the two wheel
+        diff files)*
 - **Timing:** 1.5 hours
 - **Depends on:** 23, 24
 - **Files to modify:**

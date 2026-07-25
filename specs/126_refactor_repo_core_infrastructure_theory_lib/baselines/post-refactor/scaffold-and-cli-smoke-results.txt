@@ -1,0 +1,44 @@
+# Task 126 Phase 25: scaffolded-project and CLI smoke check results
+
+## Project scaffolding (BuildProject) -- all four theories
+
+bimodal:    scaffolded OK, contents: .modelchecker CITATION.md LICENSE.md README.md VERSION
+            __init__.py docs examples.py iterate.py operators.py semantic tests
+            (iterate.py now present -- Phase 22's contract gap closed)
+exclusion:  scaffolded OK, contents: ... notebooks operators.py semantic tests (as bimodal, +notebooks)
+imposition: scaffolded OK, contents: ... notebooks operators.py semantic tests (as bimodal, +notebooks)
+logos:      scaffolded OK, contents: ... operators.py protocols.py semantic subtheories tests
+
+## Running each scaffolded project's examples.py via the CLI (model-checker <path>)
+
+Initial run (before the Phase 25 relative-import fix):
+  bimodal:    exit 0 (ran to completion, ~90s -- default timeout of 60s too short, not a defect)
+  exclusion:  FAILED -- PackageImportError: attempted relative import beyond top-level package
+  imposition: FAILED -- PackageImportError: attempted relative import beyond top-level package
+  logos:      exit 0
+
+Root cause: theory_lib/{exclusion,imposition}/semantic/*.py used 3-dot relative imports
+(from ...errors, from ...types, from ...logos.semantic) that only resolve at the exact
+nesting depth theory_lib.{theory}.semantic.{file}, one level deeper than a scaffolded
+project's <project>.semantic.{file}. This was already documented as a known, deferred defect
+in Phase 20's summary (fixed for bimodal's witness files there; exclusion/imposition
+deliberately left unfixed as out of that phase's scope). Fixed here by converting each
+3-dot import to its absolute form, mirroring the Phase 20 fix.
+
+Final run (after the fix):
+  bimodal:    exit 0
+  exclusion:  exit 0
+  imposition: exit 0
+  logos:      exit 0
+
+All four theories scaffold and run their examples to completion.
+
+## CLI smoke checks
+
+--save markdown (logos/subtheories/extensional/examples.py): exit 0, wrote
+  output_<timestamp>/EXAMPLES.md
+
+--maximize (bimodal/examples.py): exit 0, produced non-zero "Maximum N" results
+  (EX_CM_1: Maximum N = 6) confirming the --maximize pickling contract established in
+  Phase 20/21 remains intact after Phase 22's iterate.py restoration and Phase 25's
+  import fix.
