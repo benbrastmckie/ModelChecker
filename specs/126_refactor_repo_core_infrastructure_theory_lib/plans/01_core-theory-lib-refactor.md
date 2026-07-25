@@ -1175,14 +1175,14 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 18: Normalize logos — Split semantic.py into a Package [NOT STARTED]
+### Phase 18: Normalize logos — Split semantic.py into a Package [IN PROGRESS]
 
 - **Goal:** Convert logos's flat 1,283-line `semantic.py` into the canonical `semantic/` package.
 - **Tasks:**
-  - [ ] Create `logos/semantic/` with `core.py` (`LogosSemantics`), `model.py`
+  - [x] Create `logos/semantic/` with `core.py` (`LogosSemantics`), `model.py`
         (`LogosModelStructure`), `proposition.py` (`LogosProposition`), and a re-export-only
         `__init__.py`. Delete the flat `semantic.py` in the same commit.
-  - [ ] The public path `model_checker.theory_lib.logos.semantic` must keep resolving identically —
+  - [x] The public path `model_checker.theory_lib.logos.semantic` must keep resolving identically —
         it is the most widely imported module in the tree, including from *other theories*:
         `imposition/__init__.py:53`, `imposition/semantic/core.py:10`, `imposition/semantic/model.py:15`,
         `exclusion/examples.py:69`, every logos subtheory's `operators.py` (`TYPE_CHECKING` imports),
@@ -1191,9 +1191,14 @@ Phases within the same wave can execute in parallel.
         strings change from `...logos.semantic` to `...logos.semantic.core`. Because
         `serialize.py` rehydrates via `importlib` on the recorded `__module__`, the new value must be
         importable — it will be, but assert it with a test rather than assuming.
-  - [ ] Run the full logos suite plus all five subtheory suites plus imposition and exclusion (both
-        depend on logos semantics).
-  - [ ] Remove logos's structural conformance xfails.
+  - [x] Run the full logos suite plus all five subtheory suites plus imposition and exclusion (both
+        depend on logos semantics). *(logos 446 passed; imposition + exclusion + layering +
+        conformance 318 passed / 4 xfailed; `verify-refactor.sh --skip-oracle` all checks passed.
+        `test_subtheory_orchestration.py::test_type_hint_coverage` was made package-aware: a
+        package's re-export-only `__init__.py` has no type hints by contract, so the assertion now
+        walks the implementation submodules.)*
+  - [x] Remove logos's structural conformance xfails. *(logos entry dropped from
+        `SEMANTIC_PACKAGE_XFAIL_REASON`; bimodal's remains, pending its own phase.)*
 - **Timing:** 2 hours
 - **Depends on:** 17
 - **Files to modify:**

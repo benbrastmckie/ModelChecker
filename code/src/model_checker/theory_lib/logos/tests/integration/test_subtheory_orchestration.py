@@ -199,15 +199,27 @@ class TestSubtheoryOrchestration:
         modules_to_check = [semantic, iterate, operators]
 
         for module in modules_to_check:
-            # Check if module has typing imports
-            module_file = Path(module.__file__)
-            content = module_file.read_text()
+            # A package's __init__.py is re-export-only per the theory contract, so the
+            # type hints live in its implementation submodules -- check those instead.
+            if hasattr(module, '__path__'):
+                files_to_check = sorted(
+                    p for p in Path(module.__path__[0]).glob('*.py')
+                    if p.name != '__init__.py'
+                )
+                assert files_to_check, f"Package {module.__name__} has no implementation modules"
+            else:
+                files_to_check = [Path(module.__file__)]
 
-            # Should have typing imports
-            assert 'from typing import' in content, f"Module {module.__name__} missing typing imports"
+            for module_file in files_to_check:
+                content = module_file.read_text()
+                label = f"{module.__name__}.{module_file.stem}" \
+                    if hasattr(module, '__path__') else module.__name__
 
-            # Should have TYPE_CHECKING block for forward references
-            assert 'TYPE_CHECKING' in content, f"Module {module.__name__} missing TYPE_CHECKING block"
+                # Should have typing imports
+                assert 'from typing import' in content, f"Module {label} missing typing imports"
+
+                # Should have TYPE_CHECKING block for forward references
+                assert 'TYPE_CHECKING' in content, f"Module {label} missing TYPE_CHECKING block"
 
 
 class TestProtocolDefinitions:

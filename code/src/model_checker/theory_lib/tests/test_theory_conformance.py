@@ -77,15 +77,14 @@ ITERATE_REQUIRED_ATTRS = [
 
 # --- Known RED-baseline gaps, tracked individually (see module docstring). ---
 
+# logos's entry was removed in the phase that split its monolithic semantic.py into a
+# semantic/ package (core.py + proposition.py + model.py behind a re-export-only __init__.py),
+# matching the form exclusion was normalized onto.
 SEMANTIC_PACKAGE_XFAIL_REASON = {
     'bimodal': (
         "bimodal has not been normalized onto the semantic/ package contract yet: "
         "semantic.py is still its live implementation (semantic/ exists only as a "
         "sys.modules pickling-compatibility shim for --maximize, not the canonical form)"
-    ),
-    'logos': (
-        "logos has not been split into a semantic/ package yet: semantic.py is still "
-        "its live, monolithic implementation"
     ),
 }
 
