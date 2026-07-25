@@ -1,0 +1,1493 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/bin/python3.13
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collecting ... collected 244 items
+
+code/src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling PASSED [  0%]
+code/src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow PASSED [  0%]
+code/src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution FAILED [  1%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently 
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently PASSED [  1%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_directories_with_spaces_correctly PASSED [  2%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly 
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly PASSED [  2%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_missing_required_attributes_gracefully PASSED [  2%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_nonexistent_file_with_descriptive_error PASSED [  3%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_syntax_errors_with_descriptive_error PASSED [  3%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestSystemPathIsolationBehavior::test_sys_path_modifications_do_not_interfere_between_operations PASSED [  4%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_multiple_project_generation_completes_within_reasonable_time PASSED [  4%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance PASSED [  4%]
+code/src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestCompleteUserWorkflowSimulation::test_complete_cli_workflow_simulation_executes_successfully PASSED [  5%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_flag_overrides PASSED [  5%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_generated_project_detection PASSED [  6%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal PASSED [  6%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal_basic PASSED [  6%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_missing_attributes PASSED [  7%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_package_detection PASSED [  7%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_process_example_error_handling PASSED [  8%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_run_model_check_bimodal PASSED [  8%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_example_method PASSED [  9%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_method PASSED [  9%]
+code/src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModuleIntegration::test_bimodal_theory_integration PASSED [  9%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_bypasses_mode_prompting_correctly PASSED [ 10%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_handles_missing_output_configuration_gracefully PASSED [ 10%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_integration_with_batch_mode_settings PASSED [ 11%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_no_interactive_flag_prompts_user_for_mode_selection PASSED [ 11%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_behavior_with_empty_example_range PASSED [ 11%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_conflicting_configuration_resolves_appropriately PASSED [ 12%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_invalid_module_produces_clear_error PASSED [ 12%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_integration_with_real_user_workflow PASSED [ 13%]
+code/src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_provides_appropriate_user_feedback PASSED [ 13%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_runner_workflow_processes_examples_correctly PASSED [ 13%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_translation_integration_applies_dictionaries PASSED [ 14%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_loads_multiple_theories_correctly PASSED [ 14%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_theory_validation_integration PASSED [ 15%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestComparisonIntegration::test_comparison_mode_integration_with_multiple_theories PASSED [ 15%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_example_processing PASSED [ 15%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_multiple_theory_dictionaries PASSED [ 16%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_complete_system_initialization_succeeds PASSED [ 16%]
+code/src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_error_propagation_through_system_integration PASSED [ 17%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_file_not_found_error_with_context PASSED [ 17%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_import_errors_from_module_dependencies PASSED [ 18%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_missing_attribute_errors_descriptively PASSED [ 18%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_syntax_errors_with_location_info PASSED [ 18%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_error_includes_available_theories_suggestion PASSED [ 19%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_propagates_unknown_theory_errors_clearly PASSED [ 19%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_build_module_propagates_component_initialization_errors_appropriately PASSED [ 20%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_error_propagation_preserves_original_error_context PASSED [ 20%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues 
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues PASSED [ 20%]
+code/src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_system_recovers_gracefully_from_partial_module_loading_failures PASSED [ 21%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_backward_compatibility PASSED [ 21%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_bimodal_project_generation_and_loading PASSED [ 22%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_default_project_examples_init_loading PASSED [ 22%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_error_handling_for_generated_projects PASSED [ 22%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_find_project_directory PASSED [ 23%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_generated_project_detection PASSED [ 23%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_sys_path_configuration PASSED [ 24%]
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestProjectStructureFlexibility::test_multiple_theory_templates 
+code/src/model_checker/builder/tests/integration/test_generated_projects.py::TestProjectStructureFlexibility::test_multiple_theory_templates PASSED [ 24%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_batch_mode_output_guidance_provides_command_line_instructions PASSED [ 25%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_build_module_provides_output_directory_guidance_when_saving PASSED [ 25%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_output_directory_guidance_handles_nonexistent_directories_gracefully PASSED [ 25%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_interactive_mode_integrates_output_directory_prompts_correctly PASSED [ 26%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_output_directory_guidance_adapts_to_user_preferences 
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_output_directory_guidance_adapts_to_user_preferences PASSED [ 26%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively 
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively PASSED [ 27%]
+code/src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_permission_denied_directories_gracefully PASSED [ 27%]
+code/src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_detection_methods_exist PASSED [ 27%]
+code/src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_marker_now_exists PASSED [ 28%]
+code/src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_relative_imports_now_work_with_package PASSED [ 28%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance PASSED [ 29%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_constraint_generation_scales_linearly PASSED [ 29%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_large_model_generation_completes_within_timeout PASSED [ 29%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_generation_completes_within_timeout PASSED [ 30%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_module_loading_performance PASSED [ 30%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently FAILED [ 31%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_serialization_performance PASSED [ 31%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly FAILED [ 31%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_memory_usage_stays_within_bounds PASSED [ 32%]
+code/src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_no_memory_leaks_in_iteration PASSED [ 32%]
+code/src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_multiple_project_creation_workflow_handles_conflicts PASSED [ 33%]
+code/src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_project_creation_and_module_loading_workflow_succeeds PASSED [ 33%]
+code/src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_snake_project_scenario_resolution PASSED [ 34%]
+code/src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_handles_comparison_mode_integration PASSED [ 34%]
+code/src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_loads_real_module_with_all_components PASSED [ 34%]
+code/src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_complete_user_session_from_creation_to_execution PASSED [ 35%]
+code/src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_error_recovery_workflow_handles_invalid_projects PASSED [ 35%]
+code/src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_both_execution_paths_work PASSED [ 36%]
+code/src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_handle_example_script_simulation PASSED [ 36%]
+code/src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_loader_handles_generated_packages PASSED [ 36%]
+code/src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_project_creation_and_example_execution PASSED [ 37%]
+code/src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_buildmodule_with_package PASSED [ 37%]
+code/src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_direct_package_import PASSED [ 38%]
+code/src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_generated_project_detection PASSED [ 38%]
+code/src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_import_setup PASSED [ 38%]
+code/src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_root_finding PASSED [ 39%]
+code/src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_relative_imports_work PASSED [ 39%]
+code/src/model_checker/builder/tests/test_package_loading.py::TestSubprocessExecution::test_pythonpath_setup_in_subprocess PASSED [ 40%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_constructor PASSED [ 40%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_loader_exists PASSED [ 40%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clear_error_messages_with_context PASSED [ 41%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_fail_fast_validation PASSED [ 41%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_circular_dependencies PASSED [ 42%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_config_py_support PASSED [ 42%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_legacy_detection_methods PASSED [ 43%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_optional_parameters PASSED [ 43%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_only_modelchecker_marker_support PASSED [ 43%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_performance_improvement PASSED [ 44%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_permanent_sys_path_changes PASSED [ 44%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_separated_detector_class_exists PASSED [ 45%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_simplified_code_structure PASSED [ 45%]
+code/src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_strategy_pattern_for_imports PASSED [ 45%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_has_required_interface_methods PASSED [ 46%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_initializes_with_valid_build_module PASSED [ 46%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_compares_semantics_successfully PASSED [ 47%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_handles_multiple_example_theories PASSED [ 47%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_enables_comparison_mode_correctly PASSED [ 47%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_integrates_with_comparison_after_refactoring PASSED [ 48%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_empty_theory_list_gracefully PASSED [ 48%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_invalid_build_module_gracefully PASSED [ 49%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples 
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples PASSED [ 49%]
+code/src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonResultAnalysis::test_model_comparison_formats_results_correctly PASSED [ 50%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode PASSED [ 50%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result PASSED [ 50%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization PASSED [ 51%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model PASSED [ 51%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model PASSED [ 52%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check PASSED [ 52%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure PASSED [ 52%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure PASSED [ 53%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel FAILED [ 53%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic FAILED [ 54%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_initializes_with_valid_parameters PASSED [ 54%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_module_with_correct_attributes PASSED [ 54%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_valid_module_successfully PASSED [ 55%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_import_errors_in_module_content PASSED [ 55%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_syntax_errors_appropriately PASSED [ 56%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_raises_import_error_when_file_not_found PASSED [ 56%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_validates_required_module_attributes PASSED [ 56%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_discovers_theory_module_successfully PASSED [ 57%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_raises_error_for_unknown_theory PASSED [ 57%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes 
+code/src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes PASSED [ 58%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_empty_module_files PASSED [ 58%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_unicode_in_module_paths PASSED [ 59%]
+code/src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_very_long_file_paths PASSED [ 59%]
+code/src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_creation_with_metadata PASSED [ 59%]
+code/src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_file_format PASSED [ 60%]
+code/src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_metadata_content PASSED [ 60%]
+code/src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_init_file_creation PASSED [ 61%]
+code/src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_package_exports_structure PASSED [ 61%]
+code/src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_subpackage_initialization PASSED [ 61%]
+code/src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_initialization PASSED [ 62%]
+code/src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_output PASSED [ 62%]
+code/src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_start_stop PASSED [ 63%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_complete_handles_already_stopped_thread PASSED [ 63%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_current_runner_has_wrong_order PASSED [ 63%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_header_printed_before_progress_bar_completion PASSED [ 64%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_no_model_found_ordering PASSED [ 64%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_progress_bar_animation_during_z3_search PASSED [ 65%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_manual_thread_stop_then_complete PASSED [ 65%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_stop_animation_without_printing PASSED [ 65%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_deferred_completion_preserves_frozen_state PASSED [ 66%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_freeze_complete_time_consistency PASSED [ 66%]
+code/src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_multiple_bars_maintain_independent_frozen_state PASSED [ 67%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name 
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name PASSED [ 67%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection 
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection PASSED [ 68%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds PASSED [ 68%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content PASSED [ 68%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_invalid_theory_raises_error PASSED [ 69%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation PASSED [ 69%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default FAILED [ 70%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_logos PASSED [ 70%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_with_subtheories PASSED [ 70%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_in_readonly_directory_fails_gracefully PASSED [ 71%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error 
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error PASSED [ 71%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_existing_name_handles_appropriately PASSED [ 72%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_very_long_name PASSED [ 72%]
+code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently PASSED [ 72%]
+code/src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_build_project_retrieves_version_information_successfully PASSED [ 73%]
+code/src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_consistency_with_package_version PASSED [ 73%]
+code/src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_handles_valid_version_format_correctly PASSED [ 74%]
+code/src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_provides_fallback_for_unknown_versions PASSED [ 74%]
+code/src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_handles_different_theory_names_consistently PASSED [ 75%]
+code/src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_performance_is_reasonable PASSED [ 75%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_has_required_interface_methods PASSED [ 75%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_initializes_with_valid_build_module PASSED [ 76%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_executes_model_check_successfully PASSED [ 76%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_handles_example_processing_correctly PASSED [ 77%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerIntegration::test_build_module_integrates_with_runner_after_refactoring PASSED [ 77%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_invalid_build_module_gracefully PASSED [ 77%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_missing_translation_gracefully PASSED [ 78%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_empty_example_cases_appropriately PASSED [ 78%]
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure 
+code/src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure PASSED [ 79%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_creates_valid_structure PASSED [ 79%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_handles_empty_operators_correctly PASSED [ 79%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_preserves_dictionary_content PASSED [ 80%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_handles_missing_imports_with_error PASSED [ 80%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_reconstructs_valid_structure PASSED [ 81%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_deserialize_operators_creates_operator_collection PASSED [ 81%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_creates_correct_structure PASSED [ 81%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_handles_operator_collection_input PASSED [ 82%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_handles_builtin_modules_correctly PASSED [ 82%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_imports_valid_classes_successfully PASSED [ 83%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_class PASSED [ 83%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_module PASSED [ 84%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_deserialize_logos_theory_round_trips_through_semantic_package PASSED [ 84%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_real_bimodal_theory_preserves_structure PASSED [ 84%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types 
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types PASSED [ 85%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure 
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure PASSED [ 85%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_large_operator_collections PASSED [ 86%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_unicode_operators_correctly PASSED [ 86%]
+code/src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_preserves_complex_nested_settings PASSED [ 86%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_has_required_interface_methods PASSED [ 87%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_initializes_successfully PASSED [ 87%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_handles_complex_formulas_correctly PASSED [ 88%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_preserves_untranslated_operators PASSED [ 88%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_translates_basic_operators_correctly PASSED [ 88%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationMultipleTheories::test_operator_translation_handles_multiple_theory_dictionaries PASSED [ 89%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationIntegration::test_build_module_integrates_with_translation_after_refactoring PASSED [ 89%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_empty_dictionary_gracefully PASSED [ 90%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure 
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure PASSED [ 90%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_none_dictionary_gracefully PASSED [ 90%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_empty_premises_and_conclusions PASSED [ 91%]
+code/src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_unicode_operators_in_input PASSED [ 91%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_accepts_valid_theory_structure PASSED [ 92%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components 
+code/src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components PASSED [ 92%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input 
+code/src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input PASSED [ 93%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_validates_component_types_correctly PASSED [ 93%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_accepts_valid_example_structure PASSED [ 93%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input 
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input PASSED [ 94%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure 
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure PASSED [ 94%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count 
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count PASSED [ 95%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure 
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure PASSED [ 95%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure 
+code/src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure PASSED [ 95%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_complex_settings_structures PASSED [ 96%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_empty_premises_and_conclusions PASSED [ 96%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_unicode_content PASSED [ 97%]
+code/src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_semantic_theory_handles_extra_theory_components PASSED [ 97%]
+code/src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_conflicting_constraints PASSED [ 97%]
+code/src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_context_reset PASSED [ 98%]
+code/src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_isolated_context_creates_fresh_context PASSED [ 98%]
+code/src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_restores_context_on_exception PASSED [ 99%]
+code/src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_isolation PASSED [ 99%]
+code/src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_leakage_prevented PASSED [100%]
+
+=================================== FAILURES ===================================
+________________ TestFullPipeline.test_theory_library_execution ________________
+
+self = <src.model_checker.builder.tests.e2e.test_full_pipeline.TestFullPipeline testMethod=test_theory_library_execution>
+
+        def test_theory_library_execution(self):
+            """Test running theory library examples end-to-end.
+    
+            This catches issues like the discover_theory_module method signature
+            mismatch that unit tests with mocks missed.
+            """
+            # Create a simple test module instead of running full examples
+            # to avoid timeouts while still testing the discover_theory_module path
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+                f.write('''
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Test": theory}
+    example_range = {
+        "TEST": [[], ["A"], {"N": 2}]
+    }
+    general_settings = {}
+    ''')
+                test_file = f.name
+    
+            try:
+                result = self.run_dev_cli([test_file])
+    
+                # Should produce model output
+                self.assertIn("EXAMPLE", result.stdout)
+>               self.assertIn("State Space", result.stdout)
+E               AssertionError: 'State Space' not found in '========================================\n\nEXAMPLE TEST: there is a countermodel.\n\nAtomic States: 2\n\nSemantic Theory: Test\n\nPremise:\n\nConclusion:\n1. A\n\nSolver Run Time: 0.4315 seconds\n\n========================================\nWorld Histories:\n  \x1b[37mTime   | W_0    | W_1   \x1b[0m\n  \x1b[37m=======|========|=======\x1b[0m\n  \x1b[37m-1     |        | (-1:a)\x1b[0m\n  \x1b[37m       |        |   ↓   \x1b[0m\n  \x1b[1;33m0      | (0:a)  | (0:b) \x1b[0m\n  \x1b[37m       |   ↓    |       \x1b[0m\n  \x1b[37m+1     | (+1:b) |       \x1b[0m\n\nEvaluation Point:\n  \x1b[34mWorld History W_0: a ⟹₁ b\x1b[0m\n  \x1b[34mTime: 0\x1b[0m\n  \x1b[34mWorld State: a\x1b[0m\n\nINTERPRETED CONCLUSION:\n\n1.  \x1b[31m|A| = < {}, {a, b} >\x1b[0m  \x1b[31m(False in W_0 at time 0)\x1b[0m\n\nTotal Run Time: 0.4965 seconds\n\n\n========================================\n'
+
+code/src/model_checker/builder/tests/e2e/test_full_pipeline.py:78: AssertionError
+______ TestBuilderPerformance.test_multiple_examples_process_efficiently _______
+
+self = <src.model_checker.builder.tests.integration.test_performance.TestBuilderPerformance testMethod=test_multiple_examples_process_efficiently>
+
+        def test_multiple_examples_process_efficiently(self):
+            """Test processing multiple examples completes efficiently.
+    
+            This verifies that batch processing of multiple examples
+            doesn't have excessive overhead between examples.
+            """
+            # Arrange
+            test_file = self._create_test_file("""
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Test": theory}
+    example_range = {
+        "EX1": [["A"], ["B"], {"N": 2}],
+        "EX2": [["C"], ["D"], {"N": 2}],
+        "EX3": [["E"], ["F"], {"N": 2}],
+        "EX4": [["G"], ["H"], {"N": 2}],
+        "EX5": [["I"], ["J"], {"N": 2}]
+    }
+    general_settings = {}
+    """)
+    
+            flags = Mock(
+                file_path=test_file,
+                comparison=False,
+                interactive=False,
+                iterations=False,
+                quiet=True,
+                output=None,
+                save=None,  # No saving
+                sequential=False,  # Matches real --sequential/-q argparse default;
+                                    # a bare Mock() auto-creates a truthy attribute
+                                    # otherwise (see output/config.py sequential logic).
+                _parsed_args=[]
+            )
+    
+            # Act
+            start_time = time.time()
+            build_module = BuildModule(flags)
+            build_module.runner.run_examples()
+            elapsed_time = time.time() - start_time
+    
+            # Calculate average time per example
+            avg_time = elapsed_time / 5
+    
+            # Assert - Use more reasonable thresholds for robustness
+            # Allow 250ms per example to account for system variance
+>           self.assertLess(avg_time, 0.5,
+                           f"Average time per example should be <500ms, was {avg_time:.3f}s")
+E                          AssertionError: 1.0985809803009032 not less than 0.5 : Average time per example should be <500ms, was 1.099s
+
+code/src/model_checker/builder/tests/integration/test_performance.py:210: AssertionError
+----------------------------- Captured stdout call -----------------------------
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX1 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX1: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. A
+
+Conclusion:
+2. B
+
+Solver Run Time: 1.0002 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX2 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX2: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. C
+
+Conclusion:
+2. D
+
+Solver Run Time: 1.0002 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX3 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX3: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. E
+
+Conclusion:
+2. F
+
+Solver Run Time: 1.0006 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX4 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX4: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. G
+
+Conclusion:
+2. H
+
+Solver Run Time: 1.0011 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX5 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX5: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. I
+
+Conclusion:
+2. J
+
+Solver Run Time: 1.0005 seconds
+
+========================================
+_____ TestBuilderPerformance.test_small_model_generation_completes_quickly _____
+
+self = <src.model_checker.builder.tests.integration.test_performance.TestBuilderPerformance testMethod=test_small_model_generation_completes_quickly>
+
+        def test_small_model_generation_completes_quickly(self):
+            """Test small model (N=2) generation completes in <500ms.
+    
+            This ensures that simple model checking problems complete quickly,
+            providing fast feedback for basic logical arguments.
+            """
+            # Arrange
+            test_file = self._create_test_file("""
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Test": theory}
+    example_range = {"SMALL": [["A"], ["B"], {"N": 2}]}
+    general_settings = {}
+    """)
+    
+            flags = Mock(
+                file_path=test_file,
+                comparison=False,
+                interactive=False,
+                iterations=False,
+                quiet=True,
+                output=None,
+                save=None,  # No saving
+                sequential=False,  # Matches real --sequential/-q argparse default;
+                                    # a bare Mock() auto-creates a truthy attribute
+                                    # otherwise (see output/config.py sequential logic).
+                _parsed_args=[]
+            )
+    
+            # Act
+            start_time = time.time()
+            build_module = BuildModule(flags)
+            build_module.runner.run_examples()
+            elapsed_time = time.time() - start_time
+    
+            # Assert
+>           self.assertLess(elapsed_time, 0.5,
+                           f"Small model should complete in <500ms, took {elapsed_time:.3f}s")
+E                          AssertionError: 1.0915477275848389 not less than 0.5 : Small model should complete in <500ms, took 1.092s
+
+code/src/model_checker/builder/tests/integration/test_performance.py:76: AssertionError
+----------------------------- Captured stdout call -----------------------------
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example SMALL found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE SMALL: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. A
+
+Conclusion:
+2. B
+
+Solver Run Time: 1.0012 seconds
+
+========================================
+__ TestBuildExampleIntegration.test_build_example_bimodal_theory_countermodel __
+
+self = <src.model_checker.builder.tests.unit.test_example.TestBuildExampleIntegration testMethod=test_build_example_bimodal_theory_countermodel>
+
+        def test_build_example_bimodal_theory_countermodel(self):
+            """Test BuildExample with the bimodal theory, asserting a countermodel is found.
+    
+            `get_theory(config=None)` in the bimodal theory accepts but entirely ignores its
+            `config` argument, so it always returns the full bimodal theory regardless of the
+            value supplied -- no operator-restricted fragment is being loaded here.
+            """
+            content = """
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Bimodal": theory}
+    # Simple premise/conclusion pair over the full bimodal operator set
+    # max_time is explicit: the bimodal default is 1s, but the real solve takes ~1.7s, so an
+    # inherited default makes the outcome depend on machine timing rather than on the search itself.
+    example_range = {"SIMPLE": [["A"], ["B"], {"N": 2, "max_time": 10}]}
+    general_settings = {}
+    """
+            test_file = os.path.join(self.temp_dir, "bimodal_test.py")
+            with open(test_file, 'w') as f:
+                f.write(content)
+    
+            flags = Mock(
+                file_path=test_file,
+                comparison=False,
+                interactive=False,
+                iterations=False,
+                quiet=True,
+                output=None,
+                save=None,  # No saving
+                sequential=False,  # Matches real --sequential/-q argparse default;
+                                    # a bare Mock() auto-creates a truthy attribute
+                                    # otherwise (see output/config.py sequential logic).
+                _parsed_args=[]
+            )
+    
+            build_module = BuildModule(flags)
+    
+            # Run the example
+            theory = build_module.semantic_theories["Bimodal"]
+            example = list(build_module.example_range.values())[0]
+    
+            build_example = BuildExample(build_module, theory, example, "Bimodal")
+            result = build_example.get_result()
+    
+            # Simple example: A as premise, B as conclusion over the full bimodal theory -
+            # should find a countermodel (A does not entail B under bimodal semantics)
+>           self.assertTrue(result["model_found"],
+                           "Should find countermodel where A is true but B is false")
+E                          AssertionError: False is not true : Should find countermodel where A is true but B is false
+
+code/src/model_checker/builder/tests/unit/test_example.py:359: AssertionError
+____________ TestBuildExampleIntegration.test_find_next_model_basic ____________
+
+self = <src.model_checker.builder.tests.unit.test_example.TestBuildExampleIntegration testMethod=test_find_next_model_basic>
+
+        def test_find_next_model_basic(self):
+            """Test find_next_model with a simple example."""
+            content = """
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Test": theory}
+    # Simple satisfiable example - just A as premise, no conclusions
+    example_range = {"SAT": [["A"], [], {"N": 2}]}
+    general_settings = {}
+    """
+            test_file = os.path.join(self.temp_dir, "next_model_test.py")
+            with open(test_file, 'w') as f:
+                f.write(content)
+    
+            flags = Mock(
+                file_path=test_file,
+                comparison=False,
+                interactive=False,
+                iterations=False,
+                quiet=True,
+                output=None,
+                save=None,  # No saving
+                sequential=False,  # Matches real --sequential/-q argparse default;
+                                    # a bare Mock() auto-creates a truthy attribute
+                                    # otherwise (see output/config.py sequential logic).
+                _parsed_args=[]
+            )
+    
+            build_module = BuildModule(flags)
+    
+            theory = build_module.semantic_theories["Test"]
+            example = list(build_module.example_range.values())[0]
+    
+            build_example = BuildExample(build_module, theory, example, "Test")
+    
+            # Should find initial model
+            result = build_example.get_result()
+            self.assertTrue(result["model_found"],
+                           "Should find initial model for A")
+    
+            # Try to find next model
+            # Note: find_next_model may or may not find another model
+            # depending on the constraint solver
+>           found_next = build_example.find_next_model()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'BuildExample' object has no attribute 'find_next_model'
+
+code/src/model_checker/builder/tests/unit/test_example.py:406: AttributeError
+___________ TestBuildProjectCore.test_project_initialization_default ___________
+
+self = <src.model_checker.builder.tests.unit.test_project.TestBuildProjectCore testMethod=test_project_initialization_default>
+
+    def test_project_initialization_default(self):
+        """Test that BuildProject initializes with logos theory."""
+        builder = BuildProject()
+>       self.assertEqual(builder.theory, 'logos')
+E       AssertionError: 'bimodal' != 'logos'
+E       - bimodal
+E       + logos
+
+code/src/model_checker/builder/tests/unit/test_project.py:52: AssertionError
+============================== slowest durations ===============================
+10.11s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel
+5.49s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+3.74s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_constraint_generation_scales_linearly
+1.10s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+1.10s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_large_model_generation_completes_within_timeout
+1.09s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+1.09s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_generation_completes_within_timeout
+1.08s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+0.91s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow
+0.80s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+0.70s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_freeze_complete_time_consistency
+0.60s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_multiple_bars_maintain_independent_frozen_state
+0.50s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_deferred_completion_preserves_frozen_state
+0.43s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+0.31s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.31s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.30s call     src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_output
+0.30s call     src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_start_stop
+0.22s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_complete_handles_already_stopped_thread
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_progress_bar_animation_during_z3_search
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_stop_animation_without_printing
+0.16s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_executes_model_check_successfully
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_handles_example_processing_correctly
+0.10s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_run_model_check_bimodal
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_empty_example_cases_appropriately
+0.10s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_manual_thread_stop_then_complete
+0.09s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.08s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance
+0.03s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_multiple_project_generation_completes_within_reasonable_time
+0.02s call     src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_relative_imports_now_work_with_package
+0.02s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_buildmodule_with_package
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_both_execution_paths_work
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_project_creation_and_example_execution
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_loader_handles_generated_packages
+0.02s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently
+0.01s call     src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_init_file_creation
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.01s call     src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_multiple_project_creation_workflow_handles_conflicts
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_leakage_prevented
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_context_reset
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_conflicting_constraints
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_isolation
+0.01s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_example_method
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestSystemPathIsolationBehavior::test_sys_path_modifications_do_not_interfere_between_operations
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_existing_name_handles_appropriately
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_bimodal_project_generation_and_loading
+0.00s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_import_setup
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestProjectStructureFlexibility::test_multiple_theory_templates
+0.00s call     src/model_checker/builder/tests/test_package_loading.py::TestSubprocessExecution::test_pythonpath_setup_in_subprocess
+0.00s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_handle_example_script_simulation
+0.00s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_generated_project_detection
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_default_project_examples_init_loading
+0.00s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_direct_package_import
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_discovers_theory_module_successfully
+0.00s call     src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_marker_now_exists
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_find_project_directory
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_generated_project_detection
+0.00s call     src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_snake_project_scenario_resolution
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_sys_path_configuration
+0.00s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_relative_imports_work
+0.00s call     src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_project_creation_and_module_loading_workflow_succeeds
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestCompleteUserWorkflowSimulation::test_complete_cli_workflow_simulation_executes_successfully
+0.00s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_root_finding
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes
+0.00s call     src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_complete_user_session_from_creation_to_execution
+0.00s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_isolated_context_creates_fresh_context
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_directories_with_spaces_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_flag_overrides
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_process_example_error_handling
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues
+0.00s call     src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_creation_with_metadata
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_handles_missing_imports_with_error
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_output_directory_guidance_adapts_to_user_preferences
+0.00s call     src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_file_format
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_error_propagation_through_system_integration
+0.00s call     src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_build_project_retrieves_version_information_successfully
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_import_errors_in_module_content
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_performance_improvement
+0.00s call     src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_metadata_content
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_backward_compatibility
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_import_errors_from_module_dependencies
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal_basic
+0.00s call     src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_handles_different_theory_names_consistently
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_provides_appropriate_user_feedback
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerIntegration::test_build_module_integrates_with_runner_after_refactoring
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_build_module_provides_output_directory_guidance_when_saving
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_generated_project_detection
+0.00s setup    src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_bypasses_mode_prompting_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_very_long_file_paths
+0.00s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_module_loading_performance
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_missing_required_attributes_gracefully
+0.00s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_restores_context_on_exception
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_multiple_theory_dictionaries
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_handles_missing_output_configuration_gracefully
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_batch_mode_output_guidance_provides_command_line_instructions
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_integration_with_batch_mode_settings
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_example_processing
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_permanent_sys_path_changes
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_integration_with_real_user_workflow
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_no_interactive_flag_prompts_user_for_mode_selection
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_behavior_with_empty_example_range
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_theory_validation_integration
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_output_directory_guidance_handles_nonexistent_directories_gracefully
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_package_detection
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_method
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_runner_workflow_processes_examples_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_interactive_mode_integrates_output_directory_prompts_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_permission_denied_directories_gracefully
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModuleIntegration::test_bimodal_theory_integration
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestComparisonIntegration::test_comparison_mode_integration_with_multiple_theories
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_system_recovers_gracefully_from_partial_module_loading_failures
+0.00s call     src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_handles_comparison_mode_integration
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_conflicting_configuration_resolves_appropriately
+0.00s call     src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_provides_fallback_for_unknown_versions
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_translation_integration_applies_dictionaries
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_enables_comparison_mode_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_handles_example_processing_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_missing_attributes
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_syntax_errors_with_descriptive_error
+0.00s call     src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_consistency_with_package_version
+0.00s call     src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_handles_valid_version_format_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_complete_system_initialization_succeeds
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_build_module_propagates_component_initialization_errors_appropriately
+0.00s call     src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_loads_real_module_with_all_components
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_simplified_code_structure
+0.00s call     src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_performance_is_reasonable
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure
+0.00s call     src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_loads_multiple_theories_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_error_handling_for_generated_projects
+0.00s call     src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_invalid_module_produces_clear_error
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_compares_semantics_successfully
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_loader_exists
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_missing_attribute_errors_descriptively
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_integrates_with_comparison_after_refactoring
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_valid_module_successfully
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_error_propagation_preserves_original_error_context
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_module_with_correct_attributes
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_syntax_errors_with_location_info
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_handles_missing_imports_with_error
+0.00s call     src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_error_recovery_workflow_handles_invalid_projects
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_constraint_generation_scales_linearly
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_unicode_in_module_paths
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_validates_required_module_attributes
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_consistency_with_package_version
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_empty_module_files
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_syntax_errors_appropriately
+0.00s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_serialization_performance
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_reconstructs_valid_structure
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_nonexistent_file_with_descriptive_error
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance
+0.00s setup    src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_leakage_prevented
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_invalid_build_module_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_start_stop
+0.00s teardown src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_leakage_prevented
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_progress_bar_animation_during_z3_search
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_complete_handles_already_stopped_thread
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_multiple_bars_maintain_independent_frozen_state
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_stop_animation_without_printing
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_manual_thread_stop_then_complete
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_deferred_completion_preserves_frozen_state
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_creates_valid_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_complete_handles_already_stopped_thread
+0.00s teardown src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_optional_parameters
+0.00s call     src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_detection_methods_exist
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerIntegration::test_build_module_integrates_with_runner_after_refactoring
+0.00s setup    src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerIntegration::test_build_module_integrates_with_runner_after_refactoring
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_accepts_valid_theory_structure
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_example_method
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_multiple_project_generation_completes_within_reasonable_time
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_flag_overrides
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_freeze_complete_time_consistency
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_strategy_pattern_for_imports
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonResultAnalysis::test_model_comparison_formats_results_correctly
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestCompleteUserWorkflowSimulation::test_complete_cli_workflow_simulation_executes_successfully
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_missing_required_attributes_gracefully
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_initializes_with_valid_parameters
+0.00s teardown src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_output
+0.00s setup    src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_buildmodule_with_package
+0.00s setup    src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_interactive_mode_integrates_output_directory_prompts_correctly
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_executes_model_check_successfully
+0.00s call     src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_subpackage_initialization
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_current_runner_has_wrong_order
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_empty_theory_list_gracefully
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestSystemPathIsolationBehavior::test_sys_path_modifications_do_not_interfere_between_operations
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_handles_example_processing_correctly
+0.00s teardown src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_multiple_bars_maintain_independent_frozen_state
+0.00s setup    src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_start_stop
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance
+0.00s setup    src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_deferred_completion_preserves_frozen_state
+0.00s teardown src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow
+0.00s setup    src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestProjectStructureFlexibility::test_multiple_theory_templates
+0.00s setup    src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_batch_mode_output_guidance_provides_command_line_instructions
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_has_required_interface_methods
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_initializes_with_valid_parameters
+0.00s setup    src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_conflicting_constraints
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_constructor
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_module_loading_performance
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_file_not_found_error_with_context
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_memory_usage_stays_within_bounds
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_generation_completes_within_timeout
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_runner_workflow_processes_examples_correctly
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_large_model_generation_completes_within_timeout
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestComparisonIntegration::test_comparison_mode_integration_with_multiple_theories
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_file_not_found_error_with_context
+0.00s setup    src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_detection_methods_exist
+0.00s setup    src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_relative_imports_work
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModuleIntegration::test_bimodal_theory_integration
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_constructor
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_only_modelchecker_marker_support
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_loads_multiple_theories_correctly
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_example_processing
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_error_includes_available_theories_suggestion
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_bypasses_mode_prompting_correctly
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_integration_with_real_user_workflow
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_validates_component_types_correctly
+0.00s setup    src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_direct_package_import
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_backward_compatibility
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+0.00s setup    src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_build_project_retrieves_version_information_successfully
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_behavior_with_empty_example_range
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_freeze_complete_time_consistency
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_complete_system_initialization_succeeds
+0.00s setup    src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_handle_example_script_simulation
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_directories_with_spaces_correctly
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_generated_project_detection
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestCompleteUserWorkflowSimulation::test_complete_cli_workflow_simulation_executes_successfully
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.00s teardown src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_isolation
+0.00s setup    src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_context_reset
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_integration_with_batch_mode_settings
+0.00s setup    src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_isolated_context_creates_fresh_context
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_default_project_examples_init_loading
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_empty_example_cases_appropriately
+0.00s setup    src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_relative_imports_now_work_with_package
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_method
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_sys_path_configuration
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_semantic_theory_handles_extra_theory_components
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_generated_project_detection
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_module
+0.00s setup    src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_project_creation_and_example_execution
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_syntax_errors_with_descriptive_error
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+0.00s setup    src/model_checker/builder/tests/test_package_loading.py::TestSubprocessExecution::test_pythonpath_setup_in_subprocess
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_handles_multiple_example_theories
+0.00s teardown src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_project_creation_and_example_execution
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_build_module_propagates_component_initialization_errors_appropriately
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_stop_animation_without_printing
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_serialization_performance
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_empty_module_files
+0.00s setup    src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_nonexistent_file_with_descriptive_error
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_config_py_support
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_error_handling_for_generated_projects
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_generation_completes_within_timeout
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_executes_model_check_successfully
+0.00s call     src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_package_exports_structure
+0.00s setup    src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_handles_comparison_mode_integration
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_syntax_errors_with_location_info
+0.00s teardown src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_conflicting_constraints
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_valid_module_successfully
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal_basic
+0.00s setup    src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_restores_context_on_exception
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+0.00s teardown src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_context_reset
+0.00s setup    src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_import_setup
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_missing_attributes
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_large_model_generation_completes_within_timeout
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_run_model_check_bimodal
+0.00s setup    src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_both_execution_paths_work
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_constraint_generation_scales_linearly
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_manual_thread_stop_then_complete
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.00s setup    src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_output_directory_guidance_handles_nonexistent_directories_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+0.00s setup    src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_build_module_provides_output_directory_guidance_when_saving
+0.00s setup    src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_init_file_creation
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_process_example_error_handling
+0.00s setup    src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_package_detection
+0.00s setup    src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_output_directory_guidance_adapts_to_user_preferences
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_find_project_directory
+0.00s setup    src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_creation_with_metadata
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection
+0.00s setup    src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_permission_denied_directories_gracefully
+0.00s setup    src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_bimodal_project_generation_and_loading
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_import_errors_in_module_content
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_run_model_check_bimodal
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_multiple_theory_dictionaries
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_has_required_interface_methods
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_missing_attribute_errors_descriptively
+0.00s setup    src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_root_finding
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_import_errors_from_module_dependencies
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_conflicting_configuration_resolves_appropriately
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_system_recovers_gracefully_from_partial_module_loading_failures
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_translation_integration_applies_dictionaries
+0.00s setup    src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_complete_user_session_from_creation_to_execution
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes
+0.00s setup    src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_generated_project_detection
+0.00s setup    src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_initialization
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_example_method
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.00s teardown src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_relative_imports_now_work_with_package
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_no_interactive_flag_prompts_user_for_mode_selection
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_error_propagation_through_system_integration
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_existing_name_handles_appropriately
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_handles_missing_output_configuration_gracefully
+0.00s setup    src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_handles_different_theory_names_consistently
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_has_required_interface_methods
+0.00s setup    src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_theory_validation_integration
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_has_required_interface_methods
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonResultAnalysis::test_model_comparison_formats_results_correctly
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_error_propagation_preserves_original_error_context
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_discovers_theory_module_successfully
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_provides_appropriate_user_feedback
+0.00s setup    src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_package_exports_structure
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestSystemPathIsolationBehavior::test_sys_path_modifications_do_not_interfere_between_operations
+0.00s setup    src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_invalid_module_produces_clear_error
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_empty_theory_list_gracefully
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_in_readonly_directory_fails_gracefully
+0.00s setup    src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_marker_now_exists
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_multiple_project_generation_completes_within_reasonable_time
+0.00s setup    src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_isolation
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_invalid_theory_raises_error
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance
+0.00s setup    src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_propagates_unknown_theory_errors_clearly
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_in_readonly_directory_fails_gracefully
+0.00s teardown src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_buildmodule_with_package
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_strategy_pattern_for_imports
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_legacy_detection_methods
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_compares_semantics_successfully
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_complex_settings_structures
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_bypasses_mode_prompting_correctly
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_no_interactive_flag_prompts_user_for_mode_selection
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clear_error_messages_with_context
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_very_long_name
+0.00s setup    src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_multiple_project_creation_workflow_handles_conflicts
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_separated_detector_class_exists
+0.00s setup    src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_error_recovery_workflow_handles_invalid_projects
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_accepts_valid_example_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_logos
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_raises_error_for_unknown_theory
+0.00s setup    src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_loader_handles_generated_packages
+0.00s setup    src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_snake_project_scenario_resolution
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_unicode_operators_correctly
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_enables_comparison_mode_correctly
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_deserialize_operators_creates_operator_collection
+0.00s setup    src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_project_creation_and_module_loading_workflow_succeeds
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_invalid_theory_raises_error
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_has_required_interface_methods
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_empty_dictionary_gracefully
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_handles_multiple_example_theories
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_syntax_errors_appropriately
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_unicode_in_module_paths
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_empty_premises_and_conclusions
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_strategy_pattern_for_imports
+0.00s setup    src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_metadata_content
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_raises_import_error_when_file_not_found
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_empty_example_cases_appropriately
+0.00s setup    src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_file_format
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_handles_complex_formulas_correctly
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_accepts_valid_theory_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_unicode_operators_correctly
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestProjectStructureFlexibility::test_multiple_theory_templates
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_initializes_with_valid_build_module
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationMultipleTheories::test_operator_translation_handles_multiple_theory_dictionaries
+0.00s teardown src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_both_execution_paths_work
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_provides_appropriate_user_feedback
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_syntax_errors_with_descriptive_error
+0.00s setup    src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_loads_real_module_with_all_components
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_preserves_complex_nested_settings
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_large_operator_collections
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationIntegration::test_build_module_integrates_with_translation_after_refactoring
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_theory_validation_integration
+0.00s teardown src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_permission_denied_directories_gracefully
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_sys_path_configuration
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestComparisonIntegration::test_comparison_mode_integration_with_multiple_theories
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_unicode_operators_correctly
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_permanent_sys_path_changes
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently
+0.00s setup    src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_subpackage_initialization
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+0.00s setup    src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_handles_valid_version_format_correctly
+0.00s teardown src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_output_directory_guidance_adapts_to_user_preferences
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_reconstructs_valid_structure
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_error_propagation_through_system_integration
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_translate_method
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_very_long_file_paths
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_loader_exists
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clear_error_messages_with_context
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_integrates_with_comparison_after_refactoring
+0.00s setup    src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_performance_is_reasonable
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_deserialize_logos_theory_round_trips_through_semantic_package
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_validates_component_types_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_very_long_name
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_module_with_correct_attributes
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_translation_integration_applies_dictionaries
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_simplified_code_structure
+0.00s teardown src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_generated_project_detection
+0.00s teardown src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_output_directory_guidance_handles_nonexistent_directories_gracefully
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_missing_required_attributes_gracefully
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_system_recovers_gracefully_from_partial_module_loading_failures
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.00s setup    src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_provides_fallback_for_unknown_versions
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently
+0.00s teardown src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_loader_handles_generated_packages
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_fail_fast_validation
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_bimodal_project_generation_and_loading
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModuleIntegration::test_bimodal_theory_integration
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_process_example_error_handling
+0.00s teardown src/model_checker/builder/tests/test_package_loading.py::TestSubprocessExecution::test_pythonpath_setup_in_subprocess
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_fail_fast_validation
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_handles_builtin_modules_correctly
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_default_project_examples_init_loading
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_multiple_theory_dictionaries
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_syntax_errors_with_location_info
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.00s teardown src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_marker_now_exists
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_flag_overrides
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_initializes_with_valid_build_module
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_error_propagation_preserves_original_error_context
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_logos
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_header_printed_before_progress_bar_completion
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_invalid_build_module_gracefully
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_generated_project_detection
+0.00s setup    src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_no_memory_leaks_in_iteration
+0.00s setup    src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_missing_translation_gracefully
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_with_subtheories
+0.00s teardown src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_interactive_mode_integrates_output_directory_prompts_correctly
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds
+0.00s setup    src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_validates_required_module_attributes
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_directories_with_spaces_correctly
+0.00s setup    src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_output
+0.00s teardown src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_init_file_creation
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_no_model_found_ordering
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_find_project_directory
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_module_loading_performance
+0.00s teardown src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_batch_mode_output_guidance_provides_command_line_instructions
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_legacy_detection_methods
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_unicode_operators_in_input
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_separated_detector_class_exists
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal_basic
+0.00s teardown src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_invalid_module_produces_clear_error
+0.00s teardown src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_snake_project_scenario_resolution
+0.00s setup    src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input
+0.00s teardown src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_isolated_context_creates_fresh_context
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_handles_empty_operators_correctly
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestLoaderRunnerIntegration::test_loader_runner_workflow_processes_examples_correctly
+0.00s teardown src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_relative_imports_work
+0.00s teardown src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputDirectoryGuidanceIntegration::test_build_module_provides_output_directory_guidance_when_saving
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_generated_project_detection
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_performance_improvement
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_semantic_theory_handles_extra_theory_components
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_deserialize_logos_theory_round_trips_through_semantic_package
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_only_modelchecker_marker_support
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_initialization_bimodal
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_missing_attribute_errors_descriptively
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_none_dictionary_gracefully
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_circular_dependencies
+0.00s setup    src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_import_errors_from_module_dependencies
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_optional_parameters
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_module_missing_attributes
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestComponentIntegrationErrorPropagation::test_build_module_propagates_component_initialization_errors_appropriately
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestModuleTheoryIntegration::test_module_loads_multiple_theories_correctly
+0.00s setup    src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_config_py_support
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestTranslationIntegration::test_translation_integration_with_example_processing
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_empty_premises_and_conclusions
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_preserves_dictionary_content
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_integration_with_batch_mode_settings
+0.00s setup    src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_unicode_content
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_error_handling_for_generated_projects
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestCLIInteractiveFlagIntegration::test_interactive_flag_handles_missing_output_configuration_gracefully
+0.00s teardown src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_package_detection_methods_exist
+0.00s teardown src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_import_setup
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content
+0.00s setup    src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_progress_bar_animation_during_z3_search
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_behavior_with_empty_example_range
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_with_subtheories
+0.00s teardown src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_package_detection
+0.00s teardown src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_backward_compatibility
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveModeUserExperience::test_interactive_mode_integration_with_real_user_workflow
+0.00s teardown src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestModuleLoadingBoundaryConditions::test_module_loading_handles_nonexistent_file_with_descriptive_error
+0.00s teardown src/model_checker/builder/tests/integration/test_component_integration.py::TestSystemIntegration::test_complete_system_initialization_succeeds
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_initializes_with_valid_build_module
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_creates_valid_structure
+0.00s teardown src/model_checker/builder/tests/integration/test_cli_interactive_integration.py::TestInteractiveFlagEdgeCases::test_interactive_flag_with_conflicting_configuration_resolves_appropriately
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_propagates_unknown_theory_errors_clearly
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure
+0.00s teardown src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_direct_package_import
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_very_long_file_paths
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_imports_valid_classes_successfully
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_creates_correct_structure
+0.00s teardown src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_error_recovery_workflow_handles_invalid_projects
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_initializes_successfully
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_initializes_with_valid_build_module
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_translates_basic_operators_correctly
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_module_with_correct_attributes
+0.00s setup    src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_preserves_untranslated_operators
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestModuleLoadingErrorPropagation::test_module_loader_propagates_file_not_found_error_with_context
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_loads_valid_module_successfully
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_integrates_with_comparison_after_refactoring
+0.00s teardown src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_metadata_content
+0.00s teardown src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_package_root_finding
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_module
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_real_bimodal_theory_preserves_structure
+0.00s teardown src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_multiple_project_creation_workflow_handles_conflicts
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_handles_operator_collection_input
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_existing_name_handles_appropriately
+0.00s teardown src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_loads_real_module_with_all_components
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_validates_required_module_attributes
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_raises_import_error_when_file_not_found
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_discovers_theory_module_successfully
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples
+0.00s setup    src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_class
+0.00s teardown src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_provides_fallback_for_unknown_versions
+0.00s teardown src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_handle_example_script_simulation
+0.00s teardown src/model_checker/builder/tests/integration/test_workflow.py::TestEndToEndScenarios::test_complete_user_session_from_creation_to_execution
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds
+0.00s teardown src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_subpackage_initialization
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_handles_missing_imports_with_error
+0.00s teardown src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_project_creation_and_module_loading_workflow_succeeds
+0.00s teardown src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_error_includes_available_theories_suggestion
+0.00s teardown src/model_checker/builder/tests/integration/test_workflow.py::TestBuildModuleIntegration::test_build_module_handles_comparison_mode_integration
+0.00s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_current_runner_has_wrong_order
+0.00s teardown src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_file_format
+0.00s teardown src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_performance_is_reasonable
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_permanent_sys_path_changes
+0.00s teardown src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_build_project_retrieves_version_information_successfully
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_import_errors_in_module_content
+0.00s teardown src/model_checker/builder/tests/unit/test_package_marker.py::TestPackageMarker::test_marker_creation_with_metadata
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_with_subtheories
+0.00s teardown src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_package_exports_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_restores_context_on_exception
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_simplified_code_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationIntegration::test_build_module_integrates_with_translation_after_refactoring
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_empty_module_files
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_raises_error_for_unknown_theory
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_initializes_with_valid_build_module
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestDeserializationCore::test_deserialize_semantic_theory_reconstructs_valid_structure
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_performance_improvement
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_preserves_dictionary_content
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderEdgeCases::test_module_loader_handles_unicode_in_module_paths
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonResultAnalysis::test_model_comparison_formats_results_correctly
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonIntegration::test_build_module_enables_comparison_mode_correctly
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_loader_exists
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_empty_theory_list_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_handles_syntax_errors_appropriately
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderCore::test_module_loader_initializes_with_valid_parameters
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_initializes_with_valid_build_module
+0.00s teardown src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_consistency_with_package_version
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clean_constructor
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_invalid_theory_raises_error
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_serialization_performance
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_separated_detector_class_exists
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_handles_multiple_example_theories
+0.00s teardown src/model_checker/builder/tests/unit/test_project_version.py::TestVersionDetectionEdgeCases::test_version_detection_handles_different_theory_names_consistently
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerCore::test_model_runner_has_required_interface_methods
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_validates_component_types_correctly
+0.00s teardown src/model_checker/builder/tests/unit/test_project_version.py::TestBuildProjectVersionDetection::test_version_detection_handles_valid_version_format_correctly
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_preserves_complex_nested_settings
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_very_long_name
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_none_dictionary_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_semantic_theory_handles_extra_theory_components
+0.00s call     src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_circular_dependencies
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonCore::test_model_comparison_has_required_interface_methods
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonExecution::test_model_comparison_compares_semantics_successfully
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_large_operator_collections
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_current_runner_has_wrong_order
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_logos
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_clear_error_messages_with_context
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_missing_translation_gracefully
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_no_memory_leaks_in_iteration
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_unicode_operators_in_input
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_missing_translation_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationIntegration::test_build_module_integrates_with_translation_after_refactoring
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_only_modelchecker_marker_support
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_legacy_detection_methods
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_optional_parameters
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_invalid_build_module_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_in_readonly_directory_fails_gracefully
+0.00s teardown src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_memory_usage_stays_within_bounds
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_circular_dependencies
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationMultipleTheories::test_operator_translation_handles_multiple_theory_dictionaries
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_creates_valid_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_accepts_valid_theory_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_handles_operator_collection_input
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_translates_basic_operators_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_error_includes_available_theories_suggestion
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_no_config_py_support
+0.00s teardown src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderErrorHandling::test_module_loader_raises_import_error_when_file_not_found
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_module
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_initializes_successfully
+0.00s teardown src/model_checker/builder/tests/test_refactoring_target_behavior.py::TestTargetLoaderBehavior::test_fail_fast_validation
+0.00s teardown src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_invalid_build_module_gracefully
+0.00s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check
+0.00s teardown src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_initialization
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_handles_empty_operators_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerErrorHandling::test_model_runner_handles_invalid_build_module_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_accepts_valid_example_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_complex_settings_structures
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_empty_premises_and_conclusions
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_real_bimodal_theory_preserves_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_deserialize_operators_creates_operator_collection
+0.00s teardown src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_unicode_content
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_empty_dictionary_gracefully
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_empty_premises_and_conclusions
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_header_printed_before_progress_bar_completion
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_has_required_interface_methods
+0.00s teardown src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_no_model_found_ordering
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_handles_complex_formulas_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestTheoryDiscoveryErrorPropagation::test_theory_discovery_propagates_unknown_theory_errors_clearly
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_handles_builtin_modules_correctly
+0.00s teardown src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_preserves_untranslated_operators
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_handles_large_operator_collections
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_deserialize_logos_theory_round_trips_through_semantic_package
+0.00s call     src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_memory_usage_stays_within_bounds
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_creates_correct_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_handles_complex_formulas_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_imports_valid_classes_successfully
+0.00s teardown src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_class
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_accepts_valid_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationMultipleTheories::test_operator_translation_handles_multiple_theory_dictionaries
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestModuleLoaderTheoryDiscovery::test_module_loader_raises_error_for_unknown_theory
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationEdgeCases::test_serialize_semantic_theory_preserves_complex_nested_settings
+0.00s call     src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_initialization
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_translates_basic_operators_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_invalid_build_module_gracefully
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestRealTheoryIntegration::test_serialize_real_bimodal_theory_preserves_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_complex_settings_structures
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_handles_empty_operators_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_deserialize_operators_creates_operator_collection
+0.00s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_empty_premises_and_conclusions
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_empty_premises_and_conclusions
+0.00s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_header_printed_before_progress_bar_completion
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationExecution::test_operator_translation_preserves_untranslated_operators
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_imports_valid_classes_successfully
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationCore::test_serialize_semantic_theory_preserves_dictionary_content
+0.00s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_no_model_found_ordering
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_handles_builtin_modules_correctly
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestImportUtility::test_import_class_raises_error_for_nonexistent_class
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_empty_dictionary_gracefully
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestValidationEdgeCases::test_validate_example_case_handles_unicode_content
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationEdgeCases::test_operator_translation_handles_unicode_operators_in_input
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_none_dictionary_gracefully
+0.00s call     src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_no_memory_leaks_in_iteration
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_creates_correct_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_has_required_interface_methods
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestOperatorSerialization::test_serialize_operators_handles_operator_collection_input
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationCore::test_operator_translation_initializes_successfully
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.00s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues
+0.00s call     src/model_checker/builder/tests/integration/test_error_propagation.py::TestErrorRecoveryAndGracefulDegradation::test_informative_error_messages_help_debugging_common_issues
+0.00s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestProjectStructureFlexibility::test_multiple_theory_templates
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_output_directory_guidance_adapts_to_user_preferences
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestInteractiveOutputDirectoryIntegration::test_output_directory_guidance_adapts_to_user_preferences
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively
+0.00s call     src/model_checker/builder/tests/integration/test_output_directory_guidance.py::TestOutputGuidanceErrorHandling::test_output_guidance_handles_invalid_directory_paths_informatively
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples
+0.00s call     src/model_checker/builder/tests/unit/test_comparison.py::TestModelComparisonErrorHandling::test_model_comparison_handles_malformed_theory_tuples
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes
+0.00s call     src/model_checker/builder/tests/unit/test_loader.py::TestDiscoverTheoryModuleRegression::test_discovers_correct_theory_for_all_four_theories_via_real_classes
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_deserialize_semantic_theory_handles_invalid_input_types
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure
+0.00s call     src/model_checker/builder/tests/unit/test_serialize.py::TestSerializationErrorHandling::test_serialize_semantic_theory_handles_malformed_theory_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_translation.py::TestOperatorTranslationErrorHandling::test_operator_translation_handles_malformed_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_identifies_missing_required_components
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestSemanticTheoryValidation::test_validate_semantic_theory_rejects_non_dictionary_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_rejects_non_list_input
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_conclusions_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_correct_element_count
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_premises_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure
+0.00s call     src/model_checker/builder/tests/unit/test_validation.py::TestExampleCaseValidation::test_validate_example_case_validates_settings_structure
+=========================== short test summary info ============================
+FAILED code/src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution - AssertionError: 'State Space' not found in '========================================\n\nEXAMPLE TEST: there is a countermodel.\n\nAtomic States: 2\n\nSemantic Theory: Test\n\nPremise:\n\nConclusion:\n1. A\n\nSolver Run Time: 0.4315 seconds\n\n========================================\nWorld Histories:\n  \x1b[37mTime   | W_0    | W_1   \x1b[0m\n  \x1b[37m=======|========|=======\x1b[0m\n  \x1b[37m-1     |        | (-1:a)\x1b[0m\n  \x1b[37m       |        |   ↓   \x1b[0m\n  \x1b[1;33m0      | (0:a)  | (0:b) \x1b[0m\n  \x1b[37m       |   ↓    |       \x1b[0m\n  \x1b[37m+1     | (+1:b) |       \x1b[0m\n\nEvaluation Point:\n  \x1b[34mWorld History W_0: a ⟹₁ b\x1b[0m\n  \x1b[34mTime: 0\x1b[0m\n  \x1b[34mWorld State: a\x1b[0m\n\nINTERPRETED CONCLUSION:\n\n1.  \x1b[31m|A| = < {}, {a, b} >\x1b[0m  \x1b[31m(False in W_0 at time 0)\x1b[0m\n\nTotal Run Time: 0.4965 seconds\n\n\n========================================\n'
+FAILED code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently - AssertionError: 1.0985809803009032 not less than 0.5 : Average time per example should be <500ms, was 1.099s
+FAILED code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly - AssertionError: 1.0915477275848389 not less than 0.5 : Small model should complete in <500ms, took 1.092s
+FAILED code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel - AssertionError: False is not true : Should find countermodel where A is true but B is false
+FAILED code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic - AttributeError: 'BuildExample' object has no attribute 'find_next_model'
+FAILED code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default - AssertionError: 'bimodal' != 'logos'
+- bimodal
++ logos
+============== 6 failed, 238 passed, 75 subtests passed in 33.15s ==============

@@ -322,9 +322,12 @@ from model_checker.theory_lib.bimodal import get_theory
 theory = get_theory(['extensional'])
 semantic_theories = {"Bimodal": theory}
 # Simple premise/conclusion pair over the full bimodal operator set
-# max_time is explicit: the bimodal default is 1s, but the real solve takes ~1.7s, so an
-# inherited default makes the outcome depend on machine timing rather than on the search itself.
-example_range = {"SIMPLE": [["A"], ["B"], {"N": 2, "max_time": 10}]}
+# max_time is explicit: the bimodal default is 1s, but the real solve takes ~1.7-2s in
+# isolation and was observed to take just over 10s under full-builder-suite load (Z3
+# state/CPU contention from preceding tests in the same process), so max_time: 10 still
+# flaked. 30s matches the headroom sibling bimodal examples use for CI variance
+# (theory_lib/bimodal/examples.py) and comfortably covers the observed worst case.
+example_range = {"SIMPLE": [["A"], ["B"], {"N": 2, "max_time": 30}]}
 general_settings = {}
 """
         test_file = os.path.join(self.temp_dir, "bimodal_test.py")

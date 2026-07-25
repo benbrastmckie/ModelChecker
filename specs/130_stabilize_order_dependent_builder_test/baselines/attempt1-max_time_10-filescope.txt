@@ -1,0 +1,108 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/bin/python3.13
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collecting ... collected 10 items
+
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode PASSED [ 10%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result PASSED [ 20%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization PASSED [ 30%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model PASSED [ 40%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model PASSED [ 50%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check PASSED [ 60%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure PASSED [ 70%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure PASSED [ 80%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel PASSED [ 90%]
+code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic FAILED [100%]
+
+=================================== FAILURES ===================================
+____________ TestBuildExampleIntegration.test_find_next_model_basic ____________
+
+self = <src.model_checker.builder.tests.unit.test_example.TestBuildExampleIntegration testMethod=test_find_next_model_basic>
+
+        def test_find_next_model_basic(self):
+            """Test find_next_model with a simple example."""
+            content = """
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Test": theory}
+    # Simple satisfiable example - just A as premise, no conclusions
+    example_range = {"SAT": [["A"], [], {"N": 2}]}
+    general_settings = {}
+    """
+            test_file = os.path.join(self.temp_dir, "next_model_test.py")
+            with open(test_file, 'w') as f:
+                f.write(content)
+    
+            flags = Mock(
+                file_path=test_file,
+                comparison=False,
+                interactive=False,
+                iterations=False,
+                quiet=True,
+                output=None,
+                save=None,  # No saving
+                sequential=False,  # Matches real --sequential/-q argparse default;
+                                    # a bare Mock() auto-creates a truthy attribute
+                                    # otherwise (see output/config.py sequential logic).
+                _parsed_args=[]
+            )
+    
+            build_module = BuildModule(flags)
+    
+            theory = build_module.semantic_theories["Test"]
+            example = list(build_module.example_range.values())[0]
+    
+            build_example = BuildExample(build_module, theory, example, "Test")
+    
+            # Should find initial model
+            result = build_example.get_result()
+            self.assertTrue(result["model_found"],
+                           "Should find initial model for A")
+    
+            # Try to find next model
+            # Note: find_next_model may or may not find another model
+            # depending on the constraint solver
+>           found_next = build_example.find_next_model()
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E           AttributeError: 'BuildExample' object has no attribute 'find_next_model'
+
+code/src/model_checker/builder/tests/unit/test_example.py:406: AttributeError
+============================== slowest durations ===============================
+1.29s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+1.29s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel
+1.08s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+1.08s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+1.02s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+0.38s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.09s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure
+0.00s setup    src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure
+0.00s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_get_result_without_model_check
+0.00s teardown src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_example_structure
+0.00s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleErrorHandling::test_invalid_theory_structure
+=========================== short test summary info ============================
+FAILED code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic - AttributeError: 'BuildExample' object has no attribute 'find_next_model'
+========================= 1 failed, 9 passed in 6.66s ==========================

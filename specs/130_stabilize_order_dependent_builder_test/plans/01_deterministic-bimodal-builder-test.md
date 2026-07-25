@@ -1,7 +1,7 @@
 # Implementation Plan: Deterministic, correctly-named bimodal BuildExample integration test
 
 - **Task**: 130 - Make `builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_logos_extensional_theory` deterministic and correctly named
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 1.25 hours
 - **Dependencies**: None
 - **Research Inputs**: `specs/130_stabilize_order_dependent_builder_test/reports/01_order-dependent-test-diagnosis.md`
@@ -240,29 +240,61 @@ Verified: isolated invocation now PASSES (call time 2.14s, well under the 10s bu
 
 ---
 
-### Phase 4: Verify determinism across all three invocations [NOT STARTED]
+### Phase 4: Verify determinism across all three invocations [COMPLETED]
 
 **Goal**: Prove the outcome is identical in isolation, at file scope, and in the full builder suite,
 and that nothing else in the suite changed.
 
 **Tasks**:
-- [ ] Isolated run, by node id, at least twice:
+- [x] Isolated run, by node id, at least twice:
       `PYTHONPATH=code/src pytest "code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel" -v`
-- [ ] File-scope run:
+- [x] File-scope run:
       `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/unit/test_example.py -v`
-- [ ] Full builder suite run:
+- [x] Full builder suite run:
       `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/ -v`
-- [ ] Confirm the target test PASSES in all three, every run — identical result, not merely
+- [x] Confirm the target test PASSES in all three, every run — identical result, not merely
       "passes somewhere".
-- [ ] Confirm the pass is genuine, not a coincidence: check the run reports a real solve (no
+- [x] Confirm the pass is genuine, not a coincidence: check the run reports a real solve (no
       `TIMEOUT: Model search exceeded maximum time` for this example) and that the observed solve
       duration leaves clear margin under the configured budget. Record the observed duration.
-- [ ] Diff the post-change sorted FAILED set from the full-suite run against Phase 1's
+- [x] Diff the post-change sorted FAILED set from the full-suite run against Phase 1's
       `pre-change-failed-set.txt` (e.g. `comm -13` / `comm -23`): the only permitted difference is
       the target test's removal. Any newly-appearing FAILED line is a regression and must be fixed
       before the phase is complete.
-- [ ] Save the post-change outputs and the diff under
+- [x] Save the post-change outputs and the diff under
       `specs/130_stabilize_order_dependent_builder_test/baselines/`.
+
+**Deviation (contingency triggered, `max_time` raised from 10 to 30)**: the first attempt at
+`max_time: 10` PASSED in both isolated runs and the file-scope run, but FAILED in the full-suite
+run with a 10.11s call time -- a genuine timeout right at the budget boundary, not a semantic
+"no countermodel" result (preserved as
+`baselines/attempt1-max_time_10-fullsuite-FAILED.txt`). This matches the plan's own contingency
+clause verbatim ("If Phase 4 shows the test still flakes at `max_time: 10`, the contingency is to
+raise the budget further ... and re-run Phase 4 rather than to weaken the assertion"). Raised to
+`max_time: 30` (the plan's own suggested ceiling, matching sibling bimodal examples' CI-variance
+headroom in `theory_lib/bimodal/examples.py`) and re-ran all three invocations: 2x isolated PASS
+(1.98s, 1.85s), file-scope PASS (0.69s), and **three** full-suite runs PASS (1.37s, 15.08s, and a
+third run also PASS) -- the extra full-suite repetitions were added given the wide run-to-run
+variance observed (1.37s-15.08s) to build confidence beyond the plan's minimum of one full-suite
+run. All final `max_time: 30` runs are saved in `post-change-three-invocations.txt`.
+
+**Deviation (FAILED-set diff shape)**: the plan expected "the only permitted difference is the
+target test's removal" from the pre-change FAILED set. Because Phase 1 found the target test
+already PASSING in the pre-change full-suite run (see Phase 1's deviation note), it was never in
+the pre-change FAILED set, so the correct diff is empty in both directions (zero
+regressions, zero removals) -- not a one-line removal. See `baselines/failed-set-diff.txt` for the
+full node-id-based comparison (message-text comparison was unusable: the two pre-existing
+e2e/performance failures embed run-to-run-variable floating-point timings directly in their
+`FAILED ...` line, which broke a naive text diff).
+
+**Note on `test_find_next_model_basic`** (explicitly out of scope, not fixed): still fails in
+every invocation, but its failure *mode* varies with the same underlying missing-`max_time`
+pattern the plan fixed for the target test -- most runs show
+`AttributeError: 'BuildExample' object has no attribute 'find_next_model'`, but one file-scope run
+during verification showed `AssertionError: False is not true : Should find initial model for A`
+(its own `SAT` example also omits `max_time`, per the plan's own Follow-Up Candidates section).
+This is recorded here for an honest account of the file's state, per the delegation's explicit
+request, and is left unfixed as directed.
 
 **Timing**: 25 minutes (dominated by repeated suite runs)
 
@@ -283,12 +315,12 @@ and that nothing else in the suite changed.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest "code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel" -v` passes on repeated isolated runs.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/unit/test_example.py -v` — target test passes; only the known out-of-scope `test_find_next_model_basic` failure remains from this file.
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/ -v` — target test passes; FAILED set differs from the Phase 1 baseline by exactly the target test's removal.
-- [ ] `grep -rn "test_logos_extensional_theory" code/` returns no matches.
-- [ ] No occurrence of `logos` or `extensional` in the renamed test's name, docstring, or comments.
-- [ ] `git diff --stat` shows exactly one changed file under `code/`: `code/src/model_checker/builder/tests/unit/test_example.py`.
+- [x] `PYTHONPATH=code/src pytest "code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel" -v` passes on repeated isolated runs.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/unit/test_example.py -v` — target test passes; only the known out-of-scope `test_find_next_model_basic` failure remains from this file.
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/builder/tests/ -v` — target test passes; FAILED set differs from the Phase 1 baseline by exactly the target test's removal. (Actual: the target test was not in the Phase 1 pre-change FAILED set to begin with — see Phase 1/4 deviation notes — so the diff is correctly empty in both directions: zero regressions.)
+- [x] `grep -rn "test_logos_extensional_theory" code/` returns no matches.
+- [x] No occurrence of `logos` or `extensional` in the renamed test's name, docstring, or comments.
+- [x] `git diff --stat` shows exactly one changed file under `code/`: `code/src/model_checker/builder/tests/unit/test_example.py`.
 
 ## Artifacts & Outputs
 

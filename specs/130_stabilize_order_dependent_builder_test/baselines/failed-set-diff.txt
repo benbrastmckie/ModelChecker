@@ -1,0 +1,39 @@
+FAILED-set diff: Phase 1 pre-change baseline (baselines/pre-change-failed-set.txt) vs. Phase 4
+post-change full-suite run (extracted from
+baselines/post-change-three-invocations.txt, "Full builder suite run #1" section), compared by
+test node id (message text ignored, since e2e/performance failure messages embed
+run-to-run-variable floating-point timings).
+
+Pre-change FAILED node ids (5):
+  code/src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+  code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+  code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+  code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+  code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default
+
+Post-change FAILED node ids (5):
+  code/src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+  code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+  code/src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+  code/src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_find_next_model_basic
+  code/src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default
+
+Removed (pre-only): none
+Added (post-only, regressions): none
+
+Note on the plan's expected diff shape: the plan anticipated "the only permitted difference is the
+target test's removal." That did not apply verbatim here, because Phase 1 itself found the target
+test (test_logos_extensional_theory at the time) already PASSING in the pre-change full-suite run
+(order-dependent flakiness — it only failed in isolation). So the target test was never in the
+pre-change FAILED set to begin with, and the diff is correctly empty in both directions: zero
+regressions introduced, and the same 5 pre-existing, out-of-scope failures remain unchanged
+(including test_find_next_model_basic, explicitly out of scope for this task).
+
+Additional context: an intermediate attempt at max_time: 10 (see
+attempt1-max_time_10-fullsuite-FAILED.txt) DID regress the target test under full-suite load (call
+time 10.11s, right at the budget -- a genuine timeout, not a semantic failure). That attempt is
+preserved as a record; the final change uses max_time: 30 (matching sibling bimodal examples' CI
+headroom), which passed in 3 consecutive full-suite runs with observed call times of 1.37s, 15.08s,
+and (see post-change-three-invocations.txt "Full builder suite run #1") comfortably under budget in
+every case -- confirming genuine, non-coincidental countermodel discovery, not a lucky escape from a
+still-too-tight budget.
