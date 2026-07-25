@@ -303,6 +303,50 @@ class TestRealTheoryIntegration(unittest.TestCase):
         self.assertIsInstance(result["operators"], dict,
                             "Operators should be serialized as dictionary")
 
+    def test_serialize_deserialize_logos_theory_round_trips_through_semantic_package(self):
+        """Test that logos's semantic package split rehydrates via importlib.
+
+        logos.semantic used to be a flat module; it is now a package with the
+        implementation in semantic/core.py, semantic/model.py, and
+        semantic/proposition.py. serialize_semantic_theory records each
+        class's __module__ (now "...logos.semantic.core" etc rather than
+        "...logos.semantic"), and deserialize_semantic_theory rehydrates
+        purely from that recorded string via importlib. This test asserts
+        the round trip still works rather than assuming it.
+        """
+        import model_checker.theory_lib.logos as logos
+        real_theory = logos.get_theory()
+
+        serialized = assert_no_exceptions_during_execution(
+            self,
+            lambda: serialize_semantic_theory("Logos", real_theory),
+            operation_name="Real Logos theory serialization"
+        )
+
+        self.assertEqual(serialized["theory_name"], "Logos",
+                        "Theory name should be preserved")
+        self.assertEqual(serialized["semantics"]["class_name"], "LogosSemantics",
+                        "Should preserve LogosSemantics class name")
+        self.assertEqual(serialized["semantics"]["module_name"],
+                        "model_checker.theory_lib.logos.semantic.core",
+                        "Should record the post-split package submodule path")
+        self.assertEqual(serialized["proposition"]["class_name"], "LogosProposition",
+                        "Should preserve LogosProposition class name")
+        self.assertEqual(serialized["proposition"]["module_name"],
+                        "model_checker.theory_lib.logos.semantic.proposition",
+                        "Should record the post-split package submodule path")
+
+        deserialized = assert_no_exceptions_during_execution(
+            self,
+            lambda: deserialize_semantic_theory(serialized),
+            operation_name="Real Logos theory deserialization"
+        )
+
+        self.assertIs(deserialized["semantics"], real_theory["semantics"],
+                     "Deserialized semantics class should import identically to the original")
+        self.assertIs(deserialized["proposition"], real_theory["proposition"],
+                     "Deserialized proposition class should import identically to the original")
+
 
 class TestSerializationErrorHandling(unittest.TestCase):
     """Test serialization error handling scenarios."""

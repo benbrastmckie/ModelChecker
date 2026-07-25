@@ -1175,7 +1175,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 18: Normalize logos — Split semantic.py into a Package [IN PROGRESS]
+### Phase 18: Normalize logos — Split semantic.py into a Package [COMPLETED]
 
 - **Goal:** Convert logos's flat 1,283-line `semantic.py` into the canonical `semantic/` package.
 - **Tasks:**
@@ -1187,10 +1187,15 @@ Phases within the same wave can execute in parallel.
         `imposition/__init__.py:53`, `imposition/semantic/core.py:10`, `imposition/semantic/model.py:15`,
         `exclusion/examples.py:69`, every logos subtheory's `operators.py` (`TYPE_CHECKING` imports),
         and roughly a dozen test modules.
-  - [ ] Verify `builder/serialize.py` round-trips logos classes after the split; the `__module__`
+  - [x] Verify `builder/serialize.py` round-trips logos classes after the split; the `__module__`
         strings change from `...logos.semantic` to `...logos.semantic.core`. Because
         `serialize.py` rehydrates via `importlib` on the recorded `__module__`, the new value must be
-        importable — it will be, but assert it with a test rather than assuming.
+        importable — it will be, but assert it with a test rather than assuming. *(completed: added
+        `test_serialize_deserialize_logos_theory_round_trips_through_semantic_package` to
+        `builder/tests/unit/test_serialize.py`, asserting recorded module paths of
+        `...logos.semantic.core`/`...logos.semantic.proposition` and that deserialization
+        re-imports the identical classes; passes alongside the pre-existing 18 tests in that
+        file, with only the known pre-existing bimodal-path failure unaffected.)*
   - [x] Run the full logos suite plus all five subtheory suites plus imposition and exclusion (both
         depend on logos semantics). *(logos 446 passed; imposition + exclusion + layering +
         conformance 318 passed / 4 xfailed; `verify-refactor.sh --skip-oracle` all checks passed.
@@ -1212,7 +1217,7 @@ Phases within the same wave can execute in parallel.
 
 ---
 
-### Phase 19: Fold the relevance Subtheory into constitutive [NOT STARTED]
+### Phase 19: Fold the relevance Subtheory into constitutive [IN PROGRESS]
 
 - **Goal:** Remove a subtheory that contributes zero operators, without losing its example corpus or
   documentation.
