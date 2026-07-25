@@ -2,81 +2,45 @@
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
   "status": "partial",
-  "summary": "Completed phases 18-21 of 26 (waves 7-8), resuming from a continuation handoff at 17/26 with phase 18 at 4/5 checklist items done and committed as 'phase 18.1'. Finished phase 18 by adding a logos semantic-package round-trip test to builder/tests/unit/test_serialize.py. Phase 19 folded the operator-free relevance subtheory into constitutive (20 examples absorbed, docs relocated to constitutive/RELEVANCE.md, all call sites updated, subtheory-conformance xfail removed). Phase 20 collapsed bimodal's dual class identity: moved the flat 3194-line semantic.py into semantic/core.py verbatim and deleted the importlib dynamic-loader shim that used to execute it a second time under a synthetic module name (bimodal_semantic_module) purely to keep --maximize pickling working; discovered and fixed a real downstream regression this exposed (witness_registry.py/witness_constraints.py's own 3-dot relative import to theory_lib/errors.py broke scaffolded bimodal projects, switched to absolute imports) plus an unrelated pre-existing PackageError arg-count bug in builder/strategies.py that was masking the real exception. Phase 21 split the now-single-identity semantic/core.py into the canonical core.py/model.py/proposition.py file set matching imposition/exclusion/logos, added bimodal/tests/conftest.py, and removed bimodal's remaining SEMANTIC_PACKAGE_XFAIL_REASON entry. All four in-tree theories (bimodal, exclusion, imposition, logos) are now uniformly normalized onto the semantic/ package contract with a single class identity each. Full sanity sweep (theory_lib/ + layering + builder, 1303 tests) shows exactly the 7 already-documented pre-existing failures and zero new regressions.",
+  "summary": "Completed phases 22-26 of 26, the final leg of the core/theory_lib refactor. Phase 22 restored bimodal's missing iterate.py (git-restored, ported to the current generator convention, 7 new tests, closing the last theory-contract gap). Phase 23 flipped the conformance and layering tests fully green with a permanent zero-xfail guard. Phase 24 reconciled 16 documentation files with the enforced module contract. Phase 25 ran the full regression gate and wheel parity diff (zero unexplained deltas in either direction) and, discovering that exclusion/imposition failed a live scaffold-and-run check, fixed a scaffolded-project relative-import defect Phase 20 had deliberately deferred. Phase 26 recorded the refactor's durable decisions in specs/ROADMAP.md. Also fixed a genuine Phase-12 regression (stale utils.api.get_theory call site) surfaced by a broader test sweep. 25/26 phases are [COMPLETED]; Phase 2 remains [PARTIAL], unchanged, per its documented sandbox constraint.",
   "artifacts": [
-    {"type": "summary", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/04_phases-18-21-summary.md"}
+    {"type": "summary", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md"}
   ],
   "blockers": [
     {
-      "description": "Phase 2's full serial oracle suite run (550 tests) remains unattempted since the phases-1-9 dispatch -- collection count (550) and the 5 xfail(strict=True) line locations remain pinned and verified clean via verify-refactor.sh after every phase this dispatch. A future session with pytest-xdist available, or dedicated/isolated resources, should re-attempt the full oracle run and commit baselines/oracle-run.txt + baselines/junit-oracle.xml to fully close Phase 2 (still marked [PARTIAL] in the plan).",
+      "description": "Phase 2's full serial oracle suite run (550 tests) remains unattempted -- no pytest-xdist in this sandbox, resource contention on prior attempts. Collection count (550) and the 5 xfail(strict=True) line locations remain pinned and re-verified clean via verify-refactor.sh at this final checkpoint too. A future session with pytest-xdist or dedicated resources should re-attempt the full run and commit baselines/oracle-run.txt + junit-oracle.xml to fully close Phase 2. This does not block any other phase's acceptance criteria -- all 25 other phases are fully COMPLETED and independently verified.",
       "phase": "phase-2",
-      "severity": "soft"
-    },
-    {
-      "description": "Phase 22 (Restore bimodal iterate.py and Unify the Test Layout) is the next phase and is a meaningfully-sized, git-archaeology-heavy unit of work: restoring a 611-line file via `git show 9b76ffa2^:...iterate.py`, porting it to the current iterate_example_generator convention using imposition/iterate.py as a template, verifying multiple hasattr-guarded attribute references, writing a fresh test_iterate.py (explicitly NOT restoring the old Mock-heavy 156-line version), reconciling bimodal/docs/ITERATE.md, deleting bimodal/tests/e2e/, and extending code/tests/e2e/test_project_creation.py's theory parametrization. Recommended: begin Phase 22 with a fresh dispatch rather than continuing with reduced context budget.",
-      "phase": "phase-22",
       "severity": "soft"
     }
   ],
-  "next_action_hint": "implement",
+  "next_action_hint": "none",
   "files_modified": [
-    "code/src/model_checker/builder/tests/unit/test_serialize.py",
-    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/examples.py",
-    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/RELEVANCE.md (new, relocated from relevance/README.md)",
-    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/notebooks/relevance_examples.ipynb (relocated)",
-    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/notebooks/README.md",
-    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/tests/README.md",
-    "code/src/model_checker/theory_lib/logos/subtheories/constitutive/README.md",
-    "code/src/model_checker/theory_lib/logos/subtheories/relevance/ (deleted entirely)",
-    "code/src/model_checker/theory_lib/logos/subtheories/__init__.py",
-    "code/src/model_checker/theory_lib/logos/subtheories/README.md",
-    "code/src/model_checker/theory_lib/logos/operators.py",
-    "code/src/model_checker/theory_lib/logos/__init__.py",
-    "code/src/model_checker/theory_lib/logos/examples.py",
-    "code/src/model_checker/theory_lib/logos/README.md",
-    "code/src/model_checker/theory_lib/logos/docs/API_REFERENCE.md",
-    "code/src/model_checker/theory_lib/logos/tests/conftest.py",
-    "code/src/model_checker/theory_lib/logos/tests/README.md",
-    "code/src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py",
-    "code/src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py",
-    "code/src/model_checker/theory_lib/logos/tests/unit/test_registry.py",
+    "code/src/model_checker/theory_lib/bimodal/iterate.py",
+    "code/src/model_checker/theory_lib/bimodal/__init__.py",
+    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py",
+    "code/src/model_checker/theory_lib/bimodal/docs/{ITERATE,ARCHITECTURE}.md",
+    "code/tests/e2e/test_project_creation.py",
     "code/src/model_checker/theory_lib/tests/test_theory_conformance.py",
-    "code/src/model_checker/theory_lib/README.md",
-    "code/src/model_checker/theory_lib/tests/README.md",
-    "code/src/model_checker/theory_lib/__init__.py",
-    "code/run_tests.py",
-    "code/scripts/logos_solver_benchmark.py",
-    "code/README.md",
-    "code/docs/quality/MANUAL_TESTING.md",
-    "code/src/model_checker/theory_lib/bimodal/semantic.py (deleted, moved into semantic/core.py then split)",
-    "code/src/model_checker/theory_lib/bimodal/semantic/__init__.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/core.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/model.py (new)",
-    "code/src/model_checker/theory_lib/bimodal/semantic/proposition.py (new)",
-    "code/src/model_checker/theory_lib/bimodal/semantic/witness_registry.py",
-    "code/src/model_checker/theory_lib/bimodal/semantic/witness_constraints.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_module_registration.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/conftest.py (new)",
-    "code/src/model_checker/builder/project.py",
-    "code/src/model_checker/builder/strategies.py",
-    "code/src/model_checker/builder/tests/integration/test_generated_projects.py",
-    "code/src/model_checker/builder/tests/unit/test_loader.py"
+    "code/tests/integration/test_system_imports.py",
+    "code/src/model_checker/theory_lib/docs/CONTRIBUTING.md",
+    "six module test READMEs + four per-theory docs/ARCHITECTURE.md files",
+    "docs/architecture/{SEMANTICS,SETTINGS}.md, docs/usage/SEMANTICS.md, code/docs/standards/AUDIENCE.md",
+    "code/src/model_checker/theory_lib/{exclusion,imposition}/semantic/*.py (relative-import fix)",
+    "specs/ROADMAP.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/post-refactor/*"
   ],
   "decisions_made": [
-    "logos's semantic/serialize round-trip is now asserted by a dedicated test rather than assumed: builder/serialize.py rehydrates via importlib on the recorded __module__, and the new '...logos.semantic.core' value is confirmed importable",
-    "The former relevance subtheory's examples keep their REL_ prefix inside constitutive/examples.py for provenance; the same 4-of-20 active example_range subset was preserved exactly",
-    "Relevance's boilerplate notebooks/template.json and notebooks/README.md were not carried over verbatim (superseded by constitutive's near-identical equivalents, referenced nowhere in code); only the substantive RELEVANCE.md and the interactive notebook itself were preserved",
-    "Bimodal's witness_registry.py/witness_constraints.py use ABSOLUTE imports (from model_checker.theory_lib.errors import ...) for the shared errors.py dependency, diverging from exclusion/imposition's 3-dot relative form -- deliberate, because bimodal's witness files are exercised by scaffolded-project builder tests (via BuildProject()'s buggy bare-default-to-bimodal registry ordering) and exclusion/imposition's aren't, so only bimodal's version needed to survive being copied a directory level shallower than its theory_lib home",
-    "Exclusion and imposition were confirmed (by direct reproduction) to have an identical, equally-latent scaffolded-project relative-import depth defect via their own '...errors'/'...logos.semantic' imports -- deliberately left untouched since it predates this task and is not introduced or worsened by it",
-    "bimodal/semantic/core.py (3192 lines) had exactly 3 top-level classes and zero module-level helper functions, so both the phase-20 move and the phase-21 split were clean, unambiguous cuts with no shared-helper threading needed",
-    "Phase 21's oracle-suite verification task was scoped to 279/550 tests (every oracle/bimodal_logic/ file that directly exercises BimodalSemantics/BimodalProposition/BimodalStructure construction and comparison), matching Phase 2's already-accepted sandbox constraint (no pytest-xdist, resource contention) rather than attempting the full serial run"
+    "BimodalModelIterator's _create_difference_constraint/_create_non_isomorphic_constraint/_create_stronger_constraint are confirmed dead code in the active search path (the loop always uses the shared, theory-agnostic ConstraintGenerator) but kept for interface parity with the other three theories, with the broken semantics.W/T references fixed rather than left in place",
+    "Fixed exclusion/imposition's scaffolded-project 3-dot relative-import defect (mirroring bimodal's own Phase 20 fix) because Phase 25's own scaffold-and-run verification step made it an acceptance blocker, even though Phase 20 had deliberately deferred it",
+    "Fixed code/tests/integration/test_system_imports.py's stale utils.api.get_theory call site (a genuine Phase-12 regression, invisible to every prior phase's narrower theory_lib+layering+builder sweep) rather than leaving it, since it was discovered while doing this session's own verification work",
+    "Did not attempt three failures confirmed pre-existing via empty git diffs on the exercised source AND already tracked in specs/ROADMAP.md's existing 28-failures follow-up item before this session began (Mock.assert_and_track misuse, timeout/resource-contention tests, the malformed 'A[]' formula literal)"
   ],
   "dead_ends": [
-    "Do not assume witness_registry.py/witness_constraints.py's existing '...errors' relative imports are safe to leave untouched when normalizing a theory's semantic/__init__.py from a dynamic-loader shim to a plain re-export -- the OLD dynamic loader executed the flat semantic.py directly via importlib.util.spec_from_file_location, bypassing the package's normal import machinery entirely, so witness_registry.py/witness_constraints.py's own relative imports were NEVER actually exercised as package submodules in a scaffolded project. Only the real theory_lib nesting depth (4 levels) was ever tested by any prior test; a plain re-export __init__.py exercises the normal 2-level-shallower scaffolded-project import chain for the first time and can surface a previously-dormant depth mismatch",
-    "PackageImportError(...) in builder/strategies.py's exec-fallback exception handler was being called with 4 positional arguments against PackageError's 3-argument (message, context, suggestion) constructor -- always a live TypeError bug, but silent until something actually exercises that specific fallback path (which the phase-20 witness-import regression did, incidentally surfacing it)"
+    "Do not assume a theory-specific iterate.py override's difference-constraint methods drive search-time model exclusion -- iterate/iterator.py's active loop always calls a fresh, theory-agnostic ConstraintGenerator instead, so these methods are presentation/parity-only across all four theories, not dead-code-worth-deleting but also not worth defending as load-bearing"
   ],
   "continuation_context": {
-    "phases_completed": 21,
+    "phases_completed": 25,
     "phases_total": 26,
     "orchestrator_mode": true
   }
