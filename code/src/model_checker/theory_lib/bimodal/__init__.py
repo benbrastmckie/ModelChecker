@@ -47,6 +47,9 @@ from .semantic import (
 # Import operators collection
 from .operators import bimodal_operators
 
+# Import iteration API
+from .iterate import BimodalModelIterator, iterate_example, iterate_example_generator
+
 __version__ = "1.0.0"
 
 # Define the public API of the package
@@ -63,7 +66,10 @@ __all__ = [
     "get_theory",
     "get_examples",
     "get_test_examples",
-    "print_example_report"
+    "print_example_report",
+    "BimodalModelIterator",    # Model iterator for finding multiple distinct models
+    "iterate_example",        # Function to find multiple distinct models
+    "iterate_example_generator",  # Generator version for incremental display
 ]
 
 

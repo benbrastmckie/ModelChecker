@@ -85,13 +85,11 @@ ITERATE_REQUIRED_ATTRS = [
 # further edit.
 SEMANTIC_PACKAGE_XFAIL_REASON = {}
 
-ITERATE_MODULE_XFAIL_REASON = {
-    'bimodal': (
-        "bimodal has no iterate.py; its DEFAULT_EXAMPLE_SETTINGS still declares an "
-        "'iterate' setting, so iterate: 2 on a bimodal example hits a live, reachable "
-        "ImportError at the builder layer"
-    ),
-}
+# Fixed in the phase that restored bimodal/iterate.py (ported to the current
+# iterate_example_generator convention using imposition/iterate.py as the template) and
+# re-exported iterate_example / iterate_example_generator from bimodal/__init__.py. Kept as an
+# empty dict (rather than deleted) so _xfail_params()'s call site below needs no further edit.
+ITERATE_MODULE_XFAIL_REASON = {}
 
 # Fixed in the phase that unified get_theory() signatures: logos now uses get_theory(config=None,
 # *, subtheories=None), matching the other three theories' get_theory(config=None). Kept as an
