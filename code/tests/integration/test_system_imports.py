@@ -81,8 +81,13 @@ class TestTheoryStructure:
     ])
     def test_theory_components(self, theory_name):
         """Test theory has all required components."""
-        from model_checker.utils.api import get_theory
-        
+        # model_checker.api.get_theory (not utils.api.get_theory) is the theory-aware
+        # entry point that auto-loads semantic_theories by name; utils.api.get_theory is
+        # the pure, theory-unaware lookup that now requires an explicit mapping -- see
+        # theory_lib/docs/THEORY_ARCHITECTURE.md's Layering section and model_checker/api.py's
+        # module docstring.
+        from model_checker.api import get_theory
+
         theory = get_theory(theory_name)
         
         # Check required components inline
