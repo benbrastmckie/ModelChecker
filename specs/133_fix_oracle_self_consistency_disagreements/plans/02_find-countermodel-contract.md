@@ -565,7 +565,7 @@ nix develop --command bash -c 'PYTHONPATH="code/src:$PYTHONPATH" pytest \
 
 ---
 
-### Phase 4: Make the differential harness three-valued [IN PROGRESS]
+### Phase 4: Make the differential harness three-valued [COMPLETED]
 
 **Goal**: Every path that turns a `find_countermodel` call into a `"SAT"`/`"UNSAT"` string handles
 the third outcome, and `_generate_differential_report` classifies inconclusive results instead of
@@ -573,7 +573,7 @@ crashing on them. `timeout_count` becomes live.
 
 **Tasks**:
 
-- [ ] **RED first, with a stub oracle — no Z3.** Add a module-level test stub to
+- [x] **RED first, with a stub oracle — no Z3.** Add a module-level test stub to
       `test_cross_oracle_differential.py`, e.g. a `_StubOracle` class whose `find_countermodel`
       returns a dict, returns `None`, or raises `OracleTimeoutError` according to the formula it is
       given. Add tests asserting that a report generated over three stub formulas yields exactly
@@ -581,7 +581,13 @@ crashing on them. `timeout_count` becomes live.
       `agreements + disagreements + timeout_count == total_formulas`. These run in milliseconds and
       are the mechanism by which every later phase is verified without a long scan. Confirm they
       fail today — the raising formula currently crashes report generation.
-- [ ] Introduce a shared three-valued reference helper next to `_run_differential_comparison`:
+      Confirmed RED: `test_stub_three_way_classification_counts` failed with
+      `NameError: name '_reference_verdict' is not defined`;
+      `test_reference_fn_timeout_survives_report_generation` failed with the `OracleTimeoutError`
+      propagating uncaught; `test_reference_timeout_not_counted_as_disagreement` failed on the
+      counting assertion (`disagreements=1` instead of `timeout_count=1`) — three distinct, correct
+      RED reasons.
+- [x] Introduce a shared three-valued reference helper next to `_run_differential_comparison`:
       ```python
       def _reference_verdict(oracle, formula_json, timeout_ms=None) -> str:
           """Return "SAT", "UNSAT", or "TIMEOUT" for one reference-side solve."""
@@ -589,28 +595,28 @@ crashing on them. `timeout_count` becomes live.
       It performs the same `try/except OracleTimeoutError` classification
       `_run_differential_comparison` already performs on the subject side. Every `ref_fn` closure
       becomes a one-line delegation to it.
-- [ ] **The highest-risk change**: guard `_generate_differential_report`'s
+- [x] **The highest-risk change**: guard `_generate_differential_report`'s
       `ref_result = reference_fn(formula_json)` at line 1232 with `try/except OracleTimeoutError:
       ref_result = "TIMEOUT"`. A caller-supplied closure that does not classify internally must
       still produce a `"TIMEOUT"` entry rather than crashing the whole report. This guard is
       belt-and-braces on top of the closures below, and both are required — the closures make the
       common path informative, the guard makes the uncommon path survivable.
-- [ ] Update the report's counting logic (lines 1238-1243) so a formula counts as
+- [x] Update the report's counting logic (lines 1238-1243) so a formula counts as
       `timeout_count` when **either** side is `"TIMEOUT"`, not only the subject side. Today the
       `elif record["agreement"]` branch would score a `TIMEOUT` reference against a `SAT` subject
       as a *disagreement*, which would turn every inconclusive formula into a false soundness
       alarm — the exact inversion of the bug being fixed.
-- [ ] Migrate all six `"SAT" if result is not None else "UNSAT"` closures at lines **1286, 1373,
+- [x] Migrate all six `"SAT" if result is not None else "UNSAT"` closures at lines **1286, 1373,
       1400, 1420, 1528, 1544** to delegate to `_reference_verdict`. Verify the count with grep
       afterwards.
-- [ ] Migrate `test_temporal_only_self_consistency` (lines 1495-1520, Bucket 3). It runs in
+- [x] Migrate `test_temporal_only_self_consistency` (lines 1495-1520, Bucket 3). It runs in
       **normal CI** (`TestCIGate`'s docstring), is currently green, is not `xfail`'d, and is
       structurally identical to the complexity-5 scan — two independent solves of the same formula
       compared via `result is not None`. Wrap both calls, classify each side, and compare only when
       both are conclusive; count and report the inconclusive formulas without failing on them.
       Without this, the test begins crashing (correctly, but uninformatively) the moment the
       contract changes.
-- [ ] Update the docstrings of `_run_differential_comparison` and `_generate_differential_report`
+- [x] Update the docstrings of `_run_differential_comparison` and `_generate_differential_report`
       to state that `"TIMEOUT"` is now reachable and what produces it.
 
 **Timing**: 1 hour 30 minutes.
@@ -632,13 +638,18 @@ nix develop --command bash -c 'PYTHONPATH=code/src pytest \
 
 - Success criterion: exit 0, including the new stub-oracle classification tests, and
   `test_temporal_only_self_consistency` passing under the new classification.
+  **Result**: `22 passed, 1 xfailed in 110.24s` (the 1 xfail is `test_oracle_baseline_agreement`,
+  untouched Phase 6 territory). `test_temporal_only_self_consistency` (real Z3, 30 formulas) took
+  84.60s and passed cleanly with 0 inconsistencies.
 - No unmigrated closures remain:
   ```bash
   grep -c 'is not None else "UNSAT"' oracle/bimodal_logic/tests/test_cross_oracle_differential.py
   ```
-  must return `0`.
+  returns `1` (only the `_reference_verdict` helper's own body; all 6 call-site closures
+  migrated).
 - `grep -n "_reference_verdict" oracle/bimodal_logic/tests/test_cross_oracle_differential.py`
-  returns the definition plus at least six call sites.
+  returns the definition plus 8 further references (7 call sites including the new stub test,
+  plus 1 explanatory comment) — exceeds "at least six call sites".
 
 ---
 

@@ -35,6 +35,8 @@ from typing import Any
 
 import pytest
 
+from bimodal_logic import OracleTimeoutError
+
 ##############################################################################
 # Self-contained primitive formula enumerator (no external dependencies)
 ##############################################################################
@@ -374,7 +376,7 @@ class TestFormulaEnumerator:
 def _run_differential_comparison(
     oracle: Any,
     formula_json: dict,
-    reference_result: str,  # "SAT" or "UNSAT"
+    reference_result: str,  # "SAT", "UNSAT", or "TIMEOUT"
     timeout_ms: int | None = None,
 ) -> dict:
     """Run a formula through the oracle and compare to a reference result.
@@ -382,8 +384,9 @@ def _run_differential_comparison(
     Args:
         oracle: An oracle provider with find_countermodel() method.
         formula_json: A JSON formula dict.
-        reference_result: Expected result string: "SAT" (countermodel exists)
-            or "UNSAT" (formula is valid/no countermodel).
+        reference_result: Expected result string: "SAT" (countermodel exists),
+            "UNSAT" (formula is valid/no countermodel), or "TIMEOUT" (the
+            reference side did not decide either).
         timeout_ms: Optional solve budget override, in milliseconds. When
             None (the default), find_countermodel() is called with no
             timeout_ms keyword, preserving its own default. Passed through
@@ -401,7 +404,12 @@ def _run_differential_comparison(
     """
     from bimodal_logic.translation import temporal_depth
 
-    # Run the oracle
+    # Run the oracle. `OracleTimeoutError` (the solver did not decide) is
+    # the reachable, expected case here and is what "TIMEOUT" now means;
+    # the broad `except Exception` is kept so a malformed formula or other
+    # unexpected error still produces a classifiable record rather than
+    # aborting the whole comparison, but OracleTimeoutError is the case this
+    # was written for.
     try:
         if timeout_ms is None:
             mc_output = oracle.find_countermodel(formula_json)
@@ -429,6 +437,66 @@ def _run_differential_comparison(
         "has_box": has_box,
         "temporal_depth": t_depth,
     }
+
+
+def _reference_verdict(
+    oracle: Any, formula_json: dict, timeout_ms: int | None = None
+) -> str:
+    """Return "SAT", "UNSAT", or "TIMEOUT" for one reference-side solve.
+
+    Performs the same OracleTimeoutError classification
+    _run_differential_comparison already performs on the subject side, so
+    every `ref_fn` closure in this module can delegate to this in one line
+    instead of duplicating the try/except.
+
+    Args:
+        oracle: An oracle provider with a find_countermodel() method.
+        formula_json: A JSON formula dict.
+        timeout_ms: Optional solve budget override, in milliseconds. When
+            None (the default), find_countermodel() is called with no
+            timeout_ms keyword, preserving its own default.
+
+    Returns:
+        "SAT" if a countermodel was found, "UNSAT" if the solver proved
+        none exists, or "TIMEOUT" if the solver did not decide within
+        timeout_ms.
+    """
+    try:
+        if timeout_ms is None:
+            result = oracle.find_countermodel(formula_json)
+        else:
+            result = oracle.find_countermodel(formula_json, timeout_ms=timeout_ms)
+    except OracleTimeoutError:
+        return "TIMEOUT"
+    return "SAT" if result is not None else "UNSAT"
+
+
+class _StubOracle:
+    """Z3-free stub oracle for differential-report classification tests.
+
+    find_countermodel() returns a dict, returns None, or raises
+    OracleTimeoutError according to a fixed outcome table keyed by the
+    formula's "name" field. Stub formulas use the real "atom" tag so the
+    unmodified _formula_complexity/_is_temporal_only/temporal_depth helpers
+    still work on them. This proves the three-way SAT/UNSAT/TIMEOUT
+    classification and the report's counting invariant in milliseconds,
+    with no Z3 solve involved.
+    """
+
+    def __init__(self, outcome_by_name: dict) -> None:
+        self._outcome_by_name = outcome_by_name
+
+    def find_countermodel(self, formula_json, frame_class="Base", timeout_ms=None):
+        outcome = self._outcome_by_name[formula_json["name"]]
+        if outcome == "SAT":
+            return {"stub": True}
+        if outcome == "UNSAT":
+            return None
+        if outcome == "TIMEOUT":
+            raise OracleTimeoutError(
+                timeout_ms=timeout_ms or 0, temporal_depth=0, M=0
+            )
+        raise ValueError(f"_StubOracle: unknown outcome {outcome!r}")
 
 
 ##############################################################################
@@ -1195,7 +1263,7 @@ class TestMockOracleSpotCheck:
 def _generate_differential_report(
     oracle: Any,
     formulas: list[dict],
-    reference_fn: Any,  # Callable[[dict], str] returning "SAT" or "UNSAT"
+    reference_fn: Any,  # Callable[[dict], str] returning "SAT", "UNSAT", or "TIMEOUT"
     oracle_ids: dict,   # {"mc": "...", "ref": "..."}
     timeout_ms: int | None = None,
 ) -> dict:
@@ -1204,7 +1272,10 @@ def _generate_differential_report(
     Args:
         oracle: MC oracle with find_countermodel() method.
         formulas: List of JSON formula dicts to test.
-        reference_fn: Function taking formula_json, returning "SAT" or "UNSAT".
+        reference_fn: Function taking formula_json, returning "SAT", "UNSAT",
+            or "TIMEOUT". A `reference_fn` that does not classify
+            OracleTimeoutError internally (e.g. delegates straight to
+            find_countermodel()) is still tolerated: see the guard below.
         oracle_ids: Dict with "mc" and "ref" keys identifying oracle versions.
         timeout_ms: Optional solve budget override, in milliseconds, passed
             through to _run_differential_comparison for each formula. When
@@ -1217,9 +1288,12 @@ def _generate_differential_report(
             mc_oracle_id:    Identifier for the MC oracle
             ref_oracle_id:   Identifier for the reference oracle
             total_formulas:  Count of formulas tested
-            agreements:      Count of formula agreements
-            disagreements:   Count of formula disagreements
-            timeout_count:   Count of TIMEOUT results
+            agreements:      Count of formula agreements (both sides decided
+                              and matched)
+            disagreements:   Count of formula disagreements (both sides
+                              decided and mismatched)
+            timeout_count:   Count of formulas where either side did not
+                              decide (TIMEOUT)
             entries:         List of comparison records
     """
     import datetime
@@ -1229,13 +1303,25 @@ def _generate_differential_report(
     timeout_count = 0
 
     for formula_json in formulas:
-        ref_result = reference_fn(formula_json)
+        # A caller-supplied reference_fn that does not classify
+        # OracleTimeoutError internally must still produce a "TIMEOUT" entry
+        # rather than crashing the whole report -- this guard is
+        # belt-and-braces on top of ref_fn closures that already classify
+        # via _reference_verdict.
+        try:
+            ref_result = reference_fn(formula_json)
+        except OracleTimeoutError:
+            ref_result = "TIMEOUT"
         record = _run_differential_comparison(
             oracle, formula_json, ref_result, timeout_ms=timeout_ms
         )
         entries.append(record)
 
-        if record["mc_result"] == "TIMEOUT":
+        # Either side being TIMEOUT makes the formula inconclusive, not a
+        # disagreement: a TIMEOUT reference compared against a decided
+        # subject result would otherwise mismatch under plain string
+        # equality and be miscounted as a real soundness disagreement.
+        if record["mc_result"] == "TIMEOUT" or record["reference_result"] == "TIMEOUT":
             timeout_count += 1
         elif record["agreement"]:
             agreements += 1
@@ -1282,8 +1368,7 @@ class TestDifferentialReport:
         ]
         # Reference: oracle itself (baseline)
         def ref_fn(f):
-            result = self.oracle.find_countermodel(f)
-            return "SAT" if result is not None else "UNSAT"
+            return _reference_verdict(self.oracle, f)
 
         return _generate_differential_report(
             self.oracle,
@@ -1369,8 +1454,7 @@ class TestDifferentialReport:
 
         # Reference function uses the same oracle
         def ref_fn(f):
-            result = self.oracle.find_countermodel(f)
-            return "SAT" if result is not None else "UNSAT"
+            return _reference_verdict(self.oracle, f)
 
         report = _generate_differential_report(
             self.oracle, formulas, ref_fn, {"mc": "mc", "ref": "self"}
@@ -1378,6 +1462,71 @@ class TestDifferentialReport:
         assert report["disagreements"] == 0, (
             f"Self-comparison produced {report['disagreements']} disagreements"
         )
+
+    def test_stub_three_way_classification_counts(self):
+        """agreements + disagreements + timeout_count == total, exercising all
+        three outcomes via a Z3-free stub oracle (no wall-clock dependence).
+        """
+        formulas = [
+            {"tag": "atom", "name": "agree"},
+            {"tag": "atom", "name": "disagree"},
+            {"tag": "atom", "name": "timeout"},
+        ]
+        subject = _StubOracle({"agree": "SAT", "disagree": "SAT", "timeout": "TIMEOUT"})
+        reference = _StubOracle({"agree": "SAT", "disagree": "UNSAT", "timeout": "SAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(reference, f)
+
+        report = _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub-subject", "ref": "stub-reference"}
+        )
+        assert report["agreements"] == 1, report
+        assert report["disagreements"] == 1, report
+        assert report["timeout_count"] == 1, report
+        assert (
+            report["agreements"] + report["disagreements"] + report["timeout_count"]
+            == len(formulas)
+        ), report
+
+    def test_reference_fn_timeout_survives_report_generation(self):
+        """An unguarded reference_fn that raises OracleTimeoutError must not
+        crash report generation -- it must be classified as a TIMEOUT entry.
+
+        This is the highest-risk migration point: a caller-supplied closure
+        that does not classify OracleTimeoutError internally must still
+        produce a survivable report, not a hard crash on the first
+        boundary formula.
+        """
+        formulas = [{"tag": "atom", "name": "boundary"}]
+        subject = _StubOracle({"boundary": "SAT"})
+
+        def ref_fn(f):
+            raise OracleTimeoutError(timeout_ms=1, temporal_depth=0, M=0)
+
+        report = _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub-subject", "ref": "raises"}
+        )
+        assert report["timeout_count"] == 1, report
+        assert report["disagreements"] == 0, report
+
+    def test_reference_timeout_not_counted_as_disagreement(self):
+        """A TIMEOUT reference against a decided (SAT) subject must count as
+        a timeout, not a disagreement -- the exact inversion the either-side
+        counting fix exists to prevent.
+        """
+        formulas = [{"tag": "atom", "name": "f"}]
+        subject = _StubOracle({"f": "SAT"})
+
+        def ref_fn(f):
+            return "TIMEOUT"
+
+        report = _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub-subject", "ref": "stub-ref"}
+        )
+        assert report["timeout_count"] == 1, report
+        assert report["disagreements"] == 0, report
+        assert report["agreements"] == 0, report
 
 
 @pytest.mark.slow
@@ -1394,10 +1543,9 @@ class TestFullScanReport:
 
         # Self-comparison: oracle vs oracle
         def ref_fn(f):
-            result = self.oracle.find_countermodel(
-                f, timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS
+            return _reference_verdict(
+                self.oracle, f, timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS
             )
-            return "SAT" if result is not None else "UNSAT"
 
         report = _generate_differential_report(
             self.oracle,
@@ -1416,8 +1564,7 @@ class TestFullScanReport:
         formulas = _enumerate_primitive_formulas(3, ["p"])
 
         def ref_fn(f):
-            result = self.oracle.find_countermodel(f)
-            return "SAT" if result is not None else "UNSAT"
+            return _reference_verdict(self.oracle, f)
 
         report = _generate_differential_report(
             self.oracle, formulas, ref_fn, {"mc": "mc", "ref": "self"}
@@ -1493,29 +1640,47 @@ class TestCIGate:
         )
 
     def test_temporal_only_self_consistency(self):
-        """Temporal-only formulas at complexity<=5 give consistent results on repeated calls."""
+        """Temporal-only formulas at complexity<=5 give consistent results on
+        repeated calls.
+
+        This runs in normal CI (unmarked, not `slow`). Two independent
+        solves of the same formula are classified and compared only when
+        BOTH sides are conclusive. Either side raising OracleTimeoutError
+        makes the formula inconclusive, not inconsistent -- a budget-
+        exhausted solve is a tooling/timing outcome, not evidence the oracle
+        disagrees with itself. Without this, a solve landing on either side
+        of the budget would crash the test the moment the contract changed,
+        rather than being classified and reported.
+        """
         all_formulas = _enumerate_primitive_formulas(5, ["p"])
         temporal_formulas = [f for f in all_formulas if _is_temporal_only(f)]
 
         # Run each formula twice and check consistency
         inconsistencies = []
-        for formula in temporal_formulas[:30]:  # Limit to 30 for speed
-            result1 = self.oracle.find_countermodel(formula)
-            result2 = self.oracle.find_countermodel(formula)
+        inconclusive = 0
+        sampled = temporal_formulas[:30]  # Limit to 30 for speed
+        for formula in sampled:
+            verdict1 = _reference_verdict(self.oracle, formula)
+            verdict2 = _reference_verdict(self.oracle, formula)
 
-            sat1 = result1 is not None
-            sat2 = result2 is not None
+            if verdict1 == "TIMEOUT" or verdict2 == "TIMEOUT":
+                inconclusive += 1
+                continue
 
-            if sat1 != sat2:
+            if verdict1 != verdict2:
                 inconsistencies.append({
                     "formula": formula,
-                    "call1_sat": sat1,
-                    "call2_sat": sat2,
+                    "call1": verdict1,
+                    "call2": verdict2,
                 })
 
+        print(
+            f"test_temporal_only_self_consistency: inconclusive={inconclusive} "
+            f"of {len(sampled)} sampled formulas"
+        )
         assert not inconsistencies, (
             f"Oracle produced inconsistent results on {len(inconsistencies)} formulas:\n"
-            + "\n".join(f"  {i['formula']}: {i['call1_sat']} vs {i['call2_sat']}"
+            + "\n".join(f"  {i['formula']}: {i['call1']} vs {i['call2']}"
                         for i in inconsistencies[:3])
         )
 
@@ -1524,8 +1689,7 @@ class TestCIGate:
         formulas = _enumerate_primitive_formulas(3, ["p"])[:10]  # Small subset
 
         def ref_fn(f):
-            result = self.oracle.find_countermodel(f)
-            return "SAT" if result is not None else "UNSAT"
+            return _reference_verdict(self.oracle, f)
 
         report = _generate_differential_report(
             self.oracle, formulas, ref_fn, {"mc": "mc", "ref": "self"}
@@ -1540,8 +1704,7 @@ class TestCIGate:
         formulas = [{"tag": "atom", "name": "p"}, {"tag": "bot"}]
 
         def ref_fn(f):
-            result = self.oracle.find_countermodel(f)
-            return "SAT" if result is not None else "UNSAT"
+            return _reference_verdict(self.oracle, f)
 
         report = _generate_differential_report(
             self.oracle, formulas, ref_fn, {"mc": "mc", "ref": "self"}
