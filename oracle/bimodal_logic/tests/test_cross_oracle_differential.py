@@ -48,15 +48,42 @@ _PRIMITIVE_TAGS = frozenset({"atom", "bot", "imp", "box", "untl", "snce"})
 _BOX_DIAMOND_TAGS = frozenset({"box", "diamond"})
 
 # Solver budget for the complexity<=5 self-consistency scan (TestFullScanReport
-# .test_complexity_5_scan_self_consistent). An instrumented re-run of this scan found one
-# disagreement on untl(bot, box(p)): one solve returned a model at 4.7796s
-# (structure.timeout=false) while an independent solve of the SAME formula, under the
-# same settings, hit the inherited 5000ms find_countermodel default and timed out at
-# 5.0003s (structure.timeout=true) -- a blown budget is reported as "no countermodel"
-# rather than as an error, so the timeout silently inverted that solve's verdict. Set
-# generously (12x margin) rather than at measured-time-plus-margin, per
-# code/docs/core/TESTING_GUIDE.md section 8.6.
-SELF_SCAN_SOLVE_TIMEOUT_MS = 60000
+# .test_complexity_5_scan_self_consistent). find_countermodel() now raises
+# OracleTimeoutError when the solver does not decide within this budget, rather than
+# returning None (see provider.py's find_countermodel/OracleTimeoutError contract) --
+# a blown budget can therefore no longer silently invert a verdict into "no
+# countermodel". This budget's only remaining job is controlling how much of the
+# 274-formula sweep is decidable within a suite-compatible wall clock; it is a
+# performance knob, not a correctness-critical constant.
+#
+# Calibrated per code/docs/core/TESTING_GUIDE.md section 8.6: a bounded 30-formula
+# sample (evidence/scan_10s_sample.jsonl et al.) was measured at each rung of the
+# escalation ladder (10000 -> 15000 -> 20000 ms), since none reached the 60%
+# conclusive-rate target:
+#   10000 ms: 53.3% conclusive (16/30), sample wall 321s
+#   15000 ms: 50.0% conclusive (15/30), sample wall 499s
+#   20000 ms: 56.7% conclusive (17/30), sample wall 648s
+# The rate is flat/noisy across all three rungs (no monotonic improvement from
+# widening), while sample wall clock roughly doubles per rung. Scaling each sample's
+# wall clock to the full 548-solve sweep (274 formulas x 2 solves) extrapolates to
+# ~49 min at 10000 ms, ~76 min at 15000 ms, and ~99 min at 20000 ms -- the last of
+# which already exceeds this suite's 90-minute full-scan abort ceiling on this
+# extrapolation alone, before even accounting for the complexity-5 formulas the
+# 30-sample under-represents (it only reaches complexity 4). Kept at 10000 ms: it has
+# the best measured conclusive rate of the three rungs and the largest wall-clock
+# safety margin, so escalating bought no measured benefit and materially increased
+# the risk of the very suite-runnability problem this budget reduction exists to fix.
+SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
+
+# Floor for "how many of the 274 complexity<=5 formulas must be conclusive (neither
+# solve timed out) for a green run to mean anything". Conservatively floored from the
+# lowest of the three calibration measurements above (50.0%) to a round number and
+# applied to the full sweep: 0.50 * 274 = 137. A drop below this floor is a
+# budget/performance regression to investigate -- NOT a semantic regression. The two
+# have different causes and different fixes; conflating them is what consumed
+# several consecutive prior triage efforts in this line of work (see
+# code/docs/core/TESTING_GUIDE.md section 8.6).
+MIN_CONCLUSIVE_SCAN_FORMULAS = 137
 
 
 def _formula_complexity(formula_json: dict) -> int:
@@ -497,6 +524,45 @@ class _StubOracle:
                 timeout_ms=timeout_ms or 0, temporal_depth=0, M=0
             )
         raise ValueError(f"_StubOracle: unknown outcome {outcome!r}")
+
+
+def _assert_scan_report(report: dict, min_conclusive: int) -> None:
+    """Assert the two distinct claims a self-consistency scan report must
+    satisfy, and print all three counts unconditionally so a green run is
+    still informative.
+
+    - "Zero disagreements among conclusive results" -- the soundness claim.
+      Both solves of a formula completed and returned opposite verdicts.
+      This is a real bug and fails unconditionally, with no tolerance.
+    - "At least `min_conclusive` conclusive formulas" -- a *performance*
+      floor, not a soundness claim. It exists so a starved solve budget
+      cannot silently degrade into "everything was inconclusive, therefore
+      zero disagreements, therefore pass". A failure here is a
+      budget/performance regression to investigate, not a semantic one.
+    """
+    conclusive = report["total_formulas"] - report["timeout_count"]
+    print(
+        f"scan report: agreements={report['agreements']} "
+        f"disagreements={report['disagreements']} "
+        f"timeout_count={report['timeout_count']} "
+        f"conclusive={conclusive}/{report['total_formulas']}"
+    )
+    disagreeing = [
+        e["formula_json"]
+        for e in report["entries"]
+        if e["mc_result"] != "TIMEOUT"
+        and e["reference_result"] != "TIMEOUT"
+        and not e["agreement"]
+    ]
+    assert report["disagreements"] == 0, (
+        f"Self-comparison produced {report['disagreements']} disagreements among "
+        f"conclusive results: {disagreeing[:5]}"
+    )
+    assert conclusive >= min_conclusive, (
+        f"Only {conclusive} of {report['total_formulas']} formulas were conclusive "
+        f"(floor={min_conclusive}); this is a budget/performance regression to "
+        f"investigate, not a semantic one."
+    )
 
 
 ##############################################################################
@@ -1528,6 +1594,56 @@ class TestDifferentialReport:
         assert report["disagreements"] == 0, report
         assert report["agreements"] == 0, report
 
+    def test_scan_assertion_fails_on_genuine_disagreement(self):
+        """A stub producing one genuine disagreement among otherwise
+        conclusive results must fail `_assert_scan_report`, unconditionally.
+        Proves the disagreements==0 tooth of the self-consistency scan's
+        assertion, without Z3.
+        """
+        formulas = [
+            {"tag": "atom", "name": "agree1"},
+            {"tag": "atom", "name": "disagree"},
+            {"tag": "atom", "name": "agree2"},
+        ]
+        subject = _StubOracle({"agree1": "SAT", "disagree": "SAT", "agree2": "UNSAT"})
+        reference = _StubOracle(
+            {"agree1": "SAT", "disagree": "UNSAT", "agree2": "UNSAT"}
+        )
+
+        def ref_fn(f):
+            return _reference_verdict(reference, f)
+
+        report = _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub-subject", "ref": "stub-reference"}
+        )
+        assert report["disagreements"] == 1, report
+        with pytest.raises(AssertionError, match="disagreements"):
+            _assert_scan_report(report, min_conclusive=1)
+
+    def test_scan_assertion_fails_on_conclusiveness_floor_not_vacuous_pass(self):
+        """A stub producing only inconclusive (TIMEOUT) results must fail on
+        the conclusiveness floor rather than passing vacuously because
+        disagreements happens to be 0. This is the exact vacuous-pass trap
+        the floor exists to catch: "everything was inconclusive, therefore
+        zero disagreements, therefore pass" must not be allowed to stand.
+        """
+        formulas = [
+            {"tag": "atom", "name": "t1"},
+            {"tag": "atom", "name": "t2"},
+            {"tag": "atom", "name": "t3"},
+        ]
+        subject = _StubOracle({"t1": "TIMEOUT", "t2": "TIMEOUT", "t3": "TIMEOUT"})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        report = _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub-subject", "ref": "stub-subject"}
+        )
+        assert report["disagreements"] == 0, report  # the vacuous-pass trap
+        with pytest.raises(AssertionError, match="conclusive"):
+            _assert_scan_report(report, min_conclusive=1)
+
 
 @pytest.mark.slow
 class TestFullScanReport:
@@ -1538,7 +1654,21 @@ class TestFullScanReport:
         self.oracle = Z3OracleProvider()
 
     def test_complexity_5_scan_self_consistent(self):
-        """Enumerate all primitive formulas at complexity<=5, verify zero self-disagreements."""
+        """Enumerate all primitive formulas at complexity<=5, verify zero
+        self-disagreements among conclusive results, with a measured floor
+        on conclusiveness.
+
+        Two distinct claims, not conflated: "zero disagreements among
+        conclusive results" is the soundness claim (both solves of a
+        formula completed and disagreed -- a real bug, zero tolerance).
+        "At least MIN_CONCLUSIVE_SCAN_FORMULAS conclusive formulas" is a
+        performance floor (a starved budget must not be allowed to degrade
+        into "everything was inconclusive, therefore zero disagreements,
+        therefore pass"). A failure on the floor is a budget/performance
+        regression to investigate; a failure on disagreements is semantic.
+        See `_assert_scan_report` for the shared assertion logic (proven
+        against a Z3-free stub oracle in TestDifferentialReport).
+        """
         all_formulas = _enumerate_primitive_formulas(5, ["p"])
 
         # Self-comparison: oracle vs oracle
@@ -1555,9 +1685,7 @@ class TestFullScanReport:
             timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS,
         )
 
-        assert report["disagreements"] == 0, (
-            f"Self-comparison produced {report['disagreements']} disagreements at complexity<=5"
-        )
+        _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_SCAN_FORMULAS)
 
     def test_report_writes_to_file(self):
         """Report can be written and read back for complexity-3 scan."""
