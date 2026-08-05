@@ -29,9 +29,19 @@ class TestLogosSemanticInstantiation:
             LogosSemantics({})  # Empty settings should fail
             
     def test_semantics_invalid_settings(self):
-        """Test semantics fails with invalid setting values."""
+        """Test semantics fails with invalid setting values.
+
+        Expects SemanticError, the framework's own validation error.
+        Previously this asserted (ValueError, TypeError), which passed only
+        by accident: an unvalidated N=-1 reached `range(1 << self.N)` and
+        Python raised ValueError for the negative shift count. N is now
+        validated up front, so the failure is explicit rather than
+        incidental.
+        """
+        from model_checker.models.errors import SemanticError
+
         invalid_settings = {'N': -1, 'max_time': 'invalid'}
-        with pytest.raises((ValueError, TypeError)):
+        with pytest.raises(SemanticError):
             LogosSemantics(invalid_settings)
 
 
