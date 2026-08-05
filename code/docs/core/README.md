@@ -8,6 +8,7 @@
 core/
 ├── CODE_STANDARDS.md              # Python coding conventions
 ├── TESTING_GUIDE.md               # Comprehensive testing guide
+├── KNOWN_TEST_FAILURES.md         # Suite status, quarantine, and its removal criteria
 ├── ARCHITECTURE.md                # System design patterns
 └── DOCUMENTATION.md               # Documentation requirements
 ```
