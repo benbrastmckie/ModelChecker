@@ -253,7 +253,7 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
     Args:
         settings: Optional settings dictionary (merged with defaults)
         premises: Optional list of premise formulas (defaults to [])
-        conclusions: Optional list of conclusion formulas (defaults to ['A[]'])
+        conclusions: Optional list of conclusion formulas (defaults to ['A'])
         theory_name: Name of the theory to use (defaults to 'logos')
 
     Returns:
@@ -282,13 +282,15 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
     if premises is None:
         premises = []
     if conclusions is None:
-        conclusions = ['A[]']  # Simple valid formula
+        conclusions = ['A']  # Simple valid atomic sentence letter
 
     # Create Syntax
     syntax = Syntax(premises, conclusions, operators)
 
-    # Create Semantics instance
-    semantics = semantics_class(full_settings, syntax)
+    # Create Semantics instance (matches builder/example.py's
+    # self.semantics(self.settings) call -- semantics classes take only
+    # settings, not syntax)
+    semantics = semantics_class(full_settings)
 
     # Create ModelConstraints
     model_constraints = ModelConstraints(full_settings, syntax, semantics, proposition_class)

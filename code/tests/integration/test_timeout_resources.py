@@ -10,6 +10,14 @@ import threading
 from unittest.mock import patch, Mock
 from tests.utils.helpers import create_test_module, create_test_model
 
+# Timing/subprocess-timeout assertions here are load-sensitive (see
+# TESTING_GUIDE.md 8.6): repeat full-suite sweeps have shown these budgets
+# tripped under concurrent load with no code change. Marked "slow" so a
+# default run can opt out via `-m "not slow"` for deterministic results;
+# run with `-m slow` (or no -m filter) to validate actual timeout/resource
+# handling.
+pytestmark = pytest.mark.slow
+
 
 class TestTimeoutHandling:
     """Test timeout handling in various components."""
@@ -115,7 +123,7 @@ class TestResourceLimits:
         """Test handling of many propositions."""
         # Create many propositions
         num_props = 50
-        assumptions = [f"p{i}[]" for i in range(num_props)]
+        assumptions = [f"p{i}" for i in range(num_props)]
 
         settings = {'N': 4}
 

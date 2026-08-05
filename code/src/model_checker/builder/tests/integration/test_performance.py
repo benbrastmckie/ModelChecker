@@ -11,6 +11,8 @@ import tempfile
 import os
 from unittest.mock import Mock, patch
 
+import pytest
+
 # Import test fixtures
 from model_checker.builder.tests.fixtures.test_data import (
     TestTheories, TestExamples, TestModules, TestConstants
@@ -20,6 +22,13 @@ from model_checker.builder.tests.fixtures.mock_objects import MockObjectFactory
 # Import components to test
 from model_checker.builder.module import BuildModule
 from model_checker.builder.runner import ModelRunner
+
+# Wall-clock assertions here are load-sensitive (see TESTING_GUIDE.md 8.6):
+# repeat full-suite sweeps have shown these budgets tripped under
+# concurrent load with no code change. Marked "slow" so a default run can
+# opt out via `-m "not slow"` for deterministic results; run with `-m slow`
+# (or no -m filter) to validate actual performance characteristics.
+pytestmark = pytest.mark.slow
 
 
 class TestBuilderPerformance(unittest.TestCase):

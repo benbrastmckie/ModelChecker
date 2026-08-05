@@ -47,9 +47,18 @@ class TestBuildProjectCore(unittest.TestCase):
         pass
     
     def test_project_initialization_default(self):
-        """Test that BuildProject initializes with logos theory."""
+        """Test that BuildProject initializes with the first registered theory.
+
+        BuildProject() with no argument defers to the first entry in
+        model_checker.registry (see project.py's __init__ docstring and
+        docs/THEORY_ARCHITECTURE.md's Layering section) rather than a
+        hardcoded theory name, so the expected default tracks whichever
+        theory is registered first instead of assuming 'logos'.
+        """
+        from model_checker import registry
+
         builder = BuildProject()
-        self.assertEqual(builder.theory, 'logos')
+        self.assertEqual(builder.theory, registry.get_registered()[0])
         self.assertTrue(os.path.exists(builder.source_dir))
     
     def test_project_initialization_logos(self):

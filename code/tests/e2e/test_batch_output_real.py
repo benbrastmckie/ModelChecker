@@ -38,7 +38,7 @@ semantic_theories = {"test": theory}
 example_range = {
     "TEST": [
         [],        # premises
-        ["A[]"],   # conclusions (simple atomic proposition)
+        ["A"],     # conclusions (simple atomic proposition)
         {"N": 2}   # settings
     ]
 }

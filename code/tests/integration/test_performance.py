@@ -10,6 +10,13 @@ import gc
 from tests.utils.base import BaseModelTest, BaseExampleTest
 from tests.utils.helpers import create_test_model
 
+# Wall-clock assertions here are load-sensitive (see TESTING_GUIDE.md 8.6):
+# repeat full-suite sweeps have shown these budgets tripped under
+# concurrent load with no code change. Marked "slow" so a default run can
+# opt out via `-m "not slow"` for deterministic results; run with `-m slow`
+# (or no -m filter) to validate actual performance characteristics.
+pytestmark = pytest.mark.slow
+
 
 class TestExecutionPerformance(BaseModelTest):
     """Test execution time performance."""
@@ -286,7 +293,7 @@ class TestCachingPerformance:
         # Get a valid operator collection for testing
         theory = bimodal.get_theory()
         operators = theory['operators']
-        formula = "(A[] \\wedge B[]) \\vee (C[] \\wedge D[])"
+        formula = "((A \\wedge B) \\vee (C \\wedge D))"
 
         # First parse (cold)
         start = time.time()
@@ -360,7 +367,7 @@ class TestWorstCasePerformance:
         operators = theory['operators']
 
         # Create formula with many propositions (using proper syntax)
-        props = [f"p{i}[]" for i in range(30)]
+        props = [f"p{i}" for i in range(30)]
         formula = " \\wedge ".join(props)
         formula = f"({formula})"
 

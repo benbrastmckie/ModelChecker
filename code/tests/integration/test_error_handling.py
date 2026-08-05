@@ -259,9 +259,11 @@ class TestEdgeCases:
         operators = theory['operators']
 
         # Build a very deeply nested formula
-        formula = "P[]"  # Use proper sentence letter syntax
+        formula = "P"  # Sentence letters are plain alnum tokens
         for i in range(100):  # 100 levels deep
-            formula = f"(\\neg {formula})"
+            # \neg is unary; the grammar's parentheses denote binary infix
+            # grouping only, so a unary operator is never wrapped in parens.
+            formula = f"\\neg {formula}"
 
         # Should handle deep nesting (or fail gracefully)
         try:

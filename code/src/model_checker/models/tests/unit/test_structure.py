@@ -334,7 +334,10 @@ class TestModelDefaultsStructure(unittest.TestCase):
     def test_attribute_initialization_order(self):
         """Test critical attribute initialization order for iterator compatibility."""
         # This is the critical test for iterator regression prevention
-        with patch('z3.Solver'):  # Mock Z3 solver to avoid actual solving
+        # spec=Solver so real Solver attributes like assert_and_track are
+        # recognized as legitimate (an unspecced Mock treats any attribute
+        # starting with "assert" as a typo guard and raises AttributeError).
+        with patch('z3.Solver', spec=Solver):  # Mock Z3 solver to avoid actual solving
             model_defaults = ModelDefaults(self.model_constraints, self.settings)
         
         # Check that all critical attributes are properly initialized

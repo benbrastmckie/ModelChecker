@@ -73,9 +73,11 @@ general_settings = {}
         try:
             result = self.run_dev_cli([test_file])
             
-            # Should produce model output
+            # Should produce model output. Bimodal renders its model as a
+            # "World Histories" table rather than the generic "State Space"
+            # section used by state-based theories.
             self.assertIn("EXAMPLE", result.stdout)
-            self.assertIn("State Space", result.stdout)
+            self.assertIn("World Histories", result.stdout)
             
             # Should not have Python errors
             self.assertNotIn("Traceback", result.stderr)

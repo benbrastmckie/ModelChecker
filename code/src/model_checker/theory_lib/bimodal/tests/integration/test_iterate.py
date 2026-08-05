@@ -226,7 +226,12 @@ class TestBimodalIteratorReal:
         example_case = [
             ['(A \\vee B)'],
             ['(A \\wedge B)'],
-            {'N': 2, 'M': 2, 'max_time': 2, 'contingent': True, 'iterate': iterate},
+            # max_time generous per TESTING_GUIDE.md 8.6: observed solve
+            # times for this example are 2-4s in isolation and vary further
+            # under full-suite load, so a tight budget here silently
+            # inverts the "First model was not satisfiable" assertion below
+            # into a false negative on a timeout rather than a real result.
+            {'N': 2, 'M': 2, 'max_time': 30, 'contingent': True, 'iterate': iterate},
         ]
 
         return BuildExample(mock_module, theory, example_case)
