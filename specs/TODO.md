@@ -1,17 +1,17 @@
 ---
-next_project_number: 134
+next_project_number: 136
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-07-25. Generated from state.json dependency graph.*
+*Updated 2026-08-05. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 129,133 | -- | testing |
+| 1 | 129,133,134,135 | -- | architecture, testing |
 | 2 | 127 | 133 | testing |
 | 3 | 126 | 127 | architecture |
 
@@ -19,21 +19,44 @@ next_project_number: 134
 
 ### Architecture
 
+134 [NOT STARTED] — Reconcile the declared N bound with the enforced one, and decide 
 126 [BLOCKED] — Systematically refactor the repo into: 1) the core codebase conta
 
 ### Testing
 
 129 [IMPLEMENTING] — Triage and document the pre-existing test failure backlog so futu
-133 [NOT STARTED] — Fix the pre-existing self-consistency failure in the oracle full-
+133 [PLANNING] — Fix the pre-existing self-consistency failure in the oracle full-
   └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
+135 [NOT STARTED] — Fix the non-deterministic segmentation fault when models are buil
 
 ## Tasks
 
-### 133. Fix oracle self consistency disagreements
+### 135. Fix concurrent model building segfault
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+
+**Description**: Fix the non-deterministic segmentation fault when models are built concurrently from multiple threads. Two tests reproduce it and both abort the whole pytest process (exit 139, Fatal Python error: Segmentation fault, Extension modules: cvc5.cvc5_python_base): tests/integration/test_performance.py::TestConcurrentPerformance::test_sequential_vs_concurrent (3 threads) and tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building (5 threads). Both call create_test_model({N: 3}) from threading.Thread targets and crash during thread join. The crash is intermittent, not deterministic: the performance one reproduced on run 3 of 3 identical isolated invocations (runs 1 and 2 exited 0), so any single green run proves nothing and repeat sampling is required to validate a fix. This is independent of the N-bound work: N=3 is far below MAX_N so the new guard is a no-op on this path. Because a segfault kills the interpreter rather than failing a test, these two tests are the reason a full-suite sweep still cannot complete even after the N=64 memory hang was fixed -- a sweep aborts at whichever concurrency test it reaches first, producing no failure summary at all. Two mechanisms to investigate. First, the solver backend is resolved lazily per call through _get_backend_module() (solver/expressions.py, solver/backend.py:55, z3_shim.py:45) with a module-level _cached_module/_backend_module, so concurrent first-touch can race on that import and cache assignment; note cvc5.cvc5_python_base appears as the faulting extension even though solver defaults to z3, so establish why the cvc5 pythonic module is loaded at all on the default path before assuming the backend choice is irrelevant. Second, SemanticDefaults.__init__ calls self._reset_global_state() (models/semantic.py:83) whose documented job is to reset global state to avoid cross-example interference; resetting process-global solver state from several threads at once is inherently racy and theory subclasses override it to reset their own caches too. Decide the intended contract: either make concurrent model construction genuinely thread-safe (guard the backend cache and global-state reset with a lock, or make the state per-instance rather than global), or declare model construction single-threaded-only, document that, and replace these two tests with ones that assert the documented contract instead of exercising an unsupported pattern. Do not simply mark the tests skip or slow without recording that decision -- the crash risk stays in the product either way, and both files are already pytest.mark.slow, a marker nothing currently filters on.
+
+---
+
+### 134. Reconcile n bound contract and state space
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: architecture
+- **Dependencies**: None
+
+**Description**: Reconcile the declared N bound with the enforced one, and decide whether the 2^N state space must stay eager. A fail-fast guard now rejects N outside [1, MAX_N] in models/semantic.py (MAX_N=20) before all_states is materialized, because the prior unbounded path did not fail on a large N -- it allocated 2^N BitVecVals until the machine died (measured: 24GB RSS in ~60s at N=64, on a 30GB host, inside an uninterruptible Z3 C call that no Python-level pytest timeout can stop). That guard fixed the immediate hang but left the codebase asserting two different contracts. The declared contract says N in [1,64]: code/tests/utils/assertions.py:123 assert_settings_valid enforces 1<=N<=64 as a pure dict check that constructs nothing, so tests/integration/test_error_handling.py::TestEdgeCases::test_valid_n_boundary_values[32], [63], and [64] still pass while asserting a range that cannot actually be built; test_invalid_n_boundary_values treats 65 as the first invalid value; and code/src/model_checker/settings/tests/conftest.py:29 carries a {N: 65} # N too large fixture premised on the same 64 ceiling. tests/integration/test_system_boundaries.py:204/215/216 likewise exercise N=64 and N=32 through the dict-only validator. Separately, the settings layer (settings/settings.py) has _validate_setting_range available but applies no bound to N at all, so the only real enforcement is the new models-layer guard -- meaning direct API and create_test_model callers are covered but the settings pipeline still advertises no limit. Work: (1) pick one authoritative N ceiling and propagate it to assertions.py, the settings validation pipeline, the boundary-test parameters, the settings conftest fixture, and any docs stating a 64 limit, so a single source defines it; (2) decide the deeper design question of whether all_states must remain an eagerly materialized list of 2^N BitVecVals -- consumers across imposition/semantic/model.py, logos/iterate.py and models/semantic.py:191 iterate it directly, so laziness alone would not raise the feasible ceiling much and the exponential may be inherent, but that should be established rather than assumed; (3) if the ceiling stays at 20, remove or re-scope logos DEFAULT_EXAMPLE_SETTINGS N=16 headroom concerns and confirm no shipped theory default sits near the limit. Note the shape of this defect matches the oracle find_countermodel issue: a resource limit reported as a silent wrong answer rather than an error.
+
+---
+
+### 133. Fix oracle self consistency disagreements
+- **Status**: [PLANNING]
+- **Task Type**: python
+- **Topic**: testing
+- **Dependencies**: None
+- **Research**: [133_fix_oracle_self_consistency_disagreements/reports/01_oracle-self-consistency.md]
 
 **Description**: Fix the pre-existing self-consistency failure in the oracle full-scan report. oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent fails with AssertionError: Self-comparison produced N disagreements at complexity<=5 (assert N == 0) at test_cross_oracle_differential.py:1381. A self-comparison producing any disagreement means the oracle does not agree with itself on the same input, which is a correctness defect independent of any refactor. This failure is confirmed pre-existing: it reproduces at pre-refactor commit 6cfb7f48. It is NOT a resource or contention artifact -- it fails deterministically in a serial isolated run (which takes about 31 minutes). One open question to resolve as part of this work: the run at 6cfb7f48 reported 1 disagreement while the run at HEAD reported 3. With a single sample from each commit on a suite already known to be timing-sensitive, it is unresolved whether the disagreement count is stable, load-dependent, or genuinely worse post-refactor. Take repeat samples at both commits before drawing a conclusion. A prior disposition document incorrectly classified this test as a contention flake that passes in isolation; that classification is false and should be corrected wherever it is recorded.
 
@@ -46,6 +69,7 @@ next_project_number: 134
 - **Dependencies**: None
 - **Research**: [132_make_oracle_suite_xdist_safe/reports/01_oracle-xdist-safety.md]
 - **Plan**: [132_make_oracle_suite_xdist_safe/plans/01_oracle-xdist-safety.md]
+- **Summary**: [132_make_oracle_suite_xdist_safe/summaries/01_oracle-xdist-safety-summary.md]
 
 **Description**: Make the oracle differential suite safe to run under pytest-xdist, or mark the unsafe parts serial-only. A full run under -n 6 produced seven failures where a serial run of the same tests produces two: the five extra failures were parallel-execution artifacts that all pass when re-run together serially in under three minutes. The affected tests are test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7], test_soundness_regression.py::TestStateIsolationRegression::test_100_calls_mixed_temporal_depths, test_soundness_regression.py::TestStateIsolationRegression::test_sat_unsat_interleaving_stability, test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth1_boundary_safe, and test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[some_past]. Because these tests assert on state isolation and call-sequence stability, distributing them across workers breaks the property under test. Add xdist_group markers (or an equivalent serialization mechanism) so the suite can be run in parallel without manufacturing false failures, and register the currently-unknown custom marks (differential, slow) which emit PytestUnknownMarkWarning on every run. Until this lands, any regression baseline for this suite must be generated serially, which takes roughly 90 minutes versus 45 under -n 6.
 
