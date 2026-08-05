@@ -270,7 +270,7 @@ corrected in place.
 
 ---
 
-### Phase 2: Verify the widened test in isolation and record its wall clock [NOT STARTED]
+### Phase 2: Verify the widened test in isolation and record its wall clock [IN PROGRESS]
 
 **Goal**: Establish that `test_complexity_5_scan_self_consistent` passes at the widened budget, and
 capture how long it now takes — the runtime number is a first-class output of this phase, not a

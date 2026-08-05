@@ -707,7 +707,7 @@
     {
       "project_number": 133,
       "project_name": "fix_oracle_self_consistency_disagreements",
-      "status": "planning",
+      "status": "planned",
       "task_type": "python",
       "topic": "testing",
       "description": "Fix the pre-existing self-consistency failure in the oracle full-scan report. oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent fails with AssertionError: Self-comparison produced N disagreements at complexity<=5 (assert N == 0) at test_cross_oracle_differential.py:1381. A self-comparison producing any disagreement means the oracle does not agree with itself on the same input, which is a correctness defect independent of any refactor. This failure is confirmed pre-existing: it reproduces at pre-refactor commit 6cfb7f48. It is NOT a resource or contention artifact -- it fails deterministically in a serial isolated run (which takes about 31 minutes). One open question to resolve as part of this work: the run at 6cfb7f48 reported 1 disagreement while the run at HEAD reported 3. With a single sample from each commit on a suite already known to be timing-sensitive, it is unresolved whether the disagreement count is stable, load-dependent, or genuinely worse post-refactor. Take repeat samples at both commits before drawing a conclusion. A prior disposition document incorrectly classified this test as a contention flake that passes in isolation; that classification is false and should be corrected wherever it is recorded.",
@@ -717,15 +717,20 @@
       ],
       "artifacts": [
         {
+          "path": "specs/133_fix_oracle_self_consistency_disagreements/reports/02_find-countermodel-contract.md",
           "type": "report",
-          "path": "specs/133_fix_oracle_self_consistency_disagreements/reports/01_oracle-self-consistency.md",
-          "summary": "Self-comparison disagreements are timeout-vs-model artifacts, not correctness defects: find_countermodel collapses timeout/UNKNOWN and genuine UNSAT to None (provider.py:255). Recommends widening this test's budget plus a separate task hardening the contract."
+          "summary": "Contract analysis: find_countermodel conflates provable-UNSAT with solver-gave-up by discarding structure.timeout; recommends a dedicated timeout exception, with full blast radius."
+        },
+        {
+          "path": "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md",
+          "type": "plan",
+          "summary": "Fix the find_countermodel contract: raise on timeout so None means only genuine UNSAT; 7 phases including the live CLI correctness bug."
         }
       ],
       "created": "2026-07-25T16:19:08Z",
-      "last_updated": "2026-07-25T21:47:57Z",
+      "last_updated": "2026-08-05T19:58:09Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1785007932_01dd91_133"
+      "session_id": "sess_1785954627_07ebdc_133"
     },
     {
       "project_number": 134,

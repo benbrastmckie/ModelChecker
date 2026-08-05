@@ -1,0 +1,36 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "revise",
+  "status": "planned",
+  "summary": "Wrote plan v2 targeting the find_countermodel contract defect, superseding v1's budget-widening mitigation (v1 retained on disk as the superseded record). Seven sequential-ish phases: raise OracleTimeoutError on structure.timeout so None means only genuine UNSAT; fix the live CLI false-validity bug; migrate the enumerated blast radius (interface/provider tests, 6 differential closures, the unguarded reference_fn call, the latent CI test); reduce SELF_SCAN_SOLVE_TIMEOUT_MS 60000 -> 10000 with a measured calibration gate; rewrite the scan assertion to separate disagreements from inconclusives; un-xfail the 5 tests rooted in this cause; full-suite verdict. Phases 1-6 are provable in minutes via a Z3-free stub oracle, so no phase depends on a multi-hour scan.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md"
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "implement",
+  "files_modified": [
+    "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md"
+  ],
+  "decisions_made": [
+    "SELF_SCAN_SOLVE_TIMEOUT_MS reduced 60000 -> 10000 (548 solves: 9.1h -> 1.5h worst case). run-oracle-suite.sh does NOT deselect `slow`, so the scan runs in the gating suite and 60000 makes it unrunnable. 5000 rejected: evidence log shows ~50% of solves budget-exhausted, which becomes ~50% inconclusive under the fixed contract. Phase 5 calibrates within a hard [10000, 20000] band.",
+    "Scan asserts disagreements == 0 (soundness, zero tolerance) AND conclusive >= MIN_CONCLUSIVE_SCAN_FORMULAS (a measured floor so it cannot pass vacuously when everything is inconclusive). The two claims are kept distinct.",
+    "validate_self propagates OracleTimeoutError rather than catching it and returning False, which would re-create the conflation one layer up.",
+    "CLI emits {\"result\": \"inconclusive\"} with exit code 2 (1 is taken by argument/JSON errors).",
+    "Clean break per no-backwards-compatibility policy: the tree is intentionally RED between phases 1 and 4, and phase 1 names exactly which tests are expected to fail in the interim.",
+    "Verification is decoupled from wall clock: a Z3-free stub oracle proves the three-way classification and both assertion teeth in milliseconds."
+  ],
+  "dead_ends": [
+    "Widening the solve budget (committed f91960d6) relocates the failure boundary without removing its cause and makes the scan/suite unrunnable at 60000ms.",
+    "The ms/seconds conversion path (provider.py:233 -> structure.py:69,237) is verified correct and is explicitly out of scope; do not re-investigate it."
+  ],
+  "continuation_context": {
+    "handoff_path": null,
+    "phases_completed": 0,
+    "phases_total": 7,
+    "orchestrator_mode": true
+  },
+  "plan_markers_verified": false
+}

@@ -24,7 +24,7 @@ next_project_number: 137
 
 ### Testing
 
-133 [PLANNING] — Fix the pre-existing self-consistency failure in the oracle full-
+133 [PLANNED] — Fix the pre-existing self-consistency failure in the oracle full-
   └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
 135 [NOT STARTED] — Fix the non-deterministic segmentation fault when models are buil
 136 [NOT STARTED] — Make the wall-clock performance assertions robust so they can rej
@@ -62,11 +62,12 @@ next_project_number: 137
 ---
 
 ### 133. Fix oracle self consistency disagreements
-- **Status**: [PLANNING]
+- **Status**: [PLANNED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
-- **Research**: [133_fix_oracle_self_consistency_disagreements/reports/01_oracle-self-consistency.md]
+- **Research**: [133_fix_oracle_self_consistency_disagreements/reports/02_find-countermodel-contract.md]
+- **Plan**: [133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md]
 
 **Description**: Fix the pre-existing self-consistency failure in the oracle full-scan report. oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent fails with AssertionError: Self-comparison produced N disagreements at complexity<=5 (assert N == 0) at test_cross_oracle_differential.py:1381. A self-comparison producing any disagreement means the oracle does not agree with itself on the same input, which is a correctness defect independent of any refactor. This failure is confirmed pre-existing: it reproduces at pre-refactor commit 6cfb7f48. It is NOT a resource or contention artifact -- it fails deterministically in a serial isolated run (which takes about 31 minutes). One open question to resolve as part of this work: the run at 6cfb7f48 reported 1 disagreement while the run at HEAD reported 3. With a single sample from each commit on a suite already known to be timing-sensitive, it is unresolved whether the disagreement count is stable, load-dependent, or genuinely worse post-refactor. Take repeat samples at both commits before drawing a conclusion. A prior disposition document incorrectly classified this test as a contention flake that passes in isolation; that classification is false and should be corrected wherever it is recorded.
 
