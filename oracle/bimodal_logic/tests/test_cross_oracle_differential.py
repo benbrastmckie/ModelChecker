@@ -45,6 +45,17 @@ _PRIMITIVE_TAGS = frozenset({"atom", "bot", "imp", "box", "untl", "snce"})
 # Tags that contain box or diamond semantics (MC vs BH semantic divergence)
 _BOX_DIAMOND_TAGS = frozenset({"box", "diamond"})
 
+# Solver budget for the complexity<=5 self-consistency scan (TestFullScanReport
+# .test_complexity_5_scan_self_consistent). An instrumented re-run of this scan found one
+# disagreement on untl(bot, box(p)): one solve returned a model at 4.7796s
+# (structure.timeout=false) while an independent solve of the SAME formula, under the
+# same settings, hit the inherited 5000ms find_countermodel default and timed out at
+# 5.0003s (structure.timeout=true) -- a blown budget is reported as "no countermodel"
+# rather than as an error, so the timeout silently inverted that solve's verdict. Set
+# generously (12x margin) rather than at measured-time-plus-margin, per
+# code/docs/core/TESTING_GUIDE.md section 8.6.
+SELF_SCAN_SOLVE_TIMEOUT_MS = 60000
+
 
 def _formula_complexity(formula_json: dict) -> int:
     """Compute structural node count (complexity) of a JSON formula.
@@ -364,6 +375,7 @@ def _run_differential_comparison(
     oracle: Any,
     formula_json: dict,
     reference_result: str,  # "SAT" or "UNSAT"
+    timeout_ms: int | None = None,
 ) -> dict:
     """Run a formula through the oracle and compare to a reference result.
 
@@ -372,6 +384,10 @@ def _run_differential_comparison(
         formula_json: A JSON formula dict.
         reference_result: Expected result string: "SAT" (countermodel exists)
             or "UNSAT" (formula is valid/no countermodel).
+        timeout_ms: Optional solve budget override, in milliseconds. When
+            None (the default), find_countermodel() is called with no
+            timeout_ms keyword, preserving its own default. Passed through
+            unchanged when provided.
 
     Returns:
         A comparison record dict with fields:
@@ -387,7 +403,10 @@ def _run_differential_comparison(
 
     # Run the oracle
     try:
-        mc_output = oracle.find_countermodel(formula_json)
+        if timeout_ms is None:
+            mc_output = oracle.find_countermodel(formula_json)
+        else:
+            mc_output = oracle.find_countermodel(formula_json, timeout_ms=timeout_ms)
         if mc_output is None:
             mc_result = "UNSAT"
         else:
@@ -1178,6 +1197,7 @@ def _generate_differential_report(
     formulas: list[dict],
     reference_fn: Any,  # Callable[[dict], str] returning "SAT" or "UNSAT"
     oracle_ids: dict,   # {"mc": "...", "ref": "..."}
+    timeout_ms: int | None = None,
 ) -> dict:
     """Generate a differential report by running all formulas through both oracles.
 
@@ -1186,6 +1206,10 @@ def _generate_differential_report(
         formulas: List of JSON formula dicts to test.
         reference_fn: Function taking formula_json, returning "SAT" or "UNSAT".
         oracle_ids: Dict with "mc" and "ref" keys identifying oracle versions.
+        timeout_ms: Optional solve budget override, in milliseconds, passed
+            through to _run_differential_comparison for each formula. When
+            None (the default), behaviour is unchanged from before this
+            parameter existed.
 
     Returns:
         A report dict with fields:
@@ -1206,7 +1230,9 @@ def _generate_differential_report(
 
     for formula_json in formulas:
         ref_result = reference_fn(formula_json)
-        record = _run_differential_comparison(oracle, formula_json, ref_result)
+        record = _run_differential_comparison(
+            oracle, formula_json, ref_result, timeout_ms=timeout_ms
+        )
         entries.append(record)
 
         if record["mc_result"] == "TIMEOUT":
@@ -1368,7 +1394,9 @@ class TestFullScanReport:
 
         # Self-comparison: oracle vs oracle
         def ref_fn(f):
-            result = self.oracle.find_countermodel(f)
+            result = self.oracle.find_countermodel(
+                f, timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS
+            )
             return "SAT" if result is not None else "UNSAT"
 
         report = _generate_differential_report(
@@ -1376,6 +1404,7 @@ class TestFullScanReport:
             all_formulas,
             ref_fn,
             {"mc": "mc_oracle", "ref": "mc_oracle_self"},
+            timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS,
         )
 
         assert report["disagreements"] == 0, (

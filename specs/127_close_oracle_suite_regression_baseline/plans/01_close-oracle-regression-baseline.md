@@ -41,6 +41,19 @@ The plan takes these findings as settled and does not re-derive them:
   `test_complexity_5_scan_self_consistent` and `test_all_sat_task_relation_ternary`, both already
   documented as Category C contention flakes (pass in isolation). These form the entire known-flake
   watch list; anything else failing is new.
+
+  > **Correction (2026-07-25)**: `test_complexity_5_scan_self_consistent` is not a Category C
+  > contention flake. The source disposition document
+  > (`specs/122_rootcause_crossoracle_differential_and_establish_t/baselines/oracle-suite-disposition.md`)
+  > lists 7 named tests under Category C, and this test is not among them — the label above was
+  > introduced by conflation with `test_all_sat_task_relation_ternary`, which genuinely is a
+  > Category C entry. The actual diagnosis and fix are recorded in
+  > `specs/133_fix_oracle_self_consistency_disagreements/reports/01_oracle-self-consistency.md`:
+  > the test's per-formula Z3 solve budget (inherited default 5000ms) sits inside the solve-time
+  > band of at least one complexity<=5 formula, so a blown budget is silently read as "no
+  > countermodel" and inverts that formula's verdict — a budget-boundary defect, not contention.
+  > The original bullet is left in place above for history; do not carry the Category C label for
+  > this specific test forward into new documents.
 - `verify-refactor.sh` emits no `--junitxml` for any suite, so `junit-oracle.xml` needs its own
   explicit invocation — the script alone will never produce it.
 - Baselines belong in `specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/`, not a new
@@ -77,6 +90,9 @@ No `roadmap_path` was provided in the delegation context and no roadmap phases w
   transition on that task is a separate operation.
 - Fixing, re-marking, or suppressing either known contention flake. If they pass in isolation the
   precedent holds and nothing changes in the test files.
+  > **Correction (2026-07-25)**: see the corrective note in "Research Integration" above —
+  > `test_complexity_5_scan_self_consistent` was misclassified as Category C and has since been
+  > fixed as a budget-boundary defect, not left as an accepted flake.
 - Refactoring `verify-refactor.sh` beyond the one minimal `PYTHONPATH` correction Phase 5 needs to
   make its Step 6 runnable at all.
 - Re-pinning the collection count or the `xfail(strict=True)` line locations. Both are already
