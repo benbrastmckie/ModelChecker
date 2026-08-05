@@ -450,22 +450,22 @@ nix develop --command bash -c 'PYTHONPATH=code/src pytest oracle/bimodal_logic/t
 
 ---
 
-### Phase 3: Migrate the interface and provider test suites [NOT STARTED]
+### Phase 3: Migrate the interface and provider test suites [COMPLETED]
 
 **Goal**: Every test that encoded the old ambiguous contract as correct behavior now encodes the
 new one, and the permissive `if result is not None:` guards stop masking genuine failures.
 
 **Tasks**:
 
-- [ ] `test_oracle_interface.py:1100-1106` `test_timeout_handling` — currently asserts
+- [x] `test_oracle_interface.py:1100-1106` `test_timeout_handling` — currently asserts
       `result is None` for `timeout_ms=1`, i.e. it tests that a timeout looks like a valid formula.
       Rewrite to `with pytest.raises(OracleTimeoutError):` and rename the docstring accordingly.
       This is the single clearest case of the old contract being asserted as correct.
-- [ ] `test_oracle_interface.py:841-847` `test_deeply_nested_enriched` — `isinstance(result, (dict,
+- [x] `test_oracle_interface.py:841-847` `test_deeply_nested_enriched` — `isinstance(result, (dict,
       type(None)))`, explicitly "just ensure no crash". Wrap in `try/except OracleTimeoutError` and
       accept the exception as a third valid outcome, so a genuinely inconclusive solve does not
       crash the test.
-- [ ] `test_oracle_interface.py:780, 996, 1011, 1030` — four `if result is not None:` guards
+- [x] `test_oracle_interface.py:780, 996, 1011, 1030` — four `if result is not None:` guards
       (`test_boundary_safe_true_for_all_examples`, `test_time_bound_formula`,
       `test_temporal_depth_correct_in_output`, and the sibling at 780). Replace each with an
       explicit `try/except OracleTimeoutError: continue` around the call, so that a timeout is
@@ -473,10 +473,10 @@ new one, and the permissive `if result is not None:` guards stop masking genuine
       (non-timeout) SAT examples") while a `None` returned for a formula the test believes is SAT
       becomes a **loud failure** instead of a silent no-op. This is a latent-bug-detection
       improvement, not busywork: today these guards cannot tell the two apart.
-- [ ] `test_oracle_provider.py:372, 531` — same permissive pattern in
+- [x] `test_oracle_provider.py:372, 531` — same permissive pattern in
       `test_folded_json_for_enriched_input` and `test_boundary_safe_consistency`. Same treatment.
       Low risk (small formulas) but migrate for consistency and to stop masking.
-- [ ] `test_oracle_interface.py:868-944` — `test_validate_self_temporal_only` and
+- [x] `test_oracle_interface.py:868-944` — `test_validate_self_temporal_only` and
       `test_validate_self_all_formulas` both expect `False` and both call through to the default
       5000 ms budget, where roughly half of solves are budget-exhausted. Run them first and record
       what actually happens. If either now raises `OracleTimeoutError`, that is correct behavior
@@ -485,7 +485,41 @@ new one, and the permissive `if result is not None:` guards stop masking genuine
       docstrings name specific formulas F4/F7/F9/F10 as genuinely valid, and that claim must remain
       testable. Do **not** "fix" it by catching the exception and returning to a `False` assertion;
       that re-introduces the conflation at the test layer.
-- [ ] Leave the ~45 Bucket 1 assertions untouched. They are unaffected by design.
+      **Outcome**: `test_validate_self_all_formulas` passed unmodified (all 10 formulas decide).
+      `test_validate_self_temporal_only`, widened to `timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS`
+      (180 s), still raised `OracleTimeoutError` — even 180 s is not enough for at least one of
+      F4/F7/F9/F10. Applied the plan's own stated fallback: rewrote the test to
+      `pytest.raises(OracleTimeoutError)` instead of chasing an ever-larger budget. Confirmed by a
+      companion discovery below: all four of F4/F7/F9/F10 individually fail to decide within 60 s.
+- [x] Leave the ~45 Bucket 1 assertions untouched. They are unaffected by design.
+
+**Deviations discovered when this suite was actually run post-Phase-1** (not in the plan's
+call-site inventory; the plan's Bucket-1 classification — "small non-boundary formulas,
+unaffected by design" — turned out to be wrong for five specific tests, each of which
+constructs a large or boundary-adjacent formula despite looking superficially small):
+
+- `TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement` (line ~733): the `all_future`
+  operator's primitive (untl-based) expansion does not decide even at the 180 s
+  `TEMPORAL_SOLVE_TIMEOUT_MS` ceiling (observed 257-388 s wall time before raising). Fixed by
+  classifying each side via a local `_verdict()` helper and `pytest.skip()`-ing the parametrize
+  case when either side is inconclusive, rather than asserting on a raw `is not None` comparison.
+- `TestOracleExampleRegressionViaAPI::test_oracle_regression` (line ~616): 3 of 42
+  `ACTIVE_EXAMPLES` (`BX11P_LIN_P_TH`, `BX11_LIN_F_TH`, `TN_TH_2`) raise `OracleTimeoutError` at
+  their 30 s budget. Their catalog's documented `expected_sat=False` may itself have been
+  measured under the old timeout-conflated contract. Fixed with `try/except
+  OracleTimeoutError: pytest.skip(...)` per example.
+- `TestSpotCheckCrossSignal::test_spot_check_individual_countermodels` (line ~1017): all four of
+  F4/F7/F9/F10 (documented "valid") individually fail to decide within a 60 s budget. Fixed by
+  wrapping the per-formula loop in try/except, collecting inconclusive names, and printing them
+  rather than letting the first timeout abort the loop.
+- `TestZ3IsolationStress::test_no_state_leakage_between_depths` (line ~1371): the depth-2 probe
+  formula `_some_future(_some_past(A))`, whose own verdict is intentionally discarded, times out
+  at 30 s. Fixed with a bare `try/except OracleTimeoutError: pass` around that one call.
+
+All five are consistent with the same root cause this plan targets — the exception now surfaces
+a solve that was previously silently laundered into a wrong-but-plausible `None`. None of these
+were induced by the Phase 3 edits themselves; each was confirmed present immediately after Phase
+1's contract change, before any Phase 3 edit touched that specific test.
 
 **Timing**: 1 hour 15 minutes.
 
@@ -496,18 +530,31 @@ new one, and the permissive `if result is not None:` guards stop masking genuine
 - `oracle/bimodal_logic/tests/test_oracle_interface.py`
 - `oracle/bimodal_logic/tests/test_oracle_provider.py`
 
-**Verification** (node-id-scoped — `test_oracle_interface.py` as a whole carries a 180000 ms
-`TEMPORAL_SOLVE_TIMEOUT_MS` and must not be run wholesale here):
+**Verification**: resolved class names were `TestMixedFormulas` (line 841),
+`TestEdgeCases` (line 1100), `TestSpotCheckCrossSignal` (line 868) — not the plan's indicative
+`TestErrorHandling`/`TestValidateSelfBehavior`. Given the Bucket-1 discoveries above, the whole
+file was run rather than only the node-id-scoped subset (`PYTHONPATH` must include
+`../BimodalHarness/src` for this file — nix's devShell already exports it, so
+`PYTHONPATH="code/src:$PYTHONPATH"` was used instead of a bare `PYTHONPATH=code/src` override,
+which would drop it and make `test_oracle_interface.py` fail collection with
+`ModuleNotFoundError: bimodal_harness`):
 
 ```bash
-nix develop --command bash -c 'PYTHONPATH=code/src pytest \
-  "oracle/bimodal_logic/tests/test_oracle_interface.py::TestErrorHandling" \
-  "oracle/bimodal_logic/tests/test_oracle_interface.py::TestValidateSelfBehavior" \
+nix develop --command bash -c 'PYTHONPATH="code/src:$PYTHONPATH" pytest \
+  oracle/bimodal_logic/tests/test_oracle_interface.py -q --durations=10'
+nix develop --command bash -c 'PYTHONPATH="code/src:$PYTHONPATH" pytest \
   oracle/bimodal_logic/tests/test_oracle_provider.py -q'
 ```
 
-(Resolve the exact class names by grepping for the enclosing `class` of lines 841, 1100, and 868
-before running; the node ids above are indicative.)
+- `test_oracle_interface.py`: **100 passed, 4 skipped, 4 xfailed** in 1509.71s (0:25:09). The 4
+  skips are the genuinely budget-exhausted formulas now handled gracefully (0 failures); the 4
+  xfails are the pre-existing, out-of-scope entry-point/packaging tests.
+- `test_oracle_provider.py`: **81 passed** in 72.73s.
+- `grep -n "isinstance(result, (dict, type(None)))" test_oracle_interface.py` returns only the
+  post-timeout-check line inside `test_deeply_nested_enriched` (the still-legitimate no-crash
+  check after the early-return-on-timeout branch).
+- `grep -c "if result is not None" test_oracle_interface.py test_oracle_provider.py` returns 0 for
+  both.
 
 - Success criterion: exit 0. If any command approaches the 10-minute foreground ceiling, re-run it
   with `run_in_background: true` — a cut-off command is not a failure.
@@ -518,7 +565,7 @@ before running; the node ids above are indicative.)
 
 ---
 
-### Phase 4: Make the differential harness three-valued [NOT STARTED]
+### Phase 4: Make the differential harness three-valued [IN PROGRESS]
 
 **Goal**: Every path that turns a `find_countermodel` call into a `"SAT"`/`"UNSAT"` string handles
 the third outcome, and `_generate_differential_report` classifies inconclusive results instead of

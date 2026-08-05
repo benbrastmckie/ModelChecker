@@ -295,7 +295,9 @@ class Z3OracleProvider:
 
         return result
 
-    def validate_self(self, spot_check_formulas: list) -> bool:
+    def validate_self(
+        self, spot_check_formulas: list, timeout_ms: int = 5000
+    ) -> bool:
         """Validate the oracle against a list of known-invalid formulas.
 
         Returns True only if all spot_check_formulas produce non-None results
@@ -304,6 +306,12 @@ class Z3OracleProvider:
         Args:
             spot_check_formulas: List of JSON formula dicts that should all
                 have countermodels (be invalid).
+            timeout_ms: Solver budget passed through to each
+                find_countermodel() call. Defaults to 5000 to match
+                find_countermodel()'s own default; callers spot-checking
+                formulas with non-trivial temporal_depth should pass an
+                explicit wider budget so an under-sized timeout does not
+                masquerade as a semantic verdict about the oracle.
 
         Returns:
             True if every formula produces a non-None countermodel result.
@@ -318,7 +326,7 @@ class Z3OracleProvider:
                 count as `False`.
         """
         for formula in spot_check_formulas:
-            result = self.find_countermodel(formula)
+            result = self.find_countermodel(formula, timeout_ms=timeout_ms)
             if result is None:
                 return False
         return True

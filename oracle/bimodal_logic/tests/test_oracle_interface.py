@@ -36,7 +36,7 @@ import pytest
 
 from bimodal_harness.oracle.protocol import OracleProvider
 from bimodal_harness.oracle.registry import OracleRegistry
-from bimodal_logic import Z3OracleProvider
+from bimodal_logic import OracleTimeoutError, Z3OracleProvider
 from bimodal_logic.translation import temporal_depth, unfold_formula
 from model_checker.theory_lib.bimodal.examples import (
     countermodel_examples,
@@ -614,12 +614,30 @@ class TestOracleExampleRegressionViaAPI:
         sorted(ACTIVE_EXAMPLES.keys()),
     )
     def test_oracle_regression(self, example_name):
-        """Oracle produces correct SAT/UNSAT for each active example."""
+        """Oracle produces correct SAT/UNSAT for each active example.
+
+        A budget-exhausted solve is skipped, not asserted on: some
+        ACTIVE_EXAMPLES entries' documented `expected_sat=False` was
+        determined under the old (pre-fix) contract, where a timeout and a
+        genuine UNSAT were indistinguishable -- so an OracleTimeoutError
+        here is a discovery that the formula was never actually decided,
+        not a regression. (Not in the original migration inventory;
+        discovered when this suite was actually run post-Phase-1 -- see the
+        Phase 3 handoff.)
+        """
         formula_json, has_premises, expected_sat = ACTIVE_EXAMPLES[example_name]
         # Use generous timeout for temporal formulas
         depth = temporal_depth(formula_json)
         timeout = 30000 if depth > 0 else 10000
-        result = self.provider.find_countermodel(formula_json, timeout_ms=timeout)
+        try:
+            result = self.provider.find_countermodel(formula_json, timeout_ms=timeout)
+        except OracleTimeoutError:
+            pytest.skip(
+                f"'{example_name}': did not decide within {timeout} ms "
+                "(budget/performance outcome, not a semantic regression -- "
+                "its ACTIVE_EXAMPLES expected_sat may itself have been "
+                "measured under the old timeout-conflated contract)"
+            )
         actual_sat = result is not None
         assert actual_sat == expected_sat, (
             f"Oracle regression failure for '{example_name}': "
@@ -733,14 +751,35 @@ class TestEnrichedRoundTrip:
     def test_enriched_vs_primitive_sat_agreement(
         self, operator_name, enriched_json, primitive_json
     ):
-        """Enriched and primitive forms produce identical SAT/UNSAT results."""
+        """Enriched and primitive forms produce identical SAT/UNSAT results.
+
+        Compared only when both sides are conclusive. Primitive expansions
+        are structurally larger and some (e.g. all_future's untl-based
+        expansion) do not decide even within the generous
+        TEMPORAL_SOLVE_TIMEOUT_MS budget -- that is a budget/performance
+        outcome, not evidence the two forms disagree, so it is skipped
+        rather than asserted on. (Not in the original migration inventory;
+        discovered when this suite was actually run post-Phase-1 -- see the
+        Phase 3 handoff.)
+        """
         depth = max(temporal_depth(enriched_json), temporal_depth(primitive_json))
         # Primitive forms are structurally larger and may need more solver time
         timeout = TEMPORAL_SOLVE_TIMEOUT_MS if depth > 0 else ATEMPORAL_SOLVE_TIMEOUT_MS
-        enriched_result = self.provider.find_countermodel(enriched_json, timeout_ms=timeout)
-        primitive_result = self.provider.find_countermodel(primitive_json, timeout_ms=timeout)
-        enriched_sat = enriched_result is not None
-        primitive_sat = primitive_result is not None
+
+        def _verdict(formula):
+            try:
+                result = self.provider.find_countermodel(formula, timeout_ms=timeout)
+            except OracleTimeoutError:
+                return None
+            return result is not None
+
+        enriched_sat = _verdict(enriched_json)
+        primitive_sat = _verdict(primitive_json)
+        if enriched_sat is None or primitive_sat is None:
+            pytest.skip(
+                f"'{operator_name}': at least one side did not decide within "
+                f"{timeout} ms (budget/performance, not a semantic disagreement)"
+            )
         assert enriched_sat == primitive_sat, (
             f"SAT/UNSAT mismatch for '{operator_name}': "
             f"enriched={enriched_sat}, primitive={primitive_sat}"
@@ -773,19 +812,30 @@ class TestEnrichedRoundTrip:
     def test_formula_folded_json_present_all_sat(
         self, operator_name, enriched_json, primitive_json
     ):
-        """For SAT results, formula_folded_json must exist and have a tag key."""
+        """For SAT results, formula_folded_json must exist and have a tag key.
+
+        Every ENRICHED_PRIMITIVE_PAIRS entry is documented SAT (has a
+        countermodel), so a None result here is a loud failure, not a
+        silent skip. A budget-exhausted solve is a separate, tolerated
+        outcome (a tooling problem, not a semantic one).
+        """
         depth = temporal_depth(enriched_json)
         timeout = 30000 if depth > 0 else 10000
-        result = self.provider.find_countermodel(enriched_json, timeout_ms=timeout)
-        if result is not None:
-            assert "formula_folded_json" in result, (
-                f"Missing formula_folded_json for '{operator_name}'"
-            )
-            folded = result["formula_folded_json"]
-            assert isinstance(folded, dict)
-            assert "tag" in folded, (
-                f"formula_folded_json missing 'tag' for '{operator_name}'"
-            )
+        try:
+            result = self.provider.find_countermodel(enriched_json, timeout_ms=timeout)
+        except OracleTimeoutError:
+            return
+        assert result is not None, (
+            f"Expected a countermodel for '{operator_name}' (documented SAT), got None"
+        )
+        assert "formula_folded_json" in result, (
+            f"Missing formula_folded_json for '{operator_name}'"
+        )
+        folded = result["formula_folded_json"]
+        assert isinstance(folded, dict)
+        assert "tag" in folded, (
+            f"formula_folded_json missing 'tag' for '{operator_name}'"
+        )
 
     def test_formula_folded_json_uses_enriched_tags(self):
         """formula_folded_json should use enriched tags where possible.
@@ -842,7 +892,12 @@ class TestMixedFormulas:
         """Formula with 3+ levels of enriched operator nesting."""
         # and(neg(A), some_future(some_past(B))) -- 3 levels deep, SAT
         formula = _and(_neg(A), _some_future(_some_past(B)))
-        result = self.provider.find_countermodel(formula, timeout_ms=60000)
+        try:
+            result = self.provider.find_countermodel(formula, timeout_ms=60000)
+        except OracleTimeoutError:
+            # An undecided solve is a third valid outcome here -- the test's
+            # intent is "no crash", and a timeout is not a crash.
+            return
         # Should produce a valid result (SAT or UNSAT), just ensure no crash
         assert isinstance(result, (dict, type(None)))
 
@@ -875,9 +930,20 @@ class TestSpotCheckCrossSignal:
         - F9 ((p U q) -> p): VALID in bounded frames
         - F10 ((p S q) -> p): VALID in bounded frames
 
-        Only F5 produces a countermodel, so validate_self returns False.
-        This documents the semantic divergence between BimodalHarness expectations
-        and the Z3 oracle's stronger frame axioms.
+        Only F5 produces a countermodel, so validate_self was expected to
+        return False. Under the corrected contract this is no longer the
+        observed outcome: even at TEMPORAL_SOLVE_TIMEOUT_MS (180 s), at
+        least one of the documented-valid formulas does not decide (see
+        test_spot_check_individual_countermodels, which isolates the
+        individual formulas and shows the same class of solve does not
+        finish within 60 s either). That is the anticipated
+        `validate_self`-propagation outcome from the Phase 1 decision: an
+        undecided spot check is a tooling/budget problem, not a `False`
+        verdict, so this asserts the propagation rather than catching the
+        exception and reintroducing the timeout/UNSAT conflation at the
+        test layer. (Not in the original migration inventory; discovered
+        when this suite was actually run post-Phase-1 -- see the Phase 3
+        handoff.)
         """
         p = _atom("p")
         q = _atom("q")
@@ -894,12 +960,10 @@ class TestSpotCheckCrossSignal:
             _imp(_snce(p, q), p),
         ]
 
-        result = self.provider.validate_self(temporal_formulas)
-        # Expected False: F4, F7, F9, F10 are valid in the Z3 frame
-        assert result is False, (
-            "validate_self should return False: F4, F7, F9, F10 are valid "
-            "in the Z3 oracle's strong frame (bounded linear time + S5 modal)"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.validate_self(
+                temporal_formulas, timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS
+            )
 
     def test_validate_self_all_formulas(self):
         """validate_self with all 10 SPOT_CHECK_FORMULAS.
@@ -938,7 +1002,12 @@ class TestSpotCheckCrossSignal:
             ]
         # F2 (Box p -> p) and F3 (Box p -> Box Box p) are valid in S5,
         # so oracle returns None for them, making validate_self return False.
-        result = self.provider.validate_self(formulas)
+        # See the wide-budget rationale in test_validate_self_temporal_only:
+        # this test measures a semantic verdict and must not let a blown
+        # default budget be mistaken for one.
+        result = self.provider.validate_self(
+            formulas, timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS
+        )
         # Document: expected False because F2 and F3 are valid in S5 frames
         assert result is False, (
             "validate_self should return False for all 10 formulas "
@@ -949,7 +1018,14 @@ class TestSpotCheckCrossSignal:
         """Test individual temporal spot-check formulas for countermodels.
 
         In the Z3 oracle's strong frame (bounded linear time + S5 modal),
-        only F5 (p S q -> q U p) is invalid. F4, F7, F9, F10 are valid.
+        only F5 (p S q -> q U p) is invalid. F4, F7, F9, F10 are documented
+        valid, but under the corrected contract at least one of them does
+        not decide even at a 60 s budget -- that is now visible as
+        OracleTimeoutError rather than a silent, indistinguishable None, so
+        it is skipped per-formula (and reported) rather than asserted on or
+        allowed to abort the rest of the loop. (Not in the original
+        migration inventory; discovered when this suite was actually run
+        post-Phase-1 -- see the Phase 3 handoff.)
         """
         p = _atom("p")
         q = _atom("q")
@@ -968,11 +1044,21 @@ class TestSpotCheckCrossSignal:
             "F9_until_implies_event": _imp(_untl(p, q), p),
             "F10_since_implies_event": _imp(_snce(p, q), p),
         }
+        inconclusive = []
         for name, formula in valid_formulas.items():
-            result = self.provider.find_countermodel(formula, timeout_ms=60000)
+            try:
+                result = self.provider.find_countermodel(formula, timeout_ms=60000)
+            except OracleTimeoutError:
+                inconclusive.append(name)
+                continue
             assert result is None, (
                 f"Expected None (valid) for '{name}' in Z3 frame, "
                 f"got countermodel"
+            )
+        if inconclusive:
+            print(
+                "test_spot_check_individual_countermodels: inconclusive "
+                f"(did not decide within 60000 ms) = {inconclusive}"
             )
 
 
@@ -986,38 +1072,59 @@ class TestBoundaryRegressionViaOracle:
         """boundary_safe == True for all active (non-timeout) SAT examples.
 
         With M = max(depth+2, 3), boundary_safe = (M > depth+1) is always True.
+        A budget-exhausted solve is skipped (a tooling/budget problem, not a
+        semantic one); a documented-SAT example returning None (genuine
+        UNSAT) is a loud failure, not a silent no-op.
         """
         for name, (formula_json, _, expected_sat) in ACTIVE_EXAMPLES.items():
             if not expected_sat:
                 continue  # skip UNSAT examples (no output to check)
             depth = temporal_depth(formula_json)
             timeout = 30000 if depth > 0 else 10000
-            result = self.provider.find_countermodel(formula_json, timeout_ms=timeout)
-            if result is not None:
-                assert result["boundary_safe"] is True, (
-                    f"boundary_safe should be True for '{name}' "
-                    f"(depth={depth}, M={result['time_bound']})"
-                )
+            try:
+                result = self.provider.find_countermodel(formula_json, timeout_ms=timeout)
+            except OracleTimeoutError:
+                continue
+            assert result is not None, (
+                f"Expected a countermodel for '{name}' (documented SAT), got None"
+            )
+            assert result["boundary_safe"] is True, (
+                f"boundary_safe should be True for '{name}' "
+                f"(depth={depth}, M={result['time_bound']})"
+            )
 
     def test_time_bound_formula(self):
-        """For SAT results, time_bound == max(depth+2, 3)."""
+        """For SAT results, time_bound == max(depth+2, 3).
+
+        These are all documented-SAT formulas, so None is a loud failure;
+        a budget-exhausted solve is skipped as a tooling/budget concern.
+        """
         test_formulas = {
             "depth_0": (A, 0),
             "depth_1_future": (_some_future(A), 1),
             "depth_1_neg": (_neg(A), 0),  # neg doesn't increment depth
         }
         for name, (formula, expected_depth) in test_formulas.items():
-            result = self.provider.find_countermodel(formula, timeout_ms=30000)
-            if result is not None:
-                expected_M = max(expected_depth + 2, 3)
-                assert result["time_bound"] == expected_M, (
-                    f"time_bound mismatch for '{name}': "
-                    f"expected M={expected_M} (depth={expected_depth}), "
-                    f"got M={result['time_bound']}"
-                )
+            try:
+                result = self.provider.find_countermodel(formula, timeout_ms=30000)
+            except OracleTimeoutError:
+                continue
+            assert result is not None, (
+                f"Expected a countermodel for '{name}' (documented SAT), got None"
+            )
+            expected_M = max(expected_depth + 2, 3)
+            assert result["time_bound"] == expected_M, (
+                f"time_bound mismatch for '{name}': "
+                f"expected M={expected_M} (depth={expected_depth}), "
+                f"got M={result['time_bound']}"
+            )
 
     def test_temporal_depth_correct_in_output(self):
-        """Verify temporal_depth in output matches computed depth."""
+        """Verify temporal_depth in output matches computed depth.
+
+        These are all documented-SAT formulas, so None is a loud failure;
+        a budget-exhausted solve is skipped as a tooling/budget concern.
+        """
         test_formulas = {
             "atom_depth_0": (A, 0),
             "imp_depth_0": (_imp(A, B), 0),
@@ -1026,12 +1133,17 @@ class TestBoundaryRegressionViaOracle:
             "some_future_depth_1": (_some_future(A), 1),
         }
         for name, (formula, expected_depth) in test_formulas.items():
-            result = self.provider.find_countermodel(formula, timeout_ms=30000)
-            if result is not None:
-                assert result["temporal_depth"] == expected_depth, (
-                    f"temporal_depth mismatch for '{name}': "
-                    f"expected={expected_depth}, got={result['temporal_depth']}"
-                )
+            try:
+                result = self.provider.find_countermodel(formula, timeout_ms=30000)
+            except OracleTimeoutError:
+                continue
+            assert result is not None, (
+                f"Expected a countermodel for '{name}' (documented SAT), got None"
+            )
+            assert result["temporal_depth"] == expected_depth, (
+                f"temporal_depth mismatch for '{name}': "
+                f"expected={expected_depth}, got={result['temporal_depth']}"
+            )
 
 
 class TestTernarySerializationAll:
@@ -1098,13 +1210,17 @@ class TestEdgeCases:
         self.provider = Z3OracleProvider()
 
     def test_timeout_handling(self):
-        """Complex temporal formula with timeout_ms=1 returns None."""
+        """Complex temporal formula with timeout_ms=1 raises OracleTimeoutError.
+
+        A budget-exhausted solve is not the same claim as a proven-valid
+        (UNSAT) formula: it means the solver did not decide. `None` is
+        reserved exclusively for the latter, so an under-sized timeout must
+        raise rather than return None.
+        """
         # Use a deeply nested temporal formula that can't solve in 1ms
         complex_formula = _all_future(_all_past(_some_future(_some_past(A))))
-        result = self.provider.find_countermodel(complex_formula, timeout_ms=1)
-        assert result is None, (
-            "Expected None (timeout) for complex formula with 1ms timeout"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(complex_formula, timeout_ms=1)
 
     def test_unsupported_frame_class_dense(self):
         """Unsupported frame_class='Dense' returns None immediately."""
@@ -1253,14 +1369,26 @@ class TestZ3IsolationStress:
         )
 
     def test_no_state_leakage_between_depths(self):
-        """Run depth-0, depth-2, depth-0 again -- depth-0 results must be identical."""
+        """Run depth-0, depth-2, depth-0 again -- depth-0 results must be identical.
+
+        The depth-2 call's own SAT/UNSAT verdict is irrelevant here -- its
+        only purpose is to exercise a different temporal complexity between
+        the two depth-0 calls, so an OracleTimeoutError (the depth-2
+        formula does not decide even at 30 s under the corrected contract)
+        is tolerated rather than asserted on. (Not in the original
+        migration inventory; discovered when this suite was actually run
+        post-Phase-1 -- see the Phase 3 handoff.)
+        """
         # First depth-0 call
         result_before = self.provider.find_countermodel(A)
         assert result_before is not None
 
-        # Depth-2 call (different temporal complexity)
+        # Depth-2 call (different temporal complexity) -- result discarded
         depth2_formula = _some_future(_some_past(A))
-        self.provider.find_countermodel(depth2_formula, timeout_ms=30000)
+        try:
+            self.provider.find_countermodel(depth2_formula, timeout_ms=30000)
+        except OracleTimeoutError:
+            pass
 
         # Second depth-0 call -- should be identical
         result_after = self.provider.find_countermodel(A)

@@ -395,14 +395,21 @@ class TestFormulaFoldedJson:
     def test_folded_json_for_enriched_input(self):
         """fold_formula is idempotent: enriched input stays enriched."""
         # ENRICHED_NEG_JSON = neg(A) - already enriched, should pass through
-        result = self.provider.find_countermodel(ENRICHED_NEG_JSON)
         # neg(A) is SAT -- there's a countermodel where A is true (so neg(A) is false)
         # Actually neg(A) has a countermodel where A=True (neg(A) is false)
-        # The oracle checks invalidity of neg(A), so it should find countermodel
-        if result is not None:
-            folded = result["formula_folded_json"]
-            assert isinstance(folded, dict)
-            assert "tag" in folded
+        # The oracle checks invalidity of neg(A), so it should find countermodel.
+        # This is a tiny depth-0 formula at the default budget, so a genuine
+        # timeout is not expected, but the exception is still handled rather
+        # than silently masked by an `is not None` guard, for consistency
+        # with every other call site in this suite.
+        try:
+            result = self.provider.find_countermodel(ENRICHED_NEG_JSON)
+        except OracleTimeoutError:
+            return
+        assert result is not None, "Expected a countermodel for neg(A) (documented SAT), got None"
+        folded = result["formula_folded_json"]
+        assert isinstance(folded, dict)
+        assert "tag" in folded
 
 
 ##############################################################################
@@ -554,18 +561,27 @@ class TestOracleOutputCompleteness:
         assert result["temporal_depth"] >= 0
 
     def test_boundary_safe_consistency(self):
-        """boundary_safe == (M > depth + 1) for all results."""
+        """boundary_safe == (M > depth + 1) for all results.
+
+        All three formulas are documented SAT, so None is a loud failure;
+        an undecided solve is skipped as a tooling/budget concern.
+        """
         formulas = [SIMPLE_SAT_JSON, IMP_SAT_JSON, FUTURE_SAT_JSON]
         for formula in formulas:
-            result = self.provider.find_countermodel(formula)
-            if result is not None:
-                M = result["time_bound"]
-                depth = result["temporal_depth"]
-                expected_safe = M > depth + 1
-                assert result["boundary_safe"] == expected_safe, (
-                    f"boundary_safe mismatch for {formula}: "
-                    f"M={M}, depth={depth}, expected={expected_safe}, got={result['boundary_safe']}"
-                )
+            try:
+                result = self.provider.find_countermodel(formula)
+            except OracleTimeoutError:
+                continue
+            assert result is not None, (
+                f"Expected a countermodel for {formula} (documented SAT), got None"
+            )
+            M = result["time_bound"]
+            depth = result["temporal_depth"]
+            expected_safe = M > depth + 1
+            assert result["boundary_safe"] == expected_safe, (
+                f"boundary_safe mismatch for {formula}: "
+                f"M={M}, depth={depth}, expected={expected_safe}, got={result['boundary_safe']}"
+            )
 
     def test_world_histories_nonempty(self):
         """world_histories must contain at least one world for SAT results."""
