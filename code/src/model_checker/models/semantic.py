@@ -20,9 +20,27 @@ from model_checker.solver.expressions import (
     BoolVal,
 )
 
+from .errors import SemanticError
+
 if TYPE_CHECKING:
     from .types import Settings, ConstraintList
     from model_checker.z3_shim import ArrayRef, BitVecRef, BoolRef
+
+
+#: Largest bit-width `N` that `SemanticDefaults` will construct.
+#:
+#: `all_states` below is materialized eagerly as a list of 2^N BitVecVals,
+#: so the cost of construction doubles with every increment of N. Measured
+#: peak RSS for that one list: N=16 -> 275MB, N=18 -> 928MB, N=20 -> 3.5GB.
+#: Beyond roughly N=20 a typical machine cannot hold the state space at all,
+#: and because the allocation happens inside a Z3 C call it cannot be
+#: interrupted by a Python-level timeout -- an unbounded N does not fail, it
+#: exhausts memory until the process is killed.
+#:
+#: The bound is therefore a real capability limit, not a policy choice. It
+#: sits above the largest N any shipped theory uses (logos defaults to 16)
+#: while excluding the range that cannot be built.
+MAX_N = 20
 
 
 class SemanticDefaults:
@@ -69,7 +87,7 @@ class SemanticDefaults:
 
         # Define all states and top and bottom if N is specified
         if 'N' in combined_settings.keys():
-            self.N = combined_settings['N']
+            self.N = self._validate_N(combined_settings['N'])
             max_value = (1 << self.N) - 1 # NOTE: faster than 2**self.N - 1
             self.full_state = BitVecVal(max_value, self.N)
             self.null_state = BitVecVal(0, self.N)
@@ -90,6 +108,46 @@ class SemanticDefaults:
         self.premise_behavior = None
         self.conclusion_behavior = None
         
+    @staticmethod
+    def _validate_N(value: Any) -> int:
+        """Validate N before any state space is allocated.
+
+        Args:
+            value: The candidate bit-width from the settings mapping.
+
+        Returns:
+            The validated bit-width.
+
+        Raises:
+            SemanticError: If N is not an integer in [1, MAX_N]. Raising
+                here is what makes an oversized N fail fast: the very next
+                statement builds 2^N BitVecVals, which for a large N
+                consumes all available memory inside an uninterruptible Z3
+                call rather than reporting an error.
+        """
+        # bool is an int subclass, but True/False are not meaningful widths.
+        if isinstance(value, bool) or not isinstance(value, int):
+            raise SemanticError(
+                f"Setting 'N' must be an integer, got {value!r} "
+                f"({type(value).__name__})."
+            )
+
+        if value < 1:
+            raise SemanticError(
+                f"Setting 'N' must be at least 1, got {value}. "
+                f"N is a bit-width, so it defines a state space of 2^N states."
+            )
+
+        if value > MAX_N:
+            raise SemanticError(
+                f"Setting 'N' must be at most {MAX_N}, got {value}. "
+                f"N is a bit-width: the model enumerates all 2^N states "
+                f"eagerly, so N={value} would require {1 << value:,} states "
+                f"and exhaust available memory. Reduce N to {MAX_N} or less."
+            )
+
+        return value
+
     def _reset_global_state(self) -> None:
         """Reset any global state that could cause interference between examples.
         

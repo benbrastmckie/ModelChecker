@@ -139,17 +139,31 @@ class TestFrameworkErrorHandling:
         # Model should indicate timeout occurred
     
     def test_memory_limit_handling(self):
-        """Test handling of memory constraints."""
-        # Test with very large N value
+        """Test that an unbuildable state space is rejected, not attempted.
+
+        The model enumerates all 2^N states eagerly, so a large N cannot be
+        built at all. Previously this call had no upper bound and simply
+        allocated until the machine ran out of memory (measured: 24GB RSS
+        in ~60s before the process was killed), which is why it hung every
+        full-suite sweep. It must fail fast with an actionable message.
+        """
+        from model_checker.models.errors import SemanticError
+        from model_checker.models.semantic import MAX_N
+
         settings = {
-            'N': 64,  # Maximum allowed
+            'N': MAX_N + 1,  # One past what can actually be constructed
             'contingent': True,
             'non_empty': True
         }
 
-        # Should handle large state spaces gracefully
-        model = create_test_model(settings)
-        # Should complete or fail gracefully, not crash
+        with pytest.raises(SemanticError) as exc_info:
+            create_test_model(settings)
+
+        message = str(exc_info.value)
+        assert str(MAX_N) in message, \
+            f"error should state the limit, got: {message}"
+        assert 'N' in message, \
+            f"error should name the offending setting, got: {message}"
 
 
 class TestErrorRecovery:

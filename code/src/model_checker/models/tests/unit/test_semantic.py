@@ -4,9 +4,12 @@ Tests for SemanticDefaults class functionality after refactoring.
 """
 
 import unittest
+
+import pytest
 from z3 import BitVecVal, And, Not
 
-from model_checker.models.semantic import SemanticDefaults
+from model_checker.models.errors import SemanticError
+from model_checker.models.semantic import MAX_N, SemanticDefaults
 
 
 class TestSemanticDefaults(unittest.TestCase):
@@ -89,6 +92,60 @@ class TestSemanticDefaults(unittest.TestCase):
         original_vals = {elem.as_long() for elem in python_set}
         recovered_vals = {elem.as_long() for elem in recovered_set}
         self.assertEqual(original_vals, recovered_vals)
+
+
+class TestSemanticDefaultsNBounds(unittest.TestCase):
+    """Test that N is bounded before the 2^N state space is materialized.
+
+    SemanticDefaults.__init__ eagerly builds `all_states` as a list of 2^N
+    BitVecVals. Without an upper bound, a large N does not fail -- it
+    allocates until the machine runs out of memory (N=64 was measured
+    reaching 24GB RSS in ~60s before being killed). Per the fail-fast
+    philosophy, an N that cannot be constructed must be rejected
+    immediately with an actionable message.
+    """
+
+    def test_n_above_max_raises_before_allocating(self):
+        """An N beyond MAX_N raises rather than exhausting memory."""
+        with self.assertRaises(SemanticError) as ctx:
+            SemanticDefaults({'N': 64})
+
+        message = str(ctx.exception)
+        self.assertIn('64', message, "error should name the rejected N")
+        self.assertIn(str(MAX_N), message, "error should name the limit")
+
+    @pytest.mark.slow
+    def test_max_n_itself_is_constructible(self):
+        """The advertised limit is real: N=MAX_N constructs successfully.
+
+        Marked slow: this genuinely allocates the 2^MAX_N state space
+        (~3.5GB, ~11s). It is the test that keeps MAX_N honest, so it must
+        exist, but it should not run on every unit sweep.
+        """
+        semantics = SemanticDefaults({'N': MAX_N})
+        self.assertEqual(semantics.N, MAX_N)
+        self.assertEqual(len(semantics.all_states), 1 << MAX_N)
+
+    def test_n_below_one_raises(self):
+        """N must be at least 1; a 0-width bitvector is not a state space."""
+        for bad_n in (0, -1):
+            with self.subTest(n=bad_n):
+                with self.assertRaises(SemanticError):
+                    SemanticDefaults({'N': bad_n})
+
+    def test_non_integer_n_raises(self):
+        """A non-integer N is rejected rather than failing deep in Z3."""
+        for bad_n in (2.5, '4', None):
+            with self.subTest(n=bad_n):
+                with self.assertRaises(SemanticError):
+                    SemanticDefaults({'N': bad_n})
+
+    def test_typical_n_values_still_construct(self):
+        """The N values the theories actually use are unaffected."""
+        for good_n in (1, 2, 3, 4, 8, 16):
+            with self.subTest(n=good_n):
+                semantics = SemanticDefaults({'N': good_n})
+                self.assertEqual(len(semantics.all_states), 1 << good_n)
 
 
 if __name__ == '__main__':
