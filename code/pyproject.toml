@@ -82,13 +82,32 @@ pythonpath = "src"
 testpaths = ["tests", "src/model_checker"]
 python_files = "test_*.py"
 python_classes = "Test*"
-addopts = "--durations=0 -v --import-mode=importlib"
+# TEMPORARY: -m "not slow" is a quarantine, not a settled policy. It is here
+# because two defects currently make an unfiltered run unusable rather than
+# merely slow:
+#
+#   1. Concurrent model building segfaults the interpreter (exit 139, faulting
+#      extension cvc5.cvc5_python_base), which aborts the whole run with no
+#      failure summary at all. Reproduces intermittently -- 1 of 3 identical
+#      isolated invocations.
+#   2. Several wall-clock assertions have budgets tighter than this codebase's
+#      real Z3 solve-time variance (see docs/core/TESTING_GUIDE.md 8.6), so
+#      their pass/fail state changes between identical runs on the same commit.
+#
+# Both are tracked and both must be FIXED, not left filtered. Remove this
+# filter -- do not merely relax it -- once they are, and confirm an
+# unfiltered run is green and repeatable. Measured at the time of writing:
+# filtered 1 failure / 2136 passed / 43 deselected in 5:37; unfiltered
+# 5 failures / 2173 passed in 6:36 with a differing failure set run to run.
+#
+# Run the quarantined tests explicitly with: pytest -m slow
+addopts = "--durations=0 -v --import-mode=importlib -m \"not slow\""
 markers = [
     "countermodel: Tests that verify a countermodel exists",
     "theorem: Tests that verify a formula is a theorem",
     "performance: Tests that verify performance characteristics",
     "differential: Tests that compare MC oracle against reference oracles",
-    "slow: Tests that are computationally expensive and skipped in CI",
+    "slow: Quarantined pending fixes (see the addopts note above) -- NOT a permanent opt-out; these tests are expected to rejoin the default run",
 ]
 filterwarnings = [
     # Ignore deprecation warning from z3's use of pkg_resources

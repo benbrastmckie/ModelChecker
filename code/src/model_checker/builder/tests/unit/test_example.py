@@ -362,15 +362,26 @@ general_settings = {}
         self.assertTrue(result["model_found"],
                        "Should find countermodel where A is true but B is false")
     
-    def test_find_next_model_basic(self):
-        """Test find_next_model with a simple example."""
+    def test_iteration_via_iterate_api(self):
+        """Test that further models are found through the iterate API.
+
+        Renamed from test_find_next_model_basic: it called
+        BuildExample.find_next_model(), a method BuildExample does not have
+        and, per iterate/__init__.py, never should -- next-model search is
+        the iterate package's responsibility, entered through each theory's
+        own iterate_example.
+        """
         content = """
 from model_checker.theory_lib.bimodal import get_theory
 
 theory = get_theory(['extensional'])
 semantic_theories = {"Test": theory}
 # Simple satisfiable example - just A as premise, no conclusions
-example_range = {"SAT": [["A"], [], {"N": 2}]}
+# max_time is explicit for the same reason as the SIMPLE example above: the
+# bimodal default is 1s and the real solve is slower than that, so an inherited
+# default makes model_found depend on machine load rather than on satisfiability.
+# This test also drives iteration, which solves again, so the budget is generous.
+example_range = {"SAT": [["A"], [], {"N": 2, "max_time": 30}]}
 general_settings = {}
 """
         test_file = os.path.join(self.temp_dir, "next_model_test.py")
@@ -403,13 +414,29 @@ general_settings = {}
         self.assertTrue(result["model_found"],
                        "Should find initial model for A")
         
-        # Try to find next model
-        # Note: find_next_model may or may not find another model
-        # depending on the constraint solver
-        found_next = build_example.find_next_model()
-        # Just verify it returns a boolean
-        self.assertIsInstance(found_next, bool,
-                            "find_next_model should return boolean")
+        # Finding further models is the iterate package's job, not
+        # BuildExample's: BuildExample exposes no find_next_model method,
+        # and each theory supplies its own iterate_example entry point (see
+        # iterate/__init__.py's module docstring). Drive that API rather
+        # than an attribute BuildExample has never had.
+        self.assertFalse(hasattr(build_example, 'find_next_model'),
+                         "next-model search belongs to the iterate API, "
+                         "not to BuildExample")
+
+        from model_checker.theory_lib.bimodal.iterate import iterate_example
+
+        model_structures = iterate_example(build_example, max_iterations=2)
+
+        # The initial model is always included, so a satisfiable example
+        # yields at least one structure. Whether a second, semantically
+        # distinct model exists is a solver outcome this test does not
+        # constrain -- it asserts the contract, not the model count.
+        self.assertIsInstance(model_structures, list)
+        self.assertGreaterEqual(len(model_structures), 1,
+                                "iteration should return at least the "
+                                "initial model")
+        self.assertLessEqual(len(model_structures), 2,
+                             "iteration should respect max_iterations")
 
 
 if __name__ == '__main__':
