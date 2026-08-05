@@ -917,37 +917,36 @@ class TestKnownFormulaBaseline:
             + "\n".join(f"  [{i}] {f}: got {r!r}" for i, f, r in failures[:3])
         )
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "Root-caused (task 122): 9/42 _KNOWN_INVALID_JSON formulas are untl/snce "
-            "combinations involving 'bot' as the event or guard operand (e.g. "
-            "untl(atom(A), bot), snce(atom(A), bot)). Z3OracleProvider.find_countermodel() "
-            "returns None both when Z3 proves UNSAT (valid) and when the solver times out "
-            "(structure.timeout is conflated with 'no countermodel' -- see provider.py:255). "
-            "Direct BimodalSemantics probing at the oracle's default N=2, M=max(depth+2,3), "
-            "5s timeout confirms these formulas hit structure.timeout=True rather than a "
-            "genuine UNSAT proof; some resolve if given 10-30s instead of the default 5s "
-            "(e.g. snce(bot, bot) resolves at 10s), others still time out at 30s. This is "
-            "the bounded/conservative-oracle behavior provider.py's module docstring already "
-            "documents ('UNSAT results from Z3 are conservative, not complete for the "
-            "unbounded theory') extended to solver timeouts. Raising the default timeout is "
-            "out of scope: these are exactly the untl/snce+bot formulas that are already the "
-            "dominant wall-clock cost of this suite (695s for 5 targeted tests), and widening "
-            "it would multiply that cost suite-wide for a bounded-solver limitation, not a "
-            "translation or harness defect. See baselines/differential-disposition.md."
-        ),
-    )
     def test_known_invalid_return_countermodel(self):
-        """For each known-invalid formula, MC oracle must return a dict (SAT)."""
-        failures = []
+        """For each known-invalid formula, MC oracle must return a dict (SAT).
+
+        Buckets outcomes into resolved-and-wrong (the solver decided and the
+        decision contradicts the known-invalid baseline -- a real soundness
+        bug) and inconclusive (the solver did not decide within its default
+        budget). Only resolved-and-wrong formulas fail this test;
+        inconclusive ones are reported via an unconditional print, not
+        asserted on -- an undecided solve is a tooling/budget outcome, not
+        a soundness bug.
+        """
+        resolved_and_wrong = []
+        inconclusive = []
         for i, formula in enumerate(_KNOWN_INVALID_JSON):
-            result = self.oracle.find_countermodel(formula)
+            try:
+                result = self.oracle.find_countermodel(formula)
+            except OracleTimeoutError:
+                inconclusive.append((i, formula))
+                continue
             if result is None:
-                failures.append((i, formula))
-        assert not failures, (
-            f"Oracle found no countermodel for {len(failures)} known-invalid formulas:\n"
-            + "\n".join(f"  [{i}] {f}" for i, f in failures[:5])
+                resolved_and_wrong.append((i, formula))
+        print(
+            f"test_known_invalid_return_countermodel: "
+            f"resolved_and_wrong={len(resolved_and_wrong)} "
+            f"inconclusive={len(inconclusive)} of {len(_KNOWN_INVALID_JSON)}"
+        )
+        assert not resolved_and_wrong, (
+            f"Oracle proved UNSAT for {len(resolved_and_wrong)} known-invalid formulas "
+            f"(a genuine soundness bug, not a timeout):\n"
+            + "\n".join(f"  [{i}] {f}" for i, f in resolved_and_wrong[:5])
         )
 
     def test_baseline_tautology_coverage(self):
@@ -1092,21 +1091,6 @@ class TestBimodalHarnessIntegration:
         bh_z3 = BHZ3OracleProvider()
         assert bh_z3 is not None
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "Root-caused (task 122): only 1 of the actual 7 disagreements at "
-            "complexity<=3 is the single _KNOWN_MC_EDGE_CASES entry this test already "
-            "excludes (untl(bot, bot)); the other 6 are the same untl/snce+bot "
-            "solver-timeout-conflated-with-UNSAT pattern documented on "
-            "test_known_invalid_return_countermodel above (Z3OracleProvider.find_countermodel "
-            "returns None for both a proven-UNSAT and a timed-out solve; provider.py's own "
-            "docstring documents the bounded-domain oracle as conservative/incomplete). This "
-            "class only runs when BimodalHarness is present on the path (setup_method skips "
-            "otherwise, e.g. in CI), so the divergence was previously undetected. See "
-            "baselines/differential-disposition.md for the full formula-by-formula analysis."
-        ),
-    )
     def test_temporal_only_agreement_complexity_3(self):
         """All temporal-only formulas at complexity<=3 agree between MC and BH Z3.
 
@@ -1116,6 +1100,11 @@ class TestBimodalHarnessIntegration:
         evaluation issue with temporal depth=1, M=2, strict Until semantics.
         This formula is excluded from the agreement check and documented as a
         known MC oracle limitation.
+
+        Buckets non-agreements into resolved-and-wrong (MC decided and its
+        decision contradicts BH -- a real soundness bug) and inconclusive
+        (MC's solve did not decide within its default budget). Only
+        resolved-and-wrong formulas fail this test.
         """
         from bimodal_harness.oracle.z3_provider import Z3OracleProvider as BHZ3OracleProvider
 
@@ -1137,14 +1126,19 @@ class TestBimodalHarnessIntegration:
         all_formulas = _enumerate_primitive_formulas(3, ["p"])
         temporal_formulas = [f for f in all_formulas if _is_temporal_only(f)]
 
-        disagreements = []
+        resolved_and_wrong = []
+        inconclusive = []
         known_edge_cases_seen = []
         for formula_json in temporal_formulas:
             if _is_known_edge_case(formula_json):
                 known_edge_cases_seen.append(formula_json)
                 continue  # Skip known edge case
 
-            mc_result = mc_oracle.find_countermodel(formula_json)
+            try:
+                mc_result = mc_oracle.find_countermodel(formula_json)
+            except OracleTimeoutError:
+                inconclusive.append(formula_json)
+                continue
             mc_sat = mc_result is not None
 
             # Run BH oracle - BH oracle accepts formula JSON dicts
@@ -1156,31 +1150,41 @@ class TestBimodalHarnessIntegration:
                 continue
 
             if mc_sat != bh_sat:
-                disagreements.append({
+                resolved_and_wrong.append({
                     "formula": formula_json,
                     "mc_sat": mc_sat,
                     "bh_sat": bh_sat,
                 })
 
-        assert not disagreements, (
-            f"MC and BH Z3 oracles disagree on {len(disagreements)} temporal-only formulas "
-            f"at complexity<=3 (excluding known MC edge cases):\n"
+        print(
+            f"test_temporal_only_agreement_complexity_3: "
+            f"resolved_and_wrong={len(resolved_and_wrong)} inconclusive={len(inconclusive)} "
+            f"of {len(temporal_formulas)}"
+        )
+        assert not resolved_and_wrong, (
+            f"MC and BH Z3 oracles disagree on {len(resolved_and_wrong)} temporal-only "
+            f"formulas at complexity<=3 (both sides decided; excluding known MC edge "
+            f"cases):\n"
             + "\n".join(f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
-                        for d in disagreements[:5])
+                        for d in resolved_and_wrong[:5])
         )
 
     @pytest.mark.slow
     @pytest.mark.xfail(
         strict=True,
         reason=(
-            "Root-caused (task 122): 112 disagreements at complexity<=5 are the same "
-            "untl/snce+bot solver-timeout-conflated-with-UNSAT pattern documented on "
-            "test_known_invalid_return_countermodel and "
-            "test_temporal_only_agreement_complexity_3 above -- the larger complexity-5 "
-            "search space contains many more untl/snce formulas with a 'bot' event or guard "
-            "operand, each individually timing out at the oracle's default 5s window. This "
-            "class only runs when BimodalHarness is present on the path (setup_method skips "
-            "otherwise, e.g. in CI). See baselines/differential-disposition.md."
+            "Genuine soundness divergence, not a solver timeout: with the "
+            "find_countermodel timeout/UNSAT conflation removed (see "
+            "provider.py's OracleTimeoutError contract), 13 of 158 temporal-only "
+            "formulas at complexity<=5 have both MC and BH decide and disagree "
+            "(resolved-and-wrong). A further 101 of 158 are inconclusive (the MC "
+            "solver did not decide within the default 5000 ms budget) and are "
+            "excluded from this count -- they are a budget/performance outcome, "
+            "not a soundness one. The 13 resolved-and-wrong formulas are a real, "
+            "previously-masked defect requiring dedicated investigation; this is "
+            "not a known-flaky timeout marker. This class only runs when "
+            "BimodalHarness is present on the path (setup_method skips otherwise, "
+            "e.g. in CI)."
         ),
     )
     def test_temporal_only_agreement_complexity_5(self):
@@ -1188,6 +1192,11 @@ class TestBimodalHarnessIntegration:
 
         Known MC oracle edge cases (untl(bot, bot) and similar bot-based temporal
         formulas) are excluded from the agreement check.
+
+        Buckets non-agreements into resolved-and-wrong (MC decided and its
+        decision contradicts BH -- a real soundness bug) and inconclusive
+        (MC's solve did not decide within its default budget). Only
+        resolved-and-wrong formulas fail this test.
         """
         from bimodal_harness.oracle.z3_provider import Z3OracleProvider as BHZ3OracleProvider
 
@@ -1205,12 +1214,17 @@ class TestBimodalHarnessIntegration:
         all_formulas = _enumerate_primitive_formulas(5, ["p"])
         temporal_formulas = [f for f in all_formulas if _is_temporal_only(f)]
 
-        disagreements = []
+        resolved_and_wrong = []
+        inconclusive = []
         for formula_json in temporal_formulas:
             if _is_known_edge_case(formula_json):
                 continue
 
-            mc_result = mc_oracle.find_countermodel(formula_json)
+            try:
+                mc_result = mc_oracle.find_countermodel(formula_json)
+            except OracleTimeoutError:
+                inconclusive.append(formula_json)
+                continue
             mc_sat = mc_result is not None
 
             try:
@@ -1220,15 +1234,24 @@ class TestBimodalHarnessIntegration:
                 continue
 
             if mc_sat != bh_sat:
-                disagreements.append({
+                resolved_and_wrong.append({
                     "formula": formula_json,
                     "mc_sat": mc_sat,
                     "bh_sat": bh_sat,
                 })
 
-        assert not disagreements, (
-            f"MC and BH Z3 oracles disagree on {len(disagreements)} temporal-only formulas "
-            f"at complexity<=5 (excluding known MC edge cases)"
+        print(
+            f"test_temporal_only_agreement_complexity_5: "
+            f"resolved_and_wrong={len(resolved_and_wrong)} inconclusive={len(inconclusive)} "
+            f"of {len(temporal_formulas)}"
+        )
+        assert not resolved_and_wrong, (
+            f"MC and BH Z3 oracles disagree on {len(resolved_and_wrong)} temporal-only "
+            f"formulas at complexity<=5 (both sides decided; excluding known MC edge cases):\n"
+            + "\n".join(
+                f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
+                for d in resolved_and_wrong[:5]
+            )
         )
 
     def test_box_disagreements_documented(self):
@@ -1283,42 +1306,44 @@ class TestMockOracleSpotCheck:
         from bimodal_harness.oracle._mock import SPOT_CHECK_FORMULAS  # noqa: F401
         assert len(SPOT_CHECK_FORMULAS) > 0
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "Root-caused (task 122): the 4 failing spot-check formulas are imp(...) "
-            "formulas whose antecedent or consequent is an untl/snce expression with a "
-            "'bot' or repeated-atom operand -- the same solver-timeout-conflated-with-UNSAT "
-            "pattern documented on test_known_invalid_return_countermodel above (confirmed "
-            "directly: '(p Until q) -> (q Until p)' hits structure.timeout=True at the "
-            "default 5s window, N=2, M=3). This class only runs when BimodalHarness is "
-            "present on the path (setup_method skips otherwise, e.g. in CI). See "
-            "baselines/differential-disposition.md."
-        ),
-    )
     def test_spot_check_all(self):
         """For temporal-only BH SPOT_CHECK_FORMULAS, MC oracle also finds countermodel (SAT).
 
         Box-containing spot-check formulas are excluded because MC oracle uses
         universal-over-all-worlds box semantics while BH uses Kripke accessibility
         semantics -- expected disagreement on box/diamond formulas.
+
+        Buckets outcomes into resolved-and-wrong (the solver decided UNSAT for
+        a formula documented SAT -- a real soundness bug) and inconclusive
+        (the solver did not decide). Only resolved-and-wrong formulas fail
+        this test.
         """
         from bimodal_harness.oracle._mock import SPOT_CHECK_FORMULAS
 
-        failures = []
+        resolved_and_wrong = []
+        inconclusive = []
         for i, formula_json in enumerate(SPOT_CHECK_FORMULAS):
             # Skip box-containing formulas: MC and BH have different box semantics
             if not _is_temporal_only(formula_json):
                 continue
 
-            result = self.mc_oracle.find_countermodel(formula_json)
+            try:
+                result = self.mc_oracle.find_countermodel(formula_json)
+            except OracleTimeoutError:
+                inconclusive.append((i, formula_json))
+                continue
             if result is None:
-                failures.append((i, formula_json))
+                resolved_and_wrong.append((i, formula_json))
 
-        assert not failures, (
-            f"MC oracle failed to find countermodel for {len(failures)} temporal-only "
-            f"spot-check formulas:\n"
-            + "\n".join(f"  [{i}] {f}" for i, f in failures[:5])
+        print(
+            f"test_spot_check_all: resolved_and_wrong={len(resolved_and_wrong)} "
+            f"inconclusive={len(inconclusive)}"
+        )
+        assert not resolved_and_wrong, (
+            f"MC oracle proved UNSAT for {len(resolved_and_wrong)} temporal-only "
+            f"spot-check formulas documented SAT (a genuine soundness bug, not a "
+            f"timeout):\n"
+            + "\n".join(f"  [{i}] {f}" for i, f in resolved_and_wrong[:5])
         )
 
 
@@ -1732,37 +1757,48 @@ class TestCIGate:
             assert "tag" in f, f"Formula missing 'tag': {f}"
             assert f["tag"] in _PRIMITIVE_TAGS, f"Non-primitive tag in formula: {f}"
 
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "Root-caused (task 122): the 9 invalid-formula failures (0 tautology failures) "
-            "are the same _KNOWN_INVALID_JSON untl/snce+bot subset as "
-            "test_known_invalid_return_countermodel above -- Z3OracleProvider.find_countermodel "
-            "conflates a Z3 solver timeout at the default 5s/N=2/M=max(depth+2,3) window with "
-            "a genuine UNSAT (valid) result. This is the CI-visible self-contained gate "
-            "(no BimodalHarness dependency), so it reproduces the same root cause without "
-            "needing BH on the path. See baselines/differential-disposition.md."
-        ),
-    )
     def test_oracle_baseline_agreement(self):
-        """Run full known-formula baseline, verify 100% agreement."""
-        # Test known tautologies
+        """Run full known-formula baseline, verify 100% agreement.
+
+        Buckets outcomes into resolved-and-wrong (the solver decided and its
+        decision contradicts the documented baseline -- a real soundness
+        bug) and inconclusive (the solver did not decide). Only
+        resolved-and-wrong formulas fail this test.
+        """
+        # Test known tautologies (expected UNSAT / None)
         tautology_failures = []
+        tautology_inconclusive = 0
         for formula in _KNOWN_TAUTOLOGY_JSON:
-            result = self.oracle.find_countermodel(formula)
+            try:
+                result = self.oracle.find_countermodel(formula)
+            except OracleTimeoutError:
+                tautology_inconclusive += 1
+                continue
             if result is not None:
                 tautology_failures.append(formula)
 
-        # Test known-invalid formulas
+        # Test known-invalid formulas (expected SAT / countermodel)
         invalid_failures = []
+        invalid_inconclusive = 0
         for formula in _KNOWN_INVALID_JSON:
-            result = self.oracle.find_countermodel(formula)
+            try:
+                result = self.oracle.find_countermodel(formula)
+            except OracleTimeoutError:
+                invalid_inconclusive += 1
+                continue
             if result is None:
                 invalid_failures.append(formula)
 
+        print(
+            f"test_oracle_baseline_agreement: "
+            f"tautology_failures={len(tautology_failures)} "
+            f"tautology_inconclusive={tautology_inconclusive} "
+            f"invalid_failures={len(invalid_failures)} "
+            f"invalid_inconclusive={invalid_inconclusive}"
+        )
         total_failures = len(tautology_failures) + len(invalid_failures)
         assert total_failures == 0, (
-            f"Oracle baseline agreement failed: "
+            f"Oracle baseline agreement failed (resolved-and-wrong, not a timeout): "
             f"{len(tautology_failures)} tautology failures, "
             f"{len(invalid_failures)} invalid formula failures"
         )

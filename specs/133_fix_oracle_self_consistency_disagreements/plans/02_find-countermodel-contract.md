@@ -756,37 +756,44 @@ PYTHONPATH=code/src pytest oracle/bimodal_logic/tests/test_cross_oracle_differen
 
 ---
 
-### Phase 6: Rewrite the five xfail(strict=True) tests rooted in this cause [NOT STARTED]
+### Phase 6: Rewrite the five xfail(strict=True) tests rooted in this cause [COMPLETED]
 
 **Goal**: Five tests that are permanently expected to fail become tests that fail only when
 something is provably wrong.
 
 **Tasks**:
 
-- [ ] The five are at `test_cross_oracle_differential.py:786` (`test_known_invalid_return_countermodel`),
-      `:961` (`test_temporal_only_agreement_complexity_3`), `:1039`
-      (`test_temporal_only_agreement_complexity_5`), `:1152` (`test_spot_check_all`), and `:1460`
-      (`test_oracle_baseline_agreement`). Each `reason=` string already names this root cause. Note
-      that the three in the BimodalHarness-dependent classes skip entirely when BH is absent from
-      the path, so a local green run may not exercise them — record which ones actually ran.
-- [ ] For each, rewrite the per-formula loop to bucket results into **`resolved-and-wrong`** (the
-      solver decided and the decision contradicts the baseline — a real soundness bug) and
-      **`inconclusive`** (the solver did not decide). Assert only on `resolved-and-wrong`; report
-      the `inconclusive` count in the assertion message and via an unconditional print, without
-      failing on it.
-- [ ] Remove the `@pytest.mark.xfail(strict=True)` decorator from every test that now passes. If a
-      test still fails on `resolved-and-wrong` results, that is a genuine soundness finding: leave
-      its `xfail` in place, **rewrite the `reason=` to describe the actual remaining failure**
-      (resolved-and-wrong formulas, with counts), and record it in the summary as a real defect
-      surfaced by the contract fix rather than a known-flaky marker. Do not leave a `reason=` that
-      blames timeout conflation once timeout conflation no longer exists.
-- [ ] **Rewrite the `reason=` strings without task-number citations.** The existing five all begin
-      "Root-caused (task 122): ...", which violates
-      `.claude/rules/no-task-references-in-deliverables.md`. Replace with durable anchors:
-      `provider.py:255`, `code/docs/core/TESTING_GUIDE.md` section 8.6, or the observable behavior.
-      Do not cite `specs/` paths from inside `oracle/` either.
-- [ ] Leave the four `xfail`'d entry-point/packaging tests in `test_oracle_interface.py` alone.
-      Different root cause.
+- [x] The five: `test_known_invalid_return_countermodel`, `test_temporal_only_agreement_complexity_3`,
+      `test_temporal_only_agreement_complexity_5`, `test_spot_check_all`, and
+      `test_oracle_baseline_agreement`. All five ran locally — BimodalHarness is present on this
+      machine's path (`/home/benjamin/Projects/BimodalHarness/src`), confirmed via
+      `TestBimodalHarnessIntegration::test_bh_available`, so none were skipped.
+- [x] For each, rewrote the per-formula loop to bucket results into `resolved-and-wrong` (the
+      solver decided and the decision contradicts the baseline) and `inconclusive` (the solver did
+      not decide, via `except OracleTimeoutError`). Asserts only on `resolved-and-wrong`; the
+      `inconclusive` count is printed unconditionally and named in the assertion message context.
+- [x] Removed `@pytest.mark.xfail(strict=True)` from **four** of the five —
+      `test_known_invalid_return_countermodel`, `test_temporal_only_agreement_complexity_3`,
+      `test_spot_check_all`, `test_oracle_baseline_agreement` — confirmed by first observing
+      `[XPASS(strict)]` failures with the decorator still in place (0 resolved-and-wrong in every
+      case, all remaining non-agreements are inconclusive), then removing the decorator so the
+      now-passing test surfaces as an ordinary pass rather than an XPASS-under-strict failure.
+      **`test_temporal_only_agreement_complexity_5` is the one exception**: it surfaced a genuine
+      soundness finding — 13 of 158 temporal-only formulas at complexity<=5 have both MC and BH
+      decide and disagree (resolved-and-wrong), separate from 101/158 that are merely
+      inconclusive. Its `xfail` was kept in place per the plan's own anticipated outcome, with the
+      `reason=` rewritten to describe this actual remaining failure (13 resolved-and-wrong / 158,
+      counts named) rather than blaming timeout conflation, which this contract fix already
+      removed. Recorded as a real defect surfaced by the fix, requiring its own dedicated
+      investigation — out of this plan's scope.
+- [x] **Rewrote every `reason=` string without task-number citations or `specs/` path references.**
+      All five previously began "Root-caused (task 122): ..." and ended "See
+      baselines/differential-disposition.md" (a `specs/`-scoped path). Both citation styles are
+      gone from all five (four decorators removed entirely; the fifth's `reason=` rewritten to cite
+      durable anchors — `provider.py`'s `OracleTimeoutError` contract and the observed counts —
+      instead).
+- [x] Left the four `xfail`'d entry-point/packaging tests in `test_oracle_interface.py` alone.
+      Different root cause; untouched.
 
 **Timing**: 1 hour 15 minutes.
 
@@ -798,23 +805,25 @@ something is provably wrong.
 
 **Verification**:
 
-```bash
-nix develop --command bash -c 'PYTHONPATH=code/src pytest \
-  oracle/bimodal_logic/tests/test_cross_oracle_differential.py \
-  -q -m "not slow" -rxX'
+```
+PYTHONPATH="code/src:$PYTHONPATH" pytest oracle/bimodal_logic/tests/test_cross_oracle_differential.py -q -m "not slow" -rxX
+56 passed, 3 deselected in 271.81s (0:04:31)
 ```
 
-- Success criterion: exit 0. `-rxX` makes the xfail/xpass disposition explicit in the output — the
-  point of this phase is that the xfail count drops, so it must be readable. Record the before and
-  after counts.
-- **An `XPASS` under `strict=True` is a failure**, so any test left `xfail`'d that now passes will
-  surface here rather than silently. That is the intended safety net.
-- No task-number citations remain in the rewritten strings:
-  ```bash
-  grep -n "task [0-9]" oracle/bimodal_logic/tests/test_cross_oracle_differential.py
+(`PYTHONPATH` appended rather than overridden, for the same `bimodal_harness` reason as Phase 3.)
+The 3 deselected are `test_temporal_only_agreement_complexity_5` and `TestFullScanReport`'s two
+`slow`-marked tests. **Before/after xfail count**: 5 xfail before this phase -> 1 xfail after
+(the genuine `test_temporal_only_agreement_complexity_5` finding). Separately confirmed
+`test_temporal_only_agreement_complexity_5` alone (`-m` unrestricted, since it is itself
+`slow`-marked) still reports `XFAIL` with the rewritten reason, not `XPASS` — its xfail is
+correctly load-bearing, not vestigial.
+- No task-number citations or `specs/` path references remain:
   ```
-  must return nothing for the five rewritten `reason=` blocks.
-- The `slow` scan is deselected here by `-m "not slow"`; it is verified in Phase 7.
+  grep -n "task [0-9]\|baselines/differential-disposition" oracle/bimodal_logic/tests/test_cross_oracle_differential.py
+  ```
+  returns nothing.
+- The full `TestFullScanReport` (the actual complexity<=5 self-consistency scan) was deliberately
+  NOT run in this phase; it is Phase 7's concern.
 
 ---
 
