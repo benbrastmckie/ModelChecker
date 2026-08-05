@@ -25,7 +25,7 @@ import re
 
 import pytest
 
-from bimodal_logic import Z3OracleProvider
+from bimodal_logic import OracleTimeoutError, Z3OracleProvider
 from model_checker.theory_lib.bimodal.examples import (
     countermodel_examples,
     theorem_examples,
@@ -77,6 +77,25 @@ ENRICHED_NEG_JSON = {
 
 # Primitive-only atom formula
 PRIMITIVE_ATOM_JSON = {"tag": "atom", "name": "p"}
+
+# A temporal formula whose solve dispatches to the M>=3 grounded-abundance
+# constraint path (temporal_depth=1, M=max(1+2,3)=3), where measured solve
+# times cluster at several tens of seconds. At timeout_ms=1 the solver
+# cannot possibly decide it, so this formula is used to force a genuine
+# budget-exhausted (inconclusive) outcome rather than an instant UNSAT.
+DEEPLY_NESTED_TEMPORAL_JSON = {
+    "tag": "imp",
+    "left": {
+        "tag": "snce",
+        "event": {"tag": "atom", "name": "p"},
+        "guard": {"tag": "atom", "name": "q"},
+    },
+    "right": {
+        "tag": "untl",
+        "event": {"tag": "atom", "name": "q"},
+        "guard": {"tag": "atom", "name": "p"},
+    },
+}
 
 
 ##############################################################################
@@ -239,6 +258,17 @@ class TestFindCountermodelContract:
         result = self.provider.find_countermodel(FUTURE_SAT_JSON)
         assert result is not None
         assert isinstance(result, dict)
+
+    def test_budget_exhausted_raises_oracle_timeout_error(self):
+        """A solve that cannot complete within timeout_ms raises OracleTimeoutError.
+
+        This is the three-valued contract: `None` must mean exclusively
+        "proven no countermodel" (genuine UNSAT), never "the solver gave up".
+        A 1 ms budget on a formula whose solve takes tens of seconds cannot
+        possibly decide, so it must raise rather than return None.
+        """
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(DEEPLY_NESTED_TEMPORAL_JSON, timeout_ms=1)
 
 
 ##############################################################################

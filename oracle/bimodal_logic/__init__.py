@@ -8,6 +8,7 @@ The Z3OracleProvider class will be fully implemented in task 103.
 
 from __future__ import annotations
 
+from .errors import OracleTimeoutError
 from .provider import Z3OracleProvider
 from .translation import (
     json_to_prefix,
@@ -19,6 +20,7 @@ from .translation import (
 )
 
 __all__ = [
+    "OracleTimeoutError",
     "Z3OracleProvider",
     "json_to_prefix",
     "temporal_depth",

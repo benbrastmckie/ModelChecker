@@ -306,28 +306,33 @@ sequential — that file is a single territory owned by one agent at a time.
 
 ---
 
-### Phase 1: Raise on timeout instead of returning None [NOT STARTED]
+### Phase 1: Raise on timeout instead of returning None [COMPLETED]
 
 **Goal**: `find_countermodel()` distinguishes "solver did not decide" from "proven no
 countermodel". `None` acquires a single, unambiguous meaning.
 
 **Tasks**:
 
-- [ ] **RED first.** Add a test to `oracle/bimodal_logic/tests/test_oracle_provider.py`, in
+- [x] **RED first.** Add a test to `oracle/bimodal_logic/tests/test_oracle_provider.py`, in
       `TestFindCountermodelContract`, asserting that a deeply nested temporal formula at
       `timeout_ms=1` raises the new exception:
       `with pytest.raises(OracleTimeoutError): self.provider.find_countermodel(complex_formula, timeout_ms=1)`.
       Run it and confirm it fails with `Failed: DID NOT RAISE` — not with an `ImportError`. Write
       the import against the intended public path so the failure is about behavior, not wiring.
-- [ ] Create `oracle/bimodal_logic/errors.py` with a single class `OracleTimeoutError(Exception)`.
+      **Deviation (sequencing only, not scope)**: to make the RED failure be `DID NOT RAISE`
+      rather than `ImportError` as the plan requires, `errors.py` and the `__init__.py` export
+      (the next two bullets) were created *before* writing the test — the import needs to resolve
+      for "DID NOT RAISE" to be the observed failure. `provider.py` was edited only after RED was
+      confirmed. All three bullets' content is unchanged from what is written below.
+- [x] Create `oracle/bimodal_logic/errors.py` with a single class `OracleTimeoutError(Exception)`.
       Mirror the *shape* of `code/src/model_checker/theory_lib/errors.py:230`'s `Z3TimeoutError`:
       a formatted message plus a `context` dict carrying at minimum `timeout_ms`, `temporal_depth`,
       and `M`, and a `suggestion` string. Do **not** import or subclass `Z3TimeoutError` — this
       package ships no packaging metadata and must not acquire a cross-package dependency for a
       one-off signal.
-- [ ] Export it from `oracle/bimodal_logic/__init__.py`: add to the `from .errors import ...` line
+- [x] Export it from `oracle/bimodal_logic/__init__.py`: add to the `from .errors import ...` line
       and to `__all__`.
-- [ ] **GREEN.** At `provider.py:254-257`, split the merged branch:
+- [x] **GREEN.** At `provider.py:254-257`, split the merged branch:
       ```python
       if structure.timeout:
           self._semantics = None
@@ -339,16 +344,16 @@ countermodel". `None` acquires a single, unambiguous meaning.
       The existing `finally: self._semantics = None` already covers the raise path; confirm the
       explicit assignment before `raise` is redundant-but-harmless rather than removing it, so the
       two branches read symmetrically.
-- [ ] Update `find_countermodel`'s docstring: the `Returns:` section must state that `None` means
+- [x] Update `find_countermodel`'s docstring: the `Returns:` section must state that `None` means
       exclusively "the formula is valid (proven no countermodel)" or "unsupported frame class",
       and add a `Raises:` section for `OracleTimeoutError`.
-- [ ] **Decide `validate_self`: propagate, do not catch.** A spot check that cannot obtain a
+- [x] **Decide `validate_self`: propagate, do not catch.** A spot check that cannot obtain a
       verdict is a tooling problem, not evidence the oracle is unsound, and silently returning
       `False` for it re-creates the exact conflation this phase removes one layer up. Leave
       `provider.py:291-295` structurally as-is (the exception propagates through the loop) and
       update its docstring with a `Raises:` section stating that an undecided spot check
       propagates rather than counting as a failure.
-- [ ] Verify no task-number citation was introduced into any file under `oracle/`.
+- [x] Verify no task-number citation was introduced into any file under `oracle/`.
 
 **Timing**: 1 hour.
 

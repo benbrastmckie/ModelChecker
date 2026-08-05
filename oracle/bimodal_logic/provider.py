@@ -109,6 +109,7 @@ guarantees are intact in practice.
 
 from __future__ import annotations
 
+from .errors import OracleTimeoutError
 from .translation import (
     json_to_prefix,
     temporal_depth,
@@ -195,9 +196,17 @@ class Z3OracleProvider:
             timeout_ms: Maximum solver time in milliseconds.
 
         Returns:
-            A dict with countermodel fields if a countermodel is found, or
-            None if the formula is valid (no countermodel) or the frame class
-            is unsupported.
+            A dict with countermodel fields if a countermodel is found.
+            None means exclusively one of: the formula is valid (proven no
+            countermodel, i.e. genuine UNSAT), or `frame_class` is
+            unsupported. None never means "the solver did not decide" --
+            that outcome raises OracleTimeoutError instead.
+
+        Raises:
+            OracleTimeoutError: The Z3 solver exhausted `timeout_ms` without
+                reaching a verdict (`structure.timeout` was true). This is
+                an inconclusive result, not evidence the formula is valid --
+                callers must not treat it as a countermodel-not-found case.
         """
         # Check frame class support
         if frame_class not in self.supported_frame_classes:
@@ -251,8 +260,20 @@ class Z3OracleProvider:
                 )
                 structure = BimodalStructure(model_constraints, settings)
 
-                # Check if solver found a satisfying model
-                if structure.timeout or not structure.z3_model_status:
+                # Check if the solver decided the formula at all. `timeout`
+                # and `z3_model_status` are deliberately kept separate signals
+                # (see model_checker.models.structure): a timeout means the
+                # solver did not decide, which is not the same claim as a
+                # decided UNSAT. Collapsing them into the same `None` return
+                # would silently launder "gave up" into "proven valid".
+                if structure.timeout:
+                    self._semantics = None  # redundant with `finally`; kept for symmetry
+                    raise OracleTimeoutError(
+                        timeout_ms=timeout_ms,
+                        temporal_depth=depth,
+                        M=M,
+                    )
+                if not structure.z3_model_status:
                     self._semantics = None
                     return None
 
@@ -287,6 +308,14 @@ class Z3OracleProvider:
         Returns:
             True if every formula produces a non-None countermodel result.
             False if any formula returns None (no countermodel found).
+
+        Raises:
+            OracleTimeoutError: propagates from find_countermodel() if any
+                spot-check formula's solve does not decide within its
+                budget. A spot check that cannot obtain a verdict is a
+                tooling problem (an under-sized budget), not evidence the
+                oracle is unsound, so it is not caught here and does not
+                count as `False`.
         """
         for formula in spot_check_formulas:
             result = self.find_countermodel(formula)
