@@ -11,10 +11,13 @@ Usage:
 Output format (to stdout):
     {"result": "valid", "countermodel": null}
     {"result": "invalid", "countermodel": {...}}
+    {"result": "inconclusive", "countermodel": null}
 
 Exit codes:
-    0 - check completed (whether valid or invalid)
+    0 - check completed and the solver decided (valid or invalid)
     1 - error (bad JSON, unsupported frame class, or no subcommand given)
+    2 - inconclusive (the solver exhausted its timeout without deciding;
+        this is NOT the same as "valid" -- it means no verdict was reached)
 """
 
 from __future__ import annotations
@@ -76,6 +79,7 @@ def main(argv: Optional[list[str]] = None) -> None:
             sys.exit(1)
 
         # Invoke Z3OracleProvider
+        from .errors import OracleTimeoutError
         from .provider import Z3OracleProvider
         provider = Z3OracleProvider()
 
@@ -88,11 +92,21 @@ def main(argv: Optional[list[str]] = None) -> None:
             )
             sys.exit(1)
 
-        result = provider.find_countermodel(
-            formula,
-            frame_class=frame_class,
-            timeout_ms=args.timeout,
-        )
+        try:
+            result = provider.find_countermodel(
+                formula,
+                frame_class=frame_class,
+                timeout_ms=args.timeout,
+            )
+        except OracleTimeoutError:
+            # The solver did not decide -- this must never be reported as
+            # "valid", which would claim the formula was proven to have no
+            # countermodel. Exit code 1 is already taken by input errors, so
+            # a caller can distinguish "we don't know" from both "valid" and
+            # "your input was bad".
+            output = {"result": "inconclusive", "countermodel": None}
+            print(json.dumps(output))
+            sys.exit(2)
 
         if result is None:
             output = {"result": "valid", "countermodel": None}

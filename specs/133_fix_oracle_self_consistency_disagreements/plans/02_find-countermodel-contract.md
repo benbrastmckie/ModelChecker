@@ -388,26 +388,29 @@ nix develop --command bash -c 'PYTHONPATH=code/src pytest \
 
 ---
 
-### Phase 2: Fix the live CLI correctness bug [NOT STARTED]
+### Phase 2: Fix the live CLI correctness bug [COMPLETED]
 
 **Goal**: `bimodal-logic check` stops claiming a formula is valid when the solver never decided it.
 
 **Tasks**:
 
-- [ ] **RED first.** Add tests to `oracle/bimodal_logic/tests/test_cli.py` (a new
+- [x] **RED first.** Add tests to `oracle/bimodal_logic/tests/test_cli.py` (a new
       `TestCLIInconclusive` class alongside the existing `TestCLIValidFormula` /
       `TestCLIInvalidFormula`) asserting that
       `main(["check", <deeply nested temporal formula JSON>, "--timeout", "1"])` (a) exits with
       code **2**, and (b) prints JSON whose `"result"` is `"inconclusive"`. Run and confirm both
       fail — today the call exits 0 with `{"result": "valid", "countermodel": null}`.
-- [ ] **GREEN.** In `cli.py`, wrap the `provider.find_countermodel(...)` call at lines 91-95 in
+      Confirmed: RED failure was `OracleTimeoutError` propagating uncaught out of `main()`
+      (post-Phase-1 behavior), not the pre-Phase-1 silent-`valid` bug — Phase 1 already changed
+      what "today" means for this call site; the CLI simply had not been updated to catch it yet.
+- [x] **GREEN.** In `cli.py`, wrap the `provider.find_countermodel(...)` call at lines 91-95 in
       `try/except OracleTimeoutError`, emitting `{"result": "inconclusive", "countermodel": None}`
       and `sys.exit(2)`. Exit code 2 is chosen because 1 is already taken by argument/JSON/frame-class
       errors — a script consuming this CLI must be able to distinguish "we don't know" from both
       "valid" and "your input was bad".
-- [ ] Update the module docstring's `Output format` and `Exit codes` blocks (lines 11-17) to
+- [x] Update the module docstring's `Output format` and `Exit codes` blocks (lines 11-17) to
       document the third result value and exit code 2.
-- [ ] Check the existing `test_result_is_string` assertion at `test_cli.py:223`
+- [x] Check the existing `test_result_is_string` assertion at `test_cli.py:223`
       (`output["result"] in ("valid", "invalid")`) and widen it to include `"inconclusive"`. It
       currently encodes the two-valued contract.
 
@@ -427,11 +430,23 @@ nix develop --command bash -c 'PYTHONPATH=code/src pytest oracle/bimodal_logic/t
 ```
 
 - Success criterion: exit 0, zero failures, and the new inconclusive tests present in the count.
-- Manual confirmation that the user-facing bug is gone:
+- Manual confirmation that the user-facing bug is gone. **Deviation**: the plan's literal
+  `python -m bimodal_logic.cli check ...` invocation is a no-op — `cli.py` has no
+  `if __name__ == "__main__":` guard (pre-existing gap, out of this plan's scope) so running the
+  module does not call `main()` at all and prints nothing. Verified the equivalent behavior by
+  calling `main()` directly instead:
   ```bash
-  nix develop --command bash -c 'PYTHONPATH=code/src python -m bimodal_logic.cli check "{\"tag\": \"atom\", \"name\": \"A\"}" --timeout 1; echo "exit=$?"'
+  nix develop --command bash -c 'PYTHONPATH=code/src:oracle python -c "
+  import sys
+  from bimodal_logic.cli import main
+  try:
+      main([\"check\", \"{\\\"tag\\\": \\\"atom\\\", \\\"name\\\": \\\"A\\\"}\", \"--timeout\", \"1\"])
+  except SystemExit as e:
+      print(\"exit=\", e.code, file=sys.stderr)
+  "'
   ```
-  Expect `{"result": "inconclusive", ...}` and `exit=2`, not `{"result": "valid", ...}` and `exit=0`.
+  Observed: `{"result": "inconclusive", "countermodel": null}` and `exit= 2` — not
+  `{"result": "valid", ...}` and `exit=0`. Confirms the bug is fixed.
 
 ---
 

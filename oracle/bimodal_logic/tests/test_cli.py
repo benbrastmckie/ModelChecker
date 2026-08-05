@@ -187,6 +187,59 @@ class TestCLIValidFormula:
         assert output["countermodel"] is None
 
 
+class TestCLIInconclusive:
+    """Test CLI behavior when the solver does not decide within the budget.
+
+    A budget-exhausted solve must not be reported as "valid" -- that claims
+    the formula was proven to have no countermodel, which a timeout never
+    establishes. It must be reported as a distinct third outcome with a
+    distinct exit code, so a script consuming this CLI can tell "we don't
+    know" apart from both "valid" and "your input was bad".
+    """
+
+    # A temporal formula whose solve dispatches to the M>=3 grounded-abundance
+    # constraint path (measured solve times cluster at several tens of
+    # seconds), so a 1 ms budget cannot possibly decide it.
+    _DEEPLY_NESTED_TEMPORAL_JSON = json.dumps({
+        "tag": "imp",
+        "left": {
+            "tag": "snce",
+            "event": {"tag": "atom", "name": "p"},
+            "guard": {"tag": "atom", "name": "q"},
+        },
+        "right": {
+            "tag": "untl",
+            "event": {"tag": "atom", "name": "q"},
+            "guard": {"tag": "atom", "name": "p"},
+        },
+    })
+
+    def test_inconclusive_exits_with_code_2(self, capsys):
+        """A budget-exhausted solve exits with code 2, not 0."""
+        from bimodal_logic.cli import main
+        with pytest.raises(SystemExit) as exc_info:
+            main(["check", self._DEEPLY_NESTED_TEMPORAL_JSON, "--timeout", "1"])
+        assert exc_info.value.code == 2
+
+    def test_inconclusive_result_is_inconclusive(self, capsys):
+        """A budget-exhausted solve prints result='inconclusive', not 'valid'."""
+        from bimodal_logic.cli import main
+        with pytest.raises(SystemExit):
+            main(["check", self._DEEPLY_NESTED_TEMPORAL_JSON, "--timeout", "1"])
+        captured = capsys.readouterr()
+        output = json.loads(captured.out.strip())
+        assert output["result"] == "inconclusive"
+
+    def test_inconclusive_countermodel_is_null(self, capsys):
+        """A budget-exhausted solve has countermodel=null."""
+        from bimodal_logic.cli import main
+        with pytest.raises(SystemExit):
+            main(["check", self._DEEPLY_NESTED_TEMPORAL_JSON, "--timeout", "1"])
+        captured = capsys.readouterr()
+        output = json.loads(captured.out.strip())
+        assert output["countermodel"] is None
+
+
 class TestCLIOutputFormat:
     """Test CLI JSON output format requirements."""
 
@@ -220,4 +273,4 @@ class TestCLIOutputFormat:
         captured = capsys.readouterr()
         output = json.loads(captured.out.strip())
         assert isinstance(output["result"], str)
-        assert output["result"] in ("valid", "invalid")
+        assert output["result"] in ("valid", "invalid", "inconclusive")
