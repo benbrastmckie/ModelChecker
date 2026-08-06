@@ -1,7 +1,7 @@
 # Implementation Plan: Make the oracle suite fast and observable
 
 - **Task**: 138 - make_oracle_suite_fast_and_observable
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 11 hours agent work (plus ~2 hours unattended wall clock for the Phase 4 exhaustive derivation run)
 - **Dependencies**: Task 133 (`find_countermodel`/`OracleTimeoutError` contract) — its three-way SAT/UNSAT/TIMEOUT classification is a fixed input this plan must preserve, never weaken
 - **Research Inputs**: specs/138_make_oracle_suite_fast_and_observable/reports/01_oracle-suite-fast-observable.md
