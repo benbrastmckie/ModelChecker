@@ -1,0 +1,9 @@
+{
+  "status": "complete",
+  "total_formulas": 274,
+  "conclusive": 103,
+  "disagreements": 0,
+  "timeout_count": 171,
+  "wall_clock_seconds": 3640.955,
+  "report_path": "specs/138_make_oracle_suite_fast_and_observable/baselines/derivation-run/report.json"
+}

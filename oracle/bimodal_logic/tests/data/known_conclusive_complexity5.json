@@ -1,0 +1,1866 @@
+{
+  "schema_version": 1,
+  "max_complexity": 5,
+  "atoms": [
+    "p"
+  ],
+  "total_formulas": 274,
+  "solve_timeout_ms": 10000,
+  "derived_at": "2026-08-06T17:24:36.367988+00:00",
+  "wall_clock_seconds": 3640.955,
+  "conclusive_count": 103,
+  "disagreements": 0,
+  "documented_prior_conclusive_count": 106,
+  "notes": "Re-derived post-fix (Task 133's OracleTimeoutError contract) serial baseline. Measured conclusive_count=103 vs the documented prior measurement of 106/274 (TESTING_GUIDE.md-referenced figure recorded in test_cross_oracle_differential.py's MIN_CONCLUSIVE_SCAN_FORMULAS comment); within ordinary run-to-run variance and above the ~95 stop-and-re-run tolerance floor documented in this task's plan (Phase 4).",
+  "conclusive": [
+    {
+      "index": 0,
+      "formula_json": {
+        "tag": "bot"
+      }
+    },
+    {
+      "index": 1,
+      "formula_json": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    {
+      "index": 3,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 4,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 5,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 6,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 7,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 8,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 9,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 18,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 19,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 20,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 21,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 22,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 23,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 29,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 32,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 33,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 34,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 35,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 36,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 37,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 38,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 39,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 45,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 56,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "box",
+              "child": {
+                "tag": "bot"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 57,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "box",
+              "child": {
+                "tag": "atom",
+                "name": "p"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 58,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "bot"
+            },
+            "right": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 59,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "bot"
+            },
+            "right": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 60,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "right": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 61,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "right": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 70,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 71,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 72,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 73,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 74,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 75,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 76,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 77,
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 94,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 95,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 96,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 97,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 98,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 99,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 100,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 101,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 102,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 103,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 104,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 105,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 106,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 107,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 108,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 109,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 110,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 111,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 112,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 113,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 122,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 123,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 124,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 125,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 126,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 127,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 128,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 129,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 130,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 131,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 132,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 133,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 134,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 135,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 136,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 137,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 138,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 139,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 140,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 141,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 143,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 146,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 147,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 148,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 149,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 150,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 155,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 156,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 168,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    {
+      "index": 171,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 190,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 191,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 192,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 193,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 196,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 197,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 216,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    {
+      "index": 246,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 250,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 251,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 252,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 253,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
+      "index": 256,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    {
+      "index": 257,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    }
+  ]
+}

@@ -353,7 +353,7 @@ bounded by a timeout, and detects its own completion from the marker.
 
 ---
 
-### Phase 4: Re-derive and persist the known-conclusive baseline [NOT STARTED]
+### Phase 4: Re-derive and persist the known-conclusive baseline [COMPLETED]
 
 **Goal**: Establish the ground-truth conclusive/inconclusive population from a fresh, observable,
 serial exhaustive run — because the 106/274-at-10000ms measurement was never persisted and the
@@ -361,24 +361,32 @@ surviving pre-fix 5000ms JSONL is unusable as ground truth (it predates the time
 
 **Tasks**:
 
-- [ ] Pre-flight per TESTING_GUIDE 8.6: confirm no competing pytest processes
+- [x] Pre-flight per TESTING_GUIDE 8.6: confirm no competing pytest processes
       (`ps aux | grep pytest`) and that the machine is otherwise idle. Record what was checked.
-- [ ] Run the exhaustive scan serially at the deployed budget, detached, with progress streaming to
+      (Confirmed clean immediately before launch: `ps aux | grep pytest` returned no matches.)
+- [x] Run the exhaustive scan serially at the deployed budget, detached, with progress streaming to
       a log: `python oracle/scan_runner.py --timeout-ms 10000 --out-dir
       specs/138_make_oracle_suite_fast_and_observable/baselines/derivation-run/`. Expected ~60-90
       minutes wall clock. Poll for the `SCAN_COMPLETE` marker — **never** for PID liveness.
-- [ ] From the run's `progress.jsonl`, derive the known-conclusive set: every formula where neither
+      (Actual wall clock 3640.955s = 60.7 min. Completion established from `SCAN_COMPLETE`'s
+      presence, polled via log content/mtime, never via PID liveness.)
+- [x] From the run's `progress.jsonl`, derive the known-conclusive set: every formula where neither
       solve returned `TIMEOUT`.
-- [ ] Write the manifest `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` with:
+- [x] Write the manifest `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` with:
       schema version; `max_complexity`; `atoms`; `total_formulas` (expected 274);
       `solve_timeout_ms` (10000); `derived_at`; `wall_clock_seconds`; `conclusive_count`;
       `disagreements` (expected 0); and `conclusive` as a list of `{index, formula_json}` pairs
-      (Decision D3 — index *and* canonical JSON, never index alone).
-- [ ] Copy the raw `progress.jsonl` and `report.json` into
+      (Decision D3 — index *and* canonical JSON, never index alone). Index is 0-based (matches
+      direct Python list indexing `all_formulas[index]`), converted from progress.jsonl's
+      1-based `idx`.
+- [x] Copy the raw `progress.jsonl` and `report.json` into
       `specs/138_make_oracle_suite_fast_and_observable/baselines/` as durable evidence, so the next
-      person does not face the same "the measurement was never persisted" problem.
-- [ ] Record in the manifest and in the task evidence: the measured conclusive count, and how it
-      compares to the documented 106/274.
+      person does not face the same "the measurement was never persisted" problem. (Written
+      directly to `baselines/derivation-run/` by `--out-dir`, so already durable evidence under
+      `baselines/`; no separate copy needed.)
+- [x] Record in the manifest and in the task evidence: the measured conclusive count, and how it
+      compares to the documented 106/274. (103/274, recorded in the manifest's `notes` field: within
+      ordinary run-to-run variance of 106 and above the ~95 stop-and-re-run tolerance floor.)
 
 **Timing**: 1 hour agent work; ~1.5-2 hours unattended wall clock for the run itself
 
@@ -391,16 +399,21 @@ surviving pre-fix 5000ms JSONL is unusable as ground truth (it predates the time
 
 **Verification**:
 
-- [ ] The `SCAN_COMPLETE` marker exists and its `report.json` parses — completion established from
-      the marker, with the polling method recorded.
-- [ ] `total_formulas == 274` and `disagreements == 0`. A non-zero disagreement count is a
+- [x] The `SCAN_COMPLETE` marker exists and its `report.json` parses — completion established from
+      the marker, with the polling method recorded. (Marker present, `report.json` parsed
+      successfully with `total_formulas=274`.)
+- [x] `total_formulas == 274` and `disagreements == 0`. A non-zero disagreement count is a
       **stop-and-report** condition (it would be a genuine soundness finding, not a baseline to
-      record).
-- [ ] `conclusive_count` is within a stated tolerance of the documented 106 (treat a drop below ~95
+      record). (Both confirmed: `total_formulas=274`, `disagreements=0` — no stop-and-report
+      needed.)
+- [x] `conclusive_count` is within a stated tolerance of the documented 106 (treat a drop below ~95
       as evidence of a contended or degraded run: re-run rather than baking it in). Record the
-      actual number and the tolerance judgement in the summary.
-- [ ] The manifest round-trips: a script re-enumerates complexity<=5 and confirms every manifest
-      entry's `formula_json` equals the enumerated formula at that `index`.
+      actual number and the tolerance judgement in the summary. (Measured 103/274 — 3 below the
+      documented 106, comfortably above the ~95 re-run floor; judged ordinary run-to-run variance,
+      not a degraded run. Baseline recorded as-is.)
+- [x] The manifest round-trips: a script re-enumerates complexity<=5 and confirms every manifest
+      entry's `formula_json` equals the enumerated formula at that `index`. (Confirmed: 274
+      enumerated == manifest total_formulas; all 103 conclusive entries matched, 0 mismatches.)
 
 ---
 

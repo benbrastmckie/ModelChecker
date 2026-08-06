@@ -2,7 +2,7 @@
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
   "status": "partial",
-  "summary": "Phases 1-2 complete and verified: shared scan core instrumented (progress JSONL/heartbeat/report.json/SCAN_COMPLETE marker, all default-off), scan_runner.py CLI and run-oracle-exhaustive-scan.sh created and smoke-tested. Phase 3 nearly done: run-oracle-suite.sh now deselects slow on both passes with bounded timeouts; measured green run 649s+318s (~16min, was ~76.7min). Continuing to Phases 4-7.",
+  "summary": "Phases 1-3 complete and verified: shared scan core instrumented (default-off), scan_runner.py CLI and run-oracle-exhaustive-scan.sh created and smoke-tested, run-oracle-suite.sh deselects slow on both passes with bounded timeouts. Measured green run 649s+318s (~16min, was ~76.7min); deliberate timeout confirmed classified TIMED OUT with no orphaned workers. Phase 4 (baseline re-derivation, ~60-90min unattended serial scan) now in progress.",
   "artifacts": [
     {"type": "plan", "path": "specs/138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md"}
   ],
@@ -24,7 +24,7 @@
     "Manually overriding -m via run-oracle-suite.sh's trailing \"$@\" (e.g. -m \"not slow\") collapses with the script's own -m flag (last wins), corrupting the xdist_serial partition and causing contention-induced OracleTimeoutError test failures unrelated to real regressions -- do not use this as a verification method once Phase 3's fixed -m expressions are in place."
   ],
   "continuation_context": {
-    "phases_completed": 2,
+    "phases_completed": 3,
     "phases_total": 7,
     "orchestrator_mode": true
   },
