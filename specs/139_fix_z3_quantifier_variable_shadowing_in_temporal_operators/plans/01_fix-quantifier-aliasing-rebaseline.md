@@ -254,21 +254,46 @@ and 8 all reuse. Without a pre-fix measurement, "the fix worked" is unfalsifiabl
 **Goal**: Eliminate the aliasing bug at every quantifier-declaration site, and demonstrate the
 `(p \Until p) \Until p` / `(p \Since p) \Since p` collapses are gone.
 
+**AMENDMENT (discovered during Phase 4 measurement work, applied retroactively to this phase)**:
+`z3.FreshInt`, the remedy this phase originally implemented (as specified by the plan and
+research), was found to cause a severe, previously-undocumented Z3 solver-performance
+regression: even single, non-nested instances of an affected operator (formulas with zero
+aliasing hazard, e.g. a lone `F(p)`) went from solving in ~1-2s to not deciding within a 60s
+budget on this codebase's tuned Z3 MBQI configuration. This was investigated in depth (see
+`evidence/post-fix-measurements.md`'s "FreshInt performance regression investigation" section)
+and root-caused to `z3.FreshInt` itself (not to term distinctness, not to solver settings, not to
+`assert_and_track` vs plain `add`, not to explicit E-matching patterns -- all tested and ruled
+out). The remedy was revised to a module-level `_fresh_bound_int(prefix)` helper in
+`operators.py` (`itertools.count()`-backed, returns a counter-suffixed plain `z3.Int`), which
+provides the identical per-call distinctness guarantee (equally immune to the aliasing bug --
+re-verified via the full collapse census, the anti-collapse guard, and a repeated teeth-check)
+without the performance cliff. All 14 sites and the false_at redundancy rationale below are
+otherwise unchanged from the original plan; only the specific Z3 API each site calls changed.
+The tasks and verification bullets below are annotated with `[REVISED]` where the concrete
+mechanism changed; the underlying goals did not.
+
 **Tasks**:
 
 - [x] Verify `FreshInt` resolves on the active backend before editing:
       `PYTHONPATH=code/src python3 -c "from model_checker import z3_shim; print(z3_shim.eq(z3_shim.FreshInt('x'), z3_shim.FreshInt('x')))"` must print `False`.
-      (Printed `False` -- confirmed.)
+      (Printed `False` -- confirmed. `[REVISED]` This check remains valid evidence that `FreshInt`
+      *works correctly* for distinctness; the amendment above is about a performance
+      characteristic discovered later, not about this check being wrong.)
 - [x] Replace `z3.Int('<name>')` with `z3.FreshInt('<name>')` at all 14 sites (research §7):
       lines 407, 437 (`nec_true_world` x2), 556, 583, 732, 759, 928, 929, 974, 975, 1156, 1157,
       1202, 1203. Keep the existing name strings as `FreshInt` prefixes — they remain useful in
       solver output; only their uniqueness guarantee changes.
+      `[REVISED]` Superseded by replacing `z3.FreshInt('<name>')` with the new
+      `_fresh_bound_int('<name>')` helper at the same 14 sites, per the amendment above.
 - [x] The seven `false_at` sites (437, 583, 759, 974, 975, 1202, 1203) are fixed here even though
       Phase 5 may delete them. This redundancy is deliberate: it means a partial landing (Phase 2
       without Phase 5) leaves no latent landmine, and Phase 5 remains independently droppable.
+      (Rationale unchanged by the `[REVISED]` mechanism swap.)
 - [x] Add a short comment at the first `FreshInt` site in each class explaining *why* the fixed name
       was wrong (Z3 interns `Int` constants by `(name, sort)`, so a nested same-primitive operator's
       "fresh" variable was literally the outer's term). Do not reference task numbers.
+      (Comments updated to reference `_fresh_bound_int()` per the amendment; the mechanism
+      explanation itself is unchanged and still accurate.)
 
 **Timing**: 1 hour
 

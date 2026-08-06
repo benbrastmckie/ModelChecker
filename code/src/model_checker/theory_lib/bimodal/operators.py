@@ -31,12 +31,70 @@ All operators adhere to a fail-fast philosophy, raising explicit errors when
 required data is missing or invalid rather than attempting fallbacks.
 """
 
+import itertools
+
 from model_checker import z3_shim as z3
 
 
 from model_checker import syntactic
 from model_checker.utils import pretty_set_print
 from model_checker.solver import is_true
+
+# Process-global counter backing _fresh_bound_int(), below. Deliberately a
+# plain module-level itertools.count() (not per-context or per-semantics
+# state): its only job is to guarantee the suffixed name below is never
+# reused for the lifetime of the process, which is sufficient to prevent the
+# z3.Int() aliasing this counter exists to avoid (see _fresh_bound_int's
+# docstring). CPython's GIL makes count().__next__() atomic, so this is safe
+# under pytest-xdist (separate worker processes, no shared counter needed
+# across workers) without further synchronization.
+_bound_var_counter = itertools.count()
+
+
+def _fresh_bound_int(prefix: str):
+    """Return a Z3 Int constant guaranteed distinct from every other call.
+
+    Why not `z3.Int(prefix)`: Z3 interns `Int` constants by `(name, sort)`,
+    so two calls with the same name return the literal same term. A
+    quantified operator that declares its bound variable with a fixed name
+    is therefore aliasing-unsafe whenever its own recursion passes that
+    not-yet-bound term back down as another instance of the same primitive
+    operator's `eval_time` -- the inner call's "fresh" variable resolves to
+    the identical term the outer call already holds, producing a
+    self-referential comparison that Z3's term simplifier folds to a
+    Boolean constant before either quantifier closes (see the module
+    docstring in oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py
+    for the full soundness analysis).
+
+    Why not `z3.FreshInt(prefix)` (Z3's own built-in remedy for exactly this
+    problem): empirically, on this codebase's tuned Z3 configuration
+    (`smt.mbqi=True`, `smt.ematching=True`, `smt.mbqi.max_iterations=1000`
+    -- see model_checker.solver.z3_adapter.Z3SolverAdapter), swapping a
+    quantified operator's fixed-name `z3.Int` for `z3.FreshInt` causes even
+    single, non-nested instances of that operator (formulas with no
+    aliasing hazard at all, e.g. a lone `F(p)`) to go from solving in
+    ~1-2s to not deciding within a 60s budget. This reproduces deterministically
+    (not solver-seed noise) and is specific to `z3.FreshInt`'s own
+    internal term/declaration bookkeeping interacting badly with this
+    solver's MBQI configuration -- confirmed by holding the encoding
+    otherwise identical and varying only Int-vs-FreshInt. A counter-suffixed
+    plain `z3.Int` name achieves the same per-call distinctness (so the
+    aliasing class of bug is equally impossible: no two calls, nested or
+    not, can ever produce the same name) without that performance cliff,
+    because it is an ordinary named constant as far as Z3's internals are
+    concerned, not a `FreshInt`-created one.
+
+    Args:
+        prefix: A human-readable name fragment, kept as a prefix purely for
+            readability in solver output/models -- it plays no role in
+            uniqueness.
+
+    Returns:
+        A `z3.Int` (via `z3_shim`) whose name is `f"{prefix}!{n}"` for a
+        monotonically increasing `n`, distinct on every call for the life
+        of the process.
+    """
+    return z3.Int(f"{prefix}!{next(_bound_var_counter)}")
 
 ##############################################################################
 ############################ EXTENSIONAL OPERATORS ###########################
@@ -409,10 +467,11 @@ class NecessityOperator(syntactic.Operator):
         # recurses into another instance of the same primitive operator would then
         # receive, as its "fresh" bound variable, the exact term the outer call
         # already passed down, producing a self-comparison that Z3's simplifier
-        # folds to a constant before either quantifier closes. z3.FreshInt
+        # folds to a constant before either quantifier closes. _fresh_bound_int()
         # guarantees a distinct term on every call regardless of name reuse or
-        # nesting depth, eliminating that aliasing hazard.
-        other_world = z3.FreshInt('nec_true_world')
+        # nesting depth, eliminating that aliasing hazard -- see its docstring for
+        # why a counter-suffixed z3.Int is used here instead of z3.FreshInt.
+        other_world = _fresh_bound_int('nec_true_world')
         # For any other_world -- no is_valid_time_for_world guard (paper-aligned)
         return z3.ForAll(
             other_world,
@@ -442,7 +501,7 @@ class NecessityOperator(syntactic.Operator):
         eval_time = eval_point["time"]
 
         # The argument must be false in some world at the eval_time
-        other_world = z3.FreshInt('nec_true_world')
+        other_world = _fresh_bound_int('nec_true_world')
         # There is some other_world -- no is_valid_time_for_world guard (paper-aligned)
         return z3.Exists(
             other_world,
@@ -561,9 +620,9 @@ class FutureOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        # z3.FreshInt (not z3.Int) -- see NecessityOperator.true_at's comment above:
+        # _fresh_bound_int() (not z3.Int) -- see NecessityOperator.true_at's comment above:
         # a fixed name would alias with a nested \Future's own bound variable.
-        future_time = z3.FreshInt('future_true_time')
+        future_time = _fresh_bound_int('future_true_time')
         return semantics.ForAllTime(
             eval_world,
             future_time,
@@ -590,7 +649,7 @@ class FutureOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        future_time = z3.FreshInt('future_false_time')
+        future_time = _fresh_bound_int('future_false_time')
         return semantics.ExistsTime(
             eval_world,
             future_time,
@@ -739,9 +798,9 @@ class PastOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        # z3.FreshInt (not z3.Int) -- see NecessityOperator.true_at's comment above:
+        # _fresh_bound_int() (not z3.Int) -- see NecessityOperator.true_at's comment above:
         # a fixed name would alias with a nested \Past's own bound variable.
-        past_time = z3.FreshInt('past_true_time')
+        past_time = _fresh_bound_int('past_true_time')
         return semantics.ForAllTime(
             eval_world,
             past_time,
@@ -768,7 +827,7 @@ class PastOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        past_time = z3.FreshInt('past_false_time')
+        past_time = _fresh_bound_int('past_false_time')
         return semantics.ExistsTime(
             eval_world,
             past_time,
@@ -936,13 +995,14 @@ class UntilOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        # z3.FreshInt (not z3.Int) -- distinct names alone do not avoid collision:
-        # z3.Int('name') interns by (name, sort), so a nested \Until in the event
-        # or guard position would receive, as its own "uniquely named" variable,
-        # the identical term this call already bound. z3.FreshInt guarantees
-        # distinctness across calls regardless of name or nesting depth.
-        witness_time = z3.FreshInt('until_witness_time')
-        guard_time = z3.FreshInt('until_guard_time')
+        # _fresh_bound_int() (not z3.Int) -- distinct names alone do not avoid
+        # collision: z3.Int('name') interns by (name, sort), so a nested
+        # \Until in the event or guard position would receive, as its own
+        # "uniquely named" variable, the identical term this call already
+        # bound. _fresh_bound_int() guarantees distinctness across calls
+        # regardless of name or nesting depth (see its docstring).
+        witness_time = _fresh_bound_int('until_witness_time')
+        guard_time = _fresh_bound_int('until_guard_time')
 
         # U(event, guard) is true at t iff:
         # exists s > t: event(s) AND forall r in (t,s): guard(r)
@@ -987,8 +1047,8 @@ class UntilOperator(syntactic.Operator):
         eval_time = eval_point["time"]
 
         # Create uniquely named time variables
-        witness_time = z3.FreshInt('until_false_witness_time')
-        guard_time = z3.FreshInt('until_false_guard_time')
+        witness_time = _fresh_bound_int('until_false_witness_time')
+        guard_time = _fresh_bound_int('until_false_guard_time')
 
         # U(event, guard) is false at t iff:
         # forall s > t: event is false at s OR exists r in (t,s): guard is false at r
@@ -1168,10 +1228,10 @@ class SinceOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        # z3.FreshInt (not z3.Int) -- see UntilOperator.true_at's comment above:
+        # _fresh_bound_int() (not z3.Int) -- see UntilOperator.true_at's comment above:
         # a fixed name would alias with a nested \Since's own bound variable.
-        witness_time = z3.FreshInt('since_witness_time')
-        guard_time = z3.FreshInt('since_guard_time')
+        witness_time = _fresh_bound_int('since_witness_time')
+        guard_time = _fresh_bound_int('since_guard_time')
 
         # S(event, guard) is true at t iff:
         # exists s < t: event(s) AND forall r in (s,t): guard(r)
@@ -1216,8 +1276,8 @@ class SinceOperator(syntactic.Operator):
         eval_time = eval_point["time"]
 
         # Create uniquely named time variables
-        witness_time = z3.FreshInt('since_false_witness_time')
-        guard_time = z3.FreshInt('since_false_guard_time')
+        witness_time = _fresh_bound_int('since_false_witness_time')
+        guard_time = _fresh_bound_int('since_false_guard_time')
 
         # S(event, guard) is false at t iff:
         # forall s < t: event was false at s OR exists r in (s,t): guard was false at r

@@ -2,18 +2,42 @@
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
   "status": "in_progress",
-  "summary": "Beginning implementation of the 9-phase plan. Starting with Phase 1 (pre-fix evidence capture and collapse census).",
+  "summary": "Phases 1-3 complete: captured pre-fix evidence/census, replaced all 14 z3.Int sites with z3.FreshInt, added a permanent zero-solve structural regression guard (teeth-checked). Proceeding to Phase 4 (rewrite defect-enshrining tests) and Phase 5 (dead false_at deadness proof).",
   "artifacts": [
     {
       "type": "plan",
       "path": "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/plans/01_fix-quantifier-aliasing-rebaseline.md"
+    },
+    {
+      "type": "evidence",
+      "path": "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/pre-fix-state.md"
+    },
+    {
+      "type": "evidence",
+      "path": "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/post-fix-measurements.md"
+    },
+    {
+      "type": "test",
+      "path": "oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py"
     }
   ],
   "blockers": [],
   "next_action_hint": "implement",
-  "files_modified": [],
-  "decisions_made": [],
+  "files_modified": [
+    "code/src/model_checker/theory_lib/bimodal/operators.py",
+    "oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/collapse_census.py",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/pre-fix-census.json",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/pre-fix-state.md",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/post-fix-census.json",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/post-fix-measurements.md"
+  ],
+  "decisions_made": [
+    "Phase 1 discrepancy: the plan expected exactly 2 non-bot folded survivors; measured 4 (temporal-only)/7 (full population). Extra survivors are genuine propositional/modal tautologies structurally outside the defect's blast radius (no quantified operator, or box-only/immune). Recorded, not silently resolved; core mechanism claim intact.",
+    "Phase 2 secondary finding: Box(p)->Box(p) (sibling, not nested) stops folding post-fix due to FreshInt breaking term-identity-based simplify() shortcuts Z3 used pre-fix; not a soundness issue and not in scope to fix, recorded for Phase 6-8 to account for.",
+    "Phase 3 guard excludes structurally-immune formulas (no quantified operator; box-only) rather than an index allowlist, so it stays correct if the enumerator population changes composition (though it hard-asserts population size == 274)."
+  ],
   "dead_ends": [],
-  "phases_completed": 0,
+  "phases_completed": 3,
   "phases_total": 9
 }

@@ -1,7 +1,89 @@
 # Post-fix measurements
 
-Recorded incrementally as each phase re-measures behaviour against the `FreshInt`-fixed
-`operators.py`. Every entry below is a real measurement, not an assumption.
+Recorded incrementally as each phase re-measures behaviour against the fixed `operators.py`.
+Every entry below is a real measurement, not an assumption.
+
+## IMPORTANT: Phase 2's remedy was revised during Phase 4 measurement work
+
+Phase 2 originally implemented the plan's specified remedy, `z3.FreshInt`, at all 14 sites (see
+the "Phase 2" section below, which records that work as originally done). While re-measuring
+formulas for Phase 4's test rewrites, `z3.FreshInt` was found to cause a severe, previously
+undocumented **solver performance regression** on formulas with *no* aliasing hazard at all --
+e.g. a lone, non-nested `F(p)` (`some_future(atom(p))`) went from solving in ~1.3s to not
+deciding within a 60-second budget. This was investigated thoroughly (see "FreshInt performance
+regression investigation" below) and root-caused to `z3.FreshInt`'s own internal term/declaration
+bookkeeping interacting badly with this codebase's tuned Z3 MBQI configuration
+(`smt.mbqi=True`, `smt.ematching=True`, `smt.mbqi.max_iterations=1000` --
+`model_checker.solver.z3_adapter.Z3SolverAdapter`), not with term distinctness itself: a
+counter-suffixed plain `z3.Int` (same per-call distinctness guarantee, ordinary declaration
+otherwise) does **not** exhibit the regression and performs identically to the pre-fix baseline
+on unaffected formulas, while still eliminating the aliasing defect (nested `\Until`/`\Since`
+survivors gone, `G(G(p))` no longer a fast spurious `None`).
+
+**Revised remedy**: `operators.py` now declares a module-level `_fresh_bound_int(prefix)` helper
+(`itertools.count()`-backed, returns `z3.Int(f"{prefix}!{n}")` for a monotonically increasing
+`n`) and all 14 sites use it instead of `z3.FreshInt`. This supersedes Phase 2's original
+`z3.FreshInt` edits at the same 14 sites -- the site list, comment placement, and false_at
+redundancy rationale from Phase 2 are unchanged; only the specific Z3 API called at each site
+changed. See Phase 2's checklist annotations in the plan for the full revision note.
+
+## FreshInt performance regression investigation (discovered during Phase 4)
+
+Investigation performed in the order below (see also the `_fresh_bound_int` docstring in
+operators.py for the condensed version):
+
+1. **Reproduced deterministically**: `F(p)` (`some_future(atom(p))`, depth=1, single non-nested
+   `FutureOperator` invocation) solved in 1.3-1.8s pre-fix and with `z3.FreshInt` reverted to
+   `z3.Int` via monkeypatch, but did not decide within 60s with `z3.FreshInt` live, across 3
+   repeated trials (ruling out solver-seed noise).
+2. **Ruled out "distinctness itself"**: replacing just this one site's `z3.FreshInt` with a
+   plain-but-unique fixed name (`z3.Int('future_true_time_UNIQUE_NEVER_REUSED')`) restored fast
+   solving (1.3s) for the single-instance case. (This alone would not fix the nested-aliasing
+   case, since a *fixed* name repeats across separate invocations of the same call site -- only a
+   genuinely *per-call* fresh name does, which a fixed string, however unique-looking, cannot
+   provide.)
+3. **Ruled out solver-parameter tuning**: disabling MBQI (`smt.mbqi=False`) makes Z3 return
+   `unknown` in ~0.002s (this fragment needs MBQI for completeness, per the adapter's own
+   comment); raising `smt.mbqi.max_iterations` from 1000 to 5000/20000 made no difference (still
+   exhausts the wall-clock budget, not an iteration cap); default `auto_config=True` (bypassing
+   the codebase's tuned settings entirely) also still timed out.
+4. **Ruled out explicit E-matching patterns**: manually supplying a plausible trigger
+   (`Select(world_function(eval_world), future_time)`) to the `ForAll` did not help.
+5. **Ruled out `assert_and_track` vs plain `add`**: an apparent early contradiction (bare
+   `z3.Solver().add()` bisection showed *both* Int and FreshInt versions of the full
+   frame+conclusion constraint set timing out) was resolved by discovering `structure.py`'s real
+   solve path uses `solver.assert_tracked()` (unsat-core tracking), not plain `add()`; redoing the
+   comparison with `assert_tracked()` reproduced the real result cleanly (Int: 1.26-1.44s repeatable;
+   FreshInt: timeout, repeatable).
+6. **Confirmed the regression is specific to `z3.FreshInt`, not "any distinctness mechanism"**: a
+   Python-level `itertools.count()`-suffixed plain `z3.Int(f"...{n}")` at the same site restored
+   1.3s solving *and* still eliminates the nested-aliasing defect (verified against `G(G(p))`:
+   still an honest timeout post-counter-fix, not a fast spurious `None` -- i.e. genuinely
+   unfolded, matching the desired soundness outcome, not a reversion to pre-fix behaviour).
+7. **Confirmed the regression's blast radius was real but bounded, and distinguished from
+   unrelated pre-existing slow formulas**: `G(p)` (`all_future(atom(p))`, the *primitive* ALL
+   operator directly, as opposed to `F(p)`'s double-negation-derived form) and `P(p)`
+   (`all_past`, primitive) were independently confirmed to time out **identically pre-fix** (i.e.
+   before any of this task's changes) -- a pre-existing, unrelated characteristic of this
+   specific quantifier polarity (a bare `ForAll` conclusion vs. `some_future`'s
+   `Not(Not(ForAll(...)))`-collapsing-to-`ForAll` conclusion), not a regression introduced by
+   this task in either its `FreshInt` or counter-`Int` form. `H(p)` (`all_past` derived form,
+   analogous to `F(p)`) was slow pre-fix and with `FreshInt`, but fast with the counter-`Int` fix
+   -- an incidental *improvement*, not investigated further as it is outside this task's scope
+   (soundness, not performance).
+8. **Re-ran the full `test_soundness_regression.py` suite** with the counter-`Int` fix: failures
+   dropped from 12 (under `z3.FreshInt`) to 7, and the 7 remaining are exactly the ones the
+   research/plan anticipated needing rewrite because `G(G(p))`'s conclusion genuinely no longer
+   folds to a Boolean literal (the actual, intended soundness fix), plus (per further
+   investigation below) `TestStateIsolationRegression`'s tests, which turned out to be a harness
+   artifact (see below), not a new regression.
+
+This investigation is recorded in full because it materially changes what "the fix" is: the
+plan's specified `z3.FreshInt` remedy is soundness-correct but was empirically found to be
+solver-performance-catastrophic on this codebase's tuned Z3 configuration for *any* formula using
+an affected operator, not just nested/aliasing-prone ones. The counter-suffixed `z3.Int` remedy
+achieves the identical soundness property (proven via the same collapse-census and named
+reproductions) without the performance cliff.
 
 ## Phase 2: FreshInt replacement verification
 
