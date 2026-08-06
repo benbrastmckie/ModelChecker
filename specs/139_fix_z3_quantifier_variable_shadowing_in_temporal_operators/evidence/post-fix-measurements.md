@@ -85,6 +85,73 @@ an affected operator, not just nested/aliasing-prone ones. The counter-suffixed 
 achieves the identical soundness property (proven via the same collapse-census and named
 reproductions) without the performance cliff.
 
+## Re-verification after the counter-`Int` revision (Phase 2 amendment)
+
+Everything measured under `z3.FreshInt` above was re-run against `_fresh_bound_int()`:
+
+- Collapse census (`evidence/post-fix-census.json`): identical result -- 94/274 folded (56 True,
+  38 False), same 4 non-`\bot` survivors, both `\Until`/`\Since` aliasing-defect formulas still
+  gone.
+- Anti-collapse guard (`test_encoding_nondegeneracy.py`): 4/4 pass, 2.1-2.6s.
+- **Teeth-check repeated against the current mechanism** (not just the original `FreshInt`
+  version): reverted `UntilOperator.true_at`'s `witness_time` from
+  `_fresh_bound_int('until_witness_time')` back to `z3.Int('until_witness_time')`. Both the
+  exhaustive sweep and the targeted `Until`/`Until` test failed with the same expected message
+  (`(p Until p) Until p's conclusion constraint folded to a Boolean literal (True)...`). Restored
+  via backup; `git diff` confirmed byte-identical to the committed counter-`Int` state afterward.
+- Full `test_soundness_regression.py` suite: failures dropped from 12 (under `FreshInt`) to
+  3 -- `test_gg_p_returns_none`, `test_gg_p_returns_none_at_m4`, `test_gg_p_spurious_unsat`, all
+  three attributable to the same, intended soundness change (`G(G(p))`'s conclusion genuinely no
+  longer folds), matching what the plan/research anticipated needing rewrite. `TestStateIsolationRegression`'s
+  4 tests, which failed under `FreshInt`, all pass under the counter-`Int` fix (247s for the full
+  class -- slow because of call volume: 100+50+50+10 sequential solves -- not because any
+  individual call regressed).
+- `test_gg_p_spurious_unsat` was **not** in the plan's anticipated rewrite list (the plan expected
+  it "unaffected," grouped with `test_fg_p_spurious_unsat`). Investigated directly: both tests
+  call `find_countermodel()` with no M override, so both actually run at the *current*
+  `M=max(depth+2,3)=4` for their depth-2 formulas, not the `M=2` their docstrings describe (a
+  pre-existing staleness from before Task 114 changed the M formula -- unrelated to this task).
+  `test_gg_p_spurious_unsat` uses `GG_P`, so it exercises the *exact same* aliasing defect as
+  `test_gg_p_returns_none`/`test_gg_p_returns_none_at_m4` and is affected for the same reason.
+  `test_fg_p_spurious_unsat` uses `FG_P` (boundary vacuity, not aliasing) and was directly
+  re-run in isolation: still passes (0.70s, `result=None`), confirmed unaffected as the plan
+  predicted.
+
+## Counter-order / reproducibility investigation (raised as a concern before Phase 7)
+
+`_bound_var_counter` is a process-global, monotonically increasing `itertools.count()`, so the
+exact numeric suffix a given call receives depends on how many `_fresh_bound_int()` calls
+happened earlier in the same process (i.e. on solve order/history within a run). Because Z3 MBQI
+was just shown to be sensitive to naming *mechanism* (`FreshInt` vs `Int`), this raised a
+legitimate question: is it also sensitive to the exact *value* embedded in an ordinary `Int`
+name, such that a formula's conclusive/inconclusive classification could depend on where it falls
+in a scan's run order -- which would undermine Phase 7/8's persisted baseline?
+
+Tested directly, two ways:
+1. Burned the counter forward by 5000 (via 5000 throwaway `_fresh_bound_int()` calls, no actual
+   solving) between a "cold" and "warm" solve of `F(p)`: 1.29s cold vs. 1.244s warm -- no
+   meaningful difference.
+2. Solved `G(F(p))` (a genuine, harder, timeout-bound formula) both as the first solve in a fresh
+   process and again after actually solving 30 other real complexity<=3 formulas first (via
+   `_enumerate_primitive_formulas`, simulating realistic scan history, not just counter
+   advancement): both timed out at the same ~6.11s, both budget-exhausted, no observable
+   difference.
+
+**Why this is expected, not just empirically lucky**: each `find_countermodel()` call runs inside
+`isolated_z3_context()`, which installs a brand-new C-level Z3 `Context()` per call (see
+`model_checker.utils.context.isolated_z3_context`). Within that fresh context, a name like
+`"future_true_time!8734"` is declared exactly once and is otherwise an ordinary constant --
+nothing about Z3's internal symbol-table/trigger-inference machinery for *that* context depends
+on what number happens to be embedded in the string, since no other declaration in that fresh
+context shares or references it. This is different in kind from the `FreshInt` regression, whose
+root cause (per the investigation above) was `FreshInt`'s own declaration-bookkeeping mechanism,
+not the counter value. Combined with the two empirical checks above, the counter-`Int` approach's
+conclusive/inconclusive classification is judged to be run-order-independent, and Phase 7's
+exhaustive re-derivation may proceed without an additional order-randomization control. (This
+reproducibility question is not new to this task -- `z3.FreshInt` would carry the identical
+theoretical property, isolated-context-per-call -- but is recorded here because the persisted
+baseline now depends on it.)
+
 ## Phase 2: FreshInt replacement verification
 
 ### Collapse census re-run

@@ -368,19 +368,25 @@ than merely that tests pass.
 
 **Verification**:
 
-- [x] The new tests pass at the post-fix commit. (4/4 passed, 1.68-2.07s.)
+- [x] The new tests pass at the post-fix commit. (4/4 passed, 1.68-2.07s under the original
+      `FreshInt` mechanism, 2.08-2.12s re-confirmed under the revised `_fresh_bound_int()`
+      mechanism -- see the Phase 2 amendment note above.)
 - [x] The guard demonstrably has teeth: temporarily revert one `FreshInt` back to `z3.Int` in a
       scratch working copy, confirm the test **fails**, then restore. Record the observed failure
       message. A guard that passes both with and against the fix is worthless.
-      **Teeth check performed**: reverted `UntilOperator.true_at`'s `witness_time` back to
-      `z3.Int('until_witness_time')` (1-line edit). Both `test_no_non_bot_formula_folds_to_boolean_literal`
-      and `test_until_until_p_conclusion_not_boolean_literal` failed with the exact expected
-      message: `"(p Until p) Until p's conclusion constraint folded to a Boolean literal (True) --
-      the Until/Until nested aliasing defect has returned."` and the exhaustive sweep listed
-      `index=205 folded_to=True`. Restored via the backed-up file; `git diff` on `operators.py`
-      confirmed byte-identical to the pre-revert (Phase 2 committed) state afterward. All 4 tests
-      pass again post-restore.
-- [x] Runtime of the new module is under ~30 seconds (no solving). (1.68-2.07s measured.)
+      **Teeth check performed twice**: once under the original `z3.FreshInt` mechanism (reverted
+      `UntilOperator.true_at`'s `witness_time` back to `z3.Int('until_witness_time')`; both
+      `test_no_non_bot_formula_folds_to_boolean_literal` and
+      `test_until_until_p_conclusion_not_boolean_literal` failed with the exact expected message
+      `"(p Until p) Until p's conclusion constraint folded to a Boolean literal (True) -- the
+      Until/Until nested aliasing defect has returned."`, exhaustive sweep listed
+      `index=205 folded_to=True`), and **repeated after the Phase 2 amendment** against the
+      current `_fresh_bound_int()` mechanism (same site, same revert to plain `z3.Int`, same two
+      tests failed with the same message). Restored via a backed-up copy both times; `git diff`
+      on `operators.py` confirmed byte-identical to the last-committed state after each restore.
+      All 4 tests pass again post-restore, both times.
+- [x] Runtime of the new module is under ~30 seconds (no solving). (1.68-2.12s measured across
+      both mechanism versions.)
 
 ---
 
