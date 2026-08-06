@@ -1,34 +1,46 @@
 {
   "$schema": "orchestrator-handoff-v1",
-  "phase": "revise",
-  "status": "planned",
-  "summary": "Wrote plan v2 targeting the find_countermodel contract defect, superseding v1's budget-widening mitigation (v1 retained on disk as the superseded record). Seven sequential-ish phases: raise OracleTimeoutError on structure.timeout so None means only genuine UNSAT; fix the live CLI false-validity bug; migrate the enumerated blast radius (interface/provider tests, 6 differential closures, the unguarded reference_fn call, the latent CI test); reduce SELF_SCAN_SOLVE_TIMEOUT_MS 60000 -> 10000 with a measured calibration gate; rewrite the scan assertion to separate disagreements from inconclusives; un-xfail the 5 tests rooted in this cause; full-suite verdict. Phases 1-6 are provable in minutes via a Z3-free stub oracle, so no phase depends on a multi-hour scan.",
+  "phase": "implement",
+  "status": "partial",
+  "summary": "Phases 1-6 complete and green: find_countermodel raises OracleTimeoutError instead of conflating timeout with UNSAT; CLI, interface/provider tests, differential harness, and 5 xfail tests all migrated. Phase 7 full-suite run: scan-alone shows disagreements=0 (core fix works) but conclusive=106/274 misses the 137 floor (undersized calibration sample). Full oracle-suite FAILED both passes: the floor miss plus 5 pre-existing test_soundness_regression.py failures (same root-cause bug, file outside this plan's scope). Reported honestly, not forced green.",
   "artifacts": [
+    {"type": "plan", "path": "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md"},
+    {"type": "summary", "path": "specs/133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md"}
+  ],
+  "blockers": [
     {
-      "type": "plan",
-      "path": "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md"
+      "description": "MIN_CONCLUSIVE_SCAN_FORMULAS=137 calibrated from a 30-formula sample that only reached complexity 4; the real 274-formula sweep measured 106 conclusive (38.7%). Needs recalibration from this real data, then oracle/run-oracle-suite.sh re-run to confirm green.",
+      "phase": "phase-7",
+      "severity": "soft"
+    },
+    {
+      "description": "5 tests in oracle/bimodal_logic/tests/test_soundness_regression.py (never touched by this plan) fail with OracleTimeoutError at temporal_depth=2/M=4/5000ms -- the same timeout/UNSAT conflation bug, discovered in a third file outside this plan's inventory. Needs its own follow-up task applying the resolved-and-wrong/inconclusive pattern from Phases 3 and 6.",
+      "phase": "phase-7",
+      "severity": "soft"
     }
   ],
-  "blockers": [],
-  "next_action_hint": "implement",
+  "next_action_hint": "none",
   "files_modified": [
-    "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md"
+    "oracle/bimodal_logic/errors.py",
+    "oracle/bimodal_logic/__init__.py",
+    "oracle/bimodal_logic/provider.py",
+    "oracle/bimodal_logic/cli.py",
+    "oracle/bimodal_logic/tests/test_oracle_provider.py",
+    "oracle/bimodal_logic/tests/test_oracle_interface.py",
+    "oracle/bimodal_logic/tests/test_cli.py",
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py"
   ],
   "decisions_made": [
-    "SELF_SCAN_SOLVE_TIMEOUT_MS reduced 60000 -> 10000 (548 solves: 9.1h -> 1.5h worst case). run-oracle-suite.sh does NOT deselect `slow`, so the scan runs in the gating suite and 60000 makes it unrunnable. 5000 rejected: evidence log shows ~50% of solves budget-exhausted, which becomes ~50% inconclusive under the fixed contract. Phase 5 calibrates within a hard [10000, 20000] band.",
-    "Scan asserts disagreements == 0 (soundness, zero tolerance) AND conclusive >= MIN_CONCLUSIVE_SCAN_FORMULAS (a measured floor so it cannot pass vacuously when everything is inconclusive). The two claims are kept distinct.",
-    "validate_self propagates OracleTimeoutError rather than catching it and returning False, which would re-create the conflation one layer up.",
-    "CLI emits {\"result\": \"inconclusive\"} with exit code 2 (1 is taken by argument/JSON errors).",
-    "Clean break per no-backwards-compatibility policy: the tree is intentionally RED between phases 1 and 4, and phase 1 names exactly which tests are expected to fail in the interim.",
-    "Verification is decoupled from wall clock: a Z3-free stub oracle proves the three-way classification and both assertion teeth in milliseconds."
+    "Kept SELF_SCAN_SOLVE_TIMEOUT_MS=10000 rather than escalating to the 20000 hard ceiling: measured conclusiveness was flat/noisy (53.3/50.0/56.7%) with no real gain, while 20000ms's extrapolated full-scan wall clock alone risks exceeding the 90-min abort ceiling.",
+    "Did not adjust the floor or re-run to force a green result; reported the actual measured counts per explicit coordinator instruction.",
+    "5 tests outside the plan's Bucket-1 inventory were found broken by the same cause in Phase 3 and fixed with the same classify-and-skip pattern (see plan/summary for detail)."
   ],
   "dead_ends": [
-    "Widening the solve budget (committed f91960d6) relocates the failure boundary without removing its cause and makes the scan/suite unrunnable at 60000ms.",
-    "The ms/seconds conversion path (provider.py:233 -> structure.py:69,237) is verified correct and is explicitly out of scope; do not re-investigate it."
+    "Widening the solve budget past 10000ms buys no measured conclusiveness benefit on this oracle -- confirmed at 15000 and 20000ms."
   ],
   "continuation_context": {
-    "handoff_path": null,
-    "phases_completed": 0,
+    "handoff_path": "specs/133_fix_oracle_self_consistency_disagreements/handoffs/phase-7-handoff-1785970200.md",
+    "phases_completed": 6,
     "phases_total": 7,
     "orchestrator_mode": true
   },
