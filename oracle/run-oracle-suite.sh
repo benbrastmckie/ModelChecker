@@ -1,16 +1,43 @@
 #!/usr/bin/env bash
-# Two-pass runner for the oracle/ test suite.
+# Two-pass runner for the oracle/ test suite -- the GATING variant.
 #
-# The suite is split into two pytest invocations rather than run as one `-n 6`
-# session: a handful of tests have a Z3 solve budget with under ~2x headroom
-# over their typical solo wall-clock time, and six-way CPU contention under
-# pytest-xdist can inflate solve times enough to trip that budget. The oracle
-# pipeline reports a blown budget as "no countermodel" rather than as an
-# error, so a contention-induced timeout silently inverts a test's verdict
-# instead of failing loudly (see code/docs/core/TESTING_GUIDE.md section 8.6).
-# These tests are marked `xdist_serial` (see oracle/conftest.py) and run in a
-# second, non-parallel pass with zero sibling pytest workers competing for
-# cores.
+# Both passes deselect `slow` by default: `slow` marks the exhaustive
+# complexity<=5 self-consistency scan and its temporal-only BH-comparison
+# sibling, which together used to make every invocation of this script run
+# a ~76-minute, 274-formula x 2-solve sweep with no way to observe progress
+# or detect a hang short of PID liveness. That exhaustive sweep is now a
+# separate, explicitly-invoked entry point: `oracle/run-oracle-exhaustive-scan.sh`
+# (see code/docs/core/TESTING_GUIDE.md section 8.8, "Oracle Suite: Gating vs.
+# Exhaustive Split", for the full split rationale). `oracle/` has no
+# reachable ini file for pytest to read a default `-m` expression from (see
+# oracle/conftest.py's own docstring on why marks are registered there
+# instead), so the deselect must be spelled out explicitly on every
+# invocation -- there is no ambient default to fall back on.
+#
+# The suite is still split into two pytest invocations rather than run as
+# one `-n 6` session: a handful of tests have a Z3 solve budget with under
+# ~2x headroom over their typical solo wall-clock time, and six-way CPU
+# contention under pytest-xdist can inflate solve times enough to trip that
+# budget. The oracle pipeline reports a blown budget as "no countermodel"
+# rather than as an error, so a contention-induced timeout silently inverts
+# a test's verdict instead of failing loudly (see
+# code/docs/core/TESTING_GUIDE.md section 8.6). These tests are marked
+# `xdist_serial` (see oracle/conftest.py) and run in a second, non-parallel
+# pass with zero sibling pytest workers competing for cores. The gating
+# conclusive-population scan (TestGatingConclusiveScan, see
+# code/docs/core/TESTING_GUIDE.md section 8.8) is marked `xdist_serial` for
+# the same contention reason and so runs in this second pass.
+#
+# Both passes are wrapped in `timeout --kill-after=60s BUDGET`: a hang in
+# either pass must fail loudly (`TIMED OUT`, exit 124/137) rather than
+# block indefinitely or be silently mistaken for success. `--kill-after=60s`
+# means if SIGTERM (sent when the budget expires) does not stop pytest
+# within 60s, SIGKILL follows -- this reaps orphaned xdist workers that
+# would otherwise survive a bare SIGTERM to the parent (see
+# code/docs/core/TESTING_GUIDE.md section 8.8 for the verification of this
+# cleanup behaviour). Budgets default to values set from real measurement
+# (see the "measured basis" note below) and are overridable via
+# ORACLE_PASS1_TIMEOUT / ORACLE_PASS2_TIMEOUT.
 #
 # This script assumes it is already running inside the project's Nix devShell
 # (it does not invoke `nix develop` itself): run it as
@@ -31,32 +58,46 @@ repo_root="$(cd "$script_dir/.." >/dev/null 2>&1 && pwd)"
 
 export PYTHONPATH="${PYTHONPATH:-$repo_root/code/src}"
 
-# Pass 1: everything except the contention-sensitive tests, in parallel.
-# Hard-coded -n 6, not -n auto: this repository already pins a sibling suite
+pass1_timeout="${ORACLE_PASS1_TIMEOUT:-900}"
+pass2_timeout="${ORACLE_PASS2_TIMEOUT:-600}"
+
+# Pass 1: everything except the contention-sensitive tests and the slow
+# exhaustive scan, in parallel. Hard-coded -n 6, not -n auto: this
+# repository already pins a sibling suite
 # (code/src/model_checker/theory_lib/bimodal/tests, see flake.nix's
 # checks.default) to -n 6 for the same documented CPU-contention-flake
 # reason; -n auto would mean one worker per core on a many-core machine and
 # risks recreating the exact problem this split exists to avoid.
-pytest "$repo_root/oracle" -n 6 -m "not xdist_serial" "$@"
+timeout --kill-after=60s "$pass1_timeout" \
+  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow" "$@"
 pass1_status=$?
 
-# Pass 2: the contention-sensitive tests, with no other pytest workers
-# running at all -- no -n flag.
-pytest "$repo_root/oracle" -m "xdist_serial" "$@"
+# Pass 2: the contention-sensitive tests (still excluding `slow`), with no
+# other pytest workers running at all -- no -n flag.
+timeout --kill-after=60s "$pass2_timeout" \
+  pytest "$repo_root/oracle" -m "xdist_serial and not slow" "$@"
 pass2_status=$?
 
+_classify() {
+  # Prints a human label for a captured pytest/timeout exit status.
+  local status="$1"
+  if [ "$status" -eq 124 ] || [ "$status" -eq 137 ]; then
+    echo "TIMED OUT (exit $status)"
+  elif [ "$status" -eq 0 ]; then
+    echo "PASSED"
+  else
+    echo "FAILED (exit $status)"
+  fi
+}
+
 echo
-echo "== oracle suite summary =="
-if [ "$pass1_status" -eq 0 ]; then
-  echo "pass 1 (parallel, -n 6, not xdist_serial): PASSED"
-else
-  echo "pass 1 (parallel, -n 6, not xdist_serial): FAILED (exit $pass1_status)"
-fi
-if [ "$pass2_status" -eq 0 ]; then
-  echo "pass 2 (serial, xdist_serial):             PASSED"
-else
-  echo "pass 2 (serial, xdist_serial):             FAILED (exit $pass2_status)"
-fi
+echo "== oracle suite summary (gating: slow deselected on both passes) =="
+echo "pass 1 (parallel, -n 6, not xdist_serial and not slow, budget ${pass1_timeout}s): $(_classify "$pass1_status")"
+echo "pass 2 (serial, xdist_serial and not slow, budget ${pass2_timeout}s):             $(_classify "$pass2_status")"
+echo
+echo "Exhaustive complexity<=5 self-consistency scan (the 'slow'-marked tests"
+echo "deselected above) is not part of this gating run. Run it explicitly via:"
+echo "  nix develop --command bash oracle/run-oracle-exhaustive-scan.sh"
 
 if [ "$pass1_status" -ne 0 ] || [ "$pass2_status" -ne 0 ]; then
   exit 1

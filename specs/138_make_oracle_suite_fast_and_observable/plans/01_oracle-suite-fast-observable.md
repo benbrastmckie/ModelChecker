@@ -172,7 +172,7 @@ Phase 3 edits only the `TestFullScanReport` class body and `run-oracle-suite.sh`
 
 ---
 
-### Phase 1: Instrument the shared scan core [IN PROGRESS]
+### Phase 1: Instrument the shared scan core [COMPLETED]
 
 **Goal**: Per-formula progress, a bounded heartbeat, wall-clock measurement, a JSON result
 artifact, and a completion marker — all inside the one function both entry points call, with
@@ -244,7 +244,7 @@ bounded by a timeout, and detects its own completion from the marker.
 
 **Tasks**:
 
-- [ ] Create `oracle/scan_runner.py`: a thin CLI that imports `_enumerate_primitive_formulas`,
+- [x] Create `oracle/scan_runner.py`: a thin CLI that imports `_enumerate_primitive_formulas`,
       `_reference_verdict`, `_generate_differential_report`, `_assert_scan_report`,
       `SELF_SCAN_SOLVE_TIMEOUT_MS`, and `MIN_CONCLUSIVE_SCAN_FORMULAS` from the test module (the
       import path `evidence/scan_instrumented.py` already proved works) and calls the shared core.
@@ -252,21 +252,21 @@ bounded by a timeout, and detects its own completion from the marker.
       `--limit` (default none), `--out-dir` (default a timestamped dir under `oracle/scan-results/`),
       `--heartbeat-every` (default 10), `--min-conclusive` (default
       `MIN_CONCLUSIVE_SCAN_FORMULAS`). It MUST contain no solve loop of its own.
-- [ ] Exit code contract: `0` on a clean scan meeting both assertion teeth; `1` on a disagreement
+- [x] Exit code contract: `0` on a clean scan meeting both assertion teeth; `1` on a disagreement
       or floor miss; `2` on an operational error. Print the `# DONE ...` summary line last.
-- [ ] Create `oracle/run-oracle-exhaustive-scan.sh`: wraps `pytest "$repo_root/oracle" -m slow -s`
+- [x] Create `oracle/run-oracle-exhaustive-scan.sh`: wraps `pytest "$repo_root/oracle" -m slow -s`
       (serial, no `-n`, so streaming output is not captured by xdist and solve times are not
       contention-inflated) in `timeout --kill-after=60s "${ORACLE_EXHAUSTIVE_TIMEOUT:-7200}"`.
       Distinguish exit 124 (timeout fired) and 137 (SIGKILL after `--kill-after`) from a genuine
       test failure in the summary, matching the "fails loudly" requirement.
-- [ ] The exhaustive script reports completion by checking for the `SCAN_COMPLETE` marker under the
+- [x] The exhaustive script reports completion by checking for the `SCAN_COMPLETE` marker under the
       run's output directory, and states explicitly in its summary when the marker is absent
       ("scan did not reach completion") — never inferring completion from the process having exited.
-- [ ] Add a header comment to the new script mirroring `run-oracle-suite.sh`'s style: why this is
+- [x] Add a header comment to the new script mirroring `run-oracle-suite.sh`'s style: why this is
       separate, what it costs (~60-90 min), and that it is never part of the gating path.
-- [ ] Create `oracle/.gitignore` ignoring `scan-results/` (repo-root `.gitignore` is outside file
+- [x] Create `oracle/.gitignore` ignoring `scan-results/` (repo-root `.gitignore` is outside file
       scope and is not touched).
-- [ ] Point the exhaustive script's output dir at a per-run timestamped subdirectory so concurrent
+- [x] Point the exhaustive script's output dir at a per-run timestamped subdirectory so concurrent
       or repeated runs cannot collide.
 
 **Timing**: 2 hours
@@ -294,26 +294,29 @@ bounded by a timeout, and detects its own completion from the marker.
 
 ---
 
-### Phase 3: Deselect `slow` from the gating runner and add per-pass timeouts [NOT STARTED]
+### Phase 3: Deselect `slow` from the gating runner and add per-pass timeouts [COMPLETED]
 
 **Goal**: The gating runner stops running the exhaustive sweep and can no longer hang indefinitely.
 
 **Tasks**:
 
-- [ ] `run-oracle-suite.sh` pass 1: `-m "not xdist_serial and not slow"`. Pass 2:
+- [x] `run-oracle-suite.sh` pass 1: `-m "not xdist_serial and not slow"`. Pass 2:
       `-m "xdist_serial and not slow"`. The two passes still partition the non-slow suite exactly;
       confirm by comparing collected counts (see Verification).
-- [ ] Wrap both passes in `timeout --kill-after=60s`, budgets from env vars with defaults
+- [x] Wrap both passes in `timeout --kill-after=60s`, budgets from env vars with defaults
       (`ORACLE_PASS1_TIMEOUT`, `ORACLE_PASS2_TIMEOUT`) — provisional values here, calibrated against
       real measurement in Phase 6.
-- [ ] Capture exit 124/137 per pass and report `TIMED OUT (exit N)` distinctly from
+- [x] Capture exit 124/137 per pass and report `TIMED OUT (exit N)` distinctly from
       `FAILED (exit N)` in the existing summary block, so a stall is never mistaken for a test
       failure or for success.
-- [ ] Move `test_report_writes_to_file` out of the `TestFullScanReport` class into a new
+- [x] Move `test_report_writes_to_file` out of the `TestFullScanReport` class into a new
       non-`slow` class (it runs a cheap complexity-3 scan and is `slow` only by class co-location,
       per research Finding 1). This *adds* coverage to the gating pass at no cost — no test leaves
-      the suite.
-- [ ] Update `run-oracle-suite.sh`'s header comment to describe the gating/exhaustive split and
+      the suite. (Relocated to `TestComplexity3ScanReportWriting`; also wired
+      `test_complexity_5_scan_self_consistent` to the `ORACLE_SCAN_OUT_DIR` env var so
+      `run-oracle-exhaustive-scan.sh` gets artifacts by driving pytest directly, per Decision D2 —
+      within this phase's declared "TestFullScanReport class body" territory.)
+- [x] Update `run-oracle-suite.sh`'s header comment to describe the gating/exhaustive split and
       point at the new exhaustive script (fuller documentation lands in Phase 7).
 
 **Timing**: 1.5 hours
@@ -330,16 +333,23 @@ bounded by a timeout, and detects its own completion from the marker.
 
 **Verification**:
 
-- [ ] Collection partition is exact and nothing is silently dropped:
+- [x] Collection partition is exact and nothing is silently dropped:
       `pytest oracle --collect-only -q -m "not slow"` count equals
       `-m "not xdist_serial and not slow"` count plus `-m "xdist_serial and not slow"` count.
-- [ ] `pytest oracle --collect-only -q -m "slow"` collects exactly the two remaining slow items
+      (Measured: 566 = 559 + 7.)
+- [x] `pytest oracle --collect-only -q -m "slow"` collects exactly the two remaining slow items
       (`test_complexity_5_scan_self_consistent`, `test_temporal_only_agreement_complexity_5`) —
-      confirming `test_report_writes_to_file` moved into the gating pass.
-- [ ] `ORACLE_PASS1_TIMEOUT=5 nix develop --command bash oracle/run-oracle-suite.sh` reports
-      `TIMED OUT`, not `FAILED`, and exits non-zero.
-- [ ] Full gating run `nix develop --command bash oracle/run-oracle-suite.sh` completes green and
-      its wall clock is recorded for Phase 6 (expected ~20 min, down from ~76).
+      confirming `test_report_writes_to_file` moved into the gating pass. (Confirmed via
+      `--collect-only`; `TestComplexity3ScanReportWriting::test_report_writes_to_file` appears in
+      the `not slow` collection.)
+- [x] `ORACLE_PASS1_TIMEOUT=5 nix develop --command bash oracle/run-oracle-suite.sh` reports
+      `TIMED OUT`, not `FAILED`, and exits non-zero. Confirmed from the terminal summary line:
+      "pass 1 (parallel, -n 6, not xdist_serial and not slow, budget 5s): TIMED OUT (exit 124)";
+      pass 2 ran independently and PASSED (not `set -e`, as designed).
+- [x] Full gating run `nix develop --command bash oracle/run-oracle-suite.sh` completes green and
+      its wall clock is recorded for Phase 6 (expected ~20 min, down from ~76). Measured: pass 1
+      (parallel, -n 6) 649.09s (10:49), pass 2 (serial, xdist_serial) 318.57s (5:18); total wall
+      clock ~16.1 min, both passes PASSED. Down from the ~76.7-minute baseline.
 
 ---
 

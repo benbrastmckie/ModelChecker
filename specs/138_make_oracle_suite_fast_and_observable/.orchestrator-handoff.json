@@ -1,0 +1,32 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "partial",
+  "summary": "Phases 1-2 complete and verified: shared scan core instrumented (progress JSONL/heartbeat/report.json/SCAN_COMPLETE marker, all default-off), scan_runner.py CLI and run-oracle-exhaustive-scan.sh created and smoke-tested. Phase 3 nearly done: run-oracle-suite.sh now deselects slow on both passes with bounded timeouts; measured green run 649s+318s (~16min, was ~76.7min). Continuing to Phases 4-7.",
+  "artifacts": [
+    {"type": "plan", "path": "specs/138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md"}
+  ],
+  "blockers": [],
+  "next_action_hint": "implement",
+  "files_modified": [
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    "oracle/scan_runner.py",
+    "oracle/run-oracle-exhaustive-scan.sh",
+    "oracle/run-oracle-suite.sh",
+    "oracle/.gitignore",
+    "specs/138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md"
+  ],
+  "decisions_made": [
+    "D1/D2/D3 as planned. ORACLE_SCAN_OUT_DIR env var wires test_complexity_5_scan_self_consistent's artifact_dir so the exhaustive script drives pytest directly per D2, without changing default (unset) behaviour.",
+    "test_report_writes_to_file relocated to new TestComplexity3ScanReportWriting (gating pass), within Phase 3's declared TestFullScanReport-class-body territory."
+  ],
+  "dead_ends": [
+    "Manually overriding -m via run-oracle-suite.sh's trailing \"$@\" (e.g. -m \"not slow\") collapses with the script's own -m flag (last wins), corrupting the xdist_serial partition and causing contention-induced OracleTimeoutError test failures unrelated to real regressions -- do not use this as a verification method once Phase 3's fixed -m expressions are in place."
+  ],
+  "continuation_context": {
+    "phases_completed": 2,
+    "phases_total": 7,
+    "orchestrator_mode": true
+  },
+  "plan_markers_verified": false
+}

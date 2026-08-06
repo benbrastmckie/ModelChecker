@@ -2049,6 +2049,44 @@ class TestScanInstrumentation:
         assert not (tmp_path / "SCAN_COMPLETE").exists()
 
 
+class TestComplexity3ScanReportWriting:
+    """Cheap complexity-3 scan report write/read-back check.
+
+    Relocated out of `TestFullScanReport` (see that class): this test runs a
+    fast complexity-3 scan and was marked `slow` only by class co-location,
+    never by its own cost (research Finding 1 in
+    specs/138_make_oracle_suite_fast_and_observable/reports/
+    01_oracle-suite-fast-observable.md). Moving it here adds coverage to the
+    gating pass at zero extra runtime cost -- no test leaves the suite.
+    """
+
+    def setup_method(self):
+        from bimodal_logic import Z3OracleProvider
+        self.oracle = Z3OracleProvider()
+
+    def test_report_writes_to_file(self):
+        """Report can be written and read back for complexity-3 scan."""
+        formulas = _enumerate_primitive_formulas(3, ["p"])
+
+        def ref_fn(f):
+            return _reference_verdict(self.oracle, f)
+
+        report = _generate_differential_report(
+            self.oracle, formulas, ref_fn, {"mc": "mc", "ref": "self"}
+        )
+
+        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as tmp:
+            tmp_path = Path(tmp.name)
+
+        try:
+            _write_report_json(report, tmp_path)
+            content = tmp_path.read_text(encoding="utf-8")
+            parsed = json.loads(content)
+            assert parsed["total_formulas"] == len(formulas)
+        finally:
+            tmp_path.unlink(missing_ok=True)
+
+
 @pytest.mark.slow
 class TestFullScanReport:
     """Full complexity-5 scan tests (marked slow, not run in normal CI)."""
@@ -2072,6 +2110,18 @@ class TestFullScanReport:
         regression to investigate; a failure on disagreements is semantic.
         See `_assert_scan_report` for the shared assertion logic (proven
         against a Z3-free stub oracle in TestDifferentialReport).
+
+        Artifact wiring (Decision D2): when the `ORACLE_SCAN_OUT_DIR`
+        environment variable is set --
+        `oracle/run-oracle-exhaustive-scan.sh` sets it before invoking
+        `pytest oracle -m slow -s` -- this test streams progress and lands
+        `report.json`/`SCAN_COMPLETE` in that directory via the shared
+        core's own instrumentation, so the exhaustive script produces
+        artifacts by driving this test directly rather than by
+        reimplementing the scan loop. When unset (e.g. a bare
+        `pytest -m slow` invocation), all three instrumentation parameters
+        stay at their defaults and this test's behaviour is exactly as it
+        was before instrumentation existed.
         """
         all_formulas = _enumerate_primitive_formulas(5, ["p"])
 
@@ -2081,37 +2131,23 @@ class TestFullScanReport:
                 self.oracle, f, timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS
             )
 
+        out_dir_env = os.environ.get("ORACLE_SCAN_OUT_DIR")
+        artifact_dir = Path(out_dir_env) if out_dir_env else None
+        progress_path = (artifact_dir / "progress.jsonl") if artifact_dir else None
+        heartbeat_every = 10 if artifact_dir else 0
+
         report = _generate_differential_report(
             self.oracle,
             all_formulas,
             ref_fn,
             {"mc": "mc_oracle", "ref": "mc_oracle_self"},
             timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS,
+            progress_path=progress_path,
+            heartbeat_every=heartbeat_every,
+            artifact_dir=artifact_dir,
         )
 
         _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_SCAN_FORMULAS)
-
-    def test_report_writes_to_file(self):
-        """Report can be written and read back for complexity-3 scan."""
-        formulas = _enumerate_primitive_formulas(3, ["p"])
-
-        def ref_fn(f):
-            return _reference_verdict(self.oracle, f)
-
-        report = _generate_differential_report(
-            self.oracle, formulas, ref_fn, {"mc": "mc", "ref": "self"}
-        )
-
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as tmp:
-            tmp_path = Path(tmp.name)
-
-        try:
-            _write_report_json(report, tmp_path)
-            content = tmp_path.read_text(encoding="utf-8")
-            parsed = json.loads(content)
-            assert parsed["total_formulas"] == len(formulas)
-        finally:
-            tmp_path.unlink(missing_ok=True)
 
 
 ##############################################################################
