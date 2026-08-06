@@ -1,5 +1,5 @@
 {
-  "next_project_number": 137,
+  "next_project_number": 139,
   "active_projects": [
     {
       "project_number": 127,
@@ -707,7 +707,7 @@
     {
       "project_number": 133,
       "project_name": "fix_oracle_self_consistency_disagreements",
-      "status": "planned",
+      "status": "implementing",
       "task_type": "python",
       "topic": "testing",
       "description": "Fix the pre-existing self-consistency failure in the oracle full-scan report. oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent fails with AssertionError: Self-comparison produced N disagreements at complexity<=5 (assert N == 0) at test_cross_oracle_differential.py:1381. A self-comparison producing any disagreement means the oracle does not agree with itself on the same input, which is a correctness defect independent of any refactor. This failure is confirmed pre-existing: it reproduces at pre-refactor commit 6cfb7f48. It is NOT a resource or contention artifact -- it fails deterministically in a serial isolated run (which takes about 31 minutes). One open question to resolve as part of this work: the run at 6cfb7f48 reported 1 disagreement while the run at HEAD reported 3. With a single sample from each commit on a suite already known to be timing-sensitive, it is unresolved whether the disagreement count is stable, load-dependent, or genuinely worse post-refactor. Take repeat samples at both commits before drawing a conclusion. A prior disposition document incorrectly classified this test as a contention flake that passes in isolation; that classification is false and should be corrected wherever it is recorded.",
@@ -728,7 +728,7 @@
         }
       ],
       "created": "2026-07-25T16:19:08Z",
-      "last_updated": "2026-08-05T19:58:09Z",
+      "last_updated": "2026-08-06T01:32:33Z",
       "next_artifact_number": 1,
       "session_id": "sess_1785954627_07ebdc_133"
     },
@@ -787,6 +787,45 @@
       "artifacts": [],
       "created": "2026-08-05T00:00:00Z",
       "last_updated": "2026-08-05T00:00:00Z",
+      "next_artifact_number": 1
+    },
+    {
+      "project_number": 137,
+      "project_name": "investigate_mc_bh_resolved_and_wrong_disagreements",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "oracle soundness",
+      "description": "Investigate the 13 resolved-and-wrong soundness disagreements between the ModelChecker oracle and BimodalHarness. With the find_countermodel timeout/UNSAT conflation removed, 13 of 158 temporal-only formulas at complexity<=5 have BOTH oracles decide and disagree - a genuine semantic divergence previously masked by timeouts being reported as UNSAT. Tracked by the strict xfail on test_temporal_only_agreement_complexity_5 in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Determine which oracle is correct for each of the 13, root-cause the divergence, and fix the incorrect side. This is a soundness defect, not a performance or timeout issue.",
+      "dependencies": [
+        133
+      ],
+      "file_scope": [
+        "oracle/bimodal_logic/"
+      ],
+      "artifacts": [],
+      "created": "2026-08-06T01:32:28Z",
+      "last_updated": "2026-08-06T01:32:28Z",
+      "session_id": "sess_1785954627_07ebdc",
+      "next_artifact_number": 1
+    },
+    {
+      "project_number": 138,
+      "project_name": "make_oracle_suite_fast_and_observable",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "testing infrastructure",
+      "description": "Fix the structural defects that make the oracle suite a ~60-minute black box. Six concrete problems, all measured: (1) run-oracle-suite.sh filters only on xdist_serial and never deselects the slow marker, so TestFullScanReport (274 formulas x 2 solves, up to 1.5h) runs on EVERY gating invocation despite the marker being declared in conftest.py as skipped in CI - deselect it from the gating pass and give the exhaustive sweep its own explicitly-invoked runner. (2) pytest -q emits nothing until a test completes, so a 60-minute run is unobservable; promote the per-formula progress reporting proven ad hoc during the contract fix into real tooling, with a bounded-interval heartbeat so no long run is silent. (3) Completion is not detectable: emit a machine-readable JSON result artifact (total/conclusive/disagreements/inconclusive/wall-clock) plus a definitive completion marker, and make runners detect completion via the marker - never via PID liveness, which produced a false completion report during the contract work. (4) run-oracle-suite.sh has no per-pass timeout, so a stall hangs indefinitely with no signal; add a bounded timeout that fails loudly. (5) Roughly 168 of 274 formulas (measured: 101/274 conclusive at 5000ms, 106/274 at 10000ms) exhaust their full budget every run and produce nothing, burning ~56 minutes per run to rediscover the same timeouts; record the known-inconclusive set so the gating variant asserts on the conclusive population and that the inconclusive set has not grown, while the exhaustive variant re-derives the whole population periodically to catch drift. (6) Document the split in TESTING_GUIDE.md. HARD CONSTRAINT: speed must come from running less redundant work, never from weakening assertions. The soundness tooth (zero disagreements among conclusive results) and the conclusiveness floor must both survive intact - do not raise budgets, relax thresholds, or skip tests to manufacture green.",
+      "dependencies": [
+        133
+      ],
+      "file_scope": [
+        "oracle/",
+        "code/docs/core/TESTING_GUIDE.md"
+      ],
+      "artifacts": [],
+      "created": "2026-08-06T03:00:11Z",
+      "last_updated": "2026-08-06T03:00:11Z",
+      "session_id": "sess_1785954627_07ebdc",
       "next_artifact_number": 1
     }
   ],

@@ -1,18 +1,18 @@
 ---
-next_project_number: 137
+next_project_number: 139
 ---
 
 # TODO
 
 ## Task Order
 
-*Updated 2026-08-05. Generated from state.json dependency graph.*
+*Updated 2026-08-06. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 133,134,135,136 | -- | architecture, testing |
-| 2 | 127 | 133 | testing |
+| 2 | 127,137,138 | 133 | oracle soundness, testing infrastructure, testing |
 | 3 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -24,12 +24,40 @@ next_project_number: 137
 
 ### Testing
 
-133 [PLANNED] — Fix the pre-existing self-consistency failure in the oracle full-
+133 [IMPLEMENTING] — Fix the pre-existing self-consistency failure in the oracle full-
   └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
 135 [NOT STARTED] — Fix the non-deterministic segmentation fault when models are buil
 136 [NOT STARTED] — Make the wall-clock performance assertions robust so they can rej
 
+### Oracle Soundness
+
+137 [NOT STARTED] — Investigate the 13 resolved-and-wrong soundness disagreements bet
+
+### Testing Infrastructure
+
+138 [NOT STARTED] — Fix the structural defects that make the oracle suite a ~60-minut
+
 ## Tasks
+
+### 138. Make oracle suite fast and observable
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: testing infrastructure
+- **Dependencies**: Task 133
+
+**Description**: Fix the structural defects that make the oracle suite a ~60-minute black box. Six concrete problems, all measured: (1) run-oracle-suite.sh filters only on xdist_serial and never deselects the slow marker, so TestFullScanReport (274 formulas x 2 solves, up to 1.5h) runs on EVERY gating invocation despite the marker being declared in conftest.py as skipped in CI - deselect it from the gating pass and give the exhaustive sweep its own explicitly-invoked runner. (2) pytest -q emits nothing until a test completes, so a 60-minute run is unobservable; promote the per-formula progress reporting proven ad hoc during the contract fix into real tooling, with a bounded-interval heartbeat so no long run is silent. (3) Completion is not detectable: emit a machine-readable JSON result artifact (total/conclusive/disagreements/inconclusive/wall-clock) plus a definitive completion marker, and make runners detect completion via the marker - never via PID liveness, which produced a false completion report during the contract work. (4) run-oracle-suite.sh has no per-pass timeout, so a stall hangs indefinitely with no signal; add a bounded timeout that fails loudly. (5) Roughly 168 of 274 formulas (measured: 101/274 conclusive at 5000ms, 106/274 at 10000ms) exhaust their full budget every run and produce nothing, burning ~56 minutes per run to rediscover the same timeouts; record the known-inconclusive set so the gating variant asserts on the conclusive population and that the inconclusive set has not grown, while the exhaustive variant re-derives the whole population periodically to catch drift. (6) Document the split in TESTING_GUIDE.md. HARD CONSTRAINT: speed must come from running less redundant work, never from weakening assertions. The soundness tooth (zero disagreements among conclusive results) and the conclusiveness floor must both survive intact - do not raise budgets, relax thresholds, or skip tests to manufacture green.
+
+---
+
+### 137. Investigate mc bh resolved and wrong disagreements
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: oracle soundness
+- **Dependencies**: Task 133
+
+**Description**: Investigate the 13 resolved-and-wrong soundness disagreements between the ModelChecker oracle and BimodalHarness. With the find_countermodel timeout/UNSAT conflation removed, 13 of 158 temporal-only formulas at complexity<=5 have BOTH oracles decide and disagree - a genuine semantic divergence previously masked by timeouts being reported as UNSAT. Tracked by the strict xfail on test_temporal_only_agreement_complexity_5 in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Determine which oracle is correct for each of the 13, root-cause the divergence, and fix the incorrect side. This is a soundness defect, not a performance or timeout issue.
+
+---
 
 ### 136. Ground wallclock performance budgets
 - **Status**: [NOT STARTED]
@@ -62,7 +90,7 @@ next_project_number: 137
 ---
 
 ### 133. Fix oracle self consistency disagreements
-- **Status**: [PLANNED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
