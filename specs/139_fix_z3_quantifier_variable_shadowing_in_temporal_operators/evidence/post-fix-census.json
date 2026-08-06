@@ -1,0 +1,5857 @@
+[
+  {
+    "index": 0,
+    "formula_json": {
+      "tag": "bot"
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 1,
+    "formula_json": {
+      "tag": "atom",
+      "name": "p"
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 2,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 3,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 4,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 5,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 6,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 7,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 8,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 9,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": false
+  },
+  {
+    "index": 10,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 11,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 12,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 13,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 14,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 15,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 16,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 17,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 18,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 19,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 20,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 21,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 22,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 23,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": false
+  },
+  {
+    "index": 24,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 25,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 26,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 27,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 28,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 29,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 30,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 31,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 32,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 33,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 34,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 35,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 36,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 37,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 38,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 39,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 40,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 41,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 42,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 43,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 44,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 45,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 46,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 47,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 48,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 49,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 50,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 51,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 52,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 53,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 54,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 55,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 56,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 57,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 58,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 59,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 60,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 61,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": false
+  },
+  {
+    "index": 62,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 63,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 64,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 65,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 66,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 67,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 68,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 69,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 70,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 71,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 72,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 73,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 74,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 75,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 76,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 77,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 78,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 79,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 80,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 81,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 82,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 83,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 84,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 85,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 86,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 87,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 88,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 89,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 90,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 91,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 92,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 93,
+    "formula_json": {
+      "tag": "box",
+      "child": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 94,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 95,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 96,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 97,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 98,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 99,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 100,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 101,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 102,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 103,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 104,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 105,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 106,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 107,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "bot"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 108,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 109,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 110,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 111,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 112,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 113,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": false
+  },
+  {
+    "index": 114,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 115,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 116,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 117,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 118,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 119,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 120,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 121,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "right": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 122,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 123,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 124,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 125,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 126,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 127,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 128,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 129,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 130,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 131,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 132,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 133,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 134,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 135,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 136,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 137,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 138,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 139,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 140,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 141,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 142,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 143,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 144,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 145,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 146,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 147,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 148,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 149,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": false,
+    "contains_bot": true
+  },
+  {
+    "index": 150,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 151,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 152,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 153,
+    "formula_json": {
+      "tag": "imp",
+      "left": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "right": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 154,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 155,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 156,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 157,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 158,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 159,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 160,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 161,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 162,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 163,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 164,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 165,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 166,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 167,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 168,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 169,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 170,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 171,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 172,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 173,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 174,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 175,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 176,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 177,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 178,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 179,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 180,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 181,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 182,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 183,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 184,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 185,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 186,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 187,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 188,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 189,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 190,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 191,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 192,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 193,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 194,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 195,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 196,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 197,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 198,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 199,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 200,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 201,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 202,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 203,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 204,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 205,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 206,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 207,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 208,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 209,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 210,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 211,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 212,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 213,
+    "formula_json": {
+      "tag": "untl",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 214,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 215,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 216,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 217,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 218,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 219,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 220,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 221,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 222,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 223,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 224,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 225,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 226,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 227,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "bot"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 228,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 229,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 230,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 231,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 232,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 233,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 234,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 235,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 236,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 237,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 238,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 239,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 240,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 241,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "guard": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 242,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 243,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 244,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 245,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 246,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 247,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 248,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 249,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 250,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 251,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 252,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 253,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 254,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 255,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 256,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 257,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 258,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 259,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 260,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 261,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 262,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 263,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 264,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 265,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  },
+  {
+    "index": 266,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 267,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 268,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 269,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": true,
+    "folded_value": true,
+    "contains_bot": true
+  },
+  {
+    "index": 270,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 271,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 272,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "bot"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": true
+  },
+  {
+    "index": 273,
+    "formula_json": {
+      "tag": "snce",
+      "event": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "guard": {
+        "tag": "atom",
+        "name": "p"
+      }
+    },
+    "folded": false,
+    "folded_value": null,
+    "contains_bot": false
+  }
+]

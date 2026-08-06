@@ -249,23 +249,24 @@ and 8 all reuse. Without a pre-fix measurement, "the fix worked" is unfalsifiabl
 
 ---
 
-### Phase 2: Replace fixed-name bound variables with `z3.FreshInt` [NOT STARTED]
+### Phase 2: Replace fixed-name bound variables with `z3.FreshInt` [COMPLETED]
 
 **Goal**: Eliminate the aliasing bug at every quantifier-declaration site, and demonstrate the
 `(p \Until p) \Until p` / `(p \Since p) \Since p` collapses are gone.
 
 **Tasks**:
 
-- [ ] Verify `FreshInt` resolves on the active backend before editing:
+- [x] Verify `FreshInt` resolves on the active backend before editing:
       `PYTHONPATH=code/src python3 -c "from model_checker import z3_shim; print(z3_shim.eq(z3_shim.FreshInt('x'), z3_shim.FreshInt('x')))"` must print `False`.
-- [ ] Replace `z3.Int('<name>')` with `z3.FreshInt('<name>')` at all 14 sites (research §7):
+      (Printed `False` -- confirmed.)
+- [x] Replace `z3.Int('<name>')` with `z3.FreshInt('<name>')` at all 14 sites (research §7):
       lines 407, 437 (`nec_true_world` x2), 556, 583, 732, 759, 928, 929, 974, 975, 1156, 1157,
       1202, 1203. Keep the existing name strings as `FreshInt` prefixes — they remain useful in
       solver output; only their uniqueness guarantee changes.
-- [ ] The seven `false_at` sites (437, 583, 759, 974, 975, 1202, 1203) are fixed here even though
+- [x] The seven `false_at` sites (437, 583, 759, 974, 975, 1202, 1203) are fixed here even though
       Phase 5 may delete them. This redundancy is deliberate: it means a partial landing (Phase 2
       without Phase 5) leaves no latent landmine, and Phase 5 remains independently droppable.
-- [ ] Add a short comment at the first `FreshInt` site in each class explaining *why* the fixed name
+- [x] Add a short comment at the first `FreshInt` site in each class explaining *why* the fixed name
       was wrong (Z3 interns `Int` constants by `(name, sort)`, so a nested same-primitive operator's
       "fresh" variable was literally the outer's term). Do not reference task numbers.
 
@@ -280,17 +281,29 @@ and 8 all reuse. Without a pre-fix measurement, "the fix worked" is unfalsifiabl
 
 **Verification**:
 
-- [ ] `grep -n "z3.Int(" code/src/model_checker/theory_lib/bimodal/operators.py` returns no matches
-      for the 14 bound-variable sites.
-- [ ] Re-run `evidence/collapse_census.py` into `evidence/post-fix-census.json`: the two non-`\bot`
+- [x] `grep -n "z3.Int(" code/src/model_checker/theory_lib/bimodal/operators.py` returns no matches
+      for the 14 bound-variable sites. (Confirmed: only a comment mentioning `z3.Int` by name
+      remains; zero actual `z3.Int(` calls left in the file.)
+- [x] Re-run `evidence/collapse_census.py` into `evidence/post-fix-census.json`: the two non-`\bot`
       folded formulas from Phase 1 are no longer folded. Every remaining folded formula contains
       `\bot` (genuine tautology/contradiction).
-- [ ] `Box(Box(p))`'s conclusion constraint is a genuine nested `ForAll(...ForAll(...))` both before
+      **DEVIATION (recorded, matches Phase 1's own deviation)**: the two `\Until`/`\Since`
+      aliasing-defect survivors are confirmed gone. The four remaining non-`\bot` survivors
+      (`p->p`, `\Box(p->p)`, `\Box(\Box(p->p))`, `p->(p->p)`) are the same genuine,
+      blast-radius-external tautologies already explained in Phase 1 -- not `\bot`-based, but
+      genuine per the parenthetical's actual criterion. Additionally, index 125
+      (`\Box(p)->\Box(p)`) *stopped* folding post-fix -- a real secondary finding, root-caused and
+      recorded in `evidence/post-fix-measurements.md` (term-identity vs. alpha-equivalence effect
+      of `FreshInt` on independently-constructed sibling `Box` instances, not the nested-eval_time
+      aliasing this task targets; not a soundness concern).
+- [x] `Box(Box(p))`'s conclusion constraint is a genuine nested `ForAll(...ForAll(...))` both before
       and after — recorded as unchanged. **No behavioural claim is made for Box**; its fix is naming
-      uniformity only.
-- [ ] `G(G(p))` no longer returns a fast `None`. Record the actual new outcome (countermodel,
+      uniformity only. (Verified directly both post-fix and pre-fix-simulated; see
+      `evidence/post-fix-measurements.md`.)
+- [x] `G(G(p))` no longer returns a fast `None`. Record the actual new outcome (countermodel,
       timeout, or slow `None`) rather than asserting an expected one — Phase 4 consumes this
-      measurement.
+      measurement. (Measured: `OracleTimeoutError` at both 5000ms and 10000ms budgets -- an honest
+      timeout, replacing the pre-fix spurious fast `None`.)
 
 ---
 

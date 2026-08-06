@@ -404,7 +404,15 @@ class NecessityOperator(syntactic.Operator):
         eval_time = eval_point["time"]
 
         # The argument must be true in all worlds at the eval_time
-        other_world = z3.Int('nec_true_world')
+        # NOTE: z3.Int('name') interns by (name, sort) -- every call with the same
+        # name returns the identical Z3 term. A quantified operator whose argument
+        # recurses into another instance of the same primitive operator would then
+        # receive, as its "fresh" bound variable, the exact term the outer call
+        # already passed down, producing a self-comparison that Z3's simplifier
+        # folds to a constant before either quantifier closes. z3.FreshInt
+        # guarantees a distinct term on every call regardless of name reuse or
+        # nesting depth, eliminating that aliasing hazard.
+        other_world = z3.FreshInt('nec_true_world')
         # For any other_world -- no is_valid_time_for_world guard (paper-aligned)
         return z3.ForAll(
             other_world,
@@ -434,7 +442,7 @@ class NecessityOperator(syntactic.Operator):
         eval_time = eval_point["time"]
 
         # The argument must be false in some world at the eval_time
-        other_world = z3.Int('nec_true_world')
+        other_world = z3.FreshInt('nec_true_world')
         # There is some other_world -- no is_valid_time_for_world guard (paper-aligned)
         return z3.Exists(
             other_world,
@@ -553,7 +561,9 @@ class FutureOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        future_time = z3.Int('future_true_time')
+        # z3.FreshInt (not z3.Int) -- see NecessityOperator.true_at's comment above:
+        # a fixed name would alias with a nested \Future's own bound variable.
+        future_time = z3.FreshInt('future_true_time')
         return semantics.ForAllTime(
             eval_world,
             future_time,
@@ -580,7 +590,7 @@ class FutureOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        future_time = z3.Int('future_false_time')
+        future_time = z3.FreshInt('future_false_time')
         return semantics.ExistsTime(
             eval_world,
             future_time,
@@ -729,7 +739,9 @@ class PastOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        past_time = z3.Int('past_true_time')
+        # z3.FreshInt (not z3.Int) -- see NecessityOperator.true_at's comment above:
+        # a fixed name would alias with a nested \Past's own bound variable.
+        past_time = z3.FreshInt('past_true_time')
         return semantics.ForAllTime(
             eval_world,
             past_time,
@@ -756,7 +768,7 @@ class PastOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        past_time = z3.Int('past_false_time')
+        past_time = z3.FreshInt('past_false_time')
         return semantics.ExistsTime(
             eval_world,
             past_time,
@@ -924,9 +936,13 @@ class UntilOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        # Create uniquely named time variables to avoid collision
-        witness_time = z3.Int('until_witness_time')
-        guard_time = z3.Int('until_guard_time')
+        # z3.FreshInt (not z3.Int) -- distinct names alone do not avoid collision:
+        # z3.Int('name') interns by (name, sort), so a nested \Until in the event
+        # or guard position would receive, as its own "uniquely named" variable,
+        # the identical term this call already bound. z3.FreshInt guarantees
+        # distinctness across calls regardless of name or nesting depth.
+        witness_time = z3.FreshInt('until_witness_time')
+        guard_time = z3.FreshInt('until_guard_time')
 
         # U(event, guard) is true at t iff:
         # exists s > t: event(s) AND forall r in (t,s): guard(r)
@@ -971,8 +987,8 @@ class UntilOperator(syntactic.Operator):
         eval_time = eval_point["time"]
 
         # Create uniquely named time variables
-        witness_time = z3.Int('until_false_witness_time')
-        guard_time = z3.Int('until_false_guard_time')
+        witness_time = z3.FreshInt('until_false_witness_time')
+        guard_time = z3.FreshInt('until_false_guard_time')
 
         # U(event, guard) is false at t iff:
         # forall s > t: event is false at s OR exists r in (t,s): guard is false at r
@@ -1152,9 +1168,10 @@ class SinceOperator(syntactic.Operator):
         eval_world = eval_point["world"]
         eval_time = eval_point["time"]
 
-        # Create uniquely named time variables to avoid collision
-        witness_time = z3.Int('since_witness_time')
-        guard_time = z3.Int('since_guard_time')
+        # z3.FreshInt (not z3.Int) -- see UntilOperator.true_at's comment above:
+        # a fixed name would alias with a nested \Since's own bound variable.
+        witness_time = z3.FreshInt('since_witness_time')
+        guard_time = z3.FreshInt('since_guard_time')
 
         # S(event, guard) is true at t iff:
         # exists s < t: event(s) AND forall r in (s,t): guard(r)
@@ -1199,8 +1216,8 @@ class SinceOperator(syntactic.Operator):
         eval_time = eval_point["time"]
 
         # Create uniquely named time variables
-        witness_time = z3.Int('since_false_witness_time')
-        guard_time = z3.Int('since_false_guard_time')
+        witness_time = z3.FreshInt('since_false_witness_time')
+        guard_time = z3.FreshInt('since_false_guard_time')
 
         # S(event, guard) is false at t iff:
         # forall s < t: event was false at s OR exists r in (s,t): guard was false at r
