@@ -76,14 +76,34 @@ _BOX_DIAMOND_TAGS = frozenset({"box", "diamond"})
 SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 
 # Floor for "how many of the 274 complexity<=5 formulas must be conclusive (neither
-# solve timed out) for a green run to mean anything". Conservatively floored from the
-# lowest of the three calibration measurements above (50.0%) to a round number and
-# applied to the full sweep: 0.50 * 274 = 137. A drop below this floor is a
-# budget/performance regression to investigate -- NOT a semantic regression. The two
-# have different causes and different fixes; conflating them is what consumed
-# several consecutive prior triage efforts in this line of work (see
-# code/docs/core/TESTING_GUIDE.md section 8.6).
-MIN_CONCLUSIVE_SCAN_FORMULAS = 137
+# solve timed out) for a green run to mean anything".
+#
+# The 30-formula bounded sample used to derive the previous floor (137, 50.0%) only
+# reached complexity 4 and was not representative: 218 of the 274 formulas are
+# complexity 5. Two real, full 274-formula sweeps are now available instead:
+#   5000 ms  (pre-fix baseline): 101/274 conclusive (37.0%)
+#   10000 ms (this budget, post-fix, serial): 106/274 conclusive (38.7%), 0
+#            disagreements
+# Doubling the budget from 5000 to 10000 ms bought only 5 more conclusive formulas.
+# Conclusiveness is essentially budget-independent in this range (consistent with the
+# flat 53.3/50.0/56.7% seen across the 10000/15000/20000 ms bounded samples above) --
+# ~38% is a real property of what this oracle decides on this formula population, not
+# a tuning artifact of the budget chosen. Widening the budget further to chase a
+# higher floor would reproduce the suite-runnability problem this budget reduction
+# exists to avoid (see SELF_SCAN_SOLVE_TIMEOUT_MS above), not fix anything real.
+#
+# Floored below the lower of the two real measurements (101), rather than at it, to
+# tolerate ordinary run-to-run variance and cross-worker CPU contention: this test is
+# not `xdist_serial`-marked, so oracle/run-oracle-suite.sh's parallel pass (-n 6) runs
+# it alongside five other worker processes, which can plausibly erode the conclusive
+# rate below what the isolated serial measurement (106) observed. A drop below this
+# floor is a budget/performance regression to investigate -- NOT a semantic
+# regression (that is what `disagreements == 0` is for). The two have different
+# causes and different fixes; conflating them is what consumed several consecutive
+# prior triage efforts in this line of work (see code/docs/core/TESTING_GUIDE.md
+# section 8.6). Do not "fix" a future floor miss by silently widening the budget
+# again -- re-measure the real conclusive rate at the current budget first.
+MIN_CONCLUSIVE_SCAN_FORMULAS = 90
 
 
 def _formula_complexity(formula_json: dict) -> int:

@@ -29,7 +29,7 @@ from __future__ import annotations
 import pytest
 import z3
 
-from bimodal_logic import Z3OracleProvider
+from bimodal_logic import OracleTimeoutError, Z3OracleProvider
 from bimodal_logic.translation import temporal_depth
 from model_checker.theory_lib.bimodal.semantic import BimodalSemantics
 from model_checker.utils.context import isolated_z3_context
@@ -734,10 +734,17 @@ class TestStateIsolationRegression:
 
         Verifies that isolated_z3_context() and the finally block in
         find_countermodel() properly clear the _semantics reference even
-        after temporal depth-2 formula calls.
+        after temporal depth-2 formula calls -- including calls that raise
+        OracleTimeoutError, since G(F(p)) at M=4 does not decide within the
+        default 5000 ms budget. The reference must be cleared on the raise
+        path exactly as on the return path; a leaked reference would be a
+        real isolation bug independent of whether the solve itself decided.
         """
         for i in range(10):
-            self.provider.find_countermodel(GF_P)
+            try:
+                self.provider.find_countermodel(GF_P)
+            except OracleTimeoutError:
+                pass
             assert self.provider._semantics is None, (
                 f"Call {i}: provider._semantics should be None after find_countermodel() "
                 "for depth-2 formula G(F(p)). Got non-None -- reference leak detected."
@@ -831,63 +838,61 @@ class TestKnownBoundaryUnsafe:
         )
 
     def test_gf_p_returns_none_at_m4(self):
-        """G(F(p)) depth=2 -- oracle returns None at M=4 (solver timeout).
+        """G(F(p)) depth=2 -- solver does not decide within the default 5000 ms
+        budget at M=4, so find_countermodel() raises OracleTimeoutError.
 
-        Task 114: At M=max(2+2,3)=4 with depth-bounded Skolem (max_shift=2),
-        the solver times out searching for a countermodel to G(F(p)). The
-        constraint system at M=4 is too large for the 30s default timeout.
-
-        Previously at M=2, G(F(p)) had a countermodel because boundary effects
-        made F(p) fail at the last time point. At M=4 with a larger domain,
-        the solver can't find a solution within the timeout.
+        At M=max(2+2,3)=4 with depth-bounded Skolem (max_shift=2), the
+        constraint system is large enough that the solver does not reach a
+        verdict within the default budget. Under the pre-fix contract a
+        budget-exhausted solve like this one was silently returned as
+        `None` -- indistinguishable from a genuine proof of validity. The
+        contract now makes that distinction explicit: an undecided solve
+        raises rather than being laundered into a UNSAT verdict. This is
+        not evidence G(F(p)) is valid.
         """
         depth = temporal_depth(GF_P)
         assert depth == 2, f"Expected temporal_depth=2 for G(F(p)), got {depth}"
 
-        result = self.provider.find_countermodel(GF_P)
-        assert result is None, (
-            f"G(F(p)) should return None at M=4 (solver timeout). Got: {result}"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(GF_P)
 
     def test_ff_p_returns_none_at_m4(self):
-        """F(F(p)) depth=2 -- oracle returns None at M=4 (quantifier variable shadowing).
+        """F(F(p)) depth=2 -- solver does not decide within the default 5000 ms
+        budget at M=4, so find_countermodel() raises OracleTimeoutError.
 
-        Task 114: Both nested F (SomeFutureOperator) calls in false_at use the same
-        Z3 variable name ('exist_future_false_time'). The inner quantifier shadows the
-        outer, making the condition (x > x) always False. This renders the formula
-        unfalsifiable regardless of M.
-
-        Previously at M=2, F(F(p)) had a countermodel because boundary effects
-        happened to make F(p) fail at the last time point.
+        A prior comment attributed this formula's None result to quantifier
+        variable shadowing (both nested F calls in false_at allegedly sharing
+        a Z3 variable name, rendering the formula unfalsifiable regardless of
+        M). Under the corrected timeout/UNSAT contract, what is actually
+        observed is a budget-exhausted solve, not a fast structural UNSAT --
+        the shadowing explanation is not confirmed by this behavior and is
+        not asserted here. Whatever the underlying solver mechanics, an
+        undecided solve must raise rather than be laundered into a UNSAT
+        verdict; this is not evidence F(F(p)) is valid.
         """
         depth = temporal_depth(FF_P)
         assert depth == 2, f"Expected temporal_depth=2 for F(F(p)), got {depth}"
 
-        result = self.provider.find_countermodel(FF_P)
-        assert result is None, (
-            f"F(F(p)) should return None (quantifier variable shadowing). Got: {result}"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(FF_P)
 
     def test_imp_gg_p_gf_p_returns_none_at_m4(self):
-        """(G(G(p)) -> G(F(p))) depth=2 -- returns None at M=4.
+        """(G(G(p)) -> G(F(p))) depth=2 -- solver does not decide within the
+        default 5000 ms budget at M=4, so find_countermodel() raises
+        OracleTimeoutError.
 
-        Task 114: At M=4, both subformulas are affected by the same issues:
-        - G(G(p)) in the antecedent: quantifier variable shadowing makes it
-          appear always True (unfalsifiable)
-        - G(F(p)) in the consequent: solver timeout at M=4
-
-        The compound formula inherits these limitations and returns None.
-        Previously at M=2, boundary effects produced a countermodel where
-        G(G(p)) was vacuously true and G(F(p)) was false.
+        The compound formula's G(F(p)) consequent alone already exhausts the
+        default budget (see test_gf_p_returns_none_at_m4); the compound
+        formula inherits that. Under the pre-fix contract this
+        budget-exhausted solve was silently returned as `None`; the contract
+        now raises instead of laundering "solver gave up" into "proven
+        valid". This is not evidence the compound formula is valid.
         """
         depth = temporal_depth(IMP_GG_P_GF_P)
         assert depth == 2, f"Expected temporal_depth=2 for G(G(p))->G(F(p)), got {depth}"
 
-        result = self.provider.find_countermodel(IMP_GG_P_GF_P)
-        assert result is None, (
-            f"G(G(p))->G(F(p)) should return None at M=4 (compound depth-2 limitations). "
-            f"Got: {result}"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(IMP_GG_P_GF_P)
 
 
 ##############################################################################
@@ -1051,17 +1056,18 @@ class TestOracleMFormulaBoundarySafe:
         )
 
     def test_oracle_m_formula_depth2_returns_none(self):
-        """depth=2 formula: oracle uses M=max(2+2,3)=4 but G(F(p)) returns None.
+        """depth=2 formula: oracle uses M=max(2+2,3)=4 but G(F(p)) does not
+        decide within the default 5000 ms budget, so find_countermodel()
+        raises OracleTimeoutError.
 
-        Task 114: At M=4, depth-2 formulas return None due to solver timeout
-        or quantifier variable shadowing. The M formula is correct (M=4,
-        boundary_safe would be True), but the solver can't find countermodels
-        for these formulas at M=4.
+        The M formula itself is correct (M=4, boundary_safe would be True);
+        the solver simply does not reach a verdict on G(F(p)) at M=4 within
+        the default budget. This is an inconclusive result, not evidence of
+        validity -- see test_gf_p_returns_none_at_m4 for the same formula
+        under the same contract.
         """
-        result = self.provider.find_countermodel(GF_P)
-        assert result is None, (
-            f"G(F(p)) should return None at M=4 (solver timeout). Got: {result}"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(GF_P)
 
     def test_gg_p_returns_none_at_m4(self):
         """G(G(p)) at oracle's M=max(2+2,3)=4 returns None (quantifier variable shadowing).
