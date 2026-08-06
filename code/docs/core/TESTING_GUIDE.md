@@ -654,6 +654,79 @@ def test_regression_issue_73_package_loading():
     assert "package=true" in str(exc_info.value).lower()
 ```
 
+### 8.8 Oracle Suite: Gating vs. Exhaustive Split
+
+`oracle/` (the standalone bimodal-logic differential-oracle tree) is split into two entry points
+so that routine, gating test runs stay fast while a full self-consistency sweep remains available
+on demand.
+
+**The `not slow` gating default, and why `oracle/` must spell it out.** `oracle/run-oracle-suite.sh`
+runs two pytest passes, and both deselect the `slow` marker explicitly
+(`-m "not xdist_serial and not slow"` / `-m "xdist_serial and not slow"`). Unlike `code/`, which has
+`code/pyproject.toml` as a reachable ini file, `oracle/` (and the repo root above it) has no ini
+file for pytest to read a default `-m` expression from — `oracle/conftest.py`'s own module
+docstring explains why marks are registered there instead of in an ini file. Without an explicit
+deselect on every invocation, nothing filters out the slow-marked tests, and a full run silently
+becomes the exhaustive sweep described below.
+
+**The exhaustive path.** `oracle/run-oracle-exhaustive-scan.sh` drives
+`pytest oracle -m slow -s` (serial, not parallel, so streamed output is not buffered by xdist and
+solve times are not contention-inflated) to run the full complexity<=5 primitive-formula
+self-consistency scan — 274 formulas x 2 solves each. This is never part of the gating path; it is
+invoked explicitly, typically to re-derive the known-conclusive baseline (below) after a change to
+the formula enumerator or the solve budget. Budget it at roughly 60-90 minutes of wall clock at the
+deployed `SELF_SCAN_SOLVE_TIMEOUT_MS` (see
+`oracle/bimodal_logic/tests/test_cross_oracle_differential.py`); a real derivation run measured
+3640.955s (~60.7 minutes).
+
+**The known-conclusive-population strategy.** Re-solving all 274 formulas on every gating run is
+redundant: roughly 60-65% of them are known in advance to be inconclusive (the solver does not
+decide within budget) and re-discovering the same timeouts every run buys nothing. Instead, the
+gating suite asserts the soundness property only over the *known-conclusive* subset, persisted in
+`oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json`. Each manifest entry records
+both the formula's `index` in the enumerator's output and its canonical `formula_json` — never the
+index alone, since a bare index would silently misalign if the enumerator ever changed. Before
+solving anything, the gating test (`TestGatingConclusiveScan` in `test_cross_oracle_differential.py`)
+re-enumerates the population and cross-checks every manifest entry against it; a mismatch fails
+loudly with an explicit "re-derive the baseline" message rather than proceeding on stale data.
+**A change to the formula enumerator or the solve budget requires regenerating this manifest** via
+a fresh `oracle/run-oracle-exhaustive-scan.sh` run — there is no other sanctioned way to update it.
+
+**The JSON-artifact and completion-marker contract.** Both the exhaustive test and the standalone
+`oracle/scan_runner.py` CLI call the same shared scan core
+(`_generate_differential_report()` in `test_cross_oracle_differential.py`), so there is only ever
+one enumerate-solve-compare loop to keep correct. When given an output directory, that core writes,
+per run: `progress.jsonl` (one flushed JSON record per formula, so an in-flight run is readable
+mid-run — heartbeat and "loud" lines print to stdout on the same cadence), `report.json` (the full
+differential report, written and closed first), and finally a `SCAN_COMPLETE` marker (written via
+write-to-temp-then-`os.replace`, so it is atomic and never observably half-written). **The marker's
+existence — never process or PID liveness — is the only sanctioned signal that a scan run reached
+completion.** A vanished PID is not a verdict: a process can exit for many reasons (killed,
+crashed, `timeout`-terminated) without ever writing a marker, and inferring completion from PID
+absence produced a false completion report before this split existed. Runners poll for the marker
+file, not for whether a process is still running.
+
+**Per-pass timeouts and exit-124 semantics.** Both `run-oracle-suite.sh` passes, and the exhaustive
+scan, are wrapped in `timeout --kill-after=60s BUDGET`. A pass that exceeds its budget is reported
+as `TIMED OUT (exit 124)` (or `137` if `--kill-after`'s SIGKILL was needed after SIGTERM), reported
+distinctly from `FAILED (exit N)` in each script's summary — so a stall is never mistaken for a
+passing or a merely-failing run. Budgets are overridable via `ORACLE_PASS1_TIMEOUT` /
+`ORACLE_PASS2_TIMEOUT` (gating) and `ORACLE_EXHAUSTIVE_TIMEOUT` (exhaustive), defaulting to roughly
+2x the real measured wall clock of each pass on an idle machine. `--kill-after=60s` matters
+specifically for the parallel `-n 6` pass: a bare SIGTERM to the `timeout`-wrapped pytest parent
+does not reliably terminate its xdist worker subprocesses, and a deliberately-triggered timeout
+was verified (via `ps aux | grep pytest` immediately afterward) to leave no orphaned workers once
+`--kill-after`'s SIGKILL follows.
+
+**The hard constraint.** Speed in this split comes only from running less redundant work, never
+from weakening assertions. The soundness tooth (`disagreements == 0` among conclusive results) and
+the conclusiveness-floor tooth (a `min_conclusive` performance floor, catching a starved budget
+before it can vacuously "pass" by making everything inconclusive) are both non-negotiable — the
+gating variant asserts them over a different, smaller *population* than the exhaustive variant, but
+never with different, weaker *logic*. A conclusiveness-floor miss is a budget/performance signal to
+investigate (see 8.6 above on machine-load variance and concurrent-session contention — this same
+class of issue applies here), never a license to lower the floor to force a green run.
+
 ---
 
 ## Quick Reference

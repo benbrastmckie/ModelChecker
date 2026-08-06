@@ -570,29 +570,32 @@ sweep)
 
 ---
 
-### Phase 7: Document the split [NOT STARTED]
+### Phase 7: Document the split [COMPLETED]
 
 **Goal**: The gating/exhaustive split, the baseline strategy, the marker contract, and the timeouts
 are documented in all three places that describe how to run this suite, so they cannot drift.
 
 **Tasks**:
 
-- [ ] Add TESTING_GUIDE.md section **8.8 "Oracle Suite: Gating vs. Exhaustive Split"** immediately
+- [x] Add TESTING_GUIDE.md section **8.8 "Oracle Suite: Gating vs. Exhaustive Split"** immediately
       after 8.7 (the file currently contains zero mentions of "oracle" despite 8.6 being cited by
       both `conftest.py` and `run-oracle-suite.sh`). Cover: the `not slow` gating default and why
       `oracle/` needs it explicitly (no reachable ini file); the separate exhaustive runner and its
       cost; the known-conclusive-population strategy and the rule that a population change requires
       regenerating the manifest; the JSON-artifact and completion-marker contract, stating plainly
       that a vanished PID is not a verdict; and the per-pass timeout with its exit-124 semantics.
-- [ ] State the hard constraint in the guide: the two assertion teeth are non-negotiable, and speed
+- [x] State the hard constraint in the guide: the two assertion teeth are non-negotiable, and speed
       is only ever bought by running less redundant work.
-- [ ] Update the Table of Contents if 8.x subsections are listed there.
-- [ ] Update `oracle/bimodal_logic/README.md`'s "Running the Test Suite" section: the two-pass
+- [x] Update the Table of Contents if 8.x subsections are listed there. (Not listed -- the ToC only
+      lists top-level sections 1-8, no subsection entries to update.)
+- [x] Update `oracle/bimodal_logic/README.md`'s "Running the Test Suite" section: the two-pass
       gating invocation now excludes `slow`, plus the new exhaustive script, plus how to observe a
       long run (tail the JSONL, watch the heartbeat) and how to detect completion (the marker).
-- [ ] Confirm `run-oracle-suite.sh`'s header comment (updated in Phases 3 and 6) is consistent with
-      both documents — this is the specific drift class research Finding 6 flagged.
-- [ ] Per `.claude/rules/no-task-references-in-deliverables.md`: cite durable anchors (file names,
+- [x] Confirm `run-oracle-suite.sh`'s header comment (updated in Phases 3 and 6) is consistent with
+      both documents — this is the specific drift class research Finding 6 flagged. (Added a clause
+      to TESTING_GUIDE 8.8 confirming the verified `--kill-after` orphan cleanup, so the script's
+      cross-reference to 8.8 for that verification is now accurate.)
+- [x] Per `.claude/rules/no-task-references-in-deliverables.md`: cite durable anchors (file names,
       section headings) in all three deliverables — no task numbers anywhere outside `specs/**`.
 
 **Timing**: 1 hour
@@ -607,37 +610,55 @@ are documented in all three places that describe how to run this suite, so they 
 
 **Verification**:
 
-- [ ] `grep -i oracle code/docs/core/TESTING_GUIDE.md` now returns the new section (it returned
-      nothing before).
-- [ ] `grep -rn "task [0-9]" code/docs/core/TESTING_GUIDE.md oracle/` returns no task-number
-      citations in the files this task authored.
-- [ ] All three descriptions of the suite (guide 8.8, oracle README, script header) name the same
+- [x] `grep -i oracle code/docs/core/TESTING_GUIDE.md` now returns the new section (it returned
+      nothing before). (16 case-insensitive matches now, 0 before.)
+- [x] `grep -rn "task [0-9]" code/docs/core/TESTING_GUIDE.md oracle/` returns no task-number
+      citations in the files this task authored. (The raw grep does surface pre-existing citations
+      in files this task did not author, e.g. `oracle/bimodal_logic/tests/test_boundary_regression.py`
+      referencing prior tasks -- checked instead via `git diff ... | grep '^+' | grep -i "task
+      [0-9]"` across every file this task touched: zero matches.)
+- [x] All three descriptions of the suite (guide 8.8, oracle README, script header) name the same
       two runners, the same marker path, and the same timeout env vars — checked by reading them
-      side by side.
-- [ ] Every command shown in the docs is one actually run during this task, not an untested
-      invocation.
+      side by side. (Confirmed via grep: `SCAN_COMPLETE`, `ORACLE_PASS1_TIMEOUT`,
+      `ORACLE_PASS2_TIMEOUT`, `ORACLE_EXHAUSTIVE_TIMEOUT` all appear identically in all three.)
+- [x] Every command shown in the docs is one actually run during this task, not an untested
+      invocation. (`run-oracle-suite.sh` run repeatedly; `run-oracle-exhaustive-scan.sh` run via its
+      `ORACLE_EXHAUSTIVE_TIMEOUT=5` verification in Phase 2; the README's
+      `scan_runner.py --max-complexity 3 --limit 5 --out-dir ...` example matches the exact
+      invocation run in Phase 2's smoke test verbatim.)
 
 ---
 
 ## Testing & Validation
 
-- [ ] `nix develop --command bash oracle/run-oracle-suite.sh` completes green in ~20 minutes
-      (baseline: ~76.7 minutes).
-- [ ] The gating pass no longer collects `TestFullScanReport::test_complexity_5_scan_self_consistent`.
-- [ ] The exhaustive runner streams per-formula progress; a healthy run is never silent longer than
-      the heartbeat interval.
-- [ ] Every scan run emits `report.json` with total / conclusive / disagreements / inconclusive /
-      wall clock, plus a `SCAN_COMPLETE` marker written strictly after the report.
-- [ ] Completion is established from the marker in every runner; no runner polls PID liveness.
-- [ ] A deliberately-triggered timeout reports `TIMED OUT` distinctly from `FAILED`, exits non-zero,
-      and leaves no orphaned xdist workers.
-- [ ] `_assert_scan_report`, `SELF_SCAN_SOLVE_TIMEOUT_MS`, and `MIN_CONCLUSIVE_SCAN_FORMULAS` are
-      unmodified in the final diff.
-- [ ] Negative controls prove both teeth are live in the gating path: an injected disagreement fails
+- [x] `nix develop --command bash oracle/run-oracle-suite.sh` completes green in ~20 minutes
+      (baseline: ~76.7 minutes). Demonstrated on an idle machine (Phase 3): 16.1 min, both passes
+      PASSED. See Phase 6's documented contention finding for the honest caveat under sustained
+      unrelated external CPU load observed later in this session.
+- [x] The gating pass no longer collects `TestFullScanReport::test_complexity_5_scan_self_consistent`.
+      Confirmed via `--collect-only -m "not slow"`; it appears only under `-m "slow"`.
+- [x] The exhaustive runner streams per-formula progress; a healthy run is never silent longer than
+      the heartbeat interval. Confirmed live during Phase 4's 274-formula derivation run (heartbeat
+      every 10 formulas, loud lines on disagree/timeout/slow-solve).
+- [x] Every scan run emits `report.json` with total / conclusive / disagreements / inconclusive /
+      wall clock, plus a `SCAN_COMPLETE` marker written strictly after the report. Confirmed by
+      `TestScanInstrumentation` and by the Phase 4 derivation run's actual artifacts.
+- [x] Completion is established from the marker in every runner; no runner polls PID liveness.
+      `run-oracle-exhaustive-scan.sh` checks the marker explicitly; Phase 4's baseline derivation
+      was polled via marker/log-content evidence, never PID.
+- [x] A deliberately-triggered timeout reports `TIMED OUT` distinctly from `FAILED`, exits non-zero,
+      and leaves no orphaned xdist workers. Verified in Phase 3 (this agent and independently the
+      orchestrator).
+- [x] `_assert_scan_report`, `SELF_SCAN_SOLVE_TIMEOUT_MS`, and `MIN_CONCLUSIVE_SCAN_FORMULAS` are
+      unmodified in the final diff. Re-confirmed at task close: `git diff` across every commit shows
+      zero hunks touching those three names.
+- [x] Negative controls prove both teeth are live in the gating path: an injected disagreement fails
       the run, and a corrupted baseline entry fails the drift guard.
-- [ ] Total collected test count is not lower than before (559 plus additions); no test was skipped
-      or deleted to gain speed.
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -q` shows no collateral regressions outside `oracle/`.
+      `TestGatingConclusiveScanMechanism` (Phase 5) proves both, passing.
+- [x] Total collected test count is not lower than before (559 plus additions); no test was skipped
+      or deleted to gain speed. Measured: 572 = 559 + 13 (9 from Phase 1, 4 from Phase 5).
+- [x] `PYTHONPATH=code/src pytest code/tests/ -q` shows no collateral regressions outside `oracle/`.
+      Measured: 255 passed, 32 deselected, 0 failed, 11.71s.
 
 ## Artifacts & Outputs
 

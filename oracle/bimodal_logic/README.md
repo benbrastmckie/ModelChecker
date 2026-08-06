@@ -72,20 +72,35 @@ because of the `__init__.py` import chain described above.
 
 ## Running the Test Suite
 
-Run the full `oracle/` suite with the two-pass runner rather than a single `pytest oracle/ -n 6`
-invocation:
+The suite has two entry points: a fast **gating** runner (deselects the exhaustive
+complexity<=5 self-consistency scan) for routine use, and a separate, explicitly-invoked
+**exhaustive** runner for the full sweep. See `code/docs/core/TESTING_GUIDE.md` section 8.8
+("Oracle Suite: Gating vs. Exhaustive Split") for the full rationale; this section covers the
+day-to-day commands.
+
+### Gating (routine use)
+
+Run the full `oracle/` suite with the two-pass gating runner rather than a single
+`pytest oracle/ -n 6` invocation:
 
 ```bash
 nix develop --command bash oracle/run-oracle-suite.sh
 ```
 
-The suite is split into two passes because a handful of tests have a Z3 solve budget with under
-~2x headroom over their typical solo wall-clock time, and CPU contention from running six pytest
-workers in parallel can inflate solve times enough to trip that budget — reported as
+Both passes deselect the `slow` marker (the exhaustive scan and its temporal-only BH-comparison
+sibling), so this runs in roughly 15-20 minutes rather than the ~77 minutes a full sweep costs.
+`oracle/` has no reachable pytest ini file (see `oracle/conftest.py`'s module docstring), so the
+deselect has to be spelled out on every invocation — there is no ambient default to inherit.
+
+The suite is further split into two passes because a handful of tests have a Z3 solve budget with
+under ~2x headroom over their typical solo wall-clock time, and CPU contention from running six
+pytest workers in parallel can inflate solve times enough to trip that budget — reported as
 "no countermodel" rather than as an error (see `code/docs/core/TESTING_GUIDE.md` section 8.6). The
-script runs `pytest oracle/ -n 6 -m "not xdist_serial"` first, then a serial
-`pytest oracle/ -m "xdist_serial"` pass with no `-n` at all. Extra arguments (e.g. `-q`,
-`--collect-only`) are forwarded to both passes.
+script runs `pytest oracle/ -n 6 -m "not xdist_serial and not slow"` first, then a serial
+`pytest oracle/ -m "xdist_serial and not slow"` pass with no `-n` at all. Both passes are wrapped
+in `timeout --kill-after=60s BUDGET` (override via `ORACLE_PASS1_TIMEOUT` / `ORACLE_PASS2_TIMEOUT`);
+a pass that exceeds its budget is reported as `TIMED OUT (exit 124)`, distinct from
+`FAILED (exit N)`. Extra arguments (e.g. `-q`, `--collect-only`) are forwarded to both passes.
 
 Marks are registered in `oracle/conftest.py`, which is also where `differential` and `slow` are
 registered for `oracle/`-rooted invocations (they are already declared in `code/pyproject.toml`,
@@ -97,6 +112,36 @@ wall-clock time, mark it `@pytest.mark.xdist_serial` (or, for a single case insi
 `parametrize` list, add its node-id fragment to `oracle/conftest.py`'s
 `pytest_collection_modifyitems` hook) so it runs in the serial pass instead of risking a
 contention-induced spurious failure under `-n 6`.
+
+### Exhaustive (explicit, on demand)
+
+Run the full complexity<=5 self-consistency sweep (274 formulas x 2 solves, ~60-90 minutes) with:
+
+```bash
+nix develop --command bash oracle/run-oracle-exhaustive-scan.sh
+```
+
+This is typically used to re-derive the known-conclusive baseline manifest
+(`oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json`) after a change to the
+formula enumerator or the solve budget — never as part of routine gating. For a bounded/ad-hoc run
+instead (e.g. a quick smoke check), use the standalone CLI directly:
+
+```bash
+python oracle/scan_runner.py --max-complexity 3 --limit 5 --out-dir /tmp/my-scan
+```
+
+**Observing a long run.** Both entry points write into a per-run output directory: `progress.jsonl`
+gets one flushed JSON record appended per formula (so `tail -f progress.jsonl` shows the run live),
+and the same run also prints heartbeat/loud lines to stdout (pass `-s` to pytest, or rely on
+`scan_runner.py`'s default stdout streaming) for every formula that disagrees, times out, or takes
+more than 5 seconds, plus a periodic heartbeat.
+
+**Detecting completion.** A `SCAN_COMPLETE` marker is written into the output directory strictly
+after `report.json` is written and closed (atomically, via write-to-temp-then-rename). The
+marker's existence — never whether the pytest/scan_runner.py process is still running — is the
+only sanctioned signal that a run finished. `run-oracle-exhaustive-scan.sh`'s summary checks for
+this marker explicitly and reports "scan did not reach completion" if it is absent, even if the
+process itself exited.
 
 ## Relationship to the In-Package Bimodal Suite
 
