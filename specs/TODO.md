@@ -1,5 +1,5 @@
 ---
-next_project_number: 139
+next_project_number: 140
 ---
 
 # TODO
@@ -12,8 +12,8 @@ next_project_number: 139
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 133,134,135,136 | -- | architecture, testing |
-| 2 | 127,137,138 | 133 | oracle soundness, testing infrastructure, testing |
-| 3 | 126 | 127 | architecture |
+| 2 | 127,138,139 | 133 | oracle soundness, testing infrastructure, testing |
+| 3 | 126,137 | 127,139 | architecture, oracle soundness |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -32,12 +32,24 @@ next_project_number: 139
 ### Oracle Soundness
 
 137 [NOT STARTED] — Investigate the 13 resolved-and-wrong soundness disagreements bet
+139 [NOT STARTED] — Fix the Z3 quantifier variable shadowing defect in nested same-ty
+  └─ 137 [NOT STARTED] — Investigate the 13 resolved-and-wrong soundness disagreements bet (see above)
 
 ### Testing Infrastructure
 
 138 [NOT STARTED] — Fix the structural defects that make the oracle suite a ~60-minut
 
 ## Tasks
+
+### 139. Fix z3 quantifier variable shadowing in temporal operators
+- **Status**: [NOT STARTED]
+- **Task Type**: z3
+- **Topic**: oracle soundness
+- **Dependencies**: Task 133
+
+**Description**: Fix the Z3 quantifier variable shadowing defect in nested same-type temporal operators, and stop asserting it as correct behavior. oracle/bimodal_logic/tests/test_soundness_regression.py documents in its own docstrings that both nested G operators bind the same Z3 variable name, future_false_time, in false_at, so the inner quantifier shadows the outer, the inner condition degenerates to x > x which is always False, and the formula becomes unfalsifiable. An unfalsifiable-by-encoding-bug formula yields no countermodel, which find_countermodel reports as valid - the oracle claiming validity it never established. This is the same class of soundness defect as the timeout/UNSAT conflation fixed in the find_countermodel contract work: a non-answer presented as a proof. Several tests currently assert this broken behavior as expected, including test_gg_p_returns_none and test_fg_p_returns_none, and must be rewritten to assert correct semantics once the encoding is fixed - a test suite that enshrines the bug cannot detect it. Scope: 1. Confirm or refute the shadowing diagnosis by inspecting the quantifier binding in false_at and the temporal operator encodings, noting that the migration to OracleTimeoutError showed some of these formulas actually exhaust their solve budget rather than resolving to None, so the docstrings' shadowing attribution may be stale or only partly correct. 2. Generate fresh bound variable names per quantifier nesting level. 3. Rewrite the tests that encode the defect as expected. 4. Re-measure the conclusive rate on the complexity<=5 sweep, since a shadowing fix may raise it well above the measured 38.7 percent and would then be the real speedup rather than any test-infrastructure change. Likely root cause of, or strongly related to, the resolved-and-wrong MC/BimodalHarness divergences tracked separately - investigate that link before treating the two as independent.
+
+---
 
 ### 138. Make oracle suite fast and observable
 - **Status**: [NOT STARTED]
@@ -53,7 +65,7 @@ next_project_number: 139
 - **Status**: [NOT STARTED]
 - **Task Type**: python
 - **Topic**: oracle soundness
-- **Dependencies**: Task 133
+- **Dependencies**: Task 133, Task 139
 
 **Description**: Investigate the 13 resolved-and-wrong soundness disagreements between the ModelChecker oracle and BimodalHarness. With the find_countermodel timeout/UNSAT conflation removed, 13 of 158 temporal-only formulas at complexity<=5 have BOTH oracles decide and disagree - a genuine semantic divergence previously masked by timeouts being reported as UNSAT. Tracked by the strict xfail on test_temporal_only_agreement_complexity_5 in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Determine which oracle is correct for each of the 13, root-cause the divergence, and fix the incorrect side. This is a soundness defect, not a performance or timeout issue.
 
