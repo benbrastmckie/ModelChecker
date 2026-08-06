@@ -307,7 +307,7 @@ and 8 all reuse. Without a pre-fix measurement, "the fix worked" is unfalsifiabl
 
 ---
 
-### Phase 3: Permanent anti-collapse structural regression guard [NOT STARTED]
+### Phase 3: Permanent anti-collapse structural regression guard [COMPLETED]
 
 **Goal**: Convert the census from a one-off probe into a standing test, so this defect class cannot
 silently return. This is the phase that demonstrates the *soundness* failure mode is gone rather
@@ -315,19 +315,23 @@ than merely that tests pass.
 
 **Tasks**:
 
-- [ ] Add `oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py` containing the census as a
+- [x] Add `oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py` containing the census as a
       pytest test: for every enumerated complexity<=5 primitive formula that contains no `\bot`,
       assert `z3.simplify(conclusion_constraints[0])` is not a Z3 Boolean literal.
-- [ ] Add targeted named tests with explanatory docstrings for `(p \Until p) \Until p`,
+      **Refinement recorded**: the exhaustive sweep also excludes formulas structurally outside
+      the defect's blast radius (no quantified operator at all, or box-only formulas -- confirmed
+      immune per research §3), per the Phase 1/2 census findings, so it does not spuriously fail on
+      the four independently-genuine tautologies already documented in `evidence/pre-fix-state.md`.
+- [x] Add targeted named tests with explanatory docstrings for `(p \Until p) \Until p`,
       `(p \Since p) \Since p`, and `G(G(p))` — the three formulas whose collapse was directly
       verified pre-fix.
-- [ ] Document in the module docstring *why* this is a soundness test and not a style test: a
+- [x] Document in the module docstring *why* this is a soundness test and not a style test: a
       conclusion constraint that folds to a Boolean literal is unfalsifiable by encoding, so
       `find_countermodel` returns no countermodel, which the oracle reports as validity it never
       established. Cite the mechanism (Z3 interns `Int` constants by `(name, sort)`), not a task
       number.
-- [ ] Mark the test not-`slow` and not-`xdist_serial`: it performs zero solves, so it belongs in the
-      gating pass. Confirm its runtime is seconds.
+- [x] Mark the test not-`slow` and not-`xdist_serial`: it performs zero solves, so it belongs in the
+      gating pass. Confirm its runtime is seconds. (No markers applied; measured 1.7-2.1s.)
 
 **Timing**: 1.5 hours
 
@@ -339,11 +343,19 @@ than merely that tests pass.
 
 **Verification**:
 
-- [ ] The new tests pass at the post-fix commit.
-- [ ] The guard demonstrably has teeth: temporarily revert one `FreshInt` back to `z3.Int` in a
+- [x] The new tests pass at the post-fix commit. (4/4 passed, 1.68-2.07s.)
+- [x] The guard demonstrably has teeth: temporarily revert one `FreshInt` back to `z3.Int` in a
       scratch working copy, confirm the test **fails**, then restore. Record the observed failure
       message. A guard that passes both with and against the fix is worthless.
-- [ ] Runtime of the new module is under ~30 seconds (no solving).
+      **Teeth check performed**: reverted `UntilOperator.true_at`'s `witness_time` back to
+      `z3.Int('until_witness_time')` (1-line edit). Both `test_no_non_bot_formula_folds_to_boolean_literal`
+      and `test_until_until_p_conclusion_not_boolean_literal` failed with the exact expected
+      message: `"(p Until p) Until p's conclusion constraint folded to a Boolean literal (True) --
+      the Until/Until nested aliasing defect has returned."` and the exhaustive sweep listed
+      `index=205 folded_to=True`. Restored via the backed-up file; `git diff` on `operators.py`
+      confirmed byte-identical to the pre-revert (Phase 2 committed) state afterward. All 4 tests
+      pass again post-restore.
+- [x] Runtime of the new module is under ~30 seconds (no solving). (1.68-2.07s measured.)
 
 ---
 
