@@ -116,6 +116,36 @@ SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 # again -- re-measure the real conclusive rate at the current budget first.
 MIN_CONCLUSIVE_SCAN_FORMULAS = 90
 
+# Path to the persisted known-conclusive-population manifest (Decision D3 in
+# specs/138_make_oracle_suite_fast_and_observable/plans/
+# 01_oracle-suite-fast-observable.md), re-derived by
+# oracle/run-oracle-exhaustive-scan.sh via oracle/scan_runner.py. Read by
+# TestGatingConclusiveScan.
+KNOWN_CONCLUSIVE_MANIFEST_PATH = (
+    Path(__file__).resolve().parent / "data" / "known_conclusive_complexity5.json"
+)
+
+# Floor for TestGatingConclusiveScan::test_known_conclusive_population_self_consistent
+# -- a SEPARATE constant from MIN_CONCLUSIVE_SCAN_FORMULAS, which the exhaustive
+# variant keeps using unchanged. The gating subset is, by construction, exactly
+# the set of formulas the exhaustive baseline already found conclusive (see
+# oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json,
+# conclusive_count=103 as of its most recent derivation), so this floor is set
+# near 100% of that subset rather than the ~33% (90/274) the exhaustive variant
+# tolerates -- materially stricter proportionally, not looser.
+#
+# Derivation: the slowest conclusive solve observed in the baseline-deriving run
+# was 8.646s against the same SELF_SCAN_SOLVE_TIMEOUT_MS=10000 budget (13.5%
+# headroom) -- see specs/138_.../baselines/derivation-run/progress.jsonl. A
+# small amount of slack (3 of 103, ~97.1% retention) tolerates ordinary
+# run-to-run solve-time variance near that budget without masking a real
+# regression. Do not raise this to make a run green if solve times drift wider
+# than this -- that is the assertion-weakening this task's hard constraint
+# forbids; investigate instead. If the manifest's conclusive_count changes
+# (baseline re-derived), recompute this floor from the new count, do not leave
+# it stale.
+MIN_CONCLUSIVE_GATING_FORMULAS = 100
+
 
 def _formula_complexity(formula_json: dict) -> int:
     """Compute structural node count (complexity) of a JSON formula.
@@ -594,6 +624,36 @@ def _assert_scan_report(report: dict, min_conclusive: int) -> None:
         f"(floor={min_conclusive}); this is a budget/performance regression to "
         f"investigate, not a semantic one."
     )
+
+
+def _load_known_conclusive_manifest(manifest_path: Path) -> dict:
+    """Load and minimally validate the known-conclusive-population manifest.
+
+    Args:
+        manifest_path: Path to a JSON manifest written by the process
+            documented in oracle/bimodal_logic/tests/data/
+            known_conclusive_complexity5.json's own `notes` field (re-derived
+            via oracle/run-oracle-exhaustive-scan.sh -> oracle/scan_runner.py).
+
+    Returns:
+        The parsed manifest dict.
+
+    Raises:
+        FileNotFoundError: if no manifest exists at manifest_path, with a
+            message pointing at the re-derivation script -- a missing
+            manifest is not a silently-skippable condition.
+    """
+    if not manifest_path.exists():
+        raise FileNotFoundError(
+            f"Known-conclusive manifest not found at {manifest_path}. "
+            "Re-derive it via: python oracle/scan_runner.py --timeout-ms "
+            f"{SELF_SCAN_SOLVE_TIMEOUT_MS} --out-dir <dir>, then rebuild the "
+            "manifest from <dir>/progress.jsonl (see Phase 4 of "
+            "specs/138_make_oracle_suite_fast_and_observable/plans/"
+            "01_oracle-suite-fast-observable.md for the exact procedure)."
+        )
+    with open(manifest_path, encoding="utf-8") as f:
+        return json.load(f)
 
 
 ##############################################################################
@@ -2047,6 +2107,168 @@ class TestScanInstrumentation:
         )
         assert not (tmp_path / "report.json").exists()
         assert not (tmp_path / "SCAN_COMPLETE").exists()
+
+
+def _verify_manifest_matches_enumeration(manifest: dict) -> list[dict]:
+    """Structural drift guard for the known-conclusive-population manifest.
+
+    Cheap, no-Z3 check performed before any solving: re-enumerates
+    complexity<=`manifest["max_complexity"]` and confirms (a) the population
+    size still matches `manifest["total_formulas"]`, and (b) every manifest
+    entry's `formula_json` still matches the enumerator's output at its
+    recorded `index`. Together these two checks are the "inconclusive set
+    has not grown" structural invariant: population size fixed, known-
+    conclusive membership fixed, so the inconclusive complement cannot have
+    grown without one of these assertions firing first.
+
+    Args:
+        manifest: A parsed known-conclusive-population manifest (see
+            `_load_known_conclusive_manifest`).
+
+    Returns:
+        The `formula_json` dicts of the manifest's conclusive subset, in
+        manifest order.
+
+    Raises:
+        AssertionError: with an explicit "re-derive the baseline via
+            oracle/run-oracle-exhaustive-scan.sh" message on any mismatch --
+            never a silent pass or an obscure KeyError/IndexError.
+    """
+    all_formulas = _enumerate_primitive_formulas(
+        manifest["max_complexity"], manifest["atoms"]
+    )
+    assert len(all_formulas) == manifest["total_formulas"], (
+        f"Enumerator now produces {len(all_formulas)} formulas at "
+        f"complexity<={manifest['max_complexity']}, but the manifest recorded "
+        f"{manifest['total_formulas']} -- the enumerator changed. Re-derive "
+        "the baseline via oracle/run-oracle-exhaustive-scan.sh."
+    )
+
+    conclusive_formulas = []
+    for entry in manifest["conclusive"]:
+        idx = entry["index"]
+        assert 0 <= idx < len(all_formulas) and all_formulas[idx] == entry["formula_json"], (
+            f"Manifest entry at index {idx} no longer matches the enumerated "
+            "formula at that index -- the enumerator changed. Re-derive "
+            "the baseline via oracle/run-oracle-exhaustive-scan.sh."
+        )
+        conclusive_formulas.append(entry["formula_json"])
+    return conclusive_formulas
+
+
+@pytest.mark.xdist_serial
+class TestGatingConclusiveScan:
+    """Gating soundness check over the persisted known-conclusive population.
+
+    Division of labour: this test detects soundness regressions in the
+    decidable (conclusive) population on every gating run, without
+    re-solving the ~171 known-timeout formulas recorded in
+    oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json. The
+    `slow`-marked exhaustive variant (TestFullScanReport) remains the sole
+    re-deriver of the full 274-formula population and the sole detector of
+    drift in the inconclusive set beyond the structural population-size and
+    membership check `_verify_manifest_matches_enumeration` performs below.
+
+    Marked `xdist_serial`, not `slow`: this runs in
+    oracle/run-oracle-suite.sh's contention-free serial pass (zero sibling
+    pytest workers), so `MIN_CONCLUSIVE_GATING_FORMULAS` is a deterministic
+    floor rather than a contention-dependent one -- a strengthening over
+    running this under `-n 6`, per the Risks table in
+    specs/138_make_oracle_suite_fast_and_observable/plans/
+    01_oracle-suite-fast-observable.md.
+    """
+
+    def setup_method(self):
+        from bimodal_logic import Z3OracleProvider
+        self.oracle = Z3OracleProvider()
+
+    def test_known_conclusive_population_self_consistent(self):
+        """Solve only the manifest's known-conclusive subset and assert the
+        unmodified `_assert_scan_report` soundness/floor teeth over it.
+
+        Two distinct claims, exactly as in TestFullScanReport (see
+        `_assert_scan_report`'s own docstring): zero disagreements among
+        conclusive results is the soundness claim (zero tolerance); at
+        least `MIN_CONCLUSIVE_GATING_FORMULAS` conclusive formulas is a
+        performance floor over this run's re-solve of the known-conclusive
+        subset (a starved budget or contention must not silently degrade
+        into "everything timed out here too, therefore zero disagreements,
+        therefore pass").
+        """
+        manifest = _load_known_conclusive_manifest(KNOWN_CONCLUSIVE_MANIFEST_PATH)
+        conclusive_formulas = _verify_manifest_matches_enumeration(manifest)
+
+        def ref_fn(f):
+            return _reference_verdict(
+                self.oracle, f, timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS
+            )
+
+        report = _generate_differential_report(
+            self.oracle,
+            conclusive_formulas,
+            ref_fn,
+            {"mc": "mc_oracle", "ref": "mc_oracle_self"},
+            timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS,
+        )
+
+        _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_GATING_FORMULAS)
+
+
+class TestGatingConclusiveScanMechanism:
+    """Fast, Z3-free proofs that TestGatingConclusiveScan's two failure modes
+    are live, run against the real manifest's structure (but no Z3 solving)
+    and a stub oracle -- so these belong in the gating pass alongside
+    TestScanInstrumentation.
+    """
+
+    def test_drift_guard_fires_on_corrupted_manifest_entry(self):
+        """A manifest entry whose `formula_json` no longer matches the
+        enumerator at its recorded index fails with the "re-derive the
+        baseline" message, not silently and not obscurely.
+        """
+        real_manifest = _load_known_conclusive_manifest(KNOWN_CONCLUSIVE_MANIFEST_PATH)
+        corrupted = json.loads(json.dumps(real_manifest))  # deep copy via round-trip
+        assert corrupted["conclusive"], "fixture manifest has no conclusive entries"
+        corrupted["conclusive"][0]["formula_json"] = {
+            "tag": "atom", "name": "__corrupted_by_test__",
+        }
+
+        with pytest.raises(AssertionError, match="Re-derive the baseline"):
+            _verify_manifest_matches_enumeration(corrupted)
+
+    def test_drift_guard_fires_on_population_size_change(self):
+        """A manifest whose recorded `total_formulas` no longer matches the
+        live enumerator's output size fails loudly, not silently.
+        """
+        real_manifest = _load_known_conclusive_manifest(KNOWN_CONCLUSIVE_MANIFEST_PATH)
+        corrupted = json.loads(json.dumps(real_manifest))
+        corrupted["total_formulas"] = real_manifest["total_formulas"] + 1
+
+        with pytest.raises(AssertionError, match="Re-derive the baseline"):
+            _verify_manifest_matches_enumeration(corrupted)
+
+    def test_soundness_tooth_still_live_for_gating_floor(self):
+        """The gating mechanism's soundness assertion is not a dead check:
+        a stub oracle injected to disagree on one formula fails
+        `_assert_scan_report` even when evaluated against
+        `MIN_CONCLUSIVE_GATING_FORMULAS` specifically -- proving speed did
+        not come from a weakened assertion tied to this new constant.
+        """
+        formulas = [
+            {"tag": "atom", "name": "agree0"},
+            {"tag": "atom", "name": "disagree1"},
+        ]
+        subject = _StubOracle({"agree0": "SAT", "disagree1": "SAT"})
+        reference = _StubOracle({"agree0": "SAT", "disagree1": "UNSAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(reference, f)
+
+        report = _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub-subject", "ref": "stub-reference"}
+        )
+        with pytest.raises(AssertionError, match="disagreements"):
+            _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_GATING_FORMULAS)
 
 
 class TestComplexity3ScanReportWriting:

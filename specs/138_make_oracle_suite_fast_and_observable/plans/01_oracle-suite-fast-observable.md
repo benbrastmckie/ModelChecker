@@ -417,35 +417,38 @@ surviving pre-fix 5000ms JSONL is unusable as ground truth (it predates the time
 
 ---
 
-### Phase 5: Gating conclusive-population assertion [NOT STARTED]
+### Phase 5: Gating conclusive-population assertion [COMPLETED]
 
 **Goal**: A gating test that asserts the soundness tooth over the known-conclusive population and
 that the inconclusive set has not grown — without re-solving the ~168 known-timeout formulas.
 
 **Tasks**:
 
-- [ ] Write the test first: `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`
+- [x] Write the test first: `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`
       in `test_cross_oracle_differential.py`, marked `@pytest.mark.xdist_serial` (so it runs in the
       contention-free serial pass — see the Risks table; this makes the floor deterministic rather
       than contention-dependent, a strengthening, not a relaxation). Not marked `slow`.
-- [ ] Structural drift guard, before any solving (cheap, no Z3): re-enumerate complexity<=5; assert
+- [x] Structural drift guard, before any solving (cheap, no Z3): re-enumerate complexity<=5; assert
       `len(all_formulas) == manifest["total_formulas"]`; assert every manifest entry's
       `formula_json` matches the enumerated formula at its `index`. On mismatch, fail with an
       explicit "the enumerator changed — re-derive the baseline via
       oracle/run-oracle-exhaustive-scan.sh" message. This is the "inconclusive set has not grown"
       structural invariant: population size fixed, known-conclusive membership fixed, therefore the
       inconclusive complement cannot have grown without one of these assertions firing.
-- [ ] Solve only the manifest's conclusive subset at `SELF_SCAN_SOLVE_TIMEOUT_MS` via
+      (Implemented as `_verify_manifest_matches_enumeration()`.)
+- [x] Solve only the manifest's conclusive subset at `SELF_SCAN_SOLVE_TIMEOUT_MS` via
       `_generate_differential_report()`, then pass the report to `_assert_scan_report()`
       **unchanged**.
-- [ ] Introduce `MIN_CONCLUSIVE_GATING_FORMULAS` as a **separate** constant — do not touch
+- [x] Introduce `MIN_CONCLUSIVE_GATING_FORMULAS` as a **separate** constant — do not touch
       `MIN_CONCLUSIVE_SCAN_FORMULAS`, which the exhaustive variant keeps using. Set it tight,
       just below the manifest's `conclusive_count`, with only enough slack for ordinary run-to-run
       variance (the gating subset is conclusive by construction, so this floor should be near
       100% of the subset — materially stricter proportionally than the exhaustive 90/274).
       Document the derivation in a code comment in the same style as the existing constants,
-      including the explicit instruction never to lower it to make a run green.
-- [ ] Add a docstring stating the division of labour: this test detects soundness regressions in the
+      including the explicit instruction never to lower it to make a run green. (Set to 100,
+      ~97.1% of the manifest's conclusive_count=103; derivation comment cites the slowest
+      observed conclusive solve, 8.646s against the 10000ms budget.)
+- [x] Add a docstring stating the division of labour: this test detects soundness regressions in the
       decidable population every run; the exhaustive variant is the sole re-deriver of the full
       population and the sole detector of drift in the inconclusive set.
 
@@ -460,17 +463,23 @@ that the inconclusive set has not grown — without re-solving the ~168 known-ti
 
 **Verification**:
 
-- [ ] The gating test passes serially and its wall clock is ~2 minutes (measured planning basis: the
+- [x] The gating test passes serially and its wall clock is ~2 minutes (measured planning basis: the
       conclusive subset totalled 101s of solve time in the surviving 274-formula run). Record the
-      actual time.
-- [ ] Negative control — the drift guard actually fires: temporarily corrupt one manifest entry's
+      actual time. (Measured: 127.96s = 2:08. `scan report: agreements=103 disagreements=0
+      timeout_count=0 conclusive=103/103`.)
+- [x] Negative control — the drift guard actually fires: temporarily corrupt one manifest entry's
       `formula_json` in a scratch copy and confirm the test fails with the "re-derive the baseline"
-      message rather than passing or erroring obscurely. Revert.
-- [ ] Negative control — the soundness tooth is still live: run the test against a stub oracle
+      message rather than passing or erroring obscurely. Revert. (Implemented as
+      `TestGatingConclusiveScanMechanism::test_drift_guard_fires_on_corrupted_manifest_entry` and
+      `test_drift_guard_fires_on_population_size_change`, both passing; no scratch file left behind
+      since the corruption is done on an in-memory deep copy.)
+- [x] Negative control — the soundness tooth is still live: run the test against a stub oracle
       injected to disagree on one formula and confirm `_assert_scan_report` fails it. This proves
-      speed did not come from a dead assertion.
-- [ ] `git diff` confirms `_assert_scan_report`, `SELF_SCAN_SOLVE_TIMEOUT_MS`, and
-      `MIN_CONCLUSIVE_SCAN_FORMULAS` remain unmodified.
+      speed did not come from a dead assertion. (Implemented as
+      `test_soundness_tooth_still_live_for_gating_floor`, passing.)
+- [x] `git diff` confirms `_assert_scan_report`, `SELF_SCAN_SOLVE_TIMEOUT_MS`, and
+      `MIN_CONCLUSIVE_SCAN_FORMULAS` remain unmodified. (Confirmed: zero hunks touching those three
+      names.)
 
 ---
 
