@@ -1,7 +1,7 @@
 # Implementation Plan: The `find_countermodel` Timeout/UNSAT Contract
 
 - **Task**: 133 - fix_oracle_self_consistency_disagreements
-- **Status**: [NOT STARTED]
+- **Status**: [PARTIAL]
 - **Effort**: 8 hours attended (plus ~2-2.5 hours unattended background wall clock in Phase 7)
 - **Dependencies**: None. Blocks task 127 (oracle-suite regression baseline), which in turn blocks task 126.
 - **Research Inputs**:
@@ -827,37 +827,78 @@ correctly load-bearing, not vestigial.
 
 ---
 
-### Phase 7: Full-suite verification and the downstream exit criterion [NOT STARTED]
+### Phase 7: Full-suite verification and the downstream exit criterion [PARTIAL]
 
 **Goal**: Produce the result the downstream regression-baseline task needs, and state precisely
 what it does and does not prove.
 
 **Tasks**:
 
-- [ ] Check for competing pytest processes (`ps aux | grep pytest`) before launching, per
-      `code/docs/core/TESTING_GUIDE.md` section 8.6.
-- [ ] Run the scan alone first, **with `run_in_background: true`**, so that a failure is
-      attributable before the whole suite is committed to:
-      ```bash
-      nix develop --command bash -c 'PYTHONPATH=code/src pytest \
-        "oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent" \
-        -q -s --durations=0'
-      ```
-      `-s` is required so the unconditional count print reaches the log. Record the exit status,
-      the duration, and the three counts.
-- [ ] **Abort rule**: if this run exceeds **90 minutes** of wall clock, stop it, record the partial
-      evidence, and apply the Phase 5 escalation ladder in reverse (reduce the budget one step)
-      rather than waiting it out. Do not raise it. The v1 failure mode was waiting on a run that
-      never emitted anything.
-- [ ] Run the full two-pass suite, **with `run_in_background: true`**:
-      ```bash
-      nix develop --command bash oracle/run-oracle-suite.sh
-      ```
-      Record, from the script's own `== oracle suite summary ==` block: pass 1 status, pass 2
-      status, overall exit code, and total wall clock.
-- [ ] If any test *other* than the ones this plan migrated fails, report it with its node id and
-      output and stop. Fixing it is out of scope.
-- [ ] Write the exit criterion below into the implementation summary verbatim.
+- [x] Checked for competing pytest processes before each launch (none found).
+- [x] Ran the scan alone first (foreground with a background shell process, since the coordinator
+      clarified mid-task that only genuinely multi-hour runs need `run_in_background: true` as a
+      tool-call flag; this run was tracked by PID and polled with bounded waits, which is
+      operationally the same discipline). **Result**: exit 1 (test FAILED), wall clock
+      **3606.39s (1:00:06)**, well inside the 90-minute abort ceiling.
+      **Recorded counts (from the unconditional print)**: `agreements=106 disagreements=0
+      timeout_count=168 conclusive=106/274`.
+      **Disposition**: failed on the conclusiveness floor (`106 < 137`), **not** on
+      disagreements (`0`). This is precisely the distinction Phase 5's two-tooth assertion exists
+      to make: a budget/performance regression, not a semantic one. The floor of 137 was
+      calibrated from a 30-formula sample that only reached complexity 4 (see the Phase 5
+      handoff's own caveat); the real, full 274-formula sweep's conclusive rate (38.7%) came in
+      meaningfully below the sample's 50-57% range, confirming that caveat. **The floor was not
+      adjusted in this session** — see "Deviation: floor not adjusted" below for why, and the
+      recommendation left for follow-up.
+- [x] **Abort rule**: not triggered (60.1 min < 90 min).
+- [x] Ran the full two-pass suite (same foreground-with-PID-tracking discipline, `run-oracle-suite.sh`
+      does not need `nix develop` re-invoked internally). **Result**: both passes **FAILED**.
+      - Pass 1 (parallel, `-n 6`, not `xdist_serial`): **5 failed, 538 passed, 4 skipped, 5
+        xfailed** in 4313.42s (1:11:53).
+      - Pass 2 (serial, `xdist_serial`): **1 failed, 6 passed, 552 deselected** in 285.74s (0:04:45).
+      - Total suite wall clock: ~76.7 minutes (script-reported durations) / ~76.7 minutes
+        observed (launch to completion).
+- [x] **If any test other than the ones this plan migrated fails, report it with its node id and
+      output and stop.** Five of the six failures are exactly that case:
+      - `test_soundness_regression.py::TestKnownBoundaryUnsafe::test_gf_p_returns_none_at_m4`
+      - `test_soundness_regression.py::TestKnownBoundaryUnsafe::test_imp_gg_p_gf_p_returns_none_at_m4`
+      - `test_soundness_regression.py::TestKnownBoundaryUnsafe::test_ff_p_returns_none_at_m4`
+      - `test_soundness_regression.py::TestOracleMFormulaBoundarySafe::test_oracle_m_formula_depth2_returns_none`
+      - `test_soundness_regression.py::TestStateIsolationRegression::test_no_semantics_reference_leak_with_temporal`
+      (pass 2)
+
+      All five have the **identical failure signature**: `OracleTimeoutError: Z3 solver did not
+      decide the formula within 5000 ms (temporal_depth=2, time_bound M=4)`, raised out of a test
+      that asserts `result is None` for a documented "M4 boundary-unsafe -- returns None" formula.
+      This is the exact same latent bug this whole plan targets — the pre-Phase-1 contract
+      silently returned `None` for a budget-exhausted solve, which these tests' docstrings
+      document as the *expected, correct* behavior (M4 boundary-unsafe formulas are documented as
+      genuinely returning `None`). Phase 1 correctly stopped masking that, and now these tests
+      crash instead of silently passing on a wrong premise. **`test_soundness_regression.py` is
+      not in this plan's file list, was never touched by any phase, and per this exact
+      instruction is out of scope to fix here.** Reported, not fixed. Recommend a follow-up task
+      scoped to that file specifically (mirrors this plan's own Phase 3 pattern: bucket into
+      resolved-and-wrong vs. inconclusive, most likely all four are simply inconclusive given the
+      identical M=4/depth=2/5000ms signature matches the documented boundary-unsafe case exactly).
+      The sixth failure (`test_complexity_5_scan_self_consistent`) is this plan's own test,
+      covered above.
+- [x] Wrote the exit criterion into the implementation summary verbatim (see summary), annotated
+      with the actual measured counts rather than a hypothetical green run, since no green run was
+      achieved in this session.
+
+**Deviation: floor not adjusted, suite not re-run to force green.** After observing the
+conclusiveness-floor miss (106 < 137), recalibrating `MIN_CONCLUSIVE_SCAN_FORMULAS` downward and
+re-running to chase a green result was considered and explicitly rejected: (1) the coordinator's
+instruction was to report the result honestly rather than paper over it; (2) the pre-existing
+`test_soundness_regression.py` failures mean the suite would not be green even with a corrected
+floor, so a floor-only fix would not have achieved the stated exit criterion anyway; (3) each
+re-run costs another ~60-77 minutes, and this session had already spent well over 3 hours on
+Phase 7 alone. The floor recalibration is left as an explicit, scoped follow-up recommendation
+(see the summary), informed by the best data now available: 106/274 (38.7%) under serial
+execution, plausibly lower under the `-n 6` parallel pass's contention (pass 1's wall clock for
+this one test, inferred from pass 1's total 4313s against the other tests' comparatively small
+share, is consistent with the scan taking as long or longer under contention than the 3606s
+serial baseline -- see the summary for the full reasoning).
 
 **Timing**: 45 minutes attended; ~2-2.5 hours unattended background wall clock.
 
@@ -868,15 +909,25 @@ what it does and does not prove.
 
 **Verification**:
 
-- Success criterion: `oracle/run-oracle-suite.sh` exits 0 with
-  `pass 1 (parallel, -n 6, not xdist_serial): PASSED` and
-  `pass 2 (serial, xdist_serial):             PASSED`.
-- Recorded: total suite wall clock, and the scan's `agreements`/`disagreements`/`timeout_count`.
+- Success criterion (`oracle/run-oracle-suite.sh` exits 0 with both passes PASSED): **NOT MET**.
+  Both passes FAILED. `pass 1 (parallel, -n 6, not xdist_serial): FAILED (exit 1)`,
+  `pass 2 (serial, xdist_serial): FAILED (exit 1)`.
+- Recorded: total suite wall clock ~76.7 minutes; scan counts
+  `agreements=106 disagreements=0 timeout_count=168` (conclusive=106/274, floor=137, MISSED).
+- Full failure detail and disposition: see the Phase 7 task list above and the implementation
+  summary.
 
 ## Exit criterion for the downstream regression-baseline task
 
-Task 127 needs a trustworthy green baseline from this suite, and task 126 waits on 127. State the
-following verbatim in the implementation summary.
+**Status as of Phase 7 execution: NOT MET.** The one complete `oracle/run-oracle-suite.sh`
+invocation actually run in this session did not have both passes report PASSED (see the Phase 7
+task list above for the full disposition: one floor-miss in this plan's own test, plus five
+pre-existing, out-of-scope failures in `test_soundness_regression.py`). The criterion's shape
+below is unchanged and remains the target for the follow-up work this session's findings scope
+out; it is written in the present tense as originally authored.
+
+The downstream regression-baseline task needs a trustworthy green baseline from this suite. State
+the following verbatim in the implementation summary.
 
 **Necessary and sufficient to unblock 127**: one complete `oracle/run-oracle-suite.sh` invocation
 in which both passes report PASSED and the script exits 0, **with the scan's recorded
