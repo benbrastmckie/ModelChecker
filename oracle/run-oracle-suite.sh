@@ -58,8 +58,27 @@ repo_root="$(cd "$script_dir/.." >/dev/null 2>&1 && pwd)"
 
 export PYTHONPATH="${PYTHONPATH:-$repo_root/code/src}"
 
-pass1_timeout="${ORACLE_PASS1_TIMEOUT:-900}"
-pass2_timeout="${ORACLE_PASS2_TIMEOUT:-600}"
+# Measured basis (Phase 6 of specs/138_make_oracle_suite_fast_and_observable/
+# plans/01_oracle-suite-fast-observable.md): each default is ~2x the real
+# measured per-pass wall clock of the gating suite on an otherwise-idle
+# machine, so a deliberate budget can be told apart from a guess.
+#   pass 1 (parallel, -n 6, not xdist_serial and not slow): 649.09s measured
+#     -> 1300s default.
+#   pass 2 (serial, xdist_serial and not slow): 318.57s measured for the 7
+#     pre-Phase-5 tests, plus 127.96s independently measured for the Phase 5
+#     gating-conclusive-population test added to this pass, ~446s combined
+#     -> 900s default.
+# Both measurements were taken on an idle machine with no competing pytest
+# processes and no other heavy CPU consumers; re-running under a heavily
+# loaded shared machine (e.g. a concurrent unrelated `lean --worker` proof
+# search consuming multiple cores) can push individual near-budget Z3 solves
+# past SELF_SCAN_SOLVE_TIMEOUT_MS even in this serial pass, which is
+# environmental contention distinct from the pytest-xdist sibling-worker
+# contention this two-pass split exists to eliminate. Never widen these
+# timeouts, or MIN_CONCLUSIVE_GATING_FORMULAS/MIN_CONCLUSIVE_SCAN_FORMULAS,
+# to paper over a contended run -- re-run when the machine is idle instead.
+pass1_timeout="${ORACLE_PASS1_TIMEOUT:-1300}"
+pass2_timeout="${ORACLE_PASS2_TIMEOUT:-900}"
 
 # Pass 1: everything except the contention-sensitive tests and the slow
 # exhaustive scan, in parallel. Hard-coded -n 6, not -n auto: this
