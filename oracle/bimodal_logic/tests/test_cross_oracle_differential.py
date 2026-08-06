@@ -21,15 +21,26 @@ Test Classes:
     TestBimodalHarnessIntegration:   Optional BH Z3 oracle comparison (conditional)
     TestMockOracleSpotCheck:         Spot-check using BH MockOracleProvider
     TestDifferentialReport:          Report format and generation
+    TestScanInstrumentation:         Progress JSONL, heartbeat, artifact/marker writing
     TestFullScanReport:              Full complexity-5 scan (slow)
     TestCIGate:                      CI self-contained gate validation
+
+Completion marker contract: when `_generate_differential_report()` is called with
+`artifact_dir` set, it writes `report.json` first, closes it, then writes a
+`SCAN_COMPLETE` marker last (via write-to-temp-then-`os.replace`, so the write is
+atomic). The marker's existence is the *only* sanctioned signal that a scan run
+reached completion -- process or PID liveness is never a verdict. A runner that
+polls for completion must poll for the marker file, never for whether a process
+is still running.
 """
 
 from __future__ import annotations
 
 import json
+import os
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Any
 
@@ -1377,8 +1388,15 @@ def _generate_differential_report(
     reference_fn: Any,  # Callable[[dict], str] returning "SAT", "UNSAT", or "TIMEOUT"
     oracle_ids: dict,   # {"mc": "...", "ref": "..."}
     timeout_ms: int | None = None,
+    progress_path: Path | None = None,
+    heartbeat_every: int = 0,
+    artifact_dir: Path | None = None,
 ) -> dict:
     """Generate a differential report by running all formulas through both oracles.
+
+    This is the single shared scan core: both the pytest exhaustive test and
+    the standalone `oracle/scan_runner.py` CLI call this one function, so
+    there is never a second enumerate-solve-compare loop to drift.
 
     Args:
         oracle: MC oracle with find_countermodel() method.
@@ -1392,20 +1410,41 @@ def _generate_differential_report(
             through to _run_differential_comparison for each formula. When
             None (the default), behaviour is unchanged from before this
             parameter existed.
+        progress_path: Optional path to a JSONL file. When set, one flushed
+            JSON record is appended per formula immediately after it is
+            solved, so an in-flight run is observable (readable mid-run)
+            rather than silent until it finishes. Default None writes no
+            file -- exactly today's behaviour.
+        heartbeat_every: When > 0, a flushed stdout line is printed for every
+            formula that disagrees, times out, or exceeds a 5-second solve,
+            plus a heartbeat line every `heartbeat_every` formulas and
+            unconditionally on the first and last formula -- so a healthy
+            run is never silent for more than `heartbeat_every` formulas'
+            worth of wall clock. Default 0 prints nothing -- exactly today's
+            behaviour.
+        artifact_dir: Optional directory. When set, after the loop this
+            writes `report.json` (via `_write_report_json`), closes it, then
+            writes the `SCAN_COMPLETE` completion marker -- see the module
+            docstring's "Completion marker contract" for the ordering and
+            atomicity guarantee. Default None writes no files -- exactly
+            today's behaviour.
 
     Returns:
         A report dict with fields:
-            timestamp:       ISO 8601 timestamp string
-            mc_oracle_id:    Identifier for the MC oracle
-            ref_oracle_id:   Identifier for the reference oracle
-            total_formulas:  Count of formulas tested
-            agreements:      Count of formula agreements (both sides decided
-                              and matched)
-            disagreements:   Count of formula disagreements (both sides
-                              decided and mismatched)
-            timeout_count:   Count of formulas where either side did not
-                              decide (TIMEOUT)
-            entries:         List of comparison records
+            timestamp:            ISO 8601 timestamp string (report-generation time)
+            mc_oracle_id:         Identifier for the MC oracle
+            ref_oracle_id:        Identifier for the reference oracle
+            total_formulas:       Count of formulas tested
+            agreements:           Count of formula agreements (both sides decided
+                                   and matched)
+            disagreements:        Count of formula disagreements (both sides
+                                   decided and mismatched)
+            timeout_count:        Count of formulas where either side did not
+                                   decide (TIMEOUT)
+            entries:              List of comparison records
+            started_at:           ISO 8601 timestamp when the scan loop began
+            completed_at:         ISO 8601 timestamp when the scan loop finished
+            wall_clock_seconds:   Total wall-clock seconds for the scan loop
     """
     import datetime
     entries = []
@@ -1413,42 +1452,117 @@ def _generate_differential_report(
     disagreements = 0
     timeout_count = 0
 
-    for formula_json in formulas:
-        # A caller-supplied reference_fn that does not classify
-        # OracleTimeoutError internally must still produce a "TIMEOUT" entry
-        # rather than crashing the whole report -- this guard is
-        # belt-and-braces on top of ref_fn closures that already classify
-        # via _reference_verdict.
-        try:
-            ref_result = reference_fn(formula_json)
-        except OracleTimeoutError:
-            ref_result = "TIMEOUT"
-        record = _run_differential_comparison(
-            oracle, formula_json, ref_result, timeout_ms=timeout_ms
-        )
-        entries.append(record)
+    total = len(formulas)
+    t_start = time.monotonic()
+    started_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
 
-        # Either side being TIMEOUT makes the formula inconclusive, not a
-        # disagreement: a TIMEOUT reference compared against a decided
-        # subject result would otherwise mismatch under plain string
-        # equality and be miscounted as a real soundness disagreement.
-        if record["mc_result"] == "TIMEOUT" or record["reference_result"] == "TIMEOUT":
-            timeout_count += 1
-        elif record["agreement"]:
-            agreements += 1
-        else:
-            disagreements += 1
+    progress_fh = None
+    if progress_path is not None:
+        progress_fh = open(progress_path, "w", encoding="utf-8")
 
-    return {
+    try:
+        for idx, formula_json in enumerate(formulas, start=1):
+            # A caller-supplied reference_fn that does not classify
+            # OracleTimeoutError internally must still produce a "TIMEOUT"
+            # entry rather than crashing the whole report -- this guard is
+            # belt-and-braces on top of ref_fn closures that already
+            # classify via _reference_verdict.
+            ref_t0 = time.monotonic()
+            try:
+                ref_result = reference_fn(formula_json)
+            except OracleTimeoutError:
+                ref_result = "TIMEOUT"
+            ref_elapsed_s = time.monotonic() - ref_t0
+
+            mc_t0 = time.monotonic()
+            record = _run_differential_comparison(
+                oracle, formula_json, ref_result, timeout_ms=timeout_ms
+            )
+            mc_elapsed_s = time.monotonic() - mc_t0
+            entries.append(record)
+
+            # Either side being TIMEOUT makes the formula inconclusive, not a
+            # disagreement: a TIMEOUT reference compared against a decided
+            # subject result would otherwise mismatch under plain string
+            # equality and be miscounted as a real soundness disagreement.
+            if record["mc_result"] == "TIMEOUT" or record["reference_result"] == "TIMEOUT":
+                timeout_count += 1
+                verdict = "TIMEOUT"
+            elif record["agreement"]:
+                agreements += 1
+                verdict = "agree"
+            else:
+                disagreements += 1
+                verdict = "DISAGREE"
+
+            if progress_fh is not None:
+                progress_rec = {
+                    "idx": idx,
+                    "complexity": record["complexity"],
+                    "ref_result": record["reference_result"],
+                    "ref_elapsed_s": round(ref_elapsed_s, 3),
+                    "mc_result": record["mc_result"],
+                    "mc_elapsed_s": round(mc_elapsed_s, 3),
+                    "verdict": verdict,
+                    "cum_disagreements": disagreements,
+                    "cum_timeouts": timeout_count,
+                    "elapsed_s": round(time.monotonic() - t_start, 3),
+                    "formula_json": formula_json,
+                }
+                progress_fh.write(json.dumps(progress_rec) + "\n")
+                progress_fh.flush()
+
+            if heartbeat_every > 0:
+                loud = verdict != "agree" or max(ref_elapsed_s, mc_elapsed_s) > 5.0
+                is_boundary = idx == 1 or idx == total
+                on_interval = idx % heartbeat_every == 0
+                if loud or is_boundary or on_interval:
+                    print(
+                        f"[{idx}/{total}] c{record['complexity']} "
+                        f"ref={record['reference_result']}({ref_elapsed_s:.1f}s) "
+                        f"mc={record['mc_result']}({mc_elapsed_s:.1f}s) {verdict}  "
+                        f"D={disagreements} T={timeout_count} "
+                        f"elapsed={time.monotonic() - t_start:.0f}s",
+                        flush=True,
+                    )
+    finally:
+        if progress_fh is not None:
+            progress_fh.close()
+
+    completed_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    wall_clock_seconds = time.monotonic() - t_start
+
+    report = {
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "mc_oracle_id": oracle_ids.get("mc", "unknown"),
         "ref_oracle_id": oracle_ids.get("ref", "unknown"),
-        "total_formulas": len(formulas),
+        "total_formulas": total,
         "agreements": agreements,
         "disagreements": disagreements,
         "timeout_count": timeout_count,
         "entries": entries,
+        "started_at": started_at,
+        "completed_at": completed_at,
+        "wall_clock_seconds": round(wall_clock_seconds, 3),
     }
+
+    if artifact_dir is not None:
+        artifact_dir.mkdir(parents=True, exist_ok=True)
+        report_path = artifact_dir / "report.json"
+        _write_report_json(report, report_path)
+        conclusive = total - timeout_count
+        marker_payload = {
+            "status": "complete",
+            "total_formulas": total,
+            "conclusive": conclusive,
+            "disagreements": disagreements,
+            "timeout_count": timeout_count,
+            "wall_clock_seconds": round(wall_clock_seconds, 3),
+            "report_path": str(report_path),
+        }
+        _write_completion_marker(artifact_dir / "SCAN_COMPLETE", marker_payload)
+
+    return report
 
 
 def _write_report_json(report: dict, output_path: Path) -> None:
@@ -1459,6 +1573,26 @@ def _write_report_json(report: dict, output_path: Path) -> None:
         output_path: Path to write the JSON file.
     """
     output_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
+
+
+def _write_completion_marker(marker_path: Path, payload: dict) -> None:
+    """Write a scan-run completion marker atomically.
+
+    Per the module docstring's "Completion marker contract": the marker's
+    existence -- never process or PID liveness -- is the only sanctioned
+    signal that a scan run reached completion. Writing to a temp file in the
+    same directory and then `os.replace()`-ing it into place means the
+    marker path never observably exists in a partially-written state, so a
+    concurrent reader either sees no marker or a fully-written, parseable
+    one -- never a half-written file.
+
+    Args:
+        marker_path: Final path for the marker file (e.g. .../SCAN_COMPLETE).
+        payload: JSON-serializable dict written as the marker's content.
+    """
+    tmp_path = marker_path.with_name(marker_path.name + ".tmp")
+    tmp_path.write_text(json.dumps(payload, indent=2), encoding="utf-8")
+    os.replace(tmp_path, marker_path)
 
 
 class TestDifferentialReport:
@@ -1688,6 +1822,231 @@ class TestDifferentialReport:
         assert report["disagreements"] == 0, report  # the vacuous-pass trap
         with pytest.raises(AssertionError, match="conclusive"):
             _assert_scan_report(report, min_conclusive=1)
+
+
+class TestScanInstrumentation:
+    """Tests for the optional progress/heartbeat/artifact instrumentation
+    added to `_generate_differential_report()`.
+
+    All exercised against the Z3-free `_StubOracle`, the same technique
+    `TestDifferentialReport` uses, so these tests are fast and belong in the
+    gating pass despite covering the machinery the exhaustive scan depends
+    on.
+    """
+
+    def test_default_params_produce_no_files(self, tmp_path, monkeypatch):
+        """With progress_path/heartbeat_every/artifact_dir left at their
+        defaults, no files are written anywhere -- behaviour is byte-for-byte
+        unchanged from before instrumentation existed.
+        """
+        formulas = [{"tag": "atom", "name": "f0"}]
+        subject = _StubOracle({"f0": "SAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        monkeypatch.chdir(tmp_path)
+        _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub", "ref": "stub"}
+        )
+        assert list(tmp_path.iterdir()) == []
+
+    def test_report_has_wall_clock_fields(self):
+        """started_at, completed_at, and wall_clock_seconds are always
+        present, regardless of whether any instrumentation parameter is set.
+        """
+        formulas = [{"tag": "atom", "name": "f0"}]
+        subject = _StubOracle({"f0": "SAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        report = _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub", "ref": "stub"}
+        )
+        assert "started_at" in report
+        assert "completed_at" in report
+        assert "wall_clock_seconds" in report
+        assert report["wall_clock_seconds"] >= 0
+        # Existing fields must survive unrenamed/unremoved.
+        for field in (
+            "timestamp", "mc_oracle_id", "ref_oracle_id", "total_formulas",
+            "agreements", "disagreements", "timeout_count", "entries",
+        ):
+            assert field in report
+
+    def test_progress_jsonl_one_record_per_formula(self, tmp_path):
+        """progress_path receives exactly one JSON record per formula."""
+        formulas = [{"tag": "atom", "name": f"f{i}"} for i in range(4)]
+        subject = _StubOracle({f"f{i}": "SAT" for i in range(4)})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        progress_path = tmp_path / "progress.jsonl"
+        _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub", "ref": "stub"},
+            progress_path=progress_path,
+        )
+        lines = progress_path.read_text(encoding="utf-8").splitlines()
+        assert len(lines) == 4
+        records = [json.loads(line) for line in lines]
+        for i, rec in enumerate(records, start=1):
+            assert rec["idx"] == i
+            for field in (
+                "complexity", "ref_result", "ref_elapsed_s", "mc_result",
+                "mc_elapsed_s", "verdict", "cum_disagreements",
+                "cum_timeouts", "elapsed_s", "formula_json",
+            ):
+                assert field in rec
+
+    def test_progress_jsonl_flushed_incrementally(self, tmp_path):
+        """Each formula's JSONL line is flushed to disk before the next
+        formula is solved -- proving a concurrent reader could observe an
+        in-flight run rather than only a fully-written file at the end.
+        """
+        formulas = [{"tag": "atom", "name": f"f{i}"} for i in range(4)]
+        subject = _StubOracle({f"f{i}": "SAT" for i in range(4)})
+        progress_path = tmp_path / "progress.jsonl"
+
+        lines_seen_before_each_call = []
+
+        def ref_fn(f):
+            # Read whatever has already been flushed to disk before this
+            # formula's own record is appended.
+            if progress_path.exists():
+                n = len(progress_path.read_text(encoding="utf-8").splitlines())
+            else:
+                n = 0
+            lines_seen_before_each_call.append(n)
+            return _reference_verdict(subject, f)
+
+        _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub", "ref": "stub"},
+            progress_path=progress_path,
+        )
+
+        # Formula i (1-indexed) observes exactly i-1 prior flushed lines.
+        assert lines_seen_before_each_call == [0, 1, 2, 3]
+
+    def test_heartbeat_fires_at_interval_and_boundaries(self, capsys):
+        """With all-agreeing formulas (never "loud"), heartbeat lines still
+        print on the configured interval and unconditionally on the first
+        and last formula.
+        """
+        formulas = [{"tag": "atom", "name": f"f{i}"} for i in range(5)]
+        subject = _StubOracle({f"f{i}": "SAT" for i in range(5)})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub", "ref": "stub"},
+            heartbeat_every=2,
+        )
+        out = capsys.readouterr().out
+        lines = [line for line in out.splitlines() if line.startswith("[")]
+        indices = [int(line.split("/")[0].lstrip("[")) for line in lines]
+        assert indices == [1, 2, 4, 5]
+
+    def test_heartbeat_zero_prints_nothing(self, capsys):
+        """heartbeat_every=0 (the default) prints no lines at all, even for
+        a disagreeing/timing-out formula.
+        """
+        formulas = [
+            {"tag": "atom", "name": "disagree"},
+            {"tag": "atom", "name": "timeout"},
+        ]
+        subject = _StubOracle({"disagree": "SAT", "timeout": "TIMEOUT"})
+        reference = _StubOracle({"disagree": "UNSAT", "timeout": "SAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(reference, f)
+
+        _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub-subject", "ref": "stub-reference"}
+        )
+        assert capsys.readouterr().out == ""
+
+    def test_loud_line_printed_for_disagreement_and_timeout(self, capsys):
+        """A disagreeing or timing-out formula prints a loud line even when
+        it falls outside the configured heartbeat interval.
+        """
+        formulas = [
+            {"tag": "atom", "name": "agree"},
+            {"tag": "atom", "name": "disagree"},
+            {"tag": "atom", "name": "timeout"},
+        ]
+        subject = _StubOracle(
+            {"agree": "SAT", "disagree": "SAT", "timeout": "TIMEOUT"}
+        )
+        reference = _StubOracle(
+            {"agree": "SAT", "disagree": "UNSAT", "timeout": "SAT"}
+        )
+
+        def ref_fn(f):
+            return _reference_verdict(reference, f)
+
+        _generate_differential_report(
+            subject, formulas, ref_fn,
+            {"mc": "stub-subject", "ref": "stub-reference"},
+            heartbeat_every=100,  # large interval; only loud/boundary lines print
+        )
+        out = capsys.readouterr().out
+        assert "DISAGREE" in out
+        assert "TIMEOUT" in out
+
+    def test_artifact_dir_writes_report_and_marker(self, tmp_path):
+        """artifact_dir writes a parseable report.json and a SCAN_COMPLETE
+        marker whose mtime is not earlier than the report's -- proving the
+        report-before-marker ordering the completion contract requires.
+        """
+        formulas = [{"tag": "atom", "name": "f0"}]
+        subject = _StubOracle({"f0": "SAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        artifact_dir = tmp_path / "run1"
+        _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub", "ref": "stub"},
+            artifact_dir=artifact_dir,
+        )
+
+        report_path = artifact_dir / "report.json"
+        marker_path = artifact_dir / "SCAN_COMPLETE"
+        assert report_path.exists()
+        assert marker_path.exists()
+
+        parsed_report = json.loads(report_path.read_text(encoding="utf-8"))
+        assert parsed_report["total_formulas"] == 1
+
+        marker_payload = json.loads(marker_path.read_text(encoding="utf-8"))
+        assert marker_payload["status"] == "complete"
+        assert marker_payload["total_formulas"] == 1
+        assert marker_payload["conclusive"] == 1
+        assert marker_payload["disagreements"] == 0
+        assert marker_payload["timeout_count"] == 0
+        assert marker_payload["report_path"] == str(report_path)
+
+        assert marker_path.stat().st_mtime >= report_path.stat().st_mtime
+
+    def test_artifact_dir_none_writes_no_marker(self, tmp_path, monkeypatch):
+        """artifact_dir left at its default writes neither report.json nor a
+        marker -- confirming the artifact-writing path is fully opt-in.
+        """
+        formulas = [{"tag": "atom", "name": "f0"}]
+        subject = _StubOracle({"f0": "SAT"})
+
+        def ref_fn(f):
+            return _reference_verdict(subject, f)
+
+        monkeypatch.chdir(tmp_path)
+        _generate_differential_report(
+            subject, formulas, ref_fn, {"mc": "stub", "ref": "stub"}
+        )
+        assert not (tmp_path / "report.json").exists()
+        assert not (tmp_path / "SCAN_COMPLETE").exists()
 
 
 @pytest.mark.slow

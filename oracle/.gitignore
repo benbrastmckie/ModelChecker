@@ -1,0 +1,5 @@
+# Per-run scan output (progress.jsonl, report.json, SCAN_COMPLETE marker)
+# written by oracle/scan_runner.py and oracle/run-oracle-exhaustive-scan.sh
+# into a timestamped subdirectory. Durable evidence from a specific run is
+# copied into specs/{task}/baselines/ instead of being committed here.
+scan-results/
