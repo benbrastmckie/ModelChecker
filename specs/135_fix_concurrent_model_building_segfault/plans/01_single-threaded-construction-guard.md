@@ -180,30 +180,37 @@ dependencies on the model classes.
 
 ---
 
-### Phase 2: Wire the guard into the construction path [NOT STARTED]
+### Phase 2: Wire the guard into the construction path [IN PROGRESS]
 
 **Goal**: Every model-construction entry point is inside the guard, including the subclass
 `__init__` bodies where the crash actually occurs.
 
 **Tasks**:
-- [ ] In `models/semantic.py`: add `__init_subclass__` to `SemanticDefaults` that wraps
+- [x] In `models/semantic.py`: add `__init_subclass__` to `SemanticDefaults` that wraps
   `cls.__init__` with `guard_construction` when the subclass defines its own `__init__` in
   `cls.__dict__`; also wrap `SemanticDefaults.__init__` itself. Double-wrapping through the
   `super()` chain is harmless because the guard is thread-reentrant — state this in a comment
   at the wrap site so a future reader does not "optimize" it away.
-- [ ] In `models/structure.py`: apply the same `__init_subclass__` treatment to `ModelDefaults`
+- [x] In `models/structure.py`: apply the same `__init_subclass__` treatment to `ModelDefaults`
   (covers `solve()` / `_setup_solver` / `assert_tracked` reached from `__init__`).
-- [ ] In `models/constraints.py`: decorate `ModelConstraints.__init__` directly (no subclasses
+- [x] In `models/constraints.py`: decorate `ModelConstraints.__init__` directly (no subclasses
   in the tree today; if `__init_subclass__` is cheaper to keep uniform, that is acceptable).
-- [ ] Add a class-level docstring paragraph to `SemanticDefaults` and `ModelDefaults` stating
+- [x] Add a class-level docstring paragraph to `SemanticDefaults` and `ModelDefaults` stating
   the single-threaded-only contract and pointing at `models/concurrency.py`. (Fuller
   user-facing docs land in Phase 5.)
-- [ ] Verify no production path constructs models off the main thread: re-run the report's
+- [x] Verify no production path constructs models off the main thread: re-run the report's
   grep for `threading.Thread` / `ThreadPoolExecutor` under `code/src/model_checker`, and
   confirm the only hits are in `output/progress/` (terminal spinner, does not construct).
-  Record the grep output in the phase notes.
+  Record the grep output in the phase notes. Confirmed: only `output/progress/spinner.py:61`
+  and `output/progress/animated.py:158`, both outside the guarded construction path.
 - [ ] Sanity-check same-thread nesting: run the iterate suites, which build fresh
-  `ModelConstraints`/`ModelDefaults` while an outer structure is alive.
+  `ModelConstraints`/`ModelDefaults` while an outer structure is alive. **DEFERRED**: the
+  concurrent oracle verification job (`oracle/run-oracle-suite.sh`) is running in this repo per
+  the resource-constraint instructions in the delegation context; the 220-test iterate suite is
+  heavier than a single quick unit test and must wait until `pgrep -af "run-oracle"` returns
+  nothing. The lighter `code/src/model_checker/models/tests/unit/` suite (73 tests, 1.07s, all
+  green, exercises `SemanticDefaults`/`ModelConstraints`/`ModelDefaults` through the now-guarded
+  constructors) was run as an interim sanity check and passed.
 
 **Timing**: 1.5 hours
 

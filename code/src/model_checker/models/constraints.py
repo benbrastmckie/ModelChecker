@@ -8,6 +8,8 @@ the model checking process.
 import sys
 from typing import List, Dict, Any, Optional, Type, TYPE_CHECKING
 
+from .concurrency import guard_construction
+
 if TYPE_CHECKING:
     from model_checker.z3_shim import ExprRef
     from model_checker.syntactic import Syntax, Sentence
@@ -39,8 +41,14 @@ class ModelConstraints:
         conclusions (list): Sentence objects for conclusions
 
     Takes semantics and proposition_class as arguments to build generate
-    and storing all Z3 constraints. This class is passed to ModelStructure."""
+    and storing all Z3 constraints. This class is passed to ModelStructure.
 
+    Concurrency contract: constructing `ModelConstraints` is single-threaded-only,
+    same as `SemanticDefaults`/`ModelDefaults`. `__init__` is wrapped in the
+    process-global guard from `model_checker.models.concurrency`; see that module
+    for the full contract."""
+
+    @guard_construction
     def __init__(
         self,
         settings: 'Settings',

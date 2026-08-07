@@ -20,6 +20,7 @@ from model_checker.solver.expressions import (
     BoolVal,
 )
 
+from .concurrency import guard_construction
 from .errors import SemanticError
 
 if TYPE_CHECKING:
@@ -45,14 +46,20 @@ MAX_N = 20
 
 class SemanticDefaults:
     """Base class providing fundamental semantic operations for a modal logic system.
-    
+
     This class defines the core semantic functionality used across all theories in the
     model checker. It provides methods for working with bit vectors representing states,
     set operations, and foundational semantic relations like part-of and fusion.
-    
+
     Each theory should extend this class to implement its specific semantics for modal
     operators and provide concrete implementations of the truth/falsity conditions.
-    
+
+    Concurrency contract: constructing a `SemanticDefaults` subclass is single-threaded
+    -only. Every concrete `__init__` in the hierarchy is automatically wrapped (via
+    `__init_subclass__` below) in the process-global guard from
+    `model_checker.models.concurrency`; see that module for the full contract and the
+    exception it raises on cross-thread contention.
+
     Attributes:
         name (str): Name of the semantics implementation class
         N (int): Bit-width for state representation (if provided in settings)
@@ -78,6 +85,29 @@ class SemanticDefaults:
         "solver": "z3",  # Solver backend: "z3" or "cvc5"
     }
 
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """Wrap every concrete subclass `__init__` in the single-threaded
+        construction guard.
+
+        Theory subclasses (e.g. `BimodalSemantics`) do their actual Z3
+        construction work -- `define_sorts()`, `define_primitives()`,
+        `build_frame_constraints()` -- AFTER `super().__init__()`
+        returns, in the body of their own `__init__`. A guard scoped only
+        to `SemanticDefaults.__init__`'s body would therefore be released
+        before that code runs and would not prevent the concurrent-
+        construction crash it exists to guard against. Wrapping the
+        subclass's own `__init__` here covers the whole constructor,
+        including its call to `super().__init__()` -- which re-enters the
+        guard from the same thread and is therefore harmless, since the
+        guard is thread-reentrant (see `models/concurrency.py`). Do not
+        "optimize away" this apparent double-wrapping: it is required for
+        correctness, not redundant.
+        """
+        super().__init_subclass__(**kwargs)
+        if '__init__' in cls.__dict__:
+            cls.__init__ = guard_construction(cls.__dict__['__init__'])
+
+    @guard_construction
     def __init__(self, combined_settings: 'Settings') -> None:
         # Reset any global state to avoid cross-example interference
         self._reset_global_state()

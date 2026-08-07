@@ -13,6 +13,8 @@ from typing import Dict, List, Tuple, Optional, Any, TextIO, Union, TYPE_CHECKIN
 
 from model_checker.solver import create_solver, SolverResult, is_true
 
+from .concurrency import guard_construction
+
 if TYPE_CHECKING:
     from model_checker.syntactic import Sentence
     from .constraints import ModelConstraints
@@ -33,7 +35,12 @@ class ModelDefaults:
     The class implements careful isolation between examples to ensure that each example
     is solved independently with its own Z3 solver instance. This prevents state leakage
     between examples that could affect solver behavior, performance, or results.
-    
+
+    Concurrency contract: constructing a `ModelDefaults` subclass is single-threaded
+    -only, same as `SemanticDefaults`. Every concrete `__init__` in the hierarchy is
+    automatically wrapped (via `__init_subclass__` below) in the process-global guard
+    from `model_checker.models.concurrency`; see that module for the full contract.
+
     Attributes:
         model_constraints (ModelConstraints): The constraints to satisfy in the model
         settings (dict): Configuration settings for model generation
@@ -47,6 +54,24 @@ class ModelDefaults:
         main_point (dict): The primary evaluation point for the model
     """
 
+    def __init_subclass__(cls, **kwargs: Any) -> None:
+        """Wrap every concrete subclass `__init__` in the single-threaded
+        construction guard.
+
+        Same rationale as `SemanticDefaults.__init_subclass__`
+        (`models/semantic.py`): a theory's concrete model-structure
+        subclass may do further Z3-touching work in its own `__init__`
+        body beyond what the base class does. Wrapping the subclass's own
+        `__init__` covers the whole constructor call, including its
+        `super().__init__()` call, which re-enters the guard from the
+        same thread and is therefore harmless (the guard is thread
+        -reentrant; see `models/concurrency.py`).
+        """
+        super().__init_subclass__(**kwargs)
+        if '__init__' in cls.__dict__:
+            cls.__init__ = guard_construction(cls.__dict__['__init__'])
+
+    @guard_construction
     def __init__(self, model_constraints: 'ModelConstraints', settings: Dict[str, Any]) -> None:
         # Define ANSI color codes
         self.COLORS = {
