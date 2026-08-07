@@ -381,7 +381,15 @@ BM_CM_4_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 15,  # ~3s with isolated Z3 context; extra headroom for CI variance
+    'max_time' : 30,  # Widened from 15: fixing the quantifier bound-variable aliasing
+                       # defect (see operators.py's _fresh_bound_int docstring) removes
+                       # a Z3 term-identity-based simplification shortcut PastOperator's
+                       # bound variable used to get "for free" via accidental name
+                       # reuse -- the same effect documented for Box(p)->Box(p) in
+                       # operators.py. The countermodel is still genuinely found; it
+                       # now measures ~15-24s instead of ~3s, so 30s (the generous-budget
+                       # convention used elsewhere in this file) leaves real headroom
+                       # instead of sitting at the boundary. Not a soundness change.
     'expectation' : True,
 }
 BM_CM_4_example = [

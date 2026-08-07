@@ -297,3 +297,94 @@ census, yes for all three: their conclusion constraints folded to constant `True
 no actual constraint), so any pre-fix scan-tooling result that reported them as fast/conclusive was
 conclusive-and-wrong. Post-fix, they are honestly inconclusive at this budget. This is a soundness
 improvement, not a regression, and is recorded here for Phase 8's per-formula diff.
+
+## Phase 6: full-suite verification before re-baselining
+
+### Bimodal package suite
+
+`PYTHONPATH=code/src python3 -m pytest code/src/model_checker/theory_lib/bimodal/ -v`:
+**296 passed, 2 failed in 154.11s.**
+
+Failures: `test_bimodal.py::test_example_cases[BM_CM_1-example_case7]` and
+`[BM_CM_4-example_case9]` (`\Future A -> \Box A` and `\Diamond A -> \past A` countermodel checks,
+`max_time=15` with comments already noting "extra headroom for CI variance" / "varies by Z3
+state" -- these are documented as historically marginal-timing tests, unrelated to this task,
+predating it per `git log -p` on `examples.py`).
+
+**Classification: category (b), pre-existing/environmental, not a regression.** At the time of
+this run, `ps aux --sort=-%cpu` showed a `lean` process (`BimodalLogic` proof compilation,
+unrelated repository) consuming 1100-1300% CPU alone, plus a `lake build` and other sessions,
+with `load average: 10.54, 8.53, 5.62` -- the exact category of environmental contention Task
+138 documented (a `lean --worker` process pushing near-budget Z3 solves over their timeout even
+in isolation). Direct evidence this is not a fix-induced regression:
+
+1. Re-running the two tests in isolation (still under the same contention): `BM_CM_1` failed
+   again at 15.31s (over the 15s budget); `BM_CM_4` passed at 3.80s (this one is flaky at the
+   margin, not deterministically broken).
+2. **Scratch-copy verification against `PRE_FIX_SHA`**: temporarily replaced
+   `operators.py` and `semantic/core.py` with their `d795b5f4444a4a3a326a4775b7431b89144e930c`
+   content (the pre-fix, pre-Phase-2 code) and re-ran the same two tests under the same ongoing
+   contention. Result: **`BM_CM_1` failed identically** (15.38s, same assertion), `BM_CM_4`
+   passed (4.78s). This proves the failure is a property of the current machine load hitting a
+   pre-existing marginal-timing test, reproduced with code this task never touched in that state
+   -- not something Phase 2-5's changes introduced. Files restored immediately after
+   (`git status --short` on both paths confirmed clean, byte-identical to the last commit).
+
+No genuine (category-c) regression found in the bimodal package suite.
+
+### Oracle gating suite
+
+`nix develop --command bash oracle/run-oracle-suite.sh`:
+
+- **Pass 1** (parallel, `-n 6`, `not xdist_serial and not slow`): **9 failed, 550 passed, 3
+  skipped, 4 xfailed in 858.98s.** Failures: `test_boundary_regression.py::
+  test_countermodel_bm_cm4_at_example_settings`, `test_oracle_interface.py::
+  test_mixed_and_box_next`, `test_oracle_interface.py::test_mixed_or_diamond_prev`,
+  `test_oracle_interface.py::test_all_sat_task_relation_ternary`,
+  `test_oracle_provider.py::test_all_sat_results_have_complete_output`,
+  `test_soundness_regression.py::test_depth1_boundary_safe_is_true`,
+  `test_oracle_interface.py::test_mixed_and_all_future_neg`,
+  `test_oracle_provider.py::test_regression_standard_pipeline[BM_CM_4-example_case8]`,
+  `test_oracle_interface.py::test_spot_check_individual_countermodels`.
+- **Pass 2** (serial, `xdist_serial and not slow`): **TIMED OUT (exit 124) at the 900s budget.**
+  A full contention-free serial pass exceeding a "~2x the idle-machine measured wall clock"
+  budget is itself strong evidence of severe machine contention (a `lean lake build` process was
+  observed at 900-1300% CPU, load average 9.6-11.2, throughout this run -- the same category of
+  external contention Task 138 documented).
+
+**Per-failure classification** (methodology: re-run in isolation; if it passes standalone under
+lower load, mark environmental; if it fails deterministically regardless of load, scratch-swap to
+`PRE_FIX_SHA`'s `operators.py`/`semantic/core.py` and compare):
+
+| Test | Isolated re-run | PRE_FIX_SHA comparison | Classification |
+|---|---|---|---|
+| `test_mixed_and_box_next` | PASSED | not needed | (b) environmental (contention-only, non-reproducing) |
+| `test_depth1_boundary_safe_is_true` | PASSED | not needed | (b) environmental |
+| `test_countermodel_bm_cm4_at_example_settings` | **FAILED deterministically** (15.3-15.4s across 4 runs at load 2-5.5, i.e. NOT contention) | **PASSED** (4-6s across 3 runs, same load) | **(c) genuine solve-time regression** (see below) |
+| `test_regression_standard_pipeline[BM_CM_4-example_case8]` | not independently re-run (same BM_CM_4 formula/settings pattern as above) | inferred from above | **(c)**, same root cause as `test_countermodel_bm_cm4_at_example_settings` |
+| `test_mixed_or_diamond_prev` | **FAILED** (`OracleTimeoutError` at 60000ms) even at load ~4.8-5.5 | not completed (time-boxed; coordinator directed closing out Phase 6 on evidence in hand) | **(c) candidate**, unconfirmed root cause -- see below |
+| `test_all_sat_task_relation_ternary` | not independently re-run | not completed | unclassified -- recorded as open, not asserted clean |
+| `test_all_sat_results_have_complete_output` | not independently re-run | not completed | unclassified -- recorded as open, not asserted clean |
+| `test_mixed_and_all_future_neg` | PASSED (in the batch re-run) | not needed | (b) environmental |
+| `test_spot_check_individual_countermodels` | **FAILED** (`F9_until_implies_event` got a countermodel where the test expects `None`/valid) | **PASSED**, but only because **all four** of F4/F7/F9/F10 timed out at 60000ms pre-fix too (`inconclusive = [...]`, caught and not asserted -- the test's own docstring already anticipated this: "at least one of them does not decide even at a 60s budget") | **Not a regression**: pre-fix never reached a confident "valid" verdict for F9 either -- it was undecided (timeout), same as several siblings. Post-fix, the solve now decides (SAT, i.e. a countermodel), converting an inconclusive pre-fix result into a decisive post-fix one. This is "previously undecided -> now decided," not "previously confidently correct -> now wrong." Whether the decided SAT answer is the mathematically correct verdict for `\Until(p,q) -> p` was not independently re-derived here (out of this dispatch's time budget); flagged as a follow-up, not asserted as either a regression or a confirmed soundness improvement. |
+
+**`test_countermodel_bm_cm4_at_example_settings` root-cause investigation**: this is the same
+underlying phenomenon Phase 2 already documented for `Box(p)->Box(p)` (secondary finding: sibling,
+non-nested same-primitive instances lose a Z3 term-identity-based simplification shortcut once
+bound variables are no longer accidentally shared). `\Diamond A -> \past A` (`BM_CM_4`) exercises
+`PastOperator`, one of the 14 fixed sites. Given 60s instead of the test's local 15s budget, the
+post-fix encoding **does** find the expected countermodel (confirmed: `result=True` at 24.08s
+elapsed) -- so this is a solve-time cost, not a correctness defect. Per TESTING_GUIDE 8.6
+("Set budgets generously... prefer the 30s convention") and given `max_time=15` here is a local
+test constant, not one of the three Hard-Constraint-pinned artifacts
+(`_assert_scan_report`/`SELF_SCAN_SOLVE_TIMEOUT_MS`/`MIN_CONCLUSIVE_SCAN_FORMULAS`), the sanctioned
+fix-forward is to widen this test's local `max_time`, backed by this measurement -- applied in
+this phase (see plan Phase 6 task list).
+
+**Time-boxed scope decision**: per explicit direction received mid-phase, further confirmation
+runs for the two remaining unclassified failures
+(`test_all_sat_task_relation_ternary`, `test_all_sat_results_have_complete_output`) and the
+`test_mixed_or_diamond_prev` root-cause were not pursued further in this dispatch, to avoid
+open-ended verification burning further wall clock under sustained heavy external contention.
+This is recorded explicitly as an **open item**, not silently resolved as clean -- see the Phase 6
+handoff and `.orchestrator-handoff.json` for the carried-forward blocker.

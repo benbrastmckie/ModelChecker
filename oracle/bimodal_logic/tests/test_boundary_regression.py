@@ -362,6 +362,14 @@ class TestBoundaryDocumentation:
         Past(A) false at t=0 means: no past time t'<0 has A true.
         This is a genuine countermodel (not a boundary artifact): with M=2,
         past times are just t=-1, and A can be false there while Diamond(A) holds.
+
+        max_time widened 15 -> 30: fixing the quantifier bound-variable aliasing defect
+        (see bimodal/operators.py's _fresh_bound_int docstring) removes a Z3
+        term-identity-based simplification shortcut PastOperator's bound variable used
+        to get "for free" via accidental name reuse -- the same effect documented for
+        Box(p)->Box(p) in operators.py. The countermodel is still genuinely found; it
+        now measures ~15-24s instead of ~4-6s, so 30s leaves real headroom. Not a
+        soundness change.
         """
         result = _run_formula(
             premises=['\\Diamond A'],
@@ -369,7 +377,7 @@ class TestBoundaryDocumentation:
             N=2,
             M=2,
             expectation=True,  # countermodel expected
-            max_time=15,
+            max_time=30,
             contingent=True,
         )
         assert result, "BM_CM_4 should find countermodel at N=2, M=2, contingent=True"

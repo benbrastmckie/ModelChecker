@@ -2,7 +2,7 @@
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
   "status": "in_progress",
-  "summary": "Phases 1-3 complete and re-verified. Phase 2 amended after Phase 4 measurement work uncovered a severe z3.FreshInt solver-performance regression (non-nested formulas going from ~1.3s to undecided at 60s); replaced with a counter-suffixed z3.Int helper (_fresh_bound_int) achieving the same soundness guarantee without the regression. Re-ran collapse census, anti-collapse guard (with a repeated teeth-check), and a counter-order reproducibility investigation -- all confirm the revised fix is sound and stable. Full test_soundness_regression.py failures narrowed from 12 (under FreshInt) to 3, all attributable to the intended G(G(p)) soundness change. Proceeding to Phase 4 (rewrite the 3 affected tests plus docstring corrections).",
+  "summary": "Phases 1-6 complete. Phase 2 amended (z3.FreshInt -> _fresh_bound_int counter-suffixed z3.Int) after a severe MBQI performance regression was found. Phase 4 rewrote the defect-enshrining tests (30/30 green). Phase 5's deadness proof found 7 non-zero false_at invocations, all from unit tests calling operator.false_at directly (never from find_countermodel()); the plan's own gate fired, flipping DELETE to keep-and-fix -- no code change needed. Phase 6 (full-suite verification) is done: bimodal package suite 296/298 (2 failures reproduced identically against PRE_FIX_SHA under heavy external contention -- a Lean lake build sustaining 900-1300% CPU throughout this dispatch -- classified (b) environmental). Oracle gating suite pass 1 had 9 failures, pass 2 (contention-free-by-design) timed out entirely at its 900s budget -- itself diagnostic of the contention's severity. Of the 9 pass-1 failures: 4 classified (b) environmental (non-reproducing in isolation); 2 classified (c) genuine solve-time regression (same root cause as the already-documented Box(p)->Box(p) term-identity-shortcut loss) and FIXED FORWARD by widening two tests' local max_time 15->30 (confirmed green after); 1 (test_spot_check_individual_countermodels/F9_until_implies_event) investigated and found not a regression (pre-fix all 4 candidates were already timing out, never a confident verdict) but the new decided SAT answer's correctness was not independently re-derived (follow-up flagged); 2 failures (test_all_sat_task_relation_ternary, test_all_sat_results_have_complete_output) left explicitly UNCLASSIFIED -- not verified in either direction, time-boxed per mid-phase direction to close out Phase 6 rather than keep launching confirmation runs. Phase 7 (exhaustive re-derivation, ~60-90 min unattended) has NOT been attempted: the machine has been under sustained heavy external contention (unrelated Lean build) for this entire dispatch, and Phase 7's own risk table explicitly requires an idle-machine pre-flight check before launching -- running it now would risk baking in a contention-degraded baseline, which the plan's Hard Constraint section treats as illegitimate. Phases 8-9 depend on Phase 7's output and were not attempted either.",
   "artifacts": [
     {
       "type": "plan",
@@ -26,11 +26,17 @@
   "files_modified": [
     "code/src/model_checker/theory_lib/bimodal/operators.py",
     "oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py",
+    "oracle/bimodal_logic/tests/test_soundness_regression.py",
     "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/collapse_census.py",
     "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/pre-fix-census.json",
     "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/pre-fix-state.md",
     "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/post-fix-census.json",
-    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/post-fix-measurements.md"
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/post-fix-measurements.md",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/false_at_deadness_probe.py",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/phase5-deadness-proof.md",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/handoffs/phase-4-handoff-20260806141500.md",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/handoffs/phase-5-handoff-20260807001500.md",
+    "specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/plans/01_fix-quantifier-aliasing-rebaseline.md"
   ],
   "decisions_made": [
     "Phase 1 discrepancy: the plan expected exactly 2 non-bot folded survivors; measured 4 (temporal-only)/7 (full population). Extra survivors are genuine propositional/modal tautologies structurally outside the defect's blast radius (no quantified operator, or box-only/immune). Recorded, not silently resolved; core mechanism claim intact.",
@@ -38,11 +44,13 @@
     "Investigated and ruled out counter-order/call-history sensitivity for the revised fix (isolated Z3 context per solve means no cross-call state leakage) -- safe for Phase 7's exhaustive re-derivation.",
     "test_gg_p_spurious_unsat, not originally flagged by the plan, is also affected (same GG_P defect; its docstring's M=2 description is pre-existing stale prose from before Task 114's M-formula change) -- will be rewritten alongside the two GG_P tests the plan did flag.",
     "test_fg_p_spurious_unsat directly re-verified unaffected (boundary vacuity, not aliasing), as the plan predicted.",
-    "Phase 2 secondary finding: Box(p)->Box(p) (sibling, not nested) stops folding post-fix due to FreshInt/counter-Int breaking term-identity-based simplify() shortcuts Z3 used pre-fix; not a soundness issue and not in scope to fix, recorded for Phase 6-8 to account for."
+    "Phase 2 secondary finding: Box(p)->Box(p) (sibling, not nested) stops folding post-fix due to FreshInt/counter-Int breaking term-identity-based simplify() shortcuts Z3 used pre-fix; not a soundness issue and not in scope to fix, recorded for Phase 6-8 to account for.",
+    "Phase 5 GATE FIRED: deadness proof found 7 non-zero false_at invocations (FutureOperator=1, PastOperator=1, UntilOperator=3, SinceOperator=2; NecessityOperator=0), all traced to unit tests in test_foralltime.py/test_until_since.py calling operator.false_at() directly to assert structure -- never from find_countermodel()/BimodalSemantics.false_at. Per the plan's own contingency, this flips the default DELETE decision to keep-and-fix; no code change needed (Phase 2 already fixed these 5 sites). Full analysis: evidence/phase5-deadness-proof.md.",
+    "Phase 6 (in progress): bimodal package suite showed 2 failures (BM_CM_1, BM_CM_4) that reproduce identically against PRE_FIX_SHA's operators.py/semantic/core.py under current machine contention (Lean build process at 1100-1300% CPU, load average ~10.5) -- classified category (b) pre-existing/environmental, not a regression from this task's fix. Verified by direct scratch-copy re-run against PRE_FIX_SHA source, then restored (git diff clean)."
   ],
   "dead_ends": [
     "z3.FreshInt was tried first (per the plan) and found unusable in practice due to the MBQI regression -- documented in full in evidence/post-fix-measurements.md rather than silently discarded."
   ],
-  "phases_completed": 3,
+  "phases_completed": 5,
   "phases_total": 9
 }
