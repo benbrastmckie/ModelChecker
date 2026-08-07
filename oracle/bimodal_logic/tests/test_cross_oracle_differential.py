@@ -134,16 +134,25 @@ KNOWN_CONCLUSIVE_MANIFEST_PATH = (
 # near 100% of that subset rather than the ~33% (90/274) the exhaustive variant
 # tolerates -- materially stricter proportionally, not looser.
 #
-# Derivation: the slowest conclusive solve observed in the baseline-deriving run
-# was 8.646s against the same SELF_SCAN_SOLVE_TIMEOUT_MS=10000 budget (13.5%
-# headroom) -- see specs/138_.../baselines/derivation-run/progress.jsonl. A
-# small amount of slack (3 of 103, ~97.1% retention) tolerates ordinary
-# run-to-run solve-time variance near that budget without masking a real
-# regression. Do not raise this to make a run green if solve times drift wider
-# than this -- that is the assertion-weakening this task's hard constraint
-# forbids; investigate instead. If the manifest's conclusive_count changes
-# (baseline re-derived), recompute this floor from the new count, do not leave
-# it stale.
+# Derivation (re-derived after the quantifier-variable-aliasing soundness fix
+# to the bimodal temporal operators' bound-variable declarations; see
+# specs/139_.../evidence/rederivation.md for the full per-formula diff): the
+# manifest's conclusive_count is 103, unchanged in COUNT from the pre-fix
+# baseline but NOT unchanged in SET -- 7 formulas gained conclusiveness and 7
+# different formulas lost it, a genuine behavioural change that happens to net
+# to zero. The slowest conclusive solve observed in the re-deriving run was
+# 10.094s against the same SELF_SCAN_SOLVE_TIMEOUT_MS=10000 budget -- i.e.
+# ~0.94% OVER the nominal 10s budget on wall-clock elapsed time (Z3's internal
+# timeout fires on solver time; scan_runner.py's measured elapsed_s includes a
+# small amount of surrounding Python overhead), a materially thinner margin
+# than the prior derivation's 8.646s/13.5% headroom -- see
+# specs/139_.../baselines/derivation-run/progress.jsonl. A small amount of
+# slack (3 of 103, ~97.1% retention) tolerates ordinary run-to-run solve-time
+# variance near that budget without masking a real regression. Do not raise
+# this to make a run green if solve times drift wider than this -- that is the
+# assertion-weakening this task's hard constraint forbids; investigate
+# instead. If the manifest's conclusive_count changes (baseline re-derived),
+# recompute this floor from the new count, do not leave it stale.
 MIN_CONCLUSIVE_GATING_FORMULAS = 100
 
 

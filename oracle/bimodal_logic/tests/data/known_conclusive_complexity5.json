@@ -6,12 +6,12 @@
   ],
   "total_formulas": 274,
   "solve_timeout_ms": 10000,
-  "derived_at": "2026-08-06T17:24:36.367988+00:00",
-  "wall_clock_seconds": 3640.955,
+  "derived_at": "2026-08-07T09:22:45.486260+00:00",
+  "wall_clock_seconds": 3549.987,
   "conclusive_count": 103,
   "disagreements": 0,
-  "documented_prior_conclusive_count": 106,
-  "notes": "Re-derived post-fix (Task 133's OracleTimeoutError contract) serial baseline. Measured conclusive_count=103 vs the documented prior measurement of 106/274 (TESTING_GUIDE.md-referenced figure recorded in test_cross_oracle_differential.py's MIN_CONCLUSIVE_SCAN_FORMULAS comment); within ordinary run-to-run variance and above the ~95 stop-and-re-run tolerance floor documented in this task's plan (Phase 4).",
+  "documented_prior_conclusive_count": 103,
+  "notes": "Re-derived after a soundness fix to the bimodal temporal operators' quantified bound-variable declarations: z3.Int fixed-name bound variables were replaced with counter-suffixed _fresh_bound_int() at all 14 quantifier-declaration sites, eliminating a defect where a nested same-primitive quantified operator's 'fresh' bound variable aliased the outer call's eval_time term via Z3's (name, sort) interning. Measured conclusive_count=103, identical in COUNT to the prior (pre-fix) manifest's 103, but NOT identical in SET: 7 formulas gained conclusiveness and 7 different formulas lost it (net zero). This is a genuine behavioural change from the encoding fix, not a coincidental no-op -- see specs/139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/evidence/rederivation.md for the full per-formula diff and explanation of both directions. disagreements=0 (hard constraint satisfied). The re-derivation run was launched without an idle-machine pre-flight pass (recorded deviation, see the evidence file above); conclusive_count=103 clears the ~95 stop-and-re-run floor documented there, so the run is used as-is per that sanctioned criterion.",
   "conclusive": [
     {
       "index": 0,
@@ -129,22 +129,6 @@
       }
     },
     {
-      "index": 19,
-      "formula_json": {
-        "tag": "box",
-        "child": {
-          "tag": "box",
-          "child": {
-            "tag": "box",
-            "child": {
-              "tag": "atom",
-              "name": "p"
-            }
-          }
-        }
-      }
-    },
-    {
       "index": 20,
       "formula_json": {
         "tag": "box",
@@ -202,22 +186,6 @@
             "name": "p"
           },
           "right": {
-            "tag": "atom",
-            "name": "p"
-          }
-        }
-      }
-    },
-    {
-      "index": 29,
-      "formula_json": {
-        "tag": "box",
-        "child": {
-          "tag": "snce",
-          "event": {
-            "tag": "bot"
-          },
-          "guard": {
             "tag": "atom",
             "name": "p"
           }
@@ -353,18 +321,18 @@
       }
     },
     {
-      "index": 45,
+      "index": 41,
       "formula_json": {
         "tag": "untl",
         "event": {
-          "tag": "box",
-          "child": {
-            "tag": "bot"
-          }
+          "tag": "bot"
         },
         "guard": {
-          "tag": "atom",
-          "name": "p"
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
         }
       }
     },
@@ -380,25 +348,6 @@
               "tag": "box",
               "child": {
                 "tag": "bot"
-              }
-            }
-          }
-        }
-      }
-    },
-    {
-      "index": 57,
-      "formula_json": {
-        "tag": "box",
-        "child": {
-          "tag": "box",
-          "child": {
-            "tag": "box",
-            "child": {
-              "tag": "box",
-              "child": {
-                "tag": "atom",
-                "name": "p"
               }
             }
           }
@@ -1402,26 +1351,6 @@
       }
     },
     {
-      "index": 143,
-      "formula_json": {
-        "tag": "imp",
-        "left": {
-          "tag": "untl",
-          "event": {
-            "tag": "atom",
-            "name": "p"
-          },
-          "guard": {
-            "tag": "bot"
-          }
-        },
-        "right": {
-          "tag": "atom",
-          "name": "p"
-        }
-      }
-    },
-    {
       "index": 146,
       "formula_json": {
         "tag": "imp",
@@ -1517,6 +1446,27 @@
       }
     },
     {
+      "index": 153,
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      }
+    },
+    {
       "index": 155,
       "formula_json": {
         "tag": "untl",
@@ -1554,20 +1504,20 @@
       }
     },
     {
-      "index": 168,
+      "index": 157,
       "formula_json": {
         "tag": "untl",
         "event": {
-          "tag": "atom",
-          "name": "p"
+          "tag": "bot"
         },
         "guard": {
-          "tag": "box",
-          "child": {
-            "tag": "box",
-            "child": {
-              "tag": "bot"
-            }
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
           }
         }
       }
@@ -1584,6 +1534,27 @@
           "tag": "imp",
           "left": {
             "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 173,
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
           },
           "right": {
             "tag": "atom",
@@ -1728,20 +1699,41 @@
       }
     },
     {
-      "index": 246,
+      "index": 217,
       "formula_json": {
         "tag": "snce",
         "event": {
-          "tag": "box",
-          "child": {
-            "tag": "box",
-            "child": {
-              "tag": "bot"
-            }
-          }
+          "tag": "bot"
         },
         "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      }
+    },
+    {
+      "index": 219,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
           "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
         }
       }
     },
@@ -1818,6 +1810,25 @@
         "guard": {
           "tag": "atom",
           "name": "p"
+        }
+      }
+    },
+    {
+      "index": 254,
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
         }
       }
     },

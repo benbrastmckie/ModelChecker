@@ -622,10 +622,20 @@ spending 1-2 hours of unattended wall clock on the re-derivation run.
       investigated in depth and found **not** a regression (pre-fix all four candidate formulas
       including the one that now differs were already timing out/inconclusive, never a confident
       "valid" verdict being overturned) but the decided post-fix SAT answer's mathematical
-      correctness was not independently re-derived (flagged as a follow-up); **2 failures left
-      genuinely unclassified** (`test_all_sat_task_relation_ternary`,
-      `test_all_sat_results_have_complete_output`) — not asserted clean, carried forward as an
-      open item in the orchestrator handoff rather than silently dropped.
+      correctness was not independently re-derived (flagged as a follow-up); the remaining 2
+      failures (`test_all_sat_task_relation_ternary`, `test_all_sat_results_have_complete_output`)
+      were left unclassified at Phase 6's original time-boxed close, then **resolved in this later
+      dispatch**: re-run in isolation via `nix develop` (which provides the `bimodal_harness`
+      import both tests' modules require but which is not importable bare -- confirmed the same
+      `ModuleNotFoundError` Phase 1 already recorded when attempted outside the devShell) on a
+      machine with no observed competing load. Both **passed cleanly**, 28.47s combined
+      (`TestTernarySerializationAll::test_all_sat_task_relation_ternary`,
+      `TestOracleOutputCompleteness::test_all_sat_results_have_complete_output`). Since a genuine
+      regression introduced by this fix would have to reproduce on post-fix code regardless of
+      contention, and it does not, both are classified (b) pre-existing/environmental (the original
+      pass-1 failure was caused by the same heavy external `lean lake build` contention documented
+      for the other environmental findings in this phase) -- established by direct evidence, not
+      left asserted clean without verification.
 - [x] Record the classification in `evidence/post-fix-measurements.md` with the evidence for each.
 
 **Timing**: 1 hour agent work plus ~20 minutes suite wall clock (actual: several hours of wall
@@ -662,7 +672,7 @@ clock consumed by severe, unrelated external machine contention -- see above)
 
 ---
 
-### Phase 7: Re-derive the exhaustive conclusive population [IN PROGRESS]
+### Phase 7: Re-derive the exhaustive conclusive population [COMPLETED]
 
 **Goal**: Produce a fresh, contention-free, serial ground-truth measurement at the unchanged budget.
 
@@ -685,22 +695,27 @@ clock consumed by severe, unrelated external machine contention -- see above)
       contended run: re-run rather than baking it in") governs how the result must be treated --
       **the measured `conclusive_count` must be sanity-checked against that floor before Phase 8
       treats it as trustworthy**, not accepted uncritically because a run merely completed.
-- [ ] Run serially at the deployed budget, detached, output into the task directory:
+- [x] Run serially at the deployed budget, detached, output into the task directory:
       `python oracle/scan_runner.py --timeout-ms 10000 --out-dir specs/139_.../baselines/derivation-run/`
       (equivalently `nix develop --command bash oracle/run-oracle-exhaustive-scan.sh`). Never under
       `pytest-xdist`. Expect ~60-90 minutes.
-      **LAUNCHED, not yet complete as of this dispatch's return** -- running in the background,
-      output streaming to
+      (Completed at 3549.99s (~59.2 min) wall clock, within the plan's own ~60-90 minute estimate
+      despite the recorded contention. Output at
       `specs/139_.../baselines/derivation-run/` (`progress.jsonl`, `report.json`,
-      `SCAN_COMPLETE` on completion) and console output mirrored to
-      `specs/139_.../run/phase7-exhaustive-scan.log`. See `.orchestrator-handoff.json`'s
-      `continuation_context` for exact resume instructions.
-- [ ] Detect completion **only** via the `SCAN_COMPLETE` marker's existence under the output
+      `SCAN_COMPLETE`); console mirror at
+      `specs/139_.../run/phase7-exhaustive-scan.log`.)
+- [x] Detect completion **only** via the `SCAN_COMPLETE` marker's existence under the output
       directory. Never poll PID liveness — a `timeout`-fired kill can leave `report.json`
       half-written or absent, and a vanished PID is not a verdict.
-- [ ] Record measured `total_formulas`, `conclusive_count`, `disagreements`, `wall_clock_seconds`,
+      (`SCAN_COMPLETE` confirmed present: `{"status": "complete", "total_formulas": 274,
+      "conclusive": 103, "disagreements": 0, "timeout_count": 171, "wall_clock_seconds":
+      3549.987, ...}`. No PID polling used.)
+- [x] Record measured `total_formulas`, `conclusive_count`, `disagreements`, `wall_clock_seconds`,
       and the slowest observed conclusive solve time (needed for Phase 8's floor derivation) into
       `evidence/rederivation.md`.
+      (Recorded: `total_formulas=274`, `conclusive_count=103`, `disagreements=0`,
+      `wall_clock_seconds=3549.987`, slowest conclusive solve `10.094s` at idx174 (1-based) --
+      see `evidence/rederivation.md`.)
 
 **Timing**: 1 hour agent work, plus ~1-2 hours unattended wall clock
 
@@ -713,55 +728,84 @@ clock consumed by severe, unrelated external machine contention -- see above)
 
 **Verification**:
 
-- [ ] `SCAN_COMPLETE` exists and `report.json` parses. Completion method recorded as marker-based.
-- [ ] `total_formulas == 274`.
-- [ ] `disagreements == 0`. **Non-zero is stop-and-report** — halt the task, write the handoff with
+- [x] `SCAN_COMPLETE` exists and `report.json` parses. Completion method recorded as marker-based.
+      (Confirmed: `SCAN_COMPLETE` present and well-formed; `report.json` parses, 274 entries.)
+- [x] `total_formulas == 274`. (Confirmed: `report.json["total_formulas"] == 274`.)
+- [x] `disagreements == 0`. **Non-zero is stop-and-report** — halt the task, write the handoff with
       `status: partial` and a hard blocker, and do not proceed to Phase 8. A disagreement after a
       soundness fix is a genuine finding, not a baseline.
-- [ ] `SELF_SCAN_SOLVE_TIMEOUT_MS` is still `10000` and unmodified — the run used the deployed
+      (Confirmed: `report.json["disagreements"] == 0`. Proceeding to Phase 8 is sanctioned.)
+- [x] `SELF_SCAN_SOLVE_TIMEOUT_MS` is still `10000` and unmodified — the run used the deployed
       budget, not a widened one.
-- [ ] The measured `conclusive_count` is recorded **whichever direction it moved**, with no
+      (Confirmed: `scan_runner.py --timeout-ms 10000` was the invocation; the constant in
+      `test_cross_oracle_differential.py` was not touched by this dispatch.)
+- [x] The measured `conclusive_count` is recorded **whichever direction it moved**, with no
       pre-committed target. If it is implausibly low relative to a contention-free expectation, the
       correct response is to re-run after re-checking machine idleness, not to record it.
+      (Recorded: 103/274 (37.6%), clearing the plan's own ~95 stop-and-re-run floor. Per the
+      recorded Phase 7 pre-flight deviation, this run was NOT contention-free (mid-run CPU
+      contention from an unrelated `lean lake build`, easing partway through); it is used as-is
+      because it clears the plan's own sanctioned tolerance, not because the contention is being
+      minimized. See `evidence/rederivation.md` for the full honest accounting.)
 
 ---
 
-### Phase 8: Rebuild the manifest and re-derive the gating floor [NOT STARTED]
+### Phase 8: Rebuild the manifest and re-derive the gating floor [COMPLETED]
 
 **Goal**: Update the two artifacts that legitimately track measured behaviour, with the legitimacy
 of each change explicit and checkable.
 
 **Tasks**:
 
-- [ ] Rebuild `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` from the run's
+- [x] Rebuild `oracle/bimodal_logic/tests/data/known_conclusive_complexity5.json` from the run's
       `progress.jsonl` using the same procedure and schema as before: `schema_version`,
       `max_complexity`, `atoms`, `total_formulas`, `solve_timeout_ms` (10000), `derived_at`,
       `wall_clock_seconds`, `conclusive_count`, `disagreements`,
       `documented_prior_conclusive_count` (103), `notes`, and `conclusive` as `{index, formula_json}`
       pairs. Index is 0-based, converted from `progress.jsonl`'s 1-based `idx` (identity is index
       **and** canonical JSON, never index alone).
-- [ ] Write the `notes` field to state plainly: the re-derivation was caused by an encoding-soundness
+      (Rebuilt: 103 conclusive entries, converted from `progress.jsonl`'s 1-based `idx`. Verified
+      zero mismatches against the live enumerator before installing.)
+- [x] Write the `notes` field to state plainly: the re-derivation was caused by an encoding-soundness
       fix that changed which formulas the solver can decide — a genuine behavioural change — not by
       accommodating a regression. Include the prior count (103) and the direction of movement.
-- [ ] **Diff the conclusive sets**, not just the counts. Enumerate formulas that gained conclusiveness
+      (Written: states the count is unchanged (103) but the *set* is not (7 gained / 7 lost, net
+      zero), and that this is a genuine behavioural change, not a coincidental no-op.)
+- [x] **Diff the conclusive sets**, not just the counts. Enumerate formulas that gained conclusiveness
       and formulas that lost it. For every formula that *lost* conclusiveness, state which collapse
       direction it previously exploited: a formula that was previously conclusive because its
       conclusion folded to constant `False` was conclusive-and-wrong, and losing it is a soundness
       improvement, not a regression. Record this per-formula in `evidence/rederivation.md`.
-- [ ] Recompute `MIN_CONCLUSIVE_GATING_FORMULAS` from the new `conclusive_count` using the **same**
+      (Done: 7 gained (indices 41,153,157,173,217,219,254), 7 lost (indices 19,29,45,57,143,168,246).
+      Cross-referenced against `evidence/pre-fix-census.json`/`post-fix-census.json`: **none** of the
+      7 lost formulas were folded-to-Boolean-literal in either version — none exploited the aliasing
+      collapse, so none were "conclusive-and-wrong". Their loss is a genuine solve-time regression
+      from the same Box term-identity-shortcut-loss mechanism Phase 2 (index 125) and Phase 6
+      (`BM_CM_4`) already documented, not a soundness correction. The 7 gained formulas are a mix of
+      legitimate `\bot`-fold cases (structurally excluded from the aliasing defect's blast radius)
+      and ordinary budget-boundary solve-time variance. Full table in `evidence/rederivation.md`.)
+- [x] Recompute `MIN_CONCLUSIVE_GATING_FORMULAS` from the new `conclusive_count` using the **same**
       methodology: `floor = new_conclusive_count - 3` (~97% retention slack), cross-checked against
       the newly measured slowest conclusive solve time versus the unchanged 10000ms budget. Update
       the constant and rewrite its derivation comment with the new numbers, preserving the existing
       warning against raising it to force a green run.
-- [ ] Do **not** touch `SELF_SCAN_SOLVE_TIMEOUT_MS`, `MIN_CONCLUSIVE_SCAN_FORMULAS`, or
+      (Recomputed: `103 - 3 = 100`, identical to the existing value. Comment rewritten to cite this
+      run's own measurement (10.094s slowest solve, ~0.94% over nominal budget on wall-clock —
+      thinner margin than the prior 8.646s/13.5% headroom) rather than silently inherit stale
+      numbers under an unchanged constant.)
+- [x] Do **not** touch `SELF_SCAN_SOLVE_TIMEOUT_MS`, `MIN_CONCLUSIVE_SCAN_FORMULAS`, or
       `_assert_scan_report`.
-- [ ] Record the Task 137 linkage status honestly: whether any formula whose conclusiveness changed
+      (Confirmed untouched — verified via the Hard Constraint pinned-artifact audit script,
+      output recorded in Phase 9 below.)
+- [x] Record the Task 137 linkage status honestly: whether any formula whose conclusiveness changed
       is a plausible member of the 13 MC/BimodalHarness resolved-and-wrong divergences cannot be
       confirmed here because `bimodal_harness` is not importable in this environment (Phase 1
       evidence). State what the census *does* establish — that two primitive `\Until`/`\Since`
       formulas were resolving on a corrupted encoding and no longer do — and recommend re-running
       `test_temporal_only_agreement_complexity_5` wherever BimodalHarness is installed as a
       follow-up. Do not claim the linkage is resolved.
+      (Recorded in `evidence/rederivation.md`'s "Task 137 / BimodalHarness linkage" section:
+      unresolved, same import failure as Phase 1, follow-up recommendation preserved.)
 
 **Timing**: 1.5 hours
 
@@ -776,19 +820,33 @@ of each change explicit and checkable.
 
 **Verification**:
 
-- [ ] The manifest round-trips: re-enumerate complexity<=5 and confirm every entry's `formula_json`
+- [x] The manifest round-trips: re-enumerate complexity<=5 and confirm every entry's `formula_json`
       equals the enumerated formula at that `index`; `_verify_manifest_matches_enumeration` accepts
       the new manifest with zero mismatches.
-- [ ] `new_conclusive_count - MIN_CONCLUSIVE_GATING_FORMULAS == 3`, matching the retention proportion
+      (Confirmed directly: 274/274 enumerator match, zero index/formula_json mismatches across all
+      103 conclusive entries, verified before installing the file. Re-confirmed indirectly:
+      `TestGatingConclusiveScanMechanism`'s two drift-guard tests pass against the installed
+      manifest, and `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent`
+      itself calls `_verify_manifest_matches_enumeration` and passed in true isolation (176.10s,
+      98/103->103/103 after eliminating self-inflicted concurrent-job contention from an earlier
+      attempt — see Phase 9 below).)
+- [x] `new_conclusive_count - MIN_CONCLUSIVE_GATING_FORMULAS == 3`, matching the retention proportion
       of the existing derivation. A wider gap would be threshold-weakening.
-- [ ] `git diff` on `test_cross_oracle_differential.py` touches only the
+      (`103 - 100 == 3`. Confirmed.)
+- [x] `git diff` on `test_cross_oracle_differential.py` touches only the
       `MIN_CONCLUSIVE_GATING_FORMULAS` assignment and its comment block.
-- [ ] Every formula that lost conclusiveness has a recorded explanation. An unexplained loss is a
+      (Confirmed: `git diff --stat` shows a single hunk (18 insertions, 10 deletions) entirely
+      within the `MIN_CONCLUSIVE_GATING_FORMULAS` comment block; the assignment's value (100) is
+      unchanged text but the surrounding derivation comment was rewritten as planned.)
+- [x] Every formula that lost conclusiveness has a recorded explanation. An unexplained loss is a
       finding to investigate, not a number to bake into the manifest.
+      (All 7 explained in `evidence/rederivation.md`'s per-formula table: all are deeply-nested
+      Box/quantified formulas that never folded in either census, attributed to the Box
+      term-identity-shortcut-loss mechanism already established elsewhere in this task.)
 
 ---
 
-### Phase 9: Final green run and pinned-artifact audit [NOT STARTED]
+### Phase 9: Final green run and pinned-artifact audit [IN PROGRESS]
 
 **Goal**: Prove the suite is green with the new baseline and that nothing pinned moved.
 

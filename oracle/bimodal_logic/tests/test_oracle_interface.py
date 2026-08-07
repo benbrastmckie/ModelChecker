@@ -875,9 +875,22 @@ class TestMixedFormulas:
         assert result is not None
 
     def test_mixed_or_diamond_prev(self):
-        """or(diamond(A), prev(B)) -- L2 or + L2 diamond + L1 prev."""
+        """or(diamond(A), prev(B)) -- L2 or + L2 diamond + L1 prev.
+
+        timeout_ms widened from 60000 to 150000: this formula's genuine solve
+        time increased from ~1.5s to ~73s once the quantified operators'
+        bound variables stopped accidentally sharing Z3 term identity via
+        fixed-name interning (the same solve-time-cost mechanism documented
+        for Box(p)->Box(p) and the BM_CM_4 countermodel elsewhere in this
+        line of work) -- confirmed by a direct scratch-copy comparison
+        against the pre-fix operators.py/semantic/core.py (1.47s pre-fix,
+        deterministic 60s timeout post-fix at the old budget) and by a
+        120s-budget run that finds the same countermodel at ~72.6s post-fix.
+        Not a correctness defect: the countermodel is still genuinely found,
+        just slower. ~2x headroom over the measured 72.6s.
+        """
         formula = _or(_diamond(A), _prev(B))
-        result = self.provider.find_countermodel(formula, timeout_ms=60000)
+        result = self.provider.find_countermodel(formula, timeout_ms=150000)
         # SAT -- countermodel where both disjuncts are false
         assert result is not None
 

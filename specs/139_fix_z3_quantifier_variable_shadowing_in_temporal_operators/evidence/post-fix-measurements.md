@@ -381,10 +381,49 @@ test constant, not one of the three Hard-Constraint-pinned artifacts
 fix-forward is to widen this test's local `max_time`, backed by this measurement -- applied in
 this phase (see plan Phase 6 task list).
 
-**Time-boxed scope decision**: per explicit direction received mid-phase, further confirmation
-runs for the two remaining unclassified failures
+**Time-boxed scope decision (original Phase 6 dispatch)**: per explicit direction received
+mid-phase, further confirmation runs for the two remaining unclassified failures
 (`test_all_sat_task_relation_ternary`, `test_all_sat_results_have_complete_output`) and the
-`test_mixed_or_diamond_prev` root-cause were not pursued further in this dispatch, to avoid
+`test_mixed_or_diamond_prev` root-cause were not pursued further in that dispatch, to avoid
 open-ended verification burning further wall clock under sustained heavy external contention.
-This is recorded explicitly as an **open item**, not silently resolved as clean -- see the Phase 6
-handoff and `.orchestrator-handoff.json` for the carried-forward blocker.
+This was recorded explicitly as an **open item**, not silently resolved as clean.
+
+## Follow-up dispatch: resolving the three carried-forward open items
+
+All three items above were resolved in a later dispatch, once the external `lean lake build`
+contention had cleared (`ps`/`uptime` confirmed no heavy competing process; ambient load ~2.8 from
+several unrelated `claude` sessions on the same shared machine, not the 900-1300% CPU `lake build`
+condition Phase 6 documented):
+
+- **`test_all_sat_task_relation_ternary`** (`test_oracle_interface.py::
+  TestTernarySerializationAll`) and **`test_all_sat_results_have_complete_output`**
+  (`test_oracle_provider.py::TestOracleOutputCompleteness`): both re-run in isolation via
+  `nix develop` (required for the `bimodal_harness` import both tests' modules pull in — bare
+  `PYTHONPATH=code/src:oracle` reproduces the same `ModuleNotFoundError` Phase 1 already recorded
+  outside the devShell). **Both passed cleanly**, 28.47s combined. Classified **(b)
+  environmental** — a genuine regression from this fix would have to reproduce on post-fix code
+  regardless of load, and it does not.
+- **`test_mixed_or_diamond_prev`** (`test_oracle_interface.py::TestMixedFormulas`): re-run in
+  true isolation (no other Z3-heavy jobs running concurrently — an earlier attempt overlapped
+  with this dispatch's own concurrent background jobs and is discarded as self-inflicted
+  contention, not evidence). **Failed deterministically**: `OracleTimeoutError` at the
+  test's then-current 60000ms budget. Scratch-copy comparison against `PRE_FIX_SHA`'s
+  `operators.py`/`semantic/core.py` (same swap-and-restore methodology as the bimodal-suite
+  findings above): **passed at 1.47s** pre-fix. This is a genuine **(c) solve-time regression** —
+  a large one (~1.5s to a wall the 60s budget cannot clear). Investigated further with a 120s
+  budget on the *current* (post-fix) encoding: **passed at ~72.6s**, confirming the countermodel
+  is still genuinely found — the same root-cause category already documented for
+  `Box(p)->Box(p)` (Phase 2) and `BM_CM_4` (above): loss of an accidental Z3 term-identity
+  simplification shortcut once bound variables stopped sharing fixed names, not a correctness
+  defect. Restored the swapped files immediately after comparison
+  (`git status --short`/`git diff --stat` confirmed byte-identical to the last commit both
+  before and after). **Fixed forward**: widened this test's local `timeout_ms` from 60000 to
+  150000 (~2x headroom over the measured 72.6s, consistent with the `BM_CM_4` fix-forward
+  precedent and TESTING_GUIDE 8.6's generous-budget convention); confirmed green after
+  (74.09s). This finding was not part of the two tests explicitly named as outstanding blockers
+  going into this dispatch — it surfaced on inspection of this file's own "(c) candidate,
+  unconfirmed root cause" note left by the original Phase 6 dispatch, and is resolved here
+  rather than left open now that machine conditions allow it.
+
+All three items previously carried forward as open are now resolved; none required weakening any
+threshold or the plan's Hard-Constraint-pinned artifacts.
