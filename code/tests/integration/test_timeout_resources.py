@@ -9,16 +9,23 @@ import time
 import threading
 from unittest.mock import patch, Mock
 from tests.utils.helpers import create_test_module, create_test_model
+from model_checker.models.concurrency import ConcurrentConstructionError
 
-# Timing/subprocess-timeout assertions here are load-sensitive (see
+# Timing/subprocess-timeout assertions in this file are load-sensitive (see
 # TESTING_GUIDE.md 8.6): repeat full-suite sweeps have shown these budgets
-# tripped under concurrent load with no code change. Marked "slow" so a
-# default run can opt out via `-m "not slow"` for deterministic results;
-# run with `-m slow` (or no -m filter) to validate actual timeout/resource
-# handling.
-pytestmark = pytest.mark.slow
+# tripped under concurrent load with no code change. Each class carrying
+# such assertions is marked "slow" so a default run can opt out via
+# `-m "not slow"` for deterministic results; run with `-m slow` (or no -m
+# filter) to validate actual timeout/resource handling. This was previously
+# a single module-level `pytestmark = pytest.mark.slow`; it is now applied
+# per-class (per-method within TestResourceLimits, which mixes timing-
+# sensitive tests with the single-threaded-construction contract test) so
+# that test_concurrent_model_building -- which asserts the documented
+# construction contract, not a wall-clock budget -- runs in the default
+# suite (see models/concurrency.py for the contract it pins).
 
 
+@pytest.mark.slow
 class TestTimeoutHandling:
     """Test timeout handling in various components."""
     
@@ -100,8 +107,17 @@ example_range = {
 
 
 class TestResourceLimits:
-    """Test resource limit handling."""
-    
+    """Test resource limit handling.
+
+    Mixed class: test_large_state_space and test_many_propositions are
+    resource-handling tests (no wall-clock assertions of their own, but
+    the large-N model construction they exercise is expensive enough to
+    keep behind the "slow" opt-out), marked individually below since the
+    class as a whole also hosts test_concurrent_model_building, which must
+    NOT be marked slow (see that test's docstring and models/concurrency.py).
+    """
+
+    @pytest.mark.slow
     def test_large_state_space(self):
         """Test handling of large state spaces."""
         # Test increasing N values
@@ -119,6 +135,7 @@ class TestResourceLimits:
                 # Other exceptions should be informative
                 assert "memory" in str(e).lower() or "resource" in str(e).lower()
     
+    @pytest.mark.slow
     def test_many_propositions(self):
         """Test handling of many propositions."""
         # Create many propositions
@@ -136,33 +153,70 @@ class TestResourceLimits:
             pass
     
     def test_concurrent_model_building(self):
-        """Test concurrent model building doesn't exhaust resources."""
+        """Pins the single-threaded-only model-construction contract at 5
+        threads.
+
+        This test used to build 5 models concurrently and only check that
+        every thread terminated -- it swallowed the actual outcome
+        (`except Exception: return False`) and never inspected it, so a
+        segfault was the only way it could ever fail loudly; a crash aborts
+        the whole interpreter before any assertion runs. The report
+        investigating this measured a 100% crash rate at 5 threads (6/6
+        isolated runs), the strongest regression detector of the two
+        crashing tests -- kept at 5 threads for that reason.
+
+        Construction is now guarded (see models/concurrency.py): a second
+        thread contending for the guard raises ConcurrentConstructionError
+        instead of racing on the shared Z3 context. The contract pinned
+        here is the same as TestConcurrentPerformance.test_sequential_vs_concurrent
+        in test_performance.py: every thread's outcome must be success or
+        ConcurrentConstructionError, never a crash or any other exception,
+        never swallowed, and at least one thread must succeed.
+        """
+        outcomes = []
+        outcomes_lock = threading.Lock()
+
         def build_model():
             settings = {'N': 3}
             try:
-                model = create_test_model(settings)
-                return True
-            except Exception:
-                return False
+                create_test_model(settings)
+                result = ('ok', None)
+            except ConcurrentConstructionError as exc:
+                result = ('contended', exc)
+            except Exception as exc:  # noqa: BLE001 - intentionally broad: capture, never swallow
+                result = ('other', exc)
+            with outcomes_lock:
+                outcomes.append(result)
 
-        # Create multiple threads
-        threads = []
         num_threads = 5
-
-        for _ in range(num_threads):
-            thread = threading.Thread(target=build_model)
-            threads.append(thread)
+        threads = [threading.Thread(target=build_model) for _ in range(num_threads)]
+        for thread in threads:
             thread.start()
-
-        # Wait for all threads
         for thread in threads:
             thread.join(timeout=5)
 
-        # All threads should complete
-        for thread in threads:
-            assert not thread.is_alive()
+        assert all(not t.is_alive() for t in threads), (
+            "A thread did not terminate within the join timeout."
+        )
+
+        other_failures = [exc for kind, exc in outcomes if kind == 'other']
+        assert not other_failures, (
+            f"Unexpected exception(s) during concurrent construction "
+            f"(expected only success or ConcurrentConstructionError): "
+            f"{other_failures!r}"
+        )
+
+        assert len(outcomes) == num_threads, (
+            f"Expected {num_threads} outcomes, got {len(outcomes)}: {outcomes!r}"
+        )
+        ok_count = sum(1 for kind, _ in outcomes if kind == 'ok')
+        assert ok_count >= 1, (
+            f"No thread succeeded -- the guard must not deadlock or starve "
+            f"every thread. Outcomes: {outcomes!r}"
+        )
 
 
+@pytest.mark.slow
 class TestInterruptHandling:
     """Test handling of interrupts and cancellation."""
     
@@ -205,6 +259,7 @@ time.sleep(10)  # Long sleep to allow interrupt
             pass
 
 
+@pytest.mark.slow
 class TestPerformanceDegradation:
     """Test performance under degraded conditions."""
     
@@ -259,6 +314,7 @@ class TestPerformanceDegradation:
             assert elapsed < settings['max_time'] + 0.5
 
 
+@pytest.mark.slow
 class TestResourceRecovery:
     """Test resource recovery after errors."""
     

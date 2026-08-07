@@ -234,13 +234,13 @@ dependencies on the model classes.
 
 ---
 
-### Phase 3: Rewrite the two concurrency tests to assert the contract [NOT STARTED]
+### Phase 3: Rewrite the two concurrency tests to assert the contract [IN PROGRESS]
 
 **Goal**: Both tests exercise the documented contract and run in the default (unfiltered-by-
 `slow`) suite. Neither is skipped, `xfail`ed, or left behind a `slow` marker.
 
 **Tasks**:
-- [ ] Rewrite `code/tests/integration/test_performance.py::TestConcurrentPerformance::test_sequential_vs_concurrent`
+- [x] Rewrite `code/tests/integration/test_performance.py::TestConcurrentPerformance::test_sequential_vs_concurrent`
   (3 threads). Drop the load-sensitive `concurrent_time < sequential_time * 2` assertion
   entirely — it is exactly the class of wall-clock assertion the file's own header comment
   flags as unreliable. The new test:
@@ -254,18 +254,35 @@ dependencies on the model classes.
   - Carries a docstring stating what contract it pins and why it is not a performance test.
   - Note in the docstring that all-`ok` is a legitimate outcome when the scheduler happens to
     serialize the threads; the contract is "no crash, contention reported loudly if it occurs".
-- [ ] Rewrite `code/tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building`
+- [x] Rewrite `code/tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building`
   (5 threads) the same way. Keep the thread count at 5 — the report measured 100% crash rate
   there, so it is the stronger regression detector.
-- [ ] Relocate the `slow` marker in both files: replace the module-level
+- [x] Relocate the `slow` marker in both files: replace the module-level
   `pytestmark = pytest.mark.slow` (`test_performance.py:18`, `test_timeout_resources.py:19`)
   with explicit `@pytest.mark.slow` on the classes that carry wall-clock/timing assertions,
   leaving the two rewritten contract tests unmarked. Preserve the existing explanatory comment
   blocks verbatim, adjusted only to say they now apply per-class. This is required by the task
   statement (the tests must not merely be marked) and is deliberately mechanical to minimize
   collision with Task 136, which owns the budgets themselves.
-- [ ] Record in the phase notes exactly which classes received the relocated marker, for Task
-  136's benefit.
+  **Deviation**: `TestResourceLimits` (test_timeout_resources.py) mixes the contract test with
+  two other tests (`test_large_state_space`, `test_many_propositions`) that have no wall-clock
+  assertions of their own but exercise expensive large-N construction. A class-level mark would
+  have wrongly marked the contract test slow too, so those two tests were marked individually
+  with `@pytest.mark.slow` at the method level instead of class level, preserving their prior
+  filtered-out status under the old module-level marker without touching the contract test.
+  `TestConcurrentPerformance` (test_performance.py) has no such mixing — it contains only the
+  one rewritten test, so it received no marker at all (class-level or method-level).
+- [x] Record in the phase notes exactly which classes received the relocated marker, for Task
+  136's benefit. **Classes/methods marked `@pytest.mark.slow`**: test_performance.py —
+  `TestExecutionPerformance`, `TestMemoryPerformance`, `TestBatchPerformance`,
+  `TestCachingPerformance`, `TestWorstCasePerformance` (all class-level).
+  test_timeout_resources.py — `TestTimeoutHandling`, `TestInterruptHandling`,
+  `TestPerformanceDegradation`, `TestResourceRecovery` (class-level); `TestResourceLimits`
+  is unmarked at the class level with `test_large_state_space` and `test_many_propositions`
+  marked individually (method-level) — see deviation note above. Unmarked (default suite):
+  `TestConcurrentPerformance` (whole class) and
+  `TestResourceLimits::test_concurrent_model_building` (one method within an otherwise-slow
+  -leaning class).
 
 **Timing**: 1.5 hours
 
@@ -278,8 +295,17 @@ dependencies on the model classes.
 **Verification**:
 - `PYTHONPATH=code/src pytest code/tests/integration/test_performance.py::TestConcurrentPerformance -v` — passes.
 - `PYTHONPATH=code/src pytest code/tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building -v` — passes.
-- `PYTHONPATH=code/src pytest code/tests/integration/test_performance.py code/tests/integration/test_timeout_resources.py --collect-only -q -m "not slow"` — collects exactly the two rewritten tests (and any other now-unmarked tests), confirming the marker relocation did what was intended.
+- `PYTHONPATH=code/src pytest code/tests/integration/test_performance.py code/tests/integration/test_timeout_resources.py --collect-only -q -m "not slow"` — collects exactly the two rewritten tests (and any other now-unmarked tests), confirming the marker relocation did what was intended. **Run and confirmed**: collects exactly
+  `TestConcurrentPerformance::test_sequential_vs_concurrent` and
+  `TestResourceLimits::test_concurrent_model_building` (2/32 selected, 0.43s — collection only,
+  no test execution).
 - These are single runs; they are NOT the evidence. Phase 4 supplies the evidence.
+- **DEFERRED**: the two single-run execution checks above (actually running the rewritten
+  tests, which spawn 3 and 5 real threads doing concurrent Z3 construction) are held pending
+  `pgrep -af "run-oracle"` returning nothing, per the resource-constraint instructions — genuine
+  multi-threaded CPU contention is exactly the kind of load that could skew the concurrently
+  -running oracle timing measurements, unlike the collection-only check above (no execution) or
+  the earlier lightweight `models/tests/unit/` run (single-threaded, no threading).
 
 ---
 

@@ -7,17 +7,23 @@ execution time, memory usage, and scaling behavior.
 import pytest
 import time
 import gc
+import threading
 from tests.utils.base import BaseModelTest, BaseExampleTest
 from tests.utils.helpers import create_test_model
+from model_checker.models.concurrency import ConcurrentConstructionError
 
-# Wall-clock assertions here are load-sensitive (see TESTING_GUIDE.md 8.6):
-# repeat full-suite sweeps have shown these budgets tripped under
-# concurrent load with no code change. Marked "slow" so a default run can
-# opt out via `-m "not slow"` for deterministic results; run with `-m slow`
-# (or no -m filter) to validate actual performance characteristics.
-pytestmark = pytest.mark.slow
+# Wall-clock assertions in this file are load-sensitive (see TESTING_GUIDE.md 8.6):
+# repeat full-suite sweeps have shown these budgets tripped under concurrent load
+# with no code change. Each class carrying such assertions is marked "slow" so a
+# default run can opt out via `-m "not slow"` for deterministic results; run with
+# `-m slow` (or no -m filter) to validate actual performance characteristics. This
+# was previously a single module-level `pytestmark = pytest.mark.slow`; it is now
+# applied per-class so that TestConcurrentPerformance -- which asserts the
+# single-threaded-construction contract, not a wall-clock budget -- runs in the
+# default suite (see models/concurrency.py for the contract it pins).
 
 
+@pytest.mark.slow
 class TestExecutionPerformance(BaseModelTest):
     """Test execution time performance."""
     
@@ -100,6 +106,7 @@ class TestExecutionPerformance(BaseModelTest):
             assert n >= 8
 
 
+@pytest.mark.slow
 class TestMemoryPerformance:
     """Test memory usage performance."""
     
@@ -178,6 +185,7 @@ class TestMemoryPerformance:
         assert growth < 500, f"Object count grew by {growth}, possible memory leak"
 
 
+@pytest.mark.slow
 class TestBatchPerformance(BaseExampleTest):
     """Test batch processing performance."""
     
@@ -244,44 +252,74 @@ class TestBatchPerformance(BaseExampleTest):
 
 
 class TestConcurrentPerformance:
-    """Test concurrent operation performance."""
-    
+    """Pins the single-threaded-only model-construction contract.
+
+    This is NOT a performance test despite the module it lives in: it used to
+    assert `concurrent_time < sequential_time * 2`, exactly the load-sensitive
+    wall-clock assertion this file's own header comment flags as unreliable.
+    Model construction builds Z3 AST nodes against the single process-global
+    Z3 context with no locking (see `model_checker.models.concurrency`), so
+    concurrent construction from multiple threads is not a supported, safe
+    pattern to time -- it used to segfault the interpreter outright (5/8
+    crashes at 3 threads, see the concurrent-segfault investigation report).
+    Construction is now guarded: a second thread contending for the guard
+    raises `ConcurrentConstructionError` instead of corrupting shared state.
+
+    The contract this test pins is "no crash, and any contention is reported
+    loudly, never silently corrupted or silently serialized-and-hidden." All
+    three threads finishing with an outcome of either success or
+    `ConcurrentConstructionError` satisfies that contract. All-`ok` is a
+    legitimate outcome too: if the scheduler happens to run the threads one
+    at a time, no contention is ever observed, and that is not a failure --
+    the guard's job is only to make contention safe when it does occur, not
+    to force contention to happen.
+    """
+
     def test_sequential_vs_concurrent(self):
-        """Test that operations don't degrade under concurrency."""
-        import threading
+        """3 threads build a model concurrently; every outcome must be
+        success or the documented ConcurrentConstructionError, never a
+        crash or any other exception, and at least one thread must
+        succeed (the guard must not deadlock or starve every thread)."""
+        outcomes = []
+        outcomes_lock = threading.Lock()
 
         def make_model():
             try:
-                model = create_test_model({'N': 3})
-                return True
-            except Exception:
-                return False
+                create_test_model({'N': 3})
+                result = ('ok', None)
+            except ConcurrentConstructionError as exc:
+                result = ('contended', exc)
+            except Exception as exc:  # noqa: BLE001 - intentionally broad: capture, never swallow
+                result = ('other', exc)
+            with outcomes_lock:
+                outcomes.append(result)
 
-        # Sequential timing
-        start = time.time()
-        for _ in range(3):
-            make_model()
-        sequential_time = time.time() - start
-
-        # Concurrent timing
-        start = time.time()
-        threads = []
-        for _ in range(3):
-            thread = threading.Thread(target=make_model)
-            threads.append(thread)
+        threads = [threading.Thread(target=make_model) for _ in range(3)]
+        for thread in threads:
             thread.start()
-
         for thread in threads:
             thread.join(timeout=10)
 
-        concurrent_time = time.time() - start
+        assert all(not t.is_alive() for t in threads), (
+            "A thread did not terminate within the join timeout."
+        )
 
-        # Concurrent should not be much slower than sequential
-        # Allow 2x overhead for thread management
-        assert concurrent_time < sequential_time * 2, \
-            f"Concurrent ({concurrent_time:.2f}s) much slower than sequential ({sequential_time:.2f}s)"
+        other_failures = [exc for kind, exc in outcomes if kind == 'other']
+        assert not other_failures, (
+            f"Unexpected exception(s) during concurrent construction "
+            f"(expected only success or ConcurrentConstructionError): "
+            f"{other_failures!r}"
+        )
+
+        assert len(outcomes) == 3, f"Expected 3 outcomes, got {len(outcomes)}: {outcomes!r}"
+        ok_count = sum(1 for kind, _ in outcomes if kind == 'ok')
+        assert ok_count >= 1, (
+            f"No thread succeeded -- the guard must not deadlock or starve "
+            f"every thread. Outcomes: {outcomes!r}"
+        )
 
 
+@pytest.mark.slow
 class TestCachingPerformance:
     """Test caching and memoization performance."""
     
@@ -332,6 +370,7 @@ class TestCachingPerformance:
             f"Second load ({second_time:.4f}s) slower than first ({first_time:.4f}s)"
 
 
+@pytest.mark.slow
 class TestWorstCasePerformance:
     """Test worst-case performance scenarios."""
     
