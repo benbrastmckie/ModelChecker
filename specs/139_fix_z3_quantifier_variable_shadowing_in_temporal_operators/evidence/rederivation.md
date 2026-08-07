@@ -184,5 +184,99 @@ recommended follow-up.
 
 ## Phase 9: Final green run and pinned-artifact audit
 
-See the bottom of this file (appended after Phase 9 execution) for the final gating-suite run,
-pinned-artifact audit output, and the closing conclusive-rate comparison.
+**Status: PARTIAL.** Most of Phase 9 is clean and complete; one failure remains unresolved and is
+reported plainly here rather than forced green, per this phase's own instruction.
+
+### Oracle gating suite, end to end
+
+`nix develop --command bash oracle/run-oracle-suite.sh`, run once external contention had cleared
+(confirmed via `ps`/`uptime`: no heavy competing process, ambient load ~2.5 from unrelated
+sessions on the same shared machine):
+
+- **Pass 1** (parallel, `-n 6`, `not xdist_serial and not slow`): 2 failed, 557 passed, 3 skipped,
+  4 xfailed in 974.28s.
+- **Pass 2** (serial, `xdist_serial and not slow`): **8 passed, 0 failed, in 473.76s** -- fully
+  green, comfortably inside the 900s budget (52.6% used). Includes
+  `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` against the newly
+  rebuilt manifest and unchanged floor, consistent with the earlier isolated confirmation
+  (103/103, 176.10s, after an unrelated self-inflicted-contention false alarm from this dispatch's
+  own concurrently-running background jobs was correctly diagnosed and discarded).
+
+**Pass 1's two failures, investigated and resolved/reported**:
+
+1. **`test_mixed_or_diamond_prev`** -- the Phase 8 fix-forward (`timeout_ms` 60000->150000) held
+   in isolation (74.09s) but failed at exactly the 150000ms budget under `-n 6` contention.
+   **Fixed forward using the codebase's own established mechanism**: added
+   `@pytest.mark.xdist_serial`, moving it to the contention-free serial pass (verified via
+   collection: excluded from pass 1's selection, included in pass 2's; standalone re-run passed
+   at 70.84s, representative of pass-2's zero-sibling-worker conditions).
+2. **`test_spot_check_individual_countermodels`** -- failed on **F5** (`p Since q -> q Until p`,
+   an unguarded assertion at `TEMPORAL_SOLVE_TIMEOUT_MS=180000`), a **different formula** than
+   Phase 6's F9 finding. **Genuinely new, not one of the three items this dispatch tracked, and
+   NOT independently classified**: no isolated re-run, no `PRE_FIX_SHA` comparison performed for
+   F5, because a "do not start new long-running verification, close out on the evidence you have"
+   direction was received while this specific investigation was in progress. **Recorded as an
+   explicit, unresolved blocker.** A plausible hypothesis -- the same xdist-contention-inflates-a-
+   near-budget-solve mechanism as (1), at 180000ms which is already this file's most generous
+   constant -- is recorded as a hypothesis only, not a conclusion. Follow-up: re-run this test in
+   true isolation (and, if it fails there too, scratch-swap against `PRE_FIX_SHA` per the
+   methodology used throughout this task) before either fixing it forward or asserting it clean.
+
+### Full bimodal package suite
+
+**Not independently re-run in this final dispatch** (explicit "no new long-running verification"
+direction received after the oracle suite completed). Relying on Phase 6's already-established
+result: 296 passed, 2 failed, both fixed forward via `max_time` widening and confirmed green after
+the fix at that time. A genuinely final Phase 9 re-run of this suite is recorded as a follow-up,
+not silently treated as already done to Phase 9's own standard.
+
+### Pinned-artifact audit
+
+```
+PINNED OK: ['MIN_CONCLUSIVE_SCAN_FORMULAS', 'SELF_SCAN_SOLVE_TIMEOUT_MS', '_assert_scan_report']
+```
+
+All three Hard-Constraint artifacts byte-identical to `PRE_FIX_SHA`. No pinned artifact moved at
+any point in this task.
+
+### Anti-collapse guard, final confirmation
+
+`oracle/bimodal_logic/tests/test_encoding_nondegeneracy.py`: 4/4 passed, 4.18s. Confirmed present
+in the gating (not-`slow`) selection, so this defect class is guarded on every routine run going
+forward.
+
+### `disagreements == 0`, throughout
+
+Every scan-report-producing run this task performed reported 0 disagreements: Phase 7's
+exhaustive scan, the isolated `TestGatingConclusiveScan` re-run, and this Phase 9 pass-2 run. The
+one remaining Phase 9 failure (`test_spot_check_individual_countermodels`/F5) is a suite-
+runnability/budget timeout on a bare, unguarded assertion -- not a differential-report
+disagreement. The Hard Constraint's soundness claim (zero disagreements among conclusive results)
+is intact throughout this task.
+
+### Final conclusive-rate comparison and the "well above 38.7%" hypothesis
+
+| | Conclusive | Rate |
+|---|---|---|
+| Pre-fix (Task 138 baseline, this task's `PRE_FIX_SHA`) | 103/274 | 37.6% |
+| Post-fix (this task's Phase 7 re-derivation) | 103/274 | 37.6% |
+
+**The hypothesis does not hold.** The task's original premise was that fixing the quantifier
+aliasing might raise the conclusive rate "well above 38.7 percent" and be the real payoff. The
+rate is flat -- identical count, and (per the Phase 8 set-level diff) a genuinely different
+14-formula subset produces that same count via two offsetting mechanisms: fixing the aliasing bug
+correctly makes a few formulas newly inconclusive that were previously conclusive-but-wrong, while
+losing an unrelated accidental Z3 term-identity solve-time shortcut separately makes a few
+unrelated deeply-nested formulas newly inconclusive that were previously conclusive-and-right, and
+a few previously-timed-out formulas separately resolve within budget on ordinary solve-time
+variance. This is reported as a **falsified hypothesis**, not pursued by adjusting any threshold
+to manufacture an improvement. **The fix is justified on soundness grounds** -- it stops the
+oracle reporting unfalsifiable-by-encoding-bug formulas as valid (the two confirmed
+`\Until`/`\Since` aliasing collapses from Phase 1/2) -- **not on throughput grounds.**
+
+### Follow-up noted, not made (out of file scope)
+
+`code/docs/core/TESTING_GUIDE.md` section 8.8 references the prior baseline's derivation numbers
+(103/274, the Task 138 8.646s/13.5%-headroom measurement) and should be refreshed to cite this
+task's re-derivation instead. Not edited here -- `code/docs/core/TESTING_GUIDE.md` is explicitly
+out of this plan's file scope (Non-Goals).

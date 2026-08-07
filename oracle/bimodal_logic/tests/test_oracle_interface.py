@@ -874,20 +874,30 @@ class TestMixedFormulas:
         # SAT -- countermodel where box(A) and next(B) fail together
         assert result is not None
 
+    @pytest.mark.xdist_serial
     def test_mixed_or_diamond_prev(self):
         """or(diamond(A), prev(B)) -- L2 or + L2 diamond + L1 prev.
 
-        timeout_ms widened from 60000 to 150000: this formula's genuine solve
-        time increased from ~1.5s to ~73s once the quantified operators'
-        bound variables stopped accidentally sharing Z3 term identity via
-        fixed-name interning (the same solve-time-cost mechanism documented
-        for Box(p)->Box(p) and the BM_CM_4 countermodel elsewhere in this
-        line of work) -- confirmed by a direct scratch-copy comparison
-        against the pre-fix operators.py/semantic/core.py (1.47s pre-fix,
+        timeout_ms widened from 60000 to 150000, and the test moved to the
+        `xdist_serial` pass: this formula's genuine solve time increased
+        from ~1.5s to ~73s once the quantified operators' bound variables
+        stopped accidentally sharing Z3 term identity via fixed-name
+        interning (the same solve-time-cost mechanism documented for
+        Box(p)->Box(p) and the BM_CM_4 countermodel elsewhere in this line
+        of work) -- confirmed by a direct scratch-copy comparison against
+        the pre-fix operators.py/semantic/core.py (1.47s pre-fix,
         deterministic 60s timeout post-fix at the old budget) and by a
-        120s-budget run that finds the same countermodel at ~72.6s post-fix.
-        Not a correctness defect: the countermodel is still genuinely found,
-        just slower. ~2x headroom over the measured 72.6s.
+        120s-budget run that finds the same countermodel at ~72.6s post-fix
+        (~2x headroom at 150000ms). Not a correctness defect: the
+        countermodel is still genuinely found, just slower. `xdist_serial`
+        is required in addition to the widened budget: under the gating
+        suite's parallel pass (-n 6), six-way CPU contention pushed this
+        solve past even the widened 150000ms budget (see
+        code/docs/core/TESTING_GUIDE.md section 8.6 and
+        oracle/conftest.py's `xdist_serial` marker docstring for the
+        underlying contention mechanism this marker exists to route
+        around) -- this test now runs in oracle/run-oracle-suite.sh's
+        contention-free serial pass instead.
         """
         formula = _or(_diamond(A), _prev(B))
         result = self.provider.find_countermodel(formula, timeout_ms=150000)

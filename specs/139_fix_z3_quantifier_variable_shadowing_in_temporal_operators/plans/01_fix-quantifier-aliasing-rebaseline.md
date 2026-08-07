@@ -846,43 +846,104 @@ of each change explicit and checkable.
 
 ---
 
-### Phase 9: Final green run and pinned-artifact audit [IN PROGRESS]
+### Phase 9: Final green run and pinned-artifact audit [PARTIAL]
 
 **Goal**: Prove the suite is green with the new baseline and that nothing pinned moved.
 
 **Tasks**:
 
-- [ ] Re-run the oracle gating suite end to end on an idle machine:
+- [x] Re-run the oracle gating suite end to end on an idle machine:
       `nix develop --command bash oracle/run-oracle-suite.sh`. Record wall clock for both passes.
+      (Run once external contention cleared. **Pass 1** (parallel, `-n 6`): 2 failed, 557 passed,
+      3 skipped, 4 xfailed in 974.28s. **Pass 2** (serial, `xdist_serial`): 8 passed in 473.76s --
+      fully green, including `TestGatingConclusiveScan` against the new manifest/floor (also
+      independently confirmed in true isolation earlier: 103/103, 176.10s). Pass 1's 2 failures
+      investigated below; one fixed, one left as an explicit unresolved blocker.)
 - [ ] Re-run the full bimodal package suite.
-- [ ] Run the pinned-artifact audit script from the Hard Constraint section against `PRE_FIX_SHA`.
+      **NOT independently re-run in this final dispatch** -- explicit "do not start new
+      long-running verification" direction received after the oracle suite completed. Relying on
+      Phase 6's already-established result instead: 296 passed, 2 failed (both fixed forward via
+      `max_time` widening, confirmed green after the fix at that time). This is a recorded gap,
+      not a silent substitution -- a genuinely final Phase 9 bimodal-suite re-run is a follow-up.
+- [x] Run the pinned-artifact audit script from the Hard Constraint section against `PRE_FIX_SHA`.
       It must print `PINNED OK` for all three artifacts.
-- [ ] Run the Phase 3 anti-collapse guard one final time and confirm it is in the gating (not
+      (Ran: `PINNED OK: ['MIN_CONCLUSIVE_SCAN_FORMULAS', 'SELF_SCAN_SOLVE_TIMEOUT_MS',
+      '_assert_scan_report']`. All three byte-identical to `PRE_FIX_SHA`.)
+- [x] Run the Phase 3 anti-collapse guard one final time and confirm it is in the gating (not
       `slow`) selection, so this defect class is guarded on every routine run.
-- [ ] Record in `evidence/rederivation.md`: final conclusive rate versus the prior 103/274 (37.6%),
+      (Ran directly: 4/4 passed, 4.18s. Confirmed not `slow`, not `xdist_serial` -- collects
+      under `-m "not slow"`, i.e. present in pass 1's selection.)
+- [x] Record in `evidence/rederivation.md`: final conclusive rate versus the prior 103/274 (37.6%),
       whether the "well above 38.7 percent" hypothesis held, and — if it did not — that the
       hypothesis is reported as falsified rather than pursued by threshold adjustment.
-- [ ] Note as a follow-up (do not edit — out of file scope): `code/docs/core/TESTING_GUIDE.md`
+      (Done -- see the Phase 9 section appended to `evidence/rederivation.md`: the hypothesis
+      does not hold; rate is flat at 37.6%, reported as falsified.)
+- [x] Note as a follow-up (do not edit — out of file scope): `code/docs/core/TESTING_GUIDE.md`
       section 8.8 references the baseline's derivation and may need its numbers refreshed.
+      (Noted in `evidence/rederivation.md`; file not touched, as required.)
 
-**Timing**: 1 hour agent work plus ~20 minutes suite wall clock
+**Pass 1 failure investigation (beyond the plan's original task list, but required by this
+phase's own "report plainly, do not force green" instruction)**:
+
+- **`test_mixed_or_diamond_prev`**: the Phase 8 fix-forward (widening `timeout_ms` 60000->150000)
+  held up in isolation (74.09s) but **did not hold under `-n 6` parallel contention** -- failed at
+  exactly the 150000ms budget in this pass-1 run. Root cause: the same
+  under-2x-headroom-inflated-by-xdist-contention mechanism `oracle/conftest.py`'s `xdist_serial`
+  marker exists to route around (confirmed by comparison against `BM_CM_4`, whose smaller `15->30`
+  widen *did* survive `-n 6` this run). **Fixed forward, using the codebase's own established
+  mechanism for exactly this failure class**: added `@pytest.mark.xdist_serial` to move it into
+  the contention-free serial pass. Verified: collection check confirms it is now excluded from the
+  `not xdist_serial and not slow` (pass 1) selection and included in the `xdist_serial and not
+  slow` (pass 2) selection; re-run standalone (representative of pass-2's zero-sibling-worker
+  conditions) passed at 70.84s.
+- **`test_spot_check_individual_countermodels`**: failed on a **different formula than Phase 6
+  investigated**. Phase 6's finding was about `F9_until_implies_event` (in a try/except-guarded
+  loop, tolerant of timeouts). This pass-1 failure is on **F5** (`p Since q -> q Until p`), at an
+  *earlier, unguarded* line (`result = self.provider.find_countermodel(f5,
+  timeout_ms=TEMPORAL_SOLVE_TIMEOUT_MS)`, `TEMPORAL_SOLVE_TIMEOUT_MS=180000`, no try/except) --
+  `OracleTimeoutError` at 180000ms. **This is a genuinely new finding, not one of the three items
+  this dispatch was asked to resolve, and it is NOT independently classified here**: no isolated
+  re-run, no `PRE_FIX_SHA` comparison was performed for F5 specifically, per an explicit
+  "do not start new long-running verification, close out on the evidence you have" direction
+  received while this investigation was in progress. **Recorded as an explicit, unresolved
+  blocker** -- not asserted clean, not silently dropped. A plausible hypothesis (same
+  xdist-contention-inflates-a-near-budget-solve mechanism as `test_mixed_or_diamond_prev`, at
+  180000ms which is already the file's most generous constant) is recorded as a hypothesis only,
+  not a conclusion.
+
+**Timing**: 1 hour agent work plus ~20 minutes suite wall clock (actual: ~16 min pass 1 + ~8 min
+pass 2, plus the pass-1-failure investigation above)
 
 **Depends on**: 8
 
 **Files to modify**:
 
 - `specs/139_.../evidence/rederivation.md` (append)
+- `oracle/bimodal_logic/tests/test_oracle_interface.py` (`test_mixed_or_diamond_prev`'s
+  `@pytest.mark.xdist_serial`, fix-forward, not in the plan's original Phase 9 file list but the
+  same sanctioned category of change as the Phase 6/8 fix-forwards)
 
 **Verification**:
 
 - [ ] Gating suite green end to end, including `TestGatingConclusiveScan` against the new manifest
       and floor.
-- [ ] Pinned-artifact audit prints `PINNED OK` for `_assert_scan_report`,
+      **NOT fully met.** Pass 2 (including `TestGatingConclusiveScan`) is fully green. Pass 1 has
+      one unresolved failure (`test_spot_check_individual_countermodels`, F5) after
+      `test_mixed_or_diamond_prev` was fixed forward. Reported plainly per this bullet's own
+      instruction, not forced green.
+- [x] Pinned-artifact audit prints `PINNED OK` for `_assert_scan_report`,
       `SELF_SCAN_SOLVE_TIMEOUT_MS`, and `MIN_CONCLUSIVE_SCAN_FORMULAS`.
-- [ ] `disagreements == 0` throughout.
-- [ ] The anti-collapse guard passes and is confirmed present in the gating pass selection.
-- [ ] If the suite is not green after honest effort, report that plainly with the failing tests and
+- [x] `disagreements == 0` throughout.
+      (Confirmed: every scan-report-producing run this task performed -- Phase 7's exhaustive
+      scan, the isolated `TestGatingConclusiveScan` re-run, and this Phase 9 full pass-2 run --
+      reported 0 disagreements. The one remaining Phase 9 failure is a suite-runnability/budget
+      timeout on a bare assertion, not a differential-report disagreement; the Hard Constraint's
+      soundness claim is intact.)
+- [x] The anti-collapse guard passes and is confirmed present in the gating pass selection.
+- [x] If the suite is not green after honest effort, report that plainly with the failing tests and
       their classification. Do not adjust a threshold to reach green.
+      (Done above: `test_spot_check_individual_countermodels`/F5 reported plainly as an
+      unclassified, unresolved blocker -- no threshold was adjusted to mask it.)
 
 ---
 
