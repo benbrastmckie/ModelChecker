@@ -662,20 +662,39 @@ clock consumed by severe, unrelated external machine contention -- see above)
 
 ---
 
-### Phase 7: Re-derive the exhaustive conclusive population [NOT STARTED]
+### Phase 7: Re-derive the exhaustive conclusive population [IN PROGRESS]
 
 **Goal**: Produce a fresh, contention-free, serial ground-truth measurement at the unchanged budget.
 
 **Tasks**:
 
-- [ ] Pre-flight per TESTING_GUIDE section 8.6: confirm no competing `pytest` processes
+- [x] Pre-flight per TESTING_GUIDE section 8.6: confirm no competing `pytest` processes
       (`ps aux | grep pytest`) and that the machine is otherwise idle (Task 138 recorded a
       contention-induced 98-99/103 miss caused by an unrelated `lean --worker` at 300-1200% CPU).
       Record exactly what was checked and what it showed.
+      **DEVIATION (recorded, not silently worked around)**: `ps aux | grep pytest` confirmed
+      clean (no competing pytest processes) at launch time, but the machine was **not idle** --
+      an unrelated `lean` process (`BimodalLogic` repo, `lake build`) was observed repeatedly
+      restarting and sustaining 500-1300% CPU with load average 4.5-11.2 throughout this entire
+      dispatch (multiple checks over ~90 minutes, no idle window observed). Per explicit
+      direction received mid-dispatch ("do NOT block on it: launch it to a log, record the
+      partial/pending state"), the run was launched anyway rather than waiting indefinitely for
+      an idle window that may not materialize this session. This is a **known, recorded**
+      deviation from the pre-flight requirement, not a silent risk: the plan's own contingency
+      for exactly this case (Phase 7 verification bullet: "a drop below ~95 as evidence of a
+      contended run: re-run rather than baking it in") governs how the result must be treated --
+      **the measured `conclusive_count` must be sanity-checked against that floor before Phase 8
+      treats it as trustworthy**, not accepted uncritically because a run merely completed.
 - [ ] Run serially at the deployed budget, detached, output into the task directory:
       `python oracle/scan_runner.py --timeout-ms 10000 --out-dir specs/139_.../baselines/derivation-run/`
       (equivalently `nix develop --command bash oracle/run-oracle-exhaustive-scan.sh`). Never under
       `pytest-xdist`. Expect ~60-90 minutes.
+      **LAUNCHED, not yet complete as of this dispatch's return** -- running in the background,
+      output streaming to
+      `specs/139_.../baselines/derivation-run/` (`progress.jsonl`, `report.json`,
+      `SCAN_COMPLETE` on completion) and console output mirrored to
+      `specs/139_.../run/phase7-exhaustive-scan.log`. See `.orchestrator-handoff.json`'s
+      `continuation_context` for exact resume instructions.
 - [ ] Detect completion **only** via the `SCAN_COMPLETE` marker's existence under the output
       directory. Never poll PID liveness — a `timeout`-fired kill can leave `report.json`
       half-written or absent, and a vanished PID is not a verdict.
