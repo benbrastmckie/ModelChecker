@@ -274,7 +274,7 @@ is a stronger signal, not a weaker one.
 
 ---
 
-### Phase 3: Rewrite the two concurrency tests to assert the contract [IN PROGRESS]
+### Phase 3: Rewrite the two concurrency tests to assert the contract [COMPLETED]
 
 **Goal**: Both tests exercise the documented contract and run in the default (unfiltered-by-
 `slow`) suite. Neither is skipped, `xfail`ed, or left behind a `slow` marker.
@@ -340,12 +340,12 @@ is a stronger signal, not a weaker one.
   `TestResourceLimits::test_concurrent_model_building` (2/32 selected, 0.43s — collection only,
   no test execution).
 - These are single runs; they are NOT the evidence. Phase 4 supplies the evidence.
-- **DEFERRED**: the two single-run execution checks above (actually running the rewritten
-  tests, which spawn 3 and 5 real threads doing concurrent Z3 construction) are held pending
-  `pgrep -af "run-oracle"` returning nothing, per the resource-constraint instructions — genuine
-  multi-threaded CPU contention is exactly the kind of load that could skew the concurrently
-  -running oracle timing measurements, unlike the collection-only check above (no execution) or
-  the earlier lightweight `models/tests/unit/` run (single-threaded, no threading).
+- **Run once `pgrep -af "run-oracle"` cleared**: the first single-run execution of
+  `test_sequential_vs_concurrent` **failed** with `Z3Exception('Sort mismatch')` — this is what
+  triggered the Phase 2 amendment above (extending the guard to `Syntax.__init__`). After that
+  fix: 3/3 consecutive runs of `test_sequential_vs_concurrent` passed, and 1/1 run of
+  `test_concurrent_model_building` passed. `--collect-only -m "not slow"` still selects exactly
+  the two contract tests (2/32).
 
 ---
 
