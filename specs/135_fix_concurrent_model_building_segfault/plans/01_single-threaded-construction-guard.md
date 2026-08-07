@@ -349,7 +349,7 @@ is a stronger signal, not a weaker one.
 
 ---
 
-### Phase 4: Repeat-sample validation [NOT STARTED]
+### Phase 4: Repeat-sample validation [IN PROGRESS]
 
 **Goal**: Statistically meaningful evidence that the crash is gone, using the report's
 isolated-subprocess methodology.
@@ -363,19 +363,23 @@ runs still gives ~88% detection power. 20 is the floor, not a target to negotiat
 single green run is explicitly not accepted.
 
 **Tasks**:
-- [ ] Write `specs/135_fix_concurrent_model_building_segfault/scripts/repeat_sample.sh` (or an
+- [x] Write `specs/135_fix_concurrent_model_building_segfault/scripts/repeat_sample.sh` (or an
   inline documented loop recorded in the evidence file) that, for a given node ID and count N,
   runs `PYTHONFAULTHANDLER=1 PYTHONPATH=code/src python -m pytest <node-id>` N times as
-  separate processes and tabulates exit codes.
+  separate processes and tabulates exit codes. Written and syntax-checked (`bash -n`); not yet
+  exercised while the oracle exhaustive scan runs.
 - [ ] Run 20 isolated samples of `test_sequential_vs_concurrent`. Require 20/20 exit code 0.
+  **DEFERRED** pending `pgrep -af "run-oracle"` clearing.
 - [ ] Run 20 isolated samples of `test_concurrent_model_building`. Require 20/20 exit code 0.
+  **DEFERRED**, same reason.
 - [ ] Run 20 isolated samples of both node IDs in one pytest invocation (catches cross-test
-  interaction where one test leaves the guard held). Require 20/20 exit code 0.
+  interaction where one test leaves the guard held). Require 20/20 exit code 0. **DEFERRED**,
+  same reason.
 - [ ] Any exit code 139 / 134 / non-zero is a hard failure: stop, capture the faulthandler
   output, and treat it as evidence the guard coverage is incomplete (return to Phase 2).
 - [ ] Write `specs/135_fix_concurrent_model_building_segfault/evidence/repeat-sample-results.md`
   with the per-run exit-code table, the exact commands, the date, and the pre-fix baseline
-  (5/8 and 6/6 crashes) for contrast.
+  (5/8 and 6/6 crashes) for contrast. **DEFERRED** until the 60 runs above complete.
 
 **Timing**: 1 hour
 
