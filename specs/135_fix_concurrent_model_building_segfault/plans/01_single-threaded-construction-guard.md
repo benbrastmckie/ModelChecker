@@ -180,7 +180,7 @@ dependencies on the model classes.
 
 ---
 
-### Phase 2: Wire the guard into the construction path [IN PROGRESS]
+### Phase 2: Wire the guard into the construction path [COMPLETED]
 
 **Goal**: Every model-construction entry point is inside the guard, including the subclass
 `__init__` bodies where the crash actually occurs.
@@ -203,14 +203,38 @@ dependencies on the model classes.
   confirm the only hits are in `output/progress/` (terminal spinner, does not construct).
   Record the grep output in the phase notes. Confirmed: only `output/progress/spinner.py:61`
   and `output/progress/animated.py:158`, both outside the guarded construction path.
-- [ ] Sanity-check same-thread nesting: run the iterate suites, which build fresh
-  `ModelConstraints`/`ModelDefaults` while an outer structure is alive. **DEFERRED**: the
-  concurrent oracle verification job (`oracle/run-oracle-suite.sh`) is running in this repo per
-  the resource-constraint instructions in the delegation context; the 220-test iterate suite is
-  heavier than a single quick unit test and must wait until `pgrep -af "run-oracle"` returns
-  nothing. The lighter `code/src/model_checker/models/tests/unit/` suite (73 tests, 1.07s, all
-  green, exercises `SemanticDefaults`/`ModelConstraints`/`ModelDefaults` through the now-guarded
-  constructors) was run as an interim sanity check and passed.
+- [x] Sanity-check same-thread nesting: run the iterate suites, which build fresh
+  `ModelConstraints`/`ModelDefaults` while an outer structure is alive. Deferred while the
+  oracle job was running (see git history for the interim `models/tests/unit/` sanity check);
+  run once `pgrep -af "run-oracle"` cleared: `PYTHONPATH=code/src pytest
+  code/src/model_checker/iterate/tests/ -q` -> **220 passed in 1.34s**. Same-thread nesting is
+  unaffected by the guard.
+
+**AMENDMENT (discovered during Phase 3 single-run verification, folded back into Phase 2)**:
+the first single-run execution of the rewritten `test_sequential_vs_concurrent` (see Phase 3)
+failed with `Z3Exception('Sort mismatch')` — an *unexpected* exception category the test
+explicitly does not accept (only `ok` / `ConcurrentConstructionError` are contractual). Root
+cause: `tests/utils/helpers.py::create_test_model()` calls `Syntax(premises, conclusions,
+operators)` **before** the guarded `semantics_class(full_settings)` call. `Syntax.__init__`
+builds sentence-letter atoms via `syntactic/atoms.py`'s `AtomVal()` -> `get_atom_sort()`, which
+is an *unsynchronized check-then-set module-global cache* (`_atom_sort`) — a second, independent
+race entirely outside the three constructors this phase originally wrapped. Two threads racing
+through `get_atom_sort()` can each create a distinct `AtomSort` Z3 sort object; sentence letters
+built from the "losing" thread's orphaned sort are not sort-compatible with later expressions
+built against the "winning" one, surfacing as a clean (non-crashing) `Z3Exception`, not a
+segfault — but still a violation of the single-threaded-only contract and still not something
+either rewritten test is allowed to observe. Fix: wrap `Syntax.__init__`
+(`code/src/model_checker/syntactic/syntax.py`) in the same `guard_construction` decorator,
+consistent with production's sequential `Syntax(...)` -> `semantics_class(...)` call order in
+`builder/example.py:173` and `builder/runner.py:79,198` (confirmed via grep — Syntax is always
+constructed immediately before semantics, sequentially, in every production call site).
+Re-verified: 3 consecutive single runs of `test_sequential_vs_concurrent` all passed (previously
+1/1 failed with the Sort mismatch before this fix), plus one run of
+`test_concurrent_model_building`, plus the full `syntactic/tests/` suite (71 passed, 0.53s) and
+`models/tests/unit/` suite (still green). This is exactly the kind of gap the plan's own risk
+table anticipated ("Guard placed too narrowly... Phase 4's repeat-sample runs are the
+falsification test") — it surfaced even earlier, on the very first single-run execution, which
+is a stronger signal, not a weaker one.
 
 **Timing**: 1.5 hours
 
@@ -220,14 +244,30 @@ dependencies on the model classes.
 - `code/src/model_checker/models/semantic.py` — `__init_subclass__` wrap + contract docstring
 - `code/src/model_checker/models/structure.py` — `__init_subclass__` wrap + contract docstring
 - `code/src/model_checker/models/constraints.py` — wrap `__init__`
+- `code/src/model_checker/syntactic/syntax.py` — wrap `Syntax.__init__` (added by the amendment
+  above; not in the original plan's file list)
 
 **Verification**:
-- `PYTHONPATH=code/src pytest code/src/model_checker/models/tests/ -v` — green.
-- `PYTHONPATH=code/src pytest code/src/model_checker/iterate/tests/ -v` — green (proves
-  same-thread nesting is not broken).
-- `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/ -v` and
-  the logos unit suite — green (proves no sequential regression in the theories that construct
-  most heavily).
+- `PYTHONPATH=code/src pytest code/src/model_checker/models/tests/ -v` — green (73 passed).
+- `PYTHONPATH=code/src pytest code/src/model_checker/iterate/tests/ -v` — green (220 passed,
+  proves same-thread nesting is not broken).
+- `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/unit/ -v` — 258
+  passed, 1 failed (`test_example_cases[BM_CM_4-example_case9]`), reproduced identically across
+  two consecutive full-suite runs but **passes in isolation in 17.67s**. This is a pre-existing,
+  documented, load-sensitive flake, not a regression from this phase: `BM_CM_4`'s `max_time=30`
+  was explicitly widened by a prior task after its own investigation found solve time varies
+  ~15-24s depending on load (see the settings comment in
+  `theory_lib/bimodal/examples.py:379-391`), and this class of failure — a tight-relative-to
+  -load solve budget flipping outcome under full-suite CPU contention — is exactly what
+  `KNOWN_TEST_FAILURES.md`'s "Conventions" section already documents as a known pattern in this
+  codebase, unrelated to construction concurrency (the guard adds a cheap lock
+  acquire/release around constructor entry, not solve-time overhead, and cannot plausibly turn a
+  17.67s solve into a 30s+ one). Not treated as a regression; not fixed by this task per its
+  Non-Goals (wall-clock budget tuning belongs to Task 136).
+- `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/logos/tests/unit/ -v` — green
+  (40 passed). No sequential regression in the theories that construct most heavily.
+- `PYTHONPATH=code/src pytest code/src/model_checker/syntactic/tests/ -v` — green (71 passed),
+  added verification for the Phase 2 amendment above (`Syntax.__init__` guard wrap).
 - Ad-hoc check: constructing two models back-to-back on one thread succeeds; constructing from
   a second thread while the first is inside `__init__` raises `ConcurrentConstructionError`
   rather than crashing.

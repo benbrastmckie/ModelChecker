@@ -10,6 +10,7 @@ import inspect
 from typing import List
 
 from model_checker.utils import flatten
+from model_checker.models.concurrency import guard_construction
 from .sentence import Sentence
 from .collection import OperatorCollection
 from .types import FormulaString
@@ -40,8 +41,18 @@ class Syntax:
         premises (list): Sentence objects for all premises
         conclusions (list): Sentence objects for all conclusions
         start_time (float): When the syntax processing began
+
+    Concurrency contract: constructing `Syntax` is single-threaded-only, same as
+    `SemanticDefaults`/`ModelConstraints`/`ModelDefaults`. Building sentence letters creates Z3
+    atom constants against `syntactic.atoms`'s process-global `AtomSort` cache
+    (`get_atom_sort()`), which is itself an unsynchronized check-then-set global -- two threads
+    racing through it can each create a distinct `AtomSort` object and produce sentence letters
+    that are not sort-compatible with each other, surfacing later as `Z3Exception('Sort
+    mismatch')` rather than a segfault. `__init__` is wrapped in the same process-global guard
+    from `model_checker.models.concurrency`; see that module for the full contract.
     """
 
+    @guard_construction
     def __init__(
         self,
         infix_premises: List[FormulaString],
