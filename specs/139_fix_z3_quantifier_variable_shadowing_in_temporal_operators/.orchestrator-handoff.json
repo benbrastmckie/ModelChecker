@@ -2,7 +2,7 @@
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
   "status": "in_progress",
-  "summary": "Phases 1-3 complete: captured pre-fix evidence/census, replaced all 14 z3.Int sites with z3.FreshInt, added a permanent zero-solve structural regression guard (teeth-checked). Proceeding to Phase 4 (rewrite defect-enshrining tests) and Phase 5 (dead false_at deadness proof).",
+  "summary": "Phases 1-3 complete and re-verified. Phase 2 amended after Phase 4 measurement work uncovered a severe z3.FreshInt solver-performance regression (non-nested formulas going from ~1.3s to undecided at 60s); replaced with a counter-suffixed z3.Int helper (_fresh_bound_int) achieving the same soundness guarantee without the regression. Re-ran collapse census, anti-collapse guard (with a repeated teeth-check), and a counter-order reproducibility investigation -- all confirm the revised fix is sound and stable. Full test_soundness_regression.py failures narrowed from 12 (under FreshInt) to 3, all attributable to the intended G(G(p)) soundness change. Proceeding to Phase 4 (rewrite the 3 affected tests plus docstring corrections).",
   "artifacts": [
     {
       "type": "plan",
@@ -34,10 +34,15 @@
   ],
   "decisions_made": [
     "Phase 1 discrepancy: the plan expected exactly 2 non-bot folded survivors; measured 4 (temporal-only)/7 (full population). Extra survivors are genuine propositional/modal tautologies structurally outside the defect's blast radius (no quantified operator, or box-only/immune). Recorded, not silently resolved; core mechanism claim intact.",
-    "Phase 2 secondary finding: Box(p)->Box(p) (sibling, not nested) stops folding post-fix due to FreshInt breaking term-identity-based simplify() shortcuts Z3 used pre-fix; not a soundness issue and not in scope to fix, recorded for Phase 6-8 to account for.",
-    "Phase 3 guard excludes structurally-immune formulas (no quantified operator; box-only) rather than an index allowlist, so it stays correct if the enumerator population changes composition (though it hard-asserts population size == 274)."
+    "Phase 2 AMENDMENT: z3.FreshInt (plan's specified remedy) causes a severe MBQI performance regression on this codebase's tuned Z3 config, affecting even non-nested single-operator formulas. Replaced with _fresh_bound_int() (counter-suffixed z3.Int) at all 14 sites -- same soundness guarantee, no regression. Re-verified via census, guard, and a repeated teeth-check.",
+    "Investigated and ruled out counter-order/call-history sensitivity for the revised fix (isolated Z3 context per solve means no cross-call state leakage) -- safe for Phase 7's exhaustive re-derivation.",
+    "test_gg_p_spurious_unsat, not originally flagged by the plan, is also affected (same GG_P defect; its docstring's M=2 description is pre-existing stale prose from before Task 114's M-formula change) -- will be rewritten alongside the two GG_P tests the plan did flag.",
+    "test_fg_p_spurious_unsat directly re-verified unaffected (boundary vacuity, not aliasing), as the plan predicted.",
+    "Phase 2 secondary finding: Box(p)->Box(p) (sibling, not nested) stops folding post-fix due to FreshInt/counter-Int breaking term-identity-based simplify() shortcuts Z3 used pre-fix; not a soundness issue and not in scope to fix, recorded for Phase 6-8 to account for."
   ],
-  "dead_ends": [],
+  "dead_ends": [
+    "z3.FreshInt was tried first (per the plan) and found unusable in practice due to the MBQI regression -- documented in full in evidence/post-fix-measurements.md rather than silently discarded."
+  ],
   "phases_completed": 3,
   "phases_total": 9
 }

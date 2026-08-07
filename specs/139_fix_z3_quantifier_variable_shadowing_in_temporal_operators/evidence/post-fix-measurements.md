@@ -117,6 +117,47 @@ Everything measured under `z3.FreshInt` above was re-run against `_fresh_bound_i
   re-run in isolation: still passes (0.70s, `result=None`), confirmed unaffected as the plan
   predicted.
 
+## Phase 4: test rewrites and pre-fix spot-check
+
+Rewrote `oracle/bimodal_logic/tests/test_soundness_regression.py`:
+- `test_gg_p_returns_none`, `test_gg_p_returns_none_at_m4`, `test_gg_p_spurious_unsat`: all three
+  now `pytest.raises(OracleTimeoutError)` around `find_countermodel(GG_P)`, matching the measured
+  post-fix outcome (`OracleTimeoutError` at both 5000ms and 10000ms budgets, recorded above).
+  `test_gg_p_spurious_unsat` was not in the plan's original rewrite list but was found affected
+  during this phase (see decision log) -- its stale "M=2" docstring narrative was also corrected.
+- `TestBoundaryVacuity` and `TestKnownBoundaryUnsafe` class docstrings: corrected the mislocated
+  `false_at` attribution to `true_at`, and now state both collapse directions (False for
+  `G(G(p))`, True for `F(F(p))`) rather than a single "returns None" claim.
+- `test_ff_p_returns_none_at_m4`: hedge resolved -- the aliasing attribution is confirmed correct
+  as the root cause of the corrupted (constant-True) conclusion, but the timeout itself (both pre-
+  and post-fix) is caused by the pre-existing expensive frame search at M=4, not by aliasing
+  directly. Assertion unchanged (still `pytest.raises(OracleTimeoutError)`), matching the measured
+  outcome (still an honest timeout post-fix).
+- `test_gf_p_returns_none_at_m4`, `test_imp_gg_p_gf_p_returns_none_at_m4`: re-measured
+  (`OracleTimeoutError`, ~5.09-5.10s, matching pre-fix), docstrings already accurate, no change
+  needed beyond the class-level docstring correction above.
+- `test_fg_p_returns_none`, `test_fg_p_returns_none_at_m4`, `test_fg_p_spurious_unsat`: re-verified
+  unaffected (`FG_P` returns `None` in 0.064-0.70s, boundary vacuity, not aliasing) -- confirmed
+  by direct measurement and by the full suite run below, left unchanged.
+
+`grep -in "shadow" oracle/bimodal_logic/tests/test_soundness_regression.py` returns exactly one
+hit, in `test_ff_p_returns_none_at_m4`'s docstring, describing what a *prior* version said in
+past tense while correctly attributing the live defect to `true_at` -- not a residual
+misattribution.
+
+**Full suite run**: `PYTHONPATH=code/src:oracle pytest oracle/bimodal_logic/tests/test_soundness_regression.py -v`
+-- 30/30 passed in 358.02s (0:05:58; slow because of `TestStateIsolationRegression`'s 100+50+50+10
+sequential solves, not per-call regression).
+
+**Pre-fix spot-check** (per Phase 4's verification requirement -- not just the two
+"most-changed," but all three rewritten `GG_P` tests): swapped `operators.py` to `PRE_FIX_SHA`'s
+content in the working tree, ran `test_gg_p_returns_none`, `test_gg_p_spurious_unsat`, and
+`test_gg_p_returns_none_at_m4` in isolation. All three **failed** against the pre-fix encoding
+(`Failed: DID NOT RAISE <class 'bimodal_logic.errors.OracleTimeoutError'>` -- i.e. the pre-fix
+encoding still returns the fast spurious `None` these tests used to assert, confirming the
+rewritten assertions are not encoding-agnostic catch-alls). Restored via backup; `git diff`
+confirmed byte-identical to the committed state afterward.
+
 ## Counter-order / reproducibility investigation (raised as a concern before Phase 7)
 
 `_bound_var_counter` is a process-global, monotonically increasing `itertools.count()`, so the

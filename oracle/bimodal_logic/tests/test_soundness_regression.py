@@ -370,8 +370,17 @@ class TestBoundaryVacuity:
     Task 114: Oracle M formula is now M=max(depth+2,3). boundary_safe = (M > depth+1).
     All formulas now have boundary_safe=True since max(d+2,3) > d+1 for all d>=0.
 
-    Depth-2 formulas (G(G(p)), F(G(p))) still return None due to Z3 quantifier
-    variable shadowing in nested same-type temporal operators, not boundary vacuity.
+    The two depth-2 formulas below are NOT both instances of the same phenomenon.
+    F(G(p)) returns None because it is genuinely valid in the bounded semantics
+    (a real boundary-vacuity artifact, orthogonal to this class -- see
+    test_fg_p_returns_none). G(G(p)) does NOT return None: it previously did, but
+    only because of a Z3 constant-interning aliasing defect in FutureOperator's
+    quantified bound-variable declarations (the inner of two directly-nested
+    \\Future instances received the outer's not-yet-bound variable as its own,
+    collapsing the conclusion constraint to a Z3 Boolean literal before any
+    quantifier closed). With that defect fixed, G(G(p))'s conclusion constraint
+    genuinely depends on p, so it decides only via an actual solve -- see
+    test_gg_p_returns_none for the measured outcome.
     """
 
     def setup_method(self):
@@ -399,17 +408,31 @@ class TestBoundaryVacuity:
         assert result["time_bound"] == 3
 
     def test_gg_p_returns_none(self):
-        """G(G(p)) returns None due to Z3 quantifier variable shadowing.
+        """G(G(p)) at the default 5000 ms budget raises OracleTimeoutError.
 
-        Both nested G operators use the same Z3 variable name ('future_false_time')
-        in false_at, causing the inner quantifier to shadow the outer. This makes
-        the inner condition (x > x) always False, rendering the formula unfalsifiable.
-        This is a known Z3 encoding limitation, not a boundary issue.
+        Pre-fix, FutureOperator.true_at declared its "fresh" bound variable with
+        a fixed Z3 name (z3.Int('future_true_time')). Because Z3 interns Int
+        constants by (name, sort), the inner of two directly-nested \\Future
+        instances received the outer's not-yet-bound variable as its own,
+        producing a self-comparison that Z3's simplifier folded to the Z3
+        constant False before either quantifier closed -- a construction-time
+        artifact that made the conclusion constraint trivially UNSAT regardless
+        of p, which find_countermodel() reported as a fast (but spurious) None.
+
+        G(G(p)) is genuinely invalid (p can be false at t=3, which requires
+        M>=4 to witness -- see the module docstring's own boundary-vacuity
+        discussion), so with the aliasing defect fixed, the conclusion
+        constraint genuinely depends on p and must be decided by an actual
+        solve rather than a constant-folding accident. Measured post-fix: the
+        solve does not decide within the default 5000 ms budget, so
+        find_countermodel() raises OracleTimeoutError. This is the intended,
+        sound outcome -- an honest "did not decide" is strictly better than a
+        fast, wrong "no countermodel" verdict that was never actually
+        established. See test_encoding_nondegeneracy.py for the permanent
+        structural guard against this class of defect.
         """
-        result = self.provider.find_countermodel(GG_P)
-        assert result is None, (
-            f"G(G(p)) should return None (quantifier variable shadowing). Got: {result}"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(GG_P)
 
     def test_fg_p_returns_none(self):
         """F(G(p)) returns None — valid in bounded bimodal semantics.
@@ -759,50 +782,66 @@ class TestKnownBoundaryUnsafe:
     """5 hand-crafted depth-2 formulas with documented behavior at M=max(depth+2,3)=4.
 
     Task 114: Oracle now uses M=max(depth+2,3). For depth=2, M=4, boundary_safe=True.
-    However, all depth-2 formulas return None at M=4 due to:
-    1. G(G(p)): quantifier variable shadowing (same Z3 var in nested G false_at)
-    2. F(G(p)): genuinely valid in bounded semantics (boundary at last time point)
-    3. G(F(p)): solver timeout at M=4 (constraint system too large)
-    4. F(F(p)): quantifier variable shadowing (same Z3 var in nested F false_at)
-    5. G(G(p))->G(F(p)): compound, inherits issues from subformulas
 
-    The pre-existing tests for G(G(p)) and F(G(p)) returning None are preserved
-    unchanged (test_gg_p_spurious_unsat, test_fg_p_spurious_unsat). The remaining
-    three tests are updated to expect None with documented reasons.
+    Behaviour at M=4, corrected from the original attribution (which blamed each
+    operator's own `false_at` method by name -- those methods are dead code;
+    `BimodalSemantics.false_at` is unconditionally `Not(true_at(...))` and never
+    dispatches to `operator.false_at`, so the live defect was always in `true_at`):
+
+    1. G(G(p)): was a Z3 constant-interning aliasing defect in `FutureOperator.true_at`
+       -- the inner of two directly-nested \\Future instances received the outer's
+       not-yet-bound bound variable, folding the conclusion constraint to the Z3
+       constant False (trivially UNSAT) before either quantifier closed. Fixed:
+       the conclusion now genuinely depends on p and does not decide within the
+       default budget (an honest OracleTimeoutError, not a fast spurious None).
+    2. F(G(p)): genuinely valid in bounded semantics (boundary at last time point) --
+       always was, unaffected by the aliasing defect.
+    3. G(F(p)): solver timeout at M=4 (constraint system too large) -- see
+       test_gf_p_returns_none_at_m4.
+    4. F(F(p)): the *same* aliasing mechanism as (1), but the extra negations in
+       \\future's `derived_definition(arg) = [Negation, [FutureOperator, [Negation, arg]]]`
+       expansion flip the collapsed value from False to True: a vacuously-True
+       conclusion contributes no constraint, so the solve falls through to the
+       expensive raw frame-satisfiability search at M=4 and times out -- see
+       test_ff_p_returns_none_at_m4 for how this interacts with the fix.
+    5. G(G(p))->G(F(p)): compound, inherits (1) and (3).
+
+    `test_gg_p_spurious_unsat` (which calls find_countermodel() with no M override,
+    so it runs at the *current* M=max(depth+2,3)=4, not the M=2 its own docstring
+    describes -- that M=2 description is stale prose from before Task 114 changed
+    the M formula) is affected by the same aliasing fix as (1) above and is updated
+    accordingly. `test_fg_p_spurious_unsat` (boundary vacuity, not aliasing) is
+    confirmed unaffected and left unchanged.
     """
 
     def setup_method(self):
         self.provider = Z3OracleProvider()
 
     def test_gg_p_spurious_unsat(self):
-        """G(G(p)) depth=2 -- oracle returns None at M=2 (spurious theorem).
+        """G(G(p)) depth=2, at the provider's current M=max(2+2,3)=4 -- raises
+        OracleTimeoutError.
 
-        Boundary vacuity mechanism:
-        - G(G(p)) at t=0 with M=2: outer G checks t'=1 only (M-1=1 is last future)
-        - Inner G(p) at t'=1: checks ALL t''>1 in domain. Domain is {-1,0,1},
-          so there is NO t''>1. The universal quantifier over the empty set is TRUE.
-        - Therefore G(p) at t'=1 is vacuously true regardless of p's truth value.
-        - Therefore G(G(p)) at t=0 is true in every M=2 model. No countermodel exists.
+        This test's name and an earlier version of this docstring described an
+        M=2 boundary-vacuity scenario. That was already stale before this fix:
+        `find_countermodel()` has computed M=max(depth+2,3) (Task 114) for a
+        long time, so this test has always actually run at M=4 for this
+        depth-2 formula, not M=2 -- the M=2 narrative described a scenario the
+        test's own code was not exercising.
 
-        But G(G(p)) IS logically invalid in the unbounded theory:
-        - Take a model where p=False at t=3. Then:
-          G(p) at t'=1: p=False at t''=3>1. So G(p) is False at t'=1.
-          G(G(p)) at t=0: G(p) is False at t'=1>0. So G(G(p)) is False.
-        - This requires M>=4 for t=3 to be in domain.
-
-        This test DOCUMENTS this known limitation of M=max(depth,2).
+        At the real M=4, G(G(p))'s conclusion constraint was, pre-fix,
+        constant-folded to Z3's `False` by the same aliasing defect documented
+        in `test_gg_p_returns_none` (a fixed-name Z3 bound variable in
+        `FutureOperator.true_at` aliased across two directly-nested \\Future
+        instances). That made the query trivially UNSAT, and find_countermodel()
+        reported the fast, spurious `None` this test's assertion expected.
+        Fixed, the conclusion constraint genuinely depends on p and is decided
+        by an actual solve, which does not complete within the default budget.
         """
         depth = temporal_depth(GG_P)
         assert depth == 2, f"Expected temporal_depth=2 for G(G(p)), got {depth}"
 
-        result = self.provider.find_countermodel(GG_P)
-        assert result is None, (
-            "G(G(p)) should return None at M=2 (spurious theorem due to boundary vacuity). "
-            f"Got: {result}"
-        )
-        # boundary_safe cannot be checked from result (it's None), but we verify
-        # the depth directly confirms M=2 is boundary-unsafe for this formula.
-        # M_safe(depth=2) = max(2+2, 3) = 4. With M=2, we are far below M_safe.
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(GG_P)
 
     def test_fg_p_spurious_unsat(self):
         """F(G(p)) depth=2 -- oracle returns None at M=2 (spurious theorem, same as G(G(p))).
@@ -860,15 +899,28 @@ class TestKnownBoundaryUnsafe:
         """F(F(p)) depth=2 -- solver does not decide within the default 5000 ms
         budget at M=4, so find_countermodel() raises OracleTimeoutError.
 
-        A prior comment attributed this formula's None result to quantifier
-        variable shadowing (both nested F calls in false_at allegedly sharing
-        a Z3 variable name, rendering the formula unfalsifiable regardless of
-        M). Under the corrected timeout/UNSAT contract, what is actually
-        observed is a budget-exhausted solve, not a fast structural UNSAT --
-        the shadowing explanation is not confirmed by this behavior and is
-        not asserted here. Whatever the underlying solver mechanics, an
-        undecided solve must raise rather than be laundered into a UNSAT
-        verdict; this is not evidence F(F(p)) is valid.
+        A prior version of this docstring attributed F(F(p))'s behavior to
+        quantifier variable shadowing but hedged that the attribution was "not
+        confirmed by this behavior," since what was observed pre-fix was a
+        budget-exhausted solve, not a fast structural UNSAT the way G(G(p))'s
+        collapse was. That hedge is now resolved: the aliasing attribution
+        *is* correct as the root cause of a corrupted conclusion constraint,
+        but the corruption's polarity differs from G(G(p))'s. \\future's
+        `derived_definition(arg) = [Negation, [FutureOperator, [Negation, arg]]]`
+        expansion means F(F(p)) still nests two nested \\Future instances (the
+        live aliasing site), but the extra negations flip the collapsed
+        constant from False (G(G(p))'s case) to True. A vacuously-True
+        conclusion contributes no constraint at all, so the solve falls
+        through to deciding raw frame-constraint satisfiability at M=4 from
+        scratch -- independently expensive, and already documented elsewhere
+        (see provider.py's module docstring) as timeout-prone. So: the
+        aliasing defect explains *why* the conclusion constraint was
+        uninformative pre-fix, but the *timeout itself*, both pre- and
+        post-fix, is caused by that pre-existing expensive frame search at
+        M=4, not by the aliasing directly -- fixing the aliasing restores a
+        genuine (still hard) constraint, which is why the measured outcome is
+        unchanged (still an honest timeout) even though the underlying
+        encoding is now sound. This is not evidence F(F(p)) is valid.
         """
         depth = temporal_depth(FF_P)
         assert depth == 2, f"Expected temporal_depth=2 for F(F(p)), got {depth}"
@@ -1070,17 +1122,21 @@ class TestOracleMFormulaBoundarySafe:
             self.provider.find_countermodel(GF_P)
 
     def test_gg_p_returns_none_at_m4(self):
-        """G(G(p)) at oracle's M=max(2+2,3)=4 returns None (quantifier variable shadowing).
+        """G(G(p)) at oracle's M=max(2+2,3)=4 raises OracleTimeoutError.
 
-        Task 114: Despite M=4 being boundary-safe, G(G(p)) still returns None
-        because both nested G (FutureOperator) calls use the same Z3 variable
-        'future_false_time' in false_at. The inner quantifier shadows the outer,
-        making the inner condition (x > x) always False.
+        Task 114: M=4 is boundary-safe for this depth-2 formula. Despite that,
+        G(G(p)) previously returned a fast (but spurious) None: a Z3
+        constant-interning aliasing defect in `FutureOperator.true_at` (a
+        fixed-name bound variable aliased across two directly-nested \\Future
+        instances) folded the conclusion constraint to the Z3 constant False
+        before either quantifier closed, making the query trivially UNSAT
+        regardless of p -- see test_gg_p_returns_none for the full mechanism.
+        Fixed, the conclusion constraint genuinely depends on p and must be
+        decided by an actual solve, which does not complete within the
+        default budget at this M.
         """
-        result = self.provider.find_countermodel(GG_P)
-        assert result is None, (
-            f"G(G(p)) should return None (quantifier variable shadowing). Got: {result}"
-        )
+        with pytest.raises(OracleTimeoutError):
+            self.provider.find_countermodel(GG_P)
 
     def test_fg_p_returns_none_at_m4(self):
         """F(G(p)) at oracle's M=max(2+2,3)=4 returns None (boundary validity).

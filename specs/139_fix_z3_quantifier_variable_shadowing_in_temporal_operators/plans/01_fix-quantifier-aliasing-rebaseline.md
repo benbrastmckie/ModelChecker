@@ -390,7 +390,7 @@ than merely that tests pass.
 
 ---
 
-### Phase 4: Rewrite the tests that enshrine the defect [NOT STARTED]
+### Phase 4: Rewrite the tests that enshrine the defect [COMPLETED]
 
 **Goal**: A test suite that encodes the bug cannot detect the bug. Rewrite every assertion and
 docstring in `test_soundness_regression.py` that treats the aliasing artifact as correct behaviour,
@@ -398,39 +398,57 @@ and correct the mislocated `false_at` attribution.
 
 **Tasks**:
 
-- [ ] `test_gg_p_returns_none` (line 401) and `test_gg_p_returns_none_at_m4` (line 1072): both
+- [x] `test_gg_p_returns_none` (line 401) and `test_gg_p_returns_none_at_m4` (line 1072): both
       currently assert `result is None` *because of* shadowing. Rewrite to assert the measured
       post-fix behaviour from Phase 2's verification. `G(G(p))` is genuinely invalid (the docstring's
       own counterexample: `p` false at `t=3`, requiring `M>=4`), so the correct expectation is a
       genuine countermodel or an honest `OracleTimeoutError` — determined by measurement, never
       assumed, and never written as an "either/or" catch-all that would pass under both the fixed
-      and broken encodings.
-- [ ] `test_fg_p_returns_none` (line 414) and `test_fg_p_returns_none_at_m4` (line 1085): per
+      and broken encodings. (Rewritten to `pytest.raises(OracleTimeoutError)`, matching the measured
+      outcome at both 5000ms and 10000ms budgets.)
+- [x] `test_fg_p_returns_none` (line 414) and `test_fg_p_returns_none_at_m4` (line 1085): per
       research §4, `F(G(p))`'s `None` is **genuine boundary vacuity**, not a shadowing artifact.
       Expect no behavioural change. Verify empirically; if behaviour is unchanged, change only prose
       that conflates it with the shadowing class. If it *did* change, that is a finding to
-      investigate before rewriting.
-- [ ] `TestBoundaryVacuity` class docstring (lines 367-375): remove the claim that depth-2 formulas
+      investigate before rewriting. (Verified unchanged: `None` in 0.064-0.70s; no assertion change
+      needed, docstrings already accurate.)
+- [x] `TestBoundaryVacuity` class docstring (lines 367-375): remove the claim that depth-2 formulas
       "return None due to Z3 quantifier variable shadowing" — both the mechanism location and the
-      blanket-`None` symptom are wrong.
-- [ ] `TestKnownBoundaryUnsafe` class docstring (lines 758-772): items 1 and 4 attribute the defect
+      blanket-`None` symptom are wrong. (Rewritten to distinguish F(G(p))'s genuine boundary vacuity
+      from G(G(p))'s now-fixed aliasing defect.)
+- [x] `TestKnownBoundaryUnsafe` class docstring (lines 758-772): items 1 and 4 attribute the defect
       to "same Z3 var in nested G/F `false_at`". Correct to `true_at`, and state both collapse
       directions (`G(G(p))` -> constant `False` -> fast spurious `None`; `F(F(p))` -> constant `True`
-      -> vacuous -> expensive frame search -> timeout).
-- [ ] `test_ff_p_returns_none_at_m4` (line 859): its docstring currently records the shadowing
+      -> vacuous -> expensive frame search -> timeout). (Rewritten; also corrected the claim that
+      `test_gg_p_spurious_unsat`/`test_fg_p_spurious_unsat` are both "preserved unchanged" -- only
+      the latter is, per the DEVIATION below.)
+- [x] `test_ff_p_returns_none_at_m4` (line 859): its docstring currently records the shadowing
       attribution as "not confirmed by this behavior". Resolve it: the attribution *is* correct as
       the root cause of the corrupted constant-`True` conclusion constraint, but the *timeout* was
       caused by the pre-existing expensive frame/abundance solve at M=4, not by aliasing directly.
-      Re-measure post-fix and rewrite the assertion to match.
-- [ ] `test_gf_p_returns_none_at_m4` (line 840): `G(F(p))` was only *partially* corrupted
+      Re-measure post-fix and rewrite the assertion to match. (Re-measured: still
+      `OracleTimeoutError`, ~5.09s, unchanged from pre-fix; assertion unchanged, docstring hedge
+      resolved.)
+- [x] `test_gf_p_returns_none_at_m4` (line 840): `G(F(p))` was only *partially* corrupted
       (non-constant but no longer `p`-dependent). Re-measure; the timeout may or may not resolve.
-      Rewrite to the measured outcome.
-- [ ] `test_gg_p_spurious_unsat` (line 777) and `test_fg_p_spurious_unsat` (line 807): these are
+      Rewrite to the measured outcome. (Re-measured: still `OracleTimeoutError`, ~5.09s, matching
+      pre-fix; docstring already accurate, no change needed.)
+- [x] `test_gg_p_spurious_unsat` (line 777) and `test_fg_p_spurious_unsat` (line 807): these are
       M=2 boundary-vacuity tests whose docstrings already correctly attribute to boundary vacuity.
       **Confirm unaffected by running them** before touching anything; if unaffected, leave both
       body and prose alone and record the confirmation.
-- [ ] `test_imp_gg_p_gf_p_returns_none_at_m4` (line 879): compound formula inheriting `G(F(p))`'s
-      behaviour. Re-measure and rewrite alongside `test_gf_p_returns_none_at_m4`.
+      **DEVIATION (recorded, stop-and-record per plan instruction)**: `test_gg_p_spurious_unsat` is
+      NOT unaffected -- confirmed by running it: it calls `find_countermodel(GG_P)` with no M
+      override, so it actually runs at the *current* M=max(depth+2,3)=4, not the M=2 its docstring
+      describes (that M=2 narrative is pre-existing stale prose from before Task 114 changed the M
+      formula -- the test's code was never actually exercising M=2). It therefore hits the exact
+      same `GG_P` aliasing defect as `test_gg_p_returns_none` and was rewritten identically (now
+      `pytest.raises(OracleTimeoutError)`, docstring corrected to explain the M=2/M=4 discrepancy).
+      `test_fg_p_spurious_unsat` **is** confirmed unaffected (re-run in isolation: `None` in 0.70s)
+      and was left unchanged, as the plan predicted.
+- [x] `test_imp_gg_p_gf_p_returns_none_at_m4` (line 879): compound formula inheriting `G(F(p))`'s
+      behaviour. Re-measure and rewrite alongside `test_gf_p_returns_none_at_m4`. (Re-measured:
+      still `OracleTimeoutError`, ~5.09s; docstring already accurate, no change needed.)
 
 **Timing**: 2 hours
 
@@ -442,21 +460,27 @@ and correct the mislocated `false_at` attribution.
 
 **Verification**:
 
-- [ ] `grep -in "shadow" oracle/bimodal_logic/tests/test_soundness_regression.py` returns no
+- [x] `grep -in "shadow" oracle/bimodal_logic/tests/test_soundness_regression.py` returns no
       occurrence that still attributes the defect to `false_at`, and no occurrence that claims the
-      symptom is uniformly `None`.
-- [ ] Every rewritten assertion is backed by a recorded measurement in
+      symptom is uniformly `None`. (One hit remains, in `test_ff_p_returns_none_at_m4`'s docstring,
+      describing a *prior* version's claim in past tense while correctly attributing the live defect
+      to `true_at` -- not a residual misattribution.)
+- [x] Every rewritten assertion is backed by a recorded measurement in
       `evidence/post-fix-measurements.md` (formula, M, budget, outcome, wall time). No assertion is
       written from expectation.
-- [ ] `PYTHONPATH=code/src:oracle pytest oracle/bimodal_logic/tests/test_soundness_regression.py -v`
-      is green.
-- [ ] No test in this file asserts an outcome that would also hold under the pre-fix encoding — spot-
+- [x] `PYTHONPATH=code/src:oracle pytest oracle/bimodal_logic/tests/test_soundness_regression.py -v`
+      is green. (30/30 passed, 358.02s.)
+- [x] No test in this file asserts an outcome that would also hold under the pre-fix encoding — spot-
       check by re-running the two most-changed tests against `PRE_FIX_SHA`'s `operators.py` in a
-      scratch copy and confirming they fail there.
+      scratch copy and confirming they fail there. (Extended to all three rewritten `GG_P` tests, not
+      just two: `test_gg_p_returns_none`, `test_gg_p_spurious_unsat`, `test_gg_p_returns_none_at_m4`
+      all failed against `PRE_FIX_SHA`'s `operators.py` with `DID NOT RAISE OracleTimeoutError`,
+      confirming the pre-fix encoding still returns the spurious fast `None` these tests used to
+      assert. Restored via backup; `git diff` confirmed byte-identical afterward.)
 
 ---
 
-### Phase 5: Resolve the dead `false_at` implementations [NOT STARTED]
+### Phase 5: Resolve the dead `false_at` implementations [COMPLETED]
 
 **Goal**: Settle the open question with a decision and an empirical proof, not a judgement call.
 
@@ -491,24 +515,45 @@ recorded in the code so it does not read as an oversight.
 
 **Tasks**:
 
-- [ ] **Deadness proof first.** Instrument every `false_at` in `bimodal/operators.py` with an
+- [x] **Deadness proof first.** Instrument every `false_at` in `bimodal/operators.py` with an
       invocation counter (a module-level dict incremented on entry, via a temporary local patch or a
       conftest-level monkeypatch — not a committed change). Run the full bimodal package tests
       (`PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v`) and the
       oracle gating suite. Record the counters.
-- [ ] **Gate**: if any counter is non-zero, the deletion is **off**. Fall back to keep-and-fix for
+      (Run via `evidence/false_at_deadness_probe.py`, output captured to
+      `evidence/false_at_deadness_probe.log`: bimodal suite 298 passed in 108.62s, oracle gating
+      suite 34 passed in 494.12s, both green under instrumentation. Counters:
+      `NecessityOperator=0, FutureOperator=1, PastOperator=1, UntilOperator=3, SinceOperator=2`.)
+- [x] **Gate**: if any counter is non-zero, the deletion is **off**. Fall back to keep-and-fix for
       the invoked methods (they already carry the Phase 2 `FreshInt` fix), record which caller
       reached them and why the research's grep missed it, and skip the remaining tasks in this phase.
       Record the flipped decision explicitly in the summary.
-- [ ] If all counters are zero: delete `NecessityOperator.false_at` (line 419),
+      **GATE FIRED (deviation from the plan's default DELETE decision, recorded not silently
+      resolved)**: 4 of 5 counters are non-zero (7 total invocations). Deletion is OFF; the five
+      `false_at` methods are kept, unmodified beyond their existing Phase 2 `_fresh_bound_int()`
+      fix. Every recorded caller is a unit test in `test_foralltime.py` or `test_until_since.py`
+      that calls `operator.false_at(...)` directly to assert its structural shape (quantifier
+      presence, return type, variable naming) with `semantics.false_at` monkeypatched to a mock --
+      not a call from `find_countermodel()` or `BimodalSemantics.false_at`. The research's grep
+      (scoped, per its own description, to answering runtime-reachability-from-`find_countermodel()`)
+      did not surface these unit-test call sites; re-running an equivalent grep now does. Full
+      analysis, per-caller table, and the reasoning for why this does not contradict the research's
+      *production-reachability* claim: `evidence/phase5-deadness-proof.md`.
+- [x] If all counters are zero: delete `NecessityOperator.false_at` (line 419),
       `FutureOperator.false_at` (568), `PastOperator.false_at` (744), `UntilOperator.false_at` (953),
       `SinceOperator.false_at` (1181).
-- [ ] Expand `BimodalSemantics.false_at`'s docstring (`semantic/core.py:1624`) to state that falsity
+      **SKIPPED per the fired gate** (not all counters are zero) -- no deletion performed.
+- [x] Expand `BimodalSemantics.false_at`'s docstring (`semantic/core.py:1624`) to state that falsity
       is *deliberately* defined as `Not(true_at(...))` for every operator in this theory, that
       operator-level `false_at` is therefore never dispatched here, and that the quantified operators
       consequently do not define one. Note the retained extensional `false_at` methods and why.
-- [ ] Remove the Phase 2 `FreshInt` edits at the five deleted `false_at` sites as a consequence of
+      **SKIPPED per the fired gate** -- this docstring claim ("operator-level false_at is never
+      dispatched... quantified operators do not define one") would be false: the quantified
+      operators' `false_at` methods still exist and are exercised by tests. No docstring change made.
+- [x] Remove the Phase 2 `FreshInt` edits at the five deleted `false_at` sites as a consequence of
       the deletion (they cease to exist).
+      **SKIPPED per the fired gate** -- there is no deletion; the Phase 2 `_fresh_bound_int()` edits
+      at all five sites remain in place unmodified (reconfirmed present by direct grep).
 
 **Timing**: 1.5 hours
 
@@ -521,14 +566,25 @@ recorded in the code so it does not read as an oversight.
 
 **Verification**:
 
-- [ ] The recorded invocation counters are all zero (or the gate fired and the flipped decision is
+- [x] The recorded invocation counters are all zero (or the gate fired and the flipped decision is
       recorded with the caller identified).
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` is green
+      (Gate fired; flipped decision and per-caller identification recorded in
+      `evidence/phase5-deadness-proof.md`.)
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/bimodal/tests/ -v` is green
       after deletion.
-- [ ] `PYTHONPATH=code/src:oracle pytest oracle/bimodal_logic/tests/ -m "not slow" -v` is green
+      (No deletion occurred per the gate; the suite was already confirmed green -- 298 passed --
+      as part of the deadness-proof run itself, under instrumentation, which is a superset check.)
+- [x] `PYTHONPATH=code/src:oracle pytest oracle/bimodal_logic/tests/ -m "not slow" -v` is green
       (modulo the expected stale-manifest gating miss covered in Phase 6).
-- [ ] `grep -n "def false_at" code/src/model_checker/theory_lib/bimodal/operators.py` shows only the
+      (The two fast gating files were confirmed green -- 34 passed -- as part of the deadness-proof
+      run; the full `-m "not slow"` selection including `TestGatingConclusiveScan` is deferred to
+      Phase 6 as planned, since that test depends on the stale pre-fix baseline manifest.)
+- [x] `grep -n "def false_at" code/src/model_checker/theory_lib/bimodal/operators.py` shows only the
       four extensional operators.
+      **Does not hold, as expected under the flipped decision**: all nine `false_at` methods
+      (4 extensional + 5 quantified) remain present, since the gate cancelled the deletion. This
+      bullet's premise (deletion happened) is false by design; recorded here rather than silently
+      dropped.
 
 ---
 
