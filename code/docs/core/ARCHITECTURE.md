@@ -105,6 +105,33 @@ class ExampleProcessor:
         return result
 ```
 
+### 4. Concurrency Model
+
+**Model construction and solving are single-threaded-only.**
+
+Every theory's semantics constructor, plus `ModelConstraints` and `ModelDefaults`, builds Z3
+AST nodes (sorts, functions, quantified formulas, comparisons) against the single
+process-global Z3 context (`z3.main_ctx()`). Z3's Python bindings are not safe for concurrent
+use of a single context from multiple threads: two threads constructing models at the same
+time race on that context's internal hash-consing/reference-count tables and can corrupt
+process memory. Nothing in the production call path ever constructs models from more than one
+thread — `builder/runner.py` processes examples and theories in a plain sequential `for` loop —
+so this is a real, enforced contract rather than an aspirational one.
+
+The contract is enforced, not merely documented: a process-global, thread-reentrant guard
+(`model_checker.models.concurrency`) wraps the outermost concrete constructor of every
+`SemanticDefaults` subclass, every `ModelDefaults` subclass, and `ModelConstraints`. The *same*
+thread may re-enter freely — same-thread nesting, such as model iteration building a fresh
+`ModelConstraints`/`ModelDefaults` while an outer structure is still alive, is unaffected — but
+a *different* thread attempting to acquire the guard while it is held raises
+`ConcurrentConstructionError` immediately instead of racing on the shared context. See that
+module's docstrings for the full contract and the guard's implementation.
+
+**What to do instead of building models concurrently from threads**: build them sequentially on
+one thread, or use one model per *process* (a process pool) rather than per thread — Z3
+contexts are not shared across processes, so process-level parallelism does not hit this
+constraint at all.
+
 ## Component Architecture
 
 ### Established Patterns in ModelChecker
@@ -585,6 +612,10 @@ def test_utility_documentation_examples():
 ```
 
 ## Performance Architecture
+
+**Concurrency note**: parallelizing model construction across *threads* is not a supported way
+to improve throughput — see [Concurrency Model](#4-concurrency-model) under Core Architectural
+Principles above. Use process-level parallelism (one model per process) instead.
 
 ### Resource Management Patterns
 

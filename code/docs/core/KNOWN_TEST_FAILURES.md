@@ -34,13 +34,21 @@ crash-containment measure, not a policy**. Run the quarantined set with:
 PYTHONPATH=src pytest tests/ src/model_checker/ -m slow
 ```
 
-43 tests are quarantined. Of those, **38 pass, 3 fail, and 2 cannot be run at all**:
+The counts below (43 quarantined, 38/3/2 split) describe the measured baseline referenced in
+"Current State" above, captured before the concurrent-model segfault fix. That fix removed the
+`slow` marker from the two crashing tests entirely (they now assert the guard contract instead
+of crashing — see "The 2 crashing tests" below), so the quarantined set has since shrunk from
+43 to 41 (38 pass + 3 fail); a fresh full-suite measurement to confirm this, and to fold in any
+wall-clock-budget changes, is pending re-verification of this baseline.
+
+At the time of the "Current State" measurement, 43 tests were quarantined. Of those, **38
+passed, 3 failed, and 2 could not be run at all**:
 
 | Category | Count | Tracked as |
 |----------|-------|------------|
 | Pass — quarantined only because the marker is applied at module scope | 38 | see "Over-hiding" |
 | Fail — wall-clock assertions with ungrounded budgets | 3 | task: ground wall-clock budgets |
-| Crash — abort the interpreter, so they cannot be measured | 2 | task: concurrent-model segfault |
+| Crash — abort the interpreter, so they cannot be measured | 2 | **fixed** — see "The 2 crashing tests" below |
 
 Measuring the quarantined set requires deselecting the two crashers first; otherwise the run
 aborts partway through and reports nothing.
@@ -62,25 +70,34 @@ A fourth, `tests/integration/test_performance.py::TestExecutionPerformance::test
 is genuinely intermittent: it failed in one full sweep and passed in the next at the same commit
 on the same machine.
 
-### The 2 crashing tests
+### The 2 crashing tests (fixed)
 
 | Test | Threads |
 |------|---------|
 | `tests/integration/test_performance.py::TestConcurrentPerformance::test_sequential_vs_concurrent` | 3 |
 | `tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building` | 5 |
 
-Both build models concurrently from `threading.Thread` targets and abort the interpreter —
-observed as both SIGSEGV (exit 139) and SIGABRT (exit 134) across runs, with the faulting
-extension reported as `cvc5.cvc5_python_base`. The stack shows two threads simultaneously inside
+**Status: fixed.** Both used to build models concurrently from `threading.Thread` targets and
+abort the interpreter — observed as both SIGSEGV (exit 139) and SIGABRT (exit 134) across runs,
+with the faulting extension reported as `cvc5.cvc5_python_base` (a red herring — see
+`ARCHITECTURE.md`'s Concurrency Model section and `models/concurrency.py` for why it was loaded
+at all). The stack showed two threads simultaneously inside
 `theory_lib/bimodal/semantic/core.py:580 build_frame_constraints`, reached from `__init__`, so
-the race is in semantics *construction*, not in solving.
+the race was in semantics *construction*, not in solving.
 
-Reproduction is intermittent — 1 of 3 identical isolated invocations. **A single green run does
-not validate a fix here.**
+Reproduction was intermittent — 1 of 3 identical isolated invocations, and up to 100% at 5
+threads in repeat sampling. **A single green run does not validate a fix here**: validation
+requires repeated isolated-subprocess runs (a segfault kills the interpreter, so in-process
+repetition proves nothing), not a single pytest invocation.
 
-These are why the quarantine exists. A failing test costs you one line in a summary; a crashing
-test destroys the entire run's evidence, which is how a wrong failure count survived as long as
-it did.
+Model construction is now declared single-threaded-only and enforced with a process-global,
+thread-reentrant, fail-fast guard (`model_checker.models.concurrency`): a second thread
+contending for the guard raises `ConcurrentConstructionError` immediately instead of racing on
+the shared Z3 context. Both tests were rewritten to assert exactly that contract — every
+thread's outcome must be success or `ConcurrentConstructionError`, never a crash or any other
+exception — and neither is marked `slow` any longer, so both run in the default suite. See
+"Removing the Quarantine" below for the status of the other tracked defect blocking full
+quarantine removal.
 
 ### Over-hiding
 
@@ -102,7 +119,13 @@ really does allocate the 2^MAX_N state space (~3.5 GB, ~11 s). It exists to keep
 
 Delete the `-m "not slow"` clause from `addopts` outright — do not relax it — once both tracked
 defects are fixed. Then confirm an unfiltered run is green across **repeat** samples, since the
-crash is intermittent.
+crash was intermittent.
+
+**Status**: the concurrent-model segfault defect is fixed (see "The 2 crashing tests" above) —
+that half of the gate is satisfied. The wall-clock budget defect (the 3 failing tests plus the
+over-hiding cleanup) is tracked separately and, as of this writing, not yet done. The quarantine
+clause stays in place until both halves are complete; removing it with only one fixed would
+re-break the default run for the still-ungrounded wall-clock budgets.
 
 ## How the previous baseline was wrong
 

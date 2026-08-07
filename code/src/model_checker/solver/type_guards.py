@@ -92,6 +92,21 @@ def _check_not_cvc5_type(constraint: Any) -> None:
     Raises:
         TypeError: If constraint is a CVC5 expression type.
     """
+    # NOTE: this unconditionally imports cvc5.pythonic on every single
+    # constraint assertion (called from Z3SolverAdapter.assert_tracked() via
+    # assert_backend_types()), even when the active backend is z3 and no
+    # cvc5 constraint could possibly appear here. When cvc5 is installed,
+    # this loads its native extension module (cvc5.cvc5_python_base) into
+    # the process on the very first constraint of the very first model
+    # built, regardless of settings['solver']. That is a real defect (an
+    # unconditional native-extension load on an unused-backend's debug
+    # type-check, on every assert), but it is NOT a crash cause: it was
+    # investigated as part of the concurrent-model-construction segfault
+    # (models/concurrency.py) and ruled out there -- every captured crash
+    # stack trace has all live threads inside Z3 code, none inside
+    # cvc5/pythonic code. Fixing this import is out of scope for that fix
+    # and belongs in its own task (e.g. import lazily/once, or gate behind
+    # an explicit debug flag instead of every assert).
     try:
         import cvc5.pythonic as cvc5
     except ImportError:
@@ -146,6 +161,10 @@ def is_cvc5_type(obj: Any) -> bool:
     Returns:
         True if obj is a CVC5 expression type, False otherwise.
     """
+    # NOTE: same unconditional cvc5.pythonic import as _check_not_cvc5_type()
+    # above -- see the NOTE there for the full defect description. This
+    # function is a general utility, not itself on the every-assert hot
+    # path, but shares the same fix when that follow-up task lands.
     try:
         import cvc5.pythonic as cvc5
         types_to_check = []

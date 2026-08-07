@@ -351,29 +351,35 @@ single green run is explicitly not accepted.
 
 ---
 
-### Phase 5: Document the single-threaded contract [NOT STARTED]
+### Phase 5: Document the single-threaded contract [COMPLETED]
 
 **Goal**: The contract is discoverable by a user who never reads `specs/`.
 
 **Tasks**:
-- [ ] Add a **Concurrency Model** subsection to `code/docs/core/ARCHITECTURE.md` (under
+- [x] Add a **Concurrency Model** subsection to `code/docs/core/ARCHITECTURE.md` (under
   *Core Architectural Principles*, cross-referenced from *Performance Architecture*) stating:
   model construction and solving are single-threaded-only; the reason (all theories build Z3
   AST against the single process-global context); what happens on violation
   (`ConcurrentConstructionError`, not a crash); and the supported way to parallelize (one
   model per *process*, not per thread). Do not cite task numbers — reference
   `models/concurrency.py` and the exception name as the durable anchors.
-- [ ] Update `code/docs/core/KNOWN_TEST_FAILURES.md`: the "2 crashing tests" section
+- [x] Update `code/docs/core/KNOWN_TEST_FAILURES.md`: the "2 crashing tests" section
   (`:65-73`) and the crash row (`:43`) now describe fixed, contract-asserting tests; update
   the "Removing the Quarantine" section (`:101`) to record that this half of the gate is
-  satisfied and only the wall-clock half remains.
-- [ ] Ensure `ConcurrentConstructionError`'s docstring (Phase 1) is the single authoritative
+  satisfied and only the wall-clock half remains. Also updated the quarantine-count intro
+  paragraph to note the set shrank from 43 to 41 now that the two fixed tests are unmarked
+  entirely, without altering the historical "Current State" measured table (framed explicitly
+  as pre-fix baseline pending re-verification, since the full-suite re-measurement is itself
+  deferred to Phase 6/7 while the oracle job runs).
+- [x] Ensure `ConcurrentConstructionError`'s docstring (Phase 1) is the single authoritative
   statement of the contract and that the `SemanticDefaults` / `ModelDefaults` docstrings
-  (Phase 2) point at it rather than restating it.
-- [ ] Add a `NOTE:` tag at `code/src/model_checker/solver/type_guards.py` (near lines 96 and
+  (Phase 2) point at it rather than restating it. Confirmed: both class docstrings say "see
+  `model_checker.models.concurrency` for the full contract" rather than restating it.
+- [x] Add a `NOTE:` tag at `code/src/model_checker/solver/type_guards.py` (near lines 96 and
   150) recording the unconditional `import cvc5.pythonic` defect — that it loads a native
   extension for an unused backend on every constraint assert, that it is not a crash cause,
-  and that it warrants its own task. Change no behavior there.
+  and that it warrants its own task. Change no behavior there. Two `NOTE:` tags added, one at
+  each site named in the plan; no behavior changed (only comments added).
 
 **Timing**: 1 hour
 
