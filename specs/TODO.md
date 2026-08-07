@@ -6,14 +6,14 @@ next_project_number: 140
 
 ## Task Order
 
-*Updated 2026-08-06. Generated from state.json dependency graph.*
+*Updated 2026-08-07. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
 | 1 | 133,134,135,136 | -- | architecture, testing |
-| 2 | 127,138,139 | 133 | oracle soundness, testing infrastructure, testing |
-| 3 | 126,137 | 127,139 | architecture, oracle soundness |
+| 2 | 127,137 | 133 | oracle soundness, testing |
+| 3 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -32,30 +32,30 @@ next_project_number: 140
 ### Oracle Soundness
 
 137 [NOT STARTED] — Investigate the 13 resolved-and-wrong soundness disagreements bet
-139 [NOT STARTED] — Fix the Z3 quantifier variable shadowing defect in nested same-ty
-  └─ 137 [NOT STARTED] — Investigate the 13 resolved-and-wrong soundness disagreements bet (see above)
-
-### Testing Infrastructure
-
-138 [NOT STARTED] — Fix the structural defects that make the oracle suite a ~60-minut
 
 ## Tasks
 
 ### 139. Fix z3 quantifier variable shadowing in temporal operators
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: z3
 - **Topic**: oracle soundness
 - **Dependencies**: Task 133
+- **Research**: [139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/reports/01_quantifier-shadowing-diagnosis.md]
+- **Plan**: [139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/plans/01_fix-quantifier-aliasing-rebaseline.md]
+- **Summary**: [139_fix_z3_quantifier_variable_shadowing_in_temporal_operators/summaries/01_fix-quantifier-aliasing-rebaseline-summary.md]
 
 **Description**: Fix the Z3 quantifier variable shadowing defect in nested same-type temporal operators, and stop asserting it as correct behavior. oracle/bimodal_logic/tests/test_soundness_regression.py documents in its own docstrings that both nested G operators bind the same Z3 variable name, future_false_time, in false_at, so the inner quantifier shadows the outer, the inner condition degenerates to x > x which is always False, and the formula becomes unfalsifiable. An unfalsifiable-by-encoding-bug formula yields no countermodel, which find_countermodel reports as valid - the oracle claiming validity it never established. This is the same class of soundness defect as the timeout/UNSAT conflation fixed in the find_countermodel contract work: a non-answer presented as a proof. Several tests currently assert this broken behavior as expected, including test_gg_p_returns_none and test_fg_p_returns_none, and must be rewritten to assert correct semantics once the encoding is fixed - a test suite that enshrines the bug cannot detect it. Scope: 1. Confirm or refute the shadowing diagnosis by inspecting the quantifier binding in false_at and the temporal operator encodings, noting that the migration to OracleTimeoutError showed some of these formulas actually exhaust their solve budget rather than resolving to None, so the docstrings' shadowing attribution may be stale or only partly correct. 2. Generate fresh bound variable names per quantifier nesting level. 3. Rewrite the tests that encode the defect as expected. 4. Re-measure the conclusive rate on the complexity<=5 sweep, since a shadowing fix may raise it well above the measured 38.7 percent and would then be the real speedup rather than any test-infrastructure change. Likely root cause of, or strongly related to, the resolved-and-wrong MC/BimodalHarness divergences tracked separately - investigate that link before treating the two as independent.
 
 ---
 
 ### 138. Make oracle suite fast and observable
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing infrastructure
 - **Dependencies**: Task 133
+- **Research**: [138_make_oracle_suite_fast_and_observable/reports/01_oracle-suite-fast-observable.md]
+- **Plan**: [138_make_oracle_suite_fast_and_observable/plans/01_oracle-suite-fast-observable.md]
+- **Summary**: [138_make_oracle_suite_fast_and_observable/summaries/01_oracle-suite-fast-observable-summary.md]
 
 **Description**: Fix the structural defects that make the oracle suite a ~60-minute black box. Six concrete problems, all measured: (1) run-oracle-suite.sh filters only on xdist_serial and never deselects the slow marker, so TestFullScanReport (274 formulas x 2 solves, up to 1.5h) runs on EVERY gating invocation despite the marker being declared in conftest.py as skipped in CI - deselect it from the gating pass and give the exhaustive sweep its own explicitly-invoked runner. (2) pytest -q emits nothing until a test completes, so a 60-minute run is unobservable; promote the per-formula progress reporting proven ad hoc during the contract fix into real tooling, with a bounded-interval heartbeat so no long run is silent. (3) Completion is not detectable: emit a machine-readable JSON result artifact (total/conclusive/disagreements/inconclusive/wall-clock) plus a definitive completion marker, and make runners detect completion via the marker - never via PID liveness, which produced a false completion report during the contract work. (4) run-oracle-suite.sh has no per-pass timeout, so a stall hangs indefinitely with no signal; add a bounded timeout that fails loudly. (5) Roughly 168 of 274 formulas (measured: 101/274 conclusive at 5000ms, 106/274 at 10000ms) exhaust their full budget every run and produce nothing, burning ~56 minutes per run to rediscover the same timeouts; record the known-inconclusive set so the gating variant asserts on the conclusive population and that the inconclusive set has not grown, while the exhaustive variant re-derives the whole population periodically to catch drift. (6) Document the split in TESTING_GUIDE.md. HARD CONSTRAINT: speed must come from running less redundant work, never from weakening assertions. The soundness tooth (zero disagreements among conclusive results) and the conclusiveness floor must both survive intact - do not raise budgets, relax thresholds, or skip tests to manufacture green.
 
