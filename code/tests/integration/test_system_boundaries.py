@@ -6,22 +6,22 @@ unusual but valid inputs to ensure robust handling.
 
 import pytest
 import sys
+from model_checker.models.semantic import MAX_N
 from tests.utils.assertions import assert_settings_valid, assert_valid_formula
 
 
 class TestBoundaryValues:
     """Test boundary value conditions."""
-    
+
     @pytest.mark.parametrize("n_value,valid", [
-        (1, True),   # Minimum valid
-        (2, True),   # Small valid
-        (32, True),  # Medium valid
-        (63, True),  # Near maximum
-        (64, True),  # Maximum valid
-        (0, False),  # Below minimum
-        (-1, False), # Negative
-        (65, False), # Above maximum
-        (100, False), # Far above maximum
+        (1, True),           # Minimum valid
+        (2, True),           # Small valid
+        (MAX_N - 1, True),   # Near maximum
+        (MAX_N, True),       # Maximum valid
+        (0, False),          # Below minimum
+        (-1, False),         # Negative
+        (MAX_N + 1, False),  # Above maximum
+        (100, False),        # Far above maximum
     ])
     def test_n_value_boundaries(self, n_value, valid):
         """Test N value boundary conditions."""
@@ -200,20 +200,20 @@ class TestCombinationEffects:
         assert_valid_formula(formula)
     
     def test_maximum_n_with_many_propositions(self):
-        """Test N=64 with many propositions."""
-        settings = {'N': 64}
+        """Test N=MAX_N with many propositions."""
+        settings = {'N': MAX_N}
         assert_settings_valid(settings)
-        
+
         # Many propositions with max N
         props = [f"p{i}" for i in range(20)]
         formula = " \\wedge ".join(props)
         formula = f"({formula})"
         assert_valid_formula(formula)
-    
+
     @pytest.mark.parametrize("combo", [
         {'N': 1, 'max_time': 0.001},  # Minimum values
-        {'N': 64, 'max_time': 3600},  # Maximum values
-        {'N': 32, 'contingent': True, 'non_empty': True},  # Multiple flags
+        {'N': MAX_N, 'max_time': 3600},  # Maximum values
+        {'N': 2, 'contingent': True, 'non_empty': True},  # Multiple flags
     ])
     def test_settings_combinations(self, combo):
         """Test various settings combinations."""

@@ -7,6 +7,7 @@ edge cases, and recovery mechanisms throughout ModelChecker.
 import pytest
 import tempfile
 from pathlib import Path
+from model_checker.models.semantic import MAX_N
 from tests.utils.helpers import run_cli_command, create_test_module, create_test_model
 from tests.utils.assertions import assert_output_contains
 
@@ -148,7 +149,6 @@ class TestFrameworkErrorHandling:
         full-suite sweep. It must fail fast with an actionable message.
         """
         from model_checker.models.errors import SemanticError
-        from model_checker.models.semantic import MAX_N
 
         settings = {
             'N': MAX_N + 1,  # One past what can actually be constructed
@@ -214,7 +214,7 @@ example_range = {
         # Test with settings that might cause issues
         problematic_settings = [
             {'N': 1, 'contingent': True},  # Minimum N with contingent
-            {'N': 64, 'maximize': True},  # Maximum N with maximize
+            {'N': MAX_N + 1, 'maximize': True},  # Over-limit N: intentionally rejected probe
             {'max_time': 0.01},  # Very short timeout
         ]
 
@@ -246,15 +246,15 @@ class TestEdgeCases:
             example = [assumptions, conclusions, settings]
             # Framework should process without crashing
     
-    @pytest.mark.parametrize("n_value", [1, 2, 32, 63, 64])
+    @pytest.mark.parametrize("n_value", [1, 2, MAX_N - 1, MAX_N])
     def test_valid_n_boundary_values(self, n_value):
         """Test valid N values at boundaries."""
         from tests.utils.assertions import assert_settings_valid
-        
+
         settings = {'N': n_value}
         assert_settings_valid(settings)
-    
-    @pytest.mark.parametrize("n_value", [-1, 0, 65, 100, 1000])
+
+    @pytest.mark.parametrize("n_value", [-1, 0, MAX_N + 1, 100, 1000])
     def test_invalid_n_boundary_values(self, n_value):
         """Test invalid N values are rejected."""
         from tests.utils.assertions import assert_settings_valid

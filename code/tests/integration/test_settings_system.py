@@ -5,20 +5,20 @@ tests for comprehensive coverage.
 """
 
 import pytest
+from model_checker.models.semantic import MAX_N
 from tests.utils.assertions import assert_settings_valid
 
 
 class TestSettingsValidation:
     """Test settings validation with parameterized inputs."""
-    
+
     @pytest.mark.parametrize("n_value,valid", [
         (1, True),
         (2, True),
-        (32, True),
-        (64, True),
+        (MAX_N, True),
         (0, False),
         (-1, False),
-        (65, False),
+        (MAX_N + 1, False),
         (100, False),
         (1.5, False),
         ("2", False),

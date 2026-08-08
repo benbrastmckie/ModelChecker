@@ -167,7 +167,7 @@ phase.
 
 ---
 
-### Phase 2: Reconcile the declared contract in test utilities and boundary tests [NOT STARTED]
+### Phase 2: Reconcile the declared contract in test utilities and boundary tests [COMPLETED]
 
 **Goal**: Every test site that declares the N contract derives its values from `MAX_N` and agrees
 with what the system actually builds.
@@ -175,34 +175,41 @@ with what the system actually builds.
 **Territory**: `code/tests/**` only. Do not touch `code/src/**` in this phase.
 
 **Tasks**:
-- [ ] `code/tests/utils/assertions.py:132-138` (`assert_settings_valid`): import `MAX_N` from
+- [x] `code/tests/utils/assertions.py:132-138` (`assert_settings_valid`): import `MAX_N` from
       `model_checker.models.semantic` and change `assert 1 <= n_value <= 64` to
       `assert 1 <= n_value <= MAX_N`, updating the assertion message to interpolate `MAX_N`
       instead of the literal 64.
-- [ ] `code/tests/integration/test_settings_system.py:14-25` (`test_n_value_validation`): the
+- [x] `code/tests/integration/test_settings_system.py:14-25` (`test_n_value_validation`): the
       `(32, True)` and `(64, True)` rows now describe values the system rejects — replace the
       parametrization with `MAX_N`-relative rows (e.g. `(1, True), (2, True), (MAX_N, True),
       (0, False), (-1, False), (MAX_N + 1, False), (100, False), (1.5, False), ("2", False)`).
-- [ ] `code/tests/integration/test_system_boundaries.py:15-34` (`test_n_value_boundaries`): same
+- [x] `code/tests/integration/test_system_boundaries.py:15-34` (`test_n_value_boundaries`): same
       `MAX_N`-relative treatment; `63`/`64` become `MAX_N - 1`/`MAX_N`, `65` becomes `MAX_N + 1`.
-- [ ] `code/tests/integration/test_system_boundaries.py:202-211`
+- [x] `code/tests/integration/test_system_boundaries.py:202-211`
       (`test_maximum_n_with_many_propositions`): change `{'N': 64}` to `{'N': MAX_N}` and update
       the docstring, which currently says "Test N=64 with many propositions".
-- [ ] `code/tests/integration/test_system_boundaries.py:213-220` (`test_settings_combinations`):
+- [x] `code/tests/integration/test_system_boundaries.py:213-220` (`test_settings_combinations`):
       change the `{'N': 64, 'max_time': 3600}` "Maximum values" combo to `{'N': MAX_N, ...}` and
-      the `{'N': 32, ...}` combo to a value at or below `MAX_N`.
-- [ ] `code/tests/integration/test_error_handling.py:249` (`test_valid_n_boundary_values`):
-      replace `[1, 2, 32, 63, 64]` with `MAX_N`-derived values.
-- [ ] `code/tests/integration/test_error_handling.py:257` (`test_invalid_n_boundary_values`):
+      the `{'N': 32, ...}` combo to a value at or below `MAX_N`. *(deviation: dropped the
+      "Multiple flags" combo's N from 32 to 2 rather than another near-MAX_N value, since 32 was
+      already above MAX_N and the combo's point is exercising `contingent`/`non_empty` together,
+      not N magnitude.)*
+- [x] `code/tests/integration/test_error_handling.py:249` (`test_valid_n_boundary_values`):
+      replace `[1, 2, 32, 63, 64]` with `MAX_N`-derived values (`[1, 2, MAX_N - 1, MAX_N]`).
+- [x] `code/tests/integration/test_error_handling.py:257` (`test_invalid_n_boundary_values`):
       replace `[-1, 0, 65, 100, 1000]` with `[-1, 0, MAX_N + 1, 100, 1000]`.
-- [ ] `code/tests/integration/test_error_handling.py:216` (`test_graceful_degradation`): the
+- [x] `code/tests/integration/test_error_handling.py:216` (`test_graceful_degradation`): the
       `{'N': 64, 'maximize': True}` entry with the comment "Maximum N with maximize" is already
       exception-tolerant and does not need to pass, but its label is now false. Either relabel it
       as an intentional over-limit probe or drop it to `MAX_N`; do not leave the stale "Maximum N"
-      claim.
-- [ ] Leave `test_timeout_resources.py:84,136,245` and `test_performance.py:365-380` unchanged —
+      claim. Relabeled to `{'N': MAX_N + 1, 'maximize': True}` with an "Over-limit N: intentionally
+      rejected probe" comment. *(deviation: also removed the now-redundant local `from
+      model_checker.models.semantic import MAX_N` inside `test_memory_limit_handling`, since the
+      new module-level import at line 10 makes it dead code — a REFACTOR-step cleanup, not a
+      behavior change.)*
+- [x] Leave `test_timeout_resources.py:84,136,245` and `test_performance.py:365-380` unchanged —
       they are intentional rejected-input probes with broad exception handling that already
-      tolerate `SemanticError`.
+      tolerate `SemanticError`. Confirmed unchanged.
 
 **Timing**: 1 hour
 

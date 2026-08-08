@@ -7,6 +7,8 @@ ModelChecker-specific structures and behaviors.
 from typing import Any, Dict, List, Optional
 import re
 
+from model_checker.models.semantic import MAX_N
+
 
 def assert_valid_formula(formula: str) -> None:
     """Assert that a formula is syntactically valid.
@@ -134,8 +136,8 @@ def assert_settings_valid(settings: Dict[str, Any]) -> None:
         n_value = settings['N']
         assert isinstance(n_value, int), \
             f"Setting 'N' must be an integer, got {type(n_value)}"
-        assert 1 <= n_value <= 64, \
-            f"Setting 'N' must be between 1 and 64, got {n_value}"
+        assert 1 <= n_value <= MAX_N, \
+            f"Setting 'N' must be between 1 and {MAX_N}, got {n_value}"
     
     # Check max_time
     if 'max_time' in settings:
