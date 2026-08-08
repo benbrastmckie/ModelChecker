@@ -47,6 +47,12 @@ from typing import Any
 import pytest
 
 from bimodal_logic import OracleTimeoutError
+from bimodal_logic.tests.ground_truth_classify import (
+    EXTERNAL_BH_DEFECT,
+    MC_SOUNDNESS_BUG,
+    UNCLASSIFIED,
+    classify_disagreement,
+)
 
 ##############################################################################
 # Self-contained primitive formula enumerator (no external dependencies)
@@ -154,6 +160,25 @@ KNOWN_CONCLUSIVE_MANIFEST_PATH = (
 # instead. If the manifest's conclusive_count changes (baseline re-derived),
 # recompute this floor from the new count, do not leave it stale.
 MIN_CONCLUSIVE_GATING_FORMULAS = 100
+
+# Floor for TestBimodalHarnessIntegration::test_temporal_only_agreement_complexity_5 --
+# a SEPARATE constant from the two above, scoped to the temporal-only complexity<=5
+# BH-comparison sweep (158 formulas, one excluded as a known MC edge case). "Conclusive"
+# here means both MC and BH decided (agreement or a classified disagreement), matching
+# the same performance/soundness split used everywhere else in this module: a starved
+# solve budget must fail loudly as a budget regression, never silently pass as "zero
+# disagreements because nothing decided".
+#
+# Provisional basis (research measurement, prior to this suite's own live re-derivation
+# in a dedicated verification pass): two independent runs each measured 12
+# resolved-and-wrong (external-BH-defect) formulas and ~100 inconclusive (MC timeout) of
+# 158 total, leaving ~45 agreements + 12 disagreements = ~57 conclusive out of 157
+# checked (158 minus the 1 excluded edge case). Floored well below that measurement (40,
+# ~70%) to tolerate the same session-order/load sensitivity near the 5000ms budget
+# documented for this suite's solve population, pending a live re-measurement that
+# tightens this to the actually-observed count -- do not raise it to make a run green
+# without re-measuring first.
+MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS = 40
 
 
 def _formula_complexity(formula_json: dict) -> int:
@@ -1270,40 +1295,43 @@ class TestBimodalHarnessIntegration:
         )
 
     @pytest.mark.slow
-    @pytest.mark.xfail(
-        strict=True,
-        reason=(
-            "Genuine soundness divergence, not a solver timeout: with the "
-            "find_countermodel timeout/UNSAT conflation removed (see "
-            "provider.py's OracleTimeoutError contract), 13 of 158 temporal-only "
-            "formulas at complexity<=5 have both MC and BH decide and disagree "
-            "(resolved-and-wrong). A further 101 of 158 are inconclusive (the MC "
-            "solver did not decide within the default 5000 ms budget) and are "
-            "excluded from this count -- they are a budget/performance outcome, "
-            "not a soundness one. The 13 resolved-and-wrong formulas are a real, "
-            "previously-masked defect requiring dedicated investigation; this is "
-            "not a known-flaky timeout marker. This class only runs when "
-            "BimodalHarness is present on the path (setup_method skips otherwise, "
-            "e.g. in CI)."
-        ),
-    )
     def test_temporal_only_agreement_complexity_5(self):
-        """All temporal-only formulas at complexity<=5 agree between MC and BH Z3.
+        """All temporal-only formulas at complexity<=5 that MC and BH Z3 both
+        decide either agree, or are adjudicated against an independent
+        ground-truth evaluator and attributed to a confirmed *external*
+        BimodalHarness defect -- see `oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md`
+        for the root cause and `oracle/bimodal_logic/ground_truth.py` for the
+        adjudication basis.
 
         Known MC oracle edge cases (untl(bot, bot) and similar bot-based temporal
-        formulas) are excluded from the agreement check.
+        formulas) are excluded from the agreement check -- a separate,
+        pre-existing mechanism with its own standing attribution.
 
-        Buckets non-agreements into resolved-and-wrong (MC decided and its
-        decision contradicts BH -- a real soundness bug) and inconclusive
-        (MC's solve did not decide within its default budget). Only
-        resolved-and-wrong formulas fail this test.
+        Every remaining disagreement (both sides decided) is classified by
+        `classify_disagreement` into exactly one of three buckets:
+          - external_bh_defect: ground truth sides with MC -- BH is the
+            external, confirmed-wrong side. Expected and accommodated.
+          - mc_soundness_bug: ground truth sides with BH -- MC is wrong. A
+            real in-repo soundness defect; never accommodated.
+          - unclassified: ground truth cannot adjudicate (a formula shape
+            outside the evaluator's supported fragment). Extend the
+            evaluator; never widen this accommodation to paper over it.
+
+        Five ordered assertions make each failure self-diagnosing (order
+        matters): a budget floor first (so a starved run is diagnosed before
+        anything else), then the two "something is actually wrong" guards,
+        then the staleness guard (BH's defect no longer reproducing means
+        this accommodation is dead code), then a signature check on the
+        accommodated bucket itself (so a *different* external defect cannot
+        hide inside it).
         """
         from bimodal_harness.oracle.z3_provider import Z3OracleProvider as BHZ3OracleProvider
 
         bh_z3 = BHZ3OracleProvider()
         mc_oracle = self.mc_oracle
 
-        # Known edge cases: temporal formulas with MC boundary evaluation issues
+        # Known edge cases: temporal formulas with MC boundary evaluation issues.
+        # A separate, pre-existing mechanism -- left exactly as-is.
         _KNOWN_MC_EDGE_CASES = [
             {"tag": "untl", "event": {"tag": "bot"}, "guard": {"tag": "bot"}},
         ]
@@ -1314,11 +1342,17 @@ class TestBimodalHarnessIntegration:
         all_formulas = _enumerate_primitive_formulas(5, ["p"])
         temporal_formulas = [f for f in all_formulas if _is_temporal_only(f)]
 
-        resolved_and_wrong = []
+        external_bh_defect = []
+        mc_soundness_bug = []
+        unclassified = []
         inconclusive = []
+        checked = 0
+        bh_error_count = 0
+        agree_count = 0
         for formula_json in temporal_formulas:
             if _is_known_edge_case(formula_json):
                 continue
+            checked += 1
 
             try:
                 mc_result = mc_oracle.find_countermodel(formula_json)
@@ -1331,26 +1365,101 @@ class TestBimodalHarnessIntegration:
                 bh_result = bh_z3.find_countermodel(formula_json)
                 bh_sat = bh_result is not None
             except Exception:
+                bh_error_count += 1
                 continue
 
-            if mc_sat != bh_sat:
-                resolved_and_wrong.append({
-                    "formula": formula_json,
-                    "mc_sat": mc_sat,
-                    "bh_sat": bh_sat,
-                })
+            if mc_sat == bh_sat:
+                agree_count += 1
+                continue
+
+            outcome = classify_disagreement(formula_json, mc_sat=mc_sat, bh_sat=bh_sat)
+            entry = {"formula": formula_json, "mc_sat": mc_sat, "bh_sat": bh_sat}
+            if outcome == EXTERNAL_BH_DEFECT:
+                external_bh_defect.append(entry)
+            elif outcome == MC_SOUNDNESS_BUG:
+                mc_soundness_bug.append(entry)
+            else:
+                assert outcome == UNCLASSIFIED
+                unclassified.append(entry)
+
+        conclusive = checked - len(inconclusive) - bh_error_count
 
         print(
             f"test_temporal_only_agreement_complexity_5: "
-            f"resolved_and_wrong={len(resolved_and_wrong)} inconclusive={len(inconclusive)} "
-            f"of {len(temporal_formulas)}"
+            f"external_bh_defect={len(external_bh_defect)} "
+            f"mc_soundness_bug={len(mc_soundness_bug)} "
+            f"unclassified={len(unclassified)} "
+            f"inconclusive={len(inconclusive)} "
+            f"of {len(temporal_formulas)} (conclusive={conclusive})"
         )
-        assert not resolved_and_wrong, (
-            f"MC and BH Z3 oracles disagree on {len(resolved_and_wrong)} temporal-only "
-            f"formulas at complexity<=5 (both sides decided; excluding known MC edge cases):\n"
+
+        # 1. Budget/performance floor -- asserted FIRST so a starved run is
+        # diagnosed as a budget regression before any of the guards below,
+        # which assume a healthy population of conclusive results.
+        assert conclusive >= MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS, (
+            f"Only {conclusive} of {checked} checked formulas were conclusive "
+            f"(floor={MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS}); this is a "
+            f"budget/performance regression to investigate, not a semantic one."
+        )
+
+        # 2. Ground truth sides with BH against MC: a real in-repo soundness bug.
+        assert not mc_soundness_bug, (
+            f"Ground truth confirms {len(mc_soundness_bug)} formula(s) where "
+            f"ModelChecker's verdict is WRONG and BimodalHarness's is correct -- "
+            f"this is a genuine ModelChecker soundness defect, not an external "
+            f"BimodalHarness issue:\n"
             + "\n".join(
                 f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
-                for d in resolved_and_wrong[:5]
+                for d in mc_soundness_bug[:5]
+            )
+        )
+
+        # 3. A disagreement ground truth cannot adjudicate: extend the
+        # evaluator, do not widen this accommodation to swallow it.
+        assert not unclassified, (
+            f"{len(unclassified)} disagreement(s) fall outside "
+            f"oracle/bimodal_logic/ground_truth.py's supported fragment and "
+            f"cannot be adjudicated. Extend the ground-truth evaluator to cover "
+            f"this formula shape; do not widen this accommodation to absorb it:\n"
+            + "\n".join(
+                f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
+                for d in unclassified[:5]
+            )
+        )
+
+        # 4. Staleness guard: if BimodalHarness's boundary-scan defect has
+        # been fixed upstream, this bucket goes empty and the accommodation
+        # is now dead code -- delete it (and this test's dependency on
+        # classify_disagreement/KNOWN_EXTERNAL_DEFECTS.md) rather than
+        # relaxing this assertion. A starved budget is ruled out by
+        # assertion 1 already, so an empty bucket here is not that.
+        assert external_bh_defect, (
+            "No formulas were attributed to the external BimodalHarness "
+            "boundary-scan defect. Two possible readings: (a) BimodalHarness "
+            "has been fixed upstream, in which case this accommodation "
+            "(this bucket, classify_disagreement's use in this test, and "
+            "oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md) is now dead code "
+            "and should be DELETED, not preserved; or (b) a starved solve "
+            "budget -- already ruled out by assertion 1's conclusive-count "
+            "floor, so this reading should not apply if that assertion passed."
+        )
+
+        # 5. Signature check: every accommodated formula must match the
+        # documented defect signature exactly, so a DIFFERENT external
+        # defect cannot silently hide inside this bucket.
+        bad_signature = [
+            d for d in external_bh_defect
+            if not (d["mc_sat"] is False and d["bh_sat"] is True)
+        ]
+        assert not bad_signature, (
+            f"{len(bad_signature)} entr(y/ies) in external_bh_defect do not match "
+            f"the documented signature (mc_sat=False, bh_sat=True) -- this may be "
+            f"a DIFFERENT external defect than the one recorded in "
+            f"oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md and requires its own "
+            f"investigation, not silent inclusion in this bucket:\n"
+            + "\n".join(
+                f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
+                for d in bad_signature[:5]
             )
         )
 

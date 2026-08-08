@@ -196,7 +196,14 @@ rather than swallowed.
 
 ---
 
-### Phase 3: Replace the xfail with adjudicated bucketing and loud-failure guards [NOT STARTED]
+### Phase 3: Replace the xfail with adjudicated bucketing and loud-failure guards [IN PROGRESS]
+
+*(Code complete and committed: xfail removed, three-bucket classification via
+`classify_disagreement`, five ordered assertions, `MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS`
+floor added, docstring rewritten with durable anchors. Collection succeeds with BH on
+the path (single test collected, no longer XFAIL-decorated). NOT yet verified against a
+live BimodalHarness run -- that live run is Phase 5's own task and will confirm or
+correct this phase's status.)*
 
 **Goal**: `test_temporal_only_agreement_complexity_5` records the real state of the world: it
 passes, attributes the 12 disagreements to the external BimodalHarness defect via ground truth,
