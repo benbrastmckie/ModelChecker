@@ -1,0 +1,32 @@
+LOAD BEFORE:  11:07:18  up 3 days 13:25,  1 user,  load average: 3.96, 4.07, 2.56
+Repeat-sample run: 20 invocations of:
+  code/tests/integration/test_performance.py::TestConcurrentPerformance::test_sequential_vs_concurrent
+  code/tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building
+Repo root: /home/benjamin/Projects/ModelChecker
+Command template: PYTHONFAULTHANDLER=1 PYTHONPATH=code/src python -m pytest <node-ids> -q
+
+Run  1/20: exit=0 (pass)
+Run  2/20: exit=0 (pass)
+Run  3/20: exit=0 (pass)
+Run  4/20: exit=0 (pass)
+Run  5/20: exit=0 (pass)
+Run  6/20: exit=0 (pass)
+Run  7/20: exit=0 (pass)
+Run  8/20: exit=0 (pass)
+Run  9/20: exit=0 (pass)
+Run 10/20: exit=0 (pass)
+Run 11/20: exit=0 (pass)
+Run 12/20: exit=0 (pass)
+Run 13/20: exit=0 (pass)
+Run 14/20: exit=0 (pass)
+Run 15/20: exit=0 (pass)
+Run 16/20: exit=0 (pass)
+Run 17/20: exit=0 (pass)
+Run 18/20: exit=0 (pass)
+Run 19/20: exit=0 (pass)
+Run 20/20: exit=0 (pass)
+
+Summary: 20/20 passed (exit code 0).
+All 20 runs passed.
+HARNESS_EXIT=0
+LOAD AFTER:  11:08:25  up 3 days 13:26,  1 user,  load average: 4.01, 4.04, 2.65

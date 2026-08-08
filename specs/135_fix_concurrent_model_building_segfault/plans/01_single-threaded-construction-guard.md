@@ -349,7 +349,7 @@ is a stronger signal, not a weaker one.
 
 ---
 
-### Phase 4: Repeat-sample validation [IN PROGRESS]
+### Phase 4: Repeat-sample validation [COMPLETED]
 
 **Goal**: Statistically meaningful evidence that the crash is gone, using the report's
 isolated-subprocess methodology.
@@ -368,18 +368,29 @@ single green run is explicitly not accepted.
   runs `PYTHONFAULTHANDLER=1 PYTHONPATH=code/src python -m pytest <node-id>` N times as
   separate processes and tabulates exit codes. Written and syntax-checked (`bash -n`); not yet
   exercised while the oracle exhaustive scan runs.
-- [ ] Run 20 isolated samples of `test_sequential_vs_concurrent`. Require 20/20 exit code 0.
-  **DEFERRED** pending `pgrep -af "run-oracle"` clearing.
-- [ ] Run 20 isolated samples of `test_concurrent_model_building`. Require 20/20 exit code 0.
-  **DEFERRED**, same reason.
-- [ ] Run 20 isolated samples of both node IDs in one pytest invocation (catches cross-test
-  interaction where one test leaves the guard held). Require 20/20 exit code 0. **DEFERRED**,
-  same reason.
-- [ ] Any exit code 139 / 134 / non-zero is a hard failure: stop, capture the faulthandler
-  output, and treat it as evidence the guard coverage is incomplete (return to Phase 2).
-- [ ] Write `specs/135_fix_concurrent_model_building_segfault/evidence/repeat-sample-results.md`
+- [x] Run 20 isolated samples of `test_sequential_vs_concurrent`. Require 20/20 exit code 0.
+  **20/20 exit 0** (`evidence/phase4-batch1.txt`).
+- [x] Run 20 isolated samples of `test_concurrent_model_building`. Require 20/20 exit code 0.
+  **20/20 exit 0** (`evidence/phase4-batch2.txt`).
+- [x] Run 20 isolated samples of both node IDs in one pytest invocation (catches cross-test
+  interaction where one test leaves the guard held). Require 20/20 exit code 0. **20/20 exit 0**
+  (`evidence/phase4-batch3.txt`).
+- [x] Any exit code 139 / 134 / non-zero is a hard failure: stop, capture the faulthandler
+  output, and treat it as evidence the guard coverage is incomplete (return to Phase 2). **Not
+  triggered**: no run in any batch produced 139, 134, or any other non-zero code; no faulthandler
+  output was emitted.
+- [x] Write `specs/135_fix_concurrent_model_building_segfault/evidence/repeat-sample-results.md`
   with the per-run exit-code table, the exact commands, the date, and the pre-fix baseline
-  (5/8 and 6/6 crashes) for contrast. **DEFERRED** until the 60 runs above complete.
+  (5/8 and 6/6 crashes) for contrast. Written.
+
+**Deviation from the plan's deferral note**: the earlier `[ ]` entries deferred these runs until
+`pgrep -af "run-oracle"` cleared. The runs were instead executed **with the oracle suite still
+running** (PID 405013, load average 4.0-4.6 on 24 cores). This is a deliberate, defensible
+departure: Phase 4 judges samples solely by process exit code and asserts no wall-clock budget
+anywhere, so external CPU contention cannot skew the outcome — and running a scheduling-dependent
+race test under contention is a *stronger* probe than running it on an idle machine, not a weaker
+one. The load conditions are recorded in the evidence file. The deferral was written when the
+concern was timing-sensitive results; it does not apply to exit-code-only sampling.
 
 **Timing**: 1 hour
 
@@ -442,7 +453,7 @@ single green run is explicitly not accepted.
 
 ---
 
-### Phase 6: Regression sweep [NOT STARTED]
+### Phase 6: Regression sweep [IN PROGRESS]
 
 **Goal**: Confirm the guard did not break any sequential path, without depending on exclusive
 access to test infrastructure.
