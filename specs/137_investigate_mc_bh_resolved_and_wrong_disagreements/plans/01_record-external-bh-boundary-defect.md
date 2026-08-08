@@ -196,31 +196,30 @@ rather than swallowed.
 
 ---
 
-### Phase 3: Replace the xfail with adjudicated bucketing and loud-failure guards [IN PROGRESS]
+### Phase 3: Replace the xfail with adjudicated bucketing and loud-failure guards [COMPLETED]
 
-*(Code complete and committed: xfail removed, three-bucket classification via
-`classify_disagreement`, five ordered assertions, `MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS`
-floor added, docstring rewritten with durable anchors. Collection succeeds with BH on
-the path (single test collected, no longer XFAIL-decorated). NOT yet verified against a
-live BimodalHarness run -- that live run is Phase 5's own task and will confirm or
-correct this phase's status.)*
+*(Verified against a live BimodalHarness run: `test_temporal_only_agreement_complexity_5`
+reported PASSED (not XFAIL/XPASS) with `external_bh_defect=12 mc_soundness_bug=0
+unclassified=0 inconclusive=101 of 158 (conclusive=56)` -- exactly the expected
+outcome. All five ordered assertions passed, confirming they have teeth without being
+weakened.)*
 
 **Goal**: `test_temporal_only_agreement_complexity_5` records the real state of the world: it
 passes, attributes the 12 disagreements to the external BimodalHarness defect via ground truth,
 and fails loudly on any deviation.
 
 **Tasks**:
-- [ ] Delete the `@pytest.mark.xfail(strict=True, reason=...)` decorator from
+- [x] Delete the `@pytest.mark.xfail(strict=True, reason=...)` decorator from
   `test_temporal_only_agreement_complexity_5`. Keep `@pytest.mark.slow` and the class-level
   `@pytest.mark.differential`.
-- [ ] Leave `_KNOWN_MC_EDGE_CASES` and its `untl(bot, bot)` entry exactly as they are — a
+- [x] Leave `_KNOWN_MC_EDGE_CASES` and its `untl(bot, bot)` entry exactly as they are — a
   separate, pre-existing mechanism with its own attribution.
-- [ ] Replace the single `resolved_and_wrong` bucket with three buckets fed by
+- [x] Replace the single `resolved_and_wrong` bucket with three buckets fed by
   `classify_disagreement`: `external_bh_defect`, `mc_soundness_bug`, `unclassified`. Keep
   `inconclusive` unchanged.
-- [ ] Print all four counts unconditionally, in the style of `_assert_scan_report`, so a green run
+- [x] Print all four counts unconditionally, in the style of `_assert_scan_report`, so a green run
   is still informative.
-- [ ] Assert, in this order (the order matters — it makes each failure self-diagnosing):
+- [x] Assert, in this order (the order matters — it makes each failure self-diagnosing):
   1. `conclusive >= MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS` — a new module-level constant, a
      *budget/performance* floor, with a comment recording its measured basis and the existing
      "never widen this to paper over a contended run" convention already used by the sibling
@@ -237,7 +236,7 @@ and fails loudly on any deviation.
   5. Every `external_bh_defect` entry has `mc_sat is False and bh_sat is True` — the documented
      signature. A member with any other signature fails, so a *different* external defect cannot
      hide inside this bucket.
-- [ ] Rewrite the test docstring to describe the external defect accurately, citing durable
+- [x] Rewrite the test docstring to describe the external defect accurately, citing durable
   anchors only: `oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md` for the root cause and
   `oracle/bimodal_logic/ground_truth.py` for the adjudication basis. No task numbers, no "13
   formulas" claim, no implication that this is an MC bug.
@@ -309,27 +308,36 @@ navigation pointing at it.
 
 ---
 
-### Phase 5: End-to-end verification and evidence capture [NOT STARTED]
+### Phase 5: End-to-end verification and evidence capture [COMPLETED]
+
+*(See the implementation summary for full real pytest output and the "not slow" caveat:
+4 pre-existing failures unrelated to this task, diagnosed via isolated reruns.)*
 
 **Goal**: The whole change is proven green against the real BimodalHarness, with real output
 captured, and the floor constant's measured basis recorded rather than guessed.
 
 **Tasks**:
-- [ ] Confirm BimodalHarness is importable
+- [x] Confirm BimodalHarness is importable
   (`PYTHONPATH=/home/benjamin/Projects/BimodalHarness/src python -c 'import bimodal_harness'`).
   If it is not, stop and report a blocker — a skipped `TestBimodalHarnessIntegration` makes this
   verification vacuous and must never be reported as a pass.
-- [ ] Run the fast new tests:
+- [x] Run the fast new tests:
   `PYTHONPATH=oracle:code/src pytest oracle/bimodal_logic/tests/test_ground_truth.py oracle/bimodal_logic/tests/test_disagreement_classification.py -v`.
-- [ ] Run the full BH integration class to completion with real output captured:
+- [x] Run the full BH integration class to completion with real output captured:
   `PYTHONPATH=oracle:code/src:/home/benjamin/Projects/BimodalHarness/src pytest oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestBimodalHarnessIntegration -v -s -p no:cacheprovider`.
-- [ ] Update `MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS` to a value derived from the measured conclusive
+- [x] Update `MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS` to a value derived from the measured conclusive
   count in that run (conservatively below it, not equal to it), and record the measured number and
   date-free provenance in the adjacent comment.
-- [ ] Run the non-slow oracle suite for regressions:
+- [x] Run the non-slow oracle suite for regressions:
   `PYTHONPATH=oracle:code/src pytest oracle/bimodal_logic/tests -m "not slow" -q`.
-- [ ] Grep all files touched by this task outside `specs/**` for task-number citation patterns.
-- [ ] Paste the real, unedited pytest output (not paraphrased) into the implementation summary,
+  *(deviation: run completed with 594 passed / 4 failed. All 4 failures are in files this
+  task never touches (`test_oracle_interface.py`, `test_soundness_regression.py`), all are
+  Z3-solve `OracleTimeoutError`s, and isolated reruns confirmed 3 of 4 pass alone with only
+  1 still timing out at a 180000ms budget even in isolation -- consistent with this
+  session's documented cross-agent Z3 contention, not a regression from this task's diff.
+  Not re-run a second time (~45 min) given this diagnosis; see summary for detail.)*
+- [x] Grep all files touched by this task outside `specs/**` for task-number citation patterns.
+- [x] Paste the real, unedited pytest output (not paraphrased) into the implementation summary,
   including the printed four-bucket counts.
 
 **Timing**: 1 hour (mostly wall-clock waiting on the ~10-minute slow test)

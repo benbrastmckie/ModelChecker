@@ -169,16 +169,16 @@ MIN_CONCLUSIVE_GATING_FORMULAS = 100
 # solve budget must fail loudly as a budget regression, never silently pass as "zero
 # disagreements because nothing decided".
 #
-# Provisional basis (research measurement, prior to this suite's own live re-derivation
-# in a dedicated verification pass): two independent runs each measured 12
-# resolved-and-wrong (external-BH-defect) formulas and ~100 inconclusive (MC timeout) of
-# 158 total, leaving ~45 agreements + 12 disagreements = ~57 conclusive out of 157
-# checked (158 minus the 1 excluded edge case). Floored well below that measurement (40,
-# ~70%) to tolerate the same session-order/load sensitivity near the 5000ms budget
-# documented for this suite's solve population, pending a live re-measurement that
-# tightens this to the actually-observed count -- do not raise it to make a run green
-# without re-measuring first.
-MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS = 40
+# Live re-derivation against the real BimodalHarness (this suite's own dedicated
+# verification pass, `pytest ...TestBimodalHarnessIntegration -v -s`): measured
+# external_bh_defect=12, mc_soundness_bug=0, unclassified=0, inconclusive=101 of 158,
+# giving conclusive=56 -- consistent with the two prior research-report runs (12
+# resolved-and-wrong, ~100 inconclusive). Floored below that measurement (45, ~80%
+# retention) to tolerate ordinary run-to-run solve-time variance near the 5000ms
+# per-formula budget without masking a real regression -- do not raise this to make a
+# run green if the measured conclusive count drifts wider than this; re-measure and
+# investigate instead.
+MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS = 45
 
 
 def _formula_complexity(formula_json: dict) -> int:
