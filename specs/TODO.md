@@ -11,7 +11,7 @@ next_project_number: 140
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 127,134,135,136,137 | -- | architecture, oracle soundness, testing |
+| 1 | 127,134,137 | -- | architecture, oracle soundness, testing |
 | 2 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
@@ -24,8 +24,6 @@ next_project_number: 140
 ### Testing
 
 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
-135 [IMPLEMENTING] — Fix the non-deterministic segmentation fault when models are buil
-136 [IMPLEMENTING] — Make the wall-clock performance assertions robust so they can rej
 
 ### Oracle Soundness
 
@@ -70,19 +68,20 @@ next_project_number: 140
 ---
 
 ### 136. Ground wallclock performance budgets
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [136_ground_wallclock_performance_budgets/reports/01_wallclock-budget-grounding.md]
 - **Plan**: [136_ground_wallclock_performance_budgets/plans/01_wallclock-budget-grounding.md]
+- **Summary**: [136_ground_wallclock_performance_budgets/summaries/01_wallclock-budget-grounding-summary.md]
 
 **Description**: Make the wall-clock performance assertions robust so they can rejoin the default test run. Several timing tests have budgets tighter than this codebase's real Z3 solve-time variance, so their pass/fail state changes between identical runs on the same commit -- directly demonstrated: two consecutive full sweeps at the same commit on the same machine produced different failure sets, with test_scaling_with_n[2-1.0] failing in one and passing in the other while test_simple_model_performance failed in both. Observed magnitudes: builder/tests/integration/test_performance.py::test_small_model_generation_completes_quickly and ::test_multiple_examples_process_efficiently both assert <500ms and both measure about 1.09s, roughly 2.2x over budget even at low load, so these two look like authoring defects rather than pure flakiness -- the budget may never have matched the real cost. Affected files, all currently carrying a module-level pytest.mark.slow and therefore quarantined out of the default run by the -m "not slow" clause in code/pyproject.toml addopts: tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and src/model_checker/builder/tests/integration/test_performance.py. Work: for each timing assertion decide which of three things it is -- (a) a real performance regression guard, which needs a budget derived from measured p95/p99 across repeat samples plus enough headroom for the roughly 20x Z3 solve-time variance documented in code/docs/core/TESTING_GUIDE.md section 8.6; (b) a correctness test wearing a stopwatch, which should assert the behaviour and drop the timing clause entirely; or (c) an obsolete assertion whose budget was never grounded in measurement, which should be deleted. Prefer (b) and (c): a wall-clock assertion on a shared development machine is a weak regression signal at best. Where a genuine performance guard is wanted, consider asserting relative scaling between two N values rather than absolute seconds, since a ratio is far more load-stable than a stopwatch. Definition of done: every one of these tests either passes reliably across at least five repeat full-suite samples or has been removed, the pytest.mark.slow markers are dropped from these files, and the coordination noted in task 135 is satisfied so the addopts filter clause can be deleted outright. Do not settle for widening budgets until they stop failing -- an unmeasured larger number is the same defect with a bigger constant. MEASURED OVER-HIDING (act on this first, it is cheap and independent of the budget work): the slow marker is applied as a module-level pytestmark across three whole files, so it quarantines 43 tests when only 5 justify quarantine. Measured with -m slow and the two crashers deselected: 3 failed, 38 passed, in 73 seconds total. So 38 of 43 quarantined tests pass and are hidden for no reason, at a cost of just over a minute; examples include test_file_handles_closed, test_keyboard_interrupt_cleanup, and test_memory_released_after_error, none of which assert on wall-clock time or use threads. Replace the module-level pytestmark in tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and src/model_checker/builder/tests/integration/test_performance.py with per-test @pytest.mark.slow on only: test_simple_model_performance, test_small_model_generation_completes_quickly, test_multiple_examples_process_efficiently (the 3 measured failures), test_scaling_with_n[2-1.0] (intermittent -- failed one full sweep and passed the next at the same commit), plus the two concurrency crashers which stay marked until task 135 lands. Keep models/tests/unit/test_semantic.py::test_max_n_itself_is_constructible marked: it legitimately allocates about 3.5GB over about 11s and exists to keep MAX_N honest. Verify the narrowing with repeat default sweeps rather than one, since the borderline timing tests are exactly the ones that flap. The three named failures assert <500ms against a measured ~1.09s, roughly 2.2x over even at low load, so treat them as authoring defects to re-ground rather than as flakes to widen.
 
 ---
 
 ### 135. Fix concurrent model building segfault
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None

@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Concurrent Model-Building Segfault
 
 - **Task**: 135 - Fix concurrent model building segfault
-- **Status**: [PARTIAL]
+- **Status**: [COMPLETED]
 - **Effort**: 8.5 hours
 - **Dependencies**: Phase 7 only — gated on Task 136 (`ground_wallclock_performance_budgets`) reaching `completed`. Phases 1-6 have no external dependencies.
 - **Research Inputs**: `specs/135_fix_concurrent_model_building_segfault/reports/01_concurrent-segfault.md`

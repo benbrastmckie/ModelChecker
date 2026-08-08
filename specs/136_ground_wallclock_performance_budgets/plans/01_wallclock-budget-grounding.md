@@ -1,7 +1,7 @@
 # Implementation Plan: Ground the Wall-Clock Performance Budgets
 
 - **Task**: 136 - ground_wallclock_performance_budgets
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: None (task 135 is complete through its Phase 6; its Phase 7 is absorbed here — see "Relationship to Task 135")
 - **Research Inputs**: specs/136_ground_wallclock_performance_budgets/reports/01_wallclock-budget-grounding.md
