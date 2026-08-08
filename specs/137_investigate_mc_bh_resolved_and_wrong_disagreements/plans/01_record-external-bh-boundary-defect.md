@@ -252,13 +252,13 @@ and fails loudly on any deviation.
 
 ---
 
-### Phase 4: Record the upstream BimodalHarness defect [NOT STARTED]
+### Phase 4: Record the upstream BimodalHarness defect [COMPLETED]
 
 **Goal**: A standalone, fileable defect record for the external project, plus repository
 navigation pointing at it.
 
 **Tasks**:
-- [ ] Create `oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md` covering:
+- [x] Create `oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md` covering:
   - Scope statement: defects in *external* reference oracles that this repository's differential
     suite accommodates, and the standing rule that an accommodation is deleted once upstream
     fixes the defect.
@@ -280,9 +280,9 @@ navigation pointing at it.
     before scanning.
   - Removal criterion: when upstream fixes this, the differential test's staleness assertion
     fires; the correct response is to delete the accommodation, not to relax the assertion.
-- [ ] Add a short "Known External Oracle Defects" section to `oracle/bimodal_logic/README.md`
+- [x] Add a short "Known External Oracle Defects" section to `oracle/bimodal_logic/README.md`
   pointing at the new file, and add `ground_truth.py` to the README's Layout tree.
-- [ ] Use durable anchors only — file paths, symbol names, section headings. No task numbers
+- [x] Use durable anchors only — file paths, symbol names, section headings. No task numbers
   anywhere in either file (pre-existing task references elsewhere in README.md are out of scope
   for this plan and are not to be relied on as precedent).
 

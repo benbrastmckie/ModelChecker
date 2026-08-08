@@ -19,6 +19,10 @@ oracle/bimodal_logic/
 ├── provider.py            # Z3OracleProvider — the oracle's find_countermodel() implementation
 ├── serialization.py       # Z3 model -> JSON countermodel serialization
 ├── translation.py         # Formula JSON <-> prefix/infix, fold/unfold, temporal_depth
+├── ground_truth.py         # Independent brute-force ground-truth evaluator (adjudicates
+│                            # MC/BimodalHarness disagreements; see "Known External Oracle
+│                            # Defects" below)
+├── KNOWN_EXTERNAL_DEFECTS.md  # Fileable record of defects in external reference oracles
 ├── tests/                 # Oracle's own test suite (see "Running Tests" below)
 └── README.md              # This file
 ```
@@ -142,6 +146,16 @@ marker's existence — never whether the pytest/scan_runner.py process is still 
 only sanctioned signal that a run finished. `run-oracle-exhaustive-scan.sh`'s summary checks for
 this marker explicitly and reports "scan did not reach completion" if it is absent, even if the
 process itself exited.
+
+## Known External Oracle Defects
+
+The differential test suite (`tests/test_cross_oracle_differential.py`) compares this package's
+oracle against BimodalHarness, a separately-maintained external project. When ground truth
+(`ground_truth.py`, an independent brute-force decision procedure) sides with this oracle against
+BimodalHarness, the disagreement is a confirmed **external** defect, not something to fix in this
+repository. See `KNOWN_EXTERNAL_DEFECTS.md` for the current record — a boundary-scan defect in
+BimodalHarness's `find_countermodel` — including root cause, affected formulas, reproduction, and
+the removal criterion for once BimodalHarness is fixed upstream.
 
 ## Relationship to the In-Package Bimodal Suite
 
