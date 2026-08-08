@@ -266,24 +266,48 @@ reason.
 
 ---
 
-### Phase 4: Full regression run and residual-ceiling sweep [NOT STARTED]
+### Phase 4: Full regression run and residual-ceiling sweep [COMPLETED]
 
 **Goal**: Confirm one authoritative ceiling repo-wide and a green suite.
 
 **Tasks**:
-- [ ] Run the full suite: `PYTHONPATH=code/src pytest code/tests/ -v` and
+- [x] Run the full suite: `PYTHONPATH=code/src pytest code/tests/ -v` and
       `PYTHONPATH=code/src pytest code/src/model_checker/ -q`. Record pass/fail counts.
-- [ ] Run the slow test that actually constructs `N = MAX_N`
+      `code/tests/`: **283 passed, 0 failed** (in 30.11s). `code/src/model_checker/`: **1906
+      passed, 0 failed** (in 342.55s / 5:42 — this run needed to go to background because it
+      exceeded the interactive 120s window, not because anything hung).
+- [x] Run the slow test that actually constructs `N = MAX_N`
       (`code/src/model_checker/models/tests/unit/test_semantic.py::TestSemanticDefaultsNBounds`,
       including the `@pytest.mark.slow` case) to confirm the advertised limit is still honest.
-- [ ] Sweep for residual live claims: `grep -rn "<= *64\|N.*64\|'N': *6[45]" code/src code/tests docs code/docs`
+      Re-ran the module standalone to confirm the slow case specifically:
+      `TestSemanticDefaultsNBounds::test_max_n_itself_is_constructible` passed (part of "12
+      passed, 11 subtests passed" for the whole module). `addopts` carries no `-m "not slow"`
+      filter (confirmed in `code/pyproject.toml:86,92` — that quarantine was already removed by
+      prior work), so this case also ran inside the 1906-passed full-suite number above.
+- [x] Sweep for residual live claims: `grep -rn "<= *64\|N.*64\|'N': *6[45]" code/src code/tests docs code/docs`
       and confirm every remaining hit is on the Non-Goals allow-list (historical record, style
-      example, performance observation, or intentional over-limit probe).
-- [ ] Confirm no shipped theory default changed: `DEFAULT_EXAMPLE_SETTINGS['N']` remains
-      logos=16, imposition=3, exclusion=3, bimodal=2.
-- [ ] Confirm `all_states` in `models/semantic.py` is untouched (eager list preserved).
-- [ ] If any pre-existing failure is encountered that this task did not cause, report it
-      explicitly rather than fixing it silently or attributing it to this work.
+      example, performance observation, or intentional over-limit probe). All hits accounted for:
+      `models/tests/unit/test_semantic.py:102,111` (the models-layer guard's own reject-N=64
+      test — this *is* the enforcement, not a stale claim; `models/semantic.py` and its tests are
+      explicitly out of scope per Non-Goals); `test_performance.py:365,370` and
+      `test_timeout_resources.py:84,245` (allow-listed intentional over-limit probes);
+      `test_system_boundaries.py:265` (the string-type-rejection test, not a ceiling claim);
+      `QUANTIFIER_SOLVERS.md:561`, `ITERATE.md:192,219`, `KNOWN_TEST_FAILURES.md:138`,
+      `AUDIENCE.md:112,222` (allow-listed). *(deviation: the sweep additionally surfaced two hits
+      not named in the plan's original list — `theory_lib/logos/docs/SETTINGS.md:311` ("N=6
+      creates 64 possible states") and `docs/theory/imposition/reports/imposition_comparison/
+      modals_defined.md:734` ("N=6, generating state spaces with 64 states") — both are the same
+      2^N arithmetic fact as the already-allow-listed `ITERATE.md`/`QUANTIFIER_SOLVERS.md`
+      entries, not a system-ceiling claim, so left untouched under the same non-normative
+      category rather than expanding scope.)*
+- [x] Confirm no shipped theory default changed: `DEFAULT_EXAMPLE_SETTINGS['N']` remains
+      logos=16, imposition=3, exclusion=3, bimodal=2. Confirmed by direct grep of each theory's
+      `semantic/core.py`.
+- [x] Confirm `all_states` in `models/semantic.py` is untouched (eager list preserved). Confirmed:
+      `git diff` against `theory_lib/` and `models/semantic.py` is empty for this task's commits.
+- [x] If any pre-existing failure is encountered that this task did not cause, report it
+      explicitly rather than fixing it silently or attributing it to this work. None encountered —
+      both full-suite runs were 100% green.
 
 **Timing**: 0.75 hours
 
@@ -300,14 +324,14 @@ reason.
 
 ## Testing & Validation
 
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/settings/ -v` green with new N range tests
-- [ ] `PYTHONPATH=code/src pytest code/tests/integration/ -v` green
-- [ ] `PYTHONPATH=code/src pytest code/src/model_checker/models/tests/unit/test_semantic.py -v` green (including the slow N=MAX_N construction case)
-- [ ] `PYTHONPATH=code/src pytest code/tests/ -v` full-suite green
-- [ ] Out-of-range `N` produces a settings-layer `RangeError` naming the setting and the limit, before construction
-- [ ] Non-integer `N` produces a clear validation error, not a bare `TypeError`
-- [ ] No file outside `models/semantic.py` hardcodes an N ceiling
-- [ ] No new skips, xfails, or `@pytest.mark.slow` quarantines introduced
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/settings/ -v` green with new N range tests (24 passed)
+- [x] `PYTHONPATH=code/src pytest code/tests/integration/ -v` green (part of the 283-passed `code/tests/` run)
+- [x] `PYTHONPATH=code/src pytest code/src/model_checker/models/tests/unit/test_semantic.py -v` green (including the slow N=MAX_N construction case) (12 passed, 11 subtests passed)
+- [x] `PYTHONPATH=code/src pytest code/tests/ -v` full-suite green (283 passed)
+- [x] Out-of-range `N` produces a settings-layer `RangeError` naming the setting and the limit, before construction
+- [x] Non-integer `N` produces a clear validation error, not a bare `TypeError`
+- [x] No file outside `models/semantic.py` hardcodes an N ceiling (residual-64 sweep: all remaining hits allow-listed)
+- [x] No new skips, xfails, or `@pytest.mark.slow` quarantines introduced
 
 ## Artifacts & Outputs
 

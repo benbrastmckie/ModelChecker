@@ -1,26 +1,30 @@
 {
   "$schema": "orchestrator-handoff-v1",
-  "phase": "plan",
-  "status": "planned",
-  "summary": "Four-phase plan written to make models.semantic.MAX_N (=20) the single authoritative N ceiling. Phase 1 adds a settings-layer N range check via the existing _validate_setting_range helper; Phase 2 rewrites 8 stale N<=64 declaration sites to be MAX_N-relative; Phase 3 corrects docs/architecture/BUILDER.md; Phase 4 runs the full suite and a residual-64 sweep. Phases 1 and 2 have disjoint territories and can run in parallel. No lazy-all_states refactor (resolved: exponential is inherent to imposition/logos consumers).",
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "Implemented all 4 phases making models.semantic.MAX_N (=20) the single authoritative N ceiling. Added a settings-layer RangeError/ValidationError guard, rewrote 8 stale N<=64 declaration sites to be MAX_N-relative, corrected BUILDER.md's wrong ceiling/reason, and confirmed via full regression (283 passed in code/tests/, 1906 passed in code/src/model_checker/, including the slow N=MAX_N construction test) plus a residual-64 sweep that only allow-listed non-normative hits remain.",
   "artifacts": [
-    {
-      "type": "plan",
-      "path": "specs/134_reconcile_n_bound_contract_and_state_space/plans/01_reconcile-n-bound-contract.md"
-    }
+    {"type": "summary", "path": "specs/134_reconcile_n_bound_contract_and_state_space/summaries/01_reconcile-n-bound-summary.md"}
   ],
   "blockers": [],
-  "next_action_hint": "implement",
+  "next_action_hint": "none",
   "files_modified": [
-    "specs/134_reconcile_n_bound_contract_and_state_space/plans/01_reconcile-n-bound-contract.md"
+    "code/src/model_checker/settings/settings.py",
+    "code/src/model_checker/settings/tests/unit/test_error_handling.py",
+    "code/src/model_checker/settings/tests/conftest.py",
+    "code/tests/utils/assertions.py",
+    "code/tests/integration/test_settings_system.py",
+    "code/tests/integration/test_system_boundaries.py",
+    "code/tests/integration/test_error_handling.py",
+    "docs/architecture/BUILDER.md",
+    "code/docs/implementation/ERROR_HANDLING.md"
   ],
   "decisions_made": [
-    "all_states stays eagerly materialized; no laziness refactor in scope",
-    "No shipped theory DEFAULT_EXAMPLE_SETTINGS['N'] changes (logos=16 has headroom under MAX_N=20)",
-    "Settings check goes in validate_example_settings: no CLI/flag path supplies N, so a post-apply_flag_overrides check is unnecessary",
-    "Int-ness must be validated before _validate_setting_range, which would otherwise TypeError on a string N",
-    "settings/tests/conftest.py invalid_settings fixture has no consumers; Phase 1 deletes it if that holds repo-wide"
+    "all_states stays eagerly materialized; no laziness refactor (imposition/logos consumers are already worse than linear)",
+    "No shipped theory DEFAULT_EXAMPLE_SETTINGS['N'] changed (logos=16, imposition=3, exclusion=3, bimodal=2)",
+    "Deleted the dead invalid_settings conftest fixture (confirmed zero consumers) rather than converting it"
   ],
   "dead_ends": [],
-  "phases_total": 4
+  "phases_total": 4,
+  "plan_markers_verified": true
 }
