@@ -304,7 +304,14 @@ all per-class and per-method `slow` marks, and cut the largest cap-burn in the s
 
 ---
 
-### Phase 4: Marker sweep and filtered-suite verification [NOT STARTED]
+### Phase 4: Marker sweep and filtered-suite verification [COMPLETED]
+
+**Deviation from the task list**: the task text above predicted "5 [deletions] from the builder
+file, 1 from the timeout file" (6). The per-phase disposition tables specify **4** builder
+deletions and **1** timeout-file deletion (5). The collected count confirms 5 is correct:
+2195 baseline - 5 = **2190** collected unfiltered. No fallback deletions were needed in Phases
+2 or 3 — every intended behavioural property was verified to hold before the conversion.
+
 
 **Goal**: Confirm exactly one `slow`-marked test remains repo-wide and that the still-filtered
 default suite is green, before the quarantine clause is removed.
