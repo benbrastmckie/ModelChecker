@@ -158,14 +158,14 @@ and checked.
 
 ---
 
-### Phase 2: Disagreement classifier with unit tests [NOT STARTED]
+### Phase 2: Disagreement classifier with unit tests [COMPLETED]
 
 **Goal**: A pure, Z3-free function that adjudicates a single MC/BH disagreement against ground
 truth and returns exactly one of three outcomes, with the "cannot adjudicate" case explicit
 rather than swallowed.
 
 **Tasks**:
-- [ ] Write `oracle/bimodal_logic/tests/test_disagreement_classification.py` FIRST (RED),
+- [x] Write `oracle/bimodal_logic/tests/test_disagreement_classification.py` FIRST (RED),
   driving the classifier with synthetic `mc_sat`/`bh_sat` values so no solver is invoked:
   - Ground truth UNSAT, `mc_sat=False`, `bh_sat=True` -> `external_bh_defect` (use one of the 12).
   - Ground truth UNSAT, `mc_sat=True`, `bh_sat=False` -> `mc_soundness_bug` (same formula,
@@ -174,10 +174,10 @@ rather than swallowed.
   - A `box`-containing formula -> `unclassified` (exception mapped, not propagated).
   - Agreement (`mc_sat == bh_sat`) is rejected as a programming error rather than silently
     classified.
-- [ ] Confirm RED, then implement `classify_disagreement(formula_json, mc_sat, bh_sat) -> str` in
+- [x] Confirm RED, then implement `classify_disagreement(formula_json, mc_sat, bh_sat) -> str` in
   a new `oracle/bimodal_logic/tests/ground_truth_classify.py` (test-support module; `pytest`'s
   `python_files = "test_*.py"` means it is not collected as a test).
-- [ ] Keep the three outcome strings as module-level named constants so the differential test and
+- [x] Keep the three outcome strings as module-level named constants so the differential test and
   the defect record refer to the same tokens.
 
 **Timing**: 1 hour
