@@ -154,6 +154,10 @@ class SettingsManager:
                     f"Invalid solver value '{solver_value}'. Must be one of: {valid_solvers}"
                 )
 
+        # Validate N field if present
+        if 'N' in merged_settings:
+            self._validate_n_setting(merged_settings['N'])
+
         return merged_settings
     
     def apply_flag_overrides(self, settings: SettingsDict, module_flags: Any) -> SettingsDict:
@@ -324,8 +328,36 @@ class SettingsManager:
         except (ValueError, TypeError) as e:
             raise TypeConversionError(setting_name, value, expected_type) from e
     
-    def _validate_setting_range(self, setting_name: SettingName, value: SettingValue, 
-                               min_value: Optional[SettingValue] = None, 
+    def _validate_n_setting(self, value: SettingValue) -> None:
+        """Validate that the N setting is an integer within [1, MAX_N].
+
+        MAX_N is imported from model_checker.models.semantic, the single
+        authoritative source for the N ceiling (see SemanticDefaults._validate_N,
+        which enforces the same bound at construction time). This settings-layer
+        check gives a RangeError naming the setting before any semantics class
+        is constructed.
+
+        Args:
+            value: The N value to validate
+
+        Raises:
+            ValidationError: If value is not an int (bool excluded, since bool
+                is an int subclass in Python but not a meaningful N value)
+            RangeError: If value is an int outside [1, MAX_N]
+        """
+        from model_checker.models.semantic import MAX_N
+
+        if not isinstance(value, int) or isinstance(value, bool):
+            raise ValidationError(
+                f"Setting 'N' must be an integer, got {type(value).__name__}",
+                setting='N',
+                suggestion=f"Provide an integer between 1 and {MAX_N}"
+            )
+
+        self._validate_setting_range('N', value, min_value=1, max_value=MAX_N)
+
+    def _validate_setting_range(self, setting_name: SettingName, value: SettingValue,
+                               min_value: Optional[SettingValue] = None,
                                max_value: Optional[SettingValue] = None) -> None:
         """Validate that a setting is within the acceptable range.
         

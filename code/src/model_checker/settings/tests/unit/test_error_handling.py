@@ -8,6 +8,7 @@ from model_checker.settings.errors import (
     RangeError, MissingRequiredError, UnknownSettingError,
     TheoryCompatibilityError
 )
+from model_checker.models.semantic import MAX_N
 
 
 class TestErrorHandling(unittest.TestCase):
@@ -24,6 +25,7 @@ class TestErrorHandling(unittest.TestCase):
             "iterate": 1,
         }
         mock_semantics.DEFAULT_EXAMPLE_SETTINGS = {
+            "N": 3,
             "proposition_letters": [],
             "formula": None,
             "max_depth": 10,
@@ -140,7 +142,58 @@ class TestErrorHandling(unittest.TestCase):
         manager._validate_setting_range("iterate", 5, min_value=1, max_value=100)
         manager._validate_setting_range("timeout", 300, min_value=1)
         manager._validate_setting_range("max_depth", 10, max_value=1000)
-    
+
+    def test_n_setting_range_validation(self):
+        """Test that validate_example_settings enforces the N range [1, MAX_N]."""
+        manager = SettingsManager(self.semantic_theory)
+
+        # Boundary values are accepted
+        result = manager.validate_example_settings({'N': 1})
+        self.assertEqual(result['N'], 1)
+
+        result = manager.validate_example_settings({'N': MAX_N})
+        self.assertEqual(result['N'], MAX_N)
+
+        # Above MAX_N raises RangeError naming the setting and the limit
+        with self.assertRaises(RangeError) as context:
+            manager.validate_example_settings({'N': MAX_N + 1})
+        error = context.exception
+        self.assertEqual(error.setting, 'N')
+        self.assertEqual(error.max_value, MAX_N)
+
+        # Zero and negative values raise RangeError naming the minimum
+        with self.assertRaises(RangeError) as context:
+            manager.validate_example_settings({'N': 0})
+        error = context.exception
+        self.assertEqual(error.setting, 'N')
+        self.assertEqual(error.min_value, 1)
+
+        with self.assertRaises(RangeError) as context:
+            manager.validate_example_settings({'N': -1})
+        error = context.exception
+        self.assertEqual(error.setting, 'N')
+        self.assertEqual(error.min_value, 1)
+
+    def test_n_setting_type_validation(self):
+        """Test that a non-integer N raises a clear validation error, not TypeError.
+
+        Covers a string numeral, a float, and a bool (bool is an int subclass in
+        Python, so it must be explicitly excluded rather than accidentally accepted).
+        """
+        manager = SettingsManager(self.semantic_theory)
+
+        with self.assertRaises(ValidationError) as context:
+            manager.validate_example_settings({'N': "2"})
+        self.assertEqual(context.exception.setting, 'N')
+
+        with self.assertRaises(ValidationError) as context:
+            manager.validate_example_settings({'N': 1.5})
+        self.assertEqual(context.exception.setting, 'N')
+
+        with self.assertRaises(ValidationError) as context:
+            manager.validate_example_settings({'N': True})
+        self.assertEqual(context.exception.setting, 'N')
+
     def test_error_str_formatting(self):
         """Test error message formatting."""
         # Test basic error

@@ -1,0 +1,26 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "plan",
+  "status": "planned",
+  "summary": "Four-phase plan written to make models.semantic.MAX_N (=20) the single authoritative N ceiling. Phase 1 adds a settings-layer N range check via the existing _validate_setting_range helper; Phase 2 rewrites 8 stale N<=64 declaration sites to be MAX_N-relative; Phase 3 corrects docs/architecture/BUILDER.md; Phase 4 runs the full suite and a residual-64 sweep. Phases 1 and 2 have disjoint territories and can run in parallel. No lazy-all_states refactor (resolved: exponential is inherent to imposition/logos consumers).",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/134_reconcile_n_bound_contract_and_state_space/plans/01_reconcile-n-bound-contract.md"
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "implement",
+  "files_modified": [
+    "specs/134_reconcile_n_bound_contract_and_state_space/plans/01_reconcile-n-bound-contract.md"
+  ],
+  "decisions_made": [
+    "all_states stays eagerly materialized; no laziness refactor in scope",
+    "No shipped theory DEFAULT_EXAMPLE_SETTINGS['N'] changes (logos=16 has headroom under MAX_N=20)",
+    "Settings check goes in validate_example_settings: no CLI/flag path supplies N, so a post-apply_flag_overrides check is unnecessary",
+    "Int-ness must be validated before _validate_setting_range, which would otherwise TypeError on a string N",
+    "settings/tests/conftest.py invalid_settings fixture has no consumers; Phase 1 deletes it if that holds repo-wide"
+  ],
+  "dead_ends": [],
+  "phases_total": 4
+}

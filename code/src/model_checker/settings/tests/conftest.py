@@ -19,15 +19,3 @@ def valid_settings():
         'max_time': 5,
         'iterate': 1
     }
-
-
-@pytest.fixture
-def invalid_settings():
-    """Create various invalid settings for testing."""
-    return [
-        {'N': 0},  # Invalid N value
-        {'N': 65},  # N too large
-        {'max_time': -1},  # Negative time
-        {'iterate': 0},  # Invalid iteration count
-        {}  # Missing required settings
-    ]
