@@ -1,7 +1,7 @@
 # Implementation Plan: Fix Concurrent Model-Building Segfault
 
 - **Task**: 135 - Fix concurrent model building segfault
-- **Status**: [IMPLEMENTING]
+- **Status**: [PARTIAL]
 - **Effort**: 8.5 hours
 - **Dependencies**: Phase 7 only — gated on Task 136 (`ground_wallclock_performance_budgets`) reaching `completed`. Phases 1-6 have no external dependencies.
 - **Research Inputs**: `specs/135_fix_concurrent_model_building_segfault/reports/01_concurrent-segfault.md`
@@ -453,21 +453,60 @@ concern was timing-sensitive results; it does not apply to exit-code-only sampli
 
 ---
 
-### Phase 6: Regression sweep [IN PROGRESS]
+### Phase 6: Regression sweep [COMPLETED]
 
 **Goal**: Confirm the guard did not break any sequential path, without depending on exclusive
 access to test infrastructure.
 
 **Tasks**:
-- [ ] Run the package unit suites per theory (`bimodal`, `logos`, `exclusion`, `imposition`)
+- [x] Run the package unit suites per theory (`bimodal`, `logos`, `exclusion`, `imposition`)
   as separate targeted invocations rather than one full-suite sweep, so a contended machine
-  does not turn one long run into an unreadable result.
-- [ ] Run `PYTHONPATH=code/src pytest code/tests/ -m "not slow"` (the current default filter)
+  does not turn one long run into an unreadable result. Results:
+  - `logos` — **40 passed** (0.45s)
+  - `exclusion` — **77 passed** (0.75s)
+  - `imposition` — **98 passed** (10.95s)
+  - `bimodal` — **258 passed, 1 failed** (58.01s):
+    `test_example_cases[BM_CM_4-example_case9]`. This is the same pre-existing, load-sensitive
+    flake Phase 2 documented, not a regression: re-run in isolation it **passed in 21.39s**
+    against its `max_time=30` budget, and it also **passed** in the full-scope sweep below. The
+    guard adds a lock acquire/release at constructor entry, not solve-time overhead, so it
+    cannot turn a 21s solve into a 30s+ one.
+- [x] Run `PYTHONPATH=code/src pytest code/tests/ -m "not slow"` (the current default filter)
   and compare the failure set against the documented baseline in
-  `code/docs/core/KNOWN_TEST_FAILURES.md`. No new failures permitted.
-- [ ] Run `PYTHONPATH=code/src pytest code/tests/integration/test_performance.py code/tests/integration/test_timeout_resources.py -m slow` to confirm the still-quarantined timing tests behave as before (their pass/fail state is load-sensitive by design — record observed load, do not treat a timing failure here as a regression from this task).
-- [ ] Note in the phase record whether the oracle suite was running concurrently, since it
-  affects timing-sensitive results.
+  `code/docs/core/KNOWN_TEST_FAILURES.md`. No new failures permitted. **257 passed, 0 failed,
+  30 deselected** (9.15s).
+  Because the documented baseline was measured at the wider `tests/ src/model_checker/` scope,
+  that scope was also run for an apples-to-apples comparison:
+  `PYTHONPATH=code/src pytest code/tests/ code/src/model_checker/` -> **2154 passed, 0 failed,
+  41 deselected, exit 0** (5:14).
+
+  | Metric | Documented baseline | This run | Delta |
+  |--------|--------------------|----------|-------|
+  | Passed | 2137 | 2154 | +17 |
+  | Failed | 0 | **0** | 0 |
+  | Deselected | 43 | 41 | -2 |
+
+  Both deltas are fully accounted for, with no unexplained movement: the **-2 deselected** is
+  exactly the two crash tests, now unmarked and running (confirming the 43 -> 41 claim Phase 5
+  wrote into `KNOWN_TEST_FAILURES.md`); the **+17 passed** is those same 2 tests plus the 15
+  new guard unit tests in `models/tests/unit/test_concurrency.py` (count verified by
+  `--collect-only`: 15 tests). The failure set is empty, i.e. equal to the baseline. No new
+  failures.
+- [x] Run `PYTHONPATH=code/src pytest code/tests/integration/test_performance.py code/tests/integration/test_timeout_resources.py -m slow` to confirm the still-quarantined timing tests behave as before (their pass/fail state is load-sensitive by design — record observed load, do not treat a timing failure here as a regression from this task).
+  **1 failed, 29 passed, 2 deselected** (42.08s). The single failure is
+  `TestExecutionPerformance::test_simple_model_performance`, failing on
+  `assert elapsed < 1.0` at **1.09s** — matching the "~1.09 s" figure already recorded in
+  `KNOWN_TEST_FAILURES.md`'s "The 3 failing tests" table verbatim. This is one of the three
+  documented ungrounded wall-clock budgets owned by Task 136, is not a correctness failure, and
+  is explicitly out of scope here per this plan's Non-Goals. The 2 deselected under `-m slow`
+  are the two rewritten contract tests — independent re-confirmation that the Phase 3 marker
+  relocation holds.
+- [x] Note in the phase record whether the oracle suite was running concurrently, since it
+  affects timing-sensitive results. **The oracle suite (`oracle/run-oracle-suite.sh`, PID
+  405013) was running concurrently for every run in this phase.** Observed load average ranged
+  1.84-2.49 (1-min) on 24 cores. This is the most likely explanation for the `BM_CM_4`
+  full-suite flake and is consistent with `test_simple_model_performance` landing just 9% over
+  a 1.0s budget. No `oracle/` test was run by this phase; the sibling task owns that surface.
 
 **Timing**: 1 hour
 
@@ -534,16 +573,20 @@ jq -r '.active_projects[] | select(.project_number==136) | .status' specs/state.
 
 ## Testing & Validation
 
-- [ ] Guard unit tests pass, covering reentrancy, cross-thread rejection, and release-on-exception.
-- [ ] `test_sequential_vs_concurrent` passes 20/20 isolated subprocess runs (exit code 0).
-- [ ] `test_concurrent_model_building` passes 20/20 isolated subprocess runs (exit code 0).
-- [ ] Both tests together pass 20/20 isolated subprocess runs.
-- [ ] Neither test is skipped, `xfail`ed, or marked `slow`.
-- [ ] Theory unit suites (bimodal, logos, exclusion, imposition) green — no sequential regression.
-- [ ] Iterate suites green — same-thread nesting still works.
-- [ ] `-m "not slow"` failure set no worse than the documented baseline.
-- [ ] Contract documented in `ARCHITECTURE.md` and reachable from class docstrings.
-- [ ] (Gated) unfiltered `pytest code/tests/` green across 3 repeat runs.
+- [x] Guard unit tests pass, covering reentrancy, cross-thread rejection, and release-on-exception. (15 tests)
+- [x] `test_sequential_vs_concurrent` passes 20/20 isolated subprocess runs (exit code 0).
+- [x] `test_concurrent_model_building` passes 20/20 isolated subprocess runs (exit code 0).
+- [x] Both tests together pass 20/20 isolated subprocess runs.
+- [x] Neither test is skipped, `xfail`ed, or marked `slow`. (Both deselected under `-m slow`,
+  both selected in the default run.)
+- [x] Theory unit suites (bimodal, logos, exclusion, imposition) green — no sequential regression.
+  (One pre-existing load-sensitive bimodal flake, passes in isolation and in the full-scope run.)
+- [x] Iterate suites green — same-thread nesting still works. (220 passed, verified in Phase 2;
+  re-covered by the full-scope 2154-passed sweep in Phase 6.)
+- [x] `-m "not slow"` failure set no worse than the documented baseline. (0 failures vs 0.)
+- [x] Contract documented in `ARCHITECTURE.md` and reachable from class docstrings.
+- [ ] (Gated) unfiltered `pytest code/tests/` green across 3 repeat runs. **BLOCKED on Task 136**
+  — Phase 7 not started; `code/pyproject.toml` deliberately untouched.
 
 ## Artifacts & Outputs
 

@@ -1,0 +1,48 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "partial",
+  "summary": "Phases 1-6 complete. The concurrent model-building segfault is fixed by a fail-fast, thread-reentrant single-threaded-construction guard raising ConcurrentConstructionError; validated by 60/60 isolated subprocess runs (three batches of 20) against a 5/8 and 6/6 pre-fix crash baseline. Regression sweep is clean: 2154 passed, 0 failed, 41 deselected vs a 2137/0/43 baseline, with every delta accounted for. Phase 7 (removing the -m \"not slow\" quarantine) is hard-blocked on task 136 and was deliberately not attempted; code/pyproject.toml is untouched.",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/135_fix_concurrent_model_building_segfault/summaries/01_single-threaded-construction-guard-summary.md"
+    },
+    {
+      "type": "plan",
+      "path": "specs/135_fix_concurrent_model_building_segfault/plans/01_single-threaded-construction-guard.md"
+    }
+  ],
+  "blockers": [
+    {
+      "description": "Phase 7 (delete the -m \"not slow\" clause from code/pyproject.toml addopts) is gated on task 136 (ground_wallclock_performance_budgets), whose status in specs/state.json is 'not_started'. The quarantine clause covers two independent defects: the two interpreter-crashing concurrency tests (fixed by this task) and three ungrounded wall-clock budget assertions (owned by task 136). One of those three, tests/integration/test_performance.py::TestExecutionPerformance::test_simple_model_performance, was observed failing again in Phase 6 at 1.09s against its 1.0s budget. Removing the quarantine now would re-break the default run. Unblock by completing task 136, then run Phase 7: delete the clause, delete the TEMPORARY comment block at code/pyproject.toml:85-103, update the 'slow' marker description, and run the unfiltered suite 3 times as separate invocations requiring an identical green result set.",
+      "phase": "phase-7",
+      "severity": "hard"
+    }
+  ],
+  "next_action_hint": "none",
+  "files_modified": [
+    "specs/135_fix_concurrent_model_building_segfault/plans/01_single-threaded-construction-guard.md",
+    "specs/135_fix_concurrent_model_building_segfault/evidence/repeat-sample-results.md",
+    "specs/135_fix_concurrent_model_building_segfault/evidence/phase4-batch1.txt",
+    "specs/135_fix_concurrent_model_building_segfault/evidence/phase4-batch2.txt",
+    "specs/135_fix_concurrent_model_building_segfault/evidence/phase4-batch3.txt",
+    "specs/135_fix_concurrent_model_building_segfault/handoffs/phase-4-handoff-1786291800.md",
+    "specs/135_fix_concurrent_model_building_segfault/handoffs/phase-6-handoff-1786292400.md",
+    "specs/135_fix_concurrent_model_building_segfault/summaries/01_single-threaded-construction-guard-summary.md"
+  ],
+  "decisions_made": [
+    "Phase 4's 60 subprocess samples were run with the oracle suite still active rather than deferred: those runs judge process exit codes only and assert no wall-clock, so CPU contention cannot skew them, and contention is a stronger probe for a scheduling-dependent race than an idle machine.",
+    "Phase 6 additionally ran the wider 'code/tests/ code/src/model_checker/' scope because the documented baseline in KNOWN_TEST_FAILURES.md was measured at that scope; the plan's literal narrower 'code/tests/' command alone could not support the baseline comparison it was asked to support. Both were run and recorded.",
+    "The bimodal BM_CM_4 full-suite failure was classified as the pre-existing load-sensitive flake, not a regression, on the evidence that it passes in isolation at 21.39s against a 30s budget and passed in the full-scope sweep.",
+    "Phase 7 was not attempted and code/pyproject.toml was left untouched, per the plan's own gate and the dispatch instruction."
+  ],
+  "dead_ends": [],
+  "continuation_context": {
+    "handoff_path": "specs/135_fix_concurrent_model_building_segfault/handoffs/phase-6-handoff-1786292400.md",
+    "phases_completed": 6,
+    "phases_total": 7,
+    "orchestrator_mode": true
+  },
+  "plan_markers_verified": true
+}
