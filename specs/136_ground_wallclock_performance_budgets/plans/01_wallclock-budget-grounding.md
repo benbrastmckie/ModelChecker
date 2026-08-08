@@ -252,7 +252,7 @@ five per-class `slow` marks. `TestConcurrentPerformance` is not touched.
 
 ---
 
-### Phase 3: Timeout/resources file — dispositions, cap-burn, unmark [NOT STARTED]
+### Phase 3: Timeout/resources file — dispositions, cap-burn, unmark [COMPLETED]
 
 **Goal**: Apply every disposition to `code/tests/integration/test_timeout_resources.py`, remove
 all per-class and per-method `slow` marks, and cut the largest cap-burn in the set.

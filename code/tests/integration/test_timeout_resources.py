@@ -11,21 +11,17 @@ from unittest.mock import patch, Mock
 from tests.utils.helpers import create_test_module, create_test_model
 from model_checker.models.concurrency import ConcurrentConstructionError
 
-# Timing/subprocess-timeout assertions in this file are load-sensitive (see
-# TESTING_GUIDE.md 8.6): repeat full-suite sweeps have shown these budgets
-# tripped under concurrent load with no code change. Each class carrying
-# such assertions is marked "slow" so a default run can opt out via
-# `-m "not slow"` for deterministic results; run with `-m slow` (or no -m
-# filter) to validate actual timeout/resource handling. This was previously
-# a single module-level `pytestmark = pytest.mark.slow`; it is now applied
-# per-class (per-method within TestResourceLimits, which mixes timing-
-# sensitive tests with the single-threaded-construction contract test) so
-# that test_concurrent_model_building -- which asserts the documented
-# construction contract, not a wall-clock budget -- runs in the default
-# suite (see models/concurrency.py for the contract it pins).
+# The wall-clock budgets this file used to assert have been removed. They were
+# not measuring the code's cost: the bimodal theory's default `max_time` is 1
+# second, so every `create_test_model` call here measured
+# `min(real_solve_time, max_time) + overhead` and pinned near that cap. The
+# budgets sat a fraction of a second above a cap-pinned quantity (the tightest
+# had 0.01s of margin), which makes them coin flips rather than guards. The
+# second-scale budgets that remain are hang guards, marked as such in place --
+# they mean "did not hang", not "was fast" -- and `@pytest.mark.timeout(...)`
+# is the preferred mechanism where one applies.
 
 
-@pytest.mark.slow
 class TestTimeoutHandling:
     """Test timeout handling in various components."""
     
@@ -34,6 +30,10 @@ class TestTimeoutHandling:
 
         Note: Even with a short Z3 timeout, Python-side constraint generation
         takes time. We use a small N to keep constraint generation fast.
+
+        The 5s budgets below are hang guards, not performance budgets: the
+        measured cost is 0.07-0.09s, so the assertion means "did not hang",
+        with 55x headroom.
         """
         # Use small N to keep constraint generation fast
         settings = {
@@ -62,7 +62,12 @@ class TestTimeoutHandling:
             assert elapsed < 5.0  # Should timeout within reasonable time
     
     def test_cli_command_timeout(self, tmp_path):
-        """Test CLI respects timeout for long-running operations."""
+        """Test CLI respects timeout for long-running operations.
+
+        The 6s budget below is a hang guard, not a performance budget: it is
+        backed by the subprocess's own `timeout=5`, and the measured cost is
+        0.26-0.29s. The assertion means "the CLI did not hang".
+        """
         from tests.utils.helpers import run_cli_command
         
         # Create a module that would take long to process
@@ -91,7 +96,13 @@ example_range = {
     
     @pytest.mark.parametrize("timeout_value", [0.001, 0.01, 0.1])
     def test_various_timeout_values(self, timeout_value):
-        """Test handling of various timeout values."""
+        """Test the requested timeout reaches the constructed model.
+
+        This used to assert `settings['max_time'] == timeout_value` -- that
+        the dict it had just built contained what it put there, which is
+        tautological. The property worth pinning is that the setting survives
+        settings resolution and reaches the model.
+        """
         settings = {
             'N': 5,
             'max_time': timeout_value
@@ -99,25 +110,26 @@ example_range = {
 
         try:
             model = create_test_model(settings)
-            # Should handle all positive timeout values
-            assert settings['max_time'] == timeout_value
         except Exception:
             # Very small timeouts might fail immediately
             assert timeout_value < 0.01
+            return
+
+        # Should handle all positive timeout values
+        assert model.max_time == timeout_value
+        assert model.settings['max_time'] == timeout_value
 
 
 class TestResourceLimits:
     """Test resource limit handling.
 
     Mixed class: test_large_state_space and test_many_propositions are
-    resource-handling tests (no wall-clock assertions of their own, but
-    the large-N model construction they exercise is expensive enough to
-    keep behind the "slow" opt-out), marked individually below since the
-    class as a whole also hosts test_concurrent_model_building, which must
-    NOT be marked slow (see that test's docstring and models/concurrency.py).
+    resource-handling tests with no wall-clock assertions of their own;
+    test_concurrent_model_building pins the single-threaded-construction
+    contract (see that test's docstring and models/concurrency.py). None of
+    the three is marked "slow".
     """
 
-    @pytest.mark.slow
     def test_large_state_space(self):
         """Test handling of large state spaces."""
         # Test increasing N values
@@ -135,7 +147,6 @@ class TestResourceLimits:
                 # Other exceptions should be informative
                 assert "memory" in str(e).lower() or "resource" in str(e).lower()
     
-    @pytest.mark.slow
     def test_many_propositions(self):
         """Test handling of many propositions."""
         # Create many propositions
@@ -147,10 +158,12 @@ class TestResourceLimits:
         try:
             # This might stress memory with many propositions
             model = create_test_model(settings, premises=assumptions)
-            # Should handle many propositions
         except MemoryError:
             # Acceptable for extreme cases
-            pass
+            return
+
+        # Should handle many propositions
+        assert model is not None
     
     def test_concurrent_model_building(self):
         """Pins the single-threaded-only model-construction contract at 5
@@ -216,24 +229,15 @@ class TestResourceLimits:
         )
 
 
-@pytest.mark.slow
 class TestInterruptHandling:
     """Test handling of interrupts and cancellation."""
-    
-    def test_keyboard_interrupt_cleanup(self, tmp_path):
-        """Test cleanup occurs on keyboard interrupt."""
-        from tests.utils.helpers import run_cli_command
-        
-        content = '''
-import time
-time.sleep(10)  # Long sleep to allow interrupt
-'''
-        module_path = create_test_module(content, tmp_path, 'interrupt.py')
-        
-        # This would need actual interrupt testing
-        # For now, just verify the module is valid
-        assert module_path
-    
+
+    # A `test_keyboard_interrupt_cleanup` test used to live here. It created a
+    # module containing `time.sleep(10)` and then asserted only that the
+    # returned path was truthy -- it never sent an interrupt and tested nothing
+    # about cleanup. It was deleted rather than left claiming coverage of
+    # interrupt handling that it did not provide.
+
     @pytest.mark.timeout(10)
     def test_graceful_shutdown(self):
         """Test graceful shutdown on resource-intensive operations.
@@ -259,12 +263,18 @@ time.sleep(10)  # Long sleep to allow interrupt
             pass
 
 
-@pytest.mark.slow
 class TestPerformanceDegradation:
-    """Test performance under degraded conditions."""
-    
+    """Test behaviour under constraint-heavy and larger-N conditions."""
+
     def test_performance_with_many_constraints(self):
-        """Test performance with many constraints."""
+        """Test a constraint-heavy construction terminates.
+
+        This used to assert `elapsed < max_time + 0.5` against a measured
+        1.14-1.17s. The 0.33s of margin sat above a value pinned by the
+        `max_time` cap itself, which is the same shape as the assertions that
+        did fail intermittently. What is asserted now is that the attempt
+        terminated, one way or the other.
+        """
         # Settings that create many constraints
         settings = {
             'N': 10,
@@ -275,46 +285,38 @@ class TestPerformanceDegradation:
             'max_time': 1.0
         }
 
-        start_time = time.time()
-
         try:
             model = create_test_model(settings)
-            elapsed = time.time() - start_time
-
-            # Should complete in reasonable time
-            assert elapsed < settings['max_time'] + 0.5  # Allow overhead
         except Exception:
-            # Should fail quickly if it can't handle
-            elapsed = time.time() - start_time
-            assert elapsed < settings['max_time'] + 0.5
-    
-    @pytest.mark.parametrize("n,expected_time", [
-        (2, 0.1),
-        (4, 0.5),
-        (8, 2.0),
-    ])
-    def test_scaling_behavior(self, n, expected_time):
-        """Test that processing time scales reasonably with N."""
+            # Failing rather than completing is acceptable here
+            return
+
+        assert model is not None
+
+    @pytest.mark.parametrize("n", [2, 4, 8])
+    def test_scaling_behavior(self, n):
+        """Test model construction terminates across a range of N.
+
+        This used to assert a per-N wall-clock budget. The tightest case had
+        as little as 0.01s of margin over a cap-pinned measurement, and the
+        N=8 case spent 4.1s purely burning down its own `max_time`. A small
+        fixed `max_time` is used instead: no timing is asserted, so there is
+        nothing to be gained by waiting out a longer cap.
+        """
         settings = {
             'N': n,
-            'max_time': expected_time * 2  # Allow 2x expected
+            'max_time': 0.05
         }
-
-        start_time = time.time()
 
         try:
             model = create_test_model(settings)
-            elapsed = time.time() - start_time
-
-            # Should not take much longer than expected
-            assert elapsed < expected_time * 3
         except Exception:
-            # Should timeout appropriately
-            elapsed = time.time() - start_time
-            assert elapsed < settings['max_time'] + 0.5
+            # Timing out is an acceptable outcome at this cap
+            return
+
+        assert model is not None
 
 
-@pytest.mark.slow
 class TestResourceRecovery:
     """Test resource recovery after errors."""
     
@@ -324,10 +326,13 @@ class TestResourceRecovery:
 
         initial_objects = len(gc.get_objects())
 
-        # Create and destroy multiple models
+        # Create and destroy multiple models. A small explicit `max_time` is
+        # used because this test never inspects the solve result -- it asserts
+        # only object-count growth -- so waiting out the theory's default
+        # 1-second cap ten times would be paid for nothing.
         for _ in range(10):
             try:
-                settings = {'N': 10}
+                settings = {'N': 10, 'max_time': 0.05}
                 model = create_test_model(settings)
                 del model
             except Exception:
@@ -356,8 +361,9 @@ class TestResourceRecovery:
             # psutil not available, skip detailed check
             initial_files = 0
         
-        # Create and process multiple files
-        for i in range(5):
+        # Create and process multiple files. Three iterations exercise
+        # handle-leak growth as well as five did, at 40% of the CLI cost.
+        for i in range(3):
             content = f'''
 from model_checker.theory_lib import bimodal
 theory = bimodal.get_theory()
