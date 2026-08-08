@@ -1,7 +1,7 @@
 # Implementation Plan: Task #137
 
 - **Task**: 137 - investigate_mc_bh_resolved_and_wrong_disagreements
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: 133, 139
 - **Research Inputs**: `specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/reports/01_mc-bh-soundness-disagreements.md`

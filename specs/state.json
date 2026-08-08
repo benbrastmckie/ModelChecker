@@ -174,6 +174,46 @@
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md",
           "type": "summary",
           "summary": "Phases 22-26 of 26: bimodal iterate.py restored, conformance/layering fully green with zero-xfail guard, docs reconciled, regression gate and wheel parity, ROADMAP decisions recorded"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-a-findings.md",
+          "type": "report",
+          "summary": "teammate a findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-b-findings.md",
+          "type": "report",
+          "summary": "teammate b findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-c-findings.md",
+          "type": "report",
+          "summary": "teammate c findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-d-findings.md",
+          "type": "report",
+          "summary": "teammate d findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md",
+          "type": "summary",
+          "summary": "phases 2 6 summary (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md",
+          "type": "summary",
+          "summary": "phases 1 9 summary (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/03_phases-10-17-summary.md",
+          "type": "summary",
+          "summary": "phases 10 17 summary (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/04_phases-18-21-summary.md",
+          "type": "summary",
+          "summary": "phases 18 21 summary (backfilled by --sync)"
         }
       ],
       "plan_metadata": {
@@ -286,6 +326,56 @@
           "path": "specs/117_review_cli_pypi_parity_nix_flake_release/summaries/03_stabilize-and-release-closeout-summary.md",
           "type": "summary",
           "summary": "Phase 5 classification findings, Phase 9 close-out record, and user handoff note"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-a-findings.md",
+          "type": "report",
+          "summary": "teammate a findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-b-findings.md",
+          "type": "report",
+          "summary": "teammate b findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-c-findings.md",
+          "type": "report",
+          "summary": "teammate c findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-d-findings.md",
+          "type": "report",
+          "summary": "teammate d findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md",
+          "type": "report",
+          "summary": "spawn analysis (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-a-findings.md",
+          "type": "report",
+          "summary": "teammate a findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-b-findings.md",
+          "type": "report",
+          "summary": "teammate b findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-c-findings.md",
+          "type": "report",
+          "summary": "teammate c findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-d-findings.md",
+          "type": "report",
+          "summary": "teammate d findings (backfilled by --sync)"
+        },
+        {
+          "path": "specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md",
+          "type": "plan",
+          "summary": "restore model checker release (backfilled by --sync)"
         }
       ],
       "previous_status": "planned",
@@ -311,7 +401,24 @@
       "created": "2026-07-18T19:30:01Z",
       "last_updated": "2026-07-18T19:47:25Z",
       "session_id": "sess_1784403302_7c03a0",
-      "completion_summary": "Drafted a 666-word email for a Python expert explaining ModelChecker's modular architecture, the live Syntax→ModelConstraints→ModelStructure→Z3→print pipeline, and the operator abstraction, culminating in the counterfactual/operators.py worked example. Source-verified against actual files."
+      "completion_summary": "Drafted a 666-word email for a Python expert explaining ModelChecker's modular architecture, the live Syntax→ModelConstraints→ModelStructure→Z3→print pipeline, and the operator abstraction, culminating in the counterfactual/operators.py worked example. Source-verified against actual files.",
+      "artifacts": [
+        {
+          "path": "specs/116_draft_email_modelchecker_architecture/reports/01_architecture-pipeline-operators.md",
+          "type": "report",
+          "summary": "architecture pipeline operators (backfilled by --sync)"
+        },
+        {
+          "path": "specs/116_draft_email_modelchecker_architecture/plans/01_email-draft.md",
+          "type": "plan",
+          "summary": "email draft (backfilled by --sync)"
+        },
+        {
+          "path": "specs/116_draft_email_modelchecker_architecture/summaries/01_email-draft-summary.md",
+          "type": "summary",
+          "summary": "email draft summary (backfilled by --sync)"
+        }
+      ]
     },
     {
       "project_number": 118,
@@ -424,6 +531,11 @@
           "path": "specs/120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md",
           "type": "plan",
           "summary": "5-phase implementation plan, all phases marked [COMPLETED] with per-checklist-item results and deviation notes recorded inline."
+        },
+        {
+          "path": "specs/120_restore_and_port_the_exclusion_and_imposition_theo/summaries/01_port-exclusion-imposition-summary.md",
+          "type": "summary",
+          "summary": "port exclusion imposition summary (backfilled by --sync)"
         }
       ],
       "session_id": "sess_1784861238_c08d5c_120"
@@ -735,6 +847,16 @@
           "path": "specs/133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md",
           "type": "summary",
           "summary": "find_countermodel now three-valued; 3 sweeps measure disagreements=0; exhaustive scan SCAN_COMPLETE 103/0/171"
+        },
+        {
+          "path": "specs/133_fix_oracle_self_consistency_disagreements/reports/01_oracle-self-consistency.md",
+          "type": "report",
+          "summary": "oracle self consistency (backfilled by --sync)"
+        },
+        {
+          "path": "specs/133_fix_oracle_self_consistency_disagreements/plans/01_oracle-self-consistency.md",
+          "type": "plan",
+          "summary": "oracle self consistency (backfilled by --sync)"
         }
       ],
       "created": "2026-07-25T16:19:08Z",
@@ -746,7 +868,7 @@
     {
       "project_number": 134,
       "project_name": "reconcile_n_bound_contract_and_state_space",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "topic": "architecture",
       "description": "Reconcile the declared N bound with the enforced one, and decide whether the 2^N state space must stay eager. A fail-fast guard now rejects N outside [1, MAX_N] in models/semantic.py (MAX_N=20) before all_states is materialized, because the prior unbounded path did not fail on a large N -- it allocated 2^N BitVecVals until the machine died (measured: 24GB RSS in ~60s at N=64, on a 30GB host, inside an uninterruptible Z3 C call that no Python-level pytest timeout can stop). That guard fixed the immediate hang but left the codebase asserting two different contracts. The declared contract says N in [1,64]: code/tests/utils/assertions.py:123 assert_settings_valid enforces 1<=N<=64 as a pure dict check that constructs nothing, so tests/integration/test_error_handling.py::TestEdgeCases::test_valid_n_boundary_values[32], [63], and [64] still pass while asserting a range that cannot actually be built; test_invalid_n_boundary_values treats 65 as the first invalid value; and code/src/model_checker/settings/tests/conftest.py:29 carries a {N: 65} # N too large fixture premised on the same 64 ceiling. tests/integration/test_system_boundaries.py:204/215/216 likewise exercise N=64 and N=32 through the dict-only validator. Separately, the settings layer (settings/settings.py) has _validate_setting_range available but applies no bound to N at all, so the only real enforcement is the new models-layer guard -- meaning direct API and create_test_model callers are covered but the settings pipeline still advertises no limit. Work: (1) pick one authoritative N ceiling and propagate it to assertions.py, the settings validation pipeline, the boundary-test parameters, the settings conftest fixture, and any docs stating a 64 limit, so a single source defines it; (2) decide the deeper design question of whether all_states must remain an eagerly materialized list of 2^N BitVecVals -- consumers across imposition/semantic/model.py, logos/iterate.py and models/semantic.py:191 iterate it directly, so laziness alone would not raise the feasible ceiling much and the exponential may be inherent, but that should be established rather than assumed; (3) if the ceiling stays at 20, remove or re-scope logos DEFAULT_EXAMPLE_SETTINGS N=16 headroom concerns and confirm no shipped theory default sits near the limit. Note the shape of this defect matches the oracle find_countermodel issue: a resource limit reported as a silent wrong answer rather than an error.",
@@ -757,10 +879,28 @@
         "code/tests/utils/assertions.py",
         "code/tests/integration/"
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "path": "specs/134_reconcile_n_bound_contract_and_state_space/reports/01_reconcile-n-bound-contract.md",
+          "type": "report",
+          "summary": "reconcile n bound contract (backfilled by --sync)"
+        },
+        {
+          "path": "specs/134_reconcile_n_bound_contract_and_state_space/plans/01_reconcile-n-bound-contract.md",
+          "type": "plan",
+          "summary": "reconcile n bound contract (backfilled by --sync)"
+        },
+        {
+          "path": "specs/134_reconcile_n_bound_contract_and_state_space/summaries/01_reconcile-n-bound-summary.md",
+          "type": "summary",
+          "summary": "reconcile n bound summary (backfilled by --sync)"
+        }
+      ],
       "created": "2026-08-05T00:00:00Z",
-      "last_updated": "2026-08-05T00:00:00Z",
-      "next_artifact_number": 1
+      "last_updated": "2026-08-08T20:55:39Z",
+      "next_artifact_number": 1,
+      "session_id": "sess_1786219326_e8aed5_134",
+      "completion_summary": "Made models.semantic.MAX_N (=20) the single authoritative N ceiling: added a settings-layer N range check via _validate_setting_range, rewrote 8 stale N<=64 declaration sites (assertions.py, three integration boundary-test files, settings conftest fixture) to be MAX_N-relative, and corrected the wrong ceiling and wrong stated reason in BUILDER.md and ERROR_HANDLING.md. Established that all_states must stay eagerly materialized: three consumers (imposition/semantic/model.py, imposition/iterate.py, logos/iterate.py) do quadratic-to-cubic work per state with Z3 model.eval(), so the exponential is consumer-inherent and laziness would not raise the feasible ceiling. Full source-tree suite green at 1906 passed."
     },
     {
       "project_number": 135,
@@ -839,7 +979,7 @@
     {
       "project_number": 137,
       "project_name": "investigate_mc_bh_resolved_and_wrong_disagreements",
-      "status": "not_started",
+      "status": "completed",
       "task_type": "python",
       "topic": "oracle soundness",
       "description": "Investigate the 13 resolved-and-wrong soundness disagreements between the ModelChecker oracle and BimodalHarness. With the find_countermodel timeout/UNSAT conflation removed, 13 of 158 temporal-only formulas at complexity<=5 have BOTH oracles decide and disagree - a genuine semantic divergence previously masked by timeouts being reported as UNSAT. Tracked by the strict xfail on test_temporal_only_agreement_complexity_5 in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Determine which oracle is correct for each of the 13, root-cause the divergence, and fix the incorrect side. This is a soundness defect, not a performance or timeout issue.",
@@ -850,11 +990,28 @@
       "file_scope": [
         "oracle/bimodal_logic/"
       ],
-      "artifacts": [],
+      "artifacts": [
+        {
+          "path": "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/reports/01_mc-bh-soundness-disagreements.md",
+          "type": "report",
+          "summary": "mc bh soundness disagreements (backfilled by --sync)"
+        },
+        {
+          "path": "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/plans/01_record-external-bh-boundary-defect.md",
+          "type": "plan",
+          "summary": "record external bh boundary defect (backfilled by --sync)"
+        },
+        {
+          "path": "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/summaries/01_record-external-bh-boundary-defect-summary.md",
+          "type": "summary",
+          "summary": "record external bh boundary defect summary (backfilled by --sync)"
+        }
+      ],
       "created": "2026-08-06T01:32:28Z",
-      "last_updated": "2026-08-06T01:32:28Z",
-      "session_id": "sess_1785954627_07ebdc",
-      "next_artifact_number": 1
+      "last_updated": "2026-08-08T23:52:05Z",
+      "session_id": "sess_1786219326_e8aed5_137",
+      "next_artifact_number": 1,
+      "completion_summary": "Root-caused all 12 resolved-and-wrong MC/BimodalHarness temporal-only disagreements to ONE shared external defect: every one has the shape (TAUTOLOGY \\Until/\\Since Y), and an independent brute-force ground-truth evaluator confirms all 12 are genuinely valid, so ModelChecker is correct on every one and BimodalHarness is wrong on every one (spurious SAT from scanning its own finite frame boundary as a falsifying point). No ModelChecker semantics change was warranted. Replaced the unexplained strict xfail with ground-truth-adjudicated bucketing plus five ordered loud-failure assertions (budget floor, MC-wrong, unadjudicable, staleness, signature) so the suite fails if BH is fixed upstream or a differently-shaped defect appears. Promoted the evaluator to oracle/bimodal_logic/ground_truth.py and recorded the upstream defect in KNOWN_EXTERNAL_DEFECTS.md in fileable form. Live BH verification: external_bh_defect=12, mc_soundness_bug=0, unclassified=0, PASSED."
     },
     {
       "project_number": 138,

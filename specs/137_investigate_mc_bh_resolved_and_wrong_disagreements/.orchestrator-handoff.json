@@ -1,0 +1,41 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "All 5 plan phases complete and verified against the real BimodalHarness. test_temporal_only_agreement_complexity_5 now PASSES (xfail removed) with the live-measured external_bh_defect=12, mc_soundness_bug=0, unclassified=0, conclusive=56 of 158 -- all five ordered loud-failure assertions held without weakening. New ground_truth.py (independent brute-force evaluator, 12/12 confirmed formulas, window-stability-tested) and ground_truth_classify.py (solver-free three-way adjudicator) both TDD'd RED-then-GREEN. KNOWN_EXTERNAL_DEFECTS.md records the upstream BH boundary-scan defect in fileable form. One caveat: the broader `-m not slow` oracle regression pass showed 594 passed/4 failed; all 4 failures are Z3-timeout-based, in files this task never touched, and isolated reruns showed 3/4 pass alone -- diagnosed as pre-existing cross-agent Z3 contention on this machine, not a regression from this diff (full detail in the summary artifact).",
+  "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/summaries/01_record-external-bh-boundary-defect-summary.md",
+      "summary": "Implementation summary with real, unedited pytest output for the fast tests, the live BimodalHarness integration run, and the not-slow regression pass, plus the isolated-retry diagnosis of its 4 pre-existing failures."
+    },
+    {
+      "type": "plan",
+      "path": "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/plans/01_record-external-bh-boundary-defect.md",
+      "summary": "All 5 phases marked [COMPLETED] with inline verification notes and one documented deviation (window-stability test kept in the fast set, not marked slow, per its own 0.08s measurement)."
+    }
+  ],
+  "phases_total": 5,
+  "blockers": [],
+  "next_action_hint": "none",
+  "files_modified": [
+    "oracle/bimodal_logic/ground_truth.py",
+    "oracle/bimodal_logic/tests/test_ground_truth.py",
+    "oracle/bimodal_logic/tests/ground_truth_classify.py",
+    "oracle/bimodal_logic/tests/test_disagreement_classification.py",
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    "oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md",
+    "oracle/bimodal_logic/README.md",
+    "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/plans/01_record-external-bh-boundary-defect.md",
+    "specs/137_investigate_mc_bh_resolved_and_wrong_disagreements/summaries/01_record-external-bh-boundary-defect-summary.md"
+  ],
+  "decisions_made": [
+    "Ground-truth adjudication (classify_disagreement) confirmed live against the real BimodalHarness, not just synthetically: all 12 disagreements landed in external_bh_defect with the documented mc_sat=False/bh_sat=True signature, zero in mc_soundness_bug or unclassified",
+    "MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS set to 45 (below the live-measured conclusive=56), replacing the phase-3 provisional value of 40 that was based only on the research report's two prior runs",
+    "The `-m not slow` regression pass's 4 failures were investigated (isolated reruns with correct PYTHONPATH including BimodalHarness) rather than dismissed or silently re-run to green; diagnosed as pre-existing cross-agent Z3 contention unrelated to this task's diff, not a regression"
+  ],
+  "dead_ends": [
+    "Initial isolated retry of the 4 failing tests used PYTHONPATH=oracle:code/src without BimodalHarness's src path and hit a collection ImportError -- the original full-suite run only succeeded because test_cross_oracle_differential.py's module-level _try_import_bimodal_harness() side-effects sys.path.insert for later-imported test modules in the same pytest process; corrected by adding BimodalHarness's src explicitly to the retry's PYTHONPATH"
+  ],
+  "plan_markers_verified": true
+}

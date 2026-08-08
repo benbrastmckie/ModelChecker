@@ -11,23 +11,18 @@ next_project_number: 140
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 127,134,137 | -- | architecture, oracle soundness, testing |
+| 1 | 127 | -- | testing |
 | 2 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Architecture
 
-134 [NOT STARTED] — Reconcile the declared N bound with the enforced one, and decide 
 126 [BLOCKED] — Systematically refactor the repo into: 1) the core codebase conta
 
 ### Testing
 
 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
-
-### Oracle Soundness
-
-137 [NOT STARTED] — Investigate the 13 resolved-and-wrong soundness disagreements bet
 
 ## Tasks
 
@@ -58,10 +53,13 @@ next_project_number: 140
 ---
 
 ### 137. Investigate mc bh resolved and wrong disagreements
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: oracle soundness
 - **Dependencies**: Task 133, Task 139
+- **Research**: [137_investigate_mc_bh_resolved_and_wrong_disagreements/reports/01_mc-bh-soundness-disagreements.md]
+- **Plan**: [137_investigate_mc_bh_resolved_and_wrong_disagreements/plans/01_record-external-bh-boundary-defect.md]
+- **Summary**: [137_investigate_mc_bh_resolved_and_wrong_disagreements/summaries/01_record-external-bh-boundary-defect-summary.md]
 
 **Description**: Investigate the 13 resolved-and-wrong soundness disagreements between the ModelChecker oracle and BimodalHarness. With the find_countermodel timeout/UNSAT conflation removed, 13 of 158 temporal-only formulas at complexity<=5 have BOTH oracles decide and disagree - a genuine semantic divergence previously masked by timeouts being reported as UNSAT. Tracked by the strict xfail on test_temporal_only_agreement_complexity_5 in oracle/bimodal_logic/tests/test_cross_oracle_differential.py. Determine which oracle is correct for each of the 13, root-cause the divergence, and fix the incorrect side. This is a soundness defect, not a performance or timeout issue.
 
@@ -94,10 +92,13 @@ next_project_number: 140
 ---
 
 ### 134. Reconcile n bound contract and state space
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: architecture
 - **Dependencies**: None
+- **Research**: [134_reconcile_n_bound_contract_and_state_space/reports/01_reconcile-n-bound-contract.md]
+- **Plan**: [134_reconcile_n_bound_contract_and_state_space/plans/01_reconcile-n-bound-contract.md]
+- **Summary**: [134_reconcile_n_bound_contract_and_state_space/summaries/01_reconcile-n-bound-summary.md]
 
 **Description**: Reconcile the declared N bound with the enforced one, and decide whether the 2^N state space must stay eager. A fail-fast guard now rejects N outside [1, MAX_N] in models/semantic.py (MAX_N=20) before all_states is materialized, because the prior unbounded path did not fail on a large N -- it allocated 2^N BitVecVals until the machine died (measured: 24GB RSS in ~60s at N=64, on a 30GB host, inside an uninterruptible Z3 C call that no Python-level pytest timeout can stop). That guard fixed the immediate hang but left the codebase asserting two different contracts. The declared contract says N in [1,64]: code/tests/utils/assertions.py:123 assert_settings_valid enforces 1<=N<=64 as a pure dict check that constructs nothing, so tests/integration/test_error_handling.py::TestEdgeCases::test_valid_n_boundary_values[32], [63], and [64] still pass while asserting a range that cannot actually be built; test_invalid_n_boundary_values treats 65 as the first invalid value; and code/src/model_checker/settings/tests/conftest.py:29 carries a {N: 65} # N too large fixture premised on the same 64 ceiling. tests/integration/test_system_boundaries.py:204/215/216 likewise exercise N=64 and N=32 through the dict-only validator. Separately, the settings layer (settings/settings.py) has _validate_setting_range available but applies no bound to N at all, so the only real enforcement is the new models-layer guard -- meaning direct API and create_test_model callers are covered but the settings pipeline still advertises no limit. Work: (1) pick one authoritative N ceiling and propagate it to assertions.py, the settings validation pipeline, the boundary-test parameters, the settings conftest fixture, and any docs stating a 64 limit, so a single source defines it; (2) decide the deeper design question of whether all_states must remain an eagerly materialized list of 2^N BitVecVals -- consumers across imposition/semantic/model.py, logos/iterate.py and models/semantic.py:191 iterate it directly, so laziness alone would not raise the feasible ceiling much and the exponential may be inherent, but that should be established rather than assumed; (3) if the ceiling stays at 20, remove or re-scope logos DEFAULT_EXAMPLE_SETTINGS N=16 headroom concerns and confirm no shipped theory default sits near the limit. Note the shape of this defect matches the oracle find_countermodel issue: a resource limit reported as a silent wrong answer rather than an error.
 
@@ -108,8 +109,12 @@ next_project_number: 140
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
-- **Research**: [133_fix_oracle_self_consistency_disagreements/reports/02_find-countermodel-contract.md]
-- **Plan**: [133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md]
+- **Research**:
+  - [133_fix_oracle_self_consistency_disagreements/reports/02_find-countermodel-contract.md]
+  - [133_fix_oracle_self_consistency_disagreements/reports/01_oracle-self-consistency.md]
+- **Plan**:
+  - [133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md]
+  - [133_fix_oracle_self_consistency_disagreements/plans/01_oracle-self-consistency.md]
 - **Evidence**: [133_fix_oracle_self_consistency_disagreements/evidence/verification-results.md]
 - **Summary**: [133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md]
 
@@ -199,9 +204,19 @@ next_project_number: 140
 - **Task Type**: general
 - **Topic**: architecture
 - **Dependencies**: Task 127
-- **Research**: [126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md]
+- **Research**:
+  - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-a-findings.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-b-findings.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-c-findings.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-d-findings.md]
 - **Plan**: [126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md]
-- **Summary**: [126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md]
+- **Summary**:
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/03_phases-10-17-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/04_phases-18-21-summary.md]
 
 **Description**: Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.
 
@@ -285,6 +300,7 @@ next_project_number: 140
 - **Dependencies**: Task 119
 - **Research**: [117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md]
 - **Plan**: [120_restore_and_port_the_exclusion_and_imposition_theo/plans/02_port-exclusion-imposition.md]
+- **Summary**: [120_restore_and_port_the_exclusion_and_imposition_theo/summaries/01_port-exclusion-imposition-summary.md]
 
 **Description**: Covers plan phases 5-6 of specs/117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md ('Restore and Port the exclusion Theory' and 'Restore and Port the imposition Theory'). This is the highest-risk work in the plan: both theories restore from a PRE-solver-migration commit (abb3bf7d^), predating z3_shim, model_checker.solver, and the modular models.semantic/models.proposition/models.structure package structure, and must be ported to the current API. Use the already-current-API bimodal and logos theories (from the prior task) as the concrete reference pattern for the port. Goal (exclusion): `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/exclusion`; port imports/APIs from pre-migration to current: model_checker.z3_shim, model_checker.solver (is_true/is_false), models.semantic.SemanticDefaults, models.proposition.PropositionDefaults, models.structure.ModelDefaults, syntactic.atoms.get_atom_sort, and bimodal witness modules; register exclusion in AVAILABLE_THEORIES; get theory_lib/exclusion/tests/ to collect and pass; commit per green sub-step. Goal (imposition): `git checkout abb3bf7d^ -- code/src/model_checker/theory_lib/imposition`; apply the same import/API porting recipe established for exclusion; register imposition in AVAILABLE_THEORIES; get theory_lib/imposition/tests/ to collect and pass; commit per green sub-step. If porting exceeds budget, the plan's documented fallback is to ship with logos+bimodal registered and follow up on exclusion/imposition separately -- but the goal is full restoration; treat the fallback as a last resort. Verification: `PYTHONPATH=code/src pytest code/src/model_checker/theory_lib/exclusion -q` and `.../imposition -q` both green; both registered in AVAILABLE_THEORIES; no import errors against current z3_shim/solver/models.* API.
 
@@ -326,7 +342,18 @@ next_project_number: 140
 - **Research**:
   - [117_review_cli_pypi_parity_nix_flake_release/reports/01_team-research.md]
   - [117_review_cli_pypi_parity_nix_flake_release/reports/03_team-research.md]
-- **Plan**: [117_review_cli_pypi_parity_nix_flake_release/plans/03_stabilize-and-release-closeout.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-a-findings.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-b-findings.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-c-findings.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/01_teammate-d-findings.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/02_spawn-analysis.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-a-findings.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-b-findings.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-c-findings.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/reports/03_teammate-d-findings.md]
+- **Plan**:
+  - [117_review_cli_pypi_parity_nix_flake_release/plans/03_stabilize-and-release-closeout.md]
+  - [117_review_cli_pypi_parity_nix_flake_release/plans/01_restore-model-checker-release.md]
 - **Summary**: [117_review_cli_pypi_parity_nix_flake_release/summaries/03_stabilize-and-release-closeout-summary.md]
 
 **Description**: Review and stabilize the repo after recent revisions: verify the CLI works, audit discrepancies with the model-checker package on PyPI, build a Nix flake for testing on NixOS (pip install is impractical there), complete full testing, and prepare a top-quality release to push to PyPI
@@ -338,5 +365,8 @@ next_project_number: 140
 - **Task Type**: markdown
 - **Topic**: documentation
 - **Dependencies**: None
+- **Research**: [116_draft_email_modelchecker_architecture/reports/01_architecture-pipeline-operators.md]
+- **Plan**: [116_draft_email_modelchecker_architecture/plans/01_email-draft.md]
+- **Summary**: [116_draft_email_modelchecker_architecture/summaries/01_email-draft-summary.md]
 
 **Description**: Draft a brief email for a Python expert explaining how the ModelChecker supports modular extensions: each model structure is built over shared general infrastructure and supports a range of operators supplied semantic clauses using that model structure's resources. Explain the basic architecture and the pipeline by which logical claims are processed into SMTlib, solved, then passed back to print a model, where key methods are provided by each operator. Culminate with code/src/model_checker/theory_lib/logos/subtheories/counterfactual/operators.py as a worked example. Draw on docs/ and distributed README.md files as appropriate.
