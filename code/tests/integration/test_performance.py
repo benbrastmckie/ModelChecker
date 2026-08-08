@@ -12,52 +12,53 @@ from tests.utils.base import BaseModelTest, BaseExampleTest
 from tests.utils.helpers import create_test_model
 from model_checker.models.concurrency import ConcurrentConstructionError
 
-# Wall-clock assertions in this file are load-sensitive (see TESTING_GUIDE.md 8.6):
-# repeat full-suite sweeps have shown these budgets tripped under concurrent load
-# with no code change. Each class carrying such assertions is marked "slow" so a
-# default run can opt out via `-m "not slow"` for deterministic results; run with
-# `-m slow` (or no -m filter) to validate actual performance characteristics. This
-# was previously a single module-level `pytestmark = pytest.mark.slow`; it is now
-# applied per-class so that TestConcurrentPerformance -- which asserts the
-# single-threaded-construction contract, not a wall-clock budget -- runs in the
-# default suite (see models/concurrency.py for the contract it pins).
+# The wall-clock budgets this file used to assert have been removed. They were
+# not measuring the code's cost: the bimodal theory's default `max_time` is 1
+# second, so every `create_test_model` call here measured
+# `min(real_solve_time, max_time) + overhead` and pinned at ~1.03s no matter
+# what N was. Budgets of 1.0s sat inside that distribution (and failed
+# intermittently); budgets of 2s, 5s and 10s sat above a ceiling the quantity
+# could not physically reach (and could never fail). Neither shape is a
+# performance guard, so the timing clauses were replaced by assertions about
+# what the code actually produced. The few second-scale budgets that remain are
+# marked in place as hang guards -- they mean "did not hang", not "was fast".
 
 
-@pytest.mark.slow
 class TestExecutionPerformance(BaseModelTest):
-    """Test execution time performance."""
-    
+    """Test model construction across a range of sizes."""
+
     @pytest.mark.timeout(5)
     def test_simple_model_performance(self):
-        """Test simple models complete quickly."""
-        start = time.time()
-        
-        # Create and check simple model
+        """Test simple models are constructed and well-formed."""
         settings = {'N': 3}
         model = self.create_model(settings)
-        
-        elapsed = time.time() - start
-        assert elapsed < 1.0, f"Simple model took {elapsed:.2f}s, expected < 1s"
-    
+
+        assert model is not None
+        assert model.N == 3
+        assert model.semantics is not None
+
     @pytest.mark.timeout(10)
     def test_medium_model_performance(self):
-        """Test medium complexity models complete reasonably."""
-        start = time.time()
-        
-        # Create medium complexity model
+        """Test medium complexity models are constructed."""
         settings = {
             'N': 8,
             'contingent': True,
             'non_empty': True
         }
         model = self.create_model(settings)
-        
-        elapsed = time.time() - start
-        assert elapsed < 5.0, f"Medium model took {elapsed:.2f}s, expected < 5s"
-    
+
+        assert model is not None
+        assert model.N == 8
+
     @pytest.mark.timeout(30)
     def test_complex_model_performance(self):
-        """Test complex models complete within timeout."""
+        """Test complex models complete within timeout.
+
+        The 20s/30s budgets below are hang guards, not performance budgets.
+        This is the one construction here whose cost is real rather than
+        solver-capped (N=16 Python-side constraint generation, measured
+        ~6s), and the assertion means "did not hang", with 3.3x headroom.
+        """
         start = time.time()
         
         # Create complex model
@@ -78,35 +79,29 @@ class TestExecutionPerformance(BaseModelTest):
             elapsed = time.time() - start
             assert elapsed < 30.0, "Model should timeout quickly if it can't complete"
     
-    @pytest.mark.parametrize("n,max_time", [
-        (2, 1.0),
-        (4, 2.0),
-        (8, 10.0),
-        # N=16 removed: 2^16 = 65536 states causes exponential blowup
-    ])
+    @pytest.mark.parametrize("n", [2, 4, 8])
     @pytest.mark.timeout(20)
-    def test_scaling_with_n(self, n, max_time):
-        """Test performance scales reasonably with N.
+    def test_scaling_with_n(self, n):
+        """Test model construction succeeds across a range of N.
 
         Note: N=16 is excluded because the state space (2^N) grows exponentially.
         N=8 with 256 states is the practical upper bound for this test.
-        """
-        start = time.time()
 
+        This used to assert a per-N wall-clock budget. Every N measured ~1.03s
+        because all of them hit the theory's 1-second `max_time` cap, so the
+        budgets described the cap rather than any scaling behaviour.
+        """
         settings = {'N': n}
 
         try:
             model = self.create_model(settings)
-            elapsed = time.time() - start
-
-            assert elapsed < max_time, \
-                f"N={n} took {elapsed:.2f}s, expected < {max_time}s"
+            assert model is not None
+            assert model.N == n
         except Exception:
             # Resource limits acceptable for larger N values
             assert n >= 8
 
 
-@pytest.mark.slow
 class TestMemoryPerformance:
     """Test memory usage performance."""
     
@@ -169,9 +164,12 @@ class TestMemoryPerformance:
         # Get baseline object count
         baseline_objects = len(gc.get_objects())
 
-        # Create and destroy multiple models
+        # Create and destroy multiple models. A small explicit `max_time` is
+        # used because this test never inspects the solve result -- it asserts
+        # only object-count growth -- so waiting out the theory's default
+        # 1-second cap five times would be paid for nothing.
         for i in range(5):
-            model = create_test_model({'N': 3})
+            model = create_test_model({'N': 3, 'max_time': 0.05})
             del model
 
         # Force garbage collection
@@ -185,14 +183,17 @@ class TestMemoryPerformance:
         assert growth < 500, f"Object count grew by {growth}, possible memory leak"
 
 
-@pytest.mark.slow
 class TestBatchPerformance(BaseExampleTest):
-    """Test batch processing performance."""
-    
+    """Test batch construction and structural validation of examples.
+
+    Note that `validate_example` performs structural checks only -- it does no
+    model checking. The wall-clock budgets these tests used to carry therefore
+    measured a few dozen list constructions (<5ms against budgets of 2s and 5s)
+    and have been removed.
+    """
+
     def test_batch_small_examples(self):
-        """Test performance with many small examples."""
-        start = time.time()
-        
+        """Test many small examples can be built and structurally validated."""
         # Create batch of small examples
         examples = []
         for i in range(20):
@@ -206,16 +207,11 @@ class TestBatchPerformance(BaseExampleTest):
         # Process batch (simulation)
         for example in examples:
             self.validate_example(example)
-        
-        elapsed = time.time() - start
-        
-        # Should process quickly
-        assert elapsed < 2.0, f"Batch of 20 small examples took {elapsed:.2f}s"
-    
+
+        assert len(examples) == 20
+
     def test_batch_mixed_complexity(self):
-        """Test performance with mixed complexity examples."""
-        start = time.time()
-        
+        """Test mixed complexity examples can be built and validated."""
         # Create mixed complexity batch
         examples = []
         
@@ -244,11 +240,8 @@ class TestBatchPerformance(BaseExampleTest):
         # Validate all
         for example in examples:
             self.validate_example(example)
-        
-        elapsed = time.time() - start
-        
-        # Should complete reasonably
-        assert elapsed < 5.0, f"Mixed batch took {elapsed:.2f}s"
+
+        assert len(examples) == 9
 
 
 class TestConcurrentPerformance:
@@ -319,12 +312,17 @@ class TestConcurrentPerformance:
         )
 
 
-@pytest.mark.slow
 class TestCachingPerformance:
-    """Test caching and memoization performance."""
-    
+    """Test repeat-parse determinism and theory caching."""
+
     def test_repeated_operations(self):
-        """Test repeated operations benefit from caching."""
+        """Test parsing the same formula twice yields the same structure.
+
+        This used to compare the wall-clock cost of two sub-millisecond
+        parses, which passed only because the first parse pays a cold-start
+        cost. That is noise, not a caching signal. What is worth pinning is
+        that the parse is deterministic.
+        """
         from model_checker.syntactic import Syntax
         from model_checker.theory_lib import bimodal
 
@@ -333,52 +331,41 @@ class TestCachingPerformance:
         operators = theory['operators']
         formula = "((A \\wedge B) \\vee (C \\wedge D))"
 
-        # First parse (cold)
-        start = time.time()
         syntax1 = Syntax([], [formula], operators)
-        first_time = time.time() - start
-
-        # Second parse (potentially cached)
-        start = time.time()
         syntax2 = Syntax([], [formula], operators)
-        second_time = time.time() - start
 
-        # Second should not be slower than first
-        # (May not be faster if no caching, but shouldn't degrade)
-        assert second_time <= first_time * 1.5, \
-            f"Second parse ({second_time:.4f}s) slower than first ({first_time:.4f}s)"
-    
+        assert sorted(syntax1.all_sentences) == sorted(syntax2.all_sentences)
+        assert syntax1.infix_conclusions == syntax2.infix_conclusions
+
     def test_theory_loading_performance(self):
-        """Test theory loading doesn't degrade."""
+        """Test repeated theory loads are served from the cache.
+
+        This used to compare two sub-millisecond load times. The intent was
+        "the theory cache works", so assert that directly.
+        """
         # model_checker.api.get_theory (not utils.api.get_theory) is the theory-aware
         # entry point that auto-loads semantic_theories by name; utils.api.get_theory is
         # a pure lookup requiring the caller to supply an already-loaded mapping.
         from model_checker.api import get_theory
-        
-        # First load
-        start = time.time()
+
         theory1 = get_theory('bimodal')
-        first_time = time.time() - start
-        
-        # Second load
-        start = time.time()
         theory2 = get_theory('bimodal')
-        second_time = time.time() - start
-        
-        # Should be same or faster (cached)
-        assert second_time <= first_time * 1.1, \
-            f"Second load ({second_time:.4f}s) slower than first ({first_time:.4f}s)"
+
+        assert theory1 is theory2
 
 
-@pytest.mark.slow
 class TestWorstCasePerformance:
     """Test worst-case performance scenarios."""
     
     @pytest.mark.timeout(60)
     def test_maximum_n_performance(self):
-        """Test performance at maximum N value."""
-        start = time.time()
+        """Test construction at the maximum N value terminates.
 
+        This used to assert a 35s budget against a measured 0.05-0.07s (the
+        attempt fails fast at N=64), 500x of headroom. The `@pytest.mark.timeout`
+        above is the real hang guard; the assertion below only records that the
+        attempt terminated one way or the other.
+        """
         settings = {
             'N': 64,
             'max_time': 30  # Give it reasonable timeout
@@ -386,18 +373,13 @@ class TestWorstCasePerformance:
 
         try:
             model = create_test_model(settings)
-
-            elapsed = time.time() - start
-            # Should complete or timeout within max_time
-            assert elapsed < settings['max_time'] + 5
-
+            assert model is not None
         except Exception:
             # Timeout or resource limit expected
-            elapsed = time.time() - start
-            assert elapsed < settings['max_time'] + 5
-    
+            pass
+
     def test_many_propositions_performance(self):
-        """Test performance with many propositions."""
+        """Test a formula with many propositions parses."""
         from model_checker.syntactic import Syntax
         from model_checker.theory_lib import bimodal
 
@@ -410,13 +392,9 @@ class TestWorstCasePerformance:
         formula = " \\wedge ".join(props)
         formula = f"({formula})"
 
-        start = time.time()
         try:
             syntax = Syntax([], [formula], operators)
-            elapsed = time.time() - start
-
-            # Should parse reasonably quickly
-            assert elapsed < 2.0, f"Parsing 30 propositions took {elapsed:.2f}s"
+            assert syntax.infix_conclusions == [formula]
         except Exception:
             # Parsing failure acceptable for extreme cases
             pass

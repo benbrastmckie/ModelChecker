@@ -197,7 +197,7 @@ arithmetically-unreachable assertions that fail 5/5, and remove the file's modul
 
 ---
 
-### Phase 2: Integration performance file — dispositions, cap-burn, unmark [NOT STARTED]
+### Phase 2: Integration performance file — dispositions, cap-burn, unmark [COMPLETED]
 
 **Goal**: Apply every disposition to `code/tests/integration/test_performance.py` and remove all
 five per-class `slow` marks. `TestConcurrentPerformance` is not touched.
