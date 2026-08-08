@@ -228,24 +228,29 @@ with what the system actually builds.
 
 ---
 
-### Phase 3: Correct the documented ceiling [NOT STARTED]
+### Phase 3: Correct the documented ceiling [COMPLETED]
 
 **Goal**: The one user-facing doc that states an N ceiling states the enforced one, for the real
 reason.
 
 **Tasks**:
-- [ ] `docs/architecture/BUILDER.md:93`: replace ``max 64 due to bit vector representation`` with
+- [x] `docs/architecture/BUILDER.md:93`: replace ``max 64 due to bit vector representation`` with
       the enforced ceiling (20) and the real reason — the eager `2^N` `all_states` materialization
       exhausts memory (measured peak RSS: N=16 -> 275MB, N=18 -> 928MB, N=20 -> 3.5GB), not a
       bit-vector width limit. Reference `MAX_N` in `model_checker.models.semantic` as the
       authoritative source so the number has a home if it ever moves.
-- [ ] Optionally correct the `1 <= n <= 64` literal in
+- [x] Optionally correct the `1 <= n <= 64` literal in
       `code/docs/implementation/ERROR_HANDLING.md:600-635`. It sits inside illustrative pseudocode
       whose symbols (`format_config_error`, `ErrorCollector`) do not exist in `code/src/`, so it
       enforces nothing — but the one-line change removes another echo of the stale number.
-- [ ] Do not touch the non-normative mentions listed under Non-Goals.
-- [ ] No task numbers in any file outside `specs/**`; cite `models/semantic.py`'s `MAX_N` as the
-      durable anchor.
+      *(deviation: also corrected the same stale `"1 to 64"` literal in the earlier
+      `format_config_error` usage example at line 359, one more illustrative echo of the same
+      pseudocode pattern in the same file, not the exact line range cited in the plan but
+      directly in scope of "removes another echo of the stale number.")*
+- [x] Do not touch the non-normative mentions listed under Non-Goals. Confirmed untouched.
+- [x] No task numbers in any file outside `specs/**`; cite `models/semantic.py`'s `MAX_N` as the
+      durable anchor. Both edits cite `model_checker.models.semantic`/`MAX_N`, no task-number
+      references.
 
 **Timing**: 0.5 hours
 

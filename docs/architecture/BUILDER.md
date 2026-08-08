@@ -90,7 +90,10 @@ Settings hierarchy (highest to lowest priority):
 The settings manager validates settings based on each theory's requirements, warning about unknown settings in single-theory mode while allowing flexibility in comparison mode.
 
 Each setting controls specific aspects of the model checking process:
-- `N`: Number of atomic states (typically 3-5, max 64 due to bit vector representation)
+- `N`: Number of atomic states (typically 3-5, max 20 — `MAX_N` in
+  `model_checker.models.semantic`. The state space is `2^N` states materialized eagerly at
+  construction time, which exhausts available memory well before any bit-vector width limit is
+  reached; N=20 measures ~3.5GB peak RSS for that materialization alone.)
 - `contingent`: Requires atomic propositions to have both verifiers and falsifiers
 - `non_empty`: Prevents empty verifier/falsifier sets
 - `disjoint`: Ensures no state both verifies and falsifies the same proposition

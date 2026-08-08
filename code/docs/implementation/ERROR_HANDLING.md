@@ -356,7 +356,7 @@ raise ConfigurationError(format_config_error(
     setting_name="N",
     current_value=0,
     issue="Must be a positive integer",
-    valid_range="1 to 64"
+    valid_range="1 to 20"  # MAX_N in model_checker.models.semantic
 ))
 ```
 
@@ -621,10 +621,10 @@ def validate_configuration(config):
     # Validate field values
     if 'N' in config:
         n = config['N']
-        if not isinstance(n, int) or not (1 <= n <= 64):
+        if not isinstance(n, int) or not (1 <= n <= 20):  # MAX_N in model_checker.models.semantic
             errors.add_error(
                 ConfigurationError(format_config_error(
-                    "N", n, "Must be integer between 1 and 64"
+                    "N", n, "Must be integer between 1 and 20"
                 ))
             )
     
