@@ -1,0 +1,1115 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+testpaths: tests, src/model_checker
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+collected 2190 items
+
+tests/e2e/test_batch_output_real.py .                                    [  0%]
+tests/e2e/test_project_creation.py ........                              [  0%]
+tests/integration/test_error_handling.py ............................    [  1%]
+tests/integration/test_formula_system.py ............................... [  3%]
+.                                                                        [  3%]
+tests/integration/test_model_building_sync.py ....                       [  3%]
+tests/integration/test_performance.py ................                   [  4%]
+tests/integration/test_settings_system.py .............................. [  5%]
+..............................................................           [  8%]
+tests/integration/test_system_boundaries.py ............................ [  9%]
+.............                                                            [ 10%]
+tests/integration/test_system_imports.py ...................             [ 11%]
+tests/integration/test_timeout_resources.py ...............              [ 11%]
+tests/test_layering.py ....                                              [ 11%]
+tests/unit/syntactic/test_formulas.py ...........                        [ 12%]
+tests/unit/syntactic/test_well_formedness.py ........                    [ 12%]
+tests/unit/test_registry.py .......                                      [ 13%]
+src/model_checker/builder/tests/e2e/test_full_pipeline.py ...            [ 13%]
+src/model_checker/builder/tests/e2e/test_project_edge_cases.py ......... [ 13%]
+.                                                                        [ 13%]
+src/model_checker/builder/tests/integration/test_build_module_theories.py . [ 13%]
+..........                                                               [ 14%]
+src/model_checker/builder/tests/integration/test_cli_interactive_integration.py . [ 14%]
+........                                                                 [ 14%]
+src/model_checker/builder/tests/integration/test_component_integration.py . [ 14%]
+........                                                                 [ 14%]
+src/model_checker/builder/tests/integration/test_error_propagation.py .. [ 15%]
+........                                                                 [ 15%]
+src/model_checker/builder/tests/integration/test_generated_projects.py . [ 15%]
+.......                                                                  [ 15%]
+src/model_checker/builder/tests/integration/test_output_directory_guidance.py . [ 15%]
+......                                                                   [ 16%]
+src/model_checker/builder/tests/integration/test_package_imports.py ...  [ 16%]
+src/model_checker/builder/tests/integration/test_performance.py ......   [ 16%]
+src/model_checker/builder/tests/integration/test_workflow.py .......     [ 16%]
+src/model_checker/builder/tests/test_issue_73_fix.py ....                [ 17%]
+src/model_checker/builder/tests/test_package_loading.py .......          [ 17%]
+src/model_checker/builder/tests/test_refactoring_target_behavior.py .... [ 17%]
+..........                                                               [ 17%]
+src/model_checker/builder/tests/unit/test_comparison.py ..........       [ 18%]
+src/model_checker/builder/tests/unit/test_example.py ..........          [ 18%]
+src/model_checker/builder/tests/unit/test_loader.py .............        [ 19%]
+src/model_checker/builder/tests/unit/test_package_marker.py ...          [ 19%]
+src/model_checker/builder/tests/unit/test_package_structure.py ...       [ 19%]
+src/model_checker/builder/tests/unit/test_progress.py ...                [ 19%]
+src/model_checker/builder/tests/unit/test_progress_bar_ordering.py ..... [ 20%]
+.....                                                                    [ 20%]
+src/model_checker/builder/tests/unit/test_project.py ..............      [ 21%]
+src/model_checker/builder/tests/unit/test_project_version.py ......      [ 21%]
+src/model_checker/builder/tests/unit/test_runner.py .........            [ 21%]
+src/model_checker/builder/tests/unit/test_serialize.py ................. [ 22%]
+..                                                                       [ 22%]
+src/model_checker/builder/tests/unit/test_translation.py ............    [ 23%]
+src/model_checker/builder/tests/unit/test_validation.py ..............   [ 23%]
+src/model_checker/builder/tests/unit/test_z3_isolation.py ......         [ 24%]
+src/model_checker/iterate/tests/e2e/test_edge_cases.py .......           [ 24%]
+src/model_checker/iterate/tests/integration/test_build_example.py .....  [ 24%]
+src/model_checker/iterate/tests/integration/test_constraint_preservation.py . [ 24%]
+..                                                                       [ 24%]
+src/model_checker/iterate/tests/integration/test_core_orchestration.py . [ 24%]
+.........                                                                [ 25%]
+src/model_checker/iterate/tests/integration/test_enhanced_tracking.py .. [ 25%]
+...                                                                      [ 25%]
+src/model_checker/iterate/tests/integration/test_error_handling.py ..... [ 25%]
+.......                                                                  [ 25%]
+src/model_checker/iterate/tests/integration/test_generator_interface.py . [ 25%]
+.....                                                                    [ 26%]
+src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py . [ 26%]
+........                                                                 [ 26%]
+src/model_checker/iterate/tests/integration/test_graph_utils.py ...      [ 26%]
+src/model_checker/iterate/tests/integration/test_isomorphism.py .......  [ 27%]
+src/model_checker/iterate/tests/integration/test_iteration_control.py .. [ 27%]
+.............                                                            [ 27%]
+src/model_checker/iterate/tests/integration/test_iterator_generator.py . [ 27%]
+...........                                                              [ 28%]
+src/model_checker/iterate/tests/integration/test_metrics.py ........     [ 28%]
+src/model_checker/iterate/tests/integration/test_models.py ..........    [ 29%]
+src/model_checker/iterate/tests/integration/test_real_theory_integration.py . [ 29%]
+........                                                                 [ 29%]
+src/model_checker/iterate/tests/unit/test_base_iterator.py .......       [ 29%]
+src/model_checker/iterate/tests/unit/test_constraints.py ..........      [ 30%]
+src/model_checker/iterate/tests/unit/test_constraints_error_paths.py ... [ 30%]
+.....                                                                    [ 30%]
+src/model_checker/iterate/tests/unit/test_core.py ..                     [ 30%]
+src/model_checker/iterate/tests/unit/test_core_abstract_methods.py ...   [ 30%]
+src/model_checker/iterate/tests/unit/test_core_no_state_transfer.py ..   [ 31%]
+src/model_checker/iterate/tests/unit/test_coverage_improvements.py ..... [ 31%]
+.....                                                                    [ 31%]
+src/model_checker/iterate/tests/unit/test_errors.py ..............       [ 32%]
+src/model_checker/iterate/tests/unit/test_models_edge_cases.py ......... [ 32%]
+........                                                                 [ 32%]
+src/model_checker/iterate/tests/unit/test_simplified_iterator.py .....   [ 33%]
+src/model_checker/iterate/tests/unit/test_validation.py ........         [ 33%]
+src/model_checker/iterate/tests/unit/test_z3_utils.py .............      [ 34%]
+src/model_checker/jupyter/tests/integration/test_widget_interaction.py . [ 34%]
+........                                                                 [ 34%]
+src/model_checker/jupyter/tests/unit/test_adapters.py .................. [ 35%]
+.                                                                        [ 35%]
+src/model_checker/jupyter/tests/unit/test_exceptions.py ...........      [ 35%]
+src/model_checker/jupyter/tests/unit/test_notebook_helpers.py .......... [ 36%]
+                                                                         [ 36%]
+src/model_checker/jupyter/tests/unit/test_ui_builders.py ........        [ 36%]
+src/model_checker/jupyter/tests/unit/test_unicode.py ...............     [ 37%]
+src/model_checker/models/tests/integration/test_constraints_injection.py . [ 37%]
+..                                                                       [ 37%]
+src/model_checker/models/tests/integration/test_imports.py ..            [ 37%]
+src/model_checker/models/tests/integration/test_integration.py ...       [ 37%]
+src/model_checker/models/tests/unit/test_concurrency.py ...............  [ 38%]
+src/model_checker/models/tests/unit/test_constraints.py ..........       [ 38%]
+src/model_checker/models/tests/unit/test_proposition.py ......           [ 39%]
+src/model_checker/models/tests/unit/test_semantic.py ............        [ 39%]
+src/model_checker/models/tests/unit/test_structure.py ................   [ 40%]
+src/model_checker/models/tests/unit/test_structure_print.py ............ [ 40%]
+...                                                                      [ 41%]
+src/model_checker/output/tests/unit/test_color_formatting.py ........    [ 41%]
+src/model_checker/output/tests/unit/test_json_serialization.py .......   [ 41%]
+src/model_checker/output/tests/unit/test_markdown_formatter.py ........  [ 42%]
+src/model_checker/settings/tests/integration/test_settings_pipeline.py . [ 42%]
+.                                                                        [ 42%]
+src/model_checker/settings/tests/unit/test_error_handling.py ........... [ 42%]
+                                                                         [ 42%]
+src/model_checker/settings/tests/unit/test_settings.py .........         [ 43%]
+src/model_checker/solver/tests/unit/test_equivalence.py ....             [ 43%]
+src/model_checker/solver/tests/unit/test_protocols.py .......            [ 43%]
+src/model_checker/solver/tests/unit/test_registry.py ............        [ 44%]
+src/model_checker/solver/tests/unit/test_z3_adapter.py ...........       [ 44%]
+src/model_checker/syntactic/tests/integration/test_collection.py ....... [ 45%]
+..........                                                               [ 45%]
+src/model_checker/syntactic/tests/unit/test_atoms.py ........            [ 45%]
+src/model_checker/syntactic/tests/unit/test_operators.py ..............  [ 46%]
+src/model_checker/syntactic/tests/unit/test_sentence.py ................ [ 47%]
+.....                                                                    [ 47%]
+src/model_checker/syntactic/tests/unit/test_syntax.py ...........        [ 47%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_api_consistency.py . [ 47%]
+.                                                                        [ 48%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_data_extraction.py . [ 48%]
+.....                                                                    [ 48%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py . [ 48%]
+....                                                                     [ 48%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py . [ 48%]
+......                                                                   [ 48%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py . [ 48%]
+.......                                                                  [ 49%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py . [ 49%]
+..........                                                               [ 49%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py ........ [ 50%]
+...................................                                      [ 51%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py . [ 51%]
+....................................................................     [ 54%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py ..... [ 55%]
+.....                                                                    [ 55%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py . [ 55%]
+...........                                                              [ 55%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py . [ 55%]
+.......                                                                  [ 56%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py . [ 56%]
+................                                                         [ 56%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py ...... [ 57%]
+............................                                             [ 58%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_module_registration.py . [ 58%]
+....                                                                     [ 58%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py .... [ 58%]
+........................                                                 [ 60%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py . [ 60%]
+............                                                             [ 60%]
+src/model_checker/theory_lib/bimodal/tests/unit/test_witness_registry.py . [ 60%]
+...................                                                      [ 61%]
+src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py . [ 61%]
+.......................................                                  [ 63%]
+src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py . [ 63%]
+.....                                                                    [ 63%]
+src/model_checker/theory_lib/exclusion/tests/integration/test_iterate.py . [ 63%]
+.                                                                        [ 63%]
+src/model_checker/theory_lib/exclusion/tests/integration/test_project_generation.py . [ 63%]
+..                                                                       [ 63%]
+src/model_checker/theory_lib/exclusion/tests/integration/test_semantic_coverage.py . [ 63%]
+..............                                                           [ 64%]
+src/model_checker/theory_lib/exclusion/tests/unit/test_operators.py .... [ 64%]
+...                                                                      [ 64%]
+src/model_checker/theory_lib/exclusion/tests/unit/test_witness_constraints.py . [ 64%]
+...........                                                              [ 65%]
+src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py . [ 65%]
+..................                                                       [ 66%]
+src/model_checker/theory_lib/exclusion/tests/unit/test_witness_model.py . [ 66%]
+..............                                                           [ 66%]
+src/model_checker/theory_lib/exclusion/tests/unit/test_witness_registry.py . [ 67%]
+.............                                                            [ 67%]
+src/model_checker/theory_lib/exclusion/tests/unit/test_witness_semantics.py . [ 67%]
+.........                                                                [ 68%]
+src/model_checker/theory_lib/imposition/tests/integration/test_data_extraction.py . [ 68%]
+.....                                                                    [ 68%]
+src/model_checker/theory_lib/imposition/tests/integration/test_injection.py . [ 68%]
+..                                                                       [ 68%]
+src/model_checker/theory_lib/imposition/tests/integration/test_iterate.py . [ 68%]
+..                                                                       [ 68%]
+src/model_checker/theory_lib/imposition/tests/unit/test_helpers.py ..... [ 68%]
+...................                                                      [ 69%]
+src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py .. [ 69%]
+......................................                                   [ 71%]
+src/model_checker/theory_lib/imposition/tests/unit/test_model.py ....... [ 71%]
+.........                                                                [ 72%]
+src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py . [ 72%]
+.................                                                        [ 73%]
+src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py . [ 73%]
+.....................................................                    [ 75%]
+src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py . [ 75%]
+....................................                                     [ 77%]
+src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py . [ 77%]
+.............                                                            [ 77%]
+src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py . [ 77%]
+.................                                                        [ 78%]
+src/model_checker/theory_lib/logos/tests/integration/test_injection.py . [ 78%]
+.....                                                                    [ 78%]
+src/model_checker/theory_lib/logos/tests/integration/test_iterate.py ... [ 79%]
+                                                                         [ 79%]
+src/model_checker/theory_lib/logos/tests/integration/test_iterate_generator.py . [ 79%]
+..                                                                       [ 79%]
+src/model_checker/theory_lib/logos/tests/integration/test_semantic_coverage.py . [ 79%]
+........                                                                 [ 79%]
+src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py . [ 79%]
+........................................................................ [ 83%]
+........................................................................ [ 86%]
+........................................................................ [ 89%]
+.................................                                        [ 91%]
+src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py . [ 91%]
+...........                                                              [ 91%]
+src/model_checker/theory_lib/logos/tests/unit/test_operators.py ........ [ 92%]
+.                                                                        [ 92%]
+src/model_checker/theory_lib/logos/tests/unit/test_proposition.py ...... [ 92%]
+...                                                                      [ 92%]
+src/model_checker/theory_lib/logos/tests/unit/test_registry.py ......... [ 92%]
+..                                                                       [ 92%]
+src/model_checker/theory_lib/logos/tests/unit/test_semantic_methods.py . [ 93%]
+..........                                                               [ 93%]
+src/model_checker/theory_lib/tests/test_meta_data.py .....               [ 93%]
+src/model_checker/theory_lib/tests/test_theory_conformance.py .......... [ 94%]
+........................................                                 [ 95%]
+src/model_checker/theory_lib/tests/unit/test_error_handling.py ......... [ 96%]
+...                                                                      [ 96%]
+src/model_checker/utils/tests/unit/test_bitvector.py ................    [ 97%]
+src/model_checker/utils/tests/unit/test_context.py ......                [ 97%]
+src/model_checker/utils/tests/unit/test_formatting.py .................. [ 98%]
+..                                                                       [ 98%]
+src/model_checker/utils/tests/unit/test_parsing.py ...................   [ 99%]
+src/model_checker/utils/tests/unit/test_types.py ........                [ 99%]
+src/model_checker/utils/tests/unit/test_z3_helpers.py .......            [100%]
+
+============================== slowest durations ===============================
+64.34s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_iteration_via_iterate_api
+55.47s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_two_produces_distinct_models
+32.23s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_example_generator_yields_models
+13.84s call     src/model_checker/theory_lib/logos/tests/integration/test_subtheory_orchestration.py::TestSubtheoryOrchestration::test_all_subtheory_tests_pass
+10.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7]
+10.02s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate_generator.py::TestLogosGeneratorInterface::test_generator_yields_incrementally
+9.90s call     src/model_checker/models/tests/unit/test_semantic.py::TestSemanticDefaultsNBounds::test_max_n_itself_is_constructible
+7.73s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_4-example_case9]
+6.01s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_run_end_to_end
+6.00s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_19-example_case18]
+5.95s call     tests/integration/test_performance.py::TestExecutionPerformance::test_complex_model_performance
+3.44s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleIntegration::test_build_example_bimodal_theory_countermodel
+3.23s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_12]
+3.16s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_13]
+2.75s call     tests/integration/test_error_handling.py::TestEdgeCases::test_special_characters_in_names
+2.45s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_19]
+2.44s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_14]
+2.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_11]
+1.98s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_10]
+1.97s call     tests/integration/test_timeout_resources.py::TestResourceRecovery::test_file_handles_closed
+1.80s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_20]
+1.67s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_14]
+1.54s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_19]
+1.53s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_13]
+1.36s call     tests/integration/test_performance.py::TestMemoryPerformance::test_memory_usage_complex
+1.32s call     tests/integration/test_timeout_resources.py::TestResourceRecovery::test_memory_released_after_error
+1.25s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_runs_end_to_end
+1.20s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_runs_end_to_end
+1.18s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_12]
+1.15s call     tests/integration/test_timeout_resources.py::TestPerformanceDegradation::test_performance_with_many_constraints
+1.14s call     tests/integration/test_error_handling.py::TestErrorRecovery::test_partial_results_on_error
+1.09s call     tests/integration/test_timeout_resources.py::TestInterruptHandling::test_graceful_shutdown
+1.09s call     tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building
+1.09s call     tests/integration/test_performance.py::TestExecutionPerformance::test_medium_model_performance
+1.09s call     tests/integration/test_performance.py::TestMemoryPerformance::test_memory_usage_simple
+1.08s call     tests/integration/test_performance.py::TestExecutionPerformance::test_scaling_with_n[8]
+1.08s call     tests/integration/test_timeout_resources.py::TestResourceLimits::test_many_propositions
+1.04s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_9-example_case37]
+1.03s call     src/model_checker/theory_lib/exclusion/tests/integration/test_iterate.py::TestExclusionIterator::test_iterate_example_function
+1.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_12-example_case25]
+1.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_9-example_case8]
+0.98s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_24]
+0.95s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_13-example_case26]
+0.95s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_2-example_case8]
+0.87s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestNullityIdentity::test_zero_duration_self_task
+0.87s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_3]
+0.84s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_5]
+0.81s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_extract_task_rel_has_forced_pair
+0.81s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_15-example_case14]
+0.79s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_get_result
+0.79s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_13]
+0.79s call     tests/integration/test_performance.py::TestExecutionPerformance::test_scaling_with_n[2]
+0.79s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_11]
+0.78s call     tests/integration/test_performance.py::TestMemoryPerformance::test_memory_cleanup
+0.78s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_19-example_case18]
+0.77s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_20-example_case19]
+0.77s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_20]
+0.75s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_3]
+0.73s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_3]
+0.70s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_freeze_complete_time_consistency
+0.70s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_13]
+0.70s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_6-example_case34]
+0.69s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+0.69s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow
+0.68s call     tests/e2e/test_batch_output_real.py::TestBatchOutputReal::test_bimodal_batch_output
+0.68s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_20]
+0.60s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_multiple_bars_maintain_independent_frozen_state
+0.57s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_3-example_case31]
+0.57s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_10]
+0.56s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_6]
+0.55s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_6]
+0.55s call     tests/integration/test_performance.py::TestExecutionPerformance::test_scaling_with_n[4]
+0.53s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_16]
+0.52s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestNullityIdentityPostHoc::test_every_state_has_zero_duration_self_task
+0.51s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestLawfulHistoryPostHoc::test_consecutive_states_have_unit_task_rel
+0.51s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_14-example_case14]
+0.50s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_24]
+0.50s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestBarOutputBarOrdering::test_deferred_completion_preserves_frozen_state
+0.50s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_10-example_case23]
+0.50s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_2]
+0.49s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_11-example_case24]
+0.49s call     src/model_checker/models/tests/unit/test_semantic.py::TestSemanticDefaultsNBounds::test_typical_n_values_still_construct
+0.49s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_13-example_case13]
+0.48s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_7-example_case35]
+0.47s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_5-example_case33]
+0.46s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate_generator.py::TestLogosGeneratorInterface::test_logos_generator_interface
+0.46s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_5-example_case5]
+0.44s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_15]
+0.43s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_comparison_mode
+0.42s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_4-example_case32]
+0.40s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_16-example_case15]
+0.40s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_8-example_case7]
+0.38s call     tests/integration/test_performance.py::TestConcurrentPerformance::test_sequential_vs_concurrent
+0.37s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_8-example_case36]
+0.37s call     tests/integration/test_error_handling.py::TestErrorRecovery::test_graceful_degradation
+0.35s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_14-example_case13]
+0.34s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_initialization
+0.34s call     src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_z3_compatibility_for_imposition_operations
+0.34s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_12]
+0.34s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_21]
+0.34s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_11-example_case39]
+0.34s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_5]
+0.34s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_6]
+0.32s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_20-example_case19]
+0.32s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_0-example_case0]
+0.32s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_1-example_case29]
+0.31s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_13-example_case12]
+0.31s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_17-example_case16]
+0.31s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_2-example_case2]
+0.31s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_print_model
+0.31s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_14-example_case13]
+0.30s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_malformed_example_structure
+0.30s call     src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_start_stop
+0.30s call     tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_cli_command_timeout
+0.30s call     src/model_checker/builder/tests/unit/test_progress.py::TestSpinner::test_spinner_output
+0.30s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_7-example_case7]
+0.29s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_4-example_case4]
+0.29s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_12]
+0.29s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_3-example_case3]
+0.29s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestNullityIdentityPostHoc::test_no_zero_duration_between_distinct_states
+0.29s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_20-example_case33]
+0.29s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_24-example_case24]
+0.28s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_12-example_case12]
+0.28s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_11-example_case11]
+0.28s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestConversePostHoc::test_converse_holds_for_all_pairs
+0.28s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_exists
+0.28s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_20]
+0.28s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_1-example_case1]
+0.28s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_17-example_case17]
+0.28s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_19-example_case19]
+0.28s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_17]
+0.28s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_20-example_case20]
+0.28s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_27-example_case27]
+0.27s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_10-example_case38]
+0.27s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_16-example_case16]
+0.27s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_solved_model_produces_data
+0.27s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_8]
+0.27s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_5]
+0.27s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_8-example_case8]
+0.26s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_26-example_case26]
+0.26s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_16]
+0.26s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_2-example_case2]
+0.26s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_9-example_case9]
+0.26s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_1-example_case1]
+0.26s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_25-example_case25]
+0.26s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_21-example_case21]
+0.26s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_17]
+0.25s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[EX_TH_1-example_case10]
+0.25s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_TH_2-example_case30]
+0.25s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_three_taskframe_axioms_present_in_frame_constraints
+0.25s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_18-example_case18]
+0.25s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_28-example_case28]
+0.25s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_6-example_case6]
+0.25s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_13-example_case12]
+0.25s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_extract_task_rel_pairs_nonempty
+0.25s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_15-example_case15]
+0.25s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_3-example_case3]
+0.25s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_via_some_future
+0.25s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_18]
+0.24s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_22-example_case22]
+0.24s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_diamond_or_distribution
+0.24s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFixtureSmoke::test_extract_world_histories_nonempty
+0.24s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_15]
+0.24s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_chain
+0.24s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_3]
+0.24s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_TH_4-example_case14]
+0.24s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_4-example_case4]
+0.24s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_next_of_and_neg
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX10P_SINCE_P_TH-example_case32]
+0.23s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_14]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestSemanticEquivalence::test_prev_equivalent_to_since_bot
+0.23s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_23-example_case23]
+0.23s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_4]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_CM_5-example_case5]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX6P_ABSORB_S_TH-example_case38]
+0.23s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphManagerCacheBehavior::test_cache_growth_limitation
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX6_ABSORB_U_TH-example_case37]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_TH_3-example_case13]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_prev_next_negation_symmetry
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX5_ACCUM_U_TH-example_case35]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_of_and
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_via_until
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_of_neg
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_of_or
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_of_or
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_modal_temporal_nesting
+0.23s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_10]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_basic_definition
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX3P_MONO_S_TH-example_case28]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[PROP_S_TH-example_case16]
+0.23s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_10-example_case9]
+0.23s call     tests/integration/test_error_handling.py::TestCLIErrorHandling::test_missing_required_attributes
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[PEIRCE_TH-example_case18]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX4_CONNECT_F_TH-example_case29]
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_basic_definition
+0.23s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_excluded_middle_is_top
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_of_or
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_box_implies_diamond
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_of_and
+0.22s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_1]
+0.22s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_9]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_of_or
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_5_TH-example_case22]
+0.22s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_11-example_case10]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_self_equivalence
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX10_UNTIL_F_TH-example_case31]
+0.22s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_7]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_via_all_past
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_via_some_past
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX12P_P_SINCE_TH-example_case34]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[PROP_K_TH-example_case15]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MD_TH_1-example_case11]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_of_and
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_neg_of_prev
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_via_since
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_via_until
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX12_F_UNTIL_TH-example_case33]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[TN_TH_2-example_case12]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX3_MONO_U_TH-example_case27]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_4_TH-example_case20]
+0.22s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_1]
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_of_or
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllFutureEquivalence::test_all_future_self_equivalence
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_associativity
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_past_equiv_at_m3
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAllPastEquivalence::test_all_past_of_and
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_top_implies_top
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_excluded_middle
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestSemanticEquivalence::test_next_equivalent_to_until_bot
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_of_and
+0.22s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_of_or
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_T_TH-example_case19]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX11P_LIN_P_TH-example_case40]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_some_future_of_or_neg
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_future_via_until_at_m3
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_diamond_of_and_neg
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX11_LIN_F_TH-example_case39]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_future_equiv_at_m2
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNestedCombinations::test_quadruple_negation
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[MODAL_B_TH-example_case21]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_with_bot
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_via_since
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[EX_FALSO_TH-example_case17]
+0.21s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_4]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX5P_ACCUM_S_TH-example_case36]
+0.21s call     tests/integration/test_performance.py::TestExecutionPerformance::test_simple_model_performance
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX1_SERIAL_F_TH-example_case23]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_future_equiv_at_m3
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX1P_SERIAL_P_TH-example_case24]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_of_or
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX4P_CONNECT_P_TH-example_case30]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_commutativity
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_past_equiv_at_m2
+0.21s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_9]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX13P_ENRICH_S_TH-example_case42]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_via_all_future
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX2G_MONO_U_TH-example_case25]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_top_self_equivalence
+0.21s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_6]
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestInfrastructure::test_smoke_neg_basic
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_basic_definition
+0.21s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestOrEquivalence::test_or_basic_definition
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_implication
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomePastEquivalence::test_some_past_of_neg
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_next_of_neg
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_basic_definition
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestSomeFutureEquivalence::test_some_future_of_and
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX13_ENRICH_U_TH-example_case41]
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNextEquivalence::test_neg_of_next
+0.20s call     tests/integration/test_timeout_resources.py::TestPerformanceDegradation::test_scaling_behavior[8]
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_basic_definition
+0.20s call     src/model_checker/builder/tests/unit/test_example.py::TestBuildExampleBasic::test_build_example_with_no_model
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestBoundarySensitivity::test_all_past_via_since_at_m3
+0.20s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_3-example_case2]
+0.20s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_15]
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_neg_top_implies_bot
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_progress_bar_animation_during_z3_search
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_double_negation
+0.20s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_stop_animation_without_printing
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_of_neg
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[EX_CM_1-example_case0]
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_bot_implies_top
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_commutativity
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_with_bot
+0.20s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_3]
+0.20s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_5]
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_de_morgan
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestTopEquivalence::test_anything_implies_top
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestPrevEquivalence::test_prev_of_and
+0.20s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_6]
+0.20s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestDiamondEquivalence::test_diamond_of_neg
+0.20s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_8]
+0.20s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_18-example_case17]
+0.20s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_12-example_case11]
+0.19s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestAndEquivalence::test_and_contradiction
+0.19s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_2]
+0.19s call     src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BX2H_MONO_S_TH-example_case26]
+0.19s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_7-example_case6]
+0.19s call     src/model_checker/theory_lib/bimodal/tests/unit/test_enriched_equivalence.py::TestNegEquivalence::test_neg_bot
+0.19s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_9]
+0.19s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_12]
+0.19s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_6-example_case5]
+0.19s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_9-example_case31]
+0.18s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_21]
+0.18s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_1]
+0.18s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_9]
+0.18s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_3]
+0.18s call     tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_various_timeout_values[0.1]
+0.17s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_4]
+0.17s call     tests/integration/test_timeout_resources.py::TestPerformanceDegradation::test_scaling_behavior[4]
+0.17s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_3-example_case25]
+0.17s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_24-example_case21]
+0.17s call     tests/integration/test_timeout_resources.py::TestPerformanceDegradation::test_scaling_behavior[2]
+0.17s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_6-example_case5]
+0.17s call     tests/integration/test_timeout_resources.py::TestResourceLimits::test_large_state_space
+0.16s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_5-example_case4]
+0.16s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_8]
+0.16s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_8]
+0.16s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_6]
+0.16s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_11]
+0.15s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_2]
+0.15s call     src/model_checker/iterate/tests/integration/test_iteration_control.py::TestTerminationManager::test_should_terminate_timeout
+0.15s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_11]
+0.15s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_22-example_case21]
+0.15s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_3]
+0.15s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_all_constraints_consistent
+0.15s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_5]
+0.15s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_25]
+0.14s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestForwardCompPostHoc::test_forward_composition_holds
+0.14s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_runs_end_to_end
+0.14s call     src/model_checker/theory_lib/exclusion/tests/integration/test_iterate.py::TestExclusionIterator::test_basic_iteration
+0.14s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_23-example_case22]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_9]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_18]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_1]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_4]
+0.13s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_basic_constraints
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_8]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_11]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_2]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_25]
+0.13s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+0.13s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_4-example_case3]
+0.13s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_10]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_truth_condition_constraints
+0.12s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_lawful_plus_nullity
+0.12s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_5-example_case4]
+0.12s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_task_constraints
+0.12s call     tests/test_layering.py::test_no_hardcoded_theory_names_in_core_or_upper_layer
+0.12s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_3]
+0.12s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_7-example_case29]
+0.12s call     tests/test_layering.py::test_no_core_module_imports_or_references_theory_lib
+0.11s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_21-example_case20]
+0.11s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_2-example_case1]
+0.11s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_9]
+0.11s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_7]
+0.11s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConverse::test_converse_symmetry
+0.11s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_7]
+0.11s call     src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_settings_inheritance_and_extension
+0.11s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_6]
+0.11s call     src/model_checker/iterate/tests/integration/test_isomorphism.py::TestIsomorphismChecker::test_check_isomorphism_multiple_previous
+0.11s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_uses_model_validator
+0.11s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_3-example_case2]
+0.11s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_6-example_case28]
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_executes_model_check_successfully
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_12]
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_11]
+0.10s call     src/model_checker/iterate/tests/unit/test_base_iterator.py::TestBaseModelIterator::test_timeout_handling
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerExecution::test_model_runner_handles_example_processing_correctly
+0.10s call     src/model_checker/builder/tests/integration/test_build_module_theories.py::TestBuildModule::test_run_model_check_bimodal
+0.10s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_4-example_case3]
+0.10s call     src/model_checker/builder/tests/unit/test_runner.py::TestModelRunnerEdgeCases::test_model_runner_handles_empty_example_cases_appropriately
+0.10s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestUnifiedProgressDeferredCompletion::test_manual_thread_stop_then_complete
+0.10s call     src/model_checker/builder/tests/unit/test_progress_bar_ordering.py::TestProgressBarOrdering::test_complete_handles_already_stopped_thread
+0.10s call     src/model_checker/iterate/tests/integration/test_iteration_control.py::TestTerminationManager::test_get_elapsed_time
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_9]
+0.10s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_6-example_case5]
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_2]
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_10]
+0.10s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_17-example_case16]
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_1]
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_2]
+0.10s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_5-example_case4]
+0.10s call     src/model_checker/theory_lib/bimodal/tests/integration/test_injection.py::TestBimodalInjection::test_inject_z3_model_values_exists
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_14]
+0.10s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_6]
+0.10s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_4-example_case26]
+0.10s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_12-example_case11]
+0.09s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_16-example_case15]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_2]
+0.09s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_11-example_case10]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_14]
+0.09s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestRegressionBasic::test_semantics_initialization_succeeds
+0.09s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_1-example_case0]
+0.09s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_10-example_case9]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_13]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_8]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_12]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_14]
+0.09s call     tests/integration/test_performance.py::TestWorstCasePerformance::test_maximum_n_performance
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_7]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_13]
+0.09s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_8]
+0.09s call     tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_z3_solver_timeout
+0.08s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_CM_7]
+0.08s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_4]
+0.08s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_3-example_case2]
+0.08s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_CM_7]
+0.08s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_5-example_case27]
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessRegistration::test_can_generate_constraints_for_registered_witness
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceVariableNaming::test_since_false_at_variable_names
+0.08s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_2]
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestNullityIdentity::test_zero_duration_different_states_unsat
+0.08s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_uses_since_operator
+0.08s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_6-example_case6]
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorSignature::test_since_has_required_methods
+0.08s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_11]
+0.08s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_2-example_case1]
+0.08s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_uses_until_operator
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_lawful_plus_nullity
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_witness_registry_correct_type
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestExistsTime::test_existstime_signature
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_formula_string_callable
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_formula_string_box_operator
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConverse::test_converse_exclusion
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_chain
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_witness_registry_initialized
+0.08s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_8]
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorZ3Structure::test_since_true_at_returns_z3_expression
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceFindTruthCondition::test_since_find_truth_condition_returns_dict
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorSignature::test_until_has_required_methods
+0.08s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_guard_is_bot
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilVariableNaming::test_until_true_at_variable_names
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorSignature::test_since_methods_are_callable
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestNullityIdentity::test_zero_duration_self_task
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorSignature::test_until_methods_are_callable
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_returns_list
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestSemanticReferences::test_constraints_reference_is_world
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestRegressionBasic::test_has_necessary_semantic_methods
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestForAllTime::test_foralltime_wraps_validity
+0.08s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_1]
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceFindTruthCondition::test_since_vacuously_false_at_boundary
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestNegationUnchanged::test_negation_has_simple_semantics
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_constraint_generator_initialized
+0.08s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_full_structure
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestMultipleFormulas::test_different_formulas_different_constraints
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestInitialization::test_initialization_stores_semantics
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_true_at_returns_z3_expression
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilFindTruthCondition::test_until_find_truth_condition_basic_case
+0.08s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_formula_string_simple_sentence
+0.08s call     tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_various_timeout_values[0.001]
+0.08s call     tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_various_timeout_values[0.01]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestStrictOrderingVerification::test_past_operator_uses_strict_less_than
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_three_taskframe_axioms_present_in_frame_constraints
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_returns_list
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_5]
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_4]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestInitialization::test_initialization_stores_M
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConverse::test_converse_symmetry
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_5]
+0.07s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_8-example_case30]
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_9]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestExistsTime::test_existstime_wraps_validity
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestConstraintStructure::test_constraints_use_implies
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_constraint_generator_correct_type
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestForAllTime::test_foralltime_structure
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessRegistration::test_can_register_witness_manually
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestConstraintStructure::test_constraints_contain_forall
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilFindTruthCondition::test_until_find_truth_condition_returns_dict
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_5]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_until_with_immediate_witness
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestExistsTime::test_existstime_structure
+0.07s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_21-example_case20]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestAtomDomainCheck::test_true_at_includes_domain_check_for_atoms
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestConstraintStructure::test_constraints_reference_predicate
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_witness_registry_has_correct_parameters
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilVariableNaming::test_until_false_at_variable_names
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_8]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestWitnessComponentsInitialization::test_constraint_generator_has_semantics_reference
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_converse_axiom_enforced_in_frame
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceVariableNaming::test_since_true_at_variable_names
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestForAllTime::test_foralltime_signature
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_argument_is_event
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_7]
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_7]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestQuantificationScope::test_foralltime_uses_is_valid_time
+0.07s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_7-example_case6]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_false_at_returns_z3_expression
+0.07s call     tests/integration/test_error_handling.py::TestFrameworkErrorHandling::test_z3_timeout_handling
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_false_at_uses_nested_quantifiers
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilFindTruthCondition::test_until_vacuously_false_at_boundary
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestForwardComp::test_composition_exists
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestFormulaStringConversion::test_has_formula_string_method
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConstraintInteractions::test_all_constraints_consistent
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_CM_2]
+0.07s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_1-example_case0]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceZ3Integration::test_since_true_at_produces_valid_z3
+0.07s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_11-example_case10]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestSemanticReferences::test_constraints_check_time_validity
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestInitialization::test_initialization_stores_N
+0.07s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_9-example_case8]
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_guard_is_bot
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_past_operator_false_structure_uses_quantifier
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorZ3Structure::test_since_true_at_uses_nested_quantifiers
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_since_with_immediate_witness
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_modal_witness_integration.py::TestRegressionBasic::test_frame_constraints_still_generated
+0.07s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_12-example_case11]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_future_operator_false_structure_uses_quantifier
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceOperatorZ3Structure::test_since_false_at_returns_z3_expression
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_past_operator_structure_uses_quantifier
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestTimeIntervalBounds::test_is_valid_time_checks_global_bounds
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestTimeIntervalBounds::test_is_valid_time_for_world_checks_world_interval
+0.07s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_25-example_case22]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestSinceFindTruthCondition::test_since_find_truth_condition_basic_case
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_argument_is_event
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefPrevDefinition::test_prev_derived_definition_returns_list
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_foralltime.py::TestTemporalOperatorsUsage::test_future_operator_structure_uses_quantifier
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_nullity_axiom_enforced_in_frame
+0.07s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_15-example_case14]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_until_fails_when_guard_fails
+0.07s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_8-example_case7]
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_11]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestStrictOrderingVerification::test_future_operator_uses_strict_less_than
+0.07s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_9-example_case42]
+0.07s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_2-example_case1]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_returns_z3_constraints
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceSemantics::test_until_operator_instantiation
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceSemantics::test_since_operator_instantiation
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_until_since.py::TestUntilOperatorZ3Structure::test_until_true_at_uses_nested_quantifiers
+0.07s call     src/model_checker/theory_lib/bimodal/tests/unit/test_next_prev.py::TestDefNextDefinition::test_next_derived_definition_full_structure
+0.07s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_2]
+0.07s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_8-example_case41]
+0.07s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceZ3Integration::test_until_true_at_produces_valid_z3
+0.06s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_8]
+0.06s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_none_predicate_raises_error
+0.06s call     tests/integration/test_error_handling.py::TestErrorRecovery::test_cleanup_after_error
+0.06s call     tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_file_path
+0.06s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceFindTruthConditionIntegration::test_since_fails_when_guard_fails
+0.06s setup    src/model_checker/theory_lib/bimodal/tests/unit/test_witness_constraints.py::TestGenerateWitnessConstraints::test_generate_empty_formula_raises_error
+0.06s call     tests/integration/test_error_handling.py::TestCLIErrorHandling::test_malformed_module_syntax
+0.06s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_7-example_case6]
+0.06s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_1]
+0.06s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestAtomDomainCheck::test_true_at_complex_formulas_no_domain_check
+0.06s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_4]
+0.06s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_6]
+0.06s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_14]
+0.06s setup    src/model_checker/theory_lib/bimodal/tests/integration/test_strict_semantics.py::TestQuantificationScope::test_existstime_uses_is_valid_time
+0.06s call     tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_cli_flags[--nonexistent]
+0.06s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_8-example_case7]
+0.06s call     src/model_checker/theory_lib/bimodal/tests/unit/test_semantic_module_registration.py::TestBimodalSemanticSingleClassIdentity::test_bimodal_semantics_class_survives_process_pool_round_trip
+0.06s call     tests/integration/test_error_handling.py::TestFrameworkErrorHandling::test_memory_limit_handling
+0.06s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_CM_18-example_case17]
+0.06s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_4-example_case17]
+0.06s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_3-example_case16]
+0.06s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_9-example_case12]
+0.06s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_13]
+0.06s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_5]
+0.06s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_5-example_case18]
+0.06s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_6-example_case19]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_1]
+0.05s call     tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_cli_flags[-X]
+0.05s call     tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_theory_name
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_6]
+0.05s call     tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_cli_flags[--invalid-flag]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_1]
+0.05s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_12-example_case34]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_14]
+0.05s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_10-example_case32]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_3]
+0.05s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_2-example_case24]
+0.05s call     src/model_checker/theory_lib/imposition/tests/unit/test_imposition.py::test_example_cases[IM_CM_10-example_case10]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_4]
+0.05s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_4-example_case3]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_CM_2]
+0.05s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_14-example_case36]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_9]
+0.05s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_1-example_case34]
+0.05s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_8-example_case11]
+0.05s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_5]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_9]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_13-example_case12]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_4]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_CM_2]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_6]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_7-example_case10]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_12]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CF_TH_10]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_CM_2]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_2]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_13-example_case35]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_14-example_case13]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_10]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_5-example_case8]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_2-example_case5]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_8]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_10-example_case43]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_11-example_case33]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_5]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_CM_2-example_case1]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_2]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_CM_3]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_1-example_case4]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_CM_1]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_10]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/counterfactual/tests/test_counterfactual_examples.py::test_counterfactual_examples[CF_TH_1-example_case23]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_11]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_2-example_case15]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_11-example_case44]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_1-example_case14]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_11]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_2]
+0.04s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_14-example_case27]
+0.04s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_CM_1]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_15-example_case28]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_13]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_5]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_10]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_17]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_CM_10]
+0.03s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_15-example_case36]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_3]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_1]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_7]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_8]
+0.03s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_z3_compatibility_for_imposition_operations
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_9-example_case53]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_8-example_case21]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_CM_7]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_15]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_CM_1-example_case0]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_9-example_case22]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_1]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_7-example_case20]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_1]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_CM_2-example_case1]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_5-example_case49]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_CM_4]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_4]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_4]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_2]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_6-example_case50]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_CM_3]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CF_TH_1]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_8]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_3-example_case36]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate.py::TestLogosIterator::test_difference_detection
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_9]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_3]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_14]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_3]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate.py::TestLogosIterator::test_iterate_example_function
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_6]
+0.03s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_CM_1-example_case0]
+0.03s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.03s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_10-example_case13]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_6]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_6-example_case39]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_7]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_3-example_case47]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_4]
+0.03s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_5]
+0.03s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_CM_3-example_case2]
+0.02s call     src/model_checker/builder/tests/integration/test_package_imports.py::TestPackageImports::test_relative_imports_now_work_with_package
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_6]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_4-example_case37]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_5]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_7]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_2]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_5-example_case38]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_7]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_2]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_1-example_case45]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_4]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_2-example_case46]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_CM_4]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_4-example_case48]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_3-example_case6]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_2-example_case35]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_10]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_4-example_case7]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_6-example_case9]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_10]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_14]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_1]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_CM_4-example_case3]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_8]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_CM_7]
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_both_execution_paths_work
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_10-example_case9]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_3]
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_project_creation_and_example_execution
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_3]
+0.02s call     src/model_checker/builder/tests/test_package_loading.py::TestPackageLoading::test_buildmodule_with_package
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_CM_9]
+0.02s call     src/model_checker/builder/tests/test_issue_73_fix.py::TestIssue73Fix::test_loader_handles_generated_packages
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_1]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-REL_TH_9]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_10]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_1]
+0.02s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_multiple_project_generation_completes_within_reasonable_time
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py::TestExclusionInjection::test_inject_verify_constraints
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_CM_9-example_case8]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_4]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_3]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_4-example_case25]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_14-example_case17]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_9]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_8]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_8-example_case52]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_CM_7-example_case40]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_injection.py::TestLogosInjection::test_inject_verify_falsify_constraints
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_16-example_case37]
+0.02s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_3-example_case24]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_11-example_case32]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_5-example_case26]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_10-example_case31]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_4]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_12]
+0.02s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_14-example_case35]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_9-example_case30]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_12-example_case33]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_6-example_case27]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_6]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py::TestExclusionInjection::test_inject_excludes_constraints
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_7]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[REL_TH_7-example_case51]
+0.02s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphIsomorphismIntegration::test_large_graph_isomorphism
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_13-example_case34]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_7-example_case28]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_8-example_case29]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_10-example_case11]
+0.02s call     src/model_checker/theory_lib/exclusion/tests/unit/test_witness_semantics.py::TestWitnessConstraintGenerator::test_constraint_generator_creation
+0.02s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphIsomorphismIntegration::test_cache_behavior_under_load
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_13]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_9-example_case10]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_1-example_case2]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_8-example_case9]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_7-example_case8]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_13-example_case16]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_CM_1]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_2-example_case3]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_5]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_16]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_4-example_case5]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_12-example_case15]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_3-example_case4]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_8]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_18-example_case31]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_18]
+0.02s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-REL_TH_9]
+0.02s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_19-example_case32]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_19]
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_is_world_method
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_9]
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_calculate_outcome_worlds_signature
+0.01s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_CM_1-example_case0]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_10]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_7]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-MOD_TH_11]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_19]
+0.01s call     src/model_checker/theory_lib/exclusion/tests/unit/test_witness_semantics.py::TestWitnessAwareModel::test_witness_aware_model_creation
+0.01s call     src/model_checker/builder/tests/unit/test_package_structure.py::TestPackageStructure::test_init_file_creation
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_initialization
+0.01s call     src/model_checker/theory_lib/exclusion/tests/unit/test_witness_semantics.py::TestWitnessConstraintGenerator::test_generate_witness_constraints
+0.01s call     src/model_checker/theory_lib/logos/subtheories/modal/tests/test_modal_examples.py::test_modal_examples[MOD_TH_11-example_case14]
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_alt_imposition_different_states
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_2]
+0.01s call     src/model_checker/builder/tests/integration/test_workflow.py::TestUserWorkflowIntegration::test_multiple_project_creation_workflow_handles_conflicts
+0.01s call     src/model_checker/theory_lib/exclusion/tests/unit/test_operators.py::TestOperatorSemanticClauses::test_semantic_clause_execution
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_alt_imposition_method_signature
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_18]
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_calculate_outcome_worlds_single_verifier
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_13]
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_initialization
+0.01s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_17-example_case30]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_3]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_CM_1]
+0.01s call     src/model_checker/theory_lib/logos/subtheories/constitutive/tests/test_constitutive_examples.py::test_constitutive_examples[CL_TH_16-example_case29]
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_calculate_outcome_worlds_empty_verifiers
+0.01s call     src/model_checker/theory_lib/exclusion/tests/unit/test_witness_semantics.py::TestWitnessSemantics::test_semantics_creation
+0.01s teardown src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_11]
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_injection.py::TestLogosInjection::test_inject_world_constraints
+0.01s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_bimodal_project_generation_and_loading
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_4]
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_inheritance_from_logos_semantics
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_12]
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_calculate_outcome_worlds_multiple_verifiers
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemantics::test_imposition_specific_methods
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-MOD_TH_11]
+0.01s call     src/model_checker/theory_lib/exclusion/tests/integration/test_project_generation.py::TestExclusionProjectGeneration::test_exclusion_project_generation
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_compossible_method
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestPerformanceAndScalabilityScenarios::test_repeated_project_operations_maintain_consistent_performance
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_counter_initialization
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_16]
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_possible_method
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_product_method
+0.01s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_6-example_case7]
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_coheres_method
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_witness_registry_n_parameter
+0.01s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_12-example_case13]
+0.01s call     src/model_checker/theory_lib/logos/subtheories/extensional/tests/test_extensional_examples.py::test_extensional_examples[EXT_TH_5-example_case6]
+0.01s teardown src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_12]
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_handles_special_character_names_correctly
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_necessary_method
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_injection.py::TestLogosInjection::test_inject_possible_constraints
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-CL_TH_17]
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_constraint_generator_semantics_reference
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_z3_function_creation
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_conflicts_method
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_formula_processing_tracking
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_build_model_with_none_eval_point
+0.01s call     src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py::TestExclusionInjection::test_inject_witness_constraints
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemantics::test_inherits_from_logos_semantics
+0.01s call     src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py::TestExclusionInjection::test_uses_model_validator
+0.01s call     src/model_checker/theory_lib/exclusion/tests/unit/test_witness_semantics.py::TestWitnessSemantics::test_semantics_model_class
+0.01s call     src/model_checker/theory_lib/exclusion/tests/unit/test_witness_semantics.py::TestWitnessSemantics::test_semantics_has_exclusion_relation
+0.01s call     src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py::TestExclusionInjection::test_inject_basic_constraints
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_iterate.py::TestLogosIterator::test_basic_iteration
+0.01s call     src/model_checker/theory_lib/exclusion/tests/integration/test_examples.py::test_exclusion_examples[EX_TH_1-example_case23]
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_conflicting_constraints
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_5]
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_6]
+0.01s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestNullityIdentity::test_zero_duration_different_states_unsat
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation
+0.01s call     src/model_checker/theory_lib/imposition/tests/integration/test_injection.py::TestImpositionInjection::test_injection_works
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[z3-EXT_TH_12]
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_existing_name_handles_appropriately
+0.01s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_converse_axiom_enforced_in_frame
+0.01s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_constraints.py::TestConverse::test_converse_exclusion
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestProjectGenerationEdgeCases::test_project_generation_creates_multiple_projects_independently
+0.01s call     src/model_checker/theory_lib/bimodal/tests/unit/test_frame_class_mapping.py::TestFrameClassDeclarationConsistency::test_nullity_axiom_enforced_in_frame
+0.01s call     tests/integration/test_error_handling.py::TestEdgeCases::test_very_long_formulas
+0.01s call     src/model_checker/theory_lib/imposition/tests/integration/test_injection.py::TestImpositionInjection::test_imposition_specific_constraints
+0.01s call     src/model_checker/builder/tests/integration/test_generated_projects.py::TestGeneratedProjectImports::test_default_project_examples_init_loading
+0.01s call     src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-EXT_TH_12]
+0.01s call     src/model_checker/iterate/tests/unit/test_z3_utils.py::TestZ3UtilsEdgeCases::test_extract_model_values_handles_large_variable_count
+0.01s call     src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceZ3Integration::test_until_true_at_produces_valid_z3
+0.01s teardown src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_10]
+0.01s call     src/model_checker/builder/tests/unit/test_z3_isolation.py::TestZ3ContextIsolation::test_solver_state_isolation
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemanticsIntegration::test_z3_function_compatibility
+0.01s call     src/model_checker/iterate/tests/unit/test_base_iterator.py::TestBaseModelIterator::test_invalid_model_handling
+0.01s call     src/model_checker/utils/tests/unit/test_context.py::test_isolated_z3_context_provides_isolation
+0.01s call     src/model_checker/theory_lib/exclusion/tests/integration/test_semantic_coverage.py::TestWitnessSemanticsMethods::test_semantics_creation
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemanticsIntegration::test_registry_integration
+0.01s call     src/model_checker/builder/tests/e2e/test_project_edge_cases.py::TestSystemPathIsolationBehavior::test_sys_path_modifications_do_not_interfere_between_operations
+0.01s call     src/model_checker/theory_lib/bimodal/tests/integration/test_until_since_integration.py::TestUntilSinceZ3Integration::test_since_true_at_produces_valid_z3
+0.01s call     src/model_checker/iterate/tests/integration/test_graph_isomorphism_integration.py::TestGraphIsomorphismIntegration::test_complex_graph_comparison
+0.01s call     src/model_checker/theory_lib/exclusion/tests/integration/test_injection.py::TestExclusionInjection::test_inject_z3_model_values_exists
+0.01s teardown src/model_checker/theory_lib/logos/tests/integration/test_solver_comparison.py::test_example_with_solver[cvc5-CL_TH_14]
+0.01s call     src/model_checker/theory_lib/logos/tests/unit/test_proposition.py::TestPropositionConstraints::test_constraint_generation_structure
+0.01s setup    src/model_checker/theory_lib/exclusion/tests/unit/test_witness_core.py::TestWitnessSemanticsIntegration::test_constraint_generator_integration
+0.01s setup    src/model_checker/theory_lib/imposition/tests/unit/test_semantic_core.py::TestImpositionSemanticsIntegration::test_imposition_in_z3_solver
+
+(5800 durations < 0.005s hidden.  Use -vv to show these durations.)
+======================= 2190 passed in 387.33s (0:06:27) =======================

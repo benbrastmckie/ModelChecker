@@ -347,7 +347,7 @@ default suite is green, before the quarantine clause is removed.
 
 ---
 
-### Phase 5: Delete the quarantine clause from pyproject.toml [NOT STARTED]
+### Phase 5: Delete the quarantine clause from pyproject.toml [COMPLETED]
 
 **Goal**: Remove the `-m "not slow"` filter — not relax it — along with the TEMPORARY comment
 block that justified it, and rewrite the `slow` marker description so it describes what the
@@ -394,7 +394,12 @@ marker now means.
 
 ---
 
-### Phase 6: Repeat unfiltered verification — 3 separate invocations [NOT STARTED]
+### Phase 6: Repeat unfiltered verification — 3 separate invocations [COMPLETED]
+
+**Result**: three separate invocations, all green, identical result set — 2190 collected / 2190
+passed / 0 failed / 0 deselected each, in 336.81s, 387.33s and 418.11s. Evidence:
+`specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-repeat-results.md`.
+
 
 **Goal**: Apply task 135's verification bar verbatim: run the unfiltered suite 3 times as
 **separate invocations** requiring an **identical green result set**. A single green run is not
