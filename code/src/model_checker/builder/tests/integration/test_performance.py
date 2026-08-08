@@ -1,8 +1,17 @@
-"""Performance tests for builder package.
+"""Integration tests for builder package end-to-end behaviour.
 
-This module tests the performance characteristics of the builder package,
-ensuring that model checking and constraint solving operations complete
-within acceptable time limits.
+This module exercises the builder package end to end: loading a module,
+running its examples, comparison mode, and serialization.
+
+Most of the wall-clock budgets this module used to assert have been removed.
+Measurement showed they were not measuring the builder's cost at all: the
+bimodal theory's default `max_time` is 1 second, so every model construction
+here measured `min(real_solve_time, max_time) + overhead` and pinned at ~1.2s
+regardless of the example. A 500ms budget was arithmetically unreachable, and
+the multi-second budgets were satisfied by a quantity that physically could
+not exceed the cap. The two timing assertions that remain
+(`test_module_loading_performance`, `test_serialization_performance`) are
+Z3-free and are documented individually.
 """
 
 import unittest
@@ -10,8 +19,6 @@ import time
 import tempfile
 import os
 from unittest.mock import Mock, patch
-
-import pytest
 
 # Import test fixtures
 from model_checker.builder.tests.fixtures.test_data import (
@@ -22,13 +29,6 @@ from model_checker.builder.tests.fixtures.mock_objects import MockObjectFactory
 # Import components to test
 from model_checker.builder.module import BuildModule
 from model_checker.builder.runner import ModelRunner
-
-# Wall-clock assertions here are load-sensitive (see TESTING_GUIDE.md 8.6):
-# repeat full-suite sweeps have shown these budgets tripped under
-# concurrent load with no code change. Marked "slow" so a default run can
-# opt out via `-m "not slow"` for deterministic results; run with `-m slow`
-# (or no -m filter) to validate actual performance characteristics.
-pytestmark = pytest.mark.slow
 
 
 class TestBuilderPerformance(unittest.TestCase):
@@ -45,11 +45,14 @@ class TestBuilderPerformance(unittest.TestCase):
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
     
-    def test_small_model_generation_completes_quickly(self):
-        """Test small model (N=2) generation completes in <500ms.
-        
-        This ensures that simple model checking problems complete quickly,
-        providing fast feedback for basic logical arguments.
+    def test_small_model_runs_end_to_end(self):
+        """Test a small (N=2) example loads and runs to completion.
+
+        This used to assert the run finished in <500ms. That budget was
+        unreachable: the example's real solve time exceeds the theory's
+        1-second `max_time`, so the run always spends the full timeout wall
+        plus module-loading overhead (measured floor ~1.20s). What is worth
+        pinning is that the load-and-run path completes without raising.
         """
         # Arrange
         test_file = self._create_test_file("""
@@ -76,20 +79,19 @@ general_settings = {}
         )
         
         # Act
-        start_time = time.time()
         build_module = BuildModule(flags)
         build_module.runner.run_examples()
-        elapsed_time = time.time() - start_time
-        
+
         # Assert
-        self.assertLess(elapsed_time, 0.5,
-                       f"Small model should complete in <500ms, took {elapsed_time:.3f}s")
-    
-    def test_medium_model_generation_completes_within_timeout(self):
-        """Test medium model (N=5) generation completes in <2 seconds.
-        
-        This verifies that moderately complex models can be generated
-        within reasonable time limits for interactive use.
+        self.assertEqual(list(build_module.example_range), ["SMALL"])
+        self.assertIn("Test", build_module.semantic_theories)
+
+    def test_medium_model_runs_end_to_end(self):
+        """Test a medium (N=5) example loads and runs to completion.
+
+        This used to assert the run finished in <2s. The measured cost is
+        pinned at ~1.2s by the theory's 1-second `max_time` cap regardless of
+        N, so the budget described the cap rather than the builder.
         """
         # Arrange
         test_file = self._create_test_file("""
@@ -116,64 +118,23 @@ general_settings = {}
         )
         
         # Act
-        start_time = time.time()
         build_module = BuildModule(flags)
         build_module.runner.run_examples()
-        elapsed_time = time.time() - start_time
-        
-        # Assert
-        self.assertLess(elapsed_time, 2.0,
-                       f"Medium model should complete in <2s, took {elapsed_time:.3f}s")
-    
-    def test_large_model_generation_completes_within_timeout(self):
-        """Test large model (N=5) generation completes in <5 seconds.
-        
-        This ensures that even complex model checking problems complete
-        within acceptable time limits for batch processing.
-        """
-        # Arrange
-        test_file = self._create_test_file("""
-from model_checker.theory_lib.bimodal import get_theory
 
-theory = get_theory(['extensional'])
-semantic_theories = {"Test": theory}
-example_range = {"LARGE": [["A", "B"], ["C"], {"N": 5}]}
-general_settings = {}
-""")
-        
-        flags = Mock(
-            file_path=test_file,
-            comparison=False,
-            interactive=False,
-            iterations=False,
-            quiet=True,
-            output=None,
-            save=None,  # No saving
-            sequential=False,  # Matches real --sequential/-q argparse default;
-                                # a bare Mock() auto-creates a truthy attribute
-                                # otherwise (see output/config.py sequential logic).
-            _parsed_args=[]
-        )
-        
-        # Act
-        start_time = time.time()
-        try:
-            build_module = BuildModule(flags)
-            build_module.runner.run_examples()
-            elapsed_time = time.time() - start_time
-        except Exception:
-            # If it fails due to complexity, that's acceptable
-            elapsed_time = time.time() - start_time
-        
         # Assert
-        self.assertLess(elapsed_time, 5.0,
-                       f"Large model should complete or timeout in <5s, took {elapsed_time:.3f}s")
-    
-    def test_multiple_examples_process_efficiently(self):
-        """Test processing multiple examples completes efficiently.
-        
-        This verifies that batch processing of multiple examples
-        doesn't have excessive overhead between examples.
+        self.assertEqual(list(build_module.example_range), ["MEDIUM"])
+        self.assertIn("Test", build_module.semantic_theories)
+
+    # A "large model" test used to live here. It was a copy-paste duplicate of
+    # the medium test -- identical premises, conclusions and N=5 settings, with
+    # only the example key and the (now removed) budget differing.
+
+    def test_multiple_examples_run_end_to_end(self):
+        """Test a module holding five examples loads and runs all of them.
+
+        This used to assert an average of <500ms per example and <2s total.
+        Both were unreachable: each of the five examples spends the theory's
+        full 1-second `max_time` plus overhead, for a measured ~6.1s total.
         """
         # Arrange
         test_file = self._create_test_file("""
@@ -206,26 +167,26 @@ general_settings = {}
         )
         
         # Act
-        start_time = time.time()
         build_module = BuildModule(flags)
         build_module.runner.run_examples()
-        elapsed_time = time.time() - start_time
-        
-        # Calculate average time per example
-        avg_time = elapsed_time / 5
-        
-        # Assert - Use more reasonable thresholds for robustness
-        # Allow 250ms per example to account for system variance
-        self.assertLess(avg_time, 0.5,
-                       f"Average time per example should be <500ms, was {avg_time:.3f}s")
-        self.assertLess(elapsed_time, 2.0,
-                       f"Total time for 5 examples should be <2.0s, took {elapsed_time:.3f}s")
-    
-    def test_comparison_mode_performance(self):
-        """Test comparison mode doesn't significantly impact performance.
-        
-        This ensures that comparing multiple theories doesn't cause
-        excessive performance degradation.
+
+        # Assert - all five examples were loaded and processed without raising
+        self.assertEqual(
+            list(build_module.example_range),
+            ["EX1", "EX2", "EX3", "EX4", "EX5"],
+        )
+
+    def test_comparison_mode_runs_end_to_end(self):
+        """Test comparison mode runs to completion over two theory entries.
+
+        This used to assert a <2s budget, which was vacuous: the measured cost
+        is ~0.13s. Note also that the two entries are not actually different
+        theories -- `bimodal.get_theory(['extensional'])` and
+        `get_theory(['counterfactual'])` return the identical object (the
+        subtheory argument is ignored), so this compares bimodal against
+        itself. That is a defect in `get_theory`, not in this test, and is not
+        addressed here; the test is kept as a smoke test of the comparison
+        code path.
         """
         # Arrange
         test_file = self._create_test_file("""
@@ -253,21 +214,23 @@ general_settings = {}
         )
         
         # Act
-        start_time = time.time()
         build_module = BuildModule(flags)
         build_module.comparison.run_comparison()
-        elapsed_time = time.time() - start_time
-        
+
         # Assert
-        self.assertLess(elapsed_time, 2.0,
-                       f"Comparison of 2 theories should complete in <2s, took {elapsed_time:.3f}s")
-    
+        self.assertEqual(
+            sorted(build_module.semantic_theories), ["CF", "Ext"]
+        )
+
     def test_module_loading_performance(self):
         """Test module loading completes quickly.
-        
+
         This verifies that loading and parsing module files
         doesn't have excessive overhead.
         """
+        # The 100ms budget below is a hang guard, not a performance budget:
+        # this path is Z3-free and measures at <5ms, so the assertion means
+        # "module loading did not hang", with 20x headroom.
         # Arrange
         test_file = self._create_test_file(TestModules.WITH_EXAMPLES)
         
@@ -318,63 +281,15 @@ general_settings = {}
         self.assertLess(serialization_time, 0.001,
                        f"Single serialization should take <1ms, took {serialization_time*1000:.3f}ms")
     
-    def test_constraint_generation_scales_linearly(self):
-        """Test constraint generation scales linearly with formula complexity.
-        
-        This verifies that constraint generation doesn't have exponential
-        complexity growth with formula size.
-        """
-        # Arrange - Create formulas of increasing complexity
-        test_cases = [
-            (2, [["A"], ["B"], {"N": 2}]),
-            (4, [["A", "B"], ["C", "D"], {"N": 2}]),
-            (6, [["A", "B", "C"], ["D", "E", "F"], {"N": 2}]),
-            (8, [["A", "B", "C", "D"], ["E", "F", "G", "H"], {"N": 2}])
-        ]
-        
-        times = []
-        
-        for formula_count, example in test_cases:
-            test_file = self._create_test_file(f"""
-from model_checker.theory_lib.bimodal import get_theory
+    # A `test_constraint_generation_scales_linearly` test used to live here. It
+    # timed four formula sizes and asserted the elapsed-time ratio grew no more
+    # than quadratically. All four cases hit the theory's 1-second `max_time`
+    # cap, so every ratio was ~1.0 against thresholds of 4, 9 and 16 -- stable
+    # precisely because it measured nothing, and unable to detect a genuine
+    # blowup because the cap truncates the signal before the assertion sees it.
+    # Counting generated constraints instead of seconds would be a different
+    # test; it was not written here.
 
-theory = get_theory(['extensional'])
-semantic_theories = {{"Test": theory}}
-example_range = {{"TEST": {example}}}
-general_settings = {{}}
-""")
-            
-            flags = Mock(
-                file_path=test_file,
-                comparison=False,
-                interactive=False,
-                iterations=False,
-                quiet=True,
-                output=None,
-                save=None,  # No saving
-                sequential=False,  # See earlier Mock() flags comment on the argparse-default trap
-                _parsed_args=[]
-            )
-            
-            # Act
-            start_time = time.time()
-            build_module = BuildModule(flags)
-            build_module.runner.run_examples()
-            elapsed = time.time() - start_time
-            times.append((formula_count, elapsed))
-        
-        # Assert - Check that time growth is roughly linear
-        # Compare ratio of time increase to formula count increase
-        if len(times) >= 2:
-            for i in range(1, len(times)):
-                formula_ratio = times[i][0] / times[0][0]
-                time_ratio = times[i][1] / times[0][1]
-                
-                # Time should grow no more than quadratically with formula count
-                self.assertLess(time_ratio, formula_ratio * formula_ratio,
-                              f"Time growth should be at most quadratic: "
-                              f"formula ratio {formula_ratio}, time ratio {time_ratio}")
-    
     def _create_test_file(self, content):
         """Create a temporary test file with given content.
         
@@ -390,32 +305,9 @@ general_settings = {{}}
         return test_file
 
 
-class TestMemoryUsage(unittest.TestCase):
-    """Test memory usage characteristics of builder components."""
-    
-    def test_memory_usage_stays_within_bounds(self):
-        """Test memory usage doesn't exceed reasonable limits.
-        
-        This ensures that model checking doesn't consume excessive memory
-        even for complex problems.
-        """
-        # This is a placeholder for memory profiling tests
-        # In a real implementation, you would use memory_profiler or tracemalloc
-        # to measure actual memory consumption
-        
-        # For now, we just verify the test infrastructure works
-        self.assertTrue(True, "Memory usage test placeholder")
-    
-    def test_no_memory_leaks_in_iteration(self):
-        """Test repeated model iterations don't leak memory.
-        
-        This verifies that finding multiple models doesn't cause
-        memory to grow unbounded.
-        """
-        # This is a placeholder for memory leak detection
-        # Would use gc module and weakref to detect leaks in real implementation
-        
-        self.assertTrue(True, "Memory leak test placeholder")
+# A `TestMemoryUsage` class used to live here with two tests whose entire
+# bodies were `self.assertTrue(True, "placeholder")`. They asserted nothing and
+# were deleted rather than left claiming coverage they did not provide.
 
 
 if __name__ == '__main__':

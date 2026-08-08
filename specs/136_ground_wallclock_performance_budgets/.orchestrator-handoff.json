@@ -1,0 +1,32 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "plan",
+  "status": "planned",
+  "summary": "7-phase plan written from the research's per-assertion dispositions. Phases 1-3 are territory-disjoint (one test file each) and apply dispositions plus cap-burn reduction plus full unmarking; Phase 4 verifies exactly 1 slow-marked test remains repo-wide; Phase 5 deletes the -m \"not slow\" addopts clause and TEMPORARY comment block; Phase 6 applies task 135's verification bar verbatim (3 separate unfiltered invocations, identical green result set); Phase 7 closes task 135's Phase 7 by reference. Estimated 6 hours.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/136_ground_wallclock_performance_budgets/plans/01_wallclock-budget-grounding.md"
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "implement",
+  "files_modified": [
+    "specs/136_ground_wallclock_performance_budgets/plans/01_wallclock-budget-grounding.md"
+  ],
+  "decisions_made": [
+    "No budget is re-grounded from p95/p99: research category (a) is empty. Assertions are deleted or converted to behavioural assertions instead, which diverges from the original task description's framing and is stated as such in the plan.",
+    "'Narrow to per-test marks on the tests that justify it' resolves to an empty justified set for all three files, so marks are deleted outright rather than pushed down. Exactly one slow-marked test remains repo-wide: models/tests/unit/test_semantic.py::test_max_n_itself_is_constructible.",
+    "Both concurrency tests are left byte-identical; re-marking them is superseded and would regress prior work.",
+    "Cap-burn reduction (report section 7) is folded into the per-file phases rather than being a separate pass, so each file is edited once.",
+    "Phase 5 is a standalone commit so the quarantine deletion can be reverted alone if Phase 6 finds an out-of-scope failure.",
+    "Stated scope addition in Phase 5: declare pytest-timeout in pyproject's dev extra. It is installed here but undeclared, and several retained hang guards rely on @pytest.mark.timeout, which would silently become a no-op unknown mark in a clean dev install.",
+    "The 3 failures in the research's unfiltered run are all in scope and eliminated by Phases 1-3; Phase 6 requires each to be accounted for by name, not merely absent."
+  ],
+  "dead_ends": [
+    "Re-grounding budgets from measured p95/p99 -- the measured distribution's ceiling is the max_time cap, not the code's cost.",
+    "Relative scaling ratios between two N values -- measured vacuous under the cap and 3-orders-of-magnitude volatile without it.",
+    "Building a benchmark harness inside the functional suite -- trustworthy timing here needs subprocess isolation plus repeat sampling, which is an opt-in benchmarking job."
+  ],
+  "plan_markers_verified": true
+}
