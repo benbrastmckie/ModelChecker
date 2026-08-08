@@ -6,14 +6,13 @@ next_project_number: 140
 
 ## Task Order
 
-*Updated 2026-08-07. Generated from state.json dependency graph.*
+*Updated 2026-08-08. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 133,134,135,136 | -- | architecture, testing |
-| 2 | 127,137 | 133 | oracle soundness, testing |
-| 3 | 126 | 127 | architecture |
+| 1 | 127,134,135,136,137 | -- | architecture, oracle soundness, testing |
+| 2 | 126 | 127 | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
@@ -24,10 +23,9 @@ next_project_number: 140
 
 ### Testing
 
-133 [IMPLEMENTING] — Fix the pre-existing self-consistency failure in the oracle full-
-  └─ 127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
-135 [NOT STARTED] — Fix the non-deterministic segmentation fault when models are buil
-136 [NOT STARTED] — Make the wall-clock performance assertions robust so they can rej
+127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
+135 [IMPLEMENTING] — Fix the non-deterministic segmentation fault when models are buil
+136 [IMPLEMENTING] — Make the wall-clock performance assertions robust so they can rej
 
 ### Oracle Soundness
 
@@ -72,20 +70,25 @@ next_project_number: 140
 ---
 
 ### 136. Ground wallclock performance budgets
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [136_ground_wallclock_performance_budgets/reports/01_wallclock-budget-grounding.md]
+- **Plan**: [136_ground_wallclock_performance_budgets/plans/01_wallclock-budget-grounding.md]
 
 **Description**: Make the wall-clock performance assertions robust so they can rejoin the default test run. Several timing tests have budgets tighter than this codebase's real Z3 solve-time variance, so their pass/fail state changes between identical runs on the same commit -- directly demonstrated: two consecutive full sweeps at the same commit on the same machine produced different failure sets, with test_scaling_with_n[2-1.0] failing in one and passing in the other while test_simple_model_performance failed in both. Observed magnitudes: builder/tests/integration/test_performance.py::test_small_model_generation_completes_quickly and ::test_multiple_examples_process_efficiently both assert <500ms and both measure about 1.09s, roughly 2.2x over budget even at low load, so these two look like authoring defects rather than pure flakiness -- the budget may never have matched the real cost. Affected files, all currently carrying a module-level pytest.mark.slow and therefore quarantined out of the default run by the -m "not slow" clause in code/pyproject.toml addopts: tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and src/model_checker/builder/tests/integration/test_performance.py. Work: for each timing assertion decide which of three things it is -- (a) a real performance regression guard, which needs a budget derived from measured p95/p99 across repeat samples plus enough headroom for the roughly 20x Z3 solve-time variance documented in code/docs/core/TESTING_GUIDE.md section 8.6; (b) a correctness test wearing a stopwatch, which should assert the behaviour and drop the timing clause entirely; or (c) an obsolete assertion whose budget was never grounded in measurement, which should be deleted. Prefer (b) and (c): a wall-clock assertion on a shared development machine is a weak regression signal at best. Where a genuine performance guard is wanted, consider asserting relative scaling between two N values rather than absolute seconds, since a ratio is far more load-stable than a stopwatch. Definition of done: every one of these tests either passes reliably across at least five repeat full-suite samples or has been removed, the pytest.mark.slow markers are dropped from these files, and the coordination noted in task 135 is satisfied so the addopts filter clause can be deleted outright. Do not settle for widening budgets until they stop failing -- an unmeasured larger number is the same defect with a bigger constant. MEASURED OVER-HIDING (act on this first, it is cheap and independent of the budget work): the slow marker is applied as a module-level pytestmark across three whole files, so it quarantines 43 tests when only 5 justify quarantine. Measured with -m slow and the two crashers deselected: 3 failed, 38 passed, in 73 seconds total. So 38 of 43 quarantined tests pass and are hidden for no reason, at a cost of just over a minute; examples include test_file_handles_closed, test_keyboard_interrupt_cleanup, and test_memory_released_after_error, none of which assert on wall-clock time or use threads. Replace the module-level pytestmark in tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and src/model_checker/builder/tests/integration/test_performance.py with per-test @pytest.mark.slow on only: test_simple_model_performance, test_small_model_generation_completes_quickly, test_multiple_examples_process_efficiently (the 3 measured failures), test_scaling_with_n[2-1.0] (intermittent -- failed one full sweep and passed the next at the same commit), plus the two concurrency crashers which stay marked until task 135 lands. Keep models/tests/unit/test_semantic.py::test_max_n_itself_is_constructible marked: it legitimately allocates about 3.5GB over about 11s and exists to keep MAX_N honest. Verify the narrowing with repeat default sweeps rather than one, since the borderline timing tests are exactly the ones that flap. The three named failures assert <500ms against a measured ~1.09s, roughly 2.2x over even at low load, so treat them as authoring defects to re-ground rather than as flakes to widen.
 
 ---
 
 ### 135. Fix concurrent model building segfault
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
+- **Research**: [135_fix_concurrent_model_building_segfault/reports/01_concurrent-segfault.md]
+- **Plan**: [135_fix_concurrent_model_building_segfault/plans/01_single-threaded-construction-guard.md]
+- **Summary**: [135_fix_concurrent_model_building_segfault/summaries/01_single-threaded-construction-guard-summary.md]
 
 **Description**: Fix the non-deterministic segmentation fault when models are built concurrently from multiple threads. Two tests reproduce it and both abort the whole pytest process (exit 139, Fatal Python error: Segmentation fault, Extension modules: cvc5.cvc5_python_base): tests/integration/test_performance.py::TestConcurrentPerformance::test_sequential_vs_concurrent (3 threads) and tests/integration/test_timeout_resources.py::TestResourceLimits::test_concurrent_model_building (5 threads). Both call create_test_model({N: 3}) from threading.Thread targets and crash during thread join. The crash is intermittent, not deterministic: the performance one reproduced on run 3 of 3 identical isolated invocations (runs 1 and 2 exited 0), so any single green run proves nothing and repeat sampling is required to validate a fix. This is independent of the N-bound work: N=3 is far below MAX_N so the new guard is a no-op on this path. Because a segfault kills the interpreter rather than failing a test, these two tests are the reason a full-suite sweep still cannot complete even after the N=64 memory hang was fixed -- a sweep aborts at whichever concurrency test it reaches first, producing no failure summary at all. Two mechanisms to investigate. First, the solver backend is resolved lazily per call through _get_backend_module() (solver/expressions.py, solver/backend.py:55, z3_shim.py:45) with a module-level _cached_module/_backend_module, so concurrent first-touch can race on that import and cache assignment; note cvc5.cvc5_python_base appears as the faulting extension even though solver defaults to z3, so establish why the cvc5 pythonic module is loaded at all on the default path before assuming the backend choice is irrelevant. Second, SemanticDefaults.__init__ calls self._reset_global_state() (models/semantic.py:83) whose documented job is to reset global state to avoid cross-example interference; resetting process-global solver state from several threads at once is inherently racy and theory subclasses override it to reset their own caches too. Decide the intended contract: either make concurrent model construction genuinely thread-safe (guard the backend cache and global-state reset with a lock, or make the state per-instance rather than global), or declare model construction single-threaded-only, document that, and replace these two tests with ones that assert the documented contract instead of exercising an unsupported pattern. Do not simply mark the tests skip or slow without recording that decision -- the crash risk stays in the product either way, and both files are already pytest.mark.slow, a marker nothing currently filters on. ADDITIONAL SCOPE (filter removal): the -m "not slow" filter is now wired into code/pyproject.toml addopts as an explicit, documented quarantine -- see the comment block above addopts. It is temporary. This task owns removing it: once the segfault is genuinely fixed (not skipped, not marked), delete the -m "not slow" clause from addopts entirely rather than relaxing it, drop the pytest.mark.slow markers from the two concurrency tests, and confirm an unfiltered full run is green across repeat samples -- the crash is intermittent at roughly 1 in 3, so a single green unfiltered run is not evidence. Note the filter currently hides these crashes rather than fixing them, which is exactly the state this task exists to end. Removing the filter also depends on the wall-clock budget work (task 136), since the same filter is quarantining those; coordinate so the clause is deleted only when BOTH are done, and record in the final summary that an unfiltered run was verified green and repeatable. CRASH SITE (observed): a second reproduction, this time SIGABRT (exit 134, Fatal Python error: Aborted) rather than SIGSEGV (exit 139), shows the faulting stack is two threads simultaneously inside model_checker/theory_lib/bimodal/semantic/core.py:580 build_frame_constraints, reached from core.py:88 __init__ -- i.e. concurrent BimodalSemantics construction, not concurrent solving. That the same test aborts under two different fatal signals across runs is consistent with memory corruption from unsynchronised access rather than a clean assertion inside the native library. Start the investigation at build_frame_constraints and at whatever process-global Z3/cvc5 context SemanticDefaults._reset_global_state touches during __init__, rather than at the solver check() path. Note also that the quarantined -m slow set cannot currently be measured as a whole: the run aborts at test_sequential_vs_concurrent partway through, so any characterisation of the slow set requires deselecting the two concurrency tests first.
 
@@ -102,12 +105,14 @@ next_project_number: 140
 ---
 
 ### 133. Fix oracle self consistency disagreements
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: None
 - **Research**: [133_fix_oracle_self_consistency_disagreements/reports/02_find-countermodel-contract.md]
 - **Plan**: [133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md]
+- **Evidence**: [133_fix_oracle_self_consistency_disagreements/evidence/verification-results.md]
+- **Summary**: [133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md]
 
 **Description**: Fix the pre-existing self-consistency failure in the oracle full-scan report. oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent fails with AssertionError: Self-comparison produced N disagreements at complexity<=5 (assert N == 0) at test_cross_oracle_differential.py:1381. A self-comparison producing any disagreement means the oracle does not agree with itself on the same input, which is a correctness defect independent of any refactor. This failure is confirmed pre-existing: it reproduces at pre-refactor commit 6cfb7f48. It is NOT a resource or contention artifact -- it fails deterministically in a serial isolated run (which takes about 31 minutes). One open question to resolve as part of this work: the run at 6cfb7f48 reported 1 disagreement while the run at HEAD reported 3. With a single sample from each commit on a suite already known to be timing-sensitive, it is unresolved whether the disagreement count is stable, load-dependent, or genuinely worse post-refactor. Take repeat samples at both commits before drawing a conclusion. A prior disposition document incorrectly classified this test as a contention flake that passes in isolation; that classification is false and should be corrected wherever it is recorded.
 

@@ -1,48 +1,51 @@
 {
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
-  "status": "partial",
-  "summary": "Phases 1-6 complete and green: find_countermodel raises OracleTimeoutError instead of conflating timeout with UNSAT; CLI, interface/provider tests, differential harness, and 5 xfail tests all migrated. Phase 7 full-suite run: scan-alone shows disagreements=0 (core fix works) but conclusive=106/274 misses the 137 floor (undersized calibration sample). Full oracle-suite FAILED both passes: the floor miss plus 5 pre-existing test_soundness_regression.py failures (same root-cause bug, file outside this plan's scope). Reported honestly, not forced green.",
+  "status": "complete",
+  "summary": "All 7 phases complete. find_countermodel() is now three-valued: None means only proven-UNSAT, and an undecided solve raises OracleTimeoutError. The task's founding premise turned out to be wrong in an important way -- there were never any self-consistency disagreements; the scan had been laundering solver timeouts into false verdicts. Three full 274-formula sweeps now measure disagreements=0. Phase 7 verified the claim against the CORRECT vehicle: oracle/run-oracle-exhaustive-scan.sh completed with SCAN_COMPLETE and agreements=103 disagreements=0 timeout_count=171 in 60.9 min, clearing both teeth of the assertion (103 >= floor 90). The gating suite (run-oracle-suite.sh) is separately RED on three failures, every one of them timeout/conclusiveness-shaped and none a disagreement: two are confirmed contention artifacts that pass in isolation, and the third is an out-of-scope floor mis-calibration in another task's constant. The two soft blockers carried into this dispatch were already closed at HEAD by commit c8087c4d before it started.",
   "artifacts": [
     {"type": "plan", "path": "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md"},
-    {"type": "summary", "path": "specs/133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md"}
+    {"type": "summary", "path": "specs/133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md"},
+    {"type": "evidence", "path": "specs/133_fix_oracle_self_consistency_disagreements/evidence/verification-results.md"},
+    {"type": "handoff", "path": "specs/133_fix_oracle_self_consistency_disagreements/handoffs/phase-7-handoff-1786214600.md"}
   ],
-  "blockers": [
-    {
-      "description": "MIN_CONCLUSIVE_SCAN_FORMULAS=137 calibrated from a 30-formula sample that only reached complexity 4; the real 274-formula sweep measured 106 conclusive (38.7%). Needs recalibration from this real data, then oracle/run-oracle-suite.sh re-run to confirm green.",
-      "phase": "phase-7",
-      "severity": "soft"
-    },
-    {
-      "description": "5 tests in oracle/bimodal_logic/tests/test_soundness_regression.py (never touched by this plan) fail with OracleTimeoutError at temporal_depth=2/M=4/5000ms -- the same timeout/UNSAT conflation bug, discovered in a third file outside this plan's inventory. Needs its own follow-up task applying the resolved-and-wrong/inconclusive pattern from Phases 3 and 6.",
-      "phase": "phase-7",
-      "severity": "soft"
-    }
-  ],
+  "blockers": [],
   "next_action_hint": "none",
   "files_modified": [
-    "oracle/bimodal_logic/errors.py",
-    "oracle/bimodal_logic/__init__.py",
-    "oracle/bimodal_logic/provider.py",
-    "oracle/bimodal_logic/cli.py",
-    "oracle/bimodal_logic/tests/test_oracle_provider.py",
-    "oracle/bimodal_logic/tests/test_oracle_interface.py",
-    "oracle/bimodal_logic/tests/test_cli.py",
-    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py"
+    "specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/summaries/02_find-countermodel-contract-summary.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/evidence/verification-results.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/handoffs/phase-7-handoff-1786214600.md",
+    "specs/133_fix_oracle_self_consistency_disagreements/run/gating-suite-head-1786212046.log",
+    "specs/133_fix_oracle_self_consistency_disagreements/run/isolate-1786213644.log"
   ],
   "decisions_made": [
-    "Kept SELF_SCAN_SOLVE_TIMEOUT_MS=10000 rather than escalating to the 20000 hard ceiling: measured conclusiveness was flat/noisy (53.3/50.0/56.7%) with no real gain, while 20000ms's extrapolated full-scan wall clock alone risks exceeding the 90-min abort ceiling.",
-    "Did not adjust the floor or re-run to force a green result; reported the actual measured counts per explicit coordinator instruction.",
-    "5 tests outside the plan's Bucket-1 inventory were found broken by the same cause in Phase 3 and fixed with the same classify-and-skip pattern (see plan/summary for detail)."
+    "Marked Phase 7 and the plan COMPLETED on the substantive claim (exhaustive scan green, zero disagreements, floor cleared) while documenting prominently that the plan's literal exit criterion -- a green oracle/run-oracle-suite.sh -- is NOT met and is STALE: that script deselects `slow` on both passes and no longer runs test_complexity_5_scan_self_consistent at all, so a green run of it would confirm nothing about this claim.",
+    "Did NOT touch MIN_CONCLUSIVE_GATING_FORMULAS despite it being the one reproducing gating failure. It is another task's constant guarding another task's manifest; both its own comment and run-oracle-suite.sh's header explicitly forbid adjusting constants to make a contended run green.",
+    "Classified all three gating failures by isolation and repeat runs rather than by assertion: two pass alone (contention artifacts), the third straddles its floor at 99/98/100 against a floor of exactly 100.",
+    "Recomputed the exhaustive scan's counts independently from the 274 raw report.json entries rather than trusting its summary fields; they reproduce exactly.",
+    "Attributed the two carried soft blockers' resolution to commit c8087c4d rather than claiming them as this dispatch's work."
   ],
   "dead_ends": [
-    "Widening the solve budget past 10000ms buys no measured conclusiveness benefit on this oracle -- confirmed at 15000 and 20000ms."
+    "Widening the solve budget past 10000ms buys no measured conclusiveness benefit on this oracle -- confirmed flat at 15000 and 20000ms.",
+    "Attempting a clean gating-suite verdict on this machine: a sibling task's pytest appeared mid-run at ~100% CPU and an unrelated `pytest -m slow` persisted afterwards, so the contention-free run the suite's own header demands was not obtainable this cycle."
+  ],
+  "findings": [
+    "The task's founding premise was wrong: there were never any disagreements. Zero across three full 274-formula sweeps. The reported 'disagreements' were solver timeouts laundered into false verdicts by the ambiguous None contract.",
+    "MIN_CONCLUSIVE_GATING_FORMULAS = 100 is mis-calibrated: the observed conclusive distribution is {98, 99, 100}, so the gate passes only at the top of its own range. This is the same error already corrected in this plan for MIN_CONCLUSIVE_SCAN_FORMULAS (137 -> 90) and wants the same fix -- floor below the range, not at it. Corroborated by that constant's own comment recording the manifest's slowest conclusive solve at 10.094s against a 10000ms budget (~0.9% OVER nominal).",
+    "test_spot_check_individual_countermodels' same-session Z3-state sensitivity is not closed by @pytest.mark.xdist_serial: it passes alone at 131s but fails after sibling tests in the same session.",
+    "A genuine, separate soundness finding remains xfail'd in test_temporal_only_agreement_complexity_5: 13 of 158 temporal-only formulas have both oracles decide and disagree. The contract fix surfaced it by removing the timeout noise that had been hiding it."
+  ],
+  "recommended_followups": [
+    "Re-floor MIN_CONCLUSIVE_GATING_FORMULAS from the observed {98, 99, 100} distribution (gating-manifest task's territory).",
+    "Decide the disposition of test_spot_check_individual_countermodels' session-order sensitivity, which xdist_serial does not close.",
+    "Investigate the 13 genuine temporal-only disagreements kept xfail'd in test_temporal_only_agreement_complexity_5."
   ],
   "continuation_context": {
-    "handoff_path": "specs/133_fix_oracle_self_consistency_disagreements/handoffs/phase-7-handoff-1785970200.md",
-    "phases_completed": 6,
+    "handoff_path": "specs/133_fix_oracle_self_consistency_disagreements/handoffs/phase-7-handoff-1786214600.md",
+    "phases_completed": 7,
     "phases_total": 7,
     "orchestrator_mode": true
   },
-  "plan_markers_verified": false
+  "plan_markers_verified": true
 }

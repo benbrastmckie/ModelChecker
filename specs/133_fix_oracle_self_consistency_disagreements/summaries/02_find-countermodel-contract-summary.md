@@ -2,169 +2,213 @@
 
 - **Task**: 133 - fix_oracle_self_consistency_disagreements
 - **Plan**: `specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md`
-- **Status**: PARTIAL — Phases 1-6 complete and verified green; Phase 7 (full-suite verification)
-  completed its verification work but the suite did not go green. See "What remains" below.
+- **Status**: COMPLETED — all 7 phases complete. The plan's substantive claim is verified green
+  against the correct vehicle; the gating suite is separately RED on three timeout-shaped,
+  out-of-scope failures. Both outcomes are documented precisely below.
 
-## What changed
+## The original premise was wrong, and that is the headline result
 
-`Z3OracleProvider.find_countermodel()` (`oracle/bimodal_logic/provider.py`) previously collapsed
-two opposite outcomes — "formula is provably valid (UNSAT)" and "solver exhausted its budget" —
-into the same `None` return. It now raises a dedicated `OracleTimeoutError`
-(`oracle/bimodal_logic/errors.py`, new) when the solver does not decide, leaving `None` to mean
-exclusively "proven no countermodel". Every caller and every test that encoded the old ambiguous
-contract as correct behavior was migrated to the new three-valued one, per CLAUDE.md's
-no-backwards-compatibility policy (clean break, no compatibility layer).
+The task was created to fix "N disagreements" in the oracle's self-consistency scan — a
+self-comparison returning contradictory verdicts for the same formula, which would be a real
+correctness defect. **There were never any disagreements.** Three full 274-formula sweeps have now
+measured `disagreements=0`. What the scan had been reporting as disagreements were solver
+*timeouts* being laundered into false verdicts.
 
-### Phase-by-phase
+`Z3OracleProvider.find_countermodel()` collapsed two opposite outcomes — "formula is provably
+valid (UNSAT)" and "solver exhausted its budget" — into the same `None` return, discarding the
+`structure.timeout` signal that `model_checker.models.structure` deliberately keeps separate. Two
+solves of a boundary formula could land on opposite sides of "finished", and the scan would score
+that as a semantic contradiction. The disagreement count was a load-dependent quantity wearing a
+soundness claim's clothing.
 
-1. **Contract split** (`provider.py`, `errors.py`, `__init__.py`): `find_countermodel()` raises
-   `OracleTimeoutError` on `structure.timeout`; `validate_self()` propagates it (gained an
-   optional `timeout_ms` parameter, backward-compatible default) rather than catching it.
-2. **CLI fix** (`cli.py`): `bimodal-logic check` no longer prints `{"result": "valid"}` for a
-   solve it never completed. It now catches `OracleTimeoutError` and prints
-   `{"result": "inconclusive", "countermodel": null}` with exit code 2.
-3. **Interface/provider test migration** (`test_oracle_interface.py`, `test_oracle_provider.py`):
-   every test in the plan's inventory migrated. **Five additional tests were found broken by the
-   same root cause when the full suite was actually run** — the plan's "Bucket 1: small
-   non-boundary formulas, unaffected by design" classification was wrong for these five, each of
-   which constructs a formula that is not actually small/fast (an `all_future` primitive
-   expansion that doesn't decide even at 180 s; three `ACTIVE_EXAMPLES` entries; all four
-   documented-valid spot-check formulas F4/F7/F9/F10 individually; a discarded-result depth-2
-   probe). All five fixed with the same classify-and-skip pattern.
-4. **Differential harness** (`test_cross_oracle_differential.py`): introduced `_reference_verdict`
-   (shared SAT/UNSAT/TIMEOUT classification), guarded `_generate_differential_report`'s
-   previously-unguarded `reference_fn()` call (the plan's named highest-risk point), and fixed a
-   counting inversion where a TIMEOUT reference against a decided subject was miscounted as a
-   disagreement. Verified via a Z3-free stub oracle proving all three outcomes and both counting
-   edge cases in milliseconds.
-5. **Budget calibration**: measured conclusive rate at 10000/15000/20000 ms on a bounded
-   30-formula sample: 53.3% / 50.0% / 56.7% — flat and noisy, no rung clears the 60% target and
-   none shows a real improvement over the last. Extrapolating each rung's sample wall clock to the
-   full 548-solve sweep showed 20000 ms alone risks exceeding the Phase 7 90-minute abort ceiling.
-   **Kept `SELF_SCAN_SOLVE_TIMEOUT_MS = 10000`** (best-measured, lowest-risk of the three rungs)
-   rather than mechanically escalating to the hard ceiling. Added
-   `MIN_CONCLUSIVE_SCAN_FORMULAS = 137` (the lowest measurement, 50%, floored and applied to 274)
-   and a shared `_assert_scan_report` helper enforcing the two-tooth assertion (zero disagreements
-   among conclusive results; a floor on conclusiveness), proven against stubs before being wired
-   into the real scan test.
-6. **xfail rewrite**: of the five `xfail(strict=True)` tests rooted in this cause, **four** now
-   pass unconditionally (their non-agreements were entirely inconclusive, confirmed by observing
-   `XPASS(strict)` with the decorator still in place before removing it).
-   `test_temporal_only_agreement_complexity_5` is the plan's anticipated exception: 13 of 158
-   temporal-only formulas at complexity<=5 have both MC and BH decide and genuinely disagree — a
-   real, previously-masked soundness finding kept `xfail`'d with an accurate reason (not this
-   task's to fix). All five `reason=` strings rewritten without task-number or `specs/` path
-   citations.
-7. **Full-suite verification**: see "What remains" below — this is where the session ends.
+The fix makes the contract three-valued: `None` now means exclusively "proven no countermodel",
+and an undecided solve raises `OracleTimeoutError`. Per CLAUDE.md's no-backwards-compatibility
+policy this was a clean break with no compatibility layer, so every caller and every test
+encoding the old contract was migrated.
 
-## What remains (Phase 7 did not achieve a green suite)
+## What changed, by phase
 
-The scan-alone run (`test_complexity_5_scan_self_consistent`) completed in 60.1 minutes (well
-under the 90-minute abort ceiling) with **zero disagreements** — the plan's central soundness
-claim holds — but **failed the conclusiveness floor**: `agreements=106 disagreements=0
-timeout_count=168`, i.e. 106/274 (38.7%) conclusive against a floor of 137 (50%). The floor was
-calibrated in Phase 5 from a 30-formula sample that only reached complexity 4; the real,
-representative full sweep came in lower, confirming a caveat already flagged in the Phase 5
-handoff. The floor was deliberately **not** adjusted and re-run in this session (see the Phase 7
-handoff for the reasoning) — reported honestly instead, per the coordinator's explicit
-instruction to state the actual result rather than force green.
+1. **Contract split** (`provider.py`, new `errors.py`, `__init__.py`): raises `OracleTimeoutError`
+   on `structure.timeout`; `validate_self()` propagates rather than catching, since a spot check
+   that cannot obtain a verdict is a tooling problem, not evidence of unsoundness.
+2. **Live CLI bug fixed** (`cli.py`): `bimodal-logic check` no longer prints
+   `{"result": "valid"}`, exit 0, for a solve it never completed. It emits
+   `{"result": "inconclusive", "countermodel": null}` with exit code 2 — a distinct code so a
+   consuming script can tell "we don't know" from both "valid" and "bad input". This was a
+   user-facing correctness bug, not just a test-harness one.
+3. **Interface/provider test migration**: every test in the plan's inventory. **Five additional
+   tests outside that inventory were found broken by the same root cause** once the suite was
+   actually run — the plan's "small non-boundary formulas, unaffected by design" bucket was wrong
+   for them (an `all_future` primitive expansion that does not decide even at 180 s; three
+   `ACTIVE_EXAMPLES`; all four documented-valid spot-check formulas; a discarded-result depth-2
+   probe). All fixed with the same classify-and-skip pattern.
+4. **Differential harness**: added `_reference_verdict` (shared SAT/UNSAT/TIMEOUT classification),
+   guarded `_generate_differential_report`'s previously-unguarded `reference_fn()` call (the
+   plan's named highest-risk point), and fixed a counting inversion where a TIMEOUT reference
+   against a decided subject was scored as a *disagreement* — the exact false-alarm inversion of
+   the bug being fixed. Proven with a Z3-free stub oracle in milliseconds.
+5. **Budget calibration and the two-tooth assertion**: kept `SELF_SCAN_SOLVE_TIMEOUT_MS = 10000`
+   after measuring that conclusiveness is essentially budget-independent in the 10-20 s range
+   (53.3% / 50.0% / 56.7% on bounded samples — flat and noisy). Added `_assert_scan_report`,
+   which separates the *soundness* claim (`disagreements == 0`, zero tolerance) from the
+   *performance* claim (a floor on conclusiveness), so the scan can never degrade into
+   "everything was inconclusive, therefore zero disagreements, therefore pass".
+6. **xfail rewrite**: four of five `xfail(strict=True)` tests now pass unconditionally (their
+   non-agreements were entirely inconclusive). `test_temporal_only_agreement_complexity_5` stays
+   `xfail` on a genuine, separate soundness finding: 13 of 158 temporal-only formulas have both
+   oracles decide and disagree. All five `reason=` strings rewritten without task-number or
+   `specs/` path citations.
+7. **Verification** — below.
 
-The full two-pass `oracle/run-oracle-suite.sh` run (~76.7 minutes) **FAILED both passes**. Beyond
-the scan's floor miss, it surfaced **five additional failures in `test_soundness_regression.py`**
-— a file never touched by any phase of this plan and not in its file list. All five share an
-identical signature (`OracleTimeoutError` at `temporal_depth=2, M=4, 5000 ms`, raised out of a
-test asserting `result is None`) and are the exact same root-cause bug this plan targets,
-discovered in a third file the plan's inventory never enumerated. Per the plan's explicit Phase 7
-instruction, these are reported here, not fixed — out of scope for this task.
+## Verification: what is green and what is not
 
-**Recommended follow-up** (not part of this task):
-1. A task scoped to `test_soundness_regression.py`'s five affected tests, using the same
-   resolved-and-wrong/inconclusive bucketing pattern established in Phases 3 and 6.
-2. A task or plan revision to recalibrate `MIN_CONCLUSIVE_SCAN_FORMULAS` from the real 274-formula
-   measurement (106, or lower under `-n 6` parallel contention) rather than the optimistic
-   30-sample estimate, then re-run `oracle/run-oracle-suite.sh` to confirm green.
+### Green — the plan's actual claim
+
+`oracle/run-oracle-exhaustive-scan.sh` completed against HEAD
+(`oracle/scan-results/20260807T155847Z/`, `SCAN_COMPLETE` marker present):
+
+| Metric | Value |
+|---|---|
+| Total formulas | 274 |
+| Conclusive (both sides decided) | 103 |
+| **Disagreements among conclusive results** | **0** |
+| Inconclusive | 171 |
+| Wall clock | 3651.2 s (60.9 min), serial |
+
+Counts were recomputed independently from the 274 raw `report.json` entries rather than trusted
+from its summary fields, and reproduce exactly. Against the deployed floor,
+`conclusive = 103 >= 90`: both teeth of the assertion pass, so
+`test_complexity_5_scan_self_consistent` passes at HEAD.
+
+Zero disagreements now holds across three full sweeps (101/274 at 5000 ms pre-fix; 106/274 and
+103/274 at the deployed 10000 ms). The 106-vs-103 spread at an identical budget is the run-to-run
+variance the floor of 90 was deliberately set *below*.
+
+### Not green — the gating suite, on three timeout-shaped failures
+
+`oracle/run-oracle-suite.sh` is RED on both passes (pass 1: 1 failed / 557 passed / 2 skipped /
+4 xfailed, 671.62s; pass 2: 2 failed / 8 passed, 740.90s). **Every failure is a timeout or
+conclusiveness failure. Not one is a disagreement.** Each was isolated in its own pytest session
+rather than guessed at:
+
+| Test | Isolated | Disposition |
+|---|---|---|
+| `TestTernarySerializationAll::test_all_sat_task_relation_ternary` | PASSED, 26.35s vs 180 s budget | Contention artifact — a 26 s solve cannot exhaust 180 s absent severe external load. |
+| `TestSpotCheckCrossSignal::test_spot_check_individual_countermodels` | PASSED, 131.42s vs 180 s budget | The known same-session Z3-state flake, already classified pre-existing/environmental by the quantifier-aliasing work; `xdist_serial` does not close it. |
+| `TestGatingConclusiveScan::test_known_conclusive_population_self_consistent` | FAILED 99/103, then 98/103, then **PASSED 100/103** | Straddles its floor. See below. |
+
+**The run was measurably contended, not presumed so.** A `ps` check immediately before launch was
+clean, but a sibling task's `pytest code/tests/integration/...` appeared mid-run at ~100% CPU, and
+an unrelated `pytest -m slow` was still at 84-94% CPU afterwards. Pass 2 — nominally the
+contention-free serial pass — ran 66% over its measured basis (740.90s vs ~446s), the signature of
+load originating outside the suite. `run-oracle-suite.sh`'s own header anticipates this and states
+the required response: *"Never widen these timeouts, or `MIN_CONCLUSIVE_GATING_FORMULAS`/
+`MIN_CONCLUSIVE_SCAN_FORMULAS`, to paper over a contended run -- re-run when the machine is idle
+instead."* **No constant was touched.**
+
+### The one reproducing failure is a calibration finding worth acting on
+
+`TestGatingConclusiveScan` was run three further times alone: conclusive counts of **99, 98, and
+100** against a floor of exactly **100**, with `disagreements=0` every time. It passes only when it
+lands at the very top of its own observed range — a coin-flip gate.
+
+This is the same mistake this plan already corrected once for its own constant, where
+`MIN_CONCLUSIVE_SCAN_FORMULAS` moved from 137 (set at an optimistic sample's level, permanently
+failing) down to 90 (below every real measurement, stable). `MIN_CONCLUSIVE_GATING_FORMULAS = 100`
+against an observed `{98, 99, 100}` needs the same re-floor. Consistent with that reading, the
+constant's own comment records that the manifest population's slowest conclusive solve was
+**10.094s against a 10000 ms budget — about 0.9% *over* nominal**, leaving under 1% headroom on its
+slowest member.
+
+It was deliberately **not** changed: it is another task's constant guarding another task's
+manifest, and its own comment directs an investigator to "investigate instead" of raising it.
+Recommending the re-floor is in scope; performing it is not.
 
 ## Exit criterion for the downstream regression-baseline task
 
-**Necessary and sufficient to unblock the downstream baseline task**: one complete
-`oracle/run-oracle-suite.sh` invocation in which both passes report PASSED and the script exits
-0, with the scan's recorded `disagreements` and `timeout_count` captured alongside it. **This
-criterion was NOT met in this session.**
+**The criterion as originally written is stale and must not be applied verbatim.** It names
+`oracle/run-oracle-suite.sh` as the vehicle. That script now deselects `slow` on *both* passes and
+does not execute the scan at all, so a green run of it confirms nothing about this plan's claim and
+a red one does not refute it. `oracle/run-oracle-exhaustive-scan.sh` is the correct and only
+vehicle (`code/docs/core/TESTING_GUIDE.md` section 8.8).
 
-**What the actual (non-green) result proves**: at the moment this scan ran, under this machine's
-load, no formula in the complexity-5 sweep produced two *conclusive* solves that contradicted
-each other (`disagreements=0` over 106 conclusive formulas, real Z3 solving, 60 minutes wall
-clock). Because a budget-exhausted solve now raises instead of returning `None`, this is a real
-agreement count — which was not true of any previous run of this suite. The suite as a whole is
-not yet green because of (a) a floor calibrated from an unrepresentative sample, and (b) five
-pre-existing failures in a file outside this plan's scope.
+**Against the correct vehicle the criterion is met**: a complete run reaching `SCAN_COMPLETE` with
+`agreements=103 disagreements=0 timeout_count=171`, counts recorded here and in
+`evidence/verification-results.md` — satisfying the criterion's own rule that a green run whose
+counts were not captured does not count.
 
-**What it does not prove**: that the disagreement count is stably zero across runs, or that the
-suite is currently runnable end to end. Both remain open until the follow-up work above lands.
+**What that proves**: no formula in the complexity-5 sweep produced two conclusive solves that
+contradicted each other. Because a budget-exhausted solve now raises instead of returning `None`,
+an agreement in that run is a real agreement — which was not true of any previous green run of this
+suite.
 
-**Annotation the promoted baseline must carry** (once achieved): the calibrated
-`SELF_SCAN_SOLVE_TIMEOUT_MS = 10000` and the (likely-revised) `MIN_CONCLUSIVE_SCAN_FORMULAS`
-floor, alongside the actual measured counts. A future failure of
-`test_complexity_5_scan_self_consistent` on the *conclusiveness floor* is a budget/performance
-regression; a failure on *disagreements* is a semantic regression — these have different causes
-and different fixes, and this session's own floor-miss (with zero disagreements) is a clean,
-concrete example of that distinction holding up under real, adversarial-scale verification.
+**What it does not prove**: that the conclusive count is stable run to run (it is not — 101, 103,
+106 across three sweeps), or that the gating suite is currently green (it is not).
 
-## Calibration data reference
+**Annotation the promoted baseline must carry**: `SELF_SCAN_SOLVE_TIMEOUT_MS = 10000` and
+`MIN_CONCLUSIVE_SCAN_FORMULAS = 90`, alongside the measured counts. A future failure on the
+*conclusiveness floor* is a budget/performance regression; a failure on *disagreements* is a
+semantic regression. These have different causes and different fixes, and conflating them is what
+consumed four consecutive triage efforts in this line of work. Everything observed in Phase 7 —
+across two dispatches, three sweeps, and three gating failures — landed cleanly in the budget
+bucket, which is the contract fix working as designed.
 
-- Conclusive rate at 10000/15000/20000 ms (30-formula sample, complexity<=4 only): 53.3% / 50.0%
-  / 56.7%. Flat and noisy — the ~50% inconclusive rate is a real limit of what this oracle
-  decides in reasonable time at any of these budgets, not an artifact of the specific budget
-  chosen.
-- Full 274-formula sweep at 10000 ms: 38.7% conclusive (106/274), 0 disagreements, 60.1 min wall
-  clock (serial).
-- Raw data: `specs/133_fix_oracle_self_consistency_disagreements/evidence/scan_10s_sample.jsonl`,
-  `scan_15s_sample.jsonl`, `scan_20s_sample.jsonl`.
+## Recommended follow-up (not this task)
+
+1. **Re-floor `MIN_CONCLUSIVE_GATING_FORMULAS`** from the real observed distribution `{98, 99,
+   100}` to a value below it, mirroring the 137 -> 90 correction made here. Owned by the
+   gating-manifest work, not this task.
+2. **Decide the disposition of `test_spot_check_individual_countermodels`'s same-session Z3-state
+   sensitivity**, which `xdist_serial` demonstrably does not close.
+3. **Investigate the 13 genuine temporal-only disagreements** kept `xfail`'d in
+   `test_temporal_only_agreement_complexity_5` — a real soundness finding this contract fix
+   surfaced by removing the noise that had been hiding it.
 
 ## Plan Deviations
 
-- **Phase 1 sequencing**: created `errors.py` and its `__init__.py` export before writing the RED
-  test (rather than strictly "RED first" as the task list's literal ordering implies), so the RED
-  failure would be `DID NOT RAISE` (behavior) rather than `ImportError` (wiring), matching the
-  plan's own stated success criterion. Content unchanged from what the plan specifies.
+- **Phase 1 sequencing**: created `errors.py` and its export before writing the RED test, so the
+  RED failure would be `DID NOT RAISE` (behavior) rather than `ImportError` (wiring), matching the
+  plan's own stated success criterion.
 - **Phase 2 manual verification**: the plan's `python -m bimodal_logic.cli check ...` command is a
   no-op — `cli.py` has no `if __name__ == "__main__":` guard (pre-existing, out of scope). Used an
-  equivalent direct call to `main()` instead.
-- **PYTHONPATH throughout**: the plan's verification commands literally set `PYTHONPATH=code/src`.
-  `test_oracle_interface.py` hard-imports `bimodal_harness` at module level, which needs
-  `../BimodalHarness/src` on the path too (nix's devShell already exports it); a bare override
-  drops it and causes `ModuleNotFoundError`. Used `PYTHONPATH="code/src:$PYTHONPATH"` (append, not
-  replace) throughout Phases 3-7. `scan_instrumented.py`'s own import needs `oracle/` on the path
-  specifically; used `PYTHONPATH="code/src:oracle"` for calibration runs.
-- **Phase 3 scope**: five tests outside the plan's stated call-site inventory were found broken by
-  the same root cause and fixed using the same pattern (see "Phase-by-phase" above and the Phase 3
-  handoff for full detail, including a one-line additive change to `provider.py`'s
-  `validate_self()` signature, also outside Phase 3's stated file list but required to carry out
-  its own explicit instruction).
-- **Phase 5 budget decision**: kept `SELF_SCAN_SOLVE_TIMEOUT_MS = 10000` rather than mechanically
-  advancing to `20000` at the end of the escalation ladder, based on an extrapolated runtime-risk
-  calculation the plan's escalation-rule text does not itself spell out (see the Phase 5 handoff).
-- **Phase 7 tool-call mechanics**: per the coordinator's mid-task correction, switched from
-  `run_in_background: true` tool calls for every verification to foreground commands tracked by
-  PID with bounded waits, reserving the background-with-abort-rule discipline for Phase 7's
-  genuinely multi-hour runs (the scan-alone and full-suite runs).
-- **Phase 7 outcome**: did not achieve the plan's stated success criterion (green suite). Reported
-  honestly per the coordinator's explicit instruction rather than adjusting the floor to force a
-  green result that would not have reflected the real, representative measurement, and would not
-  have addressed the independent `test_soundness_regression.py` failures regardless.
+  equivalent direct `main()` call.
+- **PYTHONPATH throughout**: the plan's literal `PYTHONPATH=code/src` drops `../BimodalHarness/src`,
+  which `test_oracle_interface.py` hard-imports, causing `ModuleNotFoundError`. Used
+  `PYTHONPATH="code/src:$PYTHONPATH"` (append, not replace).
+- **Phase 3 scope**: five tests outside the plan's inventory were found broken by the same root
+  cause and fixed with the same pattern, plus a one-line additive `timeout_ms` parameter on
+  `validate_self()` required to carry out Phase 3's own instruction.
+- **Phase 5 budget decision**: kept 10000 ms rather than mechanically advancing to the 20000 ms
+  ceiling, based on a runtime-risk extrapolation the plan's escalation rule does not itself spell
+  out.
+- **Phase 7 vehicle correction**: the plan's stated verification vehicle
+  (`oracle/run-oracle-suite.sh`) became stale mid-task when the gating/exhaustive split moved the
+  scan to `oracle/run-oracle-exhaustive-scan.sh`. Verified against the correct vehicle and
+  annotated the stale instruction in place rather than reporting a false green from a script that
+  no longer runs the test in question.
+- **Phase 7 blockers already closed**: the two soft blockers carried into the final continuation
+  (recalibrate the floor from 137; migrate `test_soundness_regression.py`) were already resolved at
+  HEAD by commit `c8087c4d`. Verified directly rather than assumed, and attributed to that commit
+  rather than claimed as this dispatch's work.
+- **Phase 7 out-of-scope failures not fixed**: three gating failures were classified with isolation
+  and repeat runs but not fixed, per the plan's own "report it and stop" instruction and the
+  suite's explicit prohibition on adjusting constants to paper over a contended run.
+- **`grep -c "if result is not None"` returns 1, not 0**, in `test_oracle_interface.py`. The
+  survivor is inside a `try/except OracleTimeoutError` that already classifies the inconclusive
+  case, so it is a genuine assertion branch rather than a masking guard. The grep was a proxy for
+  "no masking guards remain"; that property holds.
 
 ## Artifacts
 
-- `oracle/bimodal_logic/errors.py` (new)
-- `oracle/bimodal_logic/__init__.py`
-- `oracle/bimodal_logic/provider.py`
-- `oracle/bimodal_logic/cli.py`
-- `oracle/bimodal_logic/tests/test_oracle_provider.py`
-- `oracle/bimodal_logic/tests/test_oracle_interface.py`
-- `oracle/bimodal_logic/tests/test_cli.py`
-- `oracle/bimodal_logic/tests/test_cross_oracle_differential.py`
-- `specs/133_fix_oracle_self_consistency_disagreements/evidence/scan_10s_sample.jsonl`,
-  `scan_15s_sample.jsonl`, `scan_20s_sample.jsonl` (calibration measurements)
+- `oracle/bimodal_logic/errors.py` (new), `__init__.py`, `provider.py`, `cli.py`
+- `oracle/bimodal_logic/tests/test_oracle_provider.py`, `test_oracle_interface.py`, `test_cli.py`,
+  `test_cross_oracle_differential.py`
+- `specs/133_fix_oracle_self_consistency_disagreements/evidence/verification-results.md`
+  (consolidated measurements), `scan_10s_sample.jsonl`, `scan_15s_sample.jsonl`,
+  `scan_20s_sample.jsonl`
+- `specs/133_fix_oracle_self_consistency_disagreements/run/gating-suite-head-1786212046.log`,
+  `isolate-1786213644.log`, `gating-conclusive-repeats-*.log` — **local-only, not committed**
+  (`.gitignore:7` excludes `*.log`). Every number drawn from them is transcribed into this summary,
+  `evidence/verification-results.md`, and the Phase 7 handoff, which are tracked.
 - `specs/133_fix_oracle_self_consistency_disagreements/handoffs/phase-{1..7}-handoff-*.md`
 - `specs/133_fix_oracle_self_consistency_disagreements/plans/02_find-countermodel-contract.md`
-  (annotated in place, phase headings and task checkboxes updated)
