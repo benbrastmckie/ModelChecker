@@ -522,7 +522,17 @@ access to test infrastructure.
 
 ---
 
-### Phase 7: Gated removal of the `-m "not slow"` quarantine [NOT STARTED]
+### Phase 7: Gated removal of the `-m "not slow"` quarantine [COMPLETED]
+
+**Satisfied by reference — performed under `specs/136_ground_wallclock_performance_budgets/`, not
+here.** The gate passed once that task's Phases 1-3 grounded the wall-clock assertions, so its
+Phase 5 performed exactly this deletion (`-m "not slow"` removed from `addopts`, the TEMPORARY
+comment block removed, the `slow` marker description rewritten) and its Phase 6 applied this
+phase's verification bar verbatim: three separate unfiltered invocations, all green with an
+identical result set (2190 passed / 0 failed / 0 deselected in 336.81s, 387.33s, 418.11s).
+Evidence: `specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-repeat-results.md`.
+Exactly one `slow`-marked test remains repo-wide (`test_max_n_itself_is_constructible`), which
+keeps its mark deliberately. **Do not perform this phase a second time.**
 
 **Goal**: Delete the quarantine clause — but only when both defects it covers are fixed.
 
@@ -585,8 +595,10 @@ jq -r '.active_projects[] | select(.project_number==136) | .status' specs/state.
   re-covered by the full-scope 2154-passed sweep in Phase 6.)
 - [x] `-m "not slow"` failure set no worse than the documented baseline. (0 failures vs 0.)
 - [x] Contract documented in `ARCHITECTURE.md` and reachable from class docstrings.
-- [ ] (Gated) unfiltered `pytest code/tests/` green across 3 repeat runs. **BLOCKED on Task 136**
-  — Phase 7 not started; `code/pyproject.toml` deliberately untouched.
+- [x] (Gated) unfiltered suite green across 3 separate repeat invocations with an identical result
+  set (2190 passed / 0 failed / 0 deselected, three times). Satisfied by reference under
+  `specs/136_ground_wallclock_performance_budgets/` — see that task's Phases 5 and 6 and
+  `specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-repeat-results.md`.
 
 ## Artifacts & Outputs
 

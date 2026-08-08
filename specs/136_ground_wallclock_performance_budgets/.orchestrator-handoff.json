@@ -1,32 +1,51 @@
 {
   "$schema": "orchestrator-handoff-v1",
-  "phase": "plan",
-  "status": "planned",
-  "summary": "7-phase plan written from the research's per-assertion dispositions. Phases 1-3 are territory-disjoint (one test file each) and apply dispositions plus cap-burn reduction plus full unmarking; Phase 4 verifies exactly 1 slow-marked test remains repo-wide; Phase 5 deletes the -m \"not slow\" addopts clause and TEMPORARY comment block; Phase 6 applies task 135's verification bar verbatim (3 separate unfiltered invocations, identical green result set); Phase 7 closes task 135's Phase 7 by reference. Estimated 6 hours.",
+  "phase": "implement",
+  "status": "implemented",
+  "summary": "All 7 plan phases complete. Every ungrounded wall-clock assertion in the three named test files was deleted or converted to a behavioural assertion, 5 vacuous tests were deleted, cap-burn was cut, all slow marks were removed from those files (exactly 1 slow-marked test remains repo-wide), and the -m \"not slow\" quarantine clause was deleted outright from code/pyproject.toml. Verified by three separate unfiltered pytest invocations with an identical green result set: 2190 collected / 2190 passed / 0 failed / 0 deselected each. The 3 failures the research measured are all fixed and pass 3/3; no out-of-scope failure appeared, so the revert contingency was not triggered.",
   "artifacts": [
+    {
+      "type": "summary",
+      "path": "specs/136_ground_wallclock_performance_budgets/summaries/01_wallclock-budget-grounding-summary.md"
+    },
     {
       "type": "plan",
       "path": "specs/136_ground_wallclock_performance_budgets/plans/01_wallclock-budget-grounding.md"
+    },
+    {
+      "type": "report",
+      "path": "specs/136_ground_wallclock_performance_budgets/reports/01_wallclock-budget-grounding.md"
     }
   ],
   "blockers": [],
-  "next_action_hint": "implement",
+  "next_action_hint": "none",
   "files_modified": [
-    "specs/136_ground_wallclock_performance_budgets/plans/01_wallclock-budget-grounding.md"
+    "code/src/model_checker/builder/tests/integration/test_performance.py",
+    "code/tests/integration/test_performance.py",
+    "code/tests/integration/test_timeout_resources.py",
+    "code/pyproject.toml",
+    "specs/135_fix_concurrent_model_building_segfault/plans/01_single-threaded-construction-guard.md",
+    "specs/136_ground_wallclock_performance_budgets/plans/01_wallclock-budget-grounding.md",
+    "specs/136_ground_wallclock_performance_budgets/summaries/01_wallclock-budget-grounding-summary.md",
+    "specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-repeat-results.md",
+    "specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-run-1.txt",
+    "specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-run-2.txt",
+    "specs/136_ground_wallclock_performance_budgets/evidence/unfiltered-run-3.txt"
   ],
   "decisions_made": [
-    "No budget is re-grounded from p95/p99: research category (a) is empty. Assertions are deleted or converted to behavioural assertions instead, which diverges from the original task description's framing and is stated as such in the plan.",
-    "'Narrow to per-test marks on the tests that justify it' resolves to an empty justified set for all three files, so marks are deleted outright rather than pushed down. Exactly one slow-marked test remains repo-wide: models/tests/unit/test_semantic.py::test_max_n_itself_is_constructible.",
-    "Both concurrency tests are left byte-identical; re-marking them is superseded and would regress prior work.",
-    "Cap-burn reduction (report section 7) is folded into the per-file phases rather than being a separate pass, so each file is edited once.",
-    "Phase 5 is a standalone commit so the quarantine deletion can be reverted alone if Phase 6 finds an out-of-scope failure.",
-    "Stated scope addition in Phase 5: declare pytest-timeout in pyproject's dev extra. It is installed here but undeclared, and several retained hang guards rely on @pytest.mark.timeout, which would silently become a no-op unknown mark in a clean dev install.",
-    "The 3 failures in the research's unfiltered run are all in scope and eliminated by Phases 1-3; Phase 6 requires each to be accounted for by name, not merely absent."
+    "No budget was re-grounded from measured p95/p99: the research's category (a) was empty, because every measured quantity was the bimodal max_time cap rather than the code's cost. The task description's p95/p99 framing is superseded, not skipped.",
+    "5 tests deleted as vacuous or duplicate (2 assertTrue(True) placeholders, 1 copy-paste duplicate, 1 cap-pinned scaling ratio, 1 interrupt test that never sent an interrupt). Accounting reconciles: 2195 - 5 = 2190 collected.",
+    "None of the plan's three 'if the property does not hold, delete the test' fallbacks was taken: get_theory identity, Syntax structural comparability, and ModelDefaults.max_time exposure were each probed and verified to hold before the conversion was written.",
+    "Two try/except bodies were restructured so converted assertions sit outside the try -- left inside, the test's own except Exception would have swallowed its new assertion.",
+    "5 timing assertions retained and each documented in place as a hang guard or (test_serialization_performance) a genuine Z3-free averaged micro-benchmark.",
+    "pytest-timeout declared in the dev extra (stated scope addition already flagged in the plan's Phase 5) so the retained @pytest.mark.timeout hang guards are not silently ignored in a clean install.",
+    "Both concurrency tests left byte-identical and unmarked, verified programmatically; nothing under oracle/ was touched.",
+    "Task 135's Phase 7 is the same pyproject deletion performed here and is now marked COMPLETED by reference in its plan, with its gated Testing & Validation checkbox ticked. Task 135's plan has no unfinished phase; its state.json status was deliberately NOT transitioned from inside this task."
   ],
   "dead_ends": [
-    "Re-grounding budgets from measured p95/p99 -- the measured distribution's ceiling is the max_time cap, not the code's cost.",
-    "Relative scaling ratios between two N values -- measured vacuous under the cap and 3-orders-of-magnitude volatile without it.",
-    "Building a benchmark harness inside the functional suite -- trustworthy timing here needs subprocess isolation plus repeat sampling, which is an opt-in benchmarking job."
+    "Asserting a relative scaling ratio between two N values (the task description's proposed alternative) was measured and rejected in research: under the cap all ratios are ~1.0 and vacuous, and lifting the cap makes identical input vary 129x in-process, so a ratio compounds two noisy measurements rather than cancelling them. Do not retry it.",
+    "A first attempt at unfiltered run 3 was killed at 580s by the harness command timeout at 55% progress. That is a truncation, not a result; it was discarded and the run re-executed detached. Full unfiltered runs take ~6-7 min and must be run detached, not under a 10-min foreground cap."
   ],
-  "plan_markers_verified": true
+  "plan_markers_verified": true,
+  "cross_task_note": "Task 135 now has no remaining implementation work and can be closed by the orchestrator or /todo."
 }
