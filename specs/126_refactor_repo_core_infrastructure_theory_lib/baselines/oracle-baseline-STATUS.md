@@ -154,3 +154,51 @@ anything. A follow-up task should, on a machine with no Lean or Z3 workload:
    why `test_mixed_and_box_next` no longer decides within 60000 ms at temporal_depth=1, M=3.
 4. Only then decide whether any budget is genuinely mis-calibrated — with the measurement to
    justify it, not to rescue a red run.
+
+## Addendum: an in-package failure surfaced by the repaired gate
+
+Running the repaired gate's fast path, `bash code/scripts/verify-refactor.sh --skip-oracle`,
+inside `nix develop` on 2026-08-09 gave **exit 1**, with the repaired steps all green and two
+untouched steps red:
+
+```
+OK: 298 tests collected (baseline 289)                     <- Step 1
+OK: 2177 tests collected (baseline 2100)                   <- Step 2
+OK: oracle total = 606 (pinned 606)                        <- Step 3, re-pinned
+OK: oracle gating-parallel = 594 (pinned 594)
+OK: oracle xdist_serial = 10 (pinned 10)
+OK: oracle slow = 2 (pinned 2)
+OK: sub-counts partition the suite (594 + 10 + 2 = 606)
+FAIL: bimodal suite failed on both attempts                <- Step 4, NOT modified
+OK (5a): KNOWN_EXTERNAL_DEFECTS.md present and non-empty   <- Step 5, re-scoped
+OK (5b): all five guard assertions present exactly once, in the required order
+OK (5c): all four floor/budget constants hold their pinned values
+OK (5d): all 4 xfail( markers are strict=True
+=== Step 6: gating oracle suite run SKIPPED (--skip-oracle) ===
+FAIL: compare_bimodal_baseline.sh reported regressions     <- Step 7, NOT modified
+2 check(s) FAILED
+```
+
+Steps 4 and 7 were deliberately left untouched by the gate repair, so their failures are not
+caused by it. Step 4 fails on **both** attempts (the retry allowance for the documented Z3-timing
+flake did not absorb it), on the same test each time, with a fast deterministic assertion rather
+than a timeout:
+
+```
+FAILED code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7]
+>       assert result, f"Test failed for example: {example_name}"
+E       AssertionError: Test failed for example: BM_CM_1
+E       assert False
+code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py:73: AssertionError
+1 failed, 297 passed in 138.47s
+```
+
+**This is very likely the same underlying defect as the oracle-side failure.** The oracle's
+`test_boundary_regression.py::TestExampleRegression::test_regression_all_active_examples[BM_CM_1-example_case7]`
+names the same example case, `BM_CM_1` / `example_case7`. The in-package failure is deterministic
+and fast, which makes it the better handle on the defect than the oracle-side observation, and it
+is independent of any Z3 timing budget.
+
+It was not repaired here: fixing a defect discovered during triage is an explicit non-goal, and
+repairing it inside the task that certifies the baseline is how a "green" baseline stops meaning
+anything. It is reported as a blocker for a follow-up task.

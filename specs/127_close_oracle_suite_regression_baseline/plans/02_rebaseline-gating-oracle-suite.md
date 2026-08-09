@@ -460,7 +460,9 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 4: Exhaustive-Scan Coverage Record [NOT STARTED]
+### Phase 4: Exhaustive-Scan Coverage Record [BLOCKED]
+
+**Blocked:** 2026-08-09 -- same machine-contention reason as Phase 7; this run is 60-90 minutes serial and must not overlap other CPU work.
 
 - **Goal:** Account for the 2 `slow` tests the gating suite deliberately excludes, so the baseline
   covers all 606 tests rather than 604 with an unmentioned gap.
@@ -497,7 +499,9 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 5: Re-pin and Re-scope `code/scripts/verify-refactor.sh` [IN PROGRESS]
+### Phase 5: Re-pin and Re-scope `code/scripts/verify-refactor.sh` [COMPLETED]
+
+**Completed:** 2026-08-09 -- Steps 3/5/6 green, four-mutation negative test all detected. Deviation: the `--skip-oracle exits 0` criterion is NOT met, due entirely to Steps 4 and 7, which this phase is instructed not to modify (Step 4 fails on `test_example_cases[BM_CM_1-example_case7]`). Recorded in `baselines/oracle-baseline-STATUS.md`.
 
 - **Goal:** Make the regression gate correct against the suite that exists, strengthening its checks
   rather than loosening any of them.
@@ -596,7 +600,9 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 7: Independent `verify-refactor.sh` Confirmation With Step 6 Live [NOT STARTED]
+### Phase 7: Independent `verify-refactor.sh` Confirmation With Step 6 Live [BLOCKED]
+
+**Blocked:** 2026-08-09 -- machine not quiet (sibling Lean toolchain at 168-216% CPU, earlier up to 776%). Plan's own rule: do not start a timed run on a contended machine. See `run2/machine-before-phase7.txt`.
 
 - **Goal:** One full run of the repaired gate with Step 6 actually executing the gating suite —
   independent of the Phase 2 run, not a replay of it.
