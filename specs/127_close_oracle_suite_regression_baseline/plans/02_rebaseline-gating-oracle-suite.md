@@ -495,19 +495,19 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 5: Re-pin and Re-scope `code/scripts/verify-refactor.sh` [NOT STARTED]
+### Phase 5: Re-pin and Re-scope `code/scripts/verify-refactor.sh` [IN PROGRESS]
 
 - **Goal:** Make the regression gate correct against the suite that exists, strengthening its checks
   rather than loosening any of them.
 - **Tasks:**
-  - [ ] **Step 3 — re-pin the count.** Set `BASELINE_ORACLE_COUNT` to Phase 1's measured total (606
+  - [x] **Step 3 — re-pin the count.** Set `BASELINE_ORACLE_COUNT` to Phase 1's measured total (606
         at the time of writing; use the measured value, not this number). Keep the `!=` exact-equality
         comparison. Add three new pinned sub-counts from Phase 1
         (`BASELINE_ORACLE_PARALLEL_COUNT`, `BASELINE_ORACLE_SERIAL_COUNT`, `BASELINE_ORACLE_SLOW_COUNT`)
         and assert each with the same exact-equality semantics. This is a strengthening: it catches a
         test silently migrating between the gating and exhaustive populations, which the total alone
         cannot see. Add a comment directing anyone who adds oracle tests to re-pin all four here.
-  - [ ] **Step 5 — re-scope onto the guard that exists.** Delete the `XFAIL_LINES` array and the
+  - [x] **Step 5 — re-scope onto the guard that exists.** Delete the `XFAIL_LINES` array and the
         line-number comparison; the file it pinned now contains zero `xfail(` markers, so the check
         cannot pass and, more importantly, no longer describes the accommodation. Replace it with
         content-matched assertions — **never line numbers**, since line-number matching is precisely
@@ -527,19 +527,19 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
            number of `xfail(` markers (4 at the time of writing) and every one of them is
            `strict=True`.
         Write the step's `note`/`fail` messages so a failure says which specific guard went missing.
-  - [ ] **Step 6 — run the gating suite, not the exhaustive sweep.** Replace the raw
+  - [x] **Step 6 — run the gating suite, not the exhaustive sweep.** Replace the raw
         `PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/ -q` with
         `bash oracle/run-oracle-suite.sh`. The runner supplies the marker deselects, the two-pass
         `xdist_serial` split, the calibrated timeouts, and the exit-124/137 classification. Preserve
         fail-fast semantics: a non-zero runner exit, including its "pytest-xdist is not importable"
         preflight failure, must increment `FAILURES` — never be skipped or downgraded.
-  - [ ] **Update the stale prose.** The header comment block still describes 550 tests, "the 5
+  - [x] **Update the stale prose.** The header comment block still describes 550 tests, "the 5
         xfail(strict=True) cross-oracle differentials", and a "~7+ minute" oracle suite. Rewrite it
         to describe what the script now checks. Keep the existing path references to
         `specs/…/baselines/…` (durable path anchors) but add **no** new task-number citations —
         this file is outside `specs/**` and `.claude/rules/no-task-references-in-deliverables.md`
         applies.
-  - [ ] Leave Steps 1, 2, 4, and 7 untouched. Their `>=` floors (289 bimodal, 2100 full) still pass
+  - [x] Leave Steps 1, 2, 4, and 7 untouched. Their `>=` floors (289 bimodal, 2100 full) still pass
         against the current 298 / 2190 counts.
 - **Timing:** 75 minutes
 - **Depends on:** 4
