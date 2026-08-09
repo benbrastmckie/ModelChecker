@@ -307,12 +307,14 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 2: Gating-Suite Baseline Run Into Staging [NOT STARTED]
+### Phase 2: Gating-Suite Baseline Run Into Staging [COMPLETED]
+
+**Completed:** 2026-08-09
 
 - **Goal:** One complete, uncontended run of the canonical gating suite, captured as text and as
   JUnit XML, staged and not yet judged.
 - **Tasks:**
-  - [ ] Add an opt-in JUnit hook to `oracle/run-oracle-suite.sh`. When the environment variable
+  - [x] Add an opt-in JUnit hook to `oracle/run-oracle-suite.sh`. When the environment variable
         `ORACLE_JUNIT_DIR` is set and non-empty, append
         `--junitxml="$ORACLE_JUNIT_DIR/junit-oracle-pass1.xml"` to pass 1 and
         `--junitxml="$ORACLE_JUNIT_DIR/junit-oracle-pass2.xml"` to pass 2; when unset, behaviour is
@@ -321,8 +323,8 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
         from the gate. Do not change the `-m` expressions, the `-n 6`, the `timeout` wrappers, the
         budgets, or the exit-code classification. Add a brief comment explaining why the hook exists;
         **no task-number references** in the comment (this file is outside `specs/**`).
-  - [ ] Record the quiet-machine "before" capture into `run2/machine-before-phase2.txt`.
-  - [ ] Launch the run **in the background** — the expected 20-35 minutes far exceeds the 600s
+  - [x] Record the quiet-machine "before" capture into `run2/machine-before-phase2.txt`.
+  - [x] Launch the run **in the background** — the expected 20-35 minutes far exceeds the 600s
         foreground ceiling, and the runner's own budgets already cap it at 2200s plus overhead:
 
         ```
@@ -336,14 +338,21 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
         Issue this from the repository root — the devShell exports the BimodalHarness sibling as a
         relative path.
-  - [ ] Poll for `run2/exit-code.txt` and for growth in `run2/oracle-run.txt`. Never relaunch while
+  - [x] Poll for `run2/exit-code.txt` and for growth in `run2/oracle-run.txt`. Never relaunch while
         the first process is alive; never infer completion from a vanished PID.
-  - [ ] Record the quiet-machine "after" capture into `run2/machine-after-phase2.txt` and the
+  - [x] Record the quiet-machine "after" capture into `run2/machine-after-phase2.txt` and the
         wall-clock duration.
-  - [ ] Merge the two per-pass JUnit files into `run2/junit-oracle.xml` with a short stdlib
+  - [~] Merge the two per-pass JUnit files into `run2/junit-oracle.xml` with a short stdlib
         `xml.etree.ElementTree` script that sums the `tests`/`failures`/`errors`/`skipped`
         attributes and concatenates the `<testcase>` children. Record the script inline in the
         implementation summary so the merge is reproducible.
+        *(deviation: the merge script was written (`run2/merge-junit.py`) but there is no pass-2
+        JUnit file to merge. Both pass-2 executions were SIGTERM'd by the runner's
+        `timeout --kill-after=60s 900` wrapper mid-test, and pytest writes `--junitxml` only at
+        session teardown, so no pass-2 XML was ever produced. Merging pass 1's XML alone into a
+        file named `junit-oracle.xml` would misrepresent a 594-test partial as the 604-test
+        gating report, so it was deliberately not done. `run2/junit-oracle-pass1.xml` stands on
+        its own as the pass-1 record.)*
 - **Timing:** 45 minutes agent time; 20-35 minutes unattended wall clock
 - **Depends on:** 1
 - **Files to modify:**
@@ -364,7 +373,7 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 3: Triage Against the Rubric, Then Promote or Record Honestly [NOT STARTED]
+### Phase 3: Triage Against the Rubric, Then Promote or Record Honestly [IN PROGRESS]
 
 - **Goal:** Classify the run into exactly one pre-declared category on evidence, so a contention
   artifact is not mistaken for a defect and — equally — a defect is not waved through as contention.

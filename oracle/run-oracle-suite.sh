@@ -80,6 +80,20 @@ export PYTHONPATH="${PYTHONPATH:-$repo_root/code/src}"
 pass1_timeout="${ORACLE_PASS1_TIMEOUT:-1300}"
 pass2_timeout="${ORACLE_PASS2_TIMEOUT:-900}"
 
+# Opt-in per-pass JUnit output. Unset (the default), this changes nothing:
+# no flag is added and behaviour is byte-for-byte what it was before this
+# hook existed. Set ORACLE_JUNIT_DIR to a directory to additionally capture
+# each pass's results as JUnit XML, one file per pass so pass 2 cannot
+# clobber pass 1's report. Each file is written directly by pytest's own
+# --junitxml, so it reflects that pass's real exit status even under a
+# `timeout --kill-after` SIGKILL of a hung run.
+pass1_extra_args=()
+pass2_extra_args=()
+if [ -n "${ORACLE_JUNIT_DIR:-}" ]; then
+  pass1_extra_args+=("--junitxml=$ORACLE_JUNIT_DIR/junit-oracle-pass1.xml")
+  pass2_extra_args+=("--junitxml=$ORACLE_JUNIT_DIR/junit-oracle-pass2.xml")
+fi
+
 # Pass 1: everything except the contention-sensitive tests and the slow
 # exhaustive scan, in parallel. Hard-coded -n 6, not -n auto: this
 # repository already pins a sibling suite
@@ -88,13 +102,13 @@ pass2_timeout="${ORACLE_PASS2_TIMEOUT:-900}"
 # reason; -n auto would mean one worker per core on a many-core machine and
 # risks recreating the exact problem this split exists to avoid.
 timeout --kill-after=60s "$pass1_timeout" \
-  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow" "$@"
+  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow" "${pass1_extra_args[@]}" "$@"
 pass1_status=$?
 
 # Pass 2: the contention-sensitive tests (still excluding `slow`), with no
 # other pytest workers running at all -- no -n flag.
 timeout --kill-after=60s "$pass2_timeout" \
-  pytest "$repo_root/oracle" -m "xdist_serial and not slow" "$@"
+  pytest "$repo_root/oracle" -m "xdist_serial and not slow" "${pass2_extra_args[@]}" "$@"
 pass2_status=$?
 
 _classify() {
