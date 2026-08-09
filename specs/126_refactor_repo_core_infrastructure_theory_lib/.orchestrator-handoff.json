@@ -4,16 +4,22 @@
   "status": "partial",
   "summary": "Completed phases 22-26 of 26, the final leg of the core/theory_lib refactor. Phase 22 restored bimodal's missing iterate.py (git-restored, ported to the current generator convention, 7 new tests, closing the last theory-contract gap). Phase 23 flipped the conformance and layering tests fully green with a permanent zero-xfail guard. Phase 24 reconciled 16 documentation files with the enforced module contract. Phase 25 ran the full regression gate and wheel parity diff (zero unexplained deltas in either direction) and, discovering that exclusion/imposition failed a live scaffold-and-run check, fixed a scaffolded-project relative-import defect Phase 20 had deliberately deferred. Phase 26 recorded the refactor's durable decisions in specs/ROADMAP.md. Also fixed a genuine Phase-12 regression (stale utils.api.get_theory call site) surfaced by a broader test sweep. 25/26 phases are [COMPLETED]; Phase 2 remains [PARTIAL], unchanged, per its documented sandbox constraint.",
   "artifacts": [
-    {"type": "summary", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md"}
+    {
+      "type": "summary",
+      "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md"
+    }
   ],
   "blockers": [
     {
-      "description": "Phase 2's full serial oracle suite run (550 tests) remains unattempted -- no pytest-xdist in this sandbox, resource contention on prior attempts. Collection count (550) and the 5 xfail(strict=True) line locations remain pinned and re-verified clean via verify-refactor.sh at this final checkpoint too. A future session with pytest-xdist or dedicated resources should re-attempt the full run and commit baselines/oracle-run.txt + junit-oracle.xml to fully close Phase 2. This does not block any other phase's acceptance criteria -- all 25 other phases are fully COMPLETED and independently verified.",
+      "description": "Task 126 Phase 2 is blocked on task 127 completing — NOT on pytest-xdist availability (that premise is stale: xdist 3.8.0 is present inside `nix develop`, absent only from the bare PATH python). True cause: Phase 2's acceptance gate, code/scripts/verify-refactor.sh, hard-fails on two stale pins that task 126 does not own and must not unilaterally rewrite. (1) Step 3, line 39/65: BASELINE_ORACLE_COUNT=550 compared with exact `!=`, but oracle/bimodal_logic/tests/ now collects 606 (suite grew via tasks 137/138/139). (2) Step 5, line 41/82-83: XFAIL_LINES=(767 942 1020 1133 1431) compared as an exact ordered line-number set against test_cross_oracle_differential.py, which now has zero `xfail(` markers at all. Because Phase 2's stated verification is 'verify-refactor.sh exits 0 on the unmodified tree', no oracle run performed today can satisfy it until those pins are re-derived. Task 127 plan v2 explicitly owns both the re-pinning and the Phase 2 flip as its terminal phase.",
       "phase": "phase-2",
-      "severity": "soft"
+      "severity": "soft",
+      "true_cause": "stale acceptance pins (550 vs 606; 5 xfail line numbers vs 0 markers), not missing pytest-xdist",
+      "owned_by_task": 127,
+      "next_step": "Run /implement 127 against specs/127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md under `nix develop` on a quiet machine. Its final phase re-pins verify-refactor.sh and flips task 126 Phase 2 to [COMPLETED]."
     }
   ],
-  "next_action_hint": "none",
+  "next_action_hint": "wait-on-task-127",
   "files_modified": [
     "code/src/model_checker/theory_lib/bimodal/iterate.py",
     "code/src/model_checker/theory_lib/bimodal/__init__.py",
@@ -42,6 +48,8 @@
   "continuation_context": {
     "phases_completed": 25,
     "phases_total": 26,
-    "orchestrator_mode": true
-  }
+    "orchestrator_mode": true,
+    "blocked_on_task": 127
+  },
+  "blocker_research": "VERDICT: Phase 2 cannot be closed now, but the recorded blocker's stated cause is STALE and must not be acted on. The premise 'no pytest-xdist in this sandbox' is false as written: flake.nix:72 declares pytest-xdist and it resolves to 3.8.0 inside `nix develop` (proven by specs/127_.../run2/oracle-run.txt: 'plugins: xdist-3.8.0 / created: 6/6 workers'); it is missing only from the bare PATH python (/home/benjamin/.nix-profile/bin/python -c 'import xdist' -> ModuleNotFoundError). The real, harder blocker is that BOTH invariants Phase 2 pins are now factually dead: code/scripts/verify-refactor.sh:39 pins BASELINE_ORACLE_COUNT=550 and compares with an exact != at line 65, while the script's own literal path collects 606 today (measured: `PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/ --collect-only -q` -> '606 tests collected in 0.82s'), and line 41 pins XFAIL_LINES=(767 942 1020 1133 1431) against a file that now contains ZERO `xfail(` markers (`grep -c 'xfail(' oracle/bimodal_logic/tests/test_cross_oracle_differential.py` -> 0). Phase 2's literal acceptance criterion is 'bash code/scripts/verify-refactor.sh exits 0 on the unmodified tree', which is arithmetically impossible today no matter how the oracle suite is run — so re-attempting the run (the blocker's suggested fix) would burn 20-90 minutes and still leave Phase 2 open. Re-pinning is owned by task 127, whose plan v2 artifact summary states verbatim that it will '...then flip the refactor plan's Phase 2'; task 127 is mid-flight (status=implementing, Phase 1/8 committed as 360bd28c, Phase 2's gating run in run2/oracle-run.txt truncated at ~84% and now 10h stale). SOLUTION PATH: do not touch Phase 2 from task 126; let task 127 land (`/implement 127` against plans/02_rebaseline-gating-oracle-suite.md, run under `nix develop` on a quiet machine), which re-pins Step 3 to 606 with per-marker sub-counts (594 parallel + 10 xdist_serial + 2 slow), re-scopes Step 5 onto content-matched guards, re-points Step 6 at oracle/run-oracle-suite.sh, and then flips this plan's Phase 2 with artifacts landing in specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/serial-rebaseline/ (currently an empty directory)."
 }

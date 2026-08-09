@@ -6,7 +6,7 @@ next_project_number: 140
 
 ## Task Order
 
-*Updated 2026-08-08. Generated from state.json dependency graph.*
+*Updated 2026-08-09. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
@@ -18,11 +18,11 @@ next_project_number: 140
 
 ### Architecture
 
-126 [BLOCKED] — Systematically refactor the repo into: 1) the core codebase conta
+126 [PARTIAL] — Systematically refactor the repo into: 1) the core codebase conta
 
 ### Testing
 
-127 [BLOCKED] — Complete the oracle differential-suite regression baseline that t
+127 [IMPLEMENTING] — Complete the oracle differential-suite regression baseline that t
 
 ## Tasks
 
@@ -187,12 +187,14 @@ next_project_number: 140
 ---
 
 ### 127. Close oracle suite regression baseline
-- **Status**: [BLOCKED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 131, Task 132, Task 133
 - **Research**: [127_close_oracle_suite_regression_baseline/reports/01_oracle-baseline-environment.md]
-- **Plan**: [127_close_oracle_suite_regression_baseline/plans/01_close-oracle-regression-baseline.md]
+- **Plan**:
+  - [127_close_oracle_suite_regression_baseline/plans/01_close-oracle-regression-baseline.md]
+  - [127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md]
 - **Summary**: [127_close_oracle_suite_regression_baseline/summaries/01_close-oracle-regression-baseline-summary.md]
 
 **Description**: Complete the oracle differential-suite regression baseline that the core/theory_lib refactor could not finish. The 550-test suite in oracle/bimodal_logic/tests/ has never completed a full run in the development sandbox: pytest-xdist is unavailable (package index unreachable), forcing a fully serial run of roughly 90 minutes, and serial attempts were killed by resource contention from concurrent sessions at about 91% through. Collection count (550) and the 5 xfail(strict=True) marker line locations are already pinned and verified clean. Install or vendor pytest-xdist, or run on dedicated/isolated resources, then commit baselines/oracle-run.txt and baselines/junit-oracle.xml, flip the refactor plan's Phase 2 heading from [PARTIAL] to [COMPLETED], and re-run code/scripts/verify-refactor.sh without --skip-oracle so Step 6 exercises the full suite. Completing this is the sole remaining blocker to marking the core/theory_lib refactor task COMPLETED.
@@ -200,7 +202,7 @@ next_project_number: 140
 ---
 
 ### 126. Refactor repo core infrastructure theory lib
-- **Status**: [BLOCKED]
+- **Status**: [PARTIAL]
 - **Task Type**: general
 - **Topic**: architecture
 - **Dependencies**: Task 127

@@ -4,7 +4,7 @@
     {
       "project_number": 127,
       "project_name": "close_oracle_suite_regression_baseline",
-      "status": "blocked",
+      "status": "implementing",
       "task_type": "python",
       "topic": "testing",
       "description": "Complete the oracle differential-suite regression baseline that the core/theory_lib refactor could not finish. The 550-test suite in oracle/bimodal_logic/tests/ has never completed a full run in the development sandbox: pytest-xdist is unavailable (package index unreachable), forcing a fully serial run of roughly 90 minutes, and serial attempts were killed by resource contention from concurrent sessions at about 91% through. Collection count (550) and the 5 xfail(strict=True) marker line locations are already pinned and verified clean. Install or vendor pytest-xdist, or run on dedicated/isolated resources, then commit baselines/oracle-run.txt and baselines/junit-oracle.xml, flip the refactor plan's Phase 2 heading from [PARTIAL] to [COMPLETED], and re-run code/scripts/verify-refactor.sh without --skip-oracle so Step 6 exercises the full suite. Completing this is the sole remaining blocker to marking the core/theory_lib refactor task COMPLETED.",
@@ -34,11 +34,17 @@
           "path": "specs/127_close_oracle_suite_regression_baseline/summaries/01_close-oracle-regression-baseline-summary.md",
           "type": "summary",
           "summary": "Oracle suite completed (44:33, 550 accounted). Triage: 5 off-watchlist failures are -n 6 artifacts (pass serially); both on-list flakes are genuine. Baseline 6cfb7f48: ternary SAT test PASSES there and fails now = refactor-introduced regression; complexity-5 scan fails there too = pre-existing. Task cannot deliver a clean baseline."
+        },
+        {
+          "path": "specs/127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md",
+          "type": "plan",
+          "summary": "rebaseline gating oracle suite (backfilled by --sync)"
         }
       ],
       "created": "2026-07-25T05:52:48Z",
-      "last_updated": "2026-07-25T18:30:09Z",
-      "session_id": "sess_1784998815_1581ee_127"
+      "last_updated": "2026-08-09T15:51:35Z",
+      "session_id": "sess_1786289974_521182",
+      "blockers": null
     },
     {
       "project_number": 128,
@@ -150,13 +156,13 @@
     {
       "project_number": 126,
       "project_name": "refactor_repo_core_infrastructure_theory_lib",
-      "status": "blocked",
+      "status": "partial",
       "task_type": "general",
       "description": "Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.",
       "topic": "architecture",
       "created": "2026-07-24T16:04:19Z",
-      "last_updated": "2026-07-25T14:37:53Z",
-      "session_id": "sess_1784959703_c3da6e_126",
+      "last_updated": "2026-08-09T19:22:00Z",
+      "session_id": "sess_1786303232_72dc17",
       "researched": "2026-07-24T16:13:05Z",
       "next_artifact_number": 3,
       "artifacts": [
@@ -292,7 +298,7 @@
       "dependencies": [
         127
       ],
-      "blockers": "Blocked on the oracle regression baseline (Phase 2 remains PARTIAL). Triage of the now-completed 550-test oracle suite found a refactor-introduced regression: test_oracle_interface.py::TestTernarySerializationAll::test_all_sat_task_relation_ternary PASSES at pre-refactor commit 6cfb7f48 and fails on this branch (AssertionError: Expected SAT for next_A / assert None is not None). A second failure, test_cross_oracle_differential.py::TestFullScanReport::test_complexity_5_scan_self_consistent, fails at 6cfb7f48 as well and is therefore pre-existing, but still prevents a clean green baseline. Separately, the planned -n 6 baseline command is unsound: it manufactures five false failures in state-isolation/interleaving tests that all pass serially. Phase 2 cannot be marked COMPLETED until the ternary regression is fixed and a trustworthy (serial, or xdist-marker-corrected) baseline is produced."
+      "blockers": "Phase 2 blocked on task 127 (declared dependency). The previously recorded cause (no pytest-xdist, ~90min runtime) is STALE and must not be acted on: xdist 3.8.0 is present inside `nix develop` (absent only from bare-PATH python). True cause: Phase 2's acceptance gate code/scripts/verify-refactor.sh hard-fails on two stale pins task 126 does not own — BASELINE_ORACLE_COUNT=550 (line 39, exact != at 65) vs 606 actually collected, and XFAIL_LINES=(767 942 1020 1133 1431) (line 41) vs zero xfail( markers remaining in test_cross_oracle_differential.py. No oracle run performed today can satisfy Phase 2 until those pins are re-derived. Task 127 plan v2 owns both the re-pinning and the Phase 2 flip as its terminal phase. Do NOT unilaterally edit the pins from task 126: task 127's re-pinning carries a mandatory four-mutation negative test that a drive-by 550->606 edit would silently strip. Next step: /implement 127 under `nix develop` on a quiet machine. All 25 other phases are [COMPLETED] and independently verified."
     },
     {
       "project_number": 117,
