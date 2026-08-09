@@ -202,3 +202,131 @@ is independent of any Z3 timing budget.
 It was not repaired here: fixing a defect discovered during triage is an explicit non-goal, and
 repairing it inside the task that certifies the baseline is how a "green" baseline stops meaning
 anything. It is reported as a blocker for a follow-up task.
+
+## Second adjudicable run: the full gate with Step 6 live (2026-08-09, 23:16:57–23:45:56Z)
+
+An independent run of the repaired gate — `nix develop --command bash -c 'bash
+code/scripts/verify-refactor.sh'`, no `--skip-oracle`, no `PYTEST_ADDOPTS` — completed in 28m59s
+with **exit 1** and **3 check(s) FAILED** (Steps 4, 6, 7). Step 6 *executed*; it was not `SKIPPED`.
+Full output: `specs/127_close_oracle_suite_regression_baseline/run2/verify-refactor.txt`.
+
+This is a second, independent observation of the gating suite on a verified-quiet machine, and it
+**strengthens the category (c) verdict rather than softening it**. Nothing was weakened to obtain
+it: `git diff --stat -- oracle/bimodal_logic/` is still empty.
+
+### Machine quietness for this run
+
+| | 1-min load | Foreign compute job |
+|---|---|---|
+| Before (3 samples, 23:16:28–23:16:38) | 1.09–1.11 | none; no instantaneous CPU above 12.9%, all Claude sessions |
+| During (continuous 60s sampling, 23:27:18–23:45:59, plus a manual capture at 23:26:55) | 2.51–7.97 | none |
+| After (3 samples, 23:47:04–23:47:15) | 3.38–4.39 | none |
+
+The load figures above 6 between 23:23 and 23:28 are **this run's own** pass-1 `-n 6` workers: the
+23:26:55 capture records four `python3` xdist workers at 99.7% CPU each, with every `lean` process
+at ≤5.9% lifetime-average CPU and none appearing in the instantaneous top-20. Raw captures:
+`run2/machine-before-phase7.txt`, `run2/machine-during-phase7.txt`, `run2/machine-after-phase7.txt`,
+`run2/contention-watch.log`. **This run is adjudicable.**
+
+Deviation recorded: idle cslib `lean --worker` LSP processes were present throughout, which the
+quietness rule names categorically. They were adjudicated non-contending on measurement — ≤5.9%
+lifetime-average CPU, absent from every instantaneous top-20 sample — not waived by assumption.
+This is the same class of deviation Phase 1 recorded for its load-average threshold: a departure
+from a numeric convenience criterion, not from any pinned test value or assertion.
+
+### Step 6, pass 1 — a NEW failure alongside the adjudicated one
+
+```
+2 failed, 584 passed, 4 skipped, 4 xfailed in 549.76s (0:09:09)
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestMixedFormulas::test_mixed_and_box_next
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestMixedFormulas::test_mixed_and_all_future_neg
+```
+
+- `test_mixed_and_box_next` — the already-adjudicated failure, reproducing a **third** time, same
+  failure mode: `OracleTimeoutError`, 60000 ms, `temporal_depth=1`, `M=3`, raised at
+  `oracle/bimodal_logic/provider.py:271`.
+- `test_mixed_and_all_future_neg` — **NEW. Not present in any earlier record.** It does not appear
+  anywhere in `oracle-run-RED-2026-08-09.txt` (verified: zero occurrences). Identical failure mode
+  and identical budget to the above.
+
+The pass-1 verdict has therefore moved from `1 failed, 586 passed, 3 skipped, 4 xfailed` (the
+13:29 run) to `2 failed, 584 passed, 4 skipped, 4 xfailed` (this run). Totals reconcile: 594 in
+both. **The gating suite is not stable at its current solve budget** — the failing set grew by one
+test between two quiet-machine runs on an unchanged tree. The budget was not widened in response.
+
+### Step 6, pass 2 — TIMED OUT again, and it adjudicates two previously-unadjudicable failures
+
+Pass 2 `TIMED OUT (exit 124)` at its unchanged 900 s budget, as in the first adjudicable run.
+pytest's summary was again pre-empted by SIGTERM, so per-test IDs are not printed directly; the
+per-file progress line is:
+
+```
+oracle/bimodal_logic/tests/test_boundary_regression.py F                 [ 10%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py F           [ 20%]
+oracle/bimodal_logic/tests/test_oracle_interface.py ..F                  [ 50%]
+oracle/bimodal_logic/tests/test_soundness_regression.py .
+```
+
+Mapped against the collection order and per-file grouping already established in the pass-2 table
+above (1 boundary + 1 cross-oracle + 3 oracle-interface + 5 soundness = 10) — this is an inference
+from ordering, not from printed node IDs:
+
+| # | Test | This run | First adjudicable run |
+|---|---|---|---|
+| 1 | `test_regression_all_active_examples[BM_CM_1-example_case7]` | **FAILED** | PASSED |
+| 2 | `test_known_conclusive_population_self_consistent` | **FAILED** | **FAILED** |
+| 3 | `test_enriched_vs_primitive_sat_agreement[some_past]` | PASSED | PASSED |
+| 4 | `test_mixed_or_diamond_prev` | PASSED | PASSED |
+| 5 | `test_spot_check_individual_countermodels` | **FAILED** | **FAILED** |
+| 6 | `test_100_calls_mixed_temporal_depths` | PASSED | PASSED |
+| 7 | `test_sat_unsat_interleaving_stability` | in flight at SIGTERM | PASSED |
+| 8 | `test_temporal_propositional_interleaving` | never reached | **HUNG → SIGTERM** |
+| 9–10 | (remaining) | never reached | never reached |
+
+**Consequence for the three previously-unadjudicated failures.** Two of them are now adjudicated on
+a verified-quiet machine, which the earlier record explicitly left open:
+
+- `test_known_conclusive_population_self_consistent` — FAILED on a quiet machine. Adjudicated:
+  category (c).
+- `test_spot_check_individual_countermodels` — FAILED on a quiet machine. Adjudicated: category
+  (c). This also confirms the pre-registration noted above.
+- `test_regression_all_active_examples[BM_CM_1-example_case7]` — FAILED here, having PASSED in the
+  first adjudicable run. It is now consistent with the deterministic in-package Step 4 failure on
+  the same example case, reinforcing that these are one defect and that the in-package test is the
+  better handle on it.
+
+`known_conclusive_complexity5.json` was **not** re-derived and `SELF_SCAN_SOLVE_TIMEOUT_MS` was
+**not** adjusted in response to any of this.
+
+### Step 4 and Step 7 in the full run
+
+Step 4 failed on both attempts on exactly `test_example_cases[BM_CM_1-example_case7]`
+(`1 failed, 297 passed` in 124.96s and 153.23s) — the already-adjudicated defect and no other test.
+
+### `--skip-oracle`: run, exit code recorded, failure confirmed to be the adjudicated one
+
+```
+bash code/scripts/verify-refactor.sh --skip-oracle   ->  exit 1, "2 check(s) FAILED"
+```
+
+Steps 1, 2, 3 and all of Step 5 (5a–5d) pass. The two failures are Steps 4 and 7, neither of which
+the gate repair touched. Step 4's sole failing test on both attempts is again exactly
+`test_example_cases[BM_CM_1-example_case7]` (`1 failed, 297 passed` in 133.24s and 140.20s). Full
+output: `run2/phase7-verify-refactor-skip-oracle.txt`. Exit 1 here is the **expected** outcome under
+the standing category (c) determination; it was recorded, not engineered away.
+
+**Step 7's failure is a consequence of the same defect, not an independent regression finding.**
+`code/scripts/compare_bimodal_baseline.sh` runs under `set -euo pipefail`, and its first action is
+a pytest pipeline over the same bimodal test file. That pytest exits non-zero because of
+`BM_CM_1-example_case7`, `pipefail` propagates it, and `set -e` aborts the script immediately —
+its captured output is the single line `Running bimodal test suite...`, before any comparison
+logic runs. The gate's message "compare_bimodal_baseline.sh reported regressions" is therefore
+misleading in this specific case: nothing was compared. This is recorded, not repaired — Step 7
+was deliberately left untouched by the gate repair, and fixing a defect found during triage is an
+explicit non-goal.
+
+### Net effect on the verdict
+
+The category (c) verdict stands and is now supported by two independent adjudicable runs. The
+gating suite is RED, the gate correctly reports it as RED, and the failing set is **larger** than
+first recorded, not smaller.
