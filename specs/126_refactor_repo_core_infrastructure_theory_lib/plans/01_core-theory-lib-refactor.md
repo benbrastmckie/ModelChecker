@@ -1,12 +1,22 @@
 # Implementation Plan: Refactor Core Infrastructure and theory_lib
 
 - **Task**: 126 - Systematically refactor the repo into core infrastructure and theory_lib; remove the logos spatial subtheory; standardize the per-theory module set
-- **Status**: [PARTIAL] (25/26 phases COMPLETED; Phase 2 is PARTIAL -- the full serial 550-test
-  oracle suite run could not complete in this sandbox, no `pytest-xdist` available, resource
-  contention on repeated attempts. All other Phase 2 acceptance evidence -- collection counts,
-  xfail(strict=True) line locations, `compare_bimodal_baseline.sh` -- is pinned and re-verified
-  clean at every wave boundary through Phase 25. Every other phase, including the full theory
-  contract, the enforced layering boundary, and the wheel parity diff, is COMPLETED.)
+- **Status**: [PARTIAL] (25/26 phases COMPLETED; Phase 2 remains PARTIAL, but for a different and
+  now-diagnosed reason than the one previously recorded here. **The three premises this line used
+  to state are all false and have been retired**: `pytest-xdist` *is* available (3.8.0 inside
+  `nix develop`), the oracle suite is *606* tests rather than 550, and it is *not* run serially --
+  it runs as a two-pass gating suite (594 parallel + 10 `xdist_serial`, with 2 `slow` tests on a
+  separate exhaustive path) via `oracle/run-oracle-suite.sh`. That suite has since been run to
+  completion on a verified-quiet machine, and **it is red**: pass 1 fails
+  `test_oracle_interface.py::TestMixedFormulas::test_mixed_and_box_next` with an
+  `OracleTimeoutError`, reproducibly across two independent runs, and pass 2 exceeds its 900 s
+  budget without finishing. The residual gap is therefore a genuine, recorded suite failure, not a
+  missing tool or a contention kill. See `baselines/oracle-baseline-STATUS.md` for the per-test
+  adjudication and `baselines/oracle-run-RED-2026-08-09.txt` for the run itself. All other Phase 2
+  acceptance evidence -- collection counts, the accommodation guard, `compare_bimodal_baseline.sh`
+  -- is pinned and re-verified clean at every wave boundary through Phase 25. Every other phase,
+  including the full theory contract, the enforced layering boundary, and the wheel parity diff,
+  is COMPLETED.)
 - **Effort**: 41 hours
 - **Dependencies**: None (proceeds on branch `task-117-restore-model-checker`; see Non-Goals for merge/release sequencing)
 - **Research Inputs**: `specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md` (4-teammate synthesis; teammate findings `01_teammate-{a,b,c,d}-findings.md`)
@@ -251,7 +261,23 @@ Phases within the same wave can execute in parallel.
         Given the full serial run's ~90+ minute cost and the resource contention observed, a
         clean completed run is deferred rather than re-attempted a second time within this
         phase's scope -- recorded as a known gap in the handoff for a follow-up phase/session
-        with `pytest-xdist` available or dedicated resources.)*
+        with `pytest-xdist` available or dedicated resources.*
+        *__Superseded 2026-08-09.__ The environment diagnosis above is now known to be wrong in
+        every particular, and is kept only as a record of what was believed at the time.
+        `pytest-xdist` 3.8.0 IS available inside `nix develop`; the suite is 606 tests, not 550;
+        and it is not run serially -- `oracle/run-oracle-suite.sh` runs it as two gating passes
+        (594 parallel under a hard-coded `-n 6`, then 10 `xdist_serial` tests with no workers),
+        with 2 `slow` tests on a separate exhaustive path. The suite has since been run to
+        completion on a machine verified quiet before and after, and the outcome is not a
+        contention kill but a genuine RED result: pass 1 fails `test_mixed_and_box_next` with an
+        `OracleTimeoutError` (reproduced identically across two independent quiet-machine runs),
+        and pass 2 exceeds its 900 s budget without completing, hanging in
+        `test_temporal_propositional_interleaving`. Per-test adjudication, the quiet-machine
+        evidence, and the list of failures that remain unadjudicated are in
+        `baselines/oracle-baseline-STATUS.md`; the run itself is
+        `baselines/oracle-run-RED-2026-08-09.txt`. No budget, floor, assertion, marker, or guard
+        was changed to reach that result, and this phase stays PARTIAL because the suite is red,
+        not because a run could not be attempted.)*
   - [x] Enumerate the 5 `xfail(strict=True)` cross-oracle differentials in
         `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` (lines 767, 942, 1020, 1133,
         1431) with their current outcomes, so an XPASS flip is detectable. *(completed: line set
@@ -1570,10 +1596,13 @@ masked the real `ImportError` during debugging (merged the two context strings i
   - [x] Run the full in-package suite, the oracle suite, and the baseline comparison together.
         *(completed with the same sandbox-documented oracle scoping as Phases 2/21 --
         `verify-refactor.sh --skip-oracle` passes all other steps (collection counts, bimodal
-        suite, xfail line locations, baseline comparison: 0 regressions); the 550-test oracle
+        suite, the accommodation guard, baseline comparison: 0 regressions); the oracle
         collection count itself is independently re-verified matching baseline via
-        verify-refactor.sh's Step 3. A full serial oracle run remains the Phase 2 PARTIAL gap,
-        not attempted here per the orchestrator's explicit instruction not to. The broader
+        verify-refactor.sh's Step 3. The oracle suite run remains the Phase 2 PARTIAL gap, not
+        attempted here per the orchestrator's explicit instruction not to. That gap has since
+        been closed as a finding rather than as a pass: the gating suite was run to completion
+        on a quiet machine and is RED -- see `baselines/oracle-baseline-STATUS.md`. The count is
+        606, not 550, and the run is a two-pass gating suite, not a serial one. The broader
         theory_lib/+layering/+builder/+e2e sweep (1310 passed) shows 8 of the 9 documented
         pre-existing failures plus one newly-discovered-but-confirmed-pre-existing failure
         (`test_batch_output_real.py::test_bimodal_batch_output`, a malformed formula literal in
@@ -1691,10 +1720,13 @@ masked the real `ImportError` during debugging (merged the two context strings i
 - **Tasks:**
   - [x] Run `bash code/scripts/verify-refactor.sh` in full and confirm exit 0. *(completed with
         the same sandbox-documented deviation as Phases 2/21/23: run as
-        `verify-refactor.sh --skip-oracle` (no `pytest-xdist` available, resource contention on
-        the full 550-test serial run per Phase 2's PARTIAL status). All other steps pass: exit 0,
-        collection counts (298/2175/550), bimodal suite green, xfail line locations unchanged,
-        baseline comparison 0 regressions. Final run recorded in
+        `verify-refactor.sh --skip-oracle`, with the oracle suite run left to the Phase 2 PARTIAL
+        gap. The parenthetical reasons recorded at the time -- no `pytest-xdist`, a 550-test
+        serial run -- were both mistaken and are retired here: xdist 3.8.0 is available inside
+        `nix develop` and the suite is 606 tests run in two gating passes. All other steps passed
+        at the time: exit 0, collection counts (298/2175/550 as then pinned; the oracle pin has
+        since been corrected to 606 with per-marker sub-counts), bimodal suite green, guard
+        checks unchanged, baseline comparison 0 regressions. Final run recorded in
         `baselines/post-refactor/verify-refactor-final-run.txt`.)*
   - [x] Run the complete in-package suite from `code/` and compare against the Phase 2 pinned
         inventory. *(completed: 2175 vs 2100 baseline, +75; bimodal sub-suite 298 vs 289, +9.
@@ -1704,12 +1736,13 @@ masked the real `ImportError` during debugging (merged the two context strings i
         Phase 22, zero unexplained deltas.)*
   - [x] Run the oracle suite (550 tests) and confirm the 5 xfail(strict=True) differentials are
         still xfailing. *(deviation, same as Phase 2/21/23: the full serial 550-test run is not
-        attempted in this sandbox per the orchestrator's explicit instruction and the
-        documented `pytest-xdist`/resource-contention constraint. The 550-test collection count
-        itself is independently re-verified matching baseline via `verify-refactor.sh` Step 3,
-        and the 5 xfail(strict=True) line locations are independently re-verified unchanged via
-        Step 5, at this final wave boundary as at every prior one. A full clean run remains the
-        Phase 2 PARTIAL gap, unchanged by this phase.)*
+        attempted in this sandbox per the orchestrator's explicit instruction. The
+        `pytest-xdist`/serial-run rationale recorded alongside it was mistaken and is retired
+        here. The oracle collection count is independently re-verified matching baseline via
+        `verify-refactor.sh` Step 3, and the accommodation guard is independently re-verified
+        unchanged via Step 5, at this final wave boundary as at every prior one. A full clean run
+        remains the Phase 2 PARTIAL gap; the suite has since been run to completion on a quiet
+        machine and is RED, recorded in `baselines/oracle-baseline-STATUS.md`.)*
   - [x] Run `code/scripts/compare_bimodal_baseline.sh` and confirm it matches. *(completed via
         `verify-refactor.sh`'s Step 7: "OK: 0 regressions (matches baseline)")*
   - [x] Build the wheel and diff its contents against both manifests. *(completed: wheel built

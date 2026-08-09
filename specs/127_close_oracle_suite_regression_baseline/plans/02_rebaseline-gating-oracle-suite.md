@@ -373,15 +373,17 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 3: Triage Against the Rubric, Then Promote or Record Honestly [IN PROGRESS]
+### Phase 3: Triage Against the Rubric, Then Promote or Record Honestly [COMPLETED]
+
+**Completed:** 2026-08-09 -- category (c); see `baselines/oracle-baseline-STATUS.md`
 
 - **Goal:** Classify the run into exactly one pre-declared category on evidence, so a contention
   artifact is not mistaken for a defect and — equally — a defect is not waved through as contention.
 - **Tasks:**
-  - [ ] Extract every failing test ID from the merged XML (`<testcase>` elements with a `<failure>`
+  - [x] Extract every failing test ID from the merged XML (`<testcase>` elements with a `<failure>`
         or `<error>` child) and cross-check against the text output's summary lines.
-  - [ ] Confirm no strict-xfail XPASSed anywhere in the run.
-  - [ ] Classify per the rubric below and take that category's action.
+  - [x] Confirm no strict-xfail XPASSed anywhere in the run.
+  - [x] Classify per the rubric below and take that category's action.
 - **Timing:** 60 minutes agent time; plus up to 45 minutes wall clock if isolated re-runs are needed
 - **Depends on:** 2
 - **Files to modify (category (a) or resolved (b) only):**
@@ -558,7 +560,9 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 6: Flip the Refactor Plan's Phase 2 Markers [NOT STARTED]
+### Phase 6: Flip the Refactor Plan's Phase 2 Markers [COMPLETED]
+
+**Completed:** 2026-08-09 -- gate NOT met (category (c)), so the marker flip was correctly NOT performed; the category-(c) framing correction was done instead
 
 - **Gate:** Runs **only** if Phase 3 reached category (a) or a resolved (b). Under category (c),
   perform the framing correction described in Phase 3(c) instead of the flip.
