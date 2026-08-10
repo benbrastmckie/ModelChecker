@@ -1,66 +1,52 @@
 {
   "task_number": 127,
   "task_name": "close_oracle_suite_regression_baseline",
-  "session_id": "sess_1786307124_299f8c",
-  "status": "partial",
-  "summary": "Phases 7 and 8 completed and committed; Phase 4 is terminally [BLOCKED] on an environmental condition after two genuine attempts. 7 of 8 phases are done or definitively terminal. Phase 7 ran the repaired gate end to end on a verified-quiet machine (28m59s, exit 1, 3 checks FAILED at Steps 4/6/7, Step 6 executed rather than SKIPPED) and the --skip-oracle path (exit 1, Steps 4/7, sole failing test BM_CM_1-example_case7 on both attempts - exactly the adjudicated defect). It produced three findings: (1) Step 6 pass 1 has a NEW failure, test_mixed_and_all_future_neg, alongside the adjudicated test_mixed_and_box_next, so the failing set grew 1 -> 2 across two quiet-machine runs on an unchanged tree; (2) pass 2 adjudicated two previously-unadjudicable failures as category (c), obviating the suggested re-derivation run; (3) Step 7's failure is a set -euo pipefail consequence of the same BM_CM_1 defect, not an independent regression finding. Phase 4's exhaustive scan was launched twice and invalidated both times by sibling-project Lean/lake CPU contention; no SCAN_COMPLETE or report.json was produced, baselines/exhaustive-scan/ was deliberately not created, and the 2 slow tests remain unaccounted for. The category (c) verdict stands and is now supported by two independent adjudicable runs. Nothing was weakened anywhere.",
+  "session_id": "sess_1786328316_a7214e",
+  "status": "implemented",
+  "summary": "All 8 plan phases now COMPLETED. Phase 4's exhaustive scan reached SCAN_COMPLETE on a third launch (105/274 conclusive, 0 disagreements) after two prior launches were invalidated by sibling-project Lean/lake contention. Of the 2 slow tests run together, the coverage-record test passed; a different co-run test failed on a genuine new external-defect signature (opposite polarity from the documented one), recorded as a follow-up, not investigated here. Gating oracle suite remains RED under rubric category (c) (session 2's accepted, recorded outcome) -- this task's honest deliverable, not a blocker to completion. Nothing in oracle/bimodal_logic/ was weakened anywhere across any session.",
   "artifacts": [
     "specs/127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md",
     "specs/127_close_oracle_suite_regression_baseline/summaries/02_rebaseline-gating-oracle-suite-summary.md",
-    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-7-handoff-20260809234800.md",
-    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-8-handoff-20260810011500.md",
+    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-4-handoff-20260810033500.md",
     "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-baseline-STATUS.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/exhaustive-scan/STATUS.md",
     "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/"
   ],
   "modified_files": [
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-baseline-STATUS.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/exhaustive-scan/SCAN_COMPLETE",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/exhaustive-scan/report.json",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/exhaustive-scan/exhaustive-run.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/exhaustive-scan/STATUS.md",
     "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/README.md",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/gate-run.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/step6-gating-oracle-suite.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/skip-oracle-run.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/step4-bimodal-attempt1.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/step4-bimodal-attempt2.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/machine-before.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/machine-during.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/machine-after.txt",
     "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/contention-watch.log",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt1-aborted.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt2-aborted.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt1-machine-before.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt1-machine-contention.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt2-machine-before.txt",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt2-machine-contention.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt3-contention-watch.log",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt3-machine-before.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-baseline-STATUS.md",
     "specs/127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md",
     "specs/127_close_oracle_suite_regression_baseline/summaries/02_rebaseline-gating-oracle-suite-summary.md",
-    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-7-handoff-20260809234800.md",
-    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-8-handoff-20260810011500.md"
+    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-4-handoff-20260810033500.md"
   ],
   "commits": [
-    "23bfe078 task 127 phase 7: independent verify-refactor confirmation with Step 6 live",
-    "2c6862a9 task 127: final cleanup"
+    "37fcd028 task 127 phase 4: exhaustive scan completed on third attempt"
   ],
-  "phases_completed": 7,
+  "phases_completed": 8,
   "phases_total": 8,
   "phase_status": {
     "1": "COMPLETED",
     "2": "COMPLETED",
     "3": "COMPLETED",
-    "4": "BLOCKED",
+    "4": "COMPLETED",
     "5": "COMPLETED",
     "6": "COMPLETED",
     "7": "COMPLETED",
     "8": "COMPLETED"
   },
   "blockers": [
-    "Phase 4 (exhaustive-scan coverage record) is blocked on an environmental condition, not on any work product: this host does not reliably provide the uninterrupted 60-90 minute quiet window the scan needs. Two launches from a verified-quiet machine were both invalidated by sibling-project cslib Lean/lake CPU contention (attempt 1 at +85s with lean at 291-467% and lake at 794.8%; attempt 2 after ~46 clean minutes, with a lean worker at ~100% sustained). Neither produced SCAN_COMPLETE or report.json. Resolution requires a host with no Lean or Z3 workload; it does not require any code change.",
-    "The gating oracle suite is RED under rubric category (c) and the gate correctly reports it as RED. This is the task's honest recorded outcome, not an unfinished step. Diagnosing or repairing the underlying defects is an explicit non-goal of this baselining task and needs a follow-up task.",
-    "NEW, needs follow-up: test_mixed_and_all_future_neg fails with OracleTimeoutError at 60000 ms (temporal_depth=1, M=3) and appears in no earlier record. The pass-1 failing set grew from 1 to 2 between two quiet-machine runs on an unchanged tree, so the suite is not stable at its current solve budget.",
-    "code/scripts/compare_bimodal_baseline.sh (Step 7) reports 'regressions' misleadingly: it runs under set -euo pipefail and aborts on the non-zero pytest exit caused by BM_CM_1-example_case7 before reaching any comparison logic. Out of scope here (Step 7 was deliberately untouched); worth a follow-up."
+    "Not a blocker to this task's completion, but carried forward: the gating oracle suite is RED under rubric category (c) -- the honest, accepted baseline this task exists to produce. Diagnosing/repairing the underlying defects is an explicit non-goal here and needs a follow-up task.",
+    "NEW (Phase 4, session 3): test_temporal_only_agreement_complexity_5 found an external_bh_defect entry with the opposite polarity (mc_sat=True, bh_sat=False) from KNOWN_EXTERNAL_DEFECTS.md's documented signature (mc_sat=False, bh_sat=True). May be a second, distinct external BimodalHarness defect; not investigated or reclassified here.",
+    "test_mixed_and_all_future_neg (session 2) fails with OracleTimeoutError at 60000ms; the pass-1 failing set grew 1->2 between two quiet-machine runs on an unchanged tree.",
+    "code/scripts/compare_bimodal_baseline.sh (Step 7) reports misleading 'regressions' due to set -euo pipefail aborting on the BM_CM_1-example_case7 failure before reaching comparison logic."
   ],
-  "continuation_context": {
-    "resume_phase": 4,
-    "phases_total": 8,
-    "what_remains": "Only Phase 4: run `nix develop --command bash oracle/run-oracle-exhaustive-scan.sh` to completion on a host with no Lean or Z3 workload, establish completion from the SCAN_COMPLETE marker (never from PID absence), then record the result per Phase 4's two-branch verification. Do NOT re-derive known_conclusive_complexity5.json or adjust SELF_SCAN_SOLVE_TIMEOUT_MS. All other phases are done or terminal; do not re-open them.",
-    "handoff_path": "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-8-handoff-20260810011500.md"
-  }
+  "next_action_hint": "none",
+  "plan_markers_verified": true
 }
