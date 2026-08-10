@@ -22,9 +22,9 @@
     }
   ],
   "repository_health": {
-    "last_assessed": "2026-06-02T08:38:23Z",
-    "todo_count": 8,
-    "fixme_count": 0,
+    "last_assessed": "2026-08-10T06:10:31Z",
+    "todo_count": 41,
+    "fixme_count": 2,
     "build_errors": 0,
     "status": "healthy"
   },
