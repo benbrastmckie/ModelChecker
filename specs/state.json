@@ -1,5 +1,5 @@
 {
-  "next_project_number": 141,
+  "next_project_number": 142,
   "active_projects": [
     {
       "project_number": 140,
@@ -19,6 +19,24 @@
       "last_updated": "2026-08-10T04:33:29Z",
       "session_id": "sess_1786336303_0284a5",
       "next_artifact_number": 1
+    },
+    {
+      "project_number": 141,
+      "project_name": "triage_stale_local_branches_and_salvage_value",
+      "title": "Triage the 9 stale local-only branches, salvage anything of value, then retire them",
+      "status": "not_started",
+      "task_type": "general",
+      "topic": "architecture",
+      "dependencies": [],
+      "file_scope": [
+        "code/src/model_checker/theory_lib/bimodal/",
+        "code/src/model_checker/theory_lib/exclusion/",
+        "docs/"
+      ],
+      "description": "Nine local branches predate the repository restoration and have never been merged or pushed. Decide what in them is still worth keeping, extract exactly that, and only then retire them. Do NOT open by deleting branches.\n\nWHY THIS IS NOT A CLEANUP CHORE: every one of these branches is local-only. A check against the remote confirms none of them exists on origin -- origin carries a different, older set (exclusion_attempt_9, false_premise, finean_exclusion, iterate, new_defined_operator, old_jupy, pre-full-skolem, reduced_exclusion, refactor_exclusion_single_strategy). So for these nine, the local clone is the ONLY copy in existence. `git branch -D` on any of them puts its history beyond reach once gc runs.\n\nTHE BRANCHES (last commit date; commits not reachable from current HEAD):\n  bimodal_refactor                   2025-10-02   2046\n  feature/bimodal-cvc5-pilot         2025-11-05   2066\n  feature/bimodal_witness            2025-09-24   1992\n  feature/bimodal_witness_backup     2025-09-23   1978\n  feature/cvc5-feasibility-test      2025-10-02   2050\n  feature/quantifier-free-witnesses  2025-10-02   2051\n  feature/witness-falsity-attempt    2025-10-02   2047\n  new_claude                         2026-01-10   2108\n  refactor/exclusion                 2025-10-01   2049\n\nREAD THE COUNTS CORRECTLY -- they are the single easiest thing to get wrong here. The ~2000-commit\nfigures are NOT two thousand commits of unique work. They are inflated by an old divergence point:\nmain-line development was rebuilt during the restoration effort, so almost the entire shared\nhistory now reads as \"not reachable from HEAD\". The genuinely distinct content on each branch is\nvery likely a small fraction of that. Establish the real delta per branch (diff against the merge\nbase, not the commit count) BEFORE judging any branch's worth. A triage that treats 2046 as\n\"2046 commits of lost work\" will reach the wrong conclusion on every branch.\n\nTHEMATIC GROUPING, for cheaper triage -- five of the nine concern one line of inquiry (bimodal\nwitness predicates and quantifier-free encodings: bimodal_refactor, feature/bimodal_witness,\nfeature/bimodal_witness_backup, feature/quantifier-free-witnesses, feature/witness-falsity-attempt),\ntwo concern a cvc5 solver evaluation (feature/bimodal-cvc5-pilot, feature/cvc5-feasibility-test),\none is an exclusion-theory refactor (refactor/exclusion), and one is a docs/tooling branch\n(new_claude, and the most recent of the set at 2026-01-10). Triage by theme rather than\nbranch-by-branch; within a theme the later branch usually supersedes the earlier.\n\nSPECIFIC THING TO LOOK FOR: the cvc5 branches represent an alternative-solver investigation that\nhas no counterpart in the current tree. Whether or not the code is reusable, the FINDING (does\ncvc5 handle the countermodel examples Z3 struggles with, and at what cost) may be worth preserving\nas a short written record even if every line of code is discarded. The same applies to\nfeature/witness-falsity-attempt, whose name suggests a recorded negative result. A negative result\nthat is cheap to write down and expensive to rediscover is exactly the kind of thing that should\nsurvive a branch deletion.\n\nWORK:\n  1. For each branch, compute the real delta against its merge base with master, not the raw\n     commit count. Classify each as: (a) superseded by the restoration, (b) contains reusable\n     code, (c) contains a finding worth recording even though the code is dead, or (d) unclear.\n  2. For (b), port the specific change onto a working branch off current master, with tests, as\n     ordinary work -- do not merge the stale branch wholesale. These branches diverge from before\n     the restoration and a wholesale merge would reintroduce superseded structure.\n  3. For (c), write the finding into the appropriate place under docs/ or as a short design note.\n     Cite what the branch demonstrated and why the code was not kept.\n  4. For (d), say so explicitly and keep the branch. \"Unclear\" is a legitimate terminal state\n     here; it is strictly better than a guess that destroys the only copy.\n  5. ONLY after 1-4 are recorded, retire the branches judged (a) or fully salvaged under (b)/(c).\n     Before deleting any branch, write it to a git bundle outside the repo and verify the bundle\n     restores (`git bundle verify`), so retirement stays reversible even after gc.\n\nHARD CONSTRAINTS:\n  - Do not delete any branch before its triage verdict is recorded in this task's artifacts.\n  - Do not push or delete anything on origin. Remote branches are out of scope for this task.\n  - Do not merge a stale branch directly into master.\n\nVERIFICATION BAR:\n  - Every one of the nine branches has a recorded verdict with its measured real delta.\n  - Any branch deleted has a verified bundle, and the bundle's location is recorded here.\n  - Anything classified (c) has its finding written down somewhere a future reader will find it\n    without knowing the branch ever existed.\n",
+      "created": "2026-08-10T06:45:00Z",
+      "last_updated": "2026-08-10T06:45:00Z",
+      "artifacts": []
     }
   ],
   "repository_health": {
