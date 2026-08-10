@@ -867,8 +867,18 @@ class TestMixedFormulas:
         assert result is not None
         assert isinstance(result, dict)
 
+    @pytest.mark.xdist_serial
     def test_mixed_and_box_next(self):
-        """and(box(A), next(B)) -- L2 and + modal box + L1 next."""
+        """and(box(A), next(B)) -- L2 and + modal box + L1 next.
+
+        Genuine solve time is a stable ~44-45s against the unchanged 60000ms
+        budget (comfortably under budget alone, ~25% headroom) -- confirmed
+        by repeated serial timing. It fails only under the gating suite's
+        parallel pass (-n 6) via the same six-way CPU contention mechanism
+        documented for sibling test_mixed_or_diamond_prev elsewhere in this
+        file. `xdist_serial` (with no budget change) routes it to the
+        gating suite's contention-free serial pass instead.
+        """
         formula = _and(_box(A), _next(B))
         result = self.provider.find_countermodel(formula, timeout_ms=60000)
         # SAT -- countermodel where box(A) and next(B) fail together

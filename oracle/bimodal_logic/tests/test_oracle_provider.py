@@ -513,7 +513,14 @@ class TestOracleExampleRegression:
             f"Update exclusion list if examples were added/removed."
         )
 
-    @pytest.mark.parametrize("example_name, example_case", regression_examples.items())
+    @pytest.mark.parametrize(
+        "example_name, example_case",
+        [
+            pytest.param(k, v, marks=pytest.mark.xdist_serial) if k == "BM_CM_4"
+            else pytest.param(k, v)
+            for k, v in regression_examples.items()
+        ],
+    )
     def test_regression_standard_pipeline(self, example_name, example_case):
         """Standard pipeline produces correct SAT/UNSAT for all 43 active examples.
 
@@ -523,6 +530,11 @@ class TestOracleExampleRegression:
         the expected outcome.
 
         This validates the regression baseline hasn't changed since task 107.
+
+        BM_CM_4 carries xdist_serial: a genuine ~15-24s solve that only fails
+        under the gating suite's parallel pass (-n 6) via six-way CPU contention
+        -- confirmed to pass serially at both HEAD and the pre-fix commit. Same
+        mechanism as sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
         """
         result = _run_oracle_on_example(example_case)
         assert result is True, (

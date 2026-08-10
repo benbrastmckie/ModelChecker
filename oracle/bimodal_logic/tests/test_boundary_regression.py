@@ -355,6 +355,7 @@ class TestBoundaryDocumentation:
         )
         assert result, "TN_TH_2 (A => G(P(A))) should be theorem at M_safe=4"
 
+    @pytest.mark.xdist_serial
     def test_countermodel_bm_cm4_at_example_settings(self):
         """BM_CM_4 (Diamond(A) => Past(A)) has countermodel at its example settings.
 
@@ -370,6 +371,11 @@ class TestBoundaryDocumentation:
         Box(p)->Box(p) in operators.py. The countermodel is still genuinely found; it
         now measures ~15-24s instead of ~4-6s, so 30s leaves real headroom. Not a
         soundness change.
+
+        xdist_serial: this is a genuine ~15-24s solve that only fails under the
+        gating suite's parallel pass (-n 6) via six-way CPU contention -- confirmed
+        to pass serially at both HEAD and the pre-fix commit. Same mechanism as
+        sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
         """
         result = _run_formula(
             premises=['\\Diamond A'],
@@ -452,12 +458,24 @@ class TestExampleRegression:
     Theorem examples (expectation=False): 33 active examples
     """
 
-    @pytest.mark.parametrize("example_name, example_case", regression_examples.items())
+    @pytest.mark.parametrize(
+        "example_name, example_case",
+        [
+            pytest.param(k, v, marks=pytest.mark.xdist_serial) if k == "BM_CM_4"
+            else pytest.param(k, v)
+            for k, v in regression_examples.items()
+        ],
+    )
     def test_regression_all_active_examples(self, example_name, example_case):
         """Verify each active example produces the correct SAT/UNSAT result.
 
         This test is parametrized so individual failures are clearly identified
         by example name, enabling targeted debugging.
+
+        BM_CM_4 carries xdist_serial: a genuine ~15-24s solve that only fails
+        under the gating suite's parallel pass (-n 6) via six-way CPU contention
+        -- confirmed to pass serially at both HEAD and the pre-fix commit. Same
+        mechanism as sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
         """
         with isolated_z3_context():
             result = run_test(
