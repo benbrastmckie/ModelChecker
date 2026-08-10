@@ -1,6 +1,7 @@
 name: Differential Oracle Tests
 
 on:
+  workflow_dispatch:
   push:
     paths:
       - 'oracle/bimodal_logic/**'
@@ -26,7 +27,7 @@ jobs:
           cache: 'pip'
 
       - name: Install bimodal-logic package with dependencies
-        run: pip install -e code/
+        run: pip install -e code/ pytest pytest-timeout
 
       - name: Run differential tests (non-slow, no BimodalHarness)
         run: |
