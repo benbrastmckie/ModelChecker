@@ -1,0 +1,30 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "plan",
+  "status": "planned",
+  "summary": "Created a 5-phase plan to salvage and retire the nine stale local-only branches. Phases 1-2 write the four (c) findings (quantifier-free/witness-falsity non-determinism history; cvc5 mbqi+enum-inst feasibility and the unresolved CallableFunction segfault) into bimodal/docs/ARCHITECTURE.md and solver/README.md as branch-independent engineering docs; Phase 3 bundles all nine to /home/benjamin/branch-archive/ModelChecker/ and verifies each; Phase 4 deletes the nine local branches behind an explicit gate on Phases 1-3; Phase 5 records the verdict table and evidence. No code changes, no tests, no push, no merge, no checkout.",
+  "artifacts": [
+    {
+      "type": "plan",
+      "path": "specs/141_triage_stale_local_branches_and_salvage_value/plans/01_stale-branch-retirement.md",
+      "summary": "5-phase plan: durable (c) findings into bimodal ARCHITECTURE.md and solver README.md, verified out-of-repo bundles for all nine branches, gated git branch -D of all nine, verdict-table summary. Waves: [1,2,3] -> [4] -> [5]. Per-phase success criteria are shell commands."
+    }
+  ],
+  "blockers": [],
+  "next_action_hint": "implement",
+  "files_modified": [
+    "specs/141_triage_stale_local_branches_and_salvage_value/plans/01_stale-branch-retirement.md"
+  ],
+  "decisions_made": [
+    "All nine branches are deleted; none is kept. Every one is (a) superseded or (c) with its finding written to durable docs, and all nine are bundled regardless of verdict so retirement is reversible.",
+    "Archive path fixed at /home/benjamin/branch-archive/ModelChecker/ - outside the repo working tree and outside /tmp so it survives reboot.",
+    "Bundles use full refs (git bundle create <file> refs/heads/<branch>), not master..branch ranges, so each bundle is self-contained with no prerequisites and verifies standalone.",
+    "Findings split across two files by subject: witness/non-determinism history to bimodal/docs/ARCHITECTURE.md, cvc5 feasibility plus known segfault to solver/README.md. This makes Phases 1-3 file-disjoint and parallelizable.",
+    "Plan states plainly that no code is ported and therefore no test phases exist, rather than inventing them.",
+    "Phase 1/2 success criteria include greps that fail if any branch name or any 'task N' citation appears in files under code/."
+  ],
+  "dead_ends": [
+    "Do not use diff --stat against merge-base master as a delta measure - the shared merge-base (fcf2b95, 2024-02-08) predates the repo restoration, so it measures a Code/ -> code/ rename and pre-restoration churn, not branch content. The research already established the pairwise-ancestor deltas; do not re-run the triage.",
+    "Do not check out master or any stale branch. All branch content is readable with git show <branch>:<path> and git ls-tree."
+  ]
+}

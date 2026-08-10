@@ -1,0 +1,40 @@
+{
+  "phase": 1,
+  "phase_name": "Record the witness and non-determinism findings in bimodal architecture docs",
+  "started_at": "2026-08-10T19:16:43Z",
+  "last_updated": "2026-08-10T19:40:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Read Constraint Generation/Extension Points sections and witness_constraints.py/operators.py to ground claims",
+      "status": "done",
+      "files_touched": []
+    },
+    {
+      "id": 2,
+      "description": "Write new Witness Predicate Design History section with 3 subsections and add to TOC",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Verify no branch name / task-number citation and all symbols exist",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "1.4",
+      "description": "Describe falsity constraints via _witness_constraint_for_falsity() as the current design mechanism",
+      "type": "altered",
+      "reason": "Direct inspection of operators.py and witness_constraints.py showed _witness_constraint_for_falsity() is an unreached placeholder (bare pass); the actual Box true_at/false_at mechanism is z3.ForAll/z3.Exists implemented directly in NecessityOperator (operators.py). The documentation was written to reflect the accurate current architecture rather than the research report's characterization, while still citing _witness_constraint_for_falsity() by name as the vestigial scaffolding it is.",
+      "annotation": "*(deviation: altered — documented the actual ForAll/Exists mechanism in operators.py plus the unused witness-registry scaffolding, correcting the research report's characterization)*"
+    }
+  ]
+}

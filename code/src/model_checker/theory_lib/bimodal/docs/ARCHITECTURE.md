@@ -13,6 +13,7 @@ The Bimodal theory implements temporal-modal logic through a modular architectur
 - [Integration Strategy](#integration-strategy)
 - [Performance Considerations](#performance-considerations)
 - [Extension Points](#extension-points)
+- [Witness Predicate Design History](#witness-predicate-design-history)
 
 ## Core Components
 
@@ -511,6 +512,84 @@ class AlternativeBimodalSemantics(SemanticDefaults):
         # Different modal structure at each time
         pass
 ```
+
+## Witness Predicate Design History
+
+This section records how Box's truth and falsity conditions came to be encoded the way they are
+today, why an alternative encoding built to solve the same problem is not in the tree, and what
+is now known about the non-determinism that alternative was designed to fix.
+
+### Falsity Constraints for Modal Operators
+
+`\Box`'s truth and falsity conditions are implemented directly in `NecessityOperator.true_at()`
+and `NecessityOperator.false_at()` (`operators.py`): `true_at()` uses `z3.ForAll` to require the
+argument true at every valid world at the evaluation time; `false_at()` is its Z3 dual, using
+`z3.Exists` to assert some valid world where the argument is false. Both quantify directly over
+`is_world(...)`, with no domain guard on the evaluation time (paper/Lean-aligned semantics).
+
+A separate, older mechanism also exists in the tree: `semantic/witness_constraints.py` defines a
+`WitnessConstraintGenerator` class with a `generate_witness_constraints()` method and a
+`_witness_constraint_for_falsity()` method, and `semantic/witness_registry.py` defines a
+`WitnessRegistry` for tracking per-formula `accessible_world` predicates. `BimodalSemantics`
+(`semantic/core.py`) still constructs one of each at initialization. Neither class's
+constraint-generating methods are called anywhere in the current truth-evaluation pipeline,
+however — `_witness_constraint_for_falsity()` remains the placeholder it has always been (it
+docstrings itself as pending "Phase 4 integration" and its body is a bare `pass`). The witness
+registry and constraint generator are therefore live but unused scaffolding: instantiated on
+every `BimodalSemantics`, referenced by no caller outside their own unit tests. Anyone extending
+Box/Diamond's semantics should treat `operators.py`'s direct `ForAll`/`Exists` encoding as the
+actual mechanism, not the witness-predicate classes.
+
+### The Quantifier-Free Encoding, and Why It Is Not Used
+
+An alternative encoding was designed, implemented, and validated: instead of `z3.ForAll` over an
+uninterpreted `accessible_world` predicate, it enumerated concrete `(world, time)` pairs directly
+and asserted the falsity condition against each one via a `generate_witness_constraints_quantifier_free()`
+method, gated by a `quantifier_free_witnesses` settings flag (defaulting to enabled). It was
+carried through a "make quantifier-free witnesses the default" change and a final validation pass
+before development on that line stopped.
+
+This encoding is not present in the current tree, and `bimodal` exposes no `quantifier_free_witnesses`
+setting today. It was built specifically to work around observed non-deterministic countermodel
+results for `\Box`-containing examples; the diagnosis motivating it attributed that
+non-determinism to Z3's `ForAll` quantifier-instantiation heuristics (see next subsection for why
+that diagnosis has since been superseded). Once the underlying symptom had a different, much
+smaller fix, the quantifier-free encoding's original justification no longer applied, and it was
+not carried forward into the `semantic/` subpackage layout the rest of the witness-predicate work
+was consolidated into. Reintroducing a quantifier-free encoding should be justified by a fresh,
+measured problem — e.g. a specific case where `ForAll`/`Exists` quantification demonstrably
+underperforms — not by resurrecting this design on the assumption that its original motivation
+still holds.
+
+### Non-Determinism: Diagnosed Causes
+
+Two different root-cause attributions exist in this project's history for the same observed
+symptom (`\Box`-countermodel results flipping between success and failure depending on run
+order):
+
+1. **Earlier attribution**: non-deterministic behavior in a falsity-constraint implementation was
+   attributed to "Z3's ForAll quantifier instantiation heuristics" being inherently
+   non-deterministic. This diagnosis motivated designing the quantifier-free encoding described
+   above as a way to avoid `ForAll` entirely.
+2. **Confirmed root cause**: a process-global bound-variable counter (`_bound_var_counter` in
+   `operators.py`) generated the numeric suffix appended to every quantified operator's bound
+   variable name (via `_fresh_bound_int()`). Left unreset, that counter's value — and therefore
+   the exact bound-variable names baked into a given example's Z3 constraints — depended on how
+   many prior examples had already run in the same process. That run-order-dependent naming was
+   enough to perturb Z3's MBQI-driven quantifier instantiation and flip individual examples (for
+   example `BM_CM_4`) between success and failure depending on test order. The fix is
+   `reset_bound_var_counter()`, called once per fresh `BimodalSemantics` instance from
+   `BimodalSemantics._reset_global_state()`, so bound-variable names are reproducible and
+   independent of prior process history. `test_bound_var_counter_isolation.py` is the empirical
+   regression guard for this fix.
+
+`ForAll` itself was never the problem: it is deterministic given deterministic input terms. The
+non-determinism came from bound-variable *names* silently varying across runs of the same
+process, not from anything unstable about universal quantification. When bimodal countermodel
+results become order-dependent again, check counter/naming isolation (is
+`reset_bound_var_counter()` still being called on every fresh `BimodalSemantics`? does
+`test_bound_var_counter_isolation.py` still pass?) before concluding that `ForAll` instantiation
+is inherently non-deterministic and reaching for a quantifier-free rewrite.
 
 ## Testing Architecture
 
