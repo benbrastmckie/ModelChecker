@@ -1,7 +1,7 @@
 # Implementation Plan: Task #141
 
 - **Task**: 141 - Triage the 9 stale local-only branches, salvage anything of value, then retire them
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 3 hours
 - **Dependencies**: None
 - **Research Inputs**: specs/141_triage_stale_local_branches_and_salvage_value/reports/01_stale-branch-triage.md
@@ -408,7 +408,7 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
 
 ---
 
-### Phase 5: Record the verdict table and verification evidence in the task summary [NOT STARTED]
+### Phase 5: Record the verdict table and verification evidence in the task summary [COMPLETED]
 
 - **Goal:** The task summary is the single place a future reader can consult to see what each of
   the nine branches was, what was decided, what was salvaged and where it now lives, where the
@@ -422,29 +422,24 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
   - `specs/141_triage_stale_local_branches_and_salvage_value/summaries/01_stale-branch-retirement-summary.md`
 
 - **Tasks:**
-  - [ ] Create `summaries/` lazily at write time (do not pre-create other directories).
-  - [ ] Write the nine-row verdict table with these columns: branch, verdict `(a)`/`(c)`, measured
-        real delta (commits since nearest real ancestor, per the research report), last commit
-        date, disposition (deleted), bundle filename, and - for `(c)` rows - the exact durable
-        documentation path and section heading where the finding now lives.
-  - [ ] Reproduce the measured real deltas from the research report: `bimodal_refactor` 70 commits
-        since `338f090e`; `feature/bimodal_witness` 16 since `338f090e`;
-        `feature/bimodal_witness_backup` 2 since `338f090e`; `feature/quantifier-free-witnesses` 6
-        on `bimodal_refactor`'s tip; `feature/witness-falsity-attempt` 1 on `bimodal_refactor`'s
-        tip; `feature/cvc5-feasibility-test` 4 on `bimodal_refactor`'s tip;
-        `feature/bimodal-cvc5-pilot` 19 on `cvc5-feasibility-test`'s tip; `refactor/exclusion` and
-        `new_claude` no ancestor relation to the other eight. Note alongside the table why the raw
-        `master..branch` counts (1978-2108) are not the real delta.
-  - [ ] Record the archive absolute path `/home/benjamin/branch-archive/ModelChecker/` and the
-        restore recipe, and cross-reference `bundle-manifest.md`.
-  - [ ] Paste the verification evidence: the nine `git bundle verify` result lines, the post-
-        deletion `git branch --list` output, and the `git branch -r | wc -l` count showing origin
-        untouched.
-  - [ ] State explicitly that no code was ported (nothing classified `(b)`), therefore no tests
-        were added or run, and that no `git push`, no merge, and no remote mutation occurred.
-  - [ ] Note the one open question carried forward: bimodal's `'solver': 'cvc5'` path is unverified
-        end-to-end; it is now documented in `solver/README.md` under `## Known Issues` and is
-        candidate work for a separate task.
+  - [x] **Task 5.1**: Create `summaries/` lazily at write time. *(completed)*
+  - [x] **Task 5.2**: Write the nine-row verdict table with branch, verdict, measured real delta,
+        last commit date, disposition, bundle filename, and `(c)` documentation homes.
+        *(completed)*
+  - [x] **Task 5.3**: Reproduce the measured real deltas from the research report and note why
+        the raw `master..branch` counts are not the real delta. *(completed)*
+  - [x] **Task 5.4**: Record the archive absolute path and restore recipe, cross-referencing
+        `bundle-manifest.md`. *(completed)*
+  - [x] **Task 5.5**: Paste the verification evidence: nine `git bundle verify` result lines,
+        post-deletion `git branch --list` output, and the `git branch -r | wc -l` count.
+        *(deviation: altered — the actual `git branch -r | wc -l` count is 11, not the plan's
+        stated 10; recorded as unchanged-before-and-after (11==11) rather than matching the
+        plan's literal expected number, with an explicit note that this is a pre-existing
+        miscount, not a regression)*
+  - [x] **Task 5.6**: State explicitly that no code was ported, no tests were added/run, and no
+        `git push`/merge/remote mutation occurred. *(completed)*
+  - [x] **Task 5.7**: Note the open cvc5-end-to-end question carried forward to
+        `solver/README.md` § Known Issues. *(completed)*
 
 - **Verification** (run from `/home/benjamin/Projects/ModelChecker`):
   - [ ] Summary exists:
@@ -467,21 +462,26 @@ This plan changes no source code and ports no code (no branch was classified `(b
 so there are no unit tests to add and no behavior to regression-test. Validation is documentation-
 content checking and git-state checking, run as the per-phase verification commands above.
 
-- [ ] Phase 1 and Phase 2 content assertions all pass (sections present, cited symbols exist in
-      the tree, no task-number citations, no branch-name anchors).
-- [ ] All nine bundles pass `git bundle verify` both before and after deletion.
-- [ ] Each bundle's recorded head SHA equals the branch tip SHA captured before deletion.
-- [ ] Post-deletion local branch set is exactly `{master, task-117-restore-model-checker,
-      task-140-fix-bimodal-order-dependence}`.
-- [ ] `git branch -r | wc -l` is `10` before and after, confirming origin untouched.
-- [ ] `git rev-parse --abbrev-ref HEAD` is `task-140-fix-bimodal-order-dependence` throughout - the
-      working tree was never switched.
-- [ ] Repository-wide check that no task-number citation was introduced outside `specs/`:
+- [x] Phase 1 and Phase 2 content assertions all pass (sections present, cited symbols exist in
+      the tree, no task-number citations, no branch-name anchors). *(verified: all green)*
+- [x] All nine bundles pass `git bundle verify` both before and after deletion. *(verified: all
+      nine "is okay" in both runs)*
+- [x] Each bundle's recorded head SHA equals the branch tip SHA captured before deletion.
+      *(verified: all nine MATCH, no MISMATCH)*
+- [x] Post-deletion local branch set is exactly `{master, task-117-restore-model-checker,
+      task-140-fix-bimodal-order-dependence}`. *(verified)*
+- [x] `git branch -r | wc -l` is `10` before and after, confirming origin untouched. *(deviation:
+      altered — actual count is 11 before and after, not 10; verified unchanged rather than
+      matching the plan's literal expected number — see phase-4-progress.json)*
+- [x] `git rev-parse --abbrev-ref HEAD` is `task-140-fix-bimodal-order-dependence` throughout - the
+      working tree was never switched. *(verified)*
+- [x] Repository-wide check that no task-number citation was introduced outside `specs/`:
       `grep -rnEi 'task [0-9]+' code/src/model_checker/theory_lib/bimodal/docs/ARCHITECTURE.md code/src/model_checker/solver/README.md`
-      returns nothing.
-- [ ] Optional sanity run confirming the documentation edits did not disturb importable code (no
+      returns nothing. *(verified: exit 1, no matches)*
+- [x] Optional sanity run confirming the documentation edits did not disturb importable code (no
       code changed, so this must pass unchanged):
       `PYTHONPATH=code/src python -c "import model_checker.solver, model_checker.theory_lib.bimodal"`
+      *(verified: import succeeded)*
 
 ## Artifacts & Outputs
 

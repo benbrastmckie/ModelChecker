@@ -1,0 +1,44 @@
+{
+  "phase": 5,
+  "phase_name": "Record the verdict table and verification evidence in the task summary",
+  "started_at": "2026-08-10T20:25:00Z",
+  "last_updated": "2026-08-10T20:35:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Write nine-row verdict table with real deltas, dates, disposition, bundle filenames, and (c) documentation homes",
+      "status": "done",
+      "files_touched": [
+        "specs/141_triage_stale_local_branches_and_salvage_value/summaries/01_stale-branch-retirement-summary.md"
+      ]
+    },
+    {
+      "id": 2,
+      "description": "Record archive path, restore recipe, cross-reference bundle-manifest.md",
+      "status": "done",
+      "files_touched": [
+        "specs/141_triage_stale_local_branches_and_salvage_value/summaries/01_stale-branch-retirement-summary.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Paste verification evidence: bundle verify results, post-deletion branch list, remote ref count",
+      "status": "done",
+      "files_touched": [
+        "specs/141_triage_stale_local_branches_and_salvage_value/summaries/01_stale-branch-retirement-summary.md"
+      ]
+    },
+    {
+      "id": 4,
+      "description": "State no code ported/no tests, no push/merge/remote mutation; note open cvc5 question",
+      "status": "done",
+      "files_touched": [
+        "specs/141_triage_stale_local_branches_and_salvage_value/summaries/01_stale-branch-retirement-summary.md"
+      ]
+    }
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": []
+}
