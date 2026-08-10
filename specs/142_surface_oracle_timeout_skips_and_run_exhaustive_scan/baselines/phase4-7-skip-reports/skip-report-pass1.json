@@ -1,0 +1,14 @@
+{
+  "known": [
+    {
+      "nodeid": "oracle/bimodal_logic/tests/test_oracle_interface.py::TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement[all_future]",
+      "note": "primitive untl-based expansion does not decide; the enriched form decides in under 2s -- a performance gap, not a disagreement"
+    },
+    {
+      "nodeid": "oracle/bimodal_logic/tests/test_oracle_interface.py::TestOracleExampleRegressionViaAPI::test_oracle_regression[TN_TH_2]",
+      "note": "label corrected to SAT from the ground-truth evaluator; the solver still does not decide it at 2x budget"
+    }
+  ],
+  "new": [],
+  "resolved": []
+}

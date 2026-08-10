@@ -274,25 +274,25 @@ three theory `__init__.py` files.
 
 ---
 
-### Phase 4: Wire skip surfacing into the gating runner [NOT STARTED]
+### Phase 4: Wire skip surfacing into the gating runner [COMPLETED]
 
 - **Goal:** Make the inventory and pytest's own skip reasons appear in every gating invocation, in
   both passes, without changing the runner's pass/fail semantics.
 - **Tasks:**
-  - [ ] Add `-rs` to both pytest invocations in `oracle/run-oracle-suite.sh`, placed before `"$@"`
+  - [x] Add `-rs` to both pytest invocations in `oracle/run-oracle-suite.sh`, placed before `"$@"`
         so a caller can still override. This is the missing primitive: today the gating suite never
         prints a skip reason at all.
-  - [ ] Add an `ORACLE_SKIP_REPORT_DIR` opt-in that sets `ORACLE_SKIP_REPORT` per pass to
+  - [x] Add an `ORACLE_SKIP_REPORT_DIR` opt-in that sets `ORACLE_SKIP_REPORT` per pass to
         `skip-report-pass1.json` / `skip-report-pass2.json` — one file per pass so pass 2 cannot
         clobber pass 1, exactly matching the existing `ORACLE_JUNIT_DIR` treatment. Unset by default.
-  - [ ] Extend the script's trailing summary block with a short pointer stating that each pass
+  - [x] Extend the script's trailing summary block with a short pointer stating that each pass
         printed its own timeout-skip inventory, that `[NEW]` and `[RESOLVED]` lines are the
         actionable ones, and that a skip is a budget outcome that is never cleared by widening a
         budget.
-  - [ ] Update the script's header comment to describe the surfacing behavior, citing
+  - [x] Update the script's header comment to describe the surfacing behavior, citing
         `oracle/conftest.py` and `code/docs/core/TESTING_GUIDE.md` section 8.8 as anchors — no task
         numbers in new content.
-  - [ ] Leave `pass1_timeout`/`pass2_timeout` defaults, both `-m` expressions, `-n 6`, and the
+  - [x] Leave `pass1_timeout`/`pass2_timeout` defaults, both `-m` expressions, `-n 6`, and the
         `_classify`/exit-code logic untouched.
 - **Timing:** ~45 minutes
 - **Depends on:** 3
@@ -391,31 +391,31 @@ three theory `__init__.py` files.
 
 ---
 
-### Phase 7: Full-suite verification, documentation, and follow-up recording [NOT STARTED]
+### Phase 7: Full-suite verification, documentation, and follow-up recording [COMPLETED]
 
 - **Goal:** Prove the combined change leaves the gating verdict unchanged, document the new
   surfacing behavior where operators will find it, and record the scoped follow-ups.
 - **Tasks:**
-  - [ ] Run the full gating suite inside the devShell with the skip report enabled:
+  - [x] Run the full gating suite inside the devShell with the skip report enabled:
         `nix develop --command bash -c 'ORACLE_SKIP_REPORT_DIR=... bash oracle/run-oracle-suite.sh'`,
         recording `uptime` before and after. Compare the verdict (not the wall clock) against the
         Phase 1 baseline.
-  - [ ] Confirm the inventory names exactly the two known entries as `[KNOWN]`, with no `[NEW]` and
+  - [x] Confirm the inventory names exactly the two known entries as `[KNOWN]`, with no `[NEW]` and
         no `[RESOLVED]` lines. Any `[NEW]` line is a real finding to record, not a defect in the
         tooling — investigate and document it before declaring the phase done.
-  - [ ] Add a short subsection to `code/docs/core/TESTING_GUIDE.md` (adjacent to 8.6/8.8) describing
+  - [x] Add a short subsection to `code/docs/core/TESTING_GUIDE.md` (adjacent to 8.6/8.8) describing
         the timeout-skip inventory: what `[KNOWN]`/`[NEW]`/`[RESOLVED]` mean, that skips are budget
         outcomes and are never cleared by widening a budget, and where the adjudication notes live
         (`oracle/conftest.py`).
-  - [ ] Write `specs/142_.../summaries/01_surface-oracle-timeout-skips-summary.md` covering: the
+  - [x] Write `specs/142_.../summaries/01_surface-oracle-timeout-skips-summary.md` covering: the
         three corrected labels with their ground-truth provenance; the surfacing mechanism; the
         cadence decision and the freshness checker; the `get_theory` documentation-only outcome; and
         the explicit statement that `TN_TH_2` remains skipped (correctly labeled now, still
         undecided at 2x budget) — a visibility improvement, not a new green.
-  - [ ] Record the seven follow-up recommendations from the Scope Boundary table in the summary and
+  - [x] Record the seven follow-up recommendations from the Scope Boundary table in the summary and
         in the orchestrator handoff's `next_action_hint`, each with a one-line rationale, in the
         research's priority order.
-  - [ ] Confirm no deliverable file outside `specs/**` gained a task-number citation:
+  - [x] Confirm no deliverable file outside `specs/**` gained a task-number citation:
         `git diff` review against `.claude/rules/no-task-references-in-deliverables.md`.
 - **Timing:** ~1.5 hours (the gating suite alone is ~18 minutes measured on an idle machine)
 - **Depends on:** 2, 4, 5, 6
@@ -433,25 +433,25 @@ three theory `__init__.py` files.
 
 ## Testing & Validation
 
-- [ ] Ground-truth verdicts for `all_future(some_past(A))` and `all_future(A)` are `SAT` at windows
+- [x] Ground-truth verdicts for `all_future(some_past(A))` and `all_future(A)` are `SAT` at windows
       4, 5, and 6 (Phase 1) — the evidence the label corrections rest on.
-- [ ] `TestCatalogLabelAdjudication` fails before Phase 2 and passes after (RED -> GREEN).
-- [ ] `TestOracleExampleRegressionViaAPI::test_active_example_count` passes; `total == 52` and
+- [x] `TestCatalogLabelAdjudication` fails before Phase 2 and passes after (RED -> GREEN).
+- [x] `TestOracleExampleRegressionViaAPI::test_active_example_count` passes; `total == 52` and
       `active == total - excluded` are unchanged.
-- [ ] `TN_TH_2` reports `SKIPPED`, never `FAILED`, after the label correction.
-- [ ] `oracle/bimodal_logic/tests/test_timeout_skip_inventory.py` passes, including the
+- [x] `TN_TH_2` reports `SKIPPED`, never `FAILED`, after the label correction.
+- [x] `oracle/bimodal_logic/tests/test_timeout_skip_inventory.py` passes, including the
       known-but-not-collected-in-this-session omission case.
-- [ ] Both real skip messages match the timeout signature; a non-timeout skip reason does not.
-- [ ] `oracle/run-oracle-suite.sh` prints an inventory section in both the `-n 6` pass and the serial
+- [x] Both real skip messages match the timeout signature; a non-timeout skip reason does not.
+- [x] `oracle/run-oracle-suite.sh` prints an inventory section in both the `-n 6` pass and the serial
       pass, with structurally identical formatting.
-- [ ] Full gating suite verdict is unchanged from the Phase 1 baseline.
-- [ ] `oracle/check-scan-freshness.sh` reports the newest on-disk `SCAN_COMPLETE` correctly, and
+- [x] Full gating suite verdict is unchanged from the Phase 1 baseline.
+- [x] `oracle/check-scan-freshness.sh` reports the newest on-disk `SCAN_COMPLETE` correctly, and
       exits non-zero for both the stale and the no-marker cases.
-- [ ] `test_theory_conformance.py` passes; `bimodal.get_theory(['extensional'])` still returns 17
+- [x] `test_theory_conformance.py` passes; `bimodal.get_theory(['extensional'])` still returns 17
       operators.
-- [ ] No solve budget, pass budget, exclusion-set membership, conclusiveness floor, or assertion was
+- [x] No solve budget, pass budget, exclusion-set membership, conclusiveness floor, or assertion was
       weakened anywhere in the diff.
-- [ ] No task-number citation appears in any changed file outside `specs/**`.
+- [x] No task-number citation appears in any changed file outside `specs/**`.
 
 ## Artifacts & Outputs
 

@@ -1,0 +1,16 @@
+{
+  "status": "implemented",
+  "summary": "All 7 phases complete and verified. Ground-truth hard gate cleared (SAT/stable at windows 4/5/6, matching research); three expected_sat labels corrected (TN_TH_2, TN_CM_1, BM_TH_1) with TN_TH_2 still correctly SKIPPED (not FAILED); reporting-only timeout-skip inventory ([KNOWN]/[NEW]/[RESOLVED]) added to oracle/conftest.py and wired into both run-oracle-suite.sh passes via -rs plus an opt-in ORACLE_SKIP_REPORT_DIR JSON artifact; exhaustive-scan cadence decision recorded in TESTING_GUIDE.md section 8.8 with oracle/check-scan-freshness.sh shipped and verified (fresh/stale/no-marker); get_theory(config) contract documented at bimodal/imposition/exclusion with zero behavior change. Full gating suite re-verified green (both passes PASSED, exit 0) with the inventory showing exactly the two known entries and no NEW/RESOLVED lines. No skip converted to a failure; no timeout widened; REGRESSION_TIMEOUT_EXAMPLES untouched.",
+  "artifacts": [
+    {
+      "path": "specs/142_surface_oracle_timeout_skips_and_run_exhaustive_scan/summaries/01_surface-oracle-timeout-skips-summary.md",
+      "type": "summary",
+      "summary": "Full implementation summary: what changed per phase, decisions, plan deviations (none beyond two documented consolidations), impacts, and the seven scoped follow-up recommendations in research priority order."
+    }
+  ],
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "Ready for review/PR. Follow-up work (not started here, in priority order): (1) investigate primitive untl-based expansion performance for all_future-shaped formulas (site-779 root cause); (2) re-examine TN_CM_1/BM_TH_1 REGRESSION_TIMEOUT_EXAMPLES exclusion now that labels are corrected, with fresh idle-machine timing; (3) investigate BM_TH_2 vs. all_future(A) Since/Until encoding asymmetry; (4) wire a scheduled (never gating) CI exhaustive-scan job using run-oracle-exhaustive-scan.sh + check-scan-freshness.sh; (5) scope get_theory fail-loudly + ~15 call-site fix as its own task; (6) adjudicate MD_TH_2's exclusion-reason/payload mismatch; (7) design a fix for the 7 other silent OracleTimeoutError sites (lines ~826/930/1181/1205/1233).",
+  "phases_completed": 7,
+  "phases_total": 7
+}

@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 # Two-pass runner for the oracle/ test suite -- the GATING variant.
 #
+# Both passes now pass pytest's own `-rs` (print skip reasons) and, via
+# oracle/conftest.py's pytest_runtest_logreport/pytest_terminal_summary
+# hooks, print a `== ORACLE TIMEOUT-SKIP INVENTORY ==` section classifying
+# every timeout-conditional skip as [KNOWN] / [NEW] / [RESOLVED] -- see
+# code/docs/core/TESTING_GUIDE.md section 8.8's "Timeout-skip inventory"
+# subsection for the full contract. This is reporting-only: it adds no
+# marker, never touches exit status, and never turns a skip into a failure
+# -- it only makes visible what a gating run already decided but, before
+# this, never printed.
+#
 # Both passes deselect `slow` by default: `slow` marks the exhaustive
 # complexity<=5 self-consistency scan and its temporal-only BH-comparison
 # sibling, which together used to make every invocation of this script run
@@ -94,6 +104,20 @@ if [ -n "${ORACLE_JUNIT_DIR:-}" ]; then
   pass2_extra_args+=("--junitxml=$ORACLE_JUNIT_DIR/junit-oracle-pass2.xml")
 fi
 
+# Opt-in per-pass timeout-skip-inventory JSON artifact, mirroring the
+# ORACLE_JUNIT_DIR idiom immediately above. Unset (the default), this
+# changes nothing: oracle/conftest.py's pytest_terminal_summary hook only
+# writes a JSON file when ORACLE_SKIP_REPORT is set in its own environment.
+# One file per pass, via a per-pass ORACLE_SKIP_REPORT value, so pass 2
+# cannot clobber pass 1's report.
+if [ -n "${ORACLE_SKIP_REPORT_DIR:-}" ]; then
+  pass1_skip_report="$ORACLE_SKIP_REPORT_DIR/skip-report-pass1.json"
+  pass2_skip_report="$ORACLE_SKIP_REPORT_DIR/skip-report-pass2.json"
+else
+  pass1_skip_report=""
+  pass2_skip_report=""
+fi
+
 # Pass 1: everything except the contention-sensitive tests and the slow
 # exhaustive scan, in parallel. Hard-coded -n 6, not -n auto: this
 # repository already pins a sibling suite
@@ -101,14 +125,16 @@ fi
 # checks.default) to -n 6 for the same documented CPU-contention-flake
 # reason; -n auto would mean one worker per core on a many-core machine and
 # risks recreating the exact problem this split exists to avoid.
-timeout --kill-after=60s "$pass1_timeout" \
-  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow" "${pass1_extra_args[@]}" "$@"
+ORACLE_SKIP_REPORT="$pass1_skip_report" timeout --kill-after=60s "$pass1_timeout" \
+  pytest "$repo_root/oracle" -n 6 -m "not xdist_serial and not slow" -rs \
+    "${pass1_extra_args[@]}" "$@"
 pass1_status=$?
 
 # Pass 2: the contention-sensitive tests (still excluding `slow`), with no
 # other pytest workers running at all -- no -n flag.
-timeout --kill-after=60s "$pass2_timeout" \
-  pytest "$repo_root/oracle" -m "xdist_serial and not slow" "${pass2_extra_args[@]}" "$@"
+ORACLE_SKIP_REPORT="$pass2_skip_report" timeout --kill-after=60s "$pass2_timeout" \
+  pytest "$repo_root/oracle" -m "xdist_serial and not slow" -rs \
+    "${pass2_extra_args[@]}" "$@"
 pass2_status=$?
 
 _classify() {
@@ -127,6 +153,12 @@ echo
 echo "== oracle suite summary (gating: slow deselected on both passes) =="
 echo "pass 1 (parallel, -n 6, not xdist_serial and not slow, budget ${pass1_timeout}s): $(_classify "$pass1_status")"
 echo "pass 2 (serial, xdist_serial and not slow, budget ${pass2_timeout}s):             $(_classify "$pass2_status")"
+echo
+echo "Each pass above printed its own '== ORACLE TIMEOUT-SKIP INVENTORY ==' section"
+echo "(from oracle/conftest.py, see code/docs/core/TESTING_GUIDE.md section 8.8)."
+echo "[NEW] and [RESOLVED] lines there are the actionable ones -- [KNOWN] lines are"
+echo "already-adjudicated. A skip is always a budget/performance outcome, never"
+echo "cleared by widening a solve budget."
 echo
 echo "Exhaustive complexity<=5 self-consistency scan (the 'slow'-marked tests"
 echo "deselected above) is not part of this gating run. Run it explicitly via:"
