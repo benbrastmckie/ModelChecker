@@ -30,6 +30,10 @@ from model_checker.syntactic.atoms import get_atom_sort
 from .witness_registry import WitnessRegistry
 from .witness_constraints import WitnessConstraintGenerator
 
+# Process-global bound-variable counter reset (fixes cross-example order
+# dependence -- see operators.reset_bound_var_counter's docstring).
+from ..operators import reset_bound_var_counter
+
 
 ##############################################################################
 ######################### SEMANTICS AND PROPOSITIONS #########################
@@ -109,7 +113,14 @@ class BimodalSemantics(SemanticDefaults):
         """
         # Call parent implementation first
         super()._reset_global_state()
-        
+
+        # Reset the process-global bound-variable counter (operators.py's
+        # _bound_var_counter). Each BimodalSemantics instance is about to be
+        # used inside its own fresh Z3 Context (isolated_z3_context), so
+        # resetting here cannot reintroduce the aliasing bug the counter
+        # exists to prevent -- see reset_bound_var_counter's docstring.
+        reset_bound_var_counter()
+
         # Clear any cached world time intervals from previous examples
         self.world_time_intervals = {}
         

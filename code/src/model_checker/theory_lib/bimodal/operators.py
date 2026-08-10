@@ -41,14 +41,47 @@ from model_checker.utils import pretty_set_print
 from model_checker.solver import is_true
 
 # Process-global counter backing _fresh_bound_int(), below. Deliberately a
-# plain module-level itertools.count() (not per-context or per-semantics
+# plain module-level itertools.count() (not thread-local or call-local
 # state): its only job is to guarantee the suffixed name below is never
-# reused for the lifetime of the process, which is sufficient to prevent the
-# z3.Int() aliasing this counter exists to avoid (see _fresh_bound_int's
-# docstring). CPython's GIL makes count().__next__() atomic, so this is safe
-# under pytest-xdist (separate worker processes, no shared counter needed
-# across workers) without further synchronization.
+# reused *within the Z3 Context it is used against*, which is sufficient to
+# prevent the z3.Int() aliasing this counter exists to avoid (see
+# _fresh_bound_int's docstring). CPython's GIL makes count().__next__()
+# atomic, so this is safe under pytest-xdist (separate worker processes, no
+# shared counter needed across workers) without further synchronization.
+#
+# reset_bound_var_counter(), below, is called once per fresh BimodalSemantics
+# instance (see BimodalSemantics._reset_global_state()). This is safe -- not
+# a reintroduction of the aliasing bug -- because every BimodalSemantics
+# instance is built inside its own fresh Z3 Context (see
+# model_checker.utils.context.isolated_z3_context, which swaps in a new
+# z3.Context() per example the same way it resets the AtomSort cache). The
+# aliasing hazard only arises from two calls resolving to the same name
+# *within one Context*; a counter reset to 0 at the start of each Context's
+# lifetime still hands out strictly increasing, therefore distinct, suffixes
+# for every call made against that Context. Leaving the counter unreset
+# across examples was itself a defect: the numeric suffix baked into bound
+# variable names then depended on how many prior examples had run in the
+# same process, and that leaked, run-order-dependent naming was enough to
+# perturb Z3's MBQI-driven quantifier instantiation path and flip individual
+# examples (e.g. BM_CM_4) between success and failure depending on test
+# order -- see test_bound_var_counter_isolation.py for the empirical
+# reproduction.
 _bound_var_counter = itertools.count()
+
+
+def reset_bound_var_counter() -> None:
+    """Reset the process-global bound-variable counter to 0.
+
+    Called once per fresh BimodalSemantics instance (from
+    BimodalSemantics._reset_global_state()) so that every example's
+    bound-variable names are reproducible and independent of how many prior
+    examples ran in the same process. Safe to call because each
+    BimodalSemantics instance is built inside its own fresh Z3 Context (see
+    the module-level comment above _bound_var_counter for the full
+    rationale).
+    """
+    global _bound_var_counter
+    _bound_var_counter = itertools.count()
 
 
 def _fresh_bound_int(prefix: str):

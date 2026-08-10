@@ -8,7 +8,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
-BASELINE="${1:-${REPO_ROOT}/specs/097_optimize_build_frame_constraints/baseline_results.txt}"
+# specs/097_optimize_build_frame_constraints/ was archived to specs/archive/ once
+# task 97 completed; the default falls back there so running this script with no
+# argument (as its own usage comment above advertises) still finds the baseline.
+BASELINE="${1:-${REPO_ROOT}/specs/archive/097_optimize_build_frame_constraints/baseline_results.txt}"
 
 if [ ! -f "$BASELINE" ]; then
     echo "ERROR: Baseline file not found: $BASELINE"
@@ -56,7 +59,14 @@ if [ "$PYTEST_RC" -gt 1 ]; then
     exit 2
 fi
 
-CURRENT=$(echo "$RAW_OUTPUT" | grep -E "PASSED|FAILED|ERROR|SKIPPED" | \
+# Match only pytest's per-test progress lines (each ends in a "[ NN%]" progress
+# marker), NOT the "short test summary info" section's restated FAILED/ERROR
+# lines. Without this restriction, every failing test is captured twice (once
+# from its progress line, once from the summary restatement), which desyncs
+# CURRENT_NAMES from BASELINE_NAMES's one-line-per-test format below and makes
+# comm(1) misreport the failing test's duplicate occurrence as "EXTRA" (present
+# in current but not baseline) even though it is simply double-counted, not new.
+CURRENT=$(echo "$RAW_OUTPUT" | grep -E "(PASSED|FAILED|ERROR|SKIPPED) *\[[ ]*[0-9]+%\]" | \
     sed 's/.*test_example_cases\[/RESULT test_example_cases[/' || true)
 
 if [ -z "$CURRENT" ]; then
