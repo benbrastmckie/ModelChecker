@@ -21,7 +21,7 @@ next_project_number: 142
 
 ### Bimodal/Oracle Residual Defects
 
-140 [NOT STARTED] — Diagnose and fix the residual RED that plan v2 of the refactor-ve
+140 [IMPLEMENTING] — Diagnose and fix the residual RED that plan v2 of the refactor-ve
 
 ## Tasks
 
@@ -99,7 +99,7 @@ VERIFICATION BAR:
 ---
 
 ### 140. Fix bimodal order dependence and oracle timeouts
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: python
 - **Topic**: bimodal/oracle residual defects
 - **Dependencies**: None
