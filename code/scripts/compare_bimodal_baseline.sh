@@ -17,9 +17,57 @@ fi
 
 echo "Running bimodal test suite..."
 cd "$REPO_ROOT"
-CURRENT=$(python -m pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py \
-    -v --tb=short --timeout=120 2>&1 | grep -E "PASSED|FAILED|ERROR|SKIPPED" | \
-    sed 's/.*test_example_cases\[/RESULT test_example_cases[/')
+
+# Capture pytest's raw output and exit code separately.
+#
+# `set -euo pipefail` is deliberately kept on for the rest of this script, but the pytest run
+# below MUST be exempted from it. A failing test suite makes pytest exit 1, pipefail propagates
+# that through the pipeline, and `set -e` then aborts the command substitution -- so the script
+# would die immediately after printing "Running bimodal test suite..." having compared nothing,
+# while its caller reported "compare_bimodal_baseline.sh reported regressions". That message was
+# reached without any comparison ever running. Comparing a failing suite against the baseline is
+# this script's entire purpose, so exit 1 is an EXPECTED input here, not an error.
+#
+# Exit 1 is not blanket-suppressed: pytest's other exit codes mean the run itself is untrustworthy
+# and are still hard errors, because comparing counts scraped from an interrupted or
+# internally-errored run would silently understate the pass count and manufacture a fake
+# regression.
+#   0 = all passed, 1 = tests failed        -> both comparable, continue
+#   2 = interrupted, 3 = internal error,
+#   4 = usage error, 5 = no tests collected -> not comparable, fail loudly
+set +e
+RAW_OUTPUT=$(python -m pytest code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py \
+    -v --tb=short --timeout=120 2>&1)
+PYTEST_RC=$?
+set -e
+
+if [ "$PYTEST_RC" -gt 1 ]; then
+    echo "ERROR: pytest exited $PYTEST_RC (not 0 or 1), so its results are not comparable."
+    case "$PYTEST_RC" in
+        2) echo "  Cause: run interrupted (SIGINT or --exitfirst)." ;;
+        3) echo "  Cause: internal pytest error." ;;
+        4) echo "  Cause: pytest usage/command-line error." ;;
+        5) echo "  Cause: no tests were collected -- check the test path and PYTHONPATH." ;;
+        *) echo "  Cause: unrecognized pytest exit code." ;;
+    esac
+    echo ""
+    echo "Last 20 lines of pytest output:"
+    echo "$RAW_OUTPUT" | tail -20 | sed 's/^/  /'
+    exit 2
+fi
+
+CURRENT=$(echo "$RAW_OUTPUT" | grep -E "PASSED|FAILED|ERROR|SKIPPED" | \
+    sed 's/.*test_example_cases\[/RESULT test_example_cases[/' || true)
+
+if [ -z "$CURRENT" ]; then
+    echo "ERROR: pytest exited $PYTEST_RC but no PASSED/FAILED/ERROR/SKIPPED lines were parsed."
+    echo "This usually means the -v output format changed; the comparison below would report a"
+    echo "false 'all tests missing' result, so it is refused rather than reported."
+    echo ""
+    echo "Last 20 lines of pytest output:"
+    echo "$RAW_OUTPUT" | tail -20 | sed 's/^/  /'
+    exit 2
+fi
 
 # Extract baseline results (ignore comment lines)
 BASELINE_RESULTS=$(grep -v '^#' "$BASELINE" | grep -v '^$' | \

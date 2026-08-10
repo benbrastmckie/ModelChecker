@@ -70,6 +70,12 @@
           networkx
           pytest
           pytest-xdist
+          # Required by code/scripts/compare_bimodal_baseline.sh, which passes --timeout=120.
+          # Without it pytest exits 4 (usage: "unrecognized arguments: --timeout=120") inside
+          # this shell while succeeding on a bare PATH where the plugin happens to be present --
+          # a divergence that made the baseline comparison unrunnable under `nix develop` only.
+          # The flag is a timeout budget and must not be dropped to work around the gap.
+          pytest-timeout
         ]);
       in
       {
