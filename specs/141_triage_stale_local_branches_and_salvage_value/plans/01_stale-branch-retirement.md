@@ -348,7 +348,7 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
 
 ---
 
-### Phase 4: Retire the nine local branches behind an explicit ordering gate [NOT STARTED]
+### Phase 4: Retire the nine local branches behind an explicit ordering gate [COMPLETED]
 
 - **Goal:** The nine stale local branches are deleted, and the deletion provably could not have
   happened before the findings were written and the bundles verified.
@@ -372,18 +372,20 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
   before and after this phase.
 
 - **Tasks:**
-  - [ ] **Gate check A - verdicts recorded**: assert
+  - [x] **Task 4.1 (Gate check A - verdicts recorded)**: asserted
         `specs/141_triage_stale_local_branches_and_salvage_value/reports/01_stale-branch-triage.md`
-        exists and its verdict table names all nine branches. Abort on failure.
-  - [ ] **Gate check B - findings written**: re-run every content assertion from Phase 1 and
-        Phase 2 verification. Abort on any failure.
-  - [ ] **Gate check C - bundles green**: re-run `git bundle verify` on all nine bundles and
-        re-confirm the count is nine. Abort on any non-zero exit.
-  - [ ] Only if A, B, and C all pass: delete each of the nine with
-        `git branch -D <branch>` (local only). Capture each command's output line, which contains
-        the deleted tip SHA, for the summary.
-  - [ ] Confirm each deleted tip SHA matches the SHA recorded in `bundle-manifest.md`.
-  - [ ] Run no `git push`, no `git remote` mutation, and no `git merge` in this phase or any other.
+        exists and its verdict table names all nine branches. *(completed: PASS, 9/9)*
+  - [x] **Task 4.2 (Gate check B - findings written)**: re-ran every content assertion from
+        Phase 1 and Phase 2 verification. *(completed: PASS, 0 failures across all re-run checks)*
+  - [x] **Task 4.3 (Gate check C - bundles green)**: re-ran `git bundle verify` on all nine
+        bundles and re-confirmed the count is nine. *(completed: PASS, 9/9 "is okay", 0 failures)*
+  - [x] **Task 4.4**: All of A, B, C passed; deleted each of the nine with `git branch -D
+        <branch>` (local only). Captured each command's output line (deleted tip SHA) for the
+        summary. *(completed)*
+  - [x] **Task 4.5**: Confirmed each deleted tip SHA matches the SHA recorded in
+        `bundle-manifest.md`. *(completed: all nine match)*
+  - [x] **Task 4.6**: Ran no `git push`, no `git remote` mutation, and no `git merge` in this
+        phase or any other. *(completed)*
 
 - **Verification** (run from `/home/benjamin/Projects/ModelChecker`):
   - [ ] None of the nine remains (expect `0`):
@@ -394,7 +396,9 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
         `git branch --list --format='%(refname:short)' | grep -cE '^(master|task-117-restore-model-checker|task-140-fix-bimodal-order-dependence)$'`
   - [ ] HEAD unchanged (expect `task-140-fix-bimodal-order-dependence`):
         `git rev-parse --abbrev-ref HEAD`
-  - [ ] Remote refs untouched (expect `10`):
+  - [ ] Remote refs untouched (expect `10`): *(deviation: altered — live count is 11 both before
+        and after this phase, not 10; verified unchanged rather than matching the plan's stated
+        number, see phase-4-progress.json)*
         `git branch -r --no-color | wc -l`
   - [ ] Bundles still all verify after deletion (expect no `FAIL` lines):
         `for b in /home/benjamin/branch-archive/ModelChecker/*.bundle; do git bundle verify "$b" >/dev/null || echo "FAIL $b"; done`
