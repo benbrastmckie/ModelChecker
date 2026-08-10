@@ -1,0 +1,40 @@
+{
+  "phase": 2,
+  "phase_name": "Record the cvc5 feasibility result and the known segfault in the solver docs",
+  "started_at": "2026-08-10T19:45:00Z",
+  "last_updated": "2026-08-10T19:55:00Z",
+  "objectives": [
+    {
+      "id": 1,
+      "description": "Read solver/README.md and cvc5_adapter.py; confirm 'solver' setting and pilot segfault script call shape",
+      "status": "done",
+      "files_touched": []
+    },
+    {
+      "id": 2,
+      "description": "Write ## Background: Why a cvc5 Backend and ## Known Issues sections into solver/README.md",
+      "status": "done",
+      "files_touched": [
+        "code/src/model_checker/solver/README.md"
+      ]
+    },
+    {
+      "id": 3,
+      "description": "Verify section ordering, measured specifics, no branch/task citations",
+      "status": "done",
+      "files_touched": []
+    }
+  ],
+  "current_objective": null,
+  "approaches_tried": [],
+  "handoff_count": 0,
+  "deviations": [
+    {
+      "task_id": "2.4",
+      "description": "Cite apply_function as a still-current cvc5_adapter.py method",
+      "type": "altered",
+      "reason": "Inspection of code/src/model_checker/solver/cvc5_adapter.py showed no apply_function method exists today; the pilot's minimal reproduction predates the current adapter API. Known Issues was worded to describe the risk (applying a declared function through the cvc5 backend) accurately without implying apply_function is a still-live call site.",
+      "annotation": "*(deviation: altered — described apply_function as the pilot's historical call shape, not a still-current adapter method, after confirming it is absent from cvc5_adapter.py today)*"
+    }
+  ]
+}

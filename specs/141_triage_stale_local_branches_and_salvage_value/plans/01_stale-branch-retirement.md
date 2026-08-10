@@ -207,7 +207,7 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
 
 ---
 
-### Phase 2: Record the cvc5 feasibility result and the known segfault in the solver docs [NOT STARTED]
+### Phase 2: Record the cvc5 feasibility result and the known segfault in the solver docs [COMPLETED]
 
 - **Goal:** A reader of `solver/README.md` deciding whether to set `'solver': 'cvc5'` learns the
   concrete measured reason the cvc5 backend exists, the exact option configuration that made it
@@ -224,39 +224,41 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
     `## Known Differences` section.
 
 - **Tasks:**
-  - [ ] Read `code/src/model_checker/solver/README.md` in full (153 lines) and
+  - [x] **Task 2.1**: Read `code/src/model_checker/solver/README.md` in full and
         `code/src/model_checker/solver/cvc5_adapter.py` to confirm option-setting and
-        function-application call sites before describing them.
-  - [ ] Confirm the exposed setting: `grep -n "'solver'" code/src/model_checker/theory_lib/bimodal/semantic/core.py`
-        (currently `'solver': 'z3'` at line 63 with a `'z3' or 'cvc5'` comment).
-  - [ ] Optionally read the pilot's reproduction script via
-        `git show feature/bimodal-cvc5-pilot:test_segfault_debug.py` (path may differ; locate with
-        `git ls-tree -r --name-only feature/bimodal-cvc5-pilot | grep segfault`) to confirm the
-        failing call shape before describing it. Read-only; do not check out.
-  - [ ] Write `## Background: Why a cvc5 Backend`. Content: on the bimodal theory's hardest
-        countermodel examples, Z3 timed out under both the quantified and the quantifier-free
-        witness encodings; cvc5 configured with `mbqi` and `enum-inst` solved the hardest case
-        (`BM_CM_1`) in roughly 6 ms - about a 850x improvement over the Z3 timeout threshold - and
-        reproduced deterministically across 30 runs covering six countermodel examples
-        (`BM_CM_1`, `BM_CM_2`, `TN_CM_1`, `TN_CM_2`, `MD_CM_1`, `MD_CM_2`) with no loss of
-        countermodel correctness. State the configuration dependency explicitly and prominently:
+        function-application call sites before describing them. *(completed: confirmed
+        `cvc5_adapter.py` exposes no `apply_function` method today — see deviation below)*
+  - [x] **Task 2.2**: Confirm the exposed setting: `grep -n "'solver'"
+        code/src/model_checker/theory_lib/bimodal/semantic/core.py` (currently `'solver': 'z3'`
+        at line 63 with a `'z3' or 'cvc5'` comment). *(completed)*
+  - [x] **Task 2.3**: Optionally read the pilot's reproduction script via `git show
+        feature/bimodal-cvc5-pilot:test_segfault_debug.py` to confirm the failing call shape
+        before describing it. Read-only; do not check out. *(completed: script at repo root,
+        calls `adapter.apply_function(semantics.is_world, [world_id])`)*
+  - [x] **Task 2.4**: Write `## Background: Why a cvc5 Backend`. Content: on the bimodal theory's
+        hardest countermodel examples, Z3 timed out under both the quantified and the
+        quantifier-free witness encodings; cvc5 configured with `mbqi` and `enum-inst` solved the
+        hardest case (`BM_CM_1`) in roughly 6 ms - about a 850x improvement over the Z3 timeout
+        threshold - and reproduced deterministically across 30 runs covering six countermodel
+        examples (`BM_CM_1`, `BM_CM_2`, `TN_CM_1`, `TN_CM_2`, `MD_CM_1`, `MD_CM_2`) with no loss of
+        countermodel correctness. States the configuration dependency explicitly and prominently:
         with default options cvc5 returns `unknown` immediately; the result depends entirely on
-        enabling `mbqi` and `enum-inst`. Note that these measurements came from standalone scripts
-        against an ad hoc harness, not from this abstraction layer, so they establish feasibility
-        rather than current-state behavior.
-  - [ ] Write `## Known Issues`, covering two items:
-        (1) *cvc5 segfault on callable-function application* - an attempt to drive the bimodal
-        theory through the cvc5 backend hit a reproducible segmentation fault when applying a
-        declared function to an argument through the adapter's function-application path
-        (`apply_function` with a `CallableFunction`-style handle). The fault was reproduced with a
-        minimal script and never resolved. Anyone enabling cvc5 for a theory that declares and
-        applies uninterpreted functions should expect to hit it and should reproduce it minimally
-        first.
-        (2) *bimodal's cvc5 path is unverified end-to-end* - the `'solver'` setting accepts
-        `'cvc5'`, but no test or documented run demonstrates that bimodal produces correct
-        countermodels through it. Treat the setting as unvalidated for bimodal until such a run
-        exists.
-  - [ ] Verify no branch name and no task-number citation appears in the file.
+        enabling `mbqi` and `enum-inst`. Notes that these measurements came from standalone
+        scripts against an ad hoc harness, not from this abstraction layer, so they establish
+        feasibility rather than current-state behavior. *(completed)*
+  - [x] **Task 2.5**: Write `## Known Issues`, covering two items. *(deviation: altered — the
+        plan describes the segfault as reachable "through the adapter's function-application path
+        (`apply_function` with a `CallableFunction`-style handle)" as if still current;
+        `cvc5_adapter.py` has no `apply_function` method today, so the section instead describes
+        `apply_function` as the pilot's historical call shape and frames the risk as applying a
+        declared function through the cvc5 backend generally, not a still-live call site.
+        (1) cvc5 segfault on function application: an attempt to drive the bimodal theory through
+        the cvc5 backend hit a reproducible segmentation fault applying a declared, uninterpreted
+        predicate to an argument; never resolved. (2) bimodal's cvc5 path is unverified
+        end-to-end: the `'solver'` setting accepts `'cvc5'` but no test or documented run
+        demonstrates correct countermodels through it.)*
+  - [x] **Task 2.6**: Verify no branch name and no task-number citation appears in the file.
+        *(completed: both greps confirmed empty)*
 
 - **Verification** (run from `/home/benjamin/Projects/ModelChecker`):
   - [ ] Both sections exist (expect `2`):

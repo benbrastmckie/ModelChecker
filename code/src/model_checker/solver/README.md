@@ -17,6 +17,30 @@ solver/
   tests/                # Test suite
 ```
 
+## Background: Why a cvc5 Backend
+
+On the bimodal theory's hardest countermodel examples, Z3 timed out under both a quantified
+witness encoding and a since-abandoned quantifier-free rewrite of the same encoding. A standalone
+feasibility investigation configured cvc5 with two non-default quantifier-instantiation options —
+`mbqi` (model-based quantifier instantiation) and `enum-inst` (enumerative instantiation) — and
+found it solved the hardest of those cases (the bimodal `Future A ⊬ Box A` countermodel, `BM_CM_1`
+in the source investigation's naming) in roughly 6 ms, against a Z3 timeout of 5+ seconds: an
+improvement on the order of 850×. The same configuration reproduced deterministically across 30
+runs (5 repetitions each) spanning six countermodel examples (`BM_CM_1`, `BM_CM_2`, `TN_CM_1`,
+`TN_CM_2`, `MD_CM_1`, `MD_CM_2`) covering the bimodal, temporal, and modal fragments, with no loss
+of countermodel correctness in any of them.
+
+**The result is entirely dependent on that configuration.** With cvc5's default options, every one
+of those same examples returns `unknown` in about a millisecond — no solving happens at all.
+`mbqi` and `enum-inst` are not optional tuning; without them cvc5 is not a candidate backend for
+this workload.
+
+These measurements are a recorded finding from standalone scripts run directly against the `cvc5`
+Python API in an ad hoc harness, not a benchmark of this package's `cvc5_adapter.py`/
+`SolverProtocol` abstraction. They establish that cvc5 is *feasible* for this class of problem,
+not that this abstraction layer's current cvc5 backend reproduces the same numbers today — see
+Known Issues below for what remains unverified.
+
 ## Usage
 
 ### Basic Solver Usage
@@ -142,6 +166,26 @@ pip install model-checker[cvc5]
 # or
 pip install cvc5
 ```
+
+## Known Issues
+
+**cvc5 can crash on applying a declared function through the adapter.** A pilot attempt to drive
+the bimodal theory through cvc5 hit a reproducible segmentation fault when applying a declared,
+uninterpreted predicate function to an argument — the minimal reproduction called an adapter
+`apply_function(predicate, [argument])`-style entry point on a world-membership predicate
+(`is_world`) and crashed the process rather than raising a Python exception. The crash was never
+resolved and no root cause was isolated beyond the minimal reproduction. Note that the exact call
+shape used in that reproduction predates the current `cvc5_adapter.py`, which has no
+`apply_function` method today — the risk is applying a declared function through the cvc5 backend
+in general, not a still-live call site. Anyone enabling cvc5 for a theory that declares and
+applies uninterpreted functions — as bimodal's `is_world` and similar predicates do — should
+budget time to build and run a minimal, isolated reproduction before trusting cvc5 with a larger
+workload.
+
+**bimodal's cvc5 path is unverified end-to-end.** The `'solver'` setting documented above accepts
+`'cvc5'`, and bimodal's own settings already expose it, but no test or documented run demonstrates
+that bimodal produces correct countermodels through this abstraction layer's cvc5 backend today.
+Treat the setting as unvalidated for bimodal until such a run exists and is recorded.
 
 ## Known Differences
 
