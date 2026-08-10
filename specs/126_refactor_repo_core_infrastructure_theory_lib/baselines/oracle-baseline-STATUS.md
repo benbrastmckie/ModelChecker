@@ -332,35 +332,52 @@ The category (c) verdict stands and is now supported by two independent adjudica
 gating suite is RED, the gate correctly reports it as RED, and the failing set is **larger** than
 first recorded, not smaller.
 
-## Exhaustive scan: attempted twice on 2026-08-09, no adjudicable result
+## Exhaustive scan: three attempts — first two unadjudicable, third completed (2026-08-10)
 
-The 2 `slow`-marked tests the gating suite deselects are **still unaccounted for**. Two runs of
+The 2 `slow`-marked tests the gating suite deselects are now accounted for. Three runs of
 `nix develop --command bash oracle/run-oracle-exhaustive-scan.sh` were launched from a
-verified-quiet machine; neither is adjudicable, and neither reached completion.
+verified-quiet machine; the first two never reached completion, the third did.
 
 | Attempt | Window | Quiet at launch | Outcome |
 |---|---|---|---|
-| 1 | 22:54:17–23:06:28Z | load 1.05–1.14, no foreign hog | Contention at **+85 s** — a cslib `lean --worker` at 291–467% and `lake` at 794.8%, load1 to 11.52. Aborted at formula 14/274. |
-| 2 | 23:57:44–~01:07Z | load 0.57–0.76, **zero** lean/lake processes | Clean for ~46 min (formulas 1–~215), then a `lean --worker` at 285%/205% (transient) and ~100% sustained from 00:47 with a second joining at 00:58. Terminated at formula 234/274 (~85%). |
+| 1 | 22:54:17–23:06:28Z (2026-08-09) | load 1.05–1.14, no foreign hog | Contention at **+85 s** — a cslib `lean --worker` at 291–467% and `lake` at 794.8%, load1 to 11.52. Aborted at formula 14/274. |
+| 2 | 23:57:44–~01:07Z (2026-08-09/10) | load 0.57–0.76, **zero** lean/lake processes | Clean for ~46 min (formulas 1–~215), then a `lean --worker` at 285%/205% (transient) and ~100% sustained from 00:47 with a second joining at 00:58. Terminated at formula 234/274 (~85%). |
+| 3 | 02:20:56Z–03:29:12Z (2026-08-10) | load1 0.97, no foreign process >50% CPU (idle cslib `lean --worker`/`lake` resident but not consuming CPU) | **Completed.** `SCAN_COMPLETE` written; 9 of 68 60s-interval samples showed transient contention (peak `lean` 577%, `runLinter` 772%) that did not invalidate the run. |
 
-`SCAN_COMPLETE` was never written in either attempt, and neither was `report.json`. Per the
+Attempts 1 and 2: `SCAN_COMPLETE` was never written, and neither was `report.json`. Per the
 runner's own contract a vanished PID is not a verdict and process exit status alone is never a
-completion signal, so there is no completion claim to make here.
+completion signal, so there was no completion claim to make for either. Neither run's
+per-formula outcomes were triaged, promoted, or reported as findings — the scan's verdict for
+each formula is decided by a 10 s wall-clock solve budget, exactly the quantity CPU contention
+corrupts, so a partially-clean run is not an adjudicable run.
 
-**Neither run's per-formula outcomes are triaged, promoted, or reported as findings.** The scan's
-verdict for each formula is decided by a 10 s wall-clock solve budget — exactly the quantity CPU
-contention corrupts — so a partially-clean run is not an adjudicable run. Attempt 2 observed
-`D=0` disagreements through formula 234 with 141 budget TIMEOUTs; that is recorded here **only**
-so a future run is not launched blind, and is explicitly not evidence of self-consistency.
+**Attempt 3 reached `SCAN_COMPLETE`** (`total_formulas=274, conclusive=105, disagreements=0,
+timeout_count=169, wall_clock_seconds=3555.065`) and is adjudicable. Full detail, including the
+contention caveat on the 169-timeout figure and a second, genuine finding surfaced by the same
+run, is in `exhaustive-scan/STATUS.md`. Summary:
 
-**No `baselines/exhaustive-scan/` directory was created.** Creating one would present a results
-location holding no adjudicated result, which is the same failure mode as the empty
-`serial-rebaseline/` directory this effort removed. Its absence is the honest state.
+- `TestFullScanReport::test_complexity_5_scan_self_consistent` (the test that produces
+  `report.json`/`SCAN_COMPLETE`) **PASSED**: 105 conclusive >= the 90-formula floor
+  (`MIN_CONCLUSIVE_SCAN_FORMULAS`), 0 self-disagreements.
+- `TestBimodalHarnessIntegration::test_temporal_only_agreement_complexity_5`, the other
+  `slow`-marked test run in the same invocation, **FAILED** on its signature-check assertion: one
+  `external_bh_defect` entry has the opposite polarity (`mc_sat=True, bh_sat=False`) from the
+  documented defect in `KNOWN_EXTERNAL_DEFECTS.md` (`mc_sat=False, bh_sat=True`) — a genuine,
+  non-environmental finding (a content check, not a timing-based outcome), and per this task's
+  own non-goals it is recorded rather than diagnosed or reclassified here. This is why the
+  runner's aggregate `pytest: FAILED (exit 1)` does not itself mean the scan/coverage record
+  failed — that distinction is exactly what `exhaustive-scan/STATUS.md` exists to make explicit.
 
-Nothing was weakened in response: `SELF_SCAN_SOLVE_TIMEOUT_MS` is untouched,
-`known_conclusive_complexity5.json` was not re-derived, and `ORACLE_EXHAUSTIVE_TIMEOUT` was not
-altered. The blocker is environmental — this host does not reliably provide the uninterrupted
-60–90 minute window the scan needs — not a defect in the scan.
+`baselines/exhaustive-scan/` now exists, holding `report.json`, `SCAN_COMPLETE`,
+`exhaustive-run.txt`, and `STATUS.md`. Raw quietness/contention captures for attempt 3 are in
+`gate-run-2026-08-09/exhaustive-attempt3-*`.
 
-**Follow-up:** run the exhaustive scan on a machine with no Lean or Z3 workload, and only then
-adjudicate `test_complexity_5_scan_self_consistent`.
+Nothing was weakened in producing this result: `SELF_SCAN_SOLVE_TIMEOUT_MS` is untouched,
+`known_conclusive_complexity5.json` was not re-derived, `ORACLE_EXHAUSTIVE_TIMEOUT` was not
+altered, and `classify_disagreement`/`KNOWN_EXTERNAL_DEFECTS.md` were not touched to absorb the
+new finding. `git diff --stat -- oracle/bimodal_logic/` is empty.
+
+**Follow-up:** investigate the new opposite-polarity `external_bh_defect` signature found by
+`test_temporal_only_agreement_complexity_5` — determine whether it is a second, distinct external
+BimodalHarness defect (requiring its own entry in `KNOWN_EXTERNAL_DEFECTS.md`) or something else;
+do not fold it into the existing bucket without that investigation.

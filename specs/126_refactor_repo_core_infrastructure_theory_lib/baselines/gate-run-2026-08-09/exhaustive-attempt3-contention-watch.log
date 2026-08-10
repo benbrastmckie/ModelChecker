@@ -1,0 +1,69 @@
+# Phase 4 attempt 3 contention watch, started 2026-08-10T02:23:07Z
+02:23:07Z quiet load=1.78, 2.15, 2.33
+02:24:07Z quiet load=1.99, 2.12, 2.30
+02:25:07Z quiet load=1.52, 1.97, 2.24
+02:26:07Z quiet load=1.35, 1.84, 2.17
+02:27:07Z quiet load=1.31, 1.74, 2.12
+02:28:07Z quiet load=1.84, 1.82, 2.12
+02:29:08Z quiet load=1.95, 1.89, 2.12
+02:30:08Z quiet load=2.79, 2.15, 2.20
+02:31:08Z CONTENTION load=4.07, 2.50, 2.31 hog=[4106951:577:lean ]
+02:32:08Z CONTENTION load=3.68, 2.72, 2.40 hog=[4135385:137:lean ]
+02:33:08Z CONTENTION load=2.09, 2.44, 2.32 hog=[4135385:52.2:lean ]
+02:34:08Z quiet load=1.43, 2.19, 2.24
+02:35:08Z quiet load=2.04, 2.19, 2.23
+02:36:08Z quiet load=2.34, 2.28, 2.26
+02:37:08Z quiet load=2.06, 2.19, 2.23
+02:38:08Z quiet load=2.10, 2.14, 2.21
+02:39:08Z quiet load=2.00, 2.10, 2.19
+02:40:08Z quiet load=3.31, 2.41, 2.28
+02:41:08Z CONTENTION load=4.24, 2.87, 2.45 hog=[65370:521:lean ]
+02:42:08Z CONTENTION load=2.63, 2.66, 2.41 hog=[65370:76.6:lean ]
+02:43:08Z quiet load=1.70, 2.38, 2.33
+02:44:08Z quiet load=1.39, 2.19, 2.26
+02:45:08Z quiet load=1.32, 2.01, 2.19
+02:46:08Z quiet load=2.18, 2.13, 2.22
+02:47:08Z quiet load=2.03, 2.10, 2.21
+02:48:09Z quiet load=1.94, 2.07, 2.19
+02:49:09Z quiet load=1.60, 1.95, 2.14
+02:50:09Z quiet load=1.25, 1.79, 2.07
+02:51:09Z quiet load=1.53, 1.75, 2.03
+02:52:09Z quiet load=1.46, 1.71, 2.00
+02:53:09Z quiet load=1.85, 1.75, 1.99
+02:54:09Z quiet load=2.19, 1.86, 2.02
+02:55:09Z CONTENTION load=3.08, 2.20, 2.12 hog=[319990:568:lean ]
+02:56:09Z quiet load=4.69, 2.87, 2.36
+02:57:09Z quiet load=2.83, 2.64, 2.31
+02:58:09Z quiet load=2.30, 2.51, 2.28
+02:59:09Z CONTENTION load=2.83, 2.62, 2.33 hog=[378376:433:runLinter ]
+03:00:09Z CONTENTION load=7.78, 4.12, 2.87 hog=[378376:772:runLinter ]
+03:01:09Z quiet load=8.88, 5.15, 3.31
+03:02:09Z quiet load=4.55, 4.61, 3.24
+03:03:09Z quiet load=2.78, 4.06, 3.13
+03:04:09Z quiet load=1.86, 3.59, 3.03
+03:05:09Z quiet load=1.65, 3.19, 2.93
+03:06:10Z quiet load=1.45, 2.85, 2.82
+03:07:10Z quiet load=1.72, 2.68, 2.77
+03:08:10Z quiet load=1.49, 2.44, 2.67
+03:09:10Z quiet load=1.31, 2.22, 2.58
+03:10:10Z quiet load=1.60, 2.15, 2.54
+03:11:10Z quiet load=1.54, 2.03, 2.47
+03:12:10Z quiet load=1.29, 1.87, 2.39
+03:13:10Z quiet load=1.72, 1.88, 2.35
+03:14:10Z quiet load=1.95, 1.92, 2.34
+03:15:10Z quiet load=1.95, 1.95, 2.32
+03:16:10Z quiet load=1.76, 1.91, 2.28
+03:17:10Z quiet load=1.92, 1.93, 2.26
+03:18:10Z quiet load=1.82, 1.92, 2.24
+03:19:10Z quiet load=2.72, 2.28, 2.35
+03:20:10Z quiet load=2.00, 2.16, 2.31
+03:21:10Z quiet load=1.49, 1.98, 2.23
+03:22:10Z quiet load=1.38, 1.86, 2.17
+03:23:10Z quiet load=1.43, 1.79, 2.13
+03:24:10Z quiet load=1.20, 1.66, 2.06
+03:25:10Z quiet load=1.78, 1.71, 2.05
+03:26:11Z quiet load=2.61, 1.93, 2.10
+03:27:11Z quiet load=1.88, 1.84, 2.06
+03:28:11Z quiet load=1.52, 1.74, 2.01
+03:29:11Z CONTENTION load=1.65, 1.78, 2.00 hog=[725406:114:lean ]
+03:30:11Z WATCH_END

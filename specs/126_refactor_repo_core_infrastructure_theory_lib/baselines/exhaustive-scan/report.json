@@ -1,0 +1,6417 @@
+{
+  "timestamp": "2026-08-10T03:29:11.997998+00:00",
+  "mc_oracle_id": "mc_oracle",
+  "ref_oracle_id": "mc_oracle_self",
+  "total_formulas": 274,
+  "agreements": 105,
+  "disagreements": 0,
+  "timeout_count": 169,
+  "entries": [
+    {
+      "formula_json": {
+        "tag": "bot"
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 1,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "atom",
+        "name": "p"
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 1,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 2,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 2,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "SAT",
+      "agreement": false,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 3,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "SAT",
+      "agreement": false,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "SAT",
+      "agreement": false,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "SAT",
+      "agreement": false,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 4,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "box",
+              "child": {
+                "tag": "bot"
+              }
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "box",
+              "child": {
+                "tag": "atom",
+                "name": "p"
+              }
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "bot"
+            },
+            "right": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "bot"
+            },
+            "right": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "right": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "imp",
+            "left": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "right": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "untl",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "bot"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "box",
+          "child": {
+            "tag": "snce",
+            "event": {
+              "tag": "atom",
+              "name": "p"
+            },
+            "guard": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "imp",
+          "left": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "untl",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "box",
+        "child": {
+          "tag": "snce",
+          "event": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "bot"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "right": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 0
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "SAT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "imp",
+        "left": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "right": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "untl",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "bot"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "SAT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "TIMEOUT",
+      "agreement": false,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "atom",
+          "name": "p"
+        },
+        "guard": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "bot"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "box",
+          "child": {
+            "tag": "atom",
+            "name": "p"
+          }
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "bot"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "box",
+          "child": {
+            "tag": "box",
+            "child": {
+              "tag": "atom",
+              "name": "p"
+            }
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": true,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "bot"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "SAT",
+      "reference_result": "SAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "imp",
+          "left": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "right": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "UNSAT",
+      "reference_result": "UNSAT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 1
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "untl",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "bot"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "bot"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "bot"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    },
+    {
+      "formula_json": {
+        "tag": "snce",
+        "event": {
+          "tag": "snce",
+          "event": {
+            "tag": "atom",
+            "name": "p"
+          },
+          "guard": {
+            "tag": "atom",
+            "name": "p"
+          }
+        },
+        "guard": {
+          "tag": "atom",
+          "name": "p"
+        }
+      },
+      "mc_result": "TIMEOUT",
+      "reference_result": "TIMEOUT",
+      "agreement": true,
+      "complexity": 5,
+      "has_box": false,
+      "temporal_depth": 2
+    }
+  ],
+  "started_at": "2026-08-10T02:29:56.932880+00:00",
+  "completed_at": "2026-08-10T03:29:11.997979+00:00",
+  "wall_clock_seconds": 3555.065
+}

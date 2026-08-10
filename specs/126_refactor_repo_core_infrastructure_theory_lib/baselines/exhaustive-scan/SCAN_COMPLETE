@@ -1,0 +1,9 @@
+{
+  "status": "complete",
+  "total_formulas": 274,
+  "conclusive": 105,
+  "disagreements": 0,
+  "timeout_count": 169,
+  "wall_clock_seconds": 3555.065,
+  "report_path": "/home/benjamin/Projects/ModelChecker/oracle/scan-results/20260810T022056Z/report.json"
+}

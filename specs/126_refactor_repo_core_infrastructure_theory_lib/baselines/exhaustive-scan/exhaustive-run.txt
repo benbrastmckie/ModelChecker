@@ -1,0 +1,396 @@
+warning: Git tree '/home/benjamin/Projects/ModelChecker' is dirty
+[devShell] BimodalHarness: ../BimodalHarness/src
+== oracle exhaustive scan ==
+timeout budget:    7200s (override via ORACLE_EXHAUSTIVE_TIMEOUT)
+output directory:  /home/benjamin/Projects/ModelChecker/oracle/scan-results/20260810T022056Z
+
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: xdist-3.8.0
+collected 606 items / 604 deselected / 2 selected
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py test_temporal_only_agreement_complexity_5: external_bh_defect=13 mc_soundness_bug=0 unclassified=0 inconclusive=99 of 158 (conclusive=58)
+F[1/274] c1 ref=SAT(0.1s) mc=SAT(0.1s) agree  D=0 T=0 elapsed=0s
+[10/274] c3 ref=UNSAT(0.0s) mc=UNSAT(0.1s) agree  D=0 T=0 elapsed=4s
+[11/274] c3 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=1 elapsed=25s
+[12/274] c3 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=2 elapsed=45s
+[13/274] c3 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=3 elapsed=65s
+[14/274] c3 ref=TIMEOUT(10.1s) mc=SAT(10.1s) TIMEOUT  D=0 T=4 elapsed=86s
+[15/274] c3 ref=SAT(9.4s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=5 elapsed=105s
+[16/274] c3 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=6 elapsed=125s
+[17/274] c3 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=7 elapsed=146s
+[18/274] c3 ref=TIMEOUT(10.2s) mc=SAT(3.5s) TIMEOUT  D=0 T=8 elapsed=159s
+[20/274] c4 ref=SAT(7.9s) mc=SAT(7.8s) agree  D=0 T=8 elapsed=176s
+[25/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=9 elapsed=196s
+[26/274] c4 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=10 elapsed=217s
+[27/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=11 elapsed=237s
+[28/274] c4 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=12 elapsed=257s
+[29/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=13 elapsed=278s
+[30/274] c4 ref=SAT(7.3s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=14 elapsed=295s
+[31/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=15 elapsed=316s
+[32/274] c4 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=16 elapsed=336s
+[40/274] c4 ref=UNSAT(0.1s) mc=UNSAT(0.1s) agree  D=0 T=16 elapsed=339s
+[41/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=17 elapsed=360s
+[43/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=18 elapsed=388s
+[44/274] c4 ref=SAT(6.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=19 elapsed=404s
+[45/274] c4 ref=TIMEOUT(10.2s) mc=SAT(8.8s) TIMEOUT  D=0 T=20 elapsed=423s
+[46/274] c4 ref=SAT(6.3s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=21 elapsed=440s
+[47/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=22 elapsed=460s
+[48/274] c4 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=23 elapsed=480s
+[49/274] c4 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=24 elapsed=500s
+[50/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=25 elapsed=521s
+[51/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=26 elapsed=541s
+[52/274] c4 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=27 elapsed=561s
+[53/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=28 elapsed=582s
+[54/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=29 elapsed=602s
+[55/274] c4 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=30 elapsed=622s
+[56/274] c4 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=31 elapsed=643s
+[58/274] c5 ref=TIMEOUT(10.3s) mc=SAT(0.9s) TIMEOUT  D=0 T=32 elapsed=654s
+[60/274] c5 ref=UNSAT(0.1s) mc=UNSAT(0.1s) agree  D=0 T=32 elapsed=655s
+[63/274] c5 ref=TIMEOUT(10.3s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=33 elapsed=678s
+[64/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=34 elapsed=698s
+[65/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=35 elapsed=719s
+[66/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=36 elapsed=739s
+[67/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=37 elapsed=759s
+[68/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=38 elapsed=780s
+[69/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=39 elapsed=800s
+[70/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=40 elapsed=820s
+[79/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=41 elapsed=845s
+[80/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=42 elapsed=866s
+[81/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=43 elapsed=886s
+[82/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=44 elapsed=906s
+[83/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=45 elapsed=927s
+[84/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=46 elapsed=947s
+[85/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=47 elapsed=967s
+[86/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=48 elapsed=987s
+[87/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=49 elapsed=1008s
+[88/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=50 elapsed=1028s
+[89/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=51 elapsed=1048s
+[90/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=52 elapsed=1069s
+[91/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=53 elapsed=1089s
+[92/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=54 elapsed=1109s
+[93/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=55 elapsed=1130s
+[94/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=56 elapsed=1150s
+[100/274] c5 ref=UNSAT(0.0s) mc=UNSAT(0.0s) agree  D=0 T=56 elapsed=1150s
+[110/274] c5 ref=SAT(4.4s) mc=SAT(4.3s) agree  D=0 T=56 elapsed=1162s
+[115/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=57 elapsed=1183s
+[116/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=58 elapsed=1203s
+[117/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=59 elapsed=1224s
+[118/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=60 elapsed=1244s
+[119/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=61 elapsed=1264s
+[120/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=62 elapsed=1285s
+[121/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=63 elapsed=1305s
+[122/274] c5 ref=TIMEOUT(10.1s) mc=SAT(2.6s) TIMEOUT  D=0 T=64 elapsed=1318s
+[130/274] c5 ref=UNSAT(0.1s) mc=UNSAT(0.0s) agree  D=0 T=64 elapsed=1319s
+[140/274] c5 ref=UNSAT(0.1s) mc=UNSAT(0.1s) agree  D=0 T=64 elapsed=1320s
+[143/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=65 elapsed=1341s
+[144/274] c5 ref=SAT(2.9s) mc=SAT(5.1s) agree  D=0 T=65 elapsed=1349s
+[145/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=66 elapsed=1369s
+[146/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=67 elapsed=1389s
+[150/274] c5 ref=UNSAT(0.1s) mc=UNSAT(0.0s) agree  D=0 T=67 elapsed=1390s
+[152/274] c5 ref=SAT(9.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=68 elapsed=1415s
+[153/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=69 elapsed=1436s
+[154/274] c5 ref=SAT(5.0s) mc=SAT(5.0s) agree  D=0 T=69 elapsed=1446s
+[155/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=70 elapsed=1466s
+[156/274] c5 ref=SAT(4.7s) mc=SAT(6.5s) agree  D=0 T=70 elapsed=1477s
+[158/274] c5 ref=TIMEOUT(10.1s) mc=SAT(9.1s) TIMEOUT  D=0 T=71 elapsed=1502s
+[159/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=72 elapsed=1522s
+[160/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=73 elapsed=1543s
+[161/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=74 elapsed=1563s
+[162/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=75 elapsed=1583s
+[163/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=76 elapsed=1604s
+[164/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=77 elapsed=1624s
+[165/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=78 elapsed=1644s
+[166/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=79 elapsed=1665s
+[167/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=80 elapsed=1685s
+[168/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=81 elapsed=1705s
+[169/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=82 elapsed=1726s
+[170/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=83 elapsed=1746s
+[171/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=84 elapsed=1766s
+[172/274] c5 ref=SAT(6.4s) mc=SAT(6.9s) agree  D=0 T=84 elapsed=1780s
+[173/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=85 elapsed=1800s
+[174/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=86 elapsed=1820s
+[175/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=87 elapsed=1841s
+[176/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=88 elapsed=1861s
+[177/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=89 elapsed=1881s
+[178/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=90 elapsed=1902s
+[179/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=91 elapsed=1922s
+[180/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=92 elapsed=1942s
+[181/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=93 elapsed=1963s
+[182/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=94 elapsed=1983s
+[183/274] c5 ref=TIMEOUT(10.1s) mc=SAT(5.0s) TIMEOUT  D=0 T=95 elapsed=1998s
+[184/274] c5 ref=SAT(8.2s) mc=SAT(9.1s) agree  D=0 T=95 elapsed=2015s
+[185/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=96 elapsed=2036s
+[186/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=97 elapsed=2056s
+[187/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=98 elapsed=2076s
+[188/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=99 elapsed=2097s
+[189/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=100 elapsed=2117s
+[190/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=101 elapsed=2137s
+[195/274] c5 ref=TIMEOUT(10.1s) mc=SAT(2.3s) TIMEOUT  D=0 T=102 elapsed=2151s
+[196/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=103 elapsed=2172s
+[199/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=104 elapsed=2192s
+[200/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=105 elapsed=2213s
+[201/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=106 elapsed=2233s
+[202/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=107 elapsed=2254s
+[203/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=108 elapsed=2274s
+[204/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=109 elapsed=2294s
+[205/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=110 elapsed=2315s
+[206/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=111 elapsed=2335s
+[207/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=112 elapsed=2355s
+[208/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=113 elapsed=2376s
+[209/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=114 elapsed=2396s
+[210/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=115 elapsed=2416s
+[211/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=116 elapsed=2437s
+[212/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=117 elapsed=2457s
+[213/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=118 elapsed=2477s
+[214/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=119 elapsed=2497s
+[215/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=120 elapsed=2518s
+[216/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=121 elapsed=2538s
+[218/274] c5 ref=SAT(9.1s) mc=SAT(9.1s) agree  D=0 T=121 elapsed=2561s
+[219/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.3s) TIMEOUT  D=0 T=122 elapsed=2582s
+[220/274] c5 ref=SAT(10.0s) mc=SAT(9.6s) agree  D=0 T=122 elapsed=2602s
+[221/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=123 elapsed=2622s
+[222/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=124 elapsed=2642s
+[223/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=125 elapsed=2662s
+[224/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=126 elapsed=2683s
+[225/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=127 elapsed=2703s
+[226/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=128 elapsed=2723s
+[227/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=129 elapsed=2744s
+[228/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=130 elapsed=2764s
+[229/274] c5 ref=SAT(1.9s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=131 elapsed=2776s
+[230/274] c5 ref=TIMEOUT(10.1s) mc=SAT(10.1s) TIMEOUT  D=0 T=132 elapsed=2796s
+[231/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=133 elapsed=2817s
+[232/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=134 elapsed=2837s
+[233/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=135 elapsed=2857s
+[234/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=136 elapsed=2878s
+[235/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=137 elapsed=2898s
+[236/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=138 elapsed=2918s
+[237/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=139 elapsed=2939s
+[238/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=140 elapsed=2959s
+[239/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=141 elapsed=2979s
+[240/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=142 elapsed=3000s
+[241/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=143 elapsed=3020s
+[242/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=144 elapsed=3040s
+[243/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=145 elapsed=3061s
+[244/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=146 elapsed=3081s
+[245/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=147 elapsed=3101s
+[246/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=148 elapsed=3121s
+[247/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=149 elapsed=3142s
+[248/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=150 elapsed=3162s
+[249/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=151 elapsed=3182s
+[250/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=152 elapsed=3203s
+[256/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=153 elapsed=3230s
+[259/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=154 elapsed=3250s
+[260/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=155 elapsed=3271s
+[261/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=156 elapsed=3291s
+[262/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=157 elapsed=3311s
+[263/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=158 elapsed=3332s
+[264/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=159 elapsed=3352s
+[265/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=160 elapsed=3372s
+[266/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=161 elapsed=3393s
+[267/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=162 elapsed=3413s
+[268/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=163 elapsed=3433s
+[269/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=164 elapsed=3453s
+[270/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=165 elapsed=3474s
+[271/274] c5 ref=TIMEOUT(10.1s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=166 elapsed=3494s
+[272/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.1s) TIMEOUT  D=0 T=167 elapsed=3514s
+[273/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=168 elapsed=3535s
+[274/274] c5 ref=TIMEOUT(10.2s) mc=TIMEOUT(10.2s) TIMEOUT  D=0 T=169 elapsed=3555s
+scan report: agreements=105 disagreements=0 timeout_count=169 conclusive=105/274
+.
+
+=================================== FAILURES ===================================
+___ TestBimodalHarnessIntegration.test_temporal_only_agreement_complexity_5 ____
+
+self = <bimodal_logic.tests.test_cross_oracle_differential.TestBimodalHarnessIntegration object at 0x7ffff2ad3560>
+
+    @pytest.mark.slow
+    def test_temporal_only_agreement_complexity_5(self):
+        """All temporal-only formulas at complexity<=5 that MC and BH Z3 both
+        decide either agree, or are adjudicated against an independent
+        ground-truth evaluator and attributed to a confirmed *external*
+        BimodalHarness defect -- see `oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md`
+        for the root cause and `oracle/bimodal_logic/ground_truth.py` for the
+        adjudication basis.
+    
+        Known MC oracle edge cases (untl(bot, bot) and similar bot-based temporal
+        formulas) are excluded from the agreement check -- a separate,
+        pre-existing mechanism with its own standing attribution.
+    
+        Every remaining disagreement (both sides decided) is classified by
+        `classify_disagreement` into exactly one of three buckets:
+          - external_bh_defect: ground truth sides with MC -- BH is the
+            external, confirmed-wrong side. Expected and accommodated.
+          - mc_soundness_bug: ground truth sides with BH -- MC is wrong. A
+            real in-repo soundness defect; never accommodated.
+          - unclassified: ground truth cannot adjudicate (a formula shape
+            outside the evaluator's supported fragment). Extend the
+            evaluator; never widen this accommodation to paper over it.
+    
+        Five ordered assertions make each failure self-diagnosing (order
+        matters): a budget floor first (so a starved run is diagnosed before
+        anything else), then the two "something is actually wrong" guards,
+        then the staleness guard (BH's defect no longer reproducing means
+        this accommodation is dead code), then a signature check on the
+        accommodated bucket itself (so a *different* external defect cannot
+        hide inside it).
+        """
+        from bimodal_harness.oracle.z3_provider import Z3OracleProvider as BHZ3OracleProvider
+    
+        bh_z3 = BHZ3OracleProvider()
+        mc_oracle = self.mc_oracle
+    
+        # Known edge cases: temporal formulas with MC boundary evaluation issues.
+        # A separate, pre-existing mechanism -- left exactly as-is.
+        _KNOWN_MC_EDGE_CASES = [
+            {"tag": "untl", "event": {"tag": "bot"}, "guard": {"tag": "bot"}},
+        ]
+    
+        def _is_known_edge_case(formula: dict) -> bool:
+            return any(formula == ec for ec in _KNOWN_MC_EDGE_CASES)
+    
+        all_formulas = _enumerate_primitive_formulas(5, ["p"])
+        temporal_formulas = [f for f in all_formulas if _is_temporal_only(f)]
+    
+        external_bh_defect = []
+        mc_soundness_bug = []
+        unclassified = []
+        inconclusive = []
+        checked = 0
+        bh_error_count = 0
+        agree_count = 0
+        for formula_json in temporal_formulas:
+            if _is_known_edge_case(formula_json):
+                continue
+            checked += 1
+    
+            try:
+                mc_result = mc_oracle.find_countermodel(formula_json)
+            except OracleTimeoutError:
+                inconclusive.append(formula_json)
+                continue
+            mc_sat = mc_result is not None
+    
+            try:
+                bh_result = bh_z3.find_countermodel(formula_json)
+                bh_sat = bh_result is not None
+            except Exception:
+                bh_error_count += 1
+                continue
+    
+            if mc_sat == bh_sat:
+                agree_count += 1
+                continue
+    
+            outcome = classify_disagreement(formula_json, mc_sat=mc_sat, bh_sat=bh_sat)
+            entry = {"formula": formula_json, "mc_sat": mc_sat, "bh_sat": bh_sat}
+            if outcome == EXTERNAL_BH_DEFECT:
+                external_bh_defect.append(entry)
+            elif outcome == MC_SOUNDNESS_BUG:
+                mc_soundness_bug.append(entry)
+            else:
+                assert outcome == UNCLASSIFIED
+                unclassified.append(entry)
+    
+        conclusive = checked - len(inconclusive) - bh_error_count
+    
+        print(
+            f"test_temporal_only_agreement_complexity_5: "
+            f"external_bh_defect={len(external_bh_defect)} "
+            f"mc_soundness_bug={len(mc_soundness_bug)} "
+            f"unclassified={len(unclassified)} "
+            f"inconclusive={len(inconclusive)} "
+            f"of {len(temporal_formulas)} (conclusive={conclusive})"
+        )
+    
+        # 1. Budget/performance floor -- asserted FIRST so a starved run is
+        # diagnosed as a budget regression before any of the guards below,
+        # which assume a healthy population of conclusive results.
+        assert conclusive >= MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS, (
+            f"Only {conclusive} of {checked} checked formulas were conclusive "
+            f"(floor={MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS}); this is a "
+            f"budget/performance regression to investigate, not a semantic one."
+        )
+    
+        # 2. Ground truth sides with BH against MC: a real in-repo soundness bug.
+        assert not mc_soundness_bug, (
+            f"Ground truth confirms {len(mc_soundness_bug)} formula(s) where "
+            f"ModelChecker's verdict is WRONG and BimodalHarness's is correct -- "
+            f"this is a genuine ModelChecker soundness defect, not an external "
+            f"BimodalHarness issue:\n"
+            + "\n".join(
+                f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
+                for d in mc_soundness_bug[:5]
+            )
+        )
+    
+        # 3. A disagreement ground truth cannot adjudicate: extend the
+        # evaluator, do not widen this accommodation to swallow it.
+        assert not unclassified, (
+            f"{len(unclassified)} disagreement(s) fall outside "
+            f"oracle/bimodal_logic/ground_truth.py's supported fragment and "
+            f"cannot be adjudicated. Extend the ground-truth evaluator to cover "
+            f"this formula shape; do not widen this accommodation to absorb it:\n"
+            + "\n".join(
+                f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
+                for d in unclassified[:5]
+            )
+        )
+    
+        # 4. Staleness guard: if BimodalHarness's boundary-scan defect has
+        # been fixed upstream, this bucket goes empty and the accommodation
+        # is now dead code -- delete it (and this test's dependency on
+        # classify_disagreement/KNOWN_EXTERNAL_DEFECTS.md) rather than
+        # relaxing this assertion. A starved budget is ruled out by
+        # assertion 1 already, so an empty bucket here is not that.
+        assert external_bh_defect, (
+            "No formulas were attributed to the external BimodalHarness "
+            "boundary-scan defect. Two possible readings: (a) BimodalHarness "
+            "has been fixed upstream, in which case this accommodation "
+            "(this bucket, classify_disagreement's use in this test, and "
+            "oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md) is now dead code "
+            "and should be DELETED, not preserved; or (b) a starved solve "
+            "budget -- already ruled out by assertion 1's conclusive-count "
+            "floor, so this reading should not apply if that assertion passed."
+        )
+    
+        # 5. Signature check: every accommodated formula must match the
+        # documented defect signature exactly, so a DIFFERENT external
+        # defect cannot silently hide inside this bucket.
+        bad_signature = [
+            d for d in external_bh_defect
+            if not (d["mc_sat"] is False and d["bh_sat"] is True)
+        ]
+>       assert not bad_signature, (
+            f"{len(bad_signature)} entr(y/ies) in external_bh_defect do not match "
+            f"the documented signature (mc_sat=False, bh_sat=True) -- this may be "
+            f"a DIFFERENT external defect than the one recorded in "
+            f"oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md and requires its own "
+            f"investigation, not silent inclusion in this bucket:\n"
+            + "\n".join(
+                f"  {d['formula']}: MC={d['mc_sat']}, BH={d['bh_sat']}"
+                for d in bad_signature[:5]
+            )
+        )
+E       AssertionError: 1 entr(y/ies) in external_bh_defect do not match the documented signature (mc_sat=False, bh_sat=True) -- this may be a DIFFERENT external defect than the one recorded in oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md and requires its own investigation, not silent inclusion in this bucket:
+E           {'tag': 'imp', 'left': {'tag': 'untl', 'event': {'tag': 'atom', 'name': 'p'}, 'guard': {'tag': 'bot'}}, 'right': {'tag': 'atom', 'name': 'p'}}: MC=True, BH=False
+E       assert not [{'bh_sat': False, 'formula': {'left': {'event': {'name': 'p', 'tag': 'atom'}, 'guard': {'tag': 'bot'}, 'tag': 'untl'}, 'right': {'name': 'p', 'tag': 'atom'}, 'tag': 'imp'}, 'mc_sat': True}]
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:1454: AssertionError
+=========================== short test summary info ============================
+FAILED oracle/bimodal_logic/tests/test_cross_oracle_differential.py::TestBimodalHarnessIntegration::test_temporal_only_agreement_complexity_5
+=========== 1 failed, 1 passed, 604 deselected in 4095.69s (1:08:15) ===========
+
+== oracle exhaustive scan summary ==
+pytest: FAILED (exit 1)
+completion marker: present (/home/benjamin/Projects/ModelChecker/oracle/scan-results/20260810T022056Z/SCAN_COMPLETE)
+{
+  "status": "complete",
+  "total_formulas": 274,
+  "conclusive": 105,
+  "disagreements": 0,
+  "timeout_count": 169,
+  "wall_clock_seconds": 3555.065,
+  "report_path": "/home/benjamin/Projects/ModelChecker/oracle/scan-results/20260810T022056Z/report.json"
+}

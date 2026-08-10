@@ -4,8 +4,10 @@
 - **Plan**: `plans/02_rebaseline-gating-oracle-suite.md` (v2)
 - **Date**: 2026-08-09
 - **Session**: sess_1786307124_299f8c
-- **Phases completed**: 1, 2, 3, 5, 6 of 8. Phases 4 and 7 not started (machine contention).
-- **Rubric category reached**: **(c) — a failure that reproduces on a quiet machine.**
+- **Phases completed**: 1, 2, 3, 4, 5, 6, 7, 8 of 8 — all phases done or terminal as of session 3.
+- **Rubric category reached**: **(c) — a failure that reproduces on a quiet machine** (gating
+  suite). The exhaustive-scan coverage record (Phase 4, session 3) separately completed with its
+  own genuine, non-environmental finding — see "Session 3" below.
 
 ## Headline
 
@@ -259,6 +261,76 @@ session activity in `specs/116`, `specs/129`, `specs/138`, `specs/events.jsonl`,
 `ORACLE_EXHAUSTIVE_TIMEOUT` are untouched. `--skip-oracle` was not added to make the gate green,
 and the gate is reported as failing because it fails.
 
+## Session 3 (2026-08-10): Phase 4 completed, third launch
+
+### Phase 4 — COMPLETED. Exhaustive scan reached `SCAN_COMPLETE` on the third attempt.
+
+Machine-before capture: load1 0.97, no foreign process >50% CPU (idle cslib `lean --worker`/
+`lake` resident but not consuming CPU at launch — the same class of process attempts 1-2 had
+active, this time quiescent). Launched 2026-08-10T02:20:56Z from the repo root under
+`nix develop`, output directory `oracle/scan-results/20260810T022056Z/`.
+
+A file-based contention watcher sampled load average and `lean`/`lake`/`z3`/`runLinter` CPU every
+60s for the full run (68 samples, `run3/contention-watch-phase4.log`, promoted to
+`baselines/gate-run-2026-08-09/exhaustive-attempt3-contention-watch.log`): 58 quiet, 9
+CONTENTION (foreign `lean` up to 577%, `runLinter` up to 772%, load1 peaking 7.78-8.88 around
+03:00-03:01Z). Unlike attempts 1 and 2, **the run reached completion despite the contention** —
+recorded as a caveat on the timeout count, not as invalidating grounds.
+
+`SCAN_COMPLETE` (03:29:12Z, wrapper wall clock 68m16s; scan-internal `wall_clock_seconds:
+3555.065` per the marker itself):
+
+```json
+{"status": "complete", "total_formulas": 274, "conclusive": 105, "disagreements": 0,
+ "timeout_count": 169, "wall_clock_seconds": 3555.065}
+```
+
+**Two `slow` tests ran in the one `pytest oracle -m slow -s` invocation; one passed, one failed —
+recorded per-test rather than collapsed into the plan's two pre-declared branches:**
+
+1. `TestFullScanReport::test_complexity_5_scan_self_consistent` — the test that actually produces
+   `report.json`/`SCAN_COMPLETE` and is the one this phase's "Goal" and verification bullet name —
+   **PASSED**: 105 conclusive >= `MIN_CONCLUSIVE_SCAN_FORMULAS` (90), 0 self-disagreements. This
+   satisfies the "scan completed" branch for the coverage record.
+2. `TestBimodalHarnessIntegration::test_temporal_only_agreement_complexity_5` — the 5
+   ordered-assertion cross-oracle test (the same assertions Phase 5 re-scoped
+   `verify-refactor.sh` Step 5 against) — **FAILED** on assertion 5 (the signature check): one
+   `external_bh_defect` entry has the *opposite* polarity (`mc_sat=True, bh_sat=False`) from the
+   documented signature in `KNOWN_EXTERNAL_DEFECTS.md` (`mc_sat=False, bh_sat=True`). This is a
+   deterministic content check, not a timing-based outcome, so it is a **genuine finding**, not a
+   contention artifact — and is exactly why the runner's aggregate `pytest: FAILED (exit 1)` does
+   not mean the coverage record itself failed.
+
+Evidence promoted to `specs/126_.../baselines/exhaustive-scan/` (`report.json`, `SCAN_COMPLETE`,
+`exhaustive-run.txt`, `STATUS.md` — the last documents both outcomes above with full detail and
+the contention caveat) and to `baselines/gate-run-2026-08-09/` (`exhaustive-attempt3-machine-before.txt`,
+`exhaustive-attempt3-contention-watch.log`). `baselines/oracle-baseline-STATUS.md`'s exhaustive-scan
+section was rewritten to record all three attempts. `progress.jsonl` was not copied, per the plan.
+
+**Nothing was weakened.** `git diff --stat -- oracle/bimodal_logic/` is empty.
+`SELF_SCAN_SOLVE_TIMEOUT_MS` (10000), `MIN_CONCLUSIVE_SCAN_FORMULAS` (90), and
+`MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS` (45) are unchanged. `known_conclusive_complexity5.json` was
+not re-derived. `ORACLE_EXHAUSTIVE_TIMEOUT` was not altered. The new opposite-polarity finding was
+not folded into the existing `external_bh_defect` bucket or otherwise reclassified to pass.
+
+`run3/` (this session's scratch staging, holding `exhaustive-run.txt`, `launch-nohup.log`,
+`exit-code.txt`, `machine-before-phase4.txt`, `contention-watch-phase4.log`) was removed after
+promoting its evidence, matching the `run2/` convention Phase 8 established in session 2.
+
+### Session 3 deviations
+
+1. **Phase 4's verification bullet anticipated exactly two clean branches ("scan completed,
+   pytest PASSED" or "scan/self-consistency test failed"); the actual result is a third, mixed
+   case the plan did not name** — the coverage-record test passed but a different co-scheduled
+   slow test failed, so the runner's aggregate exit is non-zero without the coverage record itself
+   failing. Recorded explicitly as a deviation in the plan's Phase 4 verification section and in
+   `baselines/exhaustive-scan/STATUS.md`, rather than silently filed under either pre-declared
+   branch.
+2. **A new, previously-undocumented external-defect signature was discovered** (opposite polarity
+   from `KNOWN_EXTERNAL_DEFECTS.md`'s documented case). Per this task's standing non-goal
+   (diagnosing/repairing defects is out of scope for baselining), it is recorded and left for a
+   follow-up task, not investigated further here.
+
 ## Follow-up required
 
 1. Diagnose `test_example_cases[BM_CM_1-example_case7]` — deterministic, fast, and the best handle
@@ -266,6 +338,9 @@ and the gate is reported as failing because it fails.
 2. On a machine with no Lean or Z3 workload: adjudicate the three currently-unadjudicated pass-2
    failures, and diagnose why `test_temporal_propositional_interleaving` does not terminate within
    900 s and why `test_mixed_and_box_next` no longer decides within 60000 ms.
-3. Run Phase 4 (exhaustive scan) and Phase 7 (full gate with Step 6 live).
+3. **New (session 3):** investigate the opposite-polarity `external_bh_defect` signature found by
+   `test_temporal_only_agreement_complexity_5` on the exhaustive scan — determine whether it is a
+   second, distinct external BimodalHarness defect (its own `KNOWN_EXTERNAL_DEFECTS.md` entry) or
+   something else; do not fold it into the existing bucket without that investigation.
 4. Only then consider whether any budget is genuinely mis-calibrated — with measurement to justify
    it, not to rescue a red run.
