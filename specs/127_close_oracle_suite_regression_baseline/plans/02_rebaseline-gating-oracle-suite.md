@@ -460,9 +460,15 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 4: Exhaustive-Scan Coverage Record [IN PROGRESS]
+### Phase 4: Exhaustive-Scan Coverage Record [BLOCKED]
 
-**Resumed:** 2026-08-09 -- machine re-adjudicated quiet (load 0.92, no foreign compute job; the sibling Lean lint job that blocked this phase is gone). See `run2/machine-before-phase4.txt`.
+**Blocked:** 2026-08-09, after **two** launches from a verified-quiet machine, neither adjudicable and neither complete. Attempt 1 (22:54:17Z, launch load 1.05-1.14): foreign cslib `lean --worker` at 291-467% plus `lake` at 794.8% appeared at **+85 s**; aborted at formula 14/274. Attempt 2 (23:57:44Z, launch load 0.57-0.76 with **zero** lean/lake processes -- the quietest state observed all session): clean for ~46 min through formula ~215, then a `lean --worker` at 285%/205% transient and ~100% **sustained** from 00:47 with a second from 00:58; terminated at formula 234/274 (~85%).
+
+`SCAN_COMPLETE` and `report.json` were never written in either attempt. **Neither run's per-formula outcomes are triaged or promoted** -- the scan's per-formula verdict is decided by a 10 s wall-clock solve budget, exactly what contention corrupts, so a partially-clean run is not an adjudicable run.
+
+**Neither verification branch is satisfied, and the phase is honestly marked `[BLOCKED]` rather than `[COMPLETED]`.** Branch 2 (the red/incomplete branch) requires recording the outcome to Phase 3(c)'s honesty standard *including the quiet-machine captures*; an unadjudicable run cannot supply those, so recording it under branch 2 would misrepresent an environmental non-result as a category (c) finding. Per this plan's Phase 8, `baselines/exhaustive-scan/` was therefore **not** created -- nothing is to be manufactured to fill the gap. The attempts are recorded in `baselines/oracle-baseline-STATUS.md` ("Exhaustive scan: attempted twice") and in `run2/phase4-attempt{1,2}-aborted.txt`.
+
+The blocker is environmental: this host does not reliably provide the uninterrupted 60-90 minute window the scan needs. `SELF_SCAN_SOLVE_TIMEOUT_MS`, `known_conclusive_complexity5.json`, and `ORACLE_EXHAUSTIVE_TIMEOUT` are all untouched.
 
 - **Goal:** Account for the 2 `slow` tests the gating suite deliberately excludes, so the baseline
   covers all 606 tests rather than 604 with an unmentioned gap.
@@ -672,7 +678,11 @@ Relaxing Step 3's `!=` to `>=` is likewise forbidden: it is a weakening, not a f
 
 ---
 
-### Phase 8: Commit and Clean Up [NOT STARTED]
+### Phase 8: Commit and Clean Up [COMPLETED]
+
+**Completed:** 2026-08-10. `run2/` removed (`run/` untouched); empty `baselines/serial-rebaseline/` removed; this session's two gitignored `oracle/scan-results/` scratch dirs removed. Staged narrowly against concurrent-session activity in `specs/116`, `specs/129`, `specs/138`, `specs/events.jsonl`, and `specs/.orchestrator-multi-state.json` -- none of which was staged.
+
+**Deviation (addition, not omission).** `baselines/gate-run-2026-08-09/` was created before deleting `run2/`, holding the raw evidence `baselines/oracle-baseline-STATUS.md` cites (gate run, Step 6 output, `--skip-oracle` run, Step 4 attempts, machine captures, contention log, exhaustive-scan abort records) plus a README. Without it the committed honest record would cite deleted files. All `run2/` references in that file were repointed; zero remain. `baselines/exhaustive-scan/` was **not** created -- Phase 4 produced no adjudicable result and this phase forbids manufacturing anything to fill the gap.
 
 - **Goal:** Land whatever of this task's work is still uncommitted as a **final cleanup commit**,
   with no scratch or misleading-empty artifacts left behind. The original "one reviewable commit"

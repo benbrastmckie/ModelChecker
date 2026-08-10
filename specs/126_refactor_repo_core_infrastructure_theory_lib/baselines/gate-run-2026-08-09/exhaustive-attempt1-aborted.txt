@@ -1,0 +1,22 @@
+=== Phase 4 attempt 1: ABORTED - UNADJUDICABLE ===
+launched:  2026-08-09T22:54:17Z (out dir oracle/scan-results/20260809T225417Z)
+contention first observed: 2026-08-09T22:55:42Z (~85s into the run)
+aborted:   2026-08-09T23:06:28+00:00
+
+Contenders (sibling cslib Lean workload, same class as the one that blocked this phase before):
+  lean --worker PID 2023913 (cslib .../Tableau/Intuitionistic/Scheme.lean) at 291-467% CPU
+  lake         PID 1998841 at 794.8% CPU
+  load1 rose 1.14 -> 7.57 -> 9.03 -> 11.52
+
+Progress reached before abort: formula [14/274], scan-internal elapsed 92s.
+SCAN_COMPLETE: never written. report.json: never written.
+
+Adjudication: NOT a result. The plan's rule is absolute - a run during which contention
+materializes is unadjudicable. Its per-formula TIMEOUT/conclusive outcomes are exactly the
+quantity CPU contention corrupts (each solve carries a 10s wall-clock budget), so this
+run's outcomes are not triaged, not promoted, and not reported as a scan result.
+Nothing from this attempt was copied into baselines/.
+
+Raw captures: machine-before-phase4.txt (quiet, pre-launch),
+              machine-contention-phase4-attempt1.txt (contended, mid-run),
+              contention-watch.log (60s sampling across the whole run).

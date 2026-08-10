@@ -208,7 +208,8 @@ anything. It is reported as a blocker for a follow-up task.
 An independent run of the repaired gate — `nix develop --command bash -c 'bash
 code/scripts/verify-refactor.sh'`, no `--skip-oracle`, no `PYTEST_ADDOPTS` — completed in 28m59s
 with **exit 1** and **3 check(s) FAILED** (Steps 4, 6, 7). Step 6 *executed*; it was not `SKIPPED`.
-Full output: `specs/127_close_oracle_suite_regression_baseline/run2/verify-refactor.txt`.
+Full output: `gate-run-2026-08-09/gate-run.txt`; Step 6's own output (both passes, tracebacks) in
+`gate-run-2026-08-09/step6-gating-oracle-suite.txt`.
 
 This is a second, independent observation of the gating suite on a verified-quiet machine, and it
 **strengthens the category (c) verdict rather than softening it**. Nothing was weakened to obtain
@@ -225,8 +226,8 @@ it: `git diff --stat -- oracle/bimodal_logic/` is still empty.
 The load figures above 6 between 23:23 and 23:28 are **this run's own** pass-1 `-n 6` workers: the
 23:26:55 capture records four `python3` xdist workers at 99.7% CPU each, with every `lean` process
 at ≤5.9% lifetime-average CPU and none appearing in the instantaneous top-20. Raw captures:
-`run2/machine-before-phase7.txt`, `run2/machine-during-phase7.txt`, `run2/machine-after-phase7.txt`,
-`run2/contention-watch.log`. **This run is adjudicable.**
+`gate-run-2026-08-09/machine-{before,during,after}.txt` and
+`gate-run-2026-08-09/contention-watch.log`. **This run is adjudicable.**
 
 Deviation recorded: idle cslib `lean --worker` LSP processes were present throughout, which the
 quietness rule names categorically. They were adjudicated non-contending on measurement — ≤5.9%
@@ -312,7 +313,7 @@ bash code/scripts/verify-refactor.sh --skip-oracle   ->  exit 1, "2 check(s) FAI
 Steps 1, 2, 3 and all of Step 5 (5a–5d) pass. The two failures are Steps 4 and 7, neither of which
 the gate repair touched. Step 4's sole failing test on both attempts is again exactly
 `test_example_cases[BM_CM_1-example_case7]` (`1 failed, 297 passed` in 133.24s and 140.20s). Full
-output: `run2/phase7-verify-refactor-skip-oracle.txt`. Exit 1 here is the **expected** outcome under
+output: `gate-run-2026-08-09/skip-oracle-run.txt`. Exit 1 here is the **expected** outcome under
 the standing category (c) determination; it was recorded, not engineered away.
 
 **Step 7's failure is a consequence of the same defect, not an independent regression finding.**
@@ -330,3 +331,36 @@ explicit non-goal.
 The category (c) verdict stands and is now supported by two independent adjudicable runs. The
 gating suite is RED, the gate correctly reports it as RED, and the failing set is **larger** than
 first recorded, not smaller.
+
+## Exhaustive scan: attempted twice on 2026-08-09, no adjudicable result
+
+The 2 `slow`-marked tests the gating suite deselects are **still unaccounted for**. Two runs of
+`nix develop --command bash oracle/run-oracle-exhaustive-scan.sh` were launched from a
+verified-quiet machine; neither is adjudicable, and neither reached completion.
+
+| Attempt | Window | Quiet at launch | Outcome |
+|---|---|---|---|
+| 1 | 22:54:17–23:06:28Z | load 1.05–1.14, no foreign hog | Contention at **+85 s** — a cslib `lean --worker` at 291–467% and `lake` at 794.8%, load1 to 11.52. Aborted at formula 14/274. |
+| 2 | 23:57:44–~01:07Z | load 0.57–0.76, **zero** lean/lake processes | Clean for ~46 min (formulas 1–~215), then a `lean --worker` at 285%/205% (transient) and ~100% sustained from 00:47 with a second joining at 00:58. Terminated at formula 234/274 (~85%). |
+
+`SCAN_COMPLETE` was never written in either attempt, and neither was `report.json`. Per the
+runner's own contract a vanished PID is not a verdict and process exit status alone is never a
+completion signal, so there is no completion claim to make here.
+
+**Neither run's per-formula outcomes are triaged, promoted, or reported as findings.** The scan's
+verdict for each formula is decided by a 10 s wall-clock solve budget — exactly the quantity CPU
+contention corrupts — so a partially-clean run is not an adjudicable run. Attempt 2 observed
+`D=0` disagreements through formula 234 with 141 budget TIMEOUTs; that is recorded here **only**
+so a future run is not launched blind, and is explicitly not evidence of self-consistency.
+
+**No `baselines/exhaustive-scan/` directory was created.** Creating one would present a results
+location holding no adjudicated result, which is the same failure mode as the empty
+`serial-rebaseline/` directory this effort removed. Its absence is the honest state.
+
+Nothing was weakened in response: `SELF_SCAN_SOLVE_TIMEOUT_MS` is untouched,
+`known_conclusive_complexity5.json` was not re-derived, and `ORACLE_EXHAUSTIVE_TIMEOUT` was not
+altered. The blocker is environmental — this host does not reliably provide the uninterrupted
+60–90 minute window the scan needs — not a defect in the scan.
+
+**Follow-up:** run the exhaustive scan on a machine with no Lean or Z3 workload, and only then
+adjudicate `test_complexity_5_scan_self_consistent`.

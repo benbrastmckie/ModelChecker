@@ -1,0 +1,53 @@
+=== machine-before capture: Phase 7 (verify-refactor.sh, Step 6 live) ===
+NOTE: supersedes the 2026-08-09 14:43 capture of the same name, which recorded the
+      contended machine that blocked this phase.
+2026-08-09T23:16:28+00:00
+
+--- uptime (3 samples, 5s apart) ---
+ 16:16:28  up 4 days 18:34,  1 user,  load average: 1.11, 1.98, 2.54
+ 16:16:33  up 4 days 18:34,  1 user,  load average: 1.10, 1.96, 2.53
+ 16:16:38  up 4 days 18:34,  1 user,  load average: 1.09, 1.94, 2.52
+
+--- nproc ---
+24
+
+--- top, instantaneous CPU, 2nd iteration, top 25 (UNFILTERED) ---
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+1713058 benjamin  20   0 7368248 552952 130944 S  12.9   1.7   7:59.01 claude
+ 518060 benjamin  20   0 8497060 936472  36840 S  12.4   2.9 202:13.23 claude
+3616574 benjamin  20   0 9072664 460432  38884 S  12.4   1.4  88:33.97 claude
+1268134 benjamin  20   0 7437880 392972  50472 S   6.9   1.2  23:49.27 claude
+2095339 benjamin  20   0    8880   5280   3792 S   5.5   0.0   0:02.26 bash
+   2446 benjamin  20   0   71.0g 191396  19788 S   4.0   0.6  29:50.36 .openco+
+1258347 benjamin  20   0  593620 279028  14616 S   3.0   0.9   4:26.49 nvim
+3616176 benjamin  20   0  695232 192424   9960 S   2.0   0.6  15:58.87 nvim
+1712409 benjamin  20   0  426440 113232  17428 S   1.5   0.4   1:50.90 nvim
+1267814 benjamin  20   0  449400 129104   9308 S   1.0   0.4   4:09.51 nvim
+2106539 benjamin  20   0    8880   3208   1720 S   1.0   0.0   0:00.02 bash
+     19 root      rt   0       0      0      0 S   0.5   0.0   1:07.20 migrati+
+    122 root      rt   0       0      0      0 S   0.5   0.0   0:13.70 migrati+
+    978 root      20   0       0      0      0 S   0.5   0.0  17:56.33 napi/ph+
+   2447 benjamin  20   0 5347168  36224  12280 S   0.5   0.1   9:06.19 .openco+
+   2725 benjamin  20   0 6971920 148736  39076 S   0.5   0.5 127:11.60 .gnome-+
+   3802 benjamin  20   0   53.6g 245608  90176 S   0.5   0.8  53:48.43 brave
+   5459 benjamin  20   0 4279980  95496  18172 S   0.5   0.3  74:06.94 wezterm+
+ 252236 benjamin  20   0 1450.4g  81608  60184 S   0.5   0.3   5:10.36 brave
+ 517682 benjamin  20   0  879924 369688  10512 S   0.5   1.2  19:23.47 nvim
+1055627 benjamin  20   0 7595004  14596  11432 S   0.5   0.0  30:47.95 .sioyek+
+1124386 benjamin  20   0  343432  64736   5912 S   0.5   0.2   2:44.85 nvim
+1124679 benjamin  20   0 7448360 164944  28696 S   0.5   0.5   1:48.16 claude
+2094166 root      20   0       0      0      0 I   0.5   0.0   0:00.50 kworker+
+2105718 benjamin  20   0   11788   6328   4180 R   0.5   0.0   0:00.03 top
+
+--- any pytest / z3 / lean / lake / runLinter (full argv) ---
+   1005  0.0  412492 earlyoom        /nix/store/2ipm5xbfyj1w5zr7bhdffl09x5r6fhnh-earlyoom-1.9.0/bin/earlyoom -m10 -n -r3600 -s10 --avoid ^(gnome-shell|Xwayland|niri)$ --prefer ^(lean|lake|claude|node|npm|opencode)$
+ 518117  0.0  101036 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/cslib
+1124748  0.0   14777 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1258794  0.0   10719 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1268174  0.0   10316 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1423977  0.0    7179 lake            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lake serve -- -Dserver.reportDelayMs=0
+1424031  0.7    7178 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --server -Dserver.reportDelayMs=0
+1713128  0.0    5946 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1981551  0.1    1263 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Completeness.lean
+1985689  0.1    1258 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Minimal/Completeness.lean
+2034310 11.3     673 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Scheme.lean

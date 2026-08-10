@@ -1,0 +1,29 @@
+=== CONTENTION capture during Phase 4 attempt 2 ===
+2026-08-10T00:45:56+00:00
+ 17:45:56  up 4 days 20:04,  1 user,  load average: 2.45, 2.50, 2.51
+
+--- top, instantaneous, 2nd iteration, top 15 ---
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+2577346 benjamin  20   0  399824 255008   8604 R  99.9   0.8  47:45.38 .pytest+
+2761046 benjamin  20   0 1452.3g 343976 130028 S  29.3   1.1   0:52.80 brave
+   3802 benjamin  20   0   53.6g 253896  92992 S   7.5   0.8  55:21.03 brave
+   3883 benjamin  20   0   53.2g  90580  48700 S   7.0   0.3  48:46.96 brave
+1713058 benjamin  20   0 8486524 653340  25816 S   6.0   2.0  24:05.88 claude
+   2725 benjamin  20   0 6968720 123872  23620 S   5.5   0.4 130:18.15 .gnome-+
+ 518060 benjamin  20   0 8497124 487280  23704 S   5.5   1.5 220:21.89 claude
+1258732 benjamin  20   0 7437880 275516  22376 S   5.0   0.9  13:58.40 claude
+2818905 benjamin  20   0   29840  25768   8396 S   5.0   0.1   0:00.11 mbsync
+   3885 benjamin  20   0   52.6g  67600  40252 S   3.0   0.2  11:23.88 brave
+3616574 benjamin  20   0 9884.1m 297452  23340 S   3.0   0.9 103:35.92 claude
+1268134 benjamin  20   0 7437880 335508  21788 S   2.0   1.0  42:18.68 claude
+   3953 benjamin  20   0 1450.4g  97548  57864 S   1.5   0.3   1:27.07 brave
+1258347 benjamin  20   0  627624 235400  10508 S   1.5   0.7   7:01.22 nvim
+    511 root      20   0  449400  45536  44752 S   1.0   0.1   7:35.64 systemd+
+
+--- lean/lake full argv ---
+   1005  0.0  417850 earlyoom        /nix/store/2ipm5xbfyj1w5zr7bhdffl09x5r6fhnh-earlyoom-1.9.0/bin/earlyoom -m10 -n -r3600 -s10 --avoid ^(gnome-shell|Xwayland|niri)$ --prefer ^(lean|lake|claude|node|npm|opencode)$
+1423977  0.0   12537 lake            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lake serve -- -Dserver.reportDelayMs=0
+1424031  0.4   12536 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --server -Dserver.reportDelayMs=0
+1981551  0.0    6621 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Completeness.lean
+1985689  0.0    6616 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Minimal/Completeness.lean
+2034310  1.2    6031 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Scheme.lean

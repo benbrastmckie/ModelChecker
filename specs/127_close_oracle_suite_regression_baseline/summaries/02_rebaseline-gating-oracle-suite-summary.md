@@ -166,6 +166,99 @@ not be promoted. Evidence: `run2/machine-before-phase7.txt`.
 - The only `oracle/` change is the additive, opt-in `ORACLE_JUNIT_DIR` hook in
   `run-oracle-suite.sh`, inert when the variable is unset.
 
+## Session 2 (2026-08-09 evening / 2026-08-10): Phases 7, 4, and 8
+
+The earlier "Phases 4 and 7 not started" and "Phases not started" statements above describe the
+state at the end of session 1 and are superseded here. Nothing above was rewritten; this section
+records what changed.
+
+### Phase 7 — COMPLETED. The gate ran end to end and it is RED, more so than first recorded.
+
+`nix develop --command bash -c 'bash code/scripts/verify-refactor.sh'`, 23:16:57-23:45:56Z
+(28m59s), **exit 1, "3 check(s) FAILED"** (Steps 4, 6, 7). **Step 6 executed, not `SKIPPED`.**
+`--skip-oracle` run separately: **exit 1**, 2 checks FAILED (Steps 4, 7). Machine verified quiet
+before, during (continuous 60 s sampling), and after — **this run is adjudicable**.
+
+Three findings, all recorded in `baselines/oracle-baseline-STATUS.md` with raw evidence in
+`baselines/gate-run-2026-08-09/`:
+
+1. **A new failure.** Step 6 pass 1 returned `2 failed, 584 passed, 4 skipped, 4 xfailed` where
+   the first adjudicable run returned `1 failed, 586 passed, 3 skipped, 4 xfailed`.
+   `test_mixed_and_all_future_neg` appears in **no earlier record** (verified: zero occurrences in
+   `oracle-run-RED-2026-08-09.txt`), same mode as the adjudicated failure —
+   `OracleTimeoutError`, 60000 ms, depth=1, M=3. The failing set grew on an unchanged tree
+   between two quiet-machine runs. The budget was not widened in response.
+2. **Two previously-unadjudicable failures are now adjudicated.** Pass 2's progress line, mapped
+   against the established collection order, shows
+   `test_known_conclusive_population_self_consistent` and
+   `test_spot_check_individual_countermodels` both FAILING on a verified-quiet machine — the
+   earlier record had to leave all three open. `test_regression_all_active_examples[BM_CM_1-example_case7]`
+   FAILED here having PASSED before, now consistent with the in-package Step 4 failure on the same
+   example. This obviated the separately-suggested re-derivation run.
+3. **Step 7's failure is a consequence, not an independent finding.**
+   `compare_bimodal_baseline.sh` runs under `set -euo pipefail`; its first pytest pipeline exits
+   non-zero on `BM_CM_1-example_case7`, so it aborts after printing `Running bimodal test
+   suite...` and never reaches its comparison logic. Its "reported regressions" message is
+   misleading in this case — nothing was compared. Recorded, not repaired.
+
+Step 4 failed on both attempts on exactly `test_example_cases[BM_CM_1-example_case7]`
+(`1 failed, 297 passed`), in both the full run and the `--skip-oracle` run — the already
+adjudicated defect and no other test, which is what the corrected `--skip-oracle` criterion asks
+for.
+
+### Phase 4 — BLOCKED. Exhaustive scan attempted twice, neither attempt adjudicable.
+
+| Attempt | Window | Quiet at launch | Outcome |
+|---|---|---|---|
+| 1 | 22:54:17-23:06:28Z | load 1.05-1.14 | Contention at **+85 s** (cslib `lean --worker` 291-467%, `lake` 794.8%, load1 -> 11.52). Aborted at formula 14/274. |
+| 2 | 23:57:44-~01:07Z | load 0.57-0.76, **zero** lean/lake | Clean ~46 min through formula ~215, then `lean --worker` 285%/205% transient and ~100% **sustained** from 00:47. Terminated at formula 234/274 (~85%). |
+
+`SCAN_COMPLETE` and `report.json` never written in either attempt. Neither run's per-formula
+outcomes were triaged or promoted: the scan's verdict per formula is decided by a 10 s wall-clock
+solve budget, which is exactly what contention corrupts.
+
+Marked `[BLOCKED]`, **not** `[COMPLETED]` via the red/incomplete branch: that branch requires the
+quiet-machine captures, which an unadjudicable run cannot supply, and recording an environmental
+non-result there would misrepresent it as a category (c) finding about the scan.
+`baselines/exhaustive-scan/` was deliberately **not** created — the plan forbids manufacturing
+anything to fill the gap. The 2 `slow` tests remain unaccounted for.
+
+### Phase 8 — COMPLETED.
+
+`run2/` removed (`run/` untouched); empty `baselines/serial-rebaseline/` removed; this session's
+two gitignored `oracle/scan-results/` scratch dirs removed. Staged narrowly against concurrent
+session activity in `specs/116`, `specs/129`, `specs/138`, `specs/events.jsonl`, and
+`specs/.orchestrator-multi-state.json` — none staged.
+
+### Session 2 deviations
+
+1. **Phase 7 was run before Phase 4** — shorter run (25-40 min vs 60-90 min), and this host's
+   quiet windows proved short. The phases are independent (7 depends on 5 and 6; 4 on 3), so this
+   is ordering, not a dependency violation.
+2. **Phase 7's "confirm the failure is ... not a new one" criterion is NOT met** — see finding 1
+   above. Recorded as an enlargement of the category (c) result; nothing relaxed in response.
+3. **Quietness deviation, recorded with reasoning.** Idle cslib `lean --worker` LSP processes were
+   present at the Phase 7 launch, which the quietness rule names categorically. Adjudicated
+   non-contending **on measurement** (<=5.9% lifetime-average CPU, absent from every instantaneous
+   top-20 sample), not waived by assumption — the same class of deviation Phase 1 recorded for its
+   load-average threshold.
+4. **Evidence promoted before cleanup (addition, not omission).** `baselines/gate-run-2026-08-09/`
+   was created to hold the raw evidence `oracle-baseline-STATUS.md` cites, because Phase 8 deletes
+   the `run2/` staging area those citations pointed into. All `run2/` references in that file were
+   repointed; zero remain.
+5. **A monitor threshold was retuned mid-session, not a test threshold.** The contention watcher's
+   load alarm was raised from 6.0 to 14.0 after verification that load above 6 during Phase 7 was
+   this run's own `-n 6` workers (four `python3` at 99.7% each, every `lean` <=5.9%). No test
+   budget, floor, or assertion was involved.
+
+### Nothing was weakened in session 2 either
+
+`git diff --stat -- oracle/bimodal_logic/` is still empty. No assertion, solve-timeout budget,
+`MIN_CONCLUSIVE_*` floor, marker, guard, or `xfail` strictness was relaxed, retuned, or deleted.
+`known_conclusive_complexity5.json` was not re-derived; `SELF_SCAN_SOLVE_TIMEOUT_MS` and
+`ORACLE_EXHAUSTIVE_TIMEOUT` are untouched. `--skip-oracle` was not added to make the gate green,
+and the gate is reported as failing because it fails.
+
 ## Follow-up required
 
 1. Diagnose `test_example_cases[BM_CM_1-example_case7]` — deterministic, fast, and the best handle

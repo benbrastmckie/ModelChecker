@@ -1,0 +1,46 @@
+=== CONTENTION capture during Phase 4 attempt 1 ===
+2026-08-09T23:05:16+00:00
+
+--- uptime ---
+ 16:05:16  up 4 days 18:23,  1 user,  load average: 5.52, 4.53, 3.21
+
+--- top, instantaneous CPU, 2nd iteration, top 20 ---
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+2023913 benjamin  20   0   36.6g   1.7g 805784 S 291.2   5.5   1:08.51 lean
+1962486 benjamin  20   0  306292 201048  27260 R  99.2   0.6  10:56.10 .pytest+
+ 518060 benjamin  20   0 8497060 959124  36656 S  27.8   3.0 200:12.48 claude
+   2725 benjamin  20   0 6968080 147124  39016 S  23.8   0.5 126:49.04 .gnome-+
+3616574 benjamin  20   0 9072664 457216  39016 R  18.4   1.4  87:08.93 claude
+   5459 benjamin  20   0 4282028  94904  17644 S  14.4   0.3  73:41.19 wezterm+
+1258347 benjamin  20   0  572624 257988  14616 S   9.9   0.8   3:59.09 nvim
+1268134 benjamin  20   0 7437880 394052  50468 S   9.4   1.2  22:38.53 claude
+1424031 benjamin  20   0 9014152   1.2g  70844 S   5.5   4.1   0:53.26 lean
+ 517682 benjamin  20   0  867996 357724  10512 S   5.0   1.1  19:08.49 nvim
+ 518117 benjamin  20   0  399684  45656  10684 S   5.0   0.1   0:43.31 python3+
+1117329 benjamin  20   0 2678916 314352  48272 S   4.0   1.0   1:19.67 .sioyek+
+1267814 benjamin  20   0  449656 129212   9204 S   2.5   0.4   3:57.61 nvim
+1124386 benjamin  20   0  343432  64736   5912 S   2.0   0.2   2:36.54 nvim
+1055627 benjamin  20   0 7595004  14596  11432 S   1.5   0.0  30:40.45 .sioyek+
+1124679 benjamin  20   0 7448360 163888  28700 S   1.5   0.5   1:42.02 claude
+1258732 benjamin  20   0 7437880 331140  36132 S   1.5   1.0   7:27.40 claude
+1712409 benjamin  20   0  419224 105884  17428 S   1.5   0.3   1:36.79 nvim
+1713058 benjamin  20   0 7368248 488340 127332 S   1.5   1.5   6:29.96 claude
+   2446 benjamin  20   0   71.0g 191496  19768 S   1.0   0.6  29:41.12 .openco+
+
+--- lean/lake/runLinter full argv ---
+   1005  0.0  411810 earlyoom        /nix/store/2ipm5xbfyj1w5zr7bhdffl09x5r6fhnh-earlyoom-1.9.0/bin/earlyoom -m10 -n -r3600 -s10 --avoid ^(gnome-shell|Xwayland|niri)$ --prefer ^(lean|lake|claude|node|npm|opencode)$
+ 518117  0.0  100354 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/cslib
+1124748  0.0   14095 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1258794  0.0   10037 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1268174  0.0    9634 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1423977  0.0    6497 lake            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lake serve -- -Dserver.reportDelayMs=0
+1424031  0.8    6496 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --server -Dserver.reportDelayMs=0
+1713128  0.0    5264 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1981551  0.3     581 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Completeness.lean
+1985689  0.2     576 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Minimal/Completeness.lean
+2023913  467      14 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Scheme.lean
+
+--- our scan ---
+1962457  0.1     662 bash            bash oracle/run-oracle-exhaustive-scan.sh
+1962485  0.0     661 timeout         timeout --kill-after=60s 7200 pytest /home/benjamin/Projects/ModelChecker/oracle -m slow -s
+1962486 99.2     661 .pytest-wrapped /nix/store/lpgczl8hqnjlkicsphcylqfgds7dqc13-python3-3.12.13/bin/python3.12 /nix/store/m3vmxm9kgdx8whgwb4g9r8qww49vp4s9-python3.12-pytest-9.0.3/bin/.pytest-wrapped /home/benjamin/Projects/ModelChecker/oracle -m slow -s

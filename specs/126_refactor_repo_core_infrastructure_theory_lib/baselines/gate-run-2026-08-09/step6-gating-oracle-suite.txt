@@ -1,0 +1,292 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: xdist-3.8.0
+created: 6/6 workers
+6 workers [594 items]
+
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+........................................................................ [ 48%]
+........................................................................ [ 60%]
+........................s............................................... [ 72%]
+.xxxx.................................F...F............................. [ 84%]
+..................s........................................s............ [ 96%]
+................s.                                                       [100%]
+=================================== FAILURES ===================================
+__________________ TestMixedFormulas.test_mixed_and_box_next ___________________
+[gw0] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_oracle_interface.TestMixedFormulas object at 0x7fffede38d10>
+
+    def test_mixed_and_box_next(self):
+        """and(box(A), next(B)) -- L2 and + modal box + L1 next."""
+        formula = _and(_box(A), _next(B))
+>       result = self.provider.find_countermodel(formula, timeout_ms=60000)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:873: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <bimodal_logic.provider.Z3OracleProvider object at 0x7ffff502ef60>
+formula_json = {'left': {'child': {'name': 'A', 'tag': 'atom'}, 'tag': 'box'}, 'right': {'arg': {'name': 'B', 'tag': 'atom'}, 'tag': 'next'}, 'tag': 'and'}
+frame_class = 'Base', timeout_ms = 60000
+
+    def find_countermodel(
+        self,
+        formula_json: dict,
+        frame_class: str = "Base",
+        timeout_ms: int = 5000,
+    ) -> dict | None:
+        """Find a countermodel for the given formula JSON.
+    
+        Implements the bimodal_harness oracle interface: given a formula in JSON
+        format, determines whether it is invalid (satisfiable negation) and if so,
+        returns a structured countermodel dict. Returns None for tautologies
+        (valid/UNSAT formulas) and unsupported frame classes.
+    
+        Pipeline:
+            json_to_prefix() -> prefix_to_infix() ->
+            Syntax([], [infix], bimodal_operators) ->
+            BimodalSemantics(settings) ->
+            ModelConstraints(settings, syntax, semantics, BimodalProposition) ->
+            BimodalStructure(model_constraints, settings) ->
+            serialize_countermodel(...)
+    
+        Args:
+            formula_json: A dict with a "tag" field and tag-specific fields,
+                following the JSON formula schema in translation.py.
+            frame_class: The frame class to check against. Only "Base" is
+                supported; other values return None immediately.
+            timeout_ms: Maximum solver time in milliseconds.
+    
+        Returns:
+            A dict with countermodel fields if a countermodel is found.
+            None means exclusively one of: the formula is valid (proven no
+            countermodel, i.e. genuine UNSAT), or `frame_class` is
+            unsupported. None never means "the solver did not decide" --
+            that outcome raises OracleTimeoutError instead.
+    
+        Raises:
+            OracleTimeoutError: The Z3 solver exhausted `timeout_ms` without
+                reaching a verdict (`structure.timeout` was true). This is
+                an inconclusive result, not evidence the formula is valid --
+                callers must not treat it as a countermodel-not-found case.
+        """
+        # Check frame class support
+        if frame_class not in self.supported_frame_classes:
+            return None
+    
+        # Compute temporal depth and time bound M.
+        # Task 114 Fix: Use M=max(depth+2, 3) -- the boundary-safe formula.
+        # The previous workaround used M=max(depth, 2) to avoid timeouts from
+        # capped_skolem_abundance_constraint's MBQI blowup at M>=3.
+        # With the Task 114 fix to build_frame_constraints (conditional dispatch to
+        # build_grounded_abundance_constraints for M>=3), M>=3 no longer causes
+        # MBQI blowup. The boundary-safe formula M=max(depth+2,3) ensures
+        # boundary_safe=(M>depth+1) is True for all formulas, eliminating the
+        # boundary vacuity artifacts documented in Task 108.
+        # Note: boundary_safe in the output reflects M > depth+1.
+        depth = temporal_depth(formula_json)
+        M = max(depth + 2, 3)
+    
+        # Fold formula for output (enrich primitive forms to enriched tags)
+        formula_folded = fold_formula(formula_json)
+    
+        # Convert JSON formula to infix string for ModelChecker Syntax
+        prefix = json_to_prefix(formula_json)
+        infix = prefix_to_infix(prefix)
+    
+        # Build settings dict (temporal_depth limits shift closure — Task 114)
+        settings = {
+            'N': 2,
+            'M': M,
+            'temporal_depth': depth,
+            'contingent': False,
+            'disjoint': False,
+            'max_time': timeout_ms / 1000.0,
+            'expectation': True,
+            'solver': 'z3',
+        }
+    
+        # Reset internal semantics reference to prevent leakage
+        self._semantics = None
+    
+        # Run solver within isolated Z3 context to prevent state leakage
+        result = None
+        try:
+            with isolated_z3_context():
+                semantics = BimodalSemantics(settings)
+                # Keep reference only within context; will be None after exit
+                self._semantics = semantics
+                syntax = Syntax([], [infix], bimodal_operators)
+                model_constraints = ModelConstraints(
+                    settings, syntax, semantics, BimodalProposition
+                )
+                structure = BimodalStructure(model_constraints, settings)
+    
+                # Check if the solver decided the formula at all. `timeout`
+                # and `z3_model_status` are deliberately kept separate signals
+                # (see model_checker.models.structure): a timeout means the
+                # solver did not decide, which is not the same claim as a
+                # decided UNSAT. Collapsing them into the same `None` return
+                # would silently launder "gave up" into "proven valid".
+                if structure.timeout:
+                    self._semantics = None  # redundant with `finally`; kept for symmetry
+>                   raise OracleTimeoutError(
+                        timeout_ms=timeout_ms,
+                        temporal_depth=depth,
+                        M=M,
+                    )
+E                   bimodal_logic.errors.OracleTimeoutError: Z3 solver did not decide the formula within 60000 ms (temporal_depth=1, time_bound M=3); treat as inconclusive, not as a proof of validity | Suggestion: Increase timeout_ms, or reduce the formula's temporal_depth, and retry; a timeout is not evidence the formula is valid.
+
+oracle/bimodal_logic/provider.py:271: OracleTimeoutError
+_______________ TestMixedFormulas.test_mixed_and_all_future_neg ________________
+[gw0] linux -- Python 3.12.13 /nix/store/kykgmi6vxjzw76miazjf3yfn59kp7phd-python3-3.12.13-env/bin/python3.12
+
+self = <bimodal_logic.tests.test_oracle_interface.TestMixedFormulas object at 0x7fffede39220>
+
+    def test_mixed_and_all_future_neg(self):
+        """and(neg(A), next(B)) -- L1 neg + L2 and + L1 next."""
+        formula = _and(_neg(A), _next(B))
+>       result = self.provider.find_countermodel(formula, timeout_ms=60000)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+oracle/bimodal_logic/tests/test_oracle_interface.py:910: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <bimodal_logic.provider.Z3OracleProvider object at 0x7fffedebb170>
+formula_json = {'left': {'arg': {'name': 'A', 'tag': 'atom'}, 'tag': 'neg'}, 'right': {'arg': {'name': 'B', 'tag': 'atom'}, 'tag': 'next'}, 'tag': 'and'}
+frame_class = 'Base', timeout_ms = 60000
+
+    def find_countermodel(
+        self,
+        formula_json: dict,
+        frame_class: str = "Base",
+        timeout_ms: int = 5000,
+    ) -> dict | None:
+        """Find a countermodel for the given formula JSON.
+    
+        Implements the bimodal_harness oracle interface: given a formula in JSON
+        format, determines whether it is invalid (satisfiable negation) and if so,
+        returns a structured countermodel dict. Returns None for tautologies
+        (valid/UNSAT formulas) and unsupported frame classes.
+    
+        Pipeline:
+            json_to_prefix() -> prefix_to_infix() ->
+            Syntax([], [infix], bimodal_operators) ->
+            BimodalSemantics(settings) ->
+            ModelConstraints(settings, syntax, semantics, BimodalProposition) ->
+            BimodalStructure(model_constraints, settings) ->
+            serialize_countermodel(...)
+    
+        Args:
+            formula_json: A dict with a "tag" field and tag-specific fields,
+                following the JSON formula schema in translation.py.
+            frame_class: The frame class to check against. Only "Base" is
+                supported; other values return None immediately.
+            timeout_ms: Maximum solver time in milliseconds.
+    
+        Returns:
+            A dict with countermodel fields if a countermodel is found.
+            None means exclusively one of: the formula is valid (proven no
+            countermodel, i.e. genuine UNSAT), or `frame_class` is
+            unsupported. None never means "the solver did not decide" --
+            that outcome raises OracleTimeoutError instead.
+    
+        Raises:
+            OracleTimeoutError: The Z3 solver exhausted `timeout_ms` without
+                reaching a verdict (`structure.timeout` was true). This is
+                an inconclusive result, not evidence the formula is valid --
+                callers must not treat it as a countermodel-not-found case.
+        """
+        # Check frame class support
+        if frame_class not in self.supported_frame_classes:
+            return None
+    
+        # Compute temporal depth and time bound M.
+        # Task 114 Fix: Use M=max(depth+2, 3) -- the boundary-safe formula.
+        # The previous workaround used M=max(depth, 2) to avoid timeouts from
+        # capped_skolem_abundance_constraint's MBQI blowup at M>=3.
+        # With the Task 114 fix to build_frame_constraints (conditional dispatch to
+        # build_grounded_abundance_constraints for M>=3), M>=3 no longer causes
+        # MBQI blowup. The boundary-safe formula M=max(depth+2,3) ensures
+        # boundary_safe=(M>depth+1) is True for all formulas, eliminating the
+        # boundary vacuity artifacts documented in Task 108.
+        # Note: boundary_safe in the output reflects M > depth+1.
+        depth = temporal_depth(formula_json)
+        M = max(depth + 2, 3)
+    
+        # Fold formula for output (enrich primitive forms to enriched tags)
+        formula_folded = fold_formula(formula_json)
+    
+        # Convert JSON formula to infix string for ModelChecker Syntax
+        prefix = json_to_prefix(formula_json)
+        infix = prefix_to_infix(prefix)
+    
+        # Build settings dict (temporal_depth limits shift closure — Task 114)
+        settings = {
+            'N': 2,
+            'M': M,
+            'temporal_depth': depth,
+            'contingent': False,
+            'disjoint': False,
+            'max_time': timeout_ms / 1000.0,
+            'expectation': True,
+            'solver': 'z3',
+        }
+    
+        # Reset internal semantics reference to prevent leakage
+        self._semantics = None
+    
+        # Run solver within isolated Z3 context to prevent state leakage
+        result = None
+        try:
+            with isolated_z3_context():
+                semantics = BimodalSemantics(settings)
+                # Keep reference only within context; will be None after exit
+                self._semantics = semantics
+                syntax = Syntax([], [infix], bimodal_operators)
+                model_constraints = ModelConstraints(
+                    settings, syntax, semantics, BimodalProposition
+                )
+                structure = BimodalStructure(model_constraints, settings)
+    
+                # Check if the solver decided the formula at all. `timeout`
+                # and `z3_model_status` are deliberately kept separate signals
+                # (see model_checker.models.structure): a timeout means the
+                # solver did not decide, which is not the same claim as a
+                # decided UNSAT. Collapsing them into the same `None` return
+                # would silently launder "gave up" into "proven valid".
+                if structure.timeout:
+                    self._semantics = None  # redundant with `finally`; kept for symmetry
+>                   raise OracleTimeoutError(
+                        timeout_ms=timeout_ms,
+                        temporal_depth=depth,
+                        M=M,
+                    )
+E                   bimodal_logic.errors.OracleTimeoutError: Z3 solver did not decide the formula within 60000 ms (temporal_depth=1, time_bound M=3); treat as inconclusive, not as a proof of validity | Suggestion: Increase timeout_ms, or reduce the formula's temporal_depth, and retry; a timeout is not evidence the formula is valid.
+
+oracle/bimodal_logic/provider.py:271: OracleTimeoutError
+=========================== short test summary info ============================
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestMixedFormulas::test_mixed_and_box_next
+FAILED oracle/bimodal_logic/tests/test_oracle_interface.py::TestMixedFormulas::test_mixed_and_all_future_neg
+======= 2 failed, 584 passed, 4 skipped, 4 xfailed in 549.76s (0:09:09) ========
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: xdist-3.8.0
+collected 606 items / 596 deselected / 10 selected
+
+oracle/bimodal_logic/tests/test_boundary_regression.py F                 [ 10%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py F           [ 20%]
+oracle/bimodal_logic/tests/test_oracle_interface.py ..F                  [ 50%]
+oracle/bimodal_logic/tests/test_soundness_regression.py .
+== oracle suite summary (gating: slow deselected on both passes) ==
+pass 1 (parallel, -n 6, not xdist_serial and not slow, budget 1300s): FAILED (exit 1)
+pass 2 (serial, xdist_serial and not slow, budget 900s):             TIMED OUT (exit 124)
+
+Exhaustive complexity<=5 self-consistency scan (the 'slow'-marked tests
+deselected above) is not part of this gating run. Run it explicitly via:
+  nix develop --command bash oracle/run-oracle-exhaustive-scan.sh

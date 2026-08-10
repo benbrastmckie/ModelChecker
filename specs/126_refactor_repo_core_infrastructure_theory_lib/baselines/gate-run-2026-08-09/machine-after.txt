@@ -1,0 +1,43 @@
+=== machine-after capture: Phase 7 ===
+2026-08-09T23:47:04+00:00
+
+--- uptime (3 samples, 5s apart) ---
+ 16:47:04  up 4 days 19:05,  1 user,  load average: 3.38, 3.58, 3.75
+ 16:47:09  up 4 days 19:05,  1 user,  load average: 4.39, 3.79, 3.82
+ 16:47:15  up 4 days 19:05,  1 user,  load average: 4.12, 3.74, 3.80
+
+--- top, instantaneous CPU, 2nd iteration, top 20 (UNFILTERED) ---
+    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND
+1713058 benjamin  20   0 8416824 707532  40808 S  60.0   2.2  14:57.63 claude
+3616574 benjamin  20   0 9072728 484376  30048 S  57.5   1.5  95:44.72 claude
+ 518060 benjamin  20   0 8497124 556752  31924 S  53.1   1.7 209:14.43 claude
+1268134 benjamin  20   0 7437880 389120  29016 S  10.9   1.2  30:26.30 claude
+1258347 benjamin  20   0  618056 293260  13932 S   5.0   0.9   5:41.66 nvim
+3616176 benjamin  20   0  695360 106120   9628 S   5.0   0.3  16:44.81 nvim
+ 517682 benjamin  20   0  883676 181300  10232 S   4.5   0.6  20:10.53 nvim
+   2725 benjamin  20   0 6966032 131224  31772 S   3.5   0.4 128:34.40 .gnome-+
+1712409 benjamin  20   0  460676 132032  17380 S   3.0   0.4   2:31.22 nvim
+    978 root      20   0       0      0      0 S   2.0   0.0  18:05.83 napi/ph+
+   3802 benjamin  20   0   53.6g 196540  73168 S   2.0   0.6  54:18.52 brave
+1133717 benjamin  20   0 1450.4g 339396  70864 S   2.0   1.1   2:16.10 brave
+   4059 benjamin  20   0 1448.5g 261908  67200 S   1.5   0.8   8:41.72 brave
+1117329 benjamin  20   0 3014576 368464  39880 S   1.5   1.1   1:37.18 .sioyek+
+1124679 benjamin  20   0 7448360 152028  21684 S   1.5   0.5   2:04.22 claude
+    977 root      20   0       0      0      0 S   1.0   0.0   5:54.86 napi/ph+
+   2446 benjamin  20   0   71.0g 155908  17628 S   1.0   0.5  30:16.04 .openco+
+   2447 benjamin  20   0 5347168  23108   7396 S   1.0   0.1   9:15.23 .openco+
+   3885 benjamin  20   0   52.6g  64136  37864 S   1.0   0.2  11:13.56 brave
+1055627 benjamin  20   0 7595004  13800  10672 S   1.0   0.0  31:04.59 .sioyek+
+
+--- any pytest / z3 / lean / lake / runLinter (full argv) ---
+   1005  0.0  414328 earlyoom        /nix/store/2ipm5xbfyj1w5zr7bhdffl09x5r6fhnh-earlyoom-1.9.0/bin/earlyoom -m10 -n -r3600 -s10 --avoid ^(gnome-shell|Xwayland|niri)$ --prefer ^(lean|lake|claude|node|npm|opencode)$
+ 518117  0.0  102872 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/cslib
+1124748  0.0   16614 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1258794  0.0   12556 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1268174  0.0   12152 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1423977  0.0    9016 lake            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lake serve -- -Dserver.reportDelayMs=0
+1424031  0.6    9015 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --server -Dserver.reportDelayMs=0
+1713128  0.0    7782 python3.13      /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/python3 /home/benjamin/.local/share/uv/tools/lean-lsp-mcp/bin/lean-lsp-mcp --lean-project-path /home/benjamin/Projects/BimodalLogic
+1981551  0.0    3100 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Completeness.lean
+1985689  0.0    3094 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Minimal/Completeness.lean
+2034310  3.0    2509 lean            /home/benjamin/.elan/toolchains/leanprover--lean4---v4.33.0-rc1/bin/lean --worker -Dserver.reportDelayMs=0 file:///home/benjamin/Projects/cslib/Cslib/Logics/Propositional/Tableau/Intuitionistic/Scheme.lean

@@ -1,0 +1,32 @@
+=== Phase 4 attempt 2: UNADJUDICABLE (contention) and INCOMPLETE (terminated) ===
+launched: 2026-08-09T23:57:44Z (out dir oracle/scan-results/20260809T235755Z)
+quiet at launch: load 0.57-0.76; top process 32.2% (a Claude session); ZERO lean/lake
+                 compute processes present - the quietest state observed all session.
+
+Clean window:  23:57:44Z - ~00:44:00Z (~46 min), formulas 1 - ~215. No foreign hog at any
+               60s sample in that window.
+Contention:    00:44:06Z  lean 285.3% (transient)
+               00:45:09Z  lean 205.3% (transient)
+               00:47:13Z - 01:04:51Z  lean ~100% SUSTAINED, a second lean ~100% from
+                          00:58:38Z onward. Overlaps formulas ~227-274 (the c5 tail).
+Terminated:    ~01:07Z at formula [234/274] (~85%), when the background task wrapper was
+               stopped and took the process tree with it.
+
+SCAN_COMPLETE: never written. report.json: never written. No exit code recorded.
+
+Adjudication: NOT a result, on two independent grounds.
+  1. Contention materialized during the run. The plan's rule is absolute; the scan's
+     per-formula verdict is decided by a 10s wall-clock solve budget, which is precisely
+     what CPU contention corrupts. The clean-window/contended-window split is recorded
+     above for a future adjudicator, but a partially-clean run is not an adjudicable run,
+     and no per-formula outcome from it is triaged or promoted here.
+  2. It never reached completion, so even setting contention aside there is no
+     SCAN_COMPLETE marker - and per the runner's own contract, a vanished PID is not a
+     verdict and process exit status alone is never a completion signal.
+
+Observed but NOT reported as a finding (unadjudicable): D=0 disagreements through
+formula 234, with 141 TIMEOUTs at the 10s budget. This is not evidence of anything and
+is recorded only so a future run is not launched blind.
+
+Nothing from this attempt was copied into baselines/. SELF_SCAN_SOLVE_TIMEOUT_MS was not
+adjusted and known_conclusive_complexity5.json was not re-derived.
