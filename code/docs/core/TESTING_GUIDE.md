@@ -727,6 +727,62 @@ never with different, weaker *logic*. A conclusiveness-floor miss is a budget/pe
 investigate (see 8.6 above on machine-load variance and concurrent-session contention — this same
 class of issue applies here), never a license to lower the floor to force a green run.
 
+**Exhaustive-scan cadence decision: scheduled off-hours, never gating.** The exhaustive scan stays
+out of the gating path — at roughly 60 minutes it is incompatible with per-commit or per-PR gating,
+which is exactly why the known-conclusive-population split above exists. The recorded decision is
+to run it on a **low-frequency schedule, off-hours, unattended** (weekly, or on merge-to-main),
+invoking `oracle/run-oracle-exhaustive-scan.sh` **unmodified** — no assertion change, no widened
+budget, no lowered conclusiveness floor. The evidence behind this cadence: two independent,
+code-current, `SCAN_COMPLETE`-marker-verified runs agree on the property that matters
+(`disagreements: 0` both times), at 3651.243s and 3555.065s wall clock and 103 and 105 of 274
+formulas conclusive respectively. The 2-formula conclusive-count swing between the two runs is the
+near-budget-headroom contention sensitivity already documented in 8.6 above, not a regression —
+some formulas sit close enough to `SELF_SCAN_SOLVE_TIMEOUT_MS` that ambient machine load flips a
+handful between "decided" and "timed out" without changing whether the decided ones agree.
+A cadence decision never licenses an assertion change: the hard-constraint paragraph above is
+unaffected by this subsection.
+
+A scheduled scan that silently bit-rots (a dead cron entry, a CI trigger that stops firing, an
+operator who forgot) is the same invisible-failure-mode class this task exists to fix at the
+per-test level — so the schedule must be paired with an explicit staleness check rather than
+run-and-forget. `oracle/check-scan-freshness.sh` is that check: it reports the newest
+`oracle/scan-results/*/SCAN_COMPLETE` marker's age and the run's own recorded `disagreements` /
+`conclusive` / `wall_clock_seconds`, and exits non-zero when the newest marker is older than a
+cadence window (default 7 days, overridable via `ORACLE_SCAN_MAX_AGE_DAYS`) or when no marker
+exists at all — marker existence, never PID or process liveness, matching the completion-marker
+contract already established above. Wiring an actual schedule into CI (a cron-triggered workflow
+that invokes the exhaustive scan and this freshness check) is deliberately not done as part of
+recording this decision — it needs its own runner-capacity evaluation and is tracked as a scoped
+follow-up.
+
+**Timeout-skip inventory: surfacing what a gating run already knows but does not report.** Both
+`run-oracle-suite.sh` passes now pass `-rs` to pytest, so every skip's reason string appears in the
+terminal output — previously the gating suite ran the two timeout-conditional `pytest.skip()` sites
+in `oracle/bimodal_logic/tests/test_oracle_interface.py` (`TestOracleExampleRegressionViaAPI
+::test_oracle_regression` and `TestEnrichedRoundTrip::test_enriched_vs_primitive_sat_agreement`)
+without ever printing why a formula skipped. `oracle/conftest.py` additionally collects every
+timeout-caused skip during the session (matched on the stable shared substring `did not decide
+within`, present in both skip messages) and prints a delimited `== ORACLE TIMEOUT-SKIP INVENTORY
+==` section at the end of each pass, classifying every timeout skip as:
+
+- **`[KNOWN]`** — skipped, and recognized in `oracle/conftest.py`'s `_KNOWN_TIMEOUT_SKIPS` mapping,
+  with a short adjudication note (e.g. "label corrected to SAT from the ground-truth evaluator; the
+  solver still does not decide it at 2x budget").
+- **`[NEW]`** — skipped, but not recognized — the actionable drift signal. Adjudicate the formula's
+  `expected_sat` against `bimodal_logic/ground_truth.py` before assuming the existing label is
+  right; do not assume tooling error.
+- **`[RESOLVED]`** — recognized in `_KNOWN_TIMEOUT_SKIPS`, ran in this session (present in the
+  session's *seen* set, derived from `pytest_runtest_logreport` so it behaves identically under
+  `-n 6` and serial), and is *not* skipped this time — the formula now decides. Go re-check its
+  label and its `REGRESSION_TIMEOUT_EXAMPLES` membership; a known entry absent from the current
+  session's seen set is not reported at all, so a two-pass run never mistakes one pass's skip
+  inventory for the other pass's business.
+
+A skip is always a budget/performance outcome, never a semantic regression, and this inventory is
+reporting-only: it adds no marker, never touches `session.exitstatus`, and never converts a skip
+into a failure. Never widen a solve budget to clear a `[NEW]` or `[RESOLVED]` entry off this list —
+see 8.6 above and the hard constraint two subsections up.
+
 ---
 
 ## Quick Reference

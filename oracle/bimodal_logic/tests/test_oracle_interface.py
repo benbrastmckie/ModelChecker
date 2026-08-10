@@ -196,9 +196,14 @@ EXAMPLE_JSON_CATALOG = {
 
     # ---- Tense Countermodels ----
     "TN_CM_1": (
-        # conclusion: \Future A = all_future(A) -- UNSAT (valid in these frames)
+        # conclusion: \Future A = all_future(A) -- SAT (ground-truth-derived,
+        # not solver-derived: A false at every time is a countermodel, since
+        # nothing forces A true at every future time -- see
+        # bimodal_logic/ground_truth.py. The solver itself still does not
+        # decide this formula within the regression timeout budget; this is
+        # the same defect as BM_TH_1 below (identical formula).
         _all_future(A),
-        True, False,
+        True, True,
     ),
     "TN_CM_2": (
         # conclusion: \future (A and B) = some_future(A and B)
@@ -249,16 +254,24 @@ EXAMPLE_JSON_CATALOG = {
 
     # ---- Tense Theorems ----
     "TN_TH_2": (
-        # conclusion: \Future \past A -- UNSAT (valid in these frames)
+        # conclusion: \Future \past A -- SAT (ground-truth-derived, not
+        # solver-derived: A false at every time makes some_past(A) false at
+        # every time, so all_future(some_past(A)) is false at that same
+        # witness -- a countermodel, not a validity. Stable across
+        # ground-truth windows 4/5/6 -- see bimodal_logic/ground_truth.py.
+        # The solver itself still does not decide this formula within 2x
+        # the regression timeout budget.
         _all_future(_some_past(A)),
-        True, False,
+        True, True,
     ),
 
     # ---- Bimodal Theorems ----
     "BM_TH_1": (
-        # conclusion: \Future A = all_future(A) -- UNSAT (valid)
+        # conclusion: \Future A = all_future(A) -- SAT (ground-truth-derived,
+        # not solver-derived: same formula and same defect as TN_CM_1 above
+        # -- see bimodal_logic/ground_truth.py).
         _all_future(A),
-        True, False,
+        True, True,
     ),
     "BM_TH_2": (
         # conclusion: \Past A = all_past(A) -- SAT (invalid alone)

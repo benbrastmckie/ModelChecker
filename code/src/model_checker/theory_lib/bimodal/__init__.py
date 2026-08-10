@@ -75,13 +75,26 @@ __all__ = [
 
 def get_theory(config=None):
     """Get bimodal theory configuration.
-    
+
     Args:
-        config: Optional configuration (currently unused)
-        
+        config: Signature-uniformity placeholder, required by
+            theory_lib/tests/test_theory_conformance.py's
+            TestGetTheoryContract so every theory's get_theory() accepts the
+            same leading positional parameter. Accepted and always ignored:
+            passing a subtheory-shaped list (e.g. get_theory(['extensional']))
+            has no effect and the full operator set below is always
+            returned. Only logos.get_theory offers real subtheory
+            restriction, via its separate keyword-only `subtheories=`
+            parameter -- bimodal has no subtheory decomposition to restrict
+            to. Because the returned operator set always includes the modal
+            and temporal operators, even a nominally "extensional" example
+            solves over the full world-history-by-time search space, not a
+            restricted fragment -- the reason some callers pad `max_time`
+            for otherwise-trivial examples.
+
     Returns:
         dict: Theory configuration with semantics, proposition, model, and operators
-        
+
     Examples:
         >>> theory = get_theory()
         >>> 'semantics' in theory

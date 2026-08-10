@@ -67,13 +67,21 @@ __all__ = [
 
 def get_theory(config=None):
     """Get exclusion theory configuration.
-    
+
     Args:
-        config: Optional configuration (currently unused)
-        
+        config: Signature-uniformity placeholder, required by
+            theory_lib/tests/test_theory_conformance.py's
+            TestGetTheoryContract so every theory's get_theory() accepts the
+            same leading positional parameter. Accepted and always ignored:
+            passing a subtheory-shaped list has no effect and the full
+            operator set below is always returned. Only
+            logos.get_theory offers real subtheory restriction, via its
+            separate keyword-only `subtheories=` parameter -- exclusion has
+            no subtheory decomposition to restrict to.
+
     Returns:
         dict: Theory configuration with semantics, proposition, model, and operators
-        
+
     Examples:
         >>> theory = get_theory()
         >>> 'semantics' in theory

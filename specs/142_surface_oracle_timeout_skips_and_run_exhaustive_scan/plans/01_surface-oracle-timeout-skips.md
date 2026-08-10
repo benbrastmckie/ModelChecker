@@ -181,24 +181,24 @@ three theory `__init__.py` files.
 
 ---
 
-### Phase 2: Apply the three label corrections (GREEN) [NOT STARTED]
+### Phase 2: Apply the three label corrections (GREEN) [COMPLETED]
 
 - **Goal:** Correct the ground-truth-contradicted `expected_sat` values and confirm the corrections
   neither break the suite nor change any skip into a failure.
 - **Tasks:**
-  - [ ] `EXAMPLE_JSON_CATALOG["TN_TH_2"]`: `False` -> `True`; rewrite the inline comment from
+  - [x] `EXAMPLE_JSON_CATALOG["TN_TH_2"]`: `False` -> `True`; rewrite the inline comment from
         "`\Future \past A` -- UNSAT (valid in these frames)" to state SAT with the witness
         (`A` false at every time makes `some_past(A)` false at every time), and note the verdict is
         ground-truth-derived, not solver-derived (the solver still does not decide it at 60000ms).
-  - [ ] `EXAMPLE_JSON_CATALOG["TN_CM_1"]`: `False` -> `True`, comment updated the same way for
+  - [x] `EXAMPLE_JSON_CATALOG["TN_CM_1"]`: `False` -> `True`, comment updated the same way for
         `all_future(A)`.
-  - [ ] `EXAMPLE_JSON_CATALOG["BM_TH_1"]`: `False` -> `True`, comment updated; note it is the same
+  - [x] `EXAMPLE_JSON_CATALOG["BM_TH_1"]`: `False` -> `True`, comment updated; note it is the same
         formula as `TN_CM_1`.
-  - [ ] Leave `REGRESSION_TIMEOUT_EXAMPLES` byte-identical. Re-inclusion of `TN_CM_1`/`BM_TH_1` is a
+  - [x] Leave `REGRESSION_TIMEOUT_EXAMPLES` byte-identical. Re-inclusion of `TN_CM_1`/`BM_TH_1` is a
         separate, sequenced follow-up (see Scope Boundary).
-  - [ ] Confirm `test_active_example_count`'s invariants (`total == 52`,
+  - [x] Confirm `test_active_example_count`'s invariants (`total == 52`,
         `active == total - excluded`) still hold — labels changed, membership did not.
-  - [ ] Run the targeted regression case and confirm `TN_TH_2` still reports SKIPPED (budget
+  - [x] Run the targeted regression case and confirm `TN_TH_2` still reports SKIPPED (budget
         outcome), never FAILED:
         `pytest 'oracle/bimodal_logic/tests/test_oracle_interface.py::TestOracleExampleRegressionViaAPI::test_oracle_regression[TN_TH_2]' -rs`
 - **Timing:** ~45 minutes
@@ -214,21 +214,21 @@ three theory `__init__.py` files.
 
 ---
 
-### Phase 3: Timeout-skip inventory hook in oracle/conftest.py [NOT STARTED]
+### Phase 3: Timeout-skip inventory hook in oracle/conftest.py [COMPLETED]
 
 - **Goal:** Collect every timeout-caused skip during a pytest session and classify it, with no
   effect on any test's outcome or the session exit status.
 - **Tasks:**
-  - [ ] Add a `_TIMEOUT_SKIP_SIGNATURE = "did not decide within"` constant — the stable substring
+  - [x] Add a `_TIMEOUT_SKIP_SIGNATURE = "did not decide within"` constant — the stable substring
         shared by both skip messages (site 635: `'{name}': did not decide within {timeout} ms`;
         site 779: `'{name}': at least one side did not decide within {timeout} ms`).
-  - [ ] Add `_KNOWN_TIMEOUT_SKIPS`: a mapping from node-id fragment to a short adjudication note,
+  - [x] Add `_KNOWN_TIMEOUT_SKIPS`: a mapping from node-id fragment to a short adjudication note,
         seeded with exactly the two confirmed entries — `test_oracle_regression[TN_TH_2]`
         ("label corrected to SAT from the ground-truth evaluator; the solver still does not decide
         it at 2x budget") and `test_enriched_vs_primitive_sat_agreement[all_future]` ("primitive
         untl-based expansion does not decide; the enriched form decides in under 2s — a performance
         gap, not a disagreement"). Notes cite file/section anchors, never task numbers.
-  - [ ] Implement `pytest_runtest_logreport(report)`: record every report's node id into a
+  - [x] Implement `pytest_runtest_logreport(report)`: record every report's node id into a
         session-scoped *seen* set, and when `report.skipped` and the extracted reason contains the
         signature, record the node id into a *timeout-skipped* set with its reason. Extract the
         reason from `report.longrepr` (a `(path, lineno, "Skipped: <reason>")` tuple for an
@@ -236,7 +236,7 @@ three theory `__init__.py` files.
         reports — rather than from a collection hook — makes the behavior identical under `-n 6`
         (controller receives worker reports) and serial, which is required because the gating runner
         uses both.
-  - [ ] Implement `pytest_terminal_summary(terminalreporter)`: print a clearly delimited
+  - [x] Implement `pytest_terminal_summary(terminalreporter)`: print a clearly delimited
         `== ORACLE TIMEOUT-SKIP INVENTORY ==` section listing, one line each:
         `[KNOWN]` (skipped and in `_KNOWN_TIMEOUT_SKIPS`, with its note),
         `[NEW]` (skipped, unrecognized — the loud drift signal, with explicit "adjudicate this
@@ -247,15 +247,15 @@ three theory `__init__.py` files.
         A known entry absent from the seen set is not this session's business and is omitted
         entirely — this is what keeps the two-pass runner from reporting pass 1's skips as
         "resolved" during pass 2.
-  - [ ] Print a footer stating the standing constraints: never widen a solve budget to clear an
+  - [x] Print a footer stating the standing constraints: never widen a solve budget to clear an
         entry, and see `code/docs/core/TESTING_GUIDE.md` sections 8.6 and 8.8.
-  - [ ] Opt-in machine-readable artifact: when `ORACLE_SKIP_REPORT` names a path, also write the
+  - [x] Opt-in machine-readable artifact: when `ORACLE_SKIP_REPORT` names a path, also write the
         inventory as JSON (`{known: [...], new: [...], resolved: [...]}`), mirroring the existing
         `ORACLE_JUNIT_DIR` opt-in idiom. Unset (the default) changes nothing.
-  - [ ] Never mutate `session.exitstatus` and never add a marker or a failure. Print the section
+  - [x] Never mutate `session.exitstatus` and never add a marker or a failure. Print the section
         even when empty (a single "no timeout skips in this session" line) so silence is never
         ambiguous.
-  - [ ] Add `oracle/bimodal_logic/tests/test_timeout_skip_inventory.py` covering: both real skip
+  - [x] Add `oracle/bimodal_logic/tests/test_timeout_skip_inventory.py` covering: both real skip
         messages match the signature; a non-timeout skip reason does not; KNOWN/NEW/RESOLVED
         classification including the "known but not in this session's seen set is omitted" case; and
         the JSON artifact shape when `ORACLE_SKIP_REPORT` is set.

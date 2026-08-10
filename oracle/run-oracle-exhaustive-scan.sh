@@ -96,6 +96,12 @@ else
   echo "   marker contract in test_cross_oracle_differential.py's module docstring.)"
 fi
 
+echo
+echo "Cadence: this scan is scheduled (weekly / off-hours / merge-to-main), never"
+echo "gating -- see code/docs/core/TESTING_GUIDE.md section 8.8. Check whether"
+echo "scan-results/ is staying fresh at that cadence via:"
+echo "  nix develop --command bash oracle/check-scan-freshness.sh"
+
 if [ "$pytest_status" -ne 0 ] || [ ! -f "$marker_path" ]; then
   exit 1
 fi
