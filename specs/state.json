@@ -42,9 +42,9 @@
         }
       ],
       "created": "2026-07-25T05:52:48Z",
-      "last_updated": "2026-08-09T15:51:35Z",
-      "session_id": "sess_1786289974_521182",
-      "blockers": null
+      "last_updated": "2026-08-10T01:10:10Z",
+      "session_id": "sess_1786307124_299f8c",
+      "blockers": "Phases 1,2,3,5,6,7,8 [COMPLETED]; Phase 4 [BLOCKED] on an environmental condition. NOT a technical defect and no code change is required to unblock it. Phase 7 ran the repaired gate end to end on a verified-quiet machine (28m59s, exit 1, 3 checks FAILED at Steps 4/6/7, Step 6 executed not SKIPPED) plus --skip-oracle (exit 1, Steps 4/7, sole failing test BM_CM_1-example_case7). Gating oracle suite is RED under rubric category (c), now on two independent adjudicable runs; that is the honest recorded outcome, not an unfinished step. NEW finding: test_mixed_and_all_future_neg fails with OracleTimeoutError at 60000 ms and is in no earlier record, so the pass-1 failing set grew 1 -> 2 on an unchanged tree. Phase 7 also adjudicated two previously-unadjudicable pass-2 failures as category (c). Phase 4 (exhaustive scan) was launched twice from a verified-quiet machine and invalidated both times by sibling cslib Lean/lake CPU contention; no SCAN_COMPLETE or report.json, baselines/exhaustive-scan/ deliberately not created, 2 slow tests still unaccounted for. RESUME: only Phase 4, on a host with no Lean or Z3 workload; establish completion from the SCAN_COMPLETE marker, never from PID absence. Do NOT re-derive known_conclusive_complexity5.json or adjust SELF_SCAN_SOLVE_TIMEOUT_MS. Nothing was weakened anywhere: git diff --stat -- oracle/bimodal_logic/ is empty. Commits: 23bfe078, 2c6862a9."
     },
     {
       "project_number": 128,

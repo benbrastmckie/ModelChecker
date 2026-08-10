@@ -1,82 +1,66 @@
 {
+  "task_number": 127,
+  "task_name": "close_oracle_suite_regression_baseline",
+  "session_id": "sess_1786307124_299f8c",
   "status": "partial",
-  "summary": "Gating oracle suite re-baselined and adjudicated: it is RED. Phase 2 was relaunched from scratch (attempt 1's artifacts failed three of five completeness clauses and were not reusable) and ran to completion on a machine verified quiet before and after: pass 1 FAILED (1 failed, 586 passed, 3 skipped, 4 xfailed; sole failure test_mixed_and_box_next with OracleTimeoutError at 60000ms, identical to attempt 1's verdict) and pass 2 TIMED OUT (exit 124) at its 900s budget, hanging in test_temporal_propositional_interleaving. Phase 3 verdict is rubric category (c), established from the main run alone. No baseline was promoted; the committed partial baselines/oracle-run.txt was not overwritten; nothing was weakened anywhere (git diff --stat -- oracle/bimodal_logic/ is empty). Phase 5's gate repair is complete and verified: Step 3 re-pinned 550->606 with three new per-marker sub-count pins and a partition check (and a latent extractor bug fixed that would have made the sub-count pins check nothing), Step 5 re-scoped from stale line numbers onto content-matched guard checks that FAIL under all four required mutations and pass on the unmodified tree, Step 6 pointed at the gating runner. Phase 6's marker flip was correctly NOT performed (gate requires category (a)/(b)); the category-(c) framing correction was done instead, retiring the false no-pytest-xdist / 550-test / serial-run / contention-kill premises. Two mid-task re-runs were contended by a sibling project's Lean lint job and are recorded as unadjudicable rather than used as evidence — a reporting error I made and corrected. New finding: the repaired gate surfaced a deterministic in-package failure, test_example_cases[BM_CM_1-example_case7], naming the same example case as the oracle-side BM_CM_1 failure. Phases 4 and 7 are blocked on machine quietness.",
+  "summary": "Phases 7 and 8 completed and committed; Phase 4 is terminally [BLOCKED] on an environmental condition after two genuine attempts. 7 of 8 phases are done or definitively terminal. Phase 7 ran the repaired gate end to end on a verified-quiet machine (28m59s, exit 1, 3 checks FAILED at Steps 4/6/7, Step 6 executed rather than SKIPPED) and the --skip-oracle path (exit 1, Steps 4/7, sole failing test BM_CM_1-example_case7 on both attempts - exactly the adjudicated defect). It produced three findings: (1) Step 6 pass 1 has a NEW failure, test_mixed_and_all_future_neg, alongside the adjudicated test_mixed_and_box_next, so the failing set grew 1 -> 2 across two quiet-machine runs on an unchanged tree; (2) pass 2 adjudicated two previously-unadjudicable failures as category (c), obviating the suggested re-derivation run; (3) Step 7's failure is a set -euo pipefail consequence of the same BM_CM_1 defect, not an independent regression finding. Phase 4's exhaustive scan was launched twice and invalidated both times by sibling-project Lean/lake CPU contention; no SCAN_COMPLETE or report.json was produced, baselines/exhaustive-scan/ was deliberately not created, and the 2 slow tests remain unaccounted for. The category (c) verdict stands and is now supported by two independent adjudicable runs. Nothing was weakened anywhere.",
   "artifacts": [
-    {
-      "type": "evidence",
-      "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-baseline-STATUS.md",
-      "summary": "Category (c) status record: per-test findings, quiet-machine evidence for every run, the unadjudicable-run disclosure, the in-package BM_CM_1 addendum, and the follow-up list."
-    },
-    {
-      "type": "evidence",
-      "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-run-RED-2026-08-09.txt",
-      "summary": "The RED gating run verbatim (Section 1, adjudicable) plus the contended pass-2 re-run explicitly marked UNADJUDICABLE (Section 2)."
-    },
-    {
-      "type": "summary",
-      "path": "specs/127_close_oracle_suite_regression_baseline/summaries/02_rebaseline-gating-oracle-suite-summary.md",
-      "summary": "Implementation summary: rubric category, every run and its result, machine captures, the four negative-test failure messages, and eight recorded deviations."
-    },
-    {
-      "type": "handoff",
-      "path": "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-2-handoff-20260809141500.md",
-      "summary": "Phase 2 handoff, including the correction notice retracting an incorrect quiet-machine claim."
-    },
-    {
-      "type": "handoff",
-      "path": "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-5-handoff-20260809144500.md",
-      "summary": "Phase 5 handoff: gate repair, negative-test results, and the Steps 4/7 deviation."
-    }
-  ],
-  "modified_files": [
-    "code/scripts/verify-refactor.sh",
-    "oracle/run-oracle-suite.sh",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-baseline-STATUS.md",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-run-RED-2026-08-09.txt",
     "specs/127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md",
     "specs/127_close_oracle_suite_regression_baseline/summaries/02_rebaseline-gating-oracle-suite-summary.md",
-    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-2-handoff-20260809141500.md",
-    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-5-handoff-20260809144500.md"
+    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-7-handoff-20260809234800.md",
+    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-8-handoff-20260810011500.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-baseline-STATUS.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/"
   ],
-  "phases_completed": 5,
+  "modified_files": [
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/oracle-baseline-STATUS.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/README.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/gate-run.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/step6-gating-oracle-suite.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/skip-oracle-run.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/step4-bimodal-attempt1.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/step4-bimodal-attempt2.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/machine-before.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/machine-during.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/machine-after.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/contention-watch.log",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt1-aborted.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt2-aborted.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt1-machine-before.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt1-machine-contention.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt2-machine-before.txt",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/gate-run-2026-08-09/exhaustive-attempt2-machine-contention.txt",
+    "specs/127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md",
+    "specs/127_close_oracle_suite_regression_baseline/summaries/02_rebaseline-gating-oracle-suite-summary.md",
+    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-7-handoff-20260809234800.md",
+    "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-8-handoff-20260810011500.md"
+  ],
+  "commits": [
+    "23bfe078 task 127 phase 7: independent verify-refactor confirmation with Step 6 live",
+    "2c6862a9 task 127: final cleanup"
+  ],
+  "phases_completed": 7,
   "phases_total": 8,
+  "phase_status": {
+    "1": "COMPLETED",
+    "2": "COMPLETED",
+    "3": "COMPLETED",
+    "4": "BLOCKED",
+    "5": "COMPLETED",
+    "6": "COMPLETED",
+    "7": "COMPLETED",
+    "8": "COMPLETED"
+  },
   "blockers": [
-    {
-      "description": "The gating oracle suite is RED on a verified-quiet machine, and this is the task's honest recorded outcome rather than a process failure. Pass 1 fails test_oracle_interface.py::TestMixedFormulas::test_mixed_and_box_next with OracleTimeoutError (Z3 did not decide within 60000 ms at temporal_depth=1, M=3), reproduced identically across two independent quiet-machine runs. Pass 2 exceeds its 900s budget without completing, hanging in test_soundness_regression.py::TestStateIsolationRegression::test_temporal_propositional_interleaving. No budget, floor, assertion, marker, or guard was changed. Diagnosis is an explicit non-goal of a baselining task and needs a follow-up task.",
-      "phase": "phase-3",
-      "severity": "hard",
-      "resume_point": "A follow-up diagnosis task, not a re-run of this plan. See baselines/oracle-baseline-STATUS.md section 'Follow-up required'."
-    },
-    {
-      "description": "NEW, previously unrecorded in-package failure surfaced by the repaired gate: code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7] fails on BOTH attempts with a fast deterministic 'AssertionError: Test failed for example: BM_CM_1' (not a timeout, so the documented Z3-flake retry does not absorb it). It names the same example case as the oracle-side test_regression_all_active_examples[BM_CM_1-example_case7] and is very likely the same defect with a far better handle on it. This is why verify-refactor.sh --skip-oracle exits 1: Steps 4 and 7 fail, both untouched by this task. Not repaired here (fixing a defect found during triage is an explicit non-goal).",
-      "phase": "phase-5",
-      "severity": "hard",
-      "resume_point": "Spawn a diagnosis task for BM_CM_1/example_case7 starting from the in-package test, which is deterministic and budget-independent."
-    },
-    {
-      "description": "Phases 4 (exhaustive-scan coverage record, 60-90 min serial) and 7 (independent verify-refactor.sh run with Step 6 live, 25-40 min) were not started because the machine was not quiet: a sibling project's Lean toolchain was consuming 168-216% CPU when they came due, and up to 776% earlier in the session. The plan mandates stopping rather than running contended, since every result obtained under contention is unadjudicable. This is an environmental blocker, not a technical one.",
-      "phase": "phase-4/7",
-      "severity": "soft",
-      "resume_point": "Re-check quietness (no process >50% CPU, no foreign pytest/z3/lean --worker, 1-min load < 2.0), then run Phase 4 then Phase 7 per handoffs/phase-5-handoff-20260809144500.md 'Next phase'."
-    },
-    {
-      "description": "Three failures observed only in contended runs are NOT adjudicated and must be re-derived on a quiet machine: test_spot_check_individual_countermodels, test_known_conclusive_population_self_consistent, and test_regression_all_active_examples[BM_CM_1-example_case7]. They are excluded from the verdict deliberately, per the rule that a failing run on an unverified-quiet machine is not evidence of anything.",
-      "phase": "phase-3",
-      "severity": "soft",
-      "resume_point": "One serial invocation of the three node IDs inside `nix develop` from the repo root, on a verified-quiet machine, with before/after captures."
-    }
+    "Phase 4 (exhaustive-scan coverage record) is blocked on an environmental condition, not on any work product: this host does not reliably provide the uninterrupted 60-90 minute quiet window the scan needs. Two launches from a verified-quiet machine were both invalidated by sibling-project cslib Lean/lake CPU contention (attempt 1 at +85s with lean at 291-467% and lake at 794.8%; attempt 2 after ~46 clean minutes, with a lean worker at ~100% sustained). Neither produced SCAN_COMPLETE or report.json. Resolution requires a host with no Lean or Z3 workload; it does not require any code change.",
+    "The gating oracle suite is RED under rubric category (c) and the gate correctly reports it as RED. This is the task's honest recorded outcome, not an unfinished step. Diagnosing or repairing the underlying defects is an explicit non-goal of this baselining task and needs a follow-up task.",
+    "NEW, needs follow-up: test_mixed_and_all_future_neg fails with OracleTimeoutError at 60000 ms (temporal_depth=1, M=3) and appears in no earlier record. The pass-1 failing set grew from 1 to 2 between two quiet-machine runs on an unchanged tree, so the suite is not stable at its current solve budget.",
+    "code/scripts/compare_bimodal_baseline.sh (Step 7) reports 'regressions' misleadingly: it runs under set -euo pipefail and aborts on the non-zero pytest exit caused by BM_CM_1-example_case7 before reaching any comparison logic. Out of scope here (Step 7 was deliberately untouched); worth a follow-up."
   ],
   "continuation_context": {
-    "handoff_path": "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-5-handoff-20260809144500.md",
     "resume_phase": 4,
     "phases_total": 8,
-    "notes": "Phases 1, 2, 3, 5, 6 are COMPLETED and committed (305f360e, 581ab5e2, 79625302, plus a final commit). Phases 4 and 7 are BLOCKED on machine quietness only — no work product is missing for them. Phase 8 (remove run2/ scratch and the empty baselines/serial-rebaseline/, then final commit) still to run. Do NOT re-run Phases 1-3 or 5-6. Under the standing category (c) determination, Phase 6's marker flip must stay unperformed and Phase 7 is EXPECTED to fail — at Step 6, and now also at Steps 4 and 7. Do not add --skip-oracle to make the gate green and do not report the gate as passing."
-  },
-  "metadata": {
-    "session_id": "sess_1786307124_299f8c",
-    "agent_type": "python-implementation-agent",
-    "rubric_category": "c",
-    "orchestrator_mode": true
+    "what_remains": "Only Phase 4: run `nix develop --command bash oracle/run-oracle-exhaustive-scan.sh` to completion on a host with no Lean or Z3 workload, establish completion from the SCAN_COMPLETE marker (never from PID absence), then record the result per Phase 4's two-branch verification. Do NOT re-derive known_conclusive_complexity5.json or adjust SELF_SCAN_SOLVE_TIMEOUT_MS. All other phases are done or terminal; do not re-open them.",
+    "handoff_path": "specs/127_close_oracle_suite_regression_baseline/handoffs/phase-8-handoff-20260810011500.md"
   }
 }
