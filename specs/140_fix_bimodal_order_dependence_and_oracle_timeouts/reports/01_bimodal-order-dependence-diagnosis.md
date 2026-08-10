@@ -224,6 +224,42 @@ Two symptoms recorded in the original task description did **not** reproduce and
 as stale: `test_mixed_and_all_future_neg` (recorded as a pass-1 timeout) now passes, and
 `test_temporal_propositional_interleaving`'s recorded 900s non-termination did not recur.
 
+### End-to-end gate verification
+
+A full `verify-refactor.sh` run (not `--skip-oracle`) confirms Step 6 against the real gate rather
+than by composition:
+
+| Step | Result |
+|---|---|
+| 1 — in-package bimodal collection | OK, 302 collected (baseline 289) |
+| 2 — full in-package collection | OK, 2181 collected (baseline 2100) |
+| 3 — oracle collection counts | **2 FAILED** (see below); total OK at 606; partition OK |
+| 4 — bimodal in-package suite | OK, **green on first attempt** (no retry needed) |
+| 5 — cross-oracle accommodation guard | OK |
+| 6 — **gating oracle suite** | **OK, green across both passes** (a strict-xfail XPASS would have failed this run) |
+| 7 — `compare_bimodal_baseline.sh` | OK, `0 regressions (matches baseline)` |
+
+The two Step 3 failures are bookkeeping, not regression:
+
+```
+FAIL: oracle gating-parallel collection count is '590', expected exactly 594
+FAIL: oracle xdist_serial collection count is '14', expected exactly 10
+```
+
+These are precisely the four relocated solves — four fewer in the parallel pass, four more in the
+serial pass. The suite total is unchanged at 606 and the partition invariant still holds
+(`590 + 14 + 2 = 606`). The pins are working exactly as intended: they detected a deliberate
+redistribution and are asking to be told it was deliberate. The gate's own message prescribes the
+remedy — "re-pin all four `BASELINE_ORACLE_*` values together".
+
+Re-pinning was deliberately deferred rather than done here, for two reasons. First,
+`verify-refactor.sh` is named in this task's no-weakening constraint, and the authorization
+obtained covered the `xdist_serial` markers only. Second, and more practically: if the serial-pass
+capacity decision (section 9) raises the budget, moves tests back out, or makes those solves fast
+enough to return to the parallel pass, the distribution changes again — so pinning now would mean
+pinning twice. The re-pin is therefore owned by the capacity follow-up, to be done once, after the
+final distribution is known.
+
 ---
 
 ## 8. Standing cautions
