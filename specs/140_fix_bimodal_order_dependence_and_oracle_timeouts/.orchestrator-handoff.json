@@ -1,0 +1,27 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "implement",
+  "status": "partial",
+  "summary": "Item 4 A/B diagnosis complete: the 3 BM_CM_4 oracle failures from pass 1 are a -n6 contention artifact, NOT caused by reset_bound_var_counter() -- all 3 pass serially at both HEAD (59.55s) and pre-fix 29e1fdec (31.07s), via a temp git worktree (removed). No code fix needed/made. test_mixed_and_box_next characterized: 44.16s/44.82s serial (comfortably under its 60000ms budget but only ~25% headroom), same tight-budget profile already fixed for sibling test_mixed_or_diamond_prev in task 139 (widen+xdist_serial) -- that fix pattern is forbidden here by hard constraints, so this is reported not fixed. Step 6 of verify-refactor.sh remains RED.",
+  "artifacts": [
+    {"type": "summary", "path": "specs/140_fix_bimodal_order_dependence_and_oracle_timeouts/summaries/02_oracle-bm-cm4-contention-diagnosis.md"}
+  ],
+  "blockers": [
+    {
+      "description": "test_mixed_and_box_next (oracle/bimodal_logic/tests/test_oracle_interface.py::TestMixedFormulas) OracleTimeoutError under gating suite pass 1 (-n 6). Serial isolation shows a genuine, stable ~44-45s solve against a 60000ms budget (~25% headroom), the same profile task 139 (dd587065) already fixed for sibling test_mixed_or_diamond_prev via timeout_ms 60000->150000 + xdist_serial. That fix is explicitly forbidden by this session's hard constraints (no widening timeouts/markers to get green). Needs a policy decision: either authorize the same widen+xdist_serial treatment as its sibling, or accept this as a known pass-1 flake and document it as such.",
+      "phase": "item-4",
+      "severity": "soft"
+    }
+  ],
+  "next_action_hint": "none",
+  "files_modified": [],
+  "decisions_made": [
+    "BM_CM_4's 3 pass-1 oracle failures are conclusively a -n6 parallel-contention artifact: all 3 tests pass serially at both HEAD (71d437bd) and pre-fix (29e1fdec), ruling out reset_bound_var_counter() as the cause.",
+    "test_mixed_and_box_next's OracleTimeoutError is plausibly the same contention-under-tight-budget mechanism as the already-fixed test_mixed_or_diamond_prev, but its fix is out of scope under the no-widen/no-xdist_serial hard constraint."
+  ],
+  "dead_ends": [],
+  "continuation_context": null,
+  "phases_completed": 4,
+  "phases_total": 4,
+  "plan_markers_verified": false
+}
