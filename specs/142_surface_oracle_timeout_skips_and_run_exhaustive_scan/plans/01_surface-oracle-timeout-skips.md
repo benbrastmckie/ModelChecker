@@ -309,12 +309,12 @@ three theory `__init__.py` files.
 
 ---
 
-### Phase 5: Record the exhaustive-scan cadence decision and ship the staleness check [NOT STARTED]
+### Phase 5: Record the exhaustive-scan cadence decision and ship the staleness check [COMPLETED]
 
 - **Goal:** Turn the research's cadence recommendation into a recorded decision plus the freshness
   alerting it named as the mandatory mitigation, without adding the scan to any gating path.
 - **Tasks:**
-  - [ ] Add a subsection to `code/docs/core/TESTING_GUIDE.md` section 8.8 recording the decision:
+  - [x] Add a subsection to `code/docs/core/TESTING_GUIDE.md` section 8.8 recording the decision:
         the exhaustive scan stays **out of the gating path** (~60 min is incompatible with
         per-commit gating) and is run on a **low-frequency schedule, off-hours, unattended**
         (weekly or merge-to-main), invoking `oracle/run-oracle-exhaustive-scan.sh` **unmodified**.
@@ -322,21 +322,21 @@ three theory `__init__.py` files.
         `disagreements: 0` both times, conclusive 103 and 105 of 274 — and that the 2-formula
         conclusive-count swing is the documented near-budget-headroom contention sensitivity, not a
         regression, since `disagreements == 0` is the property that matters.
-  - [ ] Record the standing constraint explicitly: a cadence decision never licenses an assertion
+  - [x] Record the standing constraint explicitly: a cadence decision never licenses an assertion
         change, and the section's existing "speed comes only from running less redundant work,
         never from weakening assertions" paragraph is left byte-identical.
-  - [ ] Record the mitigation the research required: a scheduled scan that bit-rots silently is the
+  - [x] Record the mitigation the research required: a scheduled scan that bit-rots silently is the
         same failure mode this work exists to fix, so absence of a fresh `SCAN_COMPLETE` marker must
         itself be alertable.
-  - [ ] Add `oracle/check-scan-freshness.sh`: scans `oracle/scan-results/*/SCAN_COMPLETE`, reports
+  - [x] Add `oracle/check-scan-freshness.sh`: scans `oracle/scan-results/*/SCAN_COMPLETE`, reports
         the newest run's timestamp, its age in days, and its `report.json` `disagreements` /
         `conclusive` / `wall_clock_seconds`; exits non-zero when the newest marker is older than a
         cadence window (default 7 days, overridable via `ORACLE_SCAN_MAX_AGE_DAYS`) or when no
         marker exists at all. Marker existence — never PID or process liveness — is the only
         completion signal, matching the contract in section 8.8.
-  - [ ] Point `oracle/run-oracle-exhaustive-scan.sh`'s summary block at the freshness checker so an
+  - [x] Point `oracle/run-oracle-exhaustive-scan.sh`'s summary block at the freshness checker so an
         operator learns of it at the natural moment. Do not otherwise modify that script.
-  - [ ] Note in the docs that wiring the schedule into CI is deliberately not done here — it needs
+  - [x] Note in the docs that wiring the schedule into CI is deliberately not done here — it needs
         its own runner-capacity evaluation (recorded as a follow-up in Phase 7).
 - **Timing:** ~1 hour
 - **Depends on:** none
@@ -355,12 +355,12 @@ three theory `__init__.py` files.
 
 ---
 
-### Phase 6: Document the get_theory(config) no-op contract [NOT STARTED]
+### Phase 6: Document the get_theory(config) no-op contract [COMPLETED]
 
 - **Goal:** Make the silently-ignored `config` argument self-documenting at all three affected
   theories, with zero behavior change and zero call-site breakage.
 - **Tasks:**
-  - [ ] Expand the `get_theory` docstring in
+  - [x] Expand the `get_theory` docstring in
         `code/src/model_checker/theory_lib/bimodal/__init__.py` from "Optional configuration
         (currently unused)" to state the actual contract: `config` is a **signature-uniformity
         placeholder** required by the `TestGetTheoryContract` conformance test, it is accepted and
@@ -369,11 +369,11 @@ three theory `__init__.py` files.
         restriction. Note that bimodal returns all operators including the modal and temporal ones,
         so a nominally "extensional" example still solves over the full world-history-by-time search
         space — the reason some callers pad `max_time`.
-  - [ ] Apply the equivalent docstring clarification to `imposition/__init__.py` and
+  - [x] Apply the equivalent docstring clarification to `imposition/__init__.py` and
         `exclusion/__init__.py`, which carry the byte-identical contract.
-  - [ ] Change no signature, no return value, and no runtime behavior. Do not add a raise, a warning,
+  - [x] Change no signature, no return value, and no runtime behavior. Do not add a raise, a warning,
         or a deprecation.
-  - [ ] Cite durable anchors only (`theory_lib/tests/test_theory_conformance.py`,
+  - [x] Cite durable anchors only (`theory_lib/tests/test_theory_conformance.py`,
         `logos.get_theory`) — no task numbers, per the deliverables rule.
 - **Timing:** ~30 minutes
 - **Depends on:** none
