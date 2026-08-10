@@ -17,7 +17,7 @@ next_project_number: 144
 
 ### Architecture
 
-141 [NOT STARTED] — Nine local branches predate the repository restoration and have n
+141 [IMPLEMENTING] — Nine local branches predate the repository restoration and have n
 
 ### Oracle Verification Coverage
 
@@ -50,10 +50,12 @@ next_project_number: 144
 ---
 
 ### 141. Triage the 9 stale local-only branches, salvage anything of value, then retire them
-- **Status**: [NOT STARTED]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: general
 - **Topic**: architecture
 - **Dependencies**: None
+- **Research**: [141_triage_stale_local_branches_and_salvage_value/reports/01_stale-branch-triage.md]
+- **Plan**: [141_triage_stale_local_branches_and_salvage_value/plans/01_stale-branch-retirement.md]
 
 **Description**: Nine local branches predate the repository restoration and have never been merged or pushed. Decide what in them is still worth keeping, extract exactly that, and only then retire them. Do NOT open by deleting branches.
 
