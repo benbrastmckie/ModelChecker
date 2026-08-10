@@ -1,0 +1,4 @@
+============================= test session starts ==============================
+collected 7 items
+
+code/tests/integration/test_error_handling.py .

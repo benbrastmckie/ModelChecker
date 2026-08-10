@@ -1,0 +1,38 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 14 items
+
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name 
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name PASSED [  7%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection 
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_validates_theory_selection PASSED [ 14%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds PASSED [ 21%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content PASSED [ 28%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_invalid_theory_raises_error PASSED [ 35%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation PASSED [ 42%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_default PASSED [ 50%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_logos PASSED [ 57%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_project_initialization_with_subtheories PASSED [ 64%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_in_readonly_directory_fails_gracefully PASSED [ 71%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error 
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error PASSED [ 78%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_existing_name_handles_appropriately PASSED [ 85%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_very_long_name PASSED [ 92%]
+src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently PASSED [100%]
+
+============================= slowest 5 durations ==============================
+0.02s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_generate_template_creates_valid_content
+0.00s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_logos_project_generation
+==================== 14 passed, 9 subtests passed in 0.43s =====================
+exit=0

@@ -1,0 +1,15 @@
+{
+  "status": "planned",
+  "summary": "Created a 6-phase verification-and-completion plan (not a redo) for the 22 uncommitted fixes already on disk across 11 files. Phase 1 verifies them per-file with a timeout-hardened invocation contract (pytest-timeout 2.4.0 confirmed installed: --timeout=180 --timeout-method=thread, python -u, explicit -v, one file per invocation, tee -a, backgrounded) so a kill can cost at most the in-flight test rather than the whole evidence set, and reconstructs the pre-fix failed-node-id set from the research report since it was never saved to disk. Reading the existing run/per-file-verify.txt against a stable --collect-only ordering shows 4 of 11 files already verified green (test_batch_output_real, models/test_structure, builder/test_project, builder/test_full_pipeline) and identifies 5 suspected still-failing node ids the report did not notice, including test_repeated_operations whose paren fix appears incomplete; Phase 2 fixes those under an explicit three-class rule (max_time-budget vs wall-clock-assertion vs except-branch-defanged assertion). Phase 3 picks ONE determinism mechanism and actually realizes it: the already-applied module-level 'slow' markers plus -m \"not slow\" in code/pyproject.toml addopts (the markers alone were inert, which is why the previous fix changed nothing), and corrects TESTING_GUIDE 8.6's current recommendation to prefer 'pytest -n', which directly contradicts this task's constraint. Phase 4 forces the deferred test_find_next_model_basic decision with a caller-driven rule (recommended outcome: rewrite against the iterate API). Phase 5 produces the post-fix full sweep with the mandated three-way node-id failed-set diff (Removed/Retained/Introduced), using -m \"slow or not slow\" for apples-to-apples comparison against the unfiltered pre-fix 27/2148, plus a documented split-sweep resume path if it is killed. Phase 6 publishes the actual deliverable, code/docs/core/KNOWN_TEST_FAILURES.md, with every row required to correspond to Phase 5's Retained set.",
+  "blockers": [],
+  "continuation_context": null,
+  "next_action_hint": "Run /implement 129 to execute the plan. Phase 1 is a single verification run with no edits; Phases 2, 3, and 4 are wave-2 parallel with disjoint file territories (test files / pyproject+docs / builder test_example.py). Snapshot via .claude/scripts/git-snapshot.sh before Phase 2 since the 22 inherited fixes are still uncommitted. pytest -n is forbidden throughout.",
+  "artifacts": [
+    {
+      "path": "specs/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md",
+      "type": "plan",
+      "summary": "6-phase verification-and-completion plan: timeout-hardened per-file verification of the 22 existing fixes, residual-failure fixes under an explicit max_time-vs-wall-clock-vs-defanged classification rule, completion of the slow-marker determinism mechanism via addopts, resolution of test_find_next_model_basic, post-fix full sweep with node-id failed-set diff, and publication of code/docs/core/KNOWN_TEST_FAILURES.md."
+    }
+  ],
+  "phases_total": 6
+}

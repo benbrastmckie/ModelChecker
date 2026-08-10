@@ -1,0 +1,473 @@
+diff --git a/code/src/model_checker/builder/tests/e2e/test_full_pipeline.py b/code/src/model_checker/builder/tests/e2e/test_full_pipeline.py
+index a7740446..40a296cf 100644
+--- a/code/src/model_checker/builder/tests/e2e/test_full_pipeline.py
++++ b/code/src/model_checker/builder/tests/e2e/test_full_pipeline.py
+@@ -73,9 +73,11 @@ general_settings = {}
+         try:
+             result = self.run_dev_cli([test_file])
+             
+-            # Should produce model output
++            # Should produce model output. Bimodal renders its model as a
++            # "World Histories" table rather than the generic "State Space"
++            # section used by state-based theories.
+             self.assertIn("EXAMPLE", result.stdout)
+-            self.assertIn("State Space", result.stdout)
++            self.assertIn("World Histories", result.stdout)
+             
+             # Should not have Python errors
+             self.assertNotIn("Traceback", result.stderr)
+diff --git a/code/src/model_checker/builder/tests/integration/test_performance.py b/code/src/model_checker/builder/tests/integration/test_performance.py
+index 3d6df03f..c4175865 100644
+--- a/code/src/model_checker/builder/tests/integration/test_performance.py
++++ b/code/src/model_checker/builder/tests/integration/test_performance.py
+@@ -11,6 +11,8 @@ import tempfile
+ import os
+ from unittest.mock import Mock, patch
+ 
++import pytest
++
+ # Import test fixtures
+ from model_checker.builder.tests.fixtures.test_data import (
+     TestTheories, TestExamples, TestModules, TestConstants
+@@ -21,6 +23,13 @@ from model_checker.builder.tests.fixtures.mock_objects import MockObjectFactory
+ from model_checker.builder.module import BuildModule
+ from model_checker.builder.runner import ModelRunner
+ 
++# Wall-clock assertions here are load-sensitive (see TESTING_GUIDE.md 8.6):
++# repeat full-suite sweeps have shown these budgets tripped under
++# concurrent load with no code change. Marked "slow" so a default run can
++# opt out via `-m "not slow"` for deterministic results; run with `-m slow`
++# (or no -m filter) to validate actual performance characteristics.
++pytestmark = pytest.mark.slow
++
+ 
+ class TestBuilderPerformance(unittest.TestCase):
+     """Test builder performance characteristics."""
+diff --git a/code/src/model_checker/builder/tests/unit/test_project.py b/code/src/model_checker/builder/tests/unit/test_project.py
+index a6acac87..ae7caf52 100644
+--- a/code/src/model_checker/builder/tests/unit/test_project.py
++++ b/code/src/model_checker/builder/tests/unit/test_project.py
+@@ -47,9 +47,18 @@ class TestBuildProjectCore(unittest.TestCase):
+         pass
+     
+     def test_project_initialization_default(self):
+-        """Test that BuildProject initializes with logos theory."""
++        """Test that BuildProject initializes with the first registered theory.
++
++        BuildProject() with no argument defers to the first entry in
++        model_checker.registry (see project.py's __init__ docstring and
++        docs/THEORY_ARCHITECTURE.md's Layering section) rather than a
++        hardcoded theory name, so the expected default tracks whichever
++        theory is registered first instead of assuming 'logos'.
++        """
++        from model_checker import registry
++
+         builder = BuildProject()
+-        self.assertEqual(builder.theory, 'logos')
++        self.assertEqual(builder.theory, registry.get_registered()[0])
+         self.assertTrue(os.path.exists(builder.source_dir))
+     
+     def test_project_initialization_logos(self):
+diff --git a/code/src/model_checker/models/tests/unit/test_structure.py b/code/src/model_checker/models/tests/unit/test_structure.py
+index 0dbb4449..df6e15f1 100644
+--- a/code/src/model_checker/models/tests/unit/test_structure.py
++++ b/code/src/model_checker/models/tests/unit/test_structure.py
+@@ -334,7 +334,10 @@ class TestModelDefaultsStructure(unittest.TestCase):
+     def test_attribute_initialization_order(self):
+         """Test critical attribute initialization order for iterator compatibility."""
+         # This is the critical test for iterator regression prevention
+-        with patch('z3.Solver'):  # Mock Z3 solver to avoid actual solving
++        # spec=Solver so real Solver attributes like assert_and_track are
++        # recognized as legitimate (an unspecced Mock treats any attribute
++        # starting with "assert" as a typo guard and raises AttributeError).
++        with patch('z3.Solver', spec=Solver):  # Mock Z3 solver to avoid actual solving
+             model_defaults = ModelDefaults(self.model_constraints, self.settings)
+         
+         # Check that all critical attributes are properly initialized
+diff --git a/code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py b/code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py
+index df8a9144..492b6570 100644
+--- a/code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py
++++ b/code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py
+@@ -226,7 +226,12 @@ class TestBimodalIteratorReal:
+         example_case = [
+             ['(A \\vee B)'],
+             ['(A \\wedge B)'],
+-            {'N': 2, 'M': 2, 'max_time': 2, 'contingent': True, 'iterate': iterate},
++            # max_time generous per TESTING_GUIDE.md 8.6: observed solve
++            # times for this example are 2-4s in isolation and vary further
++            # under full-suite load, so a tight budget here silently
++            # inverts the "First model was not satisfiable" assertion below
++            # into a false negative on a timeout rather than a real result.
++            {'N': 2, 'M': 2, 'max_time': 30, 'contingent': True, 'iterate': iterate},
+         ]
+ 
+         return BuildExample(mock_module, theory, example_case)
+diff --git a/code/tests/e2e/test_batch_output_real.py b/code/tests/e2e/test_batch_output_real.py
+index 2cd9f014..6ae05a62 100644
+--- a/code/tests/e2e/test_batch_output_real.py
++++ b/code/tests/e2e/test_batch_output_real.py
+@@ -38,7 +38,7 @@ semantic_theories = {"test": theory}
+ example_range = {
+     "TEST": [
+         [],        # premises
+-        ["A[]"],   # conclusions (simple atomic proposition)
++        ["A"],     # conclusions (simple atomic proposition)
+         {"N": 2}   # settings
+     ]
+ }
+diff --git a/code/tests/integration/test_error_handling.py b/code/tests/integration/test_error_handling.py
+index 8448f7e7..87cc1391 100644
+--- a/code/tests/integration/test_error_handling.py
++++ b/code/tests/integration/test_error_handling.py
+@@ -259,9 +259,11 @@ class TestEdgeCases:
+         operators = theory['operators']
+ 
+         # Build a very deeply nested formula
+-        formula = "P[]"  # Use proper sentence letter syntax
++        formula = "P"  # Sentence letters are plain alnum tokens
+         for i in range(100):  # 100 levels deep
+-            formula = f"(\\neg {formula})"
++            # \neg is unary; the grammar's parentheses denote binary infix
++            # grouping only, so a unary operator is never wrapped in parens.
++            formula = f"\\neg {formula}"
+ 
+         # Should handle deep nesting (or fail gracefully)
+         try:
+diff --git a/code/tests/integration/test_performance.py b/code/tests/integration/test_performance.py
+index 4d9480fa..c8c4eeb2 100644
+--- a/code/tests/integration/test_performance.py
++++ b/code/tests/integration/test_performance.py
+@@ -10,6 +10,13 @@ import gc
+ from tests.utils.base import BaseModelTest, BaseExampleTest
+ from tests.utils.helpers import create_test_model
+ 
++# Wall-clock assertions here are load-sensitive (see TESTING_GUIDE.md 8.6):
++# repeat full-suite sweeps have shown these budgets tripped under
++# concurrent load with no code change. Marked "slow" so a default run can
++# opt out via `-m "not slow"` for deterministic results; run with `-m slow`
++# (or no -m filter) to validate actual performance characteristics.
++pytestmark = pytest.mark.slow
++
+ 
+ class TestExecutionPerformance(BaseModelTest):
+     """Test execution time performance."""
+@@ -286,7 +293,7 @@ class TestCachingPerformance:
+         # Get a valid operator collection for testing
+         theory = bimodal.get_theory()
+         operators = theory['operators']
+-        formula = "(A[] \\wedge B[]) \\vee (C[] \\wedge D[])"
++        formula = "((A \\wedge B) \\vee (C \\wedge D))"
+ 
+         # First parse (cold)
+         start = time.time()
+@@ -360,7 +367,7 @@ class TestWorstCasePerformance:
+         operators = theory['operators']
+ 
+         # Create formula with many propositions (using proper syntax)
+-        props = [f"p{i}[]" for i in range(30)]
++        props = [f"p{i}" for i in range(30)]
+         formula = " \\wedge ".join(props)
+         formula = f"({formula})"
+ 
+diff --git a/code/tests/integration/test_timeout_resources.py b/code/tests/integration/test_timeout_resources.py
+index 35f85884..44083dd4 100644
+--- a/code/tests/integration/test_timeout_resources.py
++++ b/code/tests/integration/test_timeout_resources.py
+@@ -10,6 +10,14 @@ import threading
+ from unittest.mock import patch, Mock
+ from tests.utils.helpers import create_test_module, create_test_model
+ 
++# Timing/subprocess-timeout assertions here are load-sensitive (see
++# TESTING_GUIDE.md 8.6): repeat full-suite sweeps have shown these budgets
++# tripped under concurrent load with no code change. Marked "slow" so a
++# default run can opt out via `-m "not slow"` for deterministic results;
++# run with `-m slow` (or no -m filter) to validate actual timeout/resource
++# handling.
++pytestmark = pytest.mark.slow
++
+ 
+ class TestTimeoutHandling:
+     """Test timeout handling in various components."""
+@@ -115,7 +123,7 @@ class TestResourceLimits:
+         """Test handling of many propositions."""
+         # Create many propositions
+         num_props = 50
+-        assumptions = [f"p{i}[]" for i in range(num_props)]
++        assumptions = [f"p{i}" for i in range(num_props)]
+ 
+         settings = {'N': 4}
+ 
+diff --git a/code/tests/utils/helpers.py b/code/tests/utils/helpers.py
+index fe9e3bb1..e8b1bb40 100644
+--- a/code/tests/utils/helpers.py
++++ b/code/tests/utils/helpers.py
+@@ -253,7 +253,7 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
+     Args:
+         settings: Optional settings dictionary (merged with defaults)
+         premises: Optional list of premise formulas (defaults to [])
+-        conclusions: Optional list of conclusion formulas (defaults to ['A[]'])
++        conclusions: Optional list of conclusion formulas (defaults to ['A'])
+         theory_name: Name of the theory to use (defaults to 'logos')
+ 
+     Returns:
+@@ -282,13 +282,15 @@ def create_test_model(settings: Optional[Dict[str, Any]] = None,
+     if premises is None:
+         premises = []
+     if conclusions is None:
+-        conclusions = ['A[]']  # Simple valid formula
++        conclusions = ['A']  # Simple valid atomic sentence letter
+ 
+     # Create Syntax
+     syntax = Syntax(premises, conclusions, operators)
+ 
+-    # Create Semantics instance
+-    semantics = semantics_class(full_settings, syntax)
++    # Create Semantics instance (matches builder/example.py's
++    # self.semantics(self.settings) call -- semantics classes take only
++    # settings, not syntax)
++    semantics = semantics_class(full_settings)
+ 
+     # Create ModelConstraints
+     model_constraints = ModelConstraints(full_settings, syntax, semantics, proposition_class)
+diff --git a/specs/116_draft_email_modelchecker_architecture/email-draft.md b/specs/116_draft_email_modelchecker_architecture/email-draft.md
+index 6858371f..69eb156e 100644
+--- a/specs/116_draft_email_modelchecker_architecture/email-draft.md
++++ b/specs/116_draft_email_modelchecker_architecture/email-draft.md
+@@ -1,69 +1,20 @@
+-Subject: How ModelChecker's modular architecture works
++Subject: ModelChecker
+ 
+-Hi [Name],
++Hi Joel,
+ 
+-I wanted to give you a quick tour of ModelChecker's architecture, since I think you'll appreciate
+-how the extension mechanism is put together. ModelChecker is a Python framework for automating
+-Z3-backed model/countermodel search across several modal, counterfactual, and hyperintensional
+-semantic theories, built so a new theory or a new logical operator can be added without touching
+-the shared engine.
++Thanks for interviewing me last week. I'm sorry I was not better prepared. It's honestly been a while since I have been working in python, but wanted to give you a quick tour of the ModelChecker's architecture which was written in Python, importing Z3. 
+ 
+-**Layered architecture.** There's a shared, theory-agnostic core: `models/` holds the semantics
+-base class, the bridge that turns parsed formulas into Z3 constraints, and the solver-facing
+-model structure and proposition classes; `syntactic/` holds parsing and the operator base
+-classes; `solver/` is a thin Z3/cvc5 backend abstraction. On top of that, each theory
+-(`theory_lib/logos`, `exclusion`, `imposition`, `bimodal`) supplies its own semantic primitives
+-and its own operator set. Logos further splits its 20+ operators into subtheories (extensional,
+-modal, constitutive, counterfactual, relevance, first-order) that get loaded à la carte.
++The ModelChecker automates Z3-backed model search for in an extensible language with Boolean, modal, counterfactual conditional, and constitutive explanatory operators. The version on https://pypi.org/project/model-checker/ is in good shape, though the CLI I have on GitHub is mid-refactor, so best to pip install if you wanted to test it.
+ 
+-**The pipeline.** This is the live, currently-exercised path — it's exactly what every theory's
+-pytest suite runs, via `Syntax` → `Semantics` → `ModelConstraints` → `ModelStructure`, not a CLI
+-tool (worth flagging: the `model-checker` command-line entry point is mid-refactor and not
+-functional right now, so I'm describing the programmatic API, which is stable). Concretely: a
+-formula string is parsed by `Syntax` into a `Sentence` tree, resolving operator symbols against
+-the theory's operator collection. `Semantics` then declares the theory's Z3 primitives (for
+-logos: `verify`, `falsify`, `possible`, as Z3 uninterpreted functions) plus frame constraints.
+-`ModelConstraints` is the bridge: it binds one instance of each operator to that semantics
+-object, walks the sentence tree, and assembles everything — frame constraints, per-letter model
+-constraints, premise and conclusion constraints — into a single list of Z3 `BoolRef` assertions,
+-i.e. compiled into SMT-level constraints. `ModelStructure.solve()` hands those to Z3 (via the
+-`solver/` abstraction) and gets back sat/unsat plus a model. Finally `interpret()`/`print_all()`
+-walk the same `Sentence` tree again, calling back into each operator's own
+-`find_verifiers_and_falsifiers()` and `print_method()` to turn the solved Z3 model into a
+-human-readable countermodel or proof.
++There's a shared, theory-agnostic core: `models/` holds the semantics base class, the bridge that turns parsed formulas into Z3 constraints, and the solver-facing model structure and proposition classes; `syntactic/` holds parsing and the operator base classes; `solver/` is a thin Z3/cvc5 backend abstraction. On top of that, each theory in `theory_lib/` supplies its own semantic primitives and its own operator set. The `logos/` theory further splits its operators into subtheories (extensional, modal, constitutive, counterfactual, relevance) that get loaded à la carte.
+ 
+-**The operator abstraction.** This is the actual extension point. Every operator is a small
+-Python class subclassing `syntactic.Operator` (or `syntactic.DefinedOperator`, for operators
+-defined in terms of others) that implements a fixed contract: `true_at`, `false_at`,
+-`extended_verify`, `extended_falsify`, `find_verifiers_and_falsifiers`, and `print_method`. The
+-shared semantics and model-structure code dispatches *into* these methods rather than the other
+-way around — an operator is free to call back into the shared semantics object's own primitives
+-(`is_part_of`, `fusion`, `compatible`, or theory-specific relations) to state its truth
+-conditions in terms of that theory's resources.
++The pipeline is what every theory's pytest suite runs, via `Syntax` → `Semantics` → `ModelConstraints` → `ModelStructure`. Concretely, a formula string is parsed by `Syntax` into a `Sentence` tree, resolving operator symbols against the theory's operator collection. `Semantics` then declares the theory's Z3 primitives (for logos: `verify`, `falsify`, `possible`, as Z3 uninterpreted functions) plus frame constraints. `ModelConstraints` is the bridge: it binds one instance of each operator to that semantics object, walks the sentence tree, and assembles everything — frame constraints, per-letter model constraints, premise and conclusion constraints — into a single list of Z3 `BoolRef` assertions to satisfy. `ModelStructure.solve()` hands those to Z3 (via the `solver/` abstraction) and gets back sat/unsat plus a model. Finally `interpret()`/`print_all()` walk the same `Sentence` tree again, calling back into each operator's own `find_verifiers_and_falsifiers()` and `print_method()` to turn the solved Z3 model into a human-readable countermodel or proof.
+ 
+-**Worked example.** `theory_lib/logos/subtheories/counterfactual/operators.py` is a clean,
+-self-contained illustration. `CounterfactualOperator` (the primitive `\boxright`, "if A were the
+-case, B would be the case") implements `true_at` as a quantified Z3 formula — `ForAll([x, u],
+-Implies(And(extended_verify(x, A, eval_point), is_alternative(u, x, world)), true_at(B,
+-with_world(eval_point, u))))` — using two fresh Z3 bitvectors and the shared `is_alternative`
+-relation (a world-shifting helper built from `is_world`/`is_part_of`/`max_compatible_part`).
+-`extended_verify` uses a neat "world-identity" trick: a state verifies the whole conditional iff
+-that state *is* the evaluation world and the conditional is true there. `find_verifiers_and_falsifiers`
+-is pure post-solve logic — it reads the solved Z3 model directly and classifies each world as a
+-verifier or falsifier by checking whether all of the antecedent's alternative worlds satisfy the
+-consequent. And `print_method` doesn't reinvent rendering — it just delegates to the inherited
+-`print_over_worlds` helper from the `Operator` base class, showing the antecedent in the
+-evaluation world and the consequent in each alternative world. `MightCounterfactualOperator`
+-(`\diamondright`) is the `DefinedOperator` counterpart: `A ◇→ B := ¬(A □→ ¬B)`, built by
+-instantiating `CounterfactualOperator` internally rather than duplicating its logic.
++I was careful to design the architecture for modularity and extensibility so that every operator is a small Python class that implements a fixed contract: `true_at`, `false_at`, `extended_verify`, `extended_falsify`, `find_verifiers_and_falsifiers`, and `print_method`. The shared semantics and model-structure code dispatches into these methods rather than the other way around — an operator is free to call back into the shared semantics object's own primitives (`is_part_of`, `fusion`, `compatible`, or theory-specific relations) to state its truth conditions in terms of that theory's resources. You can find a self-contained example in `theory_lib/logos/subtheories/counterfactual/operators.py`.
+ 
+-That one file touches every stage of the pipeline — quantified constraint-building, the
+-verifier/falsifier trick, post-solve interpretation, and printing — while staying under 320
+-lines. New theories and operators get added the same way: subclass the same handful of base
+-classes and supply those six methods. Right now that's 4 theories and 25+ operators sharing one
+-engine.
++That one file touches every stage of the pipeline — quantified constraint-building, the verifier/falsifier trick, post-solve interpretation, and printing — while staying under 320 lines. New theories and operators get added the same way: subclass the same handful of base classes and supply those six methods. Right now that's four theories and around twenty operators sharing one engine.
+ 
+ Happy to walk through the Z3 side in more depth if useful.
+ 
+ Best,
+-[Your name]
++Ben
+diff --git a/specs/129_triage_preexisting_test_failure_backlog/.lock/holder.json b/specs/129_triage_preexisting_test_failure_backlog/.lock/holder.json
+index e7a696b3..1725bcaf 100644
+--- a/specs/129_triage_preexisting_test_failure_backlog/.lock/holder.json
++++ b/specs/129_triage_preexisting_test_failure_backlog/.lock/holder.json
+@@ -1,8 +1,8 @@
+ {
+   "session_id": "sess_1784959703_c3da6e_129",
+   "task_number": 129,
+-  "operation": "research",
+-  "acquired_at": "2026-07-25T14:38:01Z",
+-  "heartbeat_at": "2026-07-25T14:38:01Z",
++  "operation": "implement",
++  "acquired_at": "2026-07-25T15:21:02Z",
++  "heartbeat_at": "2026-07-25T15:21:02Z",
+   "command": "/orchestrate (multi-task)"
+ }
+diff --git a/specs/TODO.md b/specs/TODO.md
+index 6aa9d6f8..6b3c1716 100644
+--- a/specs/TODO.md
++++ b/specs/TODO.md
+@@ -23,7 +23,7 @@ next_project_number: 131
+ ### Testing
+ 
+ 127 [PARTIAL] — Complete the oracle differential-suite regression baseline that t
+-129 [RESEARCHING] — Triage and document the pre-existing test failure backlog so futu
++129 [IMPLEMENTING] — Triage and document the pre-existing test failure backlog so futu
+ 
+ ## Tasks
+ 
+@@ -41,10 +41,12 @@ next_project_number: 131
+ ---
+ 
+ ### 129. Triage preexisting test failure backlog
+-- **Status**: [RESEARCHING]
++- **Status**: [IMPLEMENTING]
+ - **Task Type**: python
+ - **Topic**: testing
+ - **Dependencies**: Task 128, Task 130
++- **Research**: [129_triage_preexisting_test_failure_backlog/reports/01_known-failures-baseline.md]
++- **Plan**: [129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md]
+ 
+ **Description**: Triage and document the pre-existing test failure backlog so future refactors can diff cleanly against a known-good baseline. A full sweep (PYTHONPATH=code/src pytest code/src/model_checker/ code/tests/) currently reports 27 failures against 2148 passing, all of which reproduce at the pre-refactor baseline commit 6cfb7f48 and are therefore unrelated to the core/theory_lib refactor. They fall into two groups. The larger group is environment-sensitive: roughly 16 timing and resource tests across tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and builder/tests/integration/test_performance.py, whose pass/fail state flips with machine load (a repeat sweep varied between 27 and 30 failures). These should either be marked resource-dependent, given explicit tolerances, or moved behind an opt-in marker so that a default run is deterministic. The smaller group is genuine defects worth fixing: a ModuleNotFoundError for a missing tests.fixtures.example_data module, an AttributeError from mock-spec misuse ('assert_and_track' is not a valid assertion), and ValueError expectation drift in error-handling tests ('Empty token list' and 'The expression [] is incomplete'). Deliver a categorized known-failures baseline document plus fixes for the genuine defects.
+ 
+diff --git a/specs/events.jsonl b/specs/events.jsonl
+index 62f1181d..3c70f897 100644
+--- a/specs/events.jsonl
++++ b/specs/events.jsonl
+@@ -144,3 +144,65 @@
+ {"event_id":"evt_1784911683390_M9XGw0","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T16:48:03.397Z","duration_seconds":null,"session_id":"sess_1784910073_5474fc","task":117,"checkpoint":null,"message":"Session stop observed for task 117","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
+ {"event_id":"evt_1784913185589_YvS1nI","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T17:13:05.598Z","duration_seconds":null,"session_id":"sess_1784910073_5474fc","task":117,"checkpoint":null,"message":"Session stop observed for task 117","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
+ {"event_id":"evt_1784916193131_QoxfcQ","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T18:03:13.139Z","duration_seconds":null,"session_id":"sess_1784910073_5474fc","task":117,"checkpoint":null,"message":"Session stop observed for task 117","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784917917195_Coorhk","event_type":"artifact_write","category":"success","timestamp":"2026-07-24T18:31:57.199Z","duration_seconds":null,"session_id":"sess_1784910073_5474fc","task":117,"checkpoint":null,"message":"Artifact metadata written with status 'implemented'","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784918002667_efdePU","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T18:33:22.671Z","duration_seconds":null,"session_id":"sess_1784916137_a212ff","task":117,"checkpoint":null,"message":"Session stop observed for task 117","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784921108260_oOmTNb","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T19:25:08.264Z","duration_seconds":null,"session_id":"sess_1784916137_a212ff","task":117,"checkpoint":null,"message":"Session stop observed for task 117","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784921945290_lbXeEd","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T19:39:05.294Z","duration_seconds":null,"session_id":"sess_1784921778_5ba3c4","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784921962666_D81Fhm","event_type":"subagent_stop","category":"milestone","timestamp":"2026-07-24T19:39:22.670Z","duration_seconds":null,"session_id":"sess_1784921778_5ba3c4","task":126,"checkpoint":"postflight","message":"Subagent stop for skill-planner (plan)","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784921982220_DGkcjz","event_type":"subagent_stop","category":"milestone","timestamp":"2026-07-24T19:39:42.224Z","duration_seconds":null,"session_id":"sess_1784921778_5ba3c4","task":126,"checkpoint":"postflight","message":"Subagent stop for skill-planner (plan)","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784921992892_bhwSz9","event_type":"subagent_stop","category":"milestone","timestamp":"2026-07-24T19:39:52.897Z","duration_seconds":null,"session_id":"sess_1784921778_5ba3c4","task":126,"checkpoint":"postflight","message":"Subagent stop for skill-planner (plan)","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784921994572_2fMwyn","event_type":"subagent_stop","category":"milestone","timestamp":"2026-07-24T19:39:54.576Z","duration_seconds":null,"session_id":"sess_1784921778_5ba3c4","task":126,"checkpoint":"postflight","message":"Subagent stop for skill-planner (unknown)","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784922929016_9kxRpB","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T19:55:29.020Z","duration_seconds":null,"session_id":"sess_1784921778_5ba3c4","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784924198638_XHlI70","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T20:16:38.642Z","duration_seconds":null,"session_id":"sess_1784924153_0845e6","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784924900916_MtfazA","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T20:28:20.920Z","duration_seconds":null,"session_id":"sess_1784924153_0845e6","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784925856681_WlIcj0","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T20:44:16.685Z","duration_seconds":null,"session_id":"sess_1784924153_0845e6","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784927486833_DqRn7U","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T21:11:26.837Z","duration_seconds":null,"session_id":"sess_1784924153_0845e6","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784927788357_A2ryyo","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T21:16:28.362Z","duration_seconds":null,"session_id":"sess_1784924153_0845e6","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784928897339_jsiFlb","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T21:34:57.344Z","duration_seconds":null,"session_id":"sess_1784924153_0845e6","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784930761365_pGV3Hq","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T22:06:01.368Z","duration_seconds":null,"session_id":"sess_1784924153_0845e6","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784932211507_IeqVB1","event_type":"lifecycle_stage","category":"milestone","timestamp":"2026-07-24T22:30:11.511Z","duration_seconds":0.757,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":"preflight","message":"Preflight stage completed for implement","detail":{},"error_ref":null,"cwd":null}
++{"event_id":"evt_1784932233894_rriviJ","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T22:30:33.898Z","duration_seconds":null,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784937448463_HE9f4q","event_type":"lifecycle_stage","category":"milestone","timestamp":"2026-07-24T23:57:28.467Z","duration_seconds":0.763,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":"preflight","message":"Preflight stage completed for implement","detail":{},"error_ref":null,"cwd":null}
++{"event_id":"evt_1784937471735_yicLaE","event_type":"session_stop","category":"milestone","timestamp":"2026-07-24T23:57:51.739Z","duration_seconds":null,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784939346335_WIOZFO","event_type":"lifecycle_stage","category":"milestone","timestamp":"2026-07-25T00:29:06.338Z","duration_seconds":0.759,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":"preflight","message":"Preflight stage completed for implement","detail":{},"error_ref":null,"cwd":null}
++{"event_id":"evt_1784939386206_kQcTfS","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T00:29:46.209Z","duration_seconds":null,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784943877616_hlATQ7","event_type":"lifecycle_stage","category":"milestone","timestamp":"2026-07-25T01:44:37.620Z","duration_seconds":0.762,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":"preflight","message":"Preflight stage completed for implement","detail":{},"error_ref":null,"cwd":null}
++{"event_id":"evt_1784943911119_tdCjee","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T01:45:11.123Z","duration_seconds":null,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784948785594_DkGBzd","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T03:06:25.600Z","duration_seconds":null,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784958791415_oL4alJ","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T05:53:11.419Z","duration_seconds":null,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784959561425_Hvv4g9","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:06:01.429Z","duration_seconds":null,"session_id":"sess_1784932169_adc11f","task":126,"checkpoint":null,"message":"Session stop observed for task 126","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784959832180_AeysrA","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:10:32.184Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_130","task":130,"checkpoint":null,"message":"Session stop observed for task 130","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784959986246_fT4Fj5","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:13:06.250Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_128","task":128,"checkpoint":null,"message":"Session stop observed for task 128","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784959995453_Ny6oSg","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:13:15.459Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_128","task":128,"checkpoint":null,"message":"Session stop observed for task 128","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960150608_GBsOCJ","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:15:50.612Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_128","task":128,"checkpoint":null,"message":"Session stop observed for task 128","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960179333_w3R9HW","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:16:19.338Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_128","task":128,"checkpoint":null,"message":"Session stop observed for task 128","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960287488_Piwbc6","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:18:07.492Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_130","task":130,"checkpoint":null,"message":"Session stop observed for task 130","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960296547_m6wPCT","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:18:16.551Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_130","task":130,"checkpoint":null,"message":"Session stop observed for task 130","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960378048_ExcEIb","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:19:38.052Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_130","task":130,"checkpoint":null,"message":"Session stop observed for task 130","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960417560_qjcEnk","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:20:17.564Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960491365_1nPuvO","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:21:31.369Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_130","task":130,"checkpoint":null,"message":"Session stop observed for task 130","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784960686110_P6P9Pr","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:24:46.114Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784961172786_1PkUzQ","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:32:52.791Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784961182254_3IOQaK","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:33:02.258Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784961218004_bO1sY8","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:33:38.010Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784961240854_GMulgP","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:34:00.859Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784961458911_PNqBYq","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T06:37:38.916Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784963922019_J4j520","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T07:18:42.025Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784964165964_QIm6Zl","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T07:22:45.968Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784987637344_tttF80","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T13:53:57.348Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784987752714_4TWqRR","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T13:55:52.718Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784987923853_s32aXi","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T13:58:43.857Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784987968827_UTKMxn","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T13:59:28.830Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784988001095_EmWFmo","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:00:01.100Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784988006151_4dumiu","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:00:06.155Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784988090747_BHyUZ0","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:01:30.751Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784988148246_iC8jwG","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:02:28.250Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784990089997_xsMiZO","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:34:50.001Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_127","task":127,"checkpoint":null,"message":"Session stop observed for task 127","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784990317447_PsQZjY","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:38:37.451Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784990374140_upnKeu","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:39:34.143Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784990401009_ExzgXa","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:40:01.012Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784991377881_r0kcR6","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T14:56:17.886Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784991833690_bCJa3z","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T15:03:53.693Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784992501683_Werk8J","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T15:15:01.686Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784992514465_QftvES","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T15:15:14.469Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
++{"event_id":"evt_1784992892052_ggO5Ug","event_type":"session_stop","category":"milestone","timestamp":"2026-07-25T15:21:32.056Z","duration_seconds":null,"session_id":"sess_1784959703_c3da6e_129","task":129,"checkpoint":null,"message":"Session stop observed for task 129","detail":{},"error_ref":null,"cwd":"/home/benjamin/Projects/ModelChecker"}
+diff --git a/specs/state.json b/specs/state.json
+index 6a8af317..81961345 100644
+--- a/specs/state.json
++++ b/specs/state.json
+@@ -74,7 +74,7 @@
+     {
+       "project_number": 129,
+       "project_name": "triage_preexisting_test_failure_backlog",
+-      "status": "researching",
++      "status": "implementing",
+       "task_type": "python",
+       "topic": "testing",
+       "description": "Triage and document the pre-existing test failure backlog so future refactors can diff cleanly against a known-good baseline. A full sweep (PYTHONPATH=code/src pytest code/src/model_checker/ code/tests/) currently reports 27 failures against 2148 passing, all of which reproduce at the pre-refactor baseline commit 6cfb7f48 and are therefore unrelated to the core/theory_lib refactor. They fall into two groups. The larger group is environment-sensitive: roughly 16 timing and resource tests across tests/integration/test_performance.py, tests/integration/test_timeout_resources.py, and builder/tests/integration/test_performance.py, whose pass/fail state flips with machine load (a repeat sweep varied between 27 and 30 failures). These should either be marked resource-dependent, given explicit tolerances, or moved behind an opt-in marker so that a default run is deterministic. The smaller group is genuine defects worth fixing: a ModuleNotFoundError for a missing tests.fixtures.example_data module, an AttributeError from mock-spec misuse ('assert_and_track' is not a valid assertion), and ValueError expectation drift in error-handling tests ('Empty token list' and 'The expression [] is incomplete'). Deliver a categorized known-failures baseline document plus fixes for the genuine defects.",
+@@ -83,16 +83,29 @@
+         "code/tests/e2e/",
+         "code/tests/fixtures/",
+         "code/src/model_checker/builder/tests/",
+-        "code/src/model_checker/models/tests/"
++        "code/src/model_checker/models/tests/",
++        "code/tests/utils/helpers.py",
++        "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py"
+       ],
+       "dependencies": [
+         128,
+         130
+       ],
+       "next_artifact_number": 1,
+-      "artifacts": [],
++      "artifacts": [
++        {
++          "path": "specs/129_triage_preexisting_test_failure_backlog/reports/01_known-failures-baseline.md",
++          "type": "report",
++          "summary": "Triaged all 27 failures at HEAD; root-caused to a broken create_test_model helper and stale bracket-suffix sentence-letter syntax. 22 fixes applied but unverified (verification run timed out)."
++        },
++        {
++          "path": "specs/129_triage_preexisting_test_failure_backlog/plans/01_verify-fixes-baseline-doc.md",
++          "type": "plan",
++          "summary": "6-phase verification-and-completion plan: timeout-hardened per-file verification of the 22 existing fixes, residual-failure fixes under an explicit max_time-vs-wall-clock-vs-defanged classification rule, completion of the slow-marker determinism mechanism via addopts, resolution of test_find_next_model_basic, post-fix full sweep with node-id failed-set diff, and publication of code/docs/core/KNOWN_TEST_FAILURES.md."
++        }
++      ],
+       "created": "2026-07-25T05:52:48Z",
+-      "last_updated": "2026-07-25T14:38:01Z",
++      "last_updated": "2026-07-25T15:21:02Z",
+       "session_id": "sess_1784959703_c3da6e_129"
+     },
+     {

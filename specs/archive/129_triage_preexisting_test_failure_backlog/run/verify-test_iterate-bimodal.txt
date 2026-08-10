@@ -1,0 +1,28 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 7 items
+
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorMocked::test_basic_iteration PASSED [ 14%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorMocked::test_bimodal_specific_differences PASSED [ 28%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorMocked::test_iterate_example_function PASSED [ 42%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorMocked::test_create_difference_constraint_uses_valid_semantics_attributes PASSED [ 57%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_example_generator_is_exposed_on_package PASSED [ 71%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_two_produces_distinct_models PASSED [ 85%]
+src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_example_generator_yields_models PASSED [100%]
+
+============================= slowest 5 durations ==============================
+33.73s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_example_generator_yields_models
+31.60s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorReal::test_iterate_two_produces_distinct_models
+0.01s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorMocked::test_basic_iteration
+0.00s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorMocked::test_bimodal_specific_differences
+0.00s call     src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py::TestBimodalIteratorMocked::test_create_difference_constraint_uses_valid_semantics_attributes
+========================= 7 passed in 65.80s (0:01:05) =========================
+exit=0

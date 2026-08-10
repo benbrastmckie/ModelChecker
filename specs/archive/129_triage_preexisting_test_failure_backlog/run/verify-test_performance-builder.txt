@@ -1,0 +1,284 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 10 items
+
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance PASSED [ 10%]
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_constraint_generation_scales_linearly PASSED [ 20%]
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_large_model_generation_completes_within_timeout PASSED [ 30%]
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_generation_completes_within_timeout PASSED [ 40%]
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_module_loading_performance PASSED [ 50%]
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently FAILED [ 60%]
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_serialization_performance PASSED [ 70%]
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly FAILED [ 80%]
+src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_memory_usage_stays_within_bounds PASSED [ 90%]
+src/model_checker/builder/tests/integration/test_performance.py::TestMemoryUsage::test_no_memory_leaks_in_iteration PASSED [100%]
+
+=================================== FAILURES ===================================
+______ TestBuilderPerformance.test_multiple_examples_process_efficiently _______
+
+self = <src.model_checker.builder.tests.integration.test_performance.TestBuilderPerformance testMethod=test_multiple_examples_process_efficiently>
+
+        def test_multiple_examples_process_efficiently(self):
+            """Test processing multiple examples completes efficiently.
+    
+            This verifies that batch processing of multiple examples
+            doesn't have excessive overhead between examples.
+            """
+            # Arrange
+            test_file = self._create_test_file("""
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Test": theory}
+    example_range = {
+        "EX1": [["A"], ["B"], {"N": 2}],
+        "EX2": [["C"], ["D"], {"N": 2}],
+        "EX3": [["E"], ["F"], {"N": 2}],
+        "EX4": [["G"], ["H"], {"N": 2}],
+        "EX5": [["I"], ["J"], {"N": 2}]
+    }
+    general_settings = {}
+    """)
+    
+            flags = Mock(
+                file_path=test_file,
+                comparison=False,
+                interactive=False,
+                iterations=False,
+                quiet=True,
+                output=None,
+                save=None,  # No saving
+                sequential=False,  # Matches real --sequential/-q argparse default;
+                                    # a bare Mock() auto-creates a truthy attribute
+                                    # otherwise (see output/config.py sequential logic).
+                _parsed_args=[]
+            )
+    
+            # Act
+            start_time = time.time()
+            build_module = BuildModule(flags)
+            build_module.runner.run_examples()
+            elapsed_time = time.time() - start_time
+    
+            # Calculate average time per example
+            avg_time = elapsed_time / 5
+    
+            # Assert - Use more reasonable thresholds for robustness
+            # Allow 250ms per example to account for system variance
+>           self.assertLess(avg_time, 0.5,
+                           f"Average time per example should be <500ms, was {avg_time:.3f}s")
+E                          AssertionError: 1.1782798767089844 not less than 0.5 : Average time per example should be <500ms, was 1.178s
+
+src/model_checker/builder/tests/integration/test_performance.py:219: AssertionError
+----------------------------- Captured stdout call -----------------------------
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX1 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX1: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. A
+
+Conclusion:
+2. B
+
+Solver Run Time: 1.0003 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX2 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX2: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. C
+
+Conclusion:
+2. D
+
+Solver Run Time: 1.0002 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX3 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX3: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. E
+
+Conclusion:
+2. F
+
+Solver Run Time: 1.0084 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX4 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX4: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. G
+
+Conclusion:
+2. H
+
+Solver Run Time: 1.0002 seconds
+
+========================================
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example EX5 found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE EX5: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. I
+
+Conclusion:
+2. J
+
+Solver Run Time: 1.0002 seconds
+
+========================================
+_____ TestBuilderPerformance.test_small_model_generation_completes_quickly _____
+
+self = <src.model_checker.builder.tests.integration.test_performance.TestBuilderPerformance testMethod=test_small_model_generation_completes_quickly>
+
+        def test_small_model_generation_completes_quickly(self):
+            """Test small model (N=2) generation completes in <500ms.
+    
+            This ensures that simple model checking problems complete quickly,
+            providing fast feedback for basic logical arguments.
+            """
+            # Arrange
+            test_file = self._create_test_file("""
+    from model_checker.theory_lib.bimodal import get_theory
+    
+    theory = get_theory(['extensional'])
+    semantic_theories = {"Test": theory}
+    example_range = {"SMALL": [["A"], ["B"], {"N": 2}]}
+    general_settings = {}
+    """)
+    
+            flags = Mock(
+                file_path=test_file,
+                comparison=False,
+                interactive=False,
+                iterations=False,
+                quiet=True,
+                output=None,
+                save=None,  # No saving
+                sequential=False,  # Matches real --sequential/-q argparse default;
+                                    # a bare Mock() auto-creates a truthy attribute
+                                    # otherwise (see output/config.py sequential logic).
+                _parsed_args=[]
+            )
+    
+            # Act
+            start_time = time.time()
+            build_module = BuildModule(flags)
+            build_module.runner.run_examples()
+            elapsed_time = time.time() - start_time
+    
+            # Assert
+>           self.assertLess(elapsed_time, 0.5,
+                           f"Small model should complete in <500ms, took {elapsed_time:.3f}s")
+E                          AssertionError: 1.1624724864959717 not less than 0.5 : Small model should complete in <500ms, took 1.162s
+
+src/model_checker/builder/tests/integration/test_performance.py:85: AssertionError
+----------------------------- Captured stdout call -----------------------------
+Warning: Unknown example setting 'show_countdown' not in Test's DEFAULT_EXAMPLE_SETTINGS
+
+TIMEOUT: Model search exceeded maximum time of 1 seconds
+No model for example SMALL found before timeout.
+Try increasing max_time > 1.
+
+========================================
+
+EXAMPLE SMALL: there is no countermodel.
+
+Atomic States: 2
+
+Semantic Theory: Test
+
+Premise:
+1. A
+
+Conclusion:
+2. B
+
+Solver Run Time: 1.0015 seconds
+
+========================================
+=============================== warnings summary ===============================
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance
+src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_comparison_mode_performance
+  /nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/multiprocessing/popen_fork.py:67: DeprecationWarning: This process (pid=2361767) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+============================= slowest 5 durations ==============================
+5.89s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently
+4.00s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_constraint_generation_scales_linearly
+1.16s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly
+1.15s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_medium_model_generation_completes_within_timeout
+1.13s call     src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_large_model_generation_completes_within_timeout
+=========================== short test summary info ============================
+FAILED src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_multiple_examples_process_efficiently - AssertionError: 1.1782798767089844 not less than 0.5 : Average time per example should be <500ms, was 1.178s
+FAILED src/model_checker/builder/tests/integration/test_performance.py::TestBuilderPerformance::test_small_model_generation_completes_quickly - AssertionError: 1.1624724864959717 not less than 0.5 : Small model should complete in <500ms, took 1.162s
+=================== 2 failed, 8 passed, 2 warnings in 14.27s ===================
+exit=1

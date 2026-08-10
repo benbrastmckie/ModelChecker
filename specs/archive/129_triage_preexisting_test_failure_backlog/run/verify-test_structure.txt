@@ -1,0 +1,37 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 16 items
+
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_attribute_initialization_order PASSED [  6%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_check_result PASSED [ 12%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_cleanup_solver_resources PASSED [ 18%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_create_result PASSED [ 25%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_initialization PASSED [ 31%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_interpret_method PASSED [ 37%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_process_solver_results_sat PASSED [ 43%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_process_solver_results_timeout PASSED [ 50%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_process_solver_results_unsat PASSED [ 56%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_re_solve PASSED [ 62%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_re_solve_unknown_non_timeout_reason_is_not_reported_unsat PASSED [ 68%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_setup_solver PASSED [ 75%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_solve_satisfiable PASSED [ 81%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_solve_unknown_non_timeout_reason_is_not_reported_unsat PASSED [ 87%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_solve_unsatisfiable PASSED [ 93%]
+src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_solver_isolation PASSED [100%]
+
+============================= slowest 5 durations ==============================
+0.02s call     src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_attribute_initialization_order
+0.00s call     src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_check_result
+0.00s call     src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_cleanup_solver_resources
+0.00s call     src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_solver_isolation
+0.00s call     src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_solve_satisfiable
+============================== 16 passed in 0.39s ==============================
+exit=0

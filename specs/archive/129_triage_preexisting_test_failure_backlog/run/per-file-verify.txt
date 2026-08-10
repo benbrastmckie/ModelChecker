@@ -1,0 +1,82 @@
+=== code/tests/integration/test_error_handling.py ===
+============================= test session starts ==============================
+collected 28 items
+
+code/tests/integration/test_error_handling.py ...........exit=124
+
+=== code/tests/integration/test_performance.py ===
+============================= test session starts ==============================
+collected 16 items
+
+code/tests/integration/test_performance.py F..F....F...F.exit=124
+
+=== code/tests/integration/test_timeout_resources.py ===
+============================= test session starts ==============================
+collected 16 items
+
+code/tests/integration/test_timeout_resources.py .F...exit=124
+
+=== code/tests/e2e/test_batch_output_real.py ===
+============================= test session starts ==============================
+collected 1 item
+
+code/tests/e2e/test_batch_output_real.py .                               [100%]
+
+============================== slowest durations ===============================
+0.78s call     tests/e2e/test_batch_output_real.py::TestBatchOutputReal::test_bimodal_batch_output
+
+(2 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================== 1 passed in 1.23s ===============================
+exit=0
+
+=== code/src/model_checker/models/tests/unit/test_structure.py ===
+============================= test session starts ==============================
+collected 16 items
+
+code/src/model_checker/models/tests/unit/test_structure.py ............. [ 81%]
+...                                                                      [100%]
+
+============================== slowest durations ===============================
+0.02s call     src/model_checker/models/tests/unit/test_structure.py::TestModelDefaultsStructure::test_attribute_initialization_order
+
+(47 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================== 16 passed in 0.46s ==============================
+exit=0
+
+=== code/src/model_checker/builder/tests/unit/test_project.py ===
+============================= test session starts ==============================
+collected 14 items
+
+code/src/model_checker/builder/tests/unit/test_project.py .............. [100%]
+
+============================== slowest durations ===============================
+0.03s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_handles_special_characters_in_name
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_create_project_with_empty_name_raises_error
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectEdgeCases::test_generate_multiple_projects_independently
+0.01s call     src/model_checker/builder/tests/unit/test_project.py::TestBuildProjectCore::test_create_project_with_valid_name_succeeds
+
+(47 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================== 14 passed in 0.47s ==============================
+exit=0
+
+=== code/src/model_checker/builder/tests/e2e/test_full_pipeline.py ===
+============================= test session starts ==============================
+collected 3 items
+
+code/src/model_checker/builder/tests/e2e/test_full_pipeline.py ...       [100%]
+
+============================== slowest durations ===============================
+0.72s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+0.72s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow
+0.14s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+
+(6 durations < 0.005s hidden.  Use -vv to show these durations.)
+============================== 3 passed in 1.97s ===============================
+exit=0
+
+=== code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py ===
+============================= test session starts ==============================
+collected 7 items
+
+code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py . [ 14%]
+.....

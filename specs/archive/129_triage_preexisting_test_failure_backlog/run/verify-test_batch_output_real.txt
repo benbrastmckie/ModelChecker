@@ -1,0 +1,20 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 1 item
+
+tests/e2e/test_batch_output_real.py::TestBatchOutputReal::test_bimodal_batch_output PASSED [100%]
+
+============================= slowest 5 durations ==============================
+0.69s call     tests/e2e/test_batch_output_real.py::TestBatchOutputReal::test_bimodal_batch_output
+0.00s setup    tests/e2e/test_batch_output_real.py::TestBatchOutputReal::test_bimodal_batch_output
+0.00s teardown tests/e2e/test_batch_output_real.py::TestBatchOutputReal::test_bimodal_batch_output
+============================== 1 passed in 1.03s ===============================
+exit=0

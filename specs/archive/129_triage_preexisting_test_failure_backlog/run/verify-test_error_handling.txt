@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 28 items
+
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_file_path PASSED [  3%]
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_theory_name PASSED [  7%]
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_malformed_module_syntax PASSED [ 10%]
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_missing_required_attributes PASSED [ 14%]
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_cli_flags[--invalid-flag] PASSED [ 17%]
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_cli_flags[-X] PASSED [ 21%]
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_invalid_cli_flags[--nonexistent] PASSED [ 25%]
+tests/integration/test_error_handling.py::TestCLIErrorHandling::test_conflicting_flags PASSED [ 28%]
+tests/integration/test_error_handling.py::TestFrameworkErrorHandling::test_invalid_formula_unicode PASSED [ 32%]
+tests/integration/test_error_handling.py::TestFrameworkErrorHandling::test_malformed_formula_structure PASSED [ 35%]
+tests/integration/test_error_handling.py::TestFrameworkErrorHandling::test_z3_timeout_handling PASSED [ 39%]
+tests/integration/test_error_handling.py::TestFrameworkErrorHandling::test_memory_limit_handling exit=143

@@ -1,0 +1,97 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 16 items
+
+tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_z3_solver_timeout PASSED [  6%]
+tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_cli_command_timeout FAILED [ 12%]
+tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_various_timeout_values[0.001] PASSED [ 18%]
+tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_various_timeout_values[0.01] PASSED [ 25%]
+tests/integration/test_timeout_resources.py::TestTimeoutHandling::test_various_timeout_values[0.1] PASSED [ 31%]
+tests/integration/test_timeout_resources.py::TestResourceLimits::test_large_state_space +++++++++++++++++++++++++++++++++++ Timeout ++++++++++++++++++++++++++++++++++++
+~~~~~~~~~~~~~~~~~~~~ Stack of MainThread (131320787978112) ~~~~~~~~~~~~~~~~~~~~~
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pytest/__main__.py", line 9, in <module>
+    raise SystemExit(pytest.console_main())
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/config/__init__.py", line 223, in console_main
+    code = main()
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/config/__init__.py", line 199, in main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/main.py", line 365, in pytest_cmdline_main
+    return wrap_session(config, _main)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/main.py", line 318, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/main.py", line 372, in _main
+    config.hook.pytest_runtestloop(session=session)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/main.py", line 396, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/runner.py", line 137, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/runner.py", line 244, in call_and_report
+    call = CallInfo.from_call(
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/runner.py", line 353, in from_call
+    result: TResult | None = func()
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/runner.py", line 245, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/runner.py", line 179, in pytest_runtest_call
+    item.runtest()
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/python.py", line 1720, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/pluggy/_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/_pytest/python.py", line 166, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+  File "/home/benjamin/Projects/ModelChecker/code/tests/integration/test_timeout_resources.py", line 112, in test_large_state_space
+    model = create_test_model(settings)
+  File "/home/benjamin/Projects/ModelChecker/code/tests/utils/helpers.py", line 293, in create_test_model
+    semantics = semantics_class(full_settings)
+  File "/home/benjamin/Projects/ModelChecker/code/src/model_checker/theory_lib/bimodal/semantic/core.py", line 69, in __init__
+    super().__init__(settings)
+  File "/home/benjamin/Projects/ModelChecker/code/src/model_checker/models/semantic.py", line 76, in __init__
+    self.all_states = [BitVecVal(i, self.N) for i in range(1 << self.N)]
+  File "/home/benjamin/Projects/ModelChecker/code/src/model_checker/solver/expressions.py", line 89, in BitVecVal
+    return _get_backend_module().BitVecVal(val, size)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/z3/z3.py", line 4201, in BitVecVal
+    return BitVecNumRef(Z3_mk_numeral(ctx.ref(), _to_int_str(val), BitVecSort(bv, ctx).ast), ctx)
+  File "/nix/store/h99b4fiz9liwhpcxsfcg48qs4p2k2afl-python3-3.13.13-env/lib/python3.13/site-packages/z3/z3core.py", line 2402, in Z3_mk_numeral
+    r = _elems.f(a0, _str_to_bytes(a1), a2)
++++++++++++++++++++++++++++++++++++ Timeout ++++++++++++++++++++++++++++++++++++
+exit=1

@@ -1,0 +1,5 @@
+TIMESTAMP=1784992972
+HEAD_SHA=3d9b5f56afa041c585fc1784e9ecbd26bf7153db
+PATCH_PATH=specs/129_triage_preexisting_test_failure_backlog/working-progress-1784992972.patch
+STASH_REF=stash@{0}
+BRANCH_NAME=NONE

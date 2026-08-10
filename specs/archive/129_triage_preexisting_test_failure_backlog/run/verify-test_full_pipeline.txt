@@ -1,0 +1,24 @@
+============================= test session starts ==============================
+platform linux -- Python 3.13.13, pytest-9.0.3, pluggy-1.6.0 -- /home/benjamin/.nix-profile/bin/python
+cachedir: .pytest_cache
+hypothesis profile 'default'
+rootdir: /home/benjamin/Projects/ModelChecker/code
+configfile: pyproject.toml
+plugins: anyio-4.13.0, timeout-2.4.0, hypothesis-6.151.10, cov-7.1.0
+timeout: 180.0s
+timeout method: thread
+timeout func_only: False
+collecting ... collected 3 items
+
+src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling PASSED [ 33%]
+src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow PASSED [ 66%]
+src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution PASSED [100%]
+
+============================= slowest 5 durations ==============================
+0.82s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_iteration_workflow
+0.65s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+0.13s call     src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+0.00s setup    src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_error_handling
+0.00s teardown src/model_checker/builder/tests/e2e/test_full_pipeline.py::TestFullPipeline::test_theory_library_execution
+============================== 3 passed in 2.00s ===============================
+exit=0
