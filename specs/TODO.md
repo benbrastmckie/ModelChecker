@@ -11,13 +11,9 @@ next_project_number: 141
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 126,140 | -- | architecture, bimodal/oracle residual defects |
+| 1 | 140 | -- | bimodal/oracle residual defects |
 
 **Grouped by Topic** (indented = depends on parent):
-
-### Architecture
-
-126 [IMPLEMENTING] — Systematically refactor the repo into: 1) the core codebase conta
 
 ### Bimodal/Oracle Residual Defects
 
@@ -211,7 +207,7 @@ next_project_number: 141
 ---
 
 ### 126. Refactor repo core infrastructure theory lib
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: general
 - **Topic**: architecture
 - **Dependencies**: Task 127
@@ -225,12 +221,12 @@ next_project_number: 141
   - [126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/plans/02_close-phase-2-verification-gate.md]
 - **Summary**:
-  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/06_close-phase-2-verification-gate-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/03_phases-10-17-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/04_phases-18-21-summary.md]
-  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/06_close-phase-2-verification-gate-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md]
 
 **Description**: Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.
 
