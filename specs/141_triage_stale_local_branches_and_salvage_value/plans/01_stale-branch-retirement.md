@@ -280,7 +280,7 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
 
 ---
 
-### Phase 3: Bundle all nine branches outside the repository and verify each bundle [NOT STARTED]
+### Phase 3: Bundle all nine branches outside the repository and verify each bundle [COMPLETED]
 
 - **Goal:** Nine self-contained, individually verified git bundles exist at a fixed absolute path
   outside the repository working tree and outside `/tmp`, with tip SHAs, verification output, and
@@ -312,26 +312,22 @@ Phases within the same wave can execute in parallel. Phases 1, 2, and 3 touch di
   | `refactor/exclusion` | `refactor__exclusion.bundle` |
 
 - **Tasks:**
-  - [ ] Create the archive directory: `mkdir -p /home/benjamin/branch-archive/ModelChecker`.
-  - [ ] Assert the archive path is neither inside the repo nor under `/tmp` before writing
-        anything (guard: the path must not begin with `/home/benjamin/Projects/ModelChecker` and
-        must not begin with `/tmp`).
-  - [ ] For each of the nine branches, record the tip SHA with
-        `git rev-parse refs/heads/<branch>`.
-  - [ ] For each of the nine, create a self-contained bundle covering the branch's full history:
-        `git bundle create /home/benjamin/branch-archive/ModelChecker/<file>.bundle refs/heads/<branch>`.
-        Bundling the full ref (not a `master..branch` range) means the bundle has no prerequisites
-        and verifies standalone in any clone.
-  - [ ] For each bundle, run `git bundle verify <path>` and capture both its stdout and its exit
-        status. Abort the phase on any non-zero exit.
-  - [ ] Record `sha256sum` for each bundle.
-  - [ ] Write `specs/141_triage_stale_local_branches_and_salvage_value/bundle-manifest.md`
-        containing: the archive absolute path; a nine-row table of branch, bundle filename, tip
-        SHA, bundle byte size, and sha256; the verbatim `git bundle verify` output for all nine;
-        and a short restore recipe
-        (`git fetch /home/benjamin/branch-archive/ModelChecker/<file>.bundle
-        refs/heads/<branch>:refs/heads/<branch>`).
-  - [ ] Do not delete anything in this phase. Deletion belongs exclusively to Phase 4.
+  - [x] **Task 3.1**: Create the archive directory: `mkdir -p /home/benjamin/branch-archive/ModelChecker`. *(completed)*
+  - [x] **Task 3.2**: Assert the archive path is neither inside the repo nor under `/tmp` before
+        writing anything. *(completed: guard confirmed path starts with neither prefix)*
+  - [x] **Task 3.3**: For each of the nine branches, record the tip SHA with
+        `git rev-parse refs/heads/<branch>`. *(completed)*
+  - [x] **Task 3.4**: For each of the nine, create a self-contained bundle covering the branch's
+        full history via `git bundle create ... refs/heads/<branch>`. *(completed)*
+  - [x] **Task 3.5**: For each bundle, run `git bundle verify <path>` and capture both its output
+        and exit status; abort on any non-zero exit. *(completed: all nine "is okay", none
+        aborted)*
+  - [x] **Task 3.6**: Record `sha256sum` for each bundle. *(completed)*
+  - [x] **Task 3.7**: Write `bundle-manifest.md` containing the archive absolute path, the
+        nine-row table, verbatim `git bundle verify` output for all nine, and the restore recipe.
+        *(completed)*
+  - [x] **Task 3.8**: Do not delete anything in this phase. *(completed: no `git branch -D` run;
+        post-phase check confirms all nine still present)*
 
 - **Verification** (run from `/home/benjamin/Projects/ModelChecker`):
   - [ ] Exactly nine bundles exist (expect `9`):
