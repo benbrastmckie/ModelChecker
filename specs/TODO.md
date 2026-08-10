@@ -1,5 +1,5 @@
 ---
-next_project_number: 140
+next_project_number: 141
 ---
 
 # TODO
@@ -11,15 +11,29 @@ next_project_number: 140
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 126 | -- | architecture |
+| 1 | 126,140 | -- | architecture, bimodal/oracle residual defects |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Architecture
 
-126 [PARTIAL] — Systematically refactor the repo into: 1) the core codebase conta
+126 [IMPLEMENTING] — Systematically refactor the repo into: 1) the core codebase conta
+
+### Bimodal/Oracle Residual Defects
+
+140 [NOT STARTED] — Diagnose and fix the residual RED that plan v2 of the refactor-ve
 
 ## Tasks
+
+### 140. Fix bimodal order dependence and oracle timeouts
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: bimodal/oracle residual defects
+- **Dependencies**: None
+
+**Description**: Diagnose and fix the residual RED that plan v2 of the refactor-verification gate (`code/scripts/verify-refactor.sh`) correctly and honestly reports at Steps 4, 6, and 7 -- pre-existing product defects the refactor did not introduce and whose diagnosis was an explicit non-goal of both the refactor task and the oracle-suite rebaseline task. This task owns that residual RED and carries forward all five of the following items, none of which may be dropped or merged away: 1) `code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7]` fails on both attempts inside `nix develop`, and is the same example case as the oracle-side `test_regression_all_active_examples[BM_CM_1-example_case7]`. 2) The bidirectional order-dependence / cross-test state leakage finding: the bimodal example-case tests are order-dependent in both directions, independent of environment. `BM_CM_1-example_case7` passes alone in 8.36s but fails inside the full `bimodal/tests/` run under `nix develop`; conversely `BM_CM_2-example_case8` and `BM_CM_4-example_case9` pass inside the full run but fail reproducibly ("2 failed, 41 passed", twice) when `test_bimodal.py` is run alone -- which is exactly how `compare_bimodal_baseline.sh` invokes it. This is the sharpest handle on the defect: deterministic, fast, and environment-reproducible. Start here. 3) `code/scripts/compare_bimodal_baseline.sh`'s masking defect: it runs its pytest pipeline under `set -euo pipefail` (line 7), pytest exits 1, and the script aborts after printing only "Running bimodal test suite..." -- so the verification gate's message "compare_bimodal_baseline.sh reported regressions" is misleading because nothing was ever compared. Fixing the masking does not make the step green: the recorded baseline is 43 passing and the current isolated run yields 41, which trips the script's own "REGRESSIONS DETECTED: 2 fewer passing tests" branch (line 66) regardless. 4) The two pass-1 oracle `OracleTimeoutError` failures, `test_mixed_and_box_next` and `test_mixed_and_all_future_neg`, plus the 900s non-termination of `test_temporal_propositional_interleaving` in pass 2, all recorded across two independent quiet-machine runs of the gating oracle suite (`oracle/run-oracle-suite.sh`). 5) The environment warning: adjudicate all of the above only inside `nix develop`. On bare-PATH python (3.13.13), Step 4 of the verification gate passes 298/298 and looks fixed; inside `nix develop` (python 3.12.13, same z3 4.16.0, xdist 3.8.0), it reliably fails. Any "it is fixed now" claim originating from a bare-PATH run is an artifact and must be rejected. Hard constraints inherited verbatim: this task may fix the underlying defects, but it may not weaken, widen, delete, or relax any pin, timeout budget, conclusive floor, xfail marker, assertion, `strict=True` requirement, or guard anywhere in the repository to reach a green result -- including in `code/scripts/verify-refactor.sh`, `oracle/bimodal_logic/tests/test_oracle_interface.py`, or `code/scripts/compare_bimodal_baseline.sh`. The gating oracle suite must continue to be described as RED until Step 6 is genuinely green end to end.
+
+---
 
 ### 139. Fix z3 quantifier variable shadowing in temporal operators
 - **Status**: [COMPLETED]
@@ -197,7 +211,7 @@ next_project_number: 140
 ---
 
 ### 126. Refactor repo core infrastructure theory lib
-- **Status**: [PARTIAL]
+- **Status**: [IMPLEMENTING]
 - **Task Type**: general
 - **Topic**: architecture
 - **Dependencies**: Task 127
@@ -207,13 +221,16 @@ next_project_number: 140
   - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-b-findings.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-c-findings.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/reports/01_teammate-d-findings.md]
-- **Plan**: [126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md]
+- **Plan**:
+  - [126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/plans/02_close-phase-2-verification-gate.md]
 - **Summary**:
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/01_phases-2-6-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/02_phases-1-9-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/03_phases-10-17-summary.md]
   - [126_refactor_repo_core_infrastructure_theory_lib/summaries/04_phases-18-21-summary.md]
+  - [126_refactor_repo_core_infrastructure_theory_lib/summaries/06_close-phase-2-verification-gate-summary.md]
 
 **Description**: Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.
 

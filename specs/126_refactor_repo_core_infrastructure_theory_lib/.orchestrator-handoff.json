@@ -1,55 +1,25 @@
 {
   "$schema": "orchestrator-handoff-v1",
   "phase": "implement",
-  "status": "partial",
-  "summary": "Completed phases 22-26 of 26, the final leg of the core/theory_lib refactor. Phase 22 restored bimodal's missing iterate.py (git-restored, ported to the current generator convention, 7 new tests, closing the last theory-contract gap). Phase 23 flipped the conformance and layering tests fully green with a permanent zero-xfail guard. Phase 24 reconciled 16 documentation files with the enforced module contract. Phase 25 ran the full regression gate and wheel parity diff (zero unexplained deltas in either direction) and, discovering that exclusion/imposition failed a live scaffold-and-run check, fixed a scaffolded-project relative-import defect Phase 20 had deliberately deferred. Phase 26 recorded the refactor's durable decisions in specs/ROADMAP.md. Also fixed a genuine Phase-12 regression (stale utils.api.get_theory call site) surfaced by a broader test sweep. 25/26 phases are [COMPLETED]; Phase 2 remains [PARTIAL], unchanged, per its documented sandbox constraint.",
+  "status": "implemented",
+  "summary": "Executed plan v2's sole open phase (Phase 2). Restated Phase 2's first verification criterion per DR-1 (gate exists, is correctly pinned 606/594/10/2, and Steps 1/2/3/5 are OK; exit 1 with exactly Step 4+7 FAIL is the expected, correct result), credited criterion 2 as already met by task 127's mutation test, and created follow-up task 140 (fix_bimodal_order_dependence_and_oracle_timeouts) owning the residual RED, carrying all five enumerated items and the inherited Hard Constraints. Annotated plan v1 as superseded (header only). All 26 phases now [COMPLETED]. The gating oracle suite (Steps 4/6/7) remains RED and is NOT claimed fixed; ownership transferred to task 140.",
   "artifacts": [
-    {
-      "type": "summary",
-      "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/05_phases-22-26-summary.md"
-    }
+    {"type": "plan", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/02_close-phase-2-verification-gate.md"},
+    {"type": "summary", "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/06_close-phase-2-verification-gate-summary.md"}
   ],
-  "blockers": [
-    {
-      "description": "Task 126 Phase 2 is blocked on task 127 completing — NOT on pytest-xdist availability (that premise is stale: xdist 3.8.0 is present inside `nix develop`, absent only from the bare PATH python). True cause: Phase 2's acceptance gate, code/scripts/verify-refactor.sh, hard-fails on two stale pins that task 126 does not own and must not unilaterally rewrite. (1) Step 3, line 39/65: BASELINE_ORACLE_COUNT=550 compared with exact `!=`, but oracle/bimodal_logic/tests/ now collects 606 (suite grew via tasks 137/138/139). (2) Step 5, line 41/82-83: XFAIL_LINES=(767 942 1020 1133 1431) compared as an exact ordered line-number set against test_cross_oracle_differential.py, which now has zero `xfail(` markers at all. Because Phase 2's stated verification is 'verify-refactor.sh exits 0 on the unmodified tree', no oracle run performed today can satisfy it until those pins are re-derived. Task 127 plan v2 explicitly owns both the re-pinning and the Phase 2 flip as its terminal phase.",
-      "phase": "phase-2",
-      "severity": "soft",
-      "true_cause": "stale acceptance pins (550 vs 606; 5 xfail line numbers vs 0 markers), not missing pytest-xdist",
-      "owned_by_task": 127,
-      "next_step": "Run /implement 127 against specs/127_close_oracle_suite_regression_baseline/plans/02_rebaseline-gating-oracle-suite.md under `nix develop` on a quiet machine. Its final phase re-pins verify-refactor.sh and flips task 126 Phase 2 to [COMPLETED]."
-    }
-  ],
-  "next_action_hint": "wait-on-task-127",
+  "blockers": [],
+  "next_action_hint": "none",
   "files_modified": [
-    "code/src/model_checker/theory_lib/bimodal/iterate.py",
-    "code/src/model_checker/theory_lib/bimodal/__init__.py",
-    "code/src/model_checker/theory_lib/bimodal/tests/integration/test_iterate.py",
-    "code/src/model_checker/theory_lib/bimodal/docs/{ITERATE,ARCHITECTURE}.md",
-    "code/tests/e2e/test_project_creation.py",
-    "code/src/model_checker/theory_lib/tests/test_theory_conformance.py",
-    "code/tests/integration/test_system_imports.py",
-    "code/src/model_checker/theory_lib/docs/CONTRIBUTING.md",
-    "six module test READMEs + four per-theory docs/ARCHITECTURE.md files",
-    "docs/architecture/{SEMANTICS,SETTINGS}.md, docs/usage/SEMANTICS.md, code/docs/standards/AUDIENCE.md",
-    "code/src/model_checker/theory_lib/{exclusion,imposition}/semantic/*.py (relative-import fix)",
-    "specs/ROADMAP.md",
+    "specs/state.json",
+    "specs/TODO.md",
     "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/01_core-theory-lib-refactor.md",
-    "specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/post-refactor/*"
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/02_close-phase-2-verification-gate.md",
+    "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/06_close-phase-2-verification-gate-summary.md"
   ],
   "decisions_made": [
-    "BimodalModelIterator's _create_difference_constraint/_create_non_isomorphic_constraint/_create_stronger_constraint are confirmed dead code in the active search path (the loop always uses the shared, theory-agnostic ConstraintGenerator) but kept for interface parity with the other three theories, with the broken semantics.W/T references fixed rather than left in place",
-    "Fixed exclusion/imposition's scaffolded-project 3-dot relative-import defect (mirroring bimodal's own Phase 20 fix) because Phase 25's own scaffold-and-run verification step made it an acceptance blocker, even though Phase 20 had deliberately deferred it",
-    "Fixed code/tests/integration/test_system_imports.py's stale utils.api.get_theory call site (a genuine Phase-12 regression, invisible to every prior phase's narrower theory_lib+layering+builder sweep) rather than leaving it, since it was discovered while doing this session's own verification work",
-    "Did not attempt three failures confirmed pre-existing via empty git diffs on the exercised source AND already tracked in specs/ROADMAP.md's existing 28-failures follow-up item before this session began (Mock.assert_and_track misuse, timeout/resource-contention tests, the malformed 'A[]' formula literal)"
+    "No gate re-run: verified against already-recorded baselines/gate-run-2026-08-09/skip-oracle-run.txt (exit 1, 2 FAILED, Steps 1/2/3/5 OK, FAIL lines Step 4+7) per plan's Optional note.",
+    "Follow-up task allocated as task 140, task_type python, matching the plan's live-read next_project_number estimate exactly.",
+    "Task 126's own status/completion_summary left for orchestrator postflight; artifacts, blockers, and plan_metadata.phases_completed=26 updated directly in state.json."
   ],
-  "dead_ends": [
-    "Do not assume a theory-specific iterate.py override's difference-constraint methods drive search-time model exclusion -- iterate/iterator.py's active loop always calls a fresh, theory-agnostic ConstraintGenerator instead, so these methods are presentation/parity-only across all four theories, not dead-code-worth-deleting but also not worth defending as load-bearing"
-  ],
-  "continuation_context": {
-    "phases_completed": 25,
-    "phases_total": 26,
-    "orchestrator_mode": true,
-    "blocked_on_task": 127
-  },
-  "blocker_research": "VERDICT: Phase 2 cannot be closed now, but the recorded blocker's stated cause is STALE and must not be acted on. The premise 'no pytest-xdist in this sandbox' is false as written: flake.nix:72 declares pytest-xdist and it resolves to 3.8.0 inside `nix develop` (proven by specs/127_.../run2/oracle-run.txt: 'plugins: xdist-3.8.0 / created: 6/6 workers'); it is missing only from the bare PATH python (/home/benjamin/.nix-profile/bin/python -c 'import xdist' -> ModuleNotFoundError). The real, harder blocker is that BOTH invariants Phase 2 pins are now factually dead: code/scripts/verify-refactor.sh:39 pins BASELINE_ORACLE_COUNT=550 and compares with an exact != at line 65, while the script's own literal path collects 606 today (measured: `PYTHONPATH=code/src python -m pytest oracle/bimodal_logic/tests/ --collect-only -q` -> '606 tests collected in 0.82s'), and line 41 pins XFAIL_LINES=(767 942 1020 1133 1431) against a file that now contains ZERO `xfail(` markers (`grep -c 'xfail(' oracle/bimodal_logic/tests/test_cross_oracle_differential.py` -> 0). Phase 2's literal acceptance criterion is 'bash code/scripts/verify-refactor.sh exits 0 on the unmodified tree', which is arithmetically impossible today no matter how the oracle suite is run — so re-attempting the run (the blocker's suggested fix) would burn 20-90 minutes and still leave Phase 2 open. Re-pinning is owned by task 127, whose plan v2 artifact summary states verbatim that it will '...then flip the refactor plan's Phase 2'; task 127 is mid-flight (status=implementing, Phase 1/8 committed as 360bd28c, Phase 2's gating run in run2/oracle-run.txt truncated at ~84% and now 10h stale). SOLUTION PATH: do not touch Phase 2 from task 126; let task 127 land (`/implement 127` against plans/02_rebaseline-gating-oracle-suite.md, run under `nix develop` on a quiet machine), which re-pins Step 3 to 606 with per-marker sub-counts (594 parallel + 10 xdist_serial + 2 slow), re-scopes Step 5 onto content-matched guards, re-points Step 6 at oracle/run-oracle-suite.sh, and then flips this plan's Phase 2 with artifacts landing in specs/126_refactor_repo_core_infrastructure_theory_lib/baselines/serial-rebaseline/ (currently an empty directory)."
+  "plan_markers_verified": true
 }

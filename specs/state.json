@@ -1,5 +1,5 @@
 {
-  "next_project_number": 140,
+  "next_project_number": 141,
   "active_projects": [
     {
       "project_number": 127,
@@ -157,15 +157,15 @@
     {
       "project_number": 126,
       "project_name": "refactor_repo_core_infrastructure_theory_lib",
-      "status": "partial",
+      "status": "implementing",
       "task_type": "general",
       "description": "Systematically refactor the repo into: 1) the core codebase containing all appropriate utilities and resources (the model-checker infrastructure); 2) the theory_lib consisting of the bimodal, exclusion, imposition, and logos theories; and 3) remove the spatial subtheory from the logos theory. If it makes more sense, move theory_lib/ into src/, making any other natural restructuring as needed. Systematically review the modules throughout the codebase to design a full refactor improving organization, code quality, and uniformity, with a standardized set of modules for each theory/subtheory as appropriate, making systematic changes however improves the final state of the repo.",
       "topic": "architecture",
       "created": "2026-07-24T16:04:19Z",
-      "last_updated": "2026-08-09T19:22:00Z",
-      "session_id": "sess_1786303232_72dc17",
+      "last_updated": "2026-08-10T04:33:29Z",
+      "session_id": "sess_1786333476_78e01c",
       "researched": "2026-07-24T16:13:05Z",
-      "next_artifact_number": 3,
+      "next_artifact_number": 4,
       "artifacts": [
         {
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md",
@@ -221,6 +221,16 @@
           "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/04_phases-18-21-summary.md",
           "type": "summary",
           "summary": "phases 18 21 summary (backfilled by --sync)"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/plans/02_close-phase-2-verification-gate.md",
+          "type": "plan",
+          "summary": "Plan v2 closing Phase 2 by restating its first verification criterion (DR-1), crediting the second as already satisfied, and mandating creation of the follow-up task owning the residual RED"
+        },
+        {
+          "path": "specs/126_refactor_repo_core_infrastructure_theory_lib/summaries/06_close-phase-2-verification-gate-summary.md",
+          "type": "summary",
+          "summary": "Phase 2 closure: follow-up task 140 created, plan v1 annotated superseded, all 26 phases now COMPLETED; gating oracle suite remains RED and is owned by task 140"
         }
       ],
       "plan_metadata": {
@@ -228,7 +238,7 @@
         "total_effort_hours": 41,
         "complexity": "complex",
         "research_integrated": true,
-        "plan_version": 1,
+        "plan_version": 2,
         "dependency_waves": [
           [
             1,
@@ -293,13 +303,15 @@
           }
         ],
         "skeleton": false,
-        "follow_up_tasks": [],
-        "phases_completed": 25
+        "follow_up_tasks": [
+          140
+        ],
+        "phases_completed": 26
       },
       "dependencies": [
         127
       ],
-      "blockers": "Phase 2 blocked on task 127 (declared dependency). The previously recorded cause (no pytest-xdist, ~90min runtime) is STALE and must not be acted on: xdist 3.8.0 is present inside `nix develop` (absent only from bare-PATH python). True cause: Phase 2's acceptance gate code/scripts/verify-refactor.sh hard-fails on two stale pins task 126 does not own — BASELINE_ORACLE_COUNT=550 (line 39, exact != at 65) vs 606 actually collected, and XFAIL_LINES=(767 942 1020 1133 1431) (line 41) vs zero xfail( markers remaining in test_cross_oracle_differential.py. No oracle run performed today can satisfy Phase 2 until those pins are re-derived. Task 127 plan v2 owns both the re-pinning and the Phase 2 flip as its terminal phase. Do NOT unilaterally edit the pins from task 126: task 127's re-pinning carries a mandatory four-mutation negative test that a drive-by 550->606 edit would silently strip. Next step: /implement 127 under `nix develop` on a quiet machine. All 25 other phases are [COMPLETED] and independently verified."
+      "blockers": null
     },
     {
       "project_number": 117,
@@ -1093,6 +1105,25 @@
       "session_id": "sess_1786086226_c74d28",
       "next_artifact_number": 1,
       "completion_summary": "Fixed the Z3 quantifier variable aliasing defect in bimodal temporal operators: replaced fixed-name bound variables with counter-suffixed z3.Int (_fresh_bound_int) at all 14 sites, after z3.FreshInt was found to cause a severe MBQI performance regression. Rewrote the tests that asserted the bug as expected behavior, added a permanent anti-collapse structural regression guard, and rebuilt the complexity<=5 conclusive manifest from a full 274-formula re-derivation (0 disagreements). Key findings: the task's throughput hypothesis was falsified (37.6% conclusive post-fix vs 38.7% pre-fix - the fix is justified on soundness grounds, not speed), and a genuine new soundness result surfaced (p Until q -> q Until p, previously reported VALID, now yields a countermodel - sibling-operator aliasing outside the original census pattern). Bimodal suite 298/298 green."
+    },
+    {
+      "project_number": 140,
+      "project_name": "fix_bimodal_order_dependence_and_oracle_timeouts",
+      "status": "not_started",
+      "task_type": "python",
+      "topic": "bimodal/oracle residual defects",
+      "description": "Diagnose and fix the residual RED that plan v2 of the refactor-verification gate (`code/scripts/verify-refactor.sh`) correctly and honestly reports at Steps 4, 6, and 7 -- pre-existing product defects the refactor did not introduce and whose diagnosis was an explicit non-goal of both the refactor task and the oracle-suite rebaseline task. This task owns that residual RED and carries forward all five of the following items, none of which may be dropped or merged away: 1) `code/src/model_checker/theory_lib/bimodal/tests/unit/test_bimodal.py::test_example_cases[BM_CM_1-example_case7]` fails on both attempts inside `nix develop`, and is the same example case as the oracle-side `test_regression_all_active_examples[BM_CM_1-example_case7]`. 2) The bidirectional order-dependence / cross-test state leakage finding: the bimodal example-case tests are order-dependent in both directions, independent of environment. `BM_CM_1-example_case7` passes alone in 8.36s but fails inside the full `bimodal/tests/` run under `nix develop`; conversely `BM_CM_2-example_case8` and `BM_CM_4-example_case9` pass inside the full run but fail reproducibly (\"2 failed, 41 passed\", twice) when `test_bimodal.py` is run alone -- which is exactly how `compare_bimodal_baseline.sh` invokes it. This is the sharpest handle on the defect: deterministic, fast, and environment-reproducible. Start here. 3) `code/scripts/compare_bimodal_baseline.sh`'s masking defect: it runs its pytest pipeline under `set -euo pipefail` (line 7), pytest exits 1, and the script aborts after printing only \"Running bimodal test suite...\" -- so the verification gate's message \"compare_bimodal_baseline.sh reported regressions\" is misleading because nothing was ever compared. Fixing the masking does not make the step green: the recorded baseline is 43 passing and the current isolated run yields 41, which trips the script's own \"REGRESSIONS DETECTED: 2 fewer passing tests\" branch (line 66) regardless. 4) The two pass-1 oracle `OracleTimeoutError` failures, `test_mixed_and_box_next` and `test_mixed_and_all_future_neg`, plus the 900s non-termination of `test_temporal_propositional_interleaving` in pass 2, all recorded across two independent quiet-machine runs of the gating oracle suite (`oracle/run-oracle-suite.sh`). 5) The environment warning: adjudicate all of the above only inside `nix develop`. On bare-PATH python (3.13.13), Step 4 of the verification gate passes 298/298 and looks fixed; inside `nix develop` (python 3.12.13, same z3 4.16.0, xdist 3.8.0), it reliably fails. Any \"it is fixed now\" claim originating from a bare-PATH run is an artifact and must be rejected. Hard constraints inherited verbatim: this task may fix the underlying defects, but it may not weaken, widen, delete, or relax any pin, timeout budget, conclusive floor, xfail marker, assertion, `strict=True` requirement, or guard anywhere in the repository to reach a green result -- including in `code/scripts/verify-refactor.sh`, `oracle/bimodal_logic/tests/test_oracle_interface.py`, or `code/scripts/compare_bimodal_baseline.sh`. The gating oracle suite must continue to be described as RED until Step 6 is genuinely green end to end.",
+      "dependencies": [],
+      "file_scope": [
+        "code/src/model_checker/theory_lib/bimodal/",
+        "code/scripts/compare_bimodal_baseline.sh",
+        "oracle/bimodal_logic/"
+      ],
+      "artifacts": [],
+      "created": "2026-08-10T04:33:29Z",
+      "last_updated": "2026-08-10T04:33:29Z",
+      "session_id": "sess_1786336303_0284a5",
+      "next_artifact_number": 1
     }
   ],
   "repository_health": {

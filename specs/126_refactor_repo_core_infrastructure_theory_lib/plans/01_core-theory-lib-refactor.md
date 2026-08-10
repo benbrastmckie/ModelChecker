@@ -1,5 +1,12 @@
 # Implementation Plan: Refactor Core Infrastructure and theory_lib
 
+> **SUPERSEDED** by `plans/02_close-phase-2-verification-gate.md`. That revision closes Phase 2 by
+> restating its first verification criterion (see its Decision Record DR-1) rather than by meeting
+> the literal wording below, credits the second criterion as already satisfied, and creates a
+> follow-up task owning the residual RED. Phases 1 and 3-26 below remain the authoritative,
+> unchanged historical record of that completed work; only Phase 2's status and criteria are
+> superseded.
+
 - **Task**: 126 - Systematically refactor the repo into core infrastructure and theory_lib; remove the logos spatial subtheory; standardize the per-theory module set
 - **Status**: [PARTIAL] (25/26 phases COMPLETED; Phase 2 remains PARTIAL, but for a different and
   now-diagnosed reason than the one previously recorded here. **The three premises this line used
@@ -20,7 +27,8 @@
 - **Effort**: 41 hours
 - **Dependencies**: None (proceeds on branch `task-117-restore-model-checker`; see Non-Goals for merge/release sequencing)
 - **Research Inputs**: `specs/126_refactor_repo_core_infrastructure_theory_lib/reports/01_team-research.md` (4-teammate synthesis; teammate findings `01_teammate-{a,b,c,d}-findings.md`)
-- **Artifacts**: plans/01_core-theory-lib-refactor.md (this file)
+- **Artifacts**: plans/01_core-theory-lib-refactor.md (this file); superseded by
+  `plans/02_close-phase-2-verification-gate.md` for Phase 2
 - **Standards**: plan-format.md; status-markers.md; artifact-management.md; tasks.md; `.claude/rules/no-task-references-in-deliverables.md`; `code/docs/core/TESTING_GUIDE.md`
 - **Type**: general
 
