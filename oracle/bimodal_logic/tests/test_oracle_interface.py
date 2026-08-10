@@ -37,6 +37,7 @@ import pytest
 from bimodal_harness.oracle.protocol import OracleProvider
 from bimodal_harness.oracle.registry import OracleRegistry
 from bimodal_logic import OracleTimeoutError, Z3OracleProvider
+from bimodal_logic.ground_truth import ground_truth_verdict
 from bimodal_logic.translation import temporal_depth, unfold_formula
 from model_checker.theory_lib.bimodal.examples import (
     countermodel_examples,
@@ -643,6 +644,72 @@ class TestOracleExampleRegressionViaAPI:
             f"Oracle regression failure for '{example_name}': "
             f"expected SAT={expected_sat}, got SAT={actual_sat}. "
             f"has_premises={has_premises}, depth={depth}"
+        )
+
+
+##############################################################################
+# Catalog Label Adjudication (ground-truth guard)
+##############################################################################
+
+class TestCatalogLabelAdjudication:
+    """Pin the three corrected EXAMPLE_JSON_CATALOG expected_sat values
+    against the module's own independent ground-truth evaluator
+    (bimodal_logic/ground_truth.py), so a future edit cannot silently
+    regress a label back to the wrong value.
+
+    Provenance: bimodal_logic.ground_truth.ground_truth_verdict is a third,
+    brute-force-unbounded-time evaluator, deliberately independent of both
+    MC's and BH's Z3 encodings (see that module's docstring). Each enriched
+    formula below is unfolded to its primitive untl/snce form first via
+    bimodal_logic.translation.unfold_formula, since ground_truth only
+    supports the 5 primitive temporal-only tags (atom, bot, imp, untl,
+    snce). The verdict is SAT and stable across windows 4, 5, and 6 for all
+    three formulas, with the same witness: the atom A false at every time.
+
+    Manual-semantics argument (does not require trusting the solver): if A
+    is false at every time, some_past(A) is false at every time, so
+    all_future(some_past(A)) (TN_TH_2) is false at every time -- a
+    countermodel, not a validity. The same witness directly falsifies
+    all_future(A) (TN_CM_1, BM_TH_1, the identical formula under two
+    catalog names).
+
+    Two of the three entries (TN_CM_1, BM_TH_1) live in
+    REGRESSION_TIMEOUT_EXAMPLES and therefore never run as regression cases
+    via test_oracle_regression -- EXAMPLE_JSON_CATALOG is still wrong data
+    for them regardless of exclusion-set membership, and this test is what
+    makes that visible.
+    """
+
+    _ADJUDICATED_TRUE = ("TN_TH_2", "TN_CM_1", "BM_TH_1")
+
+    @pytest.mark.parametrize("example_name", _ADJUDICATED_TRUE)
+    def test_ground_truth_confirms_sat(self, example_name):
+        """Independently re-derive SAT at windows 4/5/6 for the formula
+        behind each adjudicated entry, unfolding first since ground_truth
+        only supports primitive tags."""
+        formula_json, _has_premises, _expected_sat = EXAMPLE_JSON_CATALOG[example_name]
+        unfolded = unfold_formula(formula_json)
+        for window in (4, 5, 6):
+            verdict, _witness = ground_truth_verdict(unfolded, window=window)
+            assert verdict == "SAT", (
+                f"'{example_name}': ground_truth_verdict disagreed at "
+                f"window={window} (got {verdict}, expected SAT) -- do not "
+                f"trust the expected_sat correction below until this is "
+                f"re-investigated"
+            )
+
+    @pytest.mark.parametrize("example_name", _ADJUDICATED_TRUE)
+    def test_catalog_label_matches_adjudication(self, example_name):
+        """EXAMPLE_JSON_CATALOG's expected_sat for each entry must be True
+        (oracle finds a countermodel), matching the ground-truth verdict
+        above. This is the assertion that pins the label correction: before
+        the correction is applied, this fails with expected_sat=False."""
+        _formula_json, _has_premises, expected_sat = EXAMPLE_JSON_CATALOG[example_name]
+        assert expected_sat is True, (
+            f"'{example_name}': EXAMPLE_JSON_CATALOG expected_sat is "
+            f"{expected_sat!r}, but the module's own ground_truth evaluator "
+            f"confirms SAT (countermodel exists) at windows 4/5/6 -- see "
+            f"bimodal_logic/ground_truth.py"
         )
 
 

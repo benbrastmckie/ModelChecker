@@ -1,0 +1,23 @@
+Ground-truth re-confirmation (Phase 1 hard gate)
+Captured: 2026-08-10T21:22Z (nix develop)
+Command:
+  nix develop --command bash -c '
+    export PYTHONPATH="oracle:$PYTHONPATH"
+    python3 -c "... unfold_formula + ground_truth_verdict over TN_TH_2 and TN_CM_1/BM_TH_1 at windows 4,5,6 ..."
+  '
+
+--- TN_TH_2 = all_future(some_past(A)) ---
+unfolded: {"tag": "imp", "left": {"tag": "untl", "event": {"tag": "imp", "left": {"tag": "snce", "event": {"tag": "atom", "name": "A"}, "guard": {"tag": "imp", "left": {"tag": "bot"}, "right": {"tag": "bot"}}}, "right": {"tag": "bot"}}, "guard": {"tag": "imp", "left": {"tag": "bot"}, "right": {"tag": "bot"}}}, "right": {"tag": "bot"}}
+  window=4: verdict=SAT witness={'A': {-3: False, -2: False, -1: False, 0: False, 1: False, 2: False, 3: False}}
+  window=5: verdict=SAT witness={'A': {-3: False, -2: False, -1: False, 0: False, 1: False, 2: False, 3: False}}
+  window=6: verdict=SAT witness={'A': {-3: False, -2: False, -1: False, 0: False, 1: False, 2: False, 3: False}}
+
+--- TN_CM_1/BM_TH_1 = all_future(A) ---
+unfolded: {"tag": "imp", "left": {"tag": "untl", "event": {"tag": "imp", "left": {"tag": "atom", "name": "A"}, "right": {"tag": "bot"}}, "guard": {"tag": "imp", "left": {"tag": "bot"}, "right": {"tag": "bot"}}}, "right": {"tag": "bot"}}
+  window=4: verdict=SAT witness={'A': {-3: False, -2: False, -1: False, 0: False, 1: False, 2: False, 3: False}}
+  window=5: verdict=SAT witness={'A': {-3: False, -2: False, -1: False, 0: False, 1: False, 2: False, 3: False}}
+  window=6: verdict=SAT witness={'A': {-3: False, -2: False, -1: False, 0: False, 1: False, 2: False, 3: False}}
+
+Verdict: MATCHES the research report (SAT / countermodel exists / A-always-false witness,
+stable across all three windows, for all three formulas). Hard gate cleared -- proceeding to
+Phase 2 label corrections.
