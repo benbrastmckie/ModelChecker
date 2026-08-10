@@ -11,18 +11,13 @@ next_project_number: 140
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 127 | -- | testing |
-| 2 | 126 | 127 | architecture |
+| 1 | 126 | -- | architecture |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Architecture
 
 126 [PARTIAL] — Systematically refactor the repo into: 1) the core codebase conta
-
-### Testing
-
-127 [IMPLEMENTING] — Complete the oracle differential-suite regression baseline that t
 
 ## Tasks
 
@@ -187,7 +182,7 @@ next_project_number: 140
 ---
 
 ### 127. Close oracle suite regression baseline
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: testing
 - **Dependencies**: Task 131, Task 132, Task 133
