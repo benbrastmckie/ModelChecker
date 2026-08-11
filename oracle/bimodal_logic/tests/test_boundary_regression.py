@@ -364,18 +364,27 @@ class TestBoundaryDocumentation:
         This is a genuine countermodel (not a boundary artifact): with M=2,
         past times are just t=-1, and A can be false there while Diamond(A) holds.
 
-        max_time widened 15 -> 30: fixing the quantifier bound-variable aliasing defect
-        (see bimodal/operators.py's _fresh_bound_int docstring) removes a Z3
-        term-identity-based simplification shortcut PastOperator's bound variable used
-        to get "for free" via accidental name reuse -- the same effect documented for
-        Box(p)->Box(p) in operators.py. The countermodel is still genuinely found; it
-        now measures ~15-24s instead of ~4-6s, so 30s leaves real headroom. Not a
-        soundness change.
+        max_time recalibrated 30 -> 120 (2026-08-11), keeping this inline copy in
+        sync with BM_CM_4_settings in bimodal/examples.py (the two sites must always
+        match). History: widened 15 -> 30 when fixing the quantifier bound-variable
+        aliasing defect (see bimodal/operators.py's _fresh_bound_int docstring)
+        removed a Z3 term-identity-based simplification shortcut PastOperator's
+        bound variable used to get "for free" via accidental name reuse -- the same
+        effect documented for Box(p)->Box(p) in operators.py. The 30s figure rested
+        on a ~15-24s observed record that under-sampled the tail: a 7-seed
+        uncensored probe (pinned smt/sat.random_seed, 120s probe budget, 2026-08-11)
+        measured median 6.9s but a 57.1s worst draw (rlimit 32.2M), so 30s misses
+        that draw outright and 60s would cover it at only ~1.05x. 120s = ~2.1x the
+        measured worst, the same ~2x-of-measured-worst convention as the other
+        recalibrated slow solves. The countermodel is still genuinely found on every
+        probed seed; monotone-safe for a countermodel expectation, not a soundness
+        change.
 
-        xdist_serial: this is a genuine ~15-24s solve that only fails under the
-        gating suite's parallel pass (-n 6) via six-way CPU contention -- confirmed
-        to pass serially at both HEAD and the pre-fix commit. Same mechanism as
-        sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
+        xdist_serial: a genuine multi-second solve (median ~7s, worst measured
+        57.1s) that only fails under the gating suite's parallel pass (-n 6) via
+        six-way CPU contention -- confirmed to pass serially at both HEAD and the
+        pre-fix commit. Same mechanism as sibling test_mixed_or_diamond_prev in
+        test_oracle_interface.py.
         """
         result = _run_formula(
             premises=['\\Diamond A'],
@@ -383,7 +392,7 @@ class TestBoundaryDocumentation:
             N=2,
             M=2,
             expectation=True,  # countermodel expected
-            max_time=30,
+            max_time=120,
             contingent=True,
         )
         assert result, "BM_CM_4 should find countermodel at N=2, M=2, contingent=True"
@@ -472,10 +481,12 @@ class TestExampleRegression:
         This test is parametrized so individual failures are clearly identified
         by example name, enabling targeted debugging.
 
-        BM_CM_4 carries xdist_serial: a genuine ~15-24s solve that only fails
-        under the gating suite's parallel pass (-n 6) via six-way CPU contention
-        -- confirmed to pass serially at both HEAD and the pre-fix commit. Same
-        mechanism as sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
+        BM_CM_4 carries xdist_serial: a genuine multi-second solve (7-seed
+        uncensored probe, 2026-08-11: median ~7s, worst draw 57.1s; budget in
+        examples.py recalibrated accordingly) that only fails under the gating
+        suite's parallel pass (-n 6) via six-way CPU contention -- confirmed to
+        pass serially at both HEAD and the pre-fix commit. Same mechanism as
+        sibling test_mixed_or_diamond_prev in test_oracle_interface.py.
         """
         with isolated_z3_context():
             result = run_test(

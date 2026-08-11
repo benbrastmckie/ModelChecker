@@ -304,30 +304,33 @@ post-hoc rationalizing the changes.
 
 ---
 
-### Phase 3: Bounded-budget recalibration with inline measurement bases [NOT STARTED]
+### Phase 3: Bounded-budget recalibration with inline measurement bases [COMPLETED]
 
 **Goal**: Land option (b) — the two bounded-tail budget recalibrations — each carrying its
 measurement basis inline at the constant.
 
 **Tasks**:
-- [ ] `oracle/bimodal_logic/tests/test_oracle_interface.py:963`: `timeout_ms=60000` ->
+- [x] `oracle/bimodal_logic/tests/test_oracle_interface.py:963`: `timeout_ms=60000` ->
       `timeout_ms=240000` with inline comment recording: uncensored probe 92.8-104.2 s across
       the three previously-censored seeds (rlimit 222M/236M/338M vs ~130M good draw); ~2.3x
       measured worst per the sibling convention (`or_diamond_prev` 150000 ~= 2.07x of 72.6 s);
       cost grew permanently with the 2026-08-07 bound-variable-aliasing soundness fix
       (`3c0cf210`); original 60000 (`ea516a4b`, 2026-06-01) predated that fix and was never
       calibrated.
-- [ ] Same file, `test_mixed_and_box_next` docstring: replace the stale "~44-45s, ~25%
+- [x] Same file, `test_mixed_and_box_next` docstring: replace the stale "~44-45s, ~25%
       headroom" characterization with the 21-run figures (median 46.5-49.9 s, ~43% of isolated
       seeded draws exceeded 60 s; uncensored bad-draw cost 92.8-104.2 s).
-- [ ] `code/src/model_checker/theory_lib/bimodal/examples.py` (`BM_CM_4_settings`,
-      ~lines 377-399): `max_time: 30` -> `max_time: 60` with inline basis (prior uncensored
-      15-24 s record post-soundness-fix; Phase 1 re-probe figures if taken; ~2.5x margin).
-- [ ] `oracle/bimodal_logic/tests/test_boundary_regression.py:386` (inline copy): `30` -> `60`
-      with matching comment — keep both definition sites in sync.
-- [ ] Add the pass-2 headroom arithmetic note at `ORACLE_PASS2_TIMEOUT`'s comment
-      (value UNCHANGED at 1800).
-- [ ] No task numbers in any of these files (constraint 8).
+- [x] `code/src/model_checker/theory_lib/bimodal/examples.py` (`BM_CM_4_settings`):
+      DEVIATION per Phase 1 gate — `max_time: 30` -> `max_time: 120` (NOT 60): the fresh
+      7-seed probe measured a 57.12 s worst draw, so 60 would sit at 1.05x the measured
+      worst; 120 = 2.1x per convention. Inline basis records the probe figures.
+- [x] `oracle/bimodal_logic/tests/test_boundary_regression.py` (inline copy): `30` -> `120`
+      with matching comment — both definition sites in sync (also refreshed the stale
+      "~15-24s" characterizations in the two BM_CM_4 docstrings there).
+- [x] Add the pass-2 headroom arithmetic note at `ORACLE_PASS2_TIMEOUT`'s comment
+      (value UNCHANGED at 1800) — `oracle/run-oracle-suite.sh`.
+- [x] No task numbers added in any of these files (constraint 8; pre-existing citations in
+      untouched text left as-is).
 
 **Timing**: 1 hour
 

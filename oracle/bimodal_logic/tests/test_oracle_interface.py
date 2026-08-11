@@ -951,16 +951,31 @@ class TestMixedFormulas:
     def test_mixed_and_box_next(self):
         """and(box(A), next(B)) -- L2 and + modal box + L1 next.
 
-        Genuine solve time is a stable ~44-45s against the unchanged 60000ms
-        budget (comfortably under budget alone, ~25% headroom) -- confirmed
-        by repeated serial timing. It fails only under the gating suite's
-        parallel pass (-n 6) via the same six-way CPU contention mechanism
-        documented for sibling test_mixed_or_diamond_prev elsewhere in this
-        file. `xdist_serial` (with no budget change) routes it to the
-        gating suite's contention-free serial pass instead.
+        Solve-cost distribution (21-run gating history + seeded isolated
+        probes, 2026-08): median 46.5-49.9s, with ~43% of isolated seeded
+        draws exceeding 60s; the bad draws are BOUNDED, not divergent --
+        an uncensored re-probe of the three previously-censored seeds
+        decided all of them at 92.8-104.2s (rlimit 222M/236M/338M vs ~130M
+        for a good draw). The earlier "~44-45s, ~25% headroom"
+        characterization in this docstring under-sampled that tail.
+        `xdist_serial` routes this to the gating suite's contention-free
+        serial pass (same -n 6 six-way CPU contention mechanism as sibling
+        test_mixed_or_diamond_prev).
         """
         formula = _and(_box(A), _next(B))
-        result = self.provider.find_countermodel(formula, timeout_ms=60000)
+        # timeout_ms recalibrated 60000 -> 240000 (2026-08-11): the 60000
+        # figure dates to 2026-06-01 (commit ea516a4b) and PRE-DATES the
+        # 2026-08-07 quantifier bound-variable-aliasing soundness fix
+        # (commit 3c0cf210) that permanently raised genuine solve cost for
+        # this formula class; it was never recalibrated afterward, while
+        # both siblings were (or_diamond_prev 60000 -> 150000, BM_CM_4
+        # max_time 15 -> 30). Basis: uncensored probe decided the three
+        # previously-censored seeds at 92.8-104.2s; 240000 = ~2.3x the
+        # measured worst (104.2s), matching the sibling convention
+        # (or_diamond_prev's 150000 ~= 2.07x of its 72.6s worst). The
+        # countermodel is still genuinely found -- a budget calibration,
+        # not a semantic change.
+        result = self.provider.find_countermodel(formula, timeout_ms=240000)
         # SAT -- countermodel where box(A) and next(B) fail together
         assert result is not None
 

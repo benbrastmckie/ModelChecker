@@ -119,6 +119,19 @@ export PYTHONPATH="${PYTHONPATH:-$repo_root/code/src}"
 # per-formula solve timeouts unrelated to this pass-level budget -- see the
 # triage record in that same task directory. Widening this budget further
 # would not address those, and must not be attempted for that purpose.
+#
+# Headroom check after the 2026-08-11 per-formula recalibration (and_box_next
+# 60000 -> 240000ms; BM_CM_4 max_time 30 -> 120s x3 tests; gating re-check
+# 10000 -> 20000ms x ~4 marginal formulas; and_all_future_neg and the ternary
+# serialization test relocated into this pass): the SIMULTANEOUS worst case --
+# every widened budget drawn to its measured maximum in the same run, which
+# requires 6+ independent worst draws to coincide -- sums to ~1450-1690s
+# against the 800-1030s measured band, still under 1800s. Typical runs remain
+# ~850-1150s. The one scenario exceeding 1800s (a divergent ~1-in-7 next_A
+# draw consuming its full 480s leg bound) is one in which that leg's own test
+# has ALREADY hard-failed, so the pass budget is not the binding constraint
+# there and widening it would rescue nothing. 1800s therefore remains
+# calibrated, not implicated, and is deliberately unchanged.
 pass1_timeout="${ORACLE_PASS1_TIMEOUT:-1300}"
 pass2_timeout="${ORACLE_PASS2_TIMEOUT:-1800}"
 

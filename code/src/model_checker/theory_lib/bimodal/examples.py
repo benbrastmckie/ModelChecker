@@ -381,15 +381,25 @@ BM_CM_4_settings = {
     'M' : 2,
     'contingent' : True,
     'disjoint' : False,
-    'max_time' : 30,  # Widened from 15: fixing the quantifier bound-variable aliasing
-                       # defect (see operators.py's _fresh_bound_int docstring) removes
-                       # a Z3 term-identity-based simplification shortcut PastOperator's
+    'max_time' : 120,  # Recalibrated 30 -> 120 (2026-08-11). History: widened 15 -> 30
+                       # when fixing the quantifier bound-variable aliasing defect (see
+                       # operators.py's _fresh_bound_int docstring) removed a Z3
+                       # term-identity-based simplification shortcut PastOperator's
                        # bound variable used to get "for free" via accidental name
                        # reuse -- the same effect documented for Box(p)->Box(p) in
-                       # operators.py. The countermodel is still genuinely found; it
-                       # now measures ~15-24s instead of ~3s, so 30s (the generous-budget
-                       # convention used elsewhere in this file) leaves real headroom
-                       # instead of sitting at the boundary. Not a soundness change.
+                       # operators.py. The 30s figure rested on a ~15-24s observed
+                       # record that under-sampled the solve-cost tail: a 7-seed
+                       # uncensored probe (pinned smt/sat.random_seed, 120s probe
+                       # budget, 2026-08-11) measured median 6.9s but a 57.1s worst
+                       # draw (rlimit 32.2M) -- 30s misses that draw outright and 60s
+                       # would cover it at only ~1.05x, sitting exactly at the
+                       # boundary. 120s = ~2.1x the measured worst, the same
+                       # ~2x-of-measured-worst convention as the other recalibrated
+                       # slow solves in this line of work. The countermodel is still
+                       # genuinely found on every probed seed; raising max_time is
+                       # monotone-safe for a countermodel expectation. Keep in sync
+                       # with the inline copy in
+                       # oracle/bimodal_logic/tests/test_boundary_regression.py.
     'expectation' : True,
 }
 BM_CM_4_example = [
