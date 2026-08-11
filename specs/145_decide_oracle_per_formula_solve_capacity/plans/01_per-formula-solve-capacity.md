@@ -261,15 +261,18 @@ preferred remedy in principle; it is unavailable because no measured-reliable wi
 
 ---
 
-### Phase 2: Decision record artifact [NOT STARTED]
+### Phase 2: Decision record artifact [COMPLETED]
 
 **Goal**: Write the standalone capacity-decision record — half the point of this task — before
 any code changes land, so the code changes implement a recorded decision rather than the record
 post-hoc rationalizing the changes.
 
 **Tasks**:
-- [ ] Write `specs/145_decide_oracle_per_formula_solve_capacity/reports/02_capacity-decision-record.md`
-      containing:
+- [x] Write `specs/145_decide_oracle_per_formula_solve_capacity/reports/02_capacity-decision-record.md`
+      containing (DEVIATIONS per Phase 1 gate: BM_CM_4 recorded as 30 -> 120, not 30 -> 60;
+      ternary mechanism recorded as the fallback — relocation + 480000 ms leg override +
+      accepted ~1-in-7 residual — not substitution; Step 3 re-pin recorded as 627/609/16/2;
+      pass-2 arithmetic recomputed to ~1450-1690 s simultaneous-worst, still < 1800 s):
   - Per-mechanism decision table: `and_box_next` 60000 -> 240000 ms (bounded tail, probe
     92.8-104.2 s uncensored, 2.3x-worst convention, never-calibrated provenance `ea516a4b`);
     BM_CM_4 `max_time` 30 -> 60 s (bounded, 15-24 s prior record + Phase 1 probe if taken);
