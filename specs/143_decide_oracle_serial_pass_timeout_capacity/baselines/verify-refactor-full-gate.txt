@@ -1,0 +1,25 @@
+warning: Git tree '/home/benjamin/Projects/ModelChecker' is dirty
+[devShell] BimodalHarness: ../BimodalHarness/src
+[verify-refactor] === Step 1: in-package bimodal collection count ===
+[verify-refactor] OK: 302 tests collected (baseline 289)
+[verify-refactor] === Step 2: full in-package suite collection count ===
+[verify-refactor] OK: 2181 tests collected (baseline 2100)
+[verify-refactor] === Step 3: oracle collection counts (total + per-marker sub-counts) ===
+[verify-refactor] OK: oracle total = 627 (pinned 627)
+[verify-refactor] OK: oracle gating-parallel = 611 (pinned 611)
+[verify-refactor] OK: oracle xdist_serial = 14 (pinned 14)
+[verify-refactor] OK: oracle slow = 2 (pinned 2)
+[verify-refactor] OK: sub-counts partition the suite (611 + 14 + 2 = 627)
+[verify-refactor] === Step 4: bimodal in-package suite (one retry allowed for documented flake) ===
+[verify-refactor] OK: bimodal suite green on first attempt
+[verify-refactor] === Step 5: cross-oracle accommodation guard intact ===
+[verify-refactor] OK (5a): oracle/bimodal_logic/KNOWN_EXTERNAL_DEFECTS.md present and non-empty
+[verify-refactor] OK (5b): all five guard assertions present exactly once, in the required order
+[verify-refactor] OK (5c): all four floor/budget constants hold their pinned values
+[verify-refactor] OK (5d): all 4 xfail( markers in oracle/bimodal_logic/tests/test_oracle_interface.py are strict=True
+[verify-refactor] === Step 6: gating oracle suite (oracle/run-oracle-suite.sh) ===
+[verify-refactor] FAIL: gating oracle suite failed (runner exit 1); see /tmp/verify-refactor-oracle.txt
+[verify-refactor] === Step 7: compare_bimodal_baseline.sh ===
+[verify-refactor] OK: OK: 0 regressions (matches baseline)
+
+[verify-refactor] 1 check(s) FAILED

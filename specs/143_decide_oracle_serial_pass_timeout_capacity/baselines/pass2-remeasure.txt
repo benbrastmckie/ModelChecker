@@ -1,0 +1,114 @@
+=== uptime before ===
+ 15:30:13  up 5 days 17:48,  1 user,  load average: 4.26, 5.23, 6.51
+=== pass2-only quiet-machine remeasurement ===
+warning: Git tree '/home/benjamin/Projects/ModelChecker' is dirty
+[devShell] BimodalHarness: ../BimodalHarness/src
++ timeout --kill-after=60s 1800 pytest oracle -m 'xdist_serial and not slow' -rs
+============================= test session starts ==============================
+platform linux -- Python 3.12.13, pytest-9.0.3, pluggy-1.6.0
+rootdir: /home/benjamin/Projects/ModelChecker
+plugins: timeout-2.4.0, xdist-3.8.0
+collected 627 items / 613 deselected / 14 selected
+
+oracle/bimodal_logic/tests/test_boundary_regression.py ...               [ 21%]
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py F           [ 28%]
+oracle/bimodal_logic/tests/test_oracle_interface.py ....                 [ 57%]
+oracle/bimodal_logic/tests/test_oracle_provider.py .                     [ 64%]
+oracle/bimodal_logic/tests/test_soundness_regression.py .....            [100%]
+
+=================================== FAILURES ===================================
+__ TestGatingConclusiveScan.test_known_conclusive_population_self_consistent ___
+
+self = <bimodal_logic.tests.test_cross_oracle_differential.TestGatingConclusiveScan object at 0x7ffff2af8470>
+
+    def test_known_conclusive_population_self_consistent(self):
+        """Solve only the manifest's known-conclusive subset and assert the
+        unmodified `_assert_scan_report` soundness/floor teeth over it.
+    
+        Two distinct claims, exactly as in TestFullScanReport (see
+        `_assert_scan_report`'s own docstring): zero disagreements among
+        conclusive results is the soundness claim (zero tolerance); at
+        least `MIN_CONCLUSIVE_GATING_FORMULAS` conclusive formulas is a
+        performance floor over this run's re-solve of the known-conclusive
+        subset (a starved budget or contention must not silently degrade
+        into "everything timed out here too, therefore zero disagreements,
+        therefore pass").
+        """
+        manifest = _load_known_conclusive_manifest(KNOWN_CONCLUSIVE_MANIFEST_PATH)
+        conclusive_formulas = _verify_manifest_matches_enumeration(manifest)
+    
+        def ref_fn(f):
+            return _reference_verdict(
+                self.oracle, f, timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS
+            )
+    
+        report = _generate_differential_report(
+            self.oracle,
+            conclusive_formulas,
+            ref_fn,
+            {"mc": "mc_oracle", "ref": "mc_oracle_self"},
+            timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS,
+        )
+    
+>       _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_GATING_FORMULAS)
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:2332: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+report = {'agreements': 99, 'completed_at': '2026-08-10T22:34:04.340726+00:00', 'disagreements': 0, 'entries': [{'agreement': T... 3, 'formula_json': {'left': {'tag': 'bot'}, 'right': {'tag': 'bot'}, 'tag': 'imp'}, 'has_box': False, ...}, ...], ...}
+min_conclusive = 100
+
+    def _assert_scan_report(report: dict, min_conclusive: int) -> None:
+        """Assert the two distinct claims a self-consistency scan report must
+        satisfy, and print all three counts unconditionally so a green run is
+        still informative.
+    
+        - "Zero disagreements among conclusive results" -- the soundness claim.
+          Both solves of a formula completed and returned opposite verdicts.
+          This is a real bug and fails unconditionally, with no tolerance.
+        - "At least `min_conclusive` conclusive formulas" -- a *performance*
+          floor, not a soundness claim. It exists so a starved solve budget
+          cannot silently degrade into "everything was inconclusive, therefore
+          zero disagreements, therefore pass". A failure here is a
+          budget/performance regression to investigate, not a semantic one.
+        """
+        conclusive = report["total_formulas"] - report["timeout_count"]
+        print(
+            f"scan report: agreements={report['agreements']} "
+            f"disagreements={report['disagreements']} "
+            f"timeout_count={report['timeout_count']} "
+            f"conclusive={conclusive}/{report['total_formulas']}"
+        )
+        disagreeing = [
+            e["formula_json"]
+            for e in report["entries"]
+            if e["mc_result"] != "TIMEOUT"
+            and e["reference_result"] != "TIMEOUT"
+            and not e["agreement"]
+        ]
+        assert report["disagreements"] == 0, (
+            f"Self-comparison produced {report['disagreements']} disagreements among "
+            f"conclusive results: {disagreeing[:5]}"
+        )
+>       assert conclusive >= min_conclusive, (
+            f"Only {conclusive} of {report['total_formulas']} formulas were conclusive "
+            f"(floor={min_conclusive}); this is a budget/performance regression to "
+            f"investigate, not a semantic one."
+        )
+E       AssertionError: Only 99 of 103 formulas were conclusive (floor=100); this is a budget/performance regression to investigate, not a semantic one.
+E       assert 99 >= 100
+
+oracle/bimodal_logic/tests/test_cross_oracle_differential.py:656: AssertionError
+----------------------------- Captured stdout call -----------------------------
+scan report: agreements=99 disagreements=0 timeout_count=4 conclusive=99/103
+
+== ORACLE TIMEOUT-SKIP INVENTORY ==
+no timeout skips in this session
+-- a skip here is a budget/performance outcome, never cleared by widening a solve budget; see code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8.
+=========== 1 failed, 13 passed, 613 deselected in 836.37s (0:13:56) ===========
+
+real	13m56.716s
+user	13m50.332s
+sys	0m2.961s
+=== uptime after ===
+ 15:44:12  up 5 days 18:02,  1 user,  load average: 7.03, 6.35, 6.42

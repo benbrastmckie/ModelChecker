@@ -6,40 +6,42 @@ next_project_number: 144
 
 ## Task Order
 
-*Updated 2026-08-10. Generated from state.json dependency graph.*
+*Updated 2026-08-11. Generated from state.json dependency graph.*
 
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 142,143 | -- | oracle verification coverage, oracle suite capacity |
+| 1 | 143 | -- | oracle suite capacity |
 
 **Grouped by Topic** (indented = depends on parent):
 
-### Oracle Verification Coverage
-
-142 [NOT STARTED] — Two categories of oracle verification currently produce no signal
-
 ### Oracle Suite Capacity
 
-143 [NOT STARTED] — The gating oracle suite's serial pass (pass 2 of oracle/run-oracl
+143 [BLOCKED] — The gating oracle suite's serial pass (pass 2 of oracle/run-oracl
 
 ## Tasks
 
 ### 143. Decide oracle serial pass timeout capacity
-- **Status**: [NOT STARTED]
+- **Status**: [BLOCKED]
 - **Task Type**: python
 - **Topic**: oracle suite capacity
 - **Dependencies**: None
+- **Research**: [143_decide_oracle_serial_pass_timeout_capacity/reports/01_serial-pass-capacity.md]
+- **Plan**: [143_decide_oracle_serial_pass_timeout_capacity/plans/01_formalize-capacity-decision.md]
+- **Summary**: [143_decide_oracle_serial_pass_timeout_capacity/summaries/01_phase4-triage-record.md]
 
 **Description**: The gating oracle suite's serial pass (pass 2 of oracle/run-oracle-suite.sh, ORACLE_PASS2_TIMEOUT default 900s) now runs at 96.6% of its budget: a measured '14 passed, 592 deselected in 869.58s' leaves only 30.4 seconds of slack. This is expected to flake on a loaded machine, and that measurement was itself taken under rising system load (6.48 -> 11.19). For calibration the same pass took 795.70s with 10 tests and 770.48s with 11 tests; it now carries 14. The cause is legitimate rather than accidental: four genuinely slow solves were deliberately routed into the contention-free serial pass via @pytest.mark.xdist_serial to fix real -n 6 CPU-contention failures -- test_mixed_and_box_next (~44-45s) and three BM_CM_4 cases (~15-24s each). Scheduling was the correct fix and nothing was weakened to obtain the current green. But the serial pass now carries more work than when its 900s budget was set, and that budget was never revisited. Decide the capacity question deliberately and record the reasoning. Options, from the originating diagnosis report: (a) raise ORACLE_PASS2_TIMEOUT as an honest capacity adjustment; (b) attack the cause by making those four solves faster, which is semantic work on the encoding rather than a budget change; (c) accept and monitor, treating a pass-2 timeout as a capacity signal rather than a correctness regression. Option (a) is the lowest-effort durable fix and was recommended, PROVIDED it is done as a deliberate decision with the reasoning recorded -- not as an incidental fix during unrelated work. Before deciding, re-measure pass 2 on a genuinely quiet machine, since the 869.58s figure is contaminated by concurrent load and likely overstates the steady-state cost. Adjudicate inside 'nix develop' only. ALSO OWNS RE-PINNING THE GATE'S COLLECTION COUNTS. The end-to-end run of code/scripts/verify-refactor.sh is now green on Steps 1, 2, 4, 5, 6 and 7 but reports 2 FAILED checks at Step 3: 'oracle gating-parallel collection count is 590, expected exactly 594' and 'oracle xdist_serial collection count is 14, expected exactly 10'. These are not regressions. They are the pins correctly detecting the deliberate relocation of four genuinely slow solves out of the parallel pass and into the serial pass. The suite total is unchanged at 606 and the partition invariant still holds (590 + 14 + 2 = 606). The gate's own failure message prescribes the remedy: 're-pin all four BASELINE_ORACLE_* values together'. This was deliberately NOT done when the markers landed, to avoid pinning twice: if this task's capacity decision raises ORACLE_PASS2_TIMEOUT, or moves tests back out of the serial pass, or makes those solves fast enough to return to the parallel pass, the distribution changes again. Re-pin ONCE, after the capacity decision is settled and the final distribution is known, updating all four BASELINE_ORACLE_* values together and re-running the full gate to confirm 'All checks passed'. Note that re-pinning to match an intentional redistribution is not a weakening: the pins remain exactly as strict and will still fail on any future unintended change. Do not, however, relax the partition check or the total.
 
 ---
 
 ### 142. Surface oracle timeout skips and run exhaustive scan
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: oracle verification coverage
 - **Dependencies**: None
+- **Research**: [142_surface_oracle_timeout_skips_and_run_exhaustive_scan/reports/01_oracle-timeout-skips-scan.md]
+- **Plan**: [142_surface_oracle_timeout_skips_and_run_exhaustive_scan/plans/01_surface-oracle-timeout-skips.md]
+- **Summary**: [142_surface_oracle_timeout_skips_and_run_exhaustive_scan/summaries/01_surface-oracle-timeout-skips-summary.md]
 
 **Description**: Two categories of oracle verification currently produce no signal in the gating suite, and both hide real information about where the bimodal Z3 encoding is too slow to decide. (1) TIMEOUT-CONDITIONAL SKIPS: oracle/bimodal_logic/tests/test_oracle_interface.py converts an OracleTimeoutError into pytest.skip() at two sites (around lines 635 and 779) rather than failing. The rationale is correct -- a timeout is a budget/performance outcome, not a semantic regression -- but the consequence is that formulas the oracle cannot decide within budget disappear silently inside a green run. Worse, the first site's own skip message states that the affected example's ACTIVE_EXAMPLES expected_sat 'may itself have been measured under the old timeout-conflated contract', i.e. a recorded expectation may be wrong and nothing will ever report it. Make these skips visible and actionable: enumerate which formulas actually skip on a quiet machine, and for each, determine whether its recorded expected_sat is trustworthy or was measured under the old contract. Produce a prioritized worklist of formulas whose encoding needs performance work. Do NOT convert the skips into failures as a way of 'surfacing' them, and do NOT widen any timeout to make them decide -- the point is to measure and record, not to move budgets. (2) EXHAUSTIVE SCAN NEVER RUNS: oracle/run-oracle-suite.sh deselects '@pytest.mark.slow' from BOTH of its passes, so the exhaustive complexity<=5 self-consistency scan (oracle/run-oracle-exhaustive-scan.sh) runs only when invoked by hand, which nothing automated does. Run it on a quiet machine, record its result and runtime, and recommend whether it should be gated, scheduled periodically, or left manual -- with the cost in wall-clock time stated. Also worth checking while in this area: bimodal.get_theory(config) accepts a config argument and ignores it entirely (its own docstring says 'currently unused'), so a caller passing ['extensional'] silently receives the full bimodal theory including all temporal and modal operators. That makes a nominally trivial extensional example solve over a world-history x time search space. Assess whether any caller relies on the restriction that does not happen, and either implement the restriction or make the argument fail loudly. Adjudicate everything inside 'nix develop' only -- bare-PATH python gives false greens on this repo, including from missing test plugins, not just interpreter version differences.
 

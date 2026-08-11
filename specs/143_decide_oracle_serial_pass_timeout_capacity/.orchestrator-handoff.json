@@ -1,0 +1,19 @@
+{
+  "status": "partial",
+  "summary": "Phase 3 ran the full gate twice end-to-end. Both runs reached Step 6 and both failed there; neither reached All checks passed. Phase 4 triage classified this as branch (iii) genuine, NOT branch (i) environmental: at load average 1.57 the failure count went UP versus the load-5.4-to-7.5 attempt, and pass 1 (which passed under contention) failed on the quiet machine. The failure set is unstable across runs (test_mixed_and_box_next is the only signature common to both), and every failure is a per-formula Z3 solve timeout (60000ms/180000ms) or its downstream conclusive-floor consequence, with disagreements=0 throughout -- a budget/performance condition, not a correctness regression. The capacity decision this task exists to make is nonetheless CONFIRMED TWICE: pass 2 measured 958.58s (contended) and 847.38s (quiet) against the new 1800s budget, never approaching it. The collection re-pin is confirmed twice: Step 3 OK on all four pins and the partition 611+14+2=627 in both runs. Step 5 sub-check 5c confirmed all four floor/budget constants still hold pinned values in both runs -- nothing was weakened. Phase 5 (commit) was NOT executed because the plan conditions it on Step 6 green; the two working-tree edits remain uncommitted.",
+  "artifacts": [
+    {
+      "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/summaries/01_phase4-triage-record.md",
+      "type": "summary",
+      "summary": "Phase 4 triage record: branch (iii) classification with side-by-side contended/quiet run evidence, confirmation of the 1800s capacity decision and the 627/611/14/2 re-pin, and the explicit list of weakenings refused."
+    }
+  ],
+  "blockers": [
+    "Step 6 cannot reach green: the gating oracle suite has nondeterministic per-formula Z3 solve timeouts that persist on a quiet machine. Quiet run (load 1.57): pass 1 failed on test_mixed_and_all_future_neg (60000ms) and test_all_sat_task_relation_ternary (180000ms); pass 2 failed on test_mixed_and_box_next (60000ms). Contended run (load 5.4-7.5): pass 2 failed on test_mixed_and_box_next plus a cross-oracle conclusive floor miss (99 of 103, floor 100). test_mixed_and_box_next is the only common signature. This is pre-existing and outside this task stated scope -- it is option (b) from the originating diagnosis (semantic work on the encoding), not the capacity/re-pin decision this task owns.",
+    "SCOPE DECISION FOR THE USER, not auto-resolvable: the two working-tree edits are independently verified twice and strictly improve the gate (HEAD is red at BOTH Step 3 and Step 6; with the edits it is red at Step 6 only). Committing them as a strict improvement plus opening a separate task for the solve timeouts is defensible, but the plan conditions Phase 5 on Step 6 green, so it was not done unilaterally."
+  ],
+  "continuation_context": null,
+  "next_action_hint": "Do NOT retry the gate as-is -- two runs across a 3.5x load range establish the failure is not environmental, so a third run buys nothing. The user must choose: (1) commit the verified edits as a strict gate improvement and spawn a separate task for the oracle solve-timeout condition, or (2) keep the plan gate-conditioned and spawn the solve-timeout task first, leaving these edits uncommitted until it lands. Under NO option may MIN_CONCLUSIVE_GATING_FORMULAS, SELF_SCAN_SOLVE_TIMEOUT_MS, or any per-solve budget be widened to force green.",
+  "phases_completed": 4,
+  "phases_total": 5
+}
