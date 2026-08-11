@@ -1,5 +1,5 @@
 ---
-next_project_number: 145
+next_project_number: 146
 ---
 
 # TODO
@@ -11,15 +11,49 @@ next_project_number: 145
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 143 | -- | oracle suite capacity |
+| 1 | 143,145 | -- | oracle suite capacity |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Oracle Suite Capacity
 
 143 [BLOCKED] — The gating oracle suite's serial pass (pass 2 of oracle/run-oracl
+145 [NOT STARTED] — Step 6 of code/scripts/verify-refactor.sh remains contention-sens
 
 ## Tasks
+
+### 145. Decide oracle per formula solve capacity
+- **Status**: [NOT STARTED]
+- **Task Type**: python
+- **Topic**: oracle suite capacity
+- **Dependencies**: None
+
+**Description**: Step 6 of code/scripts/verify-refactor.sh remains contention-sensitive red at the PER-FORMULA layer, and the encoding route to fixing it is now empirically exhausted. This task decides and implements the capacity route one layer down from the pass-level decision already taken.
+
+LAYER CLARIFICATION (important -- do not conflate): task 143's option (a) was the PASS-level ORACLE_PASS2_TIMEOUT, raised 900s -> 1800s in commit e3b09d4e with a recorded measurement basis. That decision is implemented and carries roughly 840-950s of headroom over every measurement ever taken; pass 2 measured 958.58s and 847.38s against 1800s. It is NOT implicated here and must not be revisited. The unresolved layer is the PER-SOLVE budgets (60000 ms / 180000 ms) governing individual formula solves, for which no option-space evaluation has ever been done. This task is the per-formula analogue of the capacity decision task 143 performed at the pass level.
+
+CURRENT EVIDENCE: task 144 attacked the cause at the encoding level and produced a rigorous negative result. It built a seeded measurement harness using Z3 rlimit as a load-independent primary metric, established a 21-run paired baseline, then implemented, measured paired-by-seed, and rejected all three candidates: E-matching trigger patterns (neutral on the benchmark, and regressive outside it -- it pushed \Future p from ~3s to a 5000 ms timeout), shift-dimension grounding of the abundance axiom (regressive on 2 of 3 targets), and a body-derived ForAllTime trigger (Z3 rejected the term as an invalid pattern). All were reverted; the final encoding is semantically identical to baseline, confirmed by exact rlimit reproduction. Task 144's phase 5 ran the gate twice: green under low load, red under higher load with 3 of 14 pass-2 failures -- including TestMixedFormulas::test_mixed_and_box_next and TestGatingConclusiveScan at 99 of 103 against a floor of 100 -- with disagreements=0 both times. The diagnosis is that test_mixed_and_box_next and the ternary test's next_A leg sit at approximately 1.0x headroom against their per-solve budgets, so gate outcome is decided by machine contention and by Z3's documented run-to-run variance (up to ~20x per code/docs/core/TESTING_GUIDE.md section 8.6) rather than by correctness.
+
+THIS IS A DECISION TASK. Produce a recorded decision with a measurement basis, in the same discipline task 143 applied at the pass level, then implement it. Evaluate at minimum:
+
+(a) CONTENTION CAPACITY -- give the marginal solves more machine rather than more time. Verify whether pass 2 genuinely runs contention-free in practice; examine xdist worker counts, CPU pinning/affinity, and serial-pass membership; consider relocating additional marginal formulas into the contention-free serial pass, which is the mechanism already used to house the four known-slow solves. This is the option that most directly matches the measured failure mode (quiet run vs loaded run) and should be evaluated first.
+
+(b) PER-SOLVE BUDGET RECALIBRATION with a recorded measurement basis, applying oracle/run-oracle-suite.sh's documented ~2x-of-measured-on-idle convention one layer down. TENSION THAT MUST BE ADJUDICATED EXPLICITLY, NOT ASSUMED: code/docs/core/TESTING_GUIDE.md sections 8.6 and 8.8 hold that a timeout is a budget/performance outcome never cleared by widening a solve budget, and task 144 was explicitly forbidden from this route. Option (b) may be selected ONLY with an explicit recorded argument distinguishing "these per-solve budgets were never calibrated against measured cost, and the workload legitimately grew" from "papering over contention" -- the same standard task 143 met before raising the pass budget. Do not fall back to (b) merely because (a) is more work. If (b) is selected, the reasoning must be recorded inline at the constant, not just the value changed.
+
+(c) ACCEPT AND MONITOR / quarantine. Evaluate honestly; if rejected, record why.
+
+HARD CONSTRAINTS (stand regardless of which option is selected):
+- Do NOT lower MIN_CONCLUSIVE_GATING_FORMULAS or MIN_CONCLUSIVE_SCAN_FORMULAS. A floor miss is a signal to investigate, never a license to lower the floor.
+- Do NOT xfail, skip, or otherwise disable any failing test.
+- Do NOT revisit ORACLE_PASS2_TIMEOUT; it is calibrated and not implicated.
+- disagreements must remain 0 throughout -- the oracle is a differential correctness reference.
+- Adjudicate inside `nix develop` only.
+
+DO NOT RE-ATTEMPT ENCODING-LEVEL SPEEDUPS. Task 144 measured and rejected three candidates on top of six previously documented dead ends; the full dead-end record is in specs/144_fix_oracle_per_formula_solve_timeouts/summaries/01_oracle-solve-cost-reduction-summary.md and reports/01_oracle-solve-cost-reduction.md. Reusable assets: specs/144_fix_oracle_per_formula_solve_timeouts/bench_solve_cost.py (seeded harness, Z3 rlimit metric) and baselines/01_solve-cost-baseline.json (21-run paired baseline). Reuse the rlimit-based paired-by-seed methodology for any measurement here -- wall-clock alone is not decisive under variable load.
+
+DELIVERABLE: a recorded, implemented decision plus a full verify-refactor.sh run confirming "[verify-refactor] All checks passed". Completing this unblocks task 143, which is currently blocked pending a green Step 6.
+
+---
 
 ### 144. Fix oracle per formula solve timeouts
 - **Status**: [COMPLETED]
