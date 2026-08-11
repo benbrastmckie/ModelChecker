@@ -442,49 +442,66 @@ failure mode this plan exists to avoid.
 
 ---
 
-### Phase 4: Trigger patterns for `ForAllTime`/`ExistsTime` (gated) [NOT STARTED]
+### Phase 4: Trigger patterns for `ForAllTime`/`ExistsTime` (gated) [COMPLETED]
 
 - **Goal:** Address the one remaining unpatterned quantifier family — the helper every
   `\Future`/`\Past`/`\Until`/`\Since` truth method routes through — whose guard is arithmetic and
   therefore not directly pattern-eligible.
-- **Gate:** Execute this phase only if, after Phases 2-3, the measured `max(wall)` headroom for any
-  target formula is still below **2x** its budget. If all three formulas already clear 2x headroom,
-  skip this phase, mark it `[NOT STARTED]` with a one-line note recording the measured headroom that
-  justified skipping, and proceed to Phase 5. Do not spend effort on a lever that is no longer needed.
+- **Gate decision: EXECUTED (not skipped).** Post-Phases-2-3 measured `max(wall)` headroom (Phase 1
+  baseline numbers, since neither Phase 2 nor 3 produced an accepted candidate): `and_box_next`
+  60.37s vs. 60s budget (~1.0x, well below 2x) and `all_sat_task_relation_ternary`'s `next_A` leg
+  actually TIMED OUT at seed 3 in the Phase 1 baseline round (180.47s wall against a 180000ms budget,
+  `structure.timeout=True` -- confirmed by inspecting that run's raw `sub_results`). Both are far
+  below the 2x threshold, so the gate requires executing this phase.
+- **Outcome: no legal, safe trigger found; dead end 11 recorded; `ForAllTime`/`ExistsTime` reverted to
+  their original unpatterned form.**
 - **Tasks:**
-  - [ ] Confirm the blocking fact from the research: `is_valid_time` is
+  - [x] Confirmed the blocking fact from the research: `is_valid_time` is
         `z3.And(given_time > -M + offset, given_time < M + offset)` (`core.py` ~841) — arithmetic,
         **not** a function application, therefore illegal as a trigger as written.
-  - [ ] Identify a legal covering trigger from the quantifier body instead. The natural candidates
-        are the `world_function`/`z3.Select` applications at `time_var` that the recursive truth
-        predicate already generates. Determine whether a body-derived pattern is available at the
-        point `ForAllTime` is constructed, given that `body` arrives as an opaque Z3 expression.
-  - [ ] If no legal body-derived trigger is reachable without restructuring `ForAllTime`'s API,
-        stop and record this as a dead end with the specific reason. Do **not** introduce an
-        auxiliary axiomatized `valid_time` predicate solely to create a trigger: that adds a new
-        quantified iff-axiom to the encoding, which is a cost increase of unknown sign and outside
-        this task's measured-improvement-only discipline.
-  - [ ] If a legal trigger is reachable, apply it to `ForAllTime` (the universal case). Evaluate
-        whether `ExistsTime` benefits at all given the Phase 2 finding on patterns under `Exists`.
-  - [ ] Run the semantics-preservation gate (`disagreements=0`). This phase carries the highest
-        instantiation-suppression risk of the plan: a too-narrow time trigger can starve a temporal
-        operator of the instantiation it needs and flip a verdict.
-  - [ ] Run a full measurement round; write `baselines/04_phase4-time-patterns.json`; compare paired
-        against the Phase 3 accepted state.
-  - [ ] Apply the acceptance rules. Accept, or revert and record as a dead end.
+  - [x] Identified a legal covering trigger from the quantifier body instead, via direct AST
+        inspection of the actual `\next(B) = Until(B, bot)` translation (all three Phase 1 targets
+        use `\next`): a `Select(world_function(w), time_var)`-shaped subterm IS syntactically
+        present in the guard-time `ForAllTime`'s body for this specific case. Implemented a bounded,
+        depth-limited AST walk (`_find_body_time_pattern`) that auto-detects such a subterm at
+        `ForAllTime`-construction time, opt-in only (falls back to no pattern when nothing is found).
+  - [x] The discovered term was **rejected by Z3 with a hard construction-time error**
+        (`z3.z3types.Z3Exception: b'invalid pattern'`) when actually applied — not merely
+        ineffective, illegal. Root cause: the located subterm came from `bot`'s always-false
+        self-inequality encoding (`Select(...) != Select(...)`, same subterm on both sides), a shape
+        Z3's pattern-legality rules reject even though it syntactically mentions `time_var`. Per the
+        plan's explicit instruction, stopped and recorded as dead end 11 rather than attempting to
+        debug Z3's internal pattern-admissibility rules further within this phase's hard time-box.
+  - [x] Because no legal trigger survived, `ExistsTime` was left analytically addressed but
+        untouched: direct AST inspection confirmed the `ExistsTime` call in `\next(B)`'s translation
+        is (or is inside a top-level `And` with) the outermost quantifier for that subformula, which
+        Z3's preprocessing skolemizes away before search begins — any `patterns=` there would be
+        inert regardless of dead end 11's outcome. Recorded inline; no effort spent implementing an
+        inert pattern.
+  - [x] Ran the semantics-preservation gate on the final (reverted) state: `test_encoding_nondegeneracy.py`
+        green (4 passed). Direct rlimit reproduction confirms byte-identical behavior to Phase 1
+        baseline (seed-0 `and_box_next` rlimit=130120807, exact match) -- `test_soundness_regression.py`
+        and the differential suite were not re-run against this exact-match-to-already-verified state
+        for the same reason as Phases 2/3's final states.
+  - [x] No measurement round was run: the candidate never reached a working, Z3-accepted state, so
+        there was nothing to measure paired-by-seed. `baselines/04_phase4-time-patterns.json` was
+        NOT created (no candidate was produced), per the plan's own conditional artifact note.
+  - [x] Applied the acceptance rules: not applicable (no candidate reached a valid state to measure);
+        recorded as dead end 11 instead.
 - **Timing:** ~2 hours agent time (hard time-box; if no legal trigger is found within it, record the
   dead end and move on), plus ~30-45 min unattended measurement if a candidate is produced.
 - **Depends on:** 3
 - **Files to modify:**
   - `code/src/model_checker/theory_lib/bimodal/semantic/core.py` - `ForAllTime` / `ExistsTime`
-    (only if a legal trigger is found)
-  - `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/04_phase4-time-patterns.json` - new
-    (only if a candidate is produced)
+    investigated and reverted (dead-end-11 comment retained; no production behavior change)
+  - `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/04_phase4-time-patterns.json` - NOT
+    created (no candidate reached a measurable state)
 - **Verification:**
-  - Either: a legal, Z3-accepted trigger is in place with the semantics-preservation gate green and
-    an explicit accept/neutral/regressive verdict; or: a documented dead-end record explaining
-    precisely why no legal trigger was reachable, with no production file modified.
-  - The gate decision (skipped vs. executed) is recorded with the measured headroom that justified it.
+  - [x] No legal, Z3-accepted trigger was reachable within the phase's hard time-box; documented as
+        dead end 11 with the specific Z3Exception and root-cause analysis. No production file
+        modification survives (net diff is comment-only, confirmed by exact rlimit reproduction).
+  - [x] The gate decision (executed, not skipped) is recorded above with the measured headroom that
+        justified it.
 
 ---
 

@@ -429,6 +429,35 @@ class BimodalSemantics(SemanticDefaults):
         Returns:
             z3.ForAll expression with validity implications over domain D
         """
+        # Task 144 dead end 11: is_valid_time(time_var) is arithmetic
+        # (z3.And(t > ..., t < ...)), not a function application, so it is illegal as a
+        # trigger as written (confirmed by the research report and re-confirmed here). A
+        # body-derived alternative was investigated: body arrives fully built, and for the
+        # specific quantifier chain \next(B) = Until(B, bot) constructs (this task's Phase 1
+        # targets all use \next), direct AST inspection found that a genuine function-
+        # application subterm mentioning time_var (a world_function/Select application) IS
+        # syntactically present in body for that specific case. A bounded AST walk
+        # (_find_body_time_pattern, since removed) was implemented to auto-detect such a
+        # subterm and use it as patterns=[...] when found, falling back to no pattern
+        # otherwise. Z3 REJECTED the discovered term outright with
+        # `z3.z3types.Z3Exception: b'invalid pattern'` when applied to the actual guard-time
+        # ForAllTime call inside \next(B)'s Until/bot translation -- not merely ineffective,
+        # a hard construction-time error. Root cause (not fully diagnosed, and not worth
+        # diagnosing further per this phase's hard time-box): the located subterm's shape
+        # (from bot's always-false self-inequality encoding,
+        # world_function(w)[t] != world_function(w)[t]) is very likely not eligible even
+        # though it syntactically mentions time_var -- Z3's pattern legality rules are
+        # stricter than "contains the bound variable in a function application" (e.g. a
+        # pattern must not appear beneath an interpreted connective in a way that makes it
+        # trivially true, and self-referential equality/disequality subterms are a known
+        # rejected shape). Reliably finding a *legal* body-derived pattern in the general
+        # case (arbitrary operator arguments, not just this task's atomic-argument
+        # benchmark) would require either walking substantially more of the AST with
+        # correctness rules this task did not have budget to get right, or restructuring
+        # ForAllTime/ExistsTime's API so callers supply an explicit trigger hint at
+        # construction time -- both are out of scope per the plan's non-goal on broad
+        # core.py/operators.py refactoring beyond the named quantifier sites. Left
+        # unpatterned; ForAllTime/ExistsTime revert to their original, pre-Phase-4 form.
         return z3.ForAll(
             time_var,
             z3.Implies(
@@ -452,6 +481,20 @@ class BimodalSemantics(SemanticDefaults):
         Returns:
             z3.Exists expression with validity conjunction over domain D
         """
+        # Task 144 Phase 4: no pattern attempted here. For every one of the three Phase 1
+        # target formulas, the ExistsTime call this method builds ends up as (or inside a
+        # top-level And with) the outermost quantifier for its subformula -- e.g. \next(B) =
+        # Until(B, bot)'s witness-time ExistsTime -- which Z3's own preprocessing skolemizes
+        # away before the main search begins (no enclosing universal binds any free variable
+        # it would need to depend on). A patterns= argument on an Exists that gets
+        # skolemized to a ground Skolem constant is inert: there is no quantifier left for
+        # the pattern to guide by the time E-matching runs. Confirmed by direct AST
+        # inspection of the \next(B) translation during Phase 4 (see the phase-4 handoff).
+        # Per the plan's explicit "if inert, do not spend effort" guidance, no pattern was
+        # attempted here (and dead end 11's ForAllTime attempt above independently confirmed
+        # that even a structurally-present body-derived candidate can be an illegal pattern
+        # in this encoding, reinforcing that this family of quantifiers is not a safe target
+        # for further trigger experimentation without a much larger investigation).
         return z3.Exists(
             time_var,
             z3.And(
