@@ -92,6 +92,27 @@ _BOX_DIAMOND_TAGS = frozenset({"box", "diamond"})
 # the risk of the very suite-runnability problem this budget reduction exists to fix.
 SELF_SCAN_SOLVE_TIMEOUT_MS = 10000
 
+# Gating re-check budget, deliberately DECOUPLED from SELF_SCAN_SOLVE_TIMEOUT_MS
+# (2026-08-11). Basis: the slowest known-conclusive manifest member entered the
+# manifest at 10.094s against the 10000ms derivation budget (see the
+# MIN_CONCLUSIVE_GATING_FORMULAS derivation note below), so TestGatingConclusiveScan's
+# re-solve of the manifest population ran at ~1.0x headroom BY CONSTRUCTION -- every
+# near-budget member was one ambient-load wobble away from flipping inconclusive.
+# 20000ms = ~2x that slowest member, the same ~2x-of-measured convention used for the
+# per-formula test budgets. Decoupling is sound because conclusiveness is MONOTONE in
+# budget: every formula the 10000ms derivation found conclusive remains legitimately
+# conclusive at 20000ms, so the manifest needs no re-derivation, the floor (100) is
+# untouched, and `disagreements == 0` now checks MORE decided results -- a
+# strengthening, not a weakening. Recorded trade-off: a formula whose solve cost
+# regresses from <10s into the 10-20s band no longer trips the gating floor;
+# per-formula cost-regression detection at the 10s threshold now lives in the
+# scheduled exhaustive scan, which keeps SELF_SCAN_SOLVE_TIMEOUT_MS = 10000 and its
+# manifest-freshness re-derivation trigger (see code/docs/core/TESTING_GUIDE.md
+# section 8.8). Used ONLY by TestGatingConclusiveScan's two solve call sites; the
+# exhaustive scan, scan_runner default, and manifest derivation all keep
+# SELF_SCAN_SOLVE_TIMEOUT_MS.
+GATING_RECHECK_SOLVE_TIMEOUT_MS = 20000
+
 # Floor for "how many of the 274 complexity<=5 formulas must be conclusive (neither
 # solve timed out) for a green run to mean anything".
 #
@@ -2318,7 +2339,7 @@ class TestGatingConclusiveScan:
 
         def ref_fn(f):
             return _reference_verdict(
-                self.oracle, f, timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS
+                self.oracle, f, timeout_ms=GATING_RECHECK_SOLVE_TIMEOUT_MS
             )
 
         report = _generate_differential_report(
@@ -2326,7 +2347,7 @@ class TestGatingConclusiveScan:
             conclusive_formulas,
             ref_fn,
             {"mc": "mc_oracle", "ref": "mc_oracle_self"},
-            timeout_ms=SELF_SCAN_SOLVE_TIMEOUT_MS,
+            timeout_ms=GATING_RECHECK_SOLVE_TIMEOUT_MS,
         )
 
         _assert_scan_report(report, min_conclusive=MIN_CONCLUSIVE_GATING_FORMULAS)

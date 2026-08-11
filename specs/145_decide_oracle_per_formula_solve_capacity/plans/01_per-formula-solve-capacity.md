@@ -419,30 +419,24 @@ verify-refactor Step 3 collection counts by their documented procedure.
 
 ---
 
-### Phase 6: Gating re-check budget decoupling + Step 5c pin + TESTING_GUIDE note [NOT STARTED]
+### Phase 6: Gating re-check budget decoupling + Step 5c pin + TESTING_GUIDE note [COMPLETED]
 
 **Goal**: Introduce `GATING_RECHECK_SOLVE_TIMEOUT_MS = 20000`, decoupled from the manifest
 derivation budget, with the trade-off recorded and the new constant pinned so it cannot drift.
 
 **Tasks**:
-- [ ] `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` (near line 93): add
-      `GATING_RECHECK_SOLVE_TIMEOUT_MS = 20000` with a comment block recording: basis (slowest
-      known-conclusive manifest member entered at 10.094 s -> ~2x); why decoupling is sound
-      (conclusiveness monotone in budget — every derivation-time member remains legitimate at
-      20000; floor 100 and manifest untouched; `disagreements == 0` now checks MORE decided
-      results); the trade-off (per-formula 10 s cost-regression detection moves to the
-      scheduled exhaustive scan, which keeps `SELF_SCAN_SOLVE_TIMEOUT_MS = 10000` and its
-      re-derivation trigger).
-- [ ] Swap ONLY the two `TestGatingConclusiveScan` call sites (lines ~2321 and ~2329,
-      `_generate_differential_report(..., timeout_ms=...)`) to the new constant.
-      `SELF_SCAN_SOLVE_TIMEOUT_MS` remains 10000 everywhere else (exhaustive scan, scan_runner
-      default, manifest derivation).
-- [ ] `code/scripts/verify-refactor.sh` Step 5c: ADD pin `GATING_RECHECK_SOLVE_TIMEOUT_MS=20000`
-      alongside the existing (unchanged) `SELF_SCAN_SOLVE_TIMEOUT_MS=10000` pin.
-- [ ] `code/docs/core/TESTING_GUIDE.md` section 8.8 (known-conclusive subsection): add a short
-      note documenting the two-budget contract (derivation budget vs gating re-check budget,
-      monotone-membership rationale, where regression detection now lives). No task-number
-      citations.
+- [x] `oracle/bimodal_logic/tests/test_cross_oracle_differential.py` (line 114): added
+      `GATING_RECHECK_SOLVE_TIMEOUT_MS = 20000` with the full basis/decoupling/trade-off
+      comment block.
+- [x] Swapped ONLY the two `TestGatingConclusiveScan` call sites (now lines 2342/2350) to the
+      new constant. `SELF_SCAN_SOLVE_TIMEOUT_MS` remains 10000 everywhere else (verified by
+      grep: definition + comments + exhaustive/scan_runner/manifest sites only).
+- [x] `code/scripts/verify-refactor.sh` Step 5c: added pin
+      `GATING_RECHECK_SOLVE_TIMEOUT_MS=20000` alongside the unchanged
+      `SELF_SCAN_SOLVE_TIMEOUT_MS=10000` pin ("four" -> "five" wording updated).
+- [x] `code/docs/core/TESTING_GUIDE.md` section 8.8: two-budget contract note added
+      (derivation vs gating re-check, monotone-membership rationale, where regression
+      detection now lives). No task-number citations.
 
 **Timing**: 45 minutes
 

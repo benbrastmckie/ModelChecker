@@ -14,7 +14,7 @@
 #   5. The cross-oracle accommodation guard is intact, matched by content rather than by
 #      file:line: the external-defect record exists; the five ordered guard assertions in
 #      test_cross_oracle_differential.py are each present exactly once and in their required
-#      order; the four floor/budget constants still hold their pinned values; and every
+#      order; the five floor/budget constants still hold their pinned values; and every
 #      xfail( marker in test_oracle_interface.py is still strict=True. This is the check that
 #      makes the accommodation impossible to weaken quietly.
 #   6. The GATING oracle suite passes, run through oracle/run-oracle-suite.sh so the gate
@@ -230,6 +230,7 @@ fi
 # re-pin here deliberately, with the new value recorded, rather than drifting.
 GUARD_CONSTANTS=(
   "SELF_SCAN_SOLVE_TIMEOUT_MS=10000"
+  "GATING_RECHECK_SOLVE_TIMEOUT_MS=20000"
   "MIN_CONCLUSIVE_SCAN_FORMULAS=90"
   "MIN_CONCLUSIVE_GATING_FORMULAS=100"
   "MIN_CONCLUSIVE_TEMPORAL_BH_FORMULAS=45"
@@ -245,7 +246,7 @@ for guard_const in "${GUARD_CONSTANTS[@]}"; do
   fi
 done
 if [ "$const_ok" = true ]; then
-  note "OK (5c): all four floor/budget constants hold their pinned values"
+  note "OK (5c): all five floor/budget constants hold their pinned values"
 fi
 
 # --- 5d: every xfail( marker is still strict=True, and the count has not drifted ------------

@@ -692,6 +692,22 @@ loudly with an explicit "re-derive the baseline" message rather than proceeding 
 **A change to the formula enumerator or the solve budget requires regenerating this manifest** via
 a fresh `oracle/run-oracle-exhaustive-scan.sh` run — there is no other sanctioned way to update it.
 
+**The two-budget contract (derivation vs. gating re-check).** The manifest is *derived* at
+`SELF_SCAN_SOLVE_TIMEOUT_MS` (10000 ms — the exhaustive scan, `scan_runner.py`'s default, and
+every re-derivation keep this budget), but the gating re-check re-solves the manifest population
+at the separate, wider `GATING_RECHECK_SOLVE_TIMEOUT_MS` (20000 ms, both constants in
+`test_cross_oracle_differential.py`). The two are deliberately decoupled: the slowest manifest
+member entered the manifest at 10.094 s against the 10000 ms derivation budget, so re-checking at
+the derivation budget ran at ~1.0x headroom by construction. Decoupling is sound because
+conclusiveness is monotone in budget — every derivation-time member remains legitimately
+conclusive at the wider budget, so no manifest re-derivation is triggered, the gating floor is
+untouched, and `disagreements == 0` is asserted over *more* decided results. The recorded
+trade-off: per-formula solve-cost regressions from <10 s into the 10-20 s band no longer trip the
+gating floor; that regression detection lives in the scheduled exhaustive scan, which keeps the
+10000 ms budget and its manifest-freshness check. Only a manifest re-derivation changes what
+"known-conclusive" means; the re-check budget only changes how much headroom the gating pass has
+while verifying it.
+
 **The JSON-artifact and completion-marker contract.** Both the exhaustive test and the standalone
 `oracle/scan_runner.py` CLI call the same shared scan core
 (`_generate_differential_report()` in `test_cross_oracle_differential.py`), so there is only ever
