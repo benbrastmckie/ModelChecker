@@ -506,6 +506,19 @@ class NecessityOperator(syntactic.Operator):
         # why a counter-suffixed z3.Int is used here instead of z3.FreshInt.
         other_world = _fresh_bound_int('nec_true_world')
         # For any other_world -- no is_valid_time_for_world guard (paper-aligned)
+        # Task 144 dead end 9: an explicit patterns=[is_world(other_world)]
+        # trigger was tried here (legal: is_world is a genuine z3.Function
+        # application covering the sole bound variable, extending the
+        # build_forward_comp_constraint precedent). Measured (paired, 5-seed,
+        # 7-run round against test_mixed_and_box_next, the only Phase 1
+        # target formula this operator affects): median rlimit was
+        # unchanged (130120813 vs baseline 130120807, ~0.00%), and the
+        # per-seed delta was negative on only 2 of 5 seeds (seeds 1, 3
+        # improved; seeds 2 worsened; seeds 0, 4 unchanged) -- failing both
+        # the >=20% median-improvement and >=4-of-5-seed-consistency
+        # acceptance rules. A genuinely neutral/inconsistent result, not a
+        # regression: left unpatterned per the neutral-candidates-are-
+        # reverted policy.
         return z3.ForAll(
             other_world,
             z3.Implies(

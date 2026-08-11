@@ -1248,6 +1248,20 @@ class BimodalSemantics(SemanticDefaults):
         source_array = self.world_function(source_world)
         target_array = self.world_function(target_world)
 
+        # Task 144 dead end 7: an explicit patterns=[z3.Select(source_array, time)]
+        # trigger was tried here (legal: covers the sole bound variable `time`
+        # via a genuine array-select application, extending the
+        # build_forward_comp_constraint precedent). Measured: it reduced
+        # rlimit for and_box_next (Task 144's Phase 1 target) but starved
+        # this axiom's instantiation for OTHER depth-1, M=3 formulas that
+        # share this frame constraint via depth_bounded_skolem_abundance_
+        # constraint -- e.g. F(p) (\Future p) regressed from ~3s to a
+        # 5000ms timeout (oracle/bimodal_logic/tests/test_soundness_regression.py
+        # ::TestBoundaryVacuity::test_depth1_boundary_safe_is_true). This is
+        # a nested inner quantifier shared across every abundance-axiom
+        # instantiation, so an eager, narrow trigger here regresses the
+        # whole depth-1 temporal-operator family even though it can locally
+        # help one target formula. Reverted; left unpatterned.
         return z3.ForAll(
             [time],
             z3.Implies(
@@ -1420,6 +1434,19 @@ class BimodalSemantics(SemanticDefaults):
         source_start = self.world_interval_start(source_world)
         source_end = self.world_interval_end(source_world)
 
+        # Task 144: an explicit patterns=[shift_of_capped(source_world,
+        # shift_amount)] trigger was tried here (legal: the Skolem
+        # application covers both bound variables in a single function
+        # application, extending the build_forward_comp_constraint
+        # precedent). Not measurable directly: none of Task 144's three
+        # Phase 1 target formulas exercise this constraint (all three have
+        # temporal_depth=1, M=3, which build_frame_constraints dispatches to
+        # depth_bounded_skolem_abundance_constraint instead -- this
+        # constraint is only reached at M<=2 or when temporal_depth is
+        # unset). Reverted alongside the depth_bounded sibling (Task 144
+        # dead end 8) for encoding-symmetry and because the sibling's
+        # identical trigger shape regressed other depth-1 formulas sharing
+        # the nested matching_states_when_shifted_var axiom.
         return z3.ForAll(
             [source_world, shift_amount],
             z3.Implies(
@@ -1470,6 +1497,31 @@ class BimodalSemantics(SemanticDefaults):
         source_start = self.world_interval_start(source_world)
         source_end = self.world_interval_end(source_world)
 
+        # Task 144 dead end 8: an explicit patterns=[shift_of_bounded(
+        # source_world, shift_amount)] trigger was tried here (legal: the
+        # Skolem application covers both bound variables in a single
+        # function application, extending the build_forward_comp_constraint
+        # precedent). This constraint IS the active abundance constraint for
+        # all three Phase 1 target formulas (temporal_depth=1, M=3 --
+        # see build_frame_constraints), so it was the plan's highest-
+        # leverage candidate. Measured effect on test_mixed_and_box_next
+        # (the only target that reached a stable improved wall-clock signal
+        # in isolation): rlimit dropped ~11% at seed 0 alone, but the change
+        # regressed OTHER depth-1, M=3 formulas sharing this frame
+        # constraint outside the three named targets -- e.g. \Future p (F(p))
+        # went from ~3s to a 5000ms timeout
+        # (oracle/bimodal_logic/tests/test_soundness_regression.py::
+        # TestBoundaryVacuity::test_depth1_boundary_safe_is_true), because
+        # the pattern is eager/narrow enough to starve this shared axiom's
+        # instantiation for formulas whose ground-term set doesn't yet
+        # contain a matching shift_of_bounded(...) application at the point
+        # Z3 needs it. This is a real -- not merely apparent -- cost
+        # regression on the semantics-preservation gate's own required test
+        # suite (test_soundness_regression.py must stay green every
+        # encoding-touching phase), so it was reverted regardless of its
+        # narrow-target benefit. See the sibling dead end at
+        # matching_states_when_shifted_var (dead end 7) for the same root
+        # cause with a different specific culprit term.
         return z3.ForAll(
             [source_world, shift_amount],
             z3.Implies(

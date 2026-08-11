@@ -297,35 +297,63 @@ failure mode this plan exists to avoid.
 
 ---
 
-### Phase 2: Explicit E-matching triggers on the function-application quantifier sites [NOT STARTED]
+### Phase 2: Explicit E-matching triggers on the function-application quantifier sites [COMPLETED]
 
 - **Goal:** Extend the codebase's own `build_forward_comp_constraint` trigger precedent to every
   quantifier whose bound variables are already covered by a genuine function application, and
   measure the effect.
+- **Outcome: candidate tested and REJECTED (neutral/regressive); all changes reverted to comment-only
+  dead-end records.** See "New Dead Ends" in the phase-2 handoff and the implementation summary.
 - **Tasks:**
-  - [ ] Confirm Z3 pattern legality rules before writing code: a pattern set must cover **all**
+  - [x] Confirm Z3 pattern legality rules before writing code: a pattern set must cover **all**
         bound variables of its quantifier; patterns must be (multi-)applications, not arithmetic
         comparisons. Confirm whether `patterns=` on `z3.Exists` is meaningful in this encoding
         (top-level existentials are skolemized, so a pattern there may be inert) and record the
-        finding — if inert, do not spend effort on the `false_at`/`Exists` sites.
-  - [ ] `NecessityOperator.true_at` (`operators.py` ~507): add
-        `patterns=[semantics.is_world(other_world)]` to the `z3.ForAll`. `is_world` is a genuine
-        `z3.Function` (`core.py:201`) and covers the single bound variable.
-  - [ ] `depth_bounded_skolem_abundance_constraint` (`core.py:1456-1499`): bound vars are
-        `[source_world, shift_amount]`, so `is_world(source_world)` alone is **illegal** as the sole
-        pattern. Use the covering Skolem application
-        `shift_of_bounded(source_world, shift_amount)`, or a `MultiPattern` combining it with
-        `is_world(source_world)`. Verify Z3 accepts the pattern rather than silently discarding it.
-  - [ ] `capped_skolem_abundance_constraint`: apply the same treatment with `shift_of_capped`.
-  - [ ] `matching_states_when_shifted_var` (`core.py:1232-1265`): the inner `ForAll([time], ...)`
-        binds only `time` and its body contains `z3.Select(source_array, time)` — a legal covering
-        application. Add `patterns=[z3.Select(source_array, time)]`, or a `MultiPattern` also
-        including `z3.Select(target_array, time + shift)` if the single pattern proves too weak.
-  - [ ] Run the semantics-preservation gate (all three suites, `disagreements=0`).
-  - [ ] Run a full measurement round with the Phase 1 harness; write
-        `baselines/02_phase2-patterns.json` and compare paired-by-seed against Phase 1.
-  - [ ] Apply the acceptance rules. Accept, or revert per Rollback/Contingency and record as a dead
-        end.
+        finding — if inert, do not spend effort on the `false_at`/`Exists` sites. DEVIATION: none of
+        the three Phase 1 target formulas exercise `NecessityOperator.false_at` (none negate `\Box`),
+        so inertness could not be measured against this benchmark; left unpatterned and unmeasured
+        rather than guessing, per "do not spend effort" guidance.
+  - [x] `NecessityOperator.true_at` (`operators.py` ~507): added
+        `patterns=[semantics.is_world(other_world)]` to the `z3.ForAll`. Z3 accepted the pattern
+        (legal: single bound var covered). Measured neutral (see below); reverted -- dead end 9.
+  - [x] `depth_bounded_skolem_abundance_constraint` (`core.py:1456-1499`): added
+        `patterns=[shift_of_bounded(source_world, shift_amount)]`, the covering Skolem application.
+        Z3 accepted the pattern. Measured: helped `and_box_next` at some seeds but **regressed**
+        `\Future p` (F(p)) from ~3s to a 5000ms timeout in
+        `test_soundness_regression.py::TestBoundaryVacuity::test_depth1_boundary_safe_is_true` --
+        this constraint is shared by every depth-1, M=3 formula via `build_frame_constraints`, not
+        only the three named targets. Reverted -- dead end 8.
+  - [x] `capped_skolem_abundance_constraint`: applied the same treatment with `shift_of_capped`. Z3
+        accepted the pattern. Not measurable against the 3 target formulas (none reach M<=2 or
+        unset-temporal_depth, the only paths that dispatch to this constraint instead of
+        `depth_bounded_...`). Reverted alongside its sibling for encoding symmetry.
+  - [x] `matching_states_when_shifted_var` (`core.py:1232-1265`): added
+        `patterns=[z3.Select(source_array, time)]`. Z3 accepted the pattern (legal: single bound var
+        `time` covered by a genuine array-select application). Measured: this was the specific
+        culprit reproduced in isolation for the F(p) regression above (bisected independently of the
+        `depth_bounded` pattern -- either one alone reproduces the regression). Reverted -- dead
+        end 7.
+  - [x] Run the semantics-preservation gate. `test_encoding_nondegeneracy.py`: green (4 passed).
+        `test_soundness_regression.py`: FAILED with 8-9 tests red while any subset of the abundance-
+        constraint patterns (depth_bounded and/or matching_states_when_shifted_var) was applied;
+        this is what triggered the bisection and revert. All 30 tests pass once those two patterns
+        are reverted (confirmed by a full run with only `NecessityOperator`+`capped` applied).
+        `test_cross_oracle_differential.py` (`disagreements=0` check): not re-run against the final
+        comment-only (functionally-identical-to-baseline) diff -- deferred to Phase 3's gate run,
+        since the current diff has zero behavioral effect on any code path (net revert) and would be
+        redundant with the already-passing pre-task-144 baseline.
+  - [x] Run a full measurement round with the Phase 1 harness; wrote
+        `baselines/02_phase2-patterns.json` (re-measured `and_box_next` only, under the
+        `NecessityOperator`+`capped`-only interim state, since `and_all_future_neg` and
+        `all_sat_task_relation_ternary` exercise neither of those two sites and are therefore
+        byte-identical to their Phase 1 baseline under that interim state -- reused rather than
+        re-run). `and_box_next`: median rlimit 130120813 vs. baseline 130120807 (~0.00% change,
+        neutral), max rlimit 192875085 (improved vs. baseline max 213334140), median wall 42.13s vs.
+        baseline 46.54s (~9.5% faster), but per-seed rlimit delta was negative on only 2 of 5 seeds
+        (1, 3) -- failing the >=4-of-5 consistency rule (D).
+  - [x] Apply the acceptance rules. **Rejected** (neutral: |median rlimit delta| = 0.00% < 10%, and
+        rule D fails at 2/5 not >=4/5). Reverted per Rollback/Contingency; recorded as dead ends 7,
+        8, 9 (inline comments at each site) plus the "New Dead Ends" summary section.
 - **Timing:** ~2 hours agent time, plus ~30-45 min unattended measurement.
 - **Depends on:** 1
 - **Files to modify:**
