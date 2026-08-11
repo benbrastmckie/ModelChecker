@@ -11,22 +11,24 @@ next_project_number: 146
 **Dependency Waves**:
 | Wave | Tasks | Blocked by | Topics |
 |------|-------|------------|--------|
-| 1 | 143,145 | -- | oracle suite capacity |
+| 1 | 143 | -- | oracle suite capacity |
 
 **Grouped by Topic** (indented = depends on parent):
 
 ### Oracle Suite Capacity
 
 143 [BLOCKED] — The gating oracle suite's serial pass (pass 2 of oracle/run-oracl
-145 [NOT STARTED] — Step 6 of code/scripts/verify-refactor.sh remains contention-sens
 
 ## Tasks
 
 ### 145. Decide oracle per formula solve capacity
-- **Status**: [NOT STARTED]
+- **Status**: [COMPLETED]
 - **Task Type**: python
 - **Topic**: oracle suite capacity
 - **Dependencies**: None
+- **Research**: [145_decide_oracle_per_formula_solve_capacity/reports/01_per-formula-solve-capacity.md]
+- **Plan**: [145_decide_oracle_per_formula_solve_capacity/plans/01_per-formula-solve-capacity.md]
+- **Summary**: [145_decide_oracle_per_formula_solve_capacity/summaries/01_per-formula-solve-capacity-summary.md]
 
 **Description**: Step 6 of code/scripts/verify-refactor.sh remains contention-sensitive red at the PER-FORMULA layer, and the encoding route to fixing it is now empirically exhausted. This task decides and implements the capacity route one layer down from the pass-level decision already taken.
 

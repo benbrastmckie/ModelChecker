@@ -1,7 +1,7 @@
 # Implementation Plan: Per-Formula Solve-Capacity Decision (Oracle Gating Suite)
 
 - **Task**: 145 - decide_oracle_per_formula_solve_capacity
-- **Status**: [IMPLEMENTING]
+- **Status**: [COMPLETED]
 - **Effort**: 6 hours
 - **Dependencies**: None (this task unblocks the pass-level task currently blocked on a green Step 6)
 - **Research Inputs**: specs/145_decide_oracle_per_formula_solve_capacity/reports/01_per-formula-solve-capacity.md
