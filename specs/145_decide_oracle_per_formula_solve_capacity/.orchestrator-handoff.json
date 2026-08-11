@@ -1,20 +1,30 @@
 {
-  "$schema": "orchestrator-handoff-v1",
-  "phase": "plan",
-  "status": "planned",
-  "summary": "7-phase plan created for the per-formula solve-capacity decision: witness/BM_CM_4 confirmation probes, standalone decision record, and_box_next 60000->240000ms and BM_CM_4 30->60s with inline bases, ternary next_A witness substituted with _and(_neg(A),_next(B)) (adjudicated: preserves semantic intent, bare next(A) coverage retained elsewhere), all_future_neg relocated to xdist_serial with Step 3 re-pin 627/610/15/2, new GATING_RECHECK_SOLVE_TIMEOUT_MS=20000 with Step 5c pin, ending in a full verify-refactor gate run. Worst-case pass-2 arithmetic ~1400s < 1800s shown in plan.",
+  "task_number": 145,
+  "task_name": "decide_oracle_per_formula_solve_capacity",
+  "session_id": "sess_1786456768_0d5e0f",
+  "status": "completed",
+  "phases_completed": 7,
+  "phases_total": 7,
+  "summary": "Recorded and implemented the per-formula solve-capacity decision; full verify-refactor.sh gate GREEN on run 3 ('[verify-refactor] All checks passed', disagreements=0, pass 2 1315.36s < 1800s, load evidence in transcript). Remedies: and_box_next 60000->240000ms; BM_CM_4 max_time 30->120s (fresh probe superseded planned 60); ternary next_A via the recorded fallback (xdist_serial + 480000ms per-leg override, ~1-in-7 divergent residual accepted) after BOTH witness candidates failed the Phase 1 probe; GATING_RECHECK_SOLVE_TIMEOUT_MS=20000 decoupled from SELF_SCAN 10000; all_future_neg relocated (budget untouched); Step 3 re-pin 627/609/16/2; Step 5c five-constant pin; plus gate-forced measured recalibration of pre-existing BM_CM_1 15->60s (diagnosed change-independent at the pre-task commit; divergent seed-2 residual recorded). Every constant carries an inline measurement basis. Floors, ORACLE_PASS2_TIMEOUT, TEMPORAL/ATEMPORAL/SELF_SCAN budgets unchanged; nothing xfailed/skipped/disabled. Runs 1-2 red causes triaged and recorded (interleaving some_future pre-existing tail; gating floor 98/103 under external lean-build contention; BM_CM_1). Divergent-tail class recorded plainly as unresolved-by-budget (three instances).",
   "artifacts": [
-    {"type": "plan", "path": "specs/145_decide_oracle_per_formula_solve_capacity/plans/01_per-formula-solve-capacity.md"}
+    "specs/145_decide_oracle_per_formula_solve_capacity/reports/02_capacity-decision-record.md",
+    "specs/145_decide_oracle_per_formula_solve_capacity/summaries/01_per-formula-solve-capacity-summary.md",
+    "specs/145_decide_oracle_per_formula_solve_capacity/plans/01_per-formula-solve-capacity.md",
+    "specs/145_decide_oracle_per_formula_solve_capacity/baselines/03_witness-candidate-probe.json",
+    "specs/145_decide_oracle_per_formula_solve_capacity/baselines/03_witness-candidate-probe.md",
+    "specs/145_decide_oracle_per_formula_solve_capacity/baselines/06_bm-cm-1-tail-probe.json",
+    "specs/145_decide_oracle_per_formula_solve_capacity/baselines/04_full-gate-transcript.txt",
+    "specs/145_decide_oracle_per_formula_solve_capacity/baselines/05_full-gate-transcript-run2.txt",
+    "specs/145_decide_oracle_per_formula_solve_capacity/baselines/07_full-gate-transcript-run3.txt",
+    "oracle/bimodal_logic/tests/test_oracle_interface.py",
+    "oracle/bimodal_logic/tests/test_boundary_regression.py",
+    "oracle/bimodal_logic/tests/test_cross_oracle_differential.py",
+    "code/src/model_checker/theory_lib/bimodal/examples.py",
+    "code/scripts/verify-refactor.sh",
+    "oracle/run-oracle-suite.sh",
+    "code/docs/core/TESTING_GUIDE.md"
   ],
   "blockers": [],
-  "next_action_hint": "implement",
-  "phases_total": 7,
-  "files_modified": [
-    "specs/145_decide_oracle_per_formula_solve_capacity/plans/01_per-formula-solve-capacity.md"
-  ],
-  "decisions_made": [
-    "Witness substitution adjudicated as preserving the ternary test's semantic intent (existential witness of the temporal serialization path, not a pin on bare next(A)); reasoning must also be recorded inline in the test source",
-    "Option (c) accept-and-monitor rejected; ORACLE_PASS2_TIMEOUT, TEMPORAL_SOLVE_TIMEOUT_MS, SELF_SCAN_SOLVE_TIMEOUT_MS, and both floors untouched"
-  ],
-  "dead_ends": []
+  "continuation_context": null,
+  "next_action_hint": "Mark task 145 [COMPLETED]. The green Step 6 unblocks the pass-level task that was blocked on it. Candidate follow-up tasks (recorded, out of this task's mandate): (1) interleaving test's 50-draw some_future exposure at the 5000ms provider default (failed run 1); (2) enriched-pair [next] expected_sat adjudication demanded by the [NEW] timeout-skip inventory line; (3) the divergent-tail class generally (encoding-level, nine-plus recorded dead ends -- only if re-scoped deliberately)."
 }

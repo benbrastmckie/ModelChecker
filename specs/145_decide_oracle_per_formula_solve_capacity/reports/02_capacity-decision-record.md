@@ -260,3 +260,29 @@ require encoding-level work, which is explicitly out of scope here (nine-plus re
 dead ends; constraint 7) and remains an open, honestly-scoped limitation. Any future
 recurrence of a divergent draw in a gate is a manifestation of this recorded residual —
 triage it against this section before treating it as a new regression.
+
+### 7.8 Full-gate run 3 (2026-08-11): GREEN
+
+Transcript: `baselines/07_full-gate-transcript-run3.txt`. Load average at launch
+5.57/2.28/1.40 (the 1-min figure is the launch itself; the machine was externally quiet —
+the lean/lake builds that contended runs 1-2 had finished), at end 4.21/5.02/6.43 (the
+gate's own `-n 6` workers).
+
+- **"[verify-refactor] All checks passed"** — GATE_EXIT=0, wall 34m42s.
+- Steps 1-5: all OK, including the re-pinned 627/609/16/2 partition and the
+  five-constant Step 5c set with `GATING_RECHECK_SOLVE_TIMEOUT_MS=20000`.
+- Step 6 pass 1: PASSED — 602 passed, 3 skipped (TN_TH_2 [KNOWN], enriched
+  [all_future] [KNOWN], enriched [next] [NEW] — the recorded divergent-tail instance of
+  section 7.7), 4 xfailed (all strict), 528.44 s.
+- Step 6 pass 2: PASSED — 16 passed (all four relocated/recalibrated slow solves
+  included), **1315.36 s wall, inside the 1800 s budget with 485 s margin** and inside
+  this record's recomputed ~850-1690 s band. Note pass 2 now genuinely runs ~250 s
+  heavier than the pre-change 800-1030 s band (two relocated tests + widened draws) —
+  consistent with, and predicted by, the section 5 arithmetic.
+- Step 7: "0 regressions (matches baseline)" — BM_CM_1 passed at its recalibrated
+  budget.
+- `disagreements == 0` throughout (asserted inside the gating scan test, which passed;
+  the only "disagreement" strings in the transcript are the skip-inventory's
+  "not a semantic disagreement" annotations).
+
+A green Step 6 unblocks the pass-level task that was blocked on it.
