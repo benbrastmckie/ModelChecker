@@ -663,9 +663,13 @@ class BimodalSemantics(SemanticDefaults):
         elif self.M <= 2:
             skolem_abundance = [self.capped_skolem_abundance_constraint()]
         else:
-            skolem_abundance = [self.depth_bounded_skolem_abundance_constraint(
+            # Task 144: depth_bounded_skolem_abundance_constraint returns a
+            # single-element list directly (see its docstring / dead end 10 for
+            # why an unrolled-multi-element form was tried and reverted) -- no
+            # extra list wrapper here.
+            skolem_abundance = self.depth_bounded_skolem_abundance_constraint(
                 max_shift=temporal_depth
-            )]
+            )
 
         # 9. Every valid world is unique
         # Original ForAll/Exists formulation preserved: worlds must differ at a time
@@ -1486,6 +1490,12 @@ class BimodalSemantics(SemanticDefaults):
         Like capped_skolem_abundance_constraint but adds explicit bounds on the shift
         amount: -max_shift <= shift_amount <= max_shift. This reduces MBQI instantiation
         scope from O(M) to O(temporal_depth), preventing the blowup at M>=3.
+
+        Returns a single-element list (not a bare Z3 expression) -- see Task 144 dead end
+        10 below for why: an alternate unrolled-list-returning form was tried and reverted,
+        but build_frame_constraints' caller already expects a list (see the `skolem_abundance`
+        variable there), so the single-element-list shape is kept rather than reverting the
+        caller too.
         """
         shift_of_bounded = z3.Function(
             'shift_of_bounded', self.WorldIdSort, self.TimeSort, self.WorldIdSort
@@ -1522,7 +1532,29 @@ class BimodalSemantics(SemanticDefaults):
         # narrow-target benefit. See the sibling dead end at
         # matching_states_when_shifted_var (dead end 7) for the same root
         # cause with a different specific culprit term.
-        return z3.ForAll(
+        #
+        # Task 144 dead end 10: unrolling the shift_amount dimension at Python
+        # construction time (replacing this single ForAll([source_world,
+        # shift_amount], ...) with 2*max_shift separate ForAll([source_world], ...)
+        # constraints, one per concrete shift value k, logically equivalent since
+        # shift_amount's range is construction-time-known and finite) was tried and
+        # measured. Unlike dead ends 7/8, this is NOT a trigger-suppression issue --
+        # it is a genuine cost regression from doubling (2*max_shift-ing) the number
+        # of independent top-level quantifiers Z3's MBQI must schedule across the
+        # whole frame-constraint set. Paired 5-seed/7-run measurement against the
+        # Phase 1 baseline (max_shift=1 for all three targets, so 2 unrolled
+        # constraints): and_box_next median wall INCREASED 46.54s -> 60.25s (seed 0
+        # went from a clean ~45s solve to a hard 60s timeout on all 3 of its runs);
+        # and_all_future_neg median rlimit +103% (61.3M -> 124.6M) and median wall
+        # +108% (18.6s -> 38.6s); all_sat_task_relation_ternary's median rlimit
+        # improved sharply (-94%) but its max(rlimit) got WORSE (339.1M -> 444.4M),
+        # failing acceptance rule B (worst case must not worsen) even where the
+        # median looked promising. Regressive on 2 of 3 targets and rule-B-failing
+        # on the third: reverted immediately per the plan's regressive-candidates
+        # policy. See baselines/03_phase3-shift-grounding.json for the full paired
+        # data. The joint-quantifier form below (Z3's own automatic scheduling
+        # across a single two-variable ForAll) is retained as the accepted encoding.
+        return [z3.ForAll(
             [source_world, shift_amount],
             z3.Implies(
                 z3.And(
@@ -1548,7 +1580,7 @@ class BimodalSemantics(SemanticDefaults):
                     ),
                 )
             )
-        )
+        )]
 
     def build_task_minimization_constraint(self):
         """Build constraint encouraging minimal changes between consecutive world states.

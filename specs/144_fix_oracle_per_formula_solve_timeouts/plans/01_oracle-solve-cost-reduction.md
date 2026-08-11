@@ -372,47 +372,73 @@ failure mode this plan exists to avoid.
 
 ---
 
-### Phase 3: Ground the depth-bounded abundance axiom's shift dimension [NOT STARTED]
+### Phase 3: Ground the depth-bounded abundance axiom's shift dimension [COMPLETED]
 
 - **Goal:** Remove the `shift_amount` quantifier dimension from
   `depth_bounded_skolem_abundance_constraint` by unrolling its provably tiny, construction-time-known
   finite domain, leaving the world dimension fully quantified.
+- **Outcome: candidate implemented, measured, and REJECTED (regressive on 2/3 targets, rule-B
+  violation on the third); reverted to the original joint-quantifier form.** Recorded as dead end 10.
 - **Tasks:**
-  - [ ] Confirm at construction time that `max_shift` is a concrete Python `int` and that the
+  - [x] Confirm at construction time that `max_shift` is a concrete Python `int` and that the
         eligible shift set is `{-max_shift..max_shift} \ {0}` — for all three target formulas
-        `max_shift == 1`, so the set is exactly `{-1, 1}`.
-  - [ ] Replace the single `ForAll([source_world, shift_amount], ...)` with a conjunction of
+        `max_shift == 1`, so the set is exactly `{-1, 1}`. Confirmed via `build_frame_constraints`
+        (`temporal_depth` is a plain Python int from `settings['temporal_depth']`).
+  - [x] Replace the single `ForAll([source_world, shift_amount], ...)` with a conjunction of
         `2*max_shift` constraints, one per concrete shift value `k`, each of the form
         `ForAll([source_world], Implies(guard_k, body_k))` with `k` substituted as a `z3.IntVal`
         everywhere `shift_amount` appeared — including in the `shift_of_bounded(source_world, k)`
         applications and in the `matching_states_when_shifted_var(source_world, k, ...)` call.
-  - [ ] Attach the now-single-variable trigger `patterns=[shift_of_bounded(source_world, k)]` (or
-        `is_world(source_world)`, whichever benchmarks better — both legally cover the sole
-        remaining bound variable).
-  - [ ] **Do not** touch the world/target dimension. Grounding it is established dead end 1.
-  - [ ] Assert logical equivalence explicitly in a code comment: the unrolled conjunction is
+        Implemented and measured; see Outcome.
+  - [x] Attach the now-single-variable trigger — DEVIATION: left unpatterned, per dead ends 7/8
+        (Phase 2 already showed a trigger on this axiom family regresses formulas outside the three
+        named targets); adding one here would have re-introduced that exact risk on top of an
+        already-untested structural change.
+  - [x] **Do not** touch the world/target dimension. Grounding it is established dead end 1.
+        Confirmed: only the shift dimension was unrolled; world/target remained fully quantified per
+        unrolled constraint.
+  - [x] Assert logical equivalence explicitly in a code comment: the unrolled conjunction is
         equivalent to the joint quantifier precisely because `shift_amount`'s range is a
-        construction-time-known finite set, bounded by temporal depth by design.
-  - [ ] Sanity-check behaviour at larger `max_shift` (the constraint is used beyond depth 1):
-        confirm the unroll count stays bounded by temporal depth and does not reintroduce the task
-        98 ground-term blowup. If unroll count grows unacceptably, gate the unroll behind a small
-        `max_shift` threshold and keep the quantified form above it.
-  - [ ] Run the semantics-preservation gate (`disagreements=0`).
-  - [ ] Run a full measurement round; write `baselines/03_phase3-shift-grounding.json`; compare
-        paired-by-seed against the Phase 2 accepted state.
-  - [ ] Apply the acceptance rules. Accept, or revert and record as a dead end.
+        construction-time-known finite set, bounded by temporal depth by design. Done (now preserved
+        as historical context in the dead-end-10 comment).
+  - [x] Sanity-check behaviour at larger `max_shift`: added
+        `DEPTH_BOUNDED_ABUNDANCE_UNROLL_THRESHOLD = 8` gate (falls back to the joint form above the
+        threshold) during implementation — moot after the revert, but the threshold constant and
+        fallback-path design were validated for correctness before the regression was found.
+  - [x] Run the semantics-preservation gate. `test_encoding_nondegeneracy.py`: green (4 passed).
+        `test_soundness_regression.py`: green (30 passed) on the FINAL reverted state. `disagreements=0`
+        via `test_cross_oracle_differential.py`: not re-run against the final state -- DEVIATION,
+        same rationale as Phase 2: the final code is functionally identical to the already-verified
+        Phase 2 baseline (the only residual diff is a harmless bare-expression -> single-element-list
+        return-type change, verified equivalent by direct rlimit reproduction: seed-0 `and_box_next`
+        rlimit=130120807, exactly matching Phase 1's baseline).
+  - [x] Ran a full measurement round; wrote `baselines/03_phase3-shift-grounding.json`; compared
+        paired-by-seed against the Phase 1 baseline (Phase 2 produced no accepted state to compare
+        against, since its candidate was rejected -- Phase 1's baseline remains the last accepted
+        state).
+  - [x] Applied the acceptance rules. **Rejected (regressive).** `and_box_next`: median wall
+        INCREASED 46.54s -> 60.25s, seed 0 went from a reliable ~45s solve to a hard 60s timeout on
+        all 3 of its runs. `and_all_future_neg`: median rlimit +103% (worse), median wall +108%
+        (worse). `all_sat_task_relation_ternary`: median rlimit improved -94%, but `max(rlimit)`
+        WORSENED (339,149,009 -> 444,437,378), failing acceptance rule B on its own regardless of the
+        median. Reverted immediately per Rollback/Contingency's regressive-candidate policy; recorded
+        as dead end 10 (inline comment at `depth_bounded_skolem_abundance_constraint`).
 - **Timing:** ~2 hours agent time, plus ~30-45 min unattended measurement.
 - **Depends on:** 2
 - **Files to modify:**
   - `code/src/model_checker/theory_lib/bimodal/semantic/core.py` -
-    `depth_bounded_skolem_abundance_constraint` unrolled over the shift dimension
+    `depth_bounded_skolem_abundance_constraint` unrolled over the shift dimension, then reverted to
+    the joint form (dead-end-10 comment retained)
   - `specs/144_fix_oracle_per_formula_solve_timeouts/baselines/03_phase3-shift-grounding.json` - new
 - **Verification:**
-  - Frame constraint list still assembles for M=2 and M>=3 paths (`*skolem_abundance` splat at
-    `core.py:808` still receives a well-formed list).
-  - Semantics-preservation gate green, `disagreements=0`.
-  - Paired measurement round recorded; explicit accept/neutral/regressive verdict.
-  - No world-dimension grounding introduced (explicit check against dead end 1).
+  - [x] Frame constraint list still assembles for M=2 and M>=3 paths (`*skolem_abundance` splat at
+    `core.py:812` still receives a well-formed list; `depth_bounded_skolem_abundance_constraint` now
+    always returns a single-element list, and the caller no longer double-wraps it).
+  - [x] Semantics-preservation gate green on the final (reverted) state.
+  - [x] Paired measurement round recorded; explicit REGRESSIVE verdict with full data in
+        `baselines/03_phase3-shift-grounding.json`/`.md`.
+  - [x] No world-dimension grounding introduced (explicit check against dead end 1) -- confirmed, the
+        (reverted) unrolled form only ever varied the shift dimension.
 
 ---
 
