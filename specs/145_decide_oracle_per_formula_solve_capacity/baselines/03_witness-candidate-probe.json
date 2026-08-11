@@ -1,0 +1,466 @@
+{
+  "runs": [
+    {
+      "formula": "witness_and_neg_next",
+      "seed": 1,
+      "repeat_index": 0,
+      "rlimit": 61308987,
+      "wall_seconds": 24.5187,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 61308987,
+          "wall_seconds": 24.5187,
+          "reported_runtime": 24.4043,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   267.11\n :memory       174.24\n :num-allocs   163234076841.00\n :rlimit-count 61308987)",
+          "seed": 1,
+          "sub_name": "witness_and_neg_next"
+        }
+      ],
+      "timestamp": "2026-08-11T14:39:04Z"
+    },
+    {
+      "formula": "witness_and_neg_next",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 17652637,
+      "wall_seconds": 4.852,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 17652637,
+          "wall_seconds": 4.852,
+          "reported_runtime": 4.7516,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   267.11\n :memory       155.62\n :num-allocs   300391807861.00\n :rlimit-count 17652637)",
+          "seed": 2,
+          "sub_name": "witness_and_neg_next"
+        }
+      ],
+      "timestamp": "2026-08-11T14:39:08Z"
+    },
+    {
+      "formula": "witness_and_neg_next",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 13115273,
+      "wall_seconds": 3.3298,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 13115273,
+          "wall_seconds": 3.3298,
+          "reported_runtime": 3.2387,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   267.11\n :memory       86.59\n :num-allocs   392278202959.00\n :rlimit-count 13115273)",
+          "seed": 3,
+          "sub_name": "witness_and_neg_next"
+        }
+      ],
+      "timestamp": "2026-08-11T14:39:12Z"
+    },
+    {
+      "formula": "witness_and_neg_next",
+      "seed": 4,
+      "repeat_index": 0,
+      "rlimit": 54614963,
+      "wall_seconds": 13.8559,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 54614963,
+          "wall_seconds": 13.8559,
+          "reported_runtime": 13.7349,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   516.60\n :memory       303.91\n :num-allocs   797763031404.00\n :rlimit-count 54614963)",
+          "seed": 4,
+          "sub_name": "witness_and_neg_next"
+        }
+      ],
+      "timestamp": "2026-08-11T14:39:26Z"
+    },
+    {
+      "formula": "witness_and_neg_next",
+      "seed": 5,
+      "repeat_index": 0,
+      "rlimit": 238311552,
+      "wall_seconds": 107.4034,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 238311552,
+          "wall_seconds": 107.4034,
+          "reported_runtime": 107.0652,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1011.66\n :memory       655.20\n :num-allocs   22719458734767.00\n :rlimit-count 238311552)",
+          "seed": 5,
+          "sub_name": "witness_and_neg_next"
+        }
+      ],
+      "timestamp": "2026-08-11T14:42:28Z"
+    },
+    {
+      "formula": "witness_and_neg_next",
+      "seed": 6,
+      "repeat_index": 0,
+      "rlimit": 37434675,
+      "wall_seconds": 13.0691,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 37434675,
+          "wall_seconds": 13.0691,
+          "reported_runtime": 12.8617,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1011.66\n :memory       167.49\n :num-allocs   23542111411367.00\n :rlimit-count 37434675)",
+          "seed": 6,
+          "sub_name": "witness_and_neg_next"
+        }
+      ],
+      "timestamp": "2026-08-11T14:42:42Z"
+    },
+    {
+      "formula": "witness_and_neg_next",
+      "seed": 7,
+      "repeat_index": 0,
+      "rlimit": 225607876,
+      "wall_seconds": 80.6475,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 225607876,
+          "wall_seconds": 80.6475,
+          "reported_runtime": 80.3225,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1018.87\n :memory       636.76\n :num-allocs   99054426494564.00\n :rlimit-count 225607876)",
+          "seed": 7,
+          "sub_name": "witness_and_neg_next"
+        }
+      ],
+      "timestamp": "2026-08-11T14:44:02Z"
+    },
+    {
+      "formula": "witness_some_future",
+      "seed": 1,
+      "repeat_index": 0,
+      "rlimit": 8746128,
+      "wall_seconds": 1.8583,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 8746128,
+          "wall_seconds": 1.8583,
+          "reported_runtime": 1.7945,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   82.56\n :memory       52.77\n :num-allocs   2538135715\n :rlimit-count 8746128)",
+          "seed": 1,
+          "sub_name": "witness_some_future"
+        }
+      ],
+      "timestamp": "2026-08-11T14:44:17Z"
+    },
+    {
+      "formula": "witness_some_future",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 195655593,
+      "wall_seconds": 85.7485,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 195655593,
+          "wall_seconds": 85.7485,
+          "reported_runtime": 85.4382,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   982.39\n :memory       629.09\n :num-allocs   6483985614223.00\n :rlimit-count 195655593)",
+          "seed": 2,
+          "sub_name": "witness_some_future"
+        }
+      ],
+      "timestamp": "2026-08-11T14:45:42Z"
+    },
+    {
+      "formula": "witness_some_future",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 115575747,
+      "wall_seconds": 33.8402,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 115575747,
+          "wall_seconds": 33.8402,
+          "reported_runtime": 33.5231,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   982.39\n :memory       334.34\n :num-allocs   9371432368607.00\n :rlimit-count 115575747)",
+          "seed": 3,
+          "sub_name": "witness_some_future"
+        }
+      ],
+      "timestamp": "2026-08-11T14:46:16Z"
+    },
+    {
+      "formula": "witness_some_future",
+      "seed": 4,
+      "repeat_index": 0,
+      "rlimit": 77096241,
+      "wall_seconds": 26.6851,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 77096241,
+          "wall_seconds": 26.6851,
+          "reported_runtime": 26.4817,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   982.39\n :memory       318.32\n :num-allocs   12894469677965.00\n :rlimit-count 77096241)",
+          "seed": 4,
+          "sub_name": "witness_some_future"
+        }
+      ],
+      "timestamp": "2026-08-11T14:46:43Z"
+    },
+    {
+      "formula": "witness_some_future",
+      "seed": 5,
+      "repeat_index": 0,
+      "rlimit": 51692040,
+      "wall_seconds": 14.3661,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 51692040,
+          "wall_seconds": 14.3661,
+          "reported_runtime": 14.1955,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   982.39\n :memory       305.31\n :num-allocs   14506069920223.00\n :rlimit-count 51692040)",
+          "seed": 5,
+          "sub_name": "witness_some_future"
+        }
+      ],
+      "timestamp": "2026-08-11T14:46:57Z"
+    },
+    {
+      "formula": "witness_some_future",
+      "seed": 6,
+      "repeat_index": 0,
+      "rlimit": 15375824,
+      "wall_seconds": 3.5816,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 15375824,
+          "wall_seconds": 3.5816,
+          "reported_runtime": 3.4581,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   982.39\n :memory       89.18\n :num-allocs   15072190895533.00\n :rlimit-count 15375824)",
+          "seed": 6,
+          "sub_name": "witness_some_future"
+        }
+      ],
+      "timestamp": "2026-08-11T14:47:01Z"
+    },
+    {
+      "formula": "witness_some_future",
+      "seed": 7,
+      "repeat_index": 0,
+      "rlimit": 337529156,
+      "wall_seconds": 180.8483,
+      "sub_results": [
+        {
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 337529156,
+          "wall_seconds": 180.8483,
+          "reported_runtime": 180.0663,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   1990.90\n :memory       1184.75\n :num-allocs   117311699619772.00\n :rlimit-count 337529156)",
+          "seed": 7,
+          "sub_name": "witness_some_future"
+        }
+      ],
+      "timestamp": "2026-08-11T14:50:02Z"
+    },
+    {
+      "formula": "bm_cm_4",
+      "seed": 1,
+      "repeat_index": 0,
+      "rlimit": 32212711,
+      "wall_seconds": 57.1209,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 32212711,
+          "wall_seconds": 57.1209,
+          "reported_runtime": 56.8522,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   167.99\n :memory       93.30\n :num-allocs   75039721781.00\n :rlimit-count 32212711)",
+          "seed": 1,
+          "sub_name": "bm_cm_4"
+        }
+      ],
+      "timestamp": "2026-08-11T14:52:16Z"
+    },
+    {
+      "formula": "bm_cm_4",
+      "seed": 2,
+      "repeat_index": 0,
+      "rlimit": 14155554,
+      "wall_seconds": 22.0647,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 14155554,
+          "wall_seconds": 22.0647,
+          "reported_runtime": 21.8356,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   167.99\n :memory       52.35\n :num-allocs   145086789797.00\n :rlimit-count 14155554)",
+          "seed": 2,
+          "sub_name": "bm_cm_4"
+        }
+      ],
+      "timestamp": "2026-08-11T14:52:38Z"
+    },
+    {
+      "formula": "bm_cm_4",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 1406881,
+      "wall_seconds": 1.2596,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 1406881,
+          "wall_seconds": 1.2596,
+          "reported_runtime": 1.0503,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   167.99\n :memory       19.63\n :num-allocs   154987375571.00\n :rlimit-count 1406881)",
+          "seed": 3,
+          "sub_name": "bm_cm_4"
+        }
+      ],
+      "timestamp": "2026-08-11T14:52:39Z"
+    },
+    {
+      "formula": "bm_cm_4",
+      "seed": 4,
+      "repeat_index": 0,
+      "rlimit": 13381655,
+      "wall_seconds": 17.3651,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 13381655,
+          "wall_seconds": 17.3651,
+          "reported_runtime": 17.1048,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   167.99\n :memory       52.25\n :num-allocs   269411391521.00\n :rlimit-count 13381655)",
+          "seed": 4,
+          "sub_name": "bm_cm_4"
+        }
+      ],
+      "timestamp": "2026-08-11T14:52:57Z"
+    },
+    {
+      "formula": "bm_cm_4",
+      "seed": 5,
+      "repeat_index": 0,
+      "rlimit": 698902,
+      "wall_seconds": 0.4451,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 698902,
+          "wall_seconds": 0.4451,
+          "reported_runtime": 0.2899,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   167.99\n :memory       18.57\n :num-allocs   279000129843.00\n :rlimit-count 698902)",
+          "seed": 5,
+          "sub_name": "bm_cm_4"
+        }
+      ],
+      "timestamp": "2026-08-11T14:52:57Z"
+    },
+    {
+      "formula": "bm_cm_4",
+      "seed": 6,
+      "repeat_index": 0,
+      "rlimit": 6843909,
+      "wall_seconds": 6.8817,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 6843909,
+          "wall_seconds": 6.8817,
+          "reported_runtime": 6.7087,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   167.99\n :memory       32.21\n :num-allocs   331219209493.00\n :rlimit-count 6843909)",
+          "seed": 6,
+          "sub_name": "bm_cm_4"
+        }
+      ],
+      "timestamp": "2026-08-11T14:53:04Z"
+    },
+    {
+      "formula": "bm_cm_4",
+      "seed": 7,
+      "repeat_index": 0,
+      "rlimit": 604443,
+      "wall_seconds": 0.5162,
+      "sub_results": [
+        {
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 604443,
+          "wall_seconds": 0.5162,
+          "reported_runtime": 0.3675,
+          "temporal_depth": 1,
+          "M": 2,
+          "stats_raw": "(:max-memory   167.99\n :memory       18.50\n :num-allocs   340381282472.00\n :rlimit-count 604443)",
+          "seed": 7,
+          "sub_name": "bm_cm_4"
+        }
+      ],
+      "timestamp": "2026-08-11T14:53:05Z"
+    }
+  ]
+}

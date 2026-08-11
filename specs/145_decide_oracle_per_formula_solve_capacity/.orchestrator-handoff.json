@@ -1,0 +1,20 @@
+{
+  "$schema": "orchestrator-handoff-v1",
+  "phase": "plan",
+  "status": "planned",
+  "summary": "7-phase plan created for the per-formula solve-capacity decision: witness/BM_CM_4 confirmation probes, standalone decision record, and_box_next 60000->240000ms and BM_CM_4 30->60s with inline bases, ternary next_A witness substituted with _and(_neg(A),_next(B)) (adjudicated: preserves semantic intent, bare next(A) coverage retained elsewhere), all_future_neg relocated to xdist_serial with Step 3 re-pin 627/610/15/2, new GATING_RECHECK_SOLVE_TIMEOUT_MS=20000 with Step 5c pin, ending in a full verify-refactor gate run. Worst-case pass-2 arithmetic ~1400s < 1800s shown in plan.",
+  "artifacts": [
+    {"type": "plan", "path": "specs/145_decide_oracle_per_formula_solve_capacity/plans/01_per-formula-solve-capacity.md"}
+  ],
+  "blockers": [],
+  "next_action_hint": "implement",
+  "phases_total": 7,
+  "files_modified": [
+    "specs/145_decide_oracle_per_formula_solve_capacity/plans/01_per-formula-solve-capacity.md"
+  ],
+  "decisions_made": [
+    "Witness substitution adjudicated as preserving the ternary test's semantic intent (existential witness of the temporal serialization path, not a pin on bare next(A)); reasoning must also be recorded inline in the test source",
+    "Option (c) accept-and-monitor rejected; ORACLE_PASS2_TIMEOUT, TEMPORAL_SOLVE_TIMEOUT_MS, SELF_SCAN_SOLVE_TIMEOUT_MS, and both floors untouched"
+  ],
+  "dead_ends": []
+}

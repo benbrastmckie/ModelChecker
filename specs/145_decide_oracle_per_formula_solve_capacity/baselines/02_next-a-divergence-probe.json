@@ -1,0 +1,74 @@
+{
+  "runs": [
+    {
+      "formula": "all_sat_task_relation_ternary",
+      "seed": 3,
+      "repeat_index": 0,
+      "rlimit": 1026395898,
+      "wall_seconds": 601.2801,
+      "sub_results": [
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 83540,
+          "wall_seconds": 0.0643,
+          "reported_runtime": 0.0196,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   18.80\n :memory       17.64\n :num-allocs   956025\n :rlimit-count 83540)",
+          "sub_name": "atom_A"
+        },
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 63869,
+          "wall_seconds": 0.0615,
+          "reported_runtime": 0.0151,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   33.94\n :memory       17.59\n :num-allocs   3637116\n :rlimit-count 63869)",
+          "sub_name": "imp_A_B"
+        },
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 63348,
+          "wall_seconds": 0.0601,
+          "reported_runtime": 0.015,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   33.94\n :memory       17.58\n :num-allocs   7955422\n :rlimit-count 63348)",
+          "sub_name": "and_A_B"
+        },
+        {
+          "seed": 3,
+          "timeout": false,
+          "z3_model_status": true,
+          "rlimit": 72691,
+          "wall_seconds": 0.0614,
+          "reported_runtime": 0.017,
+          "temporal_depth": 0,
+          "M": 3,
+          "stats_raw": "(:max-memory   33.94\n :memory       17.61\n :num-allocs   13810272\n :rlimit-count 72691)",
+          "sub_name": "diamond_A"
+        },
+        {
+          "seed": 3,
+          "timeout": true,
+          "z3_model_status": false,
+          "rlimit": 1026112450,
+          "wall_seconds": 601.0328,
+          "reported_runtime": 600.0003,
+          "temporal_depth": 1,
+          "M": 3,
+          "stats_raw": "(:max-memory   4053.41\n :memory       2350.43\n :num-allocs   196327839478559.00\n :rlimit-count 1026112450)",
+          "sub_name": "next_A"
+        }
+      ],
+      "timestamp": "2026-08-11T14:24:14Z"
+    }
+  ]
+}
