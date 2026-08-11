@@ -101,7 +101,7 @@
     {
       "project_number": 143,
       "project_name": "decide_oracle_serial_pass_timeout_capacity",
-      "status": "blocked",
+      "status": "completed",
       "task_type": "python",
       "topic": "oracle suite capacity",
       "description": "The gating oracle suite's serial pass (pass 2 of oracle/run-oracle-suite.sh, ORACLE_PASS2_TIMEOUT default 900s) now runs at 96.6% of its budget: a measured '14 passed, 592 deselected in 869.58s' leaves only 30.4 seconds of slack. This is expected to flake on a loaded machine, and that measurement was itself taken under rising system load (6.48 -> 11.19). For calibration the same pass took 795.70s with 10 tests and 770.48s with 11 tests; it now carries 14. The cause is legitimate rather than accidental: four genuinely slow solves were deliberately routed into the contention-free serial pass via @pytest.mark.xdist_serial to fix real -n 6 CPU-contention failures -- test_mixed_and_box_next (~44-45s) and three BM_CM_4 cases (~15-24s each). Scheduling was the correct fix and nothing was weakened to obtain the current green. But the serial pass now carries more work than when its 900s budget was set, and that budget was never revisited. Decide the capacity question deliberately and record the reasoning. Options, from the originating diagnosis report: (a) raise ORACLE_PASS2_TIMEOUT as an honest capacity adjustment; (b) attack the cause by making those four solves faster, which is semantic work on the encoding rather than a budget change; (c) accept and monitor, treating a pass-2 timeout as a capacity signal rather than a correctness regression. Option (a) is the lowest-effort durable fix and was recommended, PROVIDED it is done as a deliberate decision with the reasoning recorded -- not as an incidental fix during unrelated work. Before deciding, re-measure pass 2 on a genuinely quiet machine, since the 869.58s figure is contaminated by concurrent load and likely overstates the steady-state cost. Adjudicate inside 'nix develop' only. ALSO OWNS RE-PINNING THE GATE'S COLLECTION COUNTS. The end-to-end run of code/scripts/verify-refactor.sh is now green on Steps 1, 2, 4, 5, 6 and 7 but reports 2 FAILED checks at Step 3: 'oracle gating-parallel collection count is 590, expected exactly 594' and 'oracle xdist_serial collection count is 14, expected exactly 10'. These are not regressions. They are the pins correctly detecting the deliberate relocation of four genuinely slow solves out of the parallel pass and into the serial pass. The suite total is unchanged at 606 and the partition invariant still holds (590 + 14 + 2 = 606). The gate's own failure message prescribes the remedy: 're-pin all four BASELINE_ORACLE_* values together'. This was deliberately NOT done when the markers landed, to avoid pinning twice: if this task's capacity decision raises ORACLE_PASS2_TIMEOUT, or moves tests back out of the serial pass, or makes those solves fast enough to return to the parallel pass, the distribution changes again. Re-pin ONCE, after the capacity decision is settled and the final distribution is known, updating all four BASELINE_ORACLE_* values together and re-running the full gate to confirm 'All checks passed'. Note that re-pinning to match an intentional redistribution is not a weakening: the pins remain exactly as strict and will still fail on any future unintended change. Do not, however, relax the partition check or the total.",
@@ -128,16 +128,24 @@
           "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/summaries/01_phase4-triage-record.md",
           "type": "summary",
           "summary": "Phase 4 triage record: branch (iii) genuine-failure classification, capacity decision confirmed twice, weakenings refused."
+        },
+        {
+          "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/plans/02_close-capacity-decision.md",
+          "type": "plan",
+          "summary": "Closeout plan: ingest the already-in-flight full-gate confirmation run, write the missing capacity-decision summary, commit."
+        },
+        {
+          "path": "specs/143_decide_oracle_serial_pass_timeout_capacity/summaries/02_capacity-decision-summary.md",
+          "type": "summary",
+          "summary": "Capacity-decision closeout record: option (a) decision and reasoning, option (b)/(c) disposition, re-pin provenance and supersession by task 145, current headroom (73.1%/63.3%), honest verification status, and refusals ledger."
         }
       ],
       "created": "2026-08-10T18:25:27Z",
-      "last_updated": "2026-08-11T06:23:34Z",
+      "last_updated": "2026-08-11T22:02:01Z",
       "next_artifact_number": 1,
-      "session_id": "sess_1786427090_297889",
-      "blockers": [
-        "Blocked on task 144: Step 6 of verify-refactor.sh cannot reach green until the oracle per-formula Z3 solve timeouts are fixed at the encoding level. This is pre-existing and outside this task scope (capacity decision + collection re-pin), both of which are complete and verified twice.",
-        "Remaining work once 144 lands: re-run the full gate to confirm [verify-refactor] All checks passed, then mark complete. The two script edits were committed (e3b09d4e) as a strict gate improvement -- before them the gate was red at BOTH Step 3 and Step 6; it is now red at Step 6 only."
-      ]
+      "session_id": "sess_1786483388_83cf84",
+      "blockers": [],
+      "completion_summary": "Closeout of an already-substantively-complete task. Decision: option (a) taken -- ORACLE_PASS2_TIMEOUT raised 900 -> 1800s (oracle/run-oracle-suite.sh:136, reasoning recorded inline), committed in e3b09d4e along with the four-value BASELINE_ORACLE_* re-pin. Option (b) (encoding-level solve speedup) was ruled out on effort grounds and subsequently exhausted empirically by task 144 (objective not achieved). Option (c) (accept-and-monitor) was not viable at the originating 96.6%/30.4s-slack condition. The blocking Step 6 gap was closed by task 145's composite per-solve remedy, which also superseded task 143's re-pin values (611/14 -> 609/16; current pins 627/609/16/2, verified). Current headroom (superseding the stale 840-950s claim): task 145's green run measured 1315.36s/1800s = 73.1% (485s slack); this task's own task-143-owned full-gate confirmation run (baselines/01_full-gate-confirmation.txt, GATE_EXIT=0, [verify-refactor] All checks passed, wall 32m51s) measured pass 2 at 1140.24s/1800s = 63.3% (659.76s slack). Green is contention/seed-sensitive, not guaranteed per run (task 145 records a residual ~1-in-7 ternary next_A tail and a BM_CM_1 seed-2 residual); this run happened to avoid both. No budget was widened, no floor lowered, no test xfailed/skipped/disabled, and no partition/total check relaxed beyond the one deliberate 900->1800 capacity decision itself. Full record in summaries/02_capacity-decision-summary.md."
     },
     {
       "project_number": 144,
